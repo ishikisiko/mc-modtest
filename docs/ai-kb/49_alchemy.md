@@ -1,3 +1,11 @@
+# 0.126.0 逐颗随机品质与丹方难度
+
+当前炼丹规则见[共用品质公式、四格出丹和冻结批次](../features/crafting-normal-quality.md)，根基药物见[筑基丹与补基丹](../features/foundation-pills.md)。`alchemy/rules.json` 格式 3 只持有品质效果倍率及各丹方数据；正态参数、品阶和阈值统一在 `crafting/quality.json`。丹方难度移动全部四个阈值，成品不再采用固定品质或资质品质权重表。
+
+单炉为药材 0～2、燃料 3、产物 4～7；炉阵槽位保持药材 0／1／7、燃料 2、产物 3～6。`AlchemyBatch` 格式 2 保存每颗得分与结果，`AlchemyOutputs` 按品质合并成功产物，`AlchemyArrayTransactions` 在副本上规划整批输出。整炉失败也完整结算，不因无产物而卡住。单炉库存格式 2 不迁移旧布局。
+
+卷轴 `scroll_quality` 仅保留原有边饰。生成归属仍为基础／根基丹方的 `gen_alchemy_assets.py` 和野外丹方的 `gen_wilderness_roster.py`，共用 Python 概率参考为 `tools/crafting_quality.py`。本次实际验证另有交付记录；以下 0.99.7 及更早章节保留历史背景，其中旧槽位、固定品质、品质上限和历史通过数不代表当前实现。
+
 # 0.99.7 竹轴药笺
 
 14 种丹方采用竹轴、素绢环、短绢结及药草小印记，中央使用 `tools/pill_art/render.py` 的真实丹药与托座；不另画丹体或改变原丹药图标。`tools/pill_art/formulas.py` 根据 `alchemy/rules.json` 的实际 `output` 选择图案，按 `fixed_quality` 决定边饰；无固定品质则使用素绢，不按物品 ID 后缀猜品质。

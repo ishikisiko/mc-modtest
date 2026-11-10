@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Read-only innate aptitudes and the server's same-recipe product-quality ceilings. */
+/** Displays growable aptitudes, individual alchemy/forging rolls, and talisman quality limits. */
 public final class CraftingPage extends PanelPage {
     private static final Logger LOGGER = LoggerFactory.getLogger(CraftingPage.class);
     private static final String KEY = "screen.myvillage.crafting.";
@@ -90,7 +90,7 @@ public final class CraftingPage extends PanelPage {
                 InkPanelTheme.JADE, InkPanelTheme.JADE_DARK);
         if(row.professionKey().endsWith("talisman"))
             InkPanelTheme.pair(graphics,font,context.text(KEY+"quality_cap"),context.text(row.qualityKey()),x+pad,y+98,innerWidth,row.initialized()?InkPanelTheme.GOLD_BRIGHT:InkPanelTheme.MUTED);
-        else graphics.drawString(font,"逐件判定成败与品质",x+pad,y+98,InkPanelTheme.MUTED,false);
+        else graphics.drawString(font,row.professionKey().endsWith("alchemy")?"逐颗判定成败与品质":"逐件判定成败与品质",x+pad,y+98,InkPanelTheme.MUTED,false);
     }
 
     private static int text(GuiGraphics graphics, PanelContext context, Component text,

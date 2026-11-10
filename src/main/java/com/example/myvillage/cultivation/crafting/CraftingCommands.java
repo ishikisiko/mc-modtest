@@ -39,8 +39,8 @@ public final class CraftingCommands {
         json.addProperty("talisman_initialized", state.talismanInitialized());
         json.addProperty("talisman", state.talisman());
         json.addProperty("talisman_quality_cap", state.qualityCap(CraftingAptitudes.Profession.TALISMAN, rules));
-        json.addProperty("alchemy_quality_cap", state.qualityCap(CraftingAptitudes.Profession.ALCHEMY, rules));
-        json.addProperty("forging_quality_cap", state.qualityCap(CraftingAptitudes.Profession.FORGING, rules));
+        json.addProperty("alchemy_quality_model", "normal_per_pill");
+        json.addProperty("forging_quality_model", "normal_per_item");
         return json;
     }
     private static int info(CommandSourceStack source, ServerPlayer player) {

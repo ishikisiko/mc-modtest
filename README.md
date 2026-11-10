@@ -154,7 +154,7 @@ H → 功法 → 选择基础吐纳诀、青木长春功、乙木生华诀或剑
 
 新增独立多方块炼器鼎，保留原炼器鼎和锻器台。创造栏“玄枢炼器鼎”提供五类可合成部件；先放阵枢，右键按分层蓝图搭建 5×5 底座和上方鼎体，红框标出首个不符位置，悬停格子可查看世界坐标。
 
-放入尚未炼灵的成品兵器或工具，选择锋锐／坚韧／导灵，点击“引火炼灵”。沿用原炼灵配方和炼器资质品质上限，材料从当前操作者背包或灵石袋精确转入鼎内，完成一件后停止；不额外要求器谱、历练或锻打次数。已有名字、损伤、附魔和淬炼记录保留。
+放入尚未炼灵的成品兵器或工具，选择锋锐／坚韧／导灵，点击“引火炼灵”。炼灵保留成品已有品质，材料从当前操作者背包或灵石袋精确转入鼎内，完成一件后停止；不额外要求器谱、历练或锻打次数。已有名字、损伤、附魔和淬炼记录保留。
 
 炉次与材料随世界保存，缺件或区块未加载时暂停，修复后续炼，不补算离线时间。开炉者可撤炉退料；拆掉阵枢只掉落原器物、现有产物和暂存材料。共享炉内一次只炼一件，输入在活动炉次中锁定，未开放漏斗自动化。
 
@@ -166,7 +166,7 @@ H → 功法 → 选择基础吐纳诀、青木长春功、乙木生华诀或剑
 
 - **功法**：按心法／绝技／身法／炼体筛选，点击图标选中，悬停查看完整效果、条件与传承；心法可点击“设为主修”。六个高级绝技有独立图案，其余功法共用大类图标，边框、角标与名称保留品阶颜色。
 - **技能**：仅列可主动施放的已学功法；选中技能和 Z／C／I／J／K／M 槽位，再点击“分配到”。功法页的“分配按键”可以直接带着所选技能进入此页。支持清空、随武器、默认和按键设置，保存结果由服务器确认。
-- **先天／技艺**：只读展示已确认天命、炼丹／炼器资质及品质上限；天命的完整数值放在悬停详情中。窄窗口只滚动正文，分类和底部操作保留固定位置。
+- **先天／技艺**：只读展示已确认天命、可培养资质、炼丹逐颗／炼器逐件判定说明及制符品质上限；天命的完整数值放在悬停详情中。窄窗口只滚动正文，分类和底部操作保留固定位置。
 
 [面板实现与资源归属](docs/ai-kb/37_cultivation_panel.md) · [固定源与实机验证](docs/testing/2026-10-22-ink-hub.md) · [实机截图与下载](http://43.156.135.198:8765/ink-hub/)。
 
@@ -4617,11 +4617,11 @@ The preview screenshots remain 0.49.1 layout evidence; their old high-tier-limit
 caption has been removed in the current jar.
 
 
-## Alchemy (炼丹, 0.75.0)
+## Alchemy (炼丹, 0.126.0)
 
-新增三品筑基丹、两品补基丹与两品凝元果；炼丹资质和灵果决定固定成丹品质。
-使用、丹炉配方及获取方式见[筑基丹与补基丹](docs/features/foundation-pills.md)。
-以下英文段落保留原三种基础丹药的说明。
+炼丹与炼器共用正态品质模型，初始资质各自 0～60，后续可培养。每颗丹药独立判断失败或四品，普通丹炉改为四格产物；整炉失败也消费完整材料。筑基／补基多张丹方保留，名称按难度区分，材料更贵的版本难度更低。
+当前[公式、难度和冻结规则](docs/features/crafting-normal-quality.md)、[筑基丹与补基丹](docs/features/foundation-pills.md)取代下文早期品质上限、旧槽位及旧版验收说明。客户端与服务器均使用 0.126.0、协议 74；更新前请先清空旧单炉库存，开发版本不迁移旧布局。
+以下英文段落保留原三种基础丹药的历史说明。
 
 One **青铜丹炉** (`alchemy_furnace`), six herb items, three learnable formula
 sheets and three pill items form the first survival preparation loop. The furnace
@@ -4835,32 +4835,13 @@ validate the new manual-start/quality behavior.
 | Herb planting/worldgen, furnace failure, optional herbs, trading | not_implemented |
 
 
-## Crafting Aptitudes (炼丹／炼器资质, 0.52.0)
+## Crafting Aptitudes (炼丹／炼器资质, 0.126.0)
 
-Press **H → 技艺 / Crafting** to see two independent innate aptitudes and the
-highest product quality each allows. These ceilings concern **the quality of an
-item made from the same recipe**; they do not restrict 黄/玄/地/天 recipe grade.
-Alchemy freezes the initiating player's ceiling for each manually started batch
-and rolls only within it (see [alchemy](#alchemy-炼丹-0520)). Forging now uses the same cap in its own production path (see [KB54](docs/ai-kb/54_forging.md)). The H page remains read-only.
+按 H 打开技艺页，查看炼丹、炼器和制符资质。初始炼丹与炼器各自在 0～60 中独立生成，后续通过现有培养继续成长；制符保留原有范围及品质规则。未觉醒时显示尚未测定，已经生成的资质不会因重登、死亡或重新觉醒而重抽。
 
-| Aptitude | Maximum product quality |
-|---|---|
-| 0–39 | 下品 / Lower |
-| 40–69 | 中品 / Middle |
-| 70–89 | 上品 / Upper |
-| 90–100 | 极品 / Perfect |
+炼丹按每颗、炼器按每件独立抽取失败或四品。公式为“平均分 = 100 ×（资质 − 品阶起点）÷ 品阶跨度；得分 = 平均分 + 标准差 × 标准正态随机数”。全部参数读取 `crafting/quality.json`，丹方难度统一提高四个阈值，见[当前规则](docs/features/crafting-normal-quality.md)。H 页只读，成品换柄、炼灵、维修和再锻保留已有品质。
 
-The initial independent rolls and thresholds live in
-`src/main/resources/data/myvillage/crafting/rules.json`; changes require a rebuild
-and restart. Aptitudes are generated once when the player first awakens a
-spiritual root at the testing stele. An already-awakened old save initializes
-once at login. A player who has not awakened sees **尚未测定**. Values survive
-death, reconnect, restart, dimension changes, clearing/reawakening the root and
-resetting the cultivation profile. Ordinary practice cannot exceed the quality
-ceiling; no training or natural aptitude-upgrade mechanic is added in this slice.
-
-Current client and server need 0.57.2 (protocol25). The server sends the quality
-ceilings with the existing owning cultivation snapshot; H cannot modify them.
+客户端与服务器均使用 0.126.0、协议 74。管理员诊断返回三项资质、炼丹／炼器的品质模型，以及制符品质上限。
 
 Administrator diagnostics (permission2) support both command roots and aliases:
 
@@ -4873,9 +4854,7 @@ Administrator diagnostics (permission2) support both command roots and aliases:
 /myvillage xiulian jiyi shezhi @s lianqi 100
 ```
 
-A setter requires an awakened target with initialized aptitudes, accepts0..100,
-and preserves the other profession. These are administrator fixtures, not
-survival aptitude upgrades. The status command returns a `CRAFTING` JSON row.
+设置要求目标已觉醒且完成资质初始化，接受非负整数并保留其他资质。玩家通常使用现有研习、制作练习等培养途径；管理员命令用于测试准备，状态返回一行 `CRAFTING` JSON。
 
 Lightweight local checks:
 

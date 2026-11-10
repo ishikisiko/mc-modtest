@@ -110,7 +110,11 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
     @Override public void render(GuiGraphics g,int mx,int my,float partial){
         super.render(g,mx,my,partial);renderTooltip(g,mx,my);
         if(menu.kind()==FoundryMenu.Kind.ASSEMBLY&&menu.output().isEmpty()&&isHovering(202,92,16,16,mx,my)){
-            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),1);if(plan.valid())g.renderTooltip(font,plan.result(),mx,my);
+            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),1);
+            if(plan.valid()){
+                if(WorkshopItems.valid(menu.input()))g.renderTooltip(font,Component.literal("成败与品质在开始装配时按炼器资质随机判定。"),mx,my);
+                else g.renderTooltip(font,plan.result(),mx,my);
+            }
         }
     }
 }

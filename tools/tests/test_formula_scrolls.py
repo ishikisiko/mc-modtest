@@ -45,7 +45,7 @@ class FormulaScrollTest(unittest.TestCase):
         self.assertEqual(0,forge.getpixel((29,9))[3])
         self.assertEqual(255,alchemy.getpixel((29,9))[3])
 
-    def test_fixed_quality_changes_edging_without_recoloring_the_medicine(self):
+    def test_scroll_quality_changes_edging_without_recoloring_the_medicine(self):
         scale = self.config['texture_size']//self.config['grid']
         box = tuple(v*scale for v in self.config['styles']['alchemy']['emblem_box'])
         for kinds in (('zhuji_low','zhuji_middle','zhuji_high'),('buji_middle','buji_high')):
@@ -60,7 +60,7 @@ class FormulaScrollTest(unittest.TestCase):
             style.write_text(json.dumps(self.config))
             rules = json.loads(json.dumps(self.rules))
             recipe = next(r for r in rules['recipes'] if r['id']=='zhuji_high')
-            recipe.pop('fixed_quality')
+            recipe.pop('scroll_quality')
             target = root/'src/main/resources/data/myvillage/alchemy/rules.json';target.parent.mkdir(parents=True)
             target.write_text(json.dumps(rules))
             neutral = formulas.icon('zhuji_high',root)

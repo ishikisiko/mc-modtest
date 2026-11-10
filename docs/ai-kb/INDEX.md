@@ -57,7 +57,7 @@ impact-based checks in the workflow.
 | 46 | [Modal Test Runner](46_modal_test_runner.md) | One-Sandbox release/runtime and independent diagnostic cases (0.52.1); Optional on-demand fixed-commit cloud tests, explicit dependency/bootstrap hashes, bounded lifecycle and cleanup, dependency-only cache, phase timings and separate local/cloud/owner verdicts; see-also `modal-test-runner`. |
 | 48 | [Innate Fates](48_innate_fates.md) | 当前天命目录、测灵碑选择、独立持久状态、服务器效果、流派选择与研读和熟练奖励、只读 H 结果。 |
 | 47 | [Realm Statistics and Wilderness](47_realm_stats_wilderness.md) | 0.112.2 原版敌对生成权重系数与无境界下限、新怪最低炼气一层；玩家生命比例条与固定 HUD 布局、境界属性、护甲减伤和地区出生范围。 |
-| 49 | [Alchemy Foundation](49_alchemy.md) | 丹炉、灵草与凝元果、永久丹方；筑基丹/补基丹、材料与资质锚定品质、三药槽与分页； manual attributed single batches, saved bounded pill quality, persistent quality-scaled medicines and Modal evidence; see `alchemy-foundation`, `alchemy-quality`, `resource-export`, `validation`. |
+| 49 | [炼丹](49_alchemy.md) | 永久丹方、逐颗正态成败与四品、难度等级、三药槽和四格出丹；筑基／补基丹多版本、冻结批次与完整扣料。 |
 | 50 | [Crafting Aptitudes](50_crafting_aptitudes.md) | Independent saved alchemy/forging aptitudes and same-recipe product-quality ceilings, once-only generation, protocol21 snapshot and read-only H page; alchemy freezes its ceiling at manual start, forging production is covered in KB54; see `crafting-aptitudes`, `alchemy-quality`. |
 | 51 | [Spirit Farming](51_spirit_farming.md) | Permanent spirit-only soil, six existing herbs as planting/harvest items, three growth stages and authored 3D models/loot. |
 | 52 | [Danxia Ruins](52_danxia_ruins.md) | Natural ruined monastery, herb garden and underground archive, shared persistent array choice, structure guardians, generated resources and focused cloud evidence. |

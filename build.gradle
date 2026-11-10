@@ -141,6 +141,13 @@ neoForge {
     }
 }
 
+// 炼丹／炼器随机品质、实际工位和重启探针，禁止进入交付包。
+if (providers.gradleProperty('craftingQualityEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/craftingQualityEvidence/java')
+    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    tasks.named('jar') { doFirst { throw new GradleException('Crafting quality evidence must not enter the delivery jar') } }
+}
+
 // 流派悟性研读、实际命中及重启存档探针，禁止进入交付包。
 if (providers.gradleProperty('schoolInsightEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/schoolInsightEvidence/java')

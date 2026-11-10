@@ -39,31 +39,36 @@ class AlchemyRulesTest(unittest.TestCase):
             mutation(data)
             self.assert_code(code, validator.check_rules(data))
 
-    def test_quality_weight_matrix_requires_complete_rows_and_strict_integers(self):
-        for invalid in (None, {}, [], [[100, 0, 0, 0]] * 3, [[100, 0, 0, 0]] * 5):
+    def test_recipe_difficulty_and_tier_require_valid_explicit_metadata(self):
+        for invalid in (True, '1', None, -1, 4, 1.5, float('nan'), float('inf'), 10 ** 400):
             data = copy.deepcopy(self.rules)
-            data['quality']['weights_by_cap'] = invalid
-            self.assert_code('ALCHEMY_QUALITY_WEIGHTS', validator.check_rules(data))
-        for invalid in (None, {}, [], [100, 0, 0], [100, 0, 0, 0, 0],
-                        [True, 0, 0, 0], [100.0, 0, 0, 0], ['100', 0, 0, 0],
-                        [None, 0, 0, 0], [-1, 0, 0, 0], [1000001, 0, 0, 0],
-                        [float('nan'), 0, 0, 0], [10 ** 400, 0, 0, 0]):
-            with self.subTest(invalid=invalid):
-                data = copy.deepcopy(self.rules)
-                data['quality']['weights_by_cap'][0] = invalid
-                self.assert_code('ALCHEMY_QUALITY_WEIGHTS', validator.check_rules(data))
+            data['recipes'][0]['difficulty'] = invalid
+            self.assert_code('ALCHEMY_BOUNDS', validator.check_rules(data))
+        for invalid in (None, True, 'myvillage:missing', ''):
+            data = copy.deepcopy(self.rules)
+            data['recipes'][0]['quality_tier'] = invalid
+            self.assert_code('ALCHEMY_REFERENCE', validator.check_rules(data))
+        for removed in ('quality_tier', 'difficulty'):
+            data = copy.deepcopy(self.rules)
+            data['recipes'][0].pop(removed)
+            self.assert_code('ALCHEMY_SCHEMA', validator.check_rules(data))
 
-    def test_quality_weights_never_exceed_cap_and_each_eligible_quality_can_roll(self):
-        for cap in range(1, 5):
-            for quality in range(1, 5):
-                data = copy.deepcopy(self.rules)
-                # Zero below/equal cap removes an eligible outcome; nonzero above cap leaks it.
-                data['quality']['weights_by_cap'][cap - 1][quality - 1] = 0 if quality <= cap else 1
-                self.assert_code('ALCHEMY_QUALITY_WEIGHTS', validator.check_rules(data))
+    def test_fixed_quality_and_weight_tables_are_rejected(self):
         data = copy.deepcopy(self.rules)
-        data['quality']['weights_by_cap'] = [[1000000 if q <= cap else 0 for q in range(1, 5)]
-                                            for cap in range(1, 5)]
+        data['quality']['weights_by_cap'] = [[100, 0, 0, 0]] * 4
+        self.assert_code('ALCHEMY_SCHEMA', validator.check_rules(data))
+        data = copy.deepcopy(self.rules)
+        data['recipes'][3]['fixed_quality'] = 1
+        self.assert_code('ALCHEMY_SCHEMA', validator.check_rules(data))
+
+    def test_foundation_aptitude_can_grow_above_one_hundred(self):
+        data = copy.deepcopy(self.rules)
+        foundation = next(r for r in data['recipes'] if r['id'] == 'zhuji_low')
+        foundation['minimum_aptitude'] = 600
         self.assertEqual([], validator.check_rules(data))
+        for invalid in (True, '160', -1, 1.5, 2_147_483_648):
+            foundation['minimum_aptitude'] = invalid
+            self.assert_code('ALCHEMY_BOUNDS', validator.check_rules(data))
 
     def test_quality_multipliers_reject_missing_nonfinite_nonmonotone_and_no_legacy_baseline(self):
         for invalid in (None, {}, [], [1, 1.25, 1.5], [1, 1.25, 1.5, 2, 3],
@@ -79,8 +84,7 @@ class AlchemyRulesTest(unittest.TestCase):
 
     def test_quality_balance_is_data_and_not_pinned_to_provisional_values(self):
         data = copy.deepcopy(self.rules)
-        data['quality'] = {'weights_by_cap': [[3, 0, 0, 0], [3, 5, 0, 0], [1, 8, 2, 0], [9, 7, 5, 3]],
-                           'strength_multipliers': [1.0, 2, 4, 16]}
+        data['quality'] = {'strength_multipliers': [1.0, 2, 4, 16]}
         self.assertEqual([], validator.check_rules(data))
 
     def test_tick_and_count_fields_reject_nonintegers_nonfinite_and_out_of_bounds(self):
@@ -192,6 +196,10 @@ class AlchemyResourceTest(unittest.TestCase):
         path = validator.DATA / 'recipe/formula_huiling.json'
         self.mutate(path, lambda d: d.update(ingredients=[{'item': 'minecraft:fern'}]))
         self.assert_code('ALCHEMY_ACQUISITION')
+
+    def test_formula_name_must_display_its_configured_difficulty(self):
+        self.mutate(validator.ASSETS / 'lang/zh_cn.json',lambda d:d.update({'item.myvillage.formula_zhuji_high':'上品筑基丹方'}))
+        self.assert_code('ALCHEMY_DIFFICULTY_NAME')
 
     def test_restored_herb_recipe_is_rejected(self):
         self.assertEqual([],validator.validate(self.root)['errors'])

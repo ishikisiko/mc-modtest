@@ -81,7 +81,9 @@
       "minimum_aptitude": 10,
       "trait_cost": 3,
       "moves": [],
-      "body_scale": 1.0
+      "body_scale": 1.0,
+      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_difficulty": 1
     },
     {
       "id": "ash_talismanist",
@@ -237,7 +239,9 @@
           "_mode": "field"
         }
       ],
-      "body_scale": 1.0
+      "body_scale": 1.0,
+      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_difficulty": 2
     },
     {
       "id": "thornback_badger",
@@ -393,7 +397,9 @@
           "_mode": "melee"
         }
       ],
-      "body_scale": 1.5
+      "body_scale": 1.5,
+      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_difficulty": 2
     },
     {
       "id": "redplate_lizard",
@@ -549,7 +555,9 @@
           "_mode": "melee"
         }
       ],
-      "body_scale": 1.5
+      "body_scale": 1.5,
+      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_difficulty": 2
     },
     {
       "id": "frostplume_pheasant",
@@ -705,7 +713,9 @@
           "_mode": "bolt"
         }
       ],
-      "body_scale": 1.5
+      "body_scale": 1.5,
+      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_difficulty": 1
     },
     {
       "id": "lantern_sporeling",
@@ -861,7 +871,9 @@
           "_mode": "field"
         }
       ],
-      "body_scale": 1.5
+      "body_scale": 1.5,
+      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_difficulty": 1
     }
   ],
   "medicines": {

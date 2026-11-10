@@ -81,7 +81,7 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
         if(!validActor(p,menu)||!awakened(p)||active()||enabled||recipe()==null||!AlchemyKnowledge.knows(p,selectedRecipe)||!freshCheck().formed()||!ingredients(recipe())||!fuel(recipe()))return false;
         CraftingAptitudes apt=CultivationService.craftingAptitudes(p);
         authorizer=p.getUUID();score=apt.alchemy();
-        if(!recipe().eligible(score)){p.displayClientMessage(Component.literal("炼丹资质不足：此方要求 "+recipe().minimumAptitude()+" 点"),true);return false;}
+        if(!recipe().eligible(score)){p.displayClientMessage(Component.literal("炼丹资质不足：此方要求 "+recipe().requiredAptitude()+" 点"),true);return false;}
         enabled=true;beginBatch();setChanged();menu.broadcastChanges();return true;
     }
     public boolean stop(ServerPlayer p,AlchemyArrayMenu menu){

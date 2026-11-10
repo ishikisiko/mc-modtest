@@ -12,7 +12,7 @@ public final class AlchemyKnowledge {
     public static boolean learn(ServerPlayer player, String recipe) {
         var definition = AlchemyRules.get().recipe(recipe);
         if (definition.isEmpty()) return false;
-        int required = definition.orElseThrow().minimumAptitude();
+        int required = definition.orElseThrow().requiredAptitude();
         if (com.example.myvillage.cultivation.CultivationService.craftingAptitudes(player).alchemy() < required) {
             player.sendSystemMessage(net.minecraft.network.chat.Component.literal("学习这张丹方需要炼丹资质 " + required));
             return false;

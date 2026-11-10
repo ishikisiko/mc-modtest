@@ -78,5 +78,10 @@ class CraftingQualityRulesTest {
         assertThrows(IllegalArgumentException.class,()->CraftingQualityRules.parse(new StringReader(duplicate)));
         var j=JsonParser.parseString(source()).getAsJsonObject();j.getAsJsonArray("tiers").get(0).getAsJsonObject().addProperty("span",0);
         assertThrows(IllegalArgumentException.class,()->CraftingQualityRules.parse(new StringReader(j.toString())));
+        for(JsonElement value:List.of(new JsonPrimitive("20"),new JsonPrimitive(true),JsonNull.INSTANCE)){
+            var bad=JsonParser.parseString(source()).getAsJsonObject();
+            bad.getAsJsonArray("tiers").get(0).getAsJsonObject().getAsJsonArray("thresholds").set(0,value);
+            assertThrows(IllegalArgumentException.class,()->CraftingQualityRules.parse(new StringReader(bad.toString())));
+        }
     }
 }

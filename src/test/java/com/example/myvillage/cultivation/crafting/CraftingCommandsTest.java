@@ -21,7 +21,7 @@ class CraftingCommandsTest {
                 var value = target.getChild(profession).getChild("value");
                 assertNotNull(value.getCommand());
                 var type = (IntegerArgumentType) ((ArgumentCommandNode<CommandSourceStack, ?>) value).getType();
-                assertEquals(0, type.getMinimum()); assertEquals(100, type.getMaximum());
+                assertEquals(0, type.getMinimum()); assertEquals(Integer.MAX_VALUE, type.getMaximum());
                 assertTrue(value.getChildren().isEmpty());
             }
         }
@@ -30,13 +30,13 @@ class CraftingCommandsTest {
     @Test void diagnosticOutputDistinguishesPendingFromLegitimateZeroAptitude() {
         var rules = CraftingRules.get();
         var pending = CraftingCommands.status(CraftingAptitudes.EMPTY, rules);
-        assertEquals(Set.of("initialized", "alchemy", "forging", "alchemy_quality_cap", "forging_quality_cap", "talisman_initialized", "talisman", "talisman_quality_cap"), pending.keySet());
+        assertEquals(Set.of("initialized", "alchemy", "forging", "alchemy_quality_model", "forging_quality_model", "talisman_initialized", "talisman", "talisman_quality_cap"), pending.keySet());
         assertFalse(pending.get("initialized").getAsBoolean());
-        assertEquals(0, pending.get("alchemy_quality_cap").getAsInt());
+        assertEquals("normal_per_pill", pending.get("alchemy_quality_model").getAsString());
         var initialized = CraftingCommands.status(new CraftingAptitudes(1, true, 0, 100), rules);
         assertTrue(initialized.get("initialized").getAsBoolean());
-        assertEquals(1, initialized.get("alchemy_quality_cap").getAsInt());
-        assertEquals(4, initialized.get("forging_quality_cap").getAsInt());
+        assertEquals(0, initialized.get("alchemy").getAsInt());
+        assertEquals("normal_per_item", initialized.get("forging_quality_model").getAsString());
     }
     private static Set<String> children(CommandNode<CommandSourceStack> node) {
         return node.getChildren().stream().map(CommandNode::getName).collect(Collectors.toSet());

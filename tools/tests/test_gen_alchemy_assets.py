@@ -47,6 +47,9 @@ class AlchemyAssetsTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
+        authored=self.root/'src/main/resources/data/myvillage/alchemy/rules.json'
+        authored.parent.mkdir(parents=True,exist_ok=True)
+        authored.write_bytes((validator.ROOT/validator.RULES).read_bytes())
         self.files = gen.outputs(self.root)
         self.assets = self.root / validator.ASSETS
 
@@ -145,6 +148,14 @@ class AlchemyAssetsTest(unittest.TestCase):
     def test_shipped_assets_have_no_generator_drift(self):
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(0, gen.main(['--check']))
+
+    def test_formula_names_follow_the_local_authored_difficulty(self):
+        path=self.root/'src/main/resources/data/myvillage/alchemy/rules.json'
+        rules=json.loads(path.read_text());rules['recipes'][0]['difficulty']=3
+        path.write_text(json.dumps(rules))
+        lang=self.assets/'lang/zh_cn.json'
+        generated=json.loads(gen.merged_outputs(self.root)[lang])
+        self.assertEqual('回灵丹方（难度3）',generated['item.myvillage.formula_huiling'])
 
 
 if __name__ == '__main__':

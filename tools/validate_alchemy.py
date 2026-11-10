@@ -10,6 +10,9 @@ from pathlib import Path
 import re
 import struct
 import zipfile
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from tools import crafting_quality
 
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = Path('src/main/resources')
@@ -41,6 +44,7 @@ JAR_CLASSES = tuple(f'com/example/myvillage/{name}.class' for name in (
     'item/AlchemyPillItem', 'item/FormulaItem', 'alchemy/MedicineEffects', 'alchemy/MedicineState',
     'alchemy/MedicineRuntime', 'alchemy/AlchemyBatch', 'alchemy/PillQuality', 'item/ModDataComponents',
     'alchemy/FoundationRules','item/FoundationPillItem','item/NingyuanFruitItem',
+    'alchemy/AlchemyOutputs','cultivation/crafting/CraftingQualityRules',
 ))
 
 
@@ -57,7 +61,7 @@ def load_json(raw: bytes):
     return json.loads(raw, object_pairs_hook=unique, parse_constant=invalid)
 
 
-def check_rules(data) -> list[str]:
+def check_rules(data, quality_rules=None) -> list[str]:
     """Check the authored schema without depending on runtime implementation text."""
     errors = []
     def error(code, detail):
@@ -78,22 +82,13 @@ def check_rules(data) -> list[str]:
             error('ALCHEMY_BOUNDS', f'{where}.{key}: invalid number {value!r}')
     if not keys(data, ('version', 'use_ticks', 'shared_cooldown_ticks', 'recipes', 'effects', 'quality'), 'rules'):
         return errors
-    if type(data['version']) is not int or data['version'] != 2:
-        error('ALCHEMY_VERSION', 'rules version must be integer 2')
+    if type(data['version']) is not int or data['version'] != 3:
+        error('ALCHEMY_VERSION', 'rules version must be integer 3')
+    quality_rules = quality_rules if quality_rules is not None else crafting_quality.load()
     number(data, 'use_ticks', 1, 72000, 'rules', True)
     number(data, 'shared_cooldown_ticks', 1, 1200000, 'rules', True)
     quality = data['quality']
-    if keys(quality, ('weights_by_cap', 'strength_multipliers'), 'quality'):
-        weights = quality['weights_by_cap']
-        if not isinstance(weights, list) or len(weights) != 4:
-            error('ALCHEMY_QUALITY_WEIGHTS', 'quality.weights_by_cap must have exactly four cap rows')
-        else:
-            for cap, row in enumerate(weights, 1):
-                if (not isinstance(row, list) or len(row) != 4
-                        or any(type(weight) is not int or not 0 <= weight <= 1000000 for weight in row)):
-                    error('ALCHEMY_QUALITY_WEIGHTS', f'cap {cap}: four integer weights in 0..1000000 required')
-                elif any(weight <= 0 for weight in row[:cap]) or any(row[cap:]):
-                    error('ALCHEMY_QUALITY_WEIGHTS', f'cap {cap}: eligible qualities need positive weights; qualities above cap need zero')
+    if keys(quality, ('strength_multipliers',), 'quality'):
         multipliers = quality['strength_multipliers']
         valid = isinstance(multipliers, list) and len(multipliers) == 4
         if valid:
@@ -113,10 +108,10 @@ def check_rules(data) -> list[str]:
     seen = set()
     for index, recipe in enumerate(recipes):
         where = f'recipes[{index}]'
-        fixed = isinstance(recipe,dict) and recipe.get('id') in FOUNDATION
+        foundation = isinstance(recipe,dict) and recipe.get('id') in FOUNDATION
         expedition = isinstance(recipe,dict) and recipe.get('id') in EXPEDITION
-        extra = ('ingredient_counts','minimum_aptitude','fixed_quality') if fixed else ('minimum_aptitude',) if expedition else ()
-        if not keys(recipe, ('id', 'formula', 'ingredients', 'fuel_count', 'duration_ticks', 'output', 'output_count', *extra), where):
+        extra = ('ingredient_counts','minimum_aptitude','scroll_quality') if foundation else ('minimum_aptitude',) if expedition else ()
+        if not keys(recipe, ('id', 'formula', 'ingredients', 'fuel_count', 'duration_ticks', 'output', 'output_count', 'quality_tier', 'difficulty', *extra), where):
             continue
         kind = recipe['id']
         if not isinstance(kind, str) or kind not in (*KINDS,*FOUNDATION,*EXPEDITION) or kind in seen:
@@ -125,15 +120,21 @@ def check_rules(data) -> list[str]:
         seen.add(kind)
         ingredients = recipe['ingredients']
         expected_herbs = ({'myvillage:ningyuan_fruit_'+('high' if kind.endswith('high') else 'low'),'myvillage:spirit_leaf','myvillage:calm_lotus'}
-                          if fixed else {'myvillage:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'myvillage:{h}' for h in PAIRS[kind]})
+                          if foundation else {'myvillage:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'myvillage:{h}' for h in PAIRS[kind]})
         if (not isinstance(ingredients,list) or len(ingredients)!=len(expected_herbs) or any(not isinstance(i,str) for i in ingredients) or set(ingredients)!=expected_herbs):
             error('ALCHEMY_REFERENCE',f'{where}: unexpected ingredients')
-        output_kind=kind.split('_')[0] if fixed else kind
+        output_kind=kind.split('_')[0] if foundation else kind
         if recipe['formula']!=f'myvillage:formula_{kind}' or recipe['output']!=f'myvillage:pill_{output_kind}':
             error('ALCHEMY_REFERENCE',f'{where}: formula/pill identity mismatch')
-        if fixed:
-            number(recipe,'minimum_aptitude',0,100,where,True)
-            number(recipe,'fixed_quality',2 if kind.startswith('buji') else 1,3,where,True)
+        if foundation or expedition:
+            number(recipe,'minimum_aptitude',0,crafting_quality.MAX_SCORE,where,True)
+        try:
+            crafting_quality.tier(quality_rules,recipe['quality_tier'])
+        except ValueError:
+            error('ALCHEMY_REFERENCE',f'{where}: unknown quality tier')
+        number(recipe,'difficulty',0,quality_rules['maximum_difficulty'],where,True)
+        if foundation:
+            number(recipe,'scroll_quality',0,4,where,True)
             counts=recipe['ingredient_counts']
             if not isinstance(counts,list) or len(counts)!=3 or any(type(n)is not int or not 1<=n<=64 for n in counts):error('ALCHEMY_BOUNDS',f'{where}: invalid ingredient counts')
         number(recipe, 'fuel_count', 1, 64, where, True)
@@ -214,10 +215,15 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             error('ALCHEMY_RESOURCE', f'{relative}: {exc}')
             return {}
     rules = read(RULES)
+    try:
+        quality_rules = crafting_quality.parse(read(crafting_quality.RESOURCE))
+    except ValueError as exc:
+        error('CRAFTING_QUALITY_SCHEMA', str(exc))
+        quality_rules = crafting_quality.load()
     read(DATA / 'alchemy/foundation.json')
     for item in NEW_ITEMS:
         if item.startswith('formula_'):read(DATA / f'recipe/{item}.json')
-    errors.extend(check_rules(rules))
+    errors.extend(check_rules(rules,quality_rules))
     sources = {}
     source_paths = set(SOURCE_FILES)
     for directory in ('alchemy', 'client/alchemy'):
@@ -305,6 +311,12 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             key = f'{"block" if item == "alchemy_furnace" else "item"}.myvillage.{item}'
             if not isinstance(lang.get(key), str) or not lang[key].strip():
                 error('ALCHEMY_LANG', f'{language}: missing {key}')
+        if language == 'zh_cn':
+            for recipe in rules.get('recipes', []):
+                formula=recipe.get('formula','').split(':')[-1]
+                name=lang.get(f'item.myvillage.{formula}','')
+                if not name.endswith(f"（难度{recipe.get('difficulty')}）"):
+                    error('ALCHEMY_DIFFICULTY_NAME',f'{formula}: name must show its configured difficulty')
     commerce = read(DATA / 'world_sim/commerce_rules.json')
     for item in REMOVED_RECIPES:
         if (root / DATA / f'recipe/{item}.json').exists():

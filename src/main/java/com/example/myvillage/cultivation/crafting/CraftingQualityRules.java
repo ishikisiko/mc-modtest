@@ -49,6 +49,7 @@ public final class CraftingQualityRules {
             if (cuts == null || cuts.size() != 4) throw invalid("four thresholds required");
             var values = new ArrayList<Double>(); double previous = Double.NEGATIVE_INFINITY;
             for (var cut : cuts) {
+                if (!cut.isJsonPrimitive() || !cut.getAsJsonPrimitive().isNumber()) throw invalid("numeric thresholds required");
                 double value = cut.getAsDouble();
                 if (!Double.isFinite(value) || value <= previous) throw invalid("ordered thresholds required");
                 values.add(value); previous = value;
