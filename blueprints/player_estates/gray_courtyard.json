@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "id": "myvillage:gray_courtyard_study",
+  "name": "灰瓦庭院庄园",
+  "size": [98, 44, 111],
+  "scope": "独立图片参考重建，未接入城镇或模组资源；背面、室内和连接处为补全。",
+  "reference": {
+    "author": "Sereyka",
+    "title": "Japanese Temple #5 Gray",
+    "page": "https://sereyka.com/build?id=new-build-1772046217590",
+    "catalogue": "https://pub-bcdd2bed192e4b0abb64ec1ffe28a2d6.r2.dev/builds/builds.json",
+    "image": "https://img.sereyka.com/builds/new-build-1772046217590/gallery-1772046365189-0-full.webp",
+    "use": "依据公开预览手工编排结构，未下载或使用作者的付费蓝图与世界文件；保留来源，不宣称为原作者文件。"
+  },
+  "palette": {
+    "tile": "minecraft:stone_bricks",
+    "tile_stair": "minecraft:stone_brick_stairs",
+    "tile_slab": "minecraft:stone_brick_slab",
+    "trim": "minecraft:polished_andesite",
+    "trim_stair": "minecraft:polished_andesite_stairs",
+    "trim_slab": "minecraft:polished_andesite_slab",
+    "wall": "minecraft:calcite",
+    "gable": "minecraft:smooth_quartz",
+    "inset": "minecraft:diorite",
+    "post": "minecraft:oak_log",
+    "beam": "minecraft:stripped_oak_log",
+    "wood": "minecraft:spruce_planks",
+    "floor": "minecraft:oak_planks",
+    "stone": "minecraft:stone_bricks",
+    "paving": "minecraft:andesite",
+    "red": "minecraft:red_terracotta"
+  },
+  "roof": {"overhang": 3, "kick": 1, "cross_width": 13, "cross_depth": 7},
+  "facade": {"bay": 5, "wall_height": 6, "window_height": 3},
+  "buildings": [
+    {"id":"gate", "name":"前部门楼", "role":"gate", "rect":[39,7,59,24], "floor":4, "levels":1, "step":8, "rise":7, "cross":true},
+    {"id":"front_west", "name":"西前厢廊", "role":"gallery", "rect":[23,10,40,22], "floor":4, "levels":1, "step":8, "rise":5, "cross":false},
+    {"id":"front_east", "name":"东前厢廊", "role":"gallery", "rect":[58,10,75,22], "floor":4, "levels":1, "step":8, "rise":5, "cross":false},
+    {"id":"front_west_tower", "name":"西前两层阁", "role":"guest", "rect":[6,12,25,33], "floor":4, "levels":2, "step":8, "rise":7, "cross":true},
+    {"id":"front_east_tower", "name":"东前两层阁", "role":"guest", "rect":[73,12,92,33], "floor":4, "levels":2, "step":8, "rise":7, "cross":true},
+    {"id":"west_hall", "name":"西侧两层厅", "role":"library", "rect":[6,48,29,72], "floor":4, "levels":2, "step":9, "rise":8, "cross":true},
+    {"id":"east_hall", "name":"东侧两层厅", "role":"workshop", "rect":[69,48,92,72], "floor":4, "levels":2, "step":9, "rise":8, "cross":true},
+    {"id":"rear_west_tower", "name":"西后楼阁", "role":"guest", "rect":[9,82,27,102], "floor":4, "levels":2, "step":9, "rise":8, "cross":true},
+    {"id":"rear_east_tower", "name":"东后楼阁", "role":"guest", "rect":[71,82,89,102], "floor":4, "levels":2, "step":9, "rise":8, "cross":true},
+    {"id":"main", "name":"后方三层主楼", "role":"main", "rect":[32,80,66,104], "floor":6, "levels":3, "step":10, "rise":9, "cross":true}
+  ],
+  "corridors": [
+    {"id":"west_front_link", "rect":[11,31,20,50], "floor":4, "axis":"z"},
+    {"id":"east_front_link", "rect":[78,31,87,50], "floor":4, "axis":"z"},
+    {"id":"west_rear_link", "rect":[12,70,21,84], "floor":4, "axis":"z"},
+    {"id":"east_rear_link", "rect":[77,70,86,84], "floor":4, "axis":"z"},
+    {"id":"rear_west_link", "rect":[25,86,35,95], "floor":4, "axis":"x"},
+    {"id":"rear_east_link", "rect":[63,86,73,95], "floor":4, "axis":"x"}
+  ],
+  "pond": {"center":[36,58], "radius":[9,8], "bridge_z":58},
+  "water_garden": {"rect":[47,60,52,74]},
+  "crop_garden": {"rect":[30,29,41,42]},
+  "trees": [[30,47,6],[42,40,7],[59,35,6],[65,45,7],[33,72,6],[63,73,6],[38,65,6],[61,60,6]],
+  "views": {
+    "overview":{"name":"正面全景","eye":[76,104,-102],"target":[49,14,58],"fov":32},
+    "front":{"name":"门楼正面","eye":[49,34,-68],"target":[49,13,51]},
+    "rear":{"name":"背面与主楼","eye":[-89,104,190],"target":[49,14,62]},
+    "court":{"name":"庭院与主楼","eye":[53,16,39],"target":[49,17,89]},
+    "roof":{"name":"屋顶近景","eye":[95,52,24],"target":[78,20,61]},
+    "cut":{"name":"去顶看房间","eye":[142,134,-78],"target":[49,7,57],"cut":11}
+  }
+}

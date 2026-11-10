@@ -117,6 +117,8 @@ above and link the relevant contract. Update only affected documentation.
 
 初始城附近矿场：[东海出生排除、开局洞窟保障与各州天然矿口](../features/starter-mine.md)。
 
+灰瓦庭院庄园：[独立参考蓝图、原版方块预览与 SCHEM/NBT 导出](../../tools/player_estates/README.md)；当前用于外观选型，未接入城镇。
+
 修炼属性加值与正式突破品质：[基础数表、防御公式、存档、H 内视入口与验证边界](../features/additive-cultivation-stats.md)。
 
 金刚灵体与凤凰灵体：[身体属性加值、金刚分类适应、凤凰火种和余烬、离线与重启](../features/spirit-bodies.md)。
