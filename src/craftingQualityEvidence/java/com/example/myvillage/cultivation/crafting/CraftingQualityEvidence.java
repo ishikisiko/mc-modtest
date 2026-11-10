@@ -67,7 +67,7 @@ public final class CraftingQualityEvidence {
     private static AlchemyArrayBlockEntity array(ServerLevel level){
         for(var c:AlchemyArrayRules.get().cells()){
             var pos=AlchemyArrayPattern.worldPos(ARRAY,Direction.NORTH,c);level.getChunkAt(pos);
-            var state=c.role()==AlchemyArrayRules.Role.AIR?Blocks.AIR.defaultBlockState():AlchemyArrayContent.PARTS.get(c.role()).get().defaultBlockState().setValue(AlchemyArrayBlock.FACING,Direction.NORTH);
+            var state=c.role()==AlchemyArrayRules.Role.AIR?Blocks.AIR.defaultBlockState():AlchemyArrayContent.PARTS.get(c.role()).get().defaultBlockState().setValue(AlchemyArrayBlock.FACING,AlchemyArrayPattern.outward(Direction.NORTH,c.role()));
             level.setBlockAndUpdate(pos,state);
         }return (AlchemyArrayBlockEntity)level.getBlockEntity(ARRAY);
     }
@@ -98,6 +98,7 @@ public final class CraftingQualityEvidence {
         String batch=pending.saveWithoutMetadata(level.registryAccess()).getCompound("Batch").toString();
         tick(pending,20);check("blocked_furnace_keeps_batch",pending.active()&&pending.data.get(0)==0&&batch.equals(pending.saveWithoutMetadata(level.registryAccess()).getCompound("Batch").toString()),batch);
         var ar=array(level);for(int i=0;i<2;i++)ar.setItem(i,item(r.ingredients().get(i),2));ar.setItem(2,fuel(2));
+        check("array_structure_formed",ar.freshCheck().formed(),ar.freshCheck());
         var am=new AlchemyArrayMenu(20,p.getInventory(),ar,ar.data);near(p,ARRAY,am);
         check("array_selected",am.clickMenuButton(p,2),ar.selectedRecipe());check("array_enabled",am.clickMenuButton(p,0)&&ar.active(),ar.status());
         var at=ar.saveWithoutMetadata(level.registryAccess());at.put("Batch",fixed(p,-2,3).save());at.putBoolean("Enabled",false);at.putInt("Progress",0);ar.loadWithComponents(at,level.registryAccess());
