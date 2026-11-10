@@ -47,10 +47,30 @@ c.fillStyle=text;c.strokeStyle=style.getPropertyValue('--border').trim();c.textA
 function render(){let i=+$('tier').value,t=R.tiers[i],a=Math.max(0,Math.min(2147483647,Math.trunc(+$('aptitude').value)||0)),d=+$('difficulty').value;let v=values(t,a,d);$('slider').max=Math.max(t.baseline+2*t.span,a);$('slider').value=a;$('formula').textContent='平均分 = 100 × ('+a+' − '+t.baseline+') ÷ '+t.span+' = '+v.mean.toFixed(1)+'；本次得分 = 平均分 + '+R.standard_deviation+' × 标准正态随机数。\n实际阈值：'+v.cuts.join('、');$('probabilities').innerHTML=v.p.map((p,k)=>'<div class="outcome" style="--color:var('+colorNames[k]+')">'+labels[k]+'<strong class="value">'+fmt(p)+'</strong></div>').join('');$('comparison').innerHTML=R.tiers.slice(0,4).map((t,k)=>'<tr><td>'+tierNames[k]+'／'+(t.baseline+60)+'</td>'+values(t,t.baseline+60,d).p.map(p=>'<td>'+fmt(p)+'</td>').join('')+'</tr>').join('');draw(t,a,d)}
 R.tiers.forEach((t,i)=>$('tier').add(new Option(tierNames[i]||t.id,i)));for(let i=0;i<=R.maximum_difficulty;i++)$('difficulty').add(new Option('难度 '+i,i));DATA.recipes.forEach((r,i)=>$('recipe').add(new Option(r.name,i)));
 $('tier').onchange=()=>{$('aptitude').value=R.tiers[+$('tier').value].baseline+60;render()};$('aptitude').oninput=render;$('slider').oninput=()=>{$('aptitude').value=$('slider').value;render()};$('difficulty').onchange=render;
-function chooseRecipe(){let r=DATA.recipes[+$('recipe').value],i=R.tiers.findIndex(t=>t.id===r.quality_tier);$('tier').value=i;$('difficulty').value=r.difficulty;$('aptitude').value=Math.max(+$('aptitude').value,R.tiers[i].baseline+60);$('recipeFacts').textContent='每炉尝试 '+r.output_count+' 颗；门槛 '+Math.max(r.minimum_aptitude||0,R.tiers[i].baseline)+' 点；每颗独立判定。该方默认难度 '+r.difficulty+'，可在上方切换难度观察影响。';$('simulate').textContent='模拟一炉（'+r.output_count+' 次独立判定）';render()}
+function chooseRecipe(){
+ let r=DATA.recipes[+$('recipe').value],i=R.tiers.findIndex(t=>t.id===r.quality_tier);
+ $('tier').value=i;$('difficulty').value=r.difficulty;
+ $('aptitude').value=Math.max(+$('aptitude').value,R.tiers[i].baseline+60,r.minimum_aptitude||0);
+ $('recipeFacts').textContent='每炉尝试 '+r.output_count+' 颗；门槛 '+Math.max(r.minimum_aptitude||0,R.tiers[i].baseline)+' 点；每颗独立判定。上图可以切换难度比较，模拟使用该丹方的实际品阶与难度。';
+ $('simulate').textContent='模拟一炉（'+r.output_count+' 次独立判定）';render()
+}
 $('recipe').onchange=chooseRecipe;
 function showSlots(counts){$('slots').innerHTML=counts.slice(1).map((n,k)=>'<div class="slot '+(n?'':'empty')+'"><b>'+labels[k+1]+'</b>'+(n?'× '+n:'空槽')+'</div>').join('')}
-$('simulate').onclick=()=>{let r=DATA.recipes[+$('recipe').value],t=R.tiers[+$('tier').value],a=+$('aptitude').value,d=+$('difficulty').value,cuts=values(t,a,d).cuts,mean=values(t,a,d).mean,counts=[0,0,0,0,0],results=[];for(let i=0;i<r.output_count;i++){let u=0;while(!u)u=Math.random();let z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*Math.random()),score=mean+R.standard_deviation*z,q=cuts.findIndex(v=>score<v);if(q<0)q=4;counts[q]++;results.push('第 '+(i+1)+' 颗：'+labels[q]+'（得分 '+score.toFixed(1)+'）')}$('simulation').textContent=results.join('；')+'。炼成 '+(r.output_count-counts[0])+' 颗，失败 '+counts[0]+' 颗。';showSlots(counts)};
+$('simulate').onclick=()=>{
+ let r=DATA.recipes[+$('recipe').value],index=R.tiers.findIndex(t=>t.id===r.quality_tier),t=R.tiers[index];
+ let a=Math.max(0,Math.min(2147483647,Math.trunc(+$('aptitude').value)||0)),d=r.difficulty;
+ $('aptitude').value=a;$('tier').value=index;$('difficulty').value=d;render();
+ if(a<Math.max(r.minimum_aptitude||0,t.baseline)){
+  $('simulation').textContent='当前资质未达到丹方门槛，游戏中会拒绝开炉。';showSlots([0,0,0,0,0]);return
+ }
+ let {cuts,mean}=values(t,a,d),counts=[0,0,0,0,0],results=[];
+ for(let i=0;i<r.output_count;i++){
+  let u=0;while(!u)u=Math.random();
+  let z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*Math.random()),score=mean+R.standard_deviation*z,q=cuts.findIndex(v=>score<v);
+  if(q<0)q=4;counts[q]++;results.push('第 '+(i+1)+' 颗：'+labels[q]+'（得分 '+score.toFixed(1)+'）')
+ }
+ $('simulation').textContent=results.join('；')+'。炼成 '+(r.output_count-counts[0])+' 颗，失败 '+counts[0]+' 颗。';showSlots(counts)
+};
 let index=0;for(let t of R.tiers)for(let d=0;d<=R.maximum_difficulty;d++){let p=values(t,t.baseline+60,d).p,expected=DATA.references[index++];if(p.some((v,i)=>Math.abs(v-expected[i])>2e-7))throw Error('概率计算未通过独立参考核对')}
 window.addEventListener('resize',render);render();chooseRecipe();showSlots([0,0,0,0,0]);
 </script></body></html>'''

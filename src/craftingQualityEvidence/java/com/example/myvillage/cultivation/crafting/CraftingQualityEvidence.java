@@ -153,11 +153,23 @@ public final class CraftingQualityEvidence {
         assembly.setItem(2,ItemStack.EMPTY);for(int i=0;i<FoundryRules.get().assembly().ticks();i++)assembly.serverTick();
         check("disk_assembly_same_result",!assembly.active()&&assembly.getItem(0).isEmpty()&&assembly.getItem(1).isEmpty()&&assembly.getItem(2).save(level.registryAccess()).toString().equals(saved.get("assembly").getAsString()),assembly.saveWithoutMetadata(level.registryAccess()));DONE.add("assembly_disk_restart");
     }
+    private static void pills(MinecraftServer server){
+        WorldSimRuntime.setPaused(true);var level=server.overworld();var p=actor(server);
+        CultivationService.replaceProfile(p,CultivationService.getProfile(p).withRealmAndStage(ResourceLocation.parse("myvillage:foundation_establishment"),ResourceLocation.parse("myvillage:foundation_early")).withFoundationQuality(0));
+        var lower=item("myvillage:pill_buji",1);((FoundationPillItem)lower.getItem()).finishUsingItem(lower,level,p);
+        check("lower_buji_consumed",lower.isEmpty(),lower);check("lower_buji_repairs_missing_foundation",CultivationService.getProfile(p).foundationQuality()==1,CultivationService.getProfile(p).foundationQuality());
+        var other=FakePlayerFactory.get(level,new GameProfile(UUID.nameUUIDFromBytes("perfect-buji-evidence".getBytes()),"PerfectBuji"));other.setPos(.5,80,.5);other.setHealth(other.getMaxHealth());
+        CultivationService.setSpiritualRoot(other,new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:metal"),100)));
+        CultivationService.replaceProfile(other,CultivationService.getProfile(other).withRealmAndStage(ResourceLocation.parse("myvillage:foundation_establishment"),ResourceLocation.parse("myvillage:foundation_early")).withFoundationQuality(1));
+        var perfect=item("myvillage:pill_buji",1);PillQuality.apply(perfect,4);((FoundationPillItem)perfect.getItem()).finishUsingItem(perfect,level,other);
+        check("perfect_buji_consumed",perfect.isEmpty(),perfect);check("perfect_buji_stops_at_earth_upper",CultivationService.getProfile(other).foundationQuality()==3,CultivationService.getProfile(other).foundationQuality());
+        DONE.add("lower_and_perfect_buji_effects");
+    }
     private static void finish(MinecraftServer server){
         finished=true;try{Files.createDirectories(OUT);Files.writeString(OUT.resolve(PHASE+".json"),new GsonBuilder().setPrettyPrinting().create().toJson(Map.of("phase",PHASE,"pass",FAILURES.isEmpty(),"completed",DONE,"checks",CHECKS,"failures",FAILURES,"mapped_input","not_verified","time_accelerated",true)));}catch(Exception e){e.printStackTrace();}server.halt(false);
     }
     @SubscribeEvent public static void tick(ServerTickEvent.Post event){
         if(PHASE==null||finished||event.getServer().getTickCount()<60)return;
-        try{if(PHASE.equals("restart"))restart(event.getServer());else prepare(event.getServer());}catch(Throwable t){t.printStackTrace();FAILURES.add(t.toString());}finish(event.getServer());
+        try{if(PHASE.equals("pills"))pills(event.getServer());else if(PHASE.equals("restart"))restart(event.getServer());else prepare(event.getServer());}catch(Throwable t){t.printStackTrace();FAILURES.add(t.toString());}finish(event.getServer());
     }
 }

@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 public final class FoundationPillItem extends Item {
     private final boolean repair;
     public FoundationPillItem(Properties props,boolean repair){super(props.stacksTo(16));this.repair=repair;}
-    public boolean allows(int q){return q>=(repair?2:1)&&q<=4;}
+    public boolean allows(int q){return q>=1&&q<=4;}
     private String rejection(ServerPlayer player,int q){
         if(!allows(q))return "此丹品质不适用";
         if(!player.isAlive()||player.isSpectator()||!CultivationService.getProfile(player).awakened())return "需存活并已觉醒灵根";
