@@ -164,7 +164,22 @@ class CraftingAuthorityValidationTest(unittest.TestCase):
         self.assert_code('CRAFTING_INITIALIZATION')
 
     def test_same_rng_domain_for_both_professions_is_rejected(self):
-        self.mutate('cultivation/crafting/CraftingGenerator.java', '0x666f7267696e6702L', '0x616c6368656d7901L')
+        self.mutate('cultivation/crafting/CraftingGenerator.java',
+                    'CraftingAptitudes.Profession.FORGING,selection', 'CraftingAptitudes.Profession.ALCHEMY,selection')
+        self.assert_code('CRAFTING_RNG')
+
+    def test_fixed_fate_contributions_require_player_and_profession_identity(self):
+        path = self.root / validator.JAVA / 'cultivation/crafting/CraftingOpeningRules.java'
+        original = path.read_text()
+        for before in ('player.getMostSignificantBits()', 'player.getLeastSignificantBits()',
+                       'profession.name().toLowerCase(Locale.ROOT)', 'fate.getBytes(StandardCharsets.UTF_8)'):
+            self.assertIn(before, original)
+            path.write_text(original.replace(before, 'missingIdentity', 1))
+            self.assert_code('CRAFTING_RNG')
+
+    def test_fixed_fate_contributions_cannot_consume_mutable_randomness(self):
+        path = self.root / validator.JAVA / 'cultivation/crafting/CraftingOpeningRules.java'
+        path.write_text(path.read_text() + '\nnew Random(123);')
         self.assert_code('CRAFTING_RNG')
 
     def test_time_or_root_random_dependency_is_rejected(self):

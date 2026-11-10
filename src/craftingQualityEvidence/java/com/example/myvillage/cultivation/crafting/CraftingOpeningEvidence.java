@@ -91,7 +91,7 @@ public final class CraftingOpeningEvidence {
         for(int i=0;i<recipe.ingredients().size();i++)f.setItem(i,item(recipe.ingredients().get(i),recipe.count(i)));f.setItem(3,fuel(recipe.fuelCount()));
         var fm=new AlchemyMenu(10,p.getInventory(),f,f.data);near(p,FURNACE,fm);check("furnace_select",fm.clickMenuButton(p,1),recipe.id());
         long seed=178231;var oracle=expected(p,seed);check("fixture_has_successful_pill",oracle.successfulCount()>0,oracle);
-        p.getRandom().setSeed(seed);check("furnace_starts_with_clod",fm.clickMenuButton(p,0),tag(f));
+        level.random.setSeed(seed);check("furnace_starts_with_clod",fm.clickMenuButton(p,0),tag(f));
         check("furnace_uses_modified_independent_draws",AlchemyBatch.read(tag(f).getCompound("Batch")).orElseThrow().equals(oracle),tag(f));
         for(int i=4;i<8;i++)f.setItem(i,new ItemStack(Items.STONE,64));
         int changed=0;for(int i=0;i<100;i++){

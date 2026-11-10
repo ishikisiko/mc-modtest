@@ -22,6 +22,7 @@ SOURCE_FILES = (
     JAVA / 'cultivation/crafting/CraftingAptitudes.java',
     JAVA / 'cultivation/crafting/CraftingRules.java',
     JAVA / 'cultivation/crafting/CraftingGenerator.java',
+    JAVA / 'cultivation/crafting/CraftingOpeningRules.java',
     JAVA / 'cultivation/crafting/CraftingCommands.java',
     JAVA / 'cultivation/CultivationAttachments.java',
     JAVA / 'cultivation/CultivationService.java',
@@ -192,8 +193,21 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     domains = {name: int(value, 16) for name, value in re.findall(
         r'\b(ALCHEMY_DOMAIN|FORGING_DOMAIN|TALISMAN_DOMAIN)\s*=\s*(0x[0-9a-fA-F]+)L\b', generator
     )}
-    need(len(domains) == 3 and len(set(domains.values())) == 3,
-         'CRAFTING_RNG', 'all three professions require distinct stable generation domains')
+    opening = sources[JAVA / 'cultivation/crafting/CraftingOpeningRules.java']
+    compact_generator = re.sub(r'\s+', '', generator)
+    need(set(domains) == {'TALISMAN_DOMAIN'} and all(
+        f'CraftingOpeningRules.get().score(player,CraftingAptitudes.Profession.{profession},selection)' in compact_generator
+        for profession in ('ALCHEMY', 'FORGING')),
+         'CRAFTING_RNG', 'alchemy/forging require separate profession inputs to fixed fate contributions; talisman keeps its stable domain')
+    need(all(token in opening for token in ('MessageDigest.getInstance("SHA-256")',
+        'player.getMostSignificantBits()', 'player.getLeastSignificantBits()',
+        'profession.name().toLowerCase(Locale.ROOT)', 'fate.getBytes(StandardCharsets.UTF_8)',
+        'domain.getBytes(StandardCharsets.UTF_8)')),
+         'CRAFTING_RNG', 'fixed contributions require hash domain, UUID, profession and fate ID')
+    need(not re.search(r'\b(?:System\.(?:currentTimeMillis|nanoTime)|Instant\.now|ThreadLocalRandom)\b|\.getRandom\s*\(|\.random\b|new\s+Random\s*\(', opening),
+         'CRAFTING_RNG', 'fixed contributions must not consume a mutable random stream')
+    need('!selection.confirmed()' in generator and 'CraftingTalents.selection(player)' in initialize,
+         'CRAFTING_INITIALIZATION', 'opening scores require the confirmed server fate selection')
     need(not re.search(r'new\s+Random\s*\(\s*\)', generator),
          'CRAFTING_RNG', 'generation must seed its own random instance explicitly')
     payload = sources[JAVA / 'cultivation/network/CultivationSnapshotPayload.java']
