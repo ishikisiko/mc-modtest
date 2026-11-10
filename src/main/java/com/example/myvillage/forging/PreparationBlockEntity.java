@@ -36,6 +36,7 @@ public final class PreparationBlockEntity extends FoundryBlockEntity {
     }
     public static ItemStack standard(ItemStack input,int quality){
         if(!WorkshopItems.valid(input))throw new IllegalArgumentException("Invalid automatic input");
+        if(quality==0)return ItemStack.EMPTY;
         var piece=input.get(ModDataComponents.WORKPIECE.get());var rules=WorkshopRules.get();
         var ready=new Workpiece(piece.recipe(),4,rules.formingPoints(piece.recipe()),piece.stage()<2?(rules.craft(piece.recipe()).armor()?2:0):piece.treatment());
         return WorkshopEquipment.complete(WorkshopItems.advance(input,ready),quality,"wood");
@@ -65,9 +66,11 @@ public final class PreparationBlockEntity extends FoundryBlockEntity {
         var blank=raw?WorkshopItems.blank(new Workpiece(craft.recipe(),0,0,craft.armor()?2:0)):items.get(0).copy();
         var piece=blank.get(ModDataComponents.WORKPIECE.get());
         Map<String,Integer> costs=button==0?WorkshopRules.get().blankCosts(ForgingRules.get().recipe(craft.recipe()).orElseThrow()):automaticCosts(piece,raw);
-        int quality=ForgingCompletion.quality(player);ItemStack result=button==1?standard(blank,quality):blank;
+        int quality=0;ItemStack result=blank;
         var source=SpiritStoneSources.open(player);var payment=ForgingCosts.reserve(source.copies(),costs);
-        if(payment.isEmpty()||!source.commit(payment.get().remaining()))return refuse(5);
+        if(payment.isEmpty())return refuse(5);
+        if(button==1){quality=ForgingCompletion.roll(player,craft.recipe());result=standard(blank,quality);}
+        if(!source.commit(payment.get().remaining()))return refuse(5);
         if(button==0){items.set(0,blank);status=6;setChanged();sync();return true;}
         items.set(0,blank);snapshot=blank.copy();frozen=result;reserved=new ArrayList<>(payment.get().consumed());owner=player.getUUID();paidRaw=raw;invalid=false;
         this.quality=quality;progress=0;duration=Math.min(30000,Math.max(20,(craft.forming_points()-piece.points())*FoundryRules.get().automatic_ticks_per_point()
@@ -84,8 +87,9 @@ public final class PreparationBlockEntity extends FoundryBlockEntity {
             boolean bucket=automaticCosts(snapshot.get(ModDataComponents.WORKPIECE.get()),paidRaw).containsKey("minecraft:water_bucket");
             items.set(0,ItemStack.EMPTY);items.set(2,frozen);if(bucket)items.set(3,new ItemStack(Items.BUCKET));
             var actor=owner==null?null:((net.minecraft.server.level.ServerLevel)level).getServer().getPlayerList().getPlayer(owner);
-            if(com.example.myvillage.aptitude.AptitudeRuntime.nearStation(actor,level,worldPosition))
+            if(!frozen.isEmpty()&&com.example.myvillage.aptitude.AptitudeRuntime.nearStation(actor,level,worldPosition))
                 com.example.myvillage.aptitude.AptitudeRuntime.equipmentCompleted(actor,frozen,false);
+            if(quality==0&&actor!=null)actor.displayClientMessage(net.minecraft.network.chat.Component.literal("炼器失败，材料已消耗。"),false);
             reserved=new ArrayList<>();reset();status=10;setChanged();sync();
             level.playSound(null,worldPosition,SoundEvents.ANVIL_USE,SoundSource.BLOCKS,.6f,1.2f);
         }
@@ -100,7 +104,7 @@ public final class PreparationBlockEntity extends FoundryBlockEntity {
     }
     @Override public void clearContent(){reserved=new ArrayList<>();reset();super.clearContent();}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
-        super.saveAdditional(tag,registries);if(owner!=null)tag.putUUID("Owner",owner);tag.putBoolean("PaidRaw",paidRaw);tag.putBoolean("Invalid",invalid);
+        super.saveAdditional(tag,registries);tag.putInt("OutcomeVersion",1);if(owner!=null)tag.putUUID("Owner",owner);tag.putBoolean("PaidRaw",paidRaw);tag.putBoolean("Invalid",invalid);
         if(!snapshot.isEmpty())tag.put("Snapshot",snapshot.save(registries));if(!frozen.isEmpty())tag.put("Frozen",frozen.save(registries));
         var escrow=new ListTag();for(var item:reserved)if(!item.isEmpty())escrow.add(item.save(registries));tag.put("Reserved",escrow);
     }
@@ -111,7 +115,7 @@ public final class PreparationBlockEntity extends FoundryBlockEntity {
         if(active()||!snapshot.isEmpty()){
             try{
                 var expected=standard(snapshot,quality);var costs=automaticCosts(snapshot.get(ModDataComponents.WORKPIECE.get()),paidRaw);
-                invalid=invalid||owner==null||duration<1||duration>30000||progress<0||progress>=duration||!ItemStack.matches(snapshot,items.get(0))
+                invalid=invalid||tag.getInt("OutcomeVersion")!=1||!tag.contains("Quality",Tag.TAG_INT)||quality<0||quality>4||owner==null||duration<1||duration>30000||progress<0||progress>=duration||!ItemStack.matches(snapshot,items.get(0))
                         ||!ItemStack.matches(expected,frozen)||ForgingCosts.plan(reserved,costs).filter(rest->rest.stream().allMatch(ItemStack::isEmpty)).isEmpty();
             }catch(RuntimeException e){invalid=true;}
             if(invalid){frozen=ItemStack.EMPTY;status=9;}

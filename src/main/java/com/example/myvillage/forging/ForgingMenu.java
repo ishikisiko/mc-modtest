@@ -86,9 +86,9 @@ public final class ForgingMenu extends AbstractContainerMenu {
         var payment=com.example.myvillage.spiritstone.SpiritStoneSources.open(player);
         var plan=ForgingCosts.plan(payment.copies(),costs);if(plan.isEmpty())return reject(4);
         if(button==FORGE){
-            int quality=rules.roll(qualityCap(),server.getRandom().nextInt(rules.total(qualityCap())));
-            result=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe().output())));
-            ForgedEquipment.apply(result,new ForgeMark(trait(),quality));
+            int quality=ForgingCompletion.roll(server,recipe().id());
+            result=quality==0?ItemStack.EMPTY:new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe().output())));
+            if(quality>0)ForgedEquipment.apply(result,new ForgeMark(trait(),quality));
         }else{
             result=work.getItem(0).copy();result.setDamageValue(Math.max(0,result.getDamageValue()-ForgedEquipment.repairAmount(result)));
         }
@@ -96,7 +96,8 @@ public final class ForgingMenu extends AbstractContainerMenu {
         if(!payment.commit(plan.get()))return reject(4);
         if(button==REPAIR)work.setItem(0,ItemStack.EMPTY);
         work.setItem(1,result);inventory.setChanged();data.set(2,button==FORGE?7:8);broadcastChanges();
-        com.example.myvillage.aptitude.AptitudeRuntime.equipmentCompleted(server,result,button==REPAIR);
+        if(!result.isEmpty())com.example.myvillage.aptitude.AptitudeRuntime.equipmentCompleted(server,result,button==REPAIR);
+        else if(button==FORGE)ForgingCompletion.failed(server);
         access.execute((level,pos)-> {
             if (level instanceof net.minecraft.server.level.ServerLevel serverLevel)
                 com.example.myvillage.block.ForgingTableBlock.completed(serverLevel,pos);

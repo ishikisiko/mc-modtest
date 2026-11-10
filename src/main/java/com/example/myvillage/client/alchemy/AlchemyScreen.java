@@ -53,7 +53,7 @@ public final class AlchemyScreen extends AbstractContainerScreen<AlchemyMenu> {
     }
     private void updateButtons() {
         if (startButton == null) return;
-        startButton.active = !menu.active() && menu.status() == 5 && menu.knows(menu.selectedRecipe());
+        startButton.active = !menu.active() && (menu.status()==5||menu.status()==6||menu.status()==7)&&menu.outputsEmpty() && menu.knows(menu.selectedRecipe());
         startButton.setMessage(Component.translatable(KEY + (menu.active() ? "locked" : "start")));
         int count=0;for(int i=0;i<recipes.size();i++)if(menu.knows(i))count++;
         page=Math.min(page,Math.max(0,(count-1)/3));previousPage.active=page>0;nextPage.active=(page+1)*3<count;
@@ -75,8 +75,8 @@ public final class AlchemyScreen extends AbstractContainerScreen<AlchemyMenu> {
             graphics.fill(x + slot.x - 1, y + slot.y - 1, x + slot.x + 17, y + slot.y + 17, 0xFF8B826C);
             graphics.fill(x + slot.x, y + slot.y, x + slot.x + 16, y + slot.y + 16, 0xFF171D18);
         }
-        graphics.fill(x + 112, y + 60, x + 288, y + 65, 0xFF171D18);
-        int progress = menu.duration() == 0 ? 0 : 176 * menu.progress() / menu.duration();
+        graphics.fill(x + 112, y + 60, x + 236, y + 65, 0xFF171D18);
+        int progress = menu.duration() == 0 ? 0 : 124 * menu.progress() / menu.duration();
         graphics.fill(x + 112, y + 60, x + 112 + progress, y + 65, 0xFFD9B568);
     }
     @Override protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -85,20 +85,15 @@ public final class AlchemyScreen extends AbstractContainerScreen<AlchemyMenu> {
         if (recipes.stream().noneMatch(button -> button.visible))
             graphics.drawWordWrap(font, Component.translatable(KEY + "learn_hint"), 8, 42, 92, 0xFFC5C6B7);
 
-        String[] labels = {"herbs", "fuel", "output"}; int[] xs = {116, 204, 256};
+        String[] labels = {"herbs", "fuel", "output"}; int[] xs = {116, 204, 248};
         for (int i = 0; i < labels.length; i++) graphics.drawString(font, Component.translatable(KEY + labels[i]), xs[i], 26, 0xFFC5C6B7, false);
         Component status = !menu.active() && menu.selectedRecipe() >= 0 && !menu.knows(menu.selectedRecipe())
                 ? Component.translatable(KEY + "not_learned") : Component.translatable(KEY + "status." + menu.status());
-        graphics.drawString(font, status, 112, 69, 0xFFE5D5AF, false);
-        Component ceiling = menu.active() && menu.qualityCap() >= 1 && menu.qualityCap() <= 4
-                ? Component.translatable(KEY + "ceiling", menu.aptitude(), PillQuality.name(menu.qualityCap()))
-                : menu.selectedRecipe()>=0 && AlchemyRules.get().recipes().get(menu.selectedRecipe()).fixedQuality()>0
-                    ? Component.literal("要求炼丹资质 ≥ "+AlchemyRules.get().recipes().get(menu.selectedRecipe()).minimumAptitude()) : Component.translatable(KEY + "ceiling_pending");
-        if(menu.active() && menu.selectedRecipe()>=0) {
-            var r=AlchemyRules.get().recipes().get(menu.selectedRecipe());
-            if(r.fixedQuality()>0)ceiling=Component.literal("资质 "+menu.aptitude()+" · 成丹：").append(PillQuality.name(r.fixedQuality()));
-        }
-        graphics.drawString(font, ceiling, 112, 80, 0xFFD9B568, false);
+        if(menu.status()<6)graphics.drawString(font,status,112,69,0xFFE5D5AF,false);
+        Component info=Component.literal("炼丹资质 "+menu.aptitude()+" · 每颗判定");
+        if(menu.selectedRecipe()>=0){var r=AlchemyRules.get().recipes().get(menu.selectedRecipe());info=Component.literal("资质 "+menu.aptitude()+" · 丹方难度 "+r.difficulty());}
+        graphics.drawString(font,info,112,80,0xFFD9B568,false);
+        if(menu.status()==6||menu.status()==7)graphics.drawString(font,"炼成 "+menu.successes()+" 颗，失败 "+menu.failures()+" 颗",112,69,0xFFE5D5AF,false);
         int selected = menu.selectedRecipe(); var definitions = AlchemyRules.get().recipes();
         if (selected >= 0 && selected < definitions.size()) {
             var recipe = definitions.get(selected);

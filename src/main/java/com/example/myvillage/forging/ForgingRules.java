@@ -11,7 +11,7 @@ import java.util.*;
 /** Bundled production costs and effects, validated once on both sides. */
 public final class ForgingRules {
     public static final String RESOURCE = "/data/myvillage/forging/rules.json";
-    public record Recipe(String id, String pattern, String output, Map<String,Integer> costs, List<String> traits) {
+    public record Recipe(String id, String pattern, String output, Map<String,Integer> costs, List<String> traits, String qualityTier) {
         public Recipe { costs = Map.copyOf(costs); traits = List.copyOf(traits); }
     }
     public record Trait(Map<String,Integer> costs, List<Double> values) {
@@ -20,12 +20,11 @@ public final class ForgingRules {
     }
     private final List<Recipe> recipes;
     private final Map<String,Trait> traits;
-    private final int[][] weights = new int[4][4];
     private final Map<String,Integer> repairCosts;
     private final double repairFraction;
     private ForgingRules(JsonObject root) {
-        fields(root, "version", "recipes", "traits", "quality_weights", "repair");
-        integer(root,"version",1,2);
+        fields(root, "version", "recipes", "traits", "repair");
+        integer(root,"version",3,3);
         JsonObject definitions = object(root.get("traits"),"traits");
         for (String key : definitions.keySet()) ForgeMark.requireTrait(key);
         for (String key : java.util.List.of("sharp","channeling","tough")) if (!definitions.has(key)) throw invalid("traits", "missing legacy trait");
@@ -47,7 +46,7 @@ public final class ForgingRules {
         traits = Collections.unmodifiableMap(parsed);
         List<Recipe> rs = new ArrayList<>(); Set<String> ids=new HashSet<>(), outputs=new HashSet<>(), patterns=new HashSet<>();
         for (var element : root.getAsJsonArray("recipes")) {
-            var r=object(element,"recipe"); fields(r,"id","pattern","output","costs","traits");
+            var r=object(element,"recipe"); fields(r,"id","pattern","output","costs","traits","quality_tier");
             String id=string(r,"id"), pattern=item(r,"pattern"), output=item(r,"output");
             if (!id.matches("[a-z0-9_]{1,64}") || !ids.add(id) || !outputs.add(output) || !patterns.add(pattern))
                 throw invalid("recipe","invalid or duplicate identity");
@@ -58,19 +57,13 @@ public final class ForgingRules {
                 allowed.add(trait);
             }
             if (allowed.isEmpty()) throw invalid("traits","empty");
-            rs.add(new Recipe(id,pattern,output,costs(r.get("costs")),allowed));
+            String tier=string(r,"quality_tier");com.example.myvillage.cultivation.crafting.CraftingQualityRules.get().tier(tier);
+            rs.add(new Recipe(id,pattern,output,costs(r.get("costs")),allowed,tier));
         }
         if (rs.isEmpty() || rs.size()>20) throw invalid("recipes","one through twenty recipes required");
         recipes=List.copyOf(rs);
         for (var r:recipes) for (String t:r.traits())
             if (costs(r,t).size()>4) throw invalid("costs","at most four combined materials fit the menu");
-        var rows=root.getAsJsonArray("quality_weights");
-        if (rows.size()!=4) throw invalid("weights","four rows required");
-        for (int cap=1;cap<=4;cap++) {
-            var row=rows.get(cap-1).getAsJsonArray();
-            if (row.size()!=4) throw invalid("weights","four columns required");
-            for (int q=1;q<=4;q++) weights[cap-1][q-1]=integerValue(row.get(q-1),"weight",q<=cap?1:0,q<=cap?1000000:0);
-        }
         var repair=object(root.get("repair"),"repair");fields(repair,"costs","fraction");
         repairCosts=costs(repair.get("costs"));repairFraction=number(repair,"fraction",0,1);
     }
@@ -109,12 +102,6 @@ public final class ForgingRules {
     }
     public Map<String,Integer> repairCosts(){return repairCosts;}
     public double repairFraction(){return repairFraction;}
-    public int total(int cap){return Arrays.stream(weights[ForgeMark.requireQuality(cap)-1]).sum();}
-    public int roll(int cap,int draw){
-        if(draw<0 || draw>=total(cap))throw invalid("draw","out of bounds");
-        for(int q=1;q<=cap;q++){draw-=weights[cap-1][q-1];if(draw<0)return q;}
-        throw new IllegalStateException("Invalid weights");
-    }
     private static void fields(JsonObject o, String... expected) {
         Set<String> names = Set.of(expected);
         for (String name : o.keySet()) if (!names.contains(name)) throw invalid(name, "unknown field");

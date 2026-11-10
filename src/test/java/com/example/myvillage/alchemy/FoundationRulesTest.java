@@ -18,7 +18,7 @@ class FoundationRulesTest {
     }
     @Test void repairIsMonotonicAndWorksAfterGoldenCore(){
         var r=FoundationRules.get();var low=established().withFoundationQuality(1);
-        assertFalse(r.canRepair(low,1));assertTrue(r.canRepair(low,2));assertTrue(r.canRepair(low,3));
+        assertFalse(r.canRepair(low,1));assertTrue(r.canRepair(low,2));assertTrue(r.canRepair(low,3));assertTrue(r.canRepair(low,4));assertEquals(3,r.pillFoundationQuality(4));
         var high=low.withFoundationQuality(3);assertFalse(r.canRepair(high,2));assertFalse(r.canRepair(high,3));assertFalse(r.canRepair(high,4));
         var golden=low.withRealmAndStage(ResourceLocation.parse("myvillage:golden_core"),ResourceLocation.parse("myvillage:golden_early"));assertTrue(r.canRepair(golden,3));
         assertFalse(r.canRepair(CultivationProfile.DEFAULT,3));
@@ -38,20 +38,24 @@ class FoundationRulesTest {
         legacy.addProperty("foundation_quality",5);assertTrue(CultivationProfile.CODEC.parse(JsonOps.INSTANCE,legacy).error().isPresent());
         assertThrows(IllegalArgumentException.class,()->p.withFoundationQuality(-1));
     }
-    @Test void persistedFixedBatchesCannotClaimAnotherQualityOrInsufficientAptitude() {
-        var recipe=AlchemyRules.get().recipe("zhuji_high").orElseThrow();var uuid=java.util.UUID.randomUUID();
-        assertTrue(recipe.acceptsBatch(new AlchemyBatch(uuid,"zhuji_high",70,3,3)));
-        assertFalse(recipe.acceptsBatch(new AlchemyBatch(uuid,"zhuji_high",100,4,4)));
-        assertFalse(recipe.acceptsBatch(new AlchemyBatch(uuid,"zhuji_high",20,3,3)));
-        assertFalse(recipe.acceptsBatch(new AlchemyBatch(uuid,"zhuji_high",70,3,1)));
-        assertTrue(AlchemyRules.get().recipe("huiling").orElseThrow().acceptsBatch(new AlchemyBatch(uuid,"huiling",100,4,4)));
+    @Test void randomBatchesPreserveRecipeIdentityDifficultyAndAptitudeRequirement() {
+        var r=AlchemyRules.get().recipe("zhuji_high").orElseThrow();var id=java.util.UUID.randomUUID();
+        var perfect=AlchemyBatch.create(id,r,170,()->5);assertEquals(4,perfect.bestQuality());assertTrue(r.acceptsBatch(perfect));
+        var lower=AlchemyBatch.create(id,r,170,()->-6);assertEquals(1,lower.bestQuality());assertTrue(r.acceptsBatch(lower));
+        assertFalse(r.acceptsBatch(AlchemyBatch.create(id,r,169,()->5)));
+        assertFalse(AlchemyRules.get().recipe("zhuji_middle").orElseThrow().acceptsBatch(perfect));
+        assertEquals(perfect,AlchemyBatch.read(perfect.save()).orElseThrow());
     }
-    @Test void fruitAndAptitudeAnchorOutputWithNoPerfectGrade(){
+    @Test void moreExpensiveFoundationVariantsUseLowerDifficultyWithoutFixedQuality() {
         var r=AlchemyRules.get();
-        String[] ids={"zhuji_low","zhuji_middle","zhuji_high","buji_middle","buji_high"};int[] scores={20,50,70,60,85},qualities={1,2,3,2,3};
-        for(int i=0;i<ids.length;i++){var recipe=r.recipe(ids[i]).orElseThrow();assertEquals(scores[i],recipe.minimumAptitude());assertEquals(qualities[i],recipe.fixedQuality());assertFalse(recipe.eligible(scores[i]-1,4));assertTrue(recipe.eligible(scores[i],4));assertFalse(recipe.eligible(100,qualities[i]-1));assertEquals(3,recipe.ingredients().size());}
+        String[] ids={"zhuji_low","zhuji_middle","zhuji_high","buji_middle","buji_high"};
+        int[] scores={120,150,170,160,185},difficulties={3,2,1,2,1};
+        for(int i=0;i<ids.length;i++){var recipe=r.recipe(ids[i]).orElseThrow();assertEquals(scores[i],recipe.requiredAptitude());assertEquals(difficulties[i],recipe.difficulty());assertFalse(recipe.eligible(scores[i]-1));assertTrue(recipe.eligible(scores[i]));assertEquals(3,recipe.ingredients().size());assertEquals(1,recipe.outputCount());}
         assertEquals(r.recipe("zhuji_low").orElseThrow().ingredients(),r.recipe("zhuji_middle").orElseThrow().ingredients());
         assertNotEquals(r.recipe("zhuji_middle").orElseThrow().ingredients().getFirst(),r.recipe("zhuji_high").orElseThrow().ingredients().getFirst());
         assertTrue(r.recipe("buji_high").orElseThrow().count(0)>r.recipe("zhuji_high").orElseThrow().count(0));
+        var quality=com.example.myvillage.cultivation.crafting.CraftingQualityRules.get();
+        assertTrue(quality.probabilities(200,"myvillage:foundation_establishment",1).get(4)>quality.probabilities(200,"myvillage:foundation_establishment",3).get(4));
     }
+
 }

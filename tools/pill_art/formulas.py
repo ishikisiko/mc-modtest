@@ -25,7 +25,7 @@ def icon(kind, root=ROOT):
     body = Image.new('RGBA', (len(rows[0]),len(rows)))
     body.putdata([pixel for row in rows for pixel in row])
     config = scroll_art.load(root)
-    quality = config['quality_levels'][str(entry.get('fixed_quality',0))]
+    quality = config['quality_levels'][str(entry.get('scroll_quality',0))]
     return scroll_art.compose(body, config, quality, style='alchemy')
 
 

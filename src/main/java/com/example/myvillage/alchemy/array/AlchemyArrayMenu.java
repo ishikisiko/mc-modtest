@@ -43,7 +43,7 @@ public final class AlchemyArrayMenu extends AbstractContainerMenu {
     public int progress(){return data.get(0);} public int duration(){return data.get(1);} public int status(){return data.get(2);}
     public boolean formed(){return data.get(3)!=0;} public int selectedRecipe(){return data.get(4)-1;}
     public boolean active(){return data.get(5)!=0;} public boolean enabled(){return data.get(6)!=0;}
-    public int aptitude(){return data.get(7);} public int qualityCap(){return data.get(8);}
+    public int aptitude(){return data.get(7);} public int failures(){return data.get(8);}public int successes(){return data.get(18);}
     public int mismatchIndex(){return data.get(9)-1;} public int mismatchCount(){return data.get(10);}
     public Direction facing(){Direction direction=Direction.from3DDataValue(data.get(11));return direction.getAxis().isHorizontal()?direction:Direction.NORTH;}
     public BlockPos controllerPos(){return new BlockPos((data.get(12)&65535)|(data.get(13)<<16),(data.get(14)&65535)|(data.get(15)<<16),(data.get(16)&65535)|(data.get(17)<<16));}

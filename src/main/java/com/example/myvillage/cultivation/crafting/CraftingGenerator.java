@@ -20,13 +20,17 @@ public final class CraftingGenerator {
         long identity = mix(worldSeed) ^ mix(player.getMostSignificantBits())
                 ^ Long.rotateLeft(mix(player.getLeastSignificantBits()), 23);
         return new CraftingAptitudes(CraftingAptitudes.CURRENT_VERSION, true,
-                current.initialized() ? current.alchemy() : roll(identity, ALCHEMY_DOMAIN, rules),
-                current.initialized() ? current.forging() : roll(identity, FORGING_DOMAIN, rules),
+                current.initialized() ? current.alchemy() : rollCraft(identity, ALCHEMY_DOMAIN),
+                current.initialized() ? current.forging() : rollCraft(identity, FORGING_DOMAIN),
                 roll(identity, TALISMAN_DOMAIN, rules));
     }
     private static int roll(long identity, long domain, CraftingRules rules) {
         return rules.initialMin() + new Random(mix(identity ^ domain))
                 .nextInt(rules.initialMax() - rules.initialMin() + 1);
+    }
+    private static int rollCraft(long identity,long domain) {
+        var rules=CraftingQualityRules.get();
+        return rules.initialMin()+new Random(mix(identity^domain)).nextInt(rules.initialMax()-rules.initialMin()+1);
     }
     private static long mix(long value) {
         value = (value ^ (value >>> 30)) * 0xbf58476d1ce4e5b9L;

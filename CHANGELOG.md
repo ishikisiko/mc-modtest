@@ -7,6 +7,14 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.126.0
+
+- 炼丹、炼器采用按资质和成品品阶计算的正态品质分布，加入失败结果；初始炼丹、炼器资质改为0～60。
+- 丹药逐颗判定并保存炉次结果，普通丹炉增加为四个产出格，炉阵支持混合品质、部分失败和整炉失败结算。
+- 丹方新增0～3级难度，每级将四个判定阈值提高10；保留筑基、补基多张丹方，按难度重新命名。
+- 炼器在成器时独立判定，暂停与重启保留结果；炼灵、修补和换柄继续保留已确定的成品品质。
+- 极品筑基丹、补基丹保留极品显示，按地道上品效果使用，天道筑基仍需渡劫。
+
 ## 0.125.0
 
 - 宗门事务增加接取时固定的浮动贡献及灵石奖励，藏经阁支持免费和贡献兑换经书；六套宗门各新增与本宗建筑形制匹配的琳琅阁，可用贡献购买丹药、药材和器谱。

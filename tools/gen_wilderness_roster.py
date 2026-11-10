@@ -68,7 +68,7 @@ def outputs(root=ROOT):
         if m['moves']:
             moves=scaled_moves(m)
             add(f'data/myvillage/beast/{id}.json',{'schema':1,'entity':'myvillage:'+id,'attributes':m['attributes'],'chase':c['chase'],'stagger':{'animation':'stagger'},'moves':moves})
-        for item,label,kind in [(mid,m['material'],mid),('pill_'+pill,m['pill'],'pill'),('formula_'+pill,m['pill']+'方','formula')]:
+        for item,label,kind in [(mid,m['material'],mid),('pill_'+pill,m['pill'],'pill'),('formula_'+pill,m['pill']+'方（难度'+str(m['alchemy_difficulty'])+'）','formula')]:
             name('item.myvillage.'+item,label)
             add('assets/myvillage/models/item/'+item+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+item}})
             out[res/f'assets/myvillage/textures/item/{item}.png']=encode_png(pill_icon(pill)) if kind=='pill' else encode_png(formula_rows(pill,root)) if kind=='formula' else icon(kind,m['palette'])
@@ -85,7 +85,7 @@ def outputs(root=ROOT):
         formula='formula_'+pill
         add('data/myvillage/recipe/'+formula+'.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:paper'},{'item':'myvillage:'+mid},{'item':m['alchemy_herbs'][0]},{'tag':'c:spirit_stones/low_grade'}],'result':{'id':'myvillage:'+formula,'count':1}})
         add('data/myvillage/advancement/recipes/misc/'+formula+'.json',{'parent':'minecraft:recipes/root','criteria':{'has_material':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':['myvillage:'+mid]}]}}},'requirements':[['has_material']],'rewards':{'recipes':['myvillage:'+formula]}})
-        ar['recipes'].append({'id':pill,'formula':'myvillage:'+formula,'ingredients':['myvillage:'+mid,*m['alchemy_herbs']],'fuel_count':m['fuel_count'],'duration_ticks':m['brew_ticks'],'output':'myvillage:pill_'+pill,'output_count':m['output_count'],'minimum_aptitude':m['minimum_aptitude']})
+        ar['recipes'].append({'id':pill,'formula':'myvillage:'+formula,'ingredients':['myvillage:'+mid,*m['alchemy_herbs']],'fuel_count':m['fuel_count'],'duration_ticks':m['brew_ticks'],'output':'myvillage:pill_'+pill,'output_count':m['output_count'],'minimum_aptitude':m['minimum_aptitude'],'quality_tier':m['alchemy_tier'],'difficulty':m['alchemy_difficulty']})
         fr['traits'][trait]={'costs':{'myvillage:'+mid:m['trait_cost']},'values':c['traits'][trait]['values']}
         for recipe in fr['recipes']:
             if recipe['id'] in ('qingfeng_sword','lingxiao_spear') and trait not in recipe['traits']:recipe['traits'].append(trait)

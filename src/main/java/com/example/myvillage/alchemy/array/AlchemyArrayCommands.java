@@ -59,7 +59,7 @@ public final class AlchemyArrayCommands {
             result.addProperty("progress", array.progress());
             result.addProperty("duration", array.duration());
             result.addProperty("recipe", array.selectedRecipe());
-            result.addProperty("cap", array.qualityCap());
+            result.addProperty("failed", array.failures());
             result.addProperty("mismatch_index", array.mismatchIndex());
             result.addProperty("mismatch_count", array.mismatchCount());
             result.addProperty("authorizer", array.authorizer() == null ? "" : array.authorizer().toString());

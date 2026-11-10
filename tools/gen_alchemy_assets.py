@@ -44,7 +44,7 @@ LANG = {
     "alchemy.myvillage.quality.4": ("Perfect", "极品"),
     "item.myvillage.alchemy.quality_name": ("%s %s", "%s%s"),
     "tooltip.myvillage.alchemy.quality": ("Quality: %s", "品质：%s"),
-    "screen.myvillage.crafting.foundation": ("Alchemy and forging use your quality ceilings. Learn patterns and use a Forging Ding.", "炼丹与炼器成品受品质上限限制；学会器谱后可在炼器鼎制作。"),
+    "screen.myvillage.crafting.foundation": ("Alchemy and forging use your quality ceilings. Learn patterns and use a Forging Ding.", "炼丹逐颗、炼器逐件判定成败与品质；结果受资质、品阶和丹方难度影响。"),
     "container.myvillage.alchemy_furnace": ("Bronze Alchemy Furnace", "青铜丹炉"),
     "alchemy.myvillage.formula_hint": ("Use to learn permanently; brewing needs no formula item", "右键永久学习，炼丹不再需要携带丹方"),
     "alchemy.myvillage.ingredients": ("Ingredients: %s + %s", "药材：%s + %s"),
@@ -100,8 +100,8 @@ LANG = {
 ZH_FOUNDATION = {
     "ningyuan_fruit_low":"下品凝元果", "ningyuan_fruit_high":"上品凝元果",
     "pill_zhuji":"筑基丹", "pill_buji":"补基丹",
-    "formula_zhuji_low":"下品筑基丹方", "formula_zhuji_middle":"中品筑基丹方", "formula_zhuji_high":"上品筑基丹方",
-    "formula_buji_middle":"中品补基丹方", "formula_buji_high":"上品补基丹方",
+    "formula_zhuji_low":"筑基丹方", "formula_zhuji_middle":"筑基丹方", "formula_zhuji_high":"筑基丹方",
+    "formula_buji_middle":"补基丹方", "formula_buji_high":"补基丹方",
 }
 ZH_EXTRA = {"message.myvillage.cultivation.session.foundation_pill_required":"筑基需要服用筑基丹；手持丹药右键开始","message.myvillage.cultivation.session.foundation_failed":"筑基失败，需重新巩固稳定度"}
 for _id, _names in NAMES.items():
@@ -342,6 +342,12 @@ def merged_outputs(root=ROOT):
         if language=="zh_cn":
             obj.update({"item.myvillage."+key:value for key,value in ZH_FOUNDATION.items()})
             obj.update(ZH_EXTRA)
+            definitions=json.loads((root/"src/main/resources/data/myvillage/alchemy/rules.json").read_text())
+            for recipe in definitions["recipes"]:
+                if recipe["id"] in (*MEDICINES,*FOUNDATION_FORMULAS):
+                    key="item."+recipe["formula"].replace(":",".")
+                    base=ZH_FOUNDATION.get("formula_"+recipe["id"],NAMES.get("formula_"+recipe["id"],("",""))[1])
+                    obj[key]=f"{base}（难度{recipe['difficulty']}）"
         result[path]=encode(obj)
     path=root/"src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json"
     obj=json.loads(path.read_text()) if path.exists() else {"replace":False,"values":[]}

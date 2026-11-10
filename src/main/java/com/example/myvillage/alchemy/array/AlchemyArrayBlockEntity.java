@@ -23,24 +23,24 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /** Sole inventory owner. Authorization survives logout; every batch retains its frozen decision. */
 public final class AlchemyArrayBlockEntity extends BlockEntity implements WorldlyContainer,MenuProvider {
-    public static final int SLOT_COUNT=8,DATA_COUNT=18;
+    public static final int SLOT_COUNT=8,DATA_COUNT=19;
     private NonNullList<ItemStack> items=NonNullList.withSize(SLOT_COUNT,ItemStack.EMPTY);
     private NonNullList<ItemStack> reserved=NonNullList.withSize(4,ItemStack.EMPTY);
     private AlchemyBatch batch;
     private String selectedRecipe="";
     private UUID authorizer,identity=UUID.randomUUID();
-    private int score,cap,progress,status,duration;
+    private int score,lastFailures,lastSuccess,progress,status,duration;
     private boolean enabled;
     private volatile boolean formed; // Also read from client chunk baking threads.
     private int mismatchIndex=-1,mismatchCount;
     public final ContainerData data=new ContainerData(){
         public int get(int i){return switch(i){
             case 0->progress;case 1->duration;case 2->status;case 3->formed?1:0;case 4->recipeIndex()+1;
-            case 5->active()?1:0;case 6->enabled?1:0;case 7->score;case 8->cap;case 9->mismatchIndex+1;case 10->mismatchCount;
+            case 5->active()?1:0;case 6->enabled?1:0;case 7->score;case 8->lastFailures;case 9->mismatchIndex+1;case 10->mismatchCount;
             case 11->getBlockState().getValue(AlchemyArrayBlock.FACING).get3DDataValue();
             case 12->worldPosition.getX()&65535;case 13->worldPosition.getX()>>>16;
             case 14->worldPosition.getY()&65535;case 15->worldPosition.getY()>>>16;
-            case 16->worldPosition.getZ()&65535;case 17->worldPosition.getZ()>>>16;default->0;
+            case 16->worldPosition.getZ()&65535;case 17->worldPosition.getZ()>>>16;case 18->lastSuccess;default->0;
         };}
         public void set(int i,int v){} public int getCount(){return DATA_COUNT;}
     };
@@ -48,7 +48,7 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     public boolean active(){return batch!=null;} public boolean enabled(){return enabled;} public boolean formed(){return formed;}
     public boolean running(){return getBlockState().getValue(AlchemyArrayBlock.LIT);}
     public int progress(){return progress;} public int duration(){return duration;} public int status(){return status;}
-    public int qualityCap(){return cap;} public String selectedRecipe(){return selectedRecipe;} public UUID authorizer(){return authorizer;}
+    public int failures(){return lastFailures;} public String selectedRecipe(){return selectedRecipe;} public UUID authorizer(){return authorizer;}
     public int mismatchIndex(){return mismatchIndex;} public int mismatchCount(){return mismatchCount;}
     public UUID identity(){return identity;}
     private int recipeIndex(){var recipes=AlchemyRules.get().recipes();for(int i=0;i<recipes.size();i++)if(recipes.get(i).id().equals(selectedRecipe))return i;return -1;}
@@ -75,13 +75,13 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
                 r.refillItems(),r.refillCounts(),36);
         if(plan.isEmpty()||!payment.commit(plan.get().inventory()))return false;
         for(int i=0;i<3;i++)items.set(i,plan.get().inputs().get(i));items.set(7,plan.get().inputs().get(3));p.getInventory().setChanged();
-        selectedRecipe=recipes.get(index).id();authorizer=null;score=cap=0;progress=0;setChanged();menu.broadcastChanges();return true;
+        selectedRecipe=recipes.get(index).id();authorizer=null;score=lastFailures=lastSuccess=0;progress=0;setChanged();menu.broadcastChanges();return true;
     }
     public boolean enable(ServerPlayer p,AlchemyArrayMenu menu){
         if(!validActor(p,menu)||!awakened(p)||active()||enabled||recipe()==null||!AlchemyKnowledge.knows(p,selectedRecipe)||!freshCheck().formed()||!ingredients(recipe())||!fuel(recipe()))return false;
         CraftingAptitudes apt=CultivationService.craftingAptitudes(p);
-        authorizer=p.getUUID();score=apt.alchemy();cap=apt.qualityCap(CraftingAptitudes.Profession.ALCHEMY,CraftingRules.get());
-        if(!recipe().eligible(score,cap)){p.displayClientMessage(Component.literal("炼丹资质不足：此方要求 "+recipe().minimumAptitude()+" 点"),true);return false;}
+        authorizer=p.getUUID();score=apt.alchemy();
+        if(!recipe().eligible(score)){p.displayClientMessage(Component.literal("炼丹资质不足：此方要求 "+recipe().minimumAptitude()+" 点"),true);return false;}
         enabled=true;beginBatch();setChanged();menu.broadcastChanges();return true;
     }
     public boolean stop(ServerPlayer p,AlchemyArrayMenu menu){
@@ -92,15 +92,14 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     private int reservedCount(AlchemyRules.Recipe r,int i){return i==2?r.fuelCount():r.count(i==3?2:i);}
     private boolean fuel(AlchemyRules.Recipe r){return r!=null&&SpiritStoneTags.isLowGrade(items.get(2))&&items.get(2).getCount()>=r.fuelCount();}
     private void beginBatch(){
-        var r=recipe();if(!enabled||active()||authorizer==null||cap<1||cap>4||!ingredients(r)||!fuel(r)||!r.eligible(score,cap))return;
-        var rules=AlchemyRules.get();batch=new AlchemyBatch(authorizer,r.id(),score,cap,r.fixedQuality()>0?r.fixedQuality():rules.rollQuality(cap,level.random.nextInt(rules.qualityWeightTotal(cap))));
+        var r=recipe();if(!enabled||active()||authorizer==null||!ingredients(r)||!fuel(r)||!r.eligible(score))return;
+        batch=AlchemyBatch.create(authorizer,r,score,level.random::nextGaussian);
         for(int i=0;i<4;i++)reserved.set(i,items.get(inputSlot(i)).copyWithCount(reservedCount(r,i)));
         progress=0;duration=r.durationTicks();setChanged();
     }
     private boolean reservedPresent(){for(int i=0;i<4;i++){var held=items.get(inputSlot(i));var needed=reserved.get(i);if(needed.isEmpty()){if(i==3&&!held.isEmpty())return false;continue;}if(!ItemStack.isSameItemSameComponents(held,needed)||held.getCount()<needed.getCount())return false;}return true;}
-    private ItemStack result(){var r=recipe();if(r==null||batch==null)return ItemStack.EMPTY;ItemStack stack=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(r.output())),r.outputCount());PillQuality.apply(stack,batch.quality());return stack;}
-    /** Copies form a complete output transaction, including component equality and split stacks. */
-    private List<ItemStack> outputPlan(ItemStack result){return AlchemyArrayTransactions.outputPlan(items.subList(3,7),result,getMaxStackSize());}
+    private List<ItemStack> results(){var r=recipe();return r==null||batch==null?List.of():AlchemyOutputs.of(r,batch);}
+    private List<ItemStack> outputPlan(List<ItemStack> result){return AlchemyArrayTransactions.outputPlan(items.subList(3,7),result,getMaxStackSize());}
     public static void serverTick(Level level,BlockPos pos,BlockState state,AlchemyArrayBlockEntity array){array.tick();}
     private void tick(){
         boolean wasFormed=formed;freshCheck();var r=recipe();duration=r==null?0:r.durationTicks();
@@ -110,7 +109,7 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
             if(active()) {
                 if(r==null||!r.id().equals(batch.recipe())||!reservedPresent())status=1;
                 else {
-                    var plan=outputPlan(result());
+                    var results=results();var plan=outputPlan(results);
                     if(plan==null)status=3;
                     else {
                         status=enabled?4:7;progress++;setChanged();
@@ -118,7 +117,8 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
                             for(int i=0;i<4;i++)items.get(inputSlot(i)).shrink(reserved.get(i).getCount());
                             for(int i=3;i<7;i++)items.set(i,plan.get(i-3));
                             var brewer=((net.minecraft.server.level.ServerLevel)level).getServer().getPlayerList().getPlayer(batch.brewer());
-                            if(com.example.myvillage.aptitude.AptitudeRuntime.nearStation(brewer,level,worldPosition))com.example.myvillage.aptitude.AptitudeRuntime.crafted(brewer,"alchemy",r.id(),batch.quality(),result());
+                            lastSuccess=batch.successfulCount();lastFailures=batch.failures();
+                            if(lastSuccess>0&&com.example.myvillage.aptitude.AptitudeRuntime.nearStation(brewer,level,worldPosition))com.example.myvillage.aptitude.AptitudeRuntime.crafted(brewer,"alchemy",r.id(),batch.bestQuality(),results.getLast());
                             batch=null;reserved=NonNullList.withSize(4,ItemStack.EMPTY);progress=0;setChanged();
                         }
                     }
@@ -170,22 +170,25 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     @Override public Component getDisplayName(){return Component.literal("青铜丹炉阵");}
     @Override public AbstractContainerMenu createMenu(int id,Inventory inventory,Player p){return new AlchemyArrayMenu(id,inventory,this,data);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
-        super.saveAdditional(tag,registries);ContainerHelper.saveAllItems(tag,items,registries);tag.putInt("Version",1);tag.putUUID("Identity",identity);
-        tag.putString("SelectedRecipe",selectedRecipe);tag.putBoolean("Enabled",enabled);tag.putInt("Score",score);tag.putInt("Cap",cap);tag.putInt("Progress",progress);
+        super.saveAdditional(tag,registries);ContainerHelper.saveAllItems(tag,items,registries);tag.putInt("Version",2);tag.putUUID("Identity",identity);
+        tag.putString("SelectedRecipe",selectedRecipe);tag.putBoolean("Enabled",enabled);tag.putInt("Score",score);tag.putInt("Failed",lastFailures);tag.putInt("Succeeded",lastSuccess);tag.putInt("Progress",progress);
         if(authorizer!=null)tag.putUUID("Authorizer",authorizer);if(batch!=null){tag.put("Batch",batch.save());CompoundTag inputs=new CompoundTag();ContainerHelper.saveAllItems(inputs,reserved,registries);tag.put("Reserved",inputs);}
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);items=NonNullList.withSize(SLOT_COUNT,ItemStack.EMPTY);ContainerHelper.loadAllItems(tag,items,registries);
-        batch=null;reserved=NonNullList.withSize(4,ItemStack.EMPTY);progress=0;enabled=false;authorizer=null;score=cap=0;
+        batch=null;reserved=NonNullList.withSize(4,ItemStack.EMPTY);progress=0;enabled=false;authorizer=null;score=lastFailures=lastSuccess=0;
         identity=tag.hasUUID("Identity")?tag.getUUID("Identity"):UUID.randomUUID();selectedRecipe=tag.getString("SelectedRecipe");
         var r=recipe();if(r==null){selectedRecipe="";return;}duration=r.durationTicks();
-        if(tag.contains("Version",Tag.TAG_INT)&&tag.getInt("Version")==1&&tag.hasUUID("Authorizer")&&tag.contains("Score",Tag.TAG_INT)&&tag.contains("Cap",Tag.TAG_INT)
-                &&tag.getInt("Score")>=0&&tag.getInt("Cap")>=1&&tag.getInt("Cap")<=4){authorizer=tag.getUUID("Authorizer");score=tag.getInt("Score");cap=tag.getInt("Cap");enabled=tag.getBoolean("Enabled");}
+        if(tag.contains("Version",Tag.TAG_INT)&&tag.getInt("Version")==2&&tag.hasUUID("Authorizer")
+                &&tag.contains("Score",Tag.TAG_INT)&&tag.getInt("Score")>=0&&r.eligible(tag.getInt("Score"))){
+            authorizer=tag.getUUID("Authorizer");score=tag.getInt("Score");enabled=tag.getBoolean("Enabled");
+            lastFailures=Math.clamp(tag.getInt("Failed"),0,16);lastSuccess=Math.clamp(tag.getInt("Succeeded"),0,16);
+        }
         if(tag.contains("Batch",Tag.TAG_COMPOUND)) {
             var restored=AlchemyBatch.read(tag.getCompound("Batch")).orElse(null);ContainerHelper.loadAllItems(tag.getCompound("Reserved"),reserved,registries);
-            if(restored!=null&&r.acceptsBatch(restored)&&restored.brewer().equals(authorizer)&&restored.score()==score&&restored.cap()==cap
+            if(restored!=null&&r.acceptsBatch(restored)&&restored.brewer().equals(authorizer)&&restored.score()==score
                     &&tag.contains("Progress",Tag.TAG_INT)&&tag.getInt("Progress")>=0&&tag.getInt("Progress")<duration
-                    &&reserved.get(0).getCount()==r.count(0)&&reserved.get(1).getCount()==r.count(1)&&reserved.get(2).getCount()==r.fuelCount()&&reserved.get(3).getCount()==r.count(2)&&r.eligible(score,cap)&&ingredients(r)&&fuel(r)&&reservedPresent()){
+                    &&reserved.get(0).getCount()==r.count(0)&&reserved.get(1).getCount()==r.count(1)&&reserved.get(2).getCount()==r.fuelCount()&&reserved.get(3).getCount()==r.count(2)&&r.eligible(score)&&ingredients(r)&&fuel(r)&&reservedPresent()){
                 batch=restored;progress=tag.getInt("Progress");
             } else {enabled=false;reserved=NonNullList.withSize(4,ItemStack.EMPTY);}
         }

@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "use_ticks": 32,
   "shared_cooldown_ticks": 600,
   "recipes": [
@@ -13,7 +13,9 @@
       "fuel_count": 1,
       "duration_ticks": 400,
       "output": "myvillage:pill_huiling",
-      "output_count": 2
+      "output_count": 2,
+      "quality_tier": "myvillage:qi_refining",
+      "difficulty": 0
     },
     {
       "id": "yangyuan",
@@ -25,7 +27,9 @@
       "fuel_count": 1,
       "duration_ticks": 400,
       "output": "myvillage:pill_yangyuan",
-      "output_count": 2
+      "output_count": 2,
+      "quality_tier": "myvillage:qi_refining",
+      "difficulty": 1
     },
     {
       "id": "ningshen",
@@ -37,7 +41,9 @@
       "fuel_count": 1,
       "duration_ticks": 400,
       "output": "myvillage:pill_ningshen",
-      "output_count": 2
+      "output_count": 2,
+      "quality_tier": "myvillage:qi_refining",
+      "difficulty": 2
     },
     {
       "id": "zhuji_low",
@@ -56,8 +62,10 @@
       "duration_ticks": 600,
       "output": "myvillage:pill_zhuji",
       "output_count": 1,
-      "minimum_aptitude": 20,
-      "fixed_quality": 1
+      "minimum_aptitude": 120,
+      "quality_tier": "myvillage:foundation_establishment",
+      "difficulty": 3,
+      "scroll_quality": 1
     },
     {
       "id": "zhuji_middle",
@@ -76,8 +84,10 @@
       "duration_ticks": 800,
       "output": "myvillage:pill_zhuji",
       "output_count": 1,
-      "minimum_aptitude": 50,
-      "fixed_quality": 2
+      "minimum_aptitude": 150,
+      "quality_tier": "myvillage:foundation_establishment",
+      "difficulty": 2,
+      "scroll_quality": 2
     },
     {
       "id": "zhuji_high",
@@ -96,8 +106,10 @@
       "duration_ticks": 1000,
       "output": "myvillage:pill_zhuji",
       "output_count": 1,
-      "minimum_aptitude": 70,
-      "fixed_quality": 3
+      "minimum_aptitude": 170,
+      "quality_tier": "myvillage:foundation_establishment",
+      "difficulty": 1,
+      "scroll_quality": 3
     },
     {
       "id": "buji_middle",
@@ -116,8 +128,10 @@
       "duration_ticks": 1200,
       "output": "myvillage:pill_buji",
       "output_count": 1,
-      "minimum_aptitude": 60,
-      "fixed_quality": 2
+      "minimum_aptitude": 160,
+      "quality_tier": "myvillage:foundation_establishment",
+      "difficulty": 2,
+      "scroll_quality": 2
     },
     {
       "id": "buji_high",
@@ -136,8 +150,10 @@
       "duration_ticks": 1600,
       "output": "myvillage:pill_buji",
       "output_count": 1,
-      "minimum_aptitude": 85,
-      "fixed_quality": 3
+      "minimum_aptitude": 185,
+      "quality_tier": "myvillage:foundation_establishment",
+      "difficulty": 1,
+      "scroll_quality": 3
     },
     {
       "id": "pozhang",
@@ -151,7 +167,9 @@
       "duration_ticks": 500,
       "output": "myvillage:pill_pozhang",
       "output_count": 2,
-      "minimum_aptitude": 10
+      "minimum_aptitude": 10,
+      "quality_tier": "myvillage:qi_refining",
+      "difficulty": 1
     },
     {
       "id": "dingshen",
@@ -165,7 +183,9 @@
       "duration_ticks": 500,
       "output": "myvillage:pill_dingshen",
       "output_count": 2,
-      "minimum_aptitude": 10
+      "minimum_aptitude": 10,
+      "quality_tier": "myvillage:qi_refining",
+      "difficulty": 2
     },
     {
       "id": "humai",
@@ -179,7 +199,9 @@
       "duration_ticks": 500,
       "output": "myvillage:pill_humai",
       "output_count": 2,
-      "minimum_aptitude": 10
+      "minimum_aptitude": 10,
+      "quality_tier": "myvillage:qi_refining",
+      "difficulty": 2
     },
     {
       "id": "yuyan",
@@ -193,7 +215,9 @@
       "duration_ticks": 500,
       "output": "myvillage:pill_yuyan",
       "output_count": 2,
-      "minimum_aptitude": 10
+      "minimum_aptitude": 10,
+      "quality_tier": "myvillage:qi_refining",
+      "difficulty": 2
     },
     {
       "id": "qingshen",
@@ -207,7 +231,9 @@
       "duration_ticks": 500,
       "output": "myvillage:pill_qingshen",
       "output_count": 2,
-      "minimum_aptitude": 10
+      "minimum_aptitude": 10,
+      "quality_tier": "myvillage:qi_refining",
+      "difficulty": 1
     },
     {
       "id": "qingzhang",
@@ -221,7 +247,9 @@
       "duration_ticks": 500,
       "output": "myvillage:pill_qingzhang",
       "output_count": 2,
-      "minimum_aptitude": 10
+      "minimum_aptitude": 10,
+      "quality_tier": "myvillage:qi_refining",
+      "difficulty": 1
     }
   ],
   "effects": {
@@ -239,32 +267,6 @@
     }
   },
   "quality": {
-    "weights_by_cap": [
-      [
-        100,
-        0,
-        0,
-        0
-      ],
-      [
-        70,
-        30,
-        0,
-        0
-      ],
-      [
-        55,
-        30,
-        15,
-        0
-      ],
-      [
-        45,
-        30,
-        20,
-        5
-      ]
-    ],
     "strength_multipliers": [
       1,
       1.25,

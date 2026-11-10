@@ -48,8 +48,8 @@ public final class FormulaItem extends Item {
                 lines.add(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe.ingredients().get(i))).getDescription().copy()
                     .append(" ×"+recipe.count(i)).withStyle(ChatFormatting.DARK_GREEN));
             }
-            if(recipe.fixedQuality()>0) lines.add(Component.literal("炼丹资质 ≥ "+recipe.minimumAptitude()+" · 固定产出 ")
-                .append(com.example.myvillage.alchemy.PillQuality.name(recipe.fixedQuality())));
+            lines.add(Component.literal("炼丹资质 ≥ "+recipe.requiredAptitude()+" · 丹方难度 "+recipe.difficulty()));
+            lines.add(Component.literal("每颗独立判定成败与品质"));
 
         });
     }

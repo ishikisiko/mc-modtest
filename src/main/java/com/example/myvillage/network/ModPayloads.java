@@ -26,7 +26,7 @@ public final class ModPayloads {
     // 协议69在 NPC 交谈和命簿人物详情中同步只读出生天赋。
     // 协议70为取物器增加有界召唤配置、测试关系操作和私有单位列表。
     // 协议71增加测试 NPC 的功法、熟练度和自动施放配置。
-    public static final String PROTOCOL_VERSION = "72";
+    public static final String PROTOCOL_VERSION = "74";
 
     private ModPayloads() {
     }

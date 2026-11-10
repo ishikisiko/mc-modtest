@@ -23,7 +23,7 @@ public abstract class FoundryBlockEntity extends BlockEntity implements Containe
     protected boolean loading;
     public final ContainerData data=new ContainerData(){
         public int get(int i){return switch(i){case 0->recipe;case 1->progress;case 2->duration;case 3->status;
-            case 4->heat();case 5->fuel();case 6->quality;case 7->active()?1:0;default->0;};}
+            case 4->heat();case 5->fuel();case 6->active()?0:quality;case 7->active()?1:0;default->0;};}
         public void set(int i,int value){}public int getCount(){return DATA_COUNT;}
     };
     protected FoundryBlockEntity(BlockEntityType<?> type,BlockPos pos,BlockState state){super(type,pos,state);}

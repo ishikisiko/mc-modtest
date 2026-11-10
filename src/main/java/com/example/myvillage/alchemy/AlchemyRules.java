@@ -14,19 +14,20 @@ public final class AlchemyRules {
     public static final String FUEL = com.example.myvillage.item.SpiritStoneTags.LOW_GRADE_REFERENCE;
     public record Recipe(String id, String formula, List<String> ingredients, int fuelCount,
                          int durationTicks, String output, int outputCount, List<Integer> ingredientCounts,
-                         int minimumAptitude, int fixedQuality) {
+                         int minimumAptitude, String qualityTier, int difficulty) {
         public Recipe { ingredients = List.copyOf(ingredients); ingredientCounts = List.copyOf(ingredientCounts); }
         public Recipe(String id,String formula,List<String> ingredients,int fuelCount,int durationTicks,String output,int outputCount) {
-            this(id,formula,ingredients,fuelCount,durationTicks,output,outputCount,Collections.nCopies(ingredients.size(),1),0,0);
+            this(id,formula,ingredients,fuelCount,durationTicks,output,outputCount,Collections.nCopies(ingredients.size(),1),0,"myvillage:qi_refining",0);
         }
         public boolean matches(String formulaId, String first, String second) {
             return ingredients.size()==2 && formula.equals(formulaId) && ((ingredients.get(0).equals(first) && ingredients.get(1).equals(second))
                     || (ingredients.get(1).equals(first) && ingredients.get(0).equals(second)));
         }
-        public boolean eligible(int score, int cap) { return score >= minimumAptitude && (fixedQuality == 0 || cap >= fixedQuality); }
+        public int requiredAptitude() { return Math.max(minimumAptitude,com.example.myvillage.cultivation.crafting.CraftingQualityRules.get().tier(qualityTier).baseline()); }
+        public boolean eligible(int aptitude) { return aptitude >= requiredAptitude(); }
         public boolean acceptsBatch(AlchemyBatch batch) {
-            return batch!=null && id.equals(batch.recipe()) && (fixedQuality==0
-                || (batch.quality()==fixedQuality && eligible(batch.score(),batch.cap())));
+            return batch!=null && id.equals(batch.recipe()) && qualityTier.equals(batch.tier())
+                && difficulty==batch.difficulty() && batch.outcomes().size()==outputCount && eligible(batch.score());
         }
         public String thirdIngredient() { return ingredients.size()==3 ? ingredients.get(2) : ""; }
         public int count(int i) { return i < ingredientCounts.size() ? ingredientCounts.get(i) : 0; }
@@ -50,37 +51,21 @@ public final class AlchemyRules {
     private final int sharedCooldownTicks;
     private final List<Recipe> recipes;
     private final Effects effects;
-    private final int[][] qualityWeights = new int[4][4];
     private final double[] qualityMultipliers = new double[4];
 
     private AlchemyRules(JsonObject root) {
         fields(root, "version", "use_ticks", "shared_cooldown_ticks", "recipes", "effects", "quality");
-        if (integer(root, "version", 2, 2) != 2) throw invalid("version", "unsupported");
+        if (integer(root, "version", 3, 3) != 3) throw invalid("version", "unsupported");
         JsonObject quality = object(root.get("quality"), "quality");
-        fields(quality, "weights_by_cap", "strength_multipliers");
-        JsonElement weights = quality.get("weights_by_cap"), factors = quality.get("strength_multipliers");
-        if (!weights.isJsonArray() || weights.getAsJsonArray().size() != 4
-                || !factors.isJsonArray() || factors.getAsJsonArray().size() != 4)
-            throw invalid("quality", "four ceilings and four multipliers required");
-        for (int cap = 1; cap <= 4; cap++) {
-            JsonElement row = weights.getAsJsonArray().get(cap - 1);
-            if (!row.isJsonArray() || row.getAsJsonArray().size() != 4)
-                throw invalid("quality.weights_by_cap", "four weights per ceiling required");
-            int total = 0;
-            for (int q = 1; q <= 4; q++) {
-                int weight = integerValue(row.getAsJsonArray().get(q - 1), "quality weight", 0, 1000000);
-                if (q <= cap && weight == 0) throw invalid("quality weight", "eligible outcome must have positive weight");
-                if (q > cap && weight != 0) throw invalid("quality weight", "above ceiling");
-                qualityWeights[cap - 1][q - 1] = weight;
-                total += weight;
-            }
-            if (total == 0) throw invalid("quality weights", "positive total required");
-            JsonObject factor = new JsonObject();
-            factor.add("value", factors.getAsJsonArray().get(cap - 1));
-            double multiplier = number(factor, "value", 0, 16);
-            if ((cap == 1 && multiplier != 1) || (cap > 1 && multiplier <= qualityMultipliers[cap - 2]))
-                throw invalid("quality.strength_multipliers", "baseline one and strictly increasing required");
-            qualityMultipliers[cap - 1] = multiplier;
+        fields(quality, "strength_multipliers");
+        var factors=quality.getAsJsonArray("strength_multipliers");
+        if(factors==null||factors.size()!=4)throw invalid("quality","four multipliers required");
+        for(int i=0;i<4;i++){
+            var factor=new JsonObject();factor.add("value",factors.get(i));
+            double multiplier=number(factor,"value",0,16);
+            if((i==0&&multiplier!=1)||(i>0&&multiplier<=qualityMultipliers[i-1]))
+                throw invalid("quality.strength_multipliers","baseline one and increasing required");
+            qualityMultipliers[i]=multiplier;
         }
         useTicks = integer(root, "use_ticks", 1, 72000);
         sharedCooldownTicks = integer(root, "shared_cooldown_ticks", 1, 1200000);
@@ -89,9 +74,9 @@ public final class AlchemyRules {
         Set<String> ids = new HashSet<>(), formulas = new HashSet<>();
         for (JsonElement value : root.getAsJsonArray("recipes")) {
             JsonObject r = object(value, "recipe");
-            JsonObject legacy = r.deepCopy();
-            legacy.remove("ingredient_counts"); legacy.remove("minimum_aptitude"); legacy.remove("fixed_quality");
-            fields(legacy, "id", "formula", "ingredients", "fuel_count", "duration_ticks", "output", "output_count");
+            JsonObject core = r.deepCopy();
+            core.remove("ingredient_counts"); core.remove("minimum_aptitude"); core.remove("scroll_quality");
+            fields(core, "id", "formula", "ingredients", "fuel_count", "duration_ticks", "output", "output_count", "quality_tier", "difficulty");
             String id = string(r, "id"), formula = item(r, "formula"), output = item(r, "output");
             if (!id.matches("[a-z0-9_]+") || !ids.add(id) || !formulas.add(formula))
                 throw invalid("recipe", "invalid or duplicate id/formula/output");
@@ -106,19 +91,21 @@ public final class AlchemyRules {
                 for(var c:r.getAsJsonArray("ingredient_counts")) counts.add(integerValue(c,"ingredient count",1,64));
             } else counts.addAll(Collections.nCopies(ingredients.size(),1));
             int minimum=r.has("minimum_aptitude")?integer(r,"minimum_aptitude",0,Integer.MAX_VALUE):0;
-            int fixed=r.has("fixed_quality")?integer(r,"fixed_quality",1,3):0;
+            String tier=string(r,"quality_tier");var qualityRules=com.example.myvillage.cultivation.crafting.CraftingQualityRules.get();qualityRules.tier(tier);
+            int difficulty=integer(r,"difficulty",0,qualityRules.maximumDifficulty());
+            if(r.has("scroll_quality"))integer(r,"scroll_quality",0,4);
             result.add(new Recipe(id, formula, ingredients, integer(r, "fuel_count", 1, 64),
-                    integer(r, "duration_ticks", 1, 32767), output, integer(r, "output_count", 1, 16), counts, minimum, fixed));
+                    integer(r, "duration_ticks", 1, 32767), output, integer(r, "output_count", 1, 16), counts, minimum, tier, difficulty));
         }
         if (!ids.containsAll(Set.of("huiling","yangyuan","ningshen"))) throw invalid("recipes","missing legacy recipes");
         Set<String> herbs=Set.of("spirit_leaf","dew_blossom","sunroot","blood_berry","cloud_fungus","calm_lotus","ningyuan_fruit_low","ningyuan_fruit_high");
         for (Recipe r:result) {
             if (!r.formula().equals("myvillage:formula_"+r.id())) throw invalid("formula","must match recipe id");
             for(String herb:r.ingredients())if(!herb.startsWith("myvillage:")||(!herbs.contains(herb.substring(10)) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMaterial(herb)))throw invalid("ingredients","unknown herb");
-            if(com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("myvillage:pill_"+r.id()) || r.ingredients().size()!=3 || r.fixedQuality()!=0))throw invalid("recipe","invalid expedition formula");
+            if(com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("myvillage:pill_"+r.id()) || r.ingredients().size()!=3))throw invalid("recipe","invalid expedition formula");
             boolean foundation=r.output().equals("myvillage:pill_zhuji")||r.output().equals("myvillage:pill_buji");
-            if(foundation && (r.fixedQuality()==0 || r.ingredients().size()!=3 || (r.output().endsWith("buji")&&r.fixedQuality()<2)))throw invalid("recipe","foundation recipe needs three herbs and bounded fixed quality");
-            if(!foundation && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("myvillage:pill_"+r.id()) || r.fixedQuality()!=0 || r.ingredients().size()!=2 || r.ingredientCounts().stream().anyMatch(n->n!=1)))throw invalid("recipe","legacy medicine shape changed");
+            if(foundation && r.ingredients().size()!=3)throw invalid("recipe","foundation recipe needs three herbs");
+            if(!foundation && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("myvillage:pill_"+r.id()) || r.ingredients().size()!=2 || r.ingredientCounts().stream().anyMatch(n->n!=1)))throw invalid("recipe","legacy medicine shape changed");
         }
         recipes = List.copyOf(result);
         JsonObject e = object(root.get("effects"), "effects");
@@ -159,19 +146,6 @@ public final class AlchemyRules {
     public List<Recipe> recipes() { return recipes; }
     public Effects effects() { return effects; }
     public double qualityMultiplier(int quality) { return qualityMultipliers[requireQuality(quality) - 1]; }
-    public int qualityWeightTotal(int cap) {
-        return Arrays.stream(qualityWeights[requireQuality(cap) - 1]).sum();
-    }
-    /** Deterministic inverse weighted draw; RNG and saved outcome belong to the server batch. */
-    public int rollQuality(int cap, int draw) {
-        int total = qualityWeightTotal(cap);
-        if (draw < 0 || draw >= total) throw invalid("quality draw", "outside weighted range");
-        for (int q = 1; q <= cap; q++) {
-            draw -= qualityWeights[cap - 1][q - 1];
-            if (draw < 0) return q;
-        }
-        throw new IllegalStateException("Validated quality weights did not resolve");
-    }
     private static int requireQuality(int quality) {
         if (quality < 1 || quality > 4) throw invalid("quality", "must be one through four");
         return quality;

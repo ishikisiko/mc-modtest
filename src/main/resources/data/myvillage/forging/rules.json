@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "recipes": [
     {
       "id": "qingfeng_sword",
@@ -20,7 +20,8 @@
         "carapace",
         "frost_edge",
         "soul_return"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     },
     {
       "id": "lingxiao_spear",
@@ -40,7 +41,8 @@
         "carapace",
         "frost_edge",
         "soul_return"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     },
     {
       "id": "forged_pickaxe",
@@ -53,7 +55,8 @@
       },
       "traits": [
         "tough"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     },
     {
       "id": "forged_axe",
@@ -66,7 +69,8 @@
       },
       "traits": [
         "tough"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     },
     {
       "id": "forged_shovel",
@@ -79,7 +83,8 @@
       },
       "traits": [
         "tough"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     },
     {
       "id": "forged_hoe",
@@ -92,7 +97,8 @@
       },
       "traits": [
         "tough"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     },
     {
       "id": "xuantie_helmet",
@@ -105,7 +111,8 @@
       },
       "traits": [
         "tough"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     },
     {
       "id": "xuantie_chestplate",
@@ -118,7 +125,8 @@
       },
       "traits": [
         "tough"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     },
     {
       "id": "xuantie_leggings",
@@ -131,7 +139,8 @@
       },
       "traits": [
         "tough"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     },
     {
       "id": "xuantie_boots",
@@ -144,7 +153,8 @@
       },
       "traits": [
         "tough"
-      ]
+      ],
+      "quality_tier": "myvillage:qi_refining"
     }
   ],
   "traits": {
@@ -248,32 +258,6 @@
       ]
     }
   },
-  "quality_weights": [
-    [
-      100,
-      0,
-      0,
-      0
-    ],
-    [
-      60,
-      40,
-      0,
-      0
-    ],
-    [
-      40,
-      35,
-      25,
-      0
-    ],
-    [
-      25,
-      30,
-      30,
-      15
-    ]
-  ],
   "repair": {
     "costs": {
       "minecraft:iron_ingot": 1,

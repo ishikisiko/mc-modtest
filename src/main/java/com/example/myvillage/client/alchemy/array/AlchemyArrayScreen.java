@@ -136,10 +136,7 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
             statusText += " " + Math.clamp(100 * menu.progress() / menu.duration(), 0, 100) + "%";
         g.drawString(font, statusText, 140, 77,
                 status == 3 || status == 6 ? 0xFFE6A17D : PAPER, false);
-        if (menu.qualityCap() >= 1 && menu.qualityCap() <= 4) {
-            g.drawString(font, Component.literal("授权资质 " + menu.aptitude() + " · 品质上限 ")
-                    .append(PillQuality.name(menu.qualityCap())), 140, 96, GOLD, false);
-        } else g.drawString(font, "启动后锁定授权资质与品质上限", 140, 96, GOLD, false);
+        g.drawString(font,"授权资质 "+menu.aptitude()+" · 上炉失败 "+menu.failures()+" 颗",140,96,GOLD,false);
         int selected = menu.selectedRecipe();
         if (selected >= 0 && selected < AlchemyRules.get().recipes().size()) {
             var recipe = AlchemyRules.get().recipes().get(selected);

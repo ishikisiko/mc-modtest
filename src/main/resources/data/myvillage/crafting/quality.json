@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "initial_roll": {"min": 0, "max": 60},
+  "standard_deviation": 12,
+  "maximum_difficulty": 3,
+  "difficulty_threshold_step": 10,
+  "tiers": [
+    {"id": "myvillage:qi_refining", "baseline": 0, "span": 100, "thresholds": [20, 40, 70, 90]},
+    {"id": "myvillage:foundation_establishment", "baseline": 100, "span": 100, "thresholds": [-20, 20, 60, 80]},
+    {"id": "myvillage:golden_core", "baseline": 200, "span": 100, "thresholds": [-20, 20, 60, 80]},
+    {"id": "myvillage:nascent_soul", "baseline": 300, "span": 100, "thresholds": [-20, 20, 60, 80]},
+    {"id": "myvillage:spirit_transformation", "baseline": 400, "span": 100, "thresholds": [-20, 20, 60, 80]}
+  ]
+}

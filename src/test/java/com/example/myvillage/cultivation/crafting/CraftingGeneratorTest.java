@@ -10,7 +10,7 @@ class CraftingGeneratorTest {
     private static final UUID PLAYER = UUID.fromString("12345678-1234-5678-9abc-def012345678");
     @Test void stableIndependentDomainsHavePinnedResultsAndUseWorldAndPlayerIdentity() {
         var rules = CraftingRules.get();
-        var expected = new CraftingAptitudes(1, true, 67, 96, 83);
+        var expected = new CraftingAptitudes(1, true, 56, 44, 83);
         assertEquals(expected, CraftingGenerator.ensure(CraftingAptitudes.EMPTY, true, 987654321L, PLAYER, rules));
         assertEquals(expected, CraftingGenerator.ensure(CraftingAptitudes.EMPTY, true, 987654321L, PLAYER, rules));
         assertNotEquals(expected, CraftingGenerator.ensure(CraftingAptitudes.EMPTY, true, 987654322L, PLAYER, rules));
@@ -31,7 +31,8 @@ class CraftingGeneratorTest {
             alchemy.add(state.alchemy()); forging.add(state.forging());
             if (state.alchemy() != state.forging()) different++;
         }
-        assertEquals(101, alchemy.size()); assertEquals(101, forging.size()); assertTrue(different > 9000);
+        assertEquals(61, alchemy.size()); assertEquals(61, forging.size()); assertTrue(different > 9000);
+        assertEquals(0,alchemy.stream().mapToInt(Integer::intValue).min().orElseThrow());assertEquals(60,forging.stream().mapToInt(Integer::intValue).max().orElseThrow());
     }
     @Test void legacyProfessionScoresSurviveAdditiveTalismanInitialization() {
         var legacy = new CraftingAptitudes(1, true, 7, 91);
@@ -48,7 +49,8 @@ class CraftingGeneratorTest {
                  {"quality":1,"minimum":0},{"quality":2,"minimum":40},
                  {"quality":3,"minimum":70},{"quality":4,"minimum":90}]}
                 """));
-        assertEquals(new CraftingAptitudes(1, true, 17, 17, 17),
-                CraftingGenerator.ensure(CraftingAptitudes.EMPTY, true, 1, PLAYER, rules));
+        var actual=CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,1,PLAYER,rules);
+        var baseline=CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,1,PLAYER,CraftingRules.get());
+        assertEquals(17,actual.talisman());assertEquals(baseline.alchemy(),actual.alchemy());assertEquals(baseline.forging(),actual.forging());
     }
 }

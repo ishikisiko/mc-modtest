@@ -88,8 +88,9 @@ public final class CraftingPage extends PanelPage {
         InkPanelTheme.meter(graphics, font, context.text(KEY + "aptitude"), value,
                 x + pad, y + 75, innerWidth, row.initialized() ? row.score() / (row.score() + com.example.myvillage.aptitude.AptitudeRules.get().halfBonusPoints()) : 0,
                 InkPanelTheme.JADE, InkPanelTheme.JADE_DARK);
-        InkPanelTheme.pair(graphics, font, context.text(KEY + "quality_cap"), context.text(row.qualityKey()),
-                x + pad, y + 98, innerWidth, row.initialized() ? InkPanelTheme.GOLD_BRIGHT : InkPanelTheme.MUTED);
+        if(row.professionKey().endsWith("talisman"))
+            InkPanelTheme.pair(graphics,font,context.text(KEY+"quality_cap"),context.text(row.qualityKey()),x+pad,y+98,innerWidth,row.initialized()?InkPanelTheme.GOLD_BRIGHT:InkPanelTheme.MUTED);
+        else graphics.drawString(font,"逐件判定成败与品质",x+pad,y+98,InkPanelTheme.MUTED,false);
     }
 
     private static int text(GuiGraphics graphics, PanelContext context, Component text,

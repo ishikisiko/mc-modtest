@@ -13,7 +13,12 @@ public final class AlchemyArrayTransactions {
     }
     public static List<ItemStack> outputPlan(List<ItemStack> outputs,ItemStack result,int maxStackSize) {
         if(result.isEmpty())return null;
+        return outputPlan(outputs,List.of(result),maxStackSize);
+    }
+    public static List<ItemStack> outputPlan(List<ItemStack> outputs,List<ItemStack> results,int maxStackSize) {
         List<ItemStack> next=new ArrayList<>();outputs.forEach(stack->next.add(stack.copy()));
+        for(ItemStack result:results){
+        if(result.isEmpty())continue;
         int left=result.getCount();
         for(int pass=0;pass<2;pass++)for(int i=0;i<next.size()&&left>0;i++) {
             ItemStack target=next.get(i);boolean empty=target.isEmpty();
@@ -21,6 +26,8 @@ public final class AlchemyArrayTransactions {
             int room=Math.min(maxStackSize,result.getMaxStackSize())-(empty?0:target.getCount()),add=Math.min(Math.max(0,room),left);
             if(add>0){if(empty)next.set(i,result.copyWithCount(add));else target.grow(add);left-=add;}
         }
-        return left==0?next:null;
+        if(left!=0)return null;
+        }
+        return next;
     }
 }

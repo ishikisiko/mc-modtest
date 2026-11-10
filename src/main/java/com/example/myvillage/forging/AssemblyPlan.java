@@ -15,11 +15,11 @@ public record AssemblyPlan(ItemStack result,ItemStack returned,int reason) {
         if(piece!=null&&piece.stage()!=4)return invalid(2);
         if(craft.armor()){
             if(piece==null||!ForgingIngredients.matches(FoundryRules.get().assembly().armor_material(),material))return invalid(3);
-            var result=WorkshopEquipment.complete(input,quality,"wood");return new AssemblyPlan(result,ItemStack.EMPTY,0);
+            var result=quality==0?ItemStack.EMPTY:WorkshopEquipment.complete(input,quality,"wood");return new AssemblyPlan(result,ItemStack.EMPTY,0);
         }
         if(!(material.getItem() instanceof FoundryMaterialItem part)||part.flame()||material.isEmpty())return invalid(3);
         var handle=part.material();
-        if(piece!=null)return new AssemblyPlan(WorkshopEquipment.complete(input,quality,handle),ItemStack.EMPTY,0);
+        if(piece!=null)return new AssemblyPlan(quality==0?ItemStack.EMPTY:WorkshopEquipment.complete(input,quality,handle),ItemStack.EMPTY,0);
         var mark=input.get(ModDataComponents.FORGE_MARK.get());
         if(mark==null||!FoundryEquipment.valid(input))return invalid(1);
         var before=FoundryEquipment.record(input);if(before.handle().equals(handle))return invalid(4);

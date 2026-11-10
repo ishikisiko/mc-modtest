@@ -31,25 +31,20 @@ class ForgingTest {
     }
     private ForgingRules vanillaRules() throws Exception{return ForgingRules.parse(new StringReader(source().replace("myvillage:qingfeng_sword","minecraft:diamond_sword")));}
     private DataComponentType<ForgeMark> type(){return DataComponentType.<ForgeMark>builder().persistent(ForgeMark.CODEC).networkSynchronized(ForgeMark.STREAM_CODEC).build();}
-    @Test void everyWeightedOutcomeRespectsEveryCap(){
-        var rules=ForgingRules.get();
-        for(int cap=1;cap<=4;cap++){
-            Set<Integer> outcomes=new HashSet<>();
-            for(int draw=0;draw<rules.total(cap);draw++){
-                int q=rules.roll(cap,draw);assertTrue(q>=1&&q<=cap);outcomes.add(q);
-            }
-            assertEquals(cap,outcomes.size());
+    @Test void everyForgingRecipeUsesAnExplicitConfiguredQualityTier(){
+        var rules=ForgingRules.get();var quality=com.example.myvillage.cultivation.crafting.CraftingQualityRules.get();
+        for(var recipe:rules.recipes()){
+            assertEquals("myvillage:qi_refining",recipe.qualityTier());assertNotNull(quality.tier(recipe.qualityTier()));
+            assertEquals(0,quality.roll(0,recipe.qualityTier(),0,()->-1).quality());
+            assertEquals(4,quality.roll(60,recipe.qualityTier(),0,()->3).quality());
         }
-        assertThrows(IllegalArgumentException.class,()->rules.roll(0,0));
-        assertThrows(IllegalArgumentException.class,()->rules.roll(4,-1));
-        assertThrows(IllegalArgumentException.class,()->rules.roll(4,rules.total(4)));
     }
-    @Test void malformedConfigurationCannotProduceFreeOrAboveCapWeapons() throws Exception{
-        for(String malformed:List.of(source().replace("\"version\": 2","\"version\": 2, \"version\": 2"),
+    @Test void malformedConfigurationCannotProduceFreeOrUnregisteredTierWeapons() throws Exception{
+        for(String malformed:List.of(source().replace("\"version\": 3","\"version\": 3, \"version\": 3"),
                 source().replace("\"minecraft:diamond\": 2","\"minecraft:diamond\": 0"),
                 source().replace("\"minecraft:diamond\": 2","\"minecraft:diamond\": 1.5"),source()+" {}"))
             assertThrows(IllegalArgumentException.class,()->ForgingRules.parse(new StringReader(malformed)));
-        var json=JsonParser.parseString(source()).getAsJsonObject();json.getAsJsonArray("quality_weights").get(0).getAsJsonArray().set(3,new JsonPrimitive(1));
+        var json=JsonParser.parseString(source()).getAsJsonObject();json.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("quality_tier","myvillage:missing");
         assertThrows(IllegalArgumentException.class,()->ForgingRules.parse(new StringReader(json.toString())));
         assertThrows(IllegalArgumentException.class,()->ForgingRules.get().costs(ForgingRules.get().recipe("lingxiao_spear").orElseThrow(),"channeling"));
     }

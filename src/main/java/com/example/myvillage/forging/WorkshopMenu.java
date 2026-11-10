@@ -204,7 +204,8 @@ public class WorkshopMenu extends AbstractContainerMenu {
             case QUENCH->result=WorkshopItems.advance(input(),piece.next(craft().armor()?2:0));
             case TEMPER,GRIND->result=WorkshopItems.advance(input(),piece.next(piece.treatment()));
             case ASSEMBLE->{
-                result=WorkshopEquipment.complete(piece,ForgingCompletion.quality(player));toOutput=true;
+                int quality=ForgingCompletion.roll(player,piece.recipe());
+                result=quality==0?ItemStack.EMPTY:WorkshopEquipment.complete(piece,quality);toOutput=true;
             }
             case REPAIR->{result.setDamageValue(Math.max(0,result.getDamageValue()-ForgedEquipment.repairAmount(result)));toOutput=true;}
             default->{return false;}
@@ -215,7 +216,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
             if(plan.isEmpty()||!source.commit(plan.get()))return reject(4);
         }
         if(toOutput){work.setItem(0,ItemStack.EMPTY);work.setItem(1,result);setHeat(0);}
-        if(operation==ASSEMBLE||operation==REPAIR)com.example.myvillage.aptitude.AptitudeRuntime.crafted(player,"forging",
+        if((operation==ASSEMBLE||operation==REPAIR)&&!result.isEmpty())com.example.myvillage.aptitude.AptitudeRuntime.crafted(player,"forging",
                 operation==REPAIR?"repair":piece.recipe(),result.getOrDefault(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get(),ForgeMark.uninfused(1)).quality(),result);
         else work.setItem(0,result);
         if(operation==HEAT)setHeat(FoundryRules.get().heat().capacity());

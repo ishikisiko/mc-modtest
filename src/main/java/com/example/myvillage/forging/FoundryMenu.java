@@ -17,7 +17,7 @@ public final class FoundryMenu extends AbstractContainerMenu {
     private final ContainerData data;
     private final Kind kind;
     private final List<DataSlot> known=new ArrayList<>();
-    private final DataSlot skill,cap;
+    private final DataSlot skill,aptitude;
     public FoundryMenu(int id,Inventory inventory,Kind kind){this(id,inventory,new SimpleContainer(4),new SimpleContainerData(FoundryBlockEntity.DATA_COUNT),kind);}
     public FoundryMenu(int id,Inventory player,Container container,ContainerData data,Kind kind){
         super(type(kind),id);this.container=container;this.inventory=player;this.data=data;this.kind=kind;
@@ -38,11 +38,11 @@ public final class FoundryMenu extends AbstractContainerMenu {
             known.add(slot);addDataSlot(slot);
         }
         skill=player.player instanceof ServerPlayer p?new DataSlot(){public int get(){return ForgingSkill.level(p);}public void set(int value){}}:DataSlot.standalone();addDataSlot(skill);
-        cap=player.player instanceof ServerPlayer p?new DataSlot(){public int get(){return ForgingCompletion.quality(p);}public void set(int value){}}:DataSlot.standalone();addDataSlot(cap);
+        aptitude=player.player instanceof ServerPlayer p?new DataSlot(){public int get(){return ForgingCompletion.aptitude(p);}public void set(int value){}}:DataSlot.standalone();addDataSlot(aptitude);
     }
     private static MenuType<?> type(Kind kind){return switch(kind){case PREPARATION->ForgingMenus.PREPARATION.get();case KILN->ForgingMenus.KILN.get();case ASSEMBLY->ForgingMenus.ASSEMBLY.get();};}
     public Kind kind(){return kind;}public int recipeIndex(){return data.get(0);}public int progress(){return data.get(1);}public int duration(){return data.get(2);}
-    public int status(){return data.get(3);}public int heat(){return data.get(4);}public int fuel(){return data.get(5);}public int quality(){return cap.get();}
+    public int status(){return data.get(3);}public int heat(){return data.get(4);}public int fuel(){return data.get(5);}public int aptitude(){return aptitude.get();}
     public int skill(){return skill.get();}public boolean active(){return data.get(7)!=0;}
     public ItemStack input(){return container.getItem(0);}public ItemStack material(){return container.getItem(1);}public ItemStack output(){return container.getItem(2);}
     public boolean knows(int index){return index>=0&&index<known.size()&&known.get(index).get()!=0;}

@@ -43,7 +43,7 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
             var piece=WorkshopItems.valid(menu.input())?menu.input().get(ModDataComponents.WORKPIECE.get()):new Workpiece(craft.recipe(),0,0,craft.armor()?2:0);
             second.setTooltip(costs(PreparationBlockEntity.automaticCosts(piece,menu.input().isEmpty()),"自动完成标准器物，使用普通木柄；用水后返还空桶。已有手工贡献保留。"));
         }else if(menu.kind()==FoundryMenu.Kind.ASSEMBLY&&first!=null){
-            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),menu.quality());first.active=first.active&&plan.valid();
+            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),1);first.active=first.active&&plan.valid();
             first.setTooltip(Tooltip.create(Component.literal(plan.valid()?"保留品质、锻造增益、炼灵、附魔和损伤比例。换柄后从右槽返还旧柄。":assemblyStatus(plan.reason()))));
         }
     }
@@ -63,7 +63,7 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
             g.fill(x+132,y+96,x+186,y+102,0xFFB4A58C);int width=menu.duration()>0?Math.min(54,54*menu.progress()/menu.duration()):0;g.fill(x+132,y+96,x+132+width,y+102,JADE);
         }
         if(menu.kind()==FoundryMenu.Kind.ASSEMBLY&&menu.output().isEmpty()){
-            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),menu.quality());if(plan.valid())g.renderItem(plan.result(),x+202,y+92);
+            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),1);if(plan.valid())g.renderItem(plan.result(),x+202,y+92);
         }
     }
     private static void slot(GuiGraphics g,int x,int y){g.fill(x-1,y-1,x+17,y+17,0xFF99896D);g.fill(x,y,x+16,y+16,0xFFC9BFA5);}
@@ -86,7 +86,7 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
             g.drawString(font,"右键取放；持锤可与相邻锻台转移。",16,119,MUTED,false);
         }else{
             g.drawString(font,"器坯 / 成品",15,80,INK,false);g.drawString(font,"柄 / 皮革",85,80,INK,false);g.drawString(font,"预览 / 成品",186,80,INK,false);g.drawString(font,"旧柄",255,80,INK,false);
-            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),menu.quality());
+            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),1);
             if(plan.valid()){
                 var before=baseline();var after=plan.result();var craft=WorkshopEquipment.craft(after).orElseThrow();
                 g.drawString(font,craft.armor()?"护甲装配":FoundryEquipment.handle(after).name(),12,29,JADE,false);
@@ -98,19 +98,19 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
         }
         var lines=font.split(Component.literal(status()),278);if(!lines.isEmpty())g.drawString(font,lines.getFirst(),10,138,INK);
         g.drawString(font,"熟练度",11,158,MUTED,false);g.drawString(font,menu.skill()+" 级",16,171,JADE,false);
-        g.drawString(font,"成器品质",8,193,MUTED,false);g.drawString(font,ForgingQualityDisplay.name(menu.quality()),12,207,INK,false);
+        g.drawString(font,"炼器资质",8,193,MUTED,false);g.drawString(font,Integer.toString(menu.aptitude()),12,207,INK,false);
     }
     private static String number(double value){return java.math.BigDecimal.valueOf(value).setScale(2,java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();}
     private static double attack(ItemStack stack){return 1+stack.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).modifiers().stream()
             .filter(e->e.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)&&e.modifier().operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE).mapToDouble(e->e.modifier().amount()).sum();}
     private ItemStack baseline(){
         if(!WorkshopItems.valid(menu.input()))return menu.input();var piece=menu.input().get(ModDataComponents.WORKPIECE.get());
-        return PreparationBlockEntity.standard(WorkshopItems.blank(new Workpiece(piece.recipe(),0,0,WorkshopRules.get().craft(piece.recipe()).armor()?2:0)),menu.quality());
+        return PreparationBlockEntity.standard(WorkshopItems.blank(new Workpiece(piece.recipe(),0,0,WorkshopRules.get().craft(piece.recipe()).armor()?2:0)),1);
     }
     @Override public void render(GuiGraphics g,int mx,int my,float partial){
         super.render(g,mx,my,partial);renderTooltip(g,mx,my);
         if(menu.kind()==FoundryMenu.Kind.ASSEMBLY&&menu.output().isEmpty()&&isHovering(202,92,16,16,mx,my)){
-            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),menu.quality());if(plan.valid())g.renderTooltip(font,plan.result(),mx,my);
+            var plan=AssemblyPlan.prepare(menu.input(),menu.material(),1);if(plan.valid())g.renderTooltip(font,plan.result(),mx,my);
         }
     }
 }

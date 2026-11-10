@@ -91,4 +91,17 @@ class AlchemyArrayTest {
         JsonObject unknown=original.deepCopy();unknown.addProperty("extra",1);assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(unknown.toString())));
         assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(text.replace("\"version\": 1","\"version\": 1, \"version\": 1"))));
     }
+    @Test void mixedQualityPlanIsAtomicAndAnAllFailedBatchNeedsNoOutputSpace(){
+        var ordinary=new ItemStack(Items.APPLE,3);var special=ordinary.copyWithCount(2);special.set(DataComponents.CUSTOM_NAME,Component.literal("极品"));
+        var empty=List.of(ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY);
+        var plan=AlchemyArrayTransactions.outputPlan(empty,List.of(ordinary,special),64);
+        assertNotNull(plan);assertEquals(5,plan.stream().mapToInt(ItemStack::getCount).sum());
+        assertFalse(ItemStack.isSameItemSameComponents(plan.get(0),plan.get(1)));
+        var full=List.of(new ItemStack(Items.STONE,64),new ItemStack(Items.DIRT,64),new ItemStack(Items.COBBLESTONE,64),new ItemStack(Items.APPLE,63));
+        assertNull(AlchemyArrayTransactions.outputPlan(full,List.of(ordinary,special),64));
+        assertEquals(63,full.get(3).getCount());assertEquals(3,ordinary.getCount());assertEquals(2,special.getCount());
+        var failed=AlchemyArrayTransactions.outputPlan(full,List.of(),64);
+        assertNotNull(failed);for(int i=0;i<4;i++)assertTrue(ItemStack.matches(full.get(i),failed.get(i)));
+    }
+
 }

@@ -11,13 +11,16 @@ public final class FoundationRules {
     private final String sourceStage;
     private final String minimumRealm;
     private final int[] success;
+    private final int[] pillQualities;
     private final int failureDivisor;
     private FoundationRules(JsonObject o) {
-        if(!o.keySet().equals(Set.of("version","source_stage","minimum_realm","success_percent","failure_stability_divisor")) || o.get("version").getAsInt()!=2) throw new IllegalArgumentException("Invalid foundation rules");
+        if(!o.keySet().equals(Set.of("version","source_stage","minimum_realm","success_percent","failure_stability_divisor","pill_foundation_quality")) || o.get("version").getAsInt()!=3) throw new IllegalArgumentException("Invalid foundation rules");
         sourceStage=o.get("source_stage").getAsString();
         minimumRealm=o.get("minimum_realm").getAsString();
         if(!minimumRealm.matches("[a-z0-9_]+:[a-z0-9_]+") || !sourceStage.matches("[a-z0-9_]+:[a-z0-9_]+"))throw new IllegalArgumentException("Invalid foundation realms");
         success=percentages(o.getAsJsonArray("success_percent"));
+        var mapping=o.getAsJsonArray("pill_foundation_quality");if(mapping==null||mapping.size()!=4)throw new IllegalArgumentException("Four pill qualities required");
+        pillQualities=new int[4];for(int i=0;i<4;i++){int q=mapping.get(i).getAsBigDecimal().intValueExact();if(q<1||q>success.length||(i<3&&q!=i+1)||(i>0&&q<pillQualities[i-1]))throw new IllegalArgumentException("Invalid pill foundation mapping");pillQualities[i]=q;}
         failureDivisor=o.get("failure_stability_divisor").getAsBigDecimal().intValueExact();
         if(failureDivisor<2 || failureDivisor>100)throw new IllegalArgumentException("Invalid failure divisor");
     }
@@ -40,6 +43,7 @@ public final class FoundationRules {
     public int successPercent(int q){require(q);return success[q-1];}
     public boolean succeeds(int q,int draw){if(draw<0||draw>=100)throw new IllegalArgumentException("Invalid draw");return draw<successPercent(q);}
     public int failedStability(int stability){if(stability<0)throw new IllegalArgumentException("Invalid stability");return stability/failureDivisor;}
-    public boolean canRepair(CultivationProfile p,int q){return established(p)&&q>=2&&q<=3&&q>p.foundationQuality();}
+    public int pillFoundationQuality(int q){PillQuality.require(q);return pillQualities[q-1];}
+    public boolean canRepair(CultivationProfile p,int q){return q>=1&&q<=4&&established(p)&&pillFoundationQuality(q)>p.foundationQuality();}
     private static void require(int q){if(q<1||q>3)throw new IllegalArgumentException("Foundation quality must be 1..3");}
 }

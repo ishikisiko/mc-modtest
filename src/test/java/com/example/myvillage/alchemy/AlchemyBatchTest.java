@@ -1,73 +1,52 @@
 package com.example.myvillage.alchemy;
 
-import net.minecraft.nbt.CompoundTag;
+import com.example.myvillage.cultivation.crafting.CraftingQualityRules;
+import net.minecraft.nbt.*;
 import org.junit.jupiter.api.Test;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AlchemyBatchTest {
-    private static final UUID BREWER = UUID.fromString("619a2fa3-76e3-45c1-b1fa-5136ef930224");
-
-    @Test void startRequiresEveryAuthorityAndMaterialGateBeforeAnyQualityCanBeDrawn() {
-        assertNull(AlchemyBatch.rejection(true, false, true, true, true, true));
-        assertEquals(AlchemyBatch.Rejection.INVALID, AlchemyBatch.rejection(false, false, true, true, true, true));
-        assertEquals(AlchemyBatch.Rejection.BUSY, AlchemyBatch.rejection(true, true, true, true, true, true));
-        assertEquals(AlchemyBatch.Rejection.UNAWAKENED, AlchemyBatch.rejection(true, false, false, true, true, true));
-        assertEquals(AlchemyBatch.Rejection.INGREDIENTS, AlchemyBatch.rejection(true, false, true, false, true, true));
-        assertEquals(AlchemyBatch.Rejection.FUEL, AlchemyBatch.rejection(true, false, true, true, false, true));
-        assertEquals(AlchemyBatch.Rejection.OUTPUT, AlchemyBatch.rejection(true, false, true, true, true, false));
-        // Even a matching pill stack must be rejected: compatibility must not reveal a future roll.
-        assertEquals("message.myvillage.alchemy.start_output",
-                AlchemyBatch.rejection(true, false, true, true, true, false).messageKey());
-        // A second actor cannot replace an active brewer, even if their own aptitude is missing.
-        assertEquals(AlchemyBatch.Rejection.BUSY, AlchemyBatch.rejection(true, true, false, true, true, true));
+    private static final UUID BREWER=UUID.fromString("619a2fa3-76e3-45c1-b1fa-5136ef930224");
+    private static AlchemyBatch mixed(){return new AlchemyBatch(BREWER,"huiling",60,"myvillage:qi_refining",0,
+        List.of(new CraftingQualityRules.Roll(10,0),new CraftingQualityRules.Roll(100,4)));}
+    @Test void startRequiresEveryAuthorityAndMaterialGateBeforeDrawing(){
+        assertNull(AlchemyBatch.rejection(true,false,true,true,true,true));
+        assertEquals(AlchemyBatch.Rejection.INVALID,AlchemyBatch.rejection(false,false,true,true,true,true));
+        assertEquals(AlchemyBatch.Rejection.BUSY,AlchemyBatch.rejection(true,true,false,true,true,true));
+        assertEquals(AlchemyBatch.Rejection.UNAWAKENED,AlchemyBatch.rejection(true,false,false,true,true,true));
+        assertEquals(AlchemyBatch.Rejection.INGREDIENTS,AlchemyBatch.rejection(true,false,true,false,true,true));
+        assertEquals(AlchemyBatch.Rejection.FUEL,AlchemyBatch.rejection(true,false,true,true,false,true));
+        assertEquals(AlchemyBatch.Rejection.OUTPUT,AlchemyBatch.rejection(true,false,true,true,true,false));
+        assertEquals("message.myvillage.alchemy.start_output",AlchemyBatch.rejection(true,false,true,true,true,false).messageKey());
     }
-
-    @Test void repeatedSaveLoadPreservesBrewerFrozenValuesAndTheExactHiddenOutcome() {
-        for (int cap = 1; cap <= 4; cap++) for (int quality = 1; quality <= cap; quality++) {
-            AlchemyBatch original = new AlchemyBatch(BREWER, "huiling", 100, cap, quality);
-            AlchemyBatch current = original;
-            for (int restart = 0; restart < 10; restart++) {
-                current = AlchemyBatch.read(current.save().copy()).orElseThrow();
-                assertEquals(original, current);
-            }
-        }
+    @Test void everyPillDrawsIndependentlyAndFailuresAreRetained(){
+        var calls=new AtomicInteger();var r=AlchemyRules.get().recipe("huiling").orElseThrow();
+        var b=AlchemyBatch.create(BREWER,r,60,()->calls.getAndIncrement()==0?-5:3);
+        assertEquals(2,calls.get());assertEquals(1,b.failures());assertEquals(1,b.successfulCount());assertEquals(4,b.bestQuality());
+        assertEquals(List.of(0,4),b.outcomes().stream().map(CraftingQualityRules.Roll::quality).toList());
+        var failed=AlchemyBatch.create(BREWER,r,0,()->-2);
+        assertEquals(2,failed.failures());assertEquals(0,failed.successfulCount());
     }
-
-    @Test void incompleteLegacyAndCorruptSavedDecisionsCannotResume() {
-        assertTrue(AlchemyBatch.read(new CompoundTag()).isEmpty());
-        CompoundTag good = new AlchemyBatch(BREWER, "ningshen", 81, 4, 3).save();
-        for (String required : new String[]{"Version", "Brewer", "Recipe", "Score", "Cap", "Quality"}) {
-            CompoundTag missing = good.copy(); missing.remove(required);
-            assertTrue(AlchemyBatch.read(missing).isEmpty(), required);
-        }
-        for (int value : new int[]{Integer.MIN_VALUE, -1, 0, 5, Integer.MAX_VALUE}) {
-            CompoundTag corrupt = good.copy(); corrupt.putInt("Quality", value);
-            assertTrue(AlchemyBatch.read(corrupt).isEmpty(), "quality " + value);
-        }
-        CompoundTag exceedsCap = good.copy(); exceedsCap.putInt("Cap", 2);
-        assertTrue(AlchemyBatch.read(exceedsCap).isEmpty());
-        CompoundTag wrongType = good.copy(); wrongType.putFloat("Quality", 3.9F);
-        assertTrue(AlchemyBatch.read(wrongType).isEmpty());
-        CompoundTag badBrewer = good.copy(); badBrewer.putIntArray("Brewer", new int[]{1, 2});
-        assertTrue(AlchemyBatch.read(badBrewer).isEmpty());
-        CompoundTag future = good.copy(); future.putInt("Version", 2);
-        assertTrue(AlchemyBatch.read(future).isEmpty());
-        CompoundTag score = good.copy(); score.putInt("Score", 101);
-        assertTrue(AlchemyBatch.read(score).isEmpty());
+    @Test void saveLoadAndBlockedProgressPreserveEveryFrozenOutcome(){
+        var original=mixed();var current=original;var p=new BrewingProgress();p.restore("huiling",2,5);
+        for(int i=0;i<100;i++){assertFalse(p.advance("huiling",5,false,false));current=AlchemyBatch.read(current.save()).orElseThrow();assertEquals(original,current);}
+        assertEquals(2,p.ticks());assertEquals(BREWER,current.brewer());
+        assertFalse(p.advance("huiling",5,false,true));assertFalse(p.advance("huiling",5,false,true));assertTrue(p.advance("huiling",5,false,true));
     }
-
-    @Test void blockedProgressAndRestartsDoNotChangeTheSavedDecision() {
-        AlchemyBatch decision = new AlchemyBatch(BREWER, "yangyuan", 100, 4, 4);
-        BrewingProgress progress = new BrewingProgress();
-        progress.restore(decision.recipe(), 2, 5);
-        for (int i = 0; i < 100; i++) {
-            assertFalse(progress.advance(decision.recipe(), 5, false, false));
-            decision = AlchemyBatch.read(decision.save()).orElseThrow();
+    @Test void malformedMissingAndInconsistentFrozenResultsAreRejected(){
+        assertTrue(AlchemyBatch.read(new CompoundTag()).isEmpty());var good=mixed().save();
+        for(String key:List.of("Version","Brewer","Recipe","Score","Tier","Difficulty","Outcomes")){
+            var bad=good.copy();bad.remove(key);assertTrue(AlchemyBatch.read(bad).isEmpty(),key);
         }
-        assertEquals(2, progress.ticks()); assertEquals(4, decision.quality()); assertEquals(BREWER, decision.brewer());
-        assertFalse(progress.advance(decision.recipe(), 5, false, true));
-        assertFalse(progress.advance(decision.recipe(), 5, false, true));
-        assertTrue(progress.advance(decision.recipe(), 5, false, true));
+        var bad=good.copy();bad.getList("Outcomes",Tag.TAG_COMPOUND).getCompound(0).putInt("Quality",1);
+        assertTrue(AlchemyBatch.read(bad).isEmpty(),"cannot turn failure into a successful pill");
+        bad=good.copy();bad.putInt("Difficulty",4);assertTrue(AlchemyBatch.read(bad).isEmpty());
+        bad=good.copy();bad.putInt("Version",1);assertTrue(AlchemyBatch.read(bad).isEmpty());
+        bad=good.copy();bad.putInt("Score",-1);assertTrue(AlchemyBatch.read(bad).isEmpty());
+        bad=good.copy();bad.putFloat("Score",60);assertTrue(AlchemyBatch.read(bad).isEmpty());
+        bad=good.copy();bad.putIntArray("Brewer",new int[]{1,2});assertTrue(AlchemyBatch.read(bad).isEmpty());
+        bad=good.copy();bad.put("Outcomes",new ListTag());assertTrue(AlchemyBatch.read(bad).isEmpty());
     }
 }

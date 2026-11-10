@@ -7,12 +7,12 @@ public final class RecipeText {
     private RecipeText(){}
     public static Component name(AlchemyRules.Recipe r){
         Component item=BuiltInRegistries.ITEM.get(ResourceLocation.parse(r.output())).getDescription();
-        return r.fixedQuality()>0?PillQuality.name(r.fixedQuality()).copy().append(item):item;
+        return item.copy().append(" · 难度"+r.difficulty());
     }
     public static Component tooltip(AlchemyRules.Recipe r){
         MutableComponent text=Component.empty();
         for(int i=0;i<r.ingredients().size();i++)text.append(BuiltInRegistries.ITEM.get(ResourceLocation.parse(r.ingredients().get(i))).getDescription()).append(" ×"+r.count(i)+"\n");
-        if(r.fixedQuality()>0)text.append("炼丹资质 ≥ "+r.minimumAptitude()+" · 固定产出 ").append(name(r)).append("\n");
+        text.append("炼丹资质 ≥ "+r.requiredAptitude()+" · 难度 "+r.difficulty()+"\n每颗分别判定成败与品质\n");
         return text.append("点击从背包补齐一炉材料与灵石");
     }
 }
