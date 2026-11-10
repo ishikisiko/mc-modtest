@@ -43,7 +43,7 @@ public final class FateService {
         if (actor instanceof ServerPlayer player) return active(player);
         if (!FateActors.supported(actor) || !state(actor).confirmed()) return Map.of();
         Map<String,FateDefinition> result = new TreeMap<>();
-        definitions(actor.registryAccess()).forEach((id,definition) -> { if (definition.enabled()) result.put(id,definition); });
+        definitions(actor.registryAccess()).forEach((id,definition) -> { if (definition.enabled()&&definition.npcEligible()) result.put(id,definition); });
         return result;
     }
     public static double effect(net.minecraft.world.entity.LivingEntity actor, String effect) {

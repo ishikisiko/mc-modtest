@@ -11,8 +11,9 @@ import net.minecraft.resources.ResourceLocation;
 /** Synced data, never client authority. No gameplay number lives in a trait-id branch. */
 public record FateDefinition(String translationKey, String descriptionKey, int tier, int cost,
         String group, boolean enabled, Map<String, Double> effects,
-        Optional<ResourceLocation> element, int minimumAptitude, int maximumRoots, Optional<ResourceLocation> derivedSkill) {
-    public static final Set<String> EFFECTS = Set.of("school_study", "school_mastery", "herbal_find_chance", "metal_bonus", "wood_bonus", "water_bonus", "earth_bonus",
+        Optional<ResourceLocation> element, int minimumAptitude, int maximumRoots, Optional<ResourceLocation> derivedSkill,
+        boolean npcEligible) {
+    public static final Set<String> EFFECTS = Set.of("alchemy_initial_aptitude","forging_initial_aptitude","crafting_mean_shift","crafting_variance_multiplier","school_study", "school_mastery", "herbal_find_chance", "metal_bonus", "wood_bonus", "water_bonus", "earth_bonus",
             "metal_armor_break_fraction", "metal_armor_break_ticks", "water_slow_fraction", "water_slow_ticks", "water_slow_cooldown", "ground_knockback",
             "everlasting", "body_health_bonus", "body_defense_bonus", "healing_bonus", "jingang_adaptation", "phoenix", "health", "speed", "knockback", "fall_reduction",
             "gain", "study", "lifesteal_fraction", "lifesteal_cap_fraction", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
@@ -35,19 +36,37 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
             ResourceLocation.CODEC.optionalFieldOf("element").forGetter(FateDefinition::element),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("minimum_aptitude", 0).forGetter(FateDefinition::minimumAptitude),
             Codec.intRange(1, 5).optionalFieldOf("maximum_roots", 5).forGetter(FateDefinition::maximumRoots),
-            ResourceLocation.CODEC.optionalFieldOf("derived_skill").forGetter(FateDefinition::derivedSkill)
+            ResourceLocation.CODEC.optionalFieldOf("derived_skill").forGetter(FateDefinition::derivedSkill),
+            Codec.BOOL.optionalFieldOf("npc_eligible",true).forGetter(FateDefinition::npcEligible)
     ).apply(i, FateDefinition::new));
     public FateDefinition(String translationKey, String descriptionKey, int tier, int cost,
             String group, boolean enabled, Map<String, Double> effects,
             Optional<ResourceLocation> element, int minimumAptitude, int maximumRoots) {
         this(translationKey, descriptionKey, tier, cost, group, enabled, effects, element,
-                minimumAptitude, maximumRoots, Optional.empty());
+                minimumAptitude, maximumRoots, Optional.empty(),true);
+    }
+    public FateDefinition(String translationKey,String descriptionKey,int tier,int cost,String group,boolean enabled,
+            Map<String,Double> effects,Optional<ResourceLocation> element,int minimumAptitude,int maximumRoots,
+            Optional<ResourceLocation> derivedSkill){
+        this(translationKey,descriptionKey,tier,cost,group,enabled,effects,element,minimumAptitude,maximumRoots,derivedSkill,true);
     }
     public FateDefinition {
         if (translationKey.isBlank() || descriptionKey.isBlank() || group.isBlank()
                 || tier < 0 || tier > 5 || cost != tier + 1) throw new IllegalArgumentException("Invalid fate metadata");
         effects = Map.copyOf(effects);
         effects.forEach((k, v) -> {
+            if(k.equals("alchemy_initial_aptitude")||k.equals("forging_initial_aptitude")){
+                if(!Double.isFinite(v)||v<0||v>Integer.MAX_VALUE||v!=Math.rint(v))throw new IllegalArgumentException("Invalid opening aptitude");
+                return;
+            }
+            if(k.equals("crafting_mean_shift")){
+                if(!Double.isFinite(v)||Math.abs(v)>10000)throw new IllegalArgumentException("Invalid crafting mean shift");
+                return;
+            }
+            if(k.equals("crafting_variance_multiplier")){
+                if(!Double.isFinite(v)||v<=0||v>10000)throw new IllegalArgumentException("Invalid crafting variance multiplier");
+                return;
+            }
             if (!EFFECTS.contains(k) || !Double.isFinite(v) || v < -0.9 || v > 24000)
                 throw new IllegalArgumentException("Invalid fate effect " + k);
             if (k.endsWith("ticks") || k.endsWith("cooldown")) {
@@ -60,6 +79,8 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
                 throw new IllegalArgumentException("Invalid fraction " + k);
             }
         });
+        if(effects.containsKey("crafting_mean_shift")!=effects.containsKey("crafting_variance_multiplier"))
+            throw new IllegalArgumentException("Crafting quality talent requires both mean and variance parameters");
         if ((effects.containsKey("school_study") || effects.containsKey("school_mastery"))
                 && (value(effects,"school_study")<=0 || value(effects,"school_mastery")<=0))
             throw new IllegalArgumentException("流派悟性需要研读和熟练两项加成");

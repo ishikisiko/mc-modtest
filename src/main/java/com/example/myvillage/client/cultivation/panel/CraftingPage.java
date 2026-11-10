@@ -29,7 +29,8 @@ public final class CraftingPage extends PanelPage {
     @Override public int render(GuiGraphics graphics, PanelContext context, int x, int y, int width, int viewportHeight) {
         int start = y;
         boolean initialized = context.crafting().initialized();
-        y = text(graphics, context, Component.translatable(KEY + (initialized ? "meaning" : "talisman_awaken")),
+        boolean awaitingFates=!initialized&&context.profile()!=null&&context.profile().awakened();
+        y = text(graphics, context, Component.translatable(KEY + (initialized ? "meaning" : awaitingFates?"fates_pending":"talisman_awaken")),
                 x, y, width, initialized ? InkPanelTheme.MUTED : InkPanelTheme.GOLD_BRIGHT);
         y += GAP;
         var rows = CraftingReadouts.of(context.crafting(), context.alchemyQualityCap(), context.forgingQualityCap(), context.talismanQualityCap());

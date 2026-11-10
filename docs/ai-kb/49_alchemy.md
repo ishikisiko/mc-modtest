@@ -1,5 +1,7 @@
 # 0.126.0 逐颗随机品质与丹方难度
 
+0.127.0接入[开局技艺天赋](../features/crafting-opening-talents.md)：普通炉按操作者当前土块效果逐颗抽取，炉阵控制器格式3保存授权时的均值／方差修正，离线与重启续批继续使用授权值。
+
 当前炼丹规则见[共用品质公式、四格出丹和冻结批次](../features/crafting-normal-quality.md)，根基药物见[筑基丹与补基丹](../features/foundation-pills.md)。`alchemy/rules.json` 格式 3 只持有品质效果倍率及各丹方数据；正态参数、品阶和阈值统一在 `crafting/quality.json`。丹方难度移动全部四个阈值，成品不再采用固定品质或资质品质权重表。
 
 单炉为药材 0～2、燃料 3、产物 4～7；炉阵槽位保持药材 0／1／7、燃料 2、产物 3～6。`AlchemyBatch` 格式 2 保存每颗得分与结果，`AlchemyOutputs` 按品质合并成功产物，`AlchemyArrayTransactions` 在副本上规划整批输出。整炉失败也完整结算，不因无产物而卡住。单炉库存格式 2 不迁移旧布局。

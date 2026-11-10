@@ -2302,5 +2302,16 @@
   "fate.myvillage.school_next": "下一页",
   "fate.myvillage.school_accept": "确认流派",
   "fate.myvillage.school_selected": "流派悟性：%s（确认后固定）",
-  "fate.myvillage.school_choice_hint": "请选择一个流派，确认天命后固定该选择。"
+  "fate.myvillage.school_choice_hint": "请选择一个流派，确认天命后固定该选择。",
+  "fate.myvillage.alchemy_prodigy": "炼丹奇才",
+  "fate.myvillage.alchemy_prodigy.description": "开局炼丹资质采用固定值，之后仍可培养。",
+  "fate.myvillage.forging_prodigy": "炼器奇才",
+  "fate.myvillage.forging_prodigy.description": "开局炼器资质采用固定值，之后仍可培养。",
+  "fate.myvillage.clod": "土块",
+  "fate.myvillage.clod.description": "炼丹与炼器得分的均值降低、波动增大；每颗丹药和每件器物各自判定。",
+  "fate.myvillage.effect.alchemy_initial_aptitude": "开局炼丹资质",
+  "fate.myvillage.effect.forging_initial_aptitude": "开局炼器资质",
+  "fate.myvillage.effect.crafting_mean_shift": "炼丹／炼器得分均值偏移",
+  "fate.myvillage.effect.crafting_variance_multiplier": "炼丹／炼器正态方差倍率",
+  "screen.myvillage.crafting.fates_pending": "请在测灵碑确认三条开局天赋，再查看生成的技艺资质。"
 }

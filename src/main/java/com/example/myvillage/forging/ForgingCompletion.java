@@ -21,7 +21,8 @@ public final class ForgingCompletion {
     }
     public static int roll(ServerPlayer player,String recipe){
         var definition=ForgingRules.get().recipe(recipe).orElseThrow();
-        return CraftingQualityRules.get().roll(aptitude(player),definition.qualityTier(),0,player.getRandom()::nextGaussian).quality();
+        return CraftingQualityRules.get().roll(aptitude(player),definition.qualityTier(),0,
+                com.example.myvillage.cultivation.crafting.CraftingTalents.modifier(player),player.getRandom()::nextGaussian).quality();
     }
     public static void stamp(ItemStack result,int quality){
         if(quality<0||quality>4)throw new IllegalArgumentException("Invalid forging outcome");

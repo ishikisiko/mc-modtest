@@ -83,7 +83,8 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         var rejection=AlchemyBatch.rejection(valid,active(),aptitude.initialized()&&CultivationService.getProfile(player).awakened(),r!=null,hasFuel(r),outputEmpty());
         if(rejection!=null){player.displayClientMessage(Component.translatable(rejection.messageKey()),true);return false;}
         if(!r.eligible(aptitude.alchemy())){player.displayClientMessage(Component.literal("炼丹资质不足：此方要求 "+r.requiredAptitude()+" 点"),true);return false;}
-        batch=AlchemyBatch.create(player.getUUID(),r,aptitude.alchemy(),level.random::nextGaussian);
+        batch=AlchemyBatch.create(player.getUUID(),r,aptitude.alchemy(),
+            com.example.myvillage.cultivation.crafting.CraftingTalents.modifier(player),level.random::nextGaussian);
         completed=false;lastSuccess=lastFailures=0;lastScore=aptitude.alchemy();
         progress.restore(r.id(),0,r.durationTicks());duration=r.durationTicks();status=4;
         captureInputChanges();super.setChanged();menu.broadcastChanges();return true;

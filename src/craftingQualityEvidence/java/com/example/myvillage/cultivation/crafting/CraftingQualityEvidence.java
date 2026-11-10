@@ -42,6 +42,8 @@ public final class CraftingQualityEvidence {
     private static ServerPlayer actor(MinecraftServer server){
         var p=FakePlayerFactory.get(server.overworld(),new GameProfile(UUID.nameUUIDFromBytes("crafting-quality-evidence".getBytes()),"CraftingProof"));
         p.setHealth(p.getMaxHealth());CultivationService.setSpiritualRoot(p,new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:metal"),100)));
+        var chosen=List.of("myvillage:robust","myvillage:lightfoot","myvillage:bright");
+        CultivationService.replaceFates(p,com.example.myvillage.cultivation.fate.FateState.empty().choice(chosen,"",chosen,true,1),false);
         CultivationService.initializeCraftingAptitudes(p);CultivationService.setCraftingAptitude(p,CraftingAptitudes.Profession.ALCHEMY,60);CultivationService.setCraftingAptitude(p,CraftingAptitudes.Profession.FORGING,60);
         AlchemyKnowledge.learn(p,"huiling");return p;
     }

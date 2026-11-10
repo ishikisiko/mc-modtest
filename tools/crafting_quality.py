@@ -37,12 +37,9 @@ def parse(data):
             valid = False
         if not valid:
             raise ValueError(f'无效数值：{value!r}')
-    fields(data, ('version', 'initial_roll', 'standard_deviation', 'maximum_difficulty',
+    fields(data, ('version', 'standard_deviation', 'maximum_difficulty',
                   'difficulty_threshold_step', 'tiers'))
-    number(data['version'], 1, 1, integer=True)
-    fields(data['initial_roll'], ('min', 'max'))
-    number(data['initial_roll']['min'], 0, MAX_SCORE, integer=True)
-    number(data['initial_roll']['max'], data['initial_roll']['min'], MAX_SCORE - 1, integer=True)
+    number(data['version'], 2, 2, integer=True)
     number(data['standard_deviation'], positive=True)
     number(data['maximum_difficulty'], 0, 64, integer=True)
     number(data['difficulty_threshold_step'], positive=True)
@@ -84,13 +81,17 @@ def thresholds(rules, tier_id, difficulty):
     return [cut + difficulty * rules['difficulty_threshold_step'] for cut in tier(rules, tier_id)['thresholds']]
 
 
-def probabilities(rules, aptitude, tier_id, difficulty):
+def probabilities(rules, aptitude, tier_id, difficulty, mean_shift=0, variance_multiplier=1):
     if type(aptitude) is not int or not 0 <= aptitude <= MAX_SCORE:
         raise ValueError('资质必须为非负整数')
     value = tier(rules, tier_id)
-    mean = 100 * (aptitude - value['baseline']) / value['span']
+    if (type(mean_shift) not in (int,float) or not math.isfinite(mean_shift)
+            or type(variance_multiplier) not in (int,float) or not math.isfinite(variance_multiplier) or variance_multiplier<=0):
+        raise ValueError('品质修正需要有限均值偏移和正方差倍率')
+    mean = 100 * (aptitude - value['baseline']) / value['span'] + mean_shift
+    sigma=rules['standard_deviation']*math.sqrt(variance_multiplier)
     cuts = thresholds(rules, tier_id, difficulty)
     cdf = lambda x: .5 * math.erfc(-x / math.sqrt(2))
-    cumulative = [cdf((cut - mean) / rules['standard_deviation']) for cut in cuts]
+    cumulative = [cdf((cut - mean) / sigma) for cut in cuts]
     return [cumulative[0], *(b - a for a, b in zip(cumulative, cumulative[1:])),
-            cdf((mean - cuts[-1]) / rules['standard_deviation'])]
+            cdf((mean - cuts[-1]) / sigma)]

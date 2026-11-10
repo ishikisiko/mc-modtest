@@ -26,16 +26,20 @@ public final class CraftingQualityRules {
         }
         public boolean succeeded() { return quality != 0; }
     }
-    private final int initialMin, initialMax, maximumDifficulty;
+    public record Modifier(double meanShift,double varianceMultiplier) {
+        public static final Modifier NORMAL=new Modifier(0,1);
+        public Modifier {
+            if(!Double.isFinite(meanShift)||!Double.isFinite(varianceMultiplier)||varianceMultiplier<=0)
+                throw new IllegalArgumentException("Invalid crafting quality modifier");
+        }
+    }
+    private final int maximumDifficulty;
     private final double deviation, difficultyStep;
     private final Map<String, Tier> tiers;
 
     private CraftingQualityRules(JsonObject root) {
-        fields(root,"version","initial_roll","standard_deviation","maximum_difficulty","difficulty_threshold_step","tiers");
-        if (integer(root,"version",1,1) != 1) throw invalid("version");
-        var initial = object(root.get("initial_roll")); fields(initial,"min","max");
-        initialMin = integer(initial,"min",0,Integer.MAX_VALUE);
-        initialMax = integer(initial,"max",initialMin,Integer.MAX_VALUE - 1);
+        fields(root,"version","standard_deviation","maximum_difficulty","difficulty_threshold_step","tiers");
+        integer(root,"version",2,2);
         deviation = positive(root,"standard_deviation");
         maximumDifficulty = integer(root,"maximum_difficulty",0,64);
         difficultyStep = positive(root,"difficulty_threshold_step");
@@ -67,17 +71,18 @@ public final class CraftingQualityRules {
         } catch (IOException e) { throw new IllegalStateException(e); }
     }
     public static CraftingQualityRules parse(Reader source) {
+        return new CraftingQualityRules(readDocument(source));
+    }
+    static JsonObject readDocument(Reader source) {
         try (var reader = new JsonReader(source)) {
             reader.setLenient(false);
             var root = read(reader);
             if (reader.peek() != JsonToken.END_DOCUMENT) throw invalid("trailing content");
-            return new CraftingQualityRules(object(root));
+            return object(root);
         } catch (IOException | IllegalStateException | NumberFormatException | ArithmeticException e) {
             throw new IllegalArgumentException("Invalid crafting quality rules",e);
         }
     }
-    public int initialMin() { return initialMin; }
-    public int initialMax() { return initialMax; }
     public int maximumDifficulty() { return maximumDifficulty; }
     public double deviation() { return deviation; }
     public double difficultyStep() { return difficultyStep; }
@@ -101,19 +106,27 @@ public final class CraftingQualityRules {
         return 4;
     }
     public Roll roll(int aptitude,String tierId,int difficulty,DoubleSupplier gaussian) {
+        return roll(aptitude,tierId,difficulty,Modifier.NORMAL,gaussian);
+    }
+    public Roll roll(int aptitude,String tierId,int difficulty,Modifier modifier,DoubleSupplier gaussian) {
         requireDifficulty(difficulty);
-        double score = tier(tierId).mean(aptitude) + deviation * gaussian.getAsDouble();
+        double score = tier(tierId).mean(aptitude) + modifier.meanShift()
+                + deviation * Math.sqrt(modifier.varianceMultiplier()) * gaussian.getAsDouble();
         return new Roll(score,classify(tierId,difficulty,score));
     }
     /** Five probabilities in order: failure, lower, middle, upper, perfect. */
     public List<Double> probabilities(int aptitude,String tierId,int difficulty) {
-        double mean = tier(tierId).mean(aptitude); var cuts = thresholds(tierId,difficulty);
+        return probabilities(aptitude,tierId,difficulty,Modifier.NORMAL);
+    }
+    public List<Double> probabilities(int aptitude,String tierId,int difficulty,Modifier modifier) {
+        double mean = tier(tierId).mean(aptitude)+modifier.meanShift(); var cuts = thresholds(tierId,difficulty);
+        double sigma=deviation*Math.sqrt(modifier.varianceMultiplier());
         var result = new ArrayList<Double>(); double previous = 0;
         for (double cut : cuts) {
-            double p = cdf((cut - mean) / deviation);
+            double p = cdf((cut - mean) / sigma);
             result.add(Math.max(0,p - previous)); previous = p;
         }
-        result.add(cdf((mean - cuts.getLast()) / deviation));
+        result.add(cdf((mean - cuts.getLast()) / sigma));
         return List.copyOf(result);
     }
     private static double cdf(double x) { return 0.5 * erfc(-x / Math.sqrt(2)); }

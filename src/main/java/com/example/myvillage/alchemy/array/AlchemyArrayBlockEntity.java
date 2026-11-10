@@ -30,6 +30,7 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     private String selectedRecipe="";
     private UUID authorizer,identity=UUID.randomUUID();
     private int score,lastFailures,lastSuccess,progress,status,duration;
+    private CraftingQualityRules.Modifier authorizedModifier=CraftingQualityRules.Modifier.NORMAL;
     private boolean enabled;
     private volatile boolean formed; // Also read from client chunk baking threads.
     private int mismatchIndex=-1,mismatchCount;
@@ -68,21 +69,21 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     public boolean select(ServerPlayer p,AlchemyArrayMenu menu,int index){
         var recipes=AlchemyRules.get().recipes();
         if(!validActor(p,menu))return false;
-        if(!awakened(p)){p.displayClientMessage(Component.literal("请先完成灵根觉醒，再使用丹炉阵。"),true);return false;}
+        if(!awakened(p)){p.displayClientMessage(Component.literal("请先完成测灵与开局天赋确认，再使用丹炉阵。"),true);return false;}
         if(active()||enabled||index<0||index>=recipes.size()||!AlchemyKnowledge.knows(p,recipes.get(index).id()))return false;
         var r=recipes.get(index);var payment=com.example.myvillage.spiritstone.SpiritStoneSources.open(p);
         var plan=AlchemyAutofill.plan(payment.copies(),List.of(items.get(0),items.get(1),items.get(2),items.get(7)),
                 r.refillItems(),r.refillCounts(),36);
         if(plan.isEmpty()||!payment.commit(plan.get().inventory()))return false;
         for(int i=0;i<3;i++)items.set(i,plan.get().inputs().get(i));items.set(7,plan.get().inputs().get(3));p.getInventory().setChanged();
-        selectedRecipe=recipes.get(index).id();authorizer=null;score=lastFailures=lastSuccess=0;progress=0;setChanged();menu.broadcastChanges();return true;
+        selectedRecipe=recipes.get(index).id();authorizer=null;authorizedModifier=CraftingQualityRules.Modifier.NORMAL;score=lastFailures=lastSuccess=0;progress=0;setChanged();menu.broadcastChanges();return true;
     }
     public boolean enable(ServerPlayer p,AlchemyArrayMenu menu){
         if(!validActor(p,menu)||!awakened(p)||active()||enabled||recipe()==null||!AlchemyKnowledge.knows(p,selectedRecipe)||!freshCheck().formed()||!ingredients(recipe())||!fuel(recipe()))return false;
         CraftingAptitudes apt=CultivationService.craftingAptitudes(p);
         authorizer=p.getUUID();score=apt.alchemy();
         if(!recipe().eligible(score)){p.displayClientMessage(Component.literal("炼丹资质不足：此方要求 "+recipe().requiredAptitude()+" 点"),true);return false;}
-        enabled=true;beginBatch();setChanged();menu.broadcastChanges();return true;
+        authorizedModifier=CraftingTalents.modifier(p);enabled=true;beginBatch();setChanged();menu.broadcastChanges();return true;
     }
     public boolean stop(ServerPlayer p,AlchemyArrayMenu menu){
         if(!validActor(p,menu))return false;enabled=false;setChanged();menu.broadcastChanges();return true;
@@ -93,7 +94,7 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     private boolean fuel(AlchemyRules.Recipe r){return r!=null&&SpiritStoneTags.isLowGrade(items.get(2))&&items.get(2).getCount()>=r.fuelCount();}
     private void beginBatch(){
         var r=recipe();if(!enabled||active()||authorizer==null||!ingredients(r)||!fuel(r)||!r.eligible(score))return;
-        batch=AlchemyBatch.create(authorizer,r,score,level.random::nextGaussian);
+        batch=AlchemyBatch.create(authorizer,r,score,authorizedModifier,level.random::nextGaussian);
         for(int i=0;i<4;i++)reserved.set(i,items.get(inputSlot(i)).copyWithCount(reservedCount(r,i)));
         progress=0;duration=r.durationTicks();setChanged();
     }
@@ -170,18 +171,23 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     @Override public Component getDisplayName(){return Component.literal("青铜丹炉阵");}
     @Override public AbstractContainerMenu createMenu(int id,Inventory inventory,Player p){return new AlchemyArrayMenu(id,inventory,this,data);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
-        super.saveAdditional(tag,registries);ContainerHelper.saveAllItems(tag,items,registries);tag.putInt("Version",2);tag.putUUID("Identity",identity);
+        super.saveAdditional(tag,registries);ContainerHelper.saveAllItems(tag,items,registries);tag.putInt("Version",3);tag.putUUID("Identity",identity);
+        tag.putDouble("MeanShift",authorizedModifier.meanShift());tag.putDouble("VarianceMultiplier",authorizedModifier.varianceMultiplier());
         tag.putString("SelectedRecipe",selectedRecipe);tag.putBoolean("Enabled",enabled);tag.putInt("Score",score);tag.putInt("Failed",lastFailures);tag.putInt("Succeeded",lastSuccess);tag.putInt("Progress",progress);
         if(authorizer!=null)tag.putUUID("Authorizer",authorizer);if(batch!=null){tag.put("Batch",batch.save());CompoundTag inputs=new CompoundTag();ContainerHelper.saveAllItems(inputs,reserved,registries);tag.put("Reserved",inputs);}
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);items=NonNullList.withSize(SLOT_COUNT,ItemStack.EMPTY);ContainerHelper.loadAllItems(tag,items,registries);
         batch=null;reserved=NonNullList.withSize(4,ItemStack.EMPTY);progress=0;enabled=false;authorizer=null;score=lastFailures=lastSuccess=0;
+        authorizedModifier=CraftingQualityRules.Modifier.NORMAL;
         identity=tag.hasUUID("Identity")?tag.getUUID("Identity"):UUID.randomUUID();selectedRecipe=tag.getString("SelectedRecipe");
         var r=recipe();if(r==null){selectedRecipe="";return;}duration=r.durationTicks();
-        if(tag.contains("Version",Tag.TAG_INT)&&tag.getInt("Version")==2&&tag.hasUUID("Authorizer")
+        if(tag.contains("Version",Tag.TAG_INT)&&tag.getInt("Version")==3&&tag.hasUUID("Authorizer")
+                &&tag.contains("MeanShift",Tag.TAG_DOUBLE)&&Double.isFinite(tag.getDouble("MeanShift"))
+                &&tag.contains("VarianceMultiplier",Tag.TAG_DOUBLE)&&Double.isFinite(tag.getDouble("VarianceMultiplier"))&&tag.getDouble("VarianceMultiplier")>0
                 &&tag.contains("Score",Tag.TAG_INT)&&tag.getInt("Score")>=0&&r.eligible(tag.getInt("Score"))){
             authorizer=tag.getUUID("Authorizer");score=tag.getInt("Score");enabled=tag.getBoolean("Enabled");
+            authorizedModifier=new CraftingQualityRules.Modifier(tag.getDouble("MeanShift"),tag.getDouble("VarianceMultiplier"));
             lastFailures=Math.clamp(tag.getInt("Failed"),0,16);lastSuccess=Math.clamp(tag.getInt("Succeeded"),0,16);
         }
         if(tag.contains("Batch",Tag.TAG_COMPOUND)) {

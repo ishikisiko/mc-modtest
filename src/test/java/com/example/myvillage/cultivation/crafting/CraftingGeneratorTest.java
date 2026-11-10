@@ -1,56 +1,55 @@
 package com.example.myvillage.cultivation.crafting;
 
 import java.io.StringReader;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CraftingGeneratorTest {
-    private static final UUID PLAYER = UUID.fromString("12345678-1234-5678-9abc-def012345678");
-    @Test void stableIndependentDomainsHavePinnedResultsAndUseWorldAndPlayerIdentity() {
-        var rules = CraftingRules.get();
-        var expected = new CraftingAptitudes(1, true, 56, 44, 83);
-        assertEquals(expected, CraftingGenerator.ensure(CraftingAptitudes.EMPTY, true, 987654321L, PLAYER, rules));
-        assertEquals(expected, CraftingGenerator.ensure(CraftingAptitudes.EMPTY, true, 987654321L, PLAYER, rules));
-        assertNotEquals(expected, CraftingGenerator.ensure(CraftingAptitudes.EMPTY, true, 987654322L, PLAYER, rules));
-        assertNotEquals(expected, CraftingGenerator.ensure(CraftingAptitudes.EMPTY, true, 987654321L, new UUID(0, 1), rules));
+    private static final UUID PLAYER=UUID.fromString("12345678-1234-5678-9abc-def012345678");
+    private static final CraftingOpeningRules.Selection CHOICE=new CraftingOpeningRules.Selection(
+            List.of("myvillage:robust","myvillage:lightfoot","myvillage:bright"),-1,-1);
+    @Test void selectedFatesAndIdentityDetermineOpeningWhileTalismanKeepsItsDomain(){
+        var expected=new CraftingAptitudes(1,true,35,40,83);
+        assertEquals(expected,CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,987654321L,PLAYER,CraftingRules.get(),CHOICE));
+        var anotherWorld=CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,987654322L,PLAYER,CraftingRules.get(),CHOICE);
+        assertEquals(expected.alchemy(),anotherWorld.alchemy());assertEquals(expected.forging(),anotherWorld.forging());
+        for(var order:List.of(CHOICE.ids(),List.of(CHOICE.ids().get(2),CHOICE.ids().get(0),CHOICE.ids().get(1))))
+            assertEquals(expected,CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,987654321L,PLAYER,CraftingRules.get(),new CraftingOpeningRules.Selection(order,-1,-1)));
     }
-    @Test void pendingAndAlreadyGeneratedStateNeverRegenerateEvenAfterRootAndRuleChanges() {
-        assertSame(CraftingAptitudes.EMPTY, CraftingGenerator.ensure(CraftingAptitudes.EMPTY, false, 0, null, null));
-        var saved = new CraftingAptitudes(1, true, 0, 100, 73);
-        assertSame(saved, CraftingGenerator.ensure(saved, true, Long.MAX_VALUE, null, null));
-        assertSame(saved, CraftingGenerator.ensure(saved, false, Long.MIN_VALUE, null, null));
-        // Lifecycle callers can change profile/root/world inputs; persisted initialization wins.
-        assertSame(saved, CraftingGenerator.ensure(saved, true, 123, PLAYER, CraftingRules.get()));
+    @Test void awakeningAndFateConfirmationAreBothRequiredAndSavedGrowthWins(){
+        assertSame(CraftingAptitudes.EMPTY,CraftingGenerator.ensure(CraftingAptitudes.EMPTY,false,0,null,null,null));
+        assertSame(CraftingAptitudes.EMPTY,CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,0,PLAYER,CraftingRules.get(),CraftingOpeningRules.Selection.PENDING));
+        var saved=new CraftingAptitudes(1,true,111,205,73);
+        assertSame(saved,CraftingGenerator.ensure(saved,true,0,null,null,null));
+        assertSame(saved,CraftingGenerator.ensure(saved,true,123,PLAYER,CraftingRules.get(),new CraftingOpeningRules.Selection(CHOICE.ids(),60,60)));
     }
-    @Test void twoProfessionRollsCoverConfiguredIntegerRangeWithoutBeingTiedTogether() {
-        var alchemy = new HashSet<Integer>(); var forging = new HashSet<Integer>(); int different = 0;
-        for (int i = 0; i < 10000; i++) {
-            var state = CraftingGenerator.ensure(CraftingAptitudes.EMPTY, true, 321, new UUID(1, i), CraftingRules.get());
-            alchemy.add(state.alchemy()); forging.add(state.forging());
-            if (state.alchemy() != state.forging()) different++;
+    @Test void contributionsUseConfiguredBucketsAndRemainIndependentBetweenProfessions(){
+        var opening=CraftingOpeningRules.get();var counts=new HashMap<Integer,Integer>();
+        for(int bucket=0;bucket<opening.totalWeight();bucket++)counts.merge(opening.deltaForBucket(bucket),1,Integer::sum);
+        assertEquals(Map.of(-5,15,5,15,-10,5,10,5,0,60),counts);
+        assertEquals(30,opening.base());assertEquals(0,opening.initialMinimum());assertEquals(60,opening.initialMaximum());
+        int different=0;
+        for(int i=0;i<1000;i++){
+            var state=CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,321,new UUID(1,i),CraftingRules.get(),CHOICE);
+            assertTrue(state.alchemy()>=0&&state.alchemy()<=60&&state.forging()>=0&&state.forging()<=60);
+            assertEquals(0,state.alchemy()%5);if(state.alchemy()!=state.forging())different++;
         }
-        assertEquals(61, alchemy.size()); assertEquals(61, forging.size()); assertTrue(different > 9000);
-        assertEquals(0,alchemy.stream().mapToInt(Integer::intValue).min().orElseThrow());assertEquals(60,forging.stream().mapToInt(Integer::intValue).max().orElseThrow());
+        assertTrue(different>600);
     }
-    @Test void legacyProfessionScoresSurviveAdditiveTalismanInitialization() {
-        var legacy = new CraftingAptitudes(1, true, 7, 91);
-        assertFalse(legacy.talismanInitialized());
-        var migrated = CraftingGenerator.ensure(legacy, true, 987654321L, PLAYER, CraftingRules.get());
-        assertEquals(7, migrated.alchemy()); assertEquals(91, migrated.forging()); assertEquals(83, migrated.talisman());
-        assertTrue(migrated.talismanInitialized());
-        assertSame(migrated, CraftingGenerator.ensure(migrated, true, Long.MIN_VALUE, null, null));
-        assertSame(legacy, CraftingGenerator.ensure(legacy, false, 0, null, null));
+    @Test void fillingPendingTalismanDoesNotResetSavedAlchemyOrForging(){
+        var current=new CraftingAptitudes(1,true,7,91);
+        var next=CraftingGenerator.ensure(current,true,987654321L,PLAYER,CraftingRules.get(),CHOICE);
+        assertEquals(7,next.alchemy());assertEquals(91,next.forging());assertEquals(83,next.talisman());
+        assertSame(next,CraftingGenerator.ensure(next,true,0,null,null,null));
     }
-    @Test void generationRespectsSingleValueRollRangeFromData() {
-        var rules = CraftingRules.parse(new StringReader("""
+    @Test void talismanRangeRemainsSeparateAndGeniusOverridesOnlyItsOwnOpeningScore(){
+        var rules=CraftingRules.parse(new StringReader("""
                 {"version":1,"initial_roll":{"min":17,"max":17},"quality_thresholds":[
                  {"quality":1,"minimum":0},{"quality":2,"minimum":40},
                  {"quality":3,"minimum":70},{"quality":4,"minimum":90}]}
                 """));
-        var actual=CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,1,PLAYER,rules);
-        var baseline=CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,1,PLAYER,CraftingRules.get());
-        assertEquals(17,actual.talisman());assertEquals(baseline.alchemy(),actual.alchemy());assertEquals(baseline.forging(),actual.forging());
+        var actual=CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,1,PLAYER,rules,new CraftingOpeningRules.Selection(CHOICE.ids(),60,-1));
+        assertEquals(60,actual.alchemy());assertEquals(40,actual.forging());assertEquals(17,actual.talisman());
     }
 }

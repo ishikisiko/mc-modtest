@@ -104,7 +104,8 @@ public final class NpcFatePool {
         var effects=new TreeMap<String,Double>();
         json.getAsJsonObject("effects").entrySet().forEach(e->effects.put(e.getKey(),e.getValue().getAsDouble()));
         return new Entry(id, json.get("cost").getAsInt(), json.get("group").getAsString(),
-                !json.has("enabled") || json.get("enabled").getAsBoolean(),
+                (!json.has("enabled") || json.get("enabled").getAsBoolean())
+                    &&(!json.has("npc_eligible")||json.get("npc_eligible").getAsBoolean()),
                 json.has("element") ? json.get("element").getAsString() : "",
                 json.has("minimum_aptitude") ? json.get("minimum_aptitude").getAsInt() : 0,
                 json.has("maximum_roots") ? json.get("maximum_roots").getAsInt() : 5,effects);

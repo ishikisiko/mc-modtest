@@ -46,7 +46,7 @@ class CraftingQualityTest(unittest.TestCase):
 
     def test_invalid_schema_and_ambiguous_json_are_rejected(self):
         mutations = [lambda d: d.update(version=True), lambda d: d.update(extra=1),
-                     lambda d: d['initial_roll'].update(max=0.5), lambda d: d['initial_roll'].update(min=61),
+                     lambda d: d.update(version=1), lambda d: d.update(initial_roll={'min':0,'max':60}),
                      lambda d: d['tiers'].append(copy.deepcopy(d['tiers'][0])),
                      lambda d: d['tiers'][0].update(span=0),
                      lambda d: d['tiers'][0].update(thresholds=[20, 40, 40, 90])]
@@ -70,3 +70,14 @@ class CraftingQualityTest(unittest.TestCase):
         for aptitude in (-1, True, 60.5, 2_147_483_648):
             with self.assertRaises(ValueError):
                 quality.probabilities(self.rules, aptitude, self.qi, 0)
+
+    def test_clod_changes_mean_and_variance_on_the_same_five_outcome_curve(self):
+        expected = [.072374341, .193611190, .468028938, .193611190, .072374341]
+        for actual, target in zip(quality.probabilities(self.rules, 60, self.qi, 0, -5, 4), expected):
+            self.assertAlmostEqual(target, actual, places=8)
+        higher = quality.probabilities(self.rules, 160, self.foundation, 0, -5, 4)
+        for tier in self.rules['tiers'][1:]:
+            self.assertEqual(higher, quality.probabilities(self.rules, tier['baseline'] + 60, tier['id'], 0, -5, 4))
+        for shift, variance in ((float('nan'),4),(-5,0),(-5,-1),(-5,float('inf'))):
+            with self.assertRaises(ValueError):
+                quality.probabilities(self.rules, 60, self.qi, 0, shift, variance)

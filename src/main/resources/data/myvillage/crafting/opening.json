@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hash_domain": "myvillage-crafting-start-v1",
+  "base": 30,
+  "weighted_deltas": [
+    {"value": -5, "weight": 15},
+    {"value": 5, "weight": 15},
+    {"value": -10, "weight": 5},
+    {"value": 10, "weight": 5},
+    {"value": 0, "weight": 60}
+  ]
+}

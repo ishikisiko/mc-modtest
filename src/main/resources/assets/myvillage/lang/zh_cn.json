@@ -1245,7 +1245,7 @@
   "tooltip.myvillage.alchemy.quality": "品质：%s",
   "message.myvillage.alchemy.start_invalid": "请在丹炉旁打开界面后开炉",
   "message.myvillage.alchemy.start_busy": "此炉正在炼制，不能重新开炉",
-  "message.myvillage.alchemy.start_unawakened": "请先测灵觉醒，再开始炼丹",
+  "message.myvillage.alchemy.start_unawakened": "请先完成测灵与开局天赋确认，再开始炼丹",
   "message.myvillage.alchemy.start_ingredients": "请选择已学丹方并补齐药材",
   "message.myvillage.alchemy.start_fuel": "请放入足够的下品灵石",
   "message.myvillage.alchemy.start_output": "请先取走丹药，再开下一炉",
@@ -3487,5 +3487,16 @@
   "screen.myvillage.economy.status.wrong_board": "请回接取任务的江湖榜交付。",
   "screen.myvillage.economy.status.stale": "事务或背包已经变化，请重新打开界面。",
   "screen.myvillage.economy.status.busy": "操作过快，请稍后再试。",
-  "screen.myvillage.economy.status.unavailable": "此处暂时无法办理。"
+  "screen.myvillage.economy.status.unavailable": "此处暂时无法办理。",
+  "fate.myvillage.alchemy_prodigy": "炼丹奇才",
+  "fate.myvillage.alchemy_prodigy.description": "开局炼丹资质采用固定值，之后仍可培养。",
+  "fate.myvillage.forging_prodigy": "炼器奇才",
+  "fate.myvillage.forging_prodigy.description": "开局炼器资质采用固定值，之后仍可培养。",
+  "fate.myvillage.clod": "土块",
+  "fate.myvillage.clod.description": "炼丹与炼器得分的均值降低、波动增大；每颗丹药和每件器物各自判定。",
+  "fate.myvillage.effect.alchemy_initial_aptitude": "开局炼丹资质",
+  "fate.myvillage.effect.forging_initial_aptitude": "开局炼器资质",
+  "fate.myvillage.effect.crafting_mean_shift": "炼丹／炼器得分均值偏移",
+  "fate.myvillage.effect.crafting_variance_multiplier": "炼丹／炼器正态方差倍率",
+  "screen.myvillage.crafting.fates_pending": "请在测灵碑确认三条开局天赋，再查看生成的技艺资质。"
 }

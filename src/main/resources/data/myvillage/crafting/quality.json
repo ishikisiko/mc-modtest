@@ -1,6 +1,5 @@
 {
-  "version": 1,
-  "initial_roll": {"min": 0, "max": 60},
+  "version": 2,
   "standard_deviation": 12,
   "maximum_difficulty": 3,
   "difficulty_threshold_step": 10,

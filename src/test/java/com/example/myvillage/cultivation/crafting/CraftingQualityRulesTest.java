@@ -40,7 +40,7 @@ class CraftingQualityRulesTest {
         assertEquals(60,rules.tier(FOUNDATION).mean(160));
         assertEquals(4,rules.roll(Integer.MAX_VALUE,QI,0,()->0).quality());
         assertTrue(rules.tier(QI).mean(Integer.MAX_VALUE)>100);
-        assertEquals(0,rules.initialMin());assertEquals(60,rules.initialMax());assertEquals(12,rules.deviation());
+        assertEquals(12,rules.deviation());
     }
     @Test void analyticalProbabilitiesMatchIndependentReferenceAndSumToOne(){
         double[] qi={.0004290603331968383,.0473612919396179,.749881266275163,.196118715967985,.00620966532577614};
@@ -66,7 +66,7 @@ class CraftingQualityRulesTest {
         assertThrows(IllegalArgumentException.class,()->rules.tier("myvillage:missing"));
     }
     @Test void schemaRejectsUnknownDuplicateFractionalAndUnsafeParameters()throws Exception{
-        for(String field:List.of("initial_roll","tiers","standard_deviation")){
+        for(String field:List.of("version","tiers","standard_deviation")){
             var j=JsonParser.parseString(source()).getAsJsonObject();j.remove(field);
             assertThrows(IllegalArgumentException.class,()->CraftingQualityRules.parse(new StringReader(j.toString())));
         }

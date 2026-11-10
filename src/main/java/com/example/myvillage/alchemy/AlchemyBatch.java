@@ -17,8 +17,12 @@ public record AlchemyBatch(UUID brewer,String recipe,int score,String tier,int d
             throw new IllegalArgumentException("Alchemy outcome does not match frozen score");
     }
     public static AlchemyBatch create(UUID brewer,AlchemyRules.Recipe recipe,int aptitude,DoubleSupplier gaussian) {
+        return create(brewer,recipe,aptitude,CraftingQualityRules.Modifier.NORMAL,gaussian);
+    }
+    public static AlchemyBatch create(UUID brewer,AlchemyRules.Recipe recipe,int aptitude,
+            CraftingQualityRules.Modifier modifier,DoubleSupplier gaussian) {
         var rules=CraftingQualityRules.get();var results=new ArrayList<CraftingQualityRules.Roll>();
-        for(int i=0;i<recipe.outputCount();i++)results.add(rules.roll(aptitude,recipe.qualityTier(),recipe.difficulty(),gaussian));
+        for(int i=0;i<recipe.outputCount();i++)results.add(rules.roll(aptitude,recipe.qualityTier(),recipe.difficulty(),modifier,gaussian));
         return new AlchemyBatch(brewer,recipe.id(),aptitude,recipe.qualityTier(),recipe.difficulty(),results);
     }
     public int count(int quality){return (int)outcomes.stream().filter(r->r.quality()==quality).count();}

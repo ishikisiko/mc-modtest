@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.forging_prodigy",
+  "description_key": "fate.myvillage.forging_prodigy.description",
+  "tier": 2,
+  "cost": 3,
+  "group": "forging_aptitude",
+  "npc_eligible": false,
+  "effects": {"forging_initial_aptitude": 60}
+}

@@ -25,7 +25,7 @@ public final class NpcFateRuntime {
         if (registries != access || pool == null) {
             var definitions = new ArrayList<NpcFatePool.Entry>();
             FateService.definitions(access).forEach((id, value) -> definitions.add(new NpcFatePool.Entry(id,
-                    value.cost(), value.group(), value.enabled(), value.element().map(Object::toString).orElse(""),
+                    value.cost(), value.group(), value.enabled()&&value.npcEligible(), value.element().map(Object::toString).orElse(""),
                     value.minimumAptitude(), value.maximumRoots(),value.effects())));
             pool = new NpcFatePool(NpcFatePool.configuredBudget(), definitions);
             registries = access;

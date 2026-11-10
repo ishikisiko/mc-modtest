@@ -97,7 +97,8 @@ public final class CultivationService {
         CraftingAptitudes current = craftingAptitudes(player);
         if (current.talismanInitialized() || getProfile(player).spiritualRoot().isEmpty()) return;
         CraftingAptitudes replacement = CraftingGenerator.ensure(current, true,
-                player.getServer().overworld().getSeed(), player.getUUID(), CraftingRules.get());
+                player.getServer().overworld().getSeed(), player.getUUID(), CraftingRules.get(),
+                com.example.myvillage.cultivation.crafting.CraftingTalents.selection(player));
         player.setData(CultivationAttachments.CRAFTING.get(), replacement);
     }
 

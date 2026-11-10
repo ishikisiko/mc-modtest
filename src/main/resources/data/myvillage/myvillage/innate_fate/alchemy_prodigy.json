@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.alchemy_prodigy",
+  "description_key": "fate.myvillage.alchemy_prodigy.description",
+  "tier": 2,
+  "cost": 3,
+  "group": "alchemy_aptitude",
+  "npc_eligible": false,
+  "effects": {"alchemy_initial_aptitude": 60}
+}

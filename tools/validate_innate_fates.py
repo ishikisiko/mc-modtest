@@ -15,7 +15,7 @@ from tools.validate_cultivation_initiation import _strip_java_comments, _method_
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = 'src/main/java/com/example/myvillage/'
 DATA = 'src/main/resources/data/myvillage/myvillage/innate_fate'
-EFFECTS = {'school_study','school_mastery','herbal_find_chance','metal_bonus','wood_bonus','water_bonus','earth_bonus','metal_armor_break_fraction','metal_armor_break_ticks','water_slow_fraction','water_slow_ticks','water_slow_cooldown','ground_knockback','everlasting','body_health_bonus','body_defense_bonus','healing_bonus','jingang_adaptation','phoenix','health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
+EFFECTS = {'alchemy_initial_aptitude','forging_initial_aptitude','crafting_mean_shift','crafting_variance_multiplier','school_study','school_mastery','herbal_find_chance','metal_bonus','wood_bonus','water_bonus','earth_bonus','metal_armor_break_fraction','metal_armor_break_ticks','water_slow_fraction','water_slow_ticks','water_slow_cooldown','ground_knockback','everlasting','body_health_bonus','body_defense_bonus','healing_bonus','jingang_adaptation','phoenix','health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
            'recovery_threshold','recovery_fraction','recovery_ticks','recovery_cooldown','hunter_bonus',
            'hunter_recovery','hunter_cooldown','low_threshold','low_reduction','low_knockback','damage_bonus',
            'low_speed','low_speed_threshold','power_cap_bonus','skill_refund_fraction',
@@ -46,6 +46,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
         if tier==0:ordinary.append(d.get('group'))
         for k in ('translation_key','description_key'):need(all(d.get(k) in lang for lang in langs),'FATE_LANG: '+name+' '+k)
         effects=d.get('effects')
+        need(type(d.get('npc_eligible',True)) is bool,'FATE_NPC_ELIGIBLE: '+name)
         placeholder=d.get('placeholder',False)
         need(type(placeholder) is bool,'FATE_PLACEHOLDER: '+name)
         need(isinstance(effects,dict) and (bool(effects) or placeholder is True),'FATE_EFFECTS: '+name)
@@ -57,12 +58,16 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
         for k,v in effects.items():
             need(k in EFFECTS,'FATE_EFFECT_UNKNOWN: '+name+' '+k)
             valid=type(v) in (int,float) and math.isfinite(v)
-            if k.endswith(('ticks','cooldown')):valid=valid and v==int(v) and 1<=v<=24000
+            if k in ('alchemy_initial_aptitude','forging_initial_aptitude'):valid=valid and v==int(v) and 0<=v<=2_147_483_647
+            elif k=='crafting_mean_shift':valid=valid and abs(v)<=10000
+            elif k=='crafting_variance_multiplier':valid=valid and 0<v<=10000
+            elif k.endswith(('ticks','cooldown')):valid=valid and v==int(v) and 1<=v<=24000
             elif k in ('sword_max_stacks','fire_burst_hits'):valid=valid and v==int(v) and 1<=v<=64
             elif k=='bones_knockback_radius':valid=valid and 0<v<=16
             else:valid=valid and (-.9 if k=='health' else 0)<=v<=1
             need(valid,'FATE_EFFECT_VALUE: '+name+' '+k)
             need(all('fate.myvillage.effect.'+k in lang for lang in langs),'FATE_EFFECT_LANG: '+k)
+        need(('crafting_mean_shift' in effects)==('crafting_variance_multiplier' in effects),'FATE_CRAFTING_MODIFIER: '+name)
         if effects.get('metal_armor_break_fraction',0)>0:need(effects.get('metal_armor_break_ticks',0)>0,'FATE_METAL_AFFINITY: '+name)
         if effects.get('water_slow_fraction',0)>0:need(all(effects.get(k,0)>0 for k in ('water_slow_ticks','water_slow_cooldown')),'FATE_WATER_AFFINITY: '+name)
         for mechanism in ('jingang_adaptation','phoenix','everlasting'):

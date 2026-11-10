@@ -67,7 +67,7 @@ LANG = {
     "message.myvillage.alchemy.ineligible": ("Cannot use this medicine in the current cultivation state", "当前修炼状态无法服用此丹药"),
     "message.myvillage.alchemy.start_invalid": ("Open this furnace nearby to start a batch", "请在丹炉旁打开界面后开炉"),
     "message.myvillage.alchemy.start_busy": ("This furnace already has an active batch", "此炉正在炼制，不能重新开炉"),
-    "message.myvillage.alchemy.start_unawakened": ("Awaken your spiritual root before brewing", "请先测灵觉醒，再开始炼丹"),
+    "message.myvillage.alchemy.start_unawakened": ("Awaken your spiritual root before brewing", "请先完成测灵与开局天赋确认，再开始炼丹"),
     "message.myvillage.alchemy.start_ingredients": ("Choose a learned recipe and supply its herbs", "请选择已学丹方并补齐药材"),
     "message.myvillage.alchemy.start_fuel": ("Add enough low-grade spirit stones", "请放入足够的下品灵石"),
     "message.myvillage.alchemy.start_output": ("Take the finished pills before starting a new batch", "请先取走丹药，再开下一炉"),

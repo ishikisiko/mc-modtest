@@ -1,23 +1,10 @@
-# 0.126.0 炼丹与炼器品质
+# 0.127.0 开局资质与技艺天赋
 
-炼丹／炼器初始资质改为各自 0～60，继续保留原有独立确定性来源及后续培养。制符的初始范围与品质规则保持原值。`crafting/quality.json` 唯一持有两项的新初始范围、正态参数及所有配方品阶；`crafting/rules.json` 继续用于制符。新模型按资质平移分布，炼丹每颗、炼器每件分别判断成败和四品，不使用旧品质上限作为抽取边界。H 页显示当前资质及逐颗／逐件规则，命令诊断显示对应品质模型。
+炼丹、炼器在测灵及三条天赋确认后，以30加各词条固定贡献生成。`crafting/opening.json` 是开局权重唯一来源；SHA-256按玩家UUID、职业、词条ID确定贡献，选择顺序和世界种子不改变两项结果。炼丹奇才、炼器奇才分别覆盖对应开局值为60，培养值不重抽。土块使均值−5、方差×4，配方品阶与难度仍使用共用正态模型。NPC不抽取这三项玩家开局天赋。详见[当前规则](../features/crafting-opening-talents.md)。
 
-公式、难度、配置与冻结生命周期见[当前规则](../features/crafting-normal-quality.md)。下文是旧资质实现的历史说明，旧上限、0～100 存储边界和旧协议描述已由当前实现替代。
+`crafting/quality.json` 格式2只持有正态参数、品阶与阈值；`crafting/rules.json` 继续用于制符。`CraftingGenerator` 等待已确认的 `CraftingOpeningRules.Selection`，`CraftingTalents` 从服务器生效定义读取固定初值与曲线修正。三项保存状态仍由CultivationService唯一替换；玩家死亡、重登、改灵根及重启不重抽已生成值。H页在未确认天赋时显示等待提示。
 
-# Crafting Aptitudes (0.52.0)
-
-0.122.0 起，五行、兵器和技艺使用可培养的独立点数，玩家格式6、命簿格式14、协议65；[当前规则与六类培养入口](../features/aptitude-points.md)。下文保留的百分比及旧协议描述属于历史实现。
-
-0.111.1 起，炼器资质在装备完成装配时决定初始品质，未觉醒玩家制作的入门工具为下品。后续炼灵只增加专长并保留品质；普通鼎、多方块鼎、再锻及修补的规则见 [KB54](54_forging.md)。本轮不增加资质经验或品质提升操作。
-
-0.96.0 新增与炼丹、炼器并列的独立制符资质及 H 技艺读数。旧 codec 缺少 `talisman` 时记为待初始化，仅补新职业分数；原两项不重抽。新快照携带三项资质和品质上限，当前协议 48。持续注灵、冻结品质、三种成符与获取方式见[制符 demo](../features/talismans.md)。以下两职业/旧协议说明作为历史基础保留，不代表当前仅有两项。
-
-The owner selected a hard ceiling on **same-recipe product quality**, not on
-Huang/Xuan/Di/Tian recipe grade. This foundation adds two persistent player
-aptitudes and authoritative ceilings. Alchemy now freezes the initiating player's
-ceiling at each manual furnace start and produces bounded quality-bearing pills
-(see [alchemy](49_alchemy.md)); forging production is implemented in [KB54](54_forging.md); crafting experience remains
-unimplemented.
+下文保留历史实现背景，旧品质上限、0～100存储边界和旧协议描述已由当前实现替代。
 
 ## Sources and boundaries
 

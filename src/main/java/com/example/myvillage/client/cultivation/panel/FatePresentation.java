@@ -25,7 +25,11 @@ public final class FatePresentation {
                 lines.add(Component.translatable("fate.myvillage.effect."+e.getKey()).append("：已启用"));continue;
             }
             boolean ticks = e.getKey().endsWith("ticks") || e.getKey().endsWith("cooldown");
-            String value = ticks ? String.format(Locale.ROOT, "%.1fs", e.getValue() / 20)
+            String number=java.math.BigDecimal.valueOf(e.getValue()).stripTrailingZeros().toPlainString();
+            String value = e.getKey().endsWith("initial_aptitude")?number+" 点"
+                    : e.getKey().equals("crafting_mean_shift")?(e.getValue()>0?"+":"")+number
+                    : e.getKey().equals("crafting_variance_multiplier")?"×"+number
+                    : ticks ? String.format(Locale.ROOT, "%.1fs", e.getValue() / 20)
                     : (e.getKey().endsWith("stacks") || e.getKey().endsWith("hits") || e.getKey().equals("air_dodge")) ? String.format(Locale.ROOT, "%.0f", e.getValue())
                     : e.getKey().endsWith("radius") ? String.format(Locale.ROOT, "%.1f", e.getValue())
                     : e.getKey().endsWith("strength") ? String.format(Locale.ROOT, "%.2f", e.getValue())

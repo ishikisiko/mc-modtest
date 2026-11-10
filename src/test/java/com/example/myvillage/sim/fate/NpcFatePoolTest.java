@@ -6,6 +6,11 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NpcFatePoolTest {
+    @Test void playerOpeningTalentsCannotEnterNpcBirthRolls(){
+        var pool=NpcFatePool.bundled();var ids=Set.of("myvillage:alchemy_prodigy","myvillage:forging_prodigy","myvillage:clod");
+        assertEquals(3,pool.entries().stream().filter(e->ids.contains(e.id())&&!e.enabled()).count());
+        for(int i=0;i<100;i++)assertTrue(Collections.disjoint(ids,pool.roll(new int[5],false,random(i)).selected()));
+    }
     private static SimRng random(int id) { return SimRng.at(42, 0, id, 114); }
     private static NpcFatePool.Entry entry(String id, int cost, String group) {
         return new NpcFatePool.Entry("myvillage:" + id, cost, group, true, "", 0, 5);

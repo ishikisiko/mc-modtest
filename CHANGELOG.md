@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.127.0
+
+- 新增炼丹奇才、炼器奇才和土块：两项奇才分别将对应开局资质固定为60；土块使炼丹、炼器得分均值降低5、方差变为4倍，每颗丹药及每件器物独立判定。
+- 炼丹、炼器开局资质以30为基准，三个已选天赋各按15/15/5/5/60权重贡献−5/+5/−10/+10/0。同一玩家与组合固定，选择顺序和世界种子不改变结果；培养值保留。
+- 技艺资质在测灵及三条天赋确认后生成。丹炉阵保存授权时的曲线修正，重启、离线续批保留该规则；三个开局天赋仅进入玩家候选池。网络协议更新至75。
+
 ## 0.126.0
 
 - 炼丹、炼器采用按资质和成品品阶计算的正态品质分布，加入失败结果；初始炼丹、炼器资质改为0～60。

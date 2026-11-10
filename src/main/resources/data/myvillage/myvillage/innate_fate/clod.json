@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.clod",
+  "description_key": "fate.myvillage.clod.description",
+  "tier": 0,
+  "cost": 1,
+  "group": "crafting_volatility",
+  "npc_eligible": false,
+  "effects": {"crafting_mean_shift": -5, "crafting_variance_multiplier": 4}
+}

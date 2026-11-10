@@ -1,7 +1,7 @@
 {
-  "status": "25 implemented effects, 7 selectable high-tier placeholders, 4 design-only traits",
+  "status": "28项已实现，7项可选占位，4项仅设计候选",
   "source": "https://xiantian-fates-36.h905382624.chatgpt.site",
-  "revision": "2.3",
+  "revision": "2.4",
   "tiers": [
     {
       "name": "普通",
@@ -619,6 +619,54 @@
       "focus": "战斗 · 探索",
       "runtime_id": "myvillage:flawless_dao_heart",
       "implementation": "selectable_placeholder"
+    },
+    {
+      "id": "fate-37",
+      "name": "炼丹奇才",
+      "tier": 2,
+      "kind": "技艺",
+      "flavor": "",
+      "effect": "开局炼丹资质固定60，后续可培养。",
+      "tradeoff": "仅玩家开局候选，三项分组独立。",
+      "group": "炼丹资质",
+      "element": null,
+      "min": 0,
+      "maxRoots": 5,
+      "focus": "成长",
+      "runtime_id": "myvillage:alchemy_prodigy",
+      "implementation": "implemented"
+    },
+    {
+      "id": "fate-38",
+      "name": "炼器奇才",
+      "tier": 2,
+      "kind": "技艺",
+      "flavor": "",
+      "effect": "开局炼器资质固定60，后续可培养。",
+      "tradeoff": "仅玩家开局候选，三项分组独立。",
+      "group": "炼器资质",
+      "element": null,
+      "min": 0,
+      "maxRoots": 5,
+      "focus": "成长",
+      "runtime_id": "myvillage:forging_prodigy",
+      "implementation": "implemented"
+    },
+    {
+      "id": "fate-39",
+      "name": "土块",
+      "tier": 0,
+      "kind": "技艺",
+      "flavor": "",
+      "effect": "炼丹与炼器得分均值−5、方差×4，每颗丹药和每件器物独立判定。",
+      "tradeoff": "仅玩家开局候选，三项分组独立。",
+      "group": "技艺波动",
+      "element": null,
+      "min": 0,
+      "maxRoots": 5,
+      "focus": "成长",
+      "runtime_id": "myvillage:clod",
+      "implementation": "implemented"
     }
   ]
 }
