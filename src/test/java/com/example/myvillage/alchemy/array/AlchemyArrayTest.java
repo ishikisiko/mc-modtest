@@ -12,7 +12,11 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AlchemyArrayTest {
-    @BeforeAll static void bootstrap(){net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();}
+    @BeforeAll static void bootstrap(){
+        if(net.neoforged.fml.loading.LoadingModList.get()==null)
+            net.neoforged.fml.loading.LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
+        net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();
+    }
     static final class Grid implements AlchemyArrayPattern.View {
         final Map<BlockPos,AlchemyArrayPattern.Part> parts=new HashMap<>();final Set<BlockPos> unloaded=new HashSet<>();
         public boolean loaded(BlockPos p){return !unloaded.contains(p);}
