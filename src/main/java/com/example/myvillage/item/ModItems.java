@@ -493,9 +493,9 @@ public final class ModItems {
                         output.accept(FORMULA_BUJI_MIDDLE.get());
                         output.accept(FORMULA_BUJI_HIGH.get());
                         output.accept(NINGYUAN_FRUIT_LOW.get());output.accept(NINGYUAN_FRUIT_HIGH.get());
-                        for(int quality=1;quality<=3;quality++) {
+                        for(int quality=1;quality<=4;quality++) {
                             var pill=new net.minecraft.world.item.ItemStack(PILL_ZHUJI.get());com.example.myvillage.alchemy.PillQuality.apply(pill,quality);output.accept(pill);
-                            if(quality>=2){var repair=new net.minecraft.world.item.ItemStack(PILL_BUJI.get());com.example.myvillage.alchemy.PillQuality.apply(repair,quality);output.accept(repair);}
+                            var repair=new net.minecraft.world.item.ItemStack(PILL_BUJI.get());com.example.myvillage.alchemy.PillQuality.apply(repair,quality);output.accept(repair);
                         }
 
 

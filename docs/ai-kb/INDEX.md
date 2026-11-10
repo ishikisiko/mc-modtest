@@ -58,7 +58,7 @@ impact-based checks in the workflow.
 | 48 | [Innate Fates](48_innate_fates.md) | 当前天命目录、测灵碑选择、独立持久状态、服务器效果、流派选择与研读和熟练奖励、只读 H 结果。 |
 | 47 | [Realm Statistics and Wilderness](47_realm_stats_wilderness.md) | 0.112.2 原版敌对生成权重系数与无境界下限、新怪最低炼气一层；玩家生命比例条与固定 HUD 布局、境界属性、护甲减伤和地区出生范围。 |
 | 49 | [炼丹](49_alchemy.md) | 永久丹方、逐颗正态成败与四品、难度等级、三药槽和四格出丹；筑基／补基丹多版本、冻结批次与完整扣料。 |
-| 50 | [Crafting Aptitudes](50_crafting_aptitudes.md) | Independent saved alchemy/forging aptitudes and same-recipe product-quality ceilings, once-only generation, protocol21 snapshot and read-only H page; alchemy freezes its ceiling at manual start, forging production is covered in KB54; see `crafting-aptitudes`, `alchemy-quality`. |
+| 50 | [技艺资质](50_crafting_aptitudes.md) | 三项可培养资质、独立确定性初始化、只读技艺页；炼丹／炼器初始 0～60 与共用正态品质，制符保留原规则。 |
 | 51 | [Spirit Farming](51_spirit_farming.md) | Permanent spirit-only soil, six existing herbs as planting/harvest items, three growth stages and authored 3D models/loot. |
 | 52 | [Danxia Ruins](52_danxia_ruins.md) | Natural ruined monastery, herb garden and underground archive, shared persistent array choice, structure guardians, generated resources and focused cloud evidence. |
 | 53 | [Combat Ruins and Demon Lure Pearl](53_combat_ruins.md) | Native garrison route and sunken sanctuary waves, bound guardian death receipts, sealed shared caches and focused cloud evidence. |

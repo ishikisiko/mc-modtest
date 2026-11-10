@@ -55,7 +55,7 @@
 
 六味基础药材由药铺有限售卖，并可通过探索和灵土种植补充；原版植物加灵石的
 药材配方已取消。药铺按品质收购、转售三种基础丹药，规则见
-[药铺交易](58_yunshan_living_city.md)。[README](../../README.md#alchemy-炼丹-0520)
+[药铺交易](58_yunshan_living_city.md)。[README](../../README.md#alchemy-炼丹-01260)
 说明操作、品质概率和药效。
 
 ## Sources of truth
