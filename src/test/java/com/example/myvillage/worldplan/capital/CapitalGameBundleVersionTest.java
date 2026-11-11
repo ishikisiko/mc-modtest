@@ -3,13 +3,13 @@ package com.example.myvillage.worldplan.capital;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 只扩展显式版本，不能把跨城、跨版本或任意路径当作合法资源。 */
+/** 当前开发版只消费 v4；跨城、旧版本和任意路径均拒绝。 */
 class CapitalGameBundleVersionTest {
     private static final String CITY = "capital_donghai";
     private static final String[] VERSIONS = {"v1", "v2", "v3", "v4"};
 
-    @Test void allExplicitVersionsRetainTheExistingPathGrammar() {
-        for (String version : VERSIONS) {
+    @Test void currentVersionRetainsTheExistingPathGrammar() {
+        for (String version : new String[]{"v4"}) {
             assertEquals(version, CapitalGameBundle.manifestVersion(CITY, "myvillage:capitals/" + version + "/" + CITY + "/city.json"));
             assertDoesNotThrow(() -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + CITY + "/terrain.bin.gz"));
             assertDoesNotThrow(() -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + CITY + "/legacy_ground.bin.gz"));
@@ -36,7 +36,7 @@ class CapitalGameBundleVersionTest {
     }
 
     @Test void unsupportedVersionsAreRejected() {
-        for (String version : new String[]{"v0", "v5"}) {
+        for (String version : new String[]{"v0", "v1", "v2", "v3", "v5"}) {
             assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.manifestVersion(CITY, "myvillage:capitals/" + version + "/" + CITY + "/city.json"));
             assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + CITY + "/terrain.bin.gz"));
             assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTilePath(CITY, version, "myvillage:province_capitals/" + version + "/" + CITY + "/tile_0_0"));
