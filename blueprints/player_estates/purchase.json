@@ -6,6 +6,6 @@
   "price": {"item": "myvillage:high_grade_spirit_stone", "count": 100, "name": "上品灵石"},
   "steward": {"name": "庄园管家", "plot_point": [50, 1], "yaw": 270},
   "exit_plot_point": [52, 1],
-  "access": "owner_only",
+  "access": "open_after_purchase",
   "vertical_scope": "entire_column"
 }

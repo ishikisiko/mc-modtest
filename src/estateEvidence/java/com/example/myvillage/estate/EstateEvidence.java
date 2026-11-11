@@ -127,6 +127,9 @@ public final class EstateEvidence {
         owner.moveTo(inside().getX()+.5,inside().getY(),inside().getZ()+.5,0,0);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent(owner));
         check("login_event_ejects_unowned_player",!site.bounds().overlaps(owner.getX(),owner.getZ(),.3),owner.position());
+        var unsoldMount=EntityType.PIG.create(level);unsoldMount.moveTo(inside().getX()+.5,inside().getY(),inside().getZ()+.5,0,0);unsoldMount.setNoAi(true);level.addFreshEntity(unsoldMount);
+        owner.startRiding(unsoldMount,true);owner.moveTo(inside().getX()+.5,inside().getY(),inside().getZ()+.5,0,0);EstateRuntime.enforce(owner);
+        check("unsold_mounted_player_ejected",!owner.isPassenger()&&!site.bounds().overlaps(owner.getX(),owner.getZ(),.3),owner.position());unsoldMount.discard();
         owner.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);outside(owner);outside(other);
         var bag=new ItemStack(ModItems.SPIRIT_STONE_BAG.get());
         SpiritStoneStorage.contents(bag,List.of(new ItemStack(ModItems.HIGH_GRADE_SPIRIT_STONE.get(),99)));
@@ -162,10 +165,12 @@ public final class EstateEvidence {
                 check("replay_and_racing_buyer_no_charge",stones(owner,ModItems.HIGH_GRADE_SPIRIT_STONE.get()).intValueExact()==50&&stones(other,ModItems.HIGH_GRADE_SPIRIT_STONE.get()).intValueExact()==100,"balances 50 / 100");
                 check("owner_teleport_allowed",owner.teleportTo(server.overworld(),inside().getX()+.5,inside().getY(),inside().getZ()+.5,Set.of(),0,0),owner.position());
                 EstateRuntime.enforce(owner);check("owner_can_remain_inside",site.bounds().overlaps(owner.getX(),owner.getZ(),.3),owner.position());
-                check("other_still_blocked",EstateRuntime.blocked(other,server.overworld(),inside().getX(),inside().getZ()),"sold");
+                check("other_zone_open_after_purchase",!EstateRuntime.blocked(other,server.overworld(),inside().getX(),inside().getZ()),"sold, open to everyone");
+                check("other_teleport_allowed_after_purchase",other.teleportTo(server.overworld(),inside().getX()+.5,inside().getY(),inside().getZ()+.5,Set.of(),0,0),other.position());
+                EstateRuntime.enforce(other);check("other_stays_inside_after_purchase",site.bounds().overlaps(other.getX(),other.getZ(),.3),other.position());
                 var mount=EntityType.PIG.create(server.overworld());mount.moveTo(inside().getX()+.5,inside().getY(),inside().getZ()+.5,0,0);mount.setNoAi(true);server.overworld().addFreshEntity(mount);
                 other.startRiding(mount,true);other.moveTo(inside().getX()+.5,inside().getY(),inside().getZ()+.5,0,0);EstateRuntime.enforce(other);
-                check("mounted_intruder_dismounted_and_ejected",!other.isPassenger()&&!site.bounds().overlaps(other.getX(),other.getZ(),.3),other.position());mount.discard();
+                check("purchased_estate_allows_other_mounted_player",other.isPassenger()&&site.bounds().overlaps(other.getX(),other.getZ(),.3),other.position());other.stopRiding();mount.discard();
                 server.getPlayerList().saveAll();EstateSavedData.get(server).setDirty();finish(server);return;
             }
             default -> throw new IllegalStateException("unknown estate probe stage "+stage);
@@ -176,7 +181,8 @@ public final class EstateEvidence {
         check("title_survives_server_restart",EstateSavedData.get(server).titles.get(site.key()).owner().equals(OWNER),EstateSavedData.get(server).titles.snapshot());
         check("both_balances_survive_restart",stones(owner,ModItems.HIGH_GRADE_SPIRIT_STONE.get()).intValueExact()==50&&stones(other,ModItems.HIGH_GRADE_SPIRIT_STONE.get()).intValueExact()==100,"50 / 100");
         check("owner_reenters_after_restart",owner.teleportTo(server.overworld(),inside().getX()+.5,inside().getY(),inside().getZ()+.5,Set.of(),0,0),owner.position());
-        check("other_cannot_teleport_after_restart",!other.teleportTo(server.overworld(),inside().getX()+.5,inside().getY(),inside().getZ()+.5,Set.of(),0,0),other.position());
+        check("other_can_teleport_after_restart",other.teleportTo(server.overworld(),inside().getX()+.5,inside().getY(),inside().getZ()+.5,Set.of(),0,0),other.position());
+        EstateRuntime.enforce(other);check("public_access_survives_restart",site.bounds().overlaps(other.getX(),other.getZ(),.3),other.position());
         outside(owner);NpcDialogue.open(owner,npc);check("restart_sold_has_no_purchase_offer",!offered(page(owner),"estate_confirm")&&!offered(page(owner),"estate_buy"),page(owner));
         finish(server);
     }

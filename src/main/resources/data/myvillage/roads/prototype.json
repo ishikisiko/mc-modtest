@@ -5271,7 +5271,7 @@
           138
         ]
       ],
-      "city_sha256": "dd43c38eb055a84fb7f82b53719f58d34108f1e434542f4c9487442e75441a45",
+      "city_sha256": "682db54bb02e61def8fde1d98b998cd5780838fcef50293e2fbd6c14cb2a0604",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_zhongzhou/tile_35_77": "394ffd27bb984c9498624d001eae272009e2a5d6b63b69574a269418690d3b18",
         "myvillage:province_capitals/v4/capital_zhongzhou/tile_36_77": "a1970cfdc4ffc2bc26e6b59303649691fa1a63a2778057c248f87aef346ceb8c",

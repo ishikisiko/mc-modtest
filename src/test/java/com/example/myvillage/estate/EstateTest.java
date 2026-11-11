@@ -37,9 +37,12 @@ class EstateTest {
     }
     @Test void insufficientFundsNeverInstallsATitle() {
         var data=new EstateTitles();var p=UUID.randomUUID();
+        assertFalse(data.openToPlayers(ID));
         assertEquals(EstateTitles.Result.PAYMENT_FAILED,data.purchase(ID,p,"甲",()->false));
         assertNull(data.get(ID));
+        assertFalse(data.openToPlayers(ID));
         assertEquals(EstateTitles.Result.PURCHASED,data.purchase(ID,p,"甲",()->true));
+        assertTrue(data.openToPlayers(ID));
     }
     @Test void repeatedPurchaseAndCompetingBuyerNeverCallPaymentAgain() {
         var data=new EstateTitles();var a=UUID.randomUUID();var b=UUID.randomUUID();var charges=new AtomicInteger();
@@ -47,11 +50,14 @@ class EstateTest {
         assertEquals(EstateTitles.Result.ALREADY_OWNER,data.purchase(ID,a,"甲",()->{charges.incrementAndGet();return true;}));
         assertEquals(EstateTitles.Result.SOLD,data.purchase(ID,b,"乙",()->{charges.incrementAndGet();return true;}));
         assertEquals(1,charges.get());assertEquals(a,data.get(ID).owner());
+        assertTrue(data.openToPlayers(ID));
+        assertFalse(data.openToPlayers("capital_zhongzhou/another_estate"));
     }
     @Test void titlesRoundTripNBTAndRetainSingleOwnerAfterRename() {
         var data=new EstateSavedData();var p=UUID.randomUUID();data.titles.purchase(ID,p,"原名",()->true);
         var reloaded=EstateSavedData.load(data.save(new CompoundTag(),null),null);
         assertEquals(new EstateTitles.Title(p,"原名"),reloaded.titles.get(ID));
+        assertTrue(reloaded.titles.openToPlayers(ID));
         assertEquals(EstateTitles.Result.ALREADY_OWNER,reloaded.titles.purchase(ID,p,"改名",()->fail("不能再次付款")));
         assertEquals(EstateTitles.Result.SOLD,reloaded.titles.purchase(ID,UUID.randomUUID(),"原名",()->fail("不能冒名付款")));
     }

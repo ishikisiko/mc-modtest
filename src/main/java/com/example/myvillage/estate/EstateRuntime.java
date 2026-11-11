@@ -84,7 +84,7 @@ public final class EstateRuntime {
             });
             if (result == EstateTitles.Result.PURCHASED) {
                 data.setDirty(); player.containerMenu.broadcastChanges();
-                return Optional.of(page("房契已经记在道友名下。整座庄园现已向你开放。"));
+                return Optional.of(page("房契已经记在道友名下。整座庄园现已向所有人开放。"));
             }
             if (result == EstateTitles.Result.PAYMENT_FAILED)
                 return Optional.of(new Page(List.of("购房需要 "+d.price()+" 枚"+d.currencyName()+"。请备齐后再来，灵石袋中的灵石也可支付。"),
@@ -92,19 +92,18 @@ public final class EstateRuntime {
         }
         var title = data.titles.get(site.key());
         if (title == null) return Optional.of(new Page(List.of("我是这座庄园的管家。"+d.name()+"尚未出售。",
-                "房价为 "+d.price()+" 枚"+d.currencyName()+"，一次付清。购房后，整座庄园归你使用。",
+                "房价为 "+d.price()+" 枚"+d.currencyName()+"，一次付清。购房后，房契归你，庄园向所有人开放。",
                 "办好房契前，请在院外等候。"), List.of(new Option("estate_confirm", "购买庄园"), new Option("close", "告辞"))));
-        return Optional.of(page(title.owner().equals(player.getUUID()) ? "房契记在道友名下，请进。" : "这座庄园已有主人，请在院外等候。"));
+        return Optional.of(page(title.owner().equals(player.getUUID()) ? "房契记在道友名下，庄园已向所有人开放。" : "这座庄园已售出，现已向所有人开放，请进。"));
     }
     public static Optional<Page> confirm(NpcEntity npc) {
         return steward(npc).map(s -> new Page(List.of("确认支付 "+s.definition.price()+" 枚"+s.definition.currencyName()+"，购买"+s.definition.name()+"？",
-                "背包和灵石袋可共同支付。房契将记在道友名下。"),
+                "背包和灵石袋可共同支付。房契将记在道友名下，庄园向所有人开放。"),
                 List.of(new Option("estate_buy", "确认购买"), new Option("estate_home", "返回"), new Option("close", "告辞"))));
     }
     private static Page page(String line) { return new Page(List.of(line), List.of(new Option("estate_home", "查看房产"), new Option("close", "告辞"))); }
     private static boolean allowed(ServerPlayer player, Site site) {
-        var title = EstateSavedData.get(player.getServer()).titles.get(site.key());
-        return title != null && title.owner().equals(player.getUUID());
+        return EstateSavedData.get(player.getServer()).titles.openToPlayers(site.key());
     }
     public static boolean blocked(ServerPlayer player, ServerLevel destination, double x, double z) {
         double radius = player.getBbWidth()/2.0;
@@ -137,7 +136,7 @@ public final class EstateRuntime {
     private static void notice(ServerPlayer player) {
         long now = player.serverLevel().getGameTime(); Long last = NOTICES.get(player.getUUID());
         if (last == null || now < last || now-last >= 40) {
-            player.displayClientMessage(Component.literal("此处为私人庄园。购房请与大门外的管家交谈。"), true); NOTICES.put(player.getUUID(),now);
+            player.displayClientMessage(Component.literal("庄园尚未出售，购房请与大门外的管家交谈。"), true); NOTICES.put(player.getUUID(),now);
         }
     }
     private static void playerTick(PlayerTickEvent.Post e) { if(e.getEntity() instanceof ServerPlayer p) enforce(p); }
@@ -174,7 +173,7 @@ public final class EstateRuntime {
             for(var site:sites(c.getSource().getServer().overworld())) {
                 var at=site.world(site.definition.steward()); var title=EstateSavedData.get(c.getSource().getServer()).titles.get(site.key());
                 c.getSource().sendSuccess(() -> Component.literal(site.definition.name()+"：管家位于 "+at.toShortString()+"；"
-                        +(title==null?"待售，"+site.definition.price()+" 枚"+site.definition.currencyName():"已有房主")),false);
+                        +(title==null?"待售，"+site.definition.price()+" 枚"+site.definition.currencyName():"已购，当前向所有人开放")),false);
             }
             return 1;
         })));

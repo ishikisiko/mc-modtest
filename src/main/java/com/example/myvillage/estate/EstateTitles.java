@@ -11,6 +11,8 @@ public final class EstateTitles {
     public enum Result { PURCHASED, ALREADY_OWNER, SOLD, PAYMENT_FAILED }
     private final Map<String, Title> titles = new HashMap<>();
     public Title get(String id) { return titles.get(id); }
+    /** Current access policy: the first purchase opens this estate to every player. */
+    public boolean openToPlayers(String id) { return titles.containsKey(id); }
     public Map<String, Title> snapshot() { return Map.copyOf(titles); }
     void restore(String id, Title title) {
         if (!id.matches("capital_[a-z0-9_]+/[a-z0-9_]{1,64}") || title.name().length() > 64

@@ -10,7 +10,7 @@ public record EstateDefinition(String id, String name, EstateBounds bounds, Bloc
     public static EstateDefinition read(JsonObject root, int width, int height, int depth) {
         String id = root.get("id").getAsString(), name = root.get("name").getAsString();
         if (!id.matches("[a-z0-9_]{1,64}") || name.isBlank() || name.length() > 64
-                || !root.get("access").getAsString().equals("owner_only")
+                || !root.get("access").getAsString().equals("open_after_purchase")
                 || !root.get("vertical_scope").getAsString().equals("entire_column"))
             throw new IllegalArgumentException("庄园身份无效");
         var a = root.getAsJsonArray("bounds");

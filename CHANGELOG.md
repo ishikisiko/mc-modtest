@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.128.1
+
+- 庄园购买后暂时对所有玩家开放；未售出时继续禁入。保留房主记录、100枚上品灵石的一次性扣款及重启后的开放状态，后续再接入队伍权限。
+
 ## 0.128.0
 
 - 中州西坡中段正式生成灰瓦庭院庄园，按已选分台地构造撤并31栋获准民居，保留外围公共巷道及其余建筑。

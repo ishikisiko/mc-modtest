@@ -1,4 +1,4 @@
-> 0.128.0：中州西坡中段接入灰瓦庄园，撤并已获准的31栋民居，保留外围公共巷道。大门外管家办理100枚上品灵石购房，产权和完整私有范围由服务端管理；`player_estates` 与实际切片共同进入城市冻结摘要。见[庄园购买](../features/estate-purchase.md)。独立蓝图与外观预览仍保留各自证据边界。
+> 0.128.1：中州西坡中段生成灰瓦庄园，替换已获准的31栋民居，保留外围公共巷道。大门外管家办理100枚上品灵石购房，服务器保留产权和完整禁入范围，未售出时禁入，购买后暂时对所有玩家开放；`player_estates` 与实际切片共同进入城市冻结摘要。见[庄园购买](../features/estate-purchase.md)。独立蓝图与外观预览仍保留各自证据边界。
 
 > 0.115.0：八城增加 25 处传送亭台。选址权威为 `blueprints/capital_waystones/sites.json`，材料和构件尺寸为同目录 `materials.json`；`tools/capital_waystones/generate.py` 在正式 v4 模板上构造并逐块回读，保留原方块实体 NBT，随后重算 V11 冻结摘要。`CapitalGameBundle.waystones` 与模板共用局部坐标，名称、坐标、朝向和 Waystones 方块类型进入清单身份。`CapitalGamePlacement` 在当前 FEATURES 区块内放置石碑双块及延迟 BE；可选适配仅在装有 Waystones 时加载，原生 BE 首次加载后建立并保存身份，不在区块加载时重放建筑或补块。未安装 Waystones 时只保留亭台建筑。外观由用户进游戏查看，不能把资源检查称为玩家验收。
 
@@ -8,7 +8,7 @@
 
 [原包两城实验](../../tools/roadweaver_probe/README.md)保留原结论：野外道路已生成，原包匹配铺装未连续接门，CPU 全域精采样请求发生回退；不能用新原型的结果覆盖该实验的失败，也不能把开发者画面或局部映射步行当成全路程玩家验收。
 
-八州整城蓝图统一从 `blueprints/province_capitals/blueprint_plan/catalog.json` 进入。七个区域城采用 `manor_relayout` 后端及 `layouts/<region>.json` 正式 authored 布局：原尺寸七府、地标内收、住宅由 437 减至 386 栋，51 栋原功能建筑保留；私院归属、公共院场用途、城门首层和全路幅 XYZ 均落实到实际施工。`runtime.py` 使用同一规划导出当前默认 V11/v4 资源，`compile_v11.py` 聚合七府与现有中州；入口、地形、舆图与生活岗位共用主城 manifest。新布局组经 `tools/buildgen/groups.py` 注册。府邸使用现有注册构件，保留架空层，独立样板土块不覆盖城内河海沟谷。独立 SVG、三维和试放包仍可单独生成；中州沿用原城主体，西坡庄园的局部替换见本页0.128.0说明。见[接入说明](../features/default-manor-capitals.md)和[工具说明](../../tools/province_capitals/blueprint_plan/README.md)；[最初灵岳试验记录](../testing/2026-10-30-lingyue-blueprint.md)只对应其当时固定源，不能作为后续改动的验收结论。
+八州整城蓝图统一从 `blueprints/province_capitals/blueprint_plan/catalog.json` 进入。七个区域城采用 `manor_relayout` 后端及 `layouts/<region>.json` 正式 authored 布局：原尺寸七府、地标内收、住宅由 437 减至 386 栋，51 栋原功能建筑保留；私院归属、公共院场用途、城门首层和全路幅 XYZ 均落实到实际施工。`runtime.py` 使用同一规划导出当前默认 V11/v4 资源，`compile_v11.py` 聚合七府与现有中州；入口、地形、舆图与生活岗位共用主城 manifest。新布局组经 `tools/buildgen/groups.py` 注册。府邸使用现有注册构件，保留架空层，独立样板土块不覆盖城内河海沟谷。独立 SVG、三维和试放包仍可单独生成；中州沿用原城主体，西坡庄园的局部替换见本页庄园说明。见[接入说明](../features/default-manor-capitals.md)和[工具说明](../../tools/province_capitals/blueprint_plan/README.md)；[最初灵岳试验记录](../testing/2026-10-30-lingyue-blueprint.md)只对应其当时固定源，不能作为后续改动的验收结论。
 
 原生分批放置先落地全部地形和建筑，再放跨分块完整组件与依赖相邻分块支撑的注册墙牌。清单为全部保留方块实体提供 `block_entity_checks`，同时保留导出原始 NBT 摘要和保存世界的字段回读预期；方块审计通过不能替代招牌文字等内容回读。
 
