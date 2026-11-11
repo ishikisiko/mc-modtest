@@ -13,13 +13,24 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--jar',type=Path,required=True);p.add_argument('--source',required=True)
     p.add_argument('--out',type=Path,required=True);p.add_argument('--seed',type=int,required=True)
-    p.add_argument('--restart',action='store_true');p.add_argument('--all-qianji-targets',action='store_true');a=p.parse_args();a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
+    p.add_argument('--restart',action='store_true');p.add_argument('--all-qianji-targets',action='store_true')
+    p.add_argument('--continue-probe',type=Path,help='仅继续同一候选已完成新世界验证的自有探针，不接受玩家存档')
+    a=p.parse_args();a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
     selected=['candidate_identity','fresh_world_and_fixed_order','consecutive_capital_roads','border_chunk_generation_and_readback']
     selected+=['qianji_buildings_and_task_boards']
     if a.restart:selected+=['saved_rules_and_cached_restart']
     result=dict(source=a.source,seed=a.seed,selected=selected,completed=[],failed=[],unrun=selected.copy(),
                 full_road_pregeneration='not_selected',player_walk='not_verified',owner_visual_acceptance='not_verified')
-    game=ROOT/'run-fixed-progression'/('native-'+secrets.token_hex(5));server=Server(a.out,game,a.seed);stage=selected[0]
+    previous=None
+    if a.continue_probe:
+        old=a.continue_probe.resolve();origin=json.loads((old/'world.json').read_text());prior=json.loads((old/'result.json').read_text())
+        game=Path(origin['directory']).resolve()
+        assert game.parent==(ROOT/'run-fixed-progression').resolve() and game.name.startswith('native-')
+        assert origin['seed']==a.seed and origin['kind']=='fresh isolated development world'
+        assert prior['source']==a.source and prior['seed']==a.seed and 'fresh_world_and_fixed_order' in prior['completed']
+        previous=json.loads((old/'worldplan.json').read_text());result['continued_from']=str(old)
+    else:game=ROOT/'run-fixed-progression'/('native-'+secrets.token_hex(5))
+    server=Server(a.out,game,a.seed);stage=selected[0]
     def complete():
         result['completed'].append(stage);result['unrun'].remove(stage);write(a.out/'result.json',result)
     def query(command):
@@ -38,6 +49,7 @@ def main():
         stage=selected[1];started=time.monotonic();server.start();status=server.roads('status')
         assert status['phase']=='ready' and status['mode']=='chunk_generation',status
         query('export');manifest=json.loads((server.data/'worldplan.json').read_text());shutil.copy2(server.data/'worldplan.json',a.out/'worldplan.json')
+        if previous is not None:assert manifest==previous,'继续探针的世界规划必须与首次新建时逐项相同'
         order=manifest['rules']['region_progression']['order'];profiles={v['id']:v for v in manifest['rules']['profiles']}
         assert order==['ximo','donghai','nanjiang','beiyuan','donghuang','lingyue','moyu','zhongzhou'],order
         assert manifest['graph']['progression_order']==order and len(manifest['cities'])==8
@@ -68,7 +80,10 @@ def main():
                 else:hi=mid
             for index,region in [(lo,first),(hi,last)]:
                 q=path[index];load(q['x'],q['z']);samples.append(dict(route=[route['from'],route['to']],region=region,position=q))
-        audit=server.audit('border-loaded-audit.json');check=audit['status']['inspection']
+        server.roads('audit')
+        server.wait(lambda s:s.get('inspection',{}).get('phase') in ('complete','partial'),allow_blocked=True)
+        shutil.copy2(server.data/'roads-audit.json',a.out/'border-loaded-audit.json')
+        audit=json.loads((a.out/'border-loaded-audit.json').read_text());check=audit['status']['inspection']
         assert check['failure_count']==0 and not audit['failures'],audit['failures'][:20]
         assert check['checked_columns']>=len(samples),check
         write(a.out/'boundary-samples.json',dict(samples=samples,checked_columns=check['checked_columns'],unloaded_chunks=check['unloaded_chunks'],scope='loaded boundary chunks only'))
