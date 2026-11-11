@@ -158,6 +158,9 @@ class NpcLifeMacroTest {
         shopkeeper.statusUntil = 120;
         Sect remote = sect(ctx, "remote");
         remote.homeRegionId = otherRegion();
+        var elder = ctx.rules.sectProgression().promotion(remote.tierId, ctx.rules.player().promotion()).elder().stage();
+        shopkeeper.realm = ctx.realms.indexOf(elder.realm());
+        shopkeeper.stage = elder.stage();
         People.join(ctx, shopkeeper, remote, "elder");
         assertEquals(remote.id, shopkeeper.sectId);
         assertEquals("elder", shopkeeper.rank);
