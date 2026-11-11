@@ -89,6 +89,7 @@ public final class EstateEvidence {
     }
     private static void gate(MinecraftServer server)throws Exception {
         var level=server.overworld();var entity=level.getEntity(site.stewardId());
+        check("steward_chunk_entity_ticking",level.isPositionEntityTicking(site.world(site.definition().steward())),site.world(site.definition().steward()));
         check("persistent_steward_present",entity instanceof NpcEntity,entity);npc=(NpcEntity)entity;
         check("steward_outside_private_column",!site.bounds().overlaps(npc.getX(),npc.getZ(),npc.getBbWidth()/2.0),npc.position());
         check("one_steward",level.getEntitiesOfClass(NpcEntity.class,npc.getBoundingBox().inflate(4)).stream().filter(n->n.getUUID().equals(site.stewardId())).count()==1,npc.getUUID());
@@ -188,7 +189,7 @@ public final class EstateEvidence {
         if(PHASE==null)return;var server=e.getServer();
         if(stop>=0) { if(server.getTickCount()>=stop)server.halt(false);return; }
         if(server.getTickCount()<80||server.getTickCount()<next)return;
-        try { if(stage==0)begin(server);else if(stage==1)gate(server);else step(server);next=server.getTickCount()+20; }
+        try { if(stage==0)begin(server);else if(stage==1)gate(server);else step(server);next=Math.max(next,server.getTickCount()+20); }
         catch(Throwable error) { error.printStackTrace();failures.add(error.toString());try{finish(server);}catch(Exception nested){server.halt(false);} }
     }
 }
