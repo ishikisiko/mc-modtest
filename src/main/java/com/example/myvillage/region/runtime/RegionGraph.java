@@ -31,9 +31,14 @@ public record RegionGraph(
         int tierStep,
         List<GenRegion> regions,
         List<GenEdge> edges,
-        RegionGeometry geometry) {
+        RegionGeometry geometry,
+        List<String> progressionOrder) {
 
-    /** Preserve the legacy constructor and byte-identical legacy canonical JSON. */
+    /** Offline topology graphs do not declare a fixed progression. */
+    public RegionGraph(long seed, String rulesetId, int count, IntRange tierRange, int tierStep,
+                       List<GenRegion> regions, List<GenEdge> edges, RegionGeometry geometry) {
+        this(seed, rulesetId, count, tierRange, tierStep, regions, edges, geometry, List.of());
+    }
     public RegionGraph(long seed, String rulesetId, int count, IntRange tierRange, int tierStep,
                        List<GenRegion> regions, List<GenEdge> edges) {
         this(seed, rulesetId, count, tierRange, tierStep, regions, edges, null);
@@ -41,6 +46,7 @@ public record RegionGraph(
     public RegionGraph {
         regions = List.copyOf(regions);
         edges = List.copyOf(edges);
+        progressionOrder = List.copyOf(progressionOrder);
     }
 
     /** Region whose id equals {@code id}; throws if absent. */
@@ -71,6 +77,7 @@ public record RegionGraph(
         root.put("tier_step", tierStep);
         root.put("regions", regionTree());
         root.put("edges", edgeTree());
+        if (!progressionOrder.isEmpty()) root.put("progression_order", progressionOrder);
         if (geometry != null) {
             TreeMap<String, Object> shape = new TreeMap<>();
             shape.put("seed", geometry.seed());

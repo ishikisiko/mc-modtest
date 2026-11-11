@@ -56,7 +56,7 @@ public final class WorldPlan {
             new IntRange(p.dangerMin(),p.dangerMax()),p.role().equals("walled")?List.of():List.of("sect"),p.nominalTier(),r.x/RegionPlacement.SCALE,r.z/RegionPlacement.SCALE));}
         for(Border e:borders)es.add(new GenEdge(e.a,e.b,e.passable?RegionContract.EDGE_LIAN:RegionContract.EDGE_GE,
             e.passable?null:(e.separator.equals("sea")?RegionContract.SEP_OCEAN:RegionContract.SEP_MOUNTAIN),e.gate?RegionContract.PASS_GUANAI:null));
-        RegionGraph preliminary=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),geometry);
+        RegionGraph preliminary=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),geometry,rules.progressionOrder);
         if (rules.capitals == null) { city=chooseCity(preliminary); cities=List.of(); }
         else { city=null; cities=chooseCapitals(); }
         Map<Long, WorldPlanRules.Tile> index = new HashMap<>();
@@ -80,7 +80,7 @@ public final class WorldPlan {
         sectById=sectSites.stream().collect(java.util.stream.Collectors.toUnmodifiableMap(SectSite::id,s->s));
         for(var site:sectSites){int m=site.margin()+rules.sects.buffer;reservations.add(new RegionGeometry.Reservation(site.id(),site.x()-m,site.z()-m,site.x()+site.width()+m-1,site.z()+site.depth()+m-1));}
         RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,reservations,sectSites);
-        graph=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),reserved);
+        graph=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),reserved,rules.progressionOrder);
         fingerprint=WorldPlanRules.sha256(manifest(false).toString());
     }
     public long seed(){return seed;}
@@ -192,14 +192,14 @@ public final class WorldPlan {
     }
     private List<Region> positionCapitalRegions() {
         var anchor=rules.profiles.stream().filter(p->p.role().equals("anchor")).findFirst().orElseThrow();
-        List<WorldPlanRules.Profile> ring=new ArrayList<>(rules.profiles.stream().filter(p->!p.role().equals("anchor")).toList());
-        ring.sort(Comparator.<WorldPlanRules.Profile>comparingDouble(p->random(0x56385247,p.id().hashCode())).thenComparing(WorldPlanRules.Profile::id));
+        List<WorldPlanRules.Profile> ring=rules.progressionOrder.stream().map(rules::profile).filter(p->!p.role().equals("anchor")).toList();
         List<Region> out=new ArrayList<>();
         out.add(new Region(anchor,(int)Math.round((random(13,0)*2-1)*rules.anchorJitter),(int)Math.round((random(13,1)*2-1)*rules.anchorJitter),rules.tierMax));
         double rotation=random(14,0)*2*StrictMath.PI;
+        // A shared radius preserves cyclic neighbours while the seed rotates the continent.
+        double radius=rules.capitals.ringMin+random(19,0)*(rules.capitals.ringMax-rules.capitals.ringMin);
         for(int i=0;i<ring.size();i++) {
             double angle=rotation+i*2*StrictMath.PI/ring.size()+(random(18,i)*2-1)*rules.angularJitter;
-            double radius=rules.capitals.ringMin+random(19,i)*(rules.capitals.ringMax-rules.capitals.ringMin);
             out.add(new Region(ring.get(i),(int)Math.round(StrictMath.cos(angle)*radius),(int)Math.round(StrictMath.sin(angle)*radius),0));
         }
         out.sort(Comparator.comparing(Region::id));return List.copyOf(out);
@@ -231,35 +231,27 @@ public final class WorldPlan {
         return out;
     }
     private Set<String> spanningTree(List<Region> rs,List<GeoEdge> edges) {
-        List<GeoEdge> sorted=new ArrayList<>(edges.stream().filter(e->!walled(rs.get(e.a))&&!walled(rs.get(e.b))).toList());
-        sorted.sort(Comparator.<GeoEdge>comparingDouble(e->StrictMath.hypot(rs.get(e.a).x-rs.get(e.b).x,rs.get(e.a).z-rs.get(e.b).z)*(0.75+random(20,key(rs,e).hashCode())/2)).thenComparing(e->key(rs,e)));
-        int[] parent=new int[rs.size()];for(int i=0;i<parent.length;i++)parent[i]=i;
+        Set<String> available=new HashSet<>();
+        for(var edge:edges)available.add(key(rs,edge));
         Set<String> tree=new TreeSet<>();
-        for(GeoEdge e:sorted){int a=e.a,b=e.b;while(parent[a]!=a)a=parent[a];while(parent[b]!=b)b=parent[b];if(a!=b){parent[b]=a;tree.add(key(rs,e));}}
-        if(tree.size()!=rs.size()-2)throw new IllegalArgumentException("Core geometry cannot connect the non-walled regions");return tree;
+        for(int i=1;i<rules.progressionOrder.size();i++){
+            String edge=edgeKey(rules.progressionOrder.get(i-1),rules.progressionOrder.get(i));
+            if(!available.contains(edge))throw new IllegalArgumentException("连续州缺少真实公共边界: "+edge);
+            tree.add(edge);
+        }
+        return Set.copyOf(tree);
     }
     private static boolean walled(Region r){return r.profile.role().equals("walled");}
     private List<Region> assignTiers(List<Region> rs,List<GeoEdge> edges,Set<String> tree) {
-        int[] tier=new int[rs.size()];Arrays.fill(tier,-1);ArrayDeque<Integer> todo=new ArrayDeque<>();
-        for(int i=0;i<rs.size();i++)if(rs.get(i).profile.role().equals("anchor")){tier[i]=rules.tierMax;todo.add(i);}
-        while(!todo.isEmpty()){int i=todo.removeFirst();for(GeoEdge e:edges)if(tree.contains(key(rs,e))&&(e.a==i||e.b==i)){
-            int j=e.a==i?e.b:e.a;if(tier[j]<0){tier[j]=Math.max(rules.tierMin,tier[i]-range(rules.stepMin,rules.stepMax,21,rs.get(j).id().hashCode()));todo.add(j);}
-        }}
-        for(int i=0;i<rs.size();i++)if(walled(rs.get(i))){final int wi=i;
-            GeoEdge closest=edges.stream().filter(e->e.a==wi||e.b==wi).min(Comparator.comparingDouble(e->StrictMath.hypot(rs.get(e.a).x-rs.get(e.b).x,rs.get(e.a).z-rs.get(e.b).z))).orElseThrow();
-            int j=closest.a==i?closest.b:closest.a;tier[i]=Math.max(rules.tierMin,tier[j]-range(0,rules.stepMax,22,rs.get(i).id().hashCode()));
-        }
-        List<Region> out=new ArrayList<>();for(int i=0;i<rs.size();i++)out.add(new Region(rs.get(i).profile,rs.get(i).x,rs.get(i).z,tier[i]));return List.copyOf(out);
+        return rs.stream().map(r->new Region(r.profile,r.x,r.z,rules.progressionTier(r.id()))).toList();
     }
     private List<Border> typeBorders(List<GeoEdge> edges,Set<String> tree) {
-        GeoEdge gate=null;
-        if(random(23,0)<rules.walledPassChance)gate=edges.stream().filter(e->walled(regions.get(e.a))||walled(regions.get(e.b)))
-            .min(Comparator.comparingDouble(e->StrictMath.hypot(regions.get(e.a).x-regions.get(e.b).x,regions.get(e.a).z-regions.get(e.b).z))).orElse(null);
         List<Border> out=new ArrayList<>();
         for(GeoEdge e:edges){Region a=regions.get(e.a),b=regions.get(e.b);String k=key(regions,e);boolean w=walled(a)||walled(b);
-            boolean pass=e.equals(gate)||(!w&&(tree.contains(k)||(Math.abs(a.tier-b.tier)<=rules.stepMax&&random(24,k.hashCode())<rules.extraRouteChance)));
+            boolean required=tree.contains(k);
+            boolean pass=required||(!w&&Math.abs(a.tier-b.tier)<=rules.stepMax&&random(24,k.hashCode())<rules.extraRouteChance);
             String separator=w?"ridge":(!pass&&random(25,k.hashCode())<rules.seaSeparatorChance?"sea":"ridge");
-            out.add(new Border(a.id(),b.id(),e.p,e.q,pass,separator,e.equals(gate)));
+            out.add(new Border(a.id(),b.id(),e.p,e.q,pass,separator,w&&required));
         }
         return List.copyOf(out);
     }

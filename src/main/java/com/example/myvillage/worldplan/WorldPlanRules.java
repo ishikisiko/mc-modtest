@@ -66,6 +66,7 @@ public final class WorldPlanRules {
     public final double warpScale, warpAmplitude, terrainBlend, boundaryWidth, ridgeLift, channelDepth, passWidth;
     public final double outerJitter, terrainScale, detailScale, detailAmplitude, qiVariation;
     public final List<Profile> profiles;
+    public final List<String> progressionOrder;
     public final CityRules city;
     public final com.example.myvillage.worldplan.capital.CapitalGameRules capitals;
     public final SettlementRules settlements;
@@ -159,6 +160,24 @@ public final class WorldPlanRules {
             throw new IllegalArgumentException("Catalog needs one anchor, one walled region and enough peripherals");
         if (minCount != 8 || maxCount != 8 || ps.size() != 8 || r.has("city"))
             throw new IllegalArgumentException("当前主城规划需要八个地区");
+        JsonObject progression = r.getAsJsonObject("region_progression");
+        if (progression == null || !progression.keySet().equals(Set.of("order")))
+            throw new IllegalArgumentException("缺少固定州序");
+        List<String> order = new ArrayList<>();
+        for (var entry : progression.getAsJsonArray("order")) {
+            if (!entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isString())
+                throw new IllegalArgumentException("州序必须使用地区 ID");
+            order.add(entry.getAsString());
+        }
+        if (order.size() != ps.size() || !new HashSet<>(order).equals(ids))
+            throw new IllegalArgumentException("州序必须完整且不重复地覆盖地区清单");
+        if (!profile(order.getLast()).role().equals("anchor"))
+            throw new IllegalArgumentException("州序必须以中枢地区结束");
+        for (int i = 1; i < order.size(); i++) {
+            int gap = progressionTier(order.get(i)) - progressionTier(order.get(i - 1));
+            if (gap <= 0 || gap > stepMax) throw new IllegalArgumentException("州序阶位必须递增且满足最大阶差");
+        }
+        progressionOrder = List.copyOf(order);
         capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"));
         sects = new SectPlanningRules(r.getAsJsonObject("sects"));
         starterMine = new com.example.myvillage.worldplan.mine.StarterMineDefinition(r.getAsJsonObject("starter_mine"));
@@ -188,6 +207,10 @@ public final class WorldPlanRules {
     public static boolean compressed(String algorithm) { return V11_ALGORITHM.equals(algorithm); }
     public Profile profile(String id) {
         return profiles.stream().filter(p -> p.id.equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("No profile " + id));
+    }
+    public int progressionTier(String id) {
+        var p = profile(id);
+        return p.role().equals("anchor") ? tierMax : p.nominalTier();
     }
     public String json() { return canonicalJson; }
     public String fingerprint() { return fingerprint; }

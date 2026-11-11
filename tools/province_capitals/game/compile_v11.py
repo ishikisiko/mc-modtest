@@ -28,6 +28,21 @@ def apply_spawn_policy(frozen, policy):
     frozen['spawn']['excluded_regions']=list(values)
 
 
+def apply_region_progression(frozen, policy):
+    if not isinstance(policy,dict) or set(policy)!={'order'}:
+        raise ValueError('州序必须显式声明 order')
+    order=policy['order'];profiles={p['id']:p for p in frozen['profiles']}
+    if (not isinstance(order,list) or any(not isinstance(v,str) for v in order)
+            or len(order)!=len(profiles) or len(set(order))!=len(order) or set(order)!=set(profiles)):
+        raise ValueError('州序必须完整且不重复地覆盖地区清单')
+    if profiles[order[-1]]['role']!='anchor':
+        raise ValueError('州序必须以中枢地区结束')
+    tiers=[frozen['tier_range'][1] if profiles[v]['role']=='anchor' else profiles[v]['tier'] for v in order]
+    if any(not 0<b-a<=frozen['tier_step'][1] for a,b in zip(tiers,tiers[1:])):
+        raise ValueError('州序阶位必须递增且满足最大阶差')
+    frozen['region_progression']=copy.deepcopy(policy)
+
+
 def aggregate(out:Path,source:Path,*,refresh_current=False):
     from player_estates.runtime_export import integrate
     integrate(out)
@@ -44,8 +59,9 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
         refs.append(ref);summaries.append(summary)
     frozen=copy.deepcopy(base);frozen['algorithm']=spec['algorithm'];frozen['capitals']['assets']=spec['assets'];frozen['capitals']['bundles']=refs
     policy=spec.get('topology',{})
-    if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须通过一处正式关隘接入魔域')
+    if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须开放州序规定的魔域关隘')
     frozen.update(policy)
+    apply_region_progression(frozen,spec.get('region_progression'))
     apply_spawn_policy(frozen,spec.get('spawn'))
     sect_root=ROOT/'build/generated/sect_blueprints/resources'
     catalog=json.loads((sect_root/'data/myvillage/sect_blueprints/catalog.json').read_text())

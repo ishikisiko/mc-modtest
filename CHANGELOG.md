@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.129.0
+
+- 新修仙大陆固定八州强弱顺序，连续州共享边界并逐段生成官道，出生城固定为西漠。
+- 魔域经两处正式关隘连接灵岳与中州，下一州查询包含魔域；其余魔域边界继续封闭。
+- 千机阁建筑继续在独立预览中审阅，本版尚未加入这些建筑。
+
 ## 0.128.1
 
 - 庄园购买后暂时对所有玩家开放；未售出时继续禁入。保留房主记录、100枚上品灵石的一次性扣款及重启后的开放状态，后续再接入队伍权限。

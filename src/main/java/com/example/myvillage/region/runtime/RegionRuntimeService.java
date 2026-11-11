@@ -103,7 +103,7 @@ public final class RegionRuntimeService {
     }
 
     /**
-     * The cached tier-rung ladder (ascending distinct non-walled tiers), or
+     * The cached tier-rung ladder (ascending distinct progression tiers), or
      * empty if the runtime is inactive.
      */
     public static Optional<List<Integer>> ladder() {
@@ -155,7 +155,7 @@ public final class RegionRuntimeService {
     /**
      * The rung (tier value) the player is currently on. Empty if the runtime
      * is inactive, the player is outside the bounded area, or the player is in
-     * a walled region (魔域, off the ladder by construction).
+     * a region outside the declared progression.
      */
     public static Optional<Integer> currentRung(ServerPlayer player) {
         RegionGraph graph = cachedGraph;

@@ -102,6 +102,9 @@ public final class RoadLayout {
         if(!rules.automatic)return;
         var reached=new HashSet<>(Set.of(world.cities().getFirst().regionId()));for(int n=0;n<world.cities().size();n++)for(var route:routes)if(route.sectSite.isEmpty()){if(reached.contains(route.from))reached.add(route.to);if(reached.contains(route.to))reached.add(route.from);}
         if(!reached.equals(rules.ports.keySet()))throw new IllegalStateException("缓存道路未连接全部省城");
+        for(var border:RoadNetworkPlanner.progressionBorders(world))
+            if(routes.stream().noneMatch(r->r.sectSite.isEmpty()&&Set.of(r.from,r.to).equals(Set.of(border.a(),border.b()))))
+                throw new IllegalStateException("缓存道路缺少连续州之间的官道："+border.a()+"—"+border.b());
         var connected=new HashSet<String>();
         for(var route:routes)if(!route.sectSite.isEmpty()){
             var site=world.sectSite(route.sectSite).orElseThrow(()->new IllegalStateException("缓存支路引用未知宗门地块"));

@@ -21,8 +21,7 @@ public final class RoadNetworkPlanner {
         Map<String,String> groups=new HashMap<>();regions.forEach(r->groups.put(r,r));
         List<RoadPlan> routes=new ArrayList<>(completed);List<RoadPlan.Cell> locked=new ArrayList<>(previous);
         for(var p:completed)if(rules.ports.containsKey(p.from())&&rules.ports.containsKey(p.to()))join(groups,p.from(),p.to());
-        var candidates=world.borders().stream().filter(WorldPlan.Border::passable)
-            .sorted(Comparator.comparingDouble((WorldPlan.Border b)->distance(world,b)).thenComparing(b->RoadNetworkGeometry.id(b.a(),b.b()))).toList();
+        var candidates=progressionBorders(world);
         Map<String,CityRoadAccess> accesses=new LinkedHashMap<>();
         for(var region:regions) {
             progress.accept(new Progress("city_access",region,"",routes.size(),regions.size()-1));
@@ -64,7 +63,16 @@ public final class RoadNetworkPlanner {
         org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("道路枢纽就绪：{} 处，半径 {}—{} 格",junctions.hubs().size(),rules.junctions.minimumRadius(),rules.junctions.crossRadius());
         progress.accept(new Progress("complete","","",routes.size(),required));return result;
     }
-    private static double distance(WorldPlan world,WorldPlan.Border b){var a=world.capitalOf(b.a()).orElseThrow();var c=world.capitalOf(b.b()).orElseThrow();return Math.hypot(a.x()-c.x(),a.z()-c.z());}
+    static List<WorldPlan.Border> progressionBorders(WorldPlan world) {
+        var order=world.rules().progressionOrder;
+        List<WorldPlan.Border> result=new ArrayList<>();
+        for(int i=1;i<order.size();i++) {
+            var pair=Set.of(order.get(i-1),order.get(i));
+            result.add(world.borders().stream().filter(b->b.passable()&&Set.of(b.a(),b.b()).equals(pair))
+                    .findFirst().orElseThrow(()->new IllegalStateException("连续州缺少通行边界："+pair)));
+        }
+        return List.copyOf(result);
+    }
     private static String root(Map<String,String> groups,String r){String p=groups.get(r);if(p==null)throw new IllegalArgumentException("未知省城："+r);while(!p.equals(groups.get(p)))p=groups.get(p);return p;}
     private static void join(Map<String,String> groups,String a,String b){groups.put(root(groups,a),root(groups,b));}
 }
