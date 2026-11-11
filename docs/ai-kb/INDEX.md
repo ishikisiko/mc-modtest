@@ -119,6 +119,8 @@ above and link the relevant contract. Update only affected documentation.
 
 灰瓦庭院庄园：[独立参考蓝图、原版方块预览与 SCHEM/NBT 导出](../../tools/player_estates/README.md)；当前用于外观选型，未接入城镇。
 
+中州庄园选址：[民居撤并、生活巷绕行与坡地适配草案](../../tools/player_estates/README.md#中州选址草案)；平面规划独立交付，平底放置未满足既有整地限制，台地建筑与标高尚待设计。
+
 修炼属性加值与正式突破品质：[基础数表、防御公式、存档、H 内视入口与验证边界](../features/additive-cultivation-stats.md)。
 
 金刚灵体与凤凰灵体：[身体属性加值、金刚分类适应、凤凰火种和余烬、离线与重启](../features/spirit-bodies.md)。

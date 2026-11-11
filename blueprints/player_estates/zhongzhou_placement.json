@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "name": "中州灰瓦庄园选址草案",
+  "stage": "planning_only",
+  "scope": "比较替换民居的独立规划，不改正式中州生成输入、模组资源或玩家存档。",
+  "sources": {
+    "estate": "blueprints/player_estates/gray_courtyard.json",
+    "city": "blueprints/province_capitals/central/game-spec.json",
+    "city_blueprint": "blueprints/province_capitals/blueprint_plan/zhongzhou.json",
+    "waystones": "blueprints/capital_waystones/sites.json"
+  },
+  "selected": "west_middle",
+  "rules": {
+    "plot_inset": 3,
+    "public_clearance": 3,
+    "retire_roles": ["house"],
+    "lane_width": 3,
+    "coordinate_space": "中州本地坐标，XZ 地块采用左闭右开边界；+X 东，+Z 南。",
+    "terrain_limit_source": "city_blueprint.rules.local_earthwork_limit",
+    "protected": ["商铺和服务建筑", "宫苑寺塔和亭桥", "城墙与城门", "公共院场和传送亭", "主街和水体"],
+    "lane_policy": "地块内部的生活巷道可绕退界带重排，地块外的原巷道保持；绕行线仅为平面规划，标高和台阶另行设计。",
+    "terrain_policy": "保留西坡山体，庄园按坡向分台地调整；当前平底蓝图只用于占地核对，不能直接施工。"
+  },
+  "candidates": [
+    {
+      "id": "west_middle",
+      "name": "西坡中段宅园",
+      "plot": [346, 710, 463, 814],
+      "rotation_quarters": 1,
+      "reason": "门楼朝东接现有生活巷，主楼在西侧高处。以减少住宅撤并为主要取舍，保留宫苑与御街。"
+    },
+    {
+      "id": "palace_west",
+      "name": "宫西宅坊",
+      "plot": [415, 710, 532, 814],
+      "rotation_quarters": 1,
+      "reason": "靠近宫西公共街路，整体高差稍小，但涉及更多民居。"
+    },
+    {
+      "id": "northwest",
+      "name": "西北坡宅园",
+      "plot": [403, 531, 520, 635],
+      "rotation_quarters": 1,
+      "reason": "涉及民居较少，但坡度更大，且需额外补充接路，不作为首选。"
+    }
+  ],
+  "review": {
+    "site_selection": "proposed",
+    "terraced_architecture": "needs_design",
+    "player_visual_acceptance": "not_verified",
+    "runtime_integration": "not_implemented"
+  }
+}

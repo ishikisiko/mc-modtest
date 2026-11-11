@@ -50,7 +50,8 @@ def check_exports(e,out):
 
 
 def package_source(out):
-    files=[SOURCE,*sorted((ROOT/'tools/player_estates').glob('*.py')),ROOT/'tools/player_estates/viewer.html',ROOT/'tools/player_estates/README.md',ROOT/'tools/player_estates/capture.mjs',
+    core=('__init__.py','build.py','geometry.py','preview.py','test_geometry.py')
+    files=[SOURCE,*[ROOT/'tools/player_estates'/name for name in core],ROOT/'tools/player_estates/viewer.html',ROOT/'tools/player_estates/README.md',ROOT/'tools/player_estates/capture.mjs',
            ROOT/'tools/voxel_dump_to_structures.py',ROOT/'tools/json_to_nbt.py',
            *[ROOT/'tools/buildgen'/name for name in ('__init__.py','modset.py','style.py','nbtread.py')],
            ROOT/'tools/web/three.min.js',ROOT/'tools/web/OrbitControls.js']
