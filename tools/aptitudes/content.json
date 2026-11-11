@@ -5,7 +5,7 @@
     "sword": "minecraft:iron_sword", "spear": "minecraft:stick", "fist": "minecraft:leather",
     "alchemy": "myvillage:spirit_leaf", "forging": "myvillage:xuantie_ingot", "talisman": "minecraft:ink_sac"
   },
-  "tier_ingredients": ["myvillage:spirit_stone", "minecraft:quartz", "minecraft:diamond", "minecraft:nether_star"],
+  "tier_ingredients": ["myvillage:low_grade_spirit_stone", "minecraft:quartz", "minecraft:diamond", "minecraft:nether_star"],
   "models": {
     "aptitude_fruit": "myvillage:item/ningyuan_fruit_low",
     "aptitude_treatise": "minecraft:item/book",
