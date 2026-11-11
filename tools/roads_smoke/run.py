@@ -101,7 +101,7 @@ class Server:
         env = dict(os.environ, MYVILLAGE_ROAD_ADAPTER_GAME=str(self.game))
         self.process = subprocess.Popen(args, cwd=ROOT, env=env, stdout=self.log, stderr=subprocess.STDOUT,
                                         stdin=subprocess.DEVNULL, start_new_session=True)
-        deadline = time.monotonic()+600
+        deadline = time.monotonic()+getattr(self, 'startup_timeout', 600)
         while time.monotonic() < deadline:
             if self.process.poll() is not None:
                 raise RuntimeError('Server startup exit '+str(self.process.returncode))

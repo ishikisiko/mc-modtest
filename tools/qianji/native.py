@@ -42,7 +42,8 @@ def main():
             result['regenerated_fixture_regions']=regenerated;result['original_world_preserved']=str(original)
     else:game=ROOT/'run-fixed-progression'/('native-'+secrets.token_hex(5))
     if a.regenerate_failed_region:assert a.continue_probe,'只能在已验证的新世界探针副本中重生成区域'
-    server=Server(a.out,game,a.seed);stage=selected[0]
+    server=Server(a.out,game,a.seed);server.startup_timeout=900;stage=selected[0]
+    result['startup_timeout_seconds']=server.startup_timeout
     def complete():
         result['completed'].append(stage);result['unrun'].remove(stage);write(a.out/'result.json',result)
     def query(command):
