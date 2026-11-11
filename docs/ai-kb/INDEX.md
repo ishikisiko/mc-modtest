@@ -117,7 +117,7 @@ above and link the relevant contract. Update only affected documentation.
 
 初始城附近矿场：[东海出生排除、开局洞窟保障与各州天然矿口](../features/starter-mine.md)。
 
-灰瓦庭院庄园：[独立参考蓝图、原版方块预览与 SCHEM/NBT 导出](../../tools/player_estates/README.md)；当前用于外观选型，未接入城镇。
+灰瓦庭院庄园：[独立参考蓝图、原版方块预览与 SCHEM/NBT 导出](../../tools/player_estates/README.md)；[中州西坡正式生成、门口管家、购房和产权禁入](../features/estate-purchase.md)。
 
 中州庄园选址：[民居撤并、生活巷绕行与候选比较](../../tools/player_estates/README.md#中州选址草案)；西坡中段已选定，原平底方案不满足既有整地限制。
 

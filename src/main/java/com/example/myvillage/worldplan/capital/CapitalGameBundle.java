@@ -28,6 +28,7 @@ public final class CapitalGameBundle {
     public final List<Entry> entries;
     public final List<CapitalWaystone> waystones;
     public final Optional<ManorSite> manorSite;
+    public final List<com.example.myvillage.estate.EstateDefinition> estates;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
     private final short[] topSolid;
     private final JsonObject life;
@@ -117,6 +118,12 @@ public final class CapitalGameBundle {
         if(!placeIds.containsAll(Set.of("inn_work","inn_rest","inn_social","guest_west","herbalist_work","herbalist_rest","smith_work","smith_rest")))
             throw new IllegalArgumentException("Capital bundle missing required service slots");
         manorSite=readManorSite(root);
+        var properties = new ArrayList<com.example.myvillage.estate.EstateDefinition>();
+        if (root.has("player_estates")) for (var value : root.getAsJsonArray("player_estates"))
+            properties.add(com.example.myvillage.estate.EstateDefinition.read(value.getAsJsonObject(),width,height,depth));
+        if (properties.size()>4 || properties.stream().map(com.example.myvillage.estate.EstateDefinition::id).distinct().count()!=properties.size())
+            throw new IllegalArgumentException("庄园数量或身份无效");
+        estates=List.copyOf(properties);
     }
 
     private Optional<ManorSite> readManorSite(JsonObject root) {
@@ -170,6 +177,7 @@ public final class CapitalGameBundle {
     }
     public static String identityJson(JsonObject root) {
         JsonObject projection = new JsonObject();
+        if(root.has("player_estates"))projection.add("player_estates",root.get("player_estates"));
         for (String key : IDENTITY_KEYS) {
             if (!root.has(key)) throw new IllegalArgumentException("Missing capital field " + key);
             projection.add(key, root.get(key));

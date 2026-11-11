@@ -142,6 +142,12 @@ neoForge {
 }
 
 // 炼丹／炼器随机品质、实际工位和重启探针，禁止进入交付包。
+if (providers.gradleProperty('estateEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/estateEvidence/java')
+    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    tasks.named('jar') { doFirst { throw new GradleException('Estate evidence must not enter the delivery jar') } }
+}
+
 if (providers.gradleProperty('craftingQualityEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/craftingQualityEvidence/java')
     neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
@@ -448,6 +454,7 @@ tasks.register('generateProvinceCapitalV11Assets', Exec) {
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
     inputs.files(files('tools/player_economy_sites.py','blueprints/economy/town_boards.json'))
+    inputs.files(fileTree('blueprints/player_estates'), fileTree('tools/player_estates') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('build/generated/sect_blueprints/resources'), fileTree('build/generated/starter_mine/resources'), files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
             fileTree('blueprints/province_capitals/blueprint_plan'), fileTree('blueprints/lord_manors'),
             fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' },

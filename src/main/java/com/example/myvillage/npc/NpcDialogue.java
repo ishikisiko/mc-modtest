@@ -51,7 +51,8 @@ public final class NpcDialogue {
         var life = sim == null ? null : sim.life(npc.ledgerPersonId()).orElse(null);
         String role = person == null ? "rogue" : person.sectId() + ":" + person.rank() + ":" + person.status();
         String site = (life == null ? "" : life.siteId() + ":" + life.role() + ":" + life.epoch())
-                + ":capital:" + com.example.myvillage.story.capital.CapitalOpeningRuntime.progress(p).revision();
+                + ":capital:" + com.example.myvillage.story.capital.CapitalOpeningRuntime.progress(p).revision()
+                + ":estate:" + com.example.myvillage.estate.EstateRuntime.dialogueIdentity(npc);
         return new StorySessions.Identity(npc.getUUID(), npc.getId(), npc.ledgerPersonId(), npc.combatEpoch(),
                 role, p.level().dimension().location().toString(), 0, site);
     }
@@ -69,6 +70,8 @@ public final class NpcDialogue {
 
     public static void open(ServerPlayer p, NpcEntity npc) {
         if (!valid(p, npc) || !allow(p)) return;
+        var estate = com.example.myvillage.estate.EstateRuntime.interact(p,npc,"estate_home");
+        if (estate.isPresent()) { send(p,npc,estate.get().lines(),estate.get().options()); return; }
         var sim = npc.isLedgerAvatar() ? WorldSimRuntime.sim().orElse(null) : null;
         String greeting = "道友，有事不妨直说。我只是路过此地的一介散修。";
         if (sim != null) {
@@ -116,6 +119,12 @@ public final class NpcDialogue {
         }
         String option = c.optionId();
         if (option.equals("close")) return;
+        if (com.example.myvillage.estate.EstateRuntime.steward(npc).isPresent()) {
+            var page = option.equals("estate_confirm") ? com.example.myvillage.estate.EstateRuntime.confirm(npc)
+                    : com.example.myvillage.estate.EstateRuntime.interact(p,npc,option);
+            if (page.isPresent()) send(p,npc,page.get().lines(),page.get().options());
+            return;
+        }
         if (option.equals("home")) { send(p, npc, List.of("道友还有何事？"), NpcDialogueOptions.home()); return; }
         var caps = capabilities(p, npc);
         if (option.startsWith("capital_") || option.equals("story") && com.example.myvillage.story.capital.CapitalOpeningRuntime.canDiscuss(p, npc)) {
@@ -205,6 +214,10 @@ public final class NpcDialogue {
     }
 
     private static void send(ServerPlayer p, NpcEntity npc, List<String> lines, List<Option> options) {
+        if (options.equals(NpcDialogueOptions.home())) {
+            var estate = com.example.myvillage.estate.EstateRuntime.interact(p,npc,"estate_home");
+            if (estate.isPresent()) { lines=estate.get().lines(); options=estate.get().options(); }
+        }
         var rules = NpcInteractionRules.get();
         npc.pauseConversation(rules.pauseTicks());
         var sim = npc.isLedgerAvatar() ? WorldSimRuntime.sim().orElse(null) : null;
@@ -222,6 +235,7 @@ public final class NpcDialogue {
                 : PortraitAssign.of(person, sim.day(), WorldSimRuntime.daysPerYear());
         String name = person == null ? npc.hasCustomName() ? npc.getCustomName().getString() : "无名散修" : person.name();
         String role = person == null || person.sectId() < 0 ? "散修" : person.sectName() + " · " + NpcDialogueText.of(WorldSimText.rank(person.rank()));
+        if (com.example.myvillage.estate.EstateRuntime.steward(npc).isPresent()) role="庄园管家";
         if (sim != null) {
             var life = sim.life(npc.ledgerPersonId());
             if (life.isPresent()) role = NpcProfessionText.role(life.get().role()) + " · " + role;

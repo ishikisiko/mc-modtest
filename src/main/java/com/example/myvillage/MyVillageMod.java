@@ -149,6 +149,7 @@ public final class MyVillageMod {
         com.example.myvillage.regiongen.BayTerracesStructures.register(modEventBus);
         com.example.myvillage.worldplan.runtime.WorldPlanRuntime.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
+        com.example.myvillage.estate.EstateRuntime.register();
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.128.0
+
+- 中州西坡中段正式生成灰瓦庭院庄园，按已选分台地构造撤并31栋获准民居，保留外围公共巷道及其余建筑。
+- 庄园大门外新增管家，通过两步对话支付100枚上品灵石购买整座庄园；背包和灵石袋可共同支付，房契按玩家UUID保存在当前世界。
+- 未出售时所有玩家均不能进入私人院域；出售后仅房主可以进入。服务端检查步行、飞行、坐骑、物理推动、传送、登录和重生，范围覆盖该地块的整个竖直区域。新增 `/myvillage estate` 查询管家坐标。
+
 ## 0.127.0
 
 - 新增炼丹奇才、炼器奇才和土块：两项奇才分别将对应开局资质固定为60；土块使炼丹、炼器得分均值降低5、方差变为4倍，每颗丹药及每件器物独立判定。

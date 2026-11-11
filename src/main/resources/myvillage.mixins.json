@@ -13,6 +13,9 @@
     "LegacyHeldItemMixin"
   ],
   "mixins": [
+    "EstatePlayerMovementMixin",
+    "EstatePhysicalMovementMixin",
+    "EstatePlayerTeleportMixin",
     "CombatRulesMixin",
     "LivingDamageContainerAccess",
     "WitherChargeHealingMixin",
