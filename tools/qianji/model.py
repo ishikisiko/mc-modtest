@@ -246,6 +246,13 @@ def build(ident,validate=True):
             for k,value in enumerate(row):
                 if value=='1':m.put(cx+width//2-k,yy+y,zz-1,'gold','detail')
 
+    if 'roof_instrument' in spec:
+        cx,fy,cz,r=spec['roof_instrument'];m.instrument(cx,fy,cz,r)
+        core=next(v for v in spec['rooms'] if v['id']=='core');low=core['floor_y']+sum(v['height'] for v in core['levels'][:-1])
+        for dx in [-r*2//3,r*2//3]:
+            for dz in [-r*2//3,r*2//3]:m.box(cx+dx,low,cz+dz,1,fy-low+1,1,'metal','detail')
+        m.box(cx-r,fy,cz,r*2+1,1,1,'metal','detail');m.box(cx,fy,cz-r,1,1,r*2+1,'metal','detail')
+        m.box(cx,fy,cz,1,r*2+1,1,'metal','detail');m.box(cx-r,fy+r,cz,r*2+1,1,1,'metal','detail')
     for stele in spec.get('state_steles',[]):
         x,y,z=stele['position'];m.box(x-1,y-1,z-1,3,3,3,'base','detail');m.box(x,y+2,z,1,7,1,'metal','detail')
         m.put(x,y+7,z-1,'minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]','detail')

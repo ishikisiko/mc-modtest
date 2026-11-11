@@ -84,6 +84,10 @@ def main():
                 expected=source.block(x,y-1,z);assert expected not in ('minecraft:air','minecraft:water[level=0]'),(city['region_id'],target)
                 assert server.test(f'if block {wx} {wy-1} {wz} {expected}'),(city['region_id'],target,expected)
                 for dy in [0,1]:assert server.test(f'if block {wx} {wy+dy} {wz} minecraft:air'),(city['region_id'],target,dy)
+            for landmark in office.get('landmarks',[]):
+                x,y,z=landmark['position'];wx,wy,wz=city['x']+x,city['origin_y']+y,city['z']+z;load(wx,wz)
+                expected=source.block(x,y,z);assert expected!='minecraft:air'
+                assert server.test(f'if block {wx} {wy} {wz} {expected}'),landmark
             board=office['board']['position'];wx,wy,wz=city['x']+board[0],city['origin_y']+board[1],city['z']+board[2]
             load(wx,wz);assert server.test(f'if block {wx} {wy} {wz} myvillage:jianghu_board[facing=south]')
             info=query('qianji '+city['region_id'])['qianji'];assert len(info)==1

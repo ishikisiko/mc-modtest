@@ -131,10 +131,14 @@ def integrate(out):
         terrain=resource_file(out,city['terrain']['resource']);terrain.write_bytes(gzip.compress(struct.pack('<'+'h'*len(heights),*heights),mtime=0))
         city['terrain'].update(width=nw,depth=nd,sha256=sha(terrain.read_bytes()));city['size']=[nw,nh,nd];city['tiles']=sorted(refs.values(),key=lambda p:(p['z'],p['x']));city['palette_states']=sorted(palette)
         descriptor=dict(variant=ident,name=m.spec['name'],scale=m.spec['scale'],group='qianji',source_dimensions=[ow,oh,od],
-                        bounds=[x0,z0,x0+m.w,z0+m.d],base_y=base,rotation_quarters=2,entry=entry,access=access,road_z=road_z,
+                        bounds=[x0,z0,x0+m.w,z0+m.d],size=[m.w,m.h,m.d],base_y=base,rotation_quarters=2,entry=entry,access=access,road_z=road_z,
                         board=dict(position=board,reader=reader,facing='south'),rooms=m.rooms,
                         targets=[dict(id=t['id'],position=point(t['position'])) for t in m.targets],
                         checks=checks,inputs=inputs,old_city_preserved=True,old_board_retired=old is not None)
+        descriptor['landmarks']=[]
+        if 'roof_instrument' in m.spec:
+            cx,fy,cz,rr=m.spec['roof_instrument']
+            for label,p in [('天机仪顶部',[cx,fy+rr*2,cz]),('天机仪核心',[cx+1,fy+rr,cz+1]),('天机仪外环',[cx-rr,fy+rr,cz])]:descriptor['landmarks'].append(dict(name=label,position=point(p)))
         city.setdefault('buildings',[]).append(dict(id='qianji',name=m.spec['name'],role='civic',family='qianji',position=[x0,base+1,z0],size=[m.w,m.d],bounds=dict(min=[x0,base,z0],max=[x0+m.w-1,base+m.h-1,z0+m.d-1]),facing='south',entrance=entry,stories=len(m.spec['rooms'][-1]['levels'])))
         if 'buildings' in city.get('coverage',{}):city['coverage']['buildings']+=1
         city['qianji']=descriptor;city['entries'].append(dict(id='qianji',position=entry,facing='south'))
