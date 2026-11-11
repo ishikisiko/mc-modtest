@@ -217,7 +217,10 @@ class Estate:
                 for xx in (x+3, x+4):
                     self.put(xx, f+n+i, z+n-1-i, 'wood', 'floor')
                     self.put(xx, f+n+i+1, z+n-1-i, state('oak_stairs', facing='north', half='bottom', shape='straight', waterlogged=False), 'floor')
-            self.box(x+3, f+rise, z-2, x+5, f+rise+1, z, 'floor', 'floor')
+            # An odd rise has one more returning tread. Keep its final stair
+            # at z-1 instead of replacing it with the landing's full block.
+            landing_shift=rise%2
+            self.box(x+3, f+rise, z-2-landing_shift, x+5, f+rise+1, z-landing_shift, 'floor', 'floor')
 
     def furnish(self, b, r, f, upper=False):
         x0, z0, x1, z1 = r

@@ -1,0 +1,276 @@
+{
+  "schema": 1,
+  "name": "中州西坡灰瓦庄园分台地样稿",
+  "stage": "visual_review",
+  "placement": "blueprints/player_estates/zhongzhou_placement.json",
+  "site": "west_middle",
+  "base_y": 128,
+  "height": 128,
+  "building_rect_overrides": {
+    "front_west": [
+      25,
+      10,
+      42,
+      22
+    ],
+    "front_east": [
+      56,
+      10,
+      73,
+      22
+    ],
+    "east_hall": [
+      69,
+      40,
+      92,
+      64
+    ],
+    "main": [
+      32,
+      72,
+      66,
+      96
+    ]
+  },
+  "floor_groups": [
+    [
+      "gate",
+      "front_west",
+      "front_east"
+    ],
+    [
+      "main",
+      "rear_west_tower",
+      "rear_east_tower"
+    ]
+  ],
+  "floor_policy": "逐栋按真实室内及前廊占地取标高，最多下挖原整地规则允许的深度；前部门楼与两厢廊共用首层。",
+  "foundation": {
+    "pier_spacing": 5,
+    "pier_width": 2,
+    "beam_depth": 2
+  },
+  "paths": {
+    "width": 3,
+    "headroom": 3,
+    "max_structural_support": 24,
+    "explanation": "支承高度单独记录，不把高架阶廊冒充地面整地；自然山体下挖仍受原三格边界限制。",
+    "gate_landing": [
+      49,
+      17
+    ],
+    "central_axis": [
+      [
+        49,
+        25
+      ],
+      [
+        49,
+        44
+      ],
+      [
+        49,
+        59
+      ],
+      [
+        49,
+        69
+      ]
+    ],
+    "covered_links": [
+      {
+        "id": "west_front",
+        "from": [
+          "front_west_tower",
+          "south"
+        ],
+        "to": [
+          "west_hall",
+          "north"
+        ],
+        "via": [
+          [
+            30,
+            38
+          ],
+          [
+            30,
+            43
+          ]
+        ]
+      },
+      {
+        "id": "east_front",
+        "from": [
+          "front_east_tower",
+          "west"
+        ],
+        "to": [
+          "east_hall",
+          "west"
+        ],
+        "via": [
+          [
+            65,
+            32
+          ],
+          [
+            64,
+            45
+          ],
+          [
+            64,
+            52
+          ]
+        ]
+      },
+      {
+        "id": "west_rear",
+        "from": [
+          "west_hall",
+          "east"
+        ],
+        "to": [
+          "rear_west_tower",
+          "north"
+        ],
+        "via": [
+          [
+            34,
+            60
+          ],
+          [
+            34,
+            67
+          ],
+          [
+            30,
+            67
+          ],
+          [
+            18,
+            74
+          ]
+        ]
+      },
+      {
+        "id": "east_rear",
+        "from": [
+          "east_hall",
+          "west"
+        ],
+        "to": [
+          "rear_east_tower",
+          "north"
+        ],
+        "via": [
+          [
+            63,
+            52
+          ],
+          [
+            63,
+            69
+          ],
+          [
+            70,
+            69
+          ],
+          [
+            80,
+            74
+          ]
+        ]
+      },
+      {
+        "id": "rear_west",
+        "from": [
+          "rear_west_tower",
+          "east"
+        ],
+        "to": [
+          "main",
+          "west"
+        ],
+        "via": [
+          [
+            30,
+            91
+          ],
+          [
+            30,
+            84
+          ]
+        ]
+      },
+      {
+        "id": "rear_east",
+        "from": [
+          "rear_east_tower",
+          "west"
+        ],
+        "to": [
+          "main",
+          "east"
+        ],
+        "via": [
+          [
+            68,
+            91
+          ],
+          [
+            68,
+            84
+          ]
+        ]
+      }
+    ]
+  },
+  "garden": {
+    "pond": {
+      "center": [
+        39,
+        42
+      ],
+      "radius": [
+        6,
+        5
+      ]
+    },
+    "trees": [
+      [
+        32,
+        28,
+        5
+      ],
+      [
+        60,
+        42,
+        5
+      ],
+      [
+        38,
+        63,
+        6
+      ],
+      [
+        36,
+        107,
+        5
+      ],
+      [
+        60,
+        107,
+        5
+      ]
+    ]
+  },
+  "preview": {
+    "context_margin": 18,
+    "base_url": "https://assets.ishiki333hhh.win/previews/zhongzhou-west-estate-terraces-20261111/",
+    "scope": "同一实际方块构造的局部展示，三维样稿尚待外观确认；未接入模组或玩家存档。"
+  },
+  "door_offsets": {
+    "front_east_tower:west": 5
+  }
+}
