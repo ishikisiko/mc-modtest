@@ -26,6 +26,9 @@ public final class WorldPlanCommands {
                     .then(Commands.argument("region",StringArgumentType.word())
                         .suggests((c,b)->{for(var region:com.example.myvillage.worldplan.capital.CapitalRegion.values())b.suggest(region.id());return b.buildFuture();})
                         .executes(c->cities(c.getSource(),StringArgumentType.getString(c,"region")))))
+                .then(Commands.literal("qianji").executes(c->qianji(c.getSource(),""))
+                    .then(Commands.argument("region",StringArgumentType.word())
+                        .executes(c->qianji(c.getSource(),StringArgumentType.getString(c,"region")))))
                 .then(Commands.literal("settlements").executes(c->info(c.getSource())))
                 .then(Commands.literal("qianzhen").executes(c->info(c.getSource())))
                 .then(Commands.literal("at").then(Commands.argument("x",IntegerArgumentType.integer(-29999984,29999984))
@@ -66,6 +69,17 @@ public final class WorldPlanCommands {
             s.sendSuccess(()->Component.literal(line),false);
         }
         return selected.size();
+    }catch(Exception e){return fail(s,e);}}
+    private static int qianji(CommandSourceStack s,String region){try{
+        var world=generator(s).plan();var list=new com.google.gson.JsonArray();
+        for(var city:world.cities())if(region.isEmpty()||city.regionId().equals(region)){
+            var office=city.bundle().qianji;var point=office.reader();var entry=office.entry();
+            var row=new JsonObject();row.addProperty("region",city.regionId());row.addProperty("name",office.name());row.addProperty("scale",office.scale());
+            row.add("entry",WorldPlanRules.JSON.toJsonTree(new int[]{city.x()+entry.x(),city.originY()+entry.y(),city.z()+entry.z()}));
+            row.add("task_reader",WorldPlanRules.JSON.toJsonTree(new int[]{city.x()+point.x(),city.originY()+point.y(),city.z()+point.z()}));list.add(row);
+        }
+        if(list.isEmpty())throw new IllegalArgumentException("未找到该州的千机阁");
+        var out=new JsonObject();out.add("qianji",list);return reply(s,out);
     }catch(Exception e){return fail(s,e);}}
     private static int info(CommandSourceStack s){try{
         var p=generator(s).plan();JsonObject o=new JsonObject();o.addProperty("active",true);o.addProperty("seed",Long.toString(p.seed()));

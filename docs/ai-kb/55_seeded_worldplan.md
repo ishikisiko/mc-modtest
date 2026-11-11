@@ -4,7 +4,7 @@
 
 当前默认大陆按 `blueprints/worldplan/rules_v11.json` 的 `region_progression.order` 排列：西漠、东海、南疆、北原、东荒、灵岳、魔域、中州。地区 profile 决定非中心州阶位，中州使用 tierMax；妖兽境界范围沿用原地区配置。七个外围州共用种子确定的环带半径，顺序固定，整体旋转和角度扰动随种子变化。每对连续州共享真实州界，官道必须依次覆盖；魔域两处关隘分别连接灵岳和中州，其余边界封闭。出生城固定落在最低阶的西漠，下一州查询包含魔域。冻结规则、世界摘要和道路缓存均包含或校验此顺序。
 
-千机阁的分档设计为前四州使用紧凑版、随后三州使用大版、中州使用总舵。这些建筑仍处于独立预览阶段，当前游戏资源尚未加入千机阁建筑。
+千机阁已作为八州省城东侧署区接入：前四州使用紧凑版、随后三州使用大版、中州使用240×256格总舵。`tools/qianji/` 从同一份语义体量与实际方块生成预览和正式 NBT；任务榜迁入办事厅，城市身份及原任务规则保留。详情见[千机阁署区](../features/qianji-halls.md)。
 
 
 > 0.115.0：八城增加 25 处传送亭台。选址权威为 `blueprints/capital_waystones/sites.json`，材料和构件尺寸为同目录 `materials.json`；`tools/capital_waystones/generate.py` 在正式 v4 模板上构造并逐块回读，保留原方块实体 NBT，随后重算 V11 冻结摘要。`CapitalGameBundle.waystones` 与模板共用局部坐标，名称、坐标、朝向和 Waystones 方块类型进入清单身份。`CapitalGamePlacement` 在当前 FEATURES 区块内放置石碑双块及延迟 BE；可选适配仅在装有 Waystones 时加载，原生 BE 首次加载后建立并保存身份，不在区块加载时重放建筑或补块。未安装 Waystones 时只保留亭台建筑。外观由用户进游戏查看，不能把资源检查称为玩家验收。

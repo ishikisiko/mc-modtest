@@ -1,0 +1,185 @@
+{
+  "id": "town_courts",
+  "name": "城中三院",
+  "size": [
+    104,
+    116
+  ],
+  "scale": "large",
+  "platforms": [
+    [
+      5,
+      47,
+      94,
+      65,
+      4
+    ],
+    [
+      28,
+      81,
+      58,
+      31,
+      8
+    ]
+  ],
+  "rooms": [
+    {
+      "id": "office",
+      "name": "千机阁委托大厅",
+      "box": [
+        31,
+        13,
+        50,
+        19
+      ],
+      "floor_y": 1,
+      "levels": [
+        {
+          "height": 10,
+          "inset": 0,
+          "use": "委托接取与核验"
+        }
+      ],
+      "kind": "open",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "supply",
+      "name": "外勤筹备院",
+      "box": [
+        9,
+        54,
+        25,
+        28
+      ],
+      "floor_y": 4,
+      "levels": [
+        {
+          "height": 9,
+          "inset": 0,
+          "use": "器物补给"
+        },
+        {
+          "height": 9,
+          "inset": 1,
+          "use": "外勤准备"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "archive_w",
+      "name": "州务卷宗楼",
+      "box": [
+        76,
+        53,
+        23,
+        29
+      ],
+      "floor_y": 4,
+      "levels": [
+        {
+          "height": 10,
+          "inset": 0,
+          "use": "本州卷宗"
+        },
+        {
+          "height": 9,
+          "inset": 1,
+          "use": "秘境勘图"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "command",
+      "name": "后中总务楼",
+      "box": [
+        34,
+        84,
+        44,
+        27
+      ],
+      "floor_y": 8,
+      "levels": [
+        {
+          "height": 14,
+          "inset": 0,
+          "use": "州务统筹"
+        },
+        {
+          "height": 12,
+          "inset": 2,
+          "use": "机要与跨州联络"
+        },
+        {
+          "height": 13,
+          "inset": 4,
+          "use": "掌事议事"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    }
+  ],
+  "paths": [
+    [
+      56,
+      1,
+      1
+    ],
+    [
+      56,
+      1,
+      38
+    ],
+    [
+      56,
+      4,
+      48
+    ],
+    [
+      56,
+      4,
+      76
+    ],
+    [
+      56,
+      8,
+      83
+    ],
+    [
+      56,
+      8,
+      85
+    ]
+  ],
+  "board": [
+    40,
+    1,
+    17
+  ],
+  "reader": [
+    40,
+    1,
+    16
+  ],
+  "stairs": [
+    [
+      56,
+      39,
+      1,
+      4,
+      17
+    ],
+    [
+      56,
+      81,
+      4,
+      8,
+      17
+    ]
+  ]
+}

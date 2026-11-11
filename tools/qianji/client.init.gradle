@@ -1,0 +1,6 @@
+// 仅供明确运行的真实客户端采集使用，不修改普通玩家启动参数。
+gradle.afterProject { project ->
+    if (project == project.rootProject) project.neoForge.runs.named('client') {
+        jvmArgument '-Xmx4G'
+    }
+}

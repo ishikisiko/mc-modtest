@@ -1,0 +1,116 @@
+{
+  "id": "folded_library",
+  "name": "折院书楼",
+  "size": [
+    60,
+    67
+  ],
+  "scale": "compact",
+  "platforms": [
+    [
+      2,
+      40,
+      56,
+      25,
+      3
+    ]
+  ],
+  "rooms": [
+    {
+      "id": "office",
+      "name": "委托办事长廊",
+      "box": [
+        5,
+        12,
+        17,
+        25
+      ],
+      "floor_y": 1,
+      "levels": [
+        {
+          "height": 7,
+          "inset": 0,
+          "use": "委托接取与成果核验"
+        },
+        {
+          "height": 7,
+          "inset": 0,
+          "use": "外勤准备"
+        }
+      ],
+      "kind": "open",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "archive",
+      "name": "后院藏卷书楼",
+      "box": [
+        18,
+        43,
+        30,
+        20
+      ],
+      "floor_y": 3,
+      "levels": [
+        {
+          "height": 10,
+          "inset": 0,
+          "use": "任务卷宗"
+        },
+        {
+          "height": 8,
+          "inset": 2,
+          "use": "秘境勘图"
+        },
+        {
+          "height": 9,
+          "inset": 3,
+          "use": "掌事与机要"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    }
+  ],
+  "paths": [
+    [
+      32,
+      1,
+      1
+    ],
+    [
+      32,
+      1,
+      37
+    ],
+    [
+      32,
+      3,
+      42
+    ],
+    [
+      33,
+      3,
+      44
+    ]
+  ],
+  "board": [
+    12,
+    1,
+    15
+  ],
+  "reader": [
+    12,
+    1,
+    14
+  ],
+  "stairs": [
+    [
+      32,
+      38,
+      1,
+      3,
+      9
+    ]
+  ]
+}

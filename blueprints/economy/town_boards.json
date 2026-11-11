@@ -1,106 +1,26 @@
 {
   "capital_beiyuan": {
-    "position": [
-      42,
-      12,
-      225
-    ],
-    "reader": [
-      41,
-      12,
-      225
-    ],
-    "facing": "west"
+    "source": "qianji"
   },
   "capital_donghai": {
-    "position": [
-      52,
-      8,
-      44
-    ],
-    "reader": [
-      51,
-      8,
-      44
-    ],
-    "facing": "west"
+    "source": "qianji"
   },
   "capital_donghuang": {
-    "position": [
-      101,
-      17,
-      394
-    ],
-    "reader": [
-      100,
-      17,
-      394
-    ],
-    "facing": "west"
+    "source": "qianji"
   },
   "capital_lingyue": {
-    "position": [
-      25,
-      16,
-      208
-    ],
-    "reader": [
-      25,
-      16,
-      207
-    ],
-    "facing": "north"
+    "source": "qianji"
   },
   "capital_moyu": {
-    "position": [
-      63,
-      18,
-      255
-    ],
-    "reader": [
-      62,
-      18,
-      255
-    ],
-    "facing": "west"
+    "source": "qianji"
   },
   "capital_nanjiang": {
-    "position": [
-      66,
-      14,
-      204
-    ],
-    "reader": [
-      65,
-      14,
-      204
-    ],
-    "facing": "west"
+    "source": "qianji"
   },
   "capital_ximo": {
-    "position": [
-      174,
-      10,
-      40
-    ],
-    "reader": [
-      173,
-      10,
-      40
-    ],
-    "facing": "west"
+    "source": "qianji"
   },
   "capital_zhongzhou": {
-    "position": [
-      547,
-      83,
-      1187
-    ],
-    "reader": [
-      547,
-      83,
-      1186
-    ],
-    "facing": "north"
+    "source": "qianji"
   }
 }

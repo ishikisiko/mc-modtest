@@ -46,6 +46,8 @@ def apply_region_progression(frozen, policy):
 def aggregate(out:Path,source:Path,*,refresh_current=False):
     from player_estates.runtime_export import integrate
     integrate(out)
+    from qianji.runtime_export import integrate as integrate_qianji
+    integrate_qianji(out)
     from player_economy_sites import place_capital_boards
     place_capital_boards(out)
     if out.resolve()==source.resolve() and not refresh_current:raise ValueError('V11 不能覆盖 V10 资源')

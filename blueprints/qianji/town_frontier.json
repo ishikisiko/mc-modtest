@@ -1,0 +1,185 @@
+{
+  "id": "town_frontier",
+  "name": "边关石院",
+  "size": [
+    108,
+    118
+  ],
+  "scale": "large",
+  "platforms": [
+    [
+      4,
+      42,
+      100,
+      72,
+      5
+    ],
+    [
+      26,
+      79,
+      62,
+      35,
+      9
+    ]
+  ],
+  "rooms": [
+    {
+      "id": "office",
+      "name": "边关委托厅",
+      "box": [
+        30,
+        12,
+        52,
+        21
+      ],
+      "floor_y": 1,
+      "levels": [
+        {
+          "height": 11,
+          "inset": 0,
+          "use": "边关委托与核验"
+        }
+      ],
+      "kind": "open",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "supply",
+      "name": "外勤器物院",
+      "box": [
+        8,
+        51,
+        25,
+        30
+      ],
+      "floor_y": 5,
+      "levels": [
+        {
+          "height": 11,
+          "inset": 0,
+          "use": "外勤器物"
+        },
+        {
+          "height": 10,
+          "inset": 1,
+          "use": "驻地值守"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "archive_w",
+      "name": "边情勘图楼",
+      "box": [
+        80,
+        48,
+        24,
+        35
+      ],
+      "floor_y": 5,
+      "levels": [
+        {
+          "height": 12,
+          "inset": 0,
+          "use": "边情与秘境记录"
+        },
+        {
+          "height": 10,
+          "inset": 1,
+          "use": "跨州联络"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "command",
+      "name": "后中州务总阁",
+      "box": [
+        34,
+        85,
+        46,
+        27
+      ],
+      "floor_y": 9,
+      "levels": [
+        {
+          "height": 15,
+          "inset": 0,
+          "use": "州务统筹"
+        },
+        {
+          "height": 13,
+          "inset": 2,
+          "use": "机要议事"
+        },
+        {
+          "height": 14,
+          "inset": 4,
+          "use": "掌事与秘境总档"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    }
+  ],
+  "paths": [
+    [
+      56,
+      1,
+      1
+    ],
+    [
+      56,
+      1,
+      34
+    ],
+    [
+      56,
+      5,
+      44
+    ],
+    [
+      56,
+      5,
+      77
+    ],
+    [
+      56,
+      9,
+      83
+    ],
+    [
+      56,
+      9,
+      86
+    ]
+  ],
+  "board": [
+    39,
+    1,
+    17
+  ],
+  "reader": [
+    39,
+    1,
+    16
+  ],
+  "stairs": [
+    [
+      56,
+      35,
+      1,
+      5,
+      17
+    ],
+    [
+      56,
+      79,
+      5,
+      9,
+      17
+    ]
+  ]
+}

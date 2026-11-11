@@ -1,0 +1,151 @@
+{
+  "id": "terraced_gallery",
+  "name": "叠院挑廊",
+  "size": [
+    64,
+    66
+  ],
+  "scale": "compact",
+  "platforms": [
+    [
+      4,
+      37,
+      56,
+      27,
+      4
+    ]
+  ],
+  "rooms": [
+    {
+      "id": "office",
+      "name": "前院办事挑廊",
+      "box": [
+        8,
+        10,
+        47,
+        16
+      ],
+      "floor_y": 1,
+      "levels": [
+        {
+          "height": 8,
+          "inset": 0,
+          "use": "委托接取与核验"
+        },
+        {
+          "height": 8,
+          "inset": 2,
+          "use": "值事与会客"
+        }
+      ],
+      "kind": "open",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "archive",
+      "name": "后中统筹楼",
+      "box": [
+        19,
+        43,
+        28,
+        19
+      ],
+      "floor_y": 4,
+      "levels": [
+        {
+          "height": 11,
+          "inset": 0,
+          "use": "外勤与卷宗"
+        },
+        {
+          "height": 10,
+          "inset": 1,
+          "use": "勘图与机要"
+        },
+        {
+          "height": 10,
+          "inset": 3,
+          "use": "掌事议事"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    }
+  ],
+  "paths": [
+    [
+      32,
+      1,
+      1
+    ],
+    [
+      32,
+      1,
+      33
+    ],
+    [
+      32,
+      4,
+      40
+    ],
+    [
+      32,
+      4,
+      44
+    ]
+  ],
+  "board": [
+    16,
+    1,
+    13
+  ],
+  "reader": [
+    16,
+    1,
+    12
+  ],
+  "stairs": [
+    [
+      32,
+      34,
+      1,
+      4,
+      11
+    ]
+  ],
+  "bridges": [
+    [
+      [
+        51,
+        25
+      ],
+      [
+        51,
+        55
+      ],
+      9,
+      4
+    ],
+    [
+      [
+        44,
+        55
+      ],
+      [
+        51,
+        55
+      ],
+      9,
+      4
+    ]
+  ],
+  "access_stairs": [
+    [
+      51,
+      27,
+      1,
+      9,
+      3
+    ]
+  ]
+}

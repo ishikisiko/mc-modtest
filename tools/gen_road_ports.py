@@ -42,7 +42,8 @@ def generate(root: Path = ROOT) -> str:
         if layout['city_id'] != 'capital_' + binding['region'] or not(0<=x0<x1<=dimensions[0] and 0<=z0<z1<=dimensions[2]):
             raise ValueError('出口必须属于绑定城市的本地坐标')
         city=CitySource(root/'build/generated/province_capitals_v11/resources',binding['region']);policy=config['network']
-        if city.city['city_id']!=layout['city_id'] or city.city['size']!=dimensions:raise ValueError('门洞与当前城市资源不一致')
+        if city.city['city_id']!=layout['city_id'] or city.city.get('qianji',{}).get('source_dimensions',city.city['size'])!=dimensions:raise ValueError('门洞与当前城市资源不一致')
+        dimensions=city.city['size']
         try:floors=city.corridor(x,z,facing,gate_width,policy['gate_source_probe_radius'],config['clearance'],policy['gate_side_search'],policy['gate_max_step2'])
         except ValueError as e:raise ValueError(binding['region']+'：'+str(e)) from e
         ports.append({

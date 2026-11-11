@@ -91,7 +91,7 @@ class Server:
             'rcon.password': self.password, 'broadcast-rcon-to-ops': 'false', 'enable-query': 'false',
             'level-name': 'world', 'level-seed': self.seed, 'level-type': 'myvillage\\:cultivation',
             'generate-structures': 'true', 'gamemode': 'creative', 'difficulty': 'peaceful',
-            'spawn-protection': 0, 'allow-flight': 'true', 'view-distance': 4, 'simulation-distance': 3,
+            'spawn-protection': 0, 'allow-flight': 'true', 'view-distance': max(3,min(24,getattr(self,'view_distance',4))), 'simulation-distance': 3,
             'max-tick-time': 180000, 'max-players': 2, 'sync-chunk-writes': 'true', 'pause-when-empty-seconds': -1}
         (self.game/'server.properties').write_text('\n'.join(f'{k}={v}' for k,v in properties.items())+'\n')
         (self.game/'eula.txt').write_text('eula=true\n')

@@ -1,0 +1,605 @@
+{
+  "id": "zhongzhou_headquarters",
+  "name": "中州千机阁总舵",
+  "size": [
+    240,
+    256
+  ],
+  "scale": "headquarters",
+  "platforms": [
+    [
+      6,
+      65,
+      228,
+      183,
+      9
+    ],
+    [
+      10,
+      138,
+      220,
+      108,
+      17
+    ],
+    [
+      67,
+      170,
+      106,
+      77,
+      21
+    ]
+  ],
+  "rooms": [
+    {
+      "id": "gate",
+      "name": "总舵三阙门",
+      "box": [
+        91,
+        11,
+        58,
+        26
+      ],
+      "floor_y": 1,
+      "levels": [
+        {
+          "height": 24,
+          "inset": 0,
+          "use": "迎宾与总舵仪门"
+        }
+      ],
+      "kind": "gate",
+      "roof": "sweeping_eave_roof",
+      "column_spacing": 12,
+      "column_width": 3,
+      "window_sill": 5,
+      "window_head": 5,
+      "portal_height": 14,
+      "roof_accent": true
+    },
+    {
+      "id": "office",
+      "name": "公开委托总厅",
+      "box": [
+        18,
+        47,
+        58,
+        26
+      ],
+      "floor_y": 1,
+      "levels": [
+        {
+          "height": 14,
+          "inset": 0,
+          "use": "委托接取与成果核验"
+        }
+      ],
+      "kind": "open",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "review",
+      "name": "外勤授令厅",
+      "box": [
+        166,
+        43,
+        55,
+        30
+      ],
+      "floor_y": 1,
+      "levels": [
+        {
+          "height": 14,
+          "inset": 0,
+          "use": "外勤授令与来使接待"
+        }
+      ],
+      "kind": "open",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "hall",
+      "name": "总令大殿",
+      "box": [
+        72,
+        83,
+        96,
+        53
+      ],
+      "floor_y": 9,
+      "levels": [
+        {
+          "height": 24,
+          "inset": 0,
+          "use": "八州委托与大型行动统筹"
+        },
+        {
+          "height": 13,
+          "inset": 0,
+          "use": "跨州议事回廊"
+        }
+      ],
+      "kind": "atrium",
+      "roof": "sweeping_eave_roof",
+      "column_spacing": 12,
+      "column_width": 3,
+      "window_sill": 5,
+      "window_head": 5,
+      "portal_height": 14,
+      "roof_accent": true,
+      "interior_colonnade": true
+    },
+    {
+      "id": "archive_w",
+      "name": "万卷秘境档库",
+      "box": [
+        14,
+        107,
+        40,
+        45
+      ],
+      "floor_y": 9,
+      "levels": [
+        {
+          "height": 15,
+          "inset": 0,
+          "use": "秘境勘图与卷宗"
+        },
+        {
+          "height": 12,
+          "inset": 2,
+          "use": "受控机要库"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "supply",
+      "name": "玄枢器物库",
+      "box": [
+        190,
+        103,
+        37,
+        44
+      ],
+      "floor_y": 9,
+      "levels": [
+        {
+          "height": 15,
+          "inset": 0,
+          "use": "大型器物与外勤储备"
+        },
+        {
+          "height": 12,
+          "inset": 2,
+          "use": "器物检视回廊"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "court_w",
+      "name": "巡州使院",
+      "box": [
+        15,
+        177,
+        39,
+        47
+      ],
+      "floor_y": 17,
+      "levels": [
+        {
+          "height": 13,
+          "inset": 0,
+          "use": "巡州使议事与驻留"
+        },
+        {
+          "height": 11,
+          "inset": 2,
+          "use": "联络与休息"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "court_e",
+      "name": "掌阁内院",
+      "box": [
+        187,
+        178,
+        39,
+        46
+      ],
+      "floor_y": 17,
+      "levels": [
+        {
+          "height": 15,
+          "inset": 0,
+          "use": "掌阁议事与来使内厅"
+        },
+        {
+          "height": 11,
+          "inset": 2,
+          "use": "静修与起居"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "gate_w",
+      "name": "西阙验牒楼",
+      "box": [
+        60,
+        15,
+        24,
+        22
+      ],
+      "floor_y": 1,
+      "levels": [
+        {
+          "height": 12,
+          "inset": 0,
+          "use": "来使验牒与登记"
+        },
+        {
+          "height": 9,
+          "inset": 1,
+          "use": "门阙值守"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "gate_e",
+      "name": "东阙传令楼",
+      "box": [
+        156,
+        15,
+        24,
+        22
+      ],
+      "floor_y": 1,
+      "levels": [
+        {
+          "height": 12,
+          "inset": 0,
+          "use": "分阁联络与传令"
+        },
+        {
+          "height": 9,
+          "inset": 1,
+          "use": "外勤值守"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "wing_w",
+      "name": "巡天传令楼",
+      "box": [
+        60,
+        188,
+        18,
+        38
+      ],
+      "floor_y": 21,
+      "levels": [
+        {
+          "height": 20,
+          "inset": 0,
+          "use": "外勤密令与关隘联络"
+        },
+        {
+          "height": 12,
+          "inset": 1,
+          "use": "巡州使统筹"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "wing_e",
+      "name": "机要副阁",
+      "box": [
+        162,
+        188,
+        18,
+        38
+      ],
+      "floor_y": 21,
+      "levels": [
+        {
+          "height": 20,
+          "inset": 0,
+          "use": "机要抄录与器物档案"
+        },
+        {
+          "height": 12,
+          "inset": 1,
+          "use": "分阁行动复核"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof"
+    },
+    {
+      "id": "core",
+      "name": "后中天枢总阁",
+      "box": [
+        80,
+        181,
+        80,
+        58
+      ],
+      "floor_y": 21,
+      "levels": [
+        {
+          "height": 24,
+          "inset": 0,
+          "use": "八州总图与总档"
+        },
+        {
+          "height": 20,
+          "inset": 3,
+          "use": "秘境机要与跨州统筹"
+        },
+        {
+          "height": 22,
+          "inset": 6,
+          "use": "掌阁议事与闭关院"
+        }
+      ],
+      "kind": "hall",
+      "roof": "sweeping_eave_roof",
+      "column_spacing": 12,
+      "column_width": 3,
+      "window_sill": 5,
+      "window_head": 5,
+      "portal_height": 14,
+      "roof_accent": true,
+      "interior_colonnade": true
+    }
+  ],
+  "paths": [
+    [
+      120,
+      1,
+      1
+    ],
+    [
+      120,
+      1,
+      42
+    ],
+    [
+      120,
+      1,
+      50
+    ],
+    [
+      120,
+      9,
+      69
+    ],
+    [
+      120,
+      9,
+      84
+    ],
+    [
+      120,
+      9,
+      137
+    ],
+    [
+      120,
+      17,
+      146
+    ],
+    [
+      120,
+      17,
+      165
+    ],
+    [
+      120,
+      21,
+      177
+    ],
+    [
+      120,
+      21,
+      182
+    ]
+  ],
+  "board": [
+    37,
+    1,
+    54
+  ],
+  "reader": [
+    37,
+    1,
+    53
+  ],
+  "stairs": [
+    [
+      120,
+      51,
+      1,
+      9,
+      29
+    ],
+    [
+      120,
+      137,
+      9,
+      17,
+      25
+    ],
+    [
+      120,
+      168,
+      17,
+      21,
+      25
+    ]
+  ],
+  "bridges": [
+    [
+      [
+        54,
+        220
+      ],
+      [
+        80,
+        220
+      ],
+      21,
+      7
+    ],
+    [
+      [
+        160,
+        220
+      ],
+      [
+        187,
+        220
+      ],
+      21,
+      7
+    ]
+  ],
+  "instrument": [
+    150,
+    4,
+    55,
+    11
+  ],
+  "monuments": [
+    [
+      48,
+      1,
+      24
+    ],
+    [
+      192,
+      1,
+      24
+    ]
+  ],
+  "access_stairs": [
+    [
+      150,
+      38,
+      1,
+      4,
+      5
+    ]
+  ],
+  "trees": [
+    [
+      8,
+      1,
+      47
+    ],
+    [
+      231,
+      1,
+      47
+    ],
+    [
+      62,
+      9,
+      116
+    ],
+    [
+      179,
+      9,
+      118
+    ],
+    [
+      62,
+      17,
+      231
+    ],
+    [
+      178,
+      17,
+      231
+    ]
+  ],
+  "state_steles": [
+    {
+      "name": "西漠",
+      "position": [
+        104,
+        17,
+        145
+      ]
+    },
+    {
+      "name": "东海",
+      "position": [
+        136,
+        17,
+        145
+      ]
+    },
+    {
+      "name": "南疆",
+      "position": [
+        104,
+        17,
+        153
+      ]
+    },
+    {
+      "name": "北原",
+      "position": [
+        136,
+        17,
+        153
+      ]
+    },
+    {
+      "name": "东荒",
+      "position": [
+        104,
+        17,
+        161
+      ]
+    },
+    {
+      "name": "灵岳",
+      "position": [
+        136,
+        17,
+        161
+      ]
+    },
+    {
+      "name": "魔域",
+      "position": [
+        104,
+        17,
+        169
+      ]
+    },
+    {
+      "name": "中州",
+      "position": [
+        136,
+        17,
+        169
+      ]
+    }
+  ]
+}

@@ -454,6 +454,7 @@ tasks.register('generateProvinceCapitalV11Assets', Exec) {
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
     inputs.files(files('tools/player_economy_sites.py','blueprints/economy/town_boards.json'))
+    inputs.files(fileTree('blueprints/qianji'), fileTree('tools/qianji') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('blueprints/player_estates'), fileTree('tools/player_estates') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('build/generated/sect_blueprints/resources'), fileTree('build/generated/starter_mine/resources'), files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
             fileTree('blueprints/province_capitals/blueprint_plan'), fileTree('blueprints/lord_manors'),

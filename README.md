@@ -5064,3 +5064,5 @@ H → 内视可查看实际生命、攻击、肉身防御、灵力、筑基来�
 在测灵碑确认对应天命后常驻生效，二者互斥。金刚会按真实敌方受伤逐步形成分类防御适应；凤凰温养火种并在保留涅槃储备的前提下自愈，致命伤后可以争取完成余烬凝聚。H → 先天显示实时状态，左下角显示主要适应或火种/凝聚信息。[规则与生命周期](docs/features/spirit-bodies.md)。
 
 宗门等级、每月供奉与分宗长老考核：[玩法说明](docs/features/sect-tiers-and-stipends.md)。
+
+千机阁署区与实际任务位置见 [功能说明](docs/features/qianji-halls.md)。管理员可用 `/myvillage worldplan qianji` 查询八州入口。

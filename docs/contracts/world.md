@@ -25,7 +25,7 @@
 
 ## 区域图与宗门世界生成
 
-- 区域配置与拓扑规则只在 `data/myvillage/worldgen/` 的 JSON 中维护；Python/Java 生成须同 seed 同结果，覆盖并列等级与 walled 区域的 parity 样本。
+- 地区 profile 以 `data/myvillage/worldgen/` 为来源，当前大陆拓扑与固定州序以 `blueprints/worldplan/` 为来源。离线拓扑 Python/Java 生成须同 seed 同结果，覆盖并列等级与 walled 区域的 parity 样本。
 - 当前修仙大陆的州序以 `blueprints/worldplan/rules_v11.json` 的 `region_progression.order` 为唯一来源，覆盖全部地区、阶位严格递增并以中心 anchor 结束。非中心州按此顺序排列在共用半径的环带上，种子决定整体旋转、角度扰动和地形；每对连续州必须共享真实边界并开放通路，官道必须逐段覆盖。
 - 州阶位读取地区 profile 的 tier，中心 anchor 使用规则的 tierMax；地区妖兽境界仍使用原地区数表。魔域沿固定州序设置进入与离开关隘，其余边界封闭，宗门自然生成仍排除魔域。离线拓扑工具的随机图规则保持独立。
 - 运行时区域层是被动查询和一次性出生点绑定；不因此接管地形或生物群系。出生点选最低阶可接纳区域并做有界安全表面搜索；region_at 的最近中心近似和有界范围要明确。

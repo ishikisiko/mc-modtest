@@ -23,6 +23,13 @@ class SettlementGroup:
 
 
 GROUPS: Dict[str, SettlementGroup] = {
+    "qianji": SettlementGroup(
+        group_id="qianji",style_id="cultivation_town",
+        archetype_roster=("gate","office","archive","command","store"),
+        layout_strategy="qianji_authored_precinct",
+        scale_params={"authored_input":"blueprints/qianji/placement.json"},
+        classifications={"gate":"infrastructure","office":"functional","archive":"functional","command":"civic","store":"functional"},
+    ),
     "thunder_tiger_lair": SettlementGroup(
         group_id="thunder_tiger_lair", style_id="chinese_courtyard",
         archetype_roster=("valley", "arena", "pillar"), layout_strategy="natural_boss_valley",

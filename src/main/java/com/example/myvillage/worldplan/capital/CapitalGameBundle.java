@@ -15,6 +15,7 @@ public final class CapitalGameBundle {
     private static final List<String> IDENTITY_KEYS = List.of("schema", "format", "city_id", "region_id",
             "display_name", "layout_family_id", "size", "source_offset", "placement", "terrain", "tiles", "entries", "life");
     public record Entry(String id, int x, int y, int z, String facing) { }
+    public record QianjiOffice(String variant,String name,String scale,Entry entry,Entry board,Entry reader) { }
     /** 只读提示消费实际施工的三维范围，不参与选址或世界生成。 */
     public record ManorSite(int x,int y,int z,int width,int height,int depth) {
         public boolean contains(int px,int py,int pz) {
@@ -28,6 +29,7 @@ public final class CapitalGameBundle {
     public final List<Entry> entries;
     public final List<CapitalWaystone> waystones;
     public final Optional<ManorSite> manorSite;
+    public final QianjiOffice qianji;
     public final List<com.example.myvillage.estate.EstateDefinition> estates;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
     private final short[] topSolid;
@@ -117,6 +119,7 @@ public final class CapitalGameBundle {
         }
         if(!placeIds.containsAll(Set.of("inn_work","inn_rest","inn_social","guest_west","herbalist_work","herbalist_rest","smith_work","smith_rest")))
             throw new IllegalArgumentException("Capital bundle missing required service slots");
+        qianji=readQianji(root);
         manorSite=readManorSite(root);
         var properties = new ArrayList<com.example.myvillage.estate.EstateDefinition>();
         if (root.has("player_estates")) for (var value : root.getAsJsonArray("player_estates"))
@@ -124,6 +127,20 @@ public final class CapitalGameBundle {
         if (properties.size()>4 || properties.stream().map(com.example.myvillage.estate.EstateDefinition::id).distinct().count()!=properties.size())
             throw new IllegalArgumentException("庄园数量或身份无效");
         estates=List.copyOf(properties);
+    }
+
+    private QianjiOffice readQianji(JsonObject root) {
+        var q=root.getAsJsonObject("qianji");
+        if(q==null||!text(q,"group").equals("qianji"))throw new IllegalArgumentException("当前主城缺少千机阁署区");
+        String variant=text(q,"variant"),name=text(q,"name"),scale=text(q,"scale");
+        if(!variant.matches("[a-z0-9_]{1,64}")||!Set.of("compact","large","headquarters").contains(scale))throw new IllegalArgumentException("千机阁分档无效");
+        int[] e=localPoint(q.getAsJsonArray("entry"));var board=q.getAsJsonObject("board");
+        int[] b=localPoint(board.getAsJsonArray("position")),r=localPoint(board.getAsJsonArray("reader"));
+        if(!text(board,"facing").equals("south")||b[0]!=r[0]||b[1]!=r[1]||r[2]-b[2]!=1)throw new IllegalArgumentException("千机阁任务榜与读者点不相邻");
+        var place=life.getAsJsonArray("places").asList().stream().map(JsonElement::getAsJsonObject)
+                .filter(p->text(p,"id").equals("jianghu_board")).findFirst().orElseThrow(()->new IllegalArgumentException("千机阁任务榜缺少生活场所绑定"));
+        if(!Arrays.equals(b,point(place.getAsJsonArray("block_pos")))||!Arrays.equals(r,point(place.getAsJsonArray("pos"))))throw new IllegalArgumentException("千机阁任务榜绑定不一致");
+        return new QianjiOffice(variant,name,scale,new Entry("qianji",e[0],e[1],e[2],"south"),new Entry("qianji_board",b[0],b[1],b[2],"south"),new Entry("qianji_reader",r[0],r[1],r[2],"south"));
     }
 
     private Optional<ManorSite> readManorSite(JsonObject root) {
@@ -177,6 +194,7 @@ public final class CapitalGameBundle {
     }
     public static String identityJson(JsonObject root) {
         JsonObject projection = new JsonObject();
+        if(root.has("qianji"))projection.add("qianji",root.get("qianji"));
         if(root.has("player_estates"))projection.add("player_estates",root.get("player_estates"));
         for (String key : IDENTITY_KEYS) {
             if (!root.has(key)) throw new IllegalArgumentException("Missing capital field " + key);

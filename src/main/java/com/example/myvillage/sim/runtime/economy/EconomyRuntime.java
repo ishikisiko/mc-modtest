@@ -42,7 +42,7 @@ public final class EconomyRuntime {
             for (var site : sim.lifeSites()) for (var place : site.places())
                 if (site.dimension().equals(level.dimension().location().toString()) && place.id().equals("jianghu_board")
                         && place.block().equals("myvillage:jianghu_board") && new BlockPos(place.blockX(), place.blockY(), place.blockZ()).equals(pos))
-                    return Optional.of(new Context(false, site.id(), -1, site.name() + " · 江湖榜"));
+                    return Optional.of(new Context(false, site.id(), -1, site.name() + " · 千机阁委托"));
         }
         return Optional.empty();
     }

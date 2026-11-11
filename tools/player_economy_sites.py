@@ -14,7 +14,9 @@ def place_capital_boards(out):
     if len(spec)!=8:raise ValueError('江湖榜必须覆盖八州主城')
     for city_id,point in sorted(spec.items()):
         file=out/f'data/myvillage/capitals/v4/{city_id}/city.json';city=json.loads(file.read_text())
-        if city['city_id']!=city_id or set(point)!={'position','reader','facing'}:raise ValueError('江湖榜归属无效')
+        if city['city_id']!=city_id:raise ValueError('江湖榜归属无效')
+        if point=={'source':'qianji'}:point=city['qianji']['board']
+        if set(point)!={'position','reader','facing'}:raise ValueError('江湖榜坐标无效')
         x,y,z=point['position'];reader=tuple(point['reader']);tiles={(t['x']//16,t['z']//16):t for t in city['tiles']};cache={}
         def tile_at(xx,zz):
             key=xx//16,zz//16
@@ -40,7 +42,7 @@ def place_capital_boards(out):
         if after!=expected:raise ValueError('江湖榜切片回读改变了原有方块')
         tile=tiles[x//16,z//16];tile.update(sha256=sha(path.read_bytes()),bytes=path.stat().st_size,block_count=count,palette_count=palette_count)
         city['palette_states']=sorted(set(city.get('palette_states',[]))|{state})
-        place={'id':'jianghu_board','kind':'entry','pos':list(reader),'capacity':1,'block':'myvillage:jianghu_board','block_pos':[x,y,z],'building_id':'inn'}
+        place={'id':'jianghu_board','kind':'entry','pos':list(reader),'capacity':1,'block':'myvillage:jianghu_board','block_pos':[x,y,z],'building_id':'qianji'}
         existing=next((p for p in city['life']['places'] if p['id']=='jianghu_board'),None)
         if existing is not None and existing!=place:raise ValueError('江湖榜位置发生变化，请从作者输入重新导出城市')
         if existing is None:city['life']['places'].append(place)

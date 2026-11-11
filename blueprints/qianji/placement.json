@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "group": "qianji",
+  "annex": {
+    "gap": 16,
+    "south_extension": 32,
+    "edge_clearance": 16,
+    "road_width": 7,
+    "headroom": 4,
+    "grade_rows": 8
+  },
+  "regions": {
+    "ximo": "folded_library",
+    "donghai": "island_octagon",
+    "nanjiang": "terraced_gallery",
+    "beiyuan": "folded_library",
+    "donghuang": "town_courts",
+    "lingyue": "town_water",
+    "moyu": "town_frontier",
+    "zhongzhou": "zhongzhou_headquarters"
+  },
+  "city_access": {
+    "donghai": {
+      "position": [
+        16,
+        8,
+        268
+      ],
+      "source": "public_road"
+    }
+  }
+}

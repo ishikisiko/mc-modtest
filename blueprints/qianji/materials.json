@@ -1,0 +1,23 @@
+{
+  "ground": "minecraft:grass_block",
+  "foundation": "minecraft:stone_bricks",
+  "paving": "minecraft:polished_andesite",
+  "base": "minecraft:polished_deepslate",
+  "wall": "minecraft:calcite",
+  "column": "minecraft:dark_oak_log[axis=y]",
+  "beam": "minecraft:dark_oak_log[axis=x]",
+  "floor": "minecraft:dark_oak_planks",
+  "roof": "minecraft:deepslate_tiles",
+  "roof_slab": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]",
+  "roof_stair": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+  "stairs": "minecraft:stone_brick_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+  "rail": "minecraft:dark_oak_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
+  "gold": "minecraft:gold_block",
+  "metal": "minecraft:cut_copper",
+  "books": "minecraft:bookshelf",
+  "water": "minecraft:water[level=0]",
+  "desk": "minecraft:dark_oak_slab[type=top,waterlogged=false]",
+  "cartography": "minecraft:cartography_table",
+  "storage": "minecraft:barrel[facing=up,open=false]",
+  "paving_slab": "minecraft:polished_andesite_slab[type=bottom,waterlogged=false]"
+}

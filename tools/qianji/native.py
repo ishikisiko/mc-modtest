@@ -13,8 +13,9 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--jar',type=Path,required=True);p.add_argument('--source',required=True)
     p.add_argument('--out',type=Path,required=True);p.add_argument('--seed',type=int,required=True)
-    p.add_argument('--restart',action='store_true');a=p.parse_args();a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
+    p.add_argument('--restart',action='store_true');p.add_argument('--all-qianji-targets',action='store_true');a=p.parse_args();a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
     selected=['candidate_identity','fresh_world_and_fixed_order','consecutive_capital_roads','border_chunk_generation_and_readback']
+    selected+=['qianji_buildings_and_task_boards']
     if a.restart:selected+=['saved_rules_and_cached_restart']
     result=dict(source=a.source,seed=a.seed,selected=selected,completed=[],failed=[],unrun=selected.copy(),
                 full_road_pregeneration='not_selected',player_walk='not_verified',owner_visual_acceptance='not_verified')
@@ -72,8 +73,25 @@ def main():
         assert check['checked_columns']>=len(samples),check
         write(a.out/'boundary-samples.json',dict(samples=samples,checked_columns=check['checked_columns'],unloaded_chunks=check['unloaded_chunks'],scope='loaded boundary chunks only'))
         complete()
+        stage='qianji_buildings_and_task_boards';buildings=[]
+        from road_port_sources import CitySource
+        for city in manifest['cities']:
+            source=CitySource(ROOT/'build/resources/main',city['region_id']);office=source.city['qianji']
+            rank=order.index(city['region_id']);assert office['scale']==('compact' if rank<4 else 'large' if rank<7 else 'headquarters')
+            points=office['targets'] if a.all_qianji_targets else [v for v in office['targets'] if v['id'] in ('jianghu_board','entrance') or v['id'].startswith(('core_','command_','archive_'))]
+            for target in points:
+                x,y,z=target['position'];wx,wy,wz=city['x']+x,city['origin_y']+y,city['z']+z;load(wx,wz)
+                expected=source.block(x,y-1,z);assert expected not in ('minecraft:air','minecraft:water[level=0]'),(city['region_id'],target)
+                assert server.test(f'if block {wx} {wy-1} {wz} {expected}'),(city['region_id'],target,expected)
+                for dy in [0,1]:assert server.test(f'if block {wx} {wy+dy} {wz} minecraft:air'),(city['region_id'],target,dy)
+            board=office['board']['position'];wx,wy,wz=city['x']+board[0],city['origin_y']+board[1],city['z']+board[2]
+            load(wx,wz);assert server.test(f'if block {wx} {wy} {wz} myvillage:jianghu_board[facing=south]')
+            info=query('qianji '+city['region_id'])['qianji'];assert len(info)==1
+            assert info[0]['task_reader']==[city['x']+office['board']['reader'][0],city['origin_y']+office['board']['reader'][1],city['z']+office['board']['reader'][2]]
+            buildings.append(dict(region=city['region_id'],name=office['name'],scale=office['scale'],checked_targets=len(points),board=[wx,wy,wz],info=info[0]))
+        write(a.out/'qianji-readback.json',dict(buildings=buildings,all_function_targets=a.all_qianji_targets));complete()
         if a.restart:
-            stage=selected[4];before=status['layout_hash'];server.stop();_,tag=read_gzipped_nbt(str(game/'world/level.dat'))
+            stage='saved_rules_and_cached_restart';before=status['layout_hash'];server.stop();_,tag=read_gzipped_nbt(str(game/'world/level.dat'))
             gen=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
             from worldplan.acceptance import decode_saved_rules
             assert decode_saved_rules(gen['rules'],'myvillage:worldplan_v11')['region_progression']['order']==order
@@ -85,6 +103,9 @@ def main():
         result['failed'].append(dict(case=stage,error=repr(error)));result['unrun']=[v for v in selected if v not in result['completed'] and v!=stage]
         raise
     finally:
+        if server.process and server.process.poll() is None:
+            try:server.command('forceload remove all')
+            except Exception:pass
         server.stop();write(a.out/'result.json',result)
 
 if __name__=='__main__':main()

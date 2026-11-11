@@ -33,6 +33,7 @@ def identity(city):
     def pick(value, keys):
         return {key: value[key] for key in keys.split()}
     projected = {key: city[key] for key in IDENTITY_KEYS}
+    if 'qianji' in city:projected['qianji']=city['qianji']
     if 'player_estates' in city:
         projected['player_estates'] = city['player_estates']
     projected['placement'] = pick(city['placement'], 'vertical_mode anchor_y rotation_quarters blend_margin')
