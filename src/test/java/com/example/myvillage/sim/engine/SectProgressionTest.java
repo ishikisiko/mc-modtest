@@ -104,6 +104,25 @@ class SectProgressionTest {
         ctx.state.day = ctx.state.prehistoryDays;
         assertNull(ctx.prehistoryCeiling(head), "开局以后不限制人物成长");
     }
+    @Test void prehistoryFoundersUseTheirConfiguredMasterRangeAndOpeningRestoresFreeFounding() {
+        for (boolean beforeOpening : List.of(true, false)) {
+            var ctx = fresh(); ctx.state.prehistoryDays = 2400;
+            ctx.state.day = beforeOpening ? 0 : 2400;
+            var leader = People.create(ctx, SimRng.at(ctx.state.seed, ctx.day(), 9999, Purpose.FOUNDING),
+                    new int[]{50, 20, 10, 10, 10}, ctx.realms.indexOf("nascent_soul"), 0, 100L*ctx.dpy, "beiyuan");
+            var created = SectPolitics.foundSect(ctx, leader, null, List.of(), -1, TextKeys.SECT_FOUNDED);
+            assertNotNull(created);
+            assertEquals("nascent_soul",ctx.realm(leader).id()); assertEquals(0,leader.stage);
+            if (beforeOpening) {
+                var tier = data.rules().sectProgression().tier(created.tierId);
+                assertTrue(tier.masters().stream().anyMatch(m -> m.realm().equals("nascent_soul")
+                        && m.minimumStage() <= leader.stage && m.maximumStage() >= leader.stage));
+            } else {
+                assertEquals("beiyuan",created.homeRegionId);
+                assertEquals("branch",created.tierId);
+            }
+        }
+    }
     @Test void branchMasterRarityAndHigherRealmBodiesAreActualData() {
         var rules = data.rules().sectProgression();
         assertEquals(99, rules.tier("branch").masters().getFirst().weight());

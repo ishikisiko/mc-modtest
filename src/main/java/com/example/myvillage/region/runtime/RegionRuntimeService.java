@@ -167,11 +167,9 @@ public final class RegionRuntimeService {
     }
 
     /**
-     * The <b>set</b> of non-walled regions at the next-higher rung above the
-     * player's current rung. Empty if the player is at the top rung (中州),
-     * outside the bounded area, or in a walled region. The result is a set
-     * because tier ties are branch points (resolved later by the alignment
-     * system).
+     * The next region in the declared progression, including 魔域. Empty at
+     * the top rung (中州) or outside the bounded core. Offline topology
+     * graphs can retain a set of regions when their assigned tiers tie.
      */
     public static Set<String> nextRungRegions(ServerPlayer player) {
         RegionGraph graph = cachedGraph;

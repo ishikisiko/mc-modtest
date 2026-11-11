@@ -547,6 +547,10 @@ public final class SectPolitics {
         for (String candidate : candidateRegions(ctx, leader, parent, rng)) {
             var level = ctx.rules.sectProgression().tier(ctx.rules.sectProgression().forRegion(ctx.graph, candidate));
             if (!SectAffairs.reached(ctx, leader, level.minimumMaster(ctx.realms))) continue;
+            // 百年预演须保持开局各档宗门的宗主范围；开局以后沿用自然立宗与成长。
+            if (ctx.day() < ctx.state.prehistoryDays && level.masters().stream().noneMatch(m ->
+                    m.realm().equals(ctx.realm(leader).id()) && leader.stage >= m.minimumStage()
+                            && leader.stage <= m.maximumStage())) continue;
             gate = GatePlacement.choose(ctx, ctx.rng(leader.id, Purpose.FOUNDING_GATE, candidate.hashCode()), candidate);
             if (gate != null) {
                 region = candidate;
