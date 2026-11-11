@@ -98,7 +98,7 @@ public final class EstateRuntime {
     }
     public static Optional<Page> confirm(NpcEntity npc) {
         return steward(npc).map(s -> new Page(List.of("确认支付 "+s.definition.price()+" 枚"+s.definition.currencyName()+"，购买"+s.definition.name()+"？",
-                "款项将从背包和灵石袋扣除，房契归当前玩家所有。"),
+                "背包和灵石袋可共同支付。房契将记在道友名下。"),
                 List.of(new Option("estate_buy", "确认购买"), new Option("estate_home", "返回"), new Option("close", "告辞"))));
     }
     private static Page page(String line) { return new Page(List.of(line), List.of(new Option("estate_home", "查看房产"), new Option("close", "告辞"))); }
