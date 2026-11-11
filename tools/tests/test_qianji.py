@@ -1,7 +1,8 @@
 """千机阁正式模型的功能层、原定占地、入口和楼梯连通性。"""
 from functools import lru_cache
-import json,unittest
+import json,unittest,sys
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from tools.qianji.model import build,AIR,ROOT
 
 @lru_cache(maxsize=8)

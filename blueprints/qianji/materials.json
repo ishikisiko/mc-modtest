@@ -19,5 +19,6 @@
   "desk": "minecraft:dark_oak_slab[type=top,waterlogged=false]",
   "cartography": "minecraft:cartography_table",
   "storage": "minecraft:barrel[facing=up,open=false]",
-  "paving_slab": "minecraft:polished_andesite_slab[type=bottom,waterlogged=false]"
+  "paving_slab": "minecraft:polished_andesite_slab[type=bottom,waterlogged=false]",
+  "artifact_core": "minecraft:oxidized_copper"
 }

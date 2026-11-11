@@ -210,6 +210,24 @@ def roof(m,x,y,z,w,d,id):
     if id not in ROOFS:raise ValueError('未注册的千机阁屋顶：'+id)
     ROOFS[id](m,x,y,z,w,d)
 
+def armillary_sphere(m,cx,feet,cz,radius):
+    cy=feet+radius
+    # 四个有厚度的实体铜环交错成完整浑天仪，中心为铜玉色机枢。
+    for plane,r in [('xy',radius),('yz',radius-3),('xz',radius-2),('diagonal',radius-1)]:
+        for u in range(-r-1,r+2):
+            for v in range(-r-1,r+2):
+                if abs(math.hypot(u,v)-r)>1.05:continue
+                if plane=='xy':x,y,z=cx+u,cy+v,cz
+                elif plane=='yz':x,y,z=cx,cy+v,cz+u
+                elif plane=='xz':x,y,z=cx+u,cy,cz+v
+                else:x,y,z=cx+round(u*.70710678),cy+v,cz+round(u*.70710678)
+                m.put(x,y,z,'metal','detail')
+    for x in range(-6,7):
+        for y in range(-6,7):
+            for z in range(-6,7):
+                if x*x+y*y+z*z<=36:m.put(cx+x,cy+y,cz+z,'gold' if y==0 else 'artifact_core','detail')
+ARTIFACTS={'armillary_sphere':armillary_sphere}
+
 def build(ident,validate=True):
     spec=json.loads((ROOT/'blueprints/qianji'/f'{ident}.json').read_text());m=Model(spec)
     m.floor(0,1,0,m.w,m.d,'ground')
@@ -247,12 +265,11 @@ def build(ident,validate=True):
                 if value=='1':m.put(cx+width//2-k,yy+y,zz-1,'gold','detail')
 
     if 'roof_instrument' in spec:
-        cx,fy,cz,r=spec['roof_instrument'];m.instrument(cx,fy,cz,r)
+        cx,fy,cz,r=spec['roof_instrument'];ARTIFACTS[spec['roof_instrument_form']](m,cx,fy,cz,r)
         core=next(v for v in spec['rooms'] if v['id']=='core');low=core['floor_y']+sum(v['height'] for v in core['levels'][:-1])
         for dx in [-r*2//3,r*2//3]:
-            for dz in [-r*2//3,r*2//3]:m.box(cx+dx,low,cz+dz,1,fy-low+1,1,'metal','detail')
-        m.box(cx-r,fy,cz,r*2+1,1,1,'metal','detail');m.box(cx,fy,cz-r,1,1,r*2+1,'metal','detail')
-        m.box(cx,fy,cz,1,r*2+1,1,'metal','detail');m.box(cx-r,fy+r,cz,r*2+1,1,1,'metal','detail')
+            for dz in [-r*2//3,r*2//3]:m.box(cx+dx-1,low,cz+dz-1,2,fy+r-low+1,2,'base','detail')
+        m.box(cx,fy,cz,1,r+1,1,'metal','detail')
     for stele in spec.get('state_steles',[]):
         x,y,z=stele['position'];m.box(x-1,y-1,z-1,3,3,3,'base','detail');m.box(x,y+2,z,1,7,1,'metal','detail')
         m.put(x,y+7,z-1,'minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]','detail')

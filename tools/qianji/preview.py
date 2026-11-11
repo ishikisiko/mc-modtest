@@ -4,9 +4,10 @@ from collections import defaultdict
 import argparse,json,math,shutil,re,zipfile,hashlib
 from pathlib import Path
 from qianji.model import build,ROOT,AIR
-PALETTE={'stone':['#898c89','brick'],'basalt':['#4c5055','brick'],'wall':['#dddcd0','plaster'],'darkwood':['#403832','wood'],'wood':['#6f5138','wood'],'floor':['#7b6046','wood'],'roof':['#404c58','tile'],'grass':['#6d8058','moss'],'water':['#4e8494','water'],'gold':['#bf9d55','metal'],'metal':['#a5744b','metal'],'book':['#697b6c','book']}
+PALETTE={'stone':['#898c89','brick'],'basalt':['#4c5055','brick'],'wall':['#dddcd0','plaster'],'darkwood':['#403832','wood'],'wood':['#6f5138','wood'],'floor':['#7b6046','wood'],'roof':['#404c58','tile'],'grass':['#6d8058','moss'],'water':['#4e8494','water'],'gold':['#bf9d55','metal'],'metal':['#a5744b','metal'],'book':['#697b6c','book'],'jade':['#4c8b85','metal']}
 def material(state):
     if 'gold_block' in state:return 'gold'
+    if 'oxidized_copper' in state:return 'jade'
     if 'copper' in state:return 'metal'
     if 'bookshelf' in state:return 'book'
     if 'grass' in state or '_leaves[' in state:return 'grass'
