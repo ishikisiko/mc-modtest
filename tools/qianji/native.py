@@ -4,7 +4,7 @@ import argparse,hashlib,json,secrets,shutil,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools'))
-from roads_smoke.run import Server,verify_candidate
+from roads_smoke.run import Server,verify_candidate,block_command
 from roadweaver_probe.run import write
 from buildgen.nbtread import read_gzipped_nbt
 
@@ -15,13 +15,15 @@ def main():
     p.add_argument('--out',type=Path,required=True);p.add_argument('--seed',type=int,required=True)
     p.add_argument('--restart',action='store_true');p.add_argument('--all-qianji-targets',action='store_true')
     p.add_argument('--continue-probe',type=Path,help='仅继续同一候选已完成新世界验证的自有探针，不接受玩家存档')
+    p.add_argument('--regenerate-failed-region',action='store_true',help='复制自有失败探针，仅在副本重生成差异所在区域，保留原存档')
     a=p.parse_args();a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
     selected=['candidate_identity','fresh_world_and_fixed_order','consecutive_capital_roads','border_chunk_generation_and_readback']
     selected+=['qianji_buildings_and_task_boards']
     if a.restart:selected+=['saved_rules_and_cached_restart']
     result=dict(source=a.source,seed=a.seed,selected=selected,completed=[],failed=[],unrun=selected.copy(),
                 full_road_pregeneration='not_selected',player_walk='not_verified',owner_visual_acceptance='not_verified')
-    previous=None
+    result['probe_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    previous=None;replayed=[];regenerated=[]
     if a.continue_probe:
         old=a.continue_probe.resolve();origin=json.loads((old/'world.json').read_text());prior=json.loads((old/'result.json').read_text())
         game=Path(origin['directory']).resolve()
@@ -29,7 +31,17 @@ def main():
         assert origin['seed']==a.seed and origin['kind']=='fresh isolated development world'
         assert prior['source']==a.source and prior['seed']==a.seed and 'fresh_world_and_fixed_order' in prior['completed']
         previous=json.loads((old/'worldplan.json').read_text());result['continued_from']=str(old)
+        if a.regenerate_failed_region:
+            replayed=json.loads((old/'failed-road-audit.json').read_text())['failures']
+            assert replayed and all(f['kind']=='road_column' and '，预期 Block{' in f['reason'] for f in replayed)
+            original=game;game=ROOT/'run-fixed-progression'/('native-'+secrets.token_hex(5))
+            shutil.copytree(original,game)
+            regenerated=sorted({(f['x']//512,f['z']//512) for f in replayed})
+            for rx,rz in regenerated:
+                for folder in ['region','entities','poi']:(game/'world'/folder/f'r.{rx}.{rz}.mca').unlink(missing_ok=True)
+            result['regenerated_fixture_regions']=regenerated;result['original_world_preserved']=str(original)
     else:game=ROOT/'run-fixed-progression'/('native-'+secrets.token_hex(5))
+    if a.regenerate_failed_region:assert a.continue_probe,'只能在已验证的新世界探针副本中重生成区域'
     server=Server(a.out,game,a.seed);stage=selected[0]
     def complete():
         result['completed'].append(stage);result['unrun'].remove(stage);write(a.out/'result.json',result)
@@ -42,11 +54,11 @@ def main():
         while not server.test(f'if loaded {x} 300 {z}'):
             if time.monotonic()>deadline:raise TimeoutError(f'区块未加载: {x} {z}')
             time.sleep(1)
-    write(a.out/'world.json',dict(directory=str(game),seed=a.seed,kind='fresh isolated development world'))
+    write(a.out/'world.json',dict(directory=str(game),seed=a.seed,kind='isolated replay of an owned fresh development world' if regenerated else 'fresh isolated development world',regenerated_regions=regenerated))
     write(a.out/'result.json',result)
     try:
         identity=verify_candidate(a.jar.resolve());identity['source']=a.source;write(a.out/'identity.json',identity);complete()
-        stage=selected[1];started=time.monotonic();server.start();status=server.roads('status')
+        stage=selected[1];started=time.monotonic();server.start();server.command('gamerule mobGriefing false');status=server.roads('status')
         assert status['phase']=='ready' and status['mode']=='chunk_generation',status
         query('export');manifest=json.loads((server.data/'worldplan.json').read_text());shutil.copy2(server.data/'worldplan.json',a.out/'worldplan.json')
         if previous is not None:assert manifest==previous,'继续探针的世界规划必须与首次新建时逐项相同'
@@ -80,6 +92,12 @@ def main():
                 else:hi=mid
             for index,region in [(lo,first),(hi,last)]:
                 q=path[index];load(q['x'],q['z']);samples.append(dict(route=[route['from'],route['to']],region=region,position=q))
+        replay_checks=[]
+        for f in replayed:
+            x,z=f['x'],f['z'];y=(f['feet2']-1)//2;load(x,z);expected=block_command(f['reason'].split('，预期 ',1)[1])
+            assert server.test(f'if block {x} {y} {z} {expected}'),f
+            replay_checks.append(dict(position=[x,y,z],expected=expected,verified_before_audit=True))
+        if replay_checks:write(a.out/'regenerated-column-readback.json',replay_checks)
         server.roads('audit')
         server.wait(lambda s:s.get('inspection',{}).get('phase') in ('complete','partial'),allow_blocked=True)
         shutil.copy2(server.data/'roads-audit.json',a.out/'border-loaded-audit.json')
