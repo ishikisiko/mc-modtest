@@ -69,6 +69,10 @@ def main():
         for name,phase in [('quiet',0),('array',20),('mirage',50)]:
             server.command('myvillage qianji phase '+str(phase));time.sleep(2);file=a.out/('atmosphere-'+name+'.png');screen.shot(file,max_wait=5,settle=.2)
             result['screenshots'].append(dict(file=file.name,phase_start=phase,kind='captured_for_review'))
+        pose(point(84,68,132),point(84,110,183));server.command('myvillage qianji phase 50');time.sleep(3)
+        screen.shot(a.out/'atmosphere-upper-floor.png',max_wait=5,settle=.2)
+        result['screenshots'].append(dict(file='atmosphere-upper-floor.png',phase_start=50,kind='captured_for_review',scope='高层仰视，地面阵枢位于视野外'))
+        pose(point(190,148,6),point(84,60,150));time.sleep(2)
         server.command('myvillage qianji phase 9')
         video=a.out/'atmosphere-array.mp4'
         recorder=subprocess.run(['ffmpeg','-y','-f','x11grab','-framerate','12','-video_size','1280x720','-i',display,'-t','15','-c:v','libx264','-preset','veryfast','-crf','22','-pix_fmt','yuv420p',str(video)],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=40)
