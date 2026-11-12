@@ -4,7 +4,8 @@ import argparse,hashlib,json,secrets,shutil,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools'))
-from roads_smoke.run import Server,verify_candidate,block_command
+from roads_smoke.run import verify_candidate,block_command
+from qianji.server import Server
 from roadweaver_probe.run import write
 from buildgen.nbtread import read_gzipped_nbt
 

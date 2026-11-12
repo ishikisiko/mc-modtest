@@ -3,7 +3,8 @@ from __future__ import annotations
 import argparse,json,math,os,re,secrets,shutil,subprocess,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT/'tools'))
-from roads_smoke.run import Server,verify_candidate
+from roads_smoke.run import verify_candidate
+from qianji.server import Server
 from combat_capture.xgame import Game
 from combat_capture.session import CLIENT_OPTIONS,merge_options
 from roadweaver_probe.run import terminate,write
