@@ -63,7 +63,9 @@ def integrate(out):
                 for sign in m.signs:
                     x,y,z=sign['position'];p=(x0+m.w-1-x,base+y,z0+m.d-1-z)
                     if source.block(*p)!=rotate_state('minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]',2):raise ValueError('分阁题匾位置失配')
-                q['inputs']=inputs;q['facing']='south';q['checks']=checks;q['geometry_cache_check']=dict(compared_voxels=len(m.blocks),same_as_current_output=True);write(file,city)
+                for p,state in road.items():
+                    if source.block(*p)!=state:raise ValueError('分阁入口接路几何变化 '+str((region,p)))
+                q['inputs']=inputs;q['facing']='south';q['checks']=checks;q['geometry_cache_check']=dict(compared_voxels=len(m.blocks),compared_road_voxels=len(road),same_as_current_output=True);write(file,city)
             reports.append(city['qianji']);continue
         m,checks=model(ident);source=CitySource(out,region);ow,oh,od=city['size'];policy=spec['annex']
         binding=next(p for p in json.loads((ROOT/'config/roads/prototype.json').read_text())['ports'] if p['region']==region)
