@@ -332,6 +332,38 @@ tasks.register('verifyLordManorAssets', Exec) {
 }
 tasks.named('processResources') { dependsOn 'verifyLordManorAssets' }
 
+tasks.register('generateQianjiAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/qianji/generate_assets.py'
+    inputs.files(fileTree('blueprints/qianji'), fileTree('tools/qianji') { exclude '**/__pycache__/**', '**/*.pyc' },
+            'tools/lord_manors/geometry.py','tools/lord_manors/generate.py','tools/lord_manors/surfaces.py',
+            'src/main/resources/assets/myvillage/font/brush.ttf')
+    outputs.dir('src/main/resources/data/myvillage/qianji/components')
+    outputs.dir('src/main/resources/assets/myvillage/textures/block/qianji')
+    outputs.file('build/generated/qianji/model.json.gz')
+    mustRunAfter 'generateLordManorAssets'
+}
+tasks.register('verifyQianjiAssets', Exec) {
+    dependsOn 'generateQianjiAssets'
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/qianji/generate_assets.py', '--check'
+}
+tasks.named('processResources') { dependsOn 'verifyQianjiAssets' }
+
+tasks.register('generateQianjiAtmosphere', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/qianji/generate_atmosphere.py'
+    inputs.files('blueprints/qianji/atmosphere.json','tools/qianji/generate_atmosphere.py',
+            'src/main/resources/assets/myvillage/font/brush.ttf')
+    outputs.files('src/main/resources/data/myvillage/qianji/atmosphere.json',
+            'src/main/resources/data/myvillage/qianji/atmosphere_mesh.json')
+    outputs.dir('src/main/resources/assets/myvillage/textures/effect/qianji')
+}
+tasks.named('processResources') { dependsOn 'generateQianjiAtmosphere' }
+
 // 原生树形由 Minecraft 自身的 ConfiguredFeature 生成；独立数据工具不进入模组。
 sourceSets {
     manorTreegen {
@@ -449,7 +481,7 @@ sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/starter_mi
 tasks.named('processResources') { dependsOn 'generateStarterMineAssets' }
 
 tasks.register('generateProvinceCapitalV11Assets', Exec) {
-    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets', 'generateSectBlueprintAssets', 'generateStarterMineAssets'
+    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets', 'verifyQianjiAssets', 'generateSectBlueprintAssets', 'generateStarterMineAssets'
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'

@@ -19,7 +19,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.*;
 
 /** 静态雕构与实心材质一起组成完整建筑，无显示实体或逐格 BlockEntity。 */
-public final class ManorComponentBlock extends Block {
+public final class ManorComponentBlock extends Block implements ArchitecturalComponent {
     public static final DirectionProperty FACING=BlockStateProperties.HORIZONTAL_FACING;
     public static final IntegerProperty SHAPE=IntegerProperty.create("shape",0,31);
     private final ManorCatalog.Bank bank;

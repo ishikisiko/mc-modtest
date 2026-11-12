@@ -7,10 +7,416 @@
   "minimum_light": 8,
   "checks": {
     "zhongzhou_headquarters": [
-      {"name": "总令大殿中央", "position": [120, 10, 110]},
-      {"name": "天枢总阁第一层中央", "position": [120, 22, 210]},
-      {"name": "天枢总阁第二层中央", "position": [120, 46, 210]},
-      {"name": "天枢总阁第三层中央", "position": [120, 66, 210]}
+      {
+        "name": "总舵门阙第1层",
+        "position": [
+          84,
+          2,
+          14
+        ]
+      },
+      {
+        "name": "公开委托办事廊第1层",
+        "position": [
+          24,
+          2,
+          38
+        ]
+      },
+      {
+        "name": "核验结算厅第1层",
+        "position": [
+          139,
+          2,
+          40
+        ]
+      },
+      {
+        "name": "总务大殿第1层",
+        "position": [
+          84,
+          5,
+          80
+        ]
+      },
+      {
+        "name": "总务大殿第2层",
+        "position": [
+          72,
+          11,
+          94
+        ]
+      },
+      {
+        "name": "万卷档库第1层",
+        "position": [
+          26,
+          5,
+          78
+        ]
+      },
+      {
+        "name": "万卷档库第2层",
+        "position": [
+          26,
+          13,
+          94
+        ]
+      },
+      {
+        "name": "秘境勘图楼第1层",
+        "position": [
+          29,
+          8,
+          116
+        ]
+      },
+      {
+        "name": "秘境勘图楼第2层",
+        "position": [
+          27,
+          16,
+          127
+        ]
+      },
+      {
+        "name": "秘境勘图楼第3层",
+        "position": [
+          27,
+          25,
+          126
+        ]
+      },
+      {
+        "name": "玄枢机造院第1层",
+        "position": [
+          140,
+          5,
+          70
+        ]
+      },
+      {
+        "name": "器物库第1层",
+        "position": [
+          140,
+          5,
+          97
+        ]
+      },
+      {
+        "name": "听雨来使院第1层",
+        "position": [
+          140,
+          8,
+          118
+        ]
+      },
+      {
+        "name": "听雨来使院第2层",
+        "position": [
+          140,
+          16,
+          119
+        ]
+      },
+      {
+        "name": "西抱厦值事房第1层",
+        "position": [
+          56,
+          27,
+          150
+        ]
+      },
+      {
+        "name": "东抱厦议事间第1层",
+        "position": [
+          106,
+          53,
+          151
+        ]
+      },
+      {
+        "name": "西后侧楼第1层",
+        "position": [
+          51,
+          12,
+          155
+        ]
+      },
+      {
+        "name": "西后侧楼第2层",
+        "position": [
+          52,
+          21,
+          159
+        ]
+      },
+      {
+        "name": "东后侧楼第1层",
+        "position": [
+          120,
+          12,
+          167
+        ]
+      },
+      {
+        "name": "天枢总阁第1层",
+        "position": [
+          84,
+          12,
+          135
+        ]
+      },
+      {
+        "name": "天枢总阁第2层",
+        "position": [
+          84,
+          27,
+          150
+        ]
+      },
+      {
+        "name": "天枢总阁第3层",
+        "position": [
+          84,
+          40,
+          157
+        ]
+      },
+      {
+        "name": "天枢总阁第4层",
+        "position": [
+          80,
+          53,
+          158
+        ]
+      },
+      {
+        "name": "天枢总阁第5层",
+        "position": [
+          84,
+          66,
+          147
+        ]
+      }
     ]
-  }
+  },
+  "headquarters_fixtures": [
+    {
+      "part": "gate",
+      "position": [
+        85.5,
+        4.6,
+        15.5
+      ],
+      "ceiling": 10.25
+    },
+    {
+      "part": "public",
+      "position": [
+        25.5,
+        4.6,
+        39.5
+      ],
+      "ceiling": 6.55
+    },
+    {
+      "part": "public",
+      "position": [
+        140.5,
+        4.6,
+        41.5
+      ],
+      "ceiling": 7.75
+    },
+    {
+      "part": "hall",
+      "position": [
+        85.5,
+        7.6,
+        81.5
+      ],
+      "ceiling": 16.45
+    },
+    {
+      "part": "hall",
+      "position": [
+        73.5,
+        13.85,
+        95.5
+      ],
+      "ceiling": 15.5
+    },
+    {
+      "part": "archive",
+      "position": [
+        27.5,
+        7.6,
+        79.5
+      ],
+      "ceiling": 10.55
+    },
+    {
+      "part": "archive",
+      "position": [
+        27.5,
+        15.2,
+        95.5
+      ],
+      "ceiling": 17.55
+    },
+    {
+      "part": "archive",
+      "position": [
+        30.5,
+        10.6,
+        117.5
+      ],
+      "ceiling": 13.75
+    },
+    {
+      "part": "archive",
+      "position": [
+        28.5,
+        18.6,
+        128.5
+      ],
+      "ceiling": 22.25
+    },
+    {
+      "part": "archive",
+      "position": [
+        28.5,
+        27.1,
+        127.5
+      ],
+      "ceiling": 29.75
+    },
+    {
+      "part": "workshop",
+      "position": [
+        141.5,
+        7.6,
+        71.5
+      ],
+      "ceiling": 12.05
+    },
+    {
+      "part": "workshop",
+      "position": [
+        141.5,
+        7.6,
+        98.5
+      ],
+      "ceiling": 8.65
+    },
+    {
+      "part": "envoy",
+      "position": [
+        141.5,
+        10.6,
+        119.5
+      ],
+      "ceiling": 13.45
+    },
+    {
+      "part": "envoy",
+      "position": [
+        141.5,
+        18.6,
+        120.5
+      ],
+      "ceiling": 20.85
+    },
+    {
+      "part": "core",
+      "position": [
+        57.5,
+        29.6,
+        151.5
+      ],
+      "ceiling": 31.450000000000003
+    },
+    {
+      "part": "core",
+      "position": [
+        107.5,
+        55.6,
+        152.5
+      ],
+      "ceiling": 56.75
+    },
+    {
+      "part": "core",
+      "position": [
+        52.5,
+        14.6,
+        156.5
+      ],
+      "ceiling": 18.35
+    },
+    {
+      "part": "core",
+      "position": [
+        53.5,
+        23.1,
+        160.5
+      ],
+      "ceiling": 25.15
+    },
+    {
+      "part": "core",
+      "position": [
+        121.5,
+        14.6,
+        168.5
+      ],
+      "ceiling": 17.05
+    },
+    {
+      "part": "core",
+      "position": [
+        85.5,
+        14.6,
+        136.5
+      ],
+      "ceiling": 24.25
+    },
+    {
+      "part": "core",
+      "position": [
+        85.5,
+        29.6,
+        151.5
+      ],
+      "ceiling": 37.25
+    },
+    {
+      "part": "core",
+      "position": [
+        85.5,
+        42.6,
+        158.5
+      ],
+      "ceiling": 50.25
+    },
+    {
+      "part": "core",
+      "position": [
+        81.5,
+        55.6,
+        159.5
+      ],
+      "ceiling": 63.25
+    },
+    {
+      "part": "core",
+      "position": [
+        85.5,
+        68.6,
+        148.5
+      ],
+      "ceiling": 74.25
+    }
+  ]
 }

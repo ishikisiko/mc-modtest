@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.130.0
+
+- 按确认的重设计替换中州千机阁总舵：168×184格院落、五层天枢总阁、两侧功能楼、勘图楼、高廊和水亭，斗拱、窗格、匾额与室内陈设使用同源细分构件。
+- 总舵新增常驻云气与流光，阵纹和山河异象随世界时间间歇显现；各效果遵守建筑遮挡，并在远处渐隐。
+- 补齐各层楼梯、夹层接缝、水亭入口与吊灯，任务榜继续位于前院办事廊。
+
 ## 0.129.0
 
 - 千机阁各层补齐与地板齐平的铜框地灯，并新增总阁与大殿中央的原生方块光照读回。

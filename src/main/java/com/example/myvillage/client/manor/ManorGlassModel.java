@@ -2,6 +2,8 @@ package com.example.myvillage.client.manor;
 
 import com.example.myvillage.manor.ManorCatalog;
 import com.example.myvillage.manor.ManorComponentBlock;
+import com.example.myvillage.manor.ArchitecturalComponent;
+import com.example.myvillage.qianji.QianjiCatalog;
 import java.util.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -28,6 +30,10 @@ final class ManorGlassModel extends BakedModelWrapper<BakedModel> {
             MATERIALS.put(ResourceLocation.fromNamespaceAndPath("myvillage",m.id()),m.id());
             TEXTURES.put(ResourceLocation.fromNamespaceAndPath("myvillage","block/lord_manors/"+m.id()),m.id());
         }
+        for(var m:QianjiCatalog.get().materials)if(!m.opaque()){
+            MATERIALS.put(ResourceLocation.fromNamespaceAndPath("myvillage",m.id()),m.id());
+            TEXTURES.put(ResourceLocation.fromNamespaceAndPath("myvillage","block/qianji/"+m.id()),m.id());
+        }
     }
     ManorGlassModel(BakedModel original){super(original);}
     @Override public TriState useAmbientOcclusion(BlockState state,ModelData data,RenderType layer){
@@ -38,7 +44,7 @@ final class ManorGlassModel extends BakedModelWrapper<BakedModel> {
         BlockState neighbor=view.getBlockState(pos);Direction inward=face.getOpposite();
         VoxelShape cover=neighbor.canOcclude()?neighbor.getFaceOcclusionShape(view,pos,inward):Shapes.empty();
         VoxelShape shared=Shapes.empty();
-        if(neighbor.getBlock() instanceof ManorComponentBlock component){
+        if(neighbor.getBlock() instanceof ArchitecturalComponent component){
             var profile=component.profile(neighbor);
             cover=profile.occlusionShape(neighbor.getValue(ManorComponentBlock.FACING)).getFaceShape(inward);
             shared=profile.translucentShape(material,neighbor.getValue(ManorComponentBlock.FACING)).getFaceShape(inward);
@@ -57,7 +63,7 @@ final class ManorGlassModel extends BakedModelWrapper<BakedModel> {
     }
     @Override public ModelData getModelData(BlockAndTintGetter view,BlockPos pos,BlockState state,ModelData data) {
         ModelData original=originalModel.getModelData(view,pos,state,data);Set<String> materials;
-        if(state.getBlock() instanceof ManorComponentBlock component)materials=component.profile(state).translucentMaterials();
+        if(state.getBlock() instanceof ArchitecturalComponent component)materials=component.profile(state).translucentMaterials();
         else {String material=MATERIALS.get(BuiltInRegistries.BLOCK.getKey(state.getBlock()));materials=material==null?Set.of():Set.of(material);}
         if(materials.isEmpty())return original;
         Map<Direction,Map<String,List<ManorQuadClipper.Rect>>> masks=new EnumMap<>(Direction.class);

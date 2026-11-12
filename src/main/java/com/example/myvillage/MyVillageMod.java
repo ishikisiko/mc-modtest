@@ -124,6 +124,7 @@ public final class MyVillageMod {
         com.example.myvillage.decoration.SwordQiDecorationContent.register(modEventBus);
         com.example.myvillage.decoration.DemonPactPillarContent.register(modEventBus);
         com.example.myvillage.manor.ManorContent.register(modEventBus);
+        com.example.myvillage.qianji.QianjiContent.register(modEventBus);
         com.example.myvillage.worldplan.roads.RoadContent.register(modEventBus);
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
         com.example.myvillage.aptitude.AptitudeContent.bootstrap();
@@ -199,6 +200,7 @@ public final class MyVillageMod {
     private void registerCommands(RegisterCommandsEvent event) {
         com.example.myvillage.aptitude.AptitudeCommands.register(event.getDispatcher());
         com.example.myvillage.manor.ManorCommands.register(event.getDispatcher());
+        com.example.myvillage.qianji.QianjiCommands.register(event.getDispatcher());
         com.example.myvillage.combat.foundation.FoundationCommands.register(event.getDispatcher());
         com.example.myvillage.spiritstone.SpiritStoneCommands.register(event.getDispatcher());
         event.getDispatcher().register(

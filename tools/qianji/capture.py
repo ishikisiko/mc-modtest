@@ -60,13 +60,22 @@ def main():
         if not(screen.wait_ingame(90,poll=1) or screen.recover_grab()):raise RuntimeError('客户端未进入可控制状态')
         window=screen.xdo('getwindowfocus').strip();screen.xdo('windowsize',window,'1280','720');screen.xdo('windowmove',window,'0','0');time.sleep(3)
         server.command(f'gamemode spectator {USER}');screen.key('F1')
-        views=[('headquarters-overview',point(200,220,45),point(120,48,136)),('headquarters-front',point(120,8,-9),point(120,40,165)),('command-hall',point(120,11,90),point(120,22,126))]
+        views=[('headquarters-overview',point(215,156,-25),point(84,45,115)),('headquarters-front',point(84,12,-30),point(84,62,150)),('command-hall',point(84,8,76),point(84,12,93))]
         result['screenshots']=[]
         for name,eye,target in views:
             pose(eye,target);time.sleep(40 if name=='headquarters-overview' else 18);file=a.out/(name+'.png');stability=screen.shot(file,max_wait=25,settle=1)
             result['screenshots'].append(dict(file=file.name,eye=eye,target=target,stability=stability,kind='captured_for_review'))
+        pose(point(190,148,6),point(84,60,150));time.sleep(20)
+        for name,phase in [('quiet',0),('array',20),('mirage',50)]:
+            server.command('myvillage qianji phase '+str(phase));time.sleep(2);file=a.out/('atmosphere-'+name+'.png');screen.shot(file,max_wait=5,settle=.2)
+            result['screenshots'].append(dict(file=file.name,phase_start=phase,kind='captured_for_review'))
+        server.command('myvillage qianji phase 9')
+        video=a.out/'atmosphere-array.mp4'
+        recorder=subprocess.run(['ffmpeg','-y','-f','x11grab','-framerate','12','-video_size','1280x720','-i',display,'-t','15','-c:v','libx264','-preset','veryfast','-crf','22','-pix_fmt','yuv420p',str(video)],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=40)
+        if recorder.returncode:raise RuntimeError(recorder.stderr.decode(errors='replace')[-2000:])
+        result['video']=dict(file=video.name,kind='captured_for_review',phase='array',software_rendering=True)
         complete()
-        stage=result['selected'][2];server.command(f'gamemode survival {USER}');eye=point(120,2.62,41);pose(eye,point(120,2.62,49));time.sleep(8)
+        stage=result['selected'][2];server.command(f'gamemode survival {USER}');eye=point(84,2.7,37);pose(eye,point(84,2.7,47));time.sleep(8)
         before=server.command(f'data get entity {USER} Pos');screen.require_ingame('千机阁前院步行');screen.xdo('keydown','w');time.sleep(2);screen.xdo('keyup','w');time.sleep(2);after=server.command(f'data get entity {USER} Pos')
         def position(value):return [float(v) for v in re.findall(r'-?\d+\.\d+',value)[-3:]]
         aa,bb=position(before),position(after);distance=math.dist(aa,bb);assert distance>1,(before,after)

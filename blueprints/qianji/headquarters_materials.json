@@ -1,0 +1,184 @@
+{
+  "palette": {
+    "stone": [
+      "#9eaaa5",
+      "stone"
+    ],
+    "stone_dark": [
+      "#667c79",
+      "stone"
+    ],
+    "carved": [
+      "#c2c7b6",
+      "carved"
+    ],
+    "paving": [
+      "#b2b3a0",
+      "paving"
+    ],
+    "paving_dark": [
+      "#758d89",
+      "paving"
+    ],
+    "brick": [
+      "#8a9589",
+      "brick"
+    ],
+    "plaster": [
+      "#dfd8c1",
+      "plaster"
+    ],
+    "wood": [
+      "#765039",
+      "wood"
+    ],
+    "wood_dark": [
+      "#49372c",
+      "wood"
+    ],
+    "wood_red": [
+      "#765042",
+      "wood"
+    ],
+    "floor": [
+      "#aa8e65",
+      "planks"
+    ],
+    "tile": [
+      "#47666a",
+      "tile"
+    ],
+    "tile_alt": [
+      "#58767a",
+      "tile"
+    ],
+    "tile_dark": [
+      "#354f58",
+      "tile"
+    ],
+    "tile_edge": [
+      "#759397",
+      "tile"
+    ],
+    "bronze": [
+      "#a89561",
+      "metal"
+    ],
+    "bronze_dark": [
+      "#587c72",
+      "metal"
+    ],
+    "red": [
+      "#986651",
+      "plaster"
+    ],
+    "ink": [
+      "#293e43",
+      "plaster"
+    ],
+    "glass": [
+      "#607f82",
+      "glass"
+    ],
+    "paper": [
+      "#ead9ad",
+      "paper"
+    ],
+    "book_blue": [
+      "#526d78",
+      "book"
+    ],
+    "book_red": [
+      "#985f4e",
+      "book"
+    ],
+    "book_cream": [
+      "#d7c8a2",
+      "book"
+    ],
+    "cloth": [
+      "#698888",
+      "cloth"
+    ],
+    "lamp": [
+      "#f4d8a4",
+      "lamp"
+    ],
+    "grass": [
+      "#799070",
+      "grass"
+    ],
+    "moss": [
+      "#8d9a7a",
+      "grass"
+    ],
+    "soil": [
+      "#736953",
+      "stone"
+    ],
+    "pine": [
+      "#44695d",
+      "leaf"
+    ],
+    "leaf": [
+      "#709276",
+      "leaf"
+    ],
+    "cherry": [
+      "#c4ab9f",
+      "leaf"
+    ],
+    "rock": [
+      "#829184",
+      "rock"
+    ],
+    "bamboo": [
+      "#7d9271",
+      "wood"
+    ],
+    "water": [
+      "#6b999b",
+      "water"
+    ],
+    "skin": [
+      "#c8ab86",
+      "plaster"
+    ],
+    "robe": [
+      "#697c8c",
+      "cloth"
+    ],
+    "paper_window": [
+      "#ead9ad",
+      "paper"
+    ]
+  },
+  "grid": 16,
+  "rotation_grid": 16,
+  "bank_size": 32,
+  "strength": 2.5,
+  "explosion_resistance": 6,
+  "light_level": 15,
+  "texture_resolution": 32,
+  "font": "src/main/resources/assets/myvillage/font/brush.ttf",
+  "non_collision_roles": [
+    "lamp",
+    "cloth",
+    "book_blue",
+    "book_red",
+    "book_cream",
+    "paper",
+    "ink"
+  ],
+  "glass_roles": [
+    "glass"
+  ],
+  "wood_roles": [
+    "wood",
+    "wood_dark",
+    "wood_red",
+    "floor",
+    "bamboo"
+  ],
+  "native_tree_prune_max_share": 0.2
+}

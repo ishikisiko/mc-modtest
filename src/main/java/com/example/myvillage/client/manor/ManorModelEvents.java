@@ -15,6 +15,9 @@ public final class ManorModelEvents {
         var ids=new HashSet<ResourceLocation>();var catalog=ManorCatalog.get();
         for(var material:catalog.materials)if(!material.opaque())ids.add(ResourceLocation.fromNamespaceAndPath("myvillage",material.id()));
         for(var bank:catalog.banks)if(bank.profiles().stream().anyMatch(p->!p.translucentMaterials().isEmpty()))ids.add(ResourceLocation.fromNamespaceAndPath("myvillage",bank.id()));
+        var qianji=com.example.myvillage.qianji.QianjiCatalog.get();
+        for(var material:qianji.materials)if(!material.opaque())ids.add(ResourceLocation.fromNamespaceAndPath("myvillage",material.id()));
+        for(var bank:qianji.banks)if(bank.profiles().stream().anyMatch(p->!p.translucentMaterials().isEmpty()))ids.add(ResourceLocation.fromNamespaceAndPath("myvillage",bank.id()));
         event.getModels().replaceAll((key,model)->ids.contains(key.id())&&!key.variant().equals("inventory")?new ManorGlassModel(model):model);
     }
     private ManorModelEvents(){ }

@@ -23,7 +23,7 @@ public final class ManorCatalog {
             translucent.keySet().forEach(key->translucentCache.put(key,new VoxelShape[4]));
         }
         private static boolean same(List<double[]> a,List<double[]> b){if(a.size()!=b.size())return false;for(int i=0;i<a.size();i++)if(!Arrays.equals(a.get(i),b.get(i)))return false;return true;}
-        VoxelShape shape(int kind,Direction facing) {
+        public VoxelShape shape(int kind,Direction facing) {
             if((kind==1&&collision==outline)||(kind==2&&occlusion==outline))return shape(0,facing);
             int turn=turn(facing);var found=cache[kind][turn];if(found!=null)return found;
             var boxes=kind==0?outline:kind==1?collision:occlusion;VoxelShape result=Shapes.empty();
@@ -35,6 +35,11 @@ public final class ManorCatalog {
             return cache[kind][turn]=result.optimize();
         }
         public Set<String> translucentMaterials(){return translucent.keySet();}
+        public static Profile fromJson(JsonObject p) {
+            Map<String,List<double[]>> translucent=new HashMap<>();
+            for(var entry:p.getAsJsonObject("translucent").entrySet())translucent.put(entry.getKey(),boxes(entry.getValue().getAsJsonArray()));
+            return new Profile(boxes(p.getAsJsonArray("boxes")),boxes(p.getAsJsonArray("collision")),boxes(p.getAsJsonArray("occlusion")),translucent);
+        }
         public VoxelShape occlusionShape(Direction facing){return shape(2,facing);}
         public synchronized VoxelShape translucentShape(String material,Direction facing) {
             var boxes=translucent.get(material);if(boxes==null)return Shapes.empty();

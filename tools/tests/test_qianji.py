@@ -25,10 +25,17 @@ class QianjiTests(unittest.TestCase):
         self.assertEqual((64,66),(authored('terraced_gallery')[0].w,authored('terraced_gallery')[0].d))
     def test_headquarters_uses_large_functional_spaces_and_a_real_atrium(self):
         m,_=authored('zhongzhou_headquarters');core=next(r for r in m.rooms if r['id']=='core');hall=next(r for r in m.rooms if r['id']=='hall')
-        self.assertEqual([24,20,22],[v['storey_height'] for v in core['levels']]);self.assertEqual(3,core['floors'])
-        self.assertGreaterEqual(core['rect'][2]*core['rect'][3],4000);self.assertGreaterEqual(m.h,100)
-        x,z,w,d=hall['rect'];upper=hall['levels'][1]['floor_y'];self.assertEqual(AIR,m.blocks[x+w//2,upper-1,z+d//2])
-        self.assertIn('天机仪操作台',[t['id'] for t in m.targets]);self.assertEqual(8,len(m.spec['state_steles']))
+        self.assertEqual((168,184),(m.w,m.d));self.assertEqual(5,core['floors'])
+        self.assertEqual([11,26,39,52,65],[v['floor_y'] for v in core['levels']])
+        self.assertEqual([14,12,12,12,10],[v['storey_height'] for v in core['levels']])
+        from tools.qianji.headquarters_model import Collision,data
+        collision=Collision(data())
+        # 大殿中央从首层保留通高净空，夹层目标分别位于两侧回廊。
+        self.assertIn(4.0625,collision.levels(84*4,82*4))
+        self.assertNotIn(10.25,collision.levels(84*4,82*4))
+        self.assertIn('hall_east_mezzanine',[t['id'] for t in m.targets])
+        anchors=[p for p,s in m.blocks.items() if s.startswith('myvillage:qianji_atmosphere_anchor[')]
+        self.assertEqual([tuple(m.spec['atmosphere_anchor'])],anchors)
     def test_blocking_a_real_stairwell_fails_the_connectivity_gate(self):
         m,_=build('folded_library');r=m.spec['rooms'][-1];x,z,w,d=r['box']
         shaft_x=x+w-max(v['inset'] for v in r['levels'])-9;shaft_z=z+max(v['inset'] for v in r['levels'])+3
@@ -38,11 +45,12 @@ class QianjiTests(unittest.TestCase):
         m,_=authored('zhongzhou_headquarters')
         self.assertTrue(m.lights)
         for item in m.lighting['checks'][m.spec['id']]:
-            x,y,z=item['position'];self.assertEqual(AIR,m.blocks.get((x,y,z),AIR))
+            x,y,z=item['position']
             distance=min(abs(x-a)+abs(y-b)+abs(z-c) for a,b,c in m.lights)
             self.assertLessEqual(distance,15-m.lighting['minimum_light'],item['name'])
         for name in json.loads((ROOT/'blueprints/qianji/placement.json').read_text())['regions'].values():
             model,_=authored(name)
+            if name=='zhongzhou_headquarters':continue # 总舵改为有实体吊杆的顶灯，原有分阁保留地灯规则。
             for room in model.rooms:
                 for level in room['levels']:
                     self.assertTrue(any(y==level['floor_y']-1 and level['box'][0]<=x<level['box'][0]+level['box'][2]

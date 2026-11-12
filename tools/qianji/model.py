@@ -242,7 +242,11 @@ def armillary_sphere(m,cx,feet,cz,radius):
 ARTIFACTS={'armillary_sphere':armillary_sphere}
 
 def build(ident,validate=True):
-    spec=json.loads((ROOT/'blueprints/qianji'/f'{ident}.json').read_text());m=Model(spec)
+    spec=json.loads((ROOT/'blueprints/qianji'/f'{ident}.json').read_text())
+    if spec.get('generator')=='sculpted_headquarters':
+        from qianji.headquarters_model import build as detailed
+        return detailed(Model,spec,validate)
+    m=Model(spec)
     m.floor(0,1,0,m.w,m.d,'ground')
     for x,z,w,d in spec.get('water',[]):m.floor(x,1,z,w,d,'water','water')
     for i,v in enumerate(spec.get('platforms',[])):

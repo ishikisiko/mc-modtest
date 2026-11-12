@@ -20,9 +20,15 @@ def sign_payload(text):
     tag=nbt.Compound({'id':nbt.String('minecraft:sign'),'front_text':face,'back_text':face,'is_waxed':nbt.Byte(1)})
     stream=io.BytesIO();nbt._write_payload(stream,tag);return stream.getvalue()
 
+def atmosphere_payload():
+    tag=nbt.Compound({'id':nbt.String('myvillage:qianji_atmosphere_anchor'),'CycleOffset':nbt.Long(0)})
+    stream=io.BytesIO();nbt._write_payload(stream,tag);return stream.getvalue()
+
 def integrate(out):
     out=Path(out);spec=json.loads((ROOT/'blueprints/qianji/placement.json').read_text());reports=[]
     inputs={str(p.relative_to(ROOT)):sha(p.read_bytes()) for folder,pattern in [('blueprints/qianji','*.json'),('tools/qianji','model.py'),('tools/qianji','runtime_export.py')] for p in sorted((ROOT/folder).glob(pattern))}
+    for name in ['headquarters.py','components.py','headquarters_model.py','generate_assets.py']:
+        p=ROOT/'tools/qianji'/name;inputs[str(p.relative_to(ROOT))]=sha(p.read_bytes())
     for f in ['tools/buildgen/groups.py','tools/buildgen/modset.py','tools/buildgen/style.py','tools/buildgen/massing.py','tools/buildgen/compound.py','exmod/mod_block_catalog.json']:inputs[f]=sha((ROOT/f).read_bytes())
     for region,ident in spec['regions'].items():
         file=out/f'data/myvillage/capitals/v4/capital_{region}/city.json';city=json.loads(file.read_text())
@@ -85,7 +91,8 @@ def integrate(out):
         def point(p):return [x0+m.w-1-p[0],base+p[1],z0+m.d-1-p[2]]
         def direction(state):return rotate_state(state,2)
         for (x,y,z),state in m.blocks.items():
-            px,py,pz=point((x,y,z));put(px,py,pz,direction(state))
+            px,py,pz=point((x,y,z));entity=dict(block='myvillage:qianji_atmosphere_anchor',payload=atmosphere_payload()) if state.split('[',1)[0]=='myvillage:qianji_atmosphere_anchor' else None
+            put(px,py,pz,direction(state),entity)
         for sign in m.signs:
             px,py,pz=point(sign['position']);state=direction('minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]')
             put(px,py,pz,state,dict(block='minecraft:dark_oak_wall_sign',payload=sign_payload(sign['text'])))
@@ -136,6 +143,8 @@ def integrate(out):
                         targets=[dict(id=t['id'],position=point(t['position'])) for t in m.targets],
                         checks=checks,inputs=inputs,old_city_preserved=True,old_board_retired=old is not None)
         descriptor['landmarks']=[]
+        if 'atmosphere_anchor' in m.spec:
+            descriptor['atmosphere']={'anchor':point(m.spec['atmosphere_anchor']),'appearance':'myvillage:qianji/atmosphere.json','source_offset':m.spec['source_offset']}
         descriptor['lighting_checks']=[dict(name=v['name'],position=point(v['position']),minimum_light=m.lighting['minimum_light']) for v in m.lighting['checks'].get(ident,[])]
         descriptor['interior_lights']=len(m.lights)
         if 'roof_instrument' in m.spec:
