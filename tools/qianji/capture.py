@@ -91,11 +91,11 @@ def main():
         if recorder.returncode:raise RuntimeError(recorder.stderr.decode(errors='replace')[-2000:])
         result['video']=dict(file=video.name,kind='captured_for_review',phase='array',software_rendering=True)
         complete()
-        stage=result['selected'][2];server.command(f'gamemode survival {USER}');eye=authored([24.5,2.6825,33.5],'office');pose(eye,authored([34.5,2.6825,33.5],'office'));time.sleep(8)
-        before=server.command(f'data get entity {USER} Pos');screen.require_ingame('千机阁前院步行');screen.xdo('keydown','w');time.sleep(2);screen.xdo('keyup','w');time.sleep(2);after=server.command(f'data get entity {USER} Pos')
+        stage=result['selected'][2];server.command(f'gamemode survival {USER}');eye=authored([24.5,2.6825,37.5],'office');pose(eye,authored([34.5,2.6825,37.5],'office'));time.sleep(8)
+        before=server.command(f'data get entity {USER} Pos');screen.require_ingame('办事廊室内步行');screen.xdo('keydown','w');time.sleep(2);screen.xdo('keyup','w');time.sleep(2);after=server.command(f'data get entity {USER} Pos')
         def position(value):return [float(v) for v in re.findall(r'-?\d+\.\d+',value)[-3:]]
         aa,bb=position(before),position(after);distance=math.dist(aa,bb);assert distance>1,(before,after)
-        result['mapped_walk']=dict(input='key.keyboard.w',held_seconds=2,before=before,after=after,distance=distance,scope='办事廊前排通道短距离步行');complete()
+        result['mapped_walk']=dict(input='key.keyboard.w',held_seconds=2,before=before,after=after,distance=distance,scope='办事廊室内通道短距离步行');complete()
         stage=result['selected'][3];server.command(f'clear {USER}');board=office['board']['position'];reader=office['board']['reader'];eye=[city['x']+reader[0]+.5,city['origin_y']+reader[1]+1.62,city['z']+reader[2]+.5];target=[city['x']+board[0]+.5,city['origin_y']+board[1]+.5,city['z']+board[2]+.5];pose(eye,target);time.sleep(5)
         screen.require_ingame('任务榜右键交互');screen.xdo('click','3');deadline=time.monotonic()+15
         while screen.pointer_grabbed() is not False and time.monotonic()<deadline:time.sleep(.3)
