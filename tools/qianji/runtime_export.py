@@ -25,6 +25,14 @@ def atmosphere_payload():
     tag=nbt.Compound({'id':nbt.String('myvillage:qianji_atmosphere_anchor')})
     stream=io.BytesIO();nbt._write_payload(stream,tag);return stream.getvalue()
 
+def entrance_road(entry,road_z,base,policy,paving):
+    """署区入口接路同时定义正式写入和复用检查所需的最终方块。"""
+    radius=policy['road_width']//2
+    for z in range(entry[2],road_z+1):
+        for x in range(entry[0]-radius,entry[0]+radius+1):
+            yield(x,base,z),paving
+            for y in range(base+1,base+1+policy['headroom']):yield(x,y,z),AIR
+
 def integrate(out):
     out=Path(out);spec=json.loads((ROOT/'blueprints/qianji/placement.json').read_text());reports=[]
     inputs={str(p.relative_to(ROOT)):sha(p.read_bytes()) for folder,pattern in [('blueprints/qianji','*.json'),('tools/qianji','model.py'),('tools/qianji','runtime_export.py')] for p in sorted((ROOT/folder).glob(pattern))}
@@ -47,10 +55,11 @@ def integrate(out):
                 # A metadata refresh is allowed only after comparing every
                 # expected annex voxel with the current owning output.
                 m,checks=model(ident);source=CitySource(out,region);q=city['qianji'];x0,z0,_,_=q['bounds'];base=q['base_y'];signs={tuple(s['position'])for s in m.signs}
+                road=dict(entrance_road(q['entry'],q['road_z'],base,spec['annex'],m.material['paving']))
                 for pos,state in m.blocks.items():
                     if pos in signs:continue
                     x,y,z=pos;p=(x0+m.w-1-x,base+y,z0+m.d-1-z)
-                    if source.block(*p)!=rotate_state(state,2):raise ValueError('分阁几何变化，须重建 owning 城市 '+str((region,p)))
+                    if source.block(*p)!=road.get(p,rotate_state(state,2)):raise ValueError('分阁几何变化，须重建 owning 城市 '+str((region,p)))
                 for sign in m.signs:
                     x,y,z=sign['position'];p=(x0+m.w-1-x,base+y,z0+m.d-1-z)
                     if source.block(*p)!=rotate_state('minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]',2):raise ValueError('分阁题匾位置失配')
@@ -125,10 +134,7 @@ def integrate(out):
             for zz in range(road_z-radius,road_z+radius+1):
                 put(xx,base,zz,m.material['paving'])
                 for yy in range(base+1,base+1+policy['headroom']):put(xx,yy,zz,AIR)
-        for zz in range(entry[2],road_z+1):
-            for xx in range(entry[0]-radius,entry[0]+radius+1):
-                put(xx,base,zz,m.material['paving'])
-                for yy in range(base+1,base+1+policy['headroom']):put(xx,yy,zz,AIR)
+        for pos,state in entrance_road(entry,road_z,base,policy,m.material['paving']):put(*pos,state)
         # 原城出口可能含半砖，各列从实际旧截面以半格步进接到新大道。
         for xx in range(max(0,ax-radius),min(ow,ax+radius+1)):
             old_feet=source.floor(xx,od-1,12,policy['headroom'])

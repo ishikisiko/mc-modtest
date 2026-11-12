@@ -9,6 +9,13 @@ from tools.qianji.model import build,AIR,ROOT
 def authored(name):return build(name)
 
 class QianjiTests(unittest.TestCase):
+    def test_annex_cache_comparison_includes_the_authored_entrance_road(self):
+        from tools.qianji.runtime_export import entrance_road
+        cells=dict(entrance_road([267,11,254],280,10,dict(road_width=7,headroom=3),'minecraft:polished_andesite'))
+        # 西漠分阁入口的最终石坪覆盖了作者草坪，原失败坐标必须参与比较。
+        self.assertEqual('minecraft:polished_andesite',cells[270,10,255])
+        self.assertEqual(AIR,cells[270,12,255]);self.assertNotIn((271,10,255),cells)
+
     def test_east_facing_reader_camera_preserves_its_block_centre(self):
         from tools.qianji.capture import placed_point
         office=dict(size=[170,137,159],rotation_quarters=1,bounds=[365,946,524,1116],base_y=80)
