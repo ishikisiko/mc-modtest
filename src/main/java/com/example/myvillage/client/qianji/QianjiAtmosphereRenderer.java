@@ -41,7 +41,7 @@ public final class QianjiAtmosphereRenderer implements BlockEntityRenderer<Qianj
     private static RenderType texture(String name){return TEXTURES.computeIfAbsent(name,id->RenderType.create("myvillage_qianji_"+id,DefaultVertexFormat.NEW_ENTITY,VertexFormat.Mode.QUADS,16384,false,true,
             RenderType.CompositeState.builder().setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
                     .setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath("myvillage","textures/effect/qianji/"+id+".png"),true,false))
-                    .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY).setCullState(RenderStateShard.NO_CULL).setWriteMaskState(RenderStateShard.COLOR_WRITE).createCompositeState(false)));}
+                    .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY).setCullState(RenderStateShard.NO_CULL).setWriteMaskState(RenderStateShard.COLOR_WRITE).setOverlayState(RenderStateShard.OVERLAY).createCompositeState(false)));}
     private static int alpha(double v){return(int)Math.round(Math.clamp(v,0,1)*255);}
     private static void vertex(PoseStack pose,VertexConsumer out,Vec3 p,int color,double a){out.addVertex(pose.last(),(float)p.x,(float)p.y,(float)p.z).setColor(color>>16&255,color>>8&255,color&255,alpha(a));}
     private static void tv(PoseStack pose,VertexConsumer out,Vec3 p,int color,double a,float u,float v){out.addVertex(pose.last(),(float)p.x,(float)p.y,(float)p.z).setColor(color>>16&255,color>>8&255,color&255,alpha(a)).setUv(u,v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT).setNormal(pose.last(),0,1,0);}
