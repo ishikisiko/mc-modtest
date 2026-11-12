@@ -31,6 +31,9 @@ class QianjiTests(unittest.TestCase):
                 self.assertEqual(len(m.spec['rooms']),len(m.compound.building_slots))
                 self.assertEqual(sum(len(r['levels']) for r in m.spec['rooms']),sum(len(s.graph.volumes()) for s in m.compound.building_slots))
                 x,y,z=m.spec['board'];self.assertNotEqual(AIR,m.blocks[x,y-1,z]);self.assertTrue(m.blocks[x,y,z].startswith('myvillage:jianghu_board['))
+                rx,ry,rz=m.spec['reader']
+                for dy in (0,1,2):self.assertEqual(AIR,m.blocks.get((rx,ry+dy,rz),AIR),(name,dy))
+                if name=='zhongzhou_headquarters':self.assertEqual('myvillage:qianji_floor',m.blocks[rx,ry-1,rz])
     def test_compact_footprints_stay_at_one_third_of_the_retained_large_versions(self):
         for small,large in [('folded_library','town_courts'),('island_octagon','town_water'),('terraced_gallery','town_frontier')]:
             a,_=authored(small);b,_=authored(large);self.assertTrue(.32<a.w*a.d/(b.w*b.d)<.35)
@@ -44,6 +47,7 @@ class QianjiTests(unittest.TestCase):
         self.assertEqual([14,12,12,12,10],[v['storey_height'] for v in core['levels']])
         from tools.qianji.headquarters_model import Collision,data
         collision=Collision(data())
+        self.assertEqual({'floor'},{box[6] for box in data()['converted'][23,1,33][0]})
         # 大殿中央从首层保留通高净空，夹层目标分别位于两侧回廊。
         self.assertIn(4.0625,collision.levels(84*4,82*4))
         self.assertNotIn(10.25,collision.levels(84*4,82*4))

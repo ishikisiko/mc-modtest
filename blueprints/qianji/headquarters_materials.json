@@ -180,5 +180,10 @@
     "floor",
     "bamboo"
   ],
-  "native_tree_prune_max_share": 0.2
+  "native_tree_prune_max_share": 0.2,
+  "surface_overlays": {
+    "floor": [
+      "grass"
+    ]
+  }
 }

@@ -180,6 +180,27 @@ def compile_components():
         x,y,z=m['p'];w,d=m['size'];b=[x-w/2,y-.015,z-d/2,x+w/2,y+.015,z+d/2];role='map_'+str(i)
         special[role]=dict(kind='map',map=m['kind']);add_box(raw,b,role,dict(axis='y',lo=[v*16 for v in b[:3]],hi=[v*16 for v in b[3:]]))
     carve_openings(raw,access.get('openings',[]))
+    # 室内木地板覆盖同一高度的底层草面，防止重叠材质改变完成面。
+    for position,pieces in raw.items():
+        result=[]
+        for piece in pieces:
+            fragments=[piece]
+            for role,covered in cfg.get('surface_overlays',{}).items():
+                if piece[6] not in covered:continue
+                for cover in pieces:
+                    if cover[6]==role:fragments=[tuple(part) for fragment in fragments for part in subtract_box(fragment,cover)]
+            result.extend(fragments)
+        raw[position]=result
+    # 任务榜操作格遵守公共设施的整数地坪和三格净空契约。
+    # 这里只修整作者木地板多出的 1/16 格，不允许借此清掉家具或梁架。
+    rx,ry,rz=access['reader']
+    for y in range(ry,ry+3):
+        position=rx,y,rz
+        for piece in raw.get(position,[]):
+            if y!=ry or piece[6]!='floor' or piece[4]>1:
+                raise ValueError('任务榜操作点侵入建筑构件 '+str((position,piece)))
+        raw.pop(position,None)
+    raw[rx,ry-1,rz]=[FULL+('floor',)]
     converted={};unique=set()
     for pos,pieces in raw.items():
         p,turn=canonical(tuple(sorted(set(pieces),key=repr)));converted[pos]=(p,turn)
