@@ -21,7 +21,8 @@ def sign_payload(text):
     stream=io.BytesIO();nbt._write_payload(stream,tag);return stream.getvalue()
 
 def atmosphere_payload():
-    tag=nbt.Compound({'id':nbt.String('myvillage:qianji_atmosphere_anchor'),'CycleOffset':nbt.Long(0)})
+    # 自然生成使用方块实体的默认零偏移；管理员调整后由实体自己保存 long 值。
+    tag=nbt.Compound({'id':nbt.String('myvillage:qianji_atmosphere_anchor')})
     stream=io.BytesIO();nbt._write_payload(stream,tag);return stream.getvalue()
 
 def integrate(out):

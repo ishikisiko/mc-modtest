@@ -9,6 +9,20 @@ from tools.qianji.model import build,AIR,ROOT
 def authored(name):return build(name)
 
 class QianjiTests(unittest.TestCase):
+    def test_atmosphere_anchor_payload_survives_structure_export(self):
+        import tempfile,io
+        from tools.qianji.runtime_export import atmosphere_payload
+        from province_capitals.blueprint_plan.nbt_entities import write_tile,block_entities
+        from buildgen.nbtread import _read_payload,TAG_COMPOUND
+        payload=atmosphere_payload();decoded=_read_payload(io.BytesIO(payload),TAG_COMPOUND)
+        self.assertEqual('myvillage:qianji_atmosphere_anchor',decoded['id'])
+        self.assertEqual(0,decoded.get('CycleOffset',0))
+        entities={(3,4,5):{'block':'myvillage:qianji_atmosphere_anchor','payload':payload}}
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'tile.nbt'
+            write_tile(path,{(3,4,5):('myvillage:qianji_atmosphere_anchor[facing=south]','qianji','organization')},16,entities)
+            self.assertEqual(entities,block_entities(path))
+
     def test_every_function_floor_and_gallery_is_connected_in_all_seven_models(self):
         for name in json.loads((ROOT/'blueprints/qianji/placement.json').read_text())['regions'].values():
             m,checks=authored(name)
