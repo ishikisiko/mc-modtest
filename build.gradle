@@ -337,6 +337,10 @@ tasks.register('generateQianjiAssets', Exec) {
     executable = pythonExecutable.get()
     args 'tools/qianji/generate_assets.py'
     inputs.files(fileTree('blueprints/qianji'), fileTree('tools/qianji') { exclude '**/__pycache__/**', '**/*.pyc' },
+            fileTree('blueprints/province_capitals/central'), fileTree('web/yunshan-city/src/world'),
+            fileTree('web/yunshan-city/src/voxel'), fileTree('tools/province_capitals/central'),
+            fileTree('tools/province_capitals/blueprint_plan/central'),
+            files('tools/player_estates/zhongzhou_plan.py','tools/player_estates/build_terraces.py'),
             'tools/lord_manors/geometry.py','tools/lord_manors/generate.py','tools/lord_manors/surfaces.py',
             'src/main/resources/assets/myvillage/font/brush.ttf')
     outputs.dir('src/main/resources/data/myvillage/qianji/components')

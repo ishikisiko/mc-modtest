@@ -1,4 +1,4 @@
-"""将千机阁署区加入省城东侧，并接通城南公共大道；原城建筑保持逐块不变。"""
+"""生成前七州东侧分阁，并把中州总舵写入获准的城内住宅坊。"""
 from __future__ import annotations
 from collections import defaultdict
 from functools import lru_cache
@@ -28,16 +28,33 @@ def atmosphere_payload():
 def integrate(out):
     out=Path(out);spec=json.loads((ROOT/'blueprints/qianji/placement.json').read_text());reports=[]
     inputs={str(p.relative_to(ROOT)):sha(p.read_bytes()) for folder,pattern in [('blueprints/qianji','*.json'),('tools/qianji','model.py'),('tools/qianji','runtime_export.py')] for p in sorted((ROOT/folder).glob(pattern))}
-    for name in ['headquarters.py','components.py','headquarters_model.py','generate_assets.py']:
+    for name in ['headquarters.py','components.py','headquarters_model.py','generate_assets.py','infill.py','infill_export.py']:
         p=ROOT/'tools/qianji'/name;inputs[str(p.relative_to(ROOT))]=sha(p.read_bytes())
+    from qianji.infill import site
+    inputs.update(site()['geometry'].hashes)
+    for name in ['tools/player_estates/zhongzhou_plan.py','tools/player_estates/build_terraces.py']:inputs[name]=sha((ROOT/name).read_bytes())
     for f in ['tools/buildgen/groups.py','tools/buildgen/modset.py','tools/buildgen/style.py','tools/buildgen/massing.py','tools/buildgen/compound.py','exmod/mod_block_catalog.json']:inputs[f]=sha((ROOT/f).read_bytes())
     for region,ident in spec['regions'].items():
         file=out/f'data/myvillage/capitals/v4/capital_{region}/city.json';city=json.loads(file.read_text())
+        if region=='zhongzhou':
+            from qianji.infill_export import integrate as integrate_infill
+            reports.append(integrate_infill(out,city,inputs));continue
         if 'qianji' in city:
-            if city['qianji']['inputs']!=inputs:raise ValueError('千机阁输入变化，请先从 owning 城市导出器重建当前城市')
             for ref in [city['terrain'],*city['tiles']]:
                 p=resource_file(out,ref.get('resource',ref.get('template')),template='template' in ref)
                 if sha(p.read_bytes())!=ref['sha256']:raise ValueError('千机阁现有输出摘要不符')
+            if city['qianji']['inputs']!=inputs or 'facing'not in city['qianji']:
+                # A metadata refresh is allowed only after comparing every
+                # expected annex voxel with the current owning output.
+                m,checks=model(ident);source=CitySource(out,region);q=city['qianji'];x0,z0,_,_=q['bounds'];base=q['base_y'];signs={tuple(s['position'])for s in m.signs}
+                for pos,state in m.blocks.items():
+                    if pos in signs:continue
+                    x,y,z=pos;p=(x0+m.w-1-x,base+y,z0+m.d-1-z)
+                    if source.block(*p)!=rotate_state(state,2):raise ValueError('分阁几何变化，须重建 owning 城市 '+str((region,p)))
+                for sign in m.signs:
+                    x,y,z=sign['position'];p=(x0+m.w-1-x,base+y,z0+m.d-1-z)
+                    if source.block(*p)!=rotate_state('minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]',2):raise ValueError('分阁题匾位置失配')
+                q['inputs']=inputs;q['facing']='south';q['checks']=checks;q['geometry_cache_check']=dict(compared_voxels=len(m.blocks),same_as_current_output=True);write(file,city)
             reports.append(city['qianji']);continue
         m,checks=model(ident);source=CitySource(out,region);ow,oh,od=city['size'];policy=spec['annex']
         binding=next(p for p in json.loads((ROOT/'config/roads/prototype.json').read_text())['ports'] if p['region']==region)
@@ -138,7 +155,7 @@ def integrate(out):
         assert all(heights[z*nw+x]==source.terrain[z*ow+x] for z in range(od) for x in range(ow))
         terrain=resource_file(out,city['terrain']['resource']);terrain.write_bytes(gzip.compress(struct.pack('<'+'h'*len(heights),*heights),mtime=0))
         city['terrain'].update(width=nw,depth=nd,sha256=sha(terrain.read_bytes()));city['size']=[nw,nh,nd];city['tiles']=sorted(refs.values(),key=lambda p:(p['z'],p['x']));city['palette_states']=sorted(palette)
-        descriptor=dict(variant=ident,name=m.spec['name'],scale=m.spec['scale'],group='qianji',source_dimensions=[ow,oh,od],
+        descriptor=dict(variant=ident,name=m.spec['name'],scale=m.spec['scale'],group='qianji',facing='south',source_dimensions=[ow,oh,od],
                         bounds=[x0,z0,x0+m.w,z0+m.d],size=[m.w,m.h,m.d],base_y=base,rotation_quarters=2,entry=entry,access=access,road_z=road_z,
                         board=dict(position=board,reader=reader,facing='south'),rooms=m.rooms,
                         targets=[dict(id=t['id'],position=point(t['position'])) for t in m.targets],

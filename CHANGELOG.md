@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.130.1
+
+- 中州千机阁总舵迁入御街西侧住宅坊，撤并获准的73栋民居，保留原城域、功能建筑、庄园和水体。
+- 保持各栋楼体尺寸，顺坡重建台基、三格阶道、覆顶连廊及公共路接点；工坊增加靠山后门，听雨院保留水亭并补齐池壁与踏步。
+- 任务榜和阵枢随总舵迁址，生成资源与管理员读回支持实际东向入口。
+
 ## 0.130.0
 
 - 按确认的重设计替换中州千机阁总舵：168×184格院落、五层天枢总阁、两侧功能楼、勘图楼、高廊和水亭，斗拱、窗格、匾额与室内陈设使用同源细分构件。

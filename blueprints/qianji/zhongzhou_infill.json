@@ -1,0 +1,851 @@
+{
+  "schema": 1,
+  "id": "zhongzhou_west_infill",
+  "name": "中州御街西侧千机阁总舵",
+  "plot": [
+    365,
+    946,
+    524,
+    1116
+  ],
+  "rotation_quarters": 1,
+  "size": [
+    170,
+    159
+  ],
+  "base_y": 80,
+  "approved_retirements": [
+    "building_97",
+    "building_100",
+    "building_105",
+    "building_108",
+    "building_109",
+    "building_112",
+    "building_114",
+    "building_115",
+    "building_118",
+    "building_121",
+    "building_125",
+    "building_126",
+    "building_129",
+    "building_137",
+    "building_140",
+    "building_141",
+    "building_145",
+    "building_146",
+    "building_147",
+    "building_148",
+    "building_151",
+    "building_153",
+    "building_159",
+    "building_160",
+    "building_161",
+    "building_162",
+    "building_163",
+    "building_164",
+    "building_166",
+    "building_171",
+    "building_173",
+    "building_177",
+    "building_179",
+    "building_180",
+    "building_185",
+    "building_186",
+    "building_189",
+    "building_196",
+    "building_199",
+    "building_201",
+    "building_205",
+    "building_206",
+    "building_217",
+    "building_221",
+    "building_222",
+    "building_228",
+    "building_231",
+    "building_240",
+    "building_245",
+    "building_247",
+    "building_249",
+    "building_253",
+    "building_257",
+    "building_260",
+    "building_266",
+    "building_275",
+    "building_278",
+    "building_282",
+    "building_285",
+    "building_292",
+    "building_298",
+    "building_319",
+    "building_320",
+    "building_325",
+    "building_341",
+    "building_362",
+    "building_377",
+    "building_383",
+    "building_400",
+    "building_450",
+    "building_453",
+    "building_465",
+    "building_548"
+  ],
+  "approval": "owner_selected_20261113",
+  "local_earthwork_limit": 3,
+  "route_width": 3,
+  "route_headroom": 3,
+  "max_path_support": 18,
+  "parts": {
+    "gate": {
+      "shift": [
+        4,
+        0
+      ],
+      "pads": [
+        [
+          68,
+          6,
+          32,
+          22,
+          0.5
+        ],
+        [
+          52,
+          11,
+          16,
+          17,
+          0
+        ],
+        [
+          100,
+          10,
+          16,
+          19,
+          0
+        ]
+      ],
+      "portal": [
+        84,
+        1.5,
+        6
+      ]
+    },
+    "office": {
+      "shift": [
+        -4,
+        -19
+      ],
+      "pads": [
+        [
+          12,
+          29,
+          34,
+          20,
+          0
+        ]
+      ],
+      "portal": [
+        29,
+        1,
+        30
+      ]
+    },
+    "review": {
+      "shift": [
+        6,
+        -25
+      ],
+      "pads": [
+        [
+          123,
+          32,
+          33,
+          22,
+          0
+        ]
+      ],
+      "portal": [
+        139,
+        1,
+        33
+      ]
+    },
+    "hall": {
+      "shift": [
+        -36,
+        -25
+      ],
+      "pads": [
+        [
+          46,
+          67,
+          77,
+          36,
+          3
+        ]
+      ],
+      "portal": [
+        84,
+        4,
+        68
+      ]
+    },
+    "archive": {
+      "shift": [
+        -3,
+        16
+      ],
+      "pads": [
+        [
+          10,
+          72,
+          33,
+          30,
+          3
+        ]
+      ],
+      "portal": [
+        26,
+        4,
+        74
+      ]
+    },
+    "atlas": {
+      "shift": [
+        35,
+        -8
+      ],
+      "pads": [
+        [
+          12,
+          111,
+          30,
+          28,
+          6
+        ]
+      ],
+      "portal": [
+        28,
+        7,
+        111
+      ]
+    },
+    "workshop": {
+      "shift": [
+        -114,
+        58
+      ],
+      "pads": [
+        [
+          124,
+          64,
+          32,
+          31,
+          3
+        ]
+      ],
+      "portal": [
+        140,
+        4,
+        93
+      ],
+      "back_entry": true
+    },
+    "storage": {
+      "shift": [
+        -80,
+        -8
+      ],
+      "pads": [
+        [
+          125,
+          94,
+          32,
+          13,
+          3
+        ]
+      ],
+      "portal": [
+        140,
+        4,
+        94
+      ]
+    },
+    "envoy": {
+      "shift": [
+        -28,
+        -14
+      ],
+      "pads": [
+        [
+          127,
+          112,
+          26,
+          17,
+          6
+        ],
+        [
+          125,
+          126,
+          29,
+          41,
+          5
+        ]
+      ],
+      "portal": [
+        130,
+        8,
+        168
+      ],
+      "back_entry": true
+    },
+    "core": {
+      "shift": [
+        45,
+        -87
+      ],
+      "pads": [
+        [
+          57,
+          132,
+          54,
+          42,
+          10
+        ],
+        [
+          58,
+          125,
+          52,
+          7,
+          10
+        ]
+      ],
+      "portal": [
+        84,
+        11,
+        126
+      ]
+    },
+    "west_rear": {
+      "shift": [
+        38,
+        -30
+      ],
+      "pads": [
+        [
+          42,
+          150,
+          14,
+          23,
+          10
+        ]
+      ],
+      "portal": [
+        49,
+        11,
+        149
+      ]
+    },
+    "east_rear": {
+      "shift": [
+        31,
+        -35
+      ],
+      "pads": [
+        [
+          113,
+          149,
+          16,
+          24,
+          10
+        ]
+      ],
+      "portal": [
+        120,
+        11,
+        172
+      ],
+      "back_entry": true,
+      "elevation_offset": 5
+    }
+  },
+  "room_parts": {
+    "gate": "gate",
+    "office": "office",
+    "review": "review",
+    "hall": "hall",
+    "archive": "archive",
+    "atlas": "atlas",
+    "workshop": "workshop",
+    "storage": "storage",
+    "envoy": "envoy",
+    "west_annex": "core",
+    "east_annex": "core",
+    "west_rear": "west_rear",
+    "east_rear": "east_rear",
+    "core": "core"
+  },
+  "fixture_parts": [
+    "gate",
+    "office",
+    "review",
+    "hall",
+    "hall",
+    "archive",
+    "archive",
+    "atlas",
+    "atlas",
+    "atlas",
+    "workshop",
+    "storage",
+    "envoy",
+    "envoy",
+    "core",
+    "core",
+    "west_rear",
+    "west_rear",
+    "east_rear",
+    "core",
+    "core",
+    "core",
+    "core",
+    "core"
+  ],
+  "anchor_reference": [
+    84,
+    10,
+    132
+  ],
+  "entrance": [
+    91,
+    0,
+    1
+  ],
+  "route_order": [
+    "gate",
+    "office",
+    "review",
+    "hall",
+    "storage",
+    "archive",
+    "atlas",
+    "workshop",
+    "core",
+    "envoy",
+    "west_rear",
+    "east_rear"
+  ],
+  "route_vias": {
+    "gate": [
+      [
+        48,
+        4
+      ],
+      [
+        88,
+        4
+      ]
+    ],
+    "office": [
+      [
+        46,
+        6
+      ],
+      [
+        25,
+        6
+      ]
+    ],
+    "review": [
+      [
+        123,
+        4
+      ],
+      [
+        145,
+        4
+      ]
+    ],
+    "hall": [
+      [
+        48,
+        32
+      ],
+      [
+        90,
+        32
+      ],
+      [
+        90,
+        38
+      ],
+      [
+        48,
+        38
+      ]
+    ],
+    "archive": [
+      [
+        64,
+        82
+      ],
+      [
+        64,
+        84
+      ],
+      [
+        23,
+        84
+      ]
+    ],
+    "atlas": [
+      [
+        44,
+        120
+      ],
+      [
+        44,
+        101
+      ],
+      [
+        63,
+        101
+      ]
+    ],
+    "workshop": [
+      [
+        14,
+        153
+      ],
+      [
+        26,
+        153
+      ]
+    ],
+    "envoy": [
+      [
+        112,
+        154
+      ]
+    ],
+    "east_rear": [
+      [
+        151,
+        140
+      ]
+    ]
+  },
+  "covered_links": [
+    "hall",
+    "archive",
+    "atlas",
+    "envoy"
+  ],
+  "public_lane_policy": "地块内原生活巷沿边界重接，地块外原路与保留民居入口逐格保留。",
+  "elevated_spans": [
+    {
+      "id": "north_cliff_gallery",
+      "bounds": [
+        0,
+        117,
+        11,
+        143
+      ],
+      "max_support": 32,
+      "reason": "北缘陡坎保留旧路标高，以石支墩和覆顶高廊跨过局部低槽。"
+    },
+    {
+      "id": "hall_front_steps",
+      "bounds": [
+        40,
+        29,
+        94,
+        45
+      ],
+      "max_support": 32,
+      "reason": "总务大殿前的折返台阶与石台，支承和建筑台基连续。"
+    },
+    {
+      "id": "archive_reading_gallery",
+      "bounds": [
+        19,
+        80,
+        67,
+        91
+      ],
+      "max_support": 32,
+      "reason": "同标高的器物库与档案院以覆顶阅卷廊相连，保留廊下原阶道。"
+    },
+    {
+      "id": "archive_workshop_steps",
+      "bounds": [
+        8,
+        118,
+        47,
+        123
+      ],
+      "max_support": 32,
+      "reason": "档案院与工坊之间的阶廊承接西缘公共路，石墩在局部低槽支承通路。"
+    },
+    {
+      "id": "atlas_front_gallery",
+      "bounds": [
+        42,
+        98,
+        80,
+        105
+      ],
+      "max_support": 32,
+      "reason": "勘图楼向坡前伸出覆顶平台，廊面与高台门槛相接。"
+    },
+    {
+      "id": "core_front_steps",
+      "bounds": [
+        90,
+        30,
+        134,
+        42
+      ],
+      "max_support": 32,
+      "reason": "主阁前阶沿坡抬升，石台支承与主阁门廊连续。"
+    }
+  ],
+  "route_starts": {
+    "hall": [
+      48,
+      4
+    ],
+    "archive": [
+      60,
+      82
+    ],
+    "atlas": [
+      7,
+      120
+    ],
+    "workshop": [
+      14,
+      157
+    ],
+    "envoy": [
+      112,
+      157
+    ],
+    "east_rear": [
+      165,
+      140
+    ]
+  },
+  "building_entry_support": 32,
+  "extra_openings": [
+    {
+      "id": "workshop_hillside_door",
+      "part": "workshop",
+      "bounds": [
+        138.25,
+        3,
+        91.3,
+        142,
+        7.5,
+        93
+      ]
+    }
+  ],
+  "route_landing": {
+    "envoy": 1
+  },
+  "public_landings": [
+    {
+      "id": "east_rear_junction",
+      "points": [
+        [
+          165,
+          138,
+          72
+        ],
+        [
+          165,
+          139,
+          72
+        ],
+        [
+          165,
+          140,
+          72
+        ],
+        [
+          165,
+          141,
+          72
+        ],
+        [
+          165,
+          142,
+          72
+        ]
+      ]
+    }
+  ],
+  "review_views": [
+    {
+      "id": "headquarters-overview",
+      "eye": [
+        215,
+        170,
+        -55
+      ],
+      "target": [
+        84,
+        66,
+        84
+      ]
+    },
+    {
+      "id": "headquarters-front",
+      "part": "gate",
+      "eye": [
+        84,
+        17,
+        -22
+      ],
+      "target": [
+        84,
+        14,
+        18
+      ]
+    },
+    {
+      "id": "command-hall",
+      "part": "hall",
+      "eye": [
+        84,
+        8,
+        76
+      ],
+      "target": [
+        84,
+        11,
+        93
+      ]
+    },
+    {
+      "id": "headquarters-hillside",
+      "eye": [
+        -20,
+        165,
+        185
+      ],
+      "target": [
+        68,
+        105,
+        122
+      ]
+    }
+  ],
+  "garden_trees": [
+    {
+      "x": 85.5,
+      "z": 106.5,
+      "kind": "spruce",
+      "height": 7,
+      "seed": 0
+    },
+    {
+      "x": 56.5,
+      "z": 141.5,
+      "kind": "spruce",
+      "height": 8,
+      "seed": 1
+    },
+    {
+      "x": 72.5,
+      "z": 147.5,
+      "kind": "cherry",
+      "height": 6,
+      "seed": 2
+    },
+    {
+      "x": 131.5,
+      "z": 102.5,
+      "kind": "spruce",
+      "height": 7,
+      "seed": 3
+    },
+    {
+      "x": 14.5,
+      "z": 35.5,
+      "kind": "bamboo",
+      "height": 6,
+      "seed": 4
+    }
+  ],
+  "entry_steps": [
+    {
+      "id": "envoy_bank_step",
+      "cells": [
+        [
+          101,
+          119,
+          152
+        ],
+        [
+          102,
+          119,
+          152
+        ],
+        [
+          103,
+          119,
+          152
+        ]
+      ],
+      "block": "minecraft:stone_brick_slab[type=bottom,waterlogged=false]"
+    }
+  ],
+  "pool_liners": [
+    {
+      "part": "envoy",
+      "boxes": [
+        [
+          126,
+          4,
+          129,
+          26,
+          1,
+          34
+        ],
+        [
+          126,
+          5,
+          129,
+          1,
+          1,
+          34
+        ],
+        [
+          151,
+          5,
+          129,
+          1,
+          1,
+          34
+        ],
+        [
+          126,
+          5,
+          129,
+          26,
+          1,
+          1
+        ],
+        [
+          126,
+          5,
+          162,
+          26,
+          1,
+          1
+        ]
+      ]
+    }
+  ]
+}

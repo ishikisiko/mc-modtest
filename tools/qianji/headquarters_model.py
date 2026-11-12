@@ -26,6 +26,16 @@ class Collision:
                 for _ in range(turn):a=[16-a[5],a[1],a[0],16-a[2],a[4],a[3]]
                 boxes.append(tuple(v/16 for v in a))
         elif s.startswith(('minecraft:water','minecraft:air')) or s.removeprefix('myvillage:qianji_') in self.noncollision:boxes=[]
+        elif s.startswith('minecraft:stone_brick_stairs['):
+            face=s.split('facing=',1)[1].split(',',1)[0]
+            upper={'north':(0,.5,0,1,1,.5),'south':(0,.5,.5,1,1,1),'east':(.5,.5,0,1,1,1),'west':(0,.5,0,.5,1,1)}[face]
+            boxes=[(0,0,0,1,.5,1),upper]
+        elif s.startswith('minecraft:stone_brick_slab['):
+            boxes=[(0,0,0,1,1 if 'type=double' in s else .5,1)]
+        elif s.startswith('minecraft:dark_oak_fence['):
+            boxes=[(.375,0,.375,.625,1.5,.625)]
+            for flag,box in [('north',(.375,0,0,.625,1.5,.5)),('south',(.375,0,.5,.625,1.5,1)),('west',(0,0,.375,.5,1.5,.625)),('east',(.5,0,.375,1,1.5,.625))]:
+                if flag+'=true'in s:boxes.append(box)
         elif s.startswith('minecraft:bamboo'):boxes=[(.375,0,.375,.625,1,.625)]
         else:boxes=[(0,0,0,1,1,1)]
         self.shape_cache[s]=boxes;return boxes
@@ -62,7 +72,7 @@ class Collision:
             ix,y,iz=queue.popleft();wanted.discard((ix,y,iz))
             for dx,dz in [(2,0),(-2,0),(0,2),(0,-2)]:
                 xx,zz=ix+dx,iz+dz
-                if not(0<=xx<168*4 and 0<=zz<184*4):continue
+                if not(0<=xx<spec['size'][0]*4 and 0<=zz<spec['size'][1]*4):continue
                 for yy in self.levels(xx,zz):
                     node=xx,yy,zz
                     if node in seen or abs(yy-y)>step*2:continue
@@ -75,7 +85,7 @@ class Collision:
         return dict(reachable_targets=len(targets),visited=len(seen),headroom=1.8,maximum_step=.6,geometry='authored_sixteenth_block_collision',resolved={n:[x/4+.25,y,z/4+.25] for n,(x,y,z) in targets.items()})
 
 def build(model_class,spec,validate=True):
-    d=data();m=model_class(spec);m.blocks=dict(d['blocks']);m.h=max(p[1] for p in m.blocks)+1;m.layers={p:'arch' for p in m.blocks};m.signs=[]
+    d=data();spec=d['access'];m=model_class(spec);m.blocks=dict(d['blocks']);m.h=max(p[1] for p in m.blocks)+1;m.layers={p:'arch' for p in m.blocks};m.signs=[]
     for room in spec['rooms']:
         graph=MassingGraph(meta={'function':room['name'],'roof':room['roof']});levels=[];x,z,w,depth=room['box']
         for i,l in enumerate(room['levels']):
@@ -85,9 +95,9 @@ def build(model_class,spec,validate=True):
         m.rooms.append(dict(id=room['id'],name=room['name'],use='；'.join(l['use'] for l in room['levels']),rect=room['box'],floors=len(levels),levels=levels))
     for t in spec.get('extra_targets',[]):m.target(t['id'],t['position'])
     m.target('jianghu_board',spec['reader']);m.target('entrance',spec['paths'][0])
-    for x,z,w,depth,feet in [(7,6,154,57,0),(9,64,150,43,3),(10,110,148,65,6),(52,128,65,49,10)]:
-        for zz in range(z,z+depth):
-            for xx in range(x,x+w):m.terrain[zz*m.w+xx]=feet
+    m.terrain=list(d['terrain']);m.routes=d['routes'];m.construction_checks=d['construction_checks']
+    from .infill import lighting_checks
+    m.lighting['checks'][spec['id']]=lighting_checks()
     for pos,state in m.blocks.items():
         if state=='myvillage:qianji_lamp':m.lights.append(pos)
         elif state.startswith('myvillage:qianji_carved_'):

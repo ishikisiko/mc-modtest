@@ -417,7 +417,7 @@ def ground(s):
   else:
    for zz in range(int(z),int(z+d),12):s.box(x-.25,0,zz,w+.5,4.65,.8,'stone','boundary')
 
-def gate(s):
+def gate(s,inscription_stones=True):
  s.part='gate'
  # 中间门阙与两侧值守房独立成形，通道始终位于中轴。
  s.terrace(68,6,32,22,.45)
@@ -443,12 +443,12 @@ def gate(s):
  s.roof(100,4.7,9,15,3.5,'lean',1.3,1)
  s.desk(104,0,18,5,2);s.stool(108,0,22)
  # 门外照壁式铭石有独立底座、凹槽与铜铭，避免用巨大招牌占满主楼。
- for x in [61,107]:
+ for x in ([61,107] if inscription_stones else []):
   s.box(x-2,0,2,4,.7,2.5,'stone_dark','detail');s.box(x-1.5,.7,2.4,3,3.7,1.7,'stone','detail')
   s.box(x-1.7,4.4,2.2,3.4,.45,2.1,'carved','detail');s.seal(x,2.6,2.25,.8)
 
 def public_court(s):
- s.part='public'
+ s.part='office'
  # 西办事廊：面向前院的连续开放柜台，后部为卷柜和文书房。
  s.terrace(12,29,34,20,0)
  s.body(15,0,32,28,13,6.3,'office','archive',True,False,front_open=True,bays=5)
@@ -457,6 +457,7 @@ def public_court(s):
   s.desk(x,0,33.5,6,2.2);s.books(x+.5,0,43,5,3.4)
   s.lantern(x+3,4.3,32.5,ceiling=6.3)
  s.sign('委托受理',29,4.6,30.7,7.5,1.2)
+ s.part='review'
  # 东侧核验房：独立门屋、候客长凳和可关闭的板门。
  s.terrace(123,32,33,22,0)
  s.body(126,0,36,26,14,7.5,'envoy','office',True,False,False,bays=3)
@@ -524,6 +525,7 @@ def archive_court(s):
  firewall(s,12.4,13.5,74.5,27,10.2);firewall(s,39,13.5,74.5,27,10.2)
  for z in [80,87,94]:s.books(15,3,z,8,4.5);s.books(31,3,z,6,4.5)
  s.sign('万卷档库',26,8.4,75.4,6,1.25)
+ s.part='atlas'
  # 后部阅图楼偏向内院伸出，开窗比藏卷空间更大。
  for i,(y,h) in enumerate([(6,7.5),(14,8),(22.5,7)]):
   s.body(15+i*.75,y,113+i*.6,26-i*1.5,23-i*1.2,h,'public' if i==0 else 'office','archive',i==0,False,False,floor=False)
@@ -532,12 +534,14 @@ def archive_court(s):
   if i<2:s.roof(15+i*.75,y+h-.5,113+i*.6,26-i*1.5,23-i*1.2,'ring',2,2,inner=[15+(i+1)*.75,113+(i+1)*.6,26-(i+1)*1.5,23-(i+1)*1.2])
   else:s.roof(16.5,y+h+.3,114.2,23,20.6,'xieshan',5.4,2.2)
  s.map_table(26.5,6,122,8,5);s.books(18,14,133,18,3.5)
+ s.part='garden'
  # 两栋楼之间为真正的阅卷小院，雨廊靠西布置。
  s.floor(12,3.08,102,30,9,'paving_dark','ground');s.floor(16,3.12,103,20,7,'moss','nature')
  for z in [100,106,112]:s.column(12.5,3,z,5.4,.55)
  s.roof(10.5,8.8,99,5,14,'gable',2.7,1.2)
  s.pine(23,3.15,107,8,41);s.rock(36,3.15,106,.75);s.stairs(28,106,3,6,7,.7)
- for x,y,z,c in [(16,8,76,10.3),(37,8,76,10.3),(17,11,114,13.5),(38,11,114,13.5)]:s.lantern(x,y,z,ceiling=c)
+ for part,x,y,z,c in [('archive',16,8,76,10.3),('archive',37,8,76,10.3),('atlas',17,11,114,13.5),('atlas',38,11,114,13.5)]:
+  s.part=part;s.lantern(x,y,z,ceiling=c)
  s.sign('秘境勘图',28,10.5,112.7,6,1.2)
 
 def workshop_court(s):
@@ -556,11 +560,13 @@ def workshop_court(s):
  for x,z in [(130,87),(141,88)]:s.desk(x,3,z,7,2.7)
  for xx in [130,150]:s.box(xx,3.2,69,.7,6.4,2.5,'wood_red','detail')
  s.sign('玄枢机造',140,9.2,67.4,7,1.3)
+ s.part='storage'
  # 后库为低实墙石库，铜包角和宽门容纳器物搬运。
  s.body(127,3,96,27,9,5.4,'stone','archive',True)
  s.roof(126.5,9,95.5,28,10,'hip',3.2,1.2)
  for x in [130,136,143,149]:
   s.box(x,3.1,99,3.1,2.4,3.1,'wood','interior');s.box(x-.08,3.8,98.92,3.26,.2,3.26,'bronze_dark','interior')
+ s.part='workshop'
  for x in [128,152]:s.lantern(x,6.8,68.7,ceiling=11.8)
  s.bamboo(154.5,3,70,7);s.bamboo(153.8,3,92,8)
 
@@ -675,12 +681,14 @@ def core(s):
  s.floor(99,51,145,11,10,'floor');s.body(100,51,146,9,8,5.5,'council','envoy',True)
  s.roof(99.5,56.9,145.5,10,9,'hip',4,1.8)
  s.rail((99,51,144),(110,51,144),height=1.3)
+ s.part='west_rear'
  # 两座后侧楼的高度、屋顶和用途各自安排，形成组合体块。
  s.terrace(42,150,14,23,10);s.stairs(49,144,6,10,6,.7)
  s.body(43,10,151,12,21,8.1,'archive','archive',True)
  s.body(44,18.5,152,10,19,6.4,'office','archive',False,floor=False)
  s.room_floor(44,18.5,152,10,19,[45,154,5.5,8]);s.internal_stair(45,154,10,18.5)
  s.roof(43.5,25.4,151.5,11,20,'gable',4.5,1.5)
+ s.part='east_rear'
  s.terrace(113.5,149.5,14,22,10)
  s.body(115,10,151,11,18,6.8,'envoy','office',False,True)
  s.roof(114,17.4,150,13,20,'hip',5.2,1.7)
@@ -738,29 +746,5 @@ def gardens_and_galleries(s):
  s.person(30,6.2,169,'cloth');s.person(46,22.5,137,'robe');s.person(138,6.5,150,'wood_red')
 
 def build_scene(scene_type=Scene):
- s=scene_type()
- for fn in [ground,gate,public_court,great_hall,archive_court,workshop_court,envoy_court,core,gardens_and_galleries]:fn(s)
- for item in json.loads((ROOT/'blueprints/qianji/lighting.json').read_text()).get('headquarters_fixtures',[]):
-  s.part=item['part'];x,y,z=item['position'];s.lantern(x,y-1,z,ceiling=item['ceiling']-1)
- # 重合的同材角柱由同一构件表示。
- unique={tuple(v):v for v in s.boxes};s.boxes=list(unique.values())
- for b in s.boxes:
-  assert all(math.isfinite(v) for v in b[:6]) and min(b[3:6])>0,b
-  assert b[6] in PALETTE and len(b)==13,b
- for m in s.meshes:assert m['material'] in PALETTE and len(m['vertices'])%3==0
- top=max(b[1]+b[4]/2 for b in s.boxes)
- parts=[]
- def extent(b):
-  qx,qy,qz,qw=b[9:13];w,h,d=b[3:6]
-  rotation=[[1-2*(qy*qy+qz*qz),2*(qx*qy-qz*qw),2*(qx*qz+qy*qw)],
-            [2*(qx*qy+qz*qw),1-2*(qx*qx+qz*qz),2*(qy*qz-qx*qw)],
-            [2*(qx*qz-qy*qw),2*(qy*qz+qx*qw),1-2*(qx*qx+qy*qy)]]
-  e=[sum(abs(row[k])*[w,h,d][k] for k in range(3))/2 for row in rotation]
-  return [b[i]-e[i] for i in range(3)]+[b[i]+e[i] for i in range(3)]
- for p in SPEC['parts']:
-  cells=[b for b in s.boxes if b[7]==p['id']]
-  extents=[extent(b) for b in cells]
-  bounds=[min(b[i] for b in extents) for i in range(3)]+[max(b[i] for b in extents) for i in range(3,6)]
-  parts.append(dict(**p,bounds=[round(v,2) for v in bounds],components=len(cells)))
- scenes=dict(id='redesign',name=SPEC['name'],size=[168,math.ceil(top),184],boxes=s.boxes,meshes=s.meshes,signs=s.signs,lamps=s.lamps,maps=s.maps,parts=parts,levels=s.floor_targets,tree_sites=s.tree_sites)
- return dict(palette=PALETTE,current=scenes,design=SPEC)
+ from .infill import build_scene as current_scene
+ return current_scene(scene_type)

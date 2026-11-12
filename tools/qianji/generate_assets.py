@@ -100,10 +100,10 @@ def export(check=False):
         bank['profiles']=[dict(boxes=list(p),collision=[b[:6] for b in p if defs[b[6]]['collides']],occlusion=[b[:6] for b in p if defs[b[6]]['opaque']],
             translucent={defs[role]['id']:[b[:6] for b in p if b[6]==role] for role in sorted({b[6] for b in p if not defs[b[6]]['opaque']})},light_level=max(defs[b[6]]['light_level'] for b in p)) for p in rows]
         banks.append(bank)
-    access=json.loads((ROOT/'blueprints/qianji/zhongzhou_headquarters.json').read_text())
+    access=d['access']
     targets=[dict(id=r['id']+'_'+str(i+1),position=l['target']) for r in access['rooms'] for i,l in enumerate(r['levels'])]+access.get('extra_targets',[])
     targets += [dict(id='jianghu_board',position=access['reader']),dict(id='entrance',position=access['paths'][0])]
-    layout=dict(size=[168,max(p[1] for p in d['blocks'])+1,184],entry=access['paths'][0],anchor=access['atmosphere_anchor'],targets=targets)
+    layout=dict(size=[access['size'][0],max(p[1] for p in d['blocks'])+1,access['size'][1]],entry=access['paths'][0],anchor=access['atmosphere_anchor'],targets=targets)
     writer.json(DATA/'qianji/components/catalog.json',dict(schema=1,materials=materials,banks=banks,layout=layout,strength=cfg['strength'],explosion_resistance=cfg['explosion_resistance']))
     writer.json(ASSET/'models/block/qianji_atmosphere_anchor.json',{'parent':'minecraft:block/cube_all','textures':{'all':'myvillage:block/qianji/qianji_paving'}})
     writer.json(ASSET/'blockstates/qianji_atmosphere_anchor.json',{'variants':{f'facing={f}':{'model':'myvillage:block/qianji_atmosphere_anchor','y':i*90} for i,f in enumerate(FACINGS)}})
@@ -111,7 +111,7 @@ def export(check=False):
     names.update({'block.myvillage.qianji_atmosphere_anchor':'千机阁阵枢','itemGroup.myvillage.qianji':'千机阁建筑'})
     writer.put(ASSET/'lang/zh_cn.json',language_text(before,names).encode())
     writer.finish()
-    manifest=dict(identity=d['identity'],size=[168,max(p[1] for p in d['blocks'])+1,184],blocks=[[*p,s] for p,s in sorted(d['blocks'].items())],parts=d['scene']['parts'],levels=d['scene']['levels'],lamps=d['scene']['lamps'],tree_sites=d['scene']['tree_sites'])
+    manifest=dict(identity=d['identity'],size=layout['size'],blocks=[[*p,s] for p,s in sorted(d['blocks'].items())],parts=d['scene']['parts'],levels=d['scene']['levels'],lamps=d['scene']['lamps'],tree_sites=d['scene']['tree_sites'],terrain=d['terrain'],routes=d['routes'],construction_checks=d['construction_checks'])
     cache=ROOT/'build/generated/qianji/model.json.gz';cache.parent.mkdir(parents=True,exist_ok=True);cache.write_bytes(gzip.compress(encoded(manifest),mtime=0))
     report=dict(files=len(writer.expected),blocks=len(d['blocks']),profiles=len(d['profiles']),banks=len(banks),max_boxes=max(map(len,d['profiles'])),trees=len(d['scene']['tree_sites']),check=check)
     print(json.dumps(report,ensure_ascii=False),flush=True);return report

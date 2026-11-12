@@ -21,7 +21,20 @@ public final class QianjiCommands {
     }
     private static CapitalCity city(ServerLevel level){return WorldPlanRuntime.generator(level).orElseThrow(()->new IllegalArgumentException("当前维度没有修仙大陆规划")).plan().capitalOf("zhongzhou").orElseThrow();}
     private static double a(JsonArray p,int i){return p.get(i).getAsDouble();}
-    private static Vec3 position(CapitalCity city,JsonArray p,boolean center){var entry=QianjiCatalog.get().layout.getAsJsonArray("entry");var q=city.bundle().qianji.entry();double shift=center?.75:0;return new Vec3(city.x()+q.x()+a(entry,0)-a(p,0)+shift,city.originY()+q.y()-a(entry,1)+a(p,1),city.z()+q.z()+a(entry,2)-a(p,2)+shift);}
+    private static Vec3 position(CapitalCity city,JsonArray p,boolean center){
+        var entry=QianjiCatalog.get().layout.getAsJsonArray("entry");var q=city.bundle().qianji.entry();
+        double x=a(p,0)-a(entry,0),z=a(p,2)-a(entry,2),dx,dz;
+        switch(q.facing()){
+            case "north"->{dx=x;dz=z;}
+            case "east"->{dx=-z;dz=x;}
+            case "south"->{dx=-x;dz=-z;}
+            case "west"->{dx=z;dz=-x;}
+            default->throw new IllegalArgumentException("总舵朝向无效");
+        }
+        double sx=center?(q.facing().equals("east")||q.facing().equals("south")?.75:.25):0;
+        double sz=center?(q.facing().equals("south")||q.facing().equals("west")?.75:.25):0;
+        return new Vec3(city.x()+q.x()+dx+sx,city.originY()+q.y()-a(entry,1)+a(p,1),city.z()+q.z()+dz+sz);
+    }
     private static OptionalDouble floor(ServerLevel level,Vec3 p){
         List<double[]> spans=new ArrayList<>();double half=.3-1e-5;
         for(int x=(int)Math.floor(p.x-half);x<=Math.floor(p.x+half);x++)for(int z=(int)Math.floor(p.z-half);z<=Math.floor(p.z+half);z++)for(int y=(int)Math.floor(p.y)-3;y<=Math.ceil(p.y)+3;y++){

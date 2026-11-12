@@ -5,11 +5,12 @@ from functools import lru_cache
 import gzip,hashlib,json,math
 from pathlib import Path
 
-from .headquarters import Scene,build_scene,ROOT
+from .headquarters import Scene,ROOT
 from tools.lord_manors.geometry import canonical,normalize,FULL
 
 SOURCE=ROOT/'blueprints/qianji/headquarters_materials.json'
 FACINGS=('north','east','south','west')
+SITE_SIZE=json.loads((ROOT/'blueprints/qianji/zhongzhou_infill.json').read_text())['size']
 
 class ConstructionScene(Scene):
     def person(self,*args,**kwargs):pass
@@ -70,7 +71,7 @@ def mesh_fragments(mesh,grid):
 
 def add_box(cells,b,role,uv=None):
     lo=[round(b[i]*16) for i in range(3)];hi=[max(lo[i]+1,round(b[i+3]*16)) for i in range(3)]
-    lo[0]=max(0,lo[0]);lo[1]=max(-16,lo[1]);lo[2]=max(0,lo[2]);hi[0]=min(168*16,hi[0]);hi[2]=min(184*16,hi[2])
+    lo[0]=max(0,lo[0]);lo[1]=max(-16,lo[1]);lo[2]=max(0,lo[2]);hi[0]=min(SITE_SIZE[0]*16,hi[0]);hi[2]=min(SITE_SIZE[1]*16,hi[2])
     if any(lo[i]>=hi[i] for i in range(3)):return
     for y in range(lo[1]//16,(hi[1]+15)//16):
         for z in range(lo[2]//16,(hi[2]+15)//16):
@@ -156,13 +157,16 @@ def native_tree(site):
     return out
 
 def identity():
-    paths=[SOURCE,ROOT/'blueprints/qianji/headquarters_design.json',ROOT/'blueprints/qianji/zhongzhou_headquarters.json',ROOT/'blueprints/qianji/lighting.json',ROOT/'tools/qianji/headquarters.py',Path(__file__),ROOT/'tools/lord_manors/geometry.py']
-    return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+    paths=[SOURCE,ROOT/'blueprints/qianji/headquarters_design.json',ROOT/'blueprints/qianji/zhongzhou_headquarters.json',ROOT/'blueprints/qianji/zhongzhou_infill.json',ROOT/'blueprints/qianji/lighting.json',ROOT/'tools/qianji/headquarters.py',ROOT/'tools/qianji/infill.py',Path(__file__),ROOT/'tools/lord_manors/geometry.py']
+    paths.extend(ROOT/p for p in ['tools/player_estates/zhongzhou_plan.py','tools/player_estates/build_terraces.py'])
+    from .infill import site
+    return {**site()['geometry'].hashes,**{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}}
 
 @lru_cache(maxsize=1)
 def compile_components():
-    cfg=json.loads(SOURCE.read_text());scene=build_scene(ConstructionScene)['current'];raw=defaultdict(list);water=[]
-    access=json.loads((ROOT/'blueprints/qianji/zhongzhou_headquarters.json').read_text())
+    from .infill import build_scene as infill_scene,access as infill_access,finish_blocks
+    cfg=json.loads(SOURCE.read_text());scene=infill_scene(ConstructionScene)['current'];raw=defaultdict(list);water=[]
+    access=infill_access()
     for b in scene['boxes']:
         if b[6]=='water':water.append(b);continue
         for part in box_fragments(b,cfg['rotation_grid']):
@@ -235,7 +239,7 @@ def compile_components():
             else:tree[p]=f'minecraft:{site["kind"]}_leaves[distance={distance[p]},persistent=false,waterlogged=false]'
         site['trimmed_leaf_blocks']=len(leaves)-sum('_leaves[' in s for s in tree.values())
         for p,state in tree.items():
-            if not(0<=p[0]<168 and 0<=p[2]<184):raise ValueError('总舵原版树越出地块')
+            if not(0<=p[0]<SITE_SIZE[0] and 0<=p[2]<SITE_SIZE[1]):raise ValueError('总舵原版树越出地块')
             # 原木根部可替换种植土，树冠不能侵入屋面/梁架。
             if p in converted and state.split('[',1)[0].endswith(('_leaves','_log')):
                 existing={b[6] for b in converted[p][0]}
@@ -246,7 +250,7 @@ def compile_components():
     # 委托榜保留真实交互，锚点控制同一座总舵的客户端动效。
     blocks[tuple(access['board'])]='myvillage:jianghu_board[facing=north]'
     blocks[tuple(access['atmosphere_anchor'])]='myvillage:qianji_atmosphere_anchor[facing=north]'
-    return dict(scene=scene,config=cfg,blocks=blocks,converted=converted,profiles=profiles,roles=sorted(roles),special=special,identity=identity())
+    return finish_blocks(dict(scene=scene,config=cfg,blocks=blocks,converted=converted,profiles=profiles,roles=sorted(roles),special=special,identity=identity()))
 
 if __name__=='__main__':
     d=compile_components();print(json.dumps(dict(blocks=len(d['blocks']),profiles=len(d['profiles']),banks=math.ceil(len(d['profiles'])/32),max_boxes=max(map(len,d['profiles'])),trees=len(d['scene']['tree_sites'])),ensure_ascii=False))

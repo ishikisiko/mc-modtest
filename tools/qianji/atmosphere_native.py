@@ -31,7 +31,14 @@ def main():
         result['identity']=verify_candidate(a.jar.resolve());complete();stage=selected[1]
         server.start();server.command('gamerule mobGriefing false');query('export');plan=json.loads((server.data/'worldplan.json').read_text());shutil.copy2(server.data/'worldplan.json',out/'worldplan.json')
         city=next(c for c in plan['cities'] if c['region_id']=='zhongzhou');q=json.loads((ROOT/'build/resources/main/data/myvillage/capitals/v4/capital_zhongzhou/city.json').read_text())['qianji']
-        assert q['scale']=='headquarters' and q['old_city_preserved'];assert q['bounds'][2]-q['bounds'][0]==168 and q['bounds'][3]-q['bounds'][1]==184
+        cfg=json.loads((ROOT/'blueprints/qianji/zhongzhou_infill.json').read_text());data=json.loads((ROOT/'build/resources/main/data/myvillage/capitals/v4/capital_zhongzhou/city.json').read_text())
+        assert q['scale']=='headquarters' and q['infill']['id']==cfg['id']
+        assert data['size']==q['source_dimensions']==[1200,320,1440]
+        assert q['bounds']==cfg['plot'] and [q['size'][0],q['size'][2]]==cfg['size'] and q['rotation_quarters']==cfg['rotation_quarters']
+        assert set(q['infill']['retired_buildings'])==set(cfg['approved_retirements'])
+        assert len(q['infill']['retired_buildings'])==73 and q['infill']['maximum_terrain_cut']<=cfg['local_earthwork_limit']
+        assert not set(cfg['approved_retirements'])&{row['id']for row in data['buildings']}
+        result['infill']=q['infill'];result['city_dimensions']=data['size']
         result['chunks']=load(city,q);complete();stage=selected[2]
         minimum=json.loads((ROOT/'blueprints/qianji/lighting.json').read_text())['minimum_light']
         deadline=time.monotonic()+90

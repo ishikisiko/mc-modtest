@@ -9,6 +9,12 @@ from tools.qianji.model import build,AIR,ROOT
 def authored(name):return build(name)
 
 class QianjiTests(unittest.TestCase):
+    def test_east_facing_reader_camera_preserves_its_block_centre(self):
+        from tools.qianji.capture import placed_point
+        office=dict(size=[170,137,159],rotation_quarters=1,bounds=[365,946,524,1116],base_y=80)
+        # 办事廊读者点为模型(20,33,14)，东向旋转后位于城市(509,113,966)。
+        self.assertEqual([509.5,114.62,966.5],placed_point(office,[20.5,34.62,14.5]))
+
     def test_atmosphere_anchor_payload_survives_structure_export(self):
         import tempfile,io
         from tools.qianji.runtime_export import atmosphere_payload
@@ -42,15 +48,16 @@ class QianjiTests(unittest.TestCase):
         self.assertEqual((64,66),(authored('terraced_gallery')[0].w,authored('terraced_gallery')[0].d))
     def test_headquarters_uses_large_functional_spaces_and_a_real_atrium(self):
         m,_=authored('zhongzhou_headquarters');core=next(r for r in m.rooms if r['id']=='core');hall=next(r for r in m.rooms if r['id']=='hall')
-        self.assertEqual((168,184),(m.w,m.d));self.assertEqual(5,core['floors'])
-        self.assertEqual([11,26,39,52,65],[v['floor_y'] for v in core['levels']])
+        self.assertEqual((170,159),(m.w,m.d));self.assertEqual(5,core['floors'])
+        base=core['levels'][0]['floor_y'];self.assertEqual([0,15,28,41,54],[v['floor_y']-base for v in core['levels']])
         self.assertEqual([14,12,12,12,10],[v['storey_height'] for v in core['levels']])
         from tools.qianji.headquarters_model import Collision,data
         collision=Collision(data())
-        self.assertEqual({'floor'},{box[6] for box in data()['converted'][23,1,33][0]})
+        rx,ry,rz=m.spec['reader'];self.assertEqual({'floor'},{box[6] for box in data()['converted'][rx,ry-1,rz][0]})
         # 大殿中央从首层保留通高净空，夹层目标分别位于两侧回廊。
-        self.assertIn(4.0625,collision.levels(84*4,82*4))
-        self.assertNotIn(10.25,collision.levels(84*4,82*4))
+        from tools.qianji.infill import translate
+        x,y,z=translate([84,4,82],'hall');self.assertIn(y+.0625,collision.levels(round(x*4),round(z*4)))
+        self.assertNotIn(translate([84,10.25,82],'hall')[1],collision.levels(round(x*4),round(z*4)))
         self.assertIn('hall_east_mezzanine',[t['id'] for t in m.targets])
         anchors=[p for p,s in m.blocks.items() if s.startswith('myvillage:qianji_atmosphere_anchor[')]
         self.assertEqual([tuple(m.spec['atmosphere_anchor'])],anchors)

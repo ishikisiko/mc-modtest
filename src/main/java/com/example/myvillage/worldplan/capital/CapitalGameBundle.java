@@ -136,11 +136,15 @@ public final class CapitalGameBundle {
         if(!variant.matches("[a-z0-9_]{1,64}")||!Set.of("compact","large","headquarters").contains(scale))throw new IllegalArgumentException("千机阁分档无效");
         int[] e=localPoint(q.getAsJsonArray("entry"));var board=q.getAsJsonObject("board");
         int[] b=localPoint(board.getAsJsonArray("position")),r=localPoint(board.getAsJsonArray("reader"));
-        if(!text(board,"facing").equals("south")||b[0]!=r[0]||b[1]!=r[1]||r[2]-b[2]!=1)throw new IllegalArgumentException("千机阁任务榜与读者点不相邻");
+        String facing=text(q,"facing"),boardFacing=text(board,"facing");
+        if(!Set.of("north","east","south","west").contains(facing)||!Set.of("north","east","south","west").contains(boardFacing))throw new IllegalArgumentException("千机阁朝向无效");
+        int dx=boardFacing.equals("east")?1:boardFacing.equals("west")?-1:0;
+        int dz=boardFacing.equals("south")?1:boardFacing.equals("north")?-1:0;
+        if(r[0]-b[0]!=dx||b[1]!=r[1]||r[2]-b[2]!=dz)throw new IllegalArgumentException("千机阁任务榜与读者点不相邻");
         var place=life.getAsJsonArray("places").asList().stream().map(JsonElement::getAsJsonObject)
                 .filter(p->text(p,"id").equals("jianghu_board")).findFirst().orElseThrow(()->new IllegalArgumentException("千机阁任务榜缺少生活场所绑定"));
         if(!Arrays.equals(b,point(place.getAsJsonArray("block_pos")))||!Arrays.equals(r,point(place.getAsJsonArray("pos"))))throw new IllegalArgumentException("千机阁任务榜绑定不一致");
-        return new QianjiOffice(variant,name,scale,new Entry("qianji",e[0],e[1],e[2],"south"),new Entry("qianji_board",b[0],b[1],b[2],"south"),new Entry("qianji_reader",r[0],r[1],r[2],"south"));
+        return new QianjiOffice(variant,name,scale,new Entry("qianji",e[0],e[1],e[2],facing),new Entry("qianji_board",b[0],b[1],b[2],boardFacing),new Entry("qianji_reader",r[0],r[1],r[2],boardFacing));
     }
 
     private Optional<ManorSite> readManorSite(JsonObject root) {
