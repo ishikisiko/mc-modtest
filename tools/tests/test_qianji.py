@@ -9,6 +9,16 @@ from tools.qianji.model import build,AIR,ROOT
 def authored(name):return build(name)
 
 class QianjiTests(unittest.TestCase):
+    def test_existing_road_cut_uses_actual_ground_and_support_under_retired_eaves(self):
+        from types import SimpleNamespace
+        from tools.qianji.infill_export import verify_existing_road_cut
+        blocks={(512,100,1063):'minecraft:stone_brick_slab[type=bottom,waterlogged=false]',(512,101,1063):'minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]'}
+        world=SimpleNamespace(ground=lambda x,z:100,get=lambda p:blocks.get(p,AIR),walkable=lambda p:False)
+        self.assertFalse(verify_existing_road_cut(world,512,1063,101,100))
+        with self.assertRaisesRegex(ValueError,'地形列与实际切片不一致'):verify_existing_road_cut(world,512,1063,101,99)
+        blocks.pop((512,100,1063))
+        with self.assertRaisesRegex(ValueError,'缺少实际路面支撑'):verify_existing_road_cut(world,512,1063,101,100)
+
     def test_annex_cache_comparison_includes_the_authored_entrance_road(self):
         from tools.qianji.runtime_export import entrance_road
         cells=dict(entrance_road([267,11,254],280,10,dict(road_width=7,headroom=3),'minecraft:polished_andesite'))

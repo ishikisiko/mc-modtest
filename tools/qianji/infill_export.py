@@ -10,6 +10,11 @@ from province_capitals.central.game_models import rotate_state
 from province_capitals.game.compile import resource_file,write,sha,life_inputs
 from buildgen.nbtread import read_gzipped_nbt,state_string
 
+def verify_existing_road_cut(world,x,z,feet,ground):
+    if world.ground(x,z)!=ground:raise ValueError('旧路地形列与实际切片不一致 '+str((x,z,ground,world.ground(x,z))))
+    if world.get((x,feet-1,z))in(AIR,'minecraft:water','minecraft:lava'):raise ValueError('旧路缺少实际路面支撑 '+str((x,feet,z)))
+    return world.walkable((x,feet,z))
+
 def integrate(out,city,inputs):
     from .runtime_export import atmosphere_payload
     out=Path(out);file=out/'data/myvillage/capitals/v4/capital_zhongzhou/city.json';cfg=read()
@@ -36,10 +41,12 @@ def integrate(out,city,inputs):
                 for (lx,y,lz),state in world.tile((tx,tz)).items():
                     x,z=tx*16+lx,tz*16+lz
                     if lo[0]<=x<=hi[0]and lo[2]<=z<=hi[2]and lo[1]<=y<=hi[1]and state!=AIR:retained[x,y,z]=state
-    existing_road_readback=0
+    existing_road_readback=0;overbuilt_roads=[]
     for lx,lz,old,new,foot2 in site()['existing_road_cuts']:
         x,z=e-1-lz,b+lx;feet=math.ceil(foot2/2)
-        if not world.walkable((x,feet,z)):raise ValueError('旧路已下挖标高与实际切片不一致 '+str((x,feet,z)))
+        # Existing cuts belong to the original ground, including lane surfaces
+        # now covered by the eaves of houses approved for retirement.
+        if not verify_existing_road_cut(world,x,z,feet,base+new):overbuilt_roads.append([x,feet,z])
         existing_road_readback+=1
     source_heights=site()['heights']
     for x,z in columns:
@@ -96,6 +103,7 @@ def integrate(out,city,inputs):
     light_checks=[dict(name=row['name'],position=point(row['position']),minimum_light=lighting['minimum_light'])for row in lighting_checks()]
     descriptor=dict(variant='zhongzhou_headquarters',name=cfg['name'],scale='headquarters',group='qianji',facing='east',source_dimensions=city['size'],bounds=cfg['plot'],size=[m.w,m.h,m.d],base_y=base,rotation_quarters=1,entry=entry,access=entry,board=dict(position=board,reader=reader,facing='east'),rooms=m.rooms,targets=[dict(id=t['id'],position=point(t['position']))for t in m.targets],checks=checks,inputs=inputs,old_city_preserved=False,old_board_retired=old is not None,atmosphere=dict(anchor=anchor,appearance='myvillage:qianji/atmosphere.json',source_offset=m.spec['source_offset']),lighting_checks=light_checks,interior_lights=len(m.lights),landmarks=[],infill=dict(id=cfg['id'],plot=cfg['plot'],retired_buildings=sorted(retired),retained_structural_cells=len(retained),preserved_road_columns=preserved_roads,changed_tiles=len(world.dirty),maximum_terrain_cut=cut,construction=m.construction_checks,route_count=len(m.routes)))
     descriptor['infill']['verified_existing_road_cut_columns']=existing_road_readback
+    descriptor['infill']['existing_road_columns_with_blocked_headroom']=overbuilt_roads
     city['qianji']=descriptor;life_inputs(city,*city['size'],192);write(file,city)
     # Only templates referenced by the newly authored current city are packed.
     used={resource_file(out,t['template'],template=True).resolve()for t in city['tiles']}
