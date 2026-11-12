@@ -662,6 +662,8 @@ tasks.named('processResources') {
     }
 }
 tasks.named('jar') {
+    // 细分建筑模型与城市切片超过标准 ZIP 的 65535 个条目上限。
+    zip64 = true
     inputs.files('tools/validate_language_assets.py', 'tools/language_assets.py')
     doLast {
         def languageJar = archiveFile.get().asFile.absolutePath
