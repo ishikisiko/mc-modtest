@@ -14,7 +14,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--world',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--jar',type=Path,required=True);p.add_argument('--source',required=True);a=p.parse_args()
     a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False);world=json.loads(a.world.read_text());game=Path(world['directory'])
     assert game.resolve().parent==(ROOT/'run-fixed-progression').resolve() and world['kind']=='fresh isolated development world'
-    server=Server(a.out,game,world['seed']);server.view_distance=18
+    server=Server(a.out,game,world['seed']);server.view_distance=24
     result=dict(source=a.source,selected=['candidate_identity','native_architecture_views','mapped_ground_walk','mapped_task_board_interaction'],completed=[],failed=[],owner_visual_acceptance='not_verified',fps_acceptance='not_verified')
     stage=result['selected'][0];client=xvfb=None;logs=[]
     clientdir=ROOT/'run-qianji-client'/secrets.token_hex(5);clientdir.mkdir(parents=True)
@@ -47,7 +47,7 @@ def main():
         while not Path('/tmp/.X11-unix/X'+display[1:]).exists():
             if xvfb.poll() is not None or time.monotonic()>deadline:raise RuntimeError('Xvfb 未启动')
             time.sleep(.2)
-        merge_options(clientdir/'options.txt',{**CLIENT_OPTIONS,'lang':'zh_cn','renderDistance':'18','simulationDistance':'3','maxFps':'20','overrideWidth':'1280','overrideHeight':'720','guiScale':'2','fov':'-0.15'})
+        merge_options(clientdir/'options.txt',{**CLIENT_OPTIONS,'lang':'zh_cn','renderDistance':'24','simulationDistance':'3','maxFps':'20','overrideWidth':'1280','overrideHeight':'720','guiScale':'2','fov':'-0.15'})
         env=dict(os.environ,DISPLAY=display,LIBGL_ALWAYS_SOFTWARE='1',LP_NUM_THREADS='2')
         log=(a.out/'client-launch.log').open('w');logs.append(log)
         args=['./gradlew','-I','tools/qianji/client.init.gradle','runClient','-x','compileJava','-x','processResources','--no-daemon','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx3g',f'-Pcombat_smoke_game_dir={clientdir.relative_to(ROOT)}',f'-Pcombat_smoke_username={USER}',f'-Pcombat_smoke_server=127.0.0.1:{server.sport}']
@@ -60,10 +60,10 @@ def main():
         if not(screen.wait_ingame(90,poll=1) or screen.recover_grab()):raise RuntimeError('客户端未进入可控制状态')
         window=screen.xdo('getwindowfocus').strip();screen.xdo('windowsize',window,'1280','720');screen.xdo('windowmove',window,'0','0');time.sleep(3)
         server.command(f'gamemode spectator {USER}');screen.key('F1')
-        views=[('headquarters-overview',point(270,172,-15),point(120,40,135)),('headquarters-front',point(120,8,-9),point(120,40,165)),('command-hall',point(120,11,90),point(120,22,126))]
+        views=[('headquarters-overview',point(200,220,45),point(120,48,136)),('headquarters-front',point(120,8,-9),point(120,40,165)),('command-hall',point(120,11,90),point(120,22,126))]
         result['screenshots']=[]
         for name,eye,target in views:
-            pose(eye,target);time.sleep(18);file=a.out/(name+'.png');stability=screen.shot(file,max_wait=25,settle=1)
+            pose(eye,target);time.sleep(40 if name=='headquarters-overview' else 18);file=a.out/(name+'.png');stability=screen.shot(file,max_wait=25,settle=1)
             result['screenshots'].append(dict(file=file.name,eye=eye,target=target,stability=stability,kind='captured_for_review'))
         complete()
         stage=result['selected'][2];server.command(f'gamemode survival {USER}');eye=point(120,2.62,41);pose(eye,point(120,2.62,49));time.sleep(8)
