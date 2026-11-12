@@ -14,7 +14,7 @@ AIR='minecraft:air'
 class Model:
     def __init__(self,spec):
         self.spec=spec;self.w,self.d=spec['size'];self.blocks={};self.layers={};self.targets=[];self.rooms=[];self.signs=[]
-        self.material=json.loads((ROOT/'blueprints/qianji/materials.json').read_text());self.terrain=[0]*(self.w*self.d)
+        self.material=json.loads((ROOT/'blueprints/qianji/materials.json').read_text());self.lighting=json.loads((ROOT/'blueprints/qianji/lighting.json').read_text());self.lights=[];self.terrain=[0]*(self.w*self.d)
         self.group=get_group('qianji');self.h=1
         self.compound=CompoundGraph(self.group.style_id,0,CompoundVariant(spec['scale'],'authored','authored','sweeping_eave_roof','authored'),(self.w,self.d),self.w//2)
     def put(self,x,y,z,state,layer='arch'):
@@ -148,6 +148,19 @@ class Model:
             for zz in [z,z+d-2]:self.box(x,y,zz,3,1,2,'floor','furniture')
         else:
             for zz in [z+d//2,z+d-2]:self.box(x,y+1,zz,max(3,w//2),1,1,'desk','furniture')
+    def illuminate(self):
+        policy=self.lighting;step=policy['spacing'];border=policy['border']
+        # 地灯与原地板齐平；只替换已有楼板，保留中庭、楼梯井和门外台阶。
+        for room in self.rooms:
+            for index,level in enumerate(room['levels']):
+                x,z,w,d=level['box'];feet=level['floor_y'];layer='upper' if index else 'arch'
+                for zz in range(z+border,z+d-border,step):
+                    for xx in range(x+border,x+w-border,step):
+                        if self.blocks.get((xx,feet-1,zz))!=self.material['floor'] or self.blocks.get((xx,feet,zz),AIR)!=AIR:continue
+                        for dx,dz in [(1,0),(-1,0),(0,1),(0,-1)]:
+                            p=(xx+dx,feet-1,zz+dz)
+                            if self.blocks.get(p)==self.material['floor']:self.put(*p,policy['frame_material'],layer)
+                        self.put(xx,feet-1,zz,policy['source_material'],layer);self.lights.append([xx,feet-1,zz])
     def instrument(self,cx,feet,cz,radius):
         for x in range(cx-radius,cx+radius+1):
             for z in range(cz-radius,cz+radius+1):
@@ -288,6 +301,7 @@ def build(ident,validate=True):
         m.box(x-2,y-1,z-2,5,4,5,'base','detail');m.box(x-1,y+3,z-1,3,17,3,'metal','detail');m.box(x,y+20,z,1,4,1,'gold','detail')
     bx,by,bz=spec['board'];m.put(bx,by,bz,'myvillage:jianghu_board[facing=north]','furniture')
     rx,ry,rz=spec['reader'];m.floor(rx,ry,rz,1,1,'floor');m.clear(rx,ry,rz,1,3,1);m.target('jianghu_board',spec['reader'])
+    m.illuminate()
     legality=load_modset('full').palette_block_errors(sorted(set(m.blocks.values())))
     if legality:raise ValueError(str(legality))
     checks=m.connected() if validate else {}

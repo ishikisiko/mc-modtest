@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "spacing": 8,
+  "border": 4,
+  "source_material": "floor_light",
+  "frame_material": "floor_light_frame",
+  "minimum_light": 8,
+  "checks": {
+    "zhongzhou_headquarters": [
+      {"name": "总令大殿中央", "position": [120, 10, 110]},
+      {"name": "天枢总阁第一层中央", "position": [120, 22, 210]},
+      {"name": "天枢总阁第二层中央", "position": [120, 46, 210]},
+      {"name": "天枢总阁第三层中央", "position": [120, 66, 210]}
+    ]
+  }
+}

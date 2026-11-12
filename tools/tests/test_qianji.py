@@ -34,5 +34,18 @@ class QianjiTests(unittest.TestCase):
         shaft_x=x+w-max(v['inset'] for v in r['levels'])-9;shaft_z=z+max(v['inset'] for v in r['levels'])+3
         m.box(shaft_x,r['floor_y'],shaft_z,6,30,10,'base')
         with self.assertRaisesRegex(ValueError,'不能从入口到达'):m.connected()
+    def test_large_room_centres_receive_independent_floor_lighting(self):
+        m,_=authored('zhongzhou_headquarters')
+        self.assertTrue(m.lights)
+        for item in m.lighting['checks'][m.spec['id']]:
+            x,y,z=item['position'];self.assertEqual(AIR,m.blocks.get((x,y,z),AIR))
+            distance=min(abs(x-a)+abs(y-b)+abs(z-c) for a,b,c in m.lights)
+            self.assertLessEqual(distance,15-m.lighting['minimum_light'],item['name'])
+        for name in json.loads((ROOT/'blueprints/qianji/placement.json').read_text())['regions'].values():
+            model,_=authored(name)
+            for room in model.rooms:
+                for level in room['levels']:
+                    self.assertTrue(any(y==level['floor_y']-1 and level['box'][0]<=x<level['box'][0]+level['box'][2]
+                                        and level['box'][1]<=z<level['box'][1]+level['box'][3] for x,y,z in model.lights),(name,room['id']))
 
 if __name__=='__main__':unittest.main()

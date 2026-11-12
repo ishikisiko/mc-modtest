@@ -19,6 +19,7 @@ def main():
     a=p.parse_args();a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
     selected=['candidate_identity','fresh_world_and_fixed_order','consecutive_capital_roads','border_chunk_generation_and_readback']
     selected+=['qianji_buildings_and_task_boards']
+    selected+=['qianji_interior_block_light']
     if a.restart:selected+=['saved_rules_and_cached_restart']
     result=dict(source=a.source,seed=a.seed,selected=selected,completed=[],failed=[],unrun=selected.copy(),
                 full_road_pregeneration='not_selected',player_walk='not_verified',owner_visual_acceptance='not_verified')
@@ -107,7 +108,7 @@ def main():
         assert check['checked_columns']>=len(samples),check
         write(a.out/'boundary-samples.json',dict(samples=samples,checked_columns=check['checked_columns'],unloaded_chunks=check['unloaded_chunks'],scope='loaded boundary chunks only'))
         complete()
-        stage='qianji_buildings_and_task_boards';buildings=[]
+        stage='qianji_buildings_and_task_boards';buildings=[];light_points=[]
         from road_port_sources import CitySource
         for city in manifest['cities']:
             source=CitySource(ROOT/'build/resources/main',city['region_id']);office=source.city['qianji']
@@ -127,7 +128,26 @@ def main():
             info=query('qianji '+city['region_id'])['qianji'];assert len(info)==1
             assert info[0]['task_reader']==[city['x']+office['board']['reader'][0],city['origin_y']+office['board']['reader'][1],city['z']+office['board']['reader'][2]]
             buildings.append(dict(region=city['region_id'],name=office['name'],scale=office['scale'],checked_targets=len(points),board=[wx,wy,wz],info=info[0]))
+            for item in office.get('lighting_checks',[]):
+                x,y,z=item['position'];wx,wy,wz=city['x']+x,city['origin_y']+y,city['z']+z;load(wx,wz)
+                light_points.append(dict(name=item['name'],position=[wx,wy,wz],minimum=item['minimum_light']))
         write(a.out/'qianji-readback.json',dict(buildings=buildings,all_function_targets=a.all_qianji_targets));complete()
+        stage='qianji_interior_block_light';assert light_points,'正式总舵必须声明室内照明读回点'
+        server.stop()
+        from yunshan.natural_terrain import read_region,decode_section,section_state
+        light_regions={};readback=[]
+        for item in light_points:
+            x,y,z=item['position'];key=x//512,z//512
+            if key not in light_regions:light_regions[key]=read_region(game/'world/region'/f'r.{key[0]}.{key[1]}.mca')[0]
+            chunk=light_regions[key][x//16%32,z//16%32]
+            assert str(chunk['Status']).split(':')[-1]=='full' and chunk.get('isLightOn')
+            section=next(s for s in chunk['sections'] if int(s['Y'])==y//16)
+            assert section_state(decode_section(section),x%16,y%16,z%16)=='minecraft:air',item
+            index=((y%16)*16+z%16)*16+x%16;data=section.get('BlockLight')
+            value=0 if data is None else ((int(data[index//2])&255)>>((index%2)*4))&15
+            assert value>=item['minimum'],(item,value)
+            readback.append(dict(**item,block_light=value))
+        write(a.out/'interior-light-readback.json',readback);complete()
         if a.restart:
             stage='saved_rules_and_cached_restart';before=status['layout_hash'];server.stop();_,tag=read_gzipped_nbt(str(game/'world/level.dat'))
             gen=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']

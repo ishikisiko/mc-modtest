@@ -136,6 +136,8 @@ def integrate(out):
                         targets=[dict(id=t['id'],position=point(t['position'])) for t in m.targets],
                         checks=checks,inputs=inputs,old_city_preserved=True,old_board_retired=old is not None)
         descriptor['landmarks']=[]
+        descriptor['lighting_checks']=[dict(name=v['name'],position=point(v['position']),minimum_light=m.lighting['minimum_light']) for v in m.lighting['checks'].get(ident,[])]
+        descriptor['interior_lights']=len(m.lights)
         if 'roof_instrument' in m.spec:
             cx,fy,cz,rr=m.spec['roof_instrument']
             for label,p in [('天机仪顶部',[cx,fy+rr*2,cz]),('天机仪核心',[cx+1,fy+rr,cz+1]),('天机仪外环',[cx-rr,fy+rr,cz])]:descriptor['landmarks'].append(dict(name=label,position=point(p)))

@@ -20,5 +20,7 @@
   "cartography": "minecraft:cartography_table",
   "storage": "minecraft:barrel[facing=up,open=false]",
   "paving_slab": "minecraft:polished_andesite_slab[type=bottom,waterlogged=false]",
-  "artifact_core": "minecraft:oxidized_copper"
+  "artifact_core": "minecraft:oxidized_copper",
+  "floor_light": "minecraft:ochre_froglight[axis=y]",
+  "floor_light_frame": "minecraft:waxed_cut_copper"
 }
