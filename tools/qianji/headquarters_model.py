@@ -93,6 +93,9 @@ def build(model_class,spec,validate=True):
         elif state.startswith('myvillage:qianji_carved_'):
             bank=int(state.split('_carved_',1)[1].split('[',1)[0]);shape=int(state.split('shape=',1)[1].split(']',1)[0]);index=bank*32+shape
             if any(b[6]=='lamp' for b in d['profiles'][index]):m.lights.append(pos)
+    from tools.buildgen.modset import load_modset
+    errors=load_modset('full').palette_block_errors(sorted(set(m.blocks.values())))
+    if errors:raise ValueError(str(errors))
     checks=Collision(d).connected(spec) if validate else dict(reachable_targets=len(m.targets),geometry='not_checked')
     return m,checks
 

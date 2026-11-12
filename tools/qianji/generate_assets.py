@@ -72,7 +72,7 @@ def texture(role,palette,cfg,special):
 
 def definitions(d):
     cfg=d['config'];palette=cfg['palette'];result={}
-    names={'stone':'青石','stone_dark':'深青石','carved':'浅石雕饰','paving':'院落石坪','paving_dark':'深色石纹','brick':'灰砖','plaster':'米白灰墙','wood':'木梁','wood_dark':'深木构件','wood_red':'朱褐梁柱','floor':'木楼板','tile':'青灰屋瓦','tile_alt':'浅青屋瓦','tile_dark':'深青脊瓦','tile_edge':'瓦檐收口','bronze':'铜饰','bronze_dark':'青铜饰','glass':'青窗','paper':'纸面','lamp':'廊灯','grass':'庭院草坪','moss':'地被','soil':'台基填土','rock':'庭石','red':'朱印','ink':'墨色饰面','cloth':'织物','book_blue':'青书函','book_red':'朱书函','book_cream':'素书函'}
+    names={'stone':'青石','stone_dark':'深青石','carved':'浅石雕饰','paving':'院落石坪','paving_dark':'深色石纹','brick':'灰砖','plaster':'米白灰墙','wood':'木梁','wood_dark':'深木构件','wood_red':'朱褐梁柱','floor':'木楼板','tile':'青灰屋瓦','tile_alt':'浅青屋瓦','tile_dark':'深青脊瓦','tile_edge':'瓦檐收口','bronze':'铜饰','bronze_dark':'青铜饰','glass':'青窗','paper':'纸面','paper_window':'透光窗纸','lamp':'廊灯','grass':'庭院草坪','moss':'地被','soil':'台基填土','rock':'庭石','red':'朱印','ink':'墨色饰面','cloth':'织物','book_blue':'青书函','book_red':'朱书函','book_cream':'素书函'}
     for role in d['roles']:
         kind=palette[role][1] if role in palette else 'special'
         result[role]=dict(id='qianji_'+role,role=role,name='千机阁·'+names.get(role,'题匾' if role.startswith('plaque_') else '舆图'),
