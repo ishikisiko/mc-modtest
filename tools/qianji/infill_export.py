@@ -73,7 +73,7 @@ def integrate(out,city,inputs):
         if world.get(p).startswith('myvillage:jianghu_board['):world.set(p,AIR,'撤下原委托榜')
         city['life']['places'].remove(old)
     board=point(m.spec['board']);reader=point(m.spec['reader']);entry=point(m.spec['paths'][0]);anchor=point(m.spec['atmosphere_anchor'])
-    city['life']['places'].append(dict(id='jianghu_board',kind='work',pos=reader,block_pos=board,block='myvillage:jianghu_board',capacity=1,building_id='qianji'))
+    city['life']['places'].append(dict(id='jianghu_board',kind='entry',pos=reader,block_pos=board,block='myvillage:jianghu_board',capacity=1,building_id='qianji'))
     for p,state in retained.items():
         if world.get(p)!=state:raise ValueError('总舵改动保留建筑 '+str((p,state,world.get(p))))
     # The existing estate and every functional life point remain active.

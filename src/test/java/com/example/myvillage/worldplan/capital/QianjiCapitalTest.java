@@ -21,6 +21,7 @@ class QianjiCapitalTest {
             assertTrue(city.entries.stream().anyMatch(e->e.id().equals("qianji")&&e.equals(q.entry())));
             var life=city.life().getAsJsonArray("places").asList().stream().map(JsonElement::getAsJsonObject).filter(p->p.get("id").getAsString().equals("jianghu_board")).toList();
             assertEquals(1,life.size());assertEquals(q.board().x(),life.getFirst().getAsJsonArray("block_pos").get(0).getAsInt());
+            assertEquals("entry",life.getFirst().get("kind").getAsString());
             assertEquals(q.board().y(),q.reader().y());
             int dx=q.board().facing().equals("east")?1:q.board().facing().equals("west")?-1:0;
             int dz=q.board().facing().equals("south")?1:q.board().facing().equals("north")?-1:0;
