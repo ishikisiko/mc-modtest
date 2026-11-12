@@ -63,7 +63,7 @@ impact-based checks in the workflow.
 | 52 | [Danxia Ruins](52_danxia_ruins.md) | Natural ruined monastery, herb garden and underground archive, shared persistent array choice, structure guardians, generated resources and focused cloud evidence. |
 | 53 | [Combat Ruins and Demon Lure Pearl](53_combat_ruins.md) | Native garrison route and sunken sanctuary waves, bound guardian death receipts, sealed shared caches and focused cloud evidence. |
 | 54 | [锻器工坊](54_forging.md) | 点数成形、分级锤与熟练度、普通鼎自动制作、加热窑、六柄组装与辅助火；精确材料暂存与续炼；实体锻台真实库存、手持锻锤右键敲击、淬火水槽、工位互斥与双人旁观；阶段保存、器物历练、有限锻炼、工具／玄铁甲与炼灵、独立工位界面与字形、鼎外炼灵动效与真实炉次、云端证据。 |
-| 55 | [修仙大陆生成](55_seeded_worldplan.md) | 0.129.0 固定八州顺序、分档千机阁署区、连续州官道与魔域两处关隘；当前 V11/v4 默认七府城市、正式 authored 重排、原尺寸构件、地块院落门路；八省城官道随区块生成、路网缓存、正式关隘与共享路口；25 处传送亭台和可选 Waystones 石碑。 |
+| 55 | [修仙大陆生成](55_seeded_worldplan.md) | 固定八州顺序、分档千机阁署区、重设计总舵与组合动效、连续州官道及魔域两处关隘；当前 V11/v4 默认七府城市、作者布局、原尺寸构件、地块院落门路；八省城官道随区块生成、路网缓存、正式关隘与共享路口；25 处传送亭台和可选 Waystones 石碑。 |
 | 56 | [NPC Semi-autonomy](56_npc_semi_autonomy.md) | 0.60.0 first town-life slice: every-player social identity, persistent resident plans and supplies, Yunshan place adapters, one avatar authority, observed/cold execution, save v4 and owner test handoff. |
 | 57 | [NPC Sword Combat](57_npc_sword_combat.md) | 0.63.0 shared basic sword executor, neutral self-defence and retreat, common avatar leases, persistent losses and attributed deaths, life suspension, retargeted NPC animations and late-observer snapshots; scoped Modal evidence. |
 | 58 | [药铺交易与城镇商业](58_yunshan_living_city.md) | 0.125.0[江湖声望解锁](../features/sect-merit-jianghu-reputation.md)； 0.112.1 基础丹药按品质收购转售、六味药材有限售卖与七日补货；V8 八城独立登记、库存及资金隔离，原云山商业说明和历史证据。 |
