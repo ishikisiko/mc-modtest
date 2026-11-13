@@ -16,7 +16,7 @@ from tools.yunshan.game_evidence import aim
 from tools.combat_capture import procs
 
 CASES=['board_accept','issuing_region_frozen','party_admission','native_lighting','finite_spawns',
-       'mapped_combat','pause_resume','normal_restart','exit_reward_once','beast_solo','foreign_refusal','rescue','reclaim']
+       'mapped_combat','mapped_stairs','pause_resume','normal_restart','exit_reward_once','beast_solo','foreign_refusal','rescue','reclaim']
 
 @contextmanager
 def heavy_lock():
@@ -95,6 +95,21 @@ class Evidence:
             if not guards:time.sleep(.5);continue
             self.attack(client,guards[0])
         self.check('mapped_clear_'+group,not remaining(),self.state(client))
+    def stairs(self,client):
+        model=self.map(client);edge=next(e for e in model['routes'] if e['a']=='cart_yard' and e['b']=='inner_gate')
+        self.check('straight_stair_fixture',all(p[0]==edge['points'][0][0] for p in edge['points']),edge)
+        start=[edge['points'][0][i]+model['origin'][i]+(.5 if i!=1 else 0) for i in range(3)]
+        end=[edge['points'][-1][i]+model['origin'][i]+(.5 if i!=1 else 0) for i in range(3)]
+        self.fixture(client,start,end);client.guard();client.game.xdo('keydown','w');self.action('mapped_walk_start',player=client.name,start=start,target=end,jump=False)
+        samples=[];deadline=time.monotonic()+15
+        try:
+            while time.monotonic()<deadline:
+                at=read_data(self.rc('data get entity '+client.name+' Pos'));samples.append(at)
+                if math.dist(at,end)<1.4:break
+                time.sleep(.2)
+        finally:client.game.xdo('keyup','w');self.action('mapped_walk_stop',player=client.name,samples=samples)
+        self.check('native_stairs_walked_without_jumping',bool(samples) and math.dist(samples[-1],end)<1.4 and samples[-1][1]-start[1]>5,samples)
+        self.done('mapped_stairs');client.capture('bandit-walked-stairs')
     def finish(self,client,menu=False):
         model=self.map(client);x,y,z=[model['origin'][i]+model['exit'][i] for i in range(3)]
         self.fixture(client,[x+.5,y,z-2.5],[x+.5,y+.5,z+.5])
@@ -147,7 +162,7 @@ class Evidence:
                         guard=next(g for g in active['guards'] if g['id']==uid);old=next(g for g in before['guards'] if g['id']==uid)
                         self.check('guard_health_and_maximum_not_reset',guard['health']==old['health']==7 and guard['max_health']==old['max_health'],{'before':old,'after':guard});self.done('normal_restart')
                         for group in ('cart_clear','court_clear','chief_clear'):self.clear_group(a,group)
-                        self.done('mapped_combat');a.capture('bandit-exit')
+                        self.done('mapped_combat');self.stairs(a);a.capture('bandit-exit')
                         self.finish(a,menu=True);self.finish(b);claimed=self.claim(a,'donghai');self.claim(b,'donghai')
                         inventory=self.rc('data get entity '+a.name+' Inventory');a.chat('/expedition claim');self.check('second_claim_does_not_pay_again',inventory==self.rc('data get entity '+a.name+' Inventory'),self.state(a));self.done('exit_reward_once')
                         wait(lambda:self.state(a),lambda s:'instance' not in s,30,'山寨实例回收');self.done('reclaim')
