@@ -21,6 +21,7 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools'))
 from combat_capture.rcon import Rcon
+from combat_capture import procs
 from buildgen.nbtread import read_gzipped_nbt
 OUT=ROOT/'reports/worldplan/runtime'
 GAME=ROOT/'run-acceptance'
@@ -46,7 +47,14 @@ class Server:
         if not 30<=self.startup_timeout<=1800:raise ValueError('Server startup timeout is outside the capture budget')
         self.password,self.rport,self.sport=secrets.token_hex(20),port(),port()
         self.proc=None;self.log=None;self.commands=[];self.world=GAME/name
+        self.identities={}
+    def remember(self):
+        if self.proc is not None:self.identities.setdefault(self.proc.pid,procs.start_time(self.proc.pid))
+        for pid,start in list(self.identities.items()):
+            if procs.is_alive(pid,start):
+                for child in procs.descendants(pid):self.identities.setdefault(child,procs.start_time(child))
     def __enter__(self):
+        procs.set_child_subreaper()
         if self.prebuilt_resources:
             from combat_capture.session import require_prebuilt_resources
             require_prebuilt_resources(ROOT)
@@ -67,6 +75,7 @@ class Server:
         try:
             deadline=time.monotonic()+self.startup_timeout
             while time.monotonic()<deadline:
+                self.remember()
                 if self.proc.poll() is not None:raise RuntimeError(f'{self.label}: server exited with {self.proc.returncode}')
                 try:
                     if self.planned:
@@ -81,6 +90,7 @@ class Server:
         except BaseException:
             self.__exit__(*sys.exc_info());raise
     def cmd(self,command):
+        self.remember()
         with Rcon('127.0.0.1',self.rport,self.password,timeout=180) as r:reply=r.cmd(command)
         self.commands.append({'command':command,'reply':reply});return reply
     def query(self,command):
@@ -88,6 +98,7 @@ class Server:
         if 'WORLDPLAN ' not in reply:raise RuntimeError(reply)
         return json.loads(reply.split('WORLDPLAN ',1)[1])
     def __exit__(self,*unused):
+        self.remember()
         cleanup={'label':self.label,'pid':self.proc.pid if self.proc else None,'forced_stop':False}
         try:
             if self.proc and self.proc.poll() is None:
@@ -101,6 +112,10 @@ class Server:
             cleanup['returncode']=self.proc.returncode if self.proc else None
             cleanup['terminated']=not self.proc or self.proc.poll() is not None
         finally:
+            targets=[(pid,start,'owned acceptance server child') for pid,start in self.identities.items()]
+            procs.kill_pids(targets,grace=25)
+            cleanup['owned_survivors']=[pid for pid,start,_ in targets if procs.is_alive(pid,start)]
+            cleanup['terminated']=cleanup.get('terminated',True) and not cleanup['owned_survivors']
             if self.log:self.log.close()
             for path,content in self.backups.items():
                 if content is None:path.unlink(missing_ok=True)
