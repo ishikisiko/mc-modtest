@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>洲域与城镇入场报幕候选</title>
+<style>
+:root{color-scheme:light dark;--entry-fg:var(--foreground,light-dark(#23332c,#e5eae7));--entry-muted:var(--muted-foreground,light-dark(#53615b,#acb8b1));--entry-border:var(--border,light-dark(#cbd3ce,#3f4b44));--entry-surface:var(--card,light-dark(#f2f5f2,#222c27));--entry-active:var(--primary,light-dark(#293f32,#e4ece5));--entry-active-fg:var(--primary-foreground,light-dark(#fff,#1f2d23));--entry-radius:var(--radius,10px)}
+*{box-sizing:border-box}html,body{margin:0;background:transparent;color:var(--entry-fg);font:14px/1.5 var(--font-sans,system-ui,-apple-system,"Noto Sans CJK SC",sans-serif)}
+#entry-preview{display:grid;gap:12px;max-width:1100px;margin:0 auto;background:transparent}
+button{font:inherit;color:inherit;cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid var(--ring,#87a89a);outline-offset:3px}
+.tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.group{display:flex;align-items:center;gap:5px}.mode,.action{min-height:36px;border:1px solid var(--entry-border);border-radius:6px;padding:5px 12px;background:transparent}.mode[aria-pressed=true]{background:var(--entry-active);color:var(--entry-active-fg);border-color:var(--entry-active)}
+.action.primary{background:var(--entry-active);color:var(--entry-active-fg);border-color:var(--entry-active)}.option{display:flex;align-items:center;gap:6px;min-height:36px;color:var(--entry-muted);font-size:12px}.option input{accent-color:var(--entry-active)}
+.stage{position:relative;aspect-ratio:16/9;overflow:hidden;isolation:isolate;border-radius:var(--entry-radius);container-type:inline-size;background:#17231e;color:#f3ead3}.world{display:block;position:absolute;width:100%;height:100%;object-fit:cover;filter:brightness(.95) saturate(.95)}.stage:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 85px #06100a40}
+.layer{position:absolute;inset:0;z-index:3;pointer-events:none}.mainname{display:block;object-fit:contain;filter:drop-shadow(0 2px 3px #0b160ec4)}.kind{font-family:"Noto Serif CJK SC","Songti SC",serif;letter-spacing:.25em;text-shadow:0 1px 3px #07120b;font-size:2cqw;white-space:nowrap}
+.a .layer{display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:1%;background:radial-gradient(ellipse at 50% 50%,#07120f6e 0%,transparent 62%)}
+.a .kind{font-size:1.8cqw;margin-bottom:1.5%;color:#ded4b6}.a .mainname{width:30%;height:24%;margin:0 0 1.6%}.a.is-town .mainname{width:41%}.a .rule{height:1px;width:40%;background:linear-gradient(90deg,transparent,#d6c69c,transparent);box-shadow:0 1px 3px #142018}.a .flourish{width:4px;height:4px;transform:rotate(45deg);background:#d3bb84;margin-top:1.7%}
+.b .layer{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:0 0 10% 6.5%;background:linear-gradient(90deg,#08140d7d,transparent 65%)}
+.b .inner{position:relative;padding-left:2.7%;width:100%;display:flex;flex-direction:column;align-items:flex-start}.b .inner:before{content:"";position:absolute;left:0;top:4%;width:3px;height:94%;background:#aa4e3d;box-shadow:0 0 8px #09150b}.b .kind{font-size:1.65cqw;margin-bottom:1.4%;color:#d9cbb2}.b .mainname{width:19%;height:auto;max-height:17cqw}.b.is-town .mainname{width:28%}.b .short-rule{width:26%;margin-top:1.6%;height:1px;background:linear-gradient(90deg,#b4ab8e99,transparent)}
+.c .paper{position:absolute;right:7%;top:25%;width:12%;height:55%;background:linear-gradient(110deg,#eee6d0f5,#cfc5a8ef);clip-path:polygon(0 0,97% 1%,100% 96%,51% 100%,0 96%);color:#31392e;box-shadow:0 3px 15px #0a120a66;display:flex;flex-direction:column;align-items:center;padding:8% 0 4%}.c .paper:before{content:"";position:absolute;top:3%;bottom:10%;left:9%;right:9%;border:1px solid #6d70564d;pointer-events:none}.c .mainname{position:absolute;top:10%;height:60%;width:54%;filter:none}.c .paper .kind{position:absolute;bottom:13%;font-size:1.15cqw;letter-spacing:.1em;color:#57604c;text-shadow:none}.c .seal{position:absolute;bottom:4%;width:2.6cqw;height:2.6cqw;display:grid;place-items:center;border:1px solid #934a36;color:#934a36;font-family:"Noto Serif CJK SC",serif;font-size:1.7cqw;line-height:1;transform:rotate(-5deg)}
+.d .cinema-edge{position:absolute;left:0;right:0;height:12%;background:#080d0bfa;z-index:6}.d .cinema-edge.top{top:0}.d .cinema-edge.bottom{bottom:0}.d .layer{display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#07100a16,#07100a50)}.d .mainname{width:23%;height:19%;margin-bottom:2.1%;filter:drop-shadow(0 2px 4px #000)}.d.is-town .mainname{width:33%}.d .kind{font-size:1.6cqw;color:#e5dac2;letter-spacing:.4em}.d .chapter-rule{height:1px;width:5%;background:#c7b17b;margin-bottom:2%}
+.hud{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;font-family:monospace;color:#d5e6d7}.show-hud .hud{display:block}.mock-qi{position:absolute;top:3%;left:2%;width:23%;height:11%;padding:1.5% 2%;font-size:1.45cqw;border:1px solid #7c8e7b;background:#102720e8;box-shadow:inset 0 0 0 2px #233c2d}.mock-qi span{float:right}.mock-qi i{display:block;width:100%;height:2px;background:#87b3a0;margin-top:7%}.mock-health{position:absolute;bottom:15%;left:31%;width:38%;height:3.3%;border:1px solid #d4c1a2;background:#ad6d61;box-shadow:0 0 0 2px #16231cd4}.mock-hotbar{position:absolute;bottom:2%;left:30%;width:40%;height:9%;display:grid;grid-template-columns:repeat(9,1fr);gap:1%;background:#102119d9;padding:.6%}.mock-hotbar i{border:1px solid #b6bfb0;background:#9ba79a28}.crosshair{position:absolute;left:50%;top:50%;width:9px;height:9px;transform:translate(-50%,-50%);opacity:.5}.crosshair:before,.crosshair:after{content:"";position:absolute;top:4px;left:0;width:9px;height:1px;background:#f4f5e7}.crosshair:after{transform:rotate(90deg)}
+.description{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:baseline}.current-name{font-weight:600}.current-desc{color:var(--entry-muted);font-size:13px}.duration{grid-column:2;font-size:12px;color:var(--entry-muted)}
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.choice{padding:0;border:1px solid var(--entry-border);border-radius:var(--entry-radius);background:transparent;overflow:hidden;text-align:left}.choice[aria-pressed=true]{outline:2px solid var(--entry-active);outline-offset:2px}.choice .stage{border-radius:0}.choice-copy{display:block;padding:9px 12px}.choice-copy strong{display:block;font-size:13px;font-weight:600}.choice-copy small{display:block;color:var(--entry-muted);font-size:12px;margin-top:2px}.choice .hud{display:none!important}
+.note{font-size:11px;color:var(--entry-muted);margin:0}.label-mark{color:var(--entry-muted);font-size:12px}
+.hero.running .layer{animation:entry-fade var(--time) both}.hero.running.a .mainname{animation:name-rise var(--time) both}.hero.running.a .rule{animation:line-spread var(--time) both}.hero.running.b .inner{animation:side-slide var(--time) both}.hero.running.c .paper{animation:paper-drop var(--time) both}.hero.running.d .cinema-edge{animation:cinema-edge var(--time) both}.hero.running.d .mainname{animation:film-name var(--time) both}.hero.ended .layer,.hero.ended .cinema-edge{opacity:0}
+@keyframes entry-fade{0%,4%{opacity:0}18%,78%{opacity:1}100%{opacity:0}}@keyframes name-rise{0%{transform:translateY(12px);opacity:0}20%,78%{transform:translateY(0);opacity:1}100%{transform:translateY(-3px);opacity:0}}@keyframes line-spread{0%,8%{transform:scaleX(0)}26%,80%{transform:scaleX(1)}100%{transform:scaleX(.94)}}@keyframes side-slide{0%{transform:translateX(-16px);opacity:0}20%,78%{transform:translateX(0);opacity:1}100%{transform:translateX(3px);opacity:0}}@keyframes paper-drop{0%,5%{clip-path:polygon(0 0,100% 0,100% 0,0 0);transform:translateY(-8px)}27%,80%{clip-path:polygon(0 0,97% 1%,100% 96%,51% 100%,0 96%);transform:translateY(0)}100%{clip-path:polygon(0 0,97% 1%,100% 96%,51% 100%,0 96%);transform:translateY(0)}}@keyframes cinema-edge{0%,100%{transform:scaleY(0);opacity:0}13%,80%{transform:scaleY(1);opacity:1}}@keyframes film-name{0%,12%{opacity:0;transform:scale(.985)}30%,78%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.012)}}
+@media(max-width:460px){.tools{gap:7px}.tools .group{gap:4px}.mode,.action{min-height:40px;padding:6px 9px;font-size:12px}.description{display:block}.current-name{display:block;font-size:14px;margin-bottom:3px}.current-desc,.duration{display:block;font-size:12px}.choice-copy{padding:8px}.choice-copy small{font-size:11px}.option{font-size:11px}.choice-copy strong{font-size:12px}.note{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.hero.running .layer,.hero.running .mainname,.hero.running .rule,.hero.running .inner,.hero.running .paper,.hero.running .cinema-edge{animation:none!important}}
+</style>
+</head>
+<body>
+<main id="entry-preview">
+  <div class="tools">
+    <div class="group" aria-label="报幕场景"><button class="mode" data-mode="region" aria-pressed="true">进入洲域</button><button class="mode" data-mode="town" aria-pressed="false">进入城镇</button></div>
+    <div class="group"><label class="option"><input type="checkbox" id="hud-toggle">HUD占位</label><button class="action" id="still">静帧</button><button class="action primary" id="replay">播放入场</button></div>
+  </div>
+  <div id="hero" class="stage hero a" role="img" aria-label="中州进入报幕候选"></div>
+  <div class="description" aria-live="polite"><span class="current-name" id="current-name"></span><span class="current-desc" id="current-desc"></span><span class="duration" id="duration"></span></div>
+  <div class="choices" id="choices" aria-label="四种样式"></div>
+  <p class="note">现有中州实机画面上的候选叠加，尚未接入游戏。文字轮廓来自游戏已有字体；HUD占位仅用于观察遮挡。</p>
+</main>
+<script>
+(()=>{
+ const root=document.getElementById('entry-preview');
+ const base='https://assets.ishiki333hhh.win/previews/region-entry-styles-20261114/';
+ const styles={
+  a:{name:'A · 电影居中',desc:'书法大字在中央淡入，适合醒目的跨洲提示。',short:'居中大字，轻细线条',region:4,town:3.2},
+  b:{name:'B · 左下角地区标签',desc:'名称靠左下出现，保留中央视野，适合日常进出城镇。',short:'靠边显示，较少遮挡',region:3.2,town:2.4},
+  c:{name:'C · 右侧竖排题签',desc:'竖排书法配浅色题签，保留场景中央，带有中式书卷感。',short:'竖排题签，纸色底纹',region:4.5,town:3.6},
+  d:{name:'D · 电影黑边字幕',desc:'上下黑边短暂收窄画幅，宋体地名居中。黑边会覆盖部分HUD。',short:'收窄画幅，章节字幕',region:4.8,town:4}
+ };
+ let selected='a',mode='region',timer;
+ const hero=root.querySelector('#hero');const choices=root.querySelector('#choices');
+ const hud='<div class="hud" aria-hidden="true"><div class="mock-qi">灵力 <span>30 / 30</span><i></i></div><div class="crosshair"></div><div class="mock-health"></div><div class="mock-hotbar">'+Array(9).fill('<i></i>').join('')+'</div></div>';
+ function layer(id){
+  if(id==='a')return '<div class="layer"><div class="kind"></div><img class="mainname" data-title="brush-h-light"><div class="rule"></div><span class="flourish"></span></div>';
+  if(id==='b')return '<div class="layer"><div class="inner"><div class="kind"></div><img class="mainname" data-title="brush-h-light"><div class="short-rule"></div></div></div>';
+  if(id==='c')return '<div class="layer"><div class="paper"><img class="mainname" data-title="brush-v-dark"><div class="kind"></div><div class="seal">境</div></div></div>';
+  return '<div class="cinema-edge top"></div><div class="cinema-edge bottom"></div><div class="layer"><div class="chapter-rule"></div><img class="mainname" data-title="book-h-light"><div class="kind"></div></div>';
+ }
+ function populate(node,id){node.innerHTML='<img class="world" src="'+base+'background.png" alt="中州千机阁现有实机场景">'+hud+layer(id);node.dataset.style=id;}
+ for(const [id,s] of Object.entries(styles)){
+  const button=document.createElement('button');button.type='button';button.className='choice';button.dataset.style=id;button.setAttribute('aria-pressed',String(id===selected));
+  button.innerHTML='<div class="stage '+id+'" aria-hidden="true"></div><span class="choice-copy"><strong>'+s.name+'</strong><small>'+s.short+'</small></span>';
+  populate(button.querySelector('.stage'),id);button.addEventListener('click',()=>{selected=id;render();});choices.appendChild(button);
+ }
+ function updateText(){
+  const place=mode==='region'?'中州':'云山城';const context=mode==='region'?'洲域':'中州 · 城镇';
+  root.querySelectorAll('.stage').forEach(stage=>{
+   stage.classList.toggle('is-town',mode==='town');stage.querySelector('.kind').textContent=context;
+   const image=stage.querySelector('[data-title]');const [font,orientation,ink]=image.dataset.title.split('-');image.src=base+font+'-'+mode+'-'+orientation+'-'+ink+'.svg';image.alt=place;
+  });
+  hero.setAttribute('aria-label',styles[selected].name+'，'+place+'入场报幕');
+ }
+ function render(){
+  clearTimeout(timer);hero.className='stage hero '+selected;populate(hero,selected);updateText();
+  root.querySelectorAll('.choice').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.style===selected)));
+  root.querySelectorAll('.mode').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.mode===mode)));
+  root.querySelector('#current-name').textContent=styles[selected].name;
+  root.querySelector('#current-desc').textContent=styles[selected].desc;
+  root.querySelector('#duration').textContent='入场动画示意：约 '+styles[selected][mode]+' 秒';
+  root.querySelector('#replay').textContent='播放入场';
+ }
+ root.querySelectorAll('.mode').forEach(button=>button.addEventListener('click',()=>{mode=button.dataset.mode;render();}));
+ root.querySelector('#hud-toggle').addEventListener('change',event=>root.classList.toggle('show-hud',event.target.checked));
+ root.querySelector('#still').addEventListener('click',()=>render());
+ root.querySelector('#replay').addEventListener('click',()=>{
+  clearTimeout(timer);hero.classList.remove('running','ended');void hero.offsetWidth;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){render();return;}
+  const duration=styles[selected][mode];hero.style.setProperty('--time',duration+'s');hero.classList.add('running');
+  timer=setTimeout(()=>{hero.classList.remove('running');hero.classList.add('ended');root.querySelector('#replay').textContent='再次播放';},duration*1000);
+ });
+ render();
+})();
+</script>
+</body>
+</html>
