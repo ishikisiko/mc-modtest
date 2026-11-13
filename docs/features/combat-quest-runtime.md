@@ -10,6 +10,8 @@
 
 开始前，接单者可用`/expedition invite 玩家名`邀请附近玩家；对方使用`/expedition accept`加入。队伍开始后固定成员和人数倍率。队友按H自行进入，同一队共享本轮守敌与进度。
 
+入场、继续远征和救援都会避开已有玩家的身体占位。保存的位置已被队友占据时，服务器重新寻找入口附近的安全站位。
+
 - 山寨依次清理门后守敌、粮车场、内院和寨主。
 - 兽巢依次清理入口狼群、岩柱厅守兽和巢厅首领；赤甲蜥支路可选。
 - 靠近当前敌群后出现出生预告；服务器检查站位和玩家距离后生成有限名单。进度条显示必经守敌数量与下一处目标。
@@ -35,6 +37,8 @@
 
 维度使用`myvillage:expedition/<实例UUID>`。入口、登录恢复、传送和观战均检查成员归属，模板维度禁止进入。回收只处理无人、已结束或到期的远征，关闭世界并核对专用目录标记后删除自身目录；阡镇个人秘境不属于该目录。
 
+每个实例从模板复制独立的平坦世界配置。Minecraft生成器会修改非实体层的内部列表，因此实例之间不共用这份可变状态；连续接取下一轮也使用新的配置。
+
 报酬在出口验核时登记，回江湖榜领取。容量不足保留待领，正常重复办理不重复发放。提交前持久化`claiming`日志，库存与WorldSim声望提交后保存，再记已领；若进程恰在跨文件提交期间崩溃，保留待核对状态，停止自动再次付款。这里没有承诺多份存档文件之间的断电原子事务。
 
 ## 检查入口
@@ -43,7 +47,10 @@
 - `python3 -m tools.quest_realms.game --out build/generated/quest_realms/resources`：同源导出；Gradle的`processResources`自动依赖该任务。
 - `python3 -m tools.quest_realms.game_audit --resources build/generated/quest_realms/resources --out reports/quest-runtime/voxel-audit.json`：检查导出后的实际方块数据。
 - `QuestStateTest`与`WorldSimPlayerEconomyTest`覆盖八地境界冻结、名单完整性、死亡回执、归属和经济门面。
+- `QuestGeneratorTest`重现原生平坦生成器会修改空气层的行为，检查前一实例生成后，下一实例仍能独立生成。
 - 管理员`/myvillage quest status 玩家名`只读回服务器实例、敌人、规则和报酬状态。
 - `-PquestEvidence`仅为原生采集加入真实城镇任务榜定位夹具；带此参数时禁止打包JAR。原生采集中的任务接取、出入、攻击与验核必须记录真实客户端输入。
 
 离线检查、原生开发者验证与玩家的美观、战斗手感、音效、FPS和多人体验验收分别记录。
+
+0.131.0的固定源、JAR身份、原生收据与失败记录见[本次检查记录](../testing/2026-11-14-combat-quest-runtime.md)。
