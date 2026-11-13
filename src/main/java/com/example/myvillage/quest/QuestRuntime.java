@@ -132,13 +132,19 @@ public final class QuestRuntime {
                 @Override public GameRules getGameRules(){return ownRules;}
             };
             var level=new ServerLevel(server,Util.backgroundExecutor(),((RealmServerAccess)server).myvillage$storage(),worldData,dimension,
-                    new LevelStem(template.type(),new FlatLevelSource(flat.settings())),NO_PROGRESS,false,server.overworld().getSeed(),List.of(),false,null);
+                    new LevelStem(template.type(),freshGenerator(flat)),NO_PROGRESS,false,server.overworld().getSeed(),List.of(),false,null);
             var map=QuestMap.get(run.map);level.getWorldBorder().setCenter(map.origin()[0]+map.size()[0]/2.0,map.origin()[2]+map.size()[2]/2.0);
             level.getWorldBorder().setSize(Math.max(map.size()[0],map.size()[2])+2);level.setSpawnSettings(false,false);
             server.forgeGetWorldMap().put(dimension,level);server.markWorldsDirty();NeoForge.EVENT_BUS.post(new LevelEvent.Load(level));
             Files.createDirectories(folder);if(fresh)Files.writeString(folder.resolve(MARKER),run.id+"\n"+run.hash,StandardOpenOption.CREATE_NEW);
             return level;
         }catch(Exception failure){throw new IllegalStateException("无法准备远征世界",failure);}
+    }
+    static FlatLevelSource freshGenerator(FlatLevelSource template){
+        // Flat settings replace non-solid layers with null during biome decoration.
+        // Each instance needs fresh mutable layer state, including after another instance closes.
+        var settings=template.settings();
+        return new FlatLevelSource(settings.withBiomeAndLayers(settings.getLayersInfo(),settings.structureOverrides(),settings.getBiome()));
     }
     public static boolean allowed(ServerPlayer p,ServerLevel destination){
         String id=destination.dimension().location().toString();if(!reserved(id))return true;
