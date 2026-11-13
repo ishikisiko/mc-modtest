@@ -34,6 +34,8 @@ class Evidence:
         manifest=ROOT/'candidate.json'
         if not manifest.is_file():raise RuntimeError('缺少固定源清单')
         self.report['product_commit']=json.loads(manifest.read_text())['commit']
+        collector=ROOT/'collector.json'
+        self.report['collector_commit']=json.loads(collector.read_text())['commit'] if collector.is_file() else self.report['product_commit']
         self.report['source_manifest_sha256']=hashlib.sha256(manifest.read_bytes()).hexdigest()
         self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
         jars=[p for p in (ROOT/'build/libs').glob('myvillage-*.jar') if not p.name.endswith('-sources.jar')]
