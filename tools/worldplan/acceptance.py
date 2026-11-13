@@ -37,13 +37,17 @@ def port():
         s.bind(('127.0.0.1',0));return s.getsockname()[1]
 
 class Server:
-    def __init__(self,name,label,planned=True,structures=True,view_distance=3):
+    def __init__(self,name,label,planned=True,structures=True,view_distance=3,prebuilt_resources=False):
         self.name,self.label=name,label
         self.planned,self.structures=planned,structures
         self.view_distance=max(3,min(12,int(view_distance)))
+        self.prebuilt_resources=prebuilt_resources
         self.password,self.rport,self.sport=secrets.token_hex(20),port(),port()
         self.proc=None;self.log=None;self.commands=[];self.world=GAME/name
     def __enter__(self):
+        if self.prebuilt_resources:
+            from combat_capture.session import require_prebuilt_resources
+            require_prebuilt_resources(ROOT)
         GAME.mkdir(exist_ok=True)
         values={'server-ip':'127.0.0.1','server-port':self.sport,'online-mode':'false','enforce-secure-profile':'false',
             'enable-rcon':'true','rcon.port':self.rport,'rcon.password':self.password,'broadcast-rcon-to-ops':'false','enable-query':'false',
@@ -56,6 +60,7 @@ class Server:
             path=GAME/filename;self.backups[path]=path.read_bytes() if path.exists() else None;path.write_text(body)
         self.log=(OUT/(self.label+'.log')).open('w')
         args=['./gradlew','runAcceptanceServer','-x','generateAllStructures','--no-daemon','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx3g']
+        if self.prebuilt_resources:args.extend(['-x','processResources'])
         self.proc=subprocess.Popen(args,cwd=ROOT,stdin=subprocess.DEVNULL,stdout=self.log,stderr=subprocess.STDOUT,start_new_session=True)
         try:
             deadline=time.monotonic()+480

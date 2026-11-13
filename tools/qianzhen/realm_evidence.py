@@ -57,8 +57,10 @@ def one(reply,prefix):
 
 
 class Client:
-    def __init__(self,e,server,name,round_):
+    def __init__(self,e,server,name,round_,prebuilt_resources=False):
         self.e,self.server,self.name=e,server,name
+        self.prebuilt_resources=prebuilt_resources
+        if prebuilt_resources:cs.require_prebuilt_resources(ROOT)
         self.out=e.out/f'{round_}-{name}';self.out.mkdir()
         self.directory=ROOT/'run-combat-capture'/('solo-'+name);self.directory.mkdir(parents=True,exist_ok=True)
         self.processes=[];self.handles=[];self.identities={};self.game=None
@@ -82,7 +84,7 @@ class Client:
                 'simulationDistance':'3','maxFps':'30','rawMouseInput':'false','key_key.use':'key.mouse.right'})
             p=self.spawn(cs.gradle_argv('runClient','-Xmx768m',[
                 '-Pcombat_smoke_server=127.0.0.1:'+str(self.server.sport),
-                '-Pcombat_smoke_game_dir='+str(self.directory),'-Pcombat_smoke_username='+self.name]),
+                '-Pcombat_smoke_game_dir='+str(self.directory),'-Pcombat_smoke_username='+self.name],prebuilt_resources=self.prebuilt_resources),
                 self.out/'process.log',cwd=ROOT,env=dict(os.environ,DISPLAY=display,JAVA_TOOL_OPTIONS='-Xmx1g'))
             def joined():
                 self.remember()

@@ -139,10 +139,10 @@ class Evidence:
         before=None;run_id=None
         try:
             with heavy_lock():
-                with support.Server(world,'first',planned=True,view_distance=3) as self.server:
+                with support.Server(world,'first',planned=True,view_distance=3,prebuilt_resources=True) as self.server:
                     self.rc('difficulty normal');self.rc('gamerule doFireTick true');self.rc('gamerule mobGriefing true')
                     with ExitStack() as stack:
-                        a=stack.enter_context(Client(self,self.server,'QuestAlice','first'));b=stack.enter_context(Client(self,self.server,'QuestBob','first'))
+                        a=stack.enter_context(Client(self,self.server,'QuestAlice','first',prebuilt_resources=True));b=stack.enter_context(Client(self,self.server,'QuestBob','first',prebuilt_resources=True))
                         board=self.board(a,'ximo');self.board(b,'ximo');issued=self.accept_map(a,board,0);run_id=issued['instance']['id'];self.done('board_accept')
                         self.prepare(a);self.prepare(b);a.chat('/expedition invite '+b.name);b.chat('/expedition accept')
                         self.check('two_confirmed_members',len(self.state(a)['instance']['party'])==2,self.state(a)['instance']['party'])
@@ -161,10 +161,10 @@ class Evidence:
                         self.action('nonlethal_health_fixture',guard=uid,health=7)
                         self.leave(a,menu=True);self.leave(b);before=self.state(a);self.snapshot('before_restart',state=before,damaged_guard=uid)
                         self.rc('save-all flush');self.done('pause_resume')
-                with support.Server(world,'restart',planned=True,view_distance=3) as self.server:
+                with support.Server(world,'restart',planned=True,view_distance=3,prebuilt_resources=True) as self.server:
                     self.rc('difficulty normal')
                     with ExitStack() as stack:
-                        a=stack.enter_context(Client(self,self.server,'QuestAlice','restart'));b=stack.enter_context(Client(self,self.server,'QuestBob','restart'))
+                        a=stack.enter_context(Client(self,self.server,'QuestAlice','restart',prebuilt_resources=True));b=stack.enter_context(Client(self,self.server,'QuestBob','restart',prebuilt_resources=True))
                         restored=self.state(a);self.check('same_instance_and_frozen_slots_after_restart',restored['instance']['id']==run_id and restored['instance']['slots']==before['instance']['slots'],{'before':before,'after':restored})
                         self.enter(a);self.enter(b);active=wait(lambda:self.state(a),lambda s:len(s.get('guards',[]))==3,25,'恢复三名守敌')
                         guard=next(g for g in active['guards'] if g['id']==uid);old=next(g for g in before['guards'] if g['id']==uid)
