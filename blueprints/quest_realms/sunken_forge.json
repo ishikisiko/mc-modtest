@@ -1,0 +1,1023 @@
+{
+  "schema": 1,
+  "id": "sunken_forge",
+  "name": "沉炉工坊",
+  "status": "design_preview",
+  "size": [
+    288,
+    160,
+    256
+  ],
+  "subtitle": "炉体、冷却渠与检修廊",
+  "brief": "分头检查两座旁炉与冷却渠，取出主炉器匣后沿上层检修廊撤离。",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "山口料棚",
+      "pos": [
+        34,
+        72,
+        38
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "yard",
+      "name": "旧料转运场",
+      "pos": [
+        72,
+        68,
+        64
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "rail",
+      "name": "上层料轨",
+      "pos": [
+        124,
+        64.5,
+        72
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "north",
+      "name": "北侧铸模间",
+      "pos": [
+        176,
+        60,
+        56
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "hot",
+      "name": "西旁炉廊",
+      "pos": [
+        106,
+        52,
+        114
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "cold",
+      "name": "东冷却池",
+      "pos": [
+        214,
+        40,
+        110
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "valve_w",
+      "name": "西炉铜阀",
+      "pos": [
+        82,
+        50,
+        148
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "valve_e",
+      "name": "东炉铜阀",
+      "pos": [
+        218,
+        42,
+        158
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "water",
+      "name": "下层分水房",
+      "pos": [
+        232,
+        26,
+        204
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "work",
+      "name": "器胚工间",
+      "pos": [
+        158,
+        44,
+        132
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "main",
+      "name": "主炉环廊",
+      "pos": [
+        152,
+        36,
+        178
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "control",
+      "name": "炉前操控台",
+      "pos": [
+        126,
+        36,
+        194
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "core",
+      "name": "主炉器匣",
+      "pos": [
+        176,
+        30,
+        202
+      ],
+      "role": "objective",
+      "text": ""
+    },
+    {
+      "id": "vent",
+      "name": "上层排烟道",
+      "pos": [
+        174,
+        62,
+        212
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "chimney",
+      "name": "天井检修桥",
+      "pos": [
+        118,
+        74,
+        200
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "escape",
+      "name": "北壁检修门",
+      "pos": [
+        72,
+        78,
+        180
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "stairs",
+      "name": "山壁回梯",
+      "pos": [
+        50,
+        74,
+        112
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "mould",
+      "name": "废铸模库",
+      "pos": [
+        242,
+        60,
+        64
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "ore",
+      "name": "炉渣检修洞",
+      "pos": [
+        210,
+        22,
+        230
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "bridge",
+      "name": "冷渠检修桥",
+      "pos": [
+        216,
+        50,
+        134
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "cache",
+      "name": "废旧器物库",
+      "pos": [
+        62,
+        54,
+        224
+      ],
+      "role": "optional",
+      "text": ""
+    }
+  ],
+  "edges": [
+    {
+      "a": "entry",
+      "b": "yard",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "yard",
+      "b": "rail",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "rail",
+      "b": "north",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "north",
+      "b": "mould",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "rail",
+      "b": "hot",
+      "kind": "stairs",
+      "via": [
+        [
+          124,
+          58,
+          108
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "hot",
+      "b": "valve_w",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "hot",
+      "b": "work",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "work",
+      "b": "bridge",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "bridge",
+      "b": "cold",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "cold",
+      "b": "valve_e",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "valve_e",
+      "b": "water",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "water",
+      "b": "ore",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "ore",
+      "b": "main",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "valve_w",
+      "b": "control",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "valve_e",
+      "b": "main",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "work",
+      "b": "main",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "control",
+      "b": "main",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "main",
+      "b": "core",
+      "kind": "stairs",
+      "via": [],
+      "requires": [
+        "west",
+        "east",
+        "coolant"
+      ]
+    },
+    {
+      "a": "core",
+      "b": "vent",
+      "kind": "stairs",
+      "via": [
+        [
+          202,
+          40,
+          222
+        ],
+        [
+          198,
+          52,
+          238
+        ]
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "a": "vent",
+      "b": "chimney",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "chimney",
+      "b": "escape",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "escape",
+      "b": "stairs",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "stairs",
+      "b": "entry",
+      "kind": "stairs",
+      "via": [
+        [
+          28,
+          72,
+          80
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "valve_w",
+      "b": "cache",
+      "kind": "stairs",
+      "via": [
+        [
+          48,
+          52,
+          180
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "cache",
+      "b": "chimney",
+      "kind": "stairs",
+      "via": [
+        [
+          80,
+          62,
+          234
+        ]
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "a": "mould",
+      "b": "cold",
+      "kind": "stairs",
+      "via": [
+        [
+          252,
+          50,
+          100
+        ]
+      ],
+      "requires": []
+    }
+  ],
+  "structures": [
+    {
+      "kind": "hall",
+      "name": "山口料棚",
+      "pos": [
+        34,
+        72,
+        38
+      ],
+      "size": [
+        25,
+        10,
+        18
+      ],
+      "use": "depot",
+      "open": true
+    },
+    {
+      "kind": "hall",
+      "name": "铸模工间",
+      "pos": [
+        176,
+        60,
+        56
+      ],
+      "size": [
+        44,
+        14,
+        24
+      ],
+      "use": "workshop"
+    },
+    {
+      "kind": "hall",
+      "name": "上层料轨廊",
+      "pos": [
+        126,
+        64,
+        72
+      ],
+      "size": [
+        70,
+        12,
+        15
+      ],
+      "use": "depot",
+      "open": true
+    },
+    {
+      "kind": "hall",
+      "name": "旧器物库",
+      "pos": [
+        62,
+        54,
+        224
+      ],
+      "size": [
+        32,
+        14,
+        27
+      ],
+      "use": "depot"
+    },
+    {
+      "kind": "hall",
+      "name": "器胚工间",
+      "pos": [
+        158,
+        44,
+        132
+      ],
+      "size": [
+        40,
+        14,
+        28
+      ],
+      "use": "workshop"
+    },
+    {
+      "kind": "hall",
+      "name": "分水房",
+      "pos": [
+        232,
+        26,
+        204
+      ],
+      "size": [
+        30,
+        12,
+        22
+      ],
+      "use": "workshop"
+    },
+    {
+      "kind": "kiln",
+      "name": "西旁炉",
+      "pos": [
+        88,
+        46,
+        130
+      ],
+      "size": [
+        32,
+        38,
+        30
+      ]
+    },
+    {
+      "kind": "furnace",
+      "name": "东旁炉",
+      "pos": [
+        236,
+        38,
+        158
+      ],
+      "size": [
+        30,
+        42,
+        31
+      ]
+    },
+    {
+      "kind": "crucible",
+      "name": "沉降主炉",
+      "pos": [
+        176,
+        26,
+        202
+      ],
+      "size": [
+        53,
+        64,
+        48
+      ],
+      "open": true
+    },
+    {
+      "kind": "tower",
+      "name": "排烟检修塔",
+      "pos": [
+        118,
+        62,
+        200
+      ],
+      "size": [
+        22,
+        44,
+        23
+      ],
+      "levels": 3,
+      "material": "brick",
+      "open": true
+    },
+    {
+      "kind": "sluice",
+      "name": "西炉阀门",
+      "pos": [
+        82,
+        50,
+        148
+      ],
+      "size": [
+        9,
+        9,
+        8
+      ]
+    },
+    {
+      "kind": "sluice",
+      "name": "东炉阀门",
+      "pos": [
+        218,
+        42,
+        158
+      ],
+      "size": [
+        9,
+        9,
+        8
+      ]
+    },
+    {
+      "kind": "wheel",
+      "name": "冷却水轮",
+      "pos": [
+        232,
+        26,
+        204
+      ],
+      "size": [
+        13,
+        15,
+        10
+      ]
+    },
+    {
+      "kind": "frame",
+      "name": "铜梁吊架",
+      "pos": [
+        158,
+        44,
+        132
+      ],
+      "size": [
+        40,
+        24,
+        27
+      ]
+    },
+    {
+      "kind": "rail",
+      "name": "上层料轨",
+      "pos": [
+        122,
+        64,
+        70
+      ],
+      "size": [
+        80,
+        1,
+        4
+      ],
+      "rotation": 1
+    },
+    {
+      "kind": "arch",
+      "name": "北壁检修门",
+      "pos": [
+        72,
+        78,
+        180
+      ],
+      "size": [
+        18,
+        16,
+        10
+      ]
+    },
+    {
+      "kind": "altar",
+      "name": "主炉取匣台",
+      "pos": [
+        176,
+        30,
+        202
+      ],
+      "size": [
+        11,
+        5,
+        11
+      ]
+    },
+    {
+      "kind": "frame",
+      "name": "炉前横向吊梁",
+      "pos": [
+        166,
+        42,
+        176
+      ],
+      "size": [
+        88,
+        38,
+        15
+      ]
+    },
+    {
+      "kind": "screen",
+      "name": "料场挡火墙",
+      "pos": [
+        88,
+        60,
+        88
+      ],
+      "size": [
+        38,
+        10,
+        3
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "冷却渠检修廊",
+      "pos": [
+        228,
+        40,
+        120
+      ],
+      "size": [
+        14,
+        9,
+        48
+      ],
+      "open": true
+    },
+    {
+      "kind": "rail",
+      "name": "炉底输料旧轨",
+      "pos": [
+        166,
+        35,
+        178
+      ],
+      "size": [
+        36,
+        1,
+        4
+      ]
+    }
+  ],
+  "terrain": {
+    "base": 26,
+    "cover": "rock_dark",
+    "rock": "rock_dark",
+    "seed": 102,
+    "ridges": [
+      [
+        28,
+        74,
+        26,
+        68,
+        70
+      ],
+      [
+        166,
+        18,
+        138,
+        28,
+        78
+      ],
+      [
+        272,
+        198,
+        22,
+        90,
+        83
+      ],
+      [
+        112,
+        240,
+        94,
+        18,
+        55
+      ]
+    ],
+    "valleys": [],
+    "trees": 7,
+    "pools": [
+      {
+        "rect": [
+          192,
+          91,
+          49,
+          42
+        ],
+        "y": 38
+      },
+      {
+        "rect": [
+          144,
+          174,
+          54,
+          49
+        ],
+        "y": 25,
+        "material": "lava"
+      }
+    ],
+    "waterfalls": [],
+    "tree_species": "oak",
+    "watercourses": [
+      {
+        "points": [
+          [
+            272,
+            70,
+            150
+          ],
+          [
+            258,
+            60,
+            140
+          ],
+          [
+            248,
+            48,
+            124
+          ],
+          [
+            234,
+            38,
+            110
+          ]
+        ],
+        "width": 5
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "west",
+      "node": "valve_w",
+      "phase": "关闭西侧旁炉"
+    },
+    {
+      "id": "east",
+      "node": "valve_e",
+      "phase": "关闭东侧旁炉"
+    },
+    {
+      "id": "coolant",
+      "node": "control",
+      "requires": [
+        "west",
+        "east"
+      ],
+      "phase": "接通主炉冷却支路"
+    },
+    {
+      "id": "core",
+      "node": "core",
+      "requires": [
+        "coolant"
+      ],
+      "phase": "取匣后进入排烟廊"
+    }
+  ],
+  "entry": "entry",
+  "objective": "core",
+  "phases": [
+    {
+      "name": "初入秘境",
+      "done": []
+    },
+    {
+      "name": "关闭西侧旁炉",
+      "done": [
+        "west"
+      ]
+    },
+    {
+      "name": "关闭东侧旁炉",
+      "done": [
+        "west",
+        "east"
+      ]
+    },
+    {
+      "name": "接通主炉冷却支路",
+      "done": [
+        "west",
+        "east",
+        "coolant"
+      ]
+    },
+    {
+      "name": "取匣后进入排烟廊",
+      "done": [
+        "west",
+        "east",
+        "coolant",
+        "core"
+      ]
+    }
+  ],
+  "atmosphere": {
+    "sky": "#bcb5a7",
+    "fog": "#c9c0aa",
+    "sun": "#ffe3bc",
+    "ambient": "#c4c3bd",
+    "rock_tint": "#8e8c80"
+  },
+  "composition": [
+    "三座炉体嵌入不同高度的崖台；料轨、工间、冷却渠与检修桥围绕炉体组织。",
+    "主炉占据后部视线焦点，入口先看到料棚与高架轨道，随后才进入炉前环廊。",
+    "冷却池的青绿色与炉口余火形成可辨认的环境差别，撤离路线位于去程上方。"
+  ],
+  "cameras": [
+    {
+      "name": "三炉与立体检修廊",
+      "eye": [
+        370,
+        242,
+        -86
+      ],
+      "target": [
+        148,
+        48,
+        136
+      ]
+    },
+    {
+      "name": "料轨下方的工间",
+      "eye": [
+        106,
+        53.62,
+        108
+      ],
+      "target": [
+        165,
+        61,
+        145
+      ]
+    },
+    {
+      "name": "冷却池与东旁炉",
+      "eye": [
+        214,
+        41.62,
+        106
+      ],
+      "target": [
+        234,
+        61,
+        160
+      ]
+    },
+    {
+      "name": "主炉取匣台",
+      "eye": [
+        170,
+        31.62,
+        196
+      ],
+      "target": [
+        180,
+        34,
+        206
+      ]
+    },
+    {
+      "name": "排烟桥回看工坊",
+      "eye": [
+        118,
+        75.62,
+        200
+      ],
+      "target": [
+        154,
+        45,
+        112
+      ]
+    }
+  ]
+}

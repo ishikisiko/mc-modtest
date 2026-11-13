@@ -1,0 +1,1059 @@
+{
+  "schema": 1,
+  "id": "archive_court",
+  "name": "藏书天井",
+  "status": "design_preview",
+  "size": [
+    256,
+    144,
+    288
+  ],
+  "subtitle": "错层书院中的真卷搜寻",
+  "brief": "穿过六处高低不同的楼院，核对书名、图记与封存年代，在高阁辨认真卷。",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "藏院山门",
+      "pos": [
+        120,
+        22,
+        26
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "front",
+      "name": "抄录前庭",
+      "pos": [
+        120,
+        22,
+        60
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "west_low",
+      "name": "西院旧架",
+      "pos": [
+        70,
+        28,
+        82
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "west_high",
+      "name": "西楼二层",
+      "pos": [
+        64,
+        38.5,
+        122
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "ink",
+      "name": "洗砚小院",
+      "pos": [
+        38,
+        32,
+        154
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "bridge",
+      "name": "悬廊书桥",
+      "pos": [
+        112,
+        44,
+        142
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "central",
+      "name": "古树天井",
+      "pos": [
+        138,
+        36,
+        162
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "east_low",
+      "name": "东楼夹道",
+      "pos": [
+        196,
+        34,
+        120
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "record",
+      "name": "东楼封存记录",
+      "pos": [
+        208,
+        46,
+        164
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "east_high",
+      "name": "东院上层",
+      "pos": [
+        202,
+        56,
+        206
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "rear",
+      "name": "后院卷库",
+      "pos": [
+        140,
+        52,
+        232
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "date",
+      "name": "封存年表",
+      "pos": [
+        96,
+        52,
+        230
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "true",
+      "name": "高阁真卷",
+      "pos": [
+        144,
+        72,
+        248
+      ],
+      "role": "objective",
+      "text": ""
+    },
+    {
+      "id": "seal",
+      "name": "中央封存台",
+      "pos": [
+        138,
+        36,
+        168
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "under",
+      "name": "地库回廊",
+      "pos": [
+        136,
+        14,
+        112
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "return",
+      "name": "前庭回梯",
+      "pos": [
+        156,
+        22,
+        68
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "tea",
+      "name": "讲读茶室",
+      "pos": [
+        44,
+        38,
+        210
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "roof",
+      "name": "侧楼檐台",
+      "pos": [
+        68,
+        55,
+        186
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "garden",
+      "name": "东侧竹院",
+      "pos": [
+        228,
+        32,
+        84
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "vault",
+      "name": "地下旧卷室",
+      "pos": [
+        194,
+        14,
+        154
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "loft",
+      "name": "高阁绕廊",
+      "pos": [
+        172,
+        62,
+        240
+      ],
+      "role": "route",
+      "text": ""
+    }
+  ],
+  "edges": [
+    {
+      "a": "entry",
+      "b": "front",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "front",
+      "b": "west_low",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "west_low",
+      "b": "west_high",
+      "kind": "stairs",
+      "via": [
+        [
+          54,
+          32,
+          102
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "west_high",
+      "b": "ink",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "west_high",
+      "b": "bridge",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "bridge",
+      "b": "central",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "front",
+      "b": "east_low",
+      "kind": "path",
+      "via": [
+        [
+          184,
+          28,
+          82
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "east_low",
+      "b": "garden",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "east_low",
+      "b": "record",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "record",
+      "b": "east_high",
+      "kind": "stairs",
+      "via": [
+        [
+          226,
+          50,
+          192
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "east_high",
+      "b": "rear",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "central",
+      "b": "rear",
+      "kind": "stairs",
+      "via": [
+        [
+          146,
+          44,
+          200
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "rear",
+      "b": "date",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "date",
+      "b": "tea",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "tea",
+      "b": "roof",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "roof",
+      "b": "west_high",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "rear",
+      "b": "loft",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "loft",
+      "b": "true",
+      "kind": "stairs",
+      "via": [
+        [
+          176,
+          68,
+          264
+        ]
+      ],
+      "requires": [
+        "west",
+        "east",
+        "date"
+      ]
+    },
+    {
+      "a": "true",
+      "b": "seal",
+      "kind": "stairs",
+      "via": [
+        [
+          164,
+          64,
+          224
+        ],
+        [
+          172,
+          50,
+          190
+        ]
+      ],
+      "requires": [
+        "true"
+      ]
+    },
+    {
+      "a": "central",
+      "b": "seal",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "seal",
+      "b": "under",
+      "kind": "stairs",
+      "via": [
+        [
+          142,
+          24,
+          136
+        ]
+      ],
+      "requires": [
+        "true"
+      ]
+    },
+    {
+      "a": "under",
+      "b": "return",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "return",
+      "b": "front",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "under",
+      "b": "vault",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "vault",
+      "b": "east_low",
+      "kind": "stairs",
+      "via": [
+        [
+          216,
+          24,
+          112
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "bridge",
+      "b": "record",
+      "kind": "bridge",
+      "via": [
+        [
+          154,
+          44,
+          146
+        ]
+      ],
+      "requires": []
+    }
+  ],
+  "structures": [
+    {
+      "kind": "gate",
+      "name": "藏院山门",
+      "pos": [
+        120,
+        22,
+        26
+      ],
+      "size": [
+        29,
+        17,
+        15
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "抄录厅",
+      "pos": [
+        120,
+        22,
+        60
+      ],
+      "size": [
+        42,
+        12,
+        24
+      ],
+      "use": "archive",
+      "open": true
+    },
+    {
+      "kind": "hall",
+      "name": "西院藏楼",
+      "pos": [
+        64,
+        28,
+        102
+      ],
+      "size": [
+        36,
+        21,
+        50
+      ],
+      "levels": 2,
+      "use": "archive",
+      "rotation": 1
+    },
+    {
+      "kind": "ruin",
+      "name": "洗砚偏院",
+      "pos": [
+        36,
+        32,
+        154
+      ],
+      "size": [
+        25,
+        14,
+        25
+      ],
+      "use": "archive",
+      "damage": 2
+    },
+    {
+      "kind": "hall",
+      "name": "东院藏楼",
+      "pos": [
+        202,
+        34,
+        142
+      ],
+      "size": [
+        35,
+        27,
+        57
+      ],
+      "levels": 3,
+      "use": "archive",
+      "rotation": 1
+    },
+    {
+      "kind": "hall",
+      "name": "后院卷库",
+      "pos": [
+        138,
+        52,
+        232
+      ],
+      "size": [
+        60,
+        14,
+        28
+      ],
+      "use": "archive"
+    },
+    {
+      "kind": "tower",
+      "name": "后山藏经高阁",
+      "pos": [
+        146,
+        62,
+        252
+      ],
+      "size": [
+        33,
+        38,
+        29
+      ],
+      "levels": 3,
+      "use": "archive"
+    },
+    {
+      "kind": "hall",
+      "name": "讲读茶室",
+      "pos": [
+        44,
+        38,
+        210
+      ],
+      "size": [
+        30,
+        12,
+        22
+      ],
+      "use": "tea"
+    },
+    {
+      "kind": "hall",
+      "name": "西侧阅卷楼",
+      "pos": [
+        70,
+        44,
+        180
+      ],
+      "size": [
+        26,
+        22,
+        31
+      ],
+      "levels": 2,
+      "use": "archive"
+    },
+    {
+      "kind": "hall",
+      "name": "东侧竹院廊",
+      "pos": [
+        228,
+        32,
+        84
+      ],
+      "size": [
+        16,
+        10,
+        32
+      ],
+      "open": true,
+      "rotation": 1
+    },
+    {
+      "kind": "vault",
+      "name": "地下旧卷室",
+      "pos": [
+        194,
+        14,
+        154
+      ],
+      "size": [
+        34,
+        15,
+        28
+      ],
+      "use": "archive"
+    },
+    {
+      "kind": "arch",
+      "name": "天井石门",
+      "pos": [
+        140,
+        36,
+        146
+      ],
+      "size": [
+        21,
+        16,
+        10
+      ]
+    },
+    {
+      "kind": "altar",
+      "name": "中央封存台",
+      "pos": [
+        138,
+        36,
+        168
+      ],
+      "size": [
+        17,
+        4,
+        17
+      ]
+    },
+    {
+      "kind": "shelves",
+      "name": "可移书架阵",
+      "pos": [
+        64,
+        29,
+        112
+      ],
+      "size": [
+        26,
+        6,
+        22
+      ]
+    },
+    {
+      "kind": "shelves",
+      "name": "东楼密架",
+      "pos": [
+        202,
+        35,
+        144
+      ],
+      "size": [
+        24,
+        7,
+        32
+      ]
+    },
+    {
+      "kind": "garden",
+      "name": "洗砚池",
+      "pos": [
+        36,
+        32,
+        152
+      ],
+      "size": [
+        18,
+        2,
+        14
+      ]
+    },
+    {
+      "kind": "garden",
+      "name": "中央古树庭",
+      "pos": [
+        138,
+        36,
+        162
+      ],
+      "size": [
+        38,
+        3,
+        38
+      ]
+    },
+    {
+      "kind": "screen",
+      "name": "抄录院东墙",
+      "pos": [
+        160,
+        24,
+        74
+      ],
+      "size": [
+        2,
+        8,
+        32
+      ]
+    },
+    {
+      "kind": "screen",
+      "name": "西院回折照壁",
+      "pos": [
+        62,
+        28,
+        68
+      ],
+      "size": [
+        36,
+        7,
+        2
+      ]
+    },
+    {
+      "kind": "screen",
+      "name": "东院夹道外墙",
+      "pos": [
+        218,
+        34,
+        132
+      ],
+      "size": [
+        2,
+        8,
+        42
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "西院高廊",
+      "pos": [
+        78,
+        38,
+        142
+      ],
+      "size": [
+        36,
+        10,
+        11
+      ],
+      "open": true
+    },
+    {
+      "kind": "hall",
+      "name": "东楼跨院廊",
+      "pos": [
+        176,
+        46,
+        174
+      ],
+      "size": [
+        45,
+        11,
+        12
+      ],
+      "open": true
+    },
+    {
+      "kind": "screen",
+      "name": "后库门墙",
+      "pos": [
+        138,
+        52,
+        214
+      ],
+      "size": [
+        45,
+        7,
+        2
+      ]
+    }
+  ],
+  "terrain": {
+    "base": 18,
+    "cover": "grass",
+    "rock": "rock",
+    "seed": 83,
+    "ridges": [
+      [
+        26,
+        216,
+        32,
+        70,
+        61
+      ],
+      [
+        126,
+        276,
+        114,
+        22,
+        72
+      ],
+      [
+        246,
+        198,
+        24,
+        82,
+        68
+      ]
+    ],
+    "valleys": [],
+    "trees": 38,
+    "pools": [
+      {
+        "rect": [
+          24,
+          146,
+          23,
+          14
+        ],
+        "y": 32
+      }
+    ],
+    "waterfalls": [],
+    "tree_species": "oak",
+    "watercourses": [
+      {
+        "points": [
+          [
+            242,
+            72,
+            228
+          ],
+          [
+            236,
+            54,
+            208
+          ],
+          [
+            228,
+            34,
+            188
+          ],
+          [
+            220,
+            22,
+            172
+          ]
+        ],
+        "width": 4
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "west",
+      "node": "west_low",
+      "phase": "读取西院书名线索"
+    },
+    {
+      "id": "east",
+      "node": "record",
+      "phase": "核对东楼封存图记"
+    },
+    {
+      "id": "date",
+      "node": "date",
+      "requires": [
+        "west",
+        "east"
+      ],
+      "phase": "核对年表开启高阁"
+    },
+    {
+      "id": "true",
+      "node": "true",
+      "requires": [
+        "date"
+      ],
+      "phase": "取真卷并开启地库回程"
+    }
+  ],
+  "entry": "entry",
+  "objective": "true",
+  "phases": [
+    {
+      "name": "初入秘境",
+      "done": []
+    },
+    {
+      "name": "读取西院书名线索",
+      "done": [
+        "west"
+      ]
+    },
+    {
+      "name": "核对东楼封存图记",
+      "done": [
+        "west",
+        "east"
+      ]
+    },
+    {
+      "name": "核对年表开启高阁",
+      "done": [
+        "west",
+        "east",
+        "date"
+      ]
+    },
+    {
+      "name": "取真卷并开启地库回程",
+      "done": [
+        "west",
+        "east",
+        "date",
+        "true"
+      ]
+    }
+  ],
+  "atmosphere": {
+    "sky": "#b7c5bb",
+    "fog": "#d2d8bf",
+    "sun": "#fff0c6",
+    "ambient": "#c5d0bd",
+    "rock_tint": "#a6afa0"
+  },
+  "composition": [
+    "中央古树与后山高阁提供方向参照，前院、东西藏楼、后库和地库分批露出。",
+    "两条悬廊从书院上方交叉，楼内书架、侧廊和夹道参与实际路线。",
+    "纸窗、深木、青瓦、浅石和水院地被共同形成安静而有层次的旧书院。"
+  ],
+  "cameras": [
+    {
+      "name": "六院与后山高阁",
+      "eye": [
+        328,
+        246,
+        -98
+      ],
+      "target": [
+        128,
+        40,
+        152
+      ]
+    },
+    {
+      "name": "山门后的抄录庭",
+      "eye": [
+        120,
+        23.62,
+        34
+      ],
+      "target": [
+        132,
+        44,
+        160
+      ]
+    },
+    {
+      "name": "书架夹道",
+      "eye": [
+        64,
+        29.62,
+        102
+      ],
+      "target": [
+        65,
+        32,
+        119
+      ]
+    },
+    {
+      "name": "天井上方的书桥",
+      "eye": [
+        112,
+        45.62,
+        142
+      ],
+      "target": [
+        146,
+        49,
+        173
+      ]
+    },
+    {
+      "name": "高阁回看六院",
+      "eye": [
+        172,
+        63.62,
+        240
+      ],
+      "target": [
+        126,
+        32,
+        78
+      ]
+    }
+  ]
+}

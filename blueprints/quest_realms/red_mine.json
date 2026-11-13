@@ -1,0 +1,931 @@
+{
+  "schema": 1,
+  "id": "red_mine",
+  "name": "赤石矿井",
+  "status": "design_preview",
+  "size": [
+    256,
+    176,
+    272
+  ],
+  "subtitle": "双竖井与废弃矿层",
+  "brief": "从矿口深入双竖井，沿木撑标记和旧排水道进入封矿层，取核后修复升降台撤离。",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "矿口值守棚",
+      "pos": [
+        36,
+        104,
+        36
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "camp",
+      "name": "矿工旧营地",
+      "pos": [
+        68,
+        100,
+        58
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "rail",
+      "name": "转运轨台",
+      "pos": [
+        98,
+        94,
+        72
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "shaft",
+      "name": "主井上桥",
+      "pos": [
+        138,
+        84,
+        94
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "hoist",
+      "name": "上层卷扬房",
+      "pos": [
+        190,
+        88,
+        74
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "drain",
+      "name": "旧排水渠",
+      "pos": [
+        64,
+        74,
+        114
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "timber",
+      "name": "木撑标记",
+      "pos": [
+        86,
+        64,
+        150
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "cross",
+      "name": "主井中桥",
+      "pos": [
+        138,
+        58,
+        142
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "pocket",
+      "name": "赤石侧矿脉",
+      "pos": [
+        202,
+        56,
+        124
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "refuge",
+      "name": "工人避难室",
+      "pos": [
+        210,
+        62,
+        176
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "second",
+      "name": "副井边廊",
+      "pos": [
+        164,
+        46,
+        194
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "sump",
+      "name": "积水矿层",
+      "pos": [
+        112,
+        34,
+        206
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "marker",
+      "name": "第二处勘记",
+      "pos": [
+        68,
+        38,
+        204
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "blast",
+      "name": "封矿石门",
+      "pos": [
+        160,
+        28,
+        228
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "core",
+      "name": "矿核岩厅",
+      "pos": [
+        204,
+        16,
+        226
+      ],
+      "role": "objective",
+      "text": ""
+    },
+    {
+      "id": "lift",
+      "name": "主井底升降台",
+      "pos": [
+        138,
+        18,
+        160
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "service",
+      "name": "旧检修道",
+      "pos": [
+        56,
+        52,
+        148
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "archive",
+      "name": "工头账房",
+      "pos": [
+        58,
+        102,
+        74
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "niche",
+      "name": "矿灯壁龛",
+      "pos": [
+        224,
+        42,
+        144
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "bridge",
+      "name": "副井横梁",
+      "pos": [
+        190,
+        42,
+        204
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "exit",
+      "name": "矿口卸料台",
+      "pos": [
+        108,
+        96,
+        42
+      ],
+      "role": "route",
+      "text": ""
+    }
+  ],
+  "edges": [
+    {
+      "a": "entry",
+      "b": "camp",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "camp",
+      "b": "rail",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "camp",
+      "b": "archive",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "rail",
+      "b": "shaft",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "shaft",
+      "b": "hoist",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "rail",
+      "b": "drain",
+      "kind": "tunnel",
+      "via": [
+        [
+          76,
+          84,
+          92
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "drain",
+      "b": "timber",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "timber",
+      "b": "cross",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "cross",
+      "b": "pocket",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "pocket",
+      "b": "refuge",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "refuge",
+      "b": "second",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "cross",
+      "b": "second",
+      "kind": "stairs",
+      "via": [
+        [
+          152,
+          52,
+          170
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "second",
+      "b": "sump",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "sump",
+      "b": "marker",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "marker",
+      "b": "service",
+      "kind": "tunnel",
+      "via": [
+        [
+          48,
+          44,
+          180
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "service",
+      "b": "timber",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "second",
+      "b": "bridge",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "bridge",
+      "b": "blast",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "sump",
+      "b": "blast",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "blast",
+      "b": "core",
+      "kind": "tunnel",
+      "via": [],
+      "requires": [
+        "support",
+        "pump"
+      ]
+    },
+    {
+      "a": "core",
+      "b": "lift",
+      "kind": "tunnel",
+      "via": [
+        [
+          192,
+          16,
+          176
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "lift",
+      "b": "shaft",
+      "kind": "lift",
+      "via": [],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "a": "shaft",
+      "b": "exit",
+      "kind": "stairs",
+      "via": [
+        [
+          138,
+          90,
+          64
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "exit",
+      "b": "entry",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "pocket",
+      "b": "niche",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "niche",
+      "b": "bridge",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "hoist",
+      "b": "exit",
+      "kind": "bridge",
+      "via": [
+        [
+          164,
+          92,
+          42
+        ]
+      ],
+      "requires": []
+    }
+  ],
+  "structures": [
+    {
+      "kind": "hall",
+      "name": "值守矿棚",
+      "pos": [
+        36,
+        104,
+        36
+      ],
+      "size": [
+        24,
+        10,
+        16
+      ],
+      "use": "camp"
+    },
+    {
+      "kind": "hall",
+      "name": "工头账房",
+      "pos": [
+        56,
+        102,
+        74
+      ],
+      "size": [
+        22,
+        11,
+        18
+      ],
+      "use": "archive"
+    },
+    {
+      "kind": "hall",
+      "name": "矿工宿棚",
+      "pos": [
+        72,
+        100,
+        58
+      ],
+      "size": [
+        30,
+        9,
+        17
+      ],
+      "use": "barracks",
+      "damage": 1
+    },
+    {
+      "kind": "frame",
+      "name": "矿口轨架",
+      "pos": [
+        98,
+        94,
+        74
+      ],
+      "size": [
+        31,
+        13,
+        18
+      ]
+    },
+    {
+      "kind": "lift",
+      "name": "主竖井升降架",
+      "pos": [
+        138,
+        18,
+        132
+      ],
+      "size": [
+        26,
+        80,
+        30
+      ]
+    },
+    {
+      "kind": "lift",
+      "name": "副竖井卷扬架",
+      "pos": [
+        176,
+        28,
+        198
+      ],
+      "size": [
+        22,
+        61,
+        24
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "卷扬房",
+      "pos": [
+        194,
+        88,
+        72
+      ],
+      "size": [
+        25,
+        12,
+        20
+      ],
+      "use": "workshop"
+    },
+    {
+      "kind": "frame",
+      "name": "中层木撑",
+      "pos": [
+        100,
+        64,
+        150
+      ],
+      "size": [
+        32,
+        12,
+        18
+      ]
+    },
+    {
+      "kind": "vault",
+      "name": "赤石矿厅",
+      "pos": [
+        206,
+        56,
+        124
+      ],
+      "size": [
+        37,
+        16,
+        26
+      ],
+      "material": "red_ore"
+    },
+    {
+      "kind": "vault",
+      "name": "工人避难室",
+      "pos": [
+        210,
+        62,
+        176
+      ],
+      "size": [
+        29,
+        12,
+        22
+      ],
+      "use": "barracks"
+    },
+    {
+      "kind": "vault",
+      "name": "深层矿厅",
+      "pos": [
+        204,
+        16,
+        226
+      ],
+      "size": [
+        40,
+        24,
+        33
+      ],
+      "material": "rock_dark",
+      "use": "ore"
+    },
+    {
+      "kind": "frame",
+      "name": "封矿石门",
+      "pos": [
+        160,
+        28,
+        228
+      ],
+      "size": [
+        21,
+        15,
+        12
+      ]
+    },
+    {
+      "kind": "wheel",
+      "name": "矿井排水轮",
+      "pos": [
+        190,
+        88,
+        74
+      ],
+      "size": [
+        12,
+        12,
+        10
+      ]
+    },
+    {
+      "kind": "altar",
+      "name": "矿核石台",
+      "pos": [
+        204,
+        16,
+        226
+      ],
+      "size": [
+        9,
+        4,
+        9
+      ]
+    },
+    {
+      "kind": "rail",
+      "name": "旧轨道",
+      "pos": [
+        106,
+        94,
+        58
+      ],
+      "size": [
+        4,
+        1,
+        36
+      ]
+    },
+    {
+      "kind": "rail",
+      "name": "中层轨道",
+      "pos": [
+        170,
+        56,
+        128
+      ],
+      "size": [
+        4,
+        1,
+        37
+      ],
+      "rotation": 1
+    }
+  ],
+  "terrain": {
+    "base": 108,
+    "cover": "rock",
+    "rock": "rock_dark",
+    "seed": 62,
+    "ridges": [
+      [
+        236,
+        82,
+        28,
+        86,
+        33
+      ],
+      [
+        220,
+        236,
+        49,
+        35,
+        36
+      ],
+      [
+        20,
+        186,
+        26,
+        75,
+        25
+      ]
+    ],
+    "valleys": [],
+    "trees": 12,
+    "shafts": [
+      {
+        "center": [
+          138,
+          138
+        ],
+        "radius": [
+          35,
+          49
+        ],
+        "bottom": 10
+      },
+      {
+        "center": [
+          177,
+          200
+        ],
+        "radius": [
+          29,
+          28
+        ],
+        "bottom": 20
+      }
+    ],
+    "pools": [
+      {
+        "rect": [
+          93,
+          193,
+          40,
+          25
+        ],
+        "y": 30
+      }
+    ],
+    "waterfalls": [],
+    "tree_species": "spruce"
+  },
+  "actions": [
+    {
+      "id": "support",
+      "node": "timber",
+      "phase": "核对木撑与矿工标记"
+    },
+    {
+      "id": "pump",
+      "node": "hoist",
+      "requires": [
+        "support"
+      ],
+      "phase": "恢复排水卷扬"
+    },
+    {
+      "id": "core",
+      "node": "core",
+      "requires": [
+        "support",
+        "pump"
+      ],
+      "phase": "取得深层矿核"
+    },
+    {
+      "id": "lift",
+      "node": "lift",
+      "requires": [
+        "core"
+      ],
+      "phase": "启动升降台撤离"
+    }
+  ],
+  "entry": "entry",
+  "objective": "core",
+  "phases": [
+    {
+      "name": "初入秘境",
+      "done": []
+    },
+    {
+      "name": "核对木撑与矿工标记",
+      "done": [
+        "support"
+      ]
+    },
+    {
+      "name": "恢复排水卷扬",
+      "done": [
+        "support",
+        "pump"
+      ]
+    },
+    {
+      "name": "取得深层矿核",
+      "done": [
+        "support",
+        "pump",
+        "core"
+      ]
+    },
+    {
+      "name": "启动升降台撤离",
+      "done": [
+        "support",
+        "pump",
+        "core",
+        "lift"
+      ]
+    }
+  ],
+  "atmosphere": {
+    "sky": "#abb4b9",
+    "fog": "#bbc2bd",
+    "sun": "#ffe1bd",
+    "ambient": "#c1c6cc",
+    "rock_tint": "#a58e82"
+  },
+  "composition": [
+    "矿口营地、主井上桥、中层矿廊和深层岩厅纵向叠置。",
+    "两口竖井通过不同高度的横梁与排水道相连，中层绕路可进入避难室。",
+    "井架、旧轨道、矿灯和红褐矿脉帮助玩家辨认已经走过的矿层。"
+  ],
+  "cameras": [
+    {
+      "name": "矿口与双竖井",
+      "eye": [
+        325,
+        300,
+        -55
+      ],
+      "target": [
+        138,
+        60,
+        150
+      ]
+    },
+    {
+      "name": "矿口与上桥",
+      "eye": [
+        96,
+        95.62,
+        70
+      ],
+      "target": [
+        138,
+        81,
+        130
+      ]
+    },
+    {
+      "name": "中层木撑矿道",
+      "eye": [
+        86,
+        65.62,
+        145
+      ],
+      "target": [
+        138,
+        62,
+        142
+      ]
+    },
+    {
+      "name": "井底仰看井架",
+      "eye": [
+        138,
+        19.62,
+        161
+      ],
+      "target": [
+        140,
+        85,
+        124
+      ]
+    },
+    {
+      "name": "深层矿核岩厅",
+      "eye": [
+        204,
+        17.62,
+        216
+      ],
+      "target": [
+        210,
+        26,
+        236
+      ]
+    }
+  ]
+}

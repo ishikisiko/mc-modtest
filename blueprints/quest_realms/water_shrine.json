@@ -1,0 +1,1127 @@
+{
+  "schema": 1,
+  "id": "water_shrine",
+  "name": "回水古祠",
+  "status": "design_preview",
+  "size": [
+    256,
+    144,
+    288
+  ],
+  "subtitle": "三层水库中的古祠",
+  "brief": "沿水庭、水闸和山腰回廊核对水路，让水位变化逐步露出地下封存室。",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "沉石山门",
+      "pos": [
+        128,
+        38,
+        28
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "front",
+      "name": "残碑前院",
+      "pos": [
+        120,
+        38,
+        64
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "west",
+      "name": "西岸巡水廊",
+      "pos": [
+        72,
+        42,
+        88
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "sluice_w",
+      "name": "西闸房",
+      "pos": [
+        40,
+        46,
+        120
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "north_w",
+      "name": "苔壁高院",
+      "pos": [
+        60,
+        54,
+        174
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "wheel",
+      "name": "山腰水轮",
+      "pos": [
+        86,
+        56,
+        218
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "upper",
+      "name": "上池祭殿",
+      "pos": [
+        134,
+        58,
+        240
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "east_high",
+      "name": "东岸悬廊",
+      "pos": [
+        188,
+        54,
+        204
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "sluice_e",
+      "name": "东闸房",
+      "pos": [
+        214,
+        48,
+        160
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "lower",
+      "name": "低池石滩",
+      "pos": [
+        182,
+        30,
+        124
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "basin",
+      "name": "中庭沉台",
+      "pos": [
+        130,
+        30,
+        140
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "stairs",
+      "name": "井壁下梯",
+      "pos": [
+        116,
+        22,
+        166
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "under",
+      "name": "地下回廊",
+      "pos": [
+        150,
+        16,
+        172
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "seal",
+      "name": "井底封存室",
+      "pos": [
+        134,
+        16,
+        210
+      ],
+      "role": "objective",
+      "text": ""
+    },
+    {
+      "id": "return",
+      "name": "前院暗门",
+      "pos": [
+        136,
+        28,
+        82
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "island",
+      "name": "水中观测亭",
+      "pos": [
+        122,
+        40,
+        106
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "garden",
+      "name": "药草湿庭",
+      "pos": [
+        36,
+        42,
+        78
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "script",
+      "name": "西廊碑室",
+      "pos": [
+        36,
+        48,
+        184
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "offering",
+      "name": "高院供器库",
+      "pos": [
+        184,
+        60,
+        252
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "leak",
+      "name": "侧壁检修洞",
+      "pos": [
+        218,
+        24,
+        214
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "cistern",
+      "name": "地下蓄水井",
+      "pos": [
+        194,
+        16,
+        174
+      ],
+      "role": "optional",
+      "text": ""
+    }
+  ],
+  "edges": [
+    {
+      "a": "entry",
+      "b": "front",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "front",
+      "b": "west",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "west",
+      "b": "sluice_w",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "west",
+      "b": "garden",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "sluice_w",
+      "b": "north_w",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "north_w",
+      "b": "script",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "north_w",
+      "b": "wheel",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "wheel",
+      "b": "upper",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "upper",
+      "b": "east_high",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "upper",
+      "b": "offering",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "east_high",
+      "b": "sluice_e",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "front",
+      "b": "island",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "island",
+      "b": "west",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "sluice_w",
+      "b": "basin",
+      "kind": "stairs",
+      "via": [
+        [
+          82,
+          38,
+          134
+        ]
+      ],
+      "requires": [
+        "west"
+      ]
+    },
+    {
+      "a": "sluice_e",
+      "b": "lower",
+      "kind": "stairs",
+      "via": [
+        [
+          218,
+          38,
+          122
+        ]
+      ],
+      "requires": [
+        "west"
+      ]
+    },
+    {
+      "a": "lower",
+      "b": "basin",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "basin",
+      "b": "stairs",
+      "kind": "stairs",
+      "via": [],
+      "requires": [
+        "east"
+      ]
+    },
+    {
+      "a": "stairs",
+      "b": "under",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "under",
+      "b": "seal",
+      "kind": "tunnel",
+      "via": [],
+      "requires": [
+        "wheel"
+      ]
+    },
+    {
+      "a": "under",
+      "b": "cistern",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "cistern",
+      "b": "leak",
+      "kind": "tunnel",
+      "via": [],
+      "requires": [
+        "east"
+      ]
+    },
+    {
+      "a": "leak",
+      "b": "sluice_e",
+      "kind": "stairs",
+      "via": [
+        [
+          238,
+          36,
+          178
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "under",
+      "b": "return",
+      "kind": "tunnel",
+      "via": [
+        [
+          166,
+          20,
+          128
+        ]
+      ],
+      "requires": [
+        "seal"
+      ]
+    },
+    {
+      "a": "return",
+      "b": "front",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "garden",
+      "b": "script",
+      "kind": "stairs",
+      "via": [
+        [
+          20,
+          46,
+          132
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "offering",
+      "b": "leak",
+      "kind": "stairs",
+      "via": [
+        [
+          240,
+          42,
+          248
+        ]
+      ],
+      "requires": []
+    }
+  ],
+  "structures": [
+    {
+      "kind": "gate",
+      "name": "残损山门",
+      "pos": [
+        128,
+        38,
+        28
+      ],
+      "size": [
+        30,
+        18,
+        15
+      ],
+      "damage": 1
+    },
+    {
+      "kind": "ruin",
+      "name": "前院碑亭",
+      "pos": [
+        92,
+        38,
+        62
+      ],
+      "size": [
+        24,
+        12,
+        17
+      ],
+      "use": "shrine"
+    },
+    {
+      "kind": "hall",
+      "name": "西闸长屋",
+      "pos": [
+        40,
+        46,
+        120
+      ],
+      "size": [
+        24,
+        13,
+        28
+      ],
+      "use": "workshop",
+      "rotation": 1
+    },
+    {
+      "kind": "hall",
+      "name": "西岸高廊",
+      "pos": [
+        61,
+        46,
+        151
+      ],
+      "size": [
+        16,
+        10,
+        52
+      ],
+      "open": true,
+      "rotation": 1
+    },
+    {
+      "kind": "tower",
+      "name": "山腰水阁",
+      "pos": [
+        88,
+        56,
+        214
+      ],
+      "size": [
+        21,
+        28,
+        19
+      ],
+      "levels": 2,
+      "open": true
+    },
+    {
+      "kind": "wheel",
+      "name": "高位回水轮",
+      "pos": [
+        90,
+        54,
+        223
+      ],
+      "size": [
+        17,
+        18,
+        12
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "上池祭殿",
+      "pos": [
+        136,
+        58,
+        244
+      ],
+      "size": [
+        48,
+        22,
+        28
+      ],
+      "use": "shrine",
+      "levels": 2
+    },
+    {
+      "kind": "hall",
+      "name": "东岸檐廊",
+      "pos": [
+        198,
+        54,
+        202
+      ],
+      "size": [
+        18,
+        12,
+        39
+      ],
+      "open": true,
+      "rotation": 1
+    },
+    {
+      "kind": "hall",
+      "name": "东闸房",
+      "pos": [
+        214,
+        48,
+        160
+      ],
+      "size": [
+        26,
+        14,
+        22
+      ],
+      "use": "workshop"
+    },
+    {
+      "kind": "hall",
+      "name": "供器库",
+      "pos": [
+        184,
+        60,
+        254
+      ],
+      "size": [
+        23,
+        11,
+        18
+      ],
+      "use": "depot"
+    },
+    {
+      "kind": "tower",
+      "name": "水中观测亭",
+      "pos": [
+        122,
+        40,
+        106
+      ],
+      "size": [
+        14,
+        17,
+        14
+      ],
+      "open": true
+    },
+    {
+      "kind": "ruin",
+      "name": "西廊碑室",
+      "pos": [
+        32,
+        48,
+        182
+      ],
+      "size": [
+        20,
+        14,
+        25
+      ],
+      "use": "archive"
+    },
+    {
+      "kind": "vault",
+      "name": "井底封存室",
+      "pos": [
+        134,
+        16,
+        210
+      ],
+      "size": [
+        34,
+        13,
+        30
+      ],
+      "use": "shrine"
+    },
+    {
+      "kind": "vault",
+      "name": "蓄水井",
+      "pos": [
+        194,
+        16,
+        174
+      ],
+      "size": [
+        26,
+        14,
+        22
+      ]
+    },
+    {
+      "kind": "arch",
+      "name": "沉台石门",
+      "pos": [
+        130,
+        30,
+        148
+      ],
+      "size": [
+        19,
+        17,
+        10
+      ]
+    },
+    {
+      "kind": "sluice",
+      "name": "西闸铜枢",
+      "pos": [
+        40,
+        46,
+        120
+      ],
+      "size": [
+        8,
+        9,
+        8
+      ]
+    },
+    {
+      "kind": "sluice",
+      "name": "东闸铜枢",
+      "pos": [
+        214,
+        48,
+        160
+      ],
+      "size": [
+        9,
+        10,
+        9
+      ]
+    },
+    {
+      "kind": "altar",
+      "name": "沉水祭台",
+      "pos": [
+        130,
+        29,
+        140
+      ],
+      "size": [
+        26,
+        4,
+        26
+      ]
+    },
+    {
+      "kind": "altar",
+      "name": "封存石匣",
+      "pos": [
+        134,
+        16,
+        210
+      ],
+      "size": [
+        7,
+        3,
+        6
+      ]
+    },
+    {
+      "kind": "screen",
+      "name": "前院照壁",
+      "pos": [
+        130,
+        38,
+        76
+      ],
+      "size": [
+        42,
+        8,
+        2
+      ]
+    },
+    {
+      "kind": "screen",
+      "name": "前庭西侧院墙",
+      "pos": [
+        88,
+        38,
+        100
+      ],
+      "size": [
+        2,
+        6,
+        42
+      ]
+    },
+    {
+      "kind": "screen",
+      "name": "沉台后院墙",
+      "pos": [
+        130,
+        30,
+        174
+      ],
+      "size": [
+        40,
+        8,
+        2
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "上池东岸曲廊",
+      "pos": [
+        172,
+        58,
+        234
+      ],
+      "size": [
+        13,
+        10,
+        43
+      ],
+      "open": true
+    },
+    {
+      "kind": "hall",
+      "name": "西岸转折檐廊",
+      "pos": [
+        60,
+        48,
+        182
+      ],
+      "size": [
+        46,
+        10,
+        12
+      ],
+      "open": true
+    },
+    {
+      "kind": "screen",
+      "name": "东闸检修隔墙",
+      "pos": [
+        218,
+        40,
+        132
+      ],
+      "size": [
+        28,
+        9,
+        2
+      ]
+    }
+  ],
+  "terrain": {
+    "base": 26,
+    "cover": "grass",
+    "rock": "rock",
+    "seed": 41,
+    "ridges": [
+      [
+        24,
+        182,
+        32,
+        108,
+        78
+      ],
+      [
+        124,
+        270,
+        130,
+        26,
+        104
+      ],
+      [
+        238,
+        210,
+        28,
+        98,
+        87
+      ],
+      [
+        80,
+        210,
+        36,
+        48,
+        54
+      ]
+    ],
+    "valleys": [],
+    "trees": 43,
+    "pools": [
+      {
+        "rect": [
+          81,
+          87,
+          81,
+          64
+        ],
+        "y": 37,
+        "drained_y": 29,
+        "drained_after": "west"
+      },
+      {
+        "rect": [
+          98,
+          210,
+          75,
+          48
+        ],
+        "y": 56
+      },
+      {
+        "rect": [
+          168,
+          105,
+          52,
+          40
+        ],
+        "y": 39,
+        "drained_y": 28,
+        "drained_after": "east"
+      }
+    ],
+    "waterfalls": [],
+    "tree_species": "oak",
+    "watercourses": [
+      {
+        "points": [
+          [
+            126,
+            112,
+            274
+          ],
+          [
+            120,
+            100,
+            264
+          ],
+          [
+            114,
+            84,
+            254
+          ],
+          [
+            114,
+            56,
+            236
+          ]
+        ],
+        "width": 8
+      },
+      {
+        "points": [
+          [
+            238,
+            92,
+            228
+          ],
+          [
+            222,
+            72,
+            210
+          ],
+          [
+            216,
+            52,
+            190
+          ],
+          [
+            192,
+            40,
+            170
+          ],
+          [
+            198,
+            39,
+            140
+          ]
+        ],
+        "width": 5
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "west",
+      "node": "sluice_w",
+      "phase": "西闸降低前庭水位"
+    },
+    {
+      "id": "east",
+      "node": "sluice_e",
+      "requires": [
+        "west"
+      ],
+      "phase": "东闸接通井壁回水"
+    },
+    {
+      "id": "wheel",
+      "node": "wheel",
+      "requires": [
+        "east"
+      ],
+      "phase": "水轮打开封存室"
+    },
+    {
+      "id": "seal",
+      "node": "seal",
+      "requires": [
+        "wheel"
+      ],
+      "phase": "取匣并打开暗廊"
+    }
+  ],
+  "entry": "entry",
+  "objective": "seal",
+  "phases": [
+    {
+      "name": "初入秘境",
+      "done": []
+    },
+    {
+      "name": "西闸降低前庭水位",
+      "done": [
+        "west"
+      ]
+    },
+    {
+      "name": "东闸接通井壁回水",
+      "done": [
+        "west",
+        "east"
+      ]
+    },
+    {
+      "name": "水轮打开封存室",
+      "done": [
+        "west",
+        "east",
+        "wheel"
+      ]
+    },
+    {
+      "name": "取匣并打开暗廊",
+      "done": [
+        "west",
+        "east",
+        "wheel",
+        "seal"
+      ]
+    }
+  ],
+  "atmosphere": {
+    "sky": "#b6cbd0",
+    "fog": "#c4d9d3",
+    "sun": "#fff1cf",
+    "ambient": "#bdced0",
+    "rock_tint": "#9baea4"
+  },
+  "composition": [
+    "上池祭殿嵌在瀑布与山壁之间；下池、前庭和井底通过水渠发生实际联系。",
+    "入口只能看到中庭沉台和上方殿檐，井底封存室藏在后殿下方。",
+    "西岸石廊贴山，东岸木廊悬于水上；两岸使用不同的宽窄和转折。"
+  ],
+  "cameras": [
+    {
+      "name": "三层水庭",
+      "eye": [
+        312,
+        230,
+        -100
+      ],
+      "target": [
+        128,
+        42,
+        152
+      ]
+    },
+    {
+      "name": "山门看水庭",
+      "eye": [
+        128,
+        39.62,
+        36
+      ],
+      "target": [
+        125,
+        47,
+        145
+      ]
+    },
+    {
+      "name": "西廊与水轮",
+      "eye": [
+        62,
+        55.62,
+        180
+      ],
+      "target": [
+        91,
+        66,
+        223
+      ]
+    },
+    {
+      "name": "东岸檐下",
+      "eye": [
+        190,
+        55.62,
+        206
+      ],
+      "target": [
+        136,
+        65,
+        242
+      ]
+    },
+    {
+      "name": "井壁封存室",
+      "eye": [
+        150,
+        17.62,
+        180
+      ],
+      "target": [
+        134,
+        23,
+        210
+      ]
+    }
+  ]
+}

@@ -111,6 +111,8 @@ above and link the relevant contract. Update only affected documentation.
 
 御剑、符箓与渡劫：[耗灵飞行与青霄飞剑](../features/flying-sword-demo.md)、[制符资质、持续注灵及回城／闪回符](../features/talismans.md)、[正式金丹雷劫](../features/tribulation.md)。飞剑入口亦见 KB27，资质见 KB50，金丹突破见 KB30。
 
+委托秘境地图：[六张地图的空间、作者输入、预览与当前实施边界](../features/quest-realms-maps.md)。
+
 地域行尸与骸弓：[18 款、攻击时点、地域出生与资源归属](../features/regional-undead.md)。
 
 修士与怪物选敌：[新亡灵主动寻找修士、原版村民目标适配与自然选敌验证](../features/cultivator-hostility.md)。

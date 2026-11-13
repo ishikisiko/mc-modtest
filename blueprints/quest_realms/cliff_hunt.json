@@ -1,0 +1,1096 @@
+{
+  "schema": 1,
+  "id": "cliff_hunt",
+  "name": "断崖旧寨",
+  "status": "design_preview",
+  "size": [
+    288,
+    128,
+    288
+  ],
+  "subtitle": "沿废寨与峡谷追猎",
+  "brief": "沿溪谷进入下寨，经两处可选路径登上高寨，核对踪迹后敲钟拦截首领。",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "山口驿棚",
+      "pos": [
+        38,
+        16,
+        30
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "creek",
+      "name": "干溪石滩",
+      "pos": [
+        70,
+        18,
+        52
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "gate",
+      "name": "下寨瓮门",
+      "pos": [
+        102,
+        26,
+        68
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "village",
+      "name": "废弃下寨",
+      "pos": [
+        76,
+        30,
+        108
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "store",
+      "name": "粮仓侧巷",
+      "pos": [
+        42,
+        32,
+        136
+      ],
+      "role": "optional",
+      "text": "侧门可从内侧开启，回程不必再穿过瓮门。"
+    },
+    {
+      "id": "under",
+      "name": "栈桥下层",
+      "pos": [
+        116,
+        32,
+        120
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "mill",
+      "name": "溪边旧磨",
+      "pos": [
+        150,
+        28,
+        84
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "herbs",
+      "name": "林缘药畦",
+      "pos": [
+        188,
+        32,
+        66
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "ridge",
+      "name": "夹山石阶",
+      "pos": [
+        168,
+        40,
+        134
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "court",
+      "name": "上寨兵器院",
+      "pos": [
+        204,
+        48,
+        122
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "bell",
+      "name": "断墙钟楼",
+      "pos": [
+        218,
+        54,
+        166
+      ],
+      "role": "mechanism",
+      "text": "敲钟后，首领从两处巢穴之一进入北侧岩庭。"
+    },
+    {
+      "id": "bridge",
+      "name": "断桥桥面",
+      "pos": [
+        132,
+        58,
+        172
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "granary",
+      "name": "上寨粮仓",
+      "pos": [
+        86,
+        54,
+        190
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "shrine",
+      "name": "松林祭场",
+      "pos": [
+        56,
+        50,
+        220
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "tracks",
+      "name": "岩脊踪迹",
+      "pos": [
+        160,
+        62,
+        210
+      ],
+      "role": "mechanism",
+      "text": "辨认足迹与猎物残骸，确认首领将经过的山口。"
+    },
+    {
+      "id": "den_w",
+      "name": "旧猎人洞",
+      "pos": [
+        118,
+        58,
+        244
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "den_e",
+      "name": "背山兽巢",
+      "pos": [
+        218,
+        66,
+        242
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "ambush",
+      "name": "狼王岩庭",
+      "pos": [
+        204,
+        66,
+        208
+      ],
+      "role": "objective",
+      "text": ""
+    },
+    {
+      "id": "winch",
+      "name": "后寨绞盘",
+      "pos": [
+        120,
+        58,
+        184
+      ],
+      "role": "mechanism",
+      "text": "放下回程吊桥，通向入口上方的哨台。"
+    },
+    {
+      "id": "return",
+      "name": "入口高哨",
+      "pos": [
+        44,
+        44,
+        62
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "cache",
+      "name": "桥洞藏物",
+      "pos": [
+        146,
+        32,
+        156
+      ],
+      "role": "optional",
+      "text": ""
+    }
+  ],
+  "edges": [
+    {
+      "a": "entry",
+      "b": "creek",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "creek",
+      "b": "gate",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "gate",
+      "b": "village",
+      "kind": "path",
+      "via": [
+        [
+          104,
+          28,
+          102
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "village",
+      "b": "store",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "village",
+      "b": "under",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "under",
+      "b": "mill",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "mill",
+      "b": "herbs",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "herbs",
+      "b": "court",
+      "kind": "path",
+      "via": [
+        [
+          226,
+          40,
+          88
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "under",
+      "b": "ridge",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "ridge",
+      "b": "court",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "court",
+      "b": "bell",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "ridge",
+      "b": "bridge",
+      "kind": "stairs",
+      "via": [
+        [
+          168,
+          48,
+          170
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "bridge",
+      "b": "granary",
+      "kind": "bridge",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "granary",
+      "b": "shrine",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "shrine",
+      "b": "den_w",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "granary",
+      "b": "tracks",
+      "kind": "path",
+      "via": [
+        [
+          116,
+          58,
+          214
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "bell",
+      "b": "tracks",
+      "kind": "path",
+      "via": [
+        [
+          220,
+          60,
+          198
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "tracks",
+      "b": "den_w",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "tracks",
+      "b": "den_e",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "tracks",
+      "b": "ambush",
+      "kind": "path",
+      "via": [],
+      "requires": [
+        "tracks",
+        "bell"
+      ]
+    },
+    {
+      "a": "den_e",
+      "b": "ambush",
+      "kind": "path",
+      "via": [],
+      "requires": [
+        "tracks",
+        "bell"
+      ]
+    },
+    {
+      "a": "bridge",
+      "b": "winch",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "winch",
+      "b": "return",
+      "kind": "bridge",
+      "via": [
+        [
+          86,
+          52,
+          132
+        ],
+        [
+          44,
+          46,
+          102
+        ]
+      ],
+      "requires": [
+        "winch"
+      ]
+    },
+    {
+      "a": "return",
+      "b": "entry",
+      "kind": "stairs",
+      "via": [
+        [
+          24,
+          32,
+          52
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "store",
+      "b": "return",
+      "kind": "stairs",
+      "via": [
+        [
+          30,
+          38,
+          94
+        ]
+      ],
+      "requires": [
+        "winch"
+      ]
+    },
+    {
+      "a": "under",
+      "b": "cache",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "cache",
+      "b": "ridge",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    }
+  ],
+  "structures": [
+    {
+      "kind": "hall",
+      "name": "山口驿棚",
+      "pos": [
+        38,
+        16,
+        30
+      ],
+      "size": [
+        21,
+        9,
+        15
+      ],
+      "open": true,
+      "use": "camp"
+    },
+    {
+      "kind": "gate",
+      "name": "双折瓮门",
+      "pos": [
+        100,
+        26,
+        68
+      ],
+      "size": [
+        22,
+        15,
+        13
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "低檐兵舍",
+      "pos": [
+        70,
+        30,
+        104
+      ],
+      "size": [
+        30,
+        9,
+        20
+      ],
+      "use": "barracks",
+      "damage": 2
+    },
+    {
+      "kind": "hall",
+      "name": "半塌粮仓",
+      "pos": [
+        40,
+        32,
+        140
+      ],
+      "size": [
+        24,
+        10,
+        18
+      ],
+      "use": "depot",
+      "damage": 1
+    },
+    {
+      "kind": "hall",
+      "name": "磨坊",
+      "pos": [
+        154,
+        28,
+        82
+      ],
+      "size": [
+        22,
+        12,
+        17
+      ],
+      "use": "workshop",
+      "rotation": 1
+    },
+    {
+      "kind": "wheel",
+      "name": "废水轮",
+      "pos": [
+        166,
+        29,
+        91
+      ],
+      "size": [
+        9,
+        9,
+        8
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "兵器院正屋",
+      "pos": [
+        206,
+        48,
+        116
+      ],
+      "size": [
+        33,
+        11,
+        18
+      ],
+      "use": "workshop",
+      "open": true
+    },
+    {
+      "kind": "tower",
+      "name": "北寨钟楼",
+      "pos": [
+        222,
+        54,
+        170
+      ],
+      "size": [
+        16,
+        25,
+        16
+      ],
+      "levels": 2,
+      "use": "bell"
+    },
+    {
+      "kind": "hall",
+      "name": "高寨仓房",
+      "pos": [
+        82,
+        54,
+        190
+      ],
+      "size": [
+        30,
+        12,
+        19
+      ],
+      "use": "depot"
+    },
+    {
+      "kind": "ruin",
+      "name": "林中旧祠",
+      "pos": [
+        54,
+        50,
+        224
+      ],
+      "size": [
+        25,
+        15,
+        22
+      ],
+      "use": "shrine"
+    },
+    {
+      "kind": "cave",
+      "name": "猎人石洞",
+      "pos": [
+        118,
+        58,
+        244
+      ],
+      "size": [
+        23,
+        11,
+        19
+      ]
+    },
+    {
+      "kind": "cave",
+      "name": "兽巢岩口",
+      "pos": [
+        224,
+        66,
+        242
+      ],
+      "size": [
+        31,
+        17,
+        23
+      ]
+    },
+    {
+      "kind": "tower",
+      "name": "入口哨台",
+      "pos": [
+        44,
+        44,
+        62
+      ],
+      "size": [
+        14,
+        20,
+        14
+      ],
+      "levels": 2,
+      "open": true
+    },
+    {
+      "kind": "arch",
+      "name": "寨后石拱",
+      "pos": [
+        174,
+        62,
+        206
+      ],
+      "size": [
+        19,
+        16,
+        10
+      ]
+    },
+    {
+      "kind": "palisade",
+      "name": "寨墙遗段",
+      "pos": [
+        100,
+        31,
+        150
+      ],
+      "size": [
+        54,
+        8,
+        6
+      ],
+      "rotation": 1
+    },
+    {
+      "kind": "palisade",
+      "name": "兵器院矮墙",
+      "pos": [
+        224,
+        48,
+        140
+      ],
+      "size": [
+        40,
+        5,
+        4
+      ]
+    },
+    {
+      "kind": "winch",
+      "name": "吊桥绞盘",
+      "pos": [
+        120,
+        58,
+        184
+      ],
+      "size": [
+        8,
+        7,
+        8
+      ]
+    },
+    {
+      "kind": "marker",
+      "name": "足迹核验处",
+      "pos": [
+        160,
+        62,
+        210
+      ],
+      "size": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "kind": "altar",
+      "name": "狼王岩庭",
+      "pos": [
+        204,
+        66,
+        208
+      ],
+      "size": [
+        25,
+        2,
+        25
+      ]
+    },
+    {
+      "kind": "screen",
+      "name": "下寨侧墙",
+      "pos": [
+        56,
+        30,
+        116
+      ],
+      "size": [
+        2,
+        6,
+        36
+      ]
+    },
+    {
+      "kind": "screen",
+      "name": "瓮门内侧照壁",
+      "pos": [
+        126,
+        28,
+        88
+      ],
+      "size": [
+        28,
+        7,
+        2
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "上寨临崖檐廊",
+      "pos": [
+        180,
+        48,
+        154
+      ],
+      "size": [
+        38,
+        10,
+        12
+      ],
+      "open": true
+    },
+    {
+      "kind": "screen",
+      "name": "岩庭前石屏",
+      "pos": [
+        192,
+        62,
+        194
+      ],
+      "size": [
+        31,
+        9,
+        2
+      ]
+    }
+  ],
+  "terrain": {
+    "base": 12,
+    "cover": "grass",
+    "rock": "rock",
+    "seed": 17,
+    "ridges": [
+      [
+        66,
+        104,
+        58,
+        70,
+        38
+      ],
+      [
+        180,
+        168,
+        47,
+        90,
+        68
+      ],
+      [
+        242,
+        224,
+        52,
+        52,
+        76
+      ],
+      [
+        64,
+        248,
+        73,
+        34,
+        58
+      ],
+      [
+        12,
+        146,
+        28,
+        125,
+        74
+      ]
+    ],
+    "valleys": [
+      {
+        "points": [
+          [
+            22,
+            18
+          ],
+          [
+            96,
+            86
+          ],
+          [
+            140,
+            168
+          ],
+          [
+            170,
+            272
+          ]
+        ],
+        "width": 17,
+        "floor": 10
+      }
+    ],
+    "trees": 70,
+    "pools": [
+      {
+        "rect": [
+          140,
+          58,
+          24,
+          36
+        ],
+        "y": 25
+      }
+    ],
+    "waterfalls": [],
+    "tree_species": "spruce",
+    "watercourses": [
+      {
+        "points": [
+          [
+            22,
+            72,
+            206
+          ],
+          [
+            26,
+            56,
+            200
+          ],
+          [
+            28,
+            36,
+            192
+          ],
+          [
+            42,
+            16,
+            184
+          ]
+        ],
+        "width": 5
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "tracks",
+      "node": "tracks",
+      "phase": "确认首领踪迹"
+    },
+    {
+      "id": "bell",
+      "node": "bell",
+      "phase": "钟声引出首领"
+    },
+    {
+      "id": "hunt",
+      "node": "ambush",
+      "requires": [
+        "tracks",
+        "bell"
+      ],
+      "phase": "完成岩庭追猎"
+    },
+    {
+      "id": "winch",
+      "node": "winch",
+      "requires": [
+        "hunt"
+      ],
+      "phase": "放下吊桥返回"
+    }
+  ],
+  "entry": "entry",
+  "objective": "ambush",
+  "phases": [
+    {
+      "name": "初入秘境",
+      "done": []
+    },
+    {
+      "name": "确认首领踪迹",
+      "done": [
+        "tracks"
+      ]
+    },
+    {
+      "name": "钟声引出首领",
+      "done": [
+        "tracks",
+        "bell"
+      ]
+    },
+    {
+      "name": "完成岩庭追猎",
+      "done": [
+        "tracks",
+        "bell",
+        "hunt"
+      ]
+    },
+    {
+      "name": "放下吊桥返回",
+      "done": [
+        "tracks",
+        "bell",
+        "hunt",
+        "winch"
+      ]
+    }
+  ],
+  "atmosphere": {
+    "sky": "#aebdba",
+    "fog": "#c2cdc2",
+    "sun": "#ffe4b4",
+    "ambient": "#becdc4",
+    "rock_tint": "#b5b8a5"
+  },
+  "composition": [
+    "入口位于山缝底部，钟楼先从上方露出，首领岩庭位于第二道山脊背面。",
+    "村巷、栈桥下层、断桥桥面和林中祭场形成四种不同尺度。",
+    "去程沿桥下进入山腹，回程通过绞盘放下的吊桥返回入口高哨。"
+  ],
+  "cameras": [
+    {
+      "name": "下寨与断桥",
+      "eye": [
+        300,
+        214,
+        -76
+      ],
+      "target": [
+        140,
+        38,
+        146
+      ]
+    },
+    {
+      "name": "入口仰视钟楼",
+      "eye": [
+        38,
+        17.62,
+        32
+      ],
+      "target": [
+        106,
+        45,
+        88
+      ]
+    },
+    {
+      "name": "旧寨村巷",
+      "eye": [
+        70,
+        31.62,
+        92
+      ],
+      "target": [
+        82,
+        37,
+        121
+      ]
+    },
+    {
+      "name": "桥下的山口",
+      "eye": [
+        114,
+        33.62,
+        123
+      ],
+      "target": [
+        138,
+        57,
+        170
+      ]
+    },
+    {
+      "name": "岩庭与背山兽巢",
+      "eye": [
+        182,
+        68,
+        196
+      ],
+      "target": [
+        220,
+        73,
+        234
+      ]
+    }
+  ]
+}

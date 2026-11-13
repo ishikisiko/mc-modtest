@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "ids": [
+    "cliff_hunt",
+    "water_shrine",
+    "red_mine",
+    "archive_court",
+    "sunken_forge",
+    "wind_ferry"
+  ],
+  "title": "六座委托秘境的地图重设计",
+  "rules": {
+    "terrain_cell": 4,
+    "terrain_quantum": 2,
+    "path_width": 6,
+    "tunnel_height": 7,
+    "tree_spacing": 15,
+    "minimum_node_count": 18,
+    "minimum_cycle_count": 4,
+    "player_eye": 1.62,
+    "near": 0.15,
+    "far": 1600,
+    "player_height": 1.8,
+    "player_radius": 0.3,
+    "standing_epsilon": 0.05
+  },
+  "palette": {
+    "rock": {
+      "file": "qianji/qianji_rock.png",
+      "color": "#aaa79c"
+    },
+    "rock_dark": {
+      "file": "qianji/qianji_stone_dark.png",
+      "color": "#6c7372"
+    },
+    "stone": {
+      "file": "qianji/qianji_stone.png",
+      "color": "#b2b4a8"
+    },
+    "paving": {
+      "file": "qianji/qianji_paving.png",
+      "color": "#a4aa9f"
+    },
+    "brick": {
+      "file": "qianji/qianji_brick.png",
+      "color": "#8b938a"
+    },
+    "plaster": {
+      "file": "qianji/qianji_plaster.png",
+      "color": "#e5dfcc"
+    },
+    "wood": {
+      "file": "qianji/qianji_wood.png",
+      "color": "#98724b"
+    },
+    "darkwood": {
+      "file": "qianji/qianji_wood_dark.png",
+      "color": "#4a3730"
+    },
+    "redwood": {
+      "file": "qianji/qianji_wood_red.png",
+      "color": "#77483d"
+    },
+    "floor": {
+      "file": "qianji/qianji_floor.png",
+      "color": "#96754b"
+    },
+    "tile": {
+      "file": "qianji/qianji_tile.png",
+      "color": "#526c69"
+    },
+    "tile_dark": {
+      "file": "qianji/qianji_tile_dark.png",
+      "color": "#3d4c50"
+    },
+    "bronze": {
+      "file": "qianji/qianji_bronze.png",
+      "color": "#b98a4a"
+    },
+    "jade": {
+      "file": "qianji/qianji_bronze_dark.png",
+      "color": "#5f8c7c"
+    },
+    "window": {
+      "file": "qianji/qianji_paper_window.png",
+      "color": "#ded6ab"
+    },
+    "book_blue": {
+      "file": "qianji/qianji_book_blue.png",
+      "color": "#577d82"
+    },
+    "book_red": {
+      "file": "qianji/qianji_book_red.png",
+      "color": "#986451"
+    },
+    "book_cream": {
+      "file": "qianji/qianji_book_cream.png",
+      "color": "#c2b282"
+    },
+    "lamp": {
+      "file": "qianji/qianji_lamp.png",
+      "color": "#f7cf80",
+      "emissive": 0.65
+    },
+    "soil": {
+      "file": "spirit_soil_side.png",
+      "color": "#76664f"
+    },
+    "grass": {
+      "file": "lord_manors/manor_donghai_ground.png",
+      "color": "#70835c",
+      "tint": "#6f8052"
+    },
+    "leaf": {
+      "file": "lord_manors/manor_donghai_ground.png",
+      "color": "#48745a",
+      "tint": "#355f3f"
+    },
+    "water": {
+      "file": "lord_manors/manor_nanjiang_water.png",
+      "color": "#669b9b",
+      "transparent": 0.68
+    },
+    "red_ore": {
+      "file": "xuantie_ore.png",
+      "color": "#a77662",
+      "tint": "#c88b69"
+    },
+    "lava": {
+      "file": "earth_fire_vent.png",
+      "color": "#ce6e33",
+      "emissive": 0.7
+    },
+    "iron": {
+      "file": "workshop_iron.png",
+      "color": "#8a8f86"
+    },
+    "cloth": {
+      "file": "qianji/qianji_cloth.png",
+      "color": "#a58b65"
+    }
+  }
+}

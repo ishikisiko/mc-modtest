@@ -1,0 +1,1125 @@
+{
+  "schema": 1,
+  "id": "wind_ferry",
+  "name": "风隙渡口",
+  "status": "design_preview",
+  "size": [
+    336,
+    176,
+    288
+  ],
+  "subtitle": "折返峡谷两岸的搜救",
+  "brief": "分别寻找峡谷两岸的遇险探路人，选择修桥或打通洞道，利用避风点分段接应。",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "南岸渡口",
+      "pos": [
+        38,
+        30,
+        36
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "inn",
+      "name": "旧驿客舍",
+      "pos": [
+        76,
+        34,
+        58
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "fork",
+      "name": "峡口分路",
+      "pos": [
+        112,
+        38,
+        82
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "lower",
+      "name": "瀑下石滩",
+      "pos": [
+        150,
+        20,
+        116
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "west",
+      "name": "西岸栈廊",
+      "pos": [
+        82,
+        48,
+        124
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "cave",
+      "name": "避风洞口",
+      "pos": [
+        46,
+        52,
+        158
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "camp_w",
+      "name": "西壁遇险营地",
+      "pos": [
+        76,
+        64,
+        214
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "tower",
+      "name": "断塔上层",
+      "pos": [
+        108,
+        82,
+        240
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "bridge_w",
+      "name": "大桥西台",
+      "pos": [
+        136,
+        88,
+        198
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "bridge_mid",
+      "name": "断桥中墩",
+      "pos": [
+        184,
+        88,
+        178
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "bridge_e",
+      "name": "大桥东台",
+      "pos": [
+        224,
+        88,
+        158
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "east",
+      "name": "东岸险径",
+      "pos": [
+        262,
+        62,
+        136
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "camp_e",
+      "name": "东壁悬营",
+      "pos": [
+        278,
+        68,
+        206
+      ],
+      "role": "mechanism",
+      "text": ""
+    },
+    {
+      "id": "cavern",
+      "name": "回水洞厅",
+      "pos": [
+        222,
+        32,
+        224
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "refuge",
+      "name": "中央避风庐",
+      "pos": [
+        192,
+        46,
+        126
+      ],
+      "role": "objective",
+      "text": ""
+    },
+    {
+      "id": "dock",
+      "name": "北岸旧码头",
+      "pos": [
+        286,
+        24,
+        92
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "waterfall",
+      "name": "瀑后石廊",
+      "pos": [
+        212,
+        44,
+        72
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "return",
+      "name": "东岸回程亭",
+      "pos": [
+        184,
+        38,
+        54
+      ],
+      "role": "route",
+      "text": ""
+    },
+    {
+      "id": "herbs",
+      "name": "湿崖药畦",
+      "pos": [
+        286,
+        42,
+        250
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "lookout",
+      "name": "山腰风标",
+      "pos": [
+        260,
+        92,
+        260
+      ],
+      "role": "optional",
+      "text": ""
+    },
+    {
+      "id": "tunnel",
+      "name": "西侧避风隧道",
+      "pos": [
+        80,
+        46,
+        174
+      ],
+      "role": "route",
+      "text": ""
+    }
+  ],
+  "edges": [
+    {
+      "a": "entry",
+      "b": "inn",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "inn",
+      "b": "fork",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "fork",
+      "b": "lower",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "fork",
+      "b": "west",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "west",
+      "b": "cave",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "cave",
+      "b": "tunnel",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "tunnel",
+      "b": "camp_w",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "camp_w",
+      "b": "tower",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "camp_w",
+      "b": "bridge_w",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "bridge_w",
+      "b": "bridge_mid",
+      "kind": "bridge",
+      "via": [],
+      "requires": [
+        "repair"
+      ]
+    },
+    {
+      "a": "bridge_mid",
+      "b": "bridge_e",
+      "kind": "bridge",
+      "via": [],
+      "requires": [
+        "repair"
+      ]
+    },
+    {
+      "a": "bridge_e",
+      "b": "east",
+      "kind": "stairs",
+      "via": [
+        [
+          248,
+          76,
+          154
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "east",
+      "b": "camp_e",
+      "kind": "stairs",
+      "via": [
+        [
+          292,
+          66,
+          168
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "east",
+      "b": "dock",
+      "kind": "stairs",
+      "via": [
+        [
+          296,
+          42,
+          108
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "camp_e",
+      "b": "lookout",
+      "kind": "stairs",
+      "via": [
+        [
+          292,
+          82,
+          240
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "camp_e",
+      "b": "herbs",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "herbs",
+      "b": "cavern",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "cavern",
+      "b": "refuge",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "lower",
+      "b": "refuge",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "refuge",
+      "b": "waterfall",
+      "kind": "path",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "waterfall",
+      "b": "return",
+      "kind": "stairs",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "return",
+      "b": "inn",
+      "kind": "bridge",
+      "via": [
+        [
+          142,
+          36,
+          46
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "dock",
+      "b": "waterfall",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "camp_w",
+      "b": "cavern",
+      "kind": "tunnel",
+      "via": [
+        [
+          110,
+          52,
+          248
+        ],
+        [
+          168,
+          38,
+          248
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "tunnel",
+      "b": "west",
+      "kind": "tunnel",
+      "via": [],
+      "requires": []
+    },
+    {
+      "a": "camp_e",
+      "b": "refuge",
+      "kind": "stairs",
+      "via": [
+        [
+          246,
+          58,
+          176
+        ]
+      ],
+      "requires": []
+    },
+    {
+      "a": "lower",
+      "b": "cave",
+      "kind": "stairs",
+      "via": [
+        [
+          100,
+          34,
+          144
+        ]
+      ],
+      "requires": []
+    }
+  ],
+  "structures": [
+    {
+      "kind": "dock",
+      "name": "南岸渡台",
+      "pos": [
+        38,
+        30,
+        36
+      ],
+      "size": [
+        32,
+        6,
+        23
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "旧驿客舍",
+      "pos": [
+        76,
+        34,
+        58
+      ],
+      "size": [
+        34,
+        14,
+        24
+      ],
+      "use": "tea",
+      "levels": 2
+    },
+    {
+      "kind": "gate",
+      "name": "峡口风门",
+      "pos": [
+        112,
+        38,
+        82
+      ],
+      "size": [
+        24,
+        17,
+        13
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "西岸栈廊",
+      "pos": [
+        80,
+        48,
+        124
+      ],
+      "size": [
+        19,
+        12,
+        42
+      ],
+      "open": true,
+      "rotation": 1
+    },
+    {
+      "kind": "cave",
+      "name": "西岸避风洞",
+      "pos": [
+        46,
+        52,
+        158
+      ],
+      "size": [
+        25,
+        14,
+        22
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "西壁遇险营",
+      "pos": [
+        76,
+        64,
+        214
+      ],
+      "size": [
+        27,
+        12,
+        20
+      ],
+      "use": "camp",
+      "damage": 2
+    },
+    {
+      "kind": "ruin",
+      "name": "北壁断塔",
+      "pos": [
+        108,
+        82,
+        240
+      ],
+      "size": [
+        22,
+        33,
+        22
+      ],
+      "levels": 3
+    },
+    {
+      "kind": "arch",
+      "name": "大桥西台",
+      "pos": [
+        136,
+        88,
+        198
+      ],
+      "size": [
+        23,
+        20,
+        16
+      ]
+    },
+    {
+      "kind": "arch",
+      "name": "大桥东台",
+      "pos": [
+        224,
+        88,
+        158
+      ],
+      "size": [
+        23,
+        20,
+        16
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "东壁悬营",
+      "pos": [
+        278,
+        68,
+        206
+      ],
+      "size": [
+        28,
+        14,
+        20
+      ],
+      "use": "camp",
+      "open": true
+    },
+    {
+      "kind": "hall",
+      "name": "中央避风庐",
+      "pos": [
+        192,
+        46,
+        126
+      ],
+      "size": [
+        31,
+        13,
+        24
+      ],
+      "use": "camp"
+    },
+    {
+      "kind": "dock",
+      "name": "北岸废码头",
+      "pos": [
+        286,
+        24,
+        92
+      ],
+      "size": [
+        31,
+        6,
+        22
+      ]
+    },
+    {
+      "kind": "tower",
+      "name": "东岸回程亭",
+      "pos": [
+        184,
+        38,
+        54
+      ],
+      "size": [
+        16,
+        19,
+        16
+      ],
+      "open": true
+    },
+    {
+      "kind": "cave",
+      "name": "瀑后回水洞",
+      "pos": [
+        222,
+        32,
+        224
+      ],
+      "size": [
+        37,
+        19,
+        28
+      ]
+    },
+    {
+      "kind": "tower",
+      "name": "山腰风标",
+      "pos": [
+        260,
+        92,
+        260
+      ],
+      "size": [
+        13,
+        25,
+        13
+      ],
+      "open": true
+    },
+    {
+      "kind": "winch",
+      "name": "修桥绞盘",
+      "pos": [
+        136,
+        88,
+        198
+      ],
+      "size": [
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "kind": "frame",
+      "name": "东壁救援架",
+      "pos": [
+        278,
+        68,
+        206
+      ],
+      "size": [
+        18,
+        13,
+        16
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "贴壁转折长廊",
+      "pos": [
+        82,
+        52,
+        164
+      ],
+      "size": [
+        44,
+        10,
+        13
+      ],
+      "open": true
+    },
+    {
+      "kind": "screen",
+      "name": "渡口挡风墙",
+      "pos": [
+        60,
+        32,
+        54
+      ],
+      "size": [
+        2,
+        8,
+        28
+      ]
+    },
+    {
+      "kind": "arch",
+      "name": "瀑后洞门",
+      "pos": [
+        212,
+        44,
+        72
+      ],
+      "size": [
+        21,
+        18,
+        9
+      ]
+    },
+    {
+      "kind": "hall",
+      "name": "西壁避风短廊",
+      "pos": [
+        88,
+        64,
+        210
+      ],
+      "size": [
+        12,
+        10,
+        28
+      ],
+      "open": true
+    }
+  ],
+  "terrain": {
+    "base": 14,
+    "cover": "grass",
+    "rock": "rock",
+    "seed": 131,
+    "ridges": [
+      [
+        60,
+        138,
+        50,
+        100,
+        72
+      ],
+      [
+        110,
+        244,
+        44,
+        32,
+        94
+      ],
+      [
+        270,
+        190,
+        38,
+        96,
+        94
+      ],
+      [
+        194,
+        96,
+        32,
+        46,
+        50
+      ],
+      [
+        314,
+        252,
+        17,
+        35,
+        110
+      ]
+    ],
+    "valleys": [
+      {
+        "points": [
+          [
+            150,
+            10
+          ],
+          [
+            168,
+            80
+          ],
+          [
+            130,
+            142
+          ],
+          [
+            200,
+            190
+          ],
+          [
+            180,
+            286
+          ]
+        ],
+        "width": 20,
+        "floor": 5
+      }
+    ],
+    "trees": 65,
+    "pools": [
+      {
+        "rect": [
+          130,
+          104,
+          45,
+          42
+        ],
+        "y": 14
+      }
+    ],
+    "waterfalls": [],
+    "tree_species": "spruce",
+    "rivers": [
+      {
+        "points": [
+          [
+            150,
+            10
+          ],
+          [
+            168,
+            80
+          ],
+          [
+            130,
+            142
+          ],
+          [
+            200,
+            190
+          ],
+          [
+            180,
+            286
+          ]
+        ],
+        "width": 14,
+        "y": 10
+      }
+    ],
+    "watercourses": [
+      {
+        "points": [
+          [
+            270,
+            76,
+            240
+          ],
+          [
+            250,
+            66,
+            220
+          ],
+          [
+            240,
+            50,
+            200
+          ],
+          [
+            220,
+            20,
+            190
+          ],
+          [
+            200,
+            10,
+            190
+          ]
+        ],
+        "width": 7
+      },
+      {
+        "points": [
+          [
+            310,
+            94,
+            250
+          ],
+          [
+            300,
+            70,
+            244
+          ],
+          [
+            286,
+            48,
+            236
+          ],
+          [
+            266,
+            28,
+            226
+          ],
+          [
+            220,
+            10,
+            210
+          ]
+        ],
+        "width": 5
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "west",
+      "node": "camp_w",
+      "phase": "找到西壁探路人"
+    },
+    {
+      "id": "repair",
+      "node": "bridge_w",
+      "requires": [
+        "west"
+      ],
+      "phase": "修复跨峡大桥"
+    },
+    {
+      "id": "east",
+      "node": "camp_e",
+      "phase": "找到东壁探路人"
+    },
+    {
+      "id": "rescue",
+      "node": "refuge",
+      "requires": [
+        "west",
+        "east"
+      ],
+      "phase": "两人集合后返回渡口"
+    }
+  ],
+  "entry": "entry",
+  "objective": "refuge",
+  "phases": [
+    {
+      "name": "初入秘境",
+      "done": []
+    },
+    {
+      "name": "找到西壁探路人",
+      "done": [
+        "west"
+      ]
+    },
+    {
+      "name": "修复跨峡大桥",
+      "done": [
+        "west",
+        "repair"
+      ]
+    },
+    {
+      "name": "找到东壁探路人",
+      "done": [
+        "west",
+        "repair",
+        "east"
+      ]
+    },
+    {
+      "name": "两人集合后返回渡口",
+      "done": [
+        "west",
+        "repair",
+        "east",
+        "rescue"
+      ]
+    }
+  ],
+  "atmosphere": {
+    "sky": "#b2ccd0",
+    "fog": "#c9dedb",
+    "sun": "#ffecc9",
+    "ambient": "#bad0d1",
+    "rock_tint": "#a7b7aa"
+  },
+  "composition": [
+    "河谷连续转向，两处营地由山脊遮挡；大桥在去程上方很早出现。",
+    "西岸以贴壁檐廊和断塔为主，东岸以悬营、瀑布和高处风标为主。",
+    "修桥后可以横跨峡谷；洞道保留另一条救援路线，回程重用先前修好的设施。"
+  ],
+  "cameras": [
+    {
+      "name": "折返峡谷与大桥",
+      "eye": [
+        424,
+        278,
+        -102
+      ],
+      "target": [
+        164,
+        50,
+        142
+      ]
+    },
+    {
+      "name": "渡口看峡口",
+      "eye": [
+        38,
+        31.62,
+        38
+      ],
+      "target": [
+        108,
+        54,
+        91
+      ]
+    },
+    {
+      "name": "西岸贴壁栈廊",
+      "eye": [
+        82,
+        49.62,
+        120
+      ],
+      "target": [
+        72,
+        65,
+        207
+      ]
+    },
+    {
+      "name": "跨峡大桥的东岸",
+      "eye": [
+        184,
+        89.62,
+        178
+      ],
+      "target": [
+        222,
+        90,
+        159
+      ]
+    },
+    {
+      "name": "瀑后回程石廊",
+      "eye": [
+        212,
+        45.62,
+        74
+      ],
+      "target": [
+        226,
+        63,
+        64
+      ]
+    }
+  ]
+}
