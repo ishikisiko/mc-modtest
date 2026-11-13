@@ -38,6 +38,7 @@ class Evidence:
         self.report['collector_commit']=json.loads(collector.read_text())['commit'] if collector.is_file() else self.report['product_commit']
         self.report['source_manifest_sha256']=hashlib.sha256(manifest.read_bytes()).hexdigest()
         self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        self.report['client_heap']='4g'
         jars=[p for p in (ROOT/'build/libs').glob('myvillage-*.jar') if not p.name.endswith('-sources.jar')]
         if len(jars)!=1:raise RuntimeError('交付JAR不唯一：'+repr(jars))
         self.report['jar']={'name':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'bytes':jars[0].stat().st_size}
@@ -155,7 +156,7 @@ class Evidence:
                 with support.Server(world,'first',planned=True,view_distance=3,prebuilt_resources=True,startup_timeout=1200) as self.server:
                     self.rc('difficulty normal');self.rc('gamerule doFireTick true');self.rc('gamerule mobGriefing true')
                     with ExitStack() as stack:
-                        a=stack.enter_context(Client(self,self.server,'QuestAlice','first',prebuilt_resources=True));b=stack.enter_context(Client(self,self.server,'QuestBob','first',prebuilt_resources=True))
+                        a=stack.enter_context(Client(self,self.server,'QuestAlice','first',prebuilt_resources=True,heap='4g'));b=stack.enter_context(Client(self,self.server,'QuestBob','first',prebuilt_resources=True,heap='4g'))
                         board=self.board(a,'ximo');self.board(b,'ximo');issued=self.accept_map(a,board,0);run_id=issued['instance']['id'];self.done('board_accept')
                         self.prepare(a);self.prepare(b);a.chat('/expedition invite '+b.name);b.chat('/expedition accept')
                         self.check('two_confirmed_members',len(self.state(a)['instance']['party'])==2,self.state(a)['instance']['party'])
@@ -184,7 +185,7 @@ class Evidence:
                 with support.Server(world,'restart',planned=True,view_distance=3,prebuilt_resources=True,startup_timeout=1200) as self.server:
                     self.rc('difficulty normal')
                     with ExitStack() as stack:
-                        a=stack.enter_context(Client(self,self.server,'QuestAlice','restart',prebuilt_resources=True));b=stack.enter_context(Client(self,self.server,'QuestBob','restart',prebuilt_resources=True))
+                        a=stack.enter_context(Client(self,self.server,'QuestAlice','restart',prebuilt_resources=True,heap='4g'));b=stack.enter_context(Client(self,self.server,'QuestBob','restart',prebuilt_resources=True,heap='4g'))
                         restored=self.state(a);self.check('same_instance_and_frozen_slots_after_restart',restored['instance']['id']==run_id and restored['instance']['slots']==before['instance']['slots'],{'before':before,'after':restored})
                         self.enter(a);self.enter(b);active=wait(lambda:self.state(a),lambda s:len(s.get('guards',[]))==3,25,'恢复三名守敌')
                         guard=next(g for g in active['guards'] if g['id']==uid);old=health_probe

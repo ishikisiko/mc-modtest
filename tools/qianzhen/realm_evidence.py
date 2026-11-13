@@ -57,9 +57,11 @@ def one(reply,prefix):
 
 
 class Client:
-    def __init__(self,e,server,name,round_,prebuilt_resources=False):
+    def __init__(self,e,server,name,round_,prebuilt_resources=False,heap='1g'):
         self.e,self.server,self.name=e,server,name
         self.prebuilt_resources=prebuilt_resources
+        if heap not in ('1g','2g','4g','6g','8g'):raise ValueError('Unsupported capture client heap')
+        self.heap=heap
         if prebuilt_resources:cs.require_prebuilt_resources(ROOT)
         self.out=e.out/f'{round_}-{name}';self.out.mkdir()
         self.directory=ROOT/'run-combat-capture'/('solo-'+name);self.directory.mkdir(parents=True,exist_ok=True)
@@ -85,7 +87,7 @@ class Client:
             p=self.spawn(cs.gradle_argv('runClient','-Xmx768m',[
                 '-Pcombat_smoke_server=127.0.0.1:'+str(self.server.sport),
                 '-Pcombat_smoke_game_dir='+str(self.directory),'-Pcombat_smoke_username='+self.name],prebuilt_resources=self.prebuilt_resources),
-                self.out/'process.log',cwd=ROOT,env=dict(os.environ,DISPLAY=display,JAVA_TOOL_OPTIONS='-Xmx1g'))
+                self.out/'process.log',cwd=ROOT,env=dict(os.environ,DISPLAY=display,JAVA_TOOL_OPTIONS='-Xmx'+self.heap))
             def joined():
                 self.remember()
                 if p.poll() is not None:raise RuntimeError(f'{self.name} client exited {p.returncode}')
