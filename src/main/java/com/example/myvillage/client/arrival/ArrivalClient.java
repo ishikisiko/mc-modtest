@@ -40,7 +40,10 @@ public final class ArrivalClient {
         e.registerAboveAll(ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "arrival"), ArrivalClient::render);
     }
 
-    private static void clear() { SEQUENCE.clear(); level = null; player = null; previous = null; }
+    private static void clear() {
+        if (previous != null) LOG.info("ARRIVAL_UI_END kind={} name={} reason=world_reset", previous.kind(), previous.name());
+        SEQUENCE.clear(); level = null; player = null; previous = null;
+    }
 
     private static boolean bindWorld() {
         var mc = Minecraft.getInstance();
@@ -65,6 +68,8 @@ public final class ArrivalClient {
         if (!visible() || Minecraft.getInstance().isPaused()) return;
         SEQUENCE.tick();
         var current = SEQUENCE.current().orElse(null);
+        if (previous != null && !previous.equals(current))
+            LOG.info("ARRIVAL_UI_END kind={} name={} reason=finished_or_destination_changed", previous.kind(), previous.name());
         if (current != null && !current.equals(previous))
             LOG.info("ARRIVAL_UI kind={} name={} region={} town={}", current.kind(), current.name(),
                     current.location().regionId(), current.location().townId());
