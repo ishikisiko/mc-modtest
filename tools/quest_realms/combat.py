@@ -55,7 +55,7 @@ def house(scene, s):
     cx, y, cz = s['pos']
     w, h, d = s['size']
     x, z = cx - w / 2, cz - d / 2
-    scene.box(x - .7, y - 3.5, z - .7, w + 1.4, 3.5, d + 1.4, 'rock_dark', 'foundation')
+    scene.box(x - .7, y - 3.5, z - .7, w + 1.4, 3.1, d + 1.4, 'rock_dark', 'foundation')
     scene.box(x, y - .4, z, w, .4, d, 'floor', 'floor')
     for side in ('south', 'north', 'west', 'east'):
         timber_wall(scene, s, side)
@@ -495,7 +495,7 @@ class DenScene(CombatScene):
                     self.cave_cells += 1
                     floor, ceiling = spans[0]
                     self.floor_surface[x, z] = floor
-                    self.box(x, 0, z, cell, floor, cell, 'cave_rock', 'geology')
+                    self.box(x, 0, z, cell, floor - .25, cell, 'cave_rock', 'geology')
                     self.box(x, floor - .25, z, cell, .25, cell, 'cave_tuff' if math.sin(x * .1) + math.cos(z * .13) > .5 else 'cave_floor', 'cave_floor')
                     ceiling = math.floor(ceiling)
                     if ceiling < h:
