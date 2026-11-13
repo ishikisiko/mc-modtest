@@ -197,7 +197,11 @@ public final class QuestRuntime {
         save(p.getServer());boolean moved=p.teleportTo(level,at.x,at.y,at.z,Set.of(),at.yaw,at.pitch);
         if(moved){r.state=state(p.getServer()).goal(r,map)?"GOAL":"RUNNING";r.expiresAt=0;p.fallDistance=0;p.setDeltaMovement(Vec3.ZERO);m.inside=location(p);save(p.getServer());status(p);}return moved;
     }
-    private static QuestState.Place entry(ServerLevel level,QuestMap map){var at=pos(map,map.entry());return findSafe(level,at,6);}
+    private static QuestState.Place entry(ServerLevel level,QuestMap map){
+        var result=findSafe(level,pos(map,map.entry()),6);if(result==null)return null;
+        var first=map.groups().stream().filter(QuestMap.Group::required).min(Comparator.comparingInt(QuestMap.Group::stage)).orElseThrow();var target=pos(map,first.actors().getFirst().pos());
+        result.yaw=(float)Math.toDegrees(Math.atan2(-(target.getX()+.5-result.x),target.getZ()+.5-result.z));return result;
+    }
     private static boolean safe(ServerLevel level,double x,double y,double z){
         var body=new AABB(x-.3,y,z-.3,x+.3,y+1.8,z+.3);
         return level.getWorldBorder().isWithinBounds(body)&&level.noCollision(body)&&!level.containsAnyLiquid(body)
