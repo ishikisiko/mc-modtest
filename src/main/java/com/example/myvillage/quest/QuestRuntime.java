@@ -183,6 +183,7 @@ public final class QuestRuntime {
         if(r==null||m==null||!m.result.equals("ACTIVE")||!p.isAlive()||p.isPassenger()||p.isSleeping()||p.isSpectator()){say(p,"当前没有可进入的远征，或动作尚未结束。");return false;}
         if(realm(p.serverLevel())){say(p,"你已在远征秘境中。");return false;}
         if(!p.level().dimension().equals(Level.OVERWORLD)){say(p,"请先回到主世界再进入远征。");return false;}
+        if(p.serverLevel().getDifficulty()==Difficulty.PEACEFUL){say(p,"请将世界难度调整为非和平模式后进入战斗秘境。");return false;}
         if(r.state.equals("FORMING")){
             for(UUID id:r.party){var person=p.getServer().getPlayerList().getPlayer(id);if(person!=null)state(p.getServer()).members.get(id).outside=location(person);}
             r.state="BUILDING";save(p.getServer());
@@ -362,6 +363,7 @@ public final class QuestRuntime {
         long total=r.slots.stream().filter(s->map.groups().stream().anyMatch(g->g.id().equals(s.group)&&g.required())).count();
         long dead=r.slots.stream().filter(s->s.dead&&map.groups().stream().anyMatch(g->g.id().equals(s.group)&&g.required())).count();
         String next=map.groups().stream().filter(QuestMap.Group::required).filter(g->!groupDone(r,g.id())).min(Comparator.comparingInt(QuestMap.Group::stage)).map(QuestMap.Group::name).orElse("前往出口验核");
+        if(level.getDifficulty()==Difficulty.PEACEFUL&&!r.state.equals("GOAL"))next="和平难度已暂停守敌生成";
         bar.setName(Component.literal(map.name()+"："+dead+"/"+total+"；"+next));bar.setProgress(total==0?0:(float)dead/total);
     }
     private static void tick(ServerTickEvent.Post event){
