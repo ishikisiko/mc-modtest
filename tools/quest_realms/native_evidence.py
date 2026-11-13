@@ -4,7 +4,7 @@ RCON只准备位置、玩家修为及持久化边界夹具，并读取服务器�
 接取、入场、暂离、击败、验核与领奖均通过受焦点保护的真实客户端输入。
 """
 from __future__ import annotations
-import argparse,gzip,hashlib,json,math,os,re,secrets,subprocess,sys,time
+import argparse,gzip,hashlib,json,math,os,re,secrets,shutil,subprocess,sys,tarfile,time
 from contextlib import ExitStack,contextmanager
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
@@ -17,7 +17,8 @@ from tools.combat_capture import procs
 from tools.combat_capture.scene import parse_combat_mode
 
 CASES=['board_accept','issuing_region_frozen','party_admission','native_lighting','finite_spawns',
-       'mapped_combat','mapped_stairs','pause_resume','normal_restart','exit_reward_once','beast_solo','foreign_refusal','rescue','reclaim']
+       'mapped_combat','mapped_stairs','pause_resume','normal_restart','exit_reward_once','beast_solo','foreign_refusal','rescue','reclaim',
+       'separate_party_entry','occupied_resume_position','separate_rescue_position']
 
 @contextmanager
 def heavy_lock():
@@ -27,7 +28,7 @@ def heavy_lock():
     finally:fcntl.flock(fd,fcntl.LOCK_UN);os.close(fd)
 
 class Evidence:
-    def __init__(self,out,reuse_bootstrap=None):
+    def __init__(self,out,reuse_bootstrap=None,bootstrap_archive=None):
         self.out=out;out.mkdir(parents=True,exist_ok=False)
         self.report={'kind':'combat_quest_native','status':'running','selected':CASES,'completed':[],'failed':[],
                      'unrun':CASES.copy(),'checks':[],'actions':[],'commands':[],'screenshots':[],'cleanup':[],'states':[]}
@@ -43,6 +44,26 @@ class Evidence:
         if len(jars)!=1:raise RuntimeError('交付JAR不唯一：'+repr(jars))
         self.report['jar']={'name':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'bytes':jars[0].stat().st_size}
         self.bootstrap=None
+        if reuse_bootstrap is not None and bootstrap_archive is not None:raise RuntimeError('启动世界来源不能重复指定')
+        if bootstrap_archive is not None:
+            with tarfile.open(bootstrap_archive) as archive:
+                old=json.loads(archive.extractfile('report/report.json').read())
+                if old.get('kind')!='combat_quest_native' or old.get('completed') or old.get('status')!='failed':raise RuntimeError('启动归档必须尚未完成任何交互')
+                world='quest_runtime_'+secrets.token_hex(4);destination=ROOT/'run-acceptance'/world;destination.mkdir(exist_ok=False)
+                for member in archive.getmembers():
+                    if member.name=='world' or not member.name.startswith('world/'):continue
+                    relative=Path(member.name).relative_to('world');path=destination/relative
+                    if '..' in relative.parts or not (member.isfile() or member.isdir()):raise RuntimeError('启动归档路径无效')
+                    if member.isdir():path.mkdir(parents=True,exist_ok=True)
+                    else:
+                        path.parent.mkdir(parents=True,exist_ok=True)
+                        with archive.extractfile(member) as source,path.open('xb') as target:shutil.copyfileobj(source,target)
+            from buildgen.nbtread import read_gzipped_nbt
+            ledger=destination/'data/myvillage_expeditions.dat'
+            if ledger.exists():
+                _,saved=read_gzipped_nbt(str(ledger));quests=json.loads(saved['data']['payload'])
+                if quests['instances'] or quests['members']:raise RuntimeError('启动归档已有远征记录，未清空')
+            self.bootstrap=world;self.report['bootstrap_copy']={'archive_sha256':hashlib.sha256(bootstrap_archive.read_bytes()).hexdigest(),'previous_product_commit':old['product_commit'],'previous_jar':old['jar'],'scope':'仅复用无远征记录的主世界生成；全部玩法重新执行'}
         if reuse_bootstrap is not None:
             old=json.loads(reuse_bootstrap.read_text());world=old.get('world','')
             if old.get('kind')!='combat_quest_native' or old.get('completed') or not re.fullmatch(r'quest_runtime_[a-f0-9]{8}',world) or old['jar']['sha256']!=self.report['jar']['sha256']:
@@ -157,6 +178,10 @@ class Evidence:
             client.guard();client.game.xdo('key','r');self.action('mapped_combat_mode_key',player=client.name,key='r')
             wait(mode,lambda value:value=='cultivation',15,'服务器确认修仙战斗模式')
     def snapshot(self,label,**detail):self.report['states'].append(dict(label=label,**detail));self.save()
+    def separate(self,a,b,label):
+        positions={c.name:read_data(self.rc('data get entity '+c.name+' Pos')) for c in (a,b)};x,y=positions[a.name],positions[b.name]
+        self.check(label,abs(x[0]-y[0])>=.6 or abs(x[2]-y[2])>=.6 or abs(x[1]-y[1])>=1.8,positions)
+        self.snapshot(label,positions=positions)
     def run(self):
         support.OUT=self.out;support.SEED=20261114
         world=self.bootstrap or 'quest_runtime_'+secrets.token_hex(4);self.report['world']=world;self.save()
@@ -171,6 +196,16 @@ class Evidence:
                         self.prepare(a);self.prepare(b);a.chat('/expedition invite '+b.name);b.chat('/expedition accept')
                         self.check('two_confirmed_members',len(self.state(a)['instance']['party'])==2,self.state(a)['instance']['party'])
                         self.board(a,'donghai');self.board(b,'donghai',park=True);entered=self.enter(a,menu=True);self.enter(b)
+                        self.separate(a,b,'party_entry_body_boxes_separate');self.done('separate_party_entry')
+                        self.rc('questfixture park '+b.name)
+                        self.leave(a,menu=True);saved=self.state(a)['receipt']['inside']
+                        self.fixture(b,[saved[k] for k in ('x','y','z')],[saved['x'],saved['y']+1,saved['z']+8])
+                        self.snapshot('occupied_saved_entry',place=saved,occupant=b.name)
+                        self.enter(a,menu=True);self.separate(a,b,'occupied_saved_position_avoided');self.done('occupied_resume_position')
+                        self.rc('questfixture camp '+b.name);self.rc('kill '+a.name)
+                        rescued=wait(lambda:self.state(a),lambda s:s.get('receipt',{}).get('rescues')==1,20,'双人入口救援')
+                        self.check('party_rescue_keeps_active_member',rescued['member']=='ACTIVE' and rescued['dimension']==entered['dimension'],rescued)
+                        self.separate(a,b,'rescue_body_boxes_separate');self.done('separate_rescue_position');self.rc('questfixture park '+b.name)
                         self.check('issuing_region_does_not_follow_player',entered['instance']['region']=='ximo' and issued['instance']['slots']==entered['instance']['slots'],{'issued':issued,'entered':entered});self.done('issuing_region_frozen');self.done('party_admission')
                         self.check('native_light_and_local_rules',entered['instance']['lightMinimum']>=8 and all(v is False for v in entered['local_rules'].values()),entered);self.done('native_lighting')
                         self.check('overworld_fire_rule_preserved','true' in self.rc('execute in minecraft:overworld run gamerule doFireTick'),self.rc('execute in minecraft:overworld run gamerule doFireTick'))
@@ -221,8 +256,8 @@ class Evidence:
         finally:self.save()
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--reuse-bootstrap',type=Path);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--reuse-bootstrap',type=Path);p.add_argument('--bootstrap-archive',type=Path);a=p.parse_args()
     if not str(ROOT).startswith('/content/') or os.environ.get('MYVILLAGE_REMOTE_PROVIDER')!='colab':raise RuntimeError('原生游戏检查只允许在授权Colab工作区运行')
-    Evidence(a.out,a.reuse_bootstrap).run()
+    Evidence(a.out,a.reuse_bootstrap,a.bootstrap_archive).run()
 
 if __name__=='__main__':main()
