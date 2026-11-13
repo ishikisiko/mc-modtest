@@ -1,20 +1,20 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>六座委托秘境的地图重设计</title><link rel="stylesheet" href="style.css"></head>
+<title>委托秘境的关卡模型</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<p class="intro">地图重设计 · 地形、建筑内部与路线使用同一份作者输入。当前为可审阅的三维候选。</p>
-<nav id="library" aria-label="六张秘境地图"></nav>
+<p class="intro">地形、建筑内部与通路使用同一份作者输入。敌人形体仅作站位与体积参照，当前为关卡模型预览。</p>
+<nav id="library" aria-label="切换秘境地图"></nav>
 <section class="scene-card">
 <div class="scene-head"><div><h1 id="name">正在加载地图</h1><p id="subtitle"></p></div><span class="badge">设计候选 · 待外观确认</span></div>
 <div id="stage" tabindex="0" aria-label="可旋转的三维地图"><canvas id="canvas"></canvas><div id="loading">正在准备场景与像素材质</div><div id="labels"></div><div class="corner" id="hint">拖动旋转 · 滚轮缩放 · 右键平移</div><div id="view-name"></div></div>
-<div class="toolbar"><button id="overview">全图构图</button><button id="section">地层剖视</button><button id="roof">隐藏屋顶</button><button id="routes">显示路线</button><button id="plan">分层路线图</button><button id="tour">沿主路漫游</button><button id="stop" hidden>停止漫游</button><button id="fullscreen">放大查看</button></div>
+<div class="toolbar"><button id="overview">全图构图</button><button id="section">地层剖视</button><button id="roof">隐藏屋顶与岩顶</button><button id="routes">显示路线</button><button id="actors">敌人站位参照</button><button id="plan">分层路线图</button><button id="tour">沿主路漫游</button><button id="stop" hidden>停止漫游</button><button id="fullscreen">放大查看</button></div>
 <div id="plan-panel" hidden><div id="plan-levels"></div><div id="map-plan"></div><p>实线表示当前阶段开放的路径，虚线表示机关控制的路径。点击地点可切换到对应视角。</p></div>
 <div class="camera-row" id="cameras"></div>
 <div class="goal" id="brief"></div>
 <div class="phase-row" id="phases"></div><p class="phase-note" id="phase-note"></p>
 </section>
-<div class="details"><section class="note-card"><h2>场景与空间安排</h2><ul id="composition"></ul><div class="metrics" id="metrics"></div></section><section class="note-card"><h2>探索地点与支路</h2><div id="nodes"></div></section></div>
-<details class="note-card rules"><summary>本轮交付范围与后续实现</summary><p>本轮已制作六张地图的三维构造、楼内陈设、分层路线与机关阶段预览。独立小世界、正式 NBT、实际碰撞、机关战斗、任务结算和离场回收尚未接入游戏。地图的外观、路线节奏与玩法仍待实际游玩确认。</p><p>计划沿用每次远征一个实例、全员离场后回收、中途退出保留 24 小时的安排；外层地形固定，内部按关卡声明破拆与放置范围。</p></details>
+<div class="details"><section class="note-card"><h2>场景与空间安排</h2><ul id="composition"></ul><div class="metrics" id="metrics"></div></section><section class="note-card"><h2>场景节点与支路</h2><div id="nodes"></div></section></div>
+<details class="note-card rules"><summary>模型范围与后续实现</summary><p>当前页面展示所选地图的地形、建筑内部、战斗场地和路线。敌人形体用于检查位置与尺度。独立小世界、正式 NBT、原生碰撞、战斗、任务结算和离场回收尚未接入游戏。地图外观、路线节奏与实际玩法待确认。</p><p>远征实例与保留24小时的安排仍属后续玩法设计。本轮只制作关卡模型与预览。</p></details>
 <p class="footer">三维场景保留 Minecraft 的硬边构造和像素材质。剖视和路线图用于审阅；玩家视角会恢复山体与屋顶。<a href="quest-realms-redesign.zip">下载本轮预览包</a> · <a href="checks.json">查看检查记录</a></p>
 <script src="three.min.js"></script><script src="OrbitControls.js"></script><script src="viewer.js"></script>
 </body></html>

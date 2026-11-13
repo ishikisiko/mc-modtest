@@ -111,7 +111,7 @@ above and link the relevant contract. Update only affected documentation.
 
 御剑、符箓与渡劫：[耗灵飞行与青霄飞剑](../features/flying-sword-demo.md)、[制符资质、持续注灵及回城／闪回符](../features/talismans.md)、[正式金丹雷劫](../features/tribulation.md)。飞剑入口亦见 KB27，资质见 KB50，金丹突破见 KB30。
 
-委托秘境：[六张地图的空间、作者输入与预览](../features/quest-realms-maps.md)、[五关战斗与一关纯解谜的完整玩法设计](../features/quest-realms-gameplay.md)、[保留的书院复玩方案与纯战斗候选](../features/quest-realms-candidates.md)。这些委托关卡均未接入正式游戏，既有主世界战斗遗迹见KB53。
+委托秘境：[六张地图的空间、作者输入与预览](../features/quest-realms-maps.md)、[五关战斗与一关纯解谜的完整玩法设计](../features/quest-realms-gameplay.md)、[保留的书院复玩方案与纯战斗候选](../features/quest-realms-candidates.md)、[山寨清剿与兽巢讨伐的完整关卡模型](../features/combat-quest-models.md)。这些委托关卡均未接入正式游戏，既有主世界战斗遗迹见KB53。
 
 地域行尸与骸弓：[18 款、攻击时点、地域出生与资源归属](../features/regional-undead.md)。
 

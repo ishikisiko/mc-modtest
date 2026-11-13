@@ -668,8 +668,14 @@ FORMS={
 
 
 def build(ident):
-    catalog=read('catalog');spec=read(ident);checks=validate(spec,catalog);scene=Scene(spec,catalog)
+    catalog=read('catalog');spec=read(ident);checks=validate(spec,catalog)
+    scene_type=Scene
+    if 'construction' in spec:
+        from .combat import SCENES
+        scene_type=SCENES[spec['construction']]
+    scene=scene_type(spec,catalog)
     scene.terrain();scene.paths_geometry();scene.structures();scene.trees();scene.props()
+    if hasattr(scene,'compact'):scene.compact()
     standing=standing_issues(spec,scene.boxes,catalog);cameras=camera_issues(spec,scene.boxes)
     if standing or cameras:raise ValueError(str(dict(map=ident,standing=standing,cameras=cameras)))
     checks.update(boxes=len(scene.boxes),trees=scene.tree_count,layers=dict(scene.details))

@@ -6,9 +6,11 @@
     "red_mine",
     "archive_court",
     "sunken_forge",
-    "wind_ferry"
+    "wind_ferry",
+    "bandit_stronghold",
+    "beast_den"
   ],
-  "title": "六座委托秘境的地图重设计",
+  "title": "委托秘境的关卡模型",
   "rules": {
     "terrain_cell": 4,
     "terrain_quantum": 2,
@@ -22,7 +24,10 @@
     "far": 1600,
     "player_height": 1.8,
     "player_radius": 0.3,
-    "standing_epsilon": 0.05
+    "standing_epsilon": 0.05,
+    "route_sampling_step": 0.4,
+    "route_support_window": 1.25,
+    "walk_step_height": 0.6
   },
   "palette": {
     "rock": {
@@ -134,6 +139,42 @@
     "iron": {
       "file": "workshop_iron.png",
       "color": "#8a8f86"
+    },
+    "cave_rock": {"namespace":"minecraft","file":"stone.png","color":"#99968a"},
+    "cave_floor": {"namespace":"minecraft","file":"andesite.png","color":"#8c908c"},
+    "cave_dark": {"namespace":"minecraft","file":"deepslate.png","color":"#747579"},
+    "cave_tuff": {"namespace":"minecraft","file":"tuff.png","color":"#858c7d"},
+    "dirt_path": {"namespace":"minecraft","file":"coarse_dirt.png","color":"#b29268"},
+    "cave_moss": {"namespace":"minecraft","file":"moss_block.png","color":"#879357"},
+    "spruce_planks": {"namespace":"minecraft","file":"spruce_planks.png","color":"#bd9668"},
+    "spruce_log": {"namespace":"minecraft","file":"spruce_log.png","color":"#997d57"},
+    "forest_grass": {"namespace":"minecraft","file":"grass_block_top.png","color":"#8a9b65","tint":"#819358"},
+    "bark": {
+      "file": "ningyuan_log.png",
+      "color": "#6e5038"
+    },
+    "planks": {
+      "file": "workshop_wood.png",
+      "color": "#a37d4e"
+    },
+    "earth": {
+      "file": "spirit_soil_bottom.png",
+      "color": "#8c795c"
+    },
+    "thatch": {
+      "file": "qianji/qianji_cloth.png",
+      "color": "#b8a16d",
+      "tint": "#cbbb8c"
+    },
+    "moss": {
+      "file": "rockery_block/swatch_mossy.png",
+      "color": "#6e8060"
+    },
+    "bone": {
+      "namespace":"minecraft",
+      "file": "bone_block_side.png",
+      "color": "#dccca5",
+      "tint": "#e8dbb9"
     },
     "cloth": {
       "file": "qianji/qianji_cloth.png",

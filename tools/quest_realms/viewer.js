@@ -16,7 +16,7 @@ const sun=new THREE.DirectionalLight(0xffe9bc,1.2);sun.position.set(-160,300,-12
 Object.assign(sun.shadow.camera,{left:-230,right:230,top:230,bottom:-230,near:1,far:900});sun.shadow.mapSize.set(1024,1024);sun.shadow.bias=-.0003;sun.shadow.normalBias=.4;scene.add(sun);scene.add(sun.target);
 const fill=new THREE.DirectionalLight(0xbfd6de,.32);fill.position.set(180,180,150);scene.add(fill);
 const geometryUnit=new THREE.BoxGeometry(1,1,1).toNonIndexed(),UP=new THREE.Vector3(0,1,0);
-let root,meshList=[],current,phase=0,cut=false,hideRoof=false,showRoutes=false,routeGroup,planLevel=-1,tour=null,busy=false,needsRender=true;
+let root,meshList=[],current,phase=0,cut=false,hideRoof=false,showRoutes=false,showActors=true,routeGroup,planLevel=-1,tour=null,busy=false,needsRender=true;
 const textures={},cache=new Map(),pending=new Map();
 const texLoader=new THREE.TextureLoader();
 await Promise.all(Object.entries(index.palette).map(async([key,p])=>{
@@ -44,7 +44,7 @@ function material(key){
 }
 function faceKey(b,face){
  const axis=[0,0,1,1,2,2][face],positive=face%2===0,other=[0,1,2].filter(a=>a!==axis);
- return [axis,b[axis]+(positive?b[axis+3]:0),...other.flatMap(a=>[b[a],b[a+3]])].join(',');
+ return [b[7],axis,b[axis]+(positive?b[axis+3]:0),...other.flatMap(a=>[b[a],b[a+3]])].join(',');
 }
 async function geometry(model){
  const faceUse=new Map(),hidden=new Set(),data=model.boxes;
@@ -94,7 +94,7 @@ function clear(){
 function vec(p){return new THREE.Vector3(...p)}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;if(w&&h){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();needsRender=true}}
 function setCamera(c,player=false){
- stopTour();hideRoof=false;cut=false;updateVisibility();
+ stopTour();hideRoof=!!c.hide_roof;cut=false;updateVisibility();
  controls.maxPolarAngle=player?Math.PI-.02:Math.PI*.495;
  camera.position.copy(vec(c.eye));controls.target.copy(vec(c.target));camera.fov=player?65:48;camera.updateProjectionMatrix();controls.update();
  $('view-name').textContent=c.name;$('hint').textContent=player?'玩家高度视角 · 山体与屋顶完整显示':'拖动旋转 · 滚轮缩放 · 右键平移';
@@ -111,12 +111,13 @@ function nodeView(n){
 function updateVisibility(){
  if(!current)return;const done=new Set(current.spec.phases[phase].done);
  const frontPlane=new THREE.Plane(new THREE.Vector3(0,0,1),-current.spec.size[2]*.48);
- for(const m of meshList){m.visible=condition(m.userData.condition,done)&&!(hideRoof&&['roof','ceiling'].includes(m.userData.layer));
+ for(const m of meshList){m.visible=condition(m.userData.condition,done)&&!(hideRoof&&['roof','ceiling','cave_roof',...(current.spec.roofless_hidden_layers||[])].includes(m.userData.layer))&&!(!showActors&&m.userData.layer==='encounter_actor');
   m.material.clippingPlanes=cut?[frontPlane]:[];
  }
  if(routeGroup)routeGroup.visible=showRoutes;
  renderer.shadowMap.needsUpdate=true;needsRender=true;
  $('section').classList.toggle('active',cut);$('roof').classList.toggle('active',hideRoof);$('routes').classList.toggle('active',showRoutes);
+ $('actors').classList.toggle('active',showActors);
 }
 function buildRoutes(){
  if(routeGroup){scene.remove(routeGroup);routeGroup.traverse(o=>{o.geometry?.dispose();o.material?.dispose()})}
@@ -165,12 +166,12 @@ async function select(id){
  try{
   const m=cache.get(id)||(location.protocol==='file:'?(await localScript(id+'.data.js'),window.QUEST_REALM_MAPS[id]):await fetch(id+'.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('地图数据加载失败');return r.json()}));cache.set(id,m);clear();current=m;
   const built=await geometry(m);root=built.group;meshList=built.list;scene.add(root);
-  const a=m.spec.atmosphere;scene.background=new THREE.Color(a.sky);scene.fog=new THREE.FogExp2(a.fog,.00125);sun.color.set(a.sun);hemi.color.set(a.ambient);
+  const a=m.spec.atmosphere;scene.background=new THREE.Color(a.sky);scene.fog=new THREE.FogExp2(a.fog,a.fog_density??.00125);sun.color.set(a.sun);hemi.color.set(a.ambient);hemi.intensity=a.ambient_intensity??.7;sun.intensity=a.sun_intensity??1.2;fill.intensity=a.fill_intensity??.32;
   sun.target.position.set(m.spec.size[0]/2,20,m.spec.size[2]/2);sun.position.set(m.spec.size[0]/2-160,300,m.spec.size[2]/2-120);sun.target.updateMatrixWorld();
   $('name').textContent=m.spec.name;$('subtitle').textContent=m.spec.subtitle+' · '+m.spec.size[0]+' × '+m.spec.size[2]+' 格';$('brief').textContent=m.spec.brief;
   for(const b of $('library').children)b.classList.toggle('active',b.dataset.id===id);
   $('composition').replaceChildren();for(const text of m.spec.composition){const li=document.createElement('li');li.textContent=text;$('composition').append(li)}
-  $('metrics').innerHTML=[`${m.checks.nodes} 处探索地点`,`${m.checks.cycles} 处路线回环`,`${m.checks.optional_areas} 处可选支路`].map(t=>'<span>'+t+'</span>').join('');
+  $('metrics').innerHTML=[`${m.checks.nodes} 处场景节点`,`${m.checks.cycles} 处路线回环`,`${m.checks.optional_areas} 处可选地点`].map(t=>'<span>'+t+'</span>').join('');
   $('nodes').replaceChildren();for(const n of m.spec.nodes){const b=document.createElement('button');b.textContent=n.name;b.dataset.id=n.id;if(n.role==='optional')b.classList.add('optional');b.title=n.text||n.name;b.onclick=()=>nodeView(n);$('nodes').append(b)}
   $('cameras').replaceChildren();m.spec.cameras.forEach((c,i)=>{const b=document.createElement('button');b.textContent=c.name;b.onclick=()=>{if(i===0)overview();else setCamera(c,true)};$('cameras').append(b)});
   $('phases').replaceChildren();m.spec.phases.forEach((p,i)=>{const b=document.createElement('button');b.dataset.phase=i;b.innerHTML=`<b>阶段 ${i+1}</b>${escape(p.name)}`;b.onclick=()=>setPhase(i);$('phases').append(b)});
@@ -197,7 +198,7 @@ function stepTour(dt){
  if(tour.t>=1){tour.t=0;tour.segment++;return}
  camera.position.lerpVectors(a,b,tour.t);let target=b.clone();if(len<2&&tour.points[tour.segment+2])target=tour.points[tour.segment+2].clone();target.y+=.1;camera.lookAt(target);
 }
-$('overview').onclick=overview;$('section').onclick=()=>{cut=!cut;updateVisibility()};$('roof').onclick=()=>{hideRoof=!hideRoof;updateVisibility()};$('routes').onclick=()=>{showRoutes=!showRoutes;updateVisibility()};$('plan').onclick=()=>{$('plan-panel').hidden=!$('plan-panel').hidden;drawPlan()};$('tour').onclick=startTour;$('stop').onclick=stopTour;
+$('overview').onclick=overview;$('section').onclick=()=>{cut=!cut;updateVisibility()};$('roof').onclick=()=>{hideRoof=!hideRoof;updateVisibility()};$('routes').onclick=()=>{showRoutes=!showRoutes;updateVisibility()};$('actors').onclick=()=>{showActors=!showActors;updateVisibility()};$('plan').onclick=()=>{$('plan-panel').hidden=!$('plan-panel').hidden;drawPlan()};$('tour').onclick=startTour;$('stop').onclick=stopTour;
 $('fullscreen').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else stage.requestFullscreen?.()};
 for(const map of index.maps){const b=document.createElement('button');b.dataset.id=map.id;b.innerHTML='<strong>'+escape(map.name)+'</strong><small>'+escape(map.subtitle)+'</small>';b.onclick=()=>select(map.id);$('library').append(b)}
 new ResizeObserver(resize).observe(stage);document.addEventListener('fullscreenchange',resize);
@@ -211,5 +212,5 @@ window.REALM_REVIEW={select,phase:setPhase,overview,node:id=>nodeView(current.sp
   reachable:[...reached(new Set(current.spec.phases[phase].done))],
   viewport:{width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth},
   water:current.boxes.filter(b=>b[7]==='water'&&b[8]&&condition(b[8],new Set(current.spec.phases[phase].done))).map(b=>({height:b[1]+b[4],condition:b[8]}))})};
-await select(index.maps.some(m=>m.id===params.get('map'))?params.get('map'):'water_shrine');
+await select(index.maps.some(m=>m.id===params.get('map'))?params.get('map'):index.maps.some(m=>m.id==='water_shrine')?'water_shrine':index.maps[0].id);
 })().catch(e=>{document.getElementById('loading').textContent='预览初始化失败：'+e.message;console.error(e)});

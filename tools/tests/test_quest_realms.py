@@ -2,7 +2,8 @@
 from copy import deepcopy
 import unittest
 
-from tools.quest_realms.model import read, reachable, standing_issues, validate
+from tools.quest_realms.model import read, reachable, standing_issues, validate, build
+from tools.quest_realms.audit import route_audit
 
 
 class QuestRealmDesignTest(unittest.TestCase):
@@ -38,6 +39,27 @@ class QuestRealmDesignTest(unittest.TestCase):
         self.assertEqual('stand',standing_issues(spec,[box],read('catalog'))[0]['node'])
         box[1]=10
         self.assertEqual([],standing_issues(spec,[box],read('catalog')))
+
+    def test_two_combat_models_have_clear_continuous_routes(self):
+        for ident in ('bandit_stronghold','beast_den'):
+            with self.subTest(map=ident):
+                model=build(ident)
+                audit=route_audit(model)
+                self.assertGreater(audit['samples'],1000)
+                self.assertEqual([],audit['failures'])
+
+    def test_route_audit_detects_a_wall_between_clear_endpoints(self):
+        model={'boxes':[[-2,-1,-2,8,1,4,0,'path','']],
+               'routes':[{'a':'start','b':'end','points':[[0,0,0],[3,0,0]]}]}
+        self.assertEqual(0,route_audit(model)['failed'])
+        model['boxes'].append([1,0,-1,1,2,2,0,'wall',''])
+        self.assertGreater(route_audit(model)['failed'],0)
+        self.assertTrue(any(f['reason']=='站立体积被占用' for f in route_audit(model)['failures']))
+
+    def test_route_audit_detects_missing_ground(self):
+        model={'boxes':[[-1,-1,-1,2,1,2,0,'path','']],
+               'routes':[{'a':'start','b':'end','points':[[0,0,0],[3,0,0]]}]}
+        self.assertTrue(any(f['reason']=='没有足下支撑' for f in route_audit(model)['failures']))
 
 
 if __name__=='__main__':unittest.main()
