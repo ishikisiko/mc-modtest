@@ -233,11 +233,15 @@ public final class QuestRuntime {
         var r=current(p);var m=member(p);
         if(m!=null&&m.pendingReward){say(p,"远征已完成，报酬尚未领取。请到任一登记的千机阁江湖榜办理远征。");button(p,"领取报酬","/expedition claim");return;}
         if(r==null){say(p,"尚未接取远征。可到千机阁江湖榜第二页选择山寨清剿或兽巢讨伐。");return;}
-        say(p,QuestMap.get(r.map).name()+"；签发地："+r.sourceName+"；境界："+rangeLabel(r.region,QuestMap.get(r.map).realmPool())+"；队伍 "+r.party.size()+"人；救援余量 "+Math.max(0,rules().integer("rescue_count")-m.rescues)+"；状态 "+r.state);
+        say(p,QuestMap.get(r.map).name()+"；签发地："+r.sourceName+"；境界："+rangeLabel(r.region,QuestMap.get(r.map).realmPool())+"；队伍 "+r.party.size()+"人；救援余量 "+Math.max(0,rules().integer("rescue_count")-m.rescues)+"；"+stateLabel(r.state));
         if(!realm(p.serverLevel()))button(p,r.state.equals("FORMING")?"开始远征":"继续远征","/expedition enter");
         else {button(p,"暂离并保留","/expedition leave");if(r.state.equals("GOAL"))button(p,"出口验核","/expedition finish");}
         button(p,"放弃本轮","/expedition abandon");
     }
+    private static String stateLabel(String state){return switch(state){
+        case "FORMING"->"等待进入，可先邀请队友";case "BUILDING"->"正在营造关卡";case "LIGHTING"->"正在检查光照";
+        case "READY"->"关卡已就绪";case "RUNNING"->"清剿进行中";case "SUSPENDED"->"已暂离，保留本轮进度";
+        case "GOAL"->"守敌已清除，等待出口验核";case "FAILED"->"本轮失败";case "RECLAIMING"->"正在回收关卡";default->"当前无法进入";};}
 
     private static List<ServerPlayer> present(MinecraftServer server,QuestState.Instance r){
         var level=server.getLevel(key(r.id));if(level==null)return List.of();
