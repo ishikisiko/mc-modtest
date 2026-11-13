@@ -307,7 +307,7 @@ public final class QuestRuntime {
         double multiplier=rules().partyHealth(r.party.size())*(actor.boss()?rules().number("boss_health"):1);
         var health=mob.getAttribute(Attributes.MAX_HEALTH);if(health==null)throw new IllegalStateException("远征守敌缺少生命属性");
         health.removeModifier(HEALTH);if(multiplier!=1)health.addPermanentModifier(new AttributeModifier(HEALTH,multiplier-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));mob.setHealth(mob.getMaxHealth());
-        mob.setCustomName(Component.literal((actor.boss()?"首领 · ":"")+mob.getType().getDescription().getString()+"（"+label(slot.key())+"）"));mob.setCustomNameVisible(actor.boss());
+        mob.setCustomName(Component.literal(actor.boss()?"首领 · ":"").append(mob.getType().getDescription()).append("（"+label(slot.key())+"）"));mob.setCustomNameVisible(actor.boss());
         // Persist ownership before entity insertion; a missing entity is never inferred dead or re-created.
         slot.spawned=true;save(level.getServer());BattleReceipts.get(level).register(slot.id);
         if(!level.addFreshEntity(mob)){slot.spawned=false;BattleReceipts.get(level).forget(slot.id);save(level.getServer());return false;}
@@ -332,7 +332,7 @@ public final class QuestRuntime {
                     if(level.noCollision(mob.getBoundingBox().move(Vec3.atBottomCenterOf(home).subtract(mob.position()))))mob.teleportTo(home.getX()+.5,home.getY(),home.getZ()+.5);
                     mob.getNavigation().stop();mob.setTarget(null);
                 }
-                var target=players.stream().filter(p->!p.isCreative()).min(Comparator.comparingDouble(mob::distanceToSqr)).orElse(null);mob.setTarget(target);
+                var target=players.stream().filter(p->!p.isCreative()&&p.distanceToSqr(Vec3.atCenterOf(home))<=Math.pow(rules().integer("leash_radius"),2)).min(Comparator.comparingDouble(mob::distanceToSqr)).orElse(null);mob.setTarget(target);
                 for(var p:players)if(p.distanceToSqr(mob)<=Math.pow(rules().integer("leash_radius"),2))member(p).participated=true;
             }
         }
