@@ -162,9 +162,11 @@ class Evidence:
                         self.check('extra_mob_refused','No entity was found' in self.rc('execute in '+first['dimension']+' run data get entity @e[type=minecraft:zombie,limit=1]'),self.state(a));self.done('finite_spawns')
                         self.clear_group(a,'gate_clear');a.capture('bandit-cleared-gate')
                         self.approach(a,'cart_clear');second=wait(lambda:self.state(a),lambda s:len(s.get('guards',[]))==3,30,'粮车场守敌')
-                        uid=second['guards'][0]['id'];self.rc('execute in '+second['dimension']+' run data merge entity '+uid+' {Health:7.0f}')
+                        uid=next(s['id'] for s in second['instance']['slots'] if s['group']=='cart_clear' and s['index']==2)
+                        self.rc('execute in '+second['dimension']+' run data merge entity '+uid+' {Health:7.0f}')
+                        health_probe=next(g for g in self.state(a)['guards'] if g['id']==uid);self.check('nonlethal_fixture_is_seven_health',health_probe['health']==7,health_probe)
                         self.action('nonlethal_health_fixture',guard=uid,health=7)
-                        self.leave(a,menu=True);self.leave(b);before=self.state(a);self.snapshot('before_restart',state=before,damaged_guard=uid)
+                        self.leave(a,menu=True);self.leave(b);before=self.state(a);self.snapshot('before_restart',state=before,damaged_guard=health_probe)
                         self.rc('save-all flush');self.done('pause_resume')
                 with support.Server(world,'restart',planned=True,view_distance=3,prebuilt_resources=True) as self.server:
                     self.rc('difficulty normal')
@@ -172,7 +174,7 @@ class Evidence:
                         a=stack.enter_context(Client(self,self.server,'QuestAlice','restart',prebuilt_resources=True));b=stack.enter_context(Client(self,self.server,'QuestBob','restart',prebuilt_resources=True))
                         restored=self.state(a);self.check('same_instance_and_frozen_slots_after_restart',restored['instance']['id']==run_id and restored['instance']['slots']==before['instance']['slots'],{'before':before,'after':restored})
                         self.enter(a);self.enter(b);active=wait(lambda:self.state(a),lambda s:len(s.get('guards',[]))==3,25,'恢复三名守敌')
-                        guard=next(g for g in active['guards'] if g['id']==uid);old=next(g for g in before['guards'] if g['id']==uid)
+                        guard=next(g for g in active['guards'] if g['id']==uid);old=health_probe
                         self.check('guard_health_and_maximum_not_reset',guard['health']==old['health']==7 and guard['max_health']==old['max_health'],{'before':old,'after':guard});self.done('normal_restart')
                         for group in ('cart_clear','court_clear','chief_clear'):self.clear_group(a,group)
                         self.done('mapped_combat');self.stairs(a);a.capture('bandit-exit')
