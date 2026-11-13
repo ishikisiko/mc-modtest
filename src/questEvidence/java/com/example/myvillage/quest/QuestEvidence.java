@@ -24,6 +24,22 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 public final class QuestEvidence {
     @SubscribeEvent public static void commands(RegisterCommandsEvent e){
         e.getDispatcher().register(Commands.literal("questfixture").requires(s->s.hasPermission(2))
+            .then(Commands.literal("park").then(Commands.argument("player",EntityArgument.player()).executes(c->{
+                var p=EntityArgument.getPlayer(c,"player");var level=p.serverLevel();var at=p.blockPosition();
+                for(int radius=3;radius<=6;radius++)for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++){
+                    if(Math.max(Math.abs(dx),Math.abs(dz))!=radius)continue;
+                    for(int dy:new int[]{0,1,-1,2}){
+                        double x=at.getX()+dx+.5,y=at.getY()+dy,z=at.getZ()+dz+.5;var body=new net.minecraft.world.phys.AABB(x-.3,y,z-.3,x+.3,y+1.8,z+.3);
+                        if(level.noCollision(body)&&!level.noCollision(body.move(0,-.08,0))&&!level.containsAnyLiquid(body)&&level.players().stream().noneMatch(other->other!=p&&other.distanceToSqr(x,y,z)<4)){
+                            p.teleportTo(level,x,y,z,java.util.Set.of(),p.getYRot(),p.getXRot());return 1;
+                        }
+                    }
+                }throw new IllegalStateException("没有安全停靠站位");
+            })))
+            .then(Commands.literal("camp").then(Commands.argument("player",EntityArgument.player()).executes(c->{
+                var p=EntityArgument.getPlayer(c,"player");var state=QuestSaves.get(p.getServer()).state;var run=state.instances.get(state.members.get(p.getUUID()).instance);var map=QuestMap.get(run.map);var at=map.entry();
+                p.teleportTo(p.serverLevel(),map.origin()[0]+at[0]+.5,map.origin()[1]+at[1],map.origin()[2]+at[2]+.5,java.util.Set.of(),0,0);return 1;
+            })))
             .then(Commands.literal("board").then(Commands.argument("player",EntityArgument.player()).then(Commands.argument("region",StringArgumentType.word()).executes(c->{
                 var p=EntityArgument.getPlayer(c,"player");String region=StringArgumentType.getString(c,"region");
                 var city=WorldPlanRuntime.generator(p.getServer().overworld()).orElseThrow().plan().cities().stream().filter(v->v.regionId().equals(region)).findFirst().orElseThrow();

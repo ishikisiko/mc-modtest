@@ -45,8 +45,13 @@ class Evidence:
         self.bootstrap=None
         if reuse_bootstrap is not None:
             old=json.loads(reuse_bootstrap.read_text());world=old.get('world','')
-            if old.get('kind')!='combat_quest_native' or old.get('completed') or old.get('actions') or not re.fullmatch(r'quest_runtime_[a-f0-9]{8}',world) or old['jar']['sha256']!=self.report['jar']['sha256']:
-                raise RuntimeError('仅可复用相同JAR且尚无玩家操作的失败启动世界')
+            if old.get('kind')!='combat_quest_native' or old.get('completed') or not re.fullmatch(r'quest_runtime_[a-f0-9]{8}',world) or old['jar']['sha256']!=self.report['jar']['sha256']:
+                raise RuntimeError('仅可复用相同JAR且尚未接取远征的失败启动世界')
+            from buildgen.nbtread import read_gzipped_nbt
+            ledger=ROOT/'run-acceptance'/world/'data/myvillage_expeditions.dat'
+            if ledger.exists():
+                _,saved=read_gzipped_nbt(str(ledger));quests=json.loads(saved['data']['payload'])
+                if quests['instances'] or quests['members']:raise RuntimeError('测试世界已有远征事实，未清空或重放')
             self.bootstrap=world;self.report['reused_bootstrap_report']=str(reuse_bootstrap)
         self.report['boundary']='交互夹具，含位置和高境界玩家准备；不代表完整连续步行、数值平衡或玩家手感验收。重启检查使用明确标注的非致死生命夹具。'
         self.save()
@@ -71,11 +76,14 @@ class Evidence:
         self.action('fixture_position',player=client.name,dimension=dim,position=position,target=target)
     def click(self,client,x,y,label):
         client.guard(menu=True);client.game.xdo('mousemove','--sync',str(x),str(y));client.game.xdo('click','1');self.action('menu_click',player=client.name,label=label,x=x,y=y);time.sleep(.6)
-    def board(self,client,region):
+    def board(self,client,region,park=False):
         result=one(self.rc('questfixture board '+client.name+' '+region),'QUEST_FIXTURE ')
-        x,y,z=result['reader'];target=[v+.5 for v in result['board']];self.fixture(client,[x+.5,y,z+.5],target);return result
+        x,y,z=result['reader'];target=[v+.5 for v in result['board']];self.fixture(client,[x+.5,y,z+.5],target)
+        if park:self.rc('questfixture park '+client.name)
+        return result
     def open_board(self,client,board):
-        target=[v+.5 for v in board['board']];x,y,z=board['reader'];self.fixture(client,[x+.5,y,z+.5],target);client.right()
+        client.close_screen();client.guard();client.game.xdo('key','9');self.action('mapped_hotbar',player=client.name,slot=9)
+        target=[v+.5 for v in board['board']];x,y,z=board['reader'];self.fixture(client,[x+.5,y,z+.5],target);client.capture('board-before-click-'+client.name+'-'+str(len(self.report['actions'])));client.right()
         wait(client.game.pointer_grabbed,lambda v:v is False,20,'实际江湖榜菜单')
     def accept_map(self,client,board,index):
         self.open_board(client,board);self.click(client,690,424,'next_page');client.capture('board-second-page-'+client.name+'-'+str(index))
@@ -92,12 +100,14 @@ class Evidence:
         else:client.chat('/expedition enter')
         return wait(lambda:self.state(client),lambda s:s['dimension'].startswith('myvillage:expedition/') and s.get('instance',{}).get('state') in ('RUNNING','GOAL'),180,'实际入场 '+client.name)
     def leave(self,client,menu=False):
+        self.rc('questfixture camp '+client.name)
         if menu:self.journal(client,'leave')
         else:client.chat('/expedition leave')
         return wait(lambda:self.state(client),lambda s:s['dimension']=='minecraft:overworld',30,'实际暂离 '+client.name)
     def approach(self,client,group):self.rc('questfixture approach '+client.name+' '+group)
     def attack(self,client,guard):
         # 位置准备后保持AI运行，使用实际鼠标触发共享武器执行器。
+        client.close_screen();client.guard();client.game.xdo('key','1')
         s=self.state(client);dim=s['dimension'];uid=guard['id'];pos=read_data(self.rc(f'execute in {dim} run data get entity {uid} Pos'))
         player=[pos[0],pos[1],pos[2]-2.2];self.fixture(client,player,[pos[0],pos[1]+.9,pos[2]])
         client.guard();client.game.xdo('click','1');self.action('mapped_sword_attack',player=client.name,target=uid)
@@ -136,7 +146,7 @@ class Evidence:
         return wait(lambda:self.state(client),lambda s:s['member']=='SUCCESS' and s['dimension']=='minecraft:overworld',20,'真实出口验核')
     def claim(self,client,region):
         board=self.board(client,region);self.open_board(client,board);self.click(client,690,424,'next_page');self.click(client,736,168,'claim_expedition')
-        client.close_screen();return wait(lambda:self.state(client),lambda s:s.get('receipt',{}).get('claimed') is True,15,'真实领奖')
+        client.close_screen();result=wait(lambda:self.state(client),lambda s:s.get('receipt',{}).get('claimed') is True,15,'真实领奖');self.rc('questfixture park '+client.name);return result
     def prepare(self,client):
         self.rc('gamemode survival '+client.name)
         self.rc('myvillage cultivation setrealm '+client.name+' myvillage:golden_core myvillage:golden_late')
@@ -157,10 +167,10 @@ class Evidence:
                     self.rc('difficulty normal');self.rc('gamerule doFireTick true');self.rc('gamerule mobGriefing true')
                     with ExitStack() as stack:
                         a=stack.enter_context(Client(self,self.server,'QuestAlice','first',prebuilt_resources=True,heap='4g'));b=stack.enter_context(Client(self,self.server,'QuestBob','first',prebuilt_resources=True,heap='4g'))
-                        board=self.board(a,'ximo');self.board(b,'ximo');issued=self.accept_map(a,board,0);run_id=issued['instance']['id'];self.done('board_accept')
+                        board=self.board(a,'ximo');self.board(b,'ximo',park=True);issued=self.accept_map(a,board,0);run_id=issued['instance']['id'];self.done('board_accept')
                         self.prepare(a);self.prepare(b);a.chat('/expedition invite '+b.name);b.chat('/expedition accept')
                         self.check('two_confirmed_members',len(self.state(a)['instance']['party'])==2,self.state(a)['instance']['party'])
-                        self.board(a,'donghai');self.board(b,'donghai');entered=self.enter(a,menu=True);self.enter(b)
+                        self.board(a,'donghai');self.board(b,'donghai',park=True);entered=self.enter(a,menu=True);self.enter(b)
                         self.check('issuing_region_does_not_follow_player',entered['instance']['region']=='ximo' and issued['instance']['slots']==entered['instance']['slots'],{'issued':issued,'entered':entered});self.done('issuing_region_frozen');self.done('party_admission')
                         self.check('native_light_and_local_rules',entered['instance']['lightMinimum']>=8 and all(v is False for v in entered['local_rules'].values()),entered);self.done('native_lighting')
                         self.check('overworld_fire_rule_preserved','true' in self.rc('execute in minecraft:overworld run gamerule doFireTick'),self.rc('execute in minecraft:overworld run gamerule doFireTick'))
