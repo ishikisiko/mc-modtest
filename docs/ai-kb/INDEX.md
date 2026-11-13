@@ -85,6 +85,8 @@ Test evidence: [Historical Modal runner verification](../testing/2026-10-14-moda
 
 Topic notes: [Plaque Frame Brief](plaque-frame-brief.md), [Plaque Inscription Style](plaque-inscription-style.md). Reference material under [`references/`](references/), [`style_guides/`](style_guides/), [`examples/`](examples/).
 
+洲域与城镇入场报幕：[居中洲名、竖排城名、进入确认与重复冷却](../features/region-entry.md)。
+
 
 资质点数与六类培养：[五行、兵器、技艺、NPC 数值与使用入口](../features/aptitude-points.md)。
 

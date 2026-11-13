@@ -177,6 +177,7 @@ public final class MyVillageMod {
         WildernessRuntime.register();
         com.example.myvillage.exploration.boss.BossRuntime.register();
         com.example.myvillage.exploration.ExplorationRuntime.register();
+        com.example.myvillage.arrival.ArrivalRuntime.register();
         NeoForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);
     }

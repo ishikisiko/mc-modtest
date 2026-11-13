@@ -1,0 +1,15 @@
+{
+  "poll_ticks": 5,
+  "settle_ticks": 15,
+  "exit_grace_ticks": 60,
+  "repeat_cooldown_ticks": 600,
+  "region_duration_ticks": 80,
+  "town_duration_ticks": 72,
+  "gap_ticks": 8,
+  "fade_in_ticks": 14,
+  "fade_out_ticks": 16,
+  "settlement_names": {
+    "bay_terraces_v1": "湾口台地集",
+    "qianzhen_region_v1": "阡镇"
+  }
+}

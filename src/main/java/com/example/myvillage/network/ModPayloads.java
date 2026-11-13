@@ -26,7 +26,8 @@ public final class ModPayloads {
     // 协议69在 NPC 交谈和命簿人物详情中同步只读出生天赋。
     // 协议70为取物器增加有界召唤配置、测试关系操作和私有单位列表。
     // 协议71增加测试 NPC 的功法、熟练度和自动施放配置。
-    public static final String PROTOCOL_VERSION = "75";
+    // 协议76增加服务器拥有的洲域、城镇入场报幕。
+    public static final String PROTOCOL_VERSION = "76";
 
     private ModPayloads() {
     }
@@ -37,6 +38,9 @@ public final class ModPayloads {
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToClient(com.example.myvillage.arrival.ArrivalPayload.TYPE,
+                com.example.myvillage.arrival.ArrivalPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> com.example.myvillage.arrival.ArrivalPayload.receive(payload)));
         registrar.playToServer(TestUnitPayload.TYPE, TestUnitPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> {
                     if (context.player() instanceof ServerPlayer player) com.example.myvillage.item.TestUnitRuntime.request(player, payload);

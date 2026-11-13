@@ -22,7 +22,8 @@ final class StoryTracker {
         var mode = ClientStory.mode();
         if (mc.level == null || mc.player == null || !mc.player.isAlive() || mc.player.isSpectator()
                 || mc.screen != null || mc.options.hideGui || snapshot == null || !snapshot.available()
-                || mode == StoryLayout.TrackerMode.HIDDEN) return;
+                || mode == StoryLayout.TrackerMode.HIDDEN
+                || com.example.myvillage.client.arrival.ArrivalClient.occupiesRightSide()) return;
         StoryMarker.render(g);
         var box = StoryLayout.tracker(g.guiWidth(), g.guiHeight());
         var font = PanelFonts.get();

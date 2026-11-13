@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.131.1
+
+- 进入洲域时显示居中书法报幕，进入城镇时显示右侧竖排题签；同次抵达依次播放，沿用游戏已有字体。
+- 服务器按正式地区归属、八省城、阡镇和湾口台地集的位置确认进入；加入停留确认、离界缓冲和重复提示冷却，避免边界反复弹出。
+- 报幕在界面关闭后播放，切换目的地会取消旧地点提示；城镇题签期间暂时隐藏右侧任务追踪文字。
+
 ## 0.131.0
 
 - 千机阁江湖榜新增山寨清剿、兽巢讨伐两张独立战斗秘境，包含完整方块场景、队伍进入、分段敌群、出口验核及回榜领奖。
