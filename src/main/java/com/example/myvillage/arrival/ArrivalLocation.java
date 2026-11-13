@@ -16,7 +16,7 @@ public record ArrivalLocation(String regionId, String regionName, String townId,
             throw new IllegalArgumentException("Invalid arrival identity");
     }
     static void text(String value, boolean allowEmpty) {
-        if (value == null || value.length() > MAX_TEXT || !allowEmpty && value.isBlank()
+        if (value == null || value.length() > MAX_TEXT || value.isBlank() && (!allowEmpty || !value.isEmpty())
                 || value.codePoints().anyMatch(c -> Character.isISOControl(c) || c == 0x00a7))
             throw new IllegalArgumentException("Invalid arrival text");
     }

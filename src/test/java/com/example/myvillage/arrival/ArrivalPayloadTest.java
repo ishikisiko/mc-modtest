@@ -21,7 +21,7 @@ class ArrivalPayloadTest {
     }
 
     @Test void malformedNamesAndIncompleteIdentitiesFailAtTheBoundary() {
-        for (String text : new String[]{"城\n镇", "§4城镇", "城".repeat(65)})
+        for (String text : new String[]{"城\n镇", "§4城镇", "城".repeat(65), "   "})
             assertThrows(IllegalArgumentException.class, () -> new ArrivalLocation("r", "洲", "t", text));
         assertThrows(IllegalArgumentException.class, () -> new ArrivalLocation("", "", "t", "城镇"));
         assertThrows(IllegalArgumentException.class, () -> new ArrivalPayload(ResourceLocation.parse("minecraft:overworld"),
