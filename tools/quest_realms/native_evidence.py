@@ -30,6 +30,14 @@ class Evidence:
         self.out=out;out.mkdir(parents=True,exist_ok=False)
         self.report={'kind':'combat_quest_native','status':'running','selected':CASES,'completed':[],'failed':[],
                      'unrun':CASES.copy(),'checks':[],'actions':[],'commands':[],'screenshots':[],'cleanup':[],'states':[]}
+        manifest=ROOT/'candidate.json'
+        if not manifest.is_file():raise RuntimeError('缺少固定源清单')
+        self.report['product_commit']=json.loads(manifest.read_text())['commit']
+        self.report['source_manifest_sha256']=hashlib.sha256(manifest.read_bytes()).hexdigest()
+        self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        jars=[p for p in (ROOT/'build/libs').glob('myvillage-*.jar') if not p.name.endswith('-sources.jar')]
+        if len(jars)!=1:raise RuntimeError('交付JAR不唯一：'+repr(jars))
+        self.report['jar']={'name':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'bytes':jars[0].stat().st_size}
         self.report['boundary']='交互夹具，含位置和高境界玩家准备；不代表完整连续步行、数值平衡或玩家手感验收。重启检查使用明确标注的非致死生命夹具。'
         self.save()
     def save(self):support.write(self.out/'report.json',self.report)
