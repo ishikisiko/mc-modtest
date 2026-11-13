@@ -193,7 +193,7 @@ public final class QuestRuntime {
         if(r.state.equals("BUILDING")||r.state.equals("LIGHTING")){WAITING.add(p.getUUID());say(p,"关卡仍在准备，请稍候。");return false;}
         var level=p.getServer().getLevel(key(r.id));if(level==null||!allowed(p,level)){say(p,"本轮远征尚未就绪或已失效，可放弃后重新接取。");return false;}
         var map=QuestMap.get(r.map);m.outside=location(p);QuestState.Place at=m.inside;
-        if(at==null||!safe(level,at.x,at.y,at.z))at=entry(level,map);
+        if(at==null||!entrySpace(level,at.x,at.y,at.z))at=entry(level,map);
         if(at==null){say(p,"入口没有安全站位，未传送。");return false;}
         save(p.getServer());boolean moved=p.teleportTo(level,at.x,at.y,at.z,Set.of(),at.yaw,at.pitch);
         if(moved){r.state=state(p.getServer()).goal(r,map)?"GOAL":"RUNNING";r.expiresAt=0;p.fallDistance=0;p.setDeltaMovement(Vec3.ZERO);m.inside=location(p);save(p.getServer());status(p);}return moved;
@@ -208,11 +208,14 @@ public final class QuestRuntime {
         return level.getWorldBorder().isWithinBounds(body)&&level.noCollision(body)&&!level.containsAnyLiquid(body)
                 &&!level.noCollision(body.move(0,-.08,0));
     }
+    private static boolean entrySpace(ServerLevel level,double x,double y,double z){
+        return safe(level,x,y,z)&&level.getEntitiesOfClass(Player.class,new AABB(x-.3,y,z-.3,x+.3,y+1.8,z+.3)).isEmpty();
+    }
     private static QuestState.Place findSafe(ServerLevel level,BlockPos around,int radius){
         for(int r=0;r<=radius;r++)for(int dx=-r;dx<=r;dx++)for(int dz=-r;dz<=r;dz++){
             if(Math.max(Math.abs(dx),Math.abs(dz))!=r)continue;
             for(int dy=0;dy<=3;dy++){double x=around.getX()+dx+.5,y=around.getY()+dy,z=around.getZ()+dz+.5;
-                if(safe(level,x,y,z))return new QuestState.Place(level.dimension().location().toString(),x,y,z,180,0);}
+                if(entrySpace(level,x,y,z))return new QuestState.Place(level.dimension().location().toString(),x,y,z,180,0);}
         }return null;
     }
     private static QuestState.Place outside(ServerPlayer p){
