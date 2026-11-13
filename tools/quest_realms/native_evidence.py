@@ -14,6 +14,7 @@ from tools.qianzhen.realm_evidence import Client,wait,one
 from tools.alchemy_quality_evidence import read_data
 from tools.yunshan.game_evidence import aim
 from tools.combat_capture import procs
+from tools.combat_capture.scene import parse_combat_mode
 
 CASES=['board_accept','issuing_region_frozen','party_admission','native_lighting','finite_spawns',
        'mapped_combat','mapped_stairs','pause_resume','normal_restart','exit_reward_once','beast_solo','foreign_refusal','rescue','reclaim']
@@ -26,7 +27,7 @@ def heavy_lock():
     finally:fcntl.flock(fd,fcntl.LOCK_UN);os.close(fd)
 
 class Evidence:
-    def __init__(self,out):
+    def __init__(self,out,reuse_bootstrap=None):
         self.out=out;out.mkdir(parents=True,exist_ok=False)
         self.report={'kind':'combat_quest_native','status':'running','selected':CASES,'completed':[],'failed':[],
                      'unrun':CASES.copy(),'checks':[],'actions':[],'commands':[],'screenshots':[],'cleanup':[],'states':[]}
@@ -38,6 +39,12 @@ class Evidence:
         jars=[p for p in (ROOT/'build/libs').glob('myvillage-*.jar') if not p.name.endswith('-sources.jar')]
         if len(jars)!=1:raise RuntimeError('交付JAR不唯一：'+repr(jars))
         self.report['jar']={'name':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'bytes':jars[0].stat().st_size}
+        self.bootstrap=None
+        if reuse_bootstrap is not None:
+            old=json.loads(reuse_bootstrap.read_text());world=old.get('world','')
+            if old.get('kind')!='combat_quest_native' or old.get('completed') or old.get('actions') or not re.fullmatch(r'quest_runtime_[a-f0-9]{8}',world) or old['jar']['sha256']!=self.report['jar']['sha256']:
+                raise RuntimeError('仅可复用相同JAR且尚无玩家操作的失败启动世界')
+            self.bootstrap=world;self.report['reused_bootstrap_report']=str(reuse_bootstrap)
         self.report['boundary']='交互夹具，含位置和高境界玩家准备；不代表完整连续步行、数值平衡或玩家手感验收。重启检查使用明确标注的非致死生命夹具。'
         self.save()
     def save(self):support.write(self.out/'report.json',self.report)
@@ -132,14 +139,18 @@ class Evidence:
         self.rc('myvillage cultivation setrealm '+client.name+' myvillage:golden_core myvillage:golden_late')
         self.rc('effect give '+client.name+' minecraft:regeneration 99999 5 true')
         self.rc('item replace entity '+client.name+' hotbar.0 with myvillage:qingfeng_sword');client.guard();client.game.xdo('key','1')
+        mode=lambda:parse_combat_mode(self.rc('data get entity '+client.name+' "neoforge:attachments"'))
+        if mode()!='cultivation':
+            client.guard();client.game.xdo('key','r');self.action('mapped_combat_mode_key',player=client.name,key='r')
+            wait(mode,lambda value:value=='cultivation',15,'服务器确认修仙战斗模式')
     def snapshot(self,label,**detail):self.report['states'].append(dict(label=label,**detail));self.save()
     def run(self):
         support.OUT=self.out;support.SEED=20261114
-        world='quest_runtime_'+secrets.token_hex(4);self.report['world']=world;self.save()
+        world=self.bootstrap or 'quest_runtime_'+secrets.token_hex(4);self.report['world']=world;self.save()
         before=None;run_id=None
         try:
             with heavy_lock():
-                with support.Server(world,'first',planned=True,view_distance=3,prebuilt_resources=True) as self.server:
+                with support.Server(world,'first',planned=True,view_distance=3,prebuilt_resources=True,startup_timeout=900) as self.server:
                     self.rc('difficulty normal');self.rc('gamerule doFireTick true');self.rc('gamerule mobGriefing true')
                     with ExitStack() as stack:
                         a=stack.enter_context(Client(self,self.server,'QuestAlice','first',prebuilt_resources=True));b=stack.enter_context(Client(self,self.server,'QuestBob','first',prebuilt_resources=True))
@@ -168,7 +179,7 @@ class Evidence:
                         self.action('nonlethal_health_fixture',guard=uid,health=7)
                         self.leave(a,menu=True);self.leave(b);before=self.state(a);self.snapshot('before_restart',state=before,damaged_guard=health_probe)
                         self.rc('save-all flush');self.done('pause_resume')
-                with support.Server(world,'restart',planned=True,view_distance=3,prebuilt_resources=True) as self.server:
+                with support.Server(world,'restart',planned=True,view_distance=3,prebuilt_resources=True,startup_timeout=900) as self.server:
                     self.rc('difficulty normal')
                     with ExitStack() as stack:
                         a=stack.enter_context(Client(self,self.server,'QuestAlice','restart',prebuilt_resources=True));b=stack.enter_context(Client(self,self.server,'QuestBob','restart',prebuilt_resources=True))
@@ -197,8 +208,8 @@ class Evidence:
         finally:self.save()
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--reuse-bootstrap',type=Path);a=p.parse_args()
     if not str(ROOT).startswith('/content/') or os.environ.get('MYVILLAGE_REMOTE_PROVIDER')!='colab':raise RuntimeError('原生游戏检查只允许在授权Colab工作区运行')
-    Evidence(a.out).run()
+    Evidence(a.out,a.reuse_bootstrap).run()
 
 if __name__=='__main__':main()

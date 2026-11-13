@@ -37,11 +37,13 @@ def port():
         s.bind(('127.0.0.1',0));return s.getsockname()[1]
 
 class Server:
-    def __init__(self,name,label,planned=True,structures=True,view_distance=3,prebuilt_resources=False):
+    def __init__(self,name,label,planned=True,structures=True,view_distance=3,prebuilt_resources=False,startup_timeout=480):
         self.name,self.label=name,label
         self.planned,self.structures=planned,structures
         self.view_distance=max(3,min(12,int(view_distance)))
         self.prebuilt_resources=prebuilt_resources
+        self.startup_timeout=int(startup_timeout)
+        if not 30<=self.startup_timeout<=1800:raise ValueError('Server startup timeout is outside the capture budget')
         self.password,self.rport,self.sport=secrets.token_hex(20),port(),port()
         self.proc=None;self.log=None;self.commands=[];self.world=GAME/name
     def __enter__(self):
@@ -63,7 +65,7 @@ class Server:
         if self.prebuilt_resources:args.extend(['-x','processResources'])
         self.proc=subprocess.Popen(args,cwd=ROOT,stdin=subprocess.DEVNULL,stdout=self.log,stderr=subprocess.STDOUT,start_new_session=True)
         try:
-            deadline=time.monotonic()+480
+            deadline=time.monotonic()+self.startup_timeout
             while time.monotonic()<deadline:
                 if self.proc.poll() is not None:raise RuntimeError(f'{self.label}: server exited with {self.proc.returncode}')
                 try:
