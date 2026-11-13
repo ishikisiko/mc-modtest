@@ -173,6 +173,7 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST, com.example.myvillage.ruins.BattleReceipts::death);
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.BattleReceipts::leave);
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.BattleReceipts::conversion);
+        com.example.myvillage.quest.QuestRuntime.register();
         WildernessRuntime.register();
         com.example.myvillage.exploration.boss.BossRuntime.register();
         com.example.myvillage.exploration.ExplorationRuntime.register();

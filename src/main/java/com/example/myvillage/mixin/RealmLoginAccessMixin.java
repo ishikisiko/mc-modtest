@@ -21,10 +21,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class RealmLoginAccessMixin {
     @Redirect(method="placeNewPlayer",at=@At(value="INVOKE",target="Lnet/minecraft/server/MinecraftServer;getLevel(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/server/level/ServerLevel;"),require=1,allow=1)
     private ServerLevel myvillage$privateLogin(MinecraftServer server,ResourceKey<Level> dimension,Connection connection,ServerPlayer player,CommonListenerCookie cookie){
+        if(com.example.myvillage.quest.QuestRuntime.reserved(dimension.location().toString()))
+            return com.example.myvillage.quest.QuestRuntime.loginLevel(server,dimension,player);
         return QianzhenRealms.loginLevel(server,dimension,player);
     }
     @ModifyExpressionValue(method="respawn",at=@At(value="INVOKE",target="Lnet/neoforged/neoforge/event/entity/player/PlayerRespawnPositionEvent;getDimensionTransition()Lnet/minecraft/world/level/portal/DimensionTransition;"),require=1,allow=1)
     private DimensionTransition myvillage$finalRespawnOwner(DimensionTransition transition,ServerPlayer player,boolean keepInventory,Entity.RemovalReason reason){
-        return QianzhenRealms.respawn(player,transition);
+        return com.example.myvillage.quest.QuestRuntime.respawn(player,QianzhenRealms.respawn(player,transition));
     }
 }

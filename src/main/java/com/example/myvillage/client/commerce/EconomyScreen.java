@@ -32,8 +32,9 @@ public final class EconomyScreen extends AbstractContainerScreen<EconomyMenu> {
         page = Math.clamp(page, 0, Math.max(0, (menu.rows.size() - 1) / ROWS));
         for (int i = 0; i < actions.size(); i++) {
             int index = page * ROWS + i; var button = actions.get(i); button.visible = index < menu.rows.size(); if (!button.visible) continue;
-            var row = menu.rows.get(index); button.setMessage(Component.literal(menu.linlang ? "兑换" : menu.activeTask() ? "交付事务" : "接取事务"));
-            button.active = pending != menu.sequence() && (menu.linlang ? menu.contribution() >= row.cost() : menu.activeTask() ? menu.activeRow() == index : menu.canAccept());
+            var row = menu.rows.get(index); boolean expedition = !menu.linlang && row.id().startsWith("expedition/");
+            button.setMessage(Component.literal(expedition ? "办理远征" : menu.linlang ? "兑换" : menu.activeTask() ? "交付事务" : "接取事务"));
+            button.active = pending != menu.sequence() && (expedition || (menu.linlang ? menu.contribution() >= row.cost() : menu.activeTask() ? menu.activeRow() == index : menu.canAccept()));
             button.setTooltip(Tooltip.create(Component.literal(row.detail())));
         }
         if (previous != null) { previous.active = page > 0; next.active = (page + 1) * ROWS < menu.rows.size(); }
@@ -58,7 +59,7 @@ public final class EconomyScreen extends AbstractContainerScreen<EconomyMenu> {
         g.drawString(font, "宗门贡献：" + menu.contribution() + "    江湖声望：" + menu.reputation(), 10, 27, 0xFFCCDEBF, false);
         g.drawString(font, Component.translatable("screen.myvillage.economy.status." + menu.status()), 10, 183, 0xFFE2D3A8, false);
         g.drawString(font, (page + 1) + "/" + Math.max(1, (menu.rows.size() + ROWS - 1) / ROWS), 237, 197, 0xFFCCDEBF, false);
-        g.drawString(font, menu.linlang ? "本宗弟子可用贡献兑换，部分商品要求内门身份。" : "每座城镇每天可接一项，完成后回原榜交付。", 10, 216, 0xFFA5B59C, false);
+        g.drawString(font, menu.linlang ? "本宗弟子可用贡献兑换，部分商品要求内门身份。" : "日常事务每日一项；远征另行接取，通关后回榜领奖。", 10, 216, 0xFFA5B59C, false);
     }
     @Override public void render(GuiGraphics g, int mx, int my, float delta) { update(); super.render(g, mx, my, delta); renderTooltip(g, mx, my); }
 }

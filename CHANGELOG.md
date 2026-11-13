@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.131.0
+
+- 千机阁江湖榜新增山寨清剿、兽巢讨伐两张独立战斗秘境，包含完整方块场景、队伍进入、分段敌群、出口验核及回榜领奖。
+- 敌人境界在接单时按签发地的地区劫修或妖兽范围固定，首领取上限；实体身份、击败进度和待领奖励随正常存档恢复。
+- 入口开放前检查方块光照与出生站位；关闭实例自然刷怪并限制守敌数量，补齐暂离、救援、归属检查和临时世界回收。
+
 ## 0.130.1
 
 - 中州千机阁总舵迁入御街西侧住宅坊，撤并获准的73栋民居，保留原城域、功能建筑、庄园和水体。

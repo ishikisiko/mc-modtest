@@ -71,12 +71,21 @@ public final class EconomyRuntime {
         } else {
             var active = sim.townTask(owner);
             if (active.isPresent() && !active.get().siteId().equals(context.site())) {
-                player.displayClientMessage(Component.literal("你还有其他城镇的事务，请先回" + sim.lifeSite(active.get().siteId()).map(s -> s.name()).orElse(active.get().siteId()) + "江湖榜交付。"), false); return;
+                player.displayClientMessage(Component.literal("你还有其他城镇的事务，请先回" + sim.lifeSite(active.get().siteId()).map(s -> s.name()).orElse(active.get().siteId()) + "江湖榜交付。远征可另行办理。"), false);
             }
             for (var task : sim.playerEconomyRules().townTasks()) {
                 var assignment = active.filter(a -> a.taskId().equals(task.id())).orElseGet(() -> sim.townTaskOffer(owner, context.site(), task.id(), day));
                 rows.add(new EconomyMenu.Row(task.id(), task.name(), task.item(), task.count(), 0, 0,
                         task.brief() + " 奖励：" + EconomyInventory.describe(assignment.reward()) + "。"));
+            }
+            var source = sim.lifeSite(context.site()).orElseThrow();
+            if (com.example.myvillage.wilderness.WildernessRules.bundled().region(source.regionId()).isPresent()) {
+                for (String id : com.example.myvillage.quest.QuestRules.get().maps()) {
+                    var map = com.example.myvillage.quest.QuestMap.get(id);
+                    rows.add(new EconomyMenu.Row("expedition/" + id, map.name(), "minecraft:iron_sword", 1, 0, 0,
+                            "1至4人；守敌" + com.example.myvillage.quest.QuestRuntime.rangeLabel(source.regionId(), map.realmPool())
+                            + "；接取后从行迹菜单进入。 奖励：下品灵石 " + map.stones() + "、江湖声望 " + map.reputation() + "。"));
+                }
             }
         }
         long token = UUID.randomUUID().getLeastSignificantBits();

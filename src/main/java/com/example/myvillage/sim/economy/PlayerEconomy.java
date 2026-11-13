@@ -81,6 +81,13 @@ public final class PlayerEconomy {
         if (!inventoryCommit.getAsBoolean()) return false;
         m.jianghuReputation = next; m.townTask = null; return true;
     }
+    public static boolean rewardExpedition(SimContext ctx, String player, String name, TaskReward reward, BooleanSupplier inventoryCommit) {
+        if (reward.contribution() != 0) throw new IllegalArgumentException("远征报酬不包含宗门贡献");
+        if (player == null || player.isBlank() || player.length() > 96) throw new IllegalArgumentException("invalid_player");
+        int next = Math.addExact(reputation(ctx, player), reward.reputation());
+        if (!inventoryCommit.getAsBoolean()) return false;
+        ensure(ctx, player, name).jianghuReputation = next; return true;
+    }
     public static void validate(SimContext ctx) {
         for (var m : ctx.state.playerMembers.values()) {
             if (m.contribution < 0 || m.jianghuReputation < 0 || m.townTaskDays.size() > 512

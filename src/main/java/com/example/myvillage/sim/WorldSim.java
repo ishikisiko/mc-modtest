@@ -877,6 +877,9 @@ public final class WorldSim {
     }
     public com.example.myvillage.sim.economy.PlayerEconomyRules playerEconomyRules() { return ctx.data.playerEconomy(); }
     public int jianghuReputation(String player) { return com.example.myvillage.sim.economy.PlayerEconomy.reputation(ctx, player); }
+    public boolean rewardExpedition(String player, String name, com.example.myvillage.sim.economy.TaskReward reward, BooleanSupplier inventoryCommit) {
+        return com.example.myvillage.sim.economy.PlayerEconomy.rewardExpedition(ctx, player, name, reward, inventoryCommit);
+    }
     public int commerceReputationRequired(String offer) {
         var row = ctx.data.commerceRules().offer(offer); return row == null ? 0 : ctx.data.playerEconomy().reputationFor(row);
     }

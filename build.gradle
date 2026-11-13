@@ -268,6 +268,11 @@ if (providers.gradleProperty('npcGardenEvidence').isPresent()) {
 
 import org.gradle.internal.os.OperatingSystem
 
+if (providers.gradleProperty('questEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/questEvidence/java')
+    tasks.named('jar') { doFirst { throw new GradleException('远征证据夹具不得进入交付包；构建时移除 -PquestEvidence') } }
+}
+
 def pythonExecutable = providers.environmentVariable('PYTHON').orElse(
     OperatingSystem.current().isWindows() ? 'python' : 'python3'
 )
@@ -576,6 +581,16 @@ tasks.named('generateWorldPlanAssets') {
 }
 
 // Qianzhen is an explicit story scene; its authored templates never enter the shared cleanup tree.
+tasks.register('generateQuestRealms', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args '-m', 'tools.quest_realms.game', '--out', 'build/generated/quest_realms/resources'
+    inputs.files(fileTree('blueprints/quest_realms'), fileTree('tools/quest_realms') { exclude '**/__pycache__/**', '**/*.pyc' })
+    outputs.dir(layout.buildDirectory.dir('generated/quest_realms/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/quest_realms/resources'))
+tasks.named('processResources') { dependsOn 'generateQuestRealms' }
+
 tasks.register('generateQianzhenStoryAssets', Exec) {
     workingDir = projectDir
     executable = pythonExecutable.get()

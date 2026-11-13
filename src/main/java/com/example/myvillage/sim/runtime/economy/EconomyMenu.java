@@ -56,7 +56,10 @@ public final class EconomyMenu extends AbstractContainerMenu {
         lastAction = player.tickCount;
         String owner = player.getUUID().toString(); var row = rows.get(intent.row());
         try {
-            if (linlang) {
+            if (!linlang && row.id().startsWith("expedition/")) {
+                com.example.myvillage.quest.QuestRuntime.atBoard(player, pos, site, row.id().substring("expedition/".length()));
+                result("ok");
+            } else if (linlang) {
                 var offer = sim.playerEconomyRules().offer(row.id()); var stack = new ItemStack(CommerceInventory.item(offer.item()));
                 if (offer.pillQuality() > 1) stack.set(com.example.myvillage.item.ModDataComponents.PILL_QUALITY.get(), offer.pillQuality());
                 var plan = EconomyInventory.goods(player, stack, offer.quantity());

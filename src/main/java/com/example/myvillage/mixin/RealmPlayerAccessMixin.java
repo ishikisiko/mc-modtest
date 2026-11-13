@@ -19,23 +19,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class RealmPlayerAccessMixin {
     @Inject(method="teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FF)Z",at=@At("HEAD"),cancellable=true)
     private void myvillage$checkedTeleport(ServerLevel level,double x,double y,double z,Set<RelativeMovement> moves,float yaw,float pitch,CallbackInfoReturnable<Boolean> ci){
-        if(!QianzhenRealms.allowed((ServerPlayer)(Object)this,level))ci.setReturnValue(false);
+        if(!QianzhenRealms.allowed((ServerPlayer)(Object)this,level)||!com.example.myvillage.quest.QuestRuntime.allowed((ServerPlayer)(Object)this,level))ci.setReturnValue(false);
     }
     @Inject(method="teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDFF)V",at=@At("HEAD"),cancellable=true)
     private void myvillage$checkedTransfer(ServerLevel level,double x,double y,double z,float yaw,float pitch,CallbackInfo ci){
-        if(!QianzhenRealms.allowed((ServerPlayer)(Object)this,level))ci.cancel();
+        if(!QianzhenRealms.allowed((ServerPlayer)(Object)this,level)||!com.example.myvillage.quest.QuestRuntime.allowed((ServerPlayer)(Object)this,level))ci.cancel();
     }
     @Inject(method="changeDimension",at=@At("HEAD"),cancellable=true)
     private void myvillage$checkedDimension(DimensionTransition transition,CallbackInfoReturnable<Entity> ci){
-        if(!QianzhenRealms.allowed((ServerPlayer)(Object)this,transition.newLevel()))ci.setReturnValue(null);
+        if(!QianzhenRealms.allowed((ServerPlayer)(Object)this,transition.newLevel())||!com.example.myvillage.quest.QuestRuntime.allowed((ServerPlayer)(Object)this,transition.newLevel()))ci.setReturnValue(null);
     }
     @Inject(method="setCamera",at=@At("HEAD"),cancellable=true)
     private void myvillage$checkedSpectator(Entity target,CallbackInfo ci){
-        if(target!=null&&target.level() instanceof ServerLevel level&&!QianzhenRealms.allowed((ServerPlayer)(Object)this,level))ci.cancel();
+        if(target!=null&&target.level() instanceof ServerLevel level&&(!QianzhenRealms.allowed((ServerPlayer)(Object)this,level)||!com.example.myvillage.quest.QuestRuntime.allowed((ServerPlayer)(Object)this,level)))ci.cancel();
     }
     @ModifyReturnValue(method="findRespawnPositionAndUseSpawnBlock",at=@At("RETURN"))
     private DimensionTransition myvillage$privateRespawn(DimensionTransition original){
-        return QianzhenRealms.respawn((ServerPlayer)(Object)this,original);
+        return com.example.myvillage.quest.QuestRuntime.respawn((ServerPlayer)(Object)this,QianzhenRealms.respawn((ServerPlayer)(Object)this,original));
     }
     @Inject(method="findRespawnPositionAndUseSpawnBlock",at=@At("HEAD"),cancellable=true)
     private void myvillage$privateDeath(boolean keepInventory,DimensionTransition.PostDimensionTransition post,CallbackInfoReturnable<DimensionTransition> ci){

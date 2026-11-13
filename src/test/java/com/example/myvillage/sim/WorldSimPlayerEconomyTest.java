@@ -37,6 +37,14 @@ class WorldSimPlayerEconomyTest {
         assertEquals(reward.contribution(), sim.playerMember(A).orElseThrow().contribution());
         assertFalse(sim.completeSectTask(A, "Alice", task, () -> true)); assertTrue(sim.task(A).isEmpty());
     }
+    @Test void expeditionRewardUsesTheLedgerWithoutConsumingDailyTasks(){
+        var sim=commerce.fresh();var task=sim.acceptTownTask(A,"Alice",SITE,"supply_bread",3);
+        var reward=new TaskReward(0,15,java.util.Map.of("low",12));
+        var before=sim.toBytes();assertFalse(sim.rewardExpedition(B,"Bob",reward,()->false));assertArrayEquals(before,sim.toBytes());
+        assertFalse(sim.rewardExpedition(A,"Alice",reward,()->false));assertEquals(0,sim.jianghuReputation(A));
+        assertTrue(sim.rewardExpedition(A,"Alice",reward,()->true));assertEquals(15,sim.jianghuReputation(A));assertEquals(task,sim.townTask(A).orElseThrow());
+        assertEquals(15,restore(sim).jianghuReputation(A));
+    }
     @Test void linlangChecksMembershipRankAndFundsBeforeCallingInventoryAndDebitsOnce() {
         var sim = balance(member(), A, 20, 0); int sect = sim.playerMember(A).orElseThrow().sectId(); var called = new AtomicInteger();
         assertThrows(IllegalArgumentException.class, () -> sim.buyLinlang(B, sect, "huiling", () -> { called.incrementAndGet(); return true; }));
