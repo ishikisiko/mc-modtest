@@ -50,9 +50,10 @@ class Server:
         self.identities={}
     def remember(self):
         if self.proc is not None:self.identities.setdefault(self.proc.pid,procs.start_time(self.proc.pid))
+        table=procs.proc_table()
         for pid,start in list(self.identities.items()):
             if procs.is_alive(pid,start):
-                for child in procs.descendants(pid):self.identities.setdefault(child,procs.start_time(child))
+                for child in procs.descendants(pid,table):self.identities.setdefault(child,procs.start_time(child))
     def __enter__(self):
         procs.set_child_subreaper()
         if self.prebuilt_resources:

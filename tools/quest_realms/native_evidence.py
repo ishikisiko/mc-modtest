@@ -152,7 +152,7 @@ class Evidence:
         before=None;run_id=None
         try:
             with heavy_lock():
-                with support.Server(world,'first',planned=True,view_distance=3,prebuilt_resources=True,startup_timeout=900) as self.server:
+                with support.Server(world,'first',planned=True,view_distance=3,prebuilt_resources=True,startup_timeout=1200) as self.server:
                     self.rc('difficulty normal');self.rc('gamerule doFireTick true');self.rc('gamerule mobGriefing true')
                     with ExitStack() as stack:
                         a=stack.enter_context(Client(self,self.server,'QuestAlice','first',prebuilt_resources=True));b=stack.enter_context(Client(self,self.server,'QuestBob','first',prebuilt_resources=True))
@@ -181,7 +181,7 @@ class Evidence:
                         self.action('nonlethal_health_fixture',guard=uid,health=7)
                         self.leave(a,menu=True);self.leave(b);before=self.state(a);self.snapshot('before_restart',state=before,damaged_guard=health_probe)
                         self.rc('save-all flush');self.done('pause_resume')
-                with support.Server(world,'restart',planned=True,view_distance=3,prebuilt_resources=True,startup_timeout=900) as self.server:
+                with support.Server(world,'restart',planned=True,view_distance=3,prebuilt_resources=True,startup_timeout=1200) as self.server:
                     self.rc('difficulty normal')
                     with ExitStack() as stack:
                         a=stack.enter_context(Client(self,self.server,'QuestAlice','restart',prebuilt_resources=True));b=stack.enter_context(Client(self,self.server,'QuestBob','restart',prebuilt_resources=True))
