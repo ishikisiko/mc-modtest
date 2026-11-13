@@ -19,11 +19,6 @@ public final class ArrivalPlaces {
                 if (name.startsWith(regionName + "·")) name = name.substring(regionName.length() + 1);
                 return new ArrivalLocation(region, regionName, capital.cityId(), name);
             }
-            var qianzhen = plan.qianzhen();
-            if (qianzhen != null && plan.intersectsQianzhen(x, z, x, z, false)) {
-                String name = ArrivalRules.INSTANCE.settlementNames().get(plan.rules().qianzhen.id);
-                if (name != null) return new ArrivalLocation(region, regionName, qianzhen.id(), name);
-            }
             int size = plan.rules().settlements.size;
             for (var site : plan.settlements()) {
                 if (x < site.x() || z < site.z() || x >= site.x() + size || z >= site.z() + size) continue;

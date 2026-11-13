@@ -28,9 +28,8 @@ class ArrivalPlacesTest {
         }
     }
 
-    @Test void qianzhenAndBayTerracesUseTheirPlacedSitesAndConfiguredNames() {
-        var q = plan.qianzhen(); assertNotNull(q);
-        assertEquals("阡镇", ArrivalPlaces.at(plan.graph(), plan, q.entry().x(), q.entry().z()).townName());
+    @Test void bayTerracesUsePlacedSitesAndPrivateQianzhenIsNotInventedInOverworld() {
+        assertNull(plan.qianzhen(), "current rules place Qianzhen in private realms");
         assertFalse(plan.settlements().isEmpty());
         for (var town : plan.settlements()) {
             int half = plan.rules().settlements.size / 2;
