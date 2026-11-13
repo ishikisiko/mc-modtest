@@ -15,6 +15,7 @@ public final class JourneyPage extends PanelPage {
     private boolean questRealm(){var mc=Minecraft.getInstance();return mc.level!=null&&mc.level.dimension().location().toString().startsWith("myvillage:expedition/");}
     private static void command(String command){var mc=Minecraft.getInstance();if(mc.getConnection()!=null)mc.getConnection().sendCommand(command);if(mc.screen!=null)mc.screen.onClose();}
     private JourneyView.Travel reported;
+    private String reportedQuest;
     private JourneyView model() {
         var mc=Minecraft.getInstance();
         return JourneyView.of(ClientStory.snapshot(),mc.player==null?null:mc.player.getUUID(),
@@ -38,7 +39,7 @@ public final class JourneyPage extends PanelPage {
         return 52;
     }
     @Override public void setVisible(boolean value) {
-        if(!value)reported=null;
+        if(!value){reported=null;reportedQuest=null;}
         if(travel!=null)travel.visible=value && model().travel()!=JourneyView.Travel.NONE;
         if(questStatus!=null){questStatus.visible=value;questTravel.visible=value;}
     }
@@ -48,7 +49,7 @@ public final class JourneyPage extends PanelPage {
         travel.active=travel.visible;travel.setMessage(Component.literal(action.label));
         questStatus.visible=showing;questTravel.visible=showing;questTravel.setMessage(Component.literal(questRealm()?"暂离远征":"进入远征"));
         if(questRealm()){travel.visible=showing;travel.active=showing;travel.setMessage(Component.literal("出口验核"));}
-        if(showing && reported!=action) {
+        if(showing && reported!=action && !questRealm()) {
             reported=action;var mc=Minecraft.getInstance();
             double sx=mc.getWindow().getWidth()/(double)mc.getWindow().getGuiScaledWidth();
             double sy=mc.getWindow().getHeight()/(double)mc.getWindow().getGuiScaledHeight();
@@ -57,7 +58,14 @@ public final class JourneyPage extends PanelPage {
                     action.name().toLowerCase(java.util.Locale.ROOT),Math.round(travel.getX()*sx),Math.round(travel.getY()*sy),
                     Math.round(travel.getWidth()*sx),Math.round(travel.getHeight()*sy));
         }
+        String questAction=questRealm()?"leave":"enter";
+        if(showing&&!questAction.equals(reportedQuest)){
+            reportedQuest=questAction;var mc=Minecraft.getInstance();
+            double sx=mc.getWindow().getWidth()/(double)mc.getWindow().getGuiScaledWidth(),sy=mc.getWindow().getHeight()/(double)mc.getWindow().getGuiScaledHeight();
+            logQuest(questAction,questTravel,sx,sy);if(questRealm())logQuest("finish",travel,sx,sy);
+        }
     }
+    private static void logQuest(String action,PanelButton button,double sx,double sy){org.slf4j.LoggerFactory.getLogger(JourneyPage.class).info("QUEST_JOURNAL action={} x={} y={} w={} h={} page=H_JOURNEY",action,Math.round(button.getX()*sx),Math.round(button.getY()*sy),Math.round(button.getWidth()*sx),Math.round(button.getHeight()*sy));}
     @Override public int render(GuiGraphics g,PanelContext c,int x,int y,int width,int viewportHeight) {
         int start=y;var data=model();
         if(questRealm()){

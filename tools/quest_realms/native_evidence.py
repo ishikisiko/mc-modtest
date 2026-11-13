@@ -4,7 +4,7 @@ RCON只准备位置、玩家修为及持久化边界夹具，并读取服务器�
 接取、入场、暂离、击败、验核与领奖均通过受焦点保护的真实客户端输入。
 """
 from __future__ import annotations
-import argparse,gzip,hashlib,json,math,os,secrets,subprocess,sys,time
+import argparse,gzip,hashlib,json,math,os,re,secrets,subprocess,sys,time
 from contextlib import ExitStack,contextmanager
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
@@ -64,11 +64,19 @@ class Evidence:
         self.click(client,736,168+index*86,'expedition_row_'+str(index))
         wait(client.game.pointer_grabbed,lambda v:v is True,20,'接取后菜单关闭')
         return wait(lambda:self.state(client),lambda s:s.get('instance',{}).get('state')=='FORMING',20,'榜单已签发')
-    def enter(self,client):
-        client.chat('/expedition enter')
+    def journal(self,client,action):
+        client.close_screen();offset=client.game.client_log.stat().st_size;client.guard();client.game.xdo('key','o');self.action('mapped_journal_key',player=client.name,key='o')
+        pattern=rf'QUEST_JOURNAL action={action} x=(\d+) y=(\d+) w=(\d+) h=(\d+)'
+        match=wait(lambda:re.search(pattern,client.tail(offset)),bool,20,'H行迹远征按钮 '+action)
+        x,y,w,h=map(int,match.groups());client.capture('H-expedition-'+action);self.click(client,x+w//2,y+h//2,'H_'+action)
+    def enter(self,client,menu=False):
+        if menu:self.journal(client,'enter')
+        else:client.chat('/expedition enter')
         return wait(lambda:self.state(client),lambda s:s['dimension'].startswith('myvillage:expedition/') and s.get('instance',{}).get('state') in ('RUNNING','GOAL'),180,'实际入场 '+client.name)
-    def leave(self,client):
-        client.chat('/expedition leave');return wait(lambda:self.state(client),lambda s:s['dimension']=='minecraft:overworld',30,'实际暂离 '+client.name)
+    def leave(self,client,menu=False):
+        if menu:self.journal(client,'leave')
+        else:client.chat('/expedition leave')
+        return wait(lambda:self.state(client),lambda s:s['dimension']=='minecraft:overworld',30,'实际暂离 '+client.name)
     def approach(self,client,group):self.rc('questfixture approach '+client.name+' '+group)
     def attack(self,client,guard):
         # 位置准备后保持AI运行，使用实际鼠标触发共享武器执行器。
@@ -87,9 +95,11 @@ class Evidence:
             if not guards:time.sleep(.5);continue
             self.attack(client,guards[0])
         self.check('mapped_clear_'+group,not remaining(),self.state(client))
-    def finish(self,client):
+    def finish(self,client,menu=False):
         model=self.map(client);x,y,z=[model['origin'][i]+model['exit'][i] for i in range(3)]
-        self.fixture(client,[x+.5,y,z-2.5],[x+.5,y+.5,z+.5]);client.chat('/expedition finish')
+        self.fixture(client,[x+.5,y,z-2.5],[x+.5,y+.5,z+.5])
+        if menu:self.journal(client,'finish')
+        else:client.chat('/expedition finish')
         return wait(lambda:self.state(client),lambda s:s['member']=='SUCCESS' and s['dimension']=='minecraft:overworld',20,'真实出口验核')
     def claim(self,client,region):
         board=self.board(client,region);self.open_board(client,board);self.click(client,690,424,'next_page');self.click(client,736,168,'claim_expedition')
@@ -113,7 +123,7 @@ class Evidence:
                         board=self.board(a,'ximo');self.board(b,'ximo');issued=self.accept_map(a,board,0);run_id=issued['instance']['id'];self.done('board_accept')
                         self.prepare(a);self.prepare(b);a.chat('/expedition invite '+b.name);b.chat('/expedition accept')
                         self.check('two_confirmed_members',len(self.state(a)['instance']['party'])==2,self.state(a)['instance']['party'])
-                        self.board(a,'donghai');self.board(b,'donghai');entered=self.enter(a);self.enter(b)
+                        self.board(a,'donghai');self.board(b,'donghai');entered=self.enter(a,menu=True);self.enter(b)
                         self.check('issuing_region_does_not_follow_player',entered['instance']['region']=='ximo' and issued['instance']['slots']==entered['instance']['slots'],{'issued':issued,'entered':entered});self.done('issuing_region_frozen');self.done('party_admission')
                         self.check('native_light_and_local_rules',entered['instance']['lightMinimum']>=8 and all(v is False for v in entered['local_rules'].values()),entered);self.done('native_lighting')
                         self.check('overworld_fire_rule_preserved','true' in self.rc('execute in minecraft:overworld run gamerule doFireTick'),self.rc('execute in minecraft:overworld run gamerule doFireTick'))
@@ -126,7 +136,7 @@ class Evidence:
                         self.approach(a,'cart_clear');second=wait(lambda:self.state(a),lambda s:len(s.get('guards',[]))==3,30,'粮车场守敌')
                         uid=second['guards'][0]['id'];self.rc('execute in '+second['dimension']+' run data merge entity '+uid+' {Health:7.0f}')
                         self.action('nonlethal_health_fixture',guard=uid,health=7)
-                        self.leave(a);self.leave(b);before=self.state(a);self.snapshot('before_restart',state=before,damaged_guard=uid)
+                        self.leave(a,menu=True);self.leave(b);before=self.state(a);self.snapshot('before_restart',state=before,damaged_guard=uid)
                         self.rc('save-all flush');self.done('pause_resume')
                 with support.Server(world,'restart',planned=True,view_distance=3) as self.server:
                     self.rc('difficulty normal')
@@ -138,7 +148,7 @@ class Evidence:
                         self.check('guard_health_and_maximum_not_reset',guard['health']==old['health']==7 and guard['max_health']==old['max_health'],{'before':old,'after':guard});self.done('normal_restart')
                         for group in ('cart_clear','court_clear','chief_clear'):self.clear_group(a,group)
                         self.done('mapped_combat');a.capture('bandit-exit')
-                        self.finish(a);self.finish(b);claimed=self.claim(a,'donghai');self.claim(b,'donghai')
+                        self.finish(a,menu=True);self.finish(b);claimed=self.claim(a,'donghai');self.claim(b,'donghai')
                         inventory=self.rc('data get entity '+a.name+' Inventory');a.chat('/expedition claim');self.check('second_claim_does_not_pay_again',inventory==self.rc('data get entity '+a.name+' Inventory'),self.state(a));self.done('exit_reward_once')
                         wait(lambda:self.state(a),lambda s:'instance' not in s,30,'山寨实例回收');self.done('reclaim')
                         board=self.board(a,'donghai');self.accept_map(a,board,1);beast=self.enter(a)
