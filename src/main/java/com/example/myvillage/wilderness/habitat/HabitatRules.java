@@ -15,7 +15,13 @@ public final class HabitatRules {
     public final List<Loot> loot;
     public HabitatRules(JsonObject input) {
         if(input==null)throw new IllegalArgumentException("缺少东荒生态规则");
-        json=input.deepCopy();
+        if(!input.keySet().equals(Set.of("resource_sha256")))throw new IllegalArgumentException("生态规则必须使用精确资源引用");
+        try(var stream=HabitatRules.class.getResourceAsStream("/data/myvillage/wilderness/habitats.json")){
+            if(stream==null)throw new IllegalArgumentException("缺少生态模板资源");
+            byte[] bytes=stream.readAllBytes();
+            if(bytes.length>1024*1024||!com.example.myvillage.worldplan.WorldPlanRules.sha256(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).equals(input.get("resource_sha256").getAsString()))throw new IllegalArgumentException("生态模板摘要不一致");
+            json=JsonParser.parseString(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+        }catch(java.io.IOException error){throw new IllegalArgumentException("生态模板读取失败",error);}
         if(integer("schema")!=1)throw new IllegalArgumentException("未知生态规则格式");
         region=json.get("region").getAsString();
         if(!region.equals("donghuang"))throw new IllegalArgumentException("当前生态群落仅支持东荒");
@@ -35,13 +41,7 @@ public final class HabitatRules {
             ks.add(new Kind(id,k.get("name").getAsString(),k.get("faction").getAsString(),members,guards,k.get("night_hunt").getAsBoolean(),k.get("near_kind").getAsString()));
         }
         kinds=List.copyOf(ks);if(kinds.size()!=4)throw new IllegalArgumentException("当前必须完整声明四种生态群落");
-        JsonObject templateData;
-        try(var stream=HabitatRules.class.getResourceAsStream("/data/myvillage/wilderness/habitats.json")){
-            if(stream==null)throw new IllegalArgumentException("缺少生态模板资源");
-            byte[] bytes=stream.readAllBytes();
-            if(bytes.length>1024*1024||!com.example.myvillage.worldplan.WorldPlanRules.sha256(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).equals(json.get("template_sha256").getAsString()))throw new IllegalArgumentException("生态模板摘要不一致");
-            templateData=JsonParser.parseString(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("templates");
-        }catch(java.io.IOException error){throw new IllegalArgumentException("生态模板读取失败",error);}
+        JsonObject templateData=json.getAsJsonObject("templates");
         Map<String,List<Block>> blocks=new LinkedHashMap<>();
         for(var k:kinds){List<Block> list=new ArrayList<>();Set<String> positions=new HashSet<>();
             for(var element:templateData.getAsJsonArray(k.id())){var b=element.getAsJsonObject();

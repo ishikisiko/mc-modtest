@@ -74,9 +74,7 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     from wilderness_habitats.generate import generate as habitat_rules
     habitat=habitat_rules()
     resource=(json.dumps(habitat,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
-    habitat.pop('templates')
-    habitat['template_sha256']=sha(resource)
-    frozen['habitats']=habitat
+    frozen['habitats']={'resource_sha256':sha(resource)}
     policy=spec.get('topology',{})
     if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须开放州序规定的魔域关隘')
     frozen.update(policy)
@@ -104,7 +102,7 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     mine_bytes=old.read_bounded(mine_path,2*1024*1024)
     frozen['starter_mine']={'resource':'myvillage:starter_mine/layout.json','sha256':sha(mine_bytes)}
     raw=canonical(frozen);transport='gzip:'+base64.b64encode(gzip.compress(raw,mtime=0)).decode()
-    if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError('V11 冻结规则超出既有边界')
+    if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError(f'V11 冻结规则超出既有边界：raw={len(raw)}，transport={len(transport)}')
     preset=json.loads((source/'data/myvillage/worldgen/world_preset/cultivation.json').read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
     if generator['type']!=('myvillage:planned_v11' if refresh_current else 'myvillage:planned_v10'):raise ValueError('前置默认预设不是 V10')
     generator.update(type='myvillage:planned_v11',rules=transport);generator.pop('plan_hash',None)
