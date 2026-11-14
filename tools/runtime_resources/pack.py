@@ -103,7 +103,7 @@ def decode_records(blob, maximum):
     return out
 
 
-def png_recompress(blob):
+def png_recompress(blob, level=9):
     """保留所有非 IDAT chunk 和过滤后的像素流，只调整无损压缩。"""
     if not blob.startswith(b'\x89PNG\r\n\x1a\n'):
         raise ValueError('PNG 文件头错误')
@@ -126,7 +126,8 @@ def png_recompress(blob):
     if any(kind in (b'acTL', b'fcTL', b'fdAT') for kind, _, _ in chunks):
         return blob
     filtered = zlib.decompress(b''.join(data for kind, data, _ in chunks if kind == b'IDAT'))
-    packed = zlib.compress(filtered, 9)
+    packed = zlib.compress(filtered, level)
+    assert zlib.decompress(packed) == filtered
     fresh = bytearray(blob[:8])
     inserted = False
     for kind, _, original in chunks:
@@ -276,7 +277,7 @@ def pack(directory, report=None, config_path=CONFIG):
     if cfg['png_recompress']:
         for path in (directory / 'assets').rglob('*.png'):
             before = path.read_bytes()
-            after = png_recompress(before)
+            after = png_recompress(before, cfg['compression_level'])
             pngs += 1
             if after != before:
                 path.write_bytes(after)

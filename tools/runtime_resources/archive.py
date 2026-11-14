@@ -2,15 +2,18 @@
 import argparse
 import copy
 import hashlib
+import json
 from pathlib import Path
 import zipfile
+from .pack import CONFIG
 
 
 def compact(path):
+    level = json.loads(CONFIG.read_text())['compression_level']
     temporary = path.with_suffix('.compact.tmp')
     before = {}
     with zipfile.ZipFile(path) as source, zipfile.ZipFile(temporary, 'w', compression=zipfile.ZIP_DEFLATED,
-                                                       compresslevel=9, allowZip64=True) as target:
+                                                       compresslevel=level, allowZip64=True) as target:
         for info in source.infolist():
             name = info.filename
             if name in before:
@@ -22,7 +25,7 @@ def compact(path):
             item = copy.copy(info)
             item.extra = b''
             method = zipfile.ZIP_STORED if name.startswith('myvillage_packed/') and name.endswith('.gz') else info.compress_type
-            target.writestr(item, blob, compress_type=method, compresslevel=9)
+            target.writestr(item, blob, compress_type=method, compresslevel=level)
     with zipfile.ZipFile(temporary) as check:
         assert check.testzip() is None
         assert len(check.infolist()) == len(before)
