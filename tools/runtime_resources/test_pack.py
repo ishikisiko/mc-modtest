@@ -64,15 +64,20 @@ class RuntimeResourcesTest(unittest.TestCase):
             for i in range(2):write(f'assets/myvillage/models/block/sample/shape_{i}.json',encoded({'textures':{'all':f'myvillage:block/{i}'},'elements':[]})+b'\n')
             for name in ['assets/myvillage/blockstates/sample.json','assets/myvillage/models/item/sample.json','data/myvillage/loot_table/blocks/sample.json']:
                 write(name,b'{}\n')
+            write('assets/myvillage/models/equipment/probe.obj',b'mtllib probe.mtl\nv 0 0 0\n')
+            write('assets/myvillage/models/equipment/probe.mtl',b'newmtl material\n')
+            write('assets/myvillage/models/item/other.json',b'{ "parent": "minecraft:item/generated" }\n')
             raw=gzip.compress(b'original structure bytes',mtime=0);write('data/myvillage/structure/sample.nbt',raw)
             result=pack(root,config_path=config)
             self.assertEqual(1,result['shared_geometry_templates']);self.assertEqual(2,result['model_instances'])
-            self.assertEqual(6,result['logical_files']);self.assertFalse((root/'data/myvillage/structure/sample.nbt').exists())
+            self.assertEqual(9,result['logical_files']);self.assertEqual(3,result['other_model_resources']);self.assertFalse((root/'data/myvillage/structure/sample.nbt').exists())
             self.assertTrue((root/'myvillage_packed/manifest.json').exists());self.assertTrue((root/'myvillage_packed/rules.json').exists())
             from tools.runtime_resources.read import DirectoryResources
             reader=DirectoryResources(root)
             self.assertEqual(raw,reader.read('data/myvillage/structure/sample.nbt'))
             self.assertEqual(encoded({'textures':{'all':'myvillage:block/0'},'elements':[]})+b'\n',reader.read('assets/myvillage/models/block/sample/shape_0.json'))
+            self.assertEqual(b'mtllib probe.mtl\nv 0 0 0\n',reader.read('assets/myvillage/models/equipment/probe.obj'))
+            self.assertEqual(b'{ "parent": "minecraft:item/generated" }\n',reader.read('assets/myvillage/models/item/other.json'))
 
     def test_archive_normalization_preserves_all_payloads_and_stores_group_gzip(self):
         with tempfile.TemporaryDirectory()as tmp:

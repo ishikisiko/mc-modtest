@@ -9,6 +9,7 @@
   "models_per_group": 32,
   "templates_per_group": 128,
   "files_per_group": 32,
+  "client_model_extensions": [".json", ".obj", ".mtl"],
   "compression_level": 9,
   "png_recompress": true,
   "max_entries": 100000,

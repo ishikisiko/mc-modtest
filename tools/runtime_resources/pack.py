@@ -216,6 +216,16 @@ def pack(directory, report=None, config_path=CONFIG):
                   f'data/{namespace}/loot_table/blocks/{ident}.json']
         raw_group(linked)
 
+    other_models = defaultdict(list)
+    for path in sorted((directory / 'assets' / namespace / 'models').rglob('*')):
+        if path.is_file() and path.suffix in cfg['client_model_extensions']:
+            name = path.relative_to(directory).as_posix()
+            if name not in sources:
+                other_models[name.rsplit('/', 1)[0]].append(name)
+    for _, names in sorted(other_models.items()):
+        for off in range(0, len(names), cfg['files_per_group']):
+            raw_group(names[off:off + cfg['files_per_group']])
+
     for off in range(0, len(templates), cfg['templates_per_group']):
         batch = templates[off:off + cfg['templates_per_group']]
         number = chunk('templates', encoded(batch), len(batch))
@@ -276,6 +286,7 @@ def pack(directory, report=None, config_path=CONFIG):
                   shared_geometry_templates=len(templates), repeated_template_references=sum(v - 1 for v in template_uses.values()),
                   cross_building_templates=sum(len(v) > 1 for v in template_buildings.values()),
                   cross_building_model_instances=sum(template_uses[k] for k, v in template_buildings.items() if len(v) > 1),
+                  other_model_resources=sum(len(v) for v in other_models.values()),
                   structures=sum(len(v) for v in nbt_groups.values()), pngs_checked=pngs, pngs_recompressed=changed_pngs,
                   png_raw_bytes_saved=png_saved, manifest_bytes=len(blob), verified_bytes=sum(map(len, sources.values())),
                   seconds=round(time.monotonic() - started, 3), all_logical_bytes_restored=True)
