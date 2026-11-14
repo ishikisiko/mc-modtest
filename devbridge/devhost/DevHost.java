@@ -29,6 +29,7 @@ import java.net.URLDecoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -49,8 +50,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
@@ -65,15 +68,14 @@ public class DevHost {
     static final Pattern JAR_NAME = Pattern.compile("[A-Za-z0-9._+\\-]+\\.jar");
     static final Pattern LOG_NAME = Pattern.compile("[A-Za-z0-9._\\-]+");
     static final String OPEN_WORLD_FILE = "devbridge-open-world.txt";
-    static final String VERSION = "0.2.0";
+    static final String VERSION = "0.2.1";
     static final Pattern SHA256 = Pattern.compile("[0-9a-fA-F]{64}");
     static final Pattern PROXY = Pattern.compile("([A-Za-z0-9.\\-]+):(\\d{1,5})");
-    /** Largest jar /mods/install-url downloads. */
-    static final int MAX_PULL_BYTES = 64 * 1024 * 1024;
 
     static Path configFile, home, gameDir, modsDir, launchScript, actionLog, stateFile;
     static String token;
     static int stopTimeoutSec;
+    static int maxPullBytes;
     static boolean noPauseOnLostFocus;
     static List<String> downloadProxies = List.of();
     /** stop / install / remove / launch run one at a time. */
@@ -97,6 +99,7 @@ public class DevHost {
         try (var r = Files.newBufferedReader(configFile, StandardCharsets.UTF_8)) {
             cfg.load(r);
         }
+        maxPullBytes = readMaxPullBytes(cfg);
         token = cfg.getProperty("token", "").strip();
         if (token.isEmpty()) {
             byte[] b = new byte[24];
@@ -136,6 +139,8 @@ public class DevHost {
 
     static Object status() throws Exception {
         Map<String, Object> o = new LinkedHashMap<>();
+        o.put("devhostVersion", VERSION);
+        o.put("maxPullMiB", maxPullBytes / (1024 * 1024));
         List<Long> pids = gamePids();
         boolean bridge = bridgeUp();
         o.put("running", !pids.isEmpty() || bridge);
@@ -292,6 +297,42 @@ public class DevHost {
 
     static class DownloadTooLarge extends RuntimeException {}
 
+    static int readMaxPullBytes(Properties cfg) {
+        try {
+            int mib = Integer.parseInt(cfg.getProperty("maxPullMiB", "256").strip());
+            if (mib >= 1 && mib <= 1024) return mib * 1024 * 1024;
+        } catch (NumberFormatException ignored) { }
+        throw new IllegalArgumentException("maxPullMiB 必须为 1–1024 的整数");
+    }
+
+    /** Enforce the same limit when a server omits Content-Length or streams chunks. */
+    static class LimitedDownload implements HttpResponse.BodySubscriber<byte[]> {
+        final HttpResponse.BodySubscriber<byte[]> body = HttpResponse.BodySubscribers.ofByteArray();
+        final int maximum;
+        Flow.Subscription subscription;
+        long received;
+        boolean finished;
+
+        LimitedDownload(int maximum) { this.maximum = maximum; }
+        public CompletionStage<byte[]> getBody() { return body.getBody(); }
+        public void onSubscribe(Flow.Subscription next) { subscription = next; body.onSubscribe(next); }
+        public void onNext(List<ByteBuffer> buffers) {
+            if (finished) return;
+            for (ByteBuffer buffer : buffers) {
+                received += buffer.remaining();
+                if (received > maximum) {
+                    finished = true;
+                    body.onError(new DownloadTooLarge());
+                    subscription.cancel();
+                    return;
+                }
+            }
+            body.onNext(buffers);
+        }
+        public void onError(Throwable error) { if (!finished) { finished = true; body.onError(error); } }
+        public void onComplete() { if (!finished) { finished = true; body.onComplete(); } }
+    }
+
     static Download downloadFromUrl(URI uri, List<String> proxies, int timeoutSec) throws Exception {
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(timeoutSec);
         List<String> failures = new ArrayList<>();
@@ -321,8 +362,8 @@ public class DevHost {
                 .proxy(ProxySelector.of(proxy.isEmpty() ? null : proxyAddress(proxy))).build();
         CompletableFuture<HttpResponse<byte[]>> pending = client.sendAsync(HttpRequest.newBuilder(uri).GET().build(), info -> {
             // replacing(null) 仍会消费整个响应；传输中断会掩盖超限原因，错误触发回退。
-            if (info.headers().firstValueAsLong("Content-Length").orElse(0) > MAX_PULL_BYTES) throw new DownloadTooLarge();
-            return HttpResponse.BodySubscribers.ofByteArray();
+            if (info.headers().firstValueAsLong("Content-Length").orElse(0) > maxPullBytes) throw new DownloadTooLarge();
+            return new LimitedDownload(maxPullBytes);
         });
         try {
             HttpResponse<byte[]> r = pending.get(budgetNanos, TimeUnit.NANOSECONDS);
@@ -330,12 +371,12 @@ public class DevHost {
             if (code == 502 || code == 503 || code == 504) throw new DownloadFailure(502, "HTTP " + code);
             if (code != 200) throw new HttpError(502, "download failed: HTTP " + code + " from " + uri);
             byte[] jar = r.body();
-            if (jar == null || jar.length > MAX_PULL_BYTES) throw new HttpError(413, "the download is larger than " + MAX_PULL_BYTES + " bytes");
+            if (jar == null || jar.length > maxPullBytes) throw new HttpError(413, "the download is larger than " + maxPullBytes + " bytes");
             return jar;
         } catch (TimeoutException e) {
             throw new DownloadFailure(504, "download timed out");
         } catch (ExecutionException e) {
-            if (e.getCause() instanceof DownloadTooLarge) throw new HttpError(413, "the download is larger than " + MAX_PULL_BYTES + " bytes");
+            if (e.getCause() instanceof DownloadTooLarge) throw new HttpError(413, "the download is larger than " + maxPullBytes + " bytes");
             if (e.getCause() instanceof IOException) throw new DownloadFailure(502, e.getCause().toString());
             throw e;
         } catch (InterruptedException e) {

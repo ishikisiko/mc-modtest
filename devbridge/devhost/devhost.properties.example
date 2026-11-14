@@ -19,3 +19,6 @@ stopTimeoutSec=60
 
 # Write pauseOnLostFocus:false into options.txt before every launch (the F3+P setting).
 noPauseOnLostFocus=true
+
+# 主动下载模组的大小上限，单位 MiB，范围 1–1024；修改后重启 DevHost。
+maxPullMiB=256

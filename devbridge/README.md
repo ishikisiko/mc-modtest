@@ -153,7 +153,11 @@ for `create`). Everything new talks to DevBridge; DevHost itself is unchanged.
 
 电脑接收上传较慢时，`/mods/install-url` 可让电脑自行下载并核对 SHA-256。
 参数为 `url`、`name`、`sha256`、可选 `proxy` 和总超时 `timeoutSec`（默认 300 秒）；
-仅允许 HTTP(S)，不跟随重定向，下载上限为 64 MB。
+仅允许 HTTP(S)，不跟随重定向。主动下载的默认上限为 256 MiB，在电脑上的
+`devhost.properties` 添加 `maxPullMiB=256` 可明确设置；允许范围为 1–1024 MiB。
+修改后重启 DevHost，`status` 返回的 `maxPullMiB` 表示已经生效的值。
+响应声明的长度和实际接收的流式数据均受该上限约束，超限立即取消下载；SHA-256 校验继续执行。
+旧 DevHost 的 64 MiB 上限写在代码中，需要先替换新版 `DevHost.java`，只改配置文件不会生效。
 
 `start-devhost.bat` 中的 `DOWNLOAD_PROXIES` 配置下载代理顺序，默认
 `127.0.0.1:7897,127.0.0.1:7890`，通过 `-Ddevhost.downloadProxies=...` 传给 Java。

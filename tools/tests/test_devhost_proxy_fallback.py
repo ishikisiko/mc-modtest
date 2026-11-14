@@ -31,6 +31,7 @@ SPEC.loader.exec_module(CTL)
 class ProxyFixture:
     def __init__(self, body):
         self.body, self.status, self.delay, self.length = body, 200, 0, None
+        self.chunked = False
         self.requests = []
         self.release = threading.Event()
         fixture = self
@@ -40,10 +41,22 @@ class ProxyFixture:
                 fixture.requests.append(self.path)
                 fixture.release.wait(fixture.delay)
                 try:
+                    if fixture.chunked:
+                        self.protocol_version = "HTTP/1.1"
                     self.send_response(fixture.status)
-                    self.send_header("Content-Length", str(fixture.length or len(fixture.body)))
+                    if fixture.chunked:
+                        self.send_header("Transfer-Encoding", "chunked")
+                        self.send_header("Connection", "close")
+                        self.close_connection = True
+                    else:
+                        self.send_header("Content-Length", str(fixture.length or len(fixture.body)))
                     self.end_headers()
-                    if fixture.length is None:
+                    if fixture.chunked:
+                        for offset in range(0, len(fixture.body), 65536):
+                            chunk = fixture.body[offset:offset + 65536]
+                            self.wfile.write(f"{len(chunk):x}\r\n".encode() + chunk + b"\r\n")
+                        self.wfile.write(b"0\r\n\r\n")
+                    elif fixture.length is None:
                         self.wfile.write(fixture.body)
                 except (BrokenPipeError, ConnectionResetError):
                     pass
@@ -93,19 +106,22 @@ class DevHostProxyTest(unittest.TestCase):
         with socket.socket() as sock:
             sock.bind(("127.0.0.1", 0))
             port = sock.getsockname()[1]
-        cfg = self.folder / "devhost.properties"
-        cfg.write_text(f"gameDir={self.game}\nlaunch={self.folder / 'never-run.sh'}\n"
+        self.cfg = self.folder / "devhost.properties"
+        self.cfg.write_text(f"gameDir={self.game}\nlaunch={self.folder / 'never-run.sh'}\n"
                        f"bind=127.0.0.1\nport={port}\ntoken=fixture-token\n")
         self.base = f"http://127.0.0.1:{port}"
         self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
         self.log = (self.folder / "process.log").open("w")
         self.addCleanup(self.log.close)
-        self.process = subprocess.Popen([
-            "java", "-Ddevhost.downloadProxies=" + self.primary.address + "," + self.backup.address,
+        self.host_argv = [
+            "java", "-Xmx512m", "-Ddevhost.downloadProxies=" + self.primary.address + "," + self.backup.address,
             "-Dhttp.proxyHost=127.0.0.1", "-Dhttp.proxyPort=" + str(self.primary.server.server_port),
-            "-Dhttp.nonProxyHosts=", "-cp", self.compiled.name, "DevHost", str(cfg)],
-            stdout=self.log, stderr=subprocess.STDOUT)
+            "-Dhttp.nonProxyHosts=", "-cp", self.compiled.name, "DevHost", str(self.cfg)]
+        self.start_host()
         self.addCleanup(self.stop_process)
+
+    def start_host(self):
+        self.process = subprocess.Popen(self.host_argv, stdout=self.log, stderr=subprocess.STDOUT)
         deadline = time.monotonic() + 10
         while time.monotonic() < deadline:
             if self.process.poll() is not None:
@@ -118,6 +134,25 @@ class DevHostProxyTest(unittest.TestCase):
                 time.sleep(0.05)
         self.fail("DevHost 启动超时")
 
+    def set_limit(self, mib):
+        self.stop_process()
+        with self.cfg.open("a") as cfg:
+            cfg.write(f"maxPullMiB={mib}\n")
+        self.start_host()
+
+    @staticmethod
+    def jar_of_size(size):
+        def create(payload):
+            out = io.BytesIO()
+            with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_STORED) as jar:
+                jar.writestr("META-INF/neoforge.mods.toml", '[[mods]]\nmodId="proxy_fixture"\n')
+                with jar.open("payload.bin", "w") as target:
+                    chunk = b"\0" * 65536
+                    while payload:
+                        count = min(payload, len(chunk)); target.write(chunk[:count]); payload -= count
+            return out.getvalue()
+        return create(size - len(create(0)))
+
     def stop_process(self):
         self.process.terminate()
         try:
@@ -126,13 +161,13 @@ class DevHostProxyTest(unittest.TestCase):
             self.process.kill()
             self.process.wait()
 
-    def install(self, **overrides):
+    def install(self, client_timeout=8, **overrides):
         params = {"url": "http://download.invalid/fixture.jar", "name": "fixture.jar",
                   "sha256": self.sha, "timeoutSec": "4", **overrides}
         request = urllib.request.Request(self.base + "/mods/install-url?" + urllib.parse.urlencode(params),
                                          method="POST", headers={"Authorization": "Bearer fixture-token"})
         try:
-            response = self.opener.open(request, timeout=8)
+            response = self.opener.open(request, timeout=client_timeout)
         except urllib.error.HTTPError as error:
             response = error
         with response:
@@ -212,10 +247,52 @@ class DevHostProxyTest(unittest.TestCase):
         self.assert_no_install()
 
     def test_oversize_does_not_trigger_fallback_or_install(self):
-        self.primary.length = 64 * 1024 * 1024 + 1
+        self.primary.length = 256 * 1024 * 1024 + 1
         status, response = self.install()
         self.assertEqual(status, 413, response)
         self.assertEqual(self.backup.requests, [])
+        self.assert_no_install()
+
+    def test_default_limit_accepts_a_valid_jar_larger_than_64_mib(self):
+        request = urllib.request.Request(self.base + "/status", headers={"Authorization": "Bearer fixture-token"})
+        with self.opener.open(request, timeout=3) as response:
+            self.assertEqual(json.load(response)["result"]["maxPullMiB"], 256)
+        self.jar = self.jar_of_size(64 * 1024 * 1024 + 1)
+        self.sha = hashlib.sha256(self.jar).hexdigest(); self.primary.body = self.jar
+        self.assert_installed(self.install(timeoutSec="15", client_timeout=20), "proxy " + self.primary.address)
+        self.assertEqual(self.backup.requests, [])
+
+    def test_configured_limit_accepts_exact_boundary(self):
+        self.set_limit(1)
+        self.jar = self.jar_of_size(1024 * 1024)
+        self.sha = hashlib.sha256(self.jar).hexdigest(); self.primary.body = self.jar
+        self.assert_installed(self.install(), "proxy " + self.primary.address)
+
+    def test_chunked_download_over_custom_limit_stops_without_install_or_fallback(self):
+        self.set_limit(1)
+        self.primary.chunked = True
+        self.primary.body = self.jar_of_size(2 * 1024 * 1024)
+        self.sha = hashlib.sha256(self.primary.body).hexdigest()
+        status, response = self.install()
+        self.assertEqual(status, 413, response)
+        self.assertEqual(self.backup.requests, [])
+        self.assert_no_install()
+
+    def test_chunked_download_within_custom_limit_installs(self):
+        self.set_limit(1)
+        self.primary.chunked = True
+        self.assert_installed(self.install(), "proxy " + self.primary.address)
+        self.assertEqual(self.backup.requests, [])
+
+    def test_invalid_limit_is_rejected_at_startup(self):
+        self.stop_process()
+        original = self.cfg.read_text()
+        for value in ("0", "-1", "1025", "abc"):
+            with self.subTest(value=value):
+                self.cfg.write_text(original + f"maxPullMiB={value}\n")
+                result = subprocess.run(self.host_argv, capture_output=True, text=True, timeout=5)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("maxPullMiB", result.stdout + result.stderr)
         self.assert_no_install()
 
     def test_explicit_direct_bypasses_configured_and_jvm_proxy(self):
