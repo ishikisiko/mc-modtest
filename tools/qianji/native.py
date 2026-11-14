@@ -16,6 +16,7 @@ def main():
     p.add_argument('--out',type=Path,required=True);p.add_argument('--seed',type=int,required=True)
     p.add_argument('--restart',action='store_true');p.add_argument('--all-qianji-targets',action='store_true')
     p.add_argument('--continue-probe',type=Path,help='仅继续同一候选已完成新世界验证的自有探针，不接受玩家存档')
+    p.add_argument('--resume-incomplete-startup',type=Path,help='仅恢复同一候选启动超时且已安全保存停机的自有新世界')
     p.add_argument('--regenerate-failed-region',action='store_true',help='复制自有失败探针，仅在副本重生成差异所在区域，保留原存档')
     a=p.parse_args();a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
     selected=['candidate_identity','fresh_world_and_fixed_order','consecutive_capital_roads','border_chunk_generation_and_readback']
@@ -26,7 +27,17 @@ def main():
                 full_road_pregeneration='not_selected',player_walk='not_verified',owner_visual_acceptance='not_verified')
     result['probe_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     previous=None;replayed=[];regenerated=[]
-    if a.continue_probe:
+    assert not(a.continue_probe and a.resume_incomplete_startup),'两种接续方式不能同时使用'
+    if a.resume_incomplete_startup:
+        old=a.resume_incomplete_startup.resolve();origin=json.loads((old/'world.json').read_text());prior=json.loads((old/'result.json').read_text());diagnostic=json.loads((old/'startup-timeout-diagnostic.json').read_text())
+        game=Path(origin['directory']).resolve()
+        assert game.parent==(ROOT/'run-fixed-progression').resolve() and game.name.startswith('native-')
+        assert origin['seed']==a.seed and origin['kind']=='fresh isolated development world'
+        assert prior['source']==a.source and prior['seed']==a.seed and prior['completed']==['candidate_identity']
+        assert diagnostic['case']=='fresh_world_and_fixed_order' and diagnostic['error']=='TimeoutError: Server not ready' and diagnostic['world_and_ports_released']
+        assert diagnostic['world']==str(game) and diagnostic['source']==a.source
+        result['resumed_incomplete_startup']=str(old)
+    elif a.continue_probe:
         old=a.continue_probe.resolve();origin=json.loads((old/'world.json').read_text());prior=json.loads((old/'result.json').read_text())
         game=Path(origin['directory']).resolve()
         assert game.parent==(ROOT/'run-fixed-progression').resolve() and game.name.startswith('native-')
@@ -44,7 +55,7 @@ def main():
             result['regenerated_fixture_regions']=regenerated;result['original_world_preserved']=str(original)
     else:game=ROOT/'run-fixed-progression'/('native-'+secrets.token_hex(5))
     if a.regenerate_failed_region:assert a.continue_probe,'只能在已验证的新世界探针副本中重生成区域'
-    server=Server(a.out,game,a.seed);server.startup_timeout=900;stage=selected[0]
+    server=Server(a.out,game,a.seed);server.startup_timeout=1800;stage=selected[0]
     result['startup_timeout_seconds']=server.startup_timeout
     def complete():
         result['completed'].append(stage);result['unrun'].remove(stage);write(a.out/'result.json',result)
@@ -161,11 +172,16 @@ def main():
             write(a.out/'restart.json',dict(status=after,plan_sha256=restored['plan_sha256']));complete()
     except BaseException as error:
         result['failed'].append(dict(case=stage,error=repr(error)));result['unrun']=[v for v in selected if v not in result['completed'] and v!=stage]
+        write(a.out/'result.json',result)
         raise
     finally:
         if server.process and server.process.poll() is None:
             try:server.command('forceload remove all')
             except Exception:pass
-        server.stop();write(a.out/'result.json',result)
+        try:server.stop()
+        except BaseException as error:
+            result['cleanup_error']=repr(error)
+            raise
+        finally:write(a.out/'result.json',result)
 
 if __name__=='__main__':main()
