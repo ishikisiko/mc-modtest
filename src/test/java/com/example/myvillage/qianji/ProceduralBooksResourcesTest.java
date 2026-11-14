@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ProceduralBooksResourcesTest {
     private JsonObject read(String path)throws Exception{
-        try(var in=getClass().getResourceAsStream(path)){
+        try(var in=com.example.myvillage.resources.BuiltinResources.open(path)){
             assertNotNull(in,path);return JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
         }
     }

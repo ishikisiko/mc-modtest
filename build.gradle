@@ -683,13 +683,31 @@ tasks.named('processResources') {
 tasks.named('jar') {
     // 细分建筑模型与城市切片超过标准 ZIP 的 65535 个条目上限。
     zip64 = true
-    inputs.files('tools/validate_language_assets.py', 'tools/language_assets.py')
+    inputs.files('tools/validate_language_assets.py', 'tools/language_assets.py', 'tools/runtime_resources/archive.py')
     doLast {
         def languageJar = archiveFile.get().asFile.absolutePath
         project.exec {
             workingDir projectDir
             executable pythonExecutable.get()
+            args '-m', 'tools.runtime_resources.archive', languageJar
+        }
+        project.exec {
+            workingDir projectDir
+            executable pythonExecutable.get()
             args 'tools/validate_language_assets.py', '--jar', languageJar
+        }
+    }
+}
+
+// 所有拥有者先导出；此步骤只无损整理本次 Copy 的输出，不修改作者输入。
+tasks.named('processResources') {
+    inputs.files(fileTree('tools/runtime_resources') { exclude '**/__pycache__/**', '**/*.pyc' })
+    doLast {
+        project.exec {
+            workingDir projectDir
+            executable pythonExecutable.get()
+            args '-m', 'tools.runtime_resources.pack', '--input', destinationDir.absolutePath,
+                    '--report', layout.buildDirectory.file('reports/runtime-resources.json').get().asFile.absolutePath
         }
     }
 }

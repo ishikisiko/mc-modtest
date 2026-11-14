@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "root": "myvillage_packed",
+  "namespace": "myvillage",
+  "catalogs": [
+    "data/myvillage/lord_manors/catalog.json",
+    "data/myvillage/qianji/components/catalog.json"
+  ],
+  "models_per_group": 32,
+  "templates_per_group": 128,
+  "files_per_group": 32,
+  "compression_level": 9,
+  "png_recompress": true,
+  "max_entries": 100000,
+  "max_file_bytes": 8388608,
+  "max_group_bytes": 16777216,
+  "max_manifest_bytes": 16777216,
+  "cache_bytes": 33554432,
+  "cache_groups": 256
+}

@@ -152,7 +152,7 @@ public final class SectBlueprint {
     static long key(int x,int z) { return ((long)x<<32)^(z&0xffffffffL); }
     public static String resourceFile(ResourceLocation id) { return "data/"+id.getNamespace()+"/"+id.getPath(); }
     public static byte[] readClasspath(String file,int limit) {
-        try (InputStream in=SectBlueprint.class.getClassLoader().getResourceAsStream(file)) {
+        try (InputStream in=com.example.myvillage.resources.BuiltinResources.open(file)) {
             if (in==null) throw new FileNotFoundException(file);
             return limited(in,limit);
         } catch (IOException ex) { throw new IllegalStateException("缺少或无法读取宗门资源："+file,ex); }

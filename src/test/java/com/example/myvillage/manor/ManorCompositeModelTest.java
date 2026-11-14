@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ManorCompositeModelTest {
     private static JsonObject resource(String path) throws Exception {
-        try(var stream=ManorCompositeModelTest.class.getResourceAsStream(path)) {
+        try(var stream=com.example.myvillage.resources.BuiltinResources.open(path)) {
             assertNotNull(stream,path);
             return JsonParser.parseString(new String(stream.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
         }

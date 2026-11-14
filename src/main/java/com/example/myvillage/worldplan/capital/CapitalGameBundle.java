@@ -250,7 +250,7 @@ public final class CapitalGameBundle {
     private static long key(int x, int z) { return ((long)x << 32) ^ (z & 0xffffffffL); }
     public static byte[] readResource(String id, int maximum) {
         if (!id.matches("myvillage:[a-z0-9_/.-]+") || id.contains("..")) throw new IllegalArgumentException("Capital resource path");
-        try (var stream = CapitalGameBundle.class.getResourceAsStream("/data/myvillage/" + id.substring("myvillage:".length()))) {
+        try (var stream = com.example.myvillage.resources.BuiltinResources.open("data/myvillage/" + id.substring("myvillage:".length()))) {
             if (stream == null) throw new IllegalStateException("Missing frozen capital resource " + id);
             byte[] bytes = stream.readNBytes(maximum + 1);
             if (bytes.length > maximum) throw new IllegalArgumentException("Capital resource too large " + id);

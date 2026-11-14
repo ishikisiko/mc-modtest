@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.131.3
+
+- 七府和千机阁的精细构件共享几何模板，材质与UV作为实例参数保存，模型内容按原路径逐字节恢复。
+- 建筑模型、关联方块状态与物品、掉落表及结构NBT统一分组，原版模型烘焙、结构读取和资源包覆盖继续使用原逻辑路径。
+- 构建时无损重压PNG并规范化最终ZIP，保留像素、字体、碰撞、光照和原始结构摘要；资源缓存有大小上限并随资源包关闭释放。
+
 ## 0.131.2
 
 - 千机阁总舵书册改为按位置生成的区块模型，资源只保存书册排列区域和共享算法参数。
