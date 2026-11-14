@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import zipfile
+import zlib
 from .pack import CONFIG
 
 
@@ -24,7 +25,11 @@ def compact(path):
             before[name] = hashlib.sha256(blob).digest()
             item = copy.copy(info)
             item.extra = b''
-            method = zipfile.ZIP_STORED if name.startswith('myvillage_packed/') and name.endswith('.gz') else info.compress_type
+            method = info.compress_type
+            if name.startswith('myvillage_packed/') and name.endswith('.gz'):
+                compressor = zlib.compressobj(level, zlib.DEFLATED, -15)
+                compressed = compressor.compress(blob) + compressor.flush()
+                method = zipfile.ZIP_DEFLATED if len(compressed) < len(blob) else zipfile.ZIP_STORED
             target.writestr(item, blob, compress_type=method, compresslevel=level)
     with zipfile.ZipFile(temporary) as check:
         assert check.testzip() is None

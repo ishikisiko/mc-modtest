@@ -79,15 +79,21 @@ class RuntimeResourcesTest(unittest.TestCase):
             self.assertEqual(b'mtllib probe.mtl\nv 0 0 0\n',reader.read('assets/myvillage/models/equipment/probe.obj'))
             self.assertEqual(b'{ "parent": "minecraft:item/generated" }\n',reader.read('assets/myvillage/models/item/other.json'))
 
-    def test_archive_normalization_preserves_all_payloads_and_stores_group_gzip(self):
+    def test_archive_normalization_preserves_payloads_and_chooses_smaller_group_storage(self):
         with tempfile.TemporaryDirectory()as tmp:
-            path=Path(tmp)/'test.jar';original={'META-INF/MANIFEST.MF':b'Manifest-Version: 1.0\n','test.class':b'\xca\xfe\xba\xbe','myvillage_packed/0.bytes.gz':gzip.compress(b'abc',mtime=0)}
+            path=Path(tmp)/'test.jar';original={'META-INF/MANIFEST.MF':b'Manifest-Version: 1.0\n','test.class':b'\xca\xfe\xba\xbe','myvillage_packed/0.bytes.gz':gzip.compress(bytes(range(256)),mtime=0)}
             with zipfile.ZipFile(path,'w',compression=zipfile.ZIP_DEFLATED)as z:
                 for name,value in original.items():z.writestr(name,value)
             compact(path)
             with zipfile.ZipFile(path)as z:
                 self.assertEqual(original,{n:z.read(n)for n in z.namelist()})
                 self.assertEqual(zipfile.ZIP_STORED,z.getinfo('myvillage_packed/0.bytes.gz').compress_type)
+            repeated=gzip.compress(b'abc'*4096,mtime=0)
+            with zipfile.ZipFile(path,'a')as z:z.writestr('myvillage_packed/repeated.bytes.gz',repeated)
+            compact(path)
+            with zipfile.ZipFile(path)as z:
+                self.assertEqual(repeated,z.read('myvillage_packed/repeated.bytes.gz'))
+                self.assertEqual(zipfile.ZIP_DEFLATED,z.getinfo('myvillage_packed/repeated.bytes.gz').compress_type)
 
 
 if __name__=='__main__':unittest.main()
