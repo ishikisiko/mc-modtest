@@ -114,7 +114,9 @@ def main():
             replay_checks.append(dict(position=[x,y,z],expected=expected,verified_before_audit=True))
         if replay_checks:write(a.out/'regenerated-column-readback.json',replay_checks)
         server.roads('audit')
-        server.wait(lambda s:s.get('inspection',{}).get('phase') in ('complete','partial'),allow_blocked=True)
+        result['audit_acceleration']=server.command('tick sprint 20000')
+        try:server.wait(lambda s:s.get('inspection',{}).get('phase') in ('complete','partial'),allow_blocked=True)
+        finally:server.command('tick sprint stop')
         shutil.copy2(server.data/'roads-audit.json',a.out/'border-loaded-audit.json')
         audit=json.loads((a.out/'border-loaded-audit.json').read_text());check=audit['status']['inspection']
         assert check['failure_count']==0 and not audit['failures'],audit['failures'][:20]

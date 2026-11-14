@@ -128,7 +128,7 @@ class Evidence:
                 self.check('临时灵石掉落','myvillage:low_grade_spirit_stone'in drops or'myvillage:low_grade_spirit_stone'in inventory,{'ground_items':drops,'player_inventory':inventory});self.done('mapped_clear_and_temporary_loot')
                 self.rc(f'gamemode creative {client.name}');self.rc(f'gamemode creative {second.name}');self.fixture(client,[wolf['x']+.5,wolf['y']+1,wolf['z']+.5],[wolf['x'],wolf['y'],wolf['z']]);client.capture('cleared-wolf-den')
                 self.rc('save-all flush')
-            self.server.stop();self.calendar(1,status['ticks_per_month'])
+            self.server.stop();self.calendar(status['month']+1,status['ticks_per_month'])
             with ExitStack()as stack:
                 self.begin('monthly_proximity_defer')
                 client=self.start_client(stack,'month-one');self.visit(client,wolf,distance=10);time.sleep(3)
@@ -136,7 +136,7 @@ class Evidence:
                 self.begin('monthly_recovery')
                 self.visit(client,wolf);fresh=self.populate(wolf);now=self.round(wolf['id']);self.check('下月仅恢复一轮且使用新身份',now['generation']==cleared['generation']+1 and not ids.intersection({m['id']for m in now['members']}),now);self.done('monthly_recovery')
                 survivor=fresh[0];self.rc(f'data merge entity {survivor["uuid"]} {{Health:7.0f}}');preserved={m['uuid']:m for m in self.living(wolf['id'])};self.rc('save-all flush')
-            self.server.stop();self.calendar(0,status['ticks_per_month'])
+            self.server.stop();self.calendar(status['month'],status['ticks_per_month'])
             with ExitStack()as stack:
                 self.begin('save_restart_and_rollback')
                 client=self.start_client(stack,'rollback');self.visit(client,wolf)
@@ -145,7 +145,7 @@ class Evidence:
                 self.visit(client,camp);self.populate(camp);block=[camp['x'],camp['y'],camp['z']+2]
                 self.rc(f'item replace entity {client.name} hotbar.0 with minecraft:gold_block');self.fixture(client,[block[0]+.5,block[1],block[2]+2.5],[block[0]+.5,block[1]-.5,block[2]+.5]);client.guard();client.game.xdo('key','1');client.right();self.action('mapped_construction',player=client.name,near=block);time.sleep(1)
                 construction=self.round(camp['id'])['construction'];self.check('玩家实际放置进入施工记录',bool(construction),construction);self.rc('save-all flush');before_round=self.round(camp['id'])
-            self.server.stop();self.calendar(3,status['ticks_per_month'])
+            self.server.stop();self.calendar(status['month']+3,status['ticks_per_month'])
             with ExitStack()as stack:
                 client=self.start_client(stack,'construction');self.visit(client,camp);self.populate(camp);round_=self.round(camp['id'])
                 self.check('跳月只更新一轮并保留施工',round_['generation']==before_round['generation']+1 and round_['construction']==construction,round_)
