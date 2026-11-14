@@ -92,6 +92,8 @@ Topic notes: [Plaque Frame Brief](plaque-frame-brief.md), [Plaque Inscription St
 
 共享语言资源：[反复出现的键顺序漂移、保序合并和构建校验](../features/language-resource-generation.md)。
 
+运行时资源瘦身：[跨建筑共享几何、模型与结构分组、PNG无损重压和标准资源包读取](../features/runtime-resource-packing.md)。
+
 ## Technical contracts and maintenance
 
 See [contracts/README.md](../contracts/README.md) for the eight topic documents
