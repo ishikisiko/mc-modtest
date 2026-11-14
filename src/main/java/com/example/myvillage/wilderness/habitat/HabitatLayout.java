@@ -15,12 +15,15 @@ public record HabitatLayout(HabitatRules rules,List<Site> sites) {
         double[] center=world.geometry().unwarp(region.x(),region.z());int radius=rules.integer("site_radius");
         for(var kind:rules.kinds)for(int slot=0;slot<rules.integer("sites_per_kind");slot++){
             Site chosen=null;
+            Site neighbour=null;
+            if(!kind.nearKind().isEmpty()){String neighbourId=kind.nearKind()+"_"+slot;neighbour=result.stream().filter(v->v.id().equals(neighbourId)).findFirst().orElseThrow();}
             for(int attempt=0;attempt<rules.integer("candidate_attempts");attempt++){
                 long hash=WildernessRules.mix(world.seed()^WildernessRules.mix(kind.id().hashCode())^WildernessRules.mix((long)slot*4096+attempt));
                 double angle=(hash>>>11)*0x1.0p-53*Math.PI*2;
                 double distance=Math.sqrt((WildernessRules.mix(hash)>>>11)*0x1.0p-53)*rules.integer("region_radius");
-                int x=(int)Math.round(center[0]+Math.cos(angle)*distance),z=(int)Math.round(center[1]+Math.sin(angle)*distance),y=world.surfaceY(x,z);
-                if(y<=world.rules().seaLevel+rules.integer("maximum_slope")||y>300)continue;
+                if(neighbour!=null)distance=rules.integer("paired_distance_min")+(rules.integer("paired_distance_max")-rules.integer("paired_distance_min"))*(WildernessRules.mix(hash)>>>11)*0x1.0p-53;
+                int x=(int)Math.round((neighbour==null?center[0]:neighbour.x())+Math.cos(angle)*distance),z=(int)Math.round((neighbour==null?center[1]:neighbour.z())+Math.sin(angle)*distance),y=world.surfaceY(x,z);
+                if(y<=world.rules().seaLevel+rules.integer("maximum_slope")||y>rules.integer("max_surface_y"))continue;
                 if(Math.hypot(x-world.spawn().x(),z-world.spawn().z())<rules.integer("minimum_separation"))continue;
                 if(result.stream().anyMatch(s->Math.hypot(s.x()-x,s.z()-z)<rules.integer("minimum_separation")))continue;
                 int margin=radius+rules.integer("reservation_margin");

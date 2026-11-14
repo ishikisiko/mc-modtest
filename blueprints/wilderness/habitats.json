@@ -3,7 +3,7 @@
   "region": "donghuang",
   "sites_per_kind": 3,
   "candidate_attempts": 256,
-  "minimum_separation": 180,
+  "minimum_separation": 72,
   "region_radius": 1800,
   "site_radius": 7,
   "maximum_slope": 4,
@@ -17,16 +17,91 @@
   "tick_interval": 20,
   "alarm_radius": 36,
   "conflict_radius": 24,
-  "pursuit_radius": 80,
+  "pursuit_radius": 192,
   "patrol_radius": 36,
   "retreat_health_fraction": 0.3,
   "leader_retreat_fraction": 0.45,
   "navigation_speed": 1.0,
-  "loot": [{"item": "myvillage:low_grade_spirit_stone", "min": 1, "max": 3}],
+  "loot": [
+    {
+      "item": "myvillage:low_grade_spirit_stone",
+      "min": 1,
+      "max": 3
+    }
+  ],
   "kinds": [
-    {"id": "wolf_den", "name": "妖狼巢地", "faction": "beast", "members": ["demon_wolf", "demon_wolf", "demon_wolf", "demon_wolf", "demon_wolf"], "guard_count": 2, "night_hunt": true},
-    {"id": "lizard_shelf", "name": "赤甲蜥岩地", "faction": "beast", "members": ["redplate_lizard", "redplate_lizard", "redplate_lizard"], "guard_count": 3, "night_hunt": false},
-    {"id": "spore_grove", "name": "灯孢菌地", "faction": "beast", "members": ["lantern_sporeling", "lantern_sporeling", "lantern_sporeling", "lantern_sporeling"], "guard_count": 4, "night_hunt": false},
-    {"id": "bandit_camp", "name": "劫修营地", "faction": "bandit", "members": ["ridge_reaver", "ridge_reaver", "ridge_reaver", "ridge_reaver", "ash_talismanist"], "guard_count": 2, "night_hunt": false}
-  ]
+    {
+      "id": "wolf_den",
+      "name": "妖狼巢地",
+      "faction": "beast",
+      "members": [
+        "demon_wolf",
+        "demon_wolf",
+        "demon_wolf",
+        "demon_wolf",
+        "demon_wolf"
+      ],
+      "guard_count": 2,
+      "night_hunt": true,
+      "near_kind": ""
+    },
+    {
+      "id": "lizard_shelf",
+      "name": "赤甲蜥岩地",
+      "faction": "beast",
+      "members": [
+        "redplate_lizard",
+        "redplate_lizard",
+        "redplate_lizard"
+      ],
+      "guard_count": 3,
+      "night_hunt": false,
+      "near_kind": ""
+    },
+    {
+      "id": "spore_grove",
+      "name": "灯孢菌地",
+      "faction": "beast",
+      "members": [
+        "lantern_sporeling",
+        "lantern_sporeling",
+        "lantern_sporeling",
+        "lantern_sporeling"
+      ],
+      "guard_count": 4,
+      "night_hunt": false,
+      "near_kind": ""
+    },
+    {
+      "id": "bandit_camp",
+      "name": "劫修营地",
+      "faction": "bandit",
+      "members": [
+        "ridge_reaver",
+        "ridge_reaver",
+        "ridge_reaver",
+        "ridge_reaver",
+        "ash_talismanist"
+      ],
+      "guard_count": 2,
+      "night_hunt": false,
+      "near_kind": "wolf_den"
+    }
+  ],
+  "construction_clearance": 6,
+  "relocation_radius": 48,
+  "leader_use_range_max": true,
+  "paired_distance_min": 96,
+  "paired_distance_max": 144,
+  "navigation_interval_ticks": 80,
+  "alarm_interval_ticks": 100,
+  "route_step_ticks": 160,
+  "guard_radius": 3,
+  "max_surface_y": 300,
+  "construction_radius": 9,
+  "spawn_attempts": 48,
+  "spawn_per_tick": 4,
+  "conflict_scan_ticks": 10,
+  "howl_volume": 1.2,
+  "howl_pitch": 0.85
 }

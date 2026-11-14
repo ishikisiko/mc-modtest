@@ -20,6 +20,9 @@ public final class HabitatPlacement {
             int x=site.x()+block.x(),y=site.y()+block.y(),z=site.z()+block.z();if((x>>4)!=chunk.getPos().x||(z>>4)!=chunk.getPos().z)continue;
             var state=states.computeIfAbsent(block.block(),key->{try{return BlockStateParser.parseForBlock(registry,new StringReader(key),false).blockState();}catch(Exception error){throw new IllegalArgumentException("生态模板方块错误："+key,error);}});
             at.set(x,y,z);chunk.setBlockState(at,state,false);
+            if(state.hasBlockEntity()&&state.getBlock() instanceof net.minecraft.world.level.block.EntityBlock blockEntity){
+                var entity=blockEntity.newBlockEntity(at.immutable(),state);if(entity!=null)chunk.setBlockEntity(entity);
+            }
             if(block.y()== -1)for(int depth=1;depth<=layout.rules().integer("maximum_slope")+1;depth++){
                 at.set(x,y-depth,z);if(!chunk.getBlockState(at).isAir()&&chunk.getBlockState(at).getFluidState().isEmpty())break;chunk.setBlockState(at,Blocks.DIRT.defaultBlockState(),false);
             }

@@ -5,7 +5,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HabitatStateTest {
-    private final HabitatRules.Kind kind=new HabitatRules.Kind("wolf_den","妖狼巢地","beast",List.of("demon_wolf","demon_wolf","demon_wolf"),1,true);
+    private final HabitatRules.Kind kind=new HabitatRules.Kind("wolf_den","妖狼巢地","beast",List.of("demon_wolf","demon_wolf","demon_wolf"),1,true,"");
     @Test void clearingIsFiniteWithinMonthAndNextMonthRefreshesExactlyOnce(){
         var state=new HabitatState();var round=state.site("wolf_den_0");assertTrue(state.refresh(round,0,1,true,kind,42));
         var old=round.members.getFirst().id;assertTrue(state.death(round.site,0,old));assertFalse(state.death(round.site,0,old));assertEquals(1,round.kills);
@@ -25,12 +25,12 @@ class HabitatStateTest {
         assertFalse(state.refresh(round,8,1,true,kind,42));assertTrue(state.refresh(round,80,1,true,kind,42));assertEquals(1,round.generation);
         assertFalse(state.refresh(round,79,1,true,kind,42));assertFalse(state.refresh(round,80,1,true,kind,42));
     }
-    @Test void playerProximityCombatAndConstructionCanDeferRefresh(){
+    @Test void playerProximityDefersRefreshAndConstructionSurvivesMonthlyRecovery(){
         var state=new HabitatState();var round=state.site("wolf_den_0");state.refresh(round,0,1,true,kind,42);
         var id=round.members.getFirst().id;assertFalse(state.refresh(round,1,1,false,kind,42));assertEquals(id,round.members.getFirst().id);
-        round.construction.add(99L);assertFalse(state.refresh(round,1,1,true,kind,42));
+        round.construction.add(99L);assertTrue(state.refresh(round,1,1,true,kind,42));
         var copy=HabitatState.decode(state.encode());assertTrue(copy.site(round.site).occupied());
-        round.construction.remove(99L);assertTrue(state.refresh(round,1,1,true,kind,42));
+        assertTrue(round.construction.contains(99L));assertFalse(state.refresh(round,1,1,true,kind,42));
     }
     @Test void oldGenerationDeathReceiptsCannotKillNewMembers(){
         var state=new HabitatState();var round=state.site("wolf_den_0");state.refresh(round,0,1,true,kind,42);UUID old=round.members.getFirst().id;

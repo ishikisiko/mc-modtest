@@ -65,8 +65,11 @@ public final class HabitatRuntime {
         int y=level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z);var pos=new BlockPos(x,y,z);
         if(!level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),net.minecraft.core.Direction.UP)||!level.getFluidState(pos).isEmpty()||!level.getFluidState(pos.below()).isEmpty())return null;
         var box=mob.getBoundingBox().move(x+.5-mob.getX(),y-mob.getY(),z+.5-mob.getZ());
-        int r=2;for(int cx=(x-r)>>4;cx<=(x+r)>>4;cx++)for(int cz=(z-r)>>4;cz<=(z+r)>>4;cz++)if(level.getChunkSource().getChunkNow(cx,cz)==null||!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(cx,cz)))return null;
+        for(int cx=((int)Math.floor(box.minX)-1)>>4;cx<=((int)Math.floor(box.maxX)+1)>>4;cx++)for(int cz=((int)Math.floor(box.minZ)-1)>>4;cz<=((int)Math.floor(box.maxZ)+1)>>4;cz++)if(level.getChunkSource().getChunkNow(cx,cz)==null||!level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(cx,cz)))return null;
         return level.getWorldBorder().isWithinBounds(box)&&level.noCollision(mob,box)?pos:null;
+    }
+    static boolean protectedConstruction(HabitatState.Round round,HabitatRules rules,int x,int z){
+        int margin=rules.integer("construction_clearance");return round.construction.stream().map(BlockPos::of).anyMatch(p->Math.abs(p.getX()-x)<=margin&&Math.abs(p.getZ()-z)<=margin);
     }
     private static boolean ready(ServerLevel level,HabitatLayout.Site site,int radius){
         for(int x=(site.x()-radius)>>4;x<=(site.x()+radius)>>4;x++)for(int z=(site.z()-radius)>>4;z<=(site.z()+radius)>>4;z++)
@@ -76,45 +79,49 @@ public final class HabitatRuntime {
     private static double nearest(ServerLevel level,HabitatLayout.Site site){return level.players().stream().filter(p->!p.isSpectator()).mapToDouble(p->Math.hypot(p.getX()-site.x(),p.getZ()-site.z())).min().orElse(Double.POSITIVE_INFINITY);}
     @SubscribeEvent public static void tick(LevelTickEvent.Post event){
         if(!(event.getLevel() instanceof ServerLevel level))return;var layout=layout(level);if(layout==null||level.getGameTime()%layout.rules().integer("tick_interval")!=0)return;
+        if(!level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBSPAWNING))return;
         var rules=layout.rules();var saved=HabitatSavedData.get(level);long month=month(level);
         if(month>saved.state.highestMonth){saved.state.highestMonth=month;saved.setDirty();}
-        int active=0;for(var round:saved.state.rounds.values())for(var member:round.members)if(level.getEntity(member.id) instanceof Mob)active++;
+        NEAR.keySet().removeIf(id->level.getServer().getPlayerList().getPlayer(id)==null);
+        int spawnedThisPass=0;int active=0;for(var round:saved.state.rounds.values())for(var member:round.members)if(level.getEntity(member.id) instanceof Mob)active++;
         for(var site:layout.sites()){
             double distance=nearest(level,site);if(distance>rules.integer("activation_radius")||!ready(level,site,rules.integer("site_radius")+2))continue;
             var round=saved.state.site(site.id());var kind=rules.kind(site.kind());
             boolean combat=round.members.stream().map(m->level.getEntity(m.id)).filter(Mob.class::isInstance).map(Mob.class::cast).anyMatch(m->m.getTarget()!=null);
-            if(saved.state.due(round,month,rules.integer("refresh_months"))&&distance>=rules.integer("refresh_safe_distance")&&!combat&&!round.occupied()&&level.getDifficulty()!=net.minecraft.world.Difficulty.PEACEFUL){
+            if(saved.state.due(round,month,rules.integer("refresh_months"))&&distance>=rules.integer("refresh_safe_distance")&&!combat&&level.getDifficulty()!=net.minecraft.world.Difficulty.PEACEFUL){
                 for(var old:round.members){var entity=level.getEntity(old.id);if(entity!=null){entity.discard();active--;}level.getScoreboard().removePlayerFromTeam(old.id.toString());}
                 if(saved.state.refresh(round,month,rules.integer("refresh_months"),true,kind,level.getSeed()))saved.setDirty();
             }
-            if(round.occupied()||level.getDifficulty()==net.minecraft.world.Difficulty.PEACEFUL)continue;
+            if(level.getDifficulty()==net.minecraft.world.Difficulty.PEACEFUL)continue;
             for(var member:round.members){
                 var loaded=level.getEntity(member.id);
-                if(loaded instanceof Mob mob){if(mob.getTarget()!=null&&mob.getTarget().isAlive())alarm(mob,mob.getTarget());continue;}
-                if(member.dead||member.spawned||active>=rules.integer("max_active_members")||distance<rules.integer("spawn_min_distance"))continue;
-                if(spawn(level,layout,site,round,member)){active++;saved.setDirty();}
+                if(loaded instanceof Mob mob){if(mob.getTarget()!=null&&mob.getTarget().isAlive()){member.activity="combat";alarm(mob,mob.getTarget());}continue;}
+                if(member.dead||member.spawned||active>=rules.integer("max_active_members")||spawnedThisPass>=rules.integer("spawn_per_tick")||distance<rules.integer("spawn_min_distance"))continue;
+                if(spawn(level,layout,site,round,member)){active++;spawnedThisPass++;saved.setDirty();}
             }
         }
         for(var player:level.players()){
             var close=layout.sites().stream().filter(s->Math.hypot(player.getX()-s.x(),player.getZ()-s.z())<rules.integer("alarm_radius")).findFirst().orElse(null);
             String id=close==null?"":close.id();String previous=NEAR.put(player.getUUID(),id);
             if(close!=null&&!id.equals(previous)){
-                var round=saved.state.site(id);String detail=round.occupied()?"附近有人建造，群落暂停恢复":round.generation<0?"附近发现活动痕迹":round.living()==0?"本月已清理，将于下月恢复":"附近有"+round.living()+"名成员活动";
+                var round=saved.state.site(id);String detail=round.occupied()?"将避开附近建设恢复成员":round.generation<0?"附近发现活动痕迹":round.living()==0?"本月已清理，将于下月恢复":"附近有"+round.living()+"名成员活动";
                 player.displayClientMessage(Component.literal(layout.rules().kind(close.kind()).name()+"："+detail),true);
             }
         }
     }
     private static boolean spawn(ServerLevel level,HabitatLayout layout,HabitatLayout.Site site,HabitatState.Round round,HabitatState.Member member){
         var key=ResourceLocation.fromNamespaceAndPath("myvillage",member.entity);var raw=BuiltInRegistries.ENTITY_TYPE.get(key).create(level);if(!(raw instanceof Mob mob))throw new IllegalStateException("生态成员不是生物："+key);
-        BlockPos point=null;int radius=layout.rules().integer("site_radius");
-        for(int attempt=0;attempt<layout.rules().integer("candidate_attempts");attempt++){
+        BlockPos point=null;int radius=layout.rules().integer(round.occupied()?"relocation_radius":"site_radius");
+        for(int attempt=0;attempt<layout.rules().integer("spawn_attempts");attempt++){
             long hash=WildernessRules.mix(member.id.getLeastSignificantBits()+attempt);int x=site.x()+Math.floorMod(hash,2*radius+1)-radius,z=site.z()+Math.floorMod(WildernessRules.mix(hash),2*radius+1)-radius;
+            if(protectedConstruction(round,layout.rules(),x,z))continue;
+            if(!com.example.myvillage.wilderness.runtime.WildernessRuntime.regionAt(level,new BlockPos(x,site.y(),z)).filter(layout.rules().region::equals).isPresent())continue;
             point=ground(level,x,z,mob);if(point!=null&&level.getNearestPlayer(point.getX(),point.getY(),point.getZ(),layout.rules().integer("spawn_min_distance"),false)==null)break;point=null;
         }if(point==null){mob.discard();return false;}
         mob.moveTo(point.getX()+.5,point.getY(),point.getZ()+.5,0,0);mob.setUUID(member.id);mob.setPersistenceRequired();
         var identity=new CompoundTag();identity.putString("site",site.id());identity.putLong("generation",round.generation);identity.putInt("slot",member.slot);mob.getPersistentData().put(TAG,identity);
         var region=WildernessRules.bundled().region(layout.rules().region).orElseThrow();var range=layout.rules().kind(site.kind()).faction().equals("bandit")?region.rogue():region.beast();
-        var realm=range.sample(level.getSeed(),site.id(),member.id.getMostSignificantBits());
+        var realm=member.slot==0&&layout.rules().flag("leader_use_range_max")?range.max():range.sample(level.getSeed(),site.id(),member.id.getMostSignificantBits());
         if(mob instanceof BeastEntity beast)beast.assignWildernessBirth(new BeastBirth(realm,layout.rules().region,point.getX(),point.getY(),point.getZ(),false));
         else StatsRuntime.applyRealm(mob,realm.realmId(),realm.stage());
         mob.setHealth(mob.getMaxHealth());
@@ -124,17 +131,17 @@ public final class HabitatRuntime {
     }
     private static void install(Mob mob){
         if(!INSTALLED.add(mob))return;mob.goalSelector.addGoal(1,new HabitatGoal(mob));
-        mob.targetSelector.addGoal(3,new NearestAttackableTargetGoal<>(mob,Mob.class,10,true,false,candidate->{
+        mob.targetSelector.addGoal(0,new NearestAttackableTargetGoal<>(mob,Mob.class,member(mob).rules().integer("conflict_scan_ticks"),true,false,candidate->{
             if(!(candidate instanceof Mob other))return false;var a=member(mob);var b=member(other);
             return a!=null&&b!=null&&!a.kind().faction().equals(b.kind().faction())&&mob.distanceToSqr(other)<=a.rules().integer("conflict_radius")*a.rules().integer("conflict_radius");
         }));
     }
     private static void alarm(Mob mob,LivingEntity target){
         var c=member(mob);if(c==null||target==mob||mob.isAlliedTo(target))return;
-        long now=c.level().getGameTime(),last=mob.getPersistentData().getLong("myvillage_habitat_alarm");if(now-last<c.rules().integer("tick_interval")*5L)return;
+        long now=c.level().getGameTime(),last=mob.getPersistentData().getLong("myvillage_habitat_alarm");if(now-last<c.rules().integer("alarm_interval_ticks"))return;
         mob.getPersistentData().putLong("myvillage_habitat_alarm",now);c.round().alarms++;HabitatSavedData.get(c.level()).setDirty();
         for(var friend:c.round().members){var entity=c.level().getEntity(friend.id);if(entity instanceof Mob ally&&ally!=mob&&ally.distanceToSqr(mob)<=c.rules().integer("alarm_radius")*c.rules().integer("alarm_radius")&&ally.getHealth()>=ally.getMaxHealth()*c.rules().number("retreat_health_fraction"))ally.setTarget(target);}
-        if(c.site().kind().equals("wolf_den"))c.level().playSound(null,mob.blockPosition(),SoundEvents.WOLF_HOWL,SoundSource.HOSTILE,1,1);
+        if(c.site().kind().equals("wolf_den"))c.level().playSound(null,mob.blockPosition(),SoundEvents.WOLF_HOWL,SoundSource.HOSTILE,(float)c.rules().number("howl_volume"),(float)c.rules().number("howl_pitch"));
     }
     @SubscribeEvent public static void joined(EntityJoinLevelEvent event){
         if(!(event.getEntity() instanceof Mob mob)||event.getLevel().isClientSide()||!mob.getPersistentData().contains(TAG))return;
@@ -152,7 +159,7 @@ public final class HabitatRuntime {
         var stack=new ItemStack(item,drop.min()+event.getEntity().getRandom().nextInt(drop.max()-drop.min()+1));
         event.getDrops().add(new net.minecraft.world.entity.item.ItemEntity(level,event.getEntity().getX(),event.getEntity().getY(),event.getEntity().getZ(),stack));
     }
-    private static void construction(ServerLevel level,BlockPos pos,boolean placed){var layout=layout(level);if(layout==null)return;var saved=HabitatSavedData.get(level);int radius=layout.rules().integer("site_radius")+2;
+    private static void construction(ServerLevel level,BlockPos pos,boolean placed){var layout=layout(level);if(layout==null)return;var saved=HabitatSavedData.get(level);int radius=layout.rules().integer("construction_radius");
         for(var site:layout.sites())if(Math.abs(pos.getX()-site.x())<=radius&&Math.abs(pos.getZ()-site.z())<=radius){var round=saved.state.site(site.id());if(placed&&round.construction.size()<4096)round.construction.add(pos.asLong());else if(!placed)round.construction.remove(pos.asLong());saved.setDirty();}
     }
     @SubscribeEvent public static void placed(BlockEvent.EntityPlaceEvent event){if(event.getEntity() instanceof ServerPlayer player)construction(player.serverLevel(),event.getPos(),true);}
@@ -161,8 +168,8 @@ public final class HabitatRuntime {
     @SubscribeEvent public static void commands(RegisterCommandsEvent event){
         event.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(Commands.literal("habitat").executes(c->{
             var level=c.getSource().getServer().overworld();var layout=layout(level);if(layout==null){c.getSource().sendFailure(Component.literal("当前世界没有东荒生态规划。"));return 0;}
-            var data=new LinkedHashMap<String,Object>();data.put("month",month(level));data.put("region",layout.rules().region);data.put("sites",layout.sites());data.put("state",HabitatSavedData.get(level).state);data.put("rules",layout.rules().json());
-            var living=new ArrayList<Map<String,Object>>();for(var round:HabitatSavedData.get(level).state.rounds.values())for(var member:round.members){var mob=level.getEntity(member.id);if(mob instanceof LivingEntity entity)living.add(Map.of("uuid",member.id,"site",round.site,"health",entity.getHealth(),"max_health",entity.getMaxHealth(),"x",entity.getX(),"y",entity.getY(),"z",entity.getZ(),"activity",member.activity,"target",entity instanceof Mob m&&m.getTarget()!=null?m.getTarget().getUUID().toString():""));}data.put("living",living);
+            var data=new LinkedHashMap<String,Object>();data.put("month",month(level));data.put("region",layout.rules().region);data.put("sites",layout.sites());data.put("state",HabitatSavedData.get(level).state);data.put("refresh_months",layout.rules().integer("refresh_months"));data.put("ticks_per_month",(long)CultivationServerConfig.scale().ticksPerDay()*CultivationServerConfig.scale().daysPerMonth());data.put("loaded_sites",layout.sites().stream().filter(s->ready(level,s,layout.rules().integer("site_radius")+2)).map(HabitatLayout.Site::id).toList());
+            var living=new ArrayList<Map<String,Object>>();for(var round:HabitatSavedData.get(level).state.rounds.values())for(var member:round.members){var mob=level.getEntity(member.id);if(mob instanceof LivingEntity entity)living.add(Map.of("uuid",member.id,"realm",StatsRuntime.assignedRealm(entity).map(k->k.realmId()+"/"+k.stage()).orElse(""),"site",round.site,"health",entity.getHealth(),"max_health",entity.getMaxHealth(),"x",entity.getX(),"y",entity.getY(),"z",entity.getZ(),"activity",member.activity,"target",entity instanceof Mob m&&m.getTarget()!=null?m.getTarget().getUUID().toString():""));}data.put("living",living);
             c.getSource().sendSuccess(()->Component.literal("HABITAT "+new Gson().toJson(data)),false);return 1;
         })));
     }

@@ -5068,3 +5068,7 @@ H → 内视可查看实际生命、攻击、肉身防御、灵力、筑基来�
 宗门等级、每月供奉与分宗长老考核：[玩法说明](docs/features/sect-tiers-and-stipends.md)。
 
 中州千机阁总舵已接入御街西侧住宅坊。请在新修仙世界查看，管理员可用 `/myvillage worldplan qianji zhongzhou` 查询入口；任务榜位于办事廊。八州千机阁及实际任务位置见 [功能说明](docs/features/qianji-halls.md)。
+
+### 东荒群落与地区分档（0.132.0）
+
+新修仙大陆从东荒出生，按东荒、灵岳、北原、东海／西漠、南疆／魔域、中州六档推进。东荒的兽巢与劫修营地按自然历法月份恢复成员，刷新保留玩家建设。管理员使用 `/myvillage habitat` 查询实际据点和本轮名单。[规则与使用说明](docs/features/east-wilderness.md)。

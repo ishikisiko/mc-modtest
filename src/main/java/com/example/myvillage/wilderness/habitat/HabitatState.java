@@ -22,7 +22,7 @@ public final class HabitatState {
     public Round site(String id){return rounds.computeIfAbsent(id,k->{var r=new Round();r.site=k;return r;});}
     public boolean due(Round round,long month,int months){highestMonth=Math.max(highestMonth,month);return round.generation<0||highestMonth-round.month>=months;}
     public boolean refresh(Round round,long month,int months,boolean safe,HabitatRules.Kind kind,long seed){
-        if(!due(round,month,months)||!safe||round.occupied())return false;
+        if(!due(round,month,months)||!safe)return false;
         round.generation++;round.month=highestMonth;round.members.clear();
         for(int i=0;i<kind.members().size();i++){
             var m=new Member();m.slot=i;m.entity=kind.members().get(i);m.role=i==0?"leader":i<kind.guards()?"guard":"patrol";
