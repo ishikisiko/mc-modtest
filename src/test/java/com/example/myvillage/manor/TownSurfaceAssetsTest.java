@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TownSurfaceAssetsTest {
     private static byte[] bytes(String path) throws Exception {
-        try(var in=TownSurfaceAssetsTest.class.getResourceAsStream(path)) {
+        try(var in=com.example.myvillage.resources.BuiltinResources.open(path)) {
             assertNotNull(in,path);return in.readAllBytes();
         }
     }
