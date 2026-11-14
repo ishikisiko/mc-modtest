@@ -30,12 +30,26 @@ public final class ProceduralBooksModel extends BakedModelWrapper<BakedModel> {
     private final ProceduralBooks.Rules rules;
     private final Map<String,TextureAtlasSprite> sprites;
     private final ModelState transform;
+    private final ItemOverrides itemOverrides;
+    private final ItemTransforms itemTransforms;
+    private final TextureAtlasSprite particle;
+    private final boolean gui3d,blockLight,ambientOcclusion;
     private final Map<List<Integer>,List<BakedQuad>> cache=new LinkedHashMap<>(4,.75f,true);
 
     private ProceduralBooksModel(BakedModel base,List<ProceduralBooks.Region> regions,ProceduralBooks.Rules rules,
-                                 Map<String,TextureAtlasSprite> sprites,ModelState transform){
+                                 Map<String,TextureAtlasSprite> sprites,ModelState transform,IGeometryBakingContext context,
+                                 ItemOverrides overrides,TextureAtlasSprite particle){
         super(base);this.regions=List.copyOf(regions);this.rules=rules;this.sprites=Map.copyOf(sprites);this.transform=transform;
+        itemOverrides=overrides;itemTransforms=context.getTransforms();this.particle=particle;
+        gui3d=context.isGui3d();blockLight=context.useBlockLight();ambientOcclusion=context.useAmbientOcclusion();
     }
+    @Override public ItemOverrides getOverrides(){return itemOverrides;}
+    @Override public ItemTransforms getTransforms(){return itemTransforms;}
+    @Override public TextureAtlasSprite getParticleIcon(){return particle;}
+    @Override public TextureAtlasSprite getParticleIcon(ModelData data){return particle;}
+    @Override public boolean isGui3d(){return gui3d;}
+    @Override public boolean usesBlockLight(){return blockLight;}
+    @Override public boolean useAmbientOcclusion(){return ambientOcclusion;}
     @Override public ModelData getModelData(BlockAndTintGetter view,BlockPos pos,BlockState state,ModelData data){
         return originalModel.getModelData(view,pos,state,data).derive().with(POSITION,pos.immutable()).build();
     }
@@ -72,7 +86,7 @@ public final class ProceduralBooksModel extends BakedModelWrapper<BakedModel> {
         return ChunkRenderTypeSet.union(originalModel.getRenderTypes(state,random,data),ChunkRenderTypeSet.of(RenderType.solid()));
     }
     @Override public TriState useAmbientOcclusion(BlockState state,ModelData data,RenderType layer){
-        return layer==RenderType.solid()?TriState.TRUE:originalModel.useAmbientOcclusion(state,data,layer);
+        return layer==RenderType.solid()?(ambientOcclusion?TriState.TRUE:TriState.FALSE):originalModel.useAmbientOcclusion(state,data,layer);
     }
     @Override public List<BakedModel> getRenderPasses(ItemStack stack,boolean fabulous){
         List<BakedModel> result=new ArrayList<>();
@@ -89,7 +103,7 @@ public final class ProceduralBooksModel extends BakedModelWrapper<BakedModel> {
             if(!context.getRootTransform().isIdentity())state=UnbakedGeometryHelper.composeRootTransformIntoModelState(state,context.getRootTransform());
             var rules=ProceduralBooks.rules();Map<String,TextureAtlasSprite> sprites=new HashMap<>();
             for(String role:rules.roles())sprites.put(role,getter.apply(context.getMaterial(role)));
-            return new ProceduralBooksModel(base.bake(baker,getter,state),regions,rules,sprites,state);
+            return new ProceduralBooksModel(base.bake(baker,getter,state),regions,rules,sprites,state,context,overrides,getter.apply(context.getMaterial("particle")));
         }
     }
     public static final class Loader implements IGeometryLoader<Geometry> {
