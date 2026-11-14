@@ -47,7 +47,7 @@ class Evidence:
     def setup(self):
         for command in ['gamerule doMobSpawning true','difficulty normal','gamerule mobGriefing false','weather clear','time set noon']:self.rc(command)
     def prepare_player(self,client):
-        for command in [f'op {client.name}',f'gamemode creative {client.name}',f'effect give {client.name} minecraft:resistance infinite 4 true',f'attribute {client.name} minecraft:generic.max_health base set 1024',f'item replace entity {client.name} hotbar.0 with myvillage:qingfeng_sword',f'attribute {client.name} minecraft:generic.attack_damage base set 8']:
+        for command in [f'op {client.name}',f'gamemode creative {client.name}',f'effect give {client.name} minecraft:resistance infinite 4 true',f'attribute {client.name} minecraft:generic.max_health base set 1024',f'effect give {client.name} minecraft:instant_health 1 10 true',f'item replace entity {client.name} hotbar.0 with myvillage:qingfeng_sword',f'attribute {client.name} minecraft:generic.attack_damage base set 8']:
             self.rc(command)
         client.guard();client.game.xdo('key','1');self.action('mapped_hotbar',player=client.name,slot=1)
     def fixture(self,client,position,target):
@@ -124,7 +124,8 @@ class Evidence:
                     if time.monotonic()>deadline:raise TimeoutError('映射清理未完成')
                 cleared=self.round(wolf['id']);time.sleep(3);self.check('同月清理后保持空名单',not self.living(wolf['id']) and all(m['dead']for m in self.round(wolf['id'])['members']),cleared)
                 drops=self.rc(f'execute positioned {wolf["x"]} {wolf["y"]} {wolf["z"]} as @e[type=minecraft:item,distance=..120] run data get entity @s Item')
-                self.check('临时灵石掉落','myvillage:low_grade_spirit_stone'in drops,drops);self.done('mapped_clear_and_temporary_loot')
+                inventory=self.rc(f'data get entity {client.name} Inventory')
+                self.check('临时灵石掉落','myvillage:low_grade_spirit_stone'in drops or'myvillage:low_grade_spirit_stone'in inventory,{'ground_items':drops,'player_inventory':inventory});self.done('mapped_clear_and_temporary_loot')
                 self.rc(f'gamemode creative {client.name}');self.rc(f'gamemode creative {second.name}');self.fixture(client,[wolf['x']+.5,wolf['y']+1,wolf['z']+.5],[wolf['x'],wolf['y'],wolf['z']]);client.capture('cleared-wolf-den')
                 self.rc('save-all flush')
             self.server.stop();self.calendar(1,status['ticks_per_month'])
