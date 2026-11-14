@@ -32,6 +32,7 @@ public final class WorldPlanGuard {
         if(!(world.getLevel().getChunkSource().getGenerator() instanceof PlannedChunkGenerator generator))return true;
         Scope scope=ACTIVE.get();if(scope!=null&&scope.world==world)return scope.clip.isInside(at);
         if(generator.plan().reserved(at.getX(),at.getY(),at.getZ()))return false;
+        if(generator.habitats().reserved(at.getX(),at.getY(),at.getZ()))return false;
         return !world.getLevel().getServer().getWorldData().worldGenOptions().generateStructures()||
             !generator.roads().await().reserved(generator.plan(),generator.roads().rules(),at.getX(),at.getY(),at.getZ())&&!generator.starterMine().reserved(at.getX(),at.getY(),at.getZ());
     }

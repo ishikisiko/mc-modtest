@@ -14,66 +14,66 @@
     "ximo": {
       "beast": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "myvillage:foundation_establishment",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
-          "stage": 3
+          "realm": "myvillage:golden_core",
+          "stage": 0
         }
       },
       "rogue": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "myvillage:foundation_establishment",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
-          "stage": 3
+          "realm": "myvillage:golden_core",
+          "stage": 0
         }
       }
     },
     "donghai": {
       "beast": {
         "min": {
-          "realm": "myvillage:qi_refining",
-          "stage": 2
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
-          "stage": 8
+          "realm": "myvillage:golden_core",
+          "stage": 0
         }
       },
       "rogue": {
         "min": {
-          "realm": "myvillage:qi_refining",
-          "stage": 2
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
-          "stage": 8
+          "realm": "myvillage:golden_core",
+          "stage": 0
         }
       }
     },
     "nanjiang": {
       "beast": {
         "min": {
-          "realm": "myvillage:qi_refining",
-          "stage": 4
+          "realm": "myvillage:golden_core",
+          "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
-          "stage": 0
+          "realm": "myvillage:nascent_soul",
+          "stage": 1
         }
       },
       "rogue": {
         "min": {
-          "realm": "myvillage:qi_refining",
-          "stage": 4
+          "realm": "myvillage:golden_core",
+          "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
-          "stage": 0
+          "realm": "myvillage:nascent_soul",
+          "stage": 1
         }
       }
     },
@@ -81,65 +81,65 @@
       "beast": {
         "min": {
           "realm": "myvillage:qi_refining",
-          "stage": 6
+          "stage": 4
         },
         "max": {
           "realm": "myvillage:foundation_establishment",
-          "stage": 1
+          "stage": 0
         }
       },
       "rogue": {
         "min": {
           "realm": "myvillage:qi_refining",
-          "stage": 6
+          "stage": 4
         },
         "max": {
           "realm": "myvillage:foundation_establishment",
-          "stage": 1
+          "stage": 0
         }
       }
     },
     "donghuang": {
       "beast": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "myvillage:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
-          "stage": 2
+          "realm": "myvillage:qi_refining",
+          "stage": 3
         }
       },
       "rogue": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "myvillage:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
-          "stage": 2
+          "realm": "myvillage:qi_refining",
+          "stage": 3
         }
       }
     },
     "lingyue": {
       "beast": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
-          "stage": 1
+          "realm": "myvillage:qi_refining",
+          "stage": 2
         },
         "max": {
-          "realm": "myvillage:golden_core",
-          "stage": 2
+          "realm": "myvillage:qi_refining",
+          "stage": 8
         }
       },
       "rogue": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
-          "stage": 1
+          "realm": "myvillage:qi_refining",
+          "stage": 2
         },
         "max": {
-          "realm": "myvillage:golden_core",
-          "stage": 2
+          "realm": "myvillage:qi_refining",
+          "stage": 8
         }
       }
     },

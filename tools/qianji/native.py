@@ -65,14 +65,15 @@ def main():
         assert status['phase']=='ready' and status['mode']=='chunk_generation',status
         query('export');manifest=json.loads((server.data/'worldplan.json').read_text());shutil.copy2(server.data/'worldplan.json',a.out/'worldplan.json')
         if previous is not None:assert manifest==previous,'继续探针的世界规划必须与首次新建时逐项相同'
-        order=manifest['rules']['region_progression']['order'];profiles={v['id']:v for v in manifest['rules']['profiles']}
-        assert order==['ximo','donghai','nanjiang','beiyuan','donghuang','lingyue','moyu','zhongzhou'],order
+        levels=manifest['rules']['region_progression']['levels'];order=[v for group in levels for v in group];profiles={v['id']:v for v in manifest['rules']['profiles']}
+        assert order==['donghuang','lingyue','beiyuan','donghai','ximo','nanjiang','moyu','zhongzhou'],order
         assert manifest['graph']['progression_order']==order and len(manifest['cities'])==8
         assert manifest['spawn']['regionId']==order[0],manifest['spawn']
         tiers={v['id']:v['tier'] for v in manifest['graph']['regions']}
-        assert all(tiers[b]>tiers[c] for c,b in zip(order,order[1:])),tiers
+        assert all(len({tiers[v] for v in group})==1 for group in levels),tiers
+        assert all(tiers[b[0]]>tiers[c[0]] for c,b in zip(levels,levels[1:])),tiers
         gates=[b for b in manifest['borders'] if b['gate']]
-        assert {frozenset([b['a'],b['b']]) for b in gates}=={frozenset(['lingyue','moyu']),frozenset(['moyu','zhongzhou'])}
+        assert {frozenset([b['a'],b['b']]) for b in gates}=={frozenset(['nanjiang','moyu']),frozenset(['moyu','zhongzhou'])}
         for b in manifest['borders']:
             if 'moyu' in (b['a'],b['b']):assert b['passable']==b['gate'],b
         write(a.out/'startup.json',dict(seconds=time.monotonic()-started,status=status,tiers=tiers));complete()
@@ -113,7 +114,7 @@ def main():
         from road_port_sources import CitySource
         for city in manifest['cities']:
             source=CitySource(ROOT/'build/resources/main',city['region_id']);office=source.city['qianji']
-            rank=order.index(city['region_id']);assert office['scale']==('compact' if rank<4 else 'large' if rank<7 else 'headquarters')
+            rank=next(i for i,group in enumerate(levels)if city['region_id'] in group);assert office['scale']==('compact' if rank<3 else 'large' if rank<5 else 'headquarters')
             points=office['targets'] if a.all_qianji_targets else [v for v in office['targets'] if v['id'] in ('jianghu_board','entrance') or v['id'].startswith(('core_','command_','archive_'))]
             for target in points:
                 x,y,z=target['position'];wx,wy,wz=city['x']+x,city['origin_y']+y,city['z']+z;load(wx,wz)
@@ -153,7 +154,7 @@ def main():
             stage='saved_rules_and_cached_restart';before=status['layout_hash'];server.stop();_,tag=read_gzipped_nbt(str(game/'world/level.dat'))
             gen=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
             from worldplan.acceptance import decode_saved_rules
-            assert decode_saved_rules(gen['rules'],'myvillage:worldplan_v11')['region_progression']['order']==order
+            assert decode_saved_rules(gen['rules'],'myvillage:worldplan_v11')['region_progression']['levels']==levels
             assert gen['roads']['layout_hash']==before and len(gen['roads']['routes'])==len(roads['routes'])
             server.start();after=server.roads('status');assert after['layout_hash']==before and after['planning_progress']['phase']=='cached',after
             query('export');restored=json.loads((server.data/'worldplan.json').read_text());assert restored==manifest

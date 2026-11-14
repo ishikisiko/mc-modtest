@@ -59,6 +59,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     private volatile RandomState terrainState;
     private final RoadGeneration roads;
     private final StarterMineGeneration starterMine;
+    private com.example.myvillage.wilderness.habitat.HabitatLayout habitats;
     public PlannedChunkGenerator(BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises){
         this(new PlannedBiomeSource(source,rules),source,settings,rules,expectedFingerprint,noises,Optional.empty(),Optional.empty(),Optional.empty());
     }
@@ -74,6 +75,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     public WorldPlanRules rules(){return rules;}
     public RoadGeneration roads(){return roads;}
     public StarterMineGeneration starterMine(){return starterMine;}
+    public com.example.myvillage.wilderness.habitat.HabitatLayout habitats(){if(habitats==null)throw new IllegalStateException("生态规划尚未就绪");return habitats;}
     public RandomState terrainState(){RandomState state=terrainState;if(state==null)throw new IllegalStateException("Worldplan noise requested before createState");return state;}
     private String savedFingerprint(){return plan==null?expectedFingerprint:plan.fingerprint();}
     @Override public synchronized ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structures,RandomState ignored,long seed){
@@ -90,6 +92,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             // 全网校验完成后才允许创建区块，避免在半张布局上开始写入世界。
             try {starterMine.bind(p,roads.await());
                 starterMine.bindRegional(roads.await(),(x,z)->getBaseColumn(x,z,LevelHeightAccessor.create(getMinY(),getGenDepth()),state));
+                habitats=com.example.myvillage.wilderness.habitat.HabitatLayout.plan(p,roads.await());
             }
             catch(RuntimeException failure){roads.close();throw failure;}
         }
@@ -149,6 +152,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
                 PlannedQianzhen.placeSlice(plan(),level,chunk,this);
                 PlannedSectPlacement.placeSlice(plan(),level,chunk);
                 StarterMinePlacement.place(plan(),starterMine,roads.await(),level,chunk);
+                com.example.myvillage.wilderness.habitat.HabitatPlacement.place(habitats(),level,chunk);
                 // Reassert only the current generation chunk after decorators; no live-world updates/drops.
                 RoadChunkPlacement.place(plan(),roads,chunk);
             }

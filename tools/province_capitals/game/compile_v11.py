@@ -29,15 +29,23 @@ def apply_spawn_policy(frozen, policy):
 
 
 def apply_region_progression(frozen, policy):
-    if not isinstance(policy,dict) or set(policy)!={'order'}:
-        raise ValueError('州序必须显式声明 order')
-    order=policy['order'];profiles={p['id']:p for p in frozen['profiles']}
+    if not isinstance(policy,dict) or set(policy)!={'levels'}:
+        raise ValueError('州序必须显式声明 levels')
+    levels=policy['levels'];profiles={p['id']:p for p in frozen['profiles']}
+    if not isinstance(levels,list) or not levels or any(not isinstance(v,list) or not v for v in levels):
+        raise ValueError('地区档位必须为非空分组')
+    order=[v for level in levels for v in level]
     if (not isinstance(order,list) or any(not isinstance(v,str) for v in order)
             or len(order)!=len(profiles) or len(set(order))!=len(order) or set(order)!=set(profiles)):
         raise ValueError('州序必须完整且不重复地覆盖地区清单')
     if profiles[order[-1]]['role']!='anchor':
         raise ValueError('州序必须以中枢地区结束')
-    tiers=[frozen['tier_range'][1] if profiles[v]['role']=='anchor' else profiles[v]['tier'] for v in order]
+    if len(levels[-1])!=1:raise ValueError('中枢必须独占最终档位')
+    tiers=[]
+    for level in levels:
+        values={frozen['tier_range'][1] if profiles[v]['role']=='anchor' else profiles[v]['tier'] for v in level}
+        if len(values)!=1:raise ValueError('并列地区必须使用相同阶位')
+        tiers.append(values.pop())
     if any(not 0<b-a<=frozen['tier_step'][1] for a,b in zip(tiers,tiers[1:])):
         raise ValueError('州序阶位必须递增且满足最大阶差')
     frozen['region_progression']=copy.deepcopy(policy)
@@ -60,6 +68,11 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
         ref,summary=old.inspect_city(out,definition,base['capitals']['life_places_limit'],accepted_versions=frozenset(('v4',)))
         refs.append(ref);summaries.append(summary)
     frozen=copy.deepcopy(base);frozen['algorithm']=spec['algorithm'];frozen['capitals']['assets']=spec['assets'];frozen['capitals']['bundles']=refs
+    profiles={p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/worldgen/region_profile').glob('*.json')}
+    for profile in frozen['profiles']:
+        for key in ('tier','qi','danger'):profile[key]=profiles[profile['id']][key]
+    from wilderness_habitats.generate import generate as habitat_rules
+    frozen['habitats']=habitat_rules()
     policy=spec.get('topology',{})
     if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须开放州序规定的魔域关隘')
     frozen.update(policy)

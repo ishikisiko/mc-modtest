@@ -33,6 +33,11 @@ public record SectProgressionRules(int entryStates, int regionalHubs, Map<String
     public String forRegion(RegionGraph graph, String regionId) {
         GenRegion region = graph.regionById(regionId);
         if (region.role().equals("anchor")) return MAIN;
+        if (!graph.progressionOrder().isEmpty()) {
+            var levels=graph.regions().stream().filter(r->!r.role().equals("anchor")&&r.admittedSubjects().contains("sect"))
+                    .map(GenRegion::tier).distinct().sorted().skip(entryStates).sorted(Comparator.reverseOrder()).limit(regionalHubs).toList();
+            return levels.contains(region.tier()) ? HEADQUARTERS : BRANCH;
+        }
         List<GenRegion> hubs = graph.regions().stream()
                 .filter(r -> !r.role().equals("anchor") && r.admittedSubjects().contains("sect"))
                 .sorted(Comparator.comparingInt(GenRegion::tier).thenComparing(GenRegion::id))

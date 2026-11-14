@@ -77,7 +77,12 @@ public record RegionGraph(
         root.put("tier_step", tierStep);
         root.put("regions", regionTree());
         root.put("edges", edgeTree());
-        if (!progressionOrder.isEmpty()) root.put("progression_order", progressionOrder);
+        if (!progressionOrder.isEmpty()) {
+            root.put("progression_order", progressionOrder);
+            java.util.Map<Integer,java.util.List<String>> levels=new java.util.LinkedHashMap<>();
+            for(String id:progressionOrder)levels.computeIfAbsent(regionById(id).tier(),k->new java.util.ArrayList<>()).add(id);
+            root.put("progression_levels",new java.util.ArrayList<>(levels.values()));
+        }
         if (geometry != null) {
             TreeMap<String, Object> shape = new TreeMap<>();
             shape.put("seed", geometry.seed());

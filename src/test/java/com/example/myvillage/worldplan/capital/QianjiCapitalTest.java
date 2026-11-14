@@ -16,8 +16,8 @@ class QianjiCapitalTest {
     @Test void eightCitiesOwnExactlyTheirConfiguredScaleAndTaskBoard()throws Exception{
         var rules=rules();
         for(var city:rules.capitals.bundles){
-            var q=city.qianji;int rank=rules.progressionOrder.indexOf(city.regionId);
-            assertEquals(rank<4?"compact":rank<7?"large":"headquarters",q.scale());
+            var q=city.qianji;int rank=java.util.stream.IntStream.range(0,rules.progressionLevels.size()).filter(i->rules.progressionLevels.get(i).contains(city.regionId)).findFirst().orElseThrow();
+            assertEquals(rank<3?"compact":rank<5?"large":"headquarters",q.scale());
             assertTrue(city.entries.stream().anyMatch(e->e.id().equals("qianji")&&e.equals(q.entry())));
             var life=city.life().getAsJsonArray("places").asList().stream().map(JsonElement::getAsJsonObject).filter(p->p.get("id").getAsString().equals("jianghu_board")).toList();
             assertEquals(1,life.size());assertEquals(q.board().x(),life.getFirst().getAsJsonArray("block_pos").get(0).getAsInt());
@@ -26,7 +26,7 @@ class QianjiCapitalTest {
             int dx=q.board().facing().equals("east")?1:q.board().facing().equals("west")?-1:0;
             int dz=q.board().facing().equals("south")?1:q.board().facing().equals("north")?-1:0;
             assertEquals(q.board().x()+dx,q.reader().x());assertEquals(q.board().z()+dz,q.reader().z());
-            assertEquals(rank==7?"east":"south",q.entry().facing());
+            assertEquals(rank==5?"east":"south",q.entry().facing());
             for(long seed:new long[]{20261112,42}){
                 var world=new WorldPlan(seed,rules);var placed=world.capitalOf(city.regionId).orElseThrow();
                 assertEquals(city.regionId,world.sample(placed.x()+q.reader().x(),placed.z()+q.reader().z()).regionId());

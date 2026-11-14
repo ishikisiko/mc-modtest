@@ -10,12 +10,12 @@
     "grade_rows": 8
   },
   "regions": {
-    "ximo": "folded_library",
-    "donghai": "island_octagon",
-    "nanjiang": "terraced_gallery",
-    "beiyuan": "folded_library",
-    "donghuang": "town_courts",
-    "lingyue": "town_water",
+    "donghuang": "folded_library",
+    "lingyue": "island_octagon",
+    "beiyuan": "terraced_gallery",
+    "donghai": "town_water",
+    "ximo": "town_frontier",
+    "nanjiang": "town_courts",
     "moyu": "town_frontier",
     "zhongzhou": "zhongzhou_headquarters"
   },

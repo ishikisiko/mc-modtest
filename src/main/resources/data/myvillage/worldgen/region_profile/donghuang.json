@@ -1,9 +1,17 @@
 {
   "id": "donghuang",
   "display_name": "东荒",
-  "tier": 12,
-  "qi": [3, 5],
-  "danger": [4, 7],
+  "tier": 8,
+  "qi": [
+    3,
+    5
+  ],
+  "danger": [
+    4,
+    7
+  ],
   "role": "peripheral",
-  "admitted_subjects": ["sect"]
+  "admitted_subjects": [
+    "sect"
+  ]
 }

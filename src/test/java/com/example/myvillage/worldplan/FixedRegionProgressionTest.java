@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FixedRegionProgressionTest {
-    private static final List<String> ORDER=List.of("ximo","donghai","nanjiang","beiyuan","donghuang","lingyue","moyu","zhongzhou");
+    private static final List<String> ORDER=List.of("donghuang","lingyue","beiyuan","donghai","ximo","nanjiang","moyu","zhongzhou");
 
     @Test void fixedProgressionHasPhysicalBoundariesGatesAndMatchingQueriesAcrossSeeds()throws Exception {
         var rules=WorldPlanTest.rules();assertEquals(ORDER,rules.progressionOrder);
@@ -17,8 +17,8 @@ class FixedRegionProgressionTest {
         for(long seed:seeds){
             var world=new WorldPlan(seed,rules);var graph=world.graph();
             assertEquals(ORDER,graph.progressionOrder());assertEquals(8,world.cities().size());
-            assertEquals("ximo",world.spawn().regionId(),"seed="+seed);
-            assertEquals(List.of(8,9,10,11,12,14,16,20),RungLadder.ladder(graph));
+            assertEquals("donghuang",world.spawn().regionId(),"seed="+seed);
+            assertEquals(List.of(8,9,10,12,16,20),RungLadder.ladder(graph));
             assertEquals(2,world.borders().stream().filter(WorldPlan.Border::gate).count());
             assertTrue(world.sectSites().stream().noneMatch(s->s.regionId().equals("moyu")));
             for(int i=0;i<ORDER.size();i++){
@@ -26,7 +26,9 @@ class FixedRegionProgressionTest {
                 var point=world.geometry().unwarp(region.x(),region.z());int x=(int)Math.round(point[0]),z=(int)Math.round(point[1]);
                 assertEquals(Optional.of(id),RungLadder.currentRegion(graph,x,z));
                 assertEquals(Optional.of(rules.progressionTier(id)),RungLadder.currentRung(graph,x,z));
-                assertEquals(i==ORDER.size()-1?Set.of():Set.of(ORDER.get(i+1)),RungLadder.nextRungRegions(graph,x,z));
+                int current=rules.progressionTier(id);int next=RungLadder.ladder(graph).stream().filter(t->t>current).findFirst().orElse(-1);
+                Set<String> expected=new HashSet<>();for(var item:world.regions())if(item.tier()==next)expected.add(item.id());
+                assertEquals(expected,RungLadder.nextRungRegions(graph,x,z));
                 if(i==0)continue;
                 String before=ORDER.get(i-1);
                 var boundary=world.borders().stream().filter(b->Set.of(b.a(),b.b()).equals(Set.of(id,before))).findFirst().orElseThrow();
@@ -57,11 +59,8 @@ class FixedRegionProgressionTest {
 
     @Test void invalidProgressionsFailBeforeGeneration()throws Exception {
         var source=WorldPlanTest.rules().json();
-        for(String order:List.of("[]","[\"ximo\"]","[\"ximo\",\"donghai\",\"nanjiang\",\"beiyuan\",\"donghuang\",\"lingyue\",\"moyu\",\"moyu\"]",
-                "[\"missing\",\"donghai\",\"nanjiang\",\"beiyuan\",\"donghuang\",\"lingyue\",\"moyu\",\"zhongzhou\"]",
-                "[\"donghai\",\"ximo\",\"nanjiang\",\"beiyuan\",\"donghuang\",\"lingyue\",\"moyu\",\"zhongzhou\"]",
-                "[\"ximo\",\"donghai\",\"nanjiang\",\"beiyuan\",\"donghuang\",\"lingyue\",\"zhongzhou\",\"moyu\"]")){
-            var json=JsonParser.parseString(source).getAsJsonObject();json.getAsJsonObject("region_progression").add("order",JsonParser.parseString(order));
+        for(String order:List.of("[]","[[\"donghuang\"]]","[[\"missing\"]]","[[\"lingyue\"],[\"donghuang\"],[\"beiyuan\"],[\"donghai\",\"ximo\"],[\"nanjiang\",\"moyu\"],[\"zhongzhou\"]]")){
+            var json=JsonParser.parseString(source).getAsJsonObject();json.getAsJsonObject("region_progression").add("levels",JsonParser.parseString(order));
             assertThrows(IllegalArgumentException.class,()->new WorldPlanRules(json.toString()),order);
         }
         var json=JsonParser.parseString(source).getAsJsonObject();json.remove("region_progression");

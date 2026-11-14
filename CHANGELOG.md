@@ -7,6 +7,8 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.132.0
+
 ## 0.131.3
 
 - 七府和千机阁的精细构件共享几何模板，材质与UV作为实例参数保存，模型内容按原路径逐字节恢复。

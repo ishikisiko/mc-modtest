@@ -67,6 +67,8 @@ public final class WorldPlanRules {
     public final double outerJitter, terrainScale, detailScale, detailAmplitude, qiVariation;
     public final List<Profile> profiles;
     public final List<String> progressionOrder;
+    public final List<List<String>> progressionLevels;
+    public final com.example.myvillage.wilderness.habitat.HabitatRules habitats;
     public final CityRules city;
     public final com.example.myvillage.worldplan.capital.CapitalGameRules capitals;
     public final SettlementRules settlements;
@@ -161,23 +163,32 @@ public final class WorldPlanRules {
         if (minCount != 8 || maxCount != 8 || ps.size() != 8 || r.has("city"))
             throw new IllegalArgumentException("当前主城规划需要八个地区");
         JsonObject progression = r.getAsJsonObject("region_progression");
-        if (progression == null || !progression.keySet().equals(Set.of("order")))
+        if (progression == null || !progression.keySet().equals(Set.of("levels")))
             throw new IllegalArgumentException("缺少固定州序");
         List<String> order = new ArrayList<>();
-        for (var entry : progression.getAsJsonArray("order")) {
-            if (!entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isString())
-                throw new IllegalArgumentException("州序必须使用地区 ID");
-            order.add(entry.getAsString());
+        List<List<String>> levels = new ArrayList<>();
+        for (var group : progression.getAsJsonArray("levels")) {
+            if (!group.isJsonArray() || group.getAsJsonArray().isEmpty()) throw new IllegalArgumentException("地区档位必须为非空分组");
+            List<String> level = new ArrayList<>();
+            for (var entry : group.getAsJsonArray()) {
+                if (!entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isString()) throw new IllegalArgumentException("州序必须使用地区 ID");
+                level.add(entry.getAsString());
+            }
+            order.addAll(level); levels.add(List.copyOf(level));
         }
         if (order.size() != ps.size() || !new HashSet<>(order).equals(ids))
             throw new IllegalArgumentException("州序必须完整且不重复地覆盖地区清单");
-        if (!profile(order.getLast()).role().equals("anchor"))
+        if (!profile(order.getLast()).role().equals("anchor") || levels.getLast().size()!=1)
             throw new IllegalArgumentException("州序必须以中枢地区结束");
-        for (int i = 1; i < order.size(); i++) {
-            int gap = progressionTier(order.get(i)) - progressionTier(order.get(i - 1));
+        for (var level : levels) if (level.stream().map(this::progressionTier).distinct().count()!=1)
+            throw new IllegalArgumentException("并列地区必须使用相同阶位");
+        for (int i = 1; i < levels.size(); i++) {
+            int gap = progressionTier(levels.get(i).getFirst()) - progressionTier(levels.get(i - 1).getFirst());
             if (gap <= 0 || gap > stepMax) throw new IllegalArgumentException("州序阶位必须递增且满足最大阶差");
         }
         progressionOrder = List.copyOf(order);
+        progressionLevels = List.copyOf(levels);
+        habitats = new com.example.myvillage.wilderness.habitat.HabitatRules(r.getAsJsonObject("habitats"));
         capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"));
         sects = new SectPlanningRules(r.getAsJsonObject("sects"));
         starterMine = new com.example.myvillage.worldplan.mine.StarterMineDefinition(r.getAsJsonObject("starter_mine"));
