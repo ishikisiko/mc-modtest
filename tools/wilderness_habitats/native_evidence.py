@@ -88,13 +88,13 @@ class Evidence:
                     self.fixture(client,[site['x']+12.5,site['y']+6,site['z']+12.5],[site['x']+.5,site['y']+1,site['z']+.5]);time.sleep(2);client.capture('native-'+kind)
                     if kind=='bandit_camp':
                         previous={m['uuid']:(m['x'],m['z'])for m in members};time.sleep(16);patrol=self.living(site['id'])
-                        self.check('劫修巡逻有实际位移',any(math.hypot(m['x']-previous[m['uuid']][0],m['z']-previous[m['uuid']][1])>2 for m in patrol if m['uuid']in previous),patrol)
+                        self.check('劫修巡逻有实际位移',any(m['activity']=='patrol'and math.hypot(m['x']-previous[m['uuid']][0],m['z']-previous[m['uuid']][1])>2 for m in patrol if m['uuid']in previous),patrol)
                 self.done('finite_native_members')
                 self.begin('native_patrol_and_hunt')
                 for actor in self.state()['living']:
                     if actor['site']!=wolf['id']:self.rc(f'data merge entity {actor["uuid"]} {{NoAI:1b}}')
                 self.rc('time set midnight');self.visit(client,wolf);before={m['uuid']:(m['x'],m['z'])for m in self.populate(wolf)};time.sleep(18)
-                after=self.living(wolf['id']);self.check('夜间巡猎有实际位移',any(math.hypot(m['x']-before[m['uuid']][0],m['z']-before[m['uuid']][1])>2 for m in after),after);self.done('native_patrol_and_hunt')
+                after=self.living(wolf['id']);self.check('夜间巡猎有实际位移',any(m['activity']=='hunt'and math.hypot(m['x']-before[m['uuid']][0],m['z']-before[m['uuid']][1])>2 for m in after),after);self.done('native_patrol_and_hunt')
                 self.begin('shared_roster_two_clients')
                 second=stack.enter_context(Client(self,self.server,'EastWitnessB','shared',prebuilt_resources=True,heap='4g'));self.prepare_player(second)
                 ids={m['id']for m in self.round(wolf['id'])['members']};self.visit(second,wolf,distance=70);time.sleep(3)
