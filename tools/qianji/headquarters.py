@@ -10,7 +10,7 @@ PALETTE=json.loads((ROOT/'blueprints/qianji/headquarters_materials.json').read_t
 
 class Scene:
  def __init__(self):
-  self.boxes=[];self.meshes=[];self.signs=[];self.lamps=[];self.maps=[];self.part='ground'
+  self.boxes=[];self.meshes=[];self.signs=[];self.lamps=[];self.maps=[];self.bookcases=[];self.part='ground'
   self.bounds={};self.counts={};self.floor_targets=[];self.tree_sites=[]
  def box(self,x,y,z,w,h,d,mat='stone',layer='body',yaw=0):
   if min(w,h,d)<=0:return
@@ -182,7 +182,7 @@ class Scene:
    self.box(cx-w*.18,y+rise+.4,cz-.4,w*.36,.5,.8,'tile_dark','roof')
 
  def front_module(self,origin_x,origin_z,angle,fn):
-  start=len(self.boxes);ms=len(self.meshes);sg=len(self.signs);li=len(self.lamps);fn()
+  start=len(self.boxes);ms=len(self.meshes);sg=len(self.signs);li=len(self.lamps);bc=len(self.bookcases);fn()
   a=math.radians(angle);c=math.cos(a);s=math.sin(a);qc=math.cos(a/2);qs=math.sin(a/2)
   def point(p):return [origin_x+p[0]*c+p[2]*s,p[1],origin_z-p[0]*s+p[2]*c]
   for b in self.boxes[start:]:
@@ -192,6 +192,7 @@ class Scene:
    v=m['vertices'];m['vertices']=[q for i in range(0,len(v),3) for q in point(v[i:i+3])]
   for item in self.signs[sg:]:item['p']=point(item['p']);item['yaw']=angle
   for item in self.lamps[li:]:item['p']=point(item['p'])
+  for item in self.bookcases[bc:]:item['p']=point(item['p']);item['yaw']=item.get('yaw',0)+angle
 
  def window(self,x,y,z,w,h,kind='lattice'):
   self.box(x,y,z+.16,w,h,.12,'glass' if kind!='paper' else 'paper_window','window')
@@ -295,12 +296,15 @@ class Scene:
  def books(self,x,y,z,w=5,h=3.5):
   self.box(x,y,z,w,h,.7,'wood_dark','interior')
   for yy in [0,h*.33,h*.66,h]:self.box(x-.1,y+yy,z-.45,w+.2,.18,1.15,'wood','interior')
-  rng=random.Random(round(x*113+z*43+y*11))
-  for k in range(3):
-   xx=x+.15
-   while xx<x+w-.3:
-    bw=rng.choice([.22,.3,.38]);hh=rng.choice([.6,.75,.9]);mat=rng.choice(['book_blue','book_red','book_cream'])
-    self.box(xx,y+k*h/3+.22,z-.38,bw,hh,.45,mat,'interior');xx+=bw+.045
+  if getattr(self,'procedural_bookcases',False):
+   self.bookcases.append(dict(p=[x,y,z],size=[w,h],yaw=0,part=self.part))
+  else:
+   rng=random.Random(round(x*113+z*43+y*11))
+   for k in range(3):
+    xx=x+.15
+    while xx<x+w-.3:
+     bw=rng.choice([.22,.3,.38]);hh=rng.choice([.6,.75,.9]);mat=rng.choice(['book_blue','book_red','book_cream'])
+     self.box(xx,y+k*h/3+.22,z-.38,bw,hh,.45,mat,'interior');xx+=bw+.045
   if h>=4:
    for xx in [x+w-1.2,x+w-.35]:self.beam([xx,y,z-1.3],[xx,y+h+.1,z-.35],.13,.16,'wood_red','interior')
    for i in range(1,math.ceil(h/.45)):

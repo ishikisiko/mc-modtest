@@ -25,7 +25,7 @@ public final class QianjiComponentBlock extends Block implements ArchitecturalCo
     @Override protected MapCodec<? extends Block> codec(){return codec;}
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> b){b.add(FACING,SHAPE);}
     @Override public ManorCatalog.Profile profile(BlockState s){return bank.profile(s.getValue(SHAPE));}
-    @Override protected VoxelShape getShape(BlockState s,BlockGetter l,BlockPos p,CollisionContext c){return profile(s).shape(0,s.getValue(FACING));}
+    @Override protected VoxelShape getShape(BlockState s,BlockGetter l,BlockPos p,CollisionContext c){var books=bank.bookcases().get(s.getValue(SHAPE));return books==null?profile(s).shape(0,s.getValue(FACING)):books.shape(s.getValue(FACING),p);}
     @Override protected VoxelShape getCollisionShape(BlockState s,BlockGetter l,BlockPos p,CollisionContext c){return profile(s).shape(1,s.getValue(FACING));}
     @Override protected VoxelShape getOcclusionShape(BlockState s,BlockGetter l,BlockPos p){return profile(s).shape(2,s.getValue(FACING));}
     @Override protected BlockState rotate(BlockState s,Rotation r){return s.setValue(FACING,r.rotate(s.getValue(FACING)));}

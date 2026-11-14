@@ -36,7 +36,7 @@ def entrance_road(entry,road_z,base,policy,paving):
 def integrate(out):
     out=Path(out);spec=json.loads((ROOT/'blueprints/qianji/placement.json').read_text());reports=[]
     inputs={str(p.relative_to(ROOT)):sha(p.read_bytes()) for folder,pattern in [('blueprints/qianji','*.json'),('tools/qianji','model.py'),('tools/qianji','runtime_export.py')] for p in sorted((ROOT/folder).glob(pattern))}
-    for name in ['headquarters.py','components.py','headquarters_model.py','generate_assets.py','infill.py','infill_export.py']:
+    for name in ['headquarters.py','bookcases.py','components.py','headquarters_model.py','generate_assets.py','infill.py','infill_export.py']:
         p=ROOT/'tools/qianji'/name;inputs[str(p.relative_to(ROOT))]=sha(p.read_bytes())
     from qianji.infill import site
     inputs.update(site()['geometry'].hashes)

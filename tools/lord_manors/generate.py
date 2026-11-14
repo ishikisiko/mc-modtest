@@ -207,11 +207,11 @@ def base_resources(writer,m,cfg,names):
     names['block.myvillage.'+ident]=m['name']
 
 
-def bank_resources(writer,bank,definitions,city,names):
+def bank_resources(writer,bank,definitions,city,names,model_factory=model):
     ident=bank['id'];states={};overrides=[];children=[]
     for i,profile in enumerate(bank['profiles']):
         part=f'{ident}/shape_{i}'
-        writer.json(ASSET/f'models/block/{part}.json',model(profile,definitions,city))
+        writer.json(ASSET/f'models/block/{part}.json',model_factory(profile,definitions,city))
         for turn,facing in enumerate(FACINGS):states[f'facing={facing},shape={i}']={'model':'myvillage:block/'+part,'y':turn*90}
         overrides.append({'predicate':{'custom_model_data':i+1},'model':'myvillage:block/'+part})
         children.append({'type':'minecraft:item','name':'myvillage:'+ident,

@@ -8,6 +8,7 @@ sys.path.insert(0,str(ROOT));sys.path.insert(0,str(ROOT/'tools'))
 from tools.qianji.components import compile_components,identity,FACINGS
 from tools.lord_manors.generate import bank_resources,model as block_model
 from tools.language_assets import language_text,load_language
+from tools.qianji import bookcases
 from PIL import Image,ImageDraw,ImageFont
 
 ASSET=Path('src/main/resources/assets/myvillage');DATA=Path('src/main/resources/data/myvillage')
@@ -74,6 +75,9 @@ def definitions(d):
     cfg=d['config'];palette=cfg['palette'];result={}
     names={'stone':'青石','stone_dark':'深青石','carved':'浅石雕饰','paving':'院落石坪','paving_dark':'深色石纹','brick':'灰砖','plaster':'米白灰墙','wood':'木梁','wood_dark':'深木构件','wood_red':'朱褐梁柱','floor':'木楼板','tile':'青灰屋瓦','tile_alt':'浅青屋瓦','tile_dark':'深青脊瓦','tile_edge':'瓦檐收口','bronze':'铜饰','bronze_dark':'青铜饰','glass':'青窗','paper':'纸面','paper_window':'透光窗纸','lamp':'廊灯','grass':'庭院草坪','moss':'地被','soil':'台基填土','rock':'庭石','red':'朱印','ink':'墨色饰面','cloth':'织物','book_blue':'青书函','book_red':'朱书函','book_cream':'素书函'}
     for role in d['roles']:
+        if role==bookcases.ROLE:
+            result[role]=dict(id='qianji_'+role,role=role,name='书册排列区域',collides=False,opaque=False,sound='stone',light_level=0)
+            continue
         kind=palette[role][1] if role in palette else 'special'
         result[role]=dict(id='qianji_'+role,role=role,name='千机阁·'+names.get(role,'题匾' if role.startswith('plaque_') else '舆图'),
             collides=role not in cfg['non_collision_roles'] and role not in d['special'],opaque=role not in cfg['glass_roles'],sound='wood' if role in cfg['wood_roles'] else 'glass' if role=='glass' else 'grass' if kind=='grass' else 'stone',light_level=cfg['light_level'] if role=='lamp' else 0)
@@ -85,8 +89,9 @@ def export(check=False):
         if key.startswith('block.myvillage.qianji_') or key=='itemGroup.myvillage.qianji':del names[key]
     materials=[]
     for role,m in defs.items():
+        if role==bookcases.ROLE:continue
         writer.put(ASSET/f'textures/block/qianji/{m["id"]}.png',texture(role,cfg['palette'],cfg,d['special']))
-        if role in d['special']:continue
+        if role in d['special'] or role in bookcases.RULES['book_roles']:continue
         materials.append(m);ref='myvillage:block/qianji/'+m['id'];render='minecraft:solid' if m['opaque'] else 'minecraft:translucent'
         writer.json(ASSET/f'models/block/{m["id"]}.json',{'parent':'minecraft:block/cube_all','render_type':render,'textures':{'all':ref}})
         writer.json(ASSET/f'blockstates/{m["id"]}.json',{'variants':{'':{'model':'myvillage:block/'+m['id']}}})
@@ -96,15 +101,16 @@ def export(check=False):
     banks=[]
     for off in range(0,len(d['profiles']),cfg['bank_size']):
         rows=d['profiles'][off:off+32];rows+=rows[:1]*(32-len(rows));bank={'id':f'qianji_carved_{off//32}','name':'千机阁建筑构件','profiles':[list(map(list,p)) for p in rows]}
-        bank_resources(writer,bank,defs,'qianji',names)
+        bank_resources(writer,bank,defs,'qianji',names,model_factory=bookcases.model)
         bank['profiles']=[dict(boxes=list(p),collision=[b[:6] for b in p if defs[b[6]]['collides']],occlusion=[b[:6] for b in p if defs[b[6]]['opaque']],
-            translucent={defs[role]['id']:[b[:6] for b in p if b[6]==role] for role in sorted({b[6] for b in p if not defs[b[6]]['opaque']})},light_level=max(defs[b[6]]['light_level'] for b in p)) for p in rows]
+            translucent={defs[role]['id']:[b[:6] for b in p if b[6]==role] for role in sorted({b[6] for b in p if b[6]!=bookcases.ROLE and not defs[b[6]]['opaque']})},light_level=max(defs[b[6]]['light_level'] for b in p)) for p in rows]
         banks.append(bank)
     access=d['access']
     targets=[dict(id=r['id']+'_'+str(i+1),position=l['target']) for r in access['rooms'] for i,l in enumerate(r['levels'])]+access.get('extra_targets',[])
     targets += [dict(id='jianghu_board',position=access['reader']),dict(id='entrance',position=access['paths'][0])]
     layout=dict(size=[access['size'][0],max(p[1] for p in d['blocks'])+1,access['size'][1]],entry=access['paths'][0],anchor=access['atmosphere_anchor'],targets=targets)
     writer.json(DATA/'qianji/components/catalog.json',dict(schema=1,materials=materials,banks=banks,layout=layout,strength=cfg['strength'],explosion_resistance=cfg['explosion_resistance']))
+    writer.json(DATA/'qianji/components/bookcases.json',bookcases.RULES)
     writer.json(ASSET/'models/block/qianji_atmosphere_anchor.json',{'parent':'minecraft:block/cube_all','textures':{'all':'myvillage:block/qianji/qianji_paving'}})
     writer.json(ASSET/'blockstates/qianji_atmosphere_anchor.json',{'variants':{f'facing={f}':{'model':'myvillage:block/qianji_atmosphere_anchor','y':i*90} for i,f in enumerate(FACINGS)}})
     writer.json(DATA/'loot_table/blocks/qianji_atmosphere_anchor.json',{'type':'minecraft:block','pools':[]})

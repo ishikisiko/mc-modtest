@@ -11,6 +11,9 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 
 @EventBusSubscriber(modid=MyVillageMod.MOD_ID,value=Dist.CLIENT,bus=EventBusSubscriber.Bus.MOD)
 public final class ManorModelEvents {
+    @SubscribeEvent public static void loaders(ModelEvent.RegisterGeometryLoaders event){
+        event.register(ResourceLocation.fromNamespaceAndPath("myvillage","procedural_books"),com.example.myvillage.client.qianji.ProceduralBooksModel.Loader.INSTANCE);
+    }
     @SubscribeEvent public static void models(ModelEvent.ModifyBakingResult event){
         var ids=new HashSet<ResourceLocation>();var catalog=ManorCatalog.get();
         for(var material:catalog.materials)if(!material.opaque())ids.add(ResourceLocation.fromNamespaceAndPath("myvillage",material.id()));

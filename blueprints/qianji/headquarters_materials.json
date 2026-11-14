@@ -162,6 +162,7 @@
   "texture_resolution": 32,
   "font": "src/main/resources/assets/myvillage/font/brush.ttf",
   "non_collision_roles": [
+    "procedural_books",
     "lamp",
     "cloth",
     "book_blue",

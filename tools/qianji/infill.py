@@ -103,7 +103,7 @@ def build_scene(scene_type):
     for m in raw.meshes:
         if m['part']not in cfg['parts']:continue
         n=copy.deepcopy(m);n['vertices']=[v for i in range(0,len(m['vertices']),3)for v in translate(m['vertices'][i:i+3],m['part'])];out.meshes.append(n)
-    for attr in ['signs','lamps','maps']:
+    for attr in ['signs','lamps','maps','bookcases']:
         for item in getattr(raw,attr):
             if item['part']in cfg['parts']:
                 n=copy.deepcopy(item);n['p']=translate(n['p'],n['part']);getattr(out,attr).append(n)
@@ -152,7 +152,7 @@ def build_scene(scene_type):
         parts.append(dict(id=key,name=names.get(key,key),bounds=bounds,components=len(cells)))
     for box in out.boxes:
         if len(box)!=13 or not all(math.isfinite(v)for v in box[:6]) or min(box[3:6])<=0 or box[6]not in PALETTE:raise ValueError('总舵构件几何无效')
-    scene=dict(id='zhongzhou_west_infill',name=cfg['name'],size=[cfg['size'][0],math.ceil(max(b[1]+b[4]/2 for b in out.boxes)),cfg['size'][1]],boxes=out.boxes,meshes=out.meshes,signs=out.signs,lamps=out.lamps,maps=out.maps,parts=parts,levels=out.floor_targets,tree_sites=out.tree_sites,terrain=out.terrain.tolist(),pads=[[x,z,y]for(x,z),y in out.pad_columns.items()],floor_by_part=out.floor_by_part)
+    scene=dict(id='zhongzhou_west_infill',name=cfg['name'],size=[cfg['size'][0],math.ceil(max(b[1]+b[4]/2 for b in out.boxes)),cfg['size'][1]],boxes=out.boxes,meshes=out.meshes,signs=out.signs,lamps=out.lamps,maps=out.maps,bookcases=out.bookcases,parts=parts,levels=out.floor_targets,tree_sites=out.tree_sites,terrain=out.terrain.tolist(),pads=[[x,z,y]for(x,z),y in out.pad_columns.items()],floor_by_part=out.floor_by_part)
     return dict(palette=PALETTE,current=scene,design={**SPEC,'name':cfg['name'],'site':dict(plot=cfg['plot'],facing='east',retired_buildings=len(cfg['approved_retirements']))})
 
 

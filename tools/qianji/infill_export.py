@@ -15,13 +15,72 @@ def verify_existing_road_cut(world,x,z,feet,ground):
     if world.get((x,feet-1,z))in(AIR,'minecraft:water','minecraft:lava'):raise ValueError('旧路缺少实际路面支撑 '+str((x,feet,z)))
     return world.walkable((x,feet,z))
 
+def component_summary():
+    from .components import compile_components
+    from .bookcases import ROLE
+    d=compile_components()
+    return dict(profiles=len(d['profiles']),bookcases=len(d['scene'].get('bookcases',[])),
+                procedural_profiles=sum(any(b[6]==ROLE for b in p)for p in d['profiles']))
+
+def refresh_components(out,city,inputs):
+    """在当前正式城市中重导出构件；布局、地形和非千机阁方块必须保持相同。"""
+    out=Path(out);cfg=read();previous=city['qianji'];a,b,e,f=cfg['plot'];base=cfg['base_y']
+    if previous['bounds']!=cfg['plot']or previous['base_y']!=base:raise ValueError('构件更新改变地块，须先完整重建中州')
+    for ref in [city['terrain'],*city['tiles']]:
+        path=resource_file(out,ref.get('resource',ref.get('template')),template='template'in ref)
+        if sha(path.read_bytes())!=ref['sha256']:raise ValueError('构件更新前正式资源摘要失配')
+    m,checks=build('zhongzhou_headquarters')
+    if previous['size']!=[m.w,m.h,m.d]or previous['rooms']!=m.rooms:raise ValueError('构件更新改变楼体布局，须先完整重建中州')
+    def point(p):return(e-1-p[2],base+p[1],b+p[0])
+    targets=[dict(id=t['id'],position=list(point(t['position'])))for t in m.targets]
+    if targets!=previous['targets']:raise ValueError('构件更新改变功能点，须先完整重建中州')
+    world=World(out,city,json.loads((ROOT/'blueprints/province_capitals/environment_v3/materials.json').read_text()))
+    for z in range(m.d):
+        for x in range(m.w):
+            wx,_,wz=point((x,0,z))
+            if world.ground(wx,wz)!=base+int(m.terrain[z*m.w+x]):raise ValueError('构件更新改变地形，须先完整重建中州')
+    desired={point(p):rotate_state(s,1)for p,s in m.blocks.items()}
+    owned={}
+    for tile in city['tiles']:
+        if not(tile['x']<e and tile['x']+16>a and tile['z']<f and tile['z']+16>b):continue
+        for(lx,y,lz),state in world.tile((tile['x']//16,tile['z']//16)).items():
+            x,z=tile['x']+lx,tile['z']+lz
+            if a<=x<e and b<=z<f and state.startswith('myvillage:qianji_'):owned[x,y,z]=state
+    changes={}
+    for p,state in desired.items():
+        current=world.get(p)
+        if p in owned or state.startswith('myvillage:qianji_'):
+            if p not in owned and current!=AIR and current!=state:raise ValueError('构件更新覆盖非千机阁方块 '+str((p,current,state)))
+            if current!=state:changes[p]=state
+        elif current!=state:raise ValueError('构件更新改变非千机阁方块 '+str((p,current,state)))
+    for p in owned.keys()-desired.keys():changes[p]=AIR
+    for p,state in changes.items():world.set(p,state,'千机阁构件重导出')
+    world.verify_life()
+    for tile in city['tiles']:
+        key=tile['x']//16,tile['z']//16
+        if key not in world.dirty:continue
+        path=resource_file(out,tile['template'],template=True);entities=block_entities(path)
+        cells={p:(s,'qianji','component_refresh')for p,s in world.tile(key).items()}
+        count,pal,_=write_tile(path,cells,world.height,entities)
+        _,saved=read_gzipped_nbt(path);palette=[state_string(v)for v in saved['palette']]
+        if {tuple(v['pos']):palette[v['state']]for v in saved['blocks']}!={p:v[0]for p,v in cells.items()}:raise ValueError('构件更新切片回读不一致')
+        if block_entities(path)!=entities:raise ValueError('构件更新丢失原始方块实体')
+        tile.update(block_count=count,palette_count=pal,bytes=path.stat().st_size,sha256=sha(path.read_bytes()))
+    city['palette_states']=sorted({s for s in city['palette_states']if not s.startswith('myvillage:qianji_')}|{s for s in desired.values()if s.startswith('myvillage:qianji_')})
+    previous.update(inputs=inputs,checks=checks)
+    previous['infill']['components']=component_summary()
+    write(out/'data/myvillage/capitals/v4/capital_zhongzhou/city.json',city)
+    print('总舵构件重导出：'+json.dumps(dict(changed_blocks=len(changes),changed_tiles=len(world.dirty),**component_summary()),ensure_ascii=False),flush=True)
+    return previous
+
 def integrate(out,city,inputs):
     from .runtime_export import atmosphere_payload
     out=Path(out);file=out/'data/myvillage/capitals/v4/capital_zhongzhou/city.json';cfg=read()
     previous=city.get('qianji')
     if previous:
-        if previous.get('infill',{}).get('id')!=cfg['id']or previous['inputs']!=inputs:
+        if previous.get('infill',{}).get('id')!=cfg['id']:
             raise ValueError('中州总舵输入变化，须先由 owning 中州导出器重建基础资源')
+        if previous['inputs']!=inputs:return refresh_components(out,city,inputs)
         for ref in [city['terrain'],*city['tiles']]:
             p=resource_file(out,ref.get('resource',ref.get('template')),template='template'in ref)
             if sha(p.read_bytes())!=ref['sha256']:raise ValueError('中州总舵输出摘要失配')
@@ -104,6 +163,7 @@ def integrate(out,city,inputs):
     descriptor=dict(variant='zhongzhou_headquarters',name=cfg['name'],scale='headquarters',group='qianji',facing='east',source_dimensions=city['size'],bounds=cfg['plot'],size=[m.w,m.h,m.d],base_y=base,rotation_quarters=1,entry=entry,access=entry,board=dict(position=board,reader=reader,facing='east'),rooms=m.rooms,targets=[dict(id=t['id'],position=point(t['position']))for t in m.targets],checks=checks,inputs=inputs,old_city_preserved=False,old_board_retired=old is not None,atmosphere=dict(anchor=anchor,appearance='myvillage:qianji/atmosphere.json',source_offset=m.spec['source_offset']),lighting_checks=light_checks,interior_lights=len(m.lights),landmarks=[],infill=dict(id=cfg['id'],plot=cfg['plot'],retired_buildings=sorted(retired),retained_structural_cells=len(retained),preserved_road_columns=preserved_roads,changed_tiles=len(world.dirty),maximum_terrain_cut=cut,construction=m.construction_checks,route_count=len(m.routes)))
     descriptor['infill']['verified_existing_road_cut_columns']=existing_road_readback
     descriptor['infill']['existing_road_columns_with_blocked_headroom']=overbuilt_roads
+    descriptor['infill']['components']=component_summary()
     city['qianji']=descriptor;life_inputs(city,*city['size'],192);write(file,city)
     # Only templates referenced by the newly authored current city are packed.
     used={resource_file(out,t['template'],template=True).resolve()for t in city['tiles']}

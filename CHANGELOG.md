@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.131.2
+
+- 千机阁总舵书册改为按位置生成的区块模型，资源只保存书册排列区域和共享算法参数。
+- 保留书架木框、层板、摆放位置和原有行走碰撞；选框与客户端外观使用同一生成规则，无新增方块实体或逐帧渲染。
+- 总舵构件重导出同步更新正式城市切片，校验原地形、功能点、非千机阁方块和既有方块实体。
+
 ## 0.131.1
 
 - 进入洲域时显示居中书法报幕，进入城镇时显示右侧竖排题签；同次抵达依次播放，沿用游戏已有字体。

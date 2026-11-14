@@ -7,12 +7,14 @@ from pathlib import Path
 
 from .headquarters import Scene,ROOT
 from tools.lord_manors.geometry import canonical,normalize,FULL
+from . import bookcases
 
 SOURCE=ROOT/'blueprints/qianji/headquarters_materials.json'
 FACINGS=('north','east','south','west')
 SITE_SIZE=json.loads((ROOT/'blueprints/qianji/zhongzhou_infill.json').read_text())['size']
 
 class ConstructionScene(Scene):
+    procedural_bookcases=True
     def person(self,*args,**kwargs):pass
     def pine(self,x,y,z,h=9,seed=1):self.tree_sites.append(dict(kind='spruce',x=x,y=y,z=z,height=round(h),seed=seed))
     def cherry(self,x,y,z,h=7):self.tree_sites.append(dict(kind='cherry',x=x,y=y,z=z,height=round(h),seed=0))
@@ -157,7 +159,7 @@ def native_tree(site):
     return out
 
 def identity():
-    paths=[SOURCE,ROOT/'blueprints/qianji/headquarters_design.json',ROOT/'blueprints/qianji/zhongzhou_headquarters.json',ROOT/'blueprints/qianji/zhongzhou_infill.json',ROOT/'blueprints/qianji/lighting.json',ROOT/'tools/qianji/headquarters.py',ROOT/'tools/qianji/infill.py',Path(__file__),ROOT/'tools/lord_manors/geometry.py']
+    paths=[SOURCE,bookcases.SOURCE,Path(bookcases.__file__),ROOT/'blueprints/qianji/headquarters_design.json',ROOT/'blueprints/qianji/zhongzhou_headquarters.json',ROOT/'blueprints/qianji/zhongzhou_infill.json',ROOT/'blueprints/qianji/lighting.json',ROOT/'tools/qianji/headquarters.py',ROOT/'tools/qianji/infill.py',Path(__file__),ROOT/'tools/lord_manors/geometry.py']
     paths.extend(ROOT/p for p in ['tools/player_estates/zhongzhou_plan.py','tools/player_estates/build_terraces.py'])
     from .infill import site
     return {**site()['geometry'].hashes,**{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}}
@@ -176,6 +178,7 @@ def compile_components():
             for p in parts:add_box(raw,p,b[6])
     for mesh in scene['meshes']:
         for part in mesh_fragments(mesh,cfg['rotation_grid']):add_box(raw,part,mesh['material'])
+    bookcases.add_regions(raw,scene.get('bookcases',[]))
     special={}
     for i,s in enumerate(scene['signs']):
         x,y,z=s['p'];w,h=s['size'];b=[x-w/2,y-h/2,z-.035,x+w/2,y+h/2,z+.035];role='plaque_'+str(i)
@@ -217,6 +220,7 @@ def compile_components():
         else:
             i=lookup[p];state=f'myvillage:qianji_carved_{i//32}[facing={FACINGS[turn]},shape={i%32}]'
         blocks[pos]=state
+    if scene.get('bookcases'):roles.update(bookcases.RULES['book_roles'])
     for b in water:
         for x in range(math.ceil(b[0]-b[3]/2),math.floor(b[0]+b[3]/2)):
             for z in range(math.ceil(b[2]-b[5]/2),math.floor(b[2]+b[5]/2)):
