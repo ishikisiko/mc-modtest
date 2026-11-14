@@ -20,7 +20,7 @@ class SectProgressionTest {
     private static final PlayerQualification FOUNDATION = new PlayerQualification("foundation_establishment", 0, true, 60);
     @BeforeAll static void load() throws Exception {
         data = WorldSim.loadData(name -> Files.newInputStream(Path.of("src/main/resources").resolve(name)));
-        // 宗门等级面向当前八州世界；旧CLI拓扑可只抽取五州，不用于此处的两处总舵断言。
+        // 宗门等级面向当前八州世界；并列州使用相同等级。
         try (var input = getResource()) {
             var rules = new com.example.myvillage.worldplan.WorldPlanRules(new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
             graph = new com.example.myvillage.worldplan.WorldPlan(20261109L, rules).graph();
@@ -62,8 +62,12 @@ class SectProgressionTest {
     @Test void regionalLevelsAndGenesisUseTheConfiguredRealmLadders() {
         var ctx = fresh();
         assertEquals("main", data.rules().sectProgression().forRegion(graph, "zhongzhou"));
-        long hubs = graph.regions().stream().filter(r -> data.rules().sectProgression().forRegion(graph, r.id()).equals("headquarters")).count();
-        assertEquals(2, hubs);
+        var hubs = graph.regions().stream().filter(r -> r.admittedSubjects().contains("sect")
+                && data.rules().sectProgression().forRegion(graph, r.id()).equals("headquarters"))
+                .map(com.example.myvillage.region.runtime.GenRegion::id).collect(java.util.stream.Collectors.toSet());
+        assertEquals(Set.of("donghai", "ximo", "nanjiang"), hubs);
+        for (var id : List.of("donghuang", "lingyue", "beiyuan"))
+            assertEquals("branch", data.rules().sectProgression().forRegion(graph, id));
         assertTrue(ctx.activeSects().stream().anyMatch(s -> s.tierId.equals("main")));
         assertTrue(ctx.activeSects().stream().anyMatch(s -> s.tierId.equals("headquarters")));
         assertTrue(ctx.activeSects().stream().anyMatch(s -> s.tierId.equals("branch")));

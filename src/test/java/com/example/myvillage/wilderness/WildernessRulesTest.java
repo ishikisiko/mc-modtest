@@ -31,8 +31,11 @@ class WildernessRulesTest {
             assertTrue(reached.contains(range.min())); assertTrue(reached.contains(range.max()));
             assertEquals(new HashSet<>(range.values()), reached);
         }
-        assertEquals("myvillage:qi_refining", rules.region("ximo").orElseThrow().beast().min().realmId());
-        assertEquals(0, rules.region("ximo").orElseThrow().beast().min().stage());
+        assertEquals(new RealmKey("qi_refining", 0), rules.region("donghuang").orElseThrow().beast().min());
+        assertEquals(new RealmKey("qi_refining", 3), rules.region("donghuang").orElseThrow().beast().max());
+        assertEquals(new RealmKey("foundation_establishment", 0), rules.region("ximo").orElseThrow().beast().min());
+        assertEquals(rules.region("ximo").orElseThrow(), rules.region("donghai").orElseThrow());
+        assertEquals(rules.region("nanjiang").orElseThrow(), rules.region("moyu").orElseThrow());
     }
     @Test void samplingInputAndRegionAffectResultsWithoutRngState() {
         var range = WildernessRules.bundled().region("lingyue").orElseThrow().beast();

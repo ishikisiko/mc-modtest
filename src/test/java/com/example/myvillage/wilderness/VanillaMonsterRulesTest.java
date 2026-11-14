@@ -15,8 +15,14 @@ class VanillaMonsterRulesTest {
         var rules = com.example.myvillage.stats.StatsRules.bundled();
         var realm = rules.realmKey("myvillage:nascent_soul", 2);
         var derived = com.example.myvillage.stats.RealmStats.vanillaDerived(rules, realm, 100, 30);
-        assertEquals(rules.limits().maxHealth(), derived.health());
-        assertEquals(30 * rules.growth(realm), derived.attack());
+        var additions = com.example.myvillage.stats.CultivationStatsRules.bundled();
+        var body = additions.at(realm, 0, 0);
+        assertEquals(Math.min(100 + body.health() - additions.reference().health(), rules.limits().maxHealth()), derived.health());
+        assertEquals(Math.min(30 + body.attack() - additions.reference().attack(), rules.limits().maxAttack()), derived.attack());
+        var saturated = com.example.myvillage.stats.RealmStats.vanillaDerived(rules, realm,
+                rules.limits().maxHealth(), rules.limits().maxAttack());
+        assertEquals(rules.limits().maxHealth(), saturated.health());
+        assertEquals(rules.limits().maxAttack(), saturated.attack());
         assertThrows(IllegalArgumentException.class,
                 () -> com.example.myvillage.stats.RealmStats.derived(rules, realm, 100, 30));
     }
