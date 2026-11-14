@@ -1,6 +1,6 @@
 """固定州序的定向原生验收：独立新世界、连续州官道、州界两侧区块与缓存重启。"""
 from __future__ import annotations
-import argparse,hashlib,json,secrets,shutil,sys,time
+import argparse,hashlib,json,math,secrets,shutil,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools'))
@@ -128,18 +128,31 @@ def main():
         for city in manifest['cities']:
             source=CitySource(ROOT/'build/resources/main',city['region_id']);office=source.city['qianji']
             rank=next(i for i,group in enumerate(levels)if city['region_id'] in group);assert office['scale']==('compact' if rank<3 else 'large' if rank<5 else 'headquarters')
-            points=office['targets'] if a.all_qianji_targets else [v for v in office['targets'] if v['id'] in ('jianghu_board','entrance') or v['id'].startswith(('core_','command_','archive_'))]
+            detailed=office['scale']=='headquarters'
+            points=office['targets'] if a.all_qianji_targets or detailed else [v for v in office['targets'] if v['id'] in ('jianghu_board','entrance') or v['id'].startswith(('core_','command_','archive_'))]
             for target in points:
                 x,y,z=target['position'];wx,wy,wz=city['x']+x,city['origin_y']+y,city['z']+z;load(wx,wz)
-                expected=source.block(x,y-1,z);assert expected not in ('minecraft:air','minecraft:water[level=0]'),(city['region_id'],target)
-                assert server.test(f'if block {wx} {wy-1} {wz} {expected}'),(city['region_id'],target,expected)
-                for dy in [0,1]:assert server.test(f'if block {wx} {wy+dy} {wz} minecraft:air'),(city['region_id'],target,dy)
+                if detailed:
+                    for dx,dz in [(-1,-1),(-1,1),(1,-1),(1,1)]:load(math.floor(wx)+dx,math.floor(wz)+dz)
+                    for dy in [-1,0,1,2]:
+                        expected=source.block(math.floor(x),math.floor(y)+dy,math.floor(z))
+                        assert server.test(f'if block {math.floor(wx)} {math.floor(wy)+dy} {math.floor(wz)} {expected}'),(city['region_id'],target,dy,expected)
+                else:
+                    expected=source.block(x,y-1,z);assert expected not in ('minecraft:air','minecraft:water[level=0]'),(city['region_id'],target)
+                    assert server.test(f'if block {wx} {wy-1} {wz} {expected}'),(city['region_id'],target,expected)
+                    for dy in [0,1]:assert server.test(f'if block {wx} {wy+dy} {wz} minecraft:air'),(city['region_id'],target,dy)
+            if detailed:
+                anchor=office['atmosphere']['anchor'];load(city['x']+anchor[0],city['z']+anchor[2])
+                answer=server.command('myvillage qianji probe');collision=json.loads(answer[answer.index('{'):])
+                assert collision['all_standing'] and collision['anchor_bound'] and len(collision['targets'])==len(points)==31,collision
+                assert all(t['loaded'] and t['standing'] for t in collision['targets']),collision
+                write(a.out/'headquarters-collision-readback.json',collision)
             for landmark in office.get('landmarks',[]):
                 x,y,z=landmark['position'];wx,wy,wz=city['x']+x,city['origin_y']+y,city['z']+z;load(wx,wz)
                 expected=source.block(x,y,z);assert expected!='minecraft:air'
                 assert server.test(f'if block {wx} {wy} {wz} {expected}'),landmark
             board=office['board']['position'];wx,wy,wz=city['x']+board[0],city['origin_y']+board[1],city['z']+board[2]
-            load(wx,wz);assert server.test(f'if block {wx} {wy} {wz} myvillage:jianghu_board[facing=south]')
+            load(wx,wz);assert server.test(f'if block {wx} {wy} {wz} myvillage:jianghu_board[facing={office["board"]["facing"]}]')
             info=query('qianji '+city['region_id'])['qianji'];assert len(info)==1
             assert info[0]['task_reader']==[city['x']+office['board']['reader'][0],city['origin_y']+office['board']['reader'][1],city['z']+office['board']['reader'][2]]
             buildings.append(dict(region=city['region_id'],name=office['name'],scale=office['scale'],checked_targets=len(points),board=[wx,wy,wz],info=info[0]))
