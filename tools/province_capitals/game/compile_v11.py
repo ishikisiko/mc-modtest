@@ -72,7 +72,11 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     for profile in frozen['profiles']:
         for key in ('tier','qi','danger'):profile[key]=profiles[profile['id']][key]
     from wilderness_habitats.generate import generate as habitat_rules
-    frozen['habitats']=habitat_rules()
+    habitat=habitat_rules()
+    resource=(json.dumps(habitat,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
+    habitat.pop('templates')
+    habitat['template_sha256']=sha(resource)
+    frozen['habitats']=habitat
     policy=spec.get('topology',{})
     if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须开放州序规定的魔域关隘')
     frozen.update(policy)

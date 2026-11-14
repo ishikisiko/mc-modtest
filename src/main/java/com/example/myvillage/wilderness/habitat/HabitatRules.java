@@ -35,9 +35,16 @@ public final class HabitatRules {
             ks.add(new Kind(id,k.get("name").getAsString(),k.get("faction").getAsString(),members,guards,k.get("night_hunt").getAsBoolean(),k.get("near_kind").getAsString()));
         }
         kinds=List.copyOf(ks);if(kinds.size()!=4)throw new IllegalArgumentException("当前必须完整声明四种生态群落");
+        JsonObject templateData;
+        try(var stream=HabitatRules.class.getResourceAsStream("/data/myvillage/wilderness/habitats.json")){
+            if(stream==null)throw new IllegalArgumentException("缺少生态模板资源");
+            byte[] bytes=stream.readAllBytes();
+            if(bytes.length>1024*1024||!com.example.myvillage.worldplan.WorldPlanRules.sha256(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).equals(json.get("template_sha256").getAsString()))throw new IllegalArgumentException("生态模板摘要不一致");
+            templateData=JsonParser.parseString(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("templates");
+        }catch(java.io.IOException error){throw new IllegalArgumentException("生态模板读取失败",error);}
         Map<String,List<Block>> blocks=new LinkedHashMap<>();
         for(var k:kinds){List<Block> list=new ArrayList<>();Set<String> positions=new HashSet<>();
-            for(var element:json.getAsJsonObject("templates").getAsJsonArray(k.id())){var b=element.getAsJsonObject();
+            for(var element:templateData.getAsJsonArray(k.id())){var b=element.getAsJsonObject();
                 var block=new Block(b.get("x").getAsInt(),b.get("y").getAsInt(),b.get("z").getAsInt(),b.get("block").getAsString());
                 if(Math.abs(block.x())>integer("site_radius")||Math.abs(block.z())>integer("site_radius")||block.y()< -1||block.y()>5||!positions.add(block.x()+","+block.y()+","+block.z()))throw new IllegalArgumentException("据点施工越界或重复");
                 list.add(block);

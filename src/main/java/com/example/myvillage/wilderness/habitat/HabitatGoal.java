@@ -24,13 +24,13 @@ final class HabitatGoal extends Goal {
         double distance=Math.hypot(mob.getX()-c.site().x(),mob.getZ()-c.site().z());
         double fraction=c.member().role.equals("leader")?c.rules().number("leader_retreat_fraction"):c.rules().number("retreat_health_fraction");
         boolean retreat=!com.example.myvillage.wilderness.runtime.WildernessRuntime.regionAt(c.level(),mob.blockPosition()).filter(c.rules().region::equals).isPresent()||mob.getHealth()<mob.getMaxHealth()*fraction||distance>c.rules().integer("pursuit_radius");
-        if(retreat){mob.setTarget(null);c.member().activity="retreat";}
+        if(retreat){if(mob instanceof com.example.myvillage.entity.npc.NpcEntity npc&&npc.getTarget()!=null)com.example.myvillage.entity.npc.NpcCombatRuntime.disengage(npc);else mob.setTarget(null);c.member().activity="retreat";}
         if(now<nextMove)return;nextMove=now+c.rules().integer("navigation_interval_ticks");
         boolean night=mob.level().isNight();boolean guard=!c.member().role.equals("patrol")||(c.kind().nightHunt()&&!night);
         int radius=retreat||guard?c.rules().integer("guard_radius"):c.rules().integer("patrol_radius");
         double angle=(now/(double)c.rules().integer("route_step_ticks")+c.member().slot)*Math.PI/2;
         int x=c.site().x()+(int)Math.round(Math.cos(angle)*radius),z=c.site().z()+(int)Math.round(Math.sin(angle)*radius);
-        if(HabitatRuntime.protectedConstruction(c.round(),c.rules(),x,z))return;
+        if(HabitatRuntime.protectedConstruction(c.round(),c.rules(),x,z)){int relocated=c.rules().integer("relocation_radius");x=c.site().x()+(int)Math.round(Math.cos(angle)*relocated);z=c.site().z()+(int)Math.round(Math.sin(angle)*relocated);if(HabitatRuntime.protectedConstruction(c.round(),c.rules(),x,z))return;}
         var destination=HabitatRuntime.ground((ServerLevel)mob.level(),x,z,mob);
         if(destination!=null)mob.getNavigation().moveTo(destination.getX()+.5,destination.getY(),destination.getZ()+.5,c.rules().number("navigation_speed"));
         if(!retreat)c.member().activity=guard?"guard":c.kind().faction().equals("bandit")?"patrol":"hunt";

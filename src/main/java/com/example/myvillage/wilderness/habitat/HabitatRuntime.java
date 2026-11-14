@@ -130,7 +130,7 @@ public final class HabitatRuntime {
         if(!level.addFreshEntity(mob)){mob.discard();return false;}member.spawned=true;return true;
     }
     private static void install(Mob mob){
-        if(!INSTALLED.add(mob))return;mob.goalSelector.addGoal(1,new HabitatGoal(mob));
+        if(!INSTALLED.add(mob))return;mob.goalSelector.addGoal(0,new HabitatGoal(mob));
         mob.targetSelector.addGoal(0,new NearestAttackableTargetGoal<>(mob,Mob.class,member(mob).rules().integer("conflict_scan_ticks"),true,false,candidate->{
             if(!(candidate instanceof Mob other))return false;var a=member(mob);var b=member(other);
             return a!=null&&b!=null&&!a.kind().faction().equals(b.kind().faction())&&mob.distanceToSqr(other)<=a.rules().integer("conflict_radius")*a.rules().integer("conflict_radius");

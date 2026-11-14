@@ -16,7 +16,7 @@ from tools.roads_smoke.run import verify_candidate
 from tools.roadweaver_probe.run import write
 from tools.combat_capture import procs
 
-CASES=['candidate_identity','natural_world_sites','finite_native_members','native_patrol_and_hunt','mapped_alarm','mapped_clear_and_temporary_loot','monthly_proximity_defer','monthly_recovery','save_restart_and_rollback','construction_preserved','shared_roster_two_clients','faction_conflict','low_health_retreat','other_regions_excluded']
+CASES=['candidate_identity','natural_world_sites','finite_native_members','native_patrol_and_hunt','mapped_alarm','mapped_clear_and_temporary_loot','monthly_proximity_defer','monthly_recovery','save_restart_and_rollback','construction_preserved','shared_roster_two_clients','chunk_unload_no_duplicate','faction_conflict','low_health_retreat','other_regions_excluded']
 class Server(BaseServer):
     def cmd(self,text):return self.command(text)
 
@@ -83,12 +83,25 @@ class Evidence:
                     site=next(s for s in sites if s['kind']==kind);self.visit(client,site);members=self.populate(site)
                     self.check('出生境界 '+kind,all(m['realm'].startswith('myvillage:qi_refining/') and 0<=int(m['realm'].split('/')[-1])<=3 for m in members),members)
                     client.capture('native-'+kind)
+                    if kind=='bandit_camp':
+                        previous={m['uuid']:(m['x'],m['z'])for m in members};time.sleep(16);patrol=self.living(site['id'])
+                        self.check('劫修巡逻有实际位移',any(math.hypot(m['x']-previous[m['uuid']][0],m['z']-previous[m['uuid']][1])>2 for m in patrol if m['uuid']in previous),patrol)
                 self.done('finite_native_members')
+                for actor in self.state()['living']:
+                    if actor['site']!=wolf['id']:self.rc(f'data merge entity {actor["uuid"]} {{NoAI:1b}}')
                 self.rc('time set midnight');self.visit(client,wolf);before={m['uuid']:(m['x'],m['z'])for m in self.populate(wolf)};time.sleep(18)
                 after=self.living(wolf['id']);self.check('夜间巡猎有实际位移',any(math.hypot(m['x']-before[m['uuid']][0],m['z']-before[m['uuid']][1])>2 for m in after),after);self.done('native_patrol_and_hunt')
                 second=stack.enter_context(Client(self,self.server,'EastWitnessB','shared',prebuilt_resources=True,heap='4g'));self.prepare_player(second)
                 ids={m['id']for m in self.round(wolf['id'])['members']};self.visit(second,wolf,distance=70);time.sleep(3)
                 self.check('双玩家共享同一批身份',ids=={m['id']for m in self.round(wolf['id'])['members']},self.round(wolf['id']));self.done('shared_roster_two_clients')
+                wounded=self.living(wolf['id'])[-1];self.rc(f'data merge entity {wounded["uuid"]} {{Health:{wounded["max_health"]-1:.1f}f}}')
+                self.rc('forceload remove all');spawn=json.loads((self.server.data/'worldplan.json').read_text())['spawn']
+                for witness in (client,second):self.fixture(witness,[spawn['x']+.5,spawn['y'],spawn['z']+.5],[spawn['x']+2,spawn['y'],spawn['z']])
+                wait(lambda:self.state(),lambda s:wolf['id']not in s['loaded_sites'],150,'原生区块卸载')
+                self.check('卸载保留原名单',ids=={m['id']for m in self.round(wolf['id'])['members']},self.round(wolf['id']))
+                self.visit(client,wolf);loaded=self.populate(wolf)
+                self.check('重新加载没有复制成员或回血',ids=={m['uuid']for m in loaded} and next(m for m in loaded if m['uuid']==wounded['uuid'])['health']<=wounded['max_health']-1,loaded)
+                self.done('chunk_unload_no_duplicate')
                 self.rc(f'gamemode survival {client.name}');target=self.living(wolf['id'])[0];self.hit(client,target)
                 hit_result=next((m for m in self.living(wolf['id'])if m['uuid']==target['uuid']),None)
                 self.check('映射攻击改变目标生命',hit_result is None or hit_result['health']<target['health'],{'before':target,'after':hit_result})
@@ -129,6 +142,8 @@ class Evidence:
                     reply=self.rc(f'execute if block {x} {y} {z} minecraft:gold_block');self.check('月度刷新保留玩家方块','Test passed'in reply or 'test passed'in reply.lower(),reply)
                 self.done('construction_preserved')
                 self.visit(client,wolf);wolves=self.living(wolf['id']);self.visit(client,camp);bandits=self.living(camp['id']);a=wolves[0];b=bandits[0]
+                for actor in self.state()['living']:self.rc(f'data merge entity {actor["uuid"]} {{NoAI:1b}}')
+                for actor in (a,b):self.rc(f'data merge entity {actor["uuid"]} {{NoAI:0b}}')
                 self.rc(f'tp {a["uuid"]} {camp["x"]+2}.5 {camp["y"]} {camp["z"]}.5');self.rc(f'tp {b["uuid"]} {camp["x"]+6}.5 {camp["y"]} {camp["z"]}.5')
                 self.fixture(client,[camp['x']+22.5,camp['y']+3,camp['z']+16.5],[camp['x']+14,camp['y']+1,camp['z']]);client.guard();client.game.xdo('keydown','w');time.sleep(.4);client.game.xdo('keyup','w');self.action('mapped_move',key='w',seconds=.4)
                 conflict=wait(lambda:self.state()['living'],lambda ms:any(m['uuid']==a['uuid']and m['target']==b['uuid']or m['uuid']==b['uuid']and m['target']==a['uuid']for m in ms),30,'不同群体自然选敌');self.check('群体冲突取得真实目标',True,conflict);client.capture('faction-conflict');self.done('faction_conflict')
