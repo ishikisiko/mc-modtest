@@ -107,7 +107,7 @@
         },
         "max": {
           "realm": "myvillage:qi_refining",
-          "stage": 3
+          "stage": 8
         }
       },
       "rogue": {
@@ -117,7 +117,7 @@
         },
         "max": {
           "realm": "myvillage:qi_refining",
-          "stage": 3
+          "stage": 8
         }
       }
     },

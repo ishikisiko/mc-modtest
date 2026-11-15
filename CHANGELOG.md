@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.132.1
+
+- 东荒妖兽与劫修的出生境界上限调整为炼气九层，下限仍为炼气一层；群落首领同步使用九层上限。
+- 地区抽样检查覆盖妖兽与劫修两类范围；原生群落采集按当前配置校验境界。
+
 ## 0.132.0
 
 - 新修仙大陆以东荒开局，地区强度按六档排列，东海与西漠、南疆与魔域分别并列；同步出生、宗门、下一档查询和千机阁分档。

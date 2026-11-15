@@ -82,9 +82,11 @@ class Evidence:
                     reply=self.rc(f'myvillage worldplan at {site["x"]} {site["z"]}');self.check('据点归属东荒 '+site['id'],'"profileId":"donghuang"'in reply or '"regionId":"donghuang"'in reply,reply)
                 self.done('natural_world_sites');wolf=next(s for s in sites if s['id']=='wolf_den_0');camp=next(s for s in sites if s['id']=='bandit_camp_0')
                 self.begin('finite_native_members')
+                east_ranges=json.loads((ROOT/'src/main/resources/data/myvillage/wilderness/rules.json').read_text())['regions']['donghuang']
                 for kind in ('wolf_den','lizard_shelf','spore_grove','bandit_camp'):
                     site=next(s for s in sites if s['kind']==kind);self.visit(client,site);members=self.populate(site)
-                    self.check('出生境界 '+kind,all(m['realm'].startswith('myvillage:qi_refining/') and 0<=int(m['realm'].split('/')[-1])<=3 for m in members),members)
+                    expected=east_ranges['rogue' if kind=='bandit_camp' else 'beast']
+                    self.check('出生境界 '+kind,all(m['realm'].startswith(expected['min']['realm']+'/') and expected['min']['stage']<=int(m['realm'].split('/')[-1])<=expected['max']['stage'] for m in members),members)
                     self.fixture(client,[site['x']+12.5,site['y']+6,site['z']+12.5],[site['x']+.5,site['y']+1,site['z']+.5]);time.sleep(2);client.capture('native-'+kind)
                     if kind=='bandit_camp':
                         previous={m['uuid']:(m['x'],m['z'])for m in members};time.sleep(16);patrol=self.living(site['id'])

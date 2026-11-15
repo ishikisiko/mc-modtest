@@ -21,18 +21,20 @@ class WildernessRulesTest {
         assertEquals(Set.of("ximo", "donghai", "nanjiang", "beiyuan", "donghuang", "lingyue", "moyu", "zhongzhou"), rules.regions().keySet());
         assertTrue(rules.region("unknown").isEmpty());
         for (var e : rules.regions().entrySet()) {
-            var range = e.getValue().beast();
-            Set<RealmKey> reached = new HashSet<>();
-            for (long input = 0; input < 4096; input++) {
-                RealmKey result = range.sample(42, e.getKey(), input);
-                assertEquals(result, range.sample(42, e.getKey(), input));
-                assertTrue(range.contains(result)); reached.add(result);
+            for (var range : List.of(e.getValue().beast(), e.getValue().rogue())) {
+                Set<RealmKey> reached = new HashSet<>();
+                for (long input = 0; input < 4096; input++) {
+                    RealmKey result = range.sample(42, e.getKey(), input);
+                    assertEquals(result, range.sample(42, e.getKey(), input));
+                    assertTrue(range.contains(result)); reached.add(result);
+                }
+                assertTrue(reached.contains(range.min())); assertTrue(reached.contains(range.max()));
+                assertEquals(new HashSet<>(range.values()), reached);
             }
-            assertTrue(reached.contains(range.min())); assertTrue(reached.contains(range.max()));
-            assertEquals(new HashSet<>(range.values()), reached);
         }
         assertEquals(new RealmKey("qi_refining", 0), rules.region("donghuang").orElseThrow().beast().min());
-        assertEquals(new RealmKey("qi_refining", 3), rules.region("donghuang").orElseThrow().beast().max());
+        assertEquals(new RealmKey("qi_refining", 8), rules.region("donghuang").orElseThrow().beast().max());
+        assertEquals(rules.region("donghuang").orElseThrow().beast(), rules.region("donghuang").orElseThrow().rogue());
         assertEquals(new RealmKey("foundation_establishment", 0), rules.region("ximo").orElseThrow().beast().min());
         assertEquals(rules.region("ximo").orElseThrow(), rules.region("donghai").orElseThrow());
         assertEquals(rules.region("nanjiang").orElseThrow(), rules.region("moyu").orElseThrow());
