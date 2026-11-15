@@ -33,6 +33,11 @@ class Evidence:
     self.stage='client_login_and_assets'
     with Client(self,self.server,'YuanxianWitness','resources',prebuilt_resources=True,heap='4g') as client:
      self.rc('op '+client.name);self.rc('gamemode creative '+client.name);self.rc('weather clear');self.rc('time set noon')
+     for command in ('awaken','initiate'):
+      self.rc('yuanxian cultivation '+command+' '+client.name)
+     self.rc('yuanxian cultivation setrealm '+client.name+' yuanxian:qi_refining yuanxian:qi_refining_1')
+     self.rc('yuanxian cultivation setprogress '+client.name+' 0')
+     self.action('fixture_prepared',purpose='提供可打坐的角色；开始和停止仍通过正式按键发送网络意图')
      self.rc('item replace entity '+client.name+' hotbar.0 with yuanxian:qingfeng_sword');self.rc('give '+client.name+' yuanxian:low_grade_spirit_stone 8')
      client.close_screen();client.guard();client.game.xdo('key','1');self.action('mapped_hotbar',slot=1);time.sleep(2);client.capture('new-namespace-client');self.done()
      self.stage='mapped_profile_network';client.guard();client.game.xdo('key','h');self.action('mapped_key',key='h');wait(client.game.pointer_grabbed,lambda v:v is False,20,'修炼面板打开');time.sleep(2);client.capture('cultivation-profile');client.close_screen()
