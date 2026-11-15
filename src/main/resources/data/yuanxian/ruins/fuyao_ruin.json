@@ -25,18 +25,18 @@
     4
   ],
   "recommended": "建议炼气四至六层",
-  "manual": "myvillage:liuyun_bu",
+  "manual": "yuanxian:liuyun_bu",
   "rewards": [
     {
-      "id": "myvillage:low_grade_spirit_stone",
+      "id": "yuanxian:low_grade_spirit_stone",
       "count": 18
     },
     {
-      "id": "myvillage:pill_yangyuan",
+      "id": "yuanxian:pill_yangyuan",
       "count": 3
     },
     {
-      "id": "myvillage:pill_huiling",
+      "id": "yuanxian:pill_huiling",
       "count": 3
     }
   ],
@@ -95,25 +95,25 @@
       ],
       "guards": [
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             14,
             5,
             27
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "",
           "elite": false
         },
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             30,
             5,
             27
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "",
           "elite": false
@@ -128,37 +128,37 @@
       ],
       "guards": [
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             12,
             5,
             32
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1,
           "weapon": "",
           "elite": false
         },
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             32,
             5,
             32
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1,
           "weapon": "",
           "elite": false
         },
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             22,
             5,
             25
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "",
           "elite": false
@@ -173,25 +173,25 @@
       ],
       "guards": [
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             22,
             5,
             32
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 5,
           "weapon": "",
           "elite": true
         },
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             13,
             5,
             27
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1,
           "weapon": "",
           "elite": false

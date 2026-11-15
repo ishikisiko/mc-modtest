@@ -724,11 +724,11 @@
   ],
   "rewards": [
     {
-      "item": "myvillage:low_grade_spirit_stone",
+      "item": "yuanxian:low_grade_spirit_stone",
       "count": 3
     },
     {
-      "item": "myvillage:pill_yangyuan",
+      "item": "yuanxian:pill_yangyuan",
       "count": 1
     }
   ],

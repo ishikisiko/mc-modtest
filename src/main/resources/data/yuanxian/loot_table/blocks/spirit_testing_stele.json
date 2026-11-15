@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:spirit_testing_stele"
+          "name": "yuanxian:spirit_testing_stele"
         }
       ],
       "conditions": [
@@ -17,5 +17,5 @@
       ]
     }
   ],
-  "random_sequence": "myvillage:blocks/spirit_testing_stele"
+  "random_sequence": "yuanxian:blocks/spirit_testing_stele"
 }

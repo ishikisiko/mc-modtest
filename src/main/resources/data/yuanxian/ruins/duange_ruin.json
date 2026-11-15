@@ -25,14 +25,14 @@
     6
   ],
   "recommended": "建议炼气一至三层",
-  "manual": "myvillage:jianqi_jue",
+  "manual": "yuanxian:jianqi_jue",
   "rewards": [
     {
-      "id": "myvillage:low_grade_spirit_stone",
+      "id": "yuanxian:low_grade_spirit_stone",
       "count": 12
     },
     {
-      "id": "myvillage:pill_huiling",
+      "id": "yuanxian:pill_huiling",
       "count": 3
     }
   ],
@@ -97,7 +97,7 @@
             5,
             18
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "minecraft:stone_sword",
           "elite": false
@@ -109,7 +109,7 @@
             5,
             20
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "minecraft:stone_sword",
           "elite": false
@@ -130,7 +130,7 @@
             5,
             34
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "minecraft:bow",
           "elite": false
@@ -142,7 +142,7 @@
             5,
             34
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "minecraft:bow",
           "elite": false
@@ -154,7 +154,7 @@
             5,
             35
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1,
           "weapon": "minecraft:iron_sword",
           "elite": false
@@ -175,7 +175,7 @@
             7,
             48
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2,
           "weapon": "minecraft:iron_sword",
           "elite": true
@@ -187,7 +187,7 @@
             7,
             48
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "minecraft:stone_sword",
           "elite": false

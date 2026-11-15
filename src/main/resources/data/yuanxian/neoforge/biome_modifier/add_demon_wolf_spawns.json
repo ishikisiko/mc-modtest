@@ -1,8 +1,8 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#myvillage:has_demon_wolf",
+  "biomes": "#yuanxian:has_demon_wolf",
   "spawners": {
-    "type": "myvillage:demon_wolf",
+    "type": "yuanxian:demon_wolf",
     "weight": 8,
     "minCount": 1,
     "maxCount": 2

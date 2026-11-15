@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/technique_inheritance_stele"
+      "model": "yuanxian:block/technique_inheritance_stele"
     }
   }
 }

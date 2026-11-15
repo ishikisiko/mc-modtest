@@ -1,10 +1,10 @@
 {
-  "translation_key": "cultivation.technique.myvillage.basic_breathing",
+  "translation_key": "cultivation.technique.yuanxian.basic_breathing",
   "category": "core",
   "grade": 0,
   "elements": [],
   "requirements": {
-    "minimum_realm": "myvillage:mortal",
-    "minimum_stage": "myvillage:mortal_qi_sensed"
+    "minimum_realm": "yuanxian:mortal",
+    "minimum_stage": "yuanxian:mortal_qi_sensed"
   }
 }

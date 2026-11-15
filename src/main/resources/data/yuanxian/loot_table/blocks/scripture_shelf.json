@@ -7,13 +7,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:scripture_shelf"
+          "name": "yuanxian:scripture_shelf"
         }
       ],
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "myvillage:scripture_shelf",
+          "block": "yuanxian:scripture_shelf",
           "properties": { "half": "lower" }
         },
         {
@@ -22,5 +22,5 @@
       ]
     }
   ],
-  "random_sequence": "myvillage:blocks/scripture_shelf"
+  "random_sequence": "yuanxian:blocks/scripture_shelf"
 }

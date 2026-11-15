@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/spirit_testing_stele"
+      "model": "yuanxian:block/spirit_testing_stele"
     }
   }
 }

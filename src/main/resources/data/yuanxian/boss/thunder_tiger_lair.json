@@ -1,7 +1,7 @@
 {
   "version": 1,
   "id": "thunder_tiger_lair",
-  "entity": "myvillage:thunder_tiger",
+  "entity": "yuanxian:thunder_tiger",
   "size": [49, 30, 61],
   "surface_y": 6,
   "anchor": [24, 5, 35],

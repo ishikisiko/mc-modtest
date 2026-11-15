@@ -79,8 +79,8 @@
     }
   ],
   "work": {
-    "seed_item": "myvillage:spirit_leaf",
-    "soil_item": "myvillage:spirit_soil",
+    "seed_item": "yuanxian:spirit_leaf",
+    "soil_item": "yuanxian:spirit_soil",
     "count": 3,
     "outside_city_radius": 160
   },

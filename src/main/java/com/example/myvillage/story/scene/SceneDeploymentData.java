@@ -12,7 +12,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.common.IOUtilities;
 
-/** One scene per private dimension, or the retained legacy save-wide scene. No restart replay. */
+/** 每个私人维度保存场景及其几何快照，重启时不重放模板。 */
 final class SceneDeploymentData extends SavedData {
     static final String NAME = "yuanxian_qianzhen_scene";
     enum Phase { EMPTY, PLACING, COMPLETE, FAILED }
@@ -45,7 +45,7 @@ final class SceneDeploymentData extends SavedData {
     static SceneDeploymentData load(CompoundTag tag, HolderLookup.Provider registries) {
         SceneDeploymentData data = new SceneDeploymentData();
         // Malformed data locks deployment, rather than pretending that no occupied scene exists.
-        if (!tag.contains("schema", Tag.TAG_INT) || (tag.getInt("schema") != 1 && tag.getInt("schema") != 2))
+        if (!tag.contains("schema", Tag.TAG_INT) || tag.getInt("schema") != 2)
             throw new IllegalStateException("Unsupported Qianzhen deployment save");
         for (String key : new String[]{"phase", "dimension", "id", "version"})
             if (!tag.contains(key, Tag.TAG_STRING)) throw new IllegalStateException("Missing Qianzhen saved text: "+key);
@@ -70,12 +70,14 @@ final class SceneDeploymentData extends SavedData {
         if (data.phase == Phase.EMPTY && (!data.dimension.isEmpty() || !data.id.isEmpty() || !data.version.isEmpty()
                 || !data.origin.equals(BlockPos.ZERO))) throw new IllegalStateException("Occupied Qianzhen scene marked empty");
         if (data.regulated && data.phase != Phase.COMPLETE) throw new IllegalStateException("Regulated incomplete Qianzhen scene");
+        if (data.phase != Phase.EMPTY && data.cachedGeometry == null)
+            throw new IllegalStateException("已占用的阡镇场景缺少几何快照，不能重新部署");
         return data;
     }
     SceneLayout geometry(SceneLayout current) {
         if (phase == Phase.EMPTY) return current;
         if (cachedGeometry != null) return cachedGeometry;
-        return version.equals(current.version()) ? current : SceneGeometryArchive.legacy(version);
+        throw new IllegalStateException("已占用的阡镇场景缺少几何快照，不能重新部署");
     }
 
     Phase phase() { return phase; }

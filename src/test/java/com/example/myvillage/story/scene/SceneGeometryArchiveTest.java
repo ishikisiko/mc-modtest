@@ -12,11 +12,8 @@ class SceneGeometryArchiveTest {
         var layout=SceneLayout.parse(JsonParser.parseString(raw).getAsJsonObject());var encoded=SceneGeometryArchive.freeze(layout);
         assertTrue(encoded.length()<65_000);assertEquals(layout,SceneGeometryArchive.thaw(encoded));
     }
-    @Test void exactLegacyTablesRetainNineTargetsOriginalNpcPositionsAndNoNewFacilities() {
-        for(String version:new String[]{"1-93b7ddbc5c59392e","1-f795e60913419e05","1-56da335c3dd1262f"}) {
-            var old=SceneGeometryArchive.legacy(version);assertEquals(version,old.version());assertEquals(9,old.targets().size());
-            assertTrue(old.facilities().isEmpty());assertEquals(old,SceneGeometryArchive.thaw(SceneGeometryArchive.freeze(old)));
-        }
-        assertThrows(IllegalStateException.class,()->SceneGeometryArchive.legacy("1-unknown"));
+    @Test void corruptFrozenGeometryIsRejectedWithoutTemplateFallback() {
+        assertThrows(IllegalArgumentException.class,()->SceneGeometryArchive.thaw("gzip:broken"));
+        assertThrows(IllegalArgumentException.class,()->SceneGeometryArchive.thaw("unencoded"));
     }
 }

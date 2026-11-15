@@ -20,15 +20,15 @@
   "manual": "",
   "rewards": [
     {
-      "id": "myvillage:low_grade_spirit_stone",
+      "id": "yuanxian:low_grade_spirit_stone",
       "count": 12
     },
     {
-      "id": "myvillage:pill_huiling",
+      "id": "yuanxian:pill_huiling",
       "count": 2
     },
     {
-      "id": "myvillage:pill_yangyuan",
+      "id": "yuanxian:pill_yangyuan",
       "count": 2
     }
   ],
@@ -47,7 +47,7 @@
             0,
             6
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "minecraft:stone_sword",
           "elite": false
@@ -59,7 +59,7 @@
             0,
             6
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "minecraft:stone_sword",
           "elite": false
@@ -74,25 +74,25 @@
       ],
       "guards": [
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             3,
             0,
             3
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1,
           "weapon": "",
           "elite": false
         },
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             9,
             0,
             9
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1,
           "weapon": "",
           "elite": false
@@ -104,7 +104,7 @@
             0,
             3
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0,
           "weapon": "minecraft:bow",
           "elite": false
@@ -119,13 +119,13 @@
       ],
       "guards": [
         {
-          "entity": "myvillage:demon_wolf",
+          "entity": "yuanxian:demon_wolf",
           "pos": [
             6,
             0,
             2
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2,
           "weapon": "",
           "elite": true
@@ -137,7 +137,7 @@
             0,
             9
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1,
           "weapon": "minecraft:iron_sword",
           "elite": false
@@ -149,7 +149,7 @@
             0,
             9
           ],
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1,
           "weapon": "minecraft:iron_sword",
           "elite": false

@@ -276,7 +276,7 @@
       "count": 6
     },
     {
-      "item": "myvillage:low_grade_spirit_stone",
+      "item": "yuanxian:low_grade_spirit_stone",
       "count": 1
     }
   ],
@@ -290,7 +290,7 @@
     "variants": []
   },
   "work": {
-    "item": "myvillage:spirit_leaf",
+    "item": "yuanxian:spirit_leaf",
     "count": 3,
     "radius": 8,
     "target": "apprentice_plot"
