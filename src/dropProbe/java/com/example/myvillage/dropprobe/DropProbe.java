@@ -54,7 +54,7 @@ public final class DropProbe {
             if(!member.entity.equals(id.substring(id.indexOf(':')+1)))throw new IllegalArgumentException("据点夹具实体须匹配名单");
             mob.setUUID(member.id);member.spawned=true;generation=round.generation;siteId=site.id();x=site.x();z=site.z();data.setDirty();
         }
-        level.getChunk(x>>4,z>>4);int y=level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z)+4;
+        level.setChunkForced(x>>4,z>>4,true);level.getChunk(x>>4,z>>4);int y=level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z)+4;
         mob.moveTo(x+.5,y,z+.5,0,0);mob.setNoAi(true);mob.setPersistenceRequired();mob.setSilent(true);
         if(stage>=0)StatsRuntime.applyRealm(mob,"myvillage:qi_refining",stage);
         if(siteId!=null){var tag=new net.minecraft.nbt.CompoundTag();tag.putString("site",siteId);tag.putLong("generation",generation);mob.getPersistentData().put("myvillage_habitat",tag);}
@@ -70,6 +70,12 @@ public final class DropProbe {
         fake.setItemSlot(EquipmentSlot.MAINHAND,sword);mob.getPersistentData().putBoolean("myvillage_fire_captured",captured);
         mob.setLastHurtByPlayer(fake);mob.setHealth(0);mob.die(lastLevel.damageSources().playerAttack(fake));
         last.addProperty("fixture_death_callback",true);last.addProperty("looting",looting);reply(source);return 1;
+    }
+    private static int ready(CommandSourceStack source){
+        var mob=lastLevel==null||target==null?null:lastLevel.getEntity(target);
+        last.addProperty("target_loaded",mob instanceof LivingEntity);
+        last.addProperty("chunk_entity_ticking",mob!=null&&lastLevel.isPositionEntityTicking(mob.blockPosition()));
+        reply(source);return mob==null?0:1;
     }
     private static int read(CommandSourceStack source){
         Map<String,Integer> items=new TreeMap<>();JsonArray details=new JsonArray();
@@ -93,6 +99,7 @@ public final class DropProbe {
             .then(Commands.literal("finish").then(Commands.argument("looting",IntegerArgumentType.integer(0,3)).then(Commands.argument("captured",BoolArgumentType.bool())
                 .executes(c->finish(c.getSource(),IntegerArgumentType.getInteger(c,"looting"),BoolArgumentType.getBool(c,"captured"))))))
             .then(Commands.literal("read").executes(c->read(c.getSource())))
+            .then(Commands.literal("ready").executes(c->ready(c.getSource())))
             .then(Commands.literal("deny").executes(c->deny(c.getSource()))));
     }
 }

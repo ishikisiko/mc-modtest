@@ -16,7 +16,7 @@ class Server(BaseServer):
         self.command('difficulty normal')
 
 class Evidence:
-    def __init__(self,out,jar,probe,seed,world_fixture=None):
+    def __init__(self,out,jar,probe,seed,world_fixture=None,only=None):
         self.out=out;out.mkdir(parents=True,exist_ok=False)
         self.jar=jar;self.probe=probe
         self.game=ROOT/'run-dynamic-drops'/out.name
@@ -32,7 +32,8 @@ class Evidence:
         self.server=Server(out,self.game,seed);self.server.startup_timeout=1800
         self.path=self.game/'config/myvillage/monster_drops.json'
         self.defaults=json.loads((ROOT/'src/main/resources/data/myvillage/drops/monster_drops.json').read_text())
-        self.report=dict(kind='dynamic_drops_native',status='running',selected=CASES,completed=[],failed=[],unrun=CASES.copy(),checks=[],commands=[],world=str(self.game),seed=seed,evidence='accepted_death_callback_fixture_and_native_item_entities',mapped_combat='not_verified',owner_feel='not_verified',owner_visual='not_verified',owner_fps='not_verified',collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
+        self.selected=CASES.copy() if only is None else [v for v in CASES if v=='candidate_identity' or v in only]
+        self.report=dict(kind='dynamic_drops_native',status='running',selected=self.selected,completed=[],failed=[],unrun=self.selected.copy(),checks=[],commands=[],world=str(self.game),seed=seed,evidence='accepted_death_callback_fixture_and_native_item_entities',mapped_combat='not_verified',owner_feel='not_verified',owner_visual='not_verified',owner_fps='not_verified',collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
         self.current=CASES[0];self.save()
         if world_fixture is not None:self.report['world_fixture']=str(world_fixture);self.save()
     def save(self):write(self.out/'report.json',self.report)
@@ -46,7 +47,8 @@ class Evidence:
         self.report['checks'].append(dict(name=name,passed=bool(passed),detail=detail));self.save()
         if not passed:raise AssertionError(name+': '+repr(detail))
     def case(self,name,fn):
-        self.current=name;self.report['current']=name;self.save();fn();self.report['completed'].append(name);self.report['unrun']=[v for v in CASES if v not in self.report['completed']];self.save()
+        if name not in self.selected:return
+        self.current=name;self.report['current']=name;self.save();fn();self.report['completed'].append(name);self.report['unrun']=[v for v in self.selected if v not in self.report['completed']];self.save()
     def status(self):return self.value('myvillage drops status','DROPS_STATUS ')
     def config(self,data):
         self.path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
@@ -56,7 +58,13 @@ class Evidence:
     @staticmethod
     def entry(item='minecraft:diamond',count=2,chance=1,**kw):return dict(item=item,min=count,max=count,chance=chance,**kw)
     def spawn(self,entity='myvillage:stele_guardian',scene='normal',stage=8):
-        return self.value(f'drop_probe spawn {entity} {scene} {stage}','DROP_PROBE ')
+        self.value(f'drop_probe spawn {entity} {scene} {stage}','DROP_PROBE ')
+        deadline=time.monotonic()+30
+        while time.monotonic()<deadline:
+            value=self.value('drop_probe ready','DROP_PROBE ')
+            if value.get('target_loaded') and value.get('chunk_entity_ticking'):return value
+            time.sleep(.1)
+        raise TimeoutError('夹具区块尚未进入实体运行状态')
     def finish(self,looting=0,captured=False):
         self.value(f'drop_probe finish {looting} {str(captured).lower()}','DROP_PROBE ')
         value=self.value('drop_probe read','DROP_PROBE ')
@@ -94,7 +102,7 @@ class Evidence:
             self.report['status']='passed'
         except BaseException as error:
             self.report['failed'].append(dict(case=self.current,error=repr(error),traceback=traceback.format_exc()));self.report['status']='failed'
-            self.report['unrun']=[v for v in CASES if v not in self.report['completed'] and v!=self.current]
+            self.report['unrun']=[v for v in self.selected if v not in self.report['completed'] and v!=self.current]
             raise
         finally:
             try:self.server.stop()
@@ -168,6 +176,6 @@ class Evidence:
     def restore(self):self.config(self.defaults);self.export('restored-defaults');self.check('restored_configuration',json.loads(self.path.read_text())==self.defaults)
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--jar',type=Path,required=True);parser.add_argument('--probe',type=Path,required=True);parser.add_argument('--seed',type=int,default=202611150133);parser.add_argument('--world-fixture',type=Path)
-    args=parser.parse_args();Evidence(args.out.resolve(),args.jar.resolve(),args.probe.resolve(),args.seed,args.world_fixture).run()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--jar',type=Path,required=True);parser.add_argument('--probe',type=Path,required=True);parser.add_argument('--seed',type=int,default=202611150133);parser.add_argument('--world-fixture',type=Path);parser.add_argument('--only',nargs='+',choices=CASES)
+    args=parser.parse_args();Evidence(args.out.resolve(),args.jar.resolve(),args.probe.resolve(),args.seed,args.world_fixture,args.only).run()
 if __name__=='__main__':main()
