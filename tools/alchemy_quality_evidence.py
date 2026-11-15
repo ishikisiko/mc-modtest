@@ -375,15 +375,15 @@ class QualityEvidence(AlchemyEvidence):
         user = self.s.username
         for command in ('tick rate 20', f'setblock {POS} minecraft:air',
                         *scene.world_rules(), *scene.player_setup(user, 'minecraft:air'),
-                        'gamerule naturalRegeneration false', 'myvillage world pause', 'forceload add -16 -16 32 32',
+                        'gamerule naturalRegeneration false', 'yuanxian world pause', 'forceload add -16 -16 32 32',
                         f'setblock {POS} myvillage:alchemy_furnace[facing=north]'):
             self.rc(command)
         if awakened:
             self.s.game.key('x')
             self.wait_medication()
-            for command in (f'myvillage cultivation awaken {user}', f'myvillage cultivation initiate {user}',
-                            f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
-                            f'myvillage cultivation crafting set {user} alchemy 100'):
+            for command in (f'yuanxian cultivation awaken {user}', f'yuanxian cultivation initiate {user}',
+                            f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
+                            f'yuanxian cultivation crafting set {user} alchemy 100'):
                 self.rc(command)
 
     def block_items(self):
@@ -460,14 +460,14 @@ class QualityEvidence(AlchemyEvidence):
         self.check('ready_furnace_never_autostarts', self.batch() is None and self.progress() == 0 and self.block_items() == before, before)
         self.open_furnace(); self.mapped_start(); self.capture('unawakened-start-rejected.png'); self.close_menu()
         self.check('mapped_unawakened_start_rejected_without_cost', self.batch() is None and self.block_items() == before, self.block_items())
-        for command in (f'myvillage cultivation awaken {user}', f'myvillage cultivation initiate {user}',
-                        f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
-                        f'myvillage cultivation crafting set {user} alchemy 0'):
+        for command in (f'yuanxian cultivation awaken {user}', f'yuanxian cultivation initiate {user}',
+                        f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
+                        f'yuanxian cultivation crafting set {user} alchemy 0'):
             self.rc(command)
         batch = self.begin(); owner = read_data(self.rc(f'data get entity {user} UUID'))
         self.check('mapped_start_snapshots_brewer_score_and_cap', batch['Brewer'] == owner and batch['Score'] == 0
                    and batch['Cap'] == batch['Quality'] == 1, batch)
-        self.rc(f'myvillage cultivation crafting set {user} alchemy 100')
+        self.rc(f'yuanxian cultivation crafting set {user} alchemy 100')
         self.open_furnace(); locked = self.block_items(); inventory = self.inventory()
         for x, y in SLOTS[:4]: self.click(x+8, y+8, shift=True)
         self.mapped_start(); self.mapped_start()
@@ -584,7 +584,7 @@ class QualityEvidence(AlchemyEvidence):
         user = self.s.username; observed = {}
         # Natural online regeneration exists; use a bounded tolerance below its one-point cadence.
         for quality in (None, 4):
-            self.wait_medication(); self.rc(f'myvillage cultivation qi set {user} 0')
+            self.wait_medication(); self.rc(f'yuanxian cultivation qi set {user} 0')
             before = self.profile(); count = self.held_quality('huiling', quality); after = self.profile()
             factor = self.rules['quality']['strength_multipliers'][(quality or 1)-1]
             expected = max(1, math.floor(before['power_cap']*self.rules['effects']['huiling']['power_fraction']*factor))
@@ -625,8 +625,8 @@ class QualityEvidence(AlchemyEvidence):
         stability = {}
         for quality in (None, 4):
             self.wait_medication()
-            self.rc(f'myvillage cultivation setprogress {user} {stage["cultivation_cap"]}')
-            self.rc(f'myvillage cultivation setstability {user} 0')
+            self.rc(f'yuanxian cultivation setprogress {user} {stage["cultivation_cap"]}')
+            self.rc(f'yuanxian cultivation setstability {user} 0')
             count = self.held_quality('ningshen', quality); med = self.med(); initial = self.profile()
             self.s.game.key('v')
             gained = self.poll(self.profile, lambda state: state['stability'] > 0, 15, 'mapped ningshen meditation settlement')
@@ -645,9 +645,9 @@ class QualityEvidence(AlchemyEvidence):
         with SecondClient(self) as guest:
             for command in (*scene.player_setup(guest.username, 'minecraft:air'),
                             f'tp {guest.username} {GUEST_VIEW}',
-                            f'myvillage cultivation awaken {guest.username}',
-                            f'myvillage cultivation crafting set {guest.username} alchemy 100',
-                            f'myvillage cultivation crafting set {user} alchemy 0'):
+                            f'yuanxian cultivation awaken {guest.username}',
+                            f'yuanxian cultivation crafting set {guest.username} alchemy 100',
+                            f'yuanxian cultivation crafting set {user} alchemy 0'):
                 self.rc(command)
             guest_position = read_data(self.rc(f'data get entity {guest.username} Pos'))
             self.check('guest_stands_clear_of_main_furnace_ray', guest_position[0] < -1,
@@ -671,7 +671,7 @@ class QualityEvidence(AlchemyEvidence):
             self.check('guest_mapped_start_owns_new_batch_independent_of_viewer', batch['Brewer'] == guest_uuid
                        and batch['Score'] == 100 and batch['Cap'] == 4 and self.batch() == batch,
                        {'guest_batch': batch, 'after_main_attempts': self.batch(), 'players': self.rc('list')})
-            self.rc(f'myvillage cultivation crafting set {guest.username} alchemy 0')
+            self.rc(f'yuanxian cultivation crafting set {guest.username} alchemy 0')
             self.rc('tick rate 80'); rows = self.wait_complete(recipe); self.rc('tick rate 20')
             self.assert_result(recipe, batch, rows, 'two_client_original_quality_survives_brewer_score_change')
         self.report['multiplayer'] = 'developer_two_real_clients_mapped_interactions_observed_owner_acceptance_pending'
@@ -680,15 +680,15 @@ class QualityEvidence(AlchemyEvidence):
         recipe = self.rules['recipes'][0]
         # Persistence must work without first running the medicine or UI cases.
         stage = json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/realm/qi_refining.json').read_text())['stages'][0]
-        self.rc(f'myvillage cultivation setprogress {self.s.username} {stage["cultivation_cap"]}')
-        self.rc(f'myvillage cultivation setstability {self.s.username} 0')
+        self.rc(f'yuanxian cultivation setprogress {self.s.username} {stage["cultivation_cap"]}')
+        self.rc(f'yuanxian cultivation setstability {self.s.username} 0')
         count = self.held_quality('ningshen', 4)
         medication = self.med()
         self.check('persistence_fixture_mapped_quality4_use', count == 1 and medication['quality'] == 4
                    and medication['effect'] == 'ningshen' and medication['effect_ticks'] > 0, medication)
         for slot, pill in enumerate(self.rules['recipes']):
             self.rc(f'item replace entity {self.s.username} hotbar.{slot} with {pill["output"]}[{QUALITY}=4] 2')
-        self.fixture(recipe); self.rc(f'myvillage cultivation crafting set {self.s.username} alchemy 100')
+        self.fixture(recipe); self.rc(f'yuanxian cultivation crafting set {self.s.username} alchemy 100')
         batch = self.begin()
         self.poll(self.progress, lambda progress: progress >= 30, 10, 'saved partial quality batch')
         self.slot(4, 'minecraft:cobblestone', 64)

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * World summary for {@code /myvillage world}.
+ * World summary for {@code /yuanxian world}.
  *
  * @param livingByRealm living count per realm id, in realm order
  */

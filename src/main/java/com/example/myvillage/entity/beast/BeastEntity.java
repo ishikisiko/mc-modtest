@@ -77,7 +77,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
     static final float TURN_DEGREES_PER_TICK = 30.0F;
     static final int NO_MOVE = -1;
     private static final Logger LOGGER = LoggerFactory.getLogger(BeastEntity.class);
-    /** {@code /myvillage beast debug on}: log move starts, ends, staggers and hits taken (server). */
+    /** {@code /yuanxian beast debug on}: log move starts, ends, staggers and hits taken (server). */
     private static volatile boolean debugLog;
 
     private static final EntityDataAccessor<Integer> DATA_MOVE =
@@ -771,7 +771,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
     protected void playWindupSound(BeastMoveDefinition move) {
     }
 
-    /** One line of server state for {@code /myvillage beast status}. */
+    /** One line of server state for {@code /yuanxian beast status}. */
     public String debugStatus() {
         BeastDefinition definition = definition();
         StringBuilder line = new StringBuilder();

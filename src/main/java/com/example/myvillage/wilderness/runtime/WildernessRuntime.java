@@ -1,5 +1,7 @@
 package com.example.myvillage.wilderness.runtime;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.beast.BeastEntity;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
@@ -101,7 +103,7 @@ public final class WildernessRuntime {
         return beast.assignWildernessBirth(new BeastBirth(realm, region, pos.getX(), pos.getY(), pos.getZ(), natural));
     }
     private static void onCommands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("myvillage").requires(s -> s.hasPermission(2))
+        event.getDispatcher().register(ModCommands.adminRoot()
                 .then(Commands.literal("wilderness")
                         .then(Commands.literal("info").executes(c -> info(c.getSource(), BlockPos.containing(c.getSource().getPosition())))
                                 .then(Commands.argument("pos", BlockPosArgument.blockPos())

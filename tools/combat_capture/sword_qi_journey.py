@@ -56,7 +56,7 @@ class Journey(scripture.Run):
         self.setup() # existing entry fixture, no join/learn/manual grants
         u=self.s.username
         self.rc(f'clear {u}')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
         # Reject previously learned state rather than silently using a cheat to repair it.
         learned=self.learned()
         if TECHNIQUE in learned:
@@ -165,11 +165,11 @@ class Journey(scripture.Run):
 
     def recover(self):
         # Ordinary server-time recovery, with no fill or state-writing command.
-        samples=[]; t0=time.monotonic(); before=parse_power(self.rc(f'myvillage cultivation qi {self.s.username}'))
+        samples=[]; t0=time.monotonic(); before=parse_power(self.rc(f'yuanxian cultivation qi {self.s.username}'))
         deadline=time.monotonic()+20
         recovered=False
         while time.monotonic()<deadline:
-            snapshot=self.rc(f'myvillage cultivation qi {self.s.username}')
+            snapshot=self.rc(f'yuanxian cultivation qi {self.s.username}')
             value=parse_power(snapshot)
             samples.append({'wall_s':round(time.monotonic()-t0,3),'snapshot':snapshot})
             if value is not None and before is not None and value>before:

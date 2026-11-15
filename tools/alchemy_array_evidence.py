@@ -90,7 +90,7 @@ class ArrayEvidence(AlchemyEvidence):
         return result
 
     def inspect(self, origin=ORIGIN):
-        return self.one('myvillage array inspect '+position(origin), 'ALCHEMY_ARRAY')
+        return self.one('yuanxian array inspect '+position(origin), 'ALCHEMY_ARRAY')
 
     def saved(self, origin=ORIGIN):
         data = read_data(self.rc('data get block '+position(origin)))
@@ -153,10 +153,10 @@ class ArrayEvidence(AlchemyEvidence):
     def prepare(self):
         self.place_fixture()
         u = self.s.username
-        for command in ('kill @e[type=minecraft:item]',f'clear {u}', f'gamemode survival {u}', f'myvillage cultivation awaken {u}',
-                        f'myvillage cultivation initiate {u}',
-                        f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1',
-                        f'myvillage cultivation crafting set {u} alchemy 100'):
+        for command in ('kill @e[type=minecraft:item]',f'clear {u}', f'gamemode survival {u}', f'yuanxian cultivation awaken {u}',
+                        f'yuanxian cultivation initiate {u}',
+                        f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1',
+                        f'yuanxian cultivation crafting set {u} alchemy 100'):
             self.rc(command)
         self.poll(self.inspect, lambda data: data['formed'], 10, 'complete array')
         # Formula use is an actual mapped right click; no knowledge NBT injection.
@@ -223,14 +223,14 @@ class ArrayEvidence(AlchemyEvidence):
         for role,local in (('input',{'x':-1,'y':0,'z':1}), ('fuel',{'x':0,'y':0,'z':2}),
                            ('output',{'x':1,'y':-1,'z':1})):
             port = world_pos(ORIGIN, 'north', local)
-            probe = self.one('myvillage array port '+position(port), 'ALCHEMY_ARRAY_PORT')
+            probe = self.one('yuanxian array port '+position(port), 'ALCHEMY_ARRAY_PORT')
             self.check('native_capability_probe_'+position(port), probe.get('bound') is True
                        and probe.get('simulation_unchanged') is True
                        and {side['side'] for side in probe['sides'] if side.get('available')}
                        == ({outward('north',role),'down'} if role=='output' else {outward('north',role)})
                        and all(row['minecraft:cobblestone']==0 for side in probe['sides']
                                for row in side.get('probes',[])), probe)
-        stale=self.one('myvillage array stale -1 -59 4','ALCHEMY_ARRAY_STALE')
+        stale=self.one('yuanxian array stale -1 -59 4','ALCHEMY_ARRAY_STALE')
         self.check('native_cached_handler_cannot_bypass_replacement',
                    all(stale.get(key) is True for key in
                        ('broken_rejected','replacement_rejected','unused_replacement_rejected','fresh_accepted','restored')),stale)
@@ -245,7 +245,7 @@ class ArrayEvidence(AlchemyEvidence):
         self.rc(f'tp {self.s.username} .5 -60 .5')
         self.rc('forceload remove 464 0 495 15')
         for location in (boundary,(480,-59,4)):
-            self.poll(lambda location=location:self.one('myvillage array loaded '+position(location),'ALCHEMY_ARRAY_LOADED'),
+            self.poll(lambda location=location:self.one('yuanxian array loaded '+position(location),'ALCHEMY_ARRAY_LOADED'),
                       lambda data:data.get('loaded') is False,45,'actual complete array unload '+position(location))
         self.report['partial_active_component_unload']={
             'status':'not_verified',
@@ -293,7 +293,7 @@ class ArrayEvidence(AlchemyEvidence):
             self.click(x,57,label='final_blueprint_'+layer)
             self.capture('final-blueprint-'+layer+'.png')
         self.close_menu()
-        probe=self.one('myvillage array port '+position(ORIGIN),'ALCHEMY_ARRAY_PORT')
+        probe=self.one('yuanxian array port '+position(ORIGIN),'ALCHEMY_ARRAY_PORT')
         self.check('controller_does_not_publish_any_item_capability',
                    all(not side['available'] for side in probe['sides']),probe)
         # This hopper touches the controller's front, not an item port. Vanilla
@@ -589,7 +589,7 @@ class ArrayEvidence(AlchemyEvidence):
     def run(self):
         self.start()
         for command in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),
-                        'myvillage world pause','forceload add -32 -32 80 32','tick rate 20'):
+                        'yuanxian world pause','forceload add -32 -32 80 32','tick rate 20'):
             self.rc(command)
         for case in self.cases:
             getattr(self,case)()

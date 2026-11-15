@@ -13,9 +13,9 @@ def main():
     selected=['candidate_identity','fresh_natural_headquarters','collision_and_light_readback','phase_and_saved_restart'];result=dict(source=a.source,seed=a.seed,selected=selected,completed=[],failed=[],unrun=selected.copy(),owner_visual_acceptance='not_verified',mapped_input='not_selected')
     stage=selected[0]
     def complete():result['completed'].append(stage);result['unrun'].remove(stage);write(out/'result.json',result)
-    def query(command):return json.loads(server.command('myvillage worldplan '+command).split('WORLDPLAN ',1)[1])
+    def query(command):return json.loads(server.command('yuanxian worldplan '+command).split('WORLDPLAN ',1)[1])
     def readback():
-        answer=server.command('myvillage qianji probe');return json.loads(answer[answer.index('{'):])
+        answer=server.command('yuanxian qianji probe');return json.loads(answer[answer.index('{'):])
     def load(city,q):
         x0,z0,x1,z1=q['bounds'];x0+=city['x'];x1+=city['x']-1;z0+=city['z'];z1+=city['z']-1
         chunks={(x*16+8,z*16+8) for x in range(x0//16,x1//16+1) for z in range(z0//16,z1//16+1)};assert len(chunks)<=256
@@ -48,9 +48,9 @@ def main():
             if time.monotonic()>deadline:raise AssertionError(read)
             time.sleep(2)
         assert len(read['targets'])==31;result['standing_targets']=len(read['targets']);result['light_minimum']=minimum;complete();stage=selected[3]
-        anchor=' '.join(map(str,read['anchor']));before=server.command('myvillage qianji phase 50');assert '50.0' in before,before
+        anchor=' '.join(map(str,read['anchor']));before=server.command('yuanxian qianji phase 50');assert '50.0' in before,before
         offset=server.command('data get block '+anchor+' CycleOffset');write(out/'phase-before.json',dict(command=before,offset=offset))
-        invalid=server.command('myvillage qianji phase 78');assert '相位超过当前周期' in invalid,invalid
+        invalid=server.command('yuanxian qianji phase 78');assert '相位超过当前周期' in invalid,invalid
         assert server.command('data get block '+anchor+' CycleOffset')==offset
         server.stop();server.start();query('export');assert json.loads((server.data/'worldplan.json').read_text())==plan
         load(city,q);after=readback();assert after['anchor_bound'] and after['all_standing'];assert server.command('data get block '+anchor+' CycleOffset')==offset

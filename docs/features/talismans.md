@@ -51,7 +51,7 @@
 
 H → 技艺页显示炼丹／炼器／制符三项资质与服务器计算品质上限；宽屏并列，窄屏可滚动。品质沿用 crafting 统一上限规则；本 demo 每批确定地产出其冻结上限品质，不按重开或每笔重新随机。
 
-管理员 fixture：`/myvillage cultivation crafting set <player> talisman 90`；读回 `/myvillage cultivation crafting <player>`。既有 `xiulian jiyi`、`shezhi`、`zhifu` 等别名同一服务器处理器。真实路径以 `CultivationCommands` 现有根命令为准；这些指令不完成任何玩家绘制。
+管理员 fixture：`/yuanxian cultivation crafting set <player> talisman 90`；读回 `/yuanxian cultivation crafting <player>`。既有 `xiulian jiyi`、`shezhi`、`zhifu` 等别名同一服务器处理器。真实路径以 `CultivationCommands` 现有根命令为准；这些指令不完成任何玩家绘制。
 
 `CultivationSnapshotPayload` 增加制符资质与上限。0.96.0 的统一网络 protocol 已从 47 提升至 **48**，客户端与服务器须使用同一版本。
 
@@ -83,10 +83,10 @@ H → 技艺页显示炼丹／炼器／制符三项资质与服务器计算品�
 权限 2：
 
 ```text
-/myvillage talisman status
-/myvillage talisman status <x> <y> <z>
-/myvillage talisman status <player>
-/myvillage talisman status <player> <x> <y> <z>
+/yuanxian talisman status
+/yuanxian talisman status <x> <y> <z>
+/yuanxian talisman status <player>
+/yuanxian talisman status <player> <x> <y> <z>
 ```
 
 RCON 请用显式玩家和坐标。省略坐标优先当前打开的真实制符案，其次当前视线内方块。命令不加载未知区块，不初始化资质，不推进脉冲，也不扣费。

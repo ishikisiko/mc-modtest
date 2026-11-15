@@ -132,13 +132,13 @@ class NpcLifeEvidence(Evidence):
         return state
 
     def status(self, person):
-        rows = resident_rows(self.rc(f'myvillage life status {person}'))
+        rows = resident_rows(self.rc(f'yuanxian life status {person}'))
         if len(rows) != 1:
             raise ValueError(f'Missing resident {person}')
         return rows[0]
 
     def residents(self):
-        return resident_rows(self.rc('myvillage life status site showcase'))
+        return resident_rows(self.rc('yuanxian life status site showcase'))
 
     def xyz(self, local):
         return [self.offset[0]+local[0], -61+local[1], self.offset[1]+local[2]]
@@ -158,11 +158,11 @@ class NpcLifeEvidence(Evidence):
 
     def setup(self):
         u = self.s.username
-        for command in ('myvillage world pause', 'gamerule doMobSpawning false',
+        for command in ('yuanxian world pause', 'gamerule doMobSpawning false',
                         'gamerule doFireTick false', 'gamerule randomTickSpeed 0',
                         'gamerule spawnChunkRadius 0', 'time set day'):
             self.rc(command)
-        origin = self.one('myvillage wilderness info 0 -60 0', 'WILDERNESS_INFO')
+        origin = self.one('yuanxian wilderness info 0 -60 0', 'WILDERNESS_INFO')
         candidates = self.ledger('candidate-selection')
         self.report['population_tier'] = candidates['tier']
         by_region = {}
@@ -205,32 +205,32 @@ class NpcLifeEvidence(Evidence):
 
     def bind_idempotence(self):
         x, z = self.offset
-        bind = f'myvillage life bind showcase yunshan_showcase_v2 {x} -61 {z}'
+        bind = f'yuanxian life bind showcase yunshan_showcase_v2 {x} -61 {z}'
         self.rc(bind)
         gather = self.xyz([33, 1, 14])
-        self.rc('myvillage life place showcase gather_lane gather '+' '.join(map(str, gather)))
+        self.rc('yuanxian life place showcase gather_lane gather '+' '.join(map(str, gather)))
         first = self.ledger('bound')
         self.rc(bind)
         again = self.ledger('rebound')
         self.check('bind_preserves_places_and_population', first['life']['sites'] == again['life']['sites']
             and len(again['life']['sites'][0]['places']) == 14
             and self.initial['persons'] == again['persons'], {'sites': again['life']['sites']})
-        self.rc(f'myvillage life bind showcase yunshan_showcase_v2 {x+1} -61 {z}')
+        self.rc(f'yuanxian life bind showcase yunshan_showcase_v2 {x+1} -61 {z}')
         conflict = self.ledger('conflict')
         self.check('conflicting_origin_rejected', conflict['life']['sites'] == again['life']['sites'], {})
         self.check('all_authored_places_available', all(v == 'available' for v in again['life']['observations'].values()), again['life']['observations'])
 
     def demo_identity(self):
-        self.rc('myvillage life demo showcase')
+        self.rc('yuanxian life demo showcase')
         first = self.residents()
         self.check('four_residents_created', len(first) == 4, first)
         self.ids = {r['role']: r['personId'] for r in first}
-        self.rc('myvillage life demo showcase')
+        self.rc('yuanxian life demo showcase')
         second = self.residents()
         self.check('demo_idempotent', first == second, second)
         state = self.ledger('demo')
         self.check('demo_uses_existing_people', {r['id'] for r in state['persons']} == {r['id'] for r in self.initial['persons']}, self.ids)
-        self.rc('myvillage world resume')
+        self.rc('yuanxian world resume')
         self.poll(self.residents, lambda rows: len(rows) == 4 and all(r['embodied'] for r in rows), 35, 'four actual bodies')
 
     def day_loop(self):
@@ -261,7 +261,7 @@ class NpcLifeEvidence(Evidence):
 
     def talk(self, person, username=None, game=None):
         username, game = username or self.s.username, game or self.s.game
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         body = self.body(person)
         x, y, z = body['Pos']
         # Choose an actually empty adjacent feet/head position; never teleport the NPC.
@@ -293,7 +293,7 @@ class NpcLifeEvidence(Evidence):
                 continue
         self.check('mapped_conversation_reaches_resident', contacted, {'person': person, 'approaches': possible})
         game.shot(self.out/f'conversation-{username}.png', max_wait=3, settle=.2)
-        self.rc('myvillage world resume')
+        self.rc('yuanxian world resume')
 
     def conversation(self):
         pid = self.ids['innkeeper']
@@ -311,9 +311,9 @@ class NpcLifeEvidence(Evidence):
 
     def blocked_route(self):
         pid = self.ids['rogue']
-        self.rc('myvillage world resume')
+        self.rc('yuanxian world resume')
         r = self.poll(lambda: self.status(pid), lambda r: r['phase'] == 'moving' and r['embodied'], 90, 'moving resident')
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         body = self.body(pid)
         x, y, z = map(math.floor, body['Pos'])
         target = next(p for p in self.ledger('route-before')['life']['sites'][0]['places'] if p['id'] == r['targetId'])
@@ -333,34 +333,34 @@ class NpcLifeEvidence(Evidence):
         try:
             for p in backup:
                 self.rc('setblock '+' '.join(map(str, p))+' minecraft:barrier')
-            self.rc('myvillage world resume')
+            self.rc('yuanxian world resume')
             failed = self.poll(lambda: self.status(pid), lambda r: r['reason'] in FAILURES, 70, 'blocked route fails')
             self.check('blocked_job_no_reward', failed['completedActivities'] == before['completedActivities']
                        and failed['herbs'] == before['herbs'] and failed['coins'] == before['coins'], {'before': before, 'after': failed})
         finally:
             for p in backup:
                 self.rc('setblock '+' '.join(map(str, p))+' minecraft:air')
-            self.rc('myvillage world resume')
+            self.rc('yuanxian world resume')
         self.poll(lambda: self.status(pid), lambda r: r['completedActivities'] > before['completedActivities'], 100, 'restored route completes')
 
     def removed_facility(self):
         p = self.places['herbalist_work']
         xyz = self.xyz(p['block_pos'])
         pos = ' '.join(map(str, xyz))
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         before = self.ledger('facility-before')
         try:
             self.rc(f'setblock {pos} minecraft:air')
-            self.rc('myvillage life status site showcase')
+            self.rc('yuanxian life status site showcase')
             removed = self.ledger('facility-removed')
             self.check('removed_furnace_blocks_station', removed['life']['observations']['showcase|herbalist_work'] == 'blocked', {})
-            self.rc('myvillage world resume')
+            self.rc('yuanxian world resume')
             time.sleep(self.rules['durations']['work']/20+3)
             after = self.ledger('facility-no-production')
             self.check('absent_furnace_no_medicine', before['life']['supplies']['showcase']['medicine'] == after['life']['supplies']['showcase']['medicine'], after['life']['supplies'])
         finally:
             self.rc(f'setblock {pos} {p["block"]}')
-        self.rc('myvillage life status site showcase')
+        self.rc('yuanxian life status site showcase')
         self.check('restored_furnace_available', self.ledger('facility-restored')['life']['observations']['showcase|herbalist_work'] == 'available', {})
 
     def away(self, username=None):
@@ -382,7 +382,7 @@ class NpcLifeEvidence(Evidence):
     def restart_mid_activity(self):
         pid = self.ids['innkeeper']
         self.poll(lambda: self.status(pid), lambda r: r['phase'] == 'working' and 0 < r['progressTicks'] < r['requiredTicks']-40, 120, 'unfinished actual work')
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         before_rows = self.residents()
         before = self.ledger('restart-before')
         self.stop()
@@ -395,7 +395,7 @@ class NpcLifeEvidence(Evidence):
         self.check('restart_exact_work_balances_and_recomputed_travel',
             restart_preserves_life(before, stopped, after, self.rules),
             {'before': project(before), 'stopped': project(stopped), 'after': project(after)})
-        self.rc('myvillage world resume')
+        self.rc('yuanxian world resume')
         rows = self.poll(self.residents, lambda rows: all(r['embodied'] for r in rows), 30, 'new leases')
         self.check('restart_renews_leases', all(r['epoch'] > next(b['epoch'] for b in before_rows if b['personId'] == r['personId']) for r in rows), rows)
         before_count = next(r['completedActivities'] for r in before_rows if r['personId'] == pid)
@@ -422,7 +422,7 @@ class NpcLifeEvidence(Evidence):
         self.report['multiplayer'] = 'two_actual_clients_mapped_conversation_and_shared_body_pass'
 
     def avatar_cap(self):
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         self.stop()
         config = cs.SERVER_DIR/cs.LEVEL_NAME/'serverconfig/myvillage-world_sim-server.toml'
         config_existed = config.exists()
@@ -434,7 +434,7 @@ class NpcLifeEvidence(Evidence):
         try:
             self.start(reuse=True)
             self.center()
-            self.rc('myvillage world resume')
+            self.rc('yuanxian world resume')
             rows = self.poll(self.residents, lambda rows: sum(r['embodied'] for r in rows) == 1 and all(r['observed'] for r in rows), 35, 'one body and four observers')
             waiting = {r['personId']: r for r in rows if not r['embodied']}
             time.sleep(25)
@@ -443,7 +443,7 @@ class NpcLifeEvidence(Evidence):
             self.check('cap_waiters_no_hidden_progress', all(not after[p]['embodied'] and all(r[f] == after[p][f] for f in fields) for p, r in waiting.items()), {'before': waiting, 'after': after})
         finally:
             if self.s:
-                self.rc('myvillage world pause')
+                self.rc('yuanxian world pause')
                 self.stop()
             if config_existed:
                 config.write_text(original)
@@ -451,11 +451,11 @@ class NpcLifeEvidence(Evidence):
                 config.unlink()
             self.start(reuse=True)
             self.center()
-            self.rc('myvillage world resume')
+            self.rc('yuanxian world resume')
 
     def occupied_spawn(self):
         pid = self.ids['innkeeper']
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         self.away()
         self.poll(lambda: self.status(pid), lambda r: not r['embodied'], 30, 'withdraw for obstruction')
         r = self.status(pid)
@@ -468,7 +468,7 @@ class NpcLifeEvidence(Evidence):
         try:
             self.rc(f'setblock {pos} minecraft:barrier')
             self.rc(f'gamemode creative {self.s.username}')
-            self.rc('myvillage world resume')
+            self.rc('yuanxian world resume')
             time.sleep(5)
             after = self.status(pid)
             self.check('occupied_spawn_waits_without_reward', after['observed'] and not after['embodied']
@@ -482,7 +482,7 @@ class NpcLifeEvidence(Evidence):
         self.center()
         pid = self.ids['innkeeper']
         self.poll(lambda: self.status(pid), lambda r: r['embodied'] and r['phase'] == 'working', 120, 'stable worker before checkpoint fixture')
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         before = self.status(pid)
         body = self.body(pid)
         x, y, z = body['Pos']
@@ -506,7 +506,7 @@ class NpcLifeEvidence(Evidence):
                 {'before': before, 'after': restored, 'actual_body': self.body(pid)['Pos']})
         finally:
             self.rc(f'data merge entity {selector} {{NoGravity:0b}}')
-            self.rc('myvillage world resume')
+            self.rc('yuanxian world resume')
 
     def sect_dialogue(self, person, label):
         body = self.body(person)
@@ -555,7 +555,7 @@ class NpcLifeEvidence(Evidence):
     def sect_regression(self):
         from tools.combat_capture.rcon import connect
         from tools.world_sim_entry_evidence import panel_tab_center
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         initial = self.ledger('sect-before')
         members = lambda sect: [p for p in initial['persons'] if p['sect'] == sect['id'] and p['status'] == 'at_sect']
         sects = [s for s in initial['sects'] if s['state'] == 'active' and len(members(s)) >= 2]
@@ -564,7 +564,7 @@ class NpcLifeEvidence(Evidence):
         sid, u = sect['id'], self.s.username
         x, z = sect['gate_x'], sect['gate_z']
         self.rc(teleport_command(u, [x+.5, -60, z-20.5]))
-        command = f'myvillage world sect {sid} build'
+        command = f'yuanxian world sect {sid} build'
         with connect(self.s.state['rcon_port'], self.s.state['rcon_password'], retries=1, timeout=180) as r:
             reply = r.cmd(command)
         self.report['commands'].append({'command': command, 'reply': reply, 'purpose': 'admin gate fixture; no natural-realization claim'})
@@ -580,8 +580,8 @@ class NpcLifeEvidence(Evidence):
         bodies = self.poll(avatars, lambda rows: any('avatar.steward' in b.get('CustomName', '') for b in rows.values()), 60, 'actual sect steward')
         steward = next(pid for pid, b in bodies.items() if 'avatar.steward' in b.get('CustomName', ''))
         self.check('town_residents_excluded_from_gate_avatars', not set(bodies).intersection(self.ids.values()), {'steward': steward, 'gate_people': list(bodies)})
-        self.rc(f'myvillage cultivation setroot {u} 4000 1500 1500 1500 1500')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:mortal myvillage:mortal_qi_sensed')
+        self.rc(f'yuanxian cultivation setroot {u} 4000 1500 1500 1500 1500')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:mortal myvillage:mortal_qi_sensed')
         options = self.sect_dialogue(steward, 'sect-join')
         self.choose_option(options, 'JOIN')
         joined = self.ledger('sect-joined')
@@ -592,7 +592,7 @@ class NpcLifeEvidence(Evidence):
         tasked = self.ledger('sect-task-accepted')
         member = next(p for p in tasked['player_members'] if p['name'] == u)
         self.check('mapped_task_acceptance', bool(member['task']), member)
-        self.rc(f'myvillage world sect {sid} rank {u} inner')
+        self.rc(f'yuanxian world sect {sid} rank {u} inner')
         elders = [p for p in members(sect) if p['rank'] in ('elder', 'master') and p['id'] in bodies and p['id'] != steward]
         self.check('existing_elder_available', bool(elders), [p['id'] for p in elders])
         options = self.sect_dialogue(elders[0]['id'], 'sect-elder')
@@ -615,7 +615,7 @@ class NpcLifeEvidence(Evidence):
         self.center()
         after = self.ledger('sect-return')
         self.check('town_identity_and_work_preserved_during_sect_visit', assets(initial) == assets(after), {'before': assets(initial), 'after': assets(after)})
-        self.rc('myvillage world resume')
+        self.rc('yuanxian world resume')
         self.report['sect_regression'] = 'mapped_join_task_accept_elder_dialogue_leave_and_panel_capture; task_completion_not_verified'
 
     def run(self):
@@ -636,16 +636,16 @@ class NpcLifeEvidence(Evidence):
                     raise
                 if self.s:
                     self.close_screen()
-                    self.rc('myvillage world resume')
+                    self.rc('yuanxian world resume')
                     self.center()
             finally:
                 self.report['cases'].setdefault(name, {})['wall_seconds'] = round(time.monotonic()-started, 3)
                 self.save()
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         final = self.ledger('final')
         self.report['final_supply'] = final['life']['supplies']
         for pid in self.ids.values():
-            self.rc(f'myvillage life unassign {pid}')
+            self.rc(f'yuanxian life unassign {pid}')
         cleanup = self.ledger('cleanup')
         self.check('cleanup_retains_people', all(pid in {p['id'] for p in cleanup['persons']} for pid in self.ids.values())
                    and not cleanup['life']['residents'], self.ids)

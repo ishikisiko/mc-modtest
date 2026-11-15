@@ -500,8 +500,8 @@ class Run:
         self.dpy = days_per_year(info)
         y = YEAR_NOW.search(info)
         self.facts["ledger_start"] = {"year": int(y.group(1)) if y else None, "days_per_year": self.dpy}
-        root = self.rc(f"myvillage cultivation setroot {PLAYER} 4000 1500 1500 1500 1500")
-        realm = self.rc(f"myvillage cultivation setrealm {PLAYER} myvillage:mortal myvillage:mortal_qi_sensed")
+        root = self.rc(f"yuanxian cultivation setroot {PLAYER} 4000 1500 1500 1500 1500")
+        realm = self.rc(f"yuanxian cultivation setrealm {PLAYER} myvillage:mortal myvillage:mortal_qi_sensed")
         self.check("player_qualified_setup", "Cultivation update for" in root and "Cultivation update for" in realm,
                    f"{root.strip()} / {realm.strip()}")
 
@@ -673,7 +673,7 @@ class Run:
             self.facts["promotion"] = "not_captured (--skip-promotion)"
             return
         self.t.note("advance: the player's realm set to qi_refining_5, one more year")
-        realm = self.rc(f"myvillage cultivation setrealm {PLAYER} myvillage:qi_refining myvillage:qi_refining_5")
+        realm = self.rc(f"yuanxian cultivation setrealm {PLAYER} myvillage:qi_refining myvillage:qi_refining_5")
         if "Cultivation update for" not in realm:
             self.facts["promotion"] = f"not_captured (setrealm failed: {realm.strip()[:160]})"
             self.note(self.facts["promotion"])

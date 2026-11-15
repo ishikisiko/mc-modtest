@@ -66,12 +66,12 @@ class StoneEvidence(LegacyEvidence):
             ('guardian-back',(.5,-59,15.3),(.5,-58,8.5),'石灵背面'),
             ('guardian-detail',(2.8,-57.8,4.8),(.5,-57.2,8.5),'石灵面部和胸前刻纹')]:
             self.camera(position,target);self.picture(name,label)
-        self.rc('myvillage beast debug on');self.rc('data merge entity @e[tag=legacy_beast,limit=1] {NoAI:0b}')
+        self.rc('yuanxian beast debug on');self.rc('data merge entity @e[tag=legacy_beast,limit=1] {NoAI:0b}')
         self.camera((5.8,-55.8,-.4),(.5,-57,8.5))
         def action():
-            self.rc('myvillage beast move @e[tag=legacy_beast,limit=1] myvillage:stele_guardian_quake')
+            self.rc('yuanxian beast move @e[tag=legacy_beast,limit=1] myvillage:stele_guardian_quake')
             time.sleep(4.0)
-            self.rc('myvillage beast move @e[tag=legacy_beast,limit=1] myvillage:stele_guardian_slam')
+            self.rc('yuanxian beast move @e[tag=legacy_beast,limit=1] myvillage:stele_guardian_slam')
         self.record('guardian-motion','石灵动作展示（管理员触发动作，用于检查骨骼与表面）',action,8)
         self.report['guardian_pose_boundary']='静态图为 NoAI 造型夹具；动作由管理员命令触发，均不作为自然遭遇或玩家战斗验收。'
         self.rc('kill @e[tag=legacy_beast]');self.step(25)

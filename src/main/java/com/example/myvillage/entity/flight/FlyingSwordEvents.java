@@ -1,5 +1,7 @@
 package com.example.myvillage.entity.flight;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import com.example.myvillage.cultivation.CultivationService;
 import net.minecraft.commands.Commands;
@@ -64,7 +66,7 @@ public final class FlyingSwordEvents {
         }
     }
     @SubscribeEvent public static void commands(RegisterCommandsEvent e) {
-        e.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("flying_sword")
+        e.getDispatcher().register(ModCommands.root().then(Commands.literal("flying_sword")
                 .requires(s -> s.hasPermission(2)).then(Commands.literal("status")
                 .executes(c -> status(c.getSource(), c.getSource().getPlayerOrException()))
                 .then(Commands.argument("player", EntityArgument.player()).executes(c ->

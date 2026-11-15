@@ -5,16 +5,16 @@
 在有作弊权限的创造世界中使用：
 
 ```mcfunction
-/myvillage manor list
-/myvillage manor visit beiyuan
-/myvillage manor visit nanjiang
-/myvillage manor visit lingyue
-/myvillage manor visit ximo
-/myvillage manor visit donghai
-/myvillage manor visit donghuang
-/myvillage manor visit moyu
-/myvillage manor status
-/myvillage manor leave
+/yuanxian manor list
+/yuanxian manor visit beiyuan
+/yuanxian manor visit nanjiang
+/yuanxian manor visit lingyue
+/yuanxian manor visit ximo
+/yuanxian manor visit donghai
+/yuanxian manor visit donghuang
+/yuanxian manor visit moyu
+/yuanxian manor status
+/yuanxian manor leave
 ```
 
 首次访问时，服务器在独立空白维度 `myvillage:manor_gallery` 中分批构造相应样板，完成后自动进入并启用创造飞行。再次访问直接进入。样板坐标只用于展示，不代表城市选址。`leave` 在同次服务运行中返回进入前的位置；重启后使用主世界出生点。

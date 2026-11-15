@@ -189,7 +189,7 @@ class DistrictEvidence(BuildingEvidence):
     def setup(self):
         user = self.s.username
         for command in (*scene.world_rules(), f'op {user}', f'clear {user}',
-                        f'gamemode spectator {user}', 'myvillage world pause',
+                        f'gamemode spectator {user}', 'yuanxian world pause',
                         'gamerule doFireTick false', 'gamerule randomTickSpeed 0',
                         'gamerule spawnRadius 0', 'defaultgamemode creative',
                         f'effect give {user} minecraft:saturation infinite 255 true'):
@@ -318,7 +318,7 @@ class DistrictEvidence(BuildingEvidence):
         self.rc(f'spawnpoint {self.s.username} '+' '.join(map(str, block)))
         self.rc(f'gamemode creative {self.s.username}')
         self.rc(f'effect clear {self.s.username}')
-        self.rc('myvillage world resume')
+        self.rc('yuanxian world resume')
         self.rc('gamerule randomTickSpeed 3')
         self.rc('forceload remove all')
         self.teleport(pos, spawn.get('yaw', 0), spawn.get('pitch', 0))

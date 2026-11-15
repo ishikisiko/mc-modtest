@@ -83,7 +83,7 @@ class InkEvidence(Evidence):
         raise TimeoutError(f"{label}: {last}")
 
     def profile(self):
-        return parse_profile(self.rc(f"myvillage cultivation info {self.s.username}"))
+        return parse_profile(self.rc(f"yuanxian cultivation info {self.s.username}"))
 
     def start(self):
         if ROOT != Path("/workspace/repo"):
@@ -100,8 +100,8 @@ class InkEvidence(Evidence):
         self.must("profile_binding", options.get("key_key.myvillage.open_cultivation_profile", "key.keyboard.h") == "key.keyboard.h", options.get("key_key.myvillage.open_cultivation_profile", "registered H"))
         u = self.s.username
         for cmd in (*scene.world_rules(), *scene.player_setup(u, "minecraft:air"),
-                    "myvillage world pause", "forceload add -16 -16 32 32",
-                    f"myvillage cultivation awaken {u}", f"myvillage cultivation initiate {u}"):
+                    "yuanxian world pause", "forceload add -16 -16 32 32",
+                    f"yuanxian cultivation awaken {u}", f"yuanxian cultivation initiate {u}"):
             self.rc(cmd)
         self.poll(lambda: self.rc("execute if loaded 0 -61 0 run time query gametime"),
                   lambda r: "The time is " in r, 30, "floor chunk")
@@ -180,9 +180,9 @@ class InkEvidence(Evidence):
         self.s.game.key("x")
         data = json.loads((ROOT / f"src/main/resources/data/myvillage/myvillage/realm/{realm}.json").read_text())
         definition = next(s for s in data["stages"] if s["id"] == "myvillage:" + stage)
-        for cmd in (f"myvillage cultivation setrealm {self.s.username} myvillage:{realm} myvillage:{stage}",
-                    f"myvillage cultivation setprogress {self.s.username} {int(definition.get('cultivation_cap', 0) * fraction)}",
-                    f"myvillage cultivation setstability {self.s.username} {stable}"):
+        for cmd in (f"yuanxian cultivation setrealm {self.s.username} myvillage:{realm} myvillage:{stage}",
+                    f"yuanxian cultivation setprogress {self.s.username} {int(definition.get('cultivation_cap', 0) * fraction)}",
+                    f"yuanxian cultivation setstability {self.s.username} {stable}"):
             self.rc(cmd)
         time.sleep(.35)
         self.panel()
@@ -254,7 +254,7 @@ class InkEvidence(Evidence):
         self.fixture("foundation_establishment", "foundation_middle")
         self.close_panel()
         self.rc(f"clear {self.s.username}")
-        self.rc(f"myvillage cultivation manual {self.s.username} myvillage:tuna_xinfa")
+        self.rc(f"yuanxian cultivation manual {self.s.username} myvillage:tuna_xinfa")
         self.s.game.key("1")
         self.s.game.xdo("click", "3")
         self.report["inputs"].append({"action": "study manual", "method": "mapped right mouse"})

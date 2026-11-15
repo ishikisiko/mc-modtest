@@ -12,14 +12,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * {@code /myvillage spawn} command surface — a thin query/debug wrapper over
+ * {@code /yuanxian spawn} command surface — a thin query/debug wrapper over
  * {@link RegionRuntimeService}. Ships two literals:
  *
  * <ul>
- *   <li>{@code /myvillage spawn info} — query only: prints the computed spawn
+ *   <li>{@code /yuanxian spawn info} — query only: prints the computed spawn
  *       region, the spawn block, and the calling player's current region /
  *       rung / next-rung region set.</li>
- *   <li>{@code /myvillage spawn recompute} — admin/permission-gated: forces a
+ *   <li>{@code /yuanxian spawn recompute} — admin/permission-gated: forces a
  *       recompute of spawn for the current world and calls
  *       {@code setDefaultSpawnPos}. This overrides any existing spawn — the
  *       documented admin-override path; the automatic world-load binding
@@ -35,7 +35,7 @@ public final class RegionCommands {
     }
 
     /**
-     * {@code /myvillage spawn info} — print the computed spawn region + block
+     * {@code /yuanxian spawn info} — print the computed spawn region + block
      * and the calling player's current region / rung / next-rung set.
      *
      * @return 1 on success, 0 if the runtime is inactive
@@ -89,7 +89,7 @@ public final class RegionCommands {
     }
 
     /**
-     * {@code /myvillage spawn recompute} — force a spawn recompute for the
+     * {@code /yuanxian spawn recompute} — force a spawn recompute for the
      * current world and call {@code setDefaultSpawnPos}, overriding any
      * existing spawn (admin override). Does nothing if the runtime is inactive.
      *

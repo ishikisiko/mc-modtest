@@ -33,13 +33,13 @@ class RosterEvidence(FoundationEvidence):
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1;self.report['phases'].append({'phase':'start','timings':state.get('timings',{})});self.save()
     def setup(self):
         u=self.s.username
-        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','gamerule naturalRegeneration false','gamerule doMobLoot true','forceload add -80 -80 80 80','tick unfreeze','tick rate 20',f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'myvillage cultivation learn {u} myvillage:liuyun_bu',f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4',f'myvillage cultivation crafting set {u} alchemy 100',f'myvillage cultivation crafting set {u} forging 100'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','gamerule naturalRegeneration false','gamerule doMobLoot true','forceload add -80 -80 80 80','tick unfreeze','tick rate 20',f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',f'yuanxian cultivation learn {u} myvillage:liuyun_bu',f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4',f'yuanxian cultivation crafting set {u} alchemy 100',f'yuanxian cultivation crafting set {u} forging 100'):
             self.rc(cmd)
         # Reused production scenes leave formed furnaces/forges at the combat target.
         # Clear only this owned lab before preparing new observations.
         cleared=self.rc('fill -24 -60 -12 24 -49 40 minecraft:air')
         self.check('owned_lab_clear',bool(re.match(r'^Successfully filled|^No blocks were filled',cleared)),cleared)
-        self.rc('fill -24 -61 -12 24 -61 40 minecraft:stone');self.rc('myvillage beast debug on');self.close_menu()
+        self.rc('fill -24 -61 -12 24 -61 40 minecraft:stone');self.rc('yuanxian beast debug on');self.close_menu()
     def capture(self,name,game=None):
         game=game or self.s.game;game.xdo('mousemove','0','0');time.sleep(.15)
         window=game.xdo('search','--name','Minecraft').split()[0]
@@ -135,7 +135,7 @@ class RosterEvidence(FoundationEvidence):
         for r in self.recipes:
             self.cooldown();self.rc(f'clear {u}');self.use_pill(r['output'],2);state=self.med()
             self.check('actual_pill_use_'+r['id'],state['effect']==r['id'] and state['effect_ticks']>0 and self.count(r['output'])==1,{'medicine':state,'inventory':self.inventory()})
-            self.report.setdefault('medicine_attributes',{})[r['id']]=self.rc(f'myvillage stats info {u}')
+            self.report.setdefault('medicine_attributes',{})[r['id']]=self.rc(f'yuanxian stats info {u}')
         # One array batch reuses exactly the same new three-ingredient recipe.
         self.place_fixture();r=self.recipes[0];self.rc(f'clear {u}')
         for item in r['ingredients']:self.rc(f'give {u} {item} 1')
@@ -158,7 +158,7 @@ class RosterEvidence(FoundationEvidence):
     def effects(self):
         from tools.elemental_arts_evidence import ElementalEvidence
         u=self.s.username;self.close_menu();self.rc('gamerule doMobSpawning false');self.rc('kill @e[type=!minecraft:player,tag=!roster_persist_lantern_sporeling]');self.rc('tick rate 20');self.rc(f'gamemode survival {u}');scene.ensure_cultivation(self.s)
-        def status():return self.one(f'myvillage expedition status {u}','EXPEDITION')
+        def status():return self.one(f'yuanxian expedition status {u}','EXPEDITION')
         def equip(trait):
             self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword[myvillage:forge_mark={{trait:"{trait}",quality:3}}]');self.s.game.key('1');time.sleep(.3)
         def dummy():
@@ -184,17 +184,17 @@ class RosterEvidence(FoundationEvidence):
         helper=ElementalEvidence(self.out/'effect-actions',[],attach=True);helper.s=self.s;helper.freeze()
         # A previous run/restart may retain this higher-grade skill ahead of the
         # elemental helper's two-card grid. Normalize the owned test loadout.
-        helper.rc(f'myvillage cultivation forget {u} myvillage:huifeng_jianzhen')
-        helper.fixture_loadout(['linghuo_shu']);helper.rc(f'myvillage cultivation qi fill {u}');equip('warding');dummy();helper.rc('tick unfreeze');helper.key('z');time.sleep(.4)
+        helper.rc(f'yuanxian cultivation forget {u} myvillage:huifeng_jianzhen')
+        helper.fixture_loadout(['linghuo_shu']);helper.rc(f'yuanxian cultivation qi fill {u}');equip('warding');dummy();helper.rc('tick unfreeze');helper.key('z');time.sleep(.4)
         self.check('warding_from_actual_elemental_cast',status()['ward']>0 and status()['cooldowns']['warding']>0,status());self.capture('trait-warding.png')
-        helper.freeze();helper.rc(f'myvillage cultivation learn {u} myvillage:huifeng_jianzhen');helper.fixture_loadout(['huifeng_jianzhen']);helper.rc(f'myvillage cultivation qi fill {u}');equip('riposte');dummy();helper.key('z');helper.step(1)
+        helper.freeze();helper.rc(f'yuanxian cultivation learn {u} myvillage:huifeng_jianzhen');helper.fixture_loadout(['huifeng_jianzhen']);helper.rc(f'yuanxian cultivation qi fill {u}');equip('riposte');dummy();helper.key('z');helper.step(1)
         self.rc(f'damage {u} 4 minecraft:mob_attack by '+TARGET)
         self.check('riposte_matching_frontal_guard_receipt',status()['ready']>0 and status()['cooldowns']['riposte']>0,status())
         helper.step(40);self.mapped('click','1');helper.step(12)
         self.check('riposte_consumed_by_mapped_counter',status()['active_boost']>0,status());self.capture('trait-riposte.png');helper.rc('tick unfreeze');helper.report['status']='passed';helper.save()
         equip('soul_return');self.rc('kill @e[tag=roster_target]');self.rc('tag @e[tag=roster_target] remove roster_target');self.rc(f'tp {u} .5 -60 .5 0 15');time.sleep(1.2)
-        spawned=self.rc('myvillage wilderness spawn_test 0 -60 2 1');self.check('assigned_kill_fixture_created','WILDERNESS_BIRTH' in spawned,spawned)
-        self.rc('tag @e[type=myvillage:demon_wolf,sort=nearest,limit=1] add roster_target');self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc('tp '+TARGET+' .5 -60 2.1');self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'myvillage cultivation qi set {u} 1')
+        spawned=self.rc('yuanxian wilderness spawn_test 0 -60 2 1');self.check('assigned_kill_fixture_created','WILDERNESS_BIRTH' in spawned,spawned)
+        self.rc('tag @e[type=myvillage:demon_wolf,sort=nearest,limit=1] add roster_target');self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc('tp '+TARGET+' .5 -60 2.1');self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'yuanxian cultivation qi set {u} 1')
         for _ in range(5):self.mapped('click','1');time.sleep(.3)
         self.check('soul_return_actual_attributed_kill',status()['cooldowns']['soul_return']>0,status());self.capture('trait-soul-return.png')
         self.report['effect_boundary_fixtures']='Carapace and guard incoming hit use attributed /damage for an exact timing boundary; guard cast and counter are mapped input. Soul-return lethal fixture uses assigned wolf at Health=1 and a mapped sword kill.'

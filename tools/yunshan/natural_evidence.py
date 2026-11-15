@@ -248,7 +248,7 @@ class NaturalEvidence(DistrictEvidence):
             bindings = dict(line.split(':', 1) for line in (cs.CLIENT_DIR/'options.txt').read_text().splitlines() if ':' in line)
             self.check('mapped_forward_binding', bindings.get('key_key.forward') == 'key.keyboard.w', {'forward': bindings.get('key_key.forward')})
             for command in (*scene.world_rules(), f'op {self.s.username}', f'clear {self.s.username}',
-                            f'gamemode spectator {self.s.username}', 'myvillage world pause',
+                            f'gamemode spectator {self.s.username}', 'yuanxian world pause',
                             'gamerule doFireTick false', 'gamerule randomTickSpeed 0'):
                 self.rc(command)
 
@@ -366,7 +366,7 @@ class NaturalEvidence(DistrictEvidence):
         for command in ('setworldspawn '+' '.join(map(str, block))+' '+str(spawn.get('yaw', 0)),
                         f'spawnpoint {self.s.username} '+' '.join(map(str, block)),
                         'defaultgamemode creative', f'gamemode creative {self.s.username}',
-                        f'effect clear {self.s.username}', 'myvillage world resume',
+                        f'effect clear {self.s.username}', 'yuanxian world resume',
                         'gamerule randomTickSpeed 3', 'forceload remove all'):
             self.rc(command)
         self.teleport(pos, spawn.get('yaw', 0), spawn.get('pitch', 0))

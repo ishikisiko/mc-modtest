@@ -22,7 +22,7 @@ class SizeEvidence(RosterEvidence):
         finally:self.rc('tick unfreeze')
         self.done('saved_dimensions');self.setup()
         self.roster['mobs']=[m for m in self.roster['mobs'] if m['kind']!='人形']
-        self.rc(f'myvillage cultivation qi fill {self.s.username}')
+        self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         self.combat();self.done('combat')
 
 if __name__=='__main__':

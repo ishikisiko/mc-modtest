@@ -1,5 +1,7 @@
 package com.example.myvillage.exploration;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.stats.RealmKey;
@@ -288,9 +290,9 @@ public final class ExplorationRuntime {
                     var context = at(c.getSource().getLevel(), BlockPos.containing(c.getSource().getPosition()), null);
                     c.getSource().sendSuccess(() -> Component.literal("EXPLORATION_INFO " + JSON.toJson(context.orElse(null))), false); return 1;
                 })).build();
-        // Existing /myvillage administrators retain their permission boundary. The standalone
+        // Existing /yuanxian administrators retain their permission boundary. The standalone
         // read-only command is available to ordinary survival players as well.
         event.getDispatcher().getRoot().addChild(command);
-        event.getDispatcher().register(Commands.literal("myvillage").then(command));
+        event.getDispatcher().register(ModCommands.root().then(command));
     }
 }

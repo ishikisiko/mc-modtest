@@ -241,7 +241,7 @@ def outputs():
         lang['cultivation.technique.myvillage.'+a['id']]=a['name'];lang['combat.myvillage.art.'+a['id']+'.description']=a['description']
     lang.update({'entity.myvillage.legacy_projection':'传承灵相','block.myvillage.sword_inscription':'剑痕碑','block.myvillage.mountain_stele':'镇岳碑','item.myvillage.sword_rubbing':'剑痕拓本','item.myvillage.mountain_rubbing':'镇岳碑拓','legacy.myvillage.blocked':'当前位置无法完成这次施法。','legacy.myvillage.no_weapon':'请手持这门功法所需的器物。','legacy.myvillage.deployed':'器物尚在外面，请先召回。','legacy.myvillage.empty':'器物中没有可释放的灵力。','legacy.myvillage.charge':'储存：%s / %s','legacy.myvillage.trial':'石碑已唤醒守护者，完成试炼后用纸拓印。','legacy.myvillage.paper':'完成试炼后，对石碑使用纸可以获得拓本。','legacy.myvillage.claimed':'此处碑文已经拓印。','legacy.myvillage.water':'将绢卷浸入水中，再右键展开。','legacy.myvillage.mirror_ready':'镜面已张开，请迎向来袭的箭矢或小火球。','legacy.myvillage.mirror_caught':'照水镜已截住一道攻击。'})
     emit('assets/myvillage/lang/zh_cn.json',lang)
-    commands=['# 给予验收物品，不改变境界和学习状态']+['give @s myvillage:'+i['id'] for i in c['items']]+['myvillage cultivation manual @s myvillage:'+a['id'] for a in c['arts']]+['give @s myvillage:'+m['id']+'_spawn_egg' for m in c['mobs']]
+    commands=['# 给予验收物品，不改变境界和学习状态']+['give @s myvillage:'+i['id'] for i in c['items']]+['yuanxian cultivation manual @s myvillage:'+a['id'] for a in c['arts']]+['give @s myvillage:'+m['id']+'_spawn_egg' for m in c['mobs']]
     raw('data/myvillage/function/legacy_encounters_kit.mcfunction',('\n'.join(commands)+'\n').encode())
     guide='---\nnavigation:\n  title: 遗迹传承\n  parent: index.md\n  position: 44\n  icon: myvillage:guiyan_sword\n---\n# 四组遗迹传承\n\n四门功法都需炼气四层，研读后在 H → 技能中分配，按 R 进入修炼战斗模式。再次按相同技能键可召回飞剑、返回残影或收回镇岳尺；潜行施放伏火诀会引爆已有火种。\n\n'
     for m,a,item in zip(c['mobs'],c['arts'],c['items']):

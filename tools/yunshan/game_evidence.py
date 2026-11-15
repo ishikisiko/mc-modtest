@@ -106,7 +106,7 @@ class BuildingEvidence(Evidence):
         u=self.s.username
         for command in (*scene.world_rules(),f'op {u}',f'clear {u}',f'gamemode creative {u}',
                         f'effect give {u} minecraft:saturation infinite 255 true','gamerule doFireTick false','gamerule randomTickSpeed 0',
-                        'myvillage world pause','forceload add -32 -48 96 112',
+                        'yuanxian world pause','forceload add -32 -48 96 112',
                         'fill -16 -62 -32 88 -61 88 minecraft:smooth_stone','setworldspawn 32 -60 -8 0',
                         'defaultgamemode creative'):
             self.rc(command)
@@ -162,10 +162,10 @@ class BuildingEvidence(Evidence):
             self.rc(f'clear {u}')
             yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
             self.s.game.shot(self.out/d['presentation']['role']/(service['approach']+'-before-use.png'),max_wait=2,settle=.45)
-            before=self.rc(f'myvillage cultivation info {u}') if 'inheritance_stele' in service['state'] else None
+            before=self.rc(f'yuanxian cultivation info {u}') if 'inheritance_stele' in service['state'] else None
             self.s.game.require_ingame('mapped facility use');self.s.game.xdo('click','3')
             if 'inheritance_stele' in service['state']:
-                after=self.poll(lambda:self.rc(f'myvillage cultivation info {u}'),lambda s:'myvillage:basic_breathing' in s,10,'mapped inheritance')
+                after=self.poll(lambda:self.rc(f'yuanxian cultivation info {u}'),lambda s:'myvillage:basic_breathing' in s,10,'mapped inheritance')
                 self.check(d['id']+'_mapped_inheritance','myvillage:basic_breathing' not in before,{'before':before,'after':after})
             else:
                 self.poll(self.s.game.pointer_grabbed,lambda s:not s,10,'mapped facility UI')

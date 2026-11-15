@@ -28,7 +28,7 @@
 - 地区分组：`blueprints/worldplan/rules_v11.json`；地区阶位：`data/myvillage/worldgen/region_profile/`；出生境界：`data/myvillage/wilderness/rules.json`。
 - 生态作者输入：`blueprints/wilderness/habitats.json`；`python3 -m tools.wilderness_habitats.generate` 导出规则和据点方块，`--check` 核对输出。
 - 当前世界冻结的规则拥有地形、规划与刷新参数。仅新建修仙大陆使用本次布局，不追加旧世界迁移或回填。
-- 管理员 `/myvillage habitat` 只读查看月份、据点、有限名单、活动与已加载实体；不会加载区块或重置进度。
+- 管理员 `/yuanxian habitat` 只读查看月份、据点、有限名单、活动与已加载实体；不会加载区块或重置进度。
 - 状态测试覆盖同月有限名单、月度恢复、月份回拨、跳月、施工保留、保存往返及旧身份拒绝；原生检查另外验证真实生成、攻击、卸载、重启与双玩家共享名单。
 
 开发者检查、映射输入证据和玩家外观、手感、FPS 的验收分别记录。原生场景结果见 [0.132.0 验收与下载](../testing/2026-11-15-east-wilderness.md)；九层上限和当前蓝图展示见 [0.132.1 局部检查与下载](../testing/2026-11-15-east-qi9.md)。

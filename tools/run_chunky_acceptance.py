@@ -662,13 +662,13 @@ def run_stage2_commands(args: argparse.Namespace, report: dict[str, Any], rcon: 
     write_report(report)
 
     command_cases = [
-        ("myvillage list", "Loaded myvillage structures"),
-        ("myvillage placeat small_house_001 0 80 192", "Placed myvillage:small_house_001"),
-        ("myvillage placeat chinese_mansion_001 128 180 192", "Placed myvillage:chinese_mansion_001"),
-        ("myvillage galleryat cultivation 256 80 192", "Placed myvillage cultivation gallery"),
-        (f"myvillage townat {args.myvillage_seed} 1024 80 192", "Generated living town"),
-        (f"myvillage sectat {args.myvillage_seed} -1024 80 192", "Generated sect compound"),
-        (f"myvillage sectat worldgen {args.myvillage_seed} none -1024 80 768", "Generated sect compound"),
+        ("yuanxian list", "Loaded myvillage structures"),
+        ("yuanxian placeat small_house_001 0 80 192", "Placed myvillage:small_house_001"),
+        ("yuanxian placeat chinese_mansion_001 128 180 192", "Placed myvillage:chinese_mansion_001"),
+        ("yuanxian galleryat cultivation 256 80 192", "Placed myvillage cultivation gallery"),
+        (f"yuanxian townat {args.myvillage_seed} 1024 80 192", "Generated living town"),
+        (f"yuanxian sectat {args.myvillage_seed} -1024 80 192", "Generated sect compound"),
+        (f"yuanxian sectat worldgen {args.myvillage_seed} none -1024 80 768", "Generated sect compound"),
     ]
 
     try:
@@ -721,9 +721,9 @@ def run_stage3_commands(args: argparse.Namespace, report: dict[str, Any], rcon: 
         raise RuntimeError(stage["error"])
 
     command_cases = [
-        ("myvillage galleryat cultivation 1536 80 192", "Placed myvillage cultivation gallery"),
-        (f"myvillage townat {args.myvillage_seed} 2304 80 192", "Generated living town"),
-        (f"myvillage sectat worldgen {args.myvillage_seed} none 2304 80 768", "Generated sect compound"),
+        ("yuanxian galleryat cultivation 1536 80 192", "Placed myvillage cultivation gallery"),
+        (f"yuanxian townat {args.myvillage_seed} 2304 80 192", "Generated living town"),
+        (f"yuanxian sectat worldgen {args.myvillage_seed} none 2304 80 768", "Generated sect compound"),
     ]
 
     try:

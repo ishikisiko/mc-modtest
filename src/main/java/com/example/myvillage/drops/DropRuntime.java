@@ -1,5 +1,7 @@
 package com.example.myvillage.drops;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.forging.FireCaptureItem;
 import com.example.myvillage.region.runtime.*;
 import com.example.myvillage.stats.*;
@@ -140,7 +142,7 @@ public final class DropRuntime {
                 .then(Commands.argument("region",StringArgumentType.word()).executes(c->show(c.getSource(),ResourceLocationArgument.getId(c,"entity").toString(),StringArgumentType.getString(c,"scene"),StringArgumentType.getString(c,"region"),null,0))
                     .then(Commands.argument("realm",ResourceLocationArgument.id()).then(Commands.argument("stage",IntegerArgumentType.integer(0,8))
                         .executes(c->show(c.getSource(),ResourceLocationArgument.getId(c,"entity").toString(),StringArgumentType.getString(c,"scene"),StringArgumentType.getString(c,"region"),ResourceLocationArgument.getId(c,"realm").toString(),IntegerArgumentType.getInteger(c,"stage"))))))));
-        e.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("drops").requires(s->s.hasPermission(2))
+        e.getDispatcher().register(ModCommands.root().then(Commands.literal("drops").requires(s->s.hasPermission(2))
             .executes(c->status(c.getSource())).then(Commands.literal("status").executes(c->status(c.getSource())))
             .then(Commands.literal("reload").executes(c->reload(c.getSource())))
             .then(Commands.literal("inspect").then(Commands.argument("target",EntityArgument.entity()).executes(c->inspect(c.getSource(),EntityArgument.getEntity(c,"target")))))

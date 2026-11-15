@@ -47,7 +47,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
     def arena(self):
         u = self.s.username
         for command in ('gamerule doMobSpawning false', 'gamerule naturalRegeneration false',
-                        'gamerule doDaylightCycle false', 'time set day', 'myvillage world pause',
+                        'gamerule doDaylightCycle false', 'time set day', 'yuanxian world pause',
                         f'tp {u} .5 -60 .5 0 0'):
             self.rc(command)
         self.poll(lambda:self.rc('execute if loaded 0 -60 2'), lambda r:'passed' in r, 30, 'arena loaded')
@@ -158,8 +158,8 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_cross_a"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         self.rc('summon myvillage:demon_wolf .5 -60 5 {Tags:["npc_cross_wolf"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         wolf='@e[tag=npc_cross_wolf,limit=1]'
-        self.rc('myvillage beast debug on')
-        self.poll(lambda:self.rc(f'myvillage beast status {wolf}'),
+        self.rc('yuanxian beast debug on')
+        self.poll(lambda:self.rc(f'yuanxian beast status {wolf}'),
                   lambda line:(m:=re.search(r'\bt=(\d+)',line)) is not None and int(m[1])>=2,
                   5,'beast has entered its real AI loop')
         # Provoke the NPC. Its actual sword then triggers the beast's vanilla retaliation goal.
@@ -168,8 +168,8 @@ class NpcCombatEvidence(NpcLifeEvidence):
         try:
             self.poll(lambda:[self.hp(a),self.hp(wolf)],lambda hp:all(hp[i]<before[i] for i in (0,1)),20,'actual NPC versus beast retaliation')
         finally:
-            self.rc(f'myvillage beast status {wolf}');self.inspect(a);self.inspect(wolf)
-            self.rc('myvillage beast debug off')
+            self.rc(f'yuanxian beast status {wolf}');self.inspect(a);self.inspect(wolf)
+            self.rc('yuanxian beast debug off')
         self.check('npc_versus_beast_uses_real_attacks',True,{'before':before,'after':[self.hp(a),self.hp(wolf)]})
         self.rc(f'kill {a}');self.rc(f'kill {wolf}')
 
@@ -303,20 +303,20 @@ class NpcCombatEvidence(NpcLifeEvidence):
         before = self.body(pid)
         self.rc(f'summon myvillage:cultivator {before["Pos"][0]} {before["Pos"][1]} {before["Pos"][2]} {{WorldSimPerson:{pid}}}')
         self.check('copied_avatar_identity_rejected',self.count(pid)==1 and self.body(pid)['UUID']==before['UUID'],{'person':pid})
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         self.away()
         self.poll(lambda:self.count(pid), lambda count:count==0, 35, 'physical body withdrawn')
         saved = self.ledger('withdrawn')
         profile = next(p['state'] for p in saved['combat']['profiles'] if p['person']==pid)
         self.check('withdrawal_preserves_loss_and_weapon', profile['health'] < profile['maximumHealth'] and 'qingfeng_sword' in profile['weapon'] and 'minecraft:damage' in profile['weapon'], profile)
         self.center()
-        self.rc('myvillage world resume')
+        self.rc('yuanxian world resume')
         self.poll(lambda:self.count(pid), lambda count:count==1, 35, 'one new projection')
         after = self.body(pid)
         self.check('new_body_keeps_health_loss_and_renews_lease', after['Health'] < profile['maximumHealth']
             and after['UUID'] != before['UUID'] and after['NpcCombatView']['epoch'] > before['NpcCombatView']['epoch'],
             {'before':before,'after':after})
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         self.away()
         self.poll(lambda:self.count(pid), lambda count:count==0, 35, 'withdraw before restart snapshot')
         self.ledger('restart-before')
@@ -327,7 +327,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         def durable(state):
             return next(p['state'] for p in state['combat']['profiles'] if p['person']==pid)
         self.check('restart_keeps_combat_profile', durable(stopped)==durable(loaded), {'stopped':durable(stopped),'loaded':durable(loaded)})
-        self.center(); self.rc('myvillage world resume')
+        self.center(); self.rc('yuanxian world resume')
         self.poll(lambda:self.count(pid), lambda count:count==1, 35, 'post-restart body')
         self.check('restart_does_not_refresh_health', self.body(pid)['Health'] < durable(loaded)['maximumHealth'], self.body(pid))
 
@@ -358,20 +358,20 @@ class NpcCombatEvidence(NpcLifeEvidence):
             and all(p['person_id']!=pid for p in state['life']['residents']), {'person':pid})
         self.away(); time.sleep(2)
         self.ledger('dead-before-restart'); self.stop(); self.start(reuse=True)
-        self.center(); self.rc('myvillage world resume'); time.sleep(4)
+        self.center(); self.rc('yuanxian world resume'); time.sleep(4)
         state = self.ledger('dead-return')
         self.check('dead_person_never_reprojects_or_duplicates_receipt', self.count(pid)==0
             and len([p for p in state['tombstones'] if p['id']==pid])==1, tomb)
 
     def sources(self):
         from tools.combat_capture.rcon import connect
-        self.rc('myvillage world pause')
+        self.rc('yuanxian world pause')
         state=self.ledger('sect-combat-before')
         members=lambda sect:[p for p in state['persons'] if p['sect']==sect['id'] and p['status']=='at_sect']
         sect=max((s for s in state['sects'] if s['state']=='active' and len(members(s))>=2),key=lambda s:len(members(s)))
         x,z=sect['gate_x'],sect['gate_z'];u=self.s.username
         self.rc(f'gamemode creative {u}');self.rc(teleport_command(u,[x+.5,-60,z-20.5]))
-        command=f'myvillage world sect {sect["id"]} build'
+        command=f'yuanxian world sect {sect["id"]} build'
         with connect(self.s.state['rcon_port'],self.s.state['rcon_password'],retries=1,timeout=180) as r:
             reply=r.cmd(command)
         self.report['commands'].append({'command':command,'reply':reply,'purpose':'authored sect fixture'})
@@ -388,10 +388,10 @@ class NpcCombatEvidence(NpcLifeEvidence):
         profile=next(p['state'] for p in self.ledger('sect-combat')['combat']['profiles'] if p['person']==pid)
         self.check('sect_projection_uses_durable_combat_profile',profile['health']<profile['maximumHealth'],profile)
         self.rc(f'gamemode creative {u}')
-        origin=self.one('myvillage wilderness info 0 -60 0','WILDERNESS_INFO')
+        origin=self.one('yuanxian wilderness info 0 -60 0','WILDERNESS_INFO')
         center=None
         for candidate in origin['centers']:
-            info=self.one(f'myvillage wilderness info {candidate["x"]} -60 {candidate["z"]}','WILDERNESS_INFO')
+            info=self.one(f'yuanxian wilderness info {candidate["x"]} -60 {candidate["z"]}','WILDERNESS_INFO')
             if info.get('eligibleRogues',0)>0:center=candidate;break
         self.check('wilderness_has_existing_person',center is not None,origin['centers'])
         self.rc(teleport_command(u,[center['x']+.5,-60,center['z']+.5]))
@@ -437,7 +437,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
             if case not in ('duel','reactions','cross_targets','group_hits','collision','retreat','ledge'):
                 if not life_prepared:
                     self.prepare_life(); life_prepared=True
-                self.center(); self.rc('myvillage world resume')
+                self.center(); self.rc('yuanxian world resume')
                 living = self.ledger('case-'+case)['persons']
                 alive = {p['id'] for p in living}
                 for pid in self.ids.values():

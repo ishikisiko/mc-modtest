@@ -6,8 +6,8 @@ wrap this script in flock): Xvfb + the acceptance server + one client (``tools/c
 fresh superflat world, surface y = -60). The player is switched to creative and stays creative. Ledger
 settlement is paused first so no calendar day changes the members mid-check (``advance`` still settles).
 
-1. Pick the active sect with the most members at the gate (``/myvillage world sects`` and ``sect <id>``).
-2. ``execute positioned <x> -60 <z> run myvillage world sect <id> build here`` (moves the ledger gate to that
+1. Pick the active sect with the most members at the gate (``/yuanxian world sects`` and ``sect <id>``).
+2. ``execute positioned <x> -60 <z> run yuanxian world sect <id> build here`` (moves the ledger gate to that
    point, builds the compound there, records the realization).
 3. ``tp`` the player into the courtyard behind the gate on the lowest terrace; the number of
    ``myvillage:cultivator`` entities must reach min(members at the gate, 12); every avatar must stand on a
@@ -16,7 +16,7 @@ settlement is paused first so no calendar day changes the members mid-check (``a
 4. Force-load the courtyard chunks, ``tp`` 300 blocks away: the count must drop to 0 although those chunks
    stay loaded (withdrawn, not merely unloaded). ``forceload remove``, return: the count matches again and every
    UUID is new (a fresh projection, not the old entities coming back).
-5. ``/myvillage world advance 60``: the count follows the ledger again, and every avatar's ledger record says
+5. ``/yuanxian world advance 60``: the count follows the ledger again, and every avatar's ledger record says
    that person is alive, at the sect, and of that sect.
 6. A ``/damage`` on an avatar fails (invulnerable); a plainly summoned cultivator still takes damage; a summon
    carrying the avatar tag is refused when it joins the level.
@@ -53,7 +53,7 @@ from tools.combat_capture.rcon import connect as rcon_connect  # noqa: E402
 OUT = REPO / "out" / "preview" / "world_sim" / "avatars"
 SERVER_LOG = REPO / "run-acceptance" / "logs" / "latest.log"
 PLAYER = "CaptureDev"
-W = "myvillage world"
+W = "yuanxian world"
 # Wilderness projections share the entity type but are not compound evidence.
 CULT = "@e[type=myvillage:cultivator,nbt=!{Tags:[\"myvillage:wild_avatar\"]}]"
 SURFACE_Y = -60

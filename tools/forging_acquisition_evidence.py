@@ -157,9 +157,9 @@ class AcquisitionEvidence(ForgingEvidence):
         self.report['completed'].append('tool_gates')
     def fill_power(self,user=None):
         u=user or self.s.username
-        cap=parse_profile(self.rc(f'myvillage cultivation info {u}'))['power_cap']
-        self.rc(f'myvillage cultivation setpower {u} {cap}')
-        actual=parse_profile(self.rc(f'myvillage cultivation info {u}'))['power']
+        cap=parse_profile(self.rc(f'yuanxian cultivation info {u}'))['power_cap']
+        self.rc(f'yuanxian cultivation setpower {u} {cap}')
+        actual=parse_profile(self.rc(f'yuanxian cultivation info {u}'))['power']
         if actual!=cap:raise RuntimeError(f'Power fixture rejected: {actual} != {cap}')
         return cap
     def copper_stacks(self,user=None):return [s for s in self.inventory(user).values() if s['id']=='minecraft:copper_ingot']
@@ -172,8 +172,8 @@ class AcquisitionEvidence(ForgingEvidence):
         self.rc(f'give {u} minecraft:copper_ingot 4');self.s.game.key('1')
         original=self.copper_stacks();self.infusion();self.insert_copper();self.click(120,137);time.sleep(.5);self.close_menu()
         self.check('unawakened_refused',self.copper_stacks()==original and self.count('myvillage:chitong_ingot')==0,self.inventory())
-        self.rc(f'myvillage cultivation awaken {u}')
-        self.infusion();self.insert_copper();self.rc(f'myvillage cultivation setpower {u} 0');self.click(120,137);time.sleep(1.2);self.capture('insufficient-qi.png');self.close_menu()
+        self.rc(f'yuanxian cultivation awaken {u}')
+        self.infusion();self.insert_copper();self.rc(f'yuanxian cultivation setpower {u} 0');self.click(120,137);time.sleep(1.2);self.capture('insufficient-qi.png');self.close_menu()
         self.check('insufficient_qi_no_partial_pulse',self.copper_stacks()==original and self.count('myvillage:chitong_ingot')==0,self.copper_stacks())
         cap=self.fill_power();self.infusion();self.insert_copper();self.click(120,137)
         self.poll(lambda:self.profile()['power'],lambda n:n<=cap-8,8,'two paid pulses');self.click(220,137);self.capture('paused-infusion-zh.png');self.close_menu()
@@ -185,7 +185,7 @@ class AcquisitionEvidence(ForgingEvidence):
         self.check('partial_batch_survives_restart',self.inventory()==before,self.inventory());self.report['completed'].append('partial_restart')
         with SecondClient(self) as guest:
             v=guest.username;g=guest.game
-            self.rc(f'op {v}');self.rc(f'myvillage cultivation awaken {v}');self.fill_power(v);self.rc(f'clear {v}')
+            self.rc(f'op {v}');self.rc(f'yuanxian cultivation awaken {v}');self.fill_power(v);self.rc(f'clear {v}')
             self.rc(f'give {v} minecraft:copper_ingot 2')
             owner_before=self.inventory();self.infusion(g,v);self.insert_copper(v,g);self.click(120,137,game=g)
             cap=self.fill_power();self.infusion();self.insert_copper();self.capture('resumed-infusion-en.png');self.click(120,137)
@@ -199,7 +199,7 @@ class AcquisitionEvidence(ForgingEvidence):
             self.check('owner_natural_materials_not_shared',all(self.count(item)==sum(s['count'] for s in owner_before.values() if s['id']==item) for item in ['myvillage:raw_xuantie','myvillage:edge_tempering_sand']),self.inventory())
         self.report['completed'].append('private_batches');self.report['multiplayer']='bounded two-client private-batch checks'
     def forge_acquired(self):
-        u=self.s.username;self.rc(f'myvillage cultivation crafting set {u} forging 0')
+        u=self.s.username;self.rc(f'yuanxian cultivation crafting set {u} forging 0')
         self.rc(f'give {u} myvillage:pattern_qingfeng_sword')
         pattern_slot=next(slot for slot,stack in self.inventory().items() if stack['id']=='myvillage:pattern_qingfeng_sword')
         if not 0<=pattern_slot<9:raise RuntimeError('Pattern fixture needs a free hotbar slot')
@@ -215,7 +215,7 @@ class AcquisitionEvidence(ForgingEvidence):
     def visual_preview(self):
         self.report['selected']=['staged_visuals'];self.start();u=self.s.username
         for cmd in scene.world_rules():self.rc(cmd)
-        self.rc('myvillage world pause');self.platform()
+        self.rc('yuanxian world pause');self.platform()
         for cmd in ['fill -4 121 3 -2 121 5 myvillage:xuantie_ore',
                     'setblock -3 122 4 myvillage:xuantie_ore',
                     'fill 2 121 3 4 121 5 myvillage:edge_tempering_sand_deposit']:
@@ -231,7 +231,7 @@ class AcquisitionEvidence(ForgingEvidence):
     def run(self):
         self.start();u=self.s.username
         for cmd in scene.world_rules():self.rc(cmd)
-        for cmd in ['myvillage world pause',f'op {u}',f'clear {u}',f'effect give {u} minecraft:resistance infinite 4 true',f'effect give {u} minecraft:water_breathing infinite 0 true']:
+        for cmd in ['yuanxian world pause',f'op {u}',f'clear {u}',f'effect give {u} minecraft:resistance infinite 4 true',f'effect give {u} minecraft:water_breathing infinite 0 true']:
             self.rc(cmd)
         ore,sand=self.natural();self.mining_cases(ore,sand);self.infusion_cases();self.forge_acquired()
         self.report['status']='pass'

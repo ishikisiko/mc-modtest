@@ -80,35 +80,35 @@ class HubEvidence(InkEvidence):
         self.report['source_commit']=json.loads(Path('/workspace/request.json').read_text())['commit']
         self.report['phases'].append({'phase':'setup','timings':state.get('timings',{}),'framebuffer':state.get('framebuffer')})
         u=self.s.username
-        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause',
-                    'forceload add -16 -16 32 32',f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause',
+                    'forceload add -16 -16 32 32',f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}'):
             self.rc(cmd)
         self.poll(lambda:self.rc('execute if loaded 0 -61 0 run time query gametime'),lambda r:'The time is ' in r,30,'fixture loaded')
         self.rc('fill -4 -61 -4 4 -61 4 minecraft:stone');self.rc(f'tp {u} .5 -60 .5 0 0')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
-        self.rc(f'myvillage cultivation setroot {u} 4000 1500 1500 1500 1500')
-        self.rc(f'myvillage cultivation crafting set {u} alchemy 76')
-        self.rc(f'myvillage cultivation crafting set {u} forging 68')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
+        self.rc(f'yuanxian cultivation setroot {u} 4000 1500 1500 1500 1500')
+        self.rc(f'yuanxian cultivation crafting set {u} alchemy 76')
+        self.rc(f'yuanxian cultivation crafting set {u} forging 68')
         self.learned=['basic_breathing','tuna_xinfa','qingmu_changchun_gong','liuyun_bu','tiegu_gong','jianqi_jue',
                       'qinglian_jiange','huifeng_jianzhen','canglong_chushui','hengsao_qianjun','bengshan_jin','jingang_zhen']
         # Four grades of ordinary core methods prove that the symbol remains shared.
         for grade in (2,3,4):
             self.learned.append(next(k for k,v in sorted(self.defs.items()) if v['category']=='core' and v['grade']==grade))
         for ident in self.learned:
-            if ident!='basic_breathing':self.rc(f'myvillage cultivation learn {u} myvillage:{ident}')
+            if ident!='basic_breathing':self.rc(f'yuanxian cultivation learn {u} myvillage:{ident}')
         profile=self.profile()
         self.must('fixture_techniques_learned',all('myvillage:'+i in profile['learned'] for i in self.learned),profile['learned'])
-        self.rc(f'myvillage cultivation fate roll {u}')
+        self.rc(f'yuanxian cultivation fate roll {u}')
         state=self.fates()
         definitions={'myvillage:'+p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/myvillage/innate_fate').glob('*.json')}
         request_ticks=json.loads((ROOT/'src/main/resources/data/myvillage/fates/rules.json').read_text())['request_ticks']
         self.poll(self.fates,lambda value:value['now']>=state['now']+request_ticks,5,'fate request interval elapsed')
-        self.rc(f'myvillage cultivation fate confirm {u} {choose_mask(state,definitions)}')
+        self.rc(f'yuanxian cultivation fate confirm {u} {choose_mask(state,definitions)}')
         confirmed=self.poll(self.fates,lambda value:value['confirmed'],5,'fate fixture confirmed')
         self.must('fixture_fates_confirmed',confirmed['confirmed'],confirmed['selected'])
 
     def fates(self):
-        reply=self.rc(f'myvillage cultivation fate status {self.s.username}')
+        reply=self.rc(f'yuanxian cultivation fate status {self.s.username}')
         return fate_state(reply)
 
     def position_window(self,size):
@@ -150,7 +150,7 @@ class HubEvidence(InkEvidence):
         self.report['screenshots'].append({'file':name+'.png','purpose':'actual hover details','capture':meta});self.save()
 
     def bindings(self):
-        return self.rc(f'execute as {self.s.username} run myvillage combat bindings')
+        return self.rc(f'execute as {self.s.username} run yuanxian combat bindings')
 
     def run(self):
         self.start()
@@ -185,8 +185,8 @@ class HubEvidence(InkEvidence):
         self.must('clear_server_confirmed','myvillage:canglong_chushui' not in self.bindings(),self.bindings())
         self.report['completed'].append('bindings')
 
-        self.close_panel();self.rc(f'myvillage cultivation setrealm {self.s.username} myvillage:qi_refining myvillage:qi_refining_6')
-        self.rc(f'myvillage cultivation setprogress {self.s.username} 400')
+        self.close_panel();self.rc(f'yuanxian cultivation setrealm {self.s.username} myvillage:qi_refining myvillage:qi_refining_6')
+        self.rc(f'yuanxian cultivation setprogress {self.s.username} 400')
         self.show_page(1);before=self.profile()['progress']
         b=bounds(self.s.game.size);cell=(b['width']-12)//4;action_y=b['y']+b['height']-22+4+9
         self.gui_click(b['x']+cell//2,action_y,'normal meditation')

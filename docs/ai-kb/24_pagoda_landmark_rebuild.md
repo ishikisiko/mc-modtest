@@ -66,9 +66,9 @@ python3 tools/validate_runtime_town_plan.py
 Review in game with the unchanged commands:
 
 ```mcfunction
-/myvillage place pagoda_001
-/myvillage place pagoda_002
-/myvillage place pagoda_003
+/yuanxian place pagoda_001
+/yuanxian place pagoda_002
+/yuanxian place pagoda_003
 /function myvillage:gallery/cultivation_town
 ```
 

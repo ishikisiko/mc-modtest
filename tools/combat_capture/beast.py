@@ -132,7 +132,7 @@ class BeastCapture:
     def setup_world(self):
         self.s.view = "first"  # the client joins in first person
         self.run(*scene.world_rules(), "difficulty normal", "tick unfreeze", "tick rate 20",
-                 "gamerule doMobLoot false", "myvillage beast debug on")
+                 "gamerule doMobLoot false", "yuanxian beast debug on")
         self.run(f"op {self.user}", "kill @e[type=!minecraft:player]", f"clear {self.user}",
                  f"effect clear {self.user}", f"experience set {self.user} 0 levels",
                  f"effect give {self.user} minecraft:saturation infinite 255 true",
@@ -156,7 +156,7 @@ class BeastCapture:
         return parse_pos(self.run(f"data get entity {who} Pos", warn=False)[0])
 
     def status(self, tag: str = TAG) -> dict:
-        return parse_status(self.run(f"myvillage beast status {self.sel(tag)}", warn=False)[0])
+        return parse_status(self.run(f"yuanxian beast status {self.sel(tag)}", warn=False)[0])
 
     def spectate(self, target, yaw, view, distance=3.2, eye_up=1.1, aim_up=0.75):
         x, y, z, look_yaw, pitch = camera_pose(target, yaw, view, distance, eye_up, aim_up)
@@ -208,7 +208,7 @@ class BeastCapture:
             self.log(f"move stills: {move['id']}")
             self.fresh_beast()
             self.hide_hud(True)
-            reply = self.run(f"myvillage beast move {self.sel()} {move['id']}")[0]
+            reply = self.run(f"yuanxian beast move {self.sel()} {move['id']}")[0]
             self.manifest["notes"].append(f"{move['id']}: {reply.strip()}")
             current = -1
             for key, tick in key_ticks(move):
@@ -237,7 +237,7 @@ class BeastCapture:
         a time from the tick after the lunge until the server reports the beast
         on the ground, and take the landing stills there and two ticks later."""
         self.fresh_beast()
-        self.run(f"myvillage beast move {self.sel()} {move['id']}")
+        self.run(f"yuanxian beast move {self.sel()} {move['id']}")
         current = -1
         landing = None
         for tick in range(move["lunge"]["tick"] + 1, move["total_ticks"] - 2):
@@ -301,7 +301,7 @@ class BeastCapture:
                 def act(total, move=move, timeline=timeline):
                     t0 = time.time()
                     time.sleep(1.0)
-                    self.run(f"tick rate {rate}", f"myvillage beast move {self.sel()} {move['id']}", "tick unfreeze")
+                    self.run(f"tick rate {rate}", f"yuanxian beast move {self.sel()} {move['id']}", "tick unfreeze")
                     seen = False
                     while time.time() - t0 < total - 0.5:
                         st = self.status()
@@ -428,7 +428,7 @@ class BeastCapture:
             with self.s.rcon() as r:
                 while not stop.is_set():
                     t = time.time()
-                    st = r.cmd(f"myvillage beast status {self.sel()}").strip()
+                    st = r.cmd(f"yuanxian beast status {self.sel()}").strip()
                     hp = parse_float(r.cmd(f"data get entity {self.user} Health"))
                     samples.append((round(t, 3), st, hp))
                     time.sleep(0.02)
@@ -507,7 +507,7 @@ class BeastCapture:
     def dodge(self):
         """Trials at /tick rate 5 (the player moves at the same slowed rate)
         against a survival player 2.4 blocks ahead of a fresh beast, each move
-        forced with /myvillage beast move:
+        forced with /yuanxian beast move:
 
         - the close-range move (smallest use_range maximum): standing still,
           strafing left (A held for 11 ticks) from its first tick, and strafing
@@ -547,7 +547,7 @@ class BeastCapture:
             hp_before = parse_float(self.run(f"data get entity {self.user} Health", warn=False)[0])
             start_pos = self.pos(None)
             self.run(f"damage {self.sel()} 0.5 minecraft:player_attack by {self.user}",
-                     f"myvillage beast move {self.sel()} {move['id']}", "tick rate 5", "tick unfreeze")
+                     f"yuanxian beast move {self.sel()} {move['id']}", "tick rate 5", "tick unfreeze")
             held = False
             released_at = 0.0
             swung_at = None
@@ -868,7 +868,7 @@ def run_beast(session: Session, beast: str, out: Path, parts: list[str], log=pri
         try:
             if cap.hud_hidden:
                 cap.hide_hud(False)
-            cap.run("tick unfreeze", "myvillage beast debug off", warn=False)
+            cap.run("tick unfreeze", "yuanxian beast debug off", warn=False)
             cap.bury()
         finally:
             cap.finish()

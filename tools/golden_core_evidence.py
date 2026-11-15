@@ -110,7 +110,7 @@ class GoldenEvidence(Evidence):
         self.save()
 
     def profile(self):
-        return parse_profile(self.rc(f'myvillage cultivation info {self.s.username}'))
+        return parse_profile(self.rc(f'yuanxian cultivation info {self.s.username}'))
 
     def wait_profile(self, predicate, timeout, reason):
         deadline = time.monotonic() + timeout
@@ -137,8 +137,8 @@ class GoldenEvidence(Evidence):
     def near_cap(self, source, mode):
         user = self.s.username
         self.stop_input()
-        self.rc(f'myvillage cultivation setprogress {user} {source["cultivation_cap"] - 1}')
-        self.rc(f'myvillage cultivation setstability {user} 0')
+        self.rc(f'yuanxian cultivation setprogress {user} {source["cultivation_cap"] - 1}')
+        self.rc(f'yuanxian cultivation setstability {user} 0')
         self.rc(f'clear {user} myvillage:low_grade_spirit_stone')
         if mode == 'b':
             self.rc(f'give {user} myvillage:low_grade_spirit_stone {source["spirit_stone_cost"]}')
@@ -158,12 +158,12 @@ class GoldenEvidence(Evidence):
         started = time.monotonic()
         user = self.s.username
         for command in (*scene.world_rules(), *scene.player_setup(user, 'minecraft:stick'),
-                        'gamerule naturalRegeneration false', 'myvillage world pause',
-                        'forceload add -16 -16 32 32', f'myvillage cultivation awaken {user}',
-                        f'myvillage cultivation initiate {user}', f'tick rate {self.tick_rate}'):
+                        'gamerule naturalRegeneration false', 'yuanxian world pause',
+                        'forceload add -16 -16 32 32', f'yuanxian cultivation awaken {user}',
+                        f'yuanxian cultivation initiate {user}', f'tick rate {self.tick_rate}'):
             self.rc(command)
         # Existing acquisition is a separate acceptance surface; these are explicit setup fixtures.
-        self.rc(f'myvillage cultivation setrealm {user} myvillage:mortal myvillage:mortal_qi_sensed')
+        self.rc(f'yuanxian cultivation setrealm {user} myvillage:mortal myvillage:mortal_qi_sensed')
         self.rc(f'damage {user} 3 minecraft:generic')
         time.sleep(max(.5, 110 / self.tick_rate))
         self.report['wounded_health'] = self.number(f'data get entity {user} Health')
@@ -180,16 +180,16 @@ class GoldenEvidence(Evidence):
             required = advancement['required_stability']
             # Reject an underfilled source through the same mapped advancement input.
             if source['realm'] != target['realm']:
-                self.rc(f'myvillage cultivation setprogress {user} {source["cultivation_cap"]-1}')
-                self.rc(f'myvillage cultivation setstability {user} {required}')
+                self.rc(f'yuanxian cultivation setprogress {user} {source["cultivation_cap"]-1}')
+                self.rc(f'yuanxian cultivation setstability {user} {required}')
                 self.s.game.key('n'); time.sleep(.4); self.stop_input()
                 rejected = self.profile()
                 self.check(f'{source["id"]}_incomplete_progress_rejected',
                            rejected['stage'] == source['id']
                            and rejected['progress'] == source['cultivation_cap']-1
                            and rejected['stability'] == required, rejected)
-                self.rc(f'myvillage cultivation setprogress {user} {source["cultivation_cap"]}')
-            self.rc(f'myvillage cultivation setstability {user} {required}')
+                self.rc(f'yuanxian cultivation setprogress {user} {source["cultivation_cap"]}')
+            self.rc(f'yuanxian cultivation setstability {user} {required}')
             if advancement['kind'] == 'bottleneck':
                 self.s.game.key('n'); time.sleep(.4); self.stop_input()
                 interrupted = self.profile()
@@ -197,14 +197,14 @@ class GoldenEvidence(Evidence):
                            interrupted['stage'] == source['id']
                            and interrupted['stability'] == required-advancement['interruption_stability_loss'],
                            interrupted)
-                self.rc(f'myvillage cultivation setstability {user} {required}')
-            self.rc(f'myvillage cultivation setpower {user} 0')
+                self.rc(f'yuanxian cultivation setstability {user} {required}')
+            self.rc(f'yuanxian cultivation setpower {user} 0')
             before = self.profile()
             self.s.game.key('n')
             after = self.wait_profile(lambda p: p['stage'] != source['id'],
                                       min(60, advancement['duration_ticks'] / self.tick_rate + 15),
                                       f'{source["id"]} -> {target["id"]}')
-            stats = self.one(f'myvillage stats info {user}', 'STATS_INFO')
+            stats = self.one(f'yuanxian stats info {user}', 'STATS_INFO')
             hp = self.number(f'data get entity {user} Health')
             maximum = self.number(f'attribute {user} minecraft:generic.max_health get')
             alias = next(a for a in rules['player_stage_aliases'] if a['id'] == target['id'])
@@ -241,7 +241,7 @@ class GoldenEvidence(Evidence):
                        and self.stone_count() == stones, terminal)
             self.stop_input()
         self.rc('tick rate 20')
-        self.rc(f'myvillage cultivation setpower {user} 123')
+        self.rc(f'yuanxian cultivation setpower {user} 123')
         self.rc(f'gamemode creative {user}')  # Freeze personal age during restart checks.
         self.rc('save-all flush')  # Commit pending lifespan before taking the comparison baseline.
         self.report['before_restart'] = self.profile()

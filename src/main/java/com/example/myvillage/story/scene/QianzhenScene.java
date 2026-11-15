@@ -1,5 +1,7 @@
 package com.example.myvillage.story.scene;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.story.npc.QianzhenActors;
 import com.example.myvillage.story.realm.QianzhenRealms;
 import com.example.myvillage.worldplan.runtime.WorldPlanRuntime;
@@ -138,7 +140,7 @@ public final class QianzhenScene {
     }
 
     private static void commands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("qianzhen")
+        event.getDispatcher().register(ModCommands.root().then(Commands.literal("qianzhen")
                 .requires(source -> source.hasPermission(2)).then(Commands.literal("deploy")
                         .then(Commands.argument("origin", BlockPosArgument.blockPos()).executes(ctx -> {
                             ServerLevel level = ctx.getSource().getLevel(); BlockPos origin = BlockPosArgument.getBlockPos(ctx, "origin");

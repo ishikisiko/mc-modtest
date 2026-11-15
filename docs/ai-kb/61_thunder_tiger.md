@@ -36,7 +36,7 @@
 
 ```mcfunction
 /locate structure myvillage:thunder_tiger_lair
-/myvillage beast status @e[type=myvillage:thunder_tiger,sort=nearest,limit=1]
+/yuanxian beast status @e[type=myvillage:thunder_tiger,sort=nearest,limit=1]
 ```
 
 独立诊断实体与生成蛋入口：
@@ -49,9 +49,9 @@
 诊断出生没有洞府柱绑定，不能通过普通墙面获得露角窗口。生成蛋可在现有创造物品栏找到。强制动作命令会绕过一般起手距离和冷却，属于开发者准备工具，不能作为真实战斗输入证明；断角后依然拒绝强制主要雷击。
 
 ```mcfunction
-/myvillage beast move @e[type=myvillage:thunder_tiger,sort=nearest,limit=1] myvillage:thunder_tiger_pounce
-/myvillage beast debug on
-/myvillage beast debug off
+/yuanxian beast move @e[type=myvillage:thunder_tiger,sort=nearest,limit=1] myvillage:thunder_tiger_pounce
+/yuanxian beast debug on
+/yuanxian beast debug off
 ```
 
 玩家只读入口 `/exploration guide tiger` 无需管理员权限。通用探索建议也可通过 `/exploration guide`、`/exploration guide tips` 与 `/exploration guide side` 阅读；这些命令不会生成洞府、复活首领或发放本首领奖励。

@@ -57,9 +57,9 @@ class EquipmentEvidence(DemoEvidence):
         self.s=cs.Session(state,ui_check=True);self.sessions+=1
         self.report['phases'].append({'phase':'start','timings':state.get('timings'),'session_id':state['session_id'],'username':self.username})
         self.attach_window();self.poll(self.s.game.pointer_grabbed,lambda v:v is True,label='game input captured')
-        self.poll(lambda:status_json(self.rc('myvillage qianzhen realm_status '+self.username),'QIANZHEN_REALM_STATUS '),
+        self.poll(lambda:status_json(self.rc('yuanxian qianzhen realm_status '+self.username),'QIANZHEN_REALM_STATUS '),
                   lambda s:not s['building'] and not s['waiting'],150,'new player opening setup completes')
-        for command in (*scene.world_rules(),'myvillage world pause',f'op {self.username}',f'gamemode survival {self.username}',
+        for command in (*scene.world_rules(),'yuanxian world pause',f'op {self.username}',f'gamemode survival {self.username}',
                         f'execute in minecraft:overworld run tp {self.username} .5 -60 .5 0 0',
                         'forceload add -16 -16 16 16','fill -12 -61 -12 12 -61 12 minecraft:smooth_stone',
                         f'clear {self.username}',f'effect clear {self.username}',

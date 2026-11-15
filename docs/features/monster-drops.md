@@ -7,12 +7,12 @@
 ## 修改与重载
 
 1. 编辑 `config/myvillage/monster_drops.json`。
-2. 管理员执行 `/myvillage drops reload`。
+2. 管理员执行 `/yuanxian drops reload`。
 3. 成功回复显示本次规则版本和 SHA-256；从下一次死亡起使用新规则，已有怪物也适用。
 
 重载先完整读取并校验全部配置，通过后一次性替换服务器当前快照。语法、重复字段、未知字段、物品/实体/地区ID、数量、概率、境界或格式错误都会拒绝本次重载，当前快照及其版本保持原值。启动时已有文件无效则记录错误并使用本次包内默认规则，`status` 显示启动错误；可修正文件后再次重载。
 
-重载成功后自动导出 `config/myvillage/monster_drops_effective.json` 和 `.csv`。这两份是查询产物，编辑入口始终是 `monster_drops.json`。单独执行 `/myvillage drops export` 也可重新导出；原版数据包 `/reload` 后会刷新导出所引用的基础战利品表。导出失败会记录错误，已经生效的掉落规则继续运行。
+重载成功后自动导出 `config/myvillage/monster_drops_effective.json` 和 `.csv`。这两份是查询产物，编辑入口始终是 `monster_drops.json`。单独执行 `/yuanxian drops export` 也可重新导出；原版数据包 `/reload` 后会刷新导出所引用的基础战利品表。导出失败会记录错误，已经生效的掉落规则继续运行。
 
 ## 四种模式
 
@@ -79,11 +79,11 @@
 这些命令均要求管理员权限2：
 
 ```text
-/myvillage drops status
-/myvillage drops inspect @e[type=myvillage:redplate_lizard,sort=nearest,limit=1]
-/myvillage drops show myvillage:redplate_lizard normal donghuang myvillage:qi_refining 8
-/myvillage drops show myvillage:redplate_lizard habitat donghuang
-/myvillage drops export
+/yuanxian drops status
+/yuanxian drops inspect @e[type=myvillage:redplate_lizard,sort=nearest,limit=1]
+/yuanxian drops show myvillage:redplate_lizard normal donghuang myvillage:qi_refining 8
+/yuanxian drops show myvillage:redplate_lizard habitat donghuang
+/yuanxian drops export
 ```
 
 `inspect` 使用目标真实的来源、地区、已分配境界及捕火状态；它按玩家击杀来预览。`show` 可以指定实体、场景、地区、境界及零基阶段；后面的参数可以依次省略。返回值包含匹配规则、模式、配置掉落、追加项、继承的战利品表及快照身份。

@@ -65,17 +65,17 @@ class GrowthEvidence(LockedEvidence):
         if reuse:
             return
         u = self.s.username
-        for command in (*scene.world_rules(), *scene.player_setup(u, 'minecraft:air'), 'myvillage world pause',
+        for command in (*scene.world_rules(), *scene.player_setup(u, 'minecraft:air'), 'yuanxian world pause',
                         'gamerule naturalRegeneration false', 'forceload add -32 -32 32 48'):
             self.rc(command)
         self.poll(lambda: self.rc('execute if loaded 0 -61 0 run time query gametime'), lambda r: 'The time is' in r, label='fixture chunks')
         self.rc('fill -16 -61 -16 16 -61 40 minecraft:stone')
         self.configure(u)
-        self.rc(f'myvillage cultivation setroot {u} 4000 6000 0 0 0')
+        self.rc(f'yuanxian cultivation setroot {u} 4000 6000 0 0 0')
         self.rc(f'clear {u}')
         self.rc(f'item replace entity {u} hotbar.8 with myvillage:low_grade_spirit_stone 64')
         for ident in (QING, YI, SWORD):
-            self.rc(f'myvillage cultivation forget {u} myvillage:{ident}')
+            self.rc(f'yuanxian cultivation forget {u} myvillage:{ident}')
         self.rc(f'tp {u} .5 -60 .5 0 -10')
         time.sleep(.5)
 
@@ -119,7 +119,7 @@ class GrowthEvidence(LockedEvidence):
 
     def practice_case(self):
         u = self.s.username
-        self.rc(f'myvillage cultivation setmastery {u} myvillage:{BASIC} 40')
+        self.rc(f'yuanxian cultivation setmastery {u} myvillage:{BASIC} 40')
         self.open_growth(BASIC)
         self.capture('01_growth_entry')
         before = self.stones()
@@ -147,7 +147,7 @@ class GrowthEvidence(LockedEvidence):
                    {'progress': self.progress(BASIC), 'stones': self.stones()})
         self.capture('03_exclusive_insight')
         self.close_h()
-        self.rc(f'myvillage cultivation setmastery {self.s.username} myvillage:{BASIC} 170')
+        self.rc(f'yuanxian cultivation setmastery {self.s.username} myvillage:{BASIC} 170')
         self.open_growth(BASIC)
         before = self.stones()
         self.growth_action(0, '完成最后一个修习批次')
@@ -176,7 +176,7 @@ class GrowthEvidence(LockedEvidence):
         self.book(QING, 'manual_core_huang')
         self.poll(lambda: self.progress(QING), lambda p: p is not None, timeout=30, label='unread Qingmu book learned')
         self.check('manual_consumed_after_learning', not any(row.get('Slot') == 0 and row.get('id') == 'myvillage:manual_core_huang' for row in self.inventory()), self.inventory())
-        self.rc(f'myvillage cultivation setmastery {self.s.username} myvillage:{QING} 100')
+        self.rc(f'yuanxian cultivation setmastery {self.s.username} myvillage:{QING} 100')
         self.open_growth(QING)
         self.growth_action(1, '触类旁通后的首次参悟')
         self.poll(lambda: self.progress(QING), lambda p: p['insight'] == 'flow', label='related insight')
@@ -189,8 +189,8 @@ class GrowthEvidence(LockedEvidence):
         self.book(YI, 'manual_core_xuan', points=11990)
         time.sleep(3)
         self.check('unmastered_predecessor_refuses_learning', self.progress(YI) is None and any(row.get('Slot') == 0 for row in self.inventory()), self.inventory())
-        self.rc(f'myvillage cultivation setmastery {self.s.username} myvillage:{QING} 360')
-        self.rc(f'myvillage cultivation setstability {self.s.username} 100')
+        self.rc(f'yuanxian cultivation setmastery {self.s.username} myvillage:{QING} 360')
+        self.rc(f'yuanxian cultivation setstability {self.s.username} 100')
         self.s.game.xdo('click', '3')
         self.report['inputs'].append({'method': 'mapped right mouse', 'label': '前篇圆满后继续研读乙木'})
         self.poll(lambda: self.progress(YI), lambda p: p is not None, timeout=15, label='next chapter learned')
@@ -205,7 +205,7 @@ class GrowthEvidence(LockedEvidence):
     def sword_case(self):
         self.book(SWORD, 'manual_active_huang')
         self.poll(lambda: self.progress(SWORD), lambda p: p is not None, timeout=30, label='unread sword book learned')
-        self.rc(f'myvillage cultivation setmastery {self.s.username} myvillage:{SWORD} 80')
+        self.rc(f'yuanxian cultivation setmastery {self.s.username} myvillage:{SWORD} 80')
         self.open_growth(SWORD)
         self.growth_action(2, '剑气参悟敛气')
         self.poll(lambda: self.progress(SWORD), lambda p: p['insight'] == 'reserve', label='sword insight')
@@ -214,7 +214,7 @@ class GrowthEvidence(LockedEvidence):
         self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:qingfeng_sword')
         scene.ensure_cultivation(self.s)
         self.rc(f'tp {self.s.username} .5 -60 .5 0 0')
-        self.rc(f'myvillage cultivation qi fill {self.s.username}')
+        self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         time.sleep(.5)
         self.s.game.recover_grab()
         def cast(label):
@@ -228,7 +228,7 @@ class GrowthEvidence(LockedEvidence):
         cast('空放剑气')
         self.check('empty_cast_no_mastery', self.progress(SWORD)['mastery_points'] == 80, self.progress(SWORD))
         self.rc('summon minecraft:husk .5 -60 8 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Tags:["growth_target"],attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.knockback_resistance",base:1d}]}')
-        self.rc(f'myvillage cultivation qi fill {self.s.username}')
+        self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         log = cast('有效命中增长修习')
         self.check('effective_cast_earns_once', self.progress(SWORD)['mastery_points'] == 82 and 'result=hit revision=' in log,
                    {'progress': self.progress(SWORD), 'log': log})

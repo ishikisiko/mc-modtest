@@ -42,7 +42,7 @@ def observe(session,out=DEFAULT_OUT/'observer',log=print,timeout=180,tick_rate=1
         report['ingame_s']=round(time.monotonic()-start,3)
         u=session.username
         session.run(f'tick rate {tick_rate}','kill @e[tag=sword_qi_target]',f'tp {u} .5 -60 .5 0 0',
-                    f'item replace entity {u} hotbar.0 with {WEAPON}',f'myvillage cultivation qi fill {u}',
+                    f'item replace entity {u} hotbar.0 with {WEAPON}',f'yuanxian cultivation qi fill {u}',
                     'gamemode spectator CaptureWatch','tp CaptureWatch 5.5 -58 3.5 facing entity '+u+' eyes',
                     'summon minecraft:iron_golem .5 -60 6.5 {NoAI:1b,PersistenceRequired:1b,Tags:["sword_qi_target"]}',warn=False)
         session.game.key('1');scene.ensure_cultivation(session);time.sleep(1)

@@ -136,8 +136,8 @@ def run_multiplayer(evidence):
             user, game = guest.username, guest.game
             result['guest'] = user
             for command in (f'gamemode survival {user}', f'clear {user}',
-                            f'myvillage cultivation awaken {user}',
-                            f'myvillage cultivation crafting set {user} alchemy 0',
+                            f'yuanxian cultivation awaken {user}',
+                            f'yuanxian cultivation crafting set {user} alchemy 0',
                             f'deop {user}'):
                 evidence.rc(command)
             evidence.check('array_guest_has_no_learned_formulas',

@@ -52,7 +52,7 @@ class ArmorEvidence(Evidence):
         self.save()
 
     def trace(self, target=TARGET):
-        return self.one(f'myvillage stats trace {target}', 'STATS_TRACE')
+        return self.one(f'yuanxian stats trace {target}', 'STATS_TRACE')
 
     def hp(self, target=TARGET):
         return self.number(f'data get entity {target} Health')
@@ -112,7 +112,7 @@ class ArmorEvidence(Evidence):
     def player_fixture(self, protection=False):
         user = self.s.username
         self.rc(f'effect clear {user}')
-        self.rc(f'myvillage cultivation setrealm {user} myvillage:golden_core myvillage:golden_late')
+        self.rc(f'yuanxian cultivation setrealm {user} myvillage:golden_core myvillage:golden_late')
         self.rc(f'attribute {user} minecraft:generic.armor base set 10')
         self.rc(f'attribute {user} minecraft:generic.armor_toughness base set 0')
         self.rc(f'attribute {user} myvillage:physical_resistance base set 0')
@@ -130,9 +130,9 @@ class ArmorEvidence(Evidence):
     def initial(self):
         started = time.monotonic(); user = self.s.username
         for cmd in (*scene.world_rules(), *scene.player_setup(user, 'myvillage:qingfeng_sword'),
-                    'gamerule naturalRegeneration false', 'myvillage world pause',
-                    'forceload add -16 -16 32 32', f'myvillage cultivation awaken {user}',
-                    f'myvillage cultivation initiate {user}',
+                    'gamerule naturalRegeneration false', 'yuanxian world pause',
+                    'forceload add -16 -16 32 32', f'yuanxian cultivation awaken {user}',
+                    f'yuanxian cultivation initiate {user}',
                     'summon minecraft:armor_stand .5 -60 3 {Invulnerable:1b,NoGravity:1b,Tags:["armor_attacker"]}'):
             self.rc(cmd)
         for realm, stage, scale in [('mortal',0,1),('qi_refining',0,1.5),
@@ -230,8 +230,8 @@ class ArmorEvidence(Evidence):
 
         before = self.fixture(30,12,z=6.5)
         self.rc(f'tp {user} .5 -60 .5 0 0')
-        self.rc(f'myvillage cultivation learn {user} myvillage:jianqi_jue')
-        self.rc(f'myvillage cultivation qi fill {user}')
+        self.rc(f'yuanxian cultivation learn {user} myvillage:jianqi_jue')
+        self.rc(f'yuanxian cultivation qi fill {user}')
         self.s.game.require_ingame('normalized armor mapped sword qi')
         self.s.game.xdo('mousedown','3')
         try:

@@ -140,7 +140,7 @@ class QianzhenEvidence(BuildingEvidence):
         u = self.s.username
         for cmd in (*scene.world_rules(), f'op {u}', f'clear {u}', f'gamemode creative {u}',
                     f'effect give {u} minecraft:saturation infinite 255 true',
-                    'gamerule doFireTick false', 'gamerule randomTickSpeed 0', 'myvillage world pause',
+                    'gamerule doFireTick false', 'gamerule randomTickSpeed 0', 'yuanxian world pause',
                     'forceload add -16 -16 208 128', 'defaultgamemode creative', 'setworldspawn 23 -60 -5 0'):
             self.rc(cmd)
         pack = cs.SERVER_DIR/cs.LEVEL_NAME/'datapacks/qianzhen_acceptance'
@@ -305,7 +305,7 @@ class QianzhenEvidence(BuildingEvidence):
             folder = self.out/d['presentation']['role']
             name = service['approach']
             self.s.game.shot(folder/(name+'-before-use.png'),max_wait=2,settle=.5)
-            before = self.rc(f'myvillage cultivation info {u}') if 'inheritance_stele' in service['state'] else None
+            before = self.rc(f'yuanxian cultivation info {u}') if 'inheritance_stele' in service['state'] else None
             video = folder/(name+'-interaction.mp4')
             self.recorder = subprocess.Popen(ffmpeg_record_argv(self.s.state['display'],video,30,fps=12,size=self.s.game.size),
                 stdin=subprocess.PIPE,stdout=subprocess.DEVNULL,stderr=(folder/(name+'-video.log')).open('w'))
@@ -314,7 +314,7 @@ class QianzhenEvidence(BuildingEvidence):
                 self.s.game.xdo('click','3')
                 self.report['inputs'].append({'action':'right_mouse','purpose':name,'block':self.xyz(d,service['pos'])})
                 if before is not None:
-                    after = self.poll(lambda:self.rc(f'myvillage cultivation info {u}'),
+                    after = self.poll(lambda:self.rc(f'yuanxian cultivation info {u}'),
                         lambda s:'myvillage:basic_breathing' in s,10,'mapped inheritance')
                     self.check(d['id']+'_mapped_inheritance','myvillage:basic_breathing' not in before,
                                {'before':before,'after':after,'video':str(video.relative_to(self.out))})

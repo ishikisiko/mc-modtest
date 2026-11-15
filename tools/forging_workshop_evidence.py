@@ -41,7 +41,7 @@ class WorkshopEvidence(AlchemyEvidence):
         super().check(name,passed,detail)
         if not passed:raise AssertionError(name)
         return True
-    def inspect(self,user=None):return self.one('myvillage workshop inspect '+(user or self.s.username),'WORKSHOP')
+    def inspect(self,user=None):return self.one('yuanxian workshop inspect '+(user or self.s.username),'WORKSHOP')
     def inventory(self,user=None):return quality_stacks(self.rc('data get entity '+(user or self.s.username)+' Inventory'))
     def count(self,item,user=None):return sum(s['count'] for s in self.inventory(user).values() if s['id']==item)
     def click(self,x,y,shift=False,game=None,wait=.18):
@@ -156,7 +156,7 @@ class WorkshopEvidence(AlchemyEvidence):
         self.check('cancel_unpaid_heating_returns_piece_and_fuel',self.count('minecraft:coal')==coal_before and self.count('myvillage:qingfeng_sword')==1,self.inventory())
         # Infusion is a one-time operation, preserving the temper record and capping quality.
         self.clean();self.materials();self.give('myvillage:forged_axe[myvillage:temper={experience:7,edge:1,endurance:2,channeling:0,treatment:2}]')
-        u=self.s.username;self.rc(f'myvillage cultivation awaken {u}');self.rc(f'myvillage cultivation crafting set {u} forging 0')
+        u=self.s.username;self.rc(f'yuanxian cultivation awaken {u}');self.rc(f'yuanxian cultivation crafting set {u} forging 0')
         self.rc(f'setblock {POS} myvillage:forging_table[facing=north]');self.open();self.insert('myvillage:forged_axe');self.click(285,36);self.operate('infuse');out=self.inspect()['output']
         self.check('infusion_respects_cap_and_keeps_training',out.get('mark')=={'trait':'tough','quality':1} and out['temper']=={'experience':7,'edge':1,'endurance':2,'channeling':0,'treatment':2},out)
         self.capture('08-infused-zh.png');self.close_menu()
@@ -319,7 +319,7 @@ class WorkshopEvidence(AlchemyEvidence):
         self.close_menu();self.check('completed_piece_returned_once',self.count('myvillage:workpiece_forged_pickaxe_quenched')==1 and self.count(item)==0,self.inventory())
     def run(self):
         self.audio_start();self.start();u=self.s.username
-        for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_anvil[facing=north]'):self.rc(command)
+        for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_anvil[facing=north]'):self.rc(command)
         for case in self.cases:
             getattr(self,case)();self.report['completed'].append(case);self.report['unrun'].remove(case);self.save()
         self.report['status']='pass';self.save()

@@ -120,7 +120,7 @@ def run(e):
         e.rc('fill 28 -61 -9 55 -61 13 minecraft:stone')
         e.rc('tick rate 5')
         stand()
-        e.rc(f'myvillage cultivation qi fill {u}')
+        e.rc(f'yuanxian cultivation qi fill {u}')
 
         # A successful ground dodge is still free and grants the configured transient speed bonus.
         before = snapshot()
@@ -138,7 +138,7 @@ def run(e):
                  'authored_bonus': bonus})
 
         stand()
-        e.rc(f'myvillage cultivation qi fill {u}')
+        e.rc(f'yuanxian cultivation qi fill {u}')
         decision, _, after = paid_air('air_once')
         ticks_after(decision['t'], 4)  # Observe the client's real four-tick input throttle.
         e.check('wind_repeat_is_still_airborne', pos()[1] > Y + .1, pos())
@@ -160,12 +160,12 @@ def run(e):
                 blocked_after['power']['current'] >= landed['power']['current']
                 and not blocked_after['fates']['wind_step']['air_spent'], blocked_after)
         stand()
-        e.rc(f'myvillage cultivation qi fill {u}')
+        e.rc(f'yuanxian cultivation qi fill {u}')
         paid_air('after_landing_reset')
 
         # A failed air action must leave the same flight's charge available for a subsequent press.
         stand()
-        e.rc(f'myvillage cultivation qi set {u} 0')
+        e.rc(f'yuanxian cultivation qi set {u} 0')
         before = snapshot()
         jump()
         decision, _ = press('insufficient_power')
@@ -174,7 +174,7 @@ def run(e):
         e.check('wind_no_power_keeps_charge_and_never_debits',
                 not after['fates']['wind_step']['air_spent']
                 and after['power']['current'] >= before['power']['current'], after)
-        e.rc(f'myvillage cultivation qi fill {u}')
+        e.rc(f'yuanxian cultivation qi fill {u}')
         ticks_after(decision['t'], 4)
         e.check('wind_refill_probe_same_flight', pos()[1] > Y + .1, pos())
         retry_before = snapshot()
@@ -188,7 +188,7 @@ def run(e):
         stand()
         e.rc('fill 39 -60 1 42 -54 1 minecraft:stone')
         stand(z=.7)  # Body front is z=1: every positive step intersects the wall.
-        e.rc(f'myvillage cultivation qi fill {u}')
+        e.rc(f'yuanxian cultivation qi fill {u}')
         before = snapshot()
         jump()
         decision, _ = press('touching_wall')
@@ -211,7 +211,7 @@ def run(e):
         # A pane's endpoint is clear, but its thin collision shape across the path must stop the dash.
         stand()
         e.rc('fill 39 -60 3 42 -54 3 minecraft:glass_pane[east=true,west=true]')
-        e.rc(f'myvillage cultivation qi fill {u}')
+        e.rc(f'yuanxian cultivation qi fill {u}')
         decision, _, after = paid_air('thin_pane')
         e.check('wind_thin_wall_stops_entire_body',
                 0 < float(decision['distance']) < movement['dash_distance']
@@ -239,7 +239,7 @@ def run(e):
         e.check('wind_fire_fixture_has_no_recent_hurt_animation',
                 e.number(f'data get entity {u} HurtTime') == 0, {'damaged_at': damaged_at, 'now': state()['now']})
         e.rc('tick rate 5')
-        e.rc(f'myvillage cultivation qi fill {u}')
+        e.rc(f'yuanxian cultivation qi fill {u}')
         decision, mark, after = paid_air('one_hp_fire_endpoint')
         contact = e.poll(lambda: rows(mark), lambda values: any(
             row['kind'] == 'cancelled_damage' and row.get('source') == 'minecraft:in_fire'

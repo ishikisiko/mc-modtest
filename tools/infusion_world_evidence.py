@@ -17,10 +17,10 @@ class InfusionWorldEvidence(PhysicalForgingEvidence):
  def verify_source(self):
   super().verify_source();self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
  def rc(self,command):
-  if re.fullmatch(r'myvillage workshop ding -?\d+ -?\d+ -?\d+',command) or re.fullmatch(r'deop [A-Za-z0-9_]+',command) or command=='execute as @e[type=minecraft:item] run data get entity @s Item':
+  if re.fullmatch(r'yuanxian workshop ding -?\d+ -?\d+ -?\d+',command) or re.fullmatch(r'deop [A-Za-z0-9_]+',command) or command=='execute as @e[type=minecraft:item] run data get entity @s Item':
    r=self.s.run(command,warn=False)[0];self.report['commands'].append({'command':command,'reply':r});self.save();return r
   return super().rc(command)
- def ding(self):return status_json(self.rc('myvillage workshop ding '+POS),'WORKSHOP_DING ')
+ def ding(self):return status_json(self.rc('yuanxian workshop ding '+POS),'WORKSHOP_DING ')
  def open(self):
   self.aim();self.right();self.poll(self.inspect,lambda d:d['open'],label='normal mapped ding use');self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='ding cursor')
  def setup(self,rid='qingfeng_sword',materials=True):
@@ -29,7 +29,7 @@ class InfusionWorldEvidence(PhysicalForgingEvidence):
   assert not current.get('occupied',False),current
   self.rc('setblock '+POS+' myvillage:forging_table[facing=north]')
   self.rc(f'gamemode survival {self.username}');self.rc(f'clear {self.username}')
-  self.rc(f'myvillage cultivation awaken {self.username}');self.rc(f'myvillage cultivation crafting set {self.username} forging 0')
+  self.rc(f'yuanxian cultivation awaken {self.username}');self.rc(f'yuanxian cultivation crafting set {self.username} forging 0')
   self.give('myvillage:'+rid+'[minecraft:custom_name=\'{"text":"留名旧器"}\',minecraft:damage=3,myvillage:temper={experience:14,edge:0,endurance:1,channeling:0,treatment:2}]')
   if materials:
    self.give('myvillage:xuantie_ingot',4);self.give('myvillage:low_grade_spirit_stone',8)
@@ -84,7 +84,7 @@ class InfusionWorldEvidence(PhysicalForgingEvidence):
   self.rc('setblock '+POS+' myvillage:forging_table[facing=north]')
   with SecondClient(self,timeout=360) as guest:
    self.guest=guest;self.attach_window(guest.game);u=guest.username
-   self.poll(lambda:status_json(self.rc('myvillage qianzhen realm_status '+u),'QIANZHEN_REALM_STATUS '),lambda d:not d['building'] and not d['waiting'],150,'guest opening ready')
+   self.poll(lambda:status_json(self.rc('yuanxian qianzhen realm_status '+u),'QIANZHEN_REALM_STATUS '),lambda d:not d['building'] and not d['waiting'],150,'guest opening ready')
    for command in (f'op {u}',f'gamemode survival {u}',f'execute in minecraft:overworld run tp {u} 2.5 -60 .5 33.69 20.5',f'clear {u}',f'effect give {u} minecraft:saturation infinite 255 true',f'deop {u}'):
     self.rc(command)
    self.poll(guest.game.pointer_grabbed,lambda v:v is True,60,'guest input ready')

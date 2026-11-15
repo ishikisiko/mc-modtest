@@ -87,7 +87,7 @@ class Evidence:
     def rc(self,command):
         if any(x in command for x in ('expedition enter','expedition leave','expedition finish','expedition claim')):raise AssertionError('必须由真实客户端输入：'+command)
         reply=self.server.cmd(command);self.report['commands'].append(dict(command=command,reply=reply));self.save();return reply
-    def state(self,client):return one(self.rc('myvillage quest status '+client.name),'QUEST_STATUS ')
+    def state(self,client):return one(self.rc('yuanxian quest status '+client.name),'QUEST_STATUS ')
     def map(self,client):
         name=self.state(client)['instance']['map']
         return json.loads(gzip.decompress((ROOT/f'build/resources/main/data/myvillage/expedition/{name}.json.gz').read_bytes()))
@@ -170,7 +170,7 @@ class Evidence:
         client.close_screen();result=wait(lambda:self.state(client),lambda s:s.get('receipt',{}).get('claimed') is True,15,'真实领奖');self.rc('questfixture park '+client.name);return result
     def prepare(self,client):
         self.rc('gamemode survival '+client.name)
-        self.rc('myvillage cultivation setrealm '+client.name+' myvillage:golden_core myvillage:golden_late')
+        self.rc('yuanxian cultivation setrealm '+client.name+' myvillage:golden_core myvillage:golden_late')
         self.rc('effect give '+client.name+' minecraft:regeneration 99999 5 true')
         self.rc('item replace entity '+client.name+' hotbar.0 with myvillage:qingfeng_sword');client.guard();client.game.xdo('key','1')
         mode=lambda:parse_combat_mode(self.rc('data get entity '+client.name+' "neoforge:attachments"'))

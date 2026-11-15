@@ -41,7 +41,7 @@ class AdvancedEvidence(PurpleEvidence):
 
     def setup(self):
         super().setup()
-        self.rc(f'myvillage cultivation learn {self.s.username} myvillage:taxue_wuhen')
+        self.rc(f'yuanxian cultivation learn {self.s.username} myvillage:taxue_wuhen')
 
     def prepare_case(self):
         self.s.game.xdo('keyup','space','keyup','Alt_L','keyup','w','keyup','a','keyup','s','keyup','d',
@@ -94,7 +94,7 @@ class AdvancedEvidence(PurpleEvidence):
             # through server/client restart. Ordinary jump behavior is tested in wind_step.run.
             self.rc(f'effect give {u} minecraft:slow_falling 1200 0 true')
             self.rc(f'tp {u} .5 150 .5 180 0')
-            self.rc(f'myvillage cultivation qi fill {u}')
+            self.rc(f'yuanxian cultivation qi fill {u}')
             self.s.game.key('Alt_L')
             before=self.poll(self.state,lambda s:s.get('wind_step',{}).get('air_spent',True)
                              and s.get('wind_step',{}).get('ready_at',0)>s['now'],label='mapped lifecycle air charge consumed')

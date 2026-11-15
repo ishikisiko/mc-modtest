@@ -1,5 +1,7 @@
 package com.example.myvillage.story.realm;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.mixin.RealmServerAccess;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
@@ -263,7 +265,7 @@ public final class QianzhenRealms {
         event.getDispatcher().register(Commands.literal("qianzhen")
                 .then(Commands.literal("enter").executes(c->command(c.getSource().getPlayerOrException(),true)))
                 .then(Commands.literal("leave").executes(c->command(c.getSource().getPlayerOrException(),false))));
-        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("qianzhen").requires(s->s.hasPermission(2))
+        event.getDispatcher().register(ModCommands.root().then(Commands.literal("qianzhen").requires(s->s.hasPermission(2))
                 .then(Commands.literal("realm_status").then(Commands.argument("player",EntityArgument.player()).executes(c->{
                     var player=EntityArgument.getPlayer(c,"player");
                     c.getSource().sendSuccess(()->Component.literal("QIANZHEN_REALM_STATUS "+readback(player)),false);return 1;

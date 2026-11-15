@@ -34,7 +34,7 @@ class Evidence:
         if command.startswith(('kill ','damage ')):raise AssertionError('战斗验收必须实际攻击')
         reply=self.server.command(command);self.report['commands'].append(dict(command=command,reply=reply));self.save();return reply
     def state(self):
-        value=one(self.rc('myvillage habitat'),'HABITAT ');self.report['states'].append(value);self.save();return value
+        value=one(self.rc('yuanxian habitat'),'HABITAT ');self.report['states'].append(value);self.save();return value
     def check(self,name,passed,detail):
         self.report['checks'].append(dict(name=name,passed=bool(passed),detail=detail));self.save()
         if not passed:raise AssertionError(name+': '+repr(detail))
@@ -79,7 +79,7 @@ class Evidence:
                 client=self.start_client(stack,'initial');status=self.state();sites=status['sites'];self.sites=sites
                 self.check('十二处据点及四类成员',len(sites)==12 and {s['kind']for s in sites}=={'wolf_den','lizard_shelf','spore_grove','bandit_camp'},sites)
                 for site in sites:
-                    reply=self.rc(f'myvillage worldplan at {site["x"]} {site["z"]}');self.check('据点归属东荒 '+site['id'],'"profileId":"donghuang"'in reply or '"regionId":"donghuang"'in reply,reply)
+                    reply=self.rc(f'yuanxian worldplan at {site["x"]} {site["z"]}');self.check('据点归属东荒 '+site['id'],'"profileId":"donghuang"'in reply or '"regionId":"donghuang"'in reply,reply)
                 self.done('natural_world_sites');wolf=next(s for s in sites if s['id']=='wolf_den_0');camp=next(s for s in sites if s['id']=='bandit_camp_0')
                 self.begin('finite_native_members')
                 east_ranges=json.loads((ROOT/'src/main/resources/data/myvillage/wilderness/rules.json').read_text())['regions']['donghuang']

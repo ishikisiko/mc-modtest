@@ -22,7 +22,7 @@
 
 `tools/forging_array/formed_model.py`、`visual.json` 经 `tools/gen_forging_array_assets.py` 生成模型、贴图、部件配方/掉落及名称。`formed_mesh.json` 同时供客户端和离线预览；粗碰撞盒也来自此网格，不另手抄轮廓。冷态暗炉，运行态亮炉与法环，炉心绘制实际 ItemStack。中文界面与方块客户端只提交有界意图。
 
-`EquipmentInfusion.prepare` 与旧工坊共享成品处理。`ForgingCosts.reserve` 在原统一分配器上返回背包替换和实际消耗身份，不按标签造退款。管理员只读检查：`/myvillage forgingarray inspect <x> <y> <z>`。
+`EquipmentInfusion.prepare` 与旧工坊共享成品处理。`ForgingCosts.reserve` 在原统一分配器上返回背包替换和实际消耗身份，不按标签造退款。管理员只读检查：`/yuanxian forgingarray inspect <x> <y> <z>`。
 
 ## 验证
 

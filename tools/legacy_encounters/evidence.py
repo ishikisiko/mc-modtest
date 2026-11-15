@@ -42,7 +42,7 @@ class LegacyEvidence(ElementalEvidence):
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1;self.rc('tick unfreeze');self.position(self.s.game)
         self.report['phases'].append({'phase':'restart' if reuse else 'start','timings':state.get('timings',{})})
         if reuse:self.freeze();return
-        for cmd in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),'gamerule naturalRegeneration false','myvillage world pause','forceload add -32 -32 64 64'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),'gamerule naturalRegeneration false','yuanxian world pause','forceload add -32 -32 64 64'):
             self.rc(cmd)
         self.poll(lambda:self.rc('execute if loaded 0 -61 0 run time query gametime'),lambda r:'The time is' in r,label='fixture chunks')
         self.rc('fill -16 -61 -16 48 -61 48 minecraft:stone');self.configure(self.s.username)
@@ -50,16 +50,16 @@ class LegacyEvidence(ElementalEvidence):
     def configure(self,user):
         maximum=json.loads((ROOT/'src/main/resources/data/myvillage/stats/rules.json').read_text())['limits']['max_base_health']
         for command in [f'attribute {user} minecraft:generic.max_health base set {maximum}',f'op {user}',f'gamemode survival {user}',
-                        f'myvillage cultivation awaken {user}',f'myvillage cultivation initiate {user}',
-                        f'myvillage cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early',
-                        f'myvillage cultivation setroot {user} 4000 1500 1500 1500 1500',f'myvillage cultivation qi fill {user}',
+                        f'yuanxian cultivation awaken {user}',f'yuanxian cultivation initiate {user}',
+                        f'yuanxian cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early',
+                        f'yuanxian cultivation setroot {user} 4000 1500 1500 1500 1500',f'yuanxian cultivation qi fill {user}',
                         f'effect give {user} minecraft:instant_health 1 20 true',f'effect give {user} minecraft:saturation infinite 255 true',
                         f'item replace entity {user} hotbar.0 with minecraft:air']:
             self.rc(command)
-        info=self.one(f'myvillage stats info {user}','STATS_INFO')
+        info=self.one(f'yuanxian stats info {user}','STATS_INFO')
         self.check('fixture_player_has_valid_realm_stats',info['realm']=='myvillage:foundation_establishment' and info['factor']>1,info)
     def status(self,user=None):
-        text=self.rc(f'myvillage legacy status {user or self.s.username}')
+        text=self.rc(f'yuanxian legacy status {user or self.s.username}')
         if 'LEGACY_STATUS ' not in text:raise RuntimeError(text)
         return json.loads(text.split('LEGACY_STATUS ',1)[1])
     def pos(self,user=None):return read_data(self.rc(f'data get entity {user or self.s.username} Pos'))
@@ -71,12 +71,12 @@ class LegacyEvidence(ElementalEvidence):
         self.rc('kill @e[tag=legacy_target]');self.rc('kill @e[tag=locked_fixture]');self.rc('kill @e[tag=legacy_beast]')
         self.rc('kill @e[type=minecraft:item]');self.equip('minecraft:air');self.step(5)
     def fixture_bind(self):
-        for id in self.ids:self.rc(f'myvillage cultivation learn {self.s.username} myvillage:{id}')
+        for id in self.ids:self.rc(f'yuanxian cultivation learn {self.s.username} myvillage:{id}')
         self.learned=self.ids[:];self.bind(self.ids)
         self.report['combat_fixture_learning']='管理员已学夹具；独立 learning 场景验证零进度研读。'
     def cast(self,id,finish=True,expected_cost=None):
         self.step(12)  # let the client's bounded pending window expire after a rejected input
-        if expected_cost==0:self.rc(f'myvillage cultivation qi fill {self.s.username}')
+        if expected_cost==0:self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         mark=self.offset();before=self.power();self.key(self.assigned[id]);
         self.poll(lambda:self.log(mark),lambda s:f'result=start art=myvillage:{id}' in s,label='mapped cast '+id)
         cost=self.arts[id]['qi_cost'] if expected_cost is None else expected_cost
@@ -103,7 +103,7 @@ class LegacyEvidence(ElementalEvidence):
     def learning(self):
         self.clean();self.rc('tick unfreeze')
         for id in self.ids:
-            self.rc(f'myvillage cultivation forget {self.s.username} myvillage:{id}')
+            self.rc(f'yuanxian cultivation forget {self.s.username} myvillage:{id}')
             self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:manual_active_xuan[myvillage:technique="myvillage:{id}"]')
             time.sleep(.4);self.use();self.poll(self.learned_text,lambda s:'myvillage:'+id in s,timeout=110,label='zero-progress manual '+id)
             self.check(id+'_normal_study',True,self.learned_text())
@@ -129,7 +129,7 @@ class LegacyEvidence(ElementalEvidence):
         for yaw in (-15,0,15):
             self.rc(f'tp {u} .5 -60 .5 {yaw} 35');self.cast(self.ids[2]);self.step(45)
         self.check('three_fire_seeds',sum(s['mode']=='fire' for s in self.status()['active'])==3,self.status());self.capture('three-fire-seeds')
-        self.rc(f'myvillage cultivation qi fill {u}');before_power=self.power();self.key(self.assigned[self.ids[2]]);time.sleep(.3)
+        self.rc(f'yuanxian cultivation qi fill {u}');before_power=self.power();self.key(self.assigned[self.ids[2]]);time.sleep(.3)
         after_power=self.power();self.check('fourth_seed_refused_without_payment',after_power==before_power and len(self.status()['active'])==3,{'before':before_power,'after':after_power,'state':self.status()})
         self.s.game.xdo('keydown','Shift_L');time.sleep(.2)
         try:self.cast(self.ids[2],expected_cost=0)
@@ -160,7 +160,7 @@ class LegacyEvidence(ElementalEvidence):
         self.check('gourd_releases_stored_flame',self.status()['charge']==0 and self.hp(target)<before,{'state':self.status(),'before':before,'after':self.hp(target)})
         self.clean()
     def normal_ai(self):
-        self.clean();self.rc('myvillage beast debug on');u=self.s.username
+        self.clean();self.rc('yuanxian beast debug on');u=self.s.username
         for m in self.source['mobs']:
             self.ready(240);self.equip('minecraft:air');mark=self.offset();self.rc(f'summon myvillage:{m["id"]} .5 -60 7 {{Tags:["legacy_beast"],PersistenceRequired:1b}}')
             for _ in range(22):
@@ -194,7 +194,7 @@ class LegacyEvidence(ElementalEvidence):
                 self.check('toad_fire_absorption_boundary',heat>0 and self.hp('@e[tag=legacy_beast,limit=1]')==before,{'heat':heat,'health':before})
                 self.report['boundary_probes']=['火属性吸收的定向 damage 命令仅作边界探针，普通喷火与收余焰来自实际 AI。']
             self.rc('kill @e[tag=legacy_beast]');self.step(25)
-        self.rc('myvillage beast debug off')
+        self.rc('yuanxian beast debug off')
     def acquisition(self):
         self.clean();u=self.s.username;self.ready(240)
         self.rc('fill -1 -60 -1 2 -60 2 minecraft:water');self.equip('myvillage:watermarked_silk');self.step(3);self.use();self.step(3)
@@ -219,8 +219,8 @@ class LegacyEvidence(ElementalEvidence):
             if realm is None:
                 name,realm=max(available.items(),key=lambda v:v[1]['sort_order']);player_realm='myvillage:'+name;stage=realm['stages'][-1]['id']
             else:stage=realm['stages'][birth['stage']]['id']
-            self.rc(f'myvillage cultivation setrealm {u} {player_realm} {stage}');self.rc(f'effect give {u} minecraft:instant_health 1 20 true')
-            info=self.one(f'myvillage stats info {u}','STATS_INFO');self.check(kind+'_trial_player_realm_applied',info['realm']==player_realm and info['factor']>1,info)
+            self.rc(f'yuanxian cultivation setrealm {u} {player_realm} {stage}');self.rc(f'effect give {u} minecraft:instant_health 1 20 true')
+            info=self.one(f'yuanxian stats info {u}','STATS_INFO');self.check(kind+'_trial_player_realm_applied',info['realm']==player_realm and info['factor']>1,info)
             self.report.setdefault('trial_realm_fixture',[]).append({'trial':kind,'guardian_birth':birth,'player_realm':player_realm,'player_stage':stage,'policy':'match regional guardian when playable; otherwise use the highest implemented player realm'});self.step(40)
             # Fight from an explicit safe fixture position with real mapped sword input.
             self.equip('myvillage:qingfeng_sword')
@@ -250,14 +250,14 @@ class LegacyEvidence(ElementalEvidence):
             self.check(kind+'_rubbing_cannot_be_claimed_twice',self.rc(f'data get entity {u} Inventory')==inventory,self.rc(f'data get block {x} -60 17 Claimed'))
             self.capture(kind+'-rubbing');self.rc('kill @e[type=myvillage:'+mob+']')
         for slot in ['head','chest','legs','feet']:self.rc(f'item replace entity {u} armor.{slot} with minecraft:air')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early');self.clean()
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early');self.clean()
     def refusals(self):
         self.clean();self.fixture_bind();u=self.s.username;self.ready(250)
         before=self.power();mark=self.offset();self.key(self.assigned[self.ids[0]]);time.sleep(.3)
         self.check('wrong_item_no_payment',self.power()==before and 'result=start art=' not in self.log(mark),self.log(mark))
         self.rc('fill -2 -60 1 2 -56 1 minecraft:stone');self.step(12);before=self.power();self.key(self.assigned[self.ids[1]]);time.sleep(.3)
         self.check('shadow_wall_no_payment',self.power()==before and not self.status()['active'],self.status());self.rc('fill -2 -60 1 2 -56 1 minecraft:air')
-        self.ready(230);self.cast(self.ids[1]);self.rc('fill -2 -60 2 2 -56 2 minecraft:stone');self.rc(f'myvillage cultivation qi fill {u}');self.step(12);before=self.power();self.key(self.assigned[self.ids[1]]);time.sleep(.3)
+        self.ready(230);self.cast(self.ids[1]);self.rc('fill -2 -60 2 2 -56 2 minecraft:stone');self.rc(f'yuanxian cultivation qi fill {u}');self.step(12);before=self.power();self.key(self.assigned[self.ids[1]]);time.sleep(.3)
         self.check('shadow_return_cannot_cross_new_wall',self.power()==before and len(self.status()['active'])==1,self.status());self.rc('fill -2 -60 2 2 -56 2 minecraft:air')
         self.cast(self.ids[1],expected_cost=0);self.clean();self.ready(250);self.equip('myvillage:guiyan_sword');self.cast(self.ids[0])
         target=self.dummy_at(.5,2);before=self.hp(target);self.s.game.xdo('click','1');self.report['inputs'].append({'method':'mapped melee attack at an in-range target while sword is deployed'});self.step(26)
@@ -267,9 +267,9 @@ class LegacyEvidence(ElementalEvidence):
         self.clean();self.ready(250);self.equip('myvillage:guiyan_sword');self.cast(self.ids[0]);self.equip('minecraft:air')
         self.check('slot_replacement_cleans_projection',not self.status()['active'],self.status())
         self.ready(230);self.equip('myvillage:guiyan_sword')
-        self.poll(lambda:self.rc(f'myvillage cultivation qi {u}'),lambda s:int(re.search(r'recovery_ticks=(\d+)',s).group(1))>=16,label='fresh recovery interval')
-        self.rc(f'myvillage cultivation qi set {u} 0');before=self.power();self.key(self.assigned[self.ids[0]])
-        self.check('insufficient_qi_no_projection',self.power()==before and not self.status()['active'],self.status());self.rc(f'myvillage cultivation qi fill {u}')
+        self.poll(lambda:self.rc(f'yuanxian cultivation qi {u}'),lambda s:int(re.search(r'recovery_ticks=(\d+)',s).group(1))>=16,label='fresh recovery interval')
+        self.rc(f'yuanxian cultivation qi set {u} 0');before=self.power();self.key(self.assigned[self.ids[0]])
+        self.check('insufficient_qi_no_projection',self.power()==before and not self.status()['active'],self.status());self.rc(f'yuanxian cultivation qi fill {u}')
         self.clean()
     def two_players(self):
         self.clean();self.fixture_bind();self.rc('tick unfreeze')

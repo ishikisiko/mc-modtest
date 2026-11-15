@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.133.1
+
+- 模组正式显示名改为“源仙”，同步简介、主创造栏和按键分类；资源命名空间继续使用 myvillage。
+- 主命令统一为 /yuanxian，新增 /yx 快捷入口和中文帮助；将管理员限制保留在模块子命令上，两个入口共用参数与权限。
+- 名称由 tools/branding.json 统一维护，当前说明和测试采集脚本使用新指令入口。
+
 ## 0.133.0
 
 - 怪物掉落统一支持服务端外置 JSON、管理员热重载、场景与地区境界条件、继承/追加/替换/禁用模式，以及当前生效规则的查询和 JSON/CSV 导出。

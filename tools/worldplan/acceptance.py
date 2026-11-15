@@ -95,7 +95,7 @@ class Server:
         with Rcon('127.0.0.1',self.rport,self.password,timeout=180) as r:reply=r.cmd(command)
         self.commands.append({'command':command,'reply':reply});return reply
     def query(self,command):
-        reply=self.cmd('myvillage worldplan '+command)
+        reply=self.cmd('yuanxian worldplan '+command)
         if 'WORLDPLAN ' not in reply:raise RuntimeError(reply)
         return json.loads(reply.split('WORLDPLAN ',1)[1])
     def __exit__(self,*unused):
@@ -233,7 +233,7 @@ def main():
         result['checks']['saved_b']=check_saved(GAME/world_b,expected)
         ordinary='worldplan_ordinary_'+suffix
         with Server(ordinary,'ordinary-preset',planned=False) as s:
-            reply=s.cmd('myvillage worldplan info');assert 'not using myvillage:cultivation' in reply,reply
+            reply=s.cmd('yuanxian worldplan info');assert 'not using myvillage:cultivation' in reply,reply
         _,ordinary_data=read_gzipped_nbt(str(GAME/ordinary/'level.dat'))
         ordinary_generator=ordinary_data['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
         assert ordinary_generator['type']=='minecraft:noise' and 'plan_hash' not in ordinary_generator

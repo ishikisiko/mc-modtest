@@ -48,14 +48,14 @@ class FoundationEvidence(ArrayEvidence):
         self.rc(f'give {u} myvillage:low_grade_spirit_stone {r["fuel_count"]*multiple}')
     def brew(self,index):
         r=self.recipes[index];u=self.s.username
-        self.materials(r);self.rc(f'myvillage cultivation crafting set {u} alchemy {r["minimum_aptitude"]-1}')
+        self.materials(r);self.rc(f'yuanxian cultivation crafting set {u} alchemy {r["minimum_aptitude"]-1}')
         self.open_furnace()
         for _ in range(index//3):self.fc(86,117,label='recipe_next_page')
         self.fc(54,50+(index%3)*22,label='select_'+r['id'])
         before=self.saved_furnace();self.check('third_slot_filled_'+r['id'],saved_items(before).get(5,{}).get('count')==r['ingredient_counts'][2],before)
         self.fc(200,113,label='reject_under_aptitude');after=self.saved_furnace()
         self.check('under_aptitude_keeps_materials_'+r['id'],'Batch' not in after and after.get('Items')==before.get('Items'),after)
-        self.rc(f'myvillage cultivation crafting set {u} alchemy {r["minimum_aptitude"]}')
+        self.rc(f'yuanxian cultivation crafting set {u} alchemy {r["minimum_aptitude"]}')
         self.fc(200,113,label='start_'+r['id'])
         active=self.poll(self.saved_furnace,lambda d:'Batch' in d,5,'batch accepted')
         self.check('frozen_quality_'+r['id'],active['Batch']['Quality']==r['fixed_quality'],active['Batch'])
@@ -72,7 +72,7 @@ class FoundationEvidence(ArrayEvidence):
     def array_third_slot(self):
         u=self.s.username;r=self.recipes[7]
         self.place_fixture();self.materials(r,multiple=1)
-        self.rc(f'myvillage cultivation crafting set {u} alchemy 85');self.open()
+        self.rc(f'yuanxian cultivation crafting set {u} alchemy 85');self.open()
         for _ in range(2):self.click(100,131,label='array_recipe_next_page')
         self.click(69,83,label='array_select_upper_repair');self.click(193,148,label='array_start')
         self.poll(self.saved,lambda d:'Batch' in d,8,'array batch')
@@ -98,11 +98,11 @@ class FoundationEvidence(ArrayEvidence):
         finally:self.s.game.xdo('mouseup','3')
         self.report['mapped_input'].append({'kind':'held_pill_use','item':item,'quality':q,'seconds':2});self.save()
     def setup_qi(self):
-        u=self.s.username;self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_9');self.rc(f'myvillage cultivation setprogress {u} 1900');self.rc(f'myvillage cultivation setstability {u} 950');self.cooldown()
+        u=self.s.username;self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_9');self.rc(f'yuanxian cultivation setprogress {u} 1900');self.rc(f'yuanxian cultivation setstability {u} 950');self.cooldown()
     def breakthrough(self):
         u=self.s.username;self.rc('tick rate 20');self.setup_qi();self.s.game.key('n');time.sleep(1)
         self.check('normal_advance_cannot_bypass_pill',self.raw_profile()['stage_id']=='myvillage:qi_refining_9',self.raw_profile())
-        self.rc(f'myvillage cultivation setprogress {u} 1899');self.use_pill('myvillage:pill_zhuji',1)
+        self.rc(f'yuanxian cultivation setprogress {u} 1899');self.use_pill('myvillage:pill_zhuji',1)
         self.check('unready_does_not_consume',self.count('myvillage:pill_zhuji')==2,self.inventory())
         saw_failure=False
         for q in (3,2,1):
@@ -125,7 +125,7 @@ class FoundationEvidence(ArrayEvidence):
                     self.check(f'failed_attempt_q{q}',result['cultivation_progress']==1900 and result['stability']==475 and result.get('foundation_quality',0)==prior.get('foundation_quality',0),result);saw_failure=True
                     if q==1 and success:
                         # Restore the realm of an already observed successful low-grade breakthrough.
-                        self.rc(f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early');break
+                        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early');break
             self.check(f'observed_success_q{q}',success,{'attempts':attempt+1})
         self.check('observed_failed_attempt',saw_failure,{});self.done('breakthrough')
     def repair(self):
@@ -138,13 +138,13 @@ class FoundationEvidence(ArrayEvidence):
         self.check('middle_power',self.profile()['power_cap']==224,self.profile())
         self.check('repair_does_not_heal',abs(self.number(f'data get entity {u} Health')-before)<.001,{})
         self.cooldown();self.use_pill('myvillage:pill_buji',2);self.check('same_grade_rejected_without_cost',self.count('myvillage:pill_buji')==2,self.inventory())
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:golden_core myvillage:golden_early');self.use_pill('myvillage:pill_buji',3)
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:golden_core myvillage:golden_early');self.use_pill('myvillage:pill_buji',3)
         self.check('repair_after_golden_core',self.quality()==3 and self.count('myvillage:pill_buji')==1,self.raw_profile())
         self.check('golden_health_cap',abs(self.number(f'attribute {u} minecraft:generic.max_health get')-144)<.001,self.raw_profile())
         self.check('golden_power_cap',self.profile()['power_cap']==480,self.profile())
         golden_attack=self.number(f'attribute {u} minecraft:generic.attack_damage get')
         self.check('golden_attack',abs(golden_attack-7.2)<.001,golden_attack)
-        for i in range(3):self.rc(f'myvillage cultivation setstability {u} {100+i}')
+        for i in range(3):self.rc(f'yuanxian cultivation setstability {u} {100+i}')
         self.check('ordinary_profile_updates_do_not_stack',abs(self.number(f'attribute {u} minecraft:generic.max_health get')-144)<.001,self.raw_profile())
         self.cooldown();self.use_pill('myvillage:pill_buji',2);self.check('downgrade_rejected_without_cost',self.count('myvillage:pill_buji')==2,self.inventory())
         self.done('repair')
@@ -185,7 +185,7 @@ class FoundationEvidence(ArrayEvidence):
 
     def run(self):
         self.start();u=self.s.username
-        for c in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','gamerule naturalRegeneration false','forceload add -16 -16 32 32',f'gamemode survival {u}',f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'setblock {POS} myvillage:alchemy_furnace[facing=north]'):
+        for c in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','gamerule naturalRegeneration false','forceload add -16 -16 32 32',f'gamemode survival {u}',f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',f'setblock {POS} myvillage:alchemy_furnace[facing=north]'):
             self.rc(c)
         self.learn_all();self.rc('tick rate 100')
         for i in range(3,8):self.brew(i)

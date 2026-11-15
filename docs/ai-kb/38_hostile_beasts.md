@@ -175,7 +175,7 @@ gets `clip_<move>_arc.png` and `clip_<move>_landing.png`.
 
 ## Debug commands and capture
 
-`/myvillage beast` (permission 2): `move <targets> <move_id>` starts a move on
+`/yuanxian beast` (permission 2): `move <targets> <move_id>` starts a move on
 the next AI step, ignoring range, cooldown, and gap; `status <targets>` prints
 the move state (move, tick, phase, resisting, aim, cooldowns, target
 distance); `debug on|off` logs move starts, ends, staggers, hits given, and

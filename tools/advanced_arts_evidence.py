@@ -45,7 +45,7 @@ class ArtsEvidence(PurpleEvidence):
         self.home()
         self.equip('myvillage:'+self.weapon(art))
         scene.ensure_cultivation(self.s)
-        self.rc(f'myvillage cultivation qi fill {self.s.username}')
+        self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         self.poll(lambda:self.state()['now'], lambda t:t>=self.ready.get(art['id'], 0),
                   timeout=65, label='authored cooldown elapsed')
 
@@ -91,9 +91,9 @@ class ArtsEvidence(PurpleEvidence):
         self.report.update(selected=['hud_layout'], completed=[], unrun=['hud_layout'],
                            method='mapped Z/C with administrator-learned art fixtures; representative HUD screenshots')
         self.start();self.setup();u=self.s.username
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4')
         for art in self.arts[:2]:
-            self.rc(f'myvillage cultivation learn {u} {art["id"]}')
+            self.rc(f'yuanxian cultivation learn {u} {art["id"]}')
             self.prepare(art);target=self.dummy('arts_hud',(.5,-60,2.8))
             self.cast_art(art,target,shot=True)
             self.rc('kill @e[tag=arts_hud]')
@@ -104,7 +104,7 @@ class ArtsEvidence(PurpleEvidence):
         self.rc('fill -12 -61 -12 12 -61 12 minecraft:stone')
         art=self.arts[0]
         self.prepare(art);self.refused(art,'unlearned_refused')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4')
         # Each actual book starts with zero comprehension and is consumed by ordinary study.
         for art in self.arts:
             self.home();self.s.game.key('1')
@@ -122,10 +122,10 @@ class ArtsEvidence(PurpleEvidence):
         self.done('learning_and_six_casts')
 
         art=self.arts[0];self.prepare(art)
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
         self.refused(art,'learned_but_low_realm_refused')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4')
-        self.rc(f'myvillage cultivation qi set {u} 0');self.refused(art,'insufficient_power_refused')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4')
+        self.rc(f'yuanxian cultivation qi set {u} 0');self.refused(art,'insufficient_power_refused')
         self.prepare(art)
         wall=self.dummy('arts_wall',(.5,-60,4))
         ally=self.dummy('arts_ally',(1.5,-60,2.5))

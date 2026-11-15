@@ -1,5 +1,7 @@
 package com.example.myvillage.worldplan.runtime;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.worldplan.*;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -18,7 +20,7 @@ import java.util.*;
 public final class WorldPlanCommands {
     private WorldPlanCommands() {}
     public static void register(RegisterCommandsEvent e){
-        e.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2))
+        e.getDispatcher().register(ModCommands.adminRoot()
             .then(Commands.literal("worldplan")
                 .then(Commands.literal("info").executes(c->info(c.getSource())))
                 .then(Commands.literal("mine").executes(c->mine(c.getSource())))

@@ -131,14 +131,14 @@ All eight permission-level-2 administrator routes use the same ordinary rules as
 the corresponding block service:
 
 ```mcfunction
-/myvillage cultivation awaken [target]
-/myvillage cultivation juexing [target]
-/myvillage xiulian awaken [target]
-/myvillage xiulian juexing [target]
-/myvillage cultivation initiate [target]
-/myvillage cultivation rumen [target]
-/myvillage xiulian initiate [target]
-/myvillage xiulian rumen [target]
+/yuanxian cultivation awaken [target]
+/yuanxian cultivation juexing [target]
+/yuanxian xiulian awaken [target]
+/yuanxian xiulian juexing [target]
+/yuanxian cultivation initiate [target]
+/yuanxian cultivation rumen [target]
+/yuanxian xiulian initiate [target]
+/yuanxian xiulian rumen [target]
 ```
 
 Omitting `target` uses the executing player. These routes accept no seed,

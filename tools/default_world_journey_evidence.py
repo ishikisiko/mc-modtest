@@ -69,7 +69,7 @@ def run(out,commit):
             state=cs.start(cs.SessionConfig(session_id=secrets.token_hex(6),language='zh_cn',prebuilt_resources=True,
                 gradle_jvmargs='-Xmx2g',settle=3,lock=str(procs.default_lock_path(ROOT))))
             self.s=cs.Session.attach(ui_check=True);self.sessions+=1
-            self.poll(lambda:status_json(self.rc('myvillage qianzhen realm_status '+self.s.username),'QIANZHEN_REALM_STATUS '),
+            self.poll(lambda:status_json(self.rc('yuanxian qianzhen realm_status '+self.s.username),'QIANZHEN_REALM_STATUS '),
                 lambda s:not s['building'] and not s['waiting'],'首次秘境准备完成',150)
             self.poll(self.dim,lambda d:'myvillage:qianzhen/' in d,'已经进入自己的秘境')
             self.poll(self.s.game.pointer_grabbed,lambda v:v is True,'世界画面已获得输入',90)

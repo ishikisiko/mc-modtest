@@ -195,7 +195,7 @@ class ThunderTigerEvidenceTest(unittest.TestCase):
                 commands=[call.args[0] for call in rc.call_args_list]
             self.assertIn('setworldspawn 24 70 1',commands)
             self.assertIn('defaultgamemode creative',commands)
-            self.assertIn('myvillage world resume',commands)
+            self.assertIn('yuanxian world resume',commands)
             with zipfile.ZipFile(base/'out/thunder-tiger-pristine-world.zip') as archive:
                 names=archive.namelist()
                 self.assertTrue(any(name.endswith('level.dat') for name in names))

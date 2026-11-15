@@ -1,5 +1,7 @@
 package com.example.myvillage.story;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.entity.npc.NpcEntity;
 import com.example.myvillage.portrait.PortraitAssign;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
@@ -423,7 +425,7 @@ public final class StoryRuntime {
     private static void death(LivingDeathEvent e){if(e.getEntity() instanceof ServerPlayer p)SESSIONS.forget(p.getUUID());}
     private static void stopping(ServerStoppingEvent e){SESSIONS.clear();PENDING_PLANTS.clear();definition=null;openingDefinition=null;}
     private static void commands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("story").requires(s->s.hasPermission(2))
+        event.getDispatcher().register(ModCommands.root().then(Commands.literal("story").requires(s->s.hasPermission(2))
                 .then(Commands.literal("status").then(Commands.argument("player",EntityArgument.player()).executes(c->{
                     var player=EntityArgument.getPlayer(c,"player");
                     c.getSource().sendSuccess(()->Component.literal("QIANZHEN_STORY_STATUS "+readback(player)),false);return 1;

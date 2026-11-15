@@ -48,7 +48,7 @@ class LockedEvidence(Evidence):
         with (cs.LOG_DIR/'server.log').open('rb') as f:f.seek(offset);return f.read().decode(errors='replace')
     def offset(self):return (cs.LOG_DIR/'server.log').stat().st_size
     def hp(self,target):return self.number(f'data get entity {target} Health')
-    def power(self):return int(re.search(r'current=(\d+)',self.rc(f'myvillage cultivation qi {self.s.username}')).group(1))
+    def power(self):return int(re.search(r'current=(\d+)',self.rc(f'yuanxian cultivation qi {self.s.username}')).group(1))
     def key(self,key,game=None):
         game=game or self.s.game;game.key(key)
         self.report['inputs'].append({'method':'mapped X11 key','actor':'guest' if self.guest and game==self.guest.game else 'caster','key':key,'server_tick':self.now()});self.save()
@@ -70,24 +70,24 @@ class LockedEvidence(Evidence):
         self.report['phases'].append({'phase':'initial_setup','timings':state.get('timings',{})})
         self.position(self.s.game)
         for cmd in (*scene.world_rules(),*scene.player_setup(self.s.username,'myvillage:qingfeng_sword'),
-                    'gamerule naturalRegeneration false','myvillage world pause','forceload add -32 -32 32 48'):
+                    'gamerule naturalRegeneration false','yuanxian world pause','forceload add -32 -32 32 48'):
             self.rc(cmd)
         self.poll(lambda:self.rc('execute if loaded 0 -61 0 run time query gametime'),lambda r:'The time is' in r,label='fixture chunk')
         self.rc('fill -16 -61 -16 16 -61 40 minecraft:stone');self.configure(self.s.username)
         self.learned=[*IDS,'liuyun_bu','jianqi_jue']
-        for ident in self.learned:self.rc(f'myvillage cultivation learn {self.s.username} myvillage:{ident}')
+        for ident in self.learned:self.rc(f'yuanxian cultivation learn {self.s.username} myvillage:{ident}')
         scene.ensure_cultivation(self.s);self.bind_all();self.freeze()
     def configure(self,user):
-        for cmd in (f'op {user}',f'gamemode survival {user}',f'myvillage cultivation awaken {user}',f'myvillage cultivation initiate {user}',
-                    f'myvillage cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early',
-                    f'myvillage cultivation setroot {user} 4000 1500 1500 1500 1500',f'myvillage cultivation qi fill {user}',
+        for cmd in (f'op {user}',f'gamemode survival {user}',f'yuanxian cultivation awaken {user}',f'yuanxian cultivation initiate {user}',
+                    f'yuanxian cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early',
+                    f'yuanxian cultivation setroot {user} 4000 1500 1500 1500 1500',f'yuanxian cultivation qi fill {user}',
                     f'attribute {user} minecraft:generic.max_health base set {20 if user==self.s.username else 200}',f'effect give {user} minecraft:instant_health 1 10 true',
                     f'effect give {user} minecraft:saturation infinite 255 true',f'item replace entity {user} hotbar.0 with myvillage:qingfeng_sword'):
             self.rc(cmd)
     def click(self,x,y,label):
         scale=bounds(self.s.game.size)['scale'];self.s.game.xdo('mousemove',str(round(x*scale)),str(round(y*scale)),'click','1')
         self.report['inputs'].append({'method':'mapped H mouse click','x':x,'y':y,'label':label});time.sleep(.35)
-    def bindings(self):return self.rc(f'execute as {self.s.username} run myvillage combat bindings')
+    def bindings(self):return self.rc(f'execute as {self.s.username} run yuanxian combat bindings')
     def bind_all(self):
         self.key('h');self.opened=True;time.sleep(.5);b=bounds(self.s.game.size)
         self.click(b['left']+26,b['top']+36+3*21+9,'技能页')
@@ -102,7 +102,7 @@ class LockedEvidence(Evidence):
         self.s.game.require_ingame('bound skill tests');self.check('three_server_bindings',all('myvillage:'+i in self.bindings() for i in IDS),self.bindings())
     def ready(self):
         self.step(250)
-        self.rc(f'tp {self.s.username} .5 -60 .5 0 0');self.rc(f'myvillage cultivation qi fill {self.s.username}')
+        self.rc(f'tp {self.s.username} .5 -60 .5 0 0');self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         self.s.game.recover_grab();time.sleep(.2)
     def dummy(self,pos='.5 -60 9',armor=0):
         self.rc('kill @e[tag=locked_fixture]')
@@ -142,15 +142,15 @@ class LockedEvidence(Evidence):
         target=self.dummy();self.rc('fill -5 -60 4 5 -55 4 minecraft:stone');self.step(10);mark=self.offset();self.key('i');time.sleep(.4)
         self.check('wall_blocks_acquisition','reason=no_target' in self.log(mark) and 'result=start art=' not in self.log(mark),self.log(mark))
         self.rc('fill -5 -60 4 5 -55 4 minecraft:air')
-        self.rc(f'myvillage cultivation qi set {self.s.username} 0');self.step(10);mark=self.offset();before=self.power();self.key('i');time.sleep(.5)
+        self.rc(f'yuanxian cultivation qi set {self.s.username} 0');self.step(10);mark=self.offset();before=self.power();self.key('i');time.sleep(.5)
         after=self.power()
         self.check('insufficient_power_refused','reason=power' in self.log(mark) and 'result=start art=' not in self.log(mark) and before<self.defs['gengjin_jianjue']['effects']['active']['qi_cost'] and after>=before,{'before':before,'after':after,'log':self.log(mark)})
-        self.rc(f'myvillage cultivation qi fill {self.s.username}')
-        self.rc(f'myvillage cultivation setrealm {self.s.username} myvillage:qi_refining myvillage:qi_refining_4')
+        self.rc(f'yuanxian cultivation qi fill {self.s.username}')
+        self.rc(f'yuanxian cultivation setrealm {self.s.username} myvillage:qi_refining myvillage:qi_refining_4')
         self.step(10);mark=self.offset();before=self.power();self.key('k');time.sleep(.5)
         self.check('current_realm_rechecked','reason=unlearned' in self.log(mark) and 'result=start art=' not in self.log(mark) and self.power()==before,self.log(mark))
-        self.rc(f'myvillage cultivation setrealm {self.s.username} myvillage:foundation_establishment myvillage:foundation_early')
-        self.rc(f'myvillage cultivation qi fill {self.s.username}')
+        self.rc(f'yuanxian cultivation setrealm {self.s.username} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         self.rc('team add locked_allies');self.rc(f'team join locked_allies {self.s.username}');self.rc(f'team join locked_allies {target}')
         self.step(10);mark=self.offset();before=self.power();self.key('i');time.sleep(.5)
         self.check('allies_not_acquired','reason=no_target' in self.log(mark) and 'result=start art=' not in self.log(mark) and self.power()==before,self.log(mark));self.rc('team remove locked_allies')
@@ -193,7 +193,7 @@ class LockedEvidence(Evidence):
         self.rc('tick unfreeze');self.rc('kill @e[tag=locked_fixture]')
         with SecondClient(self) as guest:
             self.guest=guest;self.position(guest.game);self.configure(guest.username)
-            self.rc(f'myvillage cultivation learn {guest.username} myvillage:liuyun_bu');self.rc(f'tp {guest.username} .5 -60 9 180 0')
+            self.rc(f'yuanxian cultivation learn {guest.username} myvillage:liuyun_bu');self.rc(f'tp {guest.username} .5 -60 9 180 0')
             if scene.parse_combat_mode(self.rc(f'data get entity {guest.username} "neoforge:attachments"'))!='cultivation':
                 self.key('r',guest.game)
             time.sleep(.7)

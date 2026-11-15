@@ -110,7 +110,7 @@ class Server:
         return json.loads(text.split('TRAVEL_PROBE ', 1)[1])
 
     def desk(self):
-        text = self.command(f'myvillage talisman status {A} 0 80 -3')
+        text = self.command(f'yuanxian talisman status {A} 0 80 -3')
         assert 'TALISMAN_STATUS ' in text, text
         return json.loads(text.split('TALISMAN_STATUS ', 1)[1])
 

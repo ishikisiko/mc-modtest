@@ -54,7 +54,7 @@ class GradeEvidence(ForgingEvidence):
 
     def run(self):
         self.start(); user = self.s.username
-        for cmd in (*scene.world_rules(), *scene.player_setup(user, 'minecraft:air'), 'myvillage world pause',
+        for cmd in (*scene.world_rules(), *scene.player_setup(user, 'minecraft:air'), 'yuanxian world pause',
                     f'tp {user} .5 -60 .5 180 -30', f'clear {user}',
                     f'give {user} '+BAG+'['+LEDGER+'=[{item:{id:"'+STONES[0]+'",count:1},quantity:"10000"}]]',
                     f'give {user} {STONES[0]} 100', f'gamemode survival {user}', f'deop {user}'):

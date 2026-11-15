@@ -33,7 +33,7 @@ def blank(recipe,stage=0,blows=0):
 
 
 def physical_readback(command):
- return bool(re.fullmatch(r'myvillage workshop (?:anvil -?\d+ -?\d+ -?\d+|inspect [A-Za-z0-9_]+)',command)
+ return bool(re.fullmatch(r'yuanxian workshop (?:anvil -?\d+ -?\d+ -?\d+|inspect [A-Za-z0-9_]+)',command)
              or re.fullmatch(r'execute as @e\[type=minecraft:item,nbt=\{Item:\{id:"myvillage:[a-z0-9_]+"\}\}\] run data get entity @s Item',command))
 
 
@@ -58,18 +58,18 @@ class PhysicalForgingEvidence(ArmorForgingEvidence):
   self.attach_window();self.poll(self.s.game.pointer_grabbed,lambda v:v is True,label='actual game pointer')
   self.rc('tick unfreeze')
   if not reuse:
-   self.poll(lambda:status_json(self.rc('myvillage qianzhen realm_status '+self.username),'QIANZHEN_REALM_STATUS '),
+   self.poll(lambda:status_json(self.rc('yuanxian qianzhen realm_status '+self.username),'QIANZHEN_REALM_STATUS '),
              lambda s:not s['building'] and not s['waiting'],150,'initial personal realm setup')
-   for command in (*scene.world_rules(),'myvillage world pause',f'op {self.username}',f'gamemode survival {self.username}',
+   for command in (*scene.world_rules(),'yuanxian world pause',f'op {self.username}',f'gamemode survival {self.username}',
        f'execute in minecraft:overworld run tp {self.username} .5 -60 .5 0 0','forceload add -16 -16 16 16',
        'fill -12 -61 -12 12 -61 12 minecraft:smooth_stone',f'clear {self.username}',f'effect clear {self.username}',
        f'effect give {self.username} minecraft:saturation infinite 255 true'):
     self.rc(command)
   self.poll(lambda:self.pos(),lambda p:abs(p[1]+60)<.05,label='fixture settled')
   time.sleep(1);self.poll(self.s.game.pointer_grabbed,lambda v:v is True,90,'dimension screen closed');self.save()
- def anvil(self):return status_json(self.rc('myvillage workshop anvil '+POS),'WORKSHOP_ANVIL ')
+ def anvil(self):return status_json(self.rc('yuanxian workshop anvil '+POS),'WORKSHOP_ANVIL ')
  def stored(self):return read_data(self.rc('data get block '+POS+' Items'))
- def inspect(self,user=None):return status_json(self.rc('myvillage workshop inspect '+(user or self.username)),'WORKSHOP ')
+ def inspect(self,user=None):return status_json(self.rc('yuanxian workshop inspect '+(user or self.username)),'WORKSHOP ')
  def aim(self,game=None,user=None):
   if user and user!=self.username:self.rc(f'tp {user} 2.5 -60 .5 33.69 20.5')
   else:self.rc(f'tp {self.username} .5 -60 .5 0 20.5')
@@ -175,7 +175,7 @@ class PhysicalForgingEvidence(ArmorForgingEvidence):
   self.clean();self.kit(blank('lingxiao_spear'));self.put();owner=self.anvil()['input']
   with SecondClient(self,timeout=360) as guest:
    self.guest=guest;self.attach_window(guest.game);u=guest.username
-   self.poll(lambda:status_json(self.rc('myvillage qianzhen realm_status '+u),'QIANZHEN_REALM_STATUS '),lambda d:not d['building'] and not d['waiting'],150,'guest opening ready')
+   self.poll(lambda:status_json(self.rc('yuanxian qianzhen realm_status '+u),'QIANZHEN_REALM_STATUS '),lambda d:not d['building'] and not d['waiting'],150,'guest opening ready')
    for command in (f'op {u}',f'gamemode survival {u}',f'execute in minecraft:overworld run tp {u} 2.5 -60 .5 33.69 20.5',f'clear {u}',
        f'effect give {u} minecraft:saturation infinite 255 true',f'item replace entity {u} hotbar.1 with myvillage:forging_hammer'):
     self.rc(command)

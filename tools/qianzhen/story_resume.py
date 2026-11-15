@@ -228,7 +228,7 @@ def validate_prefix(prior, actions, movements, route):
         raise ValueError('Fixture jump inside the prior continuous chapter')
     for row in prior['commands']:
         command = row['command']
-        if 'myvillage story ' in command and not command.startswith('myvillage story status '):
+        if 'yuanxian story ' in command and not command.startswith('yuanxian story status '):
             raise ValueError('Prior story mutation command')
     teleports = [r['command'] for r in prior['commands']
                  if re.search(r'(?:^|\s)(?:tp|teleport)\s', r['command'])]

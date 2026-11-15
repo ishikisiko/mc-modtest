@@ -1,5 +1,7 @@
 package com.example.myvillage.estate;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.npc.NpcEntity;
 import com.example.myvillage.npc.NpcDialogueOptions.Page;
@@ -169,7 +171,7 @@ public final class EstateRuntime {
         }
     }
     private static void commands(RegisterCommandsEvent e) {
-        e.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("estate").executes(c -> {
+        e.getDispatcher().register(ModCommands.root().then(Commands.literal("estate").executes(c -> {
             for(var site:sites(c.getSource().getServer().overworld())) {
                 var at=site.world(site.definition.steward()); var title=EstateSavedData.get(c.getSource().getServer()).titles.get(site.key());
                 c.getSource().sendSuccess(() -> Component.literal(site.definition.name()+"：管家位于 "+at.toShortString()+"；"

@@ -61,7 +61,7 @@
 管理员在新建平坦世界显式部署阡镇：
 
 ```mcfunction
-/myvillage qianzhen deploy <x> <y> <z>
+/yuanxian qianzhen deploy <x> <y> <z>
 ```
 
 部署会检查场景范围，重复部署不能覆盖既有场景。它不注册自然生成、不

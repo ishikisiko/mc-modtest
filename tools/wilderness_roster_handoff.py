@@ -65,15 +65,15 @@ def main():
 去空地使用刷怪蛋可试普通 AI。刷怪蛋是基础属性试招；自然出生的地区境界另有测试证据。
 新角色可先使用测灵碑、传承碑，按游戏指南开始正常学习、炼丹和炼器。
 快速开发验收可在聊天依次执行（世界副本已开启命令）：
-/myvillage cultivation awaken @s
-/myvillage cultivation initiate @s
-/myvillage cultivation setrealm @s myvillage:qi_refining myvillage:qi_refining_4
-/myvillage cultivation crafting set @s alchemy 100
-/myvillage cultivation crafting set @s forging 100
-/myvillage cultivation learn @s myvillage:liuyun_bu
-/myvillage cultivation learn @s myvillage:huifeng_jianzhen
-/myvillage cultivation learn @s myvillage:linghuo_shu
-/myvillage cultivation qi fill @s
+/yuanxian cultivation awaken @s
+/yuanxian cultivation initiate @s
+/yuanxian cultivation setrealm @s myvillage:qi_refining myvillage:qi_refining_4
+/yuanxian cultivation crafting set @s alchemy 100
+/yuanxian cultivation crafting set @s forging 100
+/yuanxian cultivation learn @s myvillage:liuyun_bu
+/yuanxian cultivation learn @s myvillage:huifeng_jianzhen
+/yuanxian cultivation learn @s myvillage:linghuo_shu
+/yuanxian cultivation qi fill @s
 /gamemode survival
 R 切修炼战斗，左键基础连招、Alt 身法；H 的技能页可分配回风剑阵和灵火术。
 可用 /gamemode creative 回到观察状态。

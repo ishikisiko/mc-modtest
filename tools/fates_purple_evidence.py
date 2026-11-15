@@ -77,15 +77,15 @@ class PurpleEvidence(FateEvidence):
     def setup(self):
         u = self.s.username
         for cmd in (*scene.world_rules(), *scene.player_setup(u, 'minecraft:air'),
-                    'gamerule naturalRegeneration false', 'myvillage world pause'):
+                    'gamerule naturalRegeneration false', 'yuanxian world pause'):
             self.rc(cmd)
         # The inheritance command does not awaken a missing root. Establish it through
         # the actual testing-stele input before the targeted candidate fixture can roll.
         self.open_stele(); self.leave_stele()
         self.check('mapped_root_prepared', self.root() is not None, self.root())
-        self.rc(f'myvillage cultivation initiate {u}')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
-        self.rc(f'myvillage cultivation learn {u} myvillage:jianqi_jue')
+        self.rc(f'yuanxian cultivation initiate {u}')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
+        self.rc(f'yuanxian cultivation learn {u} myvillage:jianqi_jue')
         self.home()
         self.rc(f'spawnpoint {u} 0 -60 0')
 
@@ -107,7 +107,7 @@ class PurpleEvidence(FateEvidence):
         self.reset()
         wanted = 'myvillage:'+focus
         for _ in range(160):
-            self.rc(f'myvillage cultivation fate roll {self.s.username}')
+            self.rc(f'yuanxian cultivation fate roll {self.s.username}')
             time.sleep(.22)
             state = self.state()
             if len(state['candidates']) != 6:
@@ -134,7 +134,7 @@ class PurpleEvidence(FateEvidence):
         raise RuntimeError('Focused candidate fixture not drawn in bounded rounds: '+focus)
 
     def power(self):
-        reply = self.rc(f'myvillage cultivation qi {self.s.username}')
+        reply = self.rc(f'yuanxian cultivation qi {self.s.username}')
         fields = dict(re.findall(r'(current|cap|recovery_ticks)=(\d+)', reply))
         if set(fields) != {'current', 'cap', 'recovery_ticks'}:
             raise ValueError('Missing qi readback: '+reply)
@@ -177,7 +177,7 @@ class PurpleEvidence(FateEvidence):
             spec += '[myvillage:forge_mark={trait:"channeling",quality:4}]'
         self.equip(spec)
         scene.ensure_cultivation(self.s)
-        self.rc(f'myvillage cultivation qi fill {self.s.username}')
+        self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         log = cs.LOG_DIR/'server.log'; offset = log.stat().st_size
         self.s.game.require_ingame('mapped sword qi')
         self.s.game.xdo('mousedown', '3'); time.sleep(hold); self.s.game.xdo('mouseup', '3')
@@ -194,7 +194,7 @@ class PurpleEvidence(FateEvidence):
     def meridians(self):
         u = self.s.username
         self.reset(); base = self.power()['cap']
-        self.rc(f'myvillage cultivation qi set {u} 0')
+        self.rc(f'yuanxian cultivation qi set {u} 0')
         before = self.power()
         self.choose_focus('open_meridians')
         after = self.power(); e = self.definitions['myvillage:open_meridians']['effects']
@@ -211,7 +211,7 @@ class PurpleEvidence(FateEvidence):
         self.rc('kill @e[tag=purple_a]'); self.rc('kill @e[tag=purple_b]')
         events = self.cast('miss')
         self.check('miss_grants_no_refund', not any(r.get('result') == 'hit_refund' for r in events), events)
-        self.rc(f'myvillage cultivation qi fill {u}'); self.reset()
+        self.rc(f'yuanxian cultivation qi fill {u}'); self.reset()
         self.check('removing_fate_clamps_cap', self.power()['cap']==base and self.power()['current']<=base, self.power())
 
     def use_pill(self, quality=1, count=2):
@@ -324,13 +324,13 @@ class PurpleEvidence(FateEvidence):
             self.rc(f'item replace entity {v} weapon.mainhand with minecraft:iron_sword')
             self.heal(); self.home()
             self.rc(f'tp {v} .5 -60 2.5 180 0')
-            other_before=self.one(f'myvillage cultivation fate status {v}','FATES').get('tempered_bones',{})
+            other_before=self.one(f'yuanxian cultivation fate status {v}','FATES').get('tempered_bones',{})
             time.sleep(1.3); before_hp=self.hp()
             g.require_ingame('second player mapped melee'); g.xdo('click','1')
             self.poll(self.hp,lambda n:n<before_hp,timeout=5,label='second player real hit')
             loss=before_hp-self.hp(); charge=self.own_state('tempered_bones')
             self.check('mapped_pvp_health_loss_charges_owner',close(charge['damage'],min(loss,self.maximum()*.3),.1),{'loss':loss,'charge':charge})
-            other=self.one(f'myvillage cultivation fate status {v}','FATES')
+            other=self.one(f'yuanxian cultivation fate status {v}','FATES')
             self.check('other_player_does_not_inherit_charge',other.get('tempered_bones',{})==other_before,other)
         self.report['multiplayer']='two_actual_clients_mapped_pvp_and_private_fate_state'
         selected=self.state()['selected']; self.rc(f'kill {u}')

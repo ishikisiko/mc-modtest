@@ -69,7 +69,7 @@ class AdvancedArtsDataTests(unittest.TestCase):
             for lang in ('zh_cn','en_us'):
                 self.assertIn(manual['translation_key'],json.loads(output[gen.ASSETS/f'lang/{lang}.json']))
         function=output[gen.DATA/'function/advanced_arts_books.mcfunction']
-        self.assertEqual(6,function.count('myvillage cultivation manual @s '))
+        self.assertEqual(6,function.count('yuanxian cultivation manual @s '))
         self.assertNotIn(' learn ',function);self.assertNotIn('setrealm',function)
 
     def test_output_is_reproducible_and_check_never_repairs_drift(self):

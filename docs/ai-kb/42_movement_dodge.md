@@ -125,7 +125,7 @@ DODGE_DEBUG player=<name> t=<tick> cancelled_damage=<amount> source=<damage type
 
 ## Debug command
 
-`/myvillage combat dodge status [player]` (permission 2; the source player
+`/yuanxian combat dodge status [player]` (permission 2; the source player
 without an argument) prints one literal line:
 
 ```text
@@ -133,9 +133,9 @@ dodge <name>: technique=<id> grade=<g> distance=<d> invuln=<n> cooldown_ticks=<n
 ```
 
 or `technique=none` when no learned technique qualifies. Learning for tests:
-`/myvillage cultivation learn <target> myvillage:taxue_wuhen` (checks only
+`/yuanxian cultivation learn <target> myvillage:taxue_wuhen` (checks only
 that the technique is registered, not realm or affinity), or
-`/myvillage cultivation manual <target> <id>` to study the manual normally.
+`/yuanxian cultivation manual <target> <id>` to study the manual normally.
 
 ## Client
 

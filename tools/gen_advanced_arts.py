@@ -161,7 +161,7 @@ def plan(root: Path = ROOT) -> dict[Path, str]:
         output[path] = dump(current)
     output[DATA / 'function/advanced_arts_books.mcfunction'] = (
         '# Administrator fixture: grants manuals only; never changes realm or learned state.\n' +
-        ''.join(f'myvillage cultivation manual @s {a["id"]}\n' for a in arts))
+        ''.join(f'yuanxian cultivation manual @s {a["id"]}\n' for a in arts))
     guide = '''---
 navigation:
   title: 高级武技 / Advanced Weapon Arts

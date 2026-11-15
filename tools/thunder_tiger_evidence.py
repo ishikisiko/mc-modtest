@@ -230,7 +230,7 @@ class TigerEvidence(Evidence):
         self.report['phases'].append({'phase': 'restart' if reuse else 'initial_setup',
             'wall_s': round(time.monotonic()-started, 3), 'capture_timings': state.get('timings', {})})
         self.rc(f'op {self.s.username}')
-        self.rc('myvillage beast debug on')
+        self.rc('yuanxian beast debug on')
         request=Path('/workspace/request.json')
         if request.exists():
             self.report['source_commit']=json.loads(request.read_text())['commit']
@@ -246,7 +246,7 @@ class TigerEvidence(Evidence):
         return read_data(self.rc('data get entity '+self.target))
 
     def status(self):
-        row = parse_boss_status(self.rc('myvillage beast status '+self.target))
+        row = parse_boss_status(self.rc('yuanxian beast status '+self.target))
         self.report['state_samples'].append({'wall': time.monotonic(), **row})
         return row
 
@@ -267,7 +267,7 @@ class TigerEvidence(Evidence):
         return int(found.group(1)) if found else 0
 
     def roots(self,position,radius):
-        reply=self.rc(f'execute positioned {self.coords(position)} run myvillage beast status @e[type={ENTITY},distance=..{radius}]')
+        reply=self.rc(f'execute positioned {self.coords(position)} run yuanxian beast status @e[type={ENTITY},distance=..{radius}]')
         return parse_boss_roots(reply)
 
     def shot(self, name, game=None, **detail):
@@ -313,7 +313,7 @@ class TigerEvidence(Evidence):
     def natural(self):
         user = self.s.username
         for command in (*scene.world_rules(), f'gamemode spectator {user}', 'gamerule naturalRegeneration false',
-                        'gamerule doMobLoot true', 'myvillage world pause'):
+                        'gamerule doMobLoot true', 'yuanxian world pause'):
             self.rc(command)
         reply = self.rc('execute positioned 0 100 0 run locate structure myvillage:thunder_tiger_lair')
         locate_reply = reply
@@ -534,11 +534,11 @@ class TigerEvidence(Evidence):
                         f'effect give {user} minecraft:instant_health 1 20 true',
                         f'effect give {user} minecraft:saturation infinite 0 true',
                         f'item replace entity {user} hotbar.0 with myvillage:qingfeng_sword',
-                        f'myvillage cultivation learn {user} myvillage:taxue_wuhen', 'tick rate 5'):
+                        f'yuanxian cultivation learn {user} myvillage:taxue_wuhen', 'tick rate 5'):
             self.rc(command)
         self.s.game.key('1')
         self.report['combat_mode'] = scene.ensure_cultivation(self.s)
-        self.rc(f'execute as {user} run myvillage combat debug on')
+        self.rc(f'execute as {user} run yuanxian combat debug on')
         self.report['combat_debug_source']='administrator particle-only fixture; attacks and dodges remain mapped inputs'
         options = ROOT/'run-combat-capture/client/options.txt'
         values = dict(line.split(':',1) for line in options.read_text().splitlines() if ':' in line)
@@ -906,7 +906,7 @@ class TigerEvidence(Evidence):
         self.rc('setworldspawn '+self.coords(entry))
         self.look(entry,[entry[0],entry[1]+1.6,entry[2]+1],'creative')
         for rule,value in normal_rules.items():self.rc(f'gamerule {rule} {str(value).lower()}')
-        self.rc('myvillage world resume')
+        self.rc('yuanxian world resume')
         self.rc('forceload remove all')
         self.rc('save-all flush')
         world=cs.SERVER_DIR/cs.LEVEL_NAME
@@ -942,7 +942,7 @@ class TigerEvidence(Evidence):
                     'scope':'ZIP copy only; source server file unchanged; all other decompressed NBT bytes preserved'}}
         finally:
             for rule,value in saved_rules.items():self.rc(f'gamerule {rule} {value}')
-            self.rc('myvillage world pause')
+            self.rc('yuanxian world pause')
             self.rc('defaultgamemode survival')
             self.rc('forceload add '+' '.join(map(str,self.report['natural_lair']['forceload'])))
             self.rc('tick rate '+saved_rate)

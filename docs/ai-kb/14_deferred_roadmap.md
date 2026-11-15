@@ -31,7 +31,7 @@ openspec/changes/archive/2026-06-15-add-living-town-generation/tasks.md
 - [ ] 6.6 Staged manual acceptance: place a town in-game and inspect 层次 (spine + dominant landmark + gradient), 人烟味 (tissue/smoke/light), 真实市井 (active frontage + furnished street), closed enclosure, and site-fit on a slope
 
 openspec/changes/archive/2026-06-15-add-mod-runtime-fallback/tasks.md
-- [ ] 4.6 Stage manual acceptance: run `/myvillage town` and `/myvillage place` once with the decor mods installed and once without, confirm authored mod blocks place real-block / vanilla-fallback respectively with no air holes and no crash, and capture screenshots.
+- [ ] 4.6 Stage manual acceptance: run `/yuanxian town` and `/yuanxian place` once with the decor mods installed and once without, confirm authored mod blocks place real-block / vanilla-fallback respectively with no air holes and no crash, and capture screenshots.
 - [ ] 5.3 Mark Phase 5 and Phase 6 `done` in `docs/external_mod_integration_plan.md` status, referencing change `add-mod-runtime-fallback`.
 
 openspec/changes/archive/2026-06-17-densify-cultivation-town/tasks.md
@@ -40,7 +40,7 @@ openspec/changes/archive/2026-06-17-densify-cultivation-town/tasks.md
 - [ ] 5.3 Verify the spine reads as a market street and remains traversable end to end.
 
 openspec/changes/archive/2026-06-19-fix-sect-worldgen-chunk-stall/tasks.md
-- [ ] 4.2 Force-generate the same seed + site with `/myvillage sect` and compare to the worldgen-generated sect — identical compound, with no mismatched halves across chunk seams
+- [ ] 4.2 Force-generate the same seed + site with `/yuanxian sect` and compare to the worldgen-generated sect — identical compound, with no mismatched halves across chunk seams
 - [ ] 5.2 Build the jar and confirm it loads; smoke-test `/locate` + approach once more on the release build
 
 openspec/changes/archive/2026-06-22-rebuild-chinese-courtyard/tasks.md

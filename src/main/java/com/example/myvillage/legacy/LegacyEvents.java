@@ -1,5 +1,7 @@
 package com.example.myvillage.legacy;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.wilderness.*;
 import com.example.myvillage.wilderness.runtime.WildernessRuntime;
@@ -46,7 +48,7 @@ public final class LegacyEvents {
     @SubscribeEvent public static void dimension(PlayerEvent.PlayerChangedDimensionEvent e) {LegacyRuntime.forget(e.getEntity().getUUID());}
     @SubscribeEvent public static void respawn(PlayerEvent.PlayerRespawnEvent e) {LegacyRuntime.forget(e.getEntity().getUUID());}
     @SubscribeEvent public static void commands(RegisterCommandsEvent e) {
-        e.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("legacy").requires(s->s.hasPermission(2))
+        e.getDispatcher().register(ModCommands.root().then(Commands.literal("legacy").requires(s->s.hasPermission(2))
                 .then(Commands.literal("status").then(Commands.argument("player",EntityArgument.player()).executes(c->{
                     var p=EntityArgument.getPlayer(c,"player");c.getSource().sendSuccess(()->Component.literal(LegacyRuntime.status(p)),false);return 1;
                 })))));

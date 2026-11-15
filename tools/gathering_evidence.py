@@ -50,7 +50,7 @@ class GatheringEvidence(AlchemyEvidence):
         if not passed: raise AssertionError(name)
         return True
 
-    def inspect(self,core=CORE): return self.one('myvillage gathering inspect '+pos(core),'GATHERING_ARRAY')
+    def inspect(self,core=CORE): return self.one('yuanxian gathering inspect '+pos(core),'GATHERING_ARRAY')
     def energy(self,core=CORE): return energy(self.inspect(core),self.cfg['charges_per_stone'])
 
     def close_menu(self):
@@ -88,10 +88,10 @@ class GatheringEvidence(AlchemyEvidence):
 
     def player(self,user=None):
         user=user or self.s.username
-        for command in (f'clear {user}',f'gamemode survival {user}',f'myvillage cultivation awaken {user}',
-                        f'myvillage cultivation initiate {user}',
-                        f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
-                        f'myvillage cultivation setprogress {user} 0',f'myvillage cultivation setstability {user} 0'):
+        for command in (f'clear {user}',f'gamemode survival {user}',f'yuanxian cultivation awaken {user}',
+                        f'yuanxian cultivation initiate {user}',
+                        f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
+                        f'yuanxian cultivation setprogress {user} 0',f'yuanxian cultivation setstability {user} 0'):
             self.rc(command)
 
     def fixture(self,missing=False):
@@ -159,8 +159,8 @@ class GatheringEvidence(AlchemyEvidence):
         used=self.benefit(key='b');profile=self.profile()
         gain=50+50*self.cfg['bonus_basis_points']//10000
         self.check('spirit_gain_and_array_cost_agree',profile['progress']==used*gain,{'profile':profile,'batches':used})
-        self.rc(f'myvillage cultivation setprogress {self.s.username} 1100')
-        self.rc(f'myvillage cultivation setstability {self.s.username} 0')
+        self.rc(f'yuanxian cultivation setprogress {self.s.username} 1100')
+        self.rc(f'yuanxian cultivation setstability {self.s.username} 0')
         self.center();before=self.energy();self.key('v')
         self.poll(self.profile,lambda value:value['stability']>0,10,'solidification')
         self.key('x');time.sleep(.5)
@@ -200,7 +200,7 @@ class GatheringEvidence(AlchemyEvidence):
             before=self.energy();self.key('v');self.key('v',guest.game,guest.username)
             self.poll(self.inspect,lambda value:value['users']==2,20,'two real players benefit')
             self.key('x');self.key('x',guest.game,guest.username);time.sleep(.8)
-            profiles=[self.profile(),parse_profile(self.rc('myvillage cultivation info '+guest.username))]
+            profiles=[self.profile(),parse_profile(self.rc('yuanxian cultivation info '+guest.username))]
             used=before-self.energy()
             gains=[p['affinity']*(10000+self.cfg['bonus_basis_points'])//10000 for p in profiles]
             self.check('two_clients_pay_for_each_player_batch',all(p['progress']>0 and p['progress']%g==0 for p,g in zip(profiles,gains))
@@ -245,7 +245,7 @@ class GatheringEvidence(AlchemyEvidence):
     def run(self):
         self.start()
         for command in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),
-                        'myvillage world pause','forceload add -32 -32 48 48','tick rate 20'):
+                        'yuanxian world pause','forceload add -32 -32 48 48','tick rate 20'):
             self.rc(command)
         for case in self.cases:
             getattr(self,case)();self.report['completed'].append(case);self.report['unrun'].remove(case);self.save()

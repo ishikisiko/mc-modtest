@@ -56,13 +56,13 @@ class BagEvidence(ForgingEvidence):
     def preview(self):
         self.report.update(selected=['bag_forging_cost_display'],completed=[],kind='spirit_stone_bag_forging_display')
         self.start();u=self.s.username;g=self.s.game
-        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause',
-                    f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'tp {u} .5 -60 .5 180 -60'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause',
+                    f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',f'tp {u} .5 -60 .5 180 -60'):
             self.rc(cmd)
         self.learn('qingfeng_sword');self.rc(f'clear {u}')
         for cmd in [f'setblock {POS} myvillage:forging_table',f'item replace entity {u} hotbar.8 with {bag_spec(30)}',
                     f'give {u} minecraft:diamond 2',f'give {u} minecraft:stick 1',f'give {u} myvillage:edge_tempering_sand 1',
-                    f'myvillage cultivation crafting set {u} forging 0']:
+                    f'yuanxian cultivation crafting set {u} forging 0']:
             self.rc(cmd)
         g.key('1');self.open_table();time.sleep(1);self.capture('forging-bag-costs-ready.png')
         self.check('display_fixture_has_bag_only_currency',self.balance()==HUGE and self.count(STONE)==0,self.inventory())
@@ -76,7 +76,7 @@ class BagEvidence(ForgingEvidence):
         for action,key in [('start_spirit_meditation','b'),('stop_meditation','x')]:
             actual=bindings.get('key_key.myvillage.'+action,'key.keyboard.'+key)
             self.check('binding_'+action,actual=='key.keyboard.'+key,actual)
-        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause',f'tp {u} .5 -60 .5 180 -60',f'item replace entity {u} hotbar.0 with {BAG}',f'give {u} {STONE} 20'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause',f'tp {u} .5 -60 .5 180 -60',f'item replace entity {u} hotbar.0 with {BAG}',f'give {u} {STONE} 20'):
             self.rc(cmd)
         g.key('1');self.poll(self.balance,lambda n:n==20,10,'server bag collection')
         self.check('no_loose_stones_after_collection',self.count(STONE)==0,self.inventory());self.report['completed'].append('collection')
@@ -97,13 +97,13 @@ class BagEvidence(ForgingEvidence):
         self.report['completed'].append('full_inventory_pickup')
         self.check('legacy_bag_migrated_once',LEDGER in self.bag().get('components',{}) and 'minecraft:container' not in self.bag().get('components',{}),self.bag())
         self.report['completed'].append('legacy_migration')
-        for cmd in [f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1',f'tp {u} .5 -60 .5 180 -60']:
+        for cmd in [f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1',f'tp {u} .5 -60 .5 180 -60']:
             self.rc(cmd)
         before=self.balance();time.sleep(1);g.key('b');self.poll(self.balance,lambda n:n<before,15,'mapped spirit meditation bag payment');g.key('x');time.sleep(.4)
         self.check('meditation_only_spends_bag',0<self.balance()<before and self.count(STONE)==0,self.inventory())
         self.report['completed'].append('offhand_meditation')
         self.rc(f'clear {u}');self.learn('qingfeng_sword');self.rc(f'clear {u}')
-        for cmd in [f'setblock {POS} myvillage:forging_table',f'item replace entity {u} hotbar.8 with {counted_bag_spec(HUGE)}',f'give {u} minecraft:diamond 2',f'give {u} minecraft:stick 1',f'give {u} myvillage:edge_tempering_sand 1',f'myvillage cultivation crafting set {u} forging 0']:
+        for cmd in [f'setblock {POS} myvillage:forging_table',f'item replace entity {u} hotbar.8 with {counted_bag_spec(HUGE)}',f'give {u} minecraft:diamond 2',f'give {u} minecraft:stick 1',f'give {u} myvillage:edge_tempering_sand 1',f'yuanxian cultivation crafting set {u} forging 0']:
             self.rc(cmd)
         g.key('1');before=self.balance();self.open_table();self.click(152,137);time.sleep(.5);self.capture('forging-from-bag.png');self.close_menu()
         self.check('forging_spent_exactly_two_bag_stones',self.balance()==before-2,self.inventory())

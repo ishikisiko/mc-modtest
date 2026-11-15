@@ -97,7 +97,7 @@ class AppearanceEvidence(Evidence):
         self.s=session.Session.attach(ui_check=True);self.sessions+=1;self.hidden=False
         self.report['phases'].append({'phase':'restart' if reuse else 'initial','timings':state.get('timings',{})})
         for command in (f'op {self.s.username}',f'gamemode creative {self.s.username}',
-                        'myvillage world pause',*scene.world_rules(),'tick unfreeze',
+                        'yuanxian world pause',*scene.world_rules(),'tick unfreeze',
                         'forceload add -48 -48 48 48',teleport_command(self.s.username,(.5,-60,.5))):self.rc(command)
         self.save()
 
@@ -195,7 +195,7 @@ class AppearanceEvidence(Evidence):
         self.report['fixture']={'sect_id':sect['id'],'population_tier':state['tier'],'gate':[x,z],'ledger_modified_by_nbt':False}
         self.rc(teleport_command(self.s.username,(x+.5,-60,z-20.5)))
         self.rc(f'forceload add {x-64} {z-64} {x+64} {z+64}')
-        command=f'myvillage world sect {sect["id"]} build'
+        command=f'yuanxian world sect {sect["id"]} build'
         with connect(self.s.state['rcon_port'],self.s.state['rcon_password'],retries=1,timeout=180) as r:
             reply=r.cmd(command)
         self.report['commands'].append({'command':command,'reply':reply,'purpose':'admin fixture; original ledger identities'})

@@ -135,7 +135,7 @@ class AlchemyEvidence(Evidence):
         return medicine(self.rc(f'data get entity {self.s.username} {MEDICINE}'))
 
     def profile(self):
-        return parse_profile(self.rc(f'myvillage cultivation info {self.s.username}'))
+        return parse_profile(self.rc(f'yuanxian cultivation info {self.s.username}'))
 
     def progress(self):
         return int(self.number(f'data get block {POS} Progress'))
@@ -191,10 +191,10 @@ class AlchemyEvidence(Evidence):
         started = time.monotonic()
         user = self.s.username
         for cmd in (*scene.world_rules(), *scene.player_setup(user, 'minecraft:air'),
-                    'gamerule naturalRegeneration false', 'myvillage world pause',
-                    'forceload add -16 -16 32 32', f'myvillage cultivation awaken {user}',
-                    f'myvillage cultivation initiate {user}',
-                    f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
+                    'gamerule naturalRegeneration false', 'yuanxian world pause',
+                    'forceload add -16 -16 32 32', f'yuanxian cultivation awaken {user}',
+                    f'yuanxian cultivation initiate {user}',
+                    f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
                     f'setblock {POS} myvillage:alchemy_furnace[facing=north]'):
             self.rc(cmd)
         self.poll(self.block_items, lambda rows: rows == {}, 10, 'furnace entity')
@@ -274,10 +274,10 @@ class AlchemyEvidence(Evidence):
 
     def medicines(self):
         started = time.monotonic(); user = self.s.username
-        self.rc(f'myvillage cultivation qi fill {user}')
+        self.rc(f'yuanxian cultivation qi fill {user}')
         count = self.held_pill('huiling')
         self.check('full_power_rejects_without_item_or_interval', count == 2 and self.med()['cooldown_ticks'] == 0, self.med())
-        self.rc(f'myvillage cultivation qi set {user} 0')
+        self.rc(f'yuanxian cultivation qi set {user} 0')
         before = self.profile()
         count = self.held_pill('huiling')
         after = self.profile(); med = self.med()
@@ -298,12 +298,12 @@ class AlchemyEvidence(Evidence):
         self.check('damage_stops_healing_preserves_interval', stopped['cooldown_ticks'] > 0 and
                    close(self.number(f'data get entity {user} Health'), hp), stopped)
         self.wait_medication()
-        self.rc(f'myvillage cultivation setprogress {user} 0')
+        self.rc(f'yuanxian cultivation setprogress {user} 0')
         count = self.held_pill('ningshen')
         self.check('ningshen_rejects_before_progress_cap', count == 2 and self.med()['cooldown_ticks'] == 0, self.med())
         stage = json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/realm/qi_refining.json').read_text())['stages'][0]
-        self.rc(f'myvillage cultivation setprogress {user} {stage["cultivation_cap"]}')
-        self.rc(f'myvillage cultivation setstability {user} 0')
+        self.rc(f'yuanxian cultivation setprogress {user} {stage["cultivation_cap"]}')
+        self.rc(f'yuanxian cultivation setstability {user} 0')
         count = self.held_pill('ningshen')
         self.check('mapped_ningshen_starts', count == 1 and self.med()['effect'] == 'ningshen', self.med())
         self.s.game.key('v')
@@ -352,13 +352,13 @@ class AlchemyEvidence(Evidence):
         """Bounded extra display checks, separate from medicine/restart acceptance."""
         user = self.s.username
         for cmd in (*scene.world_rules(), *scene.player_setup(user, 'minecraft:air'),
-                    'myvillage world pause', 'forceload add -16 -16 32 32',
+                    'yuanxian world pause', 'forceload add -16 -16 32 32',
                     f'setblock {POS} myvillage:alchemy_furnace[facing=north]',
                     f'tp {user} -1.5 -60 1.5 -45 21.6'):
             self.rc(cmd)
         time.sleep(2)
         self.capture('furnace-in-world-unlit.png')
-        self.rc(f'myvillage cultivation awaken {user}')
+        self.rc(f'yuanxian cultivation awaken {user}')
         self.fixture(self.rules['recipes'][0], herbs=64)
         self.slot(3, 'myvillage:low_grade_spirit_stone', 64)
         self.open_furnace(); self.menu_click(98, 105); self.close_menu()

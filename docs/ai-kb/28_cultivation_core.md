@@ -175,28 +175,28 @@ All commands inherit the existing `/myvillage` permission-level-2 boundary.
 Targets use the standard single-player argument.
 
 ```mcfunction
-/myvillage cultivation info
-/myvillage cultivation info <target>
-/myvillage cultivation reset <target>
-/myvillage cultivation setrealm <target> <realm_id> <stage_id>
-/myvillage cultivation setprogress <target> <amount>
-/myvillage cultivation setstability <target> <amount>
-/myvillage cultivation setpower <target> <amount>
-/myvillage cultivation setroot <target> <metal> <wood> <water> <fire> <earth>
-/myvillage cultivation clearroot <target>
-/myvillage cultivation learn <target> <technique_id>
-/myvillage cultivation forget <target> <technique_id>
-/myvillage cultivation setmastery <target> <technique_id> <amount>
-/myvillage cultivation core <target> <technique_id>
-/myvillage cultivation manual <target> <technique_id>
-/myvillage cultivation awaken [target]
-/myvillage cultivation initiate [target]
+/yuanxian cultivation info
+/yuanxian cultivation info <target>
+/yuanxian cultivation reset <target>
+/yuanxian cultivation setrealm <target> <realm_id> <stage_id>
+/yuanxian cultivation setprogress <target> <amount>
+/yuanxian cultivation setstability <target> <amount>
+/yuanxian cultivation setpower <target> <amount>
+/yuanxian cultivation setroot <target> <metal> <wood> <water> <fire> <earth>
+/yuanxian cultivation clearroot <target>
+/yuanxian cultivation learn <target> <technique_id>
+/yuanxian cultivation forget <target> <technique_id>
+/yuanxian cultivation setmastery <target> <technique_id> <amount>
+/yuanxian cultivation core <target> <technique_id>
+/yuanxian cultivation manual <target> <technique_id>
+/yuanxian cultivation awaken [target]
+/yuanxian cultivation initiate [target]
 ```
 
 All numeric counter setters remain non-negative; `setstability` no longer has a
 fixed `100` command ceiling because the gameplay cap is stage-derived.
 
-`/myvillage xiulian` is a complete pinyin alias of the `cultivation` root.
+`/yuanxian xiulian` is a complete pinyin alias of the `cultivation` root.
 Both roots expose both names in every pair: `info` / `chakan`, `reset` /
 `chongzhi`, `setrealm` / `shezhijingjie`, `setprogress` / `shezhixiuwei`,
 `setstability` / `shezhiwendingdu`, `setpower` / `shezhilingli`, `setroot` /

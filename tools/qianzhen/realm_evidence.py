@@ -177,9 +177,9 @@ class Evidence:
     def rc(self,command):
         if 'qianzhen enter' in command or 'qianzhen leave' in command:raise AssertionError('Entry/exit must be real player input')
         reply=self.server.cmd(command);self.report['commands'].append({'command':command,'reply':reply});self.save();return reply
-    def realm(self,name):return one(self.rc('myvillage qianzhen realm_status '+name),'QIANZHEN_REALM_STATUS ')
+    def realm(self,name):return one(self.rc('yuanxian qianzhen realm_status '+name),'QIANZHEN_REALM_STATUS ')
     def story(self,name):
-        state=status_object(self.rc('myvillage story status '+name));self.report['states'].append({'player':name,'state':state});self.save();return state
+        state=status_object(self.rc('yuanxian story status '+name));self.report['states'].append({'player':name,'state':state});self.save();return state
     def point(self,local):return [self.origin[i]+local[i] for i in range(3)]
     def fixture(self,client,position,target):
         client.close_screen();position=[position[0]+.5,position[1],position[2]+.5];yaw,pitch=aim(position,target)

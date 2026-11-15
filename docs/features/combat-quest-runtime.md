@@ -48,7 +48,7 @@
 - `python3 -m tools.quest_realms.game_audit --resources build/generated/quest_realms/resources --out reports/quest-runtime/voxel-audit.json`：检查导出后的实际方块数据。
 - `QuestStateTest`与`WorldSimPlayerEconomyTest`覆盖八地境界冻结、名单完整性、死亡回执、归属和经济门面。
 - `QuestGeneratorTest`重现原生平坦生成器会修改空气层的行为，检查前一实例生成后，下一实例仍能独立生成。
-- 管理员`/myvillage quest status 玩家名`只读回服务器实例、敌人、规则和报酬状态。
+- 管理员`/yuanxian quest status 玩家名`只读回服务器实例、敌人、规则和报酬状态。
 - `-PquestEvidence`仅为原生采集加入真实城镇任务榜定位夹具；带此参数时禁止打包JAR。原生采集中的任务接取、出入、攻击与验核必须记录真实客户端输入。
 
 离线检查、原生开发者验证与玩家的美观、战斗手感、音效、FPS和多人体验验收分别记录。

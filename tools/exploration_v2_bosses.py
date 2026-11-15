@@ -24,7 +24,7 @@ STAGES = {('myvillage:foundation_establishment', 1): 'myvillage:foundation_middl
 
 
 def _trace(e, target):
-    rows = json_lines(e.rc(f'myvillage stats trace {target}'), 'STATS_TRACE')
+    rows = json_lines(e.rc(f'yuanxian stats trace {target}'), 'STATS_TRACE')
     if len(rows) != 1:
         raise ValueError(f'Expected one server damage trace for {target}: {rows}')
     return rows[0]
@@ -48,7 +48,7 @@ def _platform(e, x, z):
 
 def _player(e, realm, stage):
     u, g = e.s.username, e.s.game
-    e.rc(f'myvillage cultivation setrealm {u} {realm} {STAGES[(realm, stage)]}')
+    e.rc(f'yuanxian cultivation setrealm {u} {realm} {STAGES[(realm, stage)]}')
     e.rc(f'effect clear {u}')
     for slot in ('armor.head', 'armor.chest', 'armor.legs', 'armor.feet', 'weapon.offhand'):
         e.rc(f'item replace entity {u} {slot} with minecraft:air')
@@ -104,8 +104,8 @@ def run_bosses(e):
               'natural_encounter': 'not_verified', 'owner_feel': 'not_verified'}
     e.report.setdefault('cases', {})['controlled_bosses'] = result
     # Scoped replays may omit progression; prepare only the actor's required capability.
-    e.rc(f'myvillage cultivation awaken {e.s.username}')
-    e.rc(f'myvillage cultivation initiate {e.s.username}')
+    e.rc(f'yuanxian cultivation awaken {e.s.username}')
+    e.rc(f'yuanxian cultivation initiate {e.s.username}')
     profiles = {row['entity']: row for row in json.loads(
         (ROOT/'src/main/resources/data/myvillage/exploration/bosses.json').read_text())['profiles']}
     options = dict(line.split(':', 1) for line in (cs.CLIENT_DIR/'options.txt').read_text().splitlines()

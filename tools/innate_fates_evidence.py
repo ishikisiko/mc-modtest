@@ -43,18 +43,18 @@ class FateEvidence(Evidence):
         return {'revision':0,'rolls':0,'candidates':[],'locked':'','selected':[],'confirmed':False,
                 'recovery_ready_at':0,'healing_ticks':0,'healing_per_tick':0.0,'hunter_ready_at':0,**value}
     def state(self):
-        return self.decoded_state(self.one(f'myvillage cultivation fate status {self.s.username}','FATES'))
+        return self.decoded_state(self.one(f'yuanxian cultivation fate status {self.s.username}','FATES'))
     def hp(self,target=None):return self.number(f'data get entity {target or self.s.username} Health')
     def maximum(self):return self.number(f'attribute {self.s.username} minecraft:generic.max_health get')
     def heal(self):self.rc(f'effect give {self.s.username} minecraft:instant_health 1 10 true');time.sleep(1.1)
-    def reset(self):self.rc(f'myvillage cultivation fate reset {self.s.username}');time.sleep(.3)
+    def reset(self):self.rc(f'yuanxian cultivation fate reset {self.s.username}');time.sleep(.3)
     def choose(self,*short_ids):
         self.reset();ids={'myvillage:'+id for id in short_ids}
         for _ in range(80):
-            self.rc(f'myvillage cultivation fate roll {self.s.username}');time.sleep(.25);s=self.state()
+            self.rc(f'yuanxian cultivation fate roll {self.s.username}');time.sleep(.25);s=self.state()
             if ids<=set(s.get('candidates',[])):
                 mask=sum(1<<i for i,id in enumerate(s['candidates']) if id in ids)
-                self.rc(f'myvillage cultivation fate confirm {self.s.username} {mask}');time.sleep(.3)
+                self.rc(f'yuanxian cultivation fate confirm {self.s.username} {mask}');time.sleep(.3)
                 result=self.state()
                 if not result.get('confirmed') or set(result.get('selected',[]))!=ids:raise RuntimeError('Fixture confirmation rejected')
                 return result
@@ -125,7 +125,7 @@ class FateEvidence(Evidence):
         self.check('mapped_three_choice_confirmation',result.get('confirmed') and result.get('selected')==expected,result)
         return result
     def ui(self):
-        started=time.monotonic();self.reset();self.rc(f'myvillage cultivation clearroot {self.s.username}')
+        started=time.monotonic();self.reset();self.rc(f'yuanxian cultivation clearroot {self.s.username}')
         self.check('fresh_fixture_has_no_root',self.root() is None,'administrator reset/clearroot fixture only')
         before=self.state();opened=self.open_stele();root=self.root()
         self.check('mapped_stele_awaken_and_initial_draft',root is not None and len(opened.get('candidates',[]))==6 and opened.get('rolls')==before.get('rolls',0)+1,opened)
@@ -164,7 +164,7 @@ class FateEvidence(Evidence):
                 self.press('reroll');self.leave_stele();method='mapped screen reroll'
             else:
                 if self.s.game.pointer_grabbed() is False:self.s.game.xdo('key','Escape');time.sleep(.4)
-                self.s.game.recover_grab();self.s.game.chat('/myvillage cultivation fate roll');method='mapped self roll command after lifecycle invalidation'
+                self.s.game.recover_grab();self.s.game.chat('/yuanxian cultivation fate roll');method='mapped self roll command after lifecycle invalidation'
             after=self.state()
             self.check(kind+'_session_rejects',after.get('awakening_session')==0 and self.draft(after)==before and self.root()==root,
                        {'before':before,'after':after,'method':method,'old_token':opened.get('awakening_session')})
@@ -237,17 +237,17 @@ class FateEvidence(Evidence):
     def initial(self):
         user=self.s.username
         for cmd in (*scene.world_rules(),*scene.player_setup(user,'myvillage:qingfeng_sword'),
-                    'gamerule naturalRegeneration false','myvillage world pause'):
+                    'gamerule naturalRegeneration false','yuanxian world pause'):
             self.rc(cmd)
         self.ui();self.layouts('en_us')
-        for cmd in ('setblock 0 -59 2 minecraft:air','setblock 0 -60 2 minecraft:air',f'tp {user} .5 -60 .5 0 0',f'myvillage cultivation initiate {user}',f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',f'item replace entity {user} weapon.mainhand with myvillage:qingfeng_sword'):
+        for cmd in ('setblock 0 -59 2 minecraft:air','setblock 0 -60 2 minecraft:air',f'tp {user} .5 -60 .5 0 0',f'yuanxian cultivation initiate {user}',f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',f'item replace entity {user} weapon.mainhand with myvillage:qingfeng_sword'):
             self.rc(cmd)
         started=time.monotonic()
         self.reset();base=self.maximum();self.heal();hp=self.hp()
         self.choose('robust','lightfoot','bright');maxhp=self.maximum()
         self.check('robust_health_without_free_heal',close(maxhp,base*1.15,.01) and close(self.hp(),hp,.01),{'baseline':base,'maximum':maxhp,'health':self.hp()})
         self.check('lightfoot_speed',close(self.number(f'attribute {user} minecraft:generic.movement_speed get'),.11,.0001),'expected .11')
-        self.rc(f'myvillage cultivation setprogress {user} 0');time.sleep(.3)
+        self.rc(f'yuanxian cultivation setprogress {user} 0');time.sleep(.3)
         self.check('refresh_does_not_stack',close(self.maximum(),maxhp,.01),self.maximum())
         self.choose('burning_star','robust','bright')
         self.check('health_bonuses_compose',close(self.maximum(),base*.95,.01),self.maximum())
@@ -262,15 +262,15 @@ class FateEvidence(Evidence):
         self.check('unyielding_low_health_reduction',close(before-self.hp(),1.6,.01),before-self.hp())
         before=self.hp();self.rc(f'damage {user} 2 minecraft:out_of_world');time.sleep(.7)
         self.check('bypass_unmodified',close(before-self.hp(),2,.01),before-self.hp())
-        self.rc(f'myvillage cultivation setrealm {user} myvillage:golden_core myvillage:golden_late')
-        self.choose('beast_hunter','robust','bright');self.heal();self.rc(f'myvillage cultivation qi set {user} 0')
+        self.rc(f'yuanxian cultivation setrealm {user} myvillage:golden_core myvillage:golden_late')
+        self.choose('beast_hunter','robust','bright');self.heal();self.rc(f'yuanxian cultivation qi set {user} 0')
         before=self.target();self.attack();self.check('hunter_hostile_bonus',close(before-self.hp(TARGET),11.5,.01),before-self.hp(TARGET))
         before=self.target();attack=self.number(f'attribute {user} minecraft:generic.attack_damage get')
         time.sleep(1.1);self.s.game.click();time.sleep(.5)
         self.check('mapped_hunter_melee',close(before-self.hp(TARGET),attack*1.15,.04),{'loss':before-self.hp(TARGET),'attack':attack})
         self.rc('tick freeze')
         try:
-            self.rc(f'myvillage cultivation qi set {user} 0');started_kill=time.monotonic();self.attack(amount=1000);power=self.qi();hunter=self.state()
+            self.rc(f'yuanxian cultivation qi set {user} 0');started_kill=time.monotonic();self.attack(amount=1000);power=self.qi();hunter=self.state()
             cap=json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/realm/golden_core.json').read_text())['stages'][-1]['spiritual_power_cap']
             fraction=json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/innate_fate/beast_hunter.json').read_text())['effects']['hunter_recovery']
             expected=int(cap*fraction)
@@ -278,11 +278,11 @@ class FateEvidence(Evidence):
             # Advance beyond the cooldown. ServerTick-based passive qi regen continues during tick freeze;
             # bound its small contribution and separately assert no kill-cooldown update.
             self.rc('tick step 50');time.sleep(3)
-            self.rc(f'myvillage cultivation qi set {user} 0');neutral_start=time.monotonic();old_ready=self.state().get('hunter_ready_at');before=self.target('iron_golem');self.attack()
+            self.rc(f'yuanxian cultivation qi set {user} 0');neutral_start=time.monotonic();old_ready=self.state().get('hunter_ready_at');before=self.target('iron_golem');self.attack()
             self.check('hunter_neutral_no_bonus',close(before-self.hp(TARGET),10,.01),before-self.hp(TARGET))
             self.attack(amount=1000);power=self.qi()
             self.check('neutral_kill_no_recovery',power<=math.ceil(time.monotonic()-neutral_start)+1 and self.state().get('hunter_ready_at')==old_ready,{'power':power,'ready_at':self.state().get('hunter_ready_at')})
-            self.rc(f'myvillage cultivation qi set {user} 0');summon_start=time.monotonic()
+            self.rc(f'yuanxian cultivation qi set {user} 0');summon_start=time.monotonic()
             self.target();self.rc('summon minecraft:wolf 8 -60 8 {NoAI:1b,Tags:["fate_pet"]}')
             self.rc(f'damage {TARGET} 1000 minecraft:magic by @e[tag=fate_pet,limit=1] from {user}')
             power=self.qi();self.check('indirect_summon_kill_no_recovery',power<=math.ceil(time.monotonic()-summon_start)+1 and self.state().get('hunter_ready_at')==old_ready,{'power':power,'ready_at':self.state().get('hunter_ready_at')})
@@ -317,7 +317,7 @@ def main(argv=None):
     try:
         evidence.start()
         if args.ui_only:
-            for cmd in (*scene.world_rules(),*scene.player_setup(evidence.s.username,'minecraft:air'),'gamerule naturalRegeneration false','myvillage world pause'):
+            for cmd in (*scene.world_rules(),*scene.player_setup(evidence.s.username,'minecraft:air'),'gamerule naturalRegeneration false','yuanxian world pause'):
                 evidence.rc(cmd)
             evidence.ui();evidence.layouts('en_us');evidence.before_ui_restart();evidence.stop();evidence.start(reuse=True,language='zh_cn');evidence.after_ui_restart();evidence.layouts('zh_cn')
         else:

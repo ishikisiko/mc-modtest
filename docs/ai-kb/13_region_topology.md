@@ -148,7 +148,7 @@ seed, to the weakest 修为起点:
 non-default spawn (an admin-set `/setworldspawn` at a non-origin column), the
 runtime preserves it and marks the binding satisfied — it only computes and
 sets spawn for worlds still at the default origin sentinel (`x == 0, z == 0`).
-`/myvillage spawn recompute` forces an override on demand.
+`/yuanxian spawn recompute` forces an override on demand.
 
 ### Rung ladder
 
@@ -181,8 +181,8 @@ alignment-system concern.
 
 ### Command surface
 
-`/myvillage spawn info` (query) prints the computed spawn region + bound spawn
-block and the caller's current region / rung / next-rung set. `/myvillage spawn
+`/yuanxian spawn info` (query) prints the computed spawn region + bound spawn
+block and the caller's current region / rung / next-rung set. `/yuanxian spawn
 recompute` (admin, permission 2) forces a spawn recompute and calls
 `setDefaultSpawnPos`, overriding any existing spawn — the documented
 admin-override path; the automatic world-load binding otherwise preserves

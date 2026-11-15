@@ -300,12 +300,12 @@ restart and the save keeps the last checkpoint, never a half-settled day.
 
 ## Commands and config
 
-All under `/myvillage world`, permission 2; output goes through
+All under `/yuanxian world`, permission 2; output goes through
 `commands.myvillage.world.*` keys, so each client reads its own language.
 
 | Command | Shows or does |
 |---|---|
-| `/myvillage world` or `world info` | Era date, sim day, calendar day, pending days, running or paused, tier, population against target, deaths, living per realm, sects, event count, the five foremost people |
+| `/yuanxian world` or `world info` | Era date, sim day, calendar day, pending days, running or paused, tier, population against target, deaths, living per realm, sects, event count, the five foremost people |
 | `world sects [all]` | Active sects (with `all`, the destroyed too): region, master, members, top realm, prestige, gate coordinate, whether the gate is realized |
 | `world sect <id\|name>` | One sect: founding, parent sect, master, members, resources, prestige, signature technique (镇派功法), heritage (传承, `commands.myvillage.world.sect.heritage`, 0.37.0), gate, relations to other sects, strongest members at the sect |
 | `world sect <id> build [here]` | Build the sect's compound (山门) at its ledger gate, or with `here` move the gate to the caller first; synchronous (see "P3" below); refused while `GateRealizer` is building that gate |
@@ -567,7 +567,7 @@ It holds the shared heavy-work lock itself (never wrap it in `flock`).
 `session` (about 6 to 8 minutes) starts the acceptance server and one client
 in a fresh superflat world with the calendar sped up (`ticks_per_day`, default
 200, set in `run-acceptance/config/myvillage-server.toml` and restored
-afterwards), switches the player to creative, runs every `/myvillage world`
+afterwards), switches the player to creative, runs every `/yuanxian world`
 command over RCON, shows the calendar and the ledger advancing, pauses
 while at least two calendar days pass, resumes, and floods rumors with `advance` to show
 the rate limit. `restart` (about 3 to 4 minutes, server only, so the calendar
@@ -582,12 +582,12 @@ all 17 checks; it is developer evidence, not an owner verdict.
 
 - P4 is not done (assessed in [43](43_player_sect_entry.md) "Real P4"): worldgen does not place compounds at ledger gates, so a
   ledger sect has no compound until one is built with
-  `/myvillage world sect <id> build` or, since 0.41.0, by `GateRealizer`
+  `/yuanxian world sect <id> build` or, since 0.41.0, by `GateRealizer`
   when a player comes near (P4-lite,
   [43_player_sect_entry.md](43_player_sect_entry.md)). The `myvillage:sect` compounds that
   `worldgen/structure_set/sect.json` scatters at random (biome tag
   `has_sect`) are unrelated to the ledger, empty, and unknown to
-  `/myvillage world`.
+  `/yuanxian world`.
 - Avatars wear one of three cultivator looks by gender and realm (0.41.0,
   [39_humanoid_npcs.md](39_humanoid_npcs.md) "Looks"); there are no per-sect
   variants.

@@ -92,9 +92,9 @@ NPC 不申请区块票。现场寻路仅在已经加载且能进行实体处理�
 
 场所源适配位于 `blueprints/npc_life/`，由 `tools/gen_npc_life_places.py` 读取现有 authored 建筑源生成 `data/myvillage/npc_life/places.json`。Gradle `generateNpcLifePlaces` 在 `processResources` 前运行；生成器只输出生活元数据，不修改既有冻结 worldplan 模板和哈希。
 
-两套布局为 `yunshan_planned_v1` 和 `yunshan_showcase_v2`。规划大陆中的云山可自动登记场所，也可用 `/myvillage life yunshan` 登记；只登记空间，人物需明确分配。展示街区使用 `/myvillage life bind <site> yunshan_showcase_v2 <origin>`，原点必须与真实建筑一致，命令不会生成建筑。
+两套布局为 `yunshan_planned_v1` 和 `yunshan_showcase_v2`。规划大陆中的云山可自动登记场所，也可用 `/yuanxian life yunshan` 登记；只登记空间，人物需明确分配。展示街区使用 `/yuanxian life bind <site> yunshan_showcase_v2 <origin>`，原点必须与真实建筑一致，命令不会生成建筑。
 
-管理员命令均在 `/myvillage life` 下，权限等级 2：
+管理员命令均在 `/yuanxian life` 下，权限等级 2：
 
 | 命令 | 用途 |
 |---|---|

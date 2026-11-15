@@ -54,19 +54,19 @@ def allowed_rcon(command):
     """Deliberately omit player casts, menu actions and advancement commands."""
     if '\n' in command or '\r' in command:
         return False
-    simple = ('list', 'save-all flush', 'tick freeze', 'tick unfreeze', 'myvillage world pause')
+    simple = ('list', 'save-all flush', 'tick freeze', 'tick unfreeze', 'yuanxian world pause')
     if command in simple:
         return True
     prefixes = ('op ', 'gamemode ', 'tp ', 'clear ', 'give ', 'item replace ', 'effect ',
                 'attribute ', 'fill ', 'setblock ', 'forceload ', 'gamerule ', 'time ',
                 'weather ', 'data get ', 'summon ', 'kill ', 'team ', 'tick step ', 'tick rate ',
                 'execute if loaded ', 'execute in minecraft:overworld run tp ',
-                'myvillage qianzhen realm_status ', 'myvillage flying_sword status', 'myvillage talisman status',
-                'myvillage tribulation status', 'myvillage tribulation stop',
-                'myvillage foundation status', 'myvillage foundation clear', 'myvillage stats trace', 'damage ')
+                'yuanxian qianzhen realm_status ', 'yuanxian flying_sword status', 'yuanxian talisman status',
+                'yuanxian tribulation status', 'yuanxian tribulation stop',
+                'yuanxian foundation status', 'yuanxian foundation clear', 'yuanxian stats trace', 'damage ')
     if command.startswith(prefixes):
         return True
-    return bool(re.fullmatch(r'myvillage cultivation (?:awaken|initiate|setrealm|setprogress|setstability|setroot|info|learn|qi|crafting)\b[^\n\r]*', command))
+    return bool(re.fullmatch(r'yuanxian cultivation (?:awaken|initiate|setrealm|setprogress|setstability|setroot|info|learn|qi|crafting)\b[^\n\r]*', command))
 
 
 def menu_point(size, x, y, width=300, height=238):
@@ -148,7 +148,7 @@ class DemoEvidence:
         return reply
 
     def profile(self, user=None):
-        return parse_profile(self.rc('myvillage cultivation info ' + (user or self.s.username)))
+        return parse_profile(self.rc('yuanxian cultivation info ' + (user or self.s.username)))
 
     def data(self, path, user=None):
         return read_data(self.rc(f'data get entity {user or self.s.username} {path}'))
@@ -302,7 +302,7 @@ class DemoEvidence:
         self.poll(self.s.game.pointer_grabbed, lambda v: v is True, label='actual game pointer')
         self.rc('tick unfreeze')
         if not reuse:
-            for command in (*scene.world_rules(), 'gamerule naturalRegeneration false', 'myvillage world pause',
+            for command in (*scene.world_rules(), 'gamerule naturalRegeneration false', 'yuanxian world pause',
                             'forceload add -48 -48 80 96'):
                 self.rc(command)
             self.poll(lambda: self.rc('execute if loaded 64 -61 64 run time query gametime'),
@@ -316,13 +316,13 @@ class DemoEvidence:
         u = user or self.s.username
         # New characters may be entering their private opening. Let that bounded
         # native setup finish before moving this test actor to the fixture arena.
-        self.poll(lambda: status_json(self.rc('myvillage qianzhen realm_status ' + u), 'QIANZHEN_REALM_STATUS '),
+        self.poll(lambda: status_json(self.rc('yuanxian qianzhen realm_status ' + u), 'QIANZHEN_REALM_STATUS '),
                   lambda r: not r['building'] and not r['waiting'], 150, 'initial personal realm setup finishes')
         for command in (f'op {u}', f'gamemode survival {u}', f'execute in minecraft:overworld run tp {u} .5 -60 .5 0 0', f'clear {u}',
             f'effect clear {u}', f'effect give {u} minecraft:saturation infinite 255 true',
-            f'myvillage cultivation awaken {u}', f'myvillage cultivation initiate {u}',
-            f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early',
-            f'myvillage cultivation qi fill {u}', f'effect give {u} minecraft:instant_health 1 10 true'):
+            f'yuanxian cultivation awaken {u}', f'yuanxian cultivation initiate {u}',
+            f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early',
+            f'yuanxian cultivation qi fill {u}', f'effect give {u} minecraft:instant_health 1 10 true'):
             self.rc(command)
         self.poll(lambda: self.pos(u), lambda p: abs(p[0] - .5) < .05 and abs(p[1] + 60) < .05, label='fixture player settled')
 
@@ -337,7 +337,7 @@ class DemoEvidence:
         self.save()
 
     def flight_status(self, user=None):
-        return status_json(self.rc('myvillage flying_sword status ' + (user or self.s.username)), 'FLYING_SWORD_STATUS ')
+        return status_json(self.rc('yuanxian flying_sword status ' + (user or self.s.username)), 'FLYING_SWORD_STATUS ')
 
     def flight(self):
         self.configure()
@@ -384,7 +384,7 @@ class DemoEvidence:
         self.check('flight_no_touchdown_damage', self.hp() == hp, {'before': hp, 'after': self.hp(), 'landing': landing})
         self.rc('fill 4 -60 50 20 -42 50 minecraft:air')
         self.rc(f'tp {u} 12.5 -60 .5 0 0')
-        self.rc(f'myvillage cultivation qi fill {u}')
+        self.rc(f'yuanxian cultivation qi fill {u}')
         # The returned stack is in an arbitrary inventory slot. Select it through a fixture,
         # then perform the second launch and controls through mapped input again.
         self.rc(f'clear {u}')
@@ -393,7 +393,7 @@ class DemoEvidence:
         self.right()
         self.poll(self.flight_status, lambda s: s['active'], label='basic sword mounted')
         self.hold(['space'], 2)
-        self.rc(f'myvillage cultivation qi set {u} 0')
+        self.rc(f'yuanxian cultivation qi set {u} 0')
         falling = self.hold(['space', 'w', 'Control_L'], .7, sample=self.flight_status)
         self.check('empty_qi_cannot_climb_or_boost', falling['phase'] == 'EMPTY_DESCENT'
                    and falling['velocity'][1] < 0 and falling['qi'] == 0, falling)
@@ -404,7 +404,7 @@ class DemoEvidence:
         self.stop_video()
 
     def talisman_status(self, user=None):
-        return status_json(self.rc(f'myvillage talisman status {user or self.s.username} {DESK}'), 'TALISMAN_STATUS ')
+        return status_json(self.rc(f'yuanxian talisman status {user or self.s.username} {DESK}'), 'TALISMAN_STATUS ')
 
     def open_desk(self, game=None, user=None):
         game, user = game or self.s.game, user or self.s.username
@@ -423,7 +423,7 @@ class DemoEvidence:
     def drawing(self):
         self.configure()
         u = self.s.username
-        self.rc(f'myvillage cultivation crafting set {u} talisman 90')
+        self.rc(f'yuanxian cultivation crafting set {u} talisman 90')
         self.rc(f'give {u} myvillage:talisman_paper 4')
         self.rc(f'give {u} myvillage:spiritual_ink 4')
         self.open_desk()
@@ -443,7 +443,7 @@ class DemoEvidence:
         time.sleep(1)
         self.check('drawing_closed_menu_pauses', self.talisman_status()['progress'] == paused['progress'], self.talisman_status())
         # A changed aptitude must not reroll an already-paid sheet.
-        self.rc(f'myvillage cultivation crafting set {u} talisman 20')
+        self.rc(f'yuanxian cultivation crafting set {u} talisman 20')
         self.open_desk()
         self.draw_hold(12)
         made = self.talisman_status()
@@ -457,9 +457,9 @@ class DemoEvidence:
         self.menu_click(270, 42, shift=True)
         self.close_menu()
         self.check('drawing_product_received', self.count('myvillage:talisman_ward') == 1, self.inventory())
-        self.rc(f'myvillage cultivation crafting set {u} talisman 90')
+        self.rc(f'yuanxian cultivation crafting set {u} talisman 90')
         for index, ident in [(0, 'talisman_lightning'), (1, 'talisman_snare')]:
-            self.rc(f'myvillage cultivation qi fill {u}')
+            self.rc(f'yuanxian cultivation qi fill {u}')
             self.open_desk()
             self.menu_click(52, 40 + index * 24)
             self.draw_hold(12)
@@ -487,7 +487,7 @@ class DemoEvidence:
         self.close_menu()
 
     def foundation(self, target=None):
-        reply = self.rc('myvillage foundation status ' + (target or self.s.username))
+        reply = self.rc('yuanxian foundation status ' + (target or self.s.username))
         return status_json(reply, 'FOUNDATION ')
 
     def talismans(self):
@@ -533,19 +533,19 @@ class DemoEvidence:
         self.stop_video()
 
     def tribulation_status(self, user=None):
-        return status_json(self.rc('myvillage tribulation status ' + (user or self.s.username)), 'TRIBULATION_STATUS ')
+        return status_json(self.rc('yuanxian tribulation status ' + (user or self.s.username)), 'TRIBULATION_STATUS ')
 
     def tribulation_fixture(self, protected=True):
         self.configure()
         u = self.s.username
-        self.rc(f'myvillage foundation clear {u}')
+        self.rc(f'yuanxian foundation clear {u}')
         self.rc(f'tp {u} 32.5 -60 20.5 0 0')
         realm = json.loads((ROOT / 'src/main/resources/data/myvillage/myvillage/realm/foundation_establishment.json').read_text())
         stage = next(s for s in realm['stages'] if s['id'] == 'myvillage:foundation_late')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_late')
-        self.rc(f'myvillage cultivation setprogress {u} ' + str(stage['cultivation_cap']))
-        self.rc(f'myvillage cultivation setstability {u} ' + str(stage['advancement']['required_stability']))
-        self.rc(f'myvillage cultivation qi fill {u}')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_late')
+        self.rc(f'yuanxian cultivation setprogress {u} ' + str(stage['cultivation_cap']))
+        self.rc(f'yuanxian cultivation setstability {u} ' + str(stage['advancement']['required_stability']))
+        self.rc(f'yuanxian cultivation qi fill {u}')
         self.rc(f'effect give {u} minecraft:instant_health 1 10 true')
         for slot, item in [('head', 'helmet'), ('chest', 'chestplate'), ('legs', 'leggings'), ('feet', 'boots')]:
             self.rc(f'item replace entity {u} armor.{slot} with ' + ('minecraft:diamond_' + item if protected else 'minecraft:air'))
@@ -633,14 +633,14 @@ class DemoEvidence:
     def failure(self):
         self.tribulation_fixture(protected=False)
         u = self.s.username
-        self.rc(f'myvillage foundation clear {u}')
+        self.rc(f'yuanxian foundation clear {u}')
         hp = self.hp()
         if hp > 3:
             self.rc(f'damage {u} {hp - 3:.6f} minecraft:generic_kill')
         self.check('failure_low_health_fixture', 0 < self.hp() <= 3.01, self.hp())
         before = self.profile()
         self.start_video('tribulation-failure')
-        self.chat('/myvillage tribulation start ' + u)
+        self.chat('/yuanxian tribulation start ' + u)
         started = self.poll(self.tribulation_status, lambda s: s['phase'] == 'PREPARING', label='administrator summon uses real attempt')
         ended = self.poll(self.tribulation_status, lambda s: s['phase'] in ('FAILED', 'RECOVERING'), 30, 'nonlethal trial failure')
         after = self.profile()
@@ -660,7 +660,7 @@ class DemoEvidence:
         # A new owned desk keeps this case independent of the earlier drawing case.
         self.rc('setblock ' + DESK + ' minecraft:air')
         self.rc('setblock ' + DESK + ' myvillage:talisman_desk')
-        self.rc(f'myvillage cultivation crafting set {u} talisman 90')
+        self.rc(f'yuanxian cultivation crafting set {u} talisman 90')
         self.rc(f'give {u} myvillage:talisman_paper')
         self.rc(f'give {u} myvillage:spiritual_ink')
         self.open_desk()
@@ -686,8 +686,8 @@ class DemoEvidence:
         self.check('restart_keeps_paid_sheet_exactly', reopened['progress'] == batch['progress']
                    and reopened['frozenQuality'] == batch['frozenQuality'] and reopened['owner'] == batch['owner']
                    and not reopened['holding'], [batch, reopened])
-        self.rc('myvillage tribulation stop ' + u)
-        self.rc(f'myvillage cultivation qi fill {u}')
+        self.rc('yuanxian tribulation stop ' + u)
+        self.rc(f'yuanxian cultivation qi fill {u}')
         self.open_desk()
         self.draw_hold(12)
         done = self.talisman_status()

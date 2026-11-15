@@ -132,13 +132,13 @@ class SwordQiCapture:
         return scene.parse_float_data(self.run(f'data get entity {TARGET} Health')[0])
 
     def profile(self):
-        return self.run(f'myvillage cultivation qi {self.user}')[0]
+        return self.run(f'yuanxian cultivation qi {self.user}')[0]
 
     def setup(self):
         self.run(*scene.world_rules(), *scene.player_setup(self.user, WEAPON),
                  'gamerule naturalRegeneration false', 'gamerule doMobLoot false',
-                 f'myvillage cultivation awaken {self.user}', f'myvillage cultivation initiate {self.user}',
-                 f'myvillage cultivation learn {self.user} myvillage:taxue_wuhen')
+                 f'yuanxian cultivation awaken {self.user}', f'yuanxian cultivation initiate {self.user}',
+                 f'yuanxian cultivation learn {self.user} myvillage:taxue_wuhen')
         self.g.key('1')
         scene.ensure_cultivation(self.s)
         press_f5_to(self.s, 'first')
@@ -150,8 +150,8 @@ class SwordQiCapture:
                  f'item replace entity {self.user} hotbar.1 with {WEAPON if trial.get("cancel") == "same_weapon" else "minecraft:stick"}',
                  f'effect give {self.user} minecraft:instant_health 1 10 true')
         self.g.key('1')
-        self.run(f'myvillage cultivation {"learn" if trial.get("learned", True) else "forget"} {self.user} {TECHNIQUE}',
-                 (f'myvillage cultivation qi set {self.user} {trial["power"]}' if 'power' in trial else f'myvillage cultivation qi fill {self.user}'))
+        self.run(f'yuanxian cultivation {"learn" if trial.get("learned", True) else "forget"} {self.user} {TECHNIQUE}',
+                 (f'yuanxian cultivation qi set {self.user} {trial["power"]}' if 'power' in trial else f'yuanxian cultivation qi fill {self.user}'))
         x = trial.get('target_x', .5)
         self.run(f'summon minecraft:iron_golem {x} {trial.get("target_y", -60)} {trial.get("target_z", 6.5)} {{NoAI:1b,NoGravity:{1 if trial.get("no_gravity") else 0}b,PersistenceRequired:1b,Tags:["sword_qi_target"]}}')
         if trial.get('wall') == 'full':
@@ -263,7 +263,7 @@ def capture_hud(session, out=DEFAULT_OUT/'hud', log=print):
     start=time.monotonic()
     try:
         for width,height in ((960,540),(854,480),(640,480)):
-            session.run(f'myvillage cultivation qi fill {session.username}', warn=False)
+            session.run(f'yuanxian cultivation qi fill {session.username}', warn=False)
             g.xdo('windowsize',window,str(width),str(height))
             g.xdo('windowmove',window,'0','0')
             time.sleep(1)
@@ -294,16 +294,16 @@ def zero_power_regression(session, out=DEFAULT_OUT/'zero_power', log=print):
     start=time.monotonic(); commands=[]
     def run(*items):
         replies=session.run(*items,warn=False);commands.extend({'command':c,'reply':r} for c,r in zip(items,replies));return replies
-    def qi():return parse_power(run(f'myvillage cultivation qi {u}')[0])
+    def qi():return parse_power(run(f'yuanxian cultivation qi {u}')[0])
     def pos():return [float(x) for x in re.findall(r'(-?\d+(?:\.\d+)?)d',run(f'data get entity {u} Pos')[0])]
     run('tick rate 20','tick unfreeze',f'tp {u} .5 -60 .5 0 0',
         'kill @e[tag=sword_qi_target]',f'item replace entity {u} hotbar.0 with {WEAPON}',
         'summon minecraft:iron_golem .5 -60 3 {NoAI:1b,PersistenceRequired:1b,Tags:["sword_qi_target"]}')
     g.key('1');scene.ensure_cultivation(session);time.sleep(1)
     # A real charged-skill spend starts the existing recovery delay; the following fixture only sets current qi.
-    run(f'myvillage cultivation qi fill {u}')
+    run(f'yuanxian cultivation qi fill {u}')
     g.xdo('mousedown','3');time.sleep(.15);g.xdo('mouseup','3');time.sleep(1.2)
-    run('tick rate 5',f'myvillage cultivation qi set {u} 0')
+    run('tick rate 5',f'yuanxian cultivation qi set {u} 0')
     before=scene.parse_float_data(run(f'data get entity {TARGET} Health')[0]);p0=qi();g.require_ingame('zero-qi ordinary melee');g.click()
     time.sleep(3)
     after=scene.parse_float_data(run(f'data get entity {TARGET} Health')[0])
@@ -312,9 +312,9 @@ def zero_power_regression(session, out=DEFAULT_OUT/'zero_power', log=print):
            'passed':p0==0 and p_after==0 and before is not None and after is not None and after<before}
     run('tick rate 20');time.sleep(2)
     # A real charged-skill spend starts the existing recovery delay; the following fixture only sets current qi.
-    run(f'myvillage cultivation qi fill {u}')
+    run(f'yuanxian cultivation qi fill {u}')
     g.xdo('mousedown','3');time.sleep(.15);g.xdo('mouseup','3');time.sleep(1.2)
-    run('tick rate 5',f'myvillage cultivation qi set {u} 0')
+    run('tick rate 5',f'yuanxian cultivation qi set {u} 0')
     beforepos=pos();q0=qi();mark=(LOG_DIR/'server.log').stat().st_size;g.key('Alt_L');time.sleep(2)
     afterpos=pos()
     with (LOG_DIR/'server.log').open('rb') as stream:

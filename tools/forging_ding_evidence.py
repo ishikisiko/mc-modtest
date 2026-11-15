@@ -29,14 +29,14 @@ class DingEvidence(ForgingEvidence):
         self.quarter();self.capture('ding-held.png');self.s.game.key('7')
     def run(self):
         self.start();u=self.s.username
-        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','forceload add -16 -16 32 32',f'setblock {POS} air',f'item replace entity {u} hotbar.0 with myvillage:forging_table 2'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','forceload add -16 -16 32 32',f'setblock {POS} air',f'item replace entity {u} hotbar.0 with myvillage:forging_table 2'):
             self.rc(cmd)
         self.rc(f'tp {u} .5 -60 .5 0 28.5');self.s.game.key('1');time.sleep(.5);self.s.game.xdo('click','3')
         self.poll(lambda:self.is_state('facing=north,lit=false'),bool,8,'mapped ding placement')
         self.check('mapped_placement_consumes_one_and_faces_player',self.count('myvillage:forging_table')==1,self.inventory())
         self.s.game.key('7');self.quarter();self.capture('ding-cold.png');self.render_item()
         self.report['completed'].append('mapped_placement')
-        self.learn('qingfeng_sword');self.rc(f'myvillage cultivation awaken {u}');self.rc(f'myvillage cultivation crafting set {u} forging 0')
+        self.learn('qingfeng_sword');self.rc(f'yuanxian cultivation awaken {u}');self.rc(f'yuanxian cultivation crafting set {u} forging 0')
         self.rc(f'clear {u}');self.open_table();self.click(152,137);self.close_menu()
         self.check('rejected_forge_does_not_light',self.is_state('lit=false'),self.inventory())
         self.prepare_materials(self.rules['recipes'][0],'sharp');self.open_table();self.click(152,137)

@@ -91,7 +91,7 @@ class NpcCaptureTest(unittest.TestCase):
         self.assertEqual({}, capture.data)
         self.assertEqual("myvillage:cultivator", capture.manifest["beast"])
         capture.setup_world()
-        self.assertFalse([c for c in session.commands if "myvillage beast" in c])
+        self.assertFalse([c for c in session.commands if "yuanxian beast" in c])
         self.assertIn("summon myvillage:cultivator", beast.summon(capture.beast, beast.WOLF_POS, 0.0))
 
     def test_cli_has_the_npc_command(self):

@@ -137,7 +137,7 @@ class TierEvidence(GatheringEvidence):
         self.check('queue_upgrade_does_not_revalue_credit',after['charges']==before['charges'] and after['fuel_grade']=='low_grade'
                    and after['bonus_basis_points']==3500 and after['queued_bonus_basis_points']==6000,{'before':before,'after':after})
         self.open();self.capture('high-old-credit-new-fuel-menu.png');self.close_menu()
-        self.rc(f'myvillage cultivation setprogress {self.s.username} 0')
+        self.rc(f'yuanxian cultivation setprogress {self.s.username} 0')
         low_batches=after['charges'];used=self.benefit(low_batches+2);profile=self.profile();affinity=profile['affinity']
         expected=low_batches*(affinity+affinity*3500//10000)+(used-low_batches)*(affinity+affinity*6000//10000)
         self.check('grade_switch_only_after_old_credit_spent',used>low_batches and profile['progress']==expected
@@ -168,7 +168,7 @@ class TierEvidence(GatheringEvidence):
         before=self.energy();self.key('v');self.key('v',guest.game,guest.username)
         self.poll(self.inspect,lambda d:d['users']==2,20,'two graded beneficiaries')
         self.key('x');self.key('x',guest.game,guest.username);time.sleep(.6)
-        profiles=[self.profile(),parse_profile(self.rc('myvillage cultivation info '+guest.username))]
+        profiles=[self.profile(),parse_profile(self.rc('yuanxian cultivation info '+guest.username))]
         gains=[p['affinity']+p['affinity']*6000//10000 for p in profiles]
         used=before-self.energy()
         self.check('two_clients_debit_each_positive_batch',all(p['progress']>0 and p['progress']%g==0 for p,g in zip(profiles,gains))
@@ -238,7 +238,7 @@ class TierEvidence(GatheringEvidence):
 
     def run(self):
         self.start()
-        for command in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),'myvillage world pause'):
+        for command in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),'yuanxian world pause'):
             self.rc(command)
         for name in self.cases:
             if name in ('two_players','visual'):continue

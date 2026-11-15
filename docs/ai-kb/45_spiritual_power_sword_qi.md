@@ -103,12 +103,12 @@ actions cancel a charge; cancellation after release does not refund the cost.
 All four cultivation/xiulian and qi/lingli route combinations are equivalent:
 
 ```mcfunction
-/myvillage cultivation qi [target]
-/myvillage cultivation qi set <target> <amount>
-/myvillage cultivation qi fill <target>
-/myvillage xiulian lingli shezhi <target> <amount>
-/myvillage xiulian lingli buman <target>
-/myvillage cultivation manual @s myvillage:jianqi_jue
+/yuanxian cultivation qi [target]
+/yuanxian cultivation qi set <target> <amount>
+/yuanxian cultivation qi fill <target>
+/yuanxian xiulian lingli shezhi <target> <amount>
+/yuanxian xiulian lingli buman <target>
+/yuanxian cultivation manual @s myvillage:jianqi_jue
 ```
 
 The manual command is an administrator fixture. Normal play borrows the public

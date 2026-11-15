@@ -108,7 +108,7 @@ class OrchardEvidence(Evidence):
     def setup(self):
         u=self.s.username
         for command in (*scene.world_rules(),f'gamemode survival {u}',f'clear {u}',
-                        'myvillage world pause','gamerule randomTickSpeed 0','gamerule doDaylightCycle false','time set noon',
+                        'yuanxian world pause','gamerule randomTickSpeed 0','gamerule doDaylightCycle false','time set noon',
                         'forceload add -32 -32 48 48',f'effect give {u} minecraft:resistance infinite 4 true',
                         f'effect give {u} minecraft:saturation infinite 1 true'):
             self.rc(command)
@@ -298,7 +298,7 @@ class OrchardEvidence(Evidence):
             if 'visuals' in self.report['completed']:self.export_world()
             self.start(natural=True)
         u=self.s.username
-        for c in (*scene.world_rules(),'myvillage world pause',f'gamemode spectator {u}','gamerule randomTickSpeed 0','time set noon'):self.rc(c)
+        for c in (*scene.world_rules(),'yuanxian world pause',f'gamemode spectator {u}','gamerule randomTickSpeed 0','time set noon'):self.rc(c)
         found={};searched=[]
         for biome,origin in [('minecraft:meadow',(0,0)),('minecraft:forest',(0,0)),('minecraft:forest',(768,768))]:
             reply=self.rc(f'execute positioned {origin[0]} 100 {origin[1]} run locate biome {biome}')

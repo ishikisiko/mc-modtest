@@ -259,7 +259,7 @@ class StoryRouteTests(unittest.TestCase):
                         e.start()
                 e.continuous = True
                 for command in ('tp Player 0 1 2','execute in minecraft:overworld run tp Player 0 1 2',
-                                'myvillage story complete Player'):
+                                'yuanxian story complete Player'):
                     with self.assertRaises(AssertionError):
                         e.rc(command)
                 self.assertEqual(e.report['completed'], [])

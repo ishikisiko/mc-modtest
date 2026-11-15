@@ -47,7 +47,7 @@ class PillFrames(QualityEvidence):
     def run(self):
         self.start()
         u = self.s.username
-        for command in (*scene.world_rules(), *scene.player_setup(u, 'minecraft:air'), 'myvillage world pause',
+        for command in (*scene.world_rules(), *scene.player_setup(u, 'minecraft:air'), 'yuanxian world pause',
                         'forceload add -16 -16 32 32', f'clear {u}', f'setblock {POS} minecraft:chest'):
             self.rc(command)
         for q in range(1, 5):

@@ -1,5 +1,7 @@
 package com.example.myvillage.worldplan.roads;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.worldplan.WorldPlan;
 import com.example.myvillage.worldplan.runtime.*;
 import com.google.gson.GsonBuilder;
@@ -38,7 +40,7 @@ public final class RoadRuntime {
     }
     private RoadRuntime(){}
     public static void register(){NeoForge.EVENT_BUS.addListener(RoadRuntime::commands);NeoForge.EVENT_BUS.addListener(RoadRuntime::tick);NeoForge.EVENT_BUS.addListener(RoadRuntime::stop);}
-    private static void commands(RegisterCommandsEvent e){e.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(tree()));}
+    private static void commands(RegisterCommandsEvent e){e.getDispatcher().register(ModCommands.adminRoot().then(tree()));}
     static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> tree(){
         var root=Commands.literal("roads").requires(s->s.hasPermission(2));for(String action:List.of("status","export","audit","pregenerate","pause","resume"))root.then(Commands.literal(action).executes(c->command(c.getSource(),action)));return root;
     }

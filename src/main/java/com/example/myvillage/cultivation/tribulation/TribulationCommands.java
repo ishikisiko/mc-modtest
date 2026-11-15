@@ -1,5 +1,7 @@
 package com.example.myvillage.cultivation.tribulation;
 
+import com.example.myvillage.command.ModCommands;
+
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
@@ -32,6 +34,6 @@ public final class TribulationCommands {
                     }
                     return count;
                 })));
-        event.getDispatcher().register(Commands.literal("myvillage").then(root));
+        event.getDispatcher().register(ModCommands.root().then(root));
     }
 }

@@ -79,9 +79,9 @@ class SwordEvidence(PurpleEvidence):
         self.check('returning_to_same_sword_does_not_restore_stacks',self.state()['sword_stacks']==0,self.state())
         with SecondClient(self) as guest:
             self.rc(f'tp {guest.username} 4.5 -60 2.5 90 0')
-            guest_before=self.one(f'myvillage cultivation fate status {guest.username}','FATES')
+            guest_before=self.one(f'yuanxian cultivation fate status {guest.username}','FATES')
             self.combo(near)
-            guest_after=self.one(f'myvillage cultivation fate status {guest.username}','FATES')
+            guest_after=self.one(f'yuanxian cultivation fate status {guest.username}','FATES')
             self.check('two_clients_keep_private_sword_streaks',self.state()['sword_stacks']==5
                        and guest_before['sword_stacks']==guest_after['sword_stacks']==0,
                        {'owner':self.state()['sword_stacks'],'guest':guest_after})

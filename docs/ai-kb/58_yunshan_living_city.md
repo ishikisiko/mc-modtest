@@ -46,11 +46,11 @@
 在新建世界时选择现有“修仙大陆（种子蓝图）”世界类型。0.64.0 默认生成器为 `myvillage:planned_v4`（0.88.0 起新世界使用 V5 聚落规划，保留同一完整云山城，见 [KB65](65_bay_terraces.md)），新世界包含完整 D1 云山城；普通原版世界不自动转换。专用服务器首次建世界的 `level-type=myvillage\:cultivation` 配置保持不变。
 
 ```mcfunction
-/myvillage worldplan info
-/myvillage worldplan city
-/myvillage life yunshan
-/myvillage life status site yunshan
-/myvillage life commerce yunshan
+/yuanxian worldplan info
+/yuanxian worldplan city
+/yuanxian life yunshan
+/yuanxian life status site yunshan
+/yuanxian life commerce yunshan
 ```
 
 城市位置由种子决定，按 `worldplan city` 的输出前往，不沿用旧 V3 的传送坐标，也没有新增虚构的 `/locate` 结构 ID。城市的任意已加载区块首次被观察后，会幂等登记 V4 场所；实际可用的住处和岗位被观察后，从本地现有、空闲散修中安排客栈当值者、药师和铁匠。没有合适人物或设施尚未加载时，职位可以空缺，不凭空造人；最后一条命令可查看并重试尚未成功安排的岗位，不刷新已初始化仓库。
@@ -65,7 +65,7 @@
 
 客栈服务是**一次有上限的生命/灵力恢复**，不是租赁房间、设置出生点或跳过黑夜。需要本店可用且未被居民占用的真实床位，玩家近期未受攻击、未燃烧，而且确实有可恢复资源。每位玩家的冷却使用持久的共同生活时钟，跨菜单、商店和正常重启不能反复付一次钱领多次恢复；休息不替玩家执行原版睡眠。
 
-旧世界不自动开启经济。管理员对已绑定、实际存在的建筑可执行 `/myvillage life commerce <site>` 明确启用；旧生活布局若没有铁匠住处/岗位，不会自行补建筑。完整 D1 预览若按本版局部坐标放置，可用 `life bind <site> yunshan_planned_v4 <x> <y> <z>` 登记实际最小角后启用服务。绑定只登记位置，不放建筑；不同整体旋转/平移必须有对应场所适配，不能把自然预览的坐标未经换算照搬。
+旧世界不自动开启经济。管理员对已绑定、实际存在的建筑可执行 `/yuanxian life commerce <site>` 明确启用；旧生活布局若没有铁匠住处/岗位，不会自行补建筑。完整 D1 预览若按本版局部坐标放置，可用 `life bind <site> yunshan_planned_v4 <x> <y> <z>` 登记实际最小角后启用服务。绑定只登记位置，不放建筑；不同整体旋转/平移必须有对应场所适配，不能把自然预览的坐标未经换算照搬。
 
 ## 世界生成与兼容
 

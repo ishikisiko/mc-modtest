@@ -12,7 +12,7 @@ clip-to-shape outer districts while keeping `civic_core` rectangular. This note
 is the original exploration; the
 normative contract is the `town-plan` / `town-districts` specs.
 
-The runtime cultivation town (`/myvillage town`) used to read as a flat square
+The runtime cultivation town (`/yuanxian town`) used to read as a flat square
 box: its wall was four straight edges, every district was an axis-aligned
 rectangle, and the Java realizer mirrored that geometry exactly. This was
 visually monotone and unlike real Chinese walled cities, which commonly pair an

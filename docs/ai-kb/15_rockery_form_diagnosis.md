@@ -49,13 +49,13 @@ remain visible at 1/16-block resolution through separately baked material
 masks; real blocks provide the summit foliage, contained source-water pool,
 waterlogged rock foot/outlet, and passable `myvillage:rockery_cascade`.
 
-The standalone `/myvillage place hero_rockery` review fragment carries the same
+The standalone `/yuanxian place hero_rockery` review fragment carries the same
 self-contained cluster. The generic heightfield/codebook path remains available
 for non-hero specimens and is intentionally unchanged.
 
 ## Symptom
 
-In-game `/myvillage place chinese_mansion_*`, the 假山 reads as "地上一排小石头
+In-game `/yuanxian place chinese_mansion_*`, the 假山 reads as "地上一排小石头
 材质的尖刺状，完全没有山" — a row of small stone-textured spikes on the ground,
 not a mountain. Confirmed by NBT inspection of `chinese_mansion_001`:
 `myvillage:rockery_block` appears on only **two Y layers** (y=0: 3 blocks,

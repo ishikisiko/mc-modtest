@@ -1,5 +1,7 @@
 package com.example.myvillage.forging;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.item.ModDataComponents;
 import com.google.gson.*;
@@ -26,7 +28,7 @@ public final class WorkshopInspection {
         out.addProperty("damage",stack.getDamageValue());out.addProperty("max_damage",stack.getMaxDamage());return out;
     }
     @SubscribeEvent public static void commands(RegisterCommandsEvent event){
-        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("workshop").requires(s->s.hasPermission(2))
+        event.getDispatcher().register(ModCommands.root().then(Commands.literal("workshop").requires(s->s.hasPermission(2))
             .then(Commands.literal("inspect").then(Commands.argument("player",EntityArgument.player()).executes(ctx->{
                 var player=EntityArgument.getPlayer(ctx,"player");var out=new JsonObject();out.add("held",stack(player.getMainHandItem()));
                 if(player.containerMenu instanceof WorkshopMenu menu){
@@ -39,7 +41,7 @@ public final class WorkshopInspection {
                 }else out.addProperty("open",false);
                 ctx.getSource().sendSuccess(()->Component.literal("WORKSHOP "+out),false);return 1;
             })))));
-        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("workshop").requires(s->s.hasPermission(2))
+        event.getDispatcher().register(ModCommands.root().then(Commands.literal("workshop").requires(s->s.hasPermission(2))
             .then(Commands.literal("ding").then(Commands.argument("pos",BlockPosArgument.blockPos()).executes(ctx->{
                 var pos=BlockPosArgument.getLoadedBlockPos(ctx,"pos");var out=new JsonObject();
                 if(ctx.getSource().getLevel().getBlockEntity(pos) instanceof com.example.myvillage.block.entity.ForgingDingBlockEntity ding){
@@ -50,7 +52,7 @@ public final class WorkshopInspection {
                 }else out.addProperty("present",false);
                 ctx.getSource().sendSuccess(()->Component.literal("WORKSHOP_DING "+out),false);return 1;
             })))));
-        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("workshop").requires(s->s.hasPermission(2))
+        event.getDispatcher().register(ModCommands.root().then(Commands.literal("workshop").requires(s->s.hasPermission(2))
             .then(Commands.literal("anvil").then(Commands.argument("pos",BlockPosArgument.blockPos()).executes(ctx->{
                 var pos=BlockPosArgument.getLoadedBlockPos(ctx,"pos");var out=new JsonObject();
                 if(ctx.getSource().getLevel().getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil){

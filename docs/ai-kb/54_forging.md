@@ -84,7 +84,7 @@ Terra 的最小检查范围：配置解析及非法比例／容量拒绝；真�
 
 普通炼器鼎保留 `forging_table` registry ID，新增 `ForgingDingBlockEntity`。在独立炼灵页选专长并开始后自动关闭界面；`WorldInfusionJob` 保存原装备、精确材料暂存、操作者和冻结成品，按已加载服务端 tick 继续原 50 tick 工序，不补离线时间。完成后成品悬于鼎上，操作者或管理员右键取回；别人只能旁观。拆鼎时未完成只退原装备及暂存，完成只退成品。旧空鼎无需重做；没有旧方块实体数据时按空闲处理。
 
-关界面不会丢失炉次，库存与结果仍由服务端决定。一个鼎最多一个炉次；其他已打开的菜单必须在开始时重新检查占用。原赤铜灌灵保持私有菜单行为。`/myvillage workshop ding <x> <y> <z>` 仅读真实状态，用于证据采集。
+关界面不会丢失炉次，库存与结果仍由服务端决定。一个鼎最多一个炉次；其他已打开的菜单必须在开始时重新检查占用。原赤铜灌灵保持私有菜单行为。`/yuanxian workshop ding <x> <y> <z>` 仅读真实状态，用于证据采集。
 
 `ForgingDingRenderer` 读同步的物品和进度，绘制缓慢转动的本体、较明显的青白立体灵气带与淡金旋转符纹，结束时收束、器物落定。`tools/forging/infusion_visuals.json` 持有所有表现调参；`tools/forging/infusion.py` 导出纹理、参数和从现有专用模型推导的逐器物居中／尺度，不重做剑枪和甲的模型。协议 52。实际证据见[鼎外炼灵验证](../testing/2026-10-27-infusion-world-vfx.md)。
 
@@ -102,7 +102,7 @@ Terra 的最小检查范围：配置解析及非法比例／容量拒绝；真�
 
 `WorkshopStorage` 是锻台两槽和余温／选择的唯一保存状态；`WorkshopMenu` 在锻台借用同一容器，在普通炼器鼎仍使用私有临时槽。关闭锻台面板只释放短期操作占用，器物、完整组件和余温留台；保存按实际时间计算剩余热度，拆台掉落一次。旧仅含台面显示字段的方块实体载入为空台，不凭显示字段生成物品。
 
-`ForgingAnvilBlockEntity` 接受主手实际转移及专用 `forging_hammer` 的右键。`WorkshopStrikeCycle` 对一次动作只发出一个接触时刻，未付动作不保存；`WorkshopStriking` 沿用成形次数、热度、历练、方向、累计上限和材料事务。接触前复查同一玩家、距离、无菜单、同一锻锤对象和同一器坯。换工具、死亡、离开或卸载取消；重复点击不能越过 `strike_ticks`。`WorkshopInspection` 新增只读 `/myvillage workshop anvil <x> <y> <z>`。
+`ForgingAnvilBlockEntity` 接受主手实际转移及专用 `forging_hammer` 的右键。`WorkshopStrikeCycle` 对一次动作只发出一个接触时刻，未付动作不保存；`WorkshopStriking` 沿用成形次数、热度、历练、方向、累计上限和材料事务。接触前复查同一玩家、距离、无菜单、同一锻锤对象和同一器坯。换工具、死亡、离开或卸载取消；重复点击不能越过 `strike_ticks`。`WorkshopInspection` 新增只读 `/yuanxian workshop anvil <x> <y> <z>`。
 
 锻锤本体复用 `tools/forging/anvil.py` 的已有几何和材质；`equipment/workshop/hammer.json` 持有握点和合成，`workshop.json` 持有耐久及接触消耗。锤击成功才消耗耐久，不作为战斗武器注册。本轮未实现等阶；用户已指定后续将制作手持锻锤等阶体系。
 

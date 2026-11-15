@@ -131,7 +131,7 @@ def run(e):
         check(label+'_derived_does_not_recurse', not rows(identity, offset, 'burst')
               and all(row.get('kind') == 'burn' for row in rows(identity, offset, 'damage')), detail)
         fire = e.number(f'data get entity {target} Fire')
-        trace = e.one(f'myvillage stats trace {target}', 'STATS_TRACE')
+        trace = e.one(f'yuanxian stats trace {target}', 'STATS_TRACE')
         check(label+'_typed_fire_without_vanilla_ignition', fire <= 0
               and trace.get('type') == 'fire' and trace.get('sourceId') == 'myvillage:fire_spirit'
               and close(trace.get('afterResistance', -1), trace.get('postVanilla', -1)*(1-resistance)),
@@ -212,7 +212,7 @@ def run(e):
         with SecondClient(_GuestEvidence(e)) as guest:
             v = guest.username
             e.rc(f'gamemode survival {v}')
-            e.rc(f'myvillage cultivation fate reset {v}')
+            e.rc(f'yuanxian cultivation fate reset {v}')
             e.rc(f'attribute {v} minecraft:generic.max_health base set 200')
             e.rc(f'attribute {v} minecraft:generic.knockback_resistance base set 1')
             e.rc(f'attribute {v} minecraft:generic.armor base set 0')
@@ -222,13 +222,13 @@ def run(e):
             e.home()
             e.rc(f'tp {v} .5 -60 2.5 180 0')
             victim_id, owner_id = _entity_uuid(e, v), _entity_uuid(e, u)
-            guest_before = e.one(f'myvillage cultivation fate status {v}', 'FATES')
+            guest_before = e.one(f'yuanxian cultivation fate status {v}', 'FATES')
             offset = log.stat().st_size
             pvp_hit = mapped_hit(v, victim_id)
             pvp_burn = e.poll(lambda: damage(victim_id, offset),
                              lambda value: len(value) >= installments,
                              timeout=duration/20+10, label='real second player receives attributed fire')
-            guest_after = e.one(f'myvillage cultivation fate status {v}', 'FATES')
+            guest_after = e.one(f'yuanxian cultivation fate status {v}', 'FATES')
             check('two_clients_mapped_pvp_source_and_private_state', len(pvp_burn) == installments
                   and all(row['owner'] == owner_id and row['target'] == victim_id for row in pvp_burn)
                   and guest_before.get('fire_spirit', {}) == guest_after.get('fire_spirit', {})

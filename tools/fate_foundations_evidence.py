@@ -94,12 +94,12 @@ def allow_rcon(command):
     if '\n' in text or '\r' in text:
         return False
     if text.startswith('execute as '):
-        return bool(re.fullmatch(r'execute as [A-Za-z0-9_]+ run myvillage combat bindings', text))
+        return bool(re.fullmatch(r'execute as [A-Za-z0-9_]+ run yuanxian combat bindings', text))
     if text.startswith('execute '):
         return ((text.startswith(('execute if loaded ', 'execute if entity ')) and ' run ' not in text)
                 or bool(re.fullmatch(r'execute if loaded -?\d+ -?\d+ -?\d+ run time query gametime', text)))
-    if text.startswith('myvillage '):
-        return bool(re.match(r'myvillage (?:foundation (?:status|grant|cleanse|clear)\b|cultivation (?:awaken|initiate|setrealm|setroot|qi|learn|forget)\b|cultivation fate (?:roll|reset|status)\b|world pause$)', text))
+    if text.startswith('yuanxian '):
+        return bool(re.match(r'yuanxian (?:foundation (?:status|grant|cleanse|clear)\b|cultivation (?:awaken|initiate|setrealm|setroot|qi|learn|forget)\b|cultivation fate (?:roll|reset|status)\b|world pause$)', text))
     return text.split(' ', 1)[0] in {'tick', 'time', 'data', 'attribute', 'effect', 'gamemode', 'gamerule',
         'forceload', 'fill', 'setblock', 'tp', 'spawnpoint', 'summon', 'kill', 'item', 'team',
         'op', 'deop', 'damage', 'save-all', 'list', 'weather', 'clear', 'experience', 'difficulty'} and not text.startswith(('data modify ', 'data remove '))
@@ -346,7 +346,7 @@ class FoundationEvidence(ElementalEvidence):
             self._session_unusable = False
             return
         for command in (*scene.world_rules(), *scene.player_setup(self.s.username, 'minecraft:air'),
-                        'gamerule naturalRegeneration false', 'myvillage world pause',
+                        'gamerule naturalRegeneration false', 'yuanxian world pause',
                         'forceload add -32 -32 32 48'):
             self.rc(command)
         self.poll(lambda: self.rc('execute if loaded 0 -61 0 run time query gametime'),
@@ -363,7 +363,7 @@ class FoundationEvidence(ElementalEvidence):
         self.save()
 
     def status(self, target=None):
-        rows = parse_status(self.rc('myvillage foundation status ' + (target or self.s.username)))
+        rows = parse_status(self.rc('yuanxian foundation status ' + (target or self.s.username)))
         if len(rows) != 1:
             raise ValueError('单目标读回返回多实体')
         return rows[0]
@@ -420,7 +420,7 @@ class FoundationEvidence(ElementalEvidence):
     def bind_wood(self):
         # 每例清空已学功法 fixture，木体成为唯一可绑定条目，不猜测其他模块排序。
         for ident in self.defs:
-            self.rc(f'myvillage cultivation forget {self.s.username} myvillage:{ident}')
+            self.rc(f'yuanxian cultivation forget {self.s.username} myvillage:{ident}')
         self.step(5)
         b = self.skills_page()
         self.click(*tile_center(b, 0, 18), '选择木体缠根')
@@ -442,7 +442,7 @@ class FoundationEvidence(ElementalEvidence):
         self.rc('fill -12 -60 -12 12 -48 16 minecraft:air')
         self.rc('fill -12 -61 -12 12 -61 16 minecraft:stone')
         self.rc('team remove foundation_allies')
-        self.rc(f'myvillage foundation clear {self.s.username}')
+        self.rc(f'yuanxian foundation clear {self.s.username}')
         self.configure(self.s.username)
         self.home()
         self.rc(f'item replace entity {self.s.username} hotbar.0 with minecraft:air')
@@ -451,7 +451,7 @@ class FoundationEvidence(ElementalEvidence):
             self.choose_wood(); self.bind_wood()
             wait = self.status()['wood_root']['cooldown_remaining']
             self.step(wait+2)
-            self.rc(f'myvillage cultivation qi fill {self.s.username}')
+            self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         self.report['cases'][name]['fixture'] = '独立平坦世界；管理员准备角色／目标，玩家行为仅映射输入'
 
     def cast_wood(self, accepted=True):
@@ -504,7 +504,7 @@ class FoundationEvidence(ElementalEvidence):
         self.step(duration+3)
         self.check('根缠到期恢复', not self.status(enemy)['rooted'] and close(self.number(f'attribute {enemy} minecraft:generic.movement_speed get'), speed), self.status(enemy))
         self.step(self.status()['wood_root']['cooldown_remaining']+2)
-        self.rc(f'myvillage cultivation qi set {self.s.username} 0'); self.cast_wood(False)
+        self.rc(f'yuanxian cultivation qi set {self.s.username} 0'); self.cast_wood(False)
 
     def wound(self, amount=40):
         self.report['inputs'].append({'method': '管理员缺血 fixture', 'amount': amount})
@@ -660,10 +660,10 @@ class FoundationEvidence(ElementalEvidence):
         self.home()
         self.rc('kill @e[tag=foundation_control]')
         self.rc('kill @e[tag=foundation_attacker]')
-        self.rc(f'myvillage cultivation learn {u} myvillage:jianqi_jue')
+        self.rc(f'yuanxian cultivation learn {u} myvillage:jianqi_jue')
         self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword')
-        self.rc(f'myvillage cultivation qi fill {u}')
-        self.rc(f'myvillage foundation grant poise {u} myvillage:fixture_charge 200')
+        self.rc(f'yuanxian cultivation qi fill {u}')
+        self.rc(f'yuanxian foundation grant poise {u} myvillage:fixture_charge 200')
         scene.ensure_cultivation(self.s)
         self.step(25)
         mark = self.offset()
@@ -687,42 +687,42 @@ class FoundationEvidence(ElementalEvidence):
 
     def foundations(self):
         u = self.s.username
-        self.rc(f'myvillage foundation grant shield {u} myvillage:fixture_a 8 100')
-        self.rc(f'myvillage foundation grant shield {u} myvillage:fixture_b 6 100')
+        self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_a 8 100')
+        self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_b 6 100')
         self.check('多来源护盾叠加', close(self.status()['shield'], 14), self.status())
-        self.rc(f'myvillage foundation grant shield {u} myvillage:fixture_a 4 100')
+        self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_a 4 100')
         self.check('同源覆盖不叠加', close(self.status()['shield'], 10), self.status())
         before, after = self.hostile_hit()
         self.check('真实受击消费护盾', after['shield'] < before['shield'] and close(after['health'], before['health']), {'before': before, 'after': after})
         self.capture('多来源护盾真实受击'); self.step(101)
         self.check('护盾到期', self.status()['shield'] == 0, self.status())
         target = self.dummy('.5 -60 2.5', tag='foundation_control')
-        self.rc(f'myvillage foundation grant root {u} {target} 40')
+        self.rc(f'yuanxian foundation grant root {u} {target} 40')
         self.check('控制fixture生效', self.status(target)['rooted'], self.status(target))
-        self.rc(f'myvillage foundation cleanse {target}')
+        self.rc(f'yuanxian foundation cleanse {target}')
         self.check('净化解除根缠', not self.status(target)['rooted'], self.status(target))
-        self.rc(f'myvillage foundation grant poise {target} myvillage:fixture_poise 80')
+        self.rc(f'yuanxian foundation grant poise {target} myvillage:fixture_poise 80')
         self.rc(f'effect give {target} minecraft:glowing 20 0 true')
-        self.rc(f'myvillage foundation grant root {u} {target} 40')
+        self.rc(f'yuanxian foundation grant root {u} {target} 40')
         self.check('霸体拒绝根缠', self.status(target)['poised'] and not self.status(target)['rooted'], self.status(target))
         effects_before = self.rc(f'data get entity {target} active_effects')
-        self.rc(f'myvillage foundation cleanse {target}')
+        self.rc(f'yuanxian foundation cleanse {target}')
         effects_after = self.rc(f'data get entity {target} active_effects')
         self.check('净化保留霸体与无关药水', self.status(target)['poised'] and 'minecraft:glowing' in effects_before and 'minecraft:glowing' in effects_after, {'status': self.status(target), 'effects': effects_after})
         self.wound(30)
         # fixture 治疗修饰，实际治疗由原版瞬间治疗药水事件触发，不能调用 heal 指令。
-        self.rc(f'myvillage foundation grant healing_modifier {u} myvillage:fixture_heal -0.5 100')
+        self.rc(f'yuanxian foundation grant healing_modifier {u} myvillage:fixture_heal -0.5 100')
         before = self.hp(u); self.rc(f'effect give {u} minecraft:instant_health 1 0 true'); self.step(1)
         reduced = self.hp(u)-before
-        self.rc(f'myvillage foundation clear {u}'); before = self.hp(u)
+        self.rc(f'yuanxian foundation clear {u}'); before = self.hp(u)
         self.rc(f'effect give {u} minecraft:instant_health 1 0 true'); self.step(1)
         normal = self.hp(u)-before
         self.check('治疗统一修正', normal > 0 and close(reduced, normal*.5), {'reduced': reduced, 'normal': normal})
-        self.rc(f'myvillage foundation grant healing_field {u} 3 2 40 5')
+        self.rc(f'yuanxian foundation grant healing_field {u} 3 2 40 5')
         before = self.hp(u); self.step(25)
         self.check('治疗领域脉冲实际回血', self.hp(u) > before, {'before': before, 'after': self.hp(u)})
         self.capture('治疗领域脉冲')
-        self.rc(f'myvillage foundation clear {u}')
+        self.rc(f'yuanxian foundation clear {u}')
         self.poise_charging()
 
     def lifecycle(self):
@@ -730,8 +730,8 @@ class FoundationEvidence(ElementalEvidence):
         self.cast_wood()
         u = self.s.username
         self.wound(20)
-        self.rc(f'myvillage foundation grant shield {u} myvillage:fixture_lifecycle 8 400')
-        self.rc(f'myvillage foundation grant healing_modifier {u} myvillage:fixture_lifecycle -0.5 400')
+        self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_lifecycle 8 400')
+        self.rc(f'yuanxian foundation grant healing_modifier {u} myvillage:fixture_lifecycle -0.5 400')
         before = self.status(); bindings = self.bindings()
         self.rc('save-all flush'); self.stop(); self.attach = False; self.start(reuse=True)
         self.freeze(); after = self.status()
@@ -739,7 +739,7 @@ class FoundationEvidence(ElementalEvidence):
         self.check('重启暂态护盾控制领域清理', after['shield'] == 0 and not after['rooted'] and not after['fields'], after)
         self.check('重启绑定保持', ABILITY in self.bindings() and ABILITY in bindings, self.bindings())
         # tick freeze 仍允许玩家 tick；填满灵力，排除自然回复干扰拒绝扣费检查。
-        self.rc(f'myvillage cultivation qi fill {u}')
+        self.rc(f'yuanxian cultivation qi fill {u}')
         self.cast_wood(False)
         self.assert_healing_restored('重启')
         self.report['cases']['lifecycle']['observed'] = ['同服退出重连', '服务器重启', '冷却保持', '护盾控制领域清理', '治疗修饰清理', '绑定保持']
@@ -775,10 +775,10 @@ class FoundationEvidence(ElementalEvidence):
             try:
                 self.freeze(); scene.ensure_cultivation(self.s); self.choose_wood(); self.bind_wood()
                 self.step(self.status()['wood_root']['cooldown_remaining']+2)
-                self.rc(f'myvillage cultivation qi fill {guest.username}')
+                self.rc(f'yuanxian cultivation qi fill {guest.username}')
                 self.cast_wood()
-                self.rc(f'myvillage foundation grant shield {guest.username} myvillage:fixture_logout 8 400')
-                self.rc(f'myvillage foundation grant healing_modifier {guest.username} myvillage:fixture_logout -0.5 400')
+                self.rc(f'yuanxian foundation grant shield {guest.username} myvillage:fixture_logout 8 400')
+                self.rc(f'yuanxian foundation grant healing_modifier {guest.username} myvillage:fixture_logout -0.5 400')
                 before = self.status()
             finally:
                 self.s = original; self.guest = None
@@ -794,7 +794,7 @@ class FoundationEvidence(ElementalEvidence):
                            {'before_join': reconnect_tick, 'after_join': self.now()})
                 self.check_cooldown_persisted('同服重连冷却保持', before, after)
                 self.check('退出清理暂态', after['shield'] == 0 and not after['rooted'] and not after['fields'], after)
-                self.rc(f'myvillage cultivation qi fill {guest.username}')
+                self.rc(f'yuanxian cultivation qi fill {guest.username}')
                 self.cast_wood(False); self.assert_healing_restored('退出重连')
             finally:
                 self.s = original; self.guest = None
@@ -806,21 +806,21 @@ class FoundationEvidence(ElementalEvidence):
             self.guest = guest; self.position(guest.game); self.configure(guest.username)
             self.freeze(); u = self.s.username; v = guest.username
             self.rc(f'tp {v} .5 -60 2.5 180 0')
-            self.rc(f'myvillage cultivation fate reset {v}')
+            self.rc(f'yuanxian cultivation fate reset {v}')
             other = self.status(v); self.cast_wood(); self.step(2)
             self.check('PvP开启敌方玩家受控', self.status(v)['rooted'], self.status(v))
             self.check('冷却灵力按玩家隔离', self.status(v)['qi'] == other['qi'] and self.status(v)['wood_root']['cooldown_remaining'] == other['wood_root']['cooldown_remaining'], {'before': other, 'after': self.status(v)})
             self.rooted_guest_input(guest)
             self.capture('双客户端根缠', guest.game)
-            self.rc(f'myvillage foundation cleanse {v}')
+            self.rc(f'yuanxian foundation cleanse {v}')
             self.totem_lifesteal(v)
             self.rc('team add foundation_allies'); self.rc('team modify foundation_allies friendlyFire false')
             self.rc(f'team join foundation_allies {u}'); self.rc(f'team join foundation_allies {v}')
-            self.step(self.status()['wood_root']['cooldown_remaining']+2); self.rc(f'myvillage cultivation qi fill {u}')
+            self.step(self.status()['wood_root']['cooldown_remaining']+2); self.rc(f'yuanxian cultivation qi fill {u}')
             self.cast_wood(); self.step(2)
             self.check('友军玩家不受控', not self.status(v)['rooted'], self.status(v))
             self.rc('team remove foundation_allies')
-            self.rc(f'myvillage foundation grant shield {u} myvillage:fixture_private 8 50')
+            self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_private 8 50')
             self.check('护盾按玩家隔离', self.status(v)['shield'] == 0 and self.status()['shield'] == 8, {'owner': self.status(), 'guest': self.status(v)})
             self.guest = None; self.rc('tick unfreeze')
         self.freeze()
@@ -898,7 +898,7 @@ class FoundationEvidence(ElementalEvidence):
         self.rc(f'tp {target} .5 -60 2.5 180 0')
         self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword')
         self.rc(f'item replace entity {target} weapon.offhand with minecraft:totem_of_undying')
-        self.rc(f'myvillage foundation clear {target}')
+        self.rc(f'yuanxian foundation clear {target}')
         self.rc(f'effect clear {target}')
         hp = self.hp(target)
         if hp > 1:

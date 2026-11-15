@@ -5,12 +5,10 @@ license = "MIT"
 [[mods]]
 modId = "myvillage"
 enumExtensions = "META-INF/enumextensions.json"
-version = "0.133.0"
-displayName = "MyVillage"
+version = "0.133.1"
+displayName = "源仙"
 description = '''
-Resource-validation mod shipping myvillage structure templates, debug commands,
-generated placement functions, and an on-demand runtime town command for
-staged manual acceptance.
+包含修炼、功法、炼丹炼器、宗门与人物生活的修仙世界模组。
 '''
 
 [[mixins]]

@@ -1,5 +1,7 @@
 package com.example.myvillage.gathering;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.MyVillageMod;
 import com.google.gson.JsonObject;
 import net.minecraft.commands.Commands;
@@ -13,7 +15,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID)
 public final class GatheringCommands {
     @SubscribeEvent public static void register(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("myvillage")
+        event.getDispatcher().register(ModCommands.root()
                 .then(Commands.literal("gathering").requires(source -> source.hasPermission(2))
                         .then(Commands.literal("inspect").then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .executes(ctx -> {

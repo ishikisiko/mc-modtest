@@ -143,7 +143,7 @@ navigation:
         for a in doc['arts']:existing.pop('cultivation.technique.myvillage.'+a['id']+'.description',None)
         existing.update(lang);out[p]=dump(existing)
     out[Path('guidebook/getting_started/elemental_arts.md')]=guide
-    out[DATA/'function/elemental_arts_books.mcfunction']='# 仅给予秘籍，不改变境界或学习记录\n'+'\n'.join('myvillage cultivation manual @s myvillage:'+a['id'] for a in doc['arts'])+'\n'
+    out[DATA/'function/elemental_arts_books.mcfunction']='# 仅给予秘籍，不改变境界或学习记录\n'+'\n'.join('yuanxian cultivation manual @s myvillage:'+a['id'] for a in doc['arts'])+'\n'
     return out
 
 

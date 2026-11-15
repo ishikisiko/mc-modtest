@@ -283,7 +283,7 @@ gone).
 
 `GateRealizer` 现在每秒只读取已加载的 FULL 区块。山门区块已生成后记录命簿归属；藏经阁区块加载后，`ScriptureShelves.bindExisting` 仅设置现有完整经架的 sectId，不补块、不修复玩家损坏。化身仍逐站位检查真实地面、净空与加载状态。绑定不强制加载远处区块。
 
-`world gates` 显示预留地块与绑定宗门数量。`world sect <id> build` 在修仙世界只请求加载预留地块，由正常区块生成完成施工；`here` 拒绝临时迁移。独立管理员 `/myvillage sect` 调试营造不代表自然生成证据。旧的靠近后分帧施工、冲突重试及 `avatars.auto_realize_gates` 已移除。
+`world gates` 显示预留地块与绑定宗门数量。`world sect <id> build` 在修仙世界只请求加载预留地块，由正常区块生成完成施工；`here` 拒绝临时迁移。独立管理员 `/yuanxian sect` 调试营造不代表自然生成证据。旧的靠近后分帧施工、冲突重试及 `avatars.auto_realize_gates` 已移除。
 
 楼梯必须以升高后那一格的底台阶承接，踏面朝向上坡方向；爬坡段采用直段与平平台。离线连通检查拒绝用整块或错向台阶跨越一格高差，并覆盖整宽道路。真实无跳跃通行需独立映射输入验证。
 
@@ -310,9 +310,9 @@ Slice 2: members borrow their sect's manuals by rank. Breakdown and defaults:
 经架仍由上下两格组成，只有下半部保存 `Sect`，任一半均通过下根进入原有服务器借阅服务。借阅、权限、距离、成员身份和原物品产出规则保持原服务权威；普通手放经架不会获得宗门身份。具体几何来源见[当前宗门蓝图](40_world_sim.md#当前宗门蓝图)。
 
 ```mcfunction
-/myvillage world sects
-/myvillage world sect <id> shelves
-/myvillage world sect <id> shelves place
+/yuanxian world sects
+/yuanxian world sect <id> shelves
+/yuanxian world sect <id> shelves place
 /give @s myvillage:scripture_shelf
 ```
 
@@ -375,7 +375,7 @@ the shelf; a borrowed row's button is disabled and reads 已借.
 player's single in-game source of sect manuals: an exclusive heritage's
 chain reaches a player through their sect's hall (an elder of the sect that
 holds it can borrow the whole chain, `WorldSimScriptureTest`). The creative
-tab, `/myvillage cultivation manual`, and `/give` are unchanged (admin and
+tab, `/yuanxian cultivation manual`, and `/give` are unchanged (admin and
 development), and `HeritageDefinition.exclusive` still has no runtime
 reader; `StudyStart` does not look at where a manual came from.
 

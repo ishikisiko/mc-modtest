@@ -1,8 +1,10 @@
-# myvillage - NeoForge Town Structure Validation Mod
+# 源仙
+
+正式显示名为“源仙”。主指令 `/yuanxian`，快捷入口 `/yx`；直接输入任一入口或加 `帮助` 可查看自己有权限使用的子命令。物品、方块和资源ID继续使用 `myvillage:`，服务端配置仍放在 `config/myvillage/`。名称与指令入口由 `tools/branding.json` 维护。[名称、指令与权限说明](docs/features/yuanxian-name.md)。
 
 委托战斗秘境（0.131.0）：在千机阁江湖榜第二页办理“山寨清剿”或“兽巢讨伐”，再按H → 行迹 → 进入远征。支持1—4人组队；清除必经守敌后在出口磁石验核，回榜领取报酬。敌人境界按签发地的地区范围固定。[入口、光照、刷怪与保存说明](docs/features/combat-quest-runtime.md)。
 
-中州庄园（0.128.1）：西坡中段灰瓦庄园随新世界生成。与朝东大门外的管家交谈，支付100枚上品灵石购房；购房前无法进入宅院，购房后暂时向所有玩家开放，产权随世界保存。`/myvillage estate` 查询管家位置。[购房及生成说明](docs/features/estate-purchase.md)。
+中州庄园（0.128.1）：西坡中段灰瓦庄园随新世界生成。与朝东大门外的管家交谈，支付100枚上品灵石购房；购房前无法进入宅院，购房后暂时向所有玩家开放，产权随世界保存。`/yuanxian estate` 查询管家位置。[购房及生成说明](docs/features/estate-purchase.md)。
 
 宗门贡献与江湖声望（0.125.0）：守山执事接交宗务，贡献可在藏经阁和新增琳琅阁兑换；主城客栈及规划聚落的江湖榜提供声望任务，药铺按声望解锁商品。[入口、配置与测试说明](docs/features/sect-merit-jianghu-reputation.md)。请新建修仙大陆世界体验新增建筑。
 
@@ -14,7 +16,7 @@
 
 新建修仙大陆时，东海主城不再作为初始城。初始城的出城道路附近会安排一座城郊矿场：附近有可采伐橡树，作业棚内有工作台和熔炉，主矿道通过台阶连接煤铁矿层、左右支洞和不规则洞窟。玩家可以从砍树、制作工具开始，自行采掘和探索，无须 NPC 或任务解锁。
 
-矿场与短支路避开城镇、宗门和既有官道，位置随世界保存，重进不会补回已采掉的矿石或树木。管理员可用 `/myvillage worldplan mine` 查看实际位置。[资源、生成与检查说明](docs/features/starter-mine.md)
+矿场与短支路避开城镇、宗门和既有官道，位置随世界保存，重进不会补回已采掉的矿石或树木。管理员可用 `/yuanxian worldplan mine` 查看实际位置。[资源、生成与检查说明](docs/features/starter-mine.md)
 
 ## 游戏内指南与炼器 JEI（0.111.5）
 
@@ -32,7 +34,7 @@
 
 大片裸土改成草坡、松林下土、连续裸岩及庭院铺地；实际整地沿山体和道路轮廓向自然地形过渡，完整预留范围仍用于保护。湖泊和溪流有连续岸线。西漠、北原和南疆读取各自地表材料配置，保留原先不使用苔藓的要求。
 
-H → 天下 → 舆图可点击当前命簿宗门并确认传送；`/myvillage world sects` 查询宗门。请新建修仙世界体验，已有区块不回填。本次提供离线几何检查与编译打包，原生画面、行走和手感由玩家检查；建筑特效仍另做。
+H → 天下 → 舆图可点击当前命簿宗门并确认传送；`/yuanxian world sects` 查询宗门。请新建修仙世界体验，已有区块不回填。本次提供离线几何检查与编译打包，原生画面、行走和手感由玩家检查；建筑特效仍另做。
 
 ## 官道随区块生成（0.107.0）
 
@@ -40,17 +42,17 @@ H → 天下 → 舆图可点击当前命簿宗门并确认传送；`/myvillage 
 
 首次建世界需要计算路网，布局随生成器保存，重进世界可直接读取。新区域随探索自然生成道路；停用事后逐格改地形的修路方式，已有区块不自动回填，检查请使用新世界。四个规划聚落尚无专用接入支路。
 
-`/myvillage roads status` 查看布局，`audit` 只读检查已加载路段；管理员可用 `pregenerate` 显式生成并检查全部道路区块，无需普通修路命令。[使用说明](docs/features/intercity-roads.md)
+`/yuanxian roads status` 查看布局，`audit` 只读检查已加载路段；管理员可用 `pregenerate` 显式生成并检查全部道路区块，无需普通修路命令。[使用说明](docs/features/intercity-roads.md)
 
 ## 七府默认城市（0.105.0）
 
 新建修仙大陆默认生成七座已确认的城主府及重排城体：北原、南疆、灵岳、西漠、东海、东荒、魔域。府邸保持原尺寸，主地标内收；住宅由 437 栋减至 386 栋，51 栋原功能建筑及公共院场保留。中州沿用现有布局。
 
-入口、舆图城标和 NPC 生活岗位使用同一份正式资源坐标。`/myvillage worldplan city <州名>` 查询入口，H → 天下 → 舆图继续使用原传送流程。当前开发版本不迁移旧世界或已生成区块；府邸特效仍单独制作。[默认城市接入说明](docs/features/default-manor-capitals.md)
+入口、舆图城标和 NPC 生活岗位使用同一份正式资源坐标。`/yuanxian worldplan city <州名>` 查询入口，H → 天下 → 舆图继续使用原传送流程。当前开发版本不迁移旧世界或已生成区块；府邸特效仍单独制作。[默认城市接入说明](docs/features/default-manor-capitals.md)
 
 ## 七府独立样板（0.104.0）
 
-七座新城主府已接入独立 MC 样板：北原、南疆、灵岳、西漠、东海、东荒、魔域。创造模式执行 `/myvillage manor visit beiyuan` 进入对应样板，其余别名为 `nanjiang`、`lingyue`、`ximo`、`donghai`、`donghuang`、`moyu`；`/myvillage manor leave` 返回。首次访问分批施工，`/myvillage manor status` 查看进度。
+七座新城主府已接入独立 MC 样板：北原、南疆、灵岳、西漠、东海、东荒、魔域。创造模式执行 `/yuanxian manor visit beiyuan` 进入对应样板，其余别名为 `nanjiang`、`lingyue`、`ximo`、`donghai`、`donghuang`、`moyu`；`/yuanxian manor leave` 返回。首次访问分批施工，`/yuanxian manor status` 查看进度。
 
 创造栏「七府营造」提供专用建筑材质，细部构件可中键取样。样板维度用于独立欣赏，不触发城市登记；0.105.0 的默认城市接入见上节。特效继续另做。说明见[七府独立样板](docs/features/seven-lord-manors.md)。
 
@@ -94,7 +96,7 @@ H → 天下 → 舆图可点击当前命簿宗门并确认传送；`/myvillage 
 
 「朱纹制符案」放入素符纸和朱砂灵墨后，选择引雷符、镇步符或护身符，按住“注灵绘制”；松手暂停，关闭后封存符稿。H → 技艺显示独立制符资质，品质在开始时冻结；旧角色保留原炼丹、炼器资质。[制符、配方与三符用法](docs/features/talismans.md)
 
-当前雷劫已更新为四种选择：炼气九层可渡天道筑基雷劫，筑基后期可选择下、中、上品金丹。修为与稳定度达标后，在露天场地按 N 选择；分别承受 6、6、9、12 次有效命中并存活才会突破。可用护身符、丹药和防御技能，失败保留境界修为并只扣一次稳定度，雷劫本身致命前散去；重登继续原雷序。管理员入口为 `/myvillage tribulation start <heaven|golden_low|golden_middle|golden_high> <玩家>`，`status` 读回、`stop` 终止。[雷劫资格、指令与边界](docs/features/tribulation.md)
+当前雷劫已更新为四种选择：炼气九层可渡天道筑基雷劫，筑基后期可选择下、中、上品金丹。修为与稳定度达标后，在露天场地按 N 选择；分别承受 6、6、9、12 次有效命中并存活才会突破。可用护身符、丹药和防御技能，失败保留境界修为并只扣一次稳定度，雷劫本身致命前散去；重登继续原雷序。管理员入口为 `/yuanxian tribulation start <heaven|golden_low|golden_middle|golden_high> <玩家>`，`status` 读回、`stop` 终止。[雷劫资格、指令与边界](docs/features/tribulation.md)
 
 [0.96.0 历史下载与实机画面](https://assets.ishiki333hhh.win/cultivation-demos-0.96.0/d31b7c1a/index.html) · [旧版试玩指令](https://assets.ishiki333hhh.win/cultivation-demos-0.96.0/d31b7c1a/试玩说明.md) · [当时的 Colab 检查范围与未验证项](docs/testing/2026-10-27-cultivation-demos.md)
 
@@ -130,13 +132,13 @@ H → 功法 → 选择基础吐纳诀、青木长春功、乙木生华诀或剑
 ## 第一章建筑进入聚落生成（0.89.0）
 
 新建“修仙大陆（种子蓝图）”世界使用 V6，西漠参与区域规划，并为第一章的**阡陌驿、长明药庐、青泉渠圃、沙埋旧驿、护泉古阵、问灵小院**及原有连路寻找合适地块。
-这些建筑使用原始模板和相对布局，按新区块生成；与城市、普通聚落、宗门和出生点共享避让。管理员用 `/myvillage worldplan qianzhen` 查询阡镇与六处入口。
+这些建筑使用原始模板和相对布局，按新区块生成；与城市、普通聚落、宗门和出生点共享避让。管理员用 `/yuanxian worldplan qianzhen` 查询阡镇与六处入口。
 本次仅接建筑生成，尚未绑定人物、章节或任务状态。旧 V1–V5 存档不迁移，既有区块不回填。[实现和边界](docs/ai-kb/66_qianzhen_region.md)。
 
 ## 修仙大陆聚落规划（0.88.0）
 
 新建“修仙大陆（种子蓝图）”世界会使用 V5 统一规划：保留完整云山城，在适合的地区选址放置湾口台地聚落，并为原生结构与命簿宗门预留避让范围。
-管理员用 `/myvillage worldplan settlements` 查看实际聚落坐标、朝向与地区归属；这是规划内生成，不使用普通世界的 `/locate` 入口。
+管理员用 `/yuanxian worldplan settlements` 查看实际聚落坐标、朝向与地区归属；这是规划内生成，不使用普通世界的 `/locate` 入口。
 选址受地形、群系、地区边界和出生点限制，不保证每个地区都有聚落。已有 V1–V4 世界不迁移，也不回填已生成区块。
 本次仅接入建筑生成，聚落暂未绑定居民、商店或剧情。[实现与验证范围](docs/ai-kb/65_bay_terraces.md)。
 
@@ -152,7 +154,7 @@ H → 功法 → 选择基础吐纳诀、青木长春功、乙木生华诀或剑
 
 右上以纯文字显示当前目标，默认 **O** 打开行迹、**Y** 切换追踪显示。任务进度随死亡、重登和正常保存保留；报酬逐人领取一次，背包满时可整理后再领。
 
-本期为独立剧情场景。管理员在新平坦世界使用 `/myvillage qianzhen deploy <x> <y> <z>` 明确部署，普通玩家用 `/qianzhen where` 查询位置；不会自动改写原有世界或出生点。[实现、编排入口与验收边界](docs/ai-kb/64_qianzhen_story.md)。
+本期为独立剧情场景。管理员在新平坦世界使用 `/yuanxian qianzhen deploy <x> <y> <z>` 明确部署，普通玩家用 `/qianzhen where` 查询位置；不会自动改写原有世界或出生点。[实现、编排入口与验收边界](docs/ai-kb/64_qianzhen_story.md)。
 
 ## 玄枢炼器鼎（0.83.0）
 
@@ -204,7 +206,7 @@ H → 功法 → 选择基础吐纳诀、青木长春功、乙木生华诀或剑
 This repository builds a NeoForge 1.21.1 mod jar containing generated
 `myvillage` structure templates. The current validation target is the Mod
 resource layer plus an on-demand runtime town command: structures must be packed
-in the jar and placeable in game via debug commands, and `/myvillage town
+in the jar and placeable in game via debug commands, and `/yuanxian town
 [seed]` must build a terrain-aware living town in loaded chunks.
 
 The long-term project goal is broader than a simple village generator. The
@@ -237,8 +239,8 @@ systems when the data and runtime pipeline are ready.
 
 管理员可用 `/summon myvillage:wandering_corpse ~ ~ ~`、`/summon myvillage:bone_archer ~ ~ ~`，或例如 `/summon myvillage:ximo_corpse ~ ~ ~`。完整 ID、打法、生成归属与验收范围见[功能说明](docs/features/regional-undead.md)。
 
-管理员只读诊断：`/myvillage array inspect <x> <y> <z>`；端口模拟：`/myvillage array port <x> <y> <z>`。
-`/myvillage array stale <端口坐标>` 仅供空炉测试，会临时拆装并恢复测试炉，不能用于普通生产验收替代真实交互。
+管理员只读诊断：`/yuanxian array inspect <x> <y> <z>`；端口模拟：`/yuanxian array port <x> <y> <z>`。
+`/yuanxian array stale <端口坐标>` 仅供空炉测试，会临时拆装并恢复测试炉，不能用于普通生产验收替代真实交互。
 
 ## 雷角山君（0.69.0）
 
@@ -274,9 +276,9 @@ systems when the data and runtime pipeline are ready.
 
 新建“修仙大陆（种子蓝图）”使用 V4，完整云山 D1 主城按新区块自然生成，保留 70 所民居、四栋功能建筑、街道、湖面与原台地高差。旧 V1/V2/V3 世界继续使用原冻结内容，不自动迁移或还原玩家改建。
 
-通过 `/myvillage worldplan city` 找到当前种子的主城。接近并加载真实住处/岗位后，新 V4 会从当地现有散修安排店主；近距右键当值药师可买丹药/卖药材，铁匠可买卖有限金属商品，客栈可付费恢复生命与灵力。潜行右键保留旧交谈。库存、交易回执与冷却由服务器和原命簿保存，没有足够人物或建筑未加载时不会凭空补人。
+通过 `/yuanxian worldplan city` 找到当前种子的主城。接近并加载真实住处/岗位后，新 V4 会从当地现有散修安排店主；近距右键当值药师可买丹药/卖药材，铁匠可买卖有限金属商品，客栈可付费恢复生命与灵力。潜行右键保留旧交谈。库存、交易回执与冷却由服务器和原命簿保存，没有足够人物或建筑未加载时不会凭空补人。
 
-管理员可用 `/myvillage life status site yunshan` 查看，或 `/myvillage life commerce yunshan` 幂等启用并重试未分配岗位。旧世界经济需显式启用；绑定场所不等于放置建筑。客栈本版是受条件和冷却约束的一次恢复，不是租房或跳过夜晚。
+管理员可用 `/yuanxian life status site yunshan` 查看，或 `/yuanxian life commerce yunshan` 幂等启用并重试未分配岗位。旧世界经济需显式启用；绑定场所不等于放置建筑。客栈本版是受条件和冷却约束的一次恢复，不是租房或跳过夜晚。
 
 [完整操作、兼容与范围](docs/ai-kb/58_yunshan_living_city.md) · [本次检查与待实测项](docs/testing/2026-10-18-yunshan-living-v4.md)。新客户端和服务器需一起更新，协议 33、命簿 payload 6。
 
@@ -292,10 +294,10 @@ systems when the data and runtime pipeline are ready.
 药童和灵植师现在可以管理显式登记的真实灵土格。准备一格灵土，在旁边留出可站立、可步行抵达的位置，再登记站位和作物格：
 
 ```text
-/myvillage life place yunshan real_garden garden <站位x> <站位y> <站位z>
-/myvillage life garden yunshan real_garden myvillage:spirit_leaf <作物x> <作物y> <作物z>
-/myvillage life assign <人物ID> yunshan spirit_grower <空闲住处ID> real_garden
-/myvillage life status site yunshan
+/yuanxian life place yunshan real_garden garden <站位x> <站位y> <站位z>
+/yuanxian life garden yunshan real_garden myvillage:spirit_leaf <作物x> <作物y> <作物z>
+/yuanxian life assign <人物ID> yunshan spirit_grower <空闲住处ID> real_garden
+/yuanxian life status site yunshan
 ```
 
 作物坐标是灵土**上方**那格，不是灵土自身；站位与作物格不同、相邻且无遮挡。已任职人物先 `life unassign <人物ID>` 再分配，经验和随身财物保留。需要分类仓库中有同味药材作种源，可由药童交货或玩家卖给药铺。
@@ -313,20 +315,20 @@ systems when the data and runtime pipeline are ready.
 先在已有建筑登记生活地点并启用商业，再安排当地已有的命簿人物。新增职业当前需管理员显式分配，不会替换旧人物或自动造人。普通原版世界没有规划云山时，先按下节的 `life bind` 登记已有建筑。下面的 `<...>` 均须替换为实际 ID 或已加载、可步行到达的脚底坐标；三个住处须各有空位，炼丹工作站应与伙计柜台分开。
 
 ```text
-/myvillage life yunshan
-/myvillage life commerce yunshan
-/myvillage life place yunshan leaf_source gather <采集x> <采集y> <采集z>
-/myvillage life gathering yunshan leaf_source myvillage:spirit_leaf 12
-/myvillage life place yunshan dew_source gather <采集x> <采集y> <采集z>
-/myvillage life gathering yunshan dew_source myvillage:dew_blossom 12
-/myvillage life place yunshan leaf_garden garden <药圃x> <药圃y> <药圃z>
-/myvillage life garden yunshan leaf_garden myvillage:spirit_leaf
-/myvillage life place yunshan alchemy_station work <炼丹x> <炼丹y> <炼丹z>
-/myvillage life assign <药童人物ID> yunshan herb_child <空闲住处ID> leaf_source
-/myvillage life assign <灵植师人物ID> yunshan spirit_grower <另一空闲住处ID> leaf_garden
-/myvillage life assign <炼丹师人物ID> yunshan alchemist <第三个空闲住处ID> alchemy_station
-/myvillage life status <人物ID>
-/myvillage life status site yunshan
+/yuanxian life yunshan
+/yuanxian life commerce yunshan
+/yuanxian life place yunshan leaf_source gather <采集x> <采集y> <采集z>
+/yuanxian life gathering yunshan leaf_source myvillage:spirit_leaf 12
+/yuanxian life place yunshan dew_source gather <采集x> <采集y> <采集z>
+/yuanxian life gathering yunshan dew_source myvillage:dew_blossom 12
+/yuanxian life place yunshan leaf_garden garden <药圃x> <药圃y> <药圃z>
+/yuanxian life garden yunshan leaf_garden myvillage:spirit_leaf
+/yuanxian life place yunshan alchemy_station work <炼丹x> <炼丹y> <炼丹z>
+/yuanxian life assign <药童人物ID> yunshan herb_child <空闲住处ID> leaf_source
+/yuanxian life assign <灵植师人物ID> yunshan spirit_grower <另一空闲住处ID> leaf_garden
+/yuanxian life assign <炼丹师人物ID> yunshan alchemist <第三个空闲住处ID> alchemy_station
+/yuanxian life status <人物ID>
+/yuanxian life status site yunshan
 ```
 
 药童把采来的药交到市场后进入分类库；玩家卖给药铺的对应药材同样可用作种源或丹方材料。药圃消耗一份对应药材播种，按共同生活时钟成熟后收获；缺种、缺料、满库或道路受阻时不能凭空生产。旧未分类药材和旧抽象药品保留，不拿来替代指定原料。当前药圃是命簿生产批次，NPC 到点工作，不操作真实灵植方块；也未加入师徒晋升、高阶稀有灵草与玩家丹炉燃料槽操作。
@@ -340,14 +342,14 @@ systems when the data and runtime pipeline are ready.
 支持规划大陆中的云山城和现有大型云山展示街区。先登记场所，再显式分配人物，示例会选择四位当地已有散修。命令需要管理员权限，`<...>` 参数用实际值替换：
 
 ```text
-/myvillage life yunshan
-/myvillage life status site yunshan
-/myvillage life place yunshan herb_field gather <x> <y> <z>
-/myvillage life demo yunshan
-/myvillage life status <personId>
+/yuanxian life yunshan
+/yuanxian life status site yunshan
+/yuanxian life place yunshan herb_field gather <x> <y> <z>
+/yuanxian life demo yunshan
+/yuanxian life status <personId>
 ```
 
-采集点选可站立、可步行往返的已加载位置。旧世界或已有展示街区可用 `/myvillage life bind <site> yunshan_showcase_v2 <原点x> <原点y> <原点z>` 登记；该命令不创建建筑。示例缺人时会说明原因，也可用 `assign` 手动安排当地存活修士，`unassign` 解除岗位。
+采集点选可站立、可步行往返的已加载位置。旧世界或已有展示街区可用 `/yuanxian life bind <site> yunshan_showcase_v2 <原点x> <原点y> <原点z>` 登记；该命令不创建建筑。示例缺人时会说明原因，也可用 `assign` 手动安排当地存活修士，`unassign` 解除岗位。
 
 近处需要实际走到目标格，远处沿用相同活动记录；工作进度跨化身撤离和存档保存。0.60.0 首期的物资为有限命簿账户；0.63.0 已接真实战斗和死亡，0.64.0 已接玩家交易，仍未接真实灵植自动收割或完整 NPC 实体背包。本期的休息与工作使用到点停留表现。
 
@@ -355,7 +357,7 @@ systems when the data and runtime pipeline are ready.
 
 ## 修仙大陆与局部生态过渡（0.59.1-fix1）
 
-0.59.1-fix1 的新建世界使用 V3 局部过渡（0.64.0 的新世界已切到保留该生态规则的 V4）：保留原雪林、竹林等主体群系，仅在不相容交界 32 格内调整植被。已有 V1/V2 世界保持各自冻结规则，不自动重刷。`/myvillage worldplan info` 可查看算法和规划哈希。城市审计区分正常遮阴草方块退化与实际损坏，同时保留原始差异。
+0.59.1-fix1 的新建世界使用 V3 局部过渡（0.64.0 的新世界已切到保留该生态规则的 V4）：保留原雪林、竹林等主体群系，仅在不相容交界 32 格内调整植被。已有 V1/V2 世界保持各自冻结规则，不自动重刷。`/yuanxian worldplan info` 可查看算法和规划哈希。城市审计区分正常遮阴草方块退化与实际损坏，同时保留原始差异。
 
 创建方式、旧档兼容与验收见 [修仙大陆说明](docs/worldplan/acceptance.md)。局部云端构建使用 Modal `--preset worldplan-build`；玩家画面与手感仍单独验收。
 
@@ -520,7 +522,7 @@ vanilla namespace profile for regression checks; every populated slot keeps a
 trailing `minecraft:` fallback.
 The batch generator also exports
 `src/main/resources/data/myvillage/mod_block_fallbacks.json` from those slot
-lists. Runtime `/myvillage place` and `/myvillage town` template placement use
+lists. Runtime `/yuanxian place` and `/yuanxian town` template placement use
 that map so worlds without the optional decor mods place vanilla fallbacks
 rather than air holes.
 
@@ -542,7 +544,7 @@ python3 tools/validate_compound_library.py --group ganlan_stilted_house --count 
 
 The six `chinese_courtyard_NNN` templates are rebuilt 一进 compounds: an outer
 yard with 影壁, one 垂花门 into the raised main yard, returning 抄手游廊, and a
-正房 fronted by 月台. Their filenames and `/myvillage place` commands are
+正房 fronted by 月台. Their filenames and `/yuanxian place` commands are
 unchanged, but v0.15.0 regenerates their footprints, silhouettes, and interiors.
 v0.15.0-fix1 rebuilds the courtyard **ground + path layer** (`courtyard-ground-layer`
 / `courtyard-path-network` specs): the yard floor is now solid (露天 grass /
@@ -561,7 +563,7 @@ v0.16.2 re-sculpts the mansion garden's named hero 假山: a layered, 收分 太
 grotto inside the rock and cascades down the terraces into a pool embedded in the
 foot. It also fixes the v0.16.1 flood: `waterlogged` rock (a spreading water
 source) is dropped entirely — visible water is a contained pool + non-fluid
-`rockery_cascade` only. Review it directly with `/myvillage place hero_rockery`;
+`rockery_cascade` only. Review it directly with `/yuanxian place hero_rockery`;
 preview the 48³ sculpt offline with `tools/buildgen/preview_voxel_field.py`.
 v0.16.2-fix1 keeps the summit tree at the same 1/16 scale as the rockery: it is
 now a baked leaning bonsai with visible branches and layered foliage instead of
@@ -574,7 +576,7 @@ planning skeleton: the south entrance is now a real `gate_house`
 through-building instead of a wall hole, mansion buildings use form-rule
 door-wall facings so their doors face their yards, and the gravel path is routed
 from the gate-house inner opening to every door-front. Command names are
-unchanged: `/myvillage place chinese_mansion_001` ... `_006`.
+unchanged: `/yuanxian place chinese_mansion_001` ... `_006`.
 v0.18.0 **surface-zones** the courtyard/mansion ground + path layer so the path
 reads as **three routes with six surfaces** instead of one flat gravel stripe:
 the formal axis (青石 `PATH_FORMAL`), the winding garden tour (苔石 `PATH_TOUR`,
@@ -590,7 +592,7 @@ lily pads kept out of the bridge clear-water lane. The separate pond-side
 水边廊/shed was removed after reference-image review; the mansion 主院 抄手游廊
 remains a real 3D gallery with floor, columns, balustrade, and roof;
 the 绣楼 sits in its own 后院 instead of the 花园, and the 主院 heart remains
-grass rather than a full-width stone platform. `/myvillage place` ids are
+grass rather than a full-width stone platform. `/yuanxian place` ids are
 unchanged — only the surface materials, gallery realization, and garden routing
 change.
 See [`docs/ai-kb/16_path_surface_zoning.md`](docs/ai-kb/16_path_surface_zoning.md).
@@ -650,7 +652,7 @@ src/main/resources/data/myvillage/function/place/ganlan_stilted_house_001.mcfunc
 The compound exporter currently uses single structure NBT files. The one-court
 Chinese compounds stay compact; cultivation town blocks and mountain sect
 compounds are larger review structures and are spaced by the generated gallery
-functions and `/myvillage gallery` command.
+functions and `/yuanxian gallery` command.
 
 ## Generate Cultivation Libraries
 
@@ -754,7 +756,7 @@ exposes a `region_at` / `current_rung` / `next_rung_regions` query API for
 downstream consumers (compass / map / alignment / mobility — all still
 deferred). The runtime is passive: it reads the world seed and answers queries;
 it overrides no biome, hooks no chunk-gen, and writes nothing beyond the
-one-time `setDefaultSpawnPos`. See `/myvillage spawn info|recompute` below and
+one-time `setDefaultSpawnPos`. See `/yuanxian spawn info|recompute` below and
 [`docs/ai-kb/13_region_topology.md`](docs/ai-kb/13_region_topology.md). Turning
 the typed edges into actual relief (山脉/海洋 ranges) and placing subjects into
 regions remains the deferred next change.
@@ -805,7 +807,7 @@ auto-reduces static PNG scale so large compounds stay bounded.
 The separate headless Chunky path-tracing renderer is not currently a custom
 `myvillage:` block acceptance path. It can render placed worlds for ordinary
 blocks, but `myvillage:rockery_block` has been observed to render as Chunky's
-unknown-block placeholder even with the MyVillage jar supplied through
+unknown-block placeholder even with the 源仙 jar supplied through
 `-texture`. Review custom block appearance, including `hero_rockery`, in a
 Minecraft client until a dedicated renderer compatibility path exists. For
 ordinary layout review, `tools/render_structure.py` defaults to
@@ -836,63 +838,63 @@ Confirm the jar contains the structure resources (name the versioned jar:
 `build/libs/` keeps the jars of earlier versions):
 
 ```bash
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.133.0.jar
+build/libs/myvillage-0.133.1.jar
 ```
 
 ## On-Demand Modal Test Runner (default heavy-test workflow)
@@ -1082,61 +1084,61 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/combat/"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.133.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/combat/"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.133.1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -1232,7 +1234,7 @@ radius and potion duration are unchanged. Scope is configured in
 `data/myvillage/wilderness/vanilla_monsters.json`; ranges remain in the existing
 `wilderness/rules.json`. Region tier does not dynamically change these ranges.
 Inspect a nearby zombie with
-`/myvillage stats info @e[type=minecraft:zombie,sort=nearest,limit=1]`.
+`/yuanxian stats info @e[type=minecraft:zombie,sort=nearest,limit=1]`.
 
 `data/myvillage/wilderness/rules.json` gives each region an inclusive realm and
 stage range for beasts and rogue cultivators. Natural wolves keep their birth
@@ -1247,19 +1249,19 @@ a rebuild/restart after tuning.
 Operator diagnostics (permission level 2; stages here are zero-based):
 
 ```mcfunction
-/myvillage stats growth
-/myvillage stats growth myvillage:qi_refining 0
-/myvillage stats info @s
-/myvillage stats trace @e[type=myvillage:demon_wolf,sort=nearest,limit=1]
-/myvillage stats damage preview 10 0 1 0 1 10 physical 0.5 0.1
+/yuanxian stats growth
+/yuanxian stats growth myvillage:qi_refining 0
+/yuanxian stats info @s
+/yuanxian stats trace @e[type=myvillage:demon_wolf,sort=nearest,limit=1]
+/yuanxian stats damage preview 10 0 1 0 1 10 physical 0.5 0.1
 /attribute @s myvillage:physical_resistance get
 /attribute @s myvillage:fire_resistance_penetration get
 /attribute @s myvillage:fire_resistance_penetration base set 0.2
-/myvillage wilderness info
-/myvillage wilderness info 0 80 0
-/myvillage wilderness sample zhongzhou 12345 16
-/myvillage wilderness birth @e[type=myvillage:demon_wolf,sort=nearest,limit=1]
-/myvillage wilderness spawn_test ~ ~ ~ 12345
+/yuanxian wilderness info
+/yuanxian wilderness info 0 80 0
+/yuanxian wilderness sample zhongzhou 12345 16
+/yuanxian wilderness birth @e[type=myvillage:demon_wolf,sort=nearest,limit=1]
+/yuanxian wilderness spawn_test ~ ~ ~ 12345
 ```
 
 `sample` is read-only and repeatable. `spawn_test` is an administrator fixture
@@ -1289,7 +1291,7 @@ python3 tools/realm_stats_evidence.py
 python3 tools/realm_armor_evidence.py
 # Independent elemental penetration and save/restart:
 python3 tools/elemental_penetration_evidence.py
-/usr/bin/python3 tools/validate_realm_stats.py --jar build/libs/myvillage-0.133.0.jar
+/usr/bin/python3 tools/validate_realm_stats.py --jar build/libs/myvillage-0.133.1.jar
 ```
 
 Run clean stage 1 before the evidence script: it clears `run-acceptance`.
@@ -1385,10 +1387,10 @@ add a second beast: `docs/ai-kb/38_hostile_beasts.md`.
 Operator debug commands (permission 2) for checks and stills:
 
 ```mcfunction
-/myvillage beast move @e[type=myvillage:demon_wolf,limit=1,sort=nearest] myvillage:demon_wolf_pounce
-/myvillage beast status @e[type=myvillage:demon_wolf]
-/myvillage beast debug on
-/myvillage beast debug off
+/yuanxian beast move @e[type=myvillage:demon_wolf,limit=1,sort=nearest] myvillage:demon_wolf_pounce
+/yuanxian beast status @e[type=myvillage:demon_wolf]
+/yuanxian beast debug on
+/yuanxian beast debug off
 ```
 
 `move` starts the named move on the next AI step, ignoring range, cooldown,
@@ -1461,7 +1463,7 @@ Nothing below has been observed by the owner on a physical client.
 | `F3+T` reload picks up regenerated model, animation, and texture files | `not_verified` |
 | Multiplayer: a second client sees the same moves, clips, and staggers in sync | `not_verified` |
 | Moves on a real network: the pounce lands on the ground, and the per-tick judder from uneven packets is acceptable | `not_verified` |
-| `/myvillage beast move`, `status`, and `debug` from a real client | `not_verified` |
+| `/yuanxian beast move`, `status`, and `debug` from a real client | `not_verified` |
 | Frame rate with several wolves on a real GPU | `not_verified` |
 | Owner verdict on the wolf's look and its fight | `not_verified` |
 
@@ -1654,26 +1656,26 @@ commands say why, and the save is left untouched.
 Commands (permission 2):
 
 ```mcfunction
-/myvillage world                 # same as `world info`
-/myvillage world info            # era date, sim and calendar day, pending days, paused?, population, realms, sects, foremost people
-/myvillage world sects [all]     # active sects (all: with the destroyed): region, master, members, top realm, prestige, gate
-/myvillage world sect <id|name>  # one sect: founding, master, resources, prestige, signature technique, heritage (传承), gate, relations, members at the sect
-/myvillage world sect <id> build        # build the sect's compound (山门) at its ledger gate
-/myvillage world sect <id> build here   # move the sect's gate to you first, then build at your feet
-/myvillage world sect <id> join <player>    # 0.41.0: admin join, skipping the admission rules
-/myvillage world sect <id> leave <player>   # 0.41.0: the player leaves that sect (penalty and cooldown)
-/myvillage world player <player>            # 0.41.0: a player's sect record and standings
-/myvillage world gates [retry]              # 0.41.0: framed gate builder state; retry gates given up
-/myvillage world sect <id> rank <player> <outer|inner|elder>   # 0.42.0: set a member's rank
-/myvillage world sect <id> shelves [place]   # 0.42.0: scripture shelves of a built compound; place them again
-/myvillage world sect <a> war <b>             # 0.44.0: admin: sect a declares war on sect b now
-/myvillage world sect <id> destroy            # 0.44.0: admin: the sect is destroyed now
-/myvillage world person <name>   # up to five people whose name or Daoist title contains the text, living first
-/myvillage world chronicle [1-50]   # the latest notable and major events (default 10)
-/myvillage world here            # your region: tier, qi, danger, sects seated there with gate distance, people present, recent events
-/myvillage world pause           # stop settlement (saved); the calendar keeps running
-/myvillage world resume          # restart settlement; the paused days are not caught up
-/myvillage world advance <1-3650>   # settle that many days now, even while paused
+/yuanxian world                 # same as `world info`
+/yuanxian world info            # era date, sim and calendar day, pending days, paused?, population, realms, sects, foremost people
+/yuanxian world sects [all]     # active sects (all: with the destroyed): region, master, members, top realm, prestige, gate
+/yuanxian world sect <id|name>  # one sect: founding, master, resources, prestige, signature technique, heritage (传承), gate, relations, members at the sect
+/yuanxian world sect <id> build        # build the sect's compound (山门) at its ledger gate
+/yuanxian world sect <id> build here   # move the sect's gate to you first, then build at your feet
+/yuanxian world sect <id> join <player>    # 0.41.0: admin join, skipping the admission rules
+/yuanxian world sect <id> leave <player>   # 0.41.0: the player leaves that sect (penalty and cooldown)
+/yuanxian world player <player>            # 0.41.0: a player's sect record and standings
+/yuanxian world gates [retry]              # 0.41.0: framed gate builder state; retry gates given up
+/yuanxian world sect <id> rank <player> <outer|inner|elder>   # 0.42.0: set a member's rank
+/yuanxian world sect <id> shelves [place]   # 0.42.0: scripture shelves of a built compound; place them again
+/yuanxian world sect <a> war <b>             # 0.44.0: admin: sect a declares war on sect b now
+/yuanxian world sect <id> destroy            # 0.44.0: admin: the sect is destroyed now
+/yuanxian world person <name>   # up to five people whose name or Daoist title contains the text, living first
+/yuanxian world chronicle [1-50]   # the latest notable and major events (default 10)
+/yuanxian world here            # your region: tier, qi, danger, sects seated there with gate distance, people present, recent events
+/yuanxian world pause           # stop settlement (saved); the calendar keeps running
+/yuanxian world resume          # restart settlement; the paused days are not caught up
+/yuanxian world advance <1-3650>   # settle that many days now, even while paused
 ```
 
 Major events (importance 3) also reach every online player as chat rumors
@@ -1750,7 +1752,7 @@ acceptance.
 A ledger sect has no compound in the world until one is built for it (worldgen
 does not place compounds at ledger gates yet; the randomly scattered
 `myvillage:sect` compounds are unrelated to the ledger and stay empty).
-`/myvillage world sect <id> build` loads the gate's chunk and builds the
+`/yuanxian world sect <id> build` loads the gate's chunk and builds the
 worldgen-style compound (derived mountain, terraces, buildings) on the surface
 at the ledger's gate coordinate; `build here` first moves the sect's gate (and
 its seat) to your position, which must be inside a region, and builds at your
@@ -1786,7 +1788,7 @@ avatar and on a summoned cultivator. Its 2026-10-06 run passed all 19 checks
 | World simulation (0.35.0) acceptance surface | Result |
 |---|---|
 | Pure-core tests (determinism, save/load, scheduler, purity, lifespan agreement, text keys, health bands, performance) | `pass` (Gradle) |
-| Every `/myvillage world` command on a headless server | `pass` |
+| Every `/yuanxian world` command on a headless server | `pass` |
 | Calendar and ledger both advance in creative mode | `pass` |
 | Pause holds the ledger while the calendar runs; resume does not catch up | `pass` |
 | Restart keeps the ledger; genesis once; later config tier change ignored | `pass` |
@@ -1912,10 +1914,10 @@ Commands (permission 2):
 
 | Command | Does |
 |---|---|
-| `/myvillage world sect <id> join <player>` | Join the player to the sect without the admission rules (the sect must be active and not already theirs; a member elsewhere leaves that sect first, without penalty or event) |
-| `/myvillage world sect <id> leave <player>` | The player leaves that sect, exactly as through the steward (penalty and cooldown) |
-| `/myvillage world player <player>` | The player's record: sect and rank, joining date, master, contribution, standing with each sect, the sect they last left |
-| `/myvillage world gates` | 预留宗门地块数与已加载绑定宗门数 |
+| `/yuanxian world sect <id> join <player>` | Join the player to the sect without the admission rules (the sect must be active and not already theirs; a member elsewhere leaves that sect first, without penalty or event) |
+| `/yuanxian world sect <id> leave <player>` | The player leaves that sect, exactly as through the steward (penalty and cooldown) |
+| `/yuanxian world player <player>` | The player's record: sect and rank, joining date, master, contribution, standing with each sect, the sect they last left |
+| `/yuanxian world gates` | 预留宗门地块数与已加载绑定宗门数 |
 
 宗门绑定日志：`SECT_WORLDGEN_BOUND sect=<id> site=<id> anchor=<x> <y> <z> blueprint=<sha256>`。当前 `world sect <id> build` 只在修仙世界加载预留地块，不重建已生成区块；`here` 不允许临时移位。具体边界见 [宗门入口实现](docs/ai-kb/43_player_sect_entry.md#宗门世界生成01100)。世界生成已改变，请用当前版本新建修仙世界；不会修改旧存档。
 
@@ -2005,9 +2007,9 @@ above 0 but nothing is charged yet (contribution, earned by sect tasks since 0.4
 Find, repair and inspect the 0.46.2 stand:
 
 ```mcfunction
-/myvillage world sects
-/myvillage world sect <id> shelves
-/myvillage world sect <id> shelves place
+/yuanxian world sects
+/yuanxian world sect <id> shelves
+/yuanxian world sect <id> shelves place
 /give @s myvillage:scripture_shelf
 ```
 
@@ -2038,9 +2040,9 @@ Commands (permission 2):
 
 | Command | Does |
 |---|---|
-| `/myvillage world sect <id> rank <player> <outer\|inner\|elder>` | Set a member's rank; a rise records a promotion and tells the player |
-| `/myvillage world sect <id> shelves` | The shelf sites of the sect's built compound and the shelf found at each, with its sect id |
-| `/myvillage world sect <id> shelves place` | Place (or re-own) the shelves of a compound built before 0.42.0 |
+| `/yuanxian world sect <id> rank <player> <outer\|inner\|elder>` | Set a member's rank; a rise records a promotion and tells the player |
+| `/yuanxian world sect <id> shelves` | The shelf sites of the sect's built compound and the shelf found at each, with its sect id |
+| `/yuanxian world sect <id> shelves place` | Place (or re-own) the shelves of a compound built before 0.42.0 |
 
 Log lines (INFO):
 
@@ -2213,8 +2215,8 @@ sects you are at odds with turn you away.
 
 | Command | Does |
 |---|---|
-| `/myvillage world sect <a> war <b>` | Sect a declares war on sect b now (the chronicle's war line; both at war). Refused: `no_sect`, `same_sect`, `sect_inactive`, `already_at_war` |
-| `/myvillage world sect <id> destroy` | The sect is destroyed now (the ruin line), its people become rogues, its players are released ("…覆灭，…自此成了散修。"), a held heritage is lost; its avatars withdraw on the next pass. Refused: `no_sect`, `sect_inactive` |
+| `/yuanxian world sect <a> war <b>` | Sect a declares war on sect b now (the chronicle's war line; both at war). Refused: `no_sect`, `same_sect`, `sect_inactive`, `already_at_war` |
+| `/yuanxian world sect <id> destroy` | The sect is destroyed now (the ruin line), its people become rogues, its players are released ("…覆灭，…自此成了散修。"), a held heritage is lost; its avatars withdraw on the next pass. Refused: `no_sect`, `sect_inactive` |
 
 Log line (server, INFO), one per news line sent:
 
@@ -2388,8 +2390,8 @@ elemental effects, custom payloads, or Qingfeng/PAL five-move integration.
 
 This feature requires the exact `PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar`
 on both client and server. Place it at the repository root for development and
-beside MyVillage in the instance `mods/` directory for play. PAL is not bundled
-in the MyVillage jar, and the supplied root jar remains untracked.
+beside 源仙 in the instance `mods/` directory for play. PAL is not bundled
+in the 源仙 jar, and the supplied root jar remains untracked.
 
 Obtain the independent functional sword and switch modes with the configurable
 `Switch Combat Mode` control (default `R`). Since 0.40.0 `Movement Dodge`
@@ -2573,10 +2575,10 @@ Operators can inspect the server-computed active samples without changing hit
 authority:
 
 ```mcfunction
-/myvillage combat debug on
-/myvillage combat debug status
-/myvillage combat debug off
-/myvillage combat dodge status [player]   # 0.40.0: chosen 身法, cooldown and window left
+/yuanxian combat debug on
+/yuanxian combat debug status
+/yuanxian combat debug off
+/yuanxian combat dodge status [player]   # 0.40.0: chosen 身法, cooldown and window left
 ```
 
 For client-side pose review only, a developer client can play each full-body
@@ -2967,7 +2969,7 @@ sheets and candidates for the owner: `out/preview/xuantie_gauntlet/index.html`.
 
 A learned 身法 (movement) technique gives a short dash with an invulnerable
 window. Press `Movement Dodge` (身法闪避, `key.myvillage.dodge`, default Left
-Alt, rebindable under the MyVillage key category) in cultivation combat mode.
+Alt, rebindable under the 源仙 key category) in cultivation combat mode.
 The movement keys held at that moment pick one of eight directions relative to
 the view; with none held the dodge is a back step. A sneaking player's held key
 still counts as a direction (dead zone 0.2, below vanilla's 0.3 sneak input
@@ -3021,9 +3023,9 @@ usual realm, affinity, and `previous` requirements apply) or, for testing,
 with the debug command, which checks only that the technique is registered:
 
 ```mcfunction
-/myvillage cultivation manual @s myvillage:liuyun_bu
-/myvillage cultivation learn @s myvillage:taxue_wuhen
-/myvillage combat dodge status [player]
+/yuanxian cultivation manual @s myvillage:liuyun_bu
+/yuanxian cultivation learn @s myvillage:taxue_wuhen
+/yuanxian combat dodge status [player]
 ```
 
 `combat dodge status` prints the technique a dodge would use (grade,
@@ -3128,13 +3130,13 @@ power; the persistent balance stays within the current stage cap.
 Administrator fixtures and equivalent aliases:
 
 ```mcfunction
-/myvillage cultivation qi @s
-/myvillage cultivation qi fill @s
-/myvillage cultivation qi set @s 0
-/myvillage xiulian lingli buman @s
-/myvillage xiulian lingli shezhi @s 0
-/myvillage cultivation manual @s myvillage:jianqi_jue
-/myvillage cultivation learn @s myvillage:jianqi_jue
+/yuanxian cultivation qi @s
+/yuanxian cultivation qi fill @s
+/yuanxian cultivation qi set @s 0
+/yuanxian xiulian lingli buman @s
+/yuanxian xiulian lingli shezhi @s 0
+/yuanxian cultivation manual @s myvillage:jianqi_jue
+/yuanxian cultivation learn @s myvillage:jianqi_jue
 ```
 
 `qi`/`lingli` work under both `cultivation` and `xiulian`; `set`/`shezhi` and
@@ -3230,11 +3232,11 @@ launch the game; enter it later to review the following checks.
    HUD reload, saved book progress and power, observer wave visibility, sound,
    feel and frame rate. Record only the checks you actually observe.
 
-For a cast-only fixture, `/myvillage cultivation learn @s myvillage:jianqi_jue`,
+For a cast-only fixture, `/yuanxian cultivation learn @s myvillage:jianqi_jue`,
 `/give @s myvillage:qingfeng_sword` and
-`/myvillage cultivation qi fill @s` bypass acquisition. The player still needs
+`/yuanxian cultivation qi fill @s` bypass acquisition. The player still needs
 a nonzero stage cap; these commands do not verify borrowing or study. For study,
-use `/myvillage cultivation manual @s myvillage:jianqi_jue` on an eligible
+use `/yuanxian cultivation manual @s myvillage:jianqi_jue` on an eligible
 character that has not already learned it.
 
 | 0.46.2 owner acceptance surface | Result |
@@ -3251,14 +3253,14 @@ Implementation sources: [Scripture hall](docs/ai-kb/43_player_sect_entry.md),
 
 ## GuideME Cultivation Guide
 
-MyVillage 0.27.1 requires a compatible GuideME installation on both client and
+源仙 0.27.1 requires a compatible GuideME installation on both client and
 server (`[21.1.17,22)`). Gradle resolves GuideME 21.1.17 from Maven Central for
-development; GuideME is not bundled in the MyVillage jar. The untracked
+development; GuideME is not bundled in the 源仙 jar. The untracked
 root-level `guideme-21.1.17.jar` is inspection material, not a build input.
 
 The first data-driven `myvillage:cultivation` slice has one Chinese default
 source, a complete `_en_us` pair, and three task pages: overview, initiation,
-and the combined cultivation loop. Give and use the MyVillage entry item with:
+and the combined cultivation loop. Give and use the 源仙 entry item with:
 
 ```mcfunction
 /give @s myvillage:cultivation_handbook
@@ -3283,8 +3285,8 @@ That run watches the same source copied into the jar and validates/opens the
 guide at startup. Do not add a second checked-in Markdown mirror below
 `src/main/resources`. GuideME's item-tooltip hotkey applies in inventory-style
 screens, not to a placed block under the crosshair. Owner review of 0.25.1 found
-that sharing `G` with MyVillage's stop-meditation binding made GuideME's hotkey
-unavailable. The current fix leaves `G` to GuideME and changes MyVillage's
+that sharing `G` with 源仙's stop-meditation binding made GuideME's hotkey
+unavailable. The current fix leaves `G` to GuideME and changes 源仙's
 default stop key to `X`; it adds no GuideME-specific interception, remapping, or
 automatic migration. Existing installations that saved the old `G` binding
 must reset or rebind `Stop Meditation` once in Controls.
@@ -3323,7 +3325,7 @@ fix, the post-fix hotkey behavior remains `not_verified` until retested.
 | Live configured key displays after remapping | `not_verified` |
 | Root-source live reload | `not_verified` |
 | Handbook first open and remembered-page reopen | `not_verified` |
-| GuideME `G` item-index hotkey after MyVillage stop moved to `X` | `not_verified` |
+| GuideME `G` item-index hotkey after 源仙 stop moved to `X` | `not_verified` |
 | Existing H-screen and cultivation gameplay regression | `not_verified` |
 
 ## Cultivation Playable Loop
@@ -3378,7 +3380,7 @@ chunks. There is no raw ore, smelting chain, recipe, higher grade, storage block
 fragment, refining machine, or currency behavior in this slice.
 
 Press `H` in game to open the non-pausing cultivation panel. The binding is
-configurable as `Open Cultivation Profile` under the MyVillage key category.
+configurable as `Open Cultivation Profile` under the 源仙 key category.
 The panel has a page rail on the left, a header (name, realm and stage,
 calendar, remaining lifespan) and a footer (session state) that stay visible on
 every page, and a body that scrolls when a small window cannot hold a page:
@@ -3397,7 +3399,7 @@ the panel without stopping cultivation, and reopening it returns to the page it
 was left on. While the 人物 search field has focus, `H` types into it instead
 of closing the panel (Escape still closes). The 天下 page refreshes the open
 view at most every 2.5 seconds and is open to every player; pause, resume, and
-advance stay `/myvillage world` commands. Structure and how to add a page:
+advance stay `/yuanxian world` commands. Structure and how to add a page:
 `docs/ai-kb/37_cultivation_panel.md`.
 
 The current profile is schema version `4` (0.37.0): the v3 fields (all v2
@@ -3611,19 +3613,19 @@ All cultivation commands inherit the existing `/myvillage` permission-level-2
 requirement. The existing administrator surface remains available:
 
 ```mcfunction
-/myvillage cultivation info [target]
-/myvillage cultivation reset <target>
-/myvillage cultivation setrealm <target> <realm_id> <stage_id>
-/myvillage cultivation setprogress <target> <amount>
-/myvillage cultivation setstability <target> <amount>
-/myvillage cultivation setpower <target> <amount>
-/myvillage cultivation setroot <target> <metal> <wood> <water> <fire> <earth>
-/myvillage cultivation clearroot <target>
-/myvillage cultivation learn <target> <technique_id>
-/myvillage cultivation forget <target> <technique_id>
-/myvillage cultivation setmastery <target> <technique_id> <amount>
-/myvillage cultivation core <target> <technique_id>     # run another learned core technique (心法); 0.37.0
-/myvillage cultivation manual <target> <technique_id>   # give that technique's manual (秘籍); 0.38.0
+/yuanxian cultivation info [target]
+/yuanxian cultivation reset <target>
+/yuanxian cultivation setrealm <target> <realm_id> <stage_id>
+/yuanxian cultivation setprogress <target> <amount>
+/yuanxian cultivation setstability <target> <amount>
+/yuanxian cultivation setpower <target> <amount>
+/yuanxian cultivation setroot <target> <metal> <wood> <water> <fire> <earth>
+/yuanxian cultivation clearroot <target>
+/yuanxian cultivation learn <target> <technique_id>
+/yuanxian cultivation forget <target> <technique_id>
+/yuanxian cultivation setmastery <target> <technique_id> <amount>
+/yuanxian cultivation core <target> <technique_id>     # run another learned core technique (心法); 0.37.0
+/yuanxian cultivation manual <target> <technique_id>   # give that technique's manual (秘籍); 0.38.0
 ```
 
 `setstability` accepts a non-negative integer. The profile schema has no fixed
@@ -3633,14 +3635,14 @@ progress cap.
 The normal-rules initiation actions expose all eight English/pinyin routes:
 
 ```mcfunction
-/myvillage cultivation awaken [target]
-/myvillage cultivation juexing [target]
-/myvillage xiulian awaken [target]
-/myvillage xiulian juexing [target]
-/myvillage cultivation initiate [target]
-/myvillage cultivation rumen [target]
-/myvillage xiulian initiate [target]
-/myvillage xiulian rumen [target]
+/yuanxian cultivation awaken [target]
+/yuanxian cultivation juexing [target]
+/yuanxian xiulian awaken [target]
+/yuanxian xiulian juexing [target]
+/yuanxian cultivation initiate [target]
+/yuanxian cultivation rumen [target]
+/yuanxian xiulian initiate [target]
+/yuanxian xiulian rumen [target]
 ```
 
 Omitting `target` uses the executing player. Awakening routes accept no seed,
@@ -3723,8 +3725,8 @@ matching root turns a normal batch of 10 into 14 and a spirit batch of 50 into
 运转此心法 button or with
 
 ```mcfunction
-/myvillage cultivation core <target> <technique_id>
-/myvillage xiulian xinfa <target> <technique_id>
+/yuanxian cultivation core <target> <technique_id>
+/yuanxian xiulian xinfa <target> <technique_id>
 ```
 
 costs `techniques.switch_progress_loss` (0.3) of the current progress (散功),
@@ -3766,8 +3768,8 @@ creative tab lists the 16 blank manuals and then one manual per technique
 (129; 131 since 0.40.0). Other ways to get one:
 
 ```mcfunction
-/myvillage cultivation manual @s myvillage:gengjin_jianjue
-/myvillage xiulian miji @s myvillage:gengjin_jianjue
+/yuanxian cultivation manual @s myvillage:gengjin_jianjue
+/yuanxian xiulian miji @s myvillage:gengjin_jianjue
 /give @s myvillage:manual_active_xuan[myvillage:technique="myvillage:gengjin_jianjue"]
 ```
 
@@ -3832,7 +3834,7 @@ pass, and record the exact game/version/config used.
 3. Explore newly generated Overworld chunks at the upper, middle, and deep bands.
    Confirm both stone targets occur and that old generated chunks are unchanged;
    do not infer distribution from `/give` or placed blocks.
-4. Run `/myvillage cultivation reset @s`, then test the testing stele and the
+4. Run `/yuanxian cultivation reset @s`, then test the testing stele and the
    inheritance stele as separate actions. Confirm awakening does not teach the
    technique, inheritance does not reroll the root, and repeat use is idempotent.
 5. Open `H`. Confirm the Profile, Meditation, and Techniques pages remain within
@@ -3942,11 +3944,11 @@ cultivation validators, and the Gradle tests.
 | 功法 page: 心法/绝技/身法/炼体 cards, chips, and text fit at GUI 480x270, 427x240, and 320x240 in Chinese and English | `not_verified` |
 | 运转此心法 button switches the running core technique; 运转中 moves; hover and click | `not_verified` |
 | 散功 on switch: progress drops by 30 % outside a chain, not at all inside one | `not_verified` |
-| `/myvillage cultivation core` / `xiulian xinfa` and the `info` line on a server | `not_verified` |
+| `/yuanxian cultivation core` / `xiulian xinfa` and the `info` line on a server | `not_verified` |
 | Meditation gain with a graded running core technique (for example 14 per normal batch at 玄阶 with a matching root) | `not_verified` |
 | Meridian diagram unchanged with Basic Breathing and with a catalogue core technique running | `not_verified` |
 | 天下 sect detail 传承 row | `not_verified` |
-| `/myvillage world sect <id>` 传承 line | `not_verified` |
+| `/yuanxian world sect <id>` 传承 line | `not_verified` |
 | Old save migration: profile v3 → v4 (Basic Breathing running) and world-sim payload version 1 → 2 | `not_verified` in game (unit-tested) |
 | Heritage chronicle lines (genesis, lost, rekindled, ruin find) in a real client and as rumors | `not_verified` |
 | The owner's verdict on the page and the switch rules | `not_verified` |
@@ -3969,7 +3971,7 @@ settlement and gates, status codec, panel readouts).
 | Completion learns the technique, consumes the manual, and a core technique starts running if none was | `not_verified` |
 | 修炼 page study card (title, bar, percent, gate line, stop hint) at GUI 480x270, 427x240, and 320x240 in Chinese and English | `not_verified` |
 | `X` and the stop button end a study; the start buttons are disabled while studying | `not_verified` |
-| `/myvillage cultivation manual` / `xiulian miji` and the `/give` component form | `not_verified` |
+| `/yuanxian cultivation manual` / `xiulian miji` and the `/give` component form | `not_verified` |
 | The owner's verdict on the study durations, the gate (神思) rule, and the art | `not_verified` |
 
 Use only `pass`, `fail`, or `not_verified`. A `fail` records the observed mismatch
@@ -4006,20 +4008,20 @@ worldgen is still not registered (a later change).
 List loaded templates:
 
 ```mcfunction
-/myvillage list
+/yuanxian list
 ```
 
 Generate a living cultivation town around the player:
 
 ```mcfunction
-/myvillage town
-/myvillage town 20260618
-/myvillage townat 20260618 512 80 0
+/yuanxian town
+/yuanxian town 20260618
+/yuanxian townat 20260618 512 80 0
 ```
 
 The optional seed makes generation deterministic for the same seed and site.
 `townat` is the RCON/console-safe coordinate form; it uses the same planner and
-realizer as `/myvillage town <seed>` but anchors at the explicit block position
+realizer as `/yuanxian town <seed>` but anchors at the explicit block position
 instead of requiring a player.
 It selects both the perimeter silhouette (square, 天圆 circle, oval, 半月
 D-shape, octagon, or trapezoid, optionally with a barbican/bastion) and a
@@ -4043,20 +4045,20 @@ vanilla fallbacks.
 Generate a terraced cultivation sect compound ascending away from the player:
 
 ```mcfunction
-/myvillage sect
-/myvillage sect 20260618
-/myvillage sectat 20260618 -512 80 0
+/yuanxian sect
+/yuanxian sect 20260618
+/yuanxian sectat 20260618 -512 80 0
 ```
 
 Force-generate a worldgen-style sect (with its derived mountain) at the player,
 for review/testing, optionally selecting the detached-spire variant:
 
 ```mcfunction
-/myvillage sect worldgen
-/myvillage sect worldgen 20260618
-/myvillage sect worldgen 20260618 pavilion_short_straight_east
-/myvillage sectat worldgen 20260618 none -512 80 512
-/myvillage sectat worldgen 20260618 pavilion_short_straight_east -512 80 512
+/yuanxian sect worldgen
+/yuanxian sect worldgen 20260618
+/yuanxian sect worldgen 20260618 pavilion_short_straight_east
+/yuanxian sectat worldgen 20260618 none -512 80 512
+/yuanxian sectat worldgen 20260618 pavilion_short_straight_east -512 80 512
 ```
 
 `worldgen` builds the same compound resting on a mountain **derived from the
@@ -4091,47 +4093,47 @@ slabs, and palette ids route through the mod-fallback resolver. The same seed
 rebuilds the same compound. The exported terrace profile (elevations/bounds,
 rise/depth/taper, axis-stair width, cliff-back height) is the contract the sect
 worldgen consumes to derive the mountain (反推山形); the on-the-spot
-`/myvillage sect [seed]` build is unchanged (it rests on the live surface, no
+`/yuanxian sect [seed]` build is unchanged (it rests on the live surface, no
 derived mountain).
 
 Place the smoke-test structure at the player position:
 
 ```mcfunction
-/myvillage place test_house_03
-/myvillage placeat test_house_03 0 80 0
+/yuanxian place test_house_03
+/yuanxian placeat test_house_03 0 80 0
 ```
 
 Place a generated building directly:
 
 ```mcfunction
-/myvillage place small_house_001
-/myvillage placeat small_house_001 0 80 0
-/myvillage place medium_house_001
-/myvillage place blacksmith_001
-/myvillage place medium_shop_001
-/myvillage place big_house_001
-/myvillage place chinese_courtyard_001
-/myvillage place chinese_mansion_001
-/myvillage place chinese_mansion_002
-/myvillage place chinese_mansion_003
-/myvillage place chinese_mansion_004
-/myvillage place chinese_mansion_005
-/myvillage place chinese_mansion_006
-/myvillage place chinese_huipai_mansion_001
-/myvillage place chinese_huipai_mansion_002
-/myvillage place ganlan_stilted_house_001
-/myvillage place ganlan_stilted_house_002
-/myvillage place hero_rockery
-/myvillage place tavern_001
-/myvillage place lord_manor_001
-/myvillage place cultivation_town_001   # courtyard district-fill fragment (not the canonical town — use /myvillage town)
-/myvillage place cultivation_inn_001
-/myvillage place pagoda_001
-/myvillage place pavilion_001
-/myvillage place bell_drum_tower_001
-/myvillage place sect_gate_001
-/myvillage place scripture_pavilion_001
-/myvillage place cultivation_sect_001
+/yuanxian place small_house_001
+/yuanxian placeat small_house_001 0 80 0
+/yuanxian place medium_house_001
+/yuanxian place blacksmith_001
+/yuanxian place medium_shop_001
+/yuanxian place big_house_001
+/yuanxian place chinese_courtyard_001
+/yuanxian place chinese_mansion_001
+/yuanxian place chinese_mansion_002
+/yuanxian place chinese_mansion_003
+/yuanxian place chinese_mansion_004
+/yuanxian place chinese_mansion_005
+/yuanxian place chinese_mansion_006
+/yuanxian place chinese_huipai_mansion_001
+/yuanxian place chinese_huipai_mansion_002
+/yuanxian place ganlan_stilted_house_001
+/yuanxian place ganlan_stilted_house_002
+/yuanxian place hero_rockery
+/yuanxian place tavern_001
+/yuanxian place lord_manor_001
+/yuanxian place cultivation_town_001   # courtyard district-fill fragment (not the canonical town — use /yuanxian town)
+/yuanxian place cultivation_inn_001
+/yuanxian place pagoda_001
+/yuanxian place pavilion_001
+/yuanxian place bell_drum_tower_001
+/yuanxian place sect_gate_001
+/yuanxian place scripture_pavilion_001
+/yuanxian place cultivation_sect_001
 ```
 
 Plaque-bearing generated structures place shipped `myvillage` plaque blocks with
@@ -4139,7 +4141,7 @@ the bound inscription baked directly into the block textures. Notable review tar
 `tavern_001`, `lord_manor_001`, `cultivation_inn_001`, `pagoda_001`, `pavilion_001`,
 `bell_drum_tower_001`, `sect_gate_001`, and `scripture_pavilion_001`.
 
-For generated structures other than `test_*`, `/myvillage place` applies a
+For generated structures other than `test_*`, `/yuanxian place` applies a
 one-block downward Y offset before placement. This lets terrain-replacement
 cells such as courtyard water, gravel paths, and entry hardscape replace the
 ground block instead of sitting one block above it. If using vanilla commands
@@ -4157,9 +4159,9 @@ directly, place generated structures with the same offset:
 /place template myvillage:cultivation_sect_001 ~ ~-1 ~
 ```
 
-When `/myvillage place` substitutes optional-mod palette entries because a decor
+When `/yuanxian place` substitutes optional-mod palette entries because a decor
 mod is not loaded, the success line includes `fallback_substitutions=<count>`.
-The coordinate form `/myvillage placeat <structure_id> <x> <y> <z>` applies the
+The coordinate form `/yuanxian placeat <structure_id> <x> <y> <z>` applies the
 same one-block Y offset for generated non-test structures and uses the same
 runtime fallback resolver.
 
@@ -4167,18 +4169,18 @@ Place all loaded `myvillage` blueprints in a grouped gallery with 128-block
 spacing:
 
 ```mcfunction
-/myvillage gallery
-/myvillage galleryat all 0 80 0
+/yuanxian gallery
+/yuanxian galleryat all 0 80 0
 ```
 
 Place only the original non-cultivation structures, or only the cultivation
 structures, in the same grouped gallery layout:
 
 ```mcfunction
-/myvillage gallery original
-/myvillage gallery cultivation
-/myvillage galleryat original 0 80 0
-/myvillage galleryat cultivation 0 80 0
+/yuanxian gallery original
+/yuanxian gallery cultivation
+/yuanxian galleryat original 0 80 0
+/yuanxian galleryat cultivation 0 80 0
 ```
 
 The full gallery is arranged as columns by broad type: houses, shops,
@@ -4247,13 +4249,13 @@ Query the region runtime (passive — reads the per-seed region graph, overrides
 no biome, writes nothing beyond the one-time world spawn):
 
 ```mcfunction
-/myvillage spawn info
-/myvillage spawn recompute
+/yuanxian spawn info
+/yuanxian spawn recompute
 ```
 
-`/myvillage spawn info` (player-only) prints the computed spawn region and
+`/yuanxian spawn info` (player-only) prints the computed spawn region and
 bound spawn block, plus the caller's current region / tier rung / next-rung
-region set. `/myvillage spawn recompute` (admin, permission 2) forces a spawn
+region set. `/yuanxian spawn recompute` (admin, permission 2) forces a spawn
 recompute for the current world and calls `setDefaultSpawnPos`, **overriding
 any existing spawn** — the documented admin-override path. The automatic
 world-load binding otherwise runs once per world and preserves any existing
@@ -4274,7 +4276,7 @@ Resource Export      tools/buildgen/export.py       structure NBT + gallery/plac
 Compound Graph       tools/buildgen/compound.py     Chinese one-courtyard, cultivation town block, and cultivation sect parcel layouts
 Civic Generator      tools/generate_civic_library.py tavern_001..005 + lord_manor_001..003
 Town Planner         tools/buildgen/town.py         deterministic enclosure/spine/parcels/negative-space model + validation
-Town Realizer        src/main/java/.../town/        /myvillage town runtime site-fit, frontage, street-room, and tissue placement
+Town Realizer        src/main/java/.../town/        /yuanxian town runtime site-fit, frontage, street-room, and tissue placement
 ```
 
 Important properties:
@@ -4317,7 +4319,7 @@ Important properties:
   builders. These are composed by `CompoundGraph`, not emitted by the default
   medieval building-library generator.
 - Cultivation town generation uses `cultivation_town.json` with the runtime
-  town-generation layout. The runtime `/myvillage town` realizer produces a
+  town-generation layout. The runtime `/yuanxian town` realizer produces a
   districted ~160×160 修仙坊市: named districts (坊门区 gate / 市肆区 market /
   民居坊 residential / 礼制核心 civic core / 边缘区 fringe), each carrying its
   own density, storey band, and material register from the group's `district_brief`.
@@ -4336,9 +4338,9 @@ Important properties:
   force-loaded via chunk tickets so the whole town generates in one command.
 - The static `cultivation_town_NNN` compound library is **district fill tissue**,
   not a standalone town: it supplies courtyard street-block material the
-  residential and market districts draw from. `/myvillage place cultivation_town_001`
+  residential and market districts draw from. `/yuanxian place cultivation_town_001`
   remains available for placing a single courtyard fragment for review, but it is
-  no longer the canonical cultivation town — `/myvillage town` is. Standalone
+  no longer the canonical cultivation town — `/yuanxian town` is. Standalone
   cultivation-town buildings (`cultivation_house`, shops, inn, market,
   `town_shrine`, and the `pagoda`/`pavilion`/`bell_drum_tower` landmarks) are also
   generated because the runtime town places those templates directly. Cultivation
@@ -4386,26 +4388,26 @@ Included:
 - 105 generated NBT structures in the default batch, including `test_house_03.nbt`
 - sect compound placement metadata under `data/myvillage/settlement_meta/`
 - test_house_03.nbt Mod resource smoke test
-- /myvillage place <structure_id>
-- /myvillage placeat <structure_id> <x> <y> <z>
-- /myvillage list
-- /myvillage town [seed]
-- /myvillage townat <seed> <x> <y> <z>
-- /myvillage sect [seed]
-- /myvillage sect worldgen [seed] [variant]
-- /myvillage sectat <seed> <x> <y> <z>
-- /myvillage sectat worldgen <seed> <variant|none> <x> <y> <z>
-- /myvillage gallery
-- /myvillage gallery original
-- /myvillage gallery cultivation
-- /myvillage galleryat <all|original|cultivation> <x> <y> <z>
+- /yuanxian place <structure_id>
+- /yuanxian placeat <structure_id> <x> <y> <z>
+- /yuanxian list
+- /yuanxian town [seed]
+- /yuanxian townat <seed> <x> <y> <z>
+- /yuanxian sect [seed]
+- /yuanxian sect worldgen [seed] [variant]
+- /yuanxian sectat <seed> <x> <y> <z>
+- /yuanxian sectat worldgen <seed> <variant|none> <x> <y> <z>
+- /yuanxian gallery
+- /yuanxian gallery original
+- /yuanxian gallery cultivation
+- /yuanxian galleryat <all|original|cultivation> <x> <y> <z>
 - a custom `myvillage:sect` worldgen Structure: sects are sited during world generation, biome-gated by `tags/worldgen/biome/has_sect`, spaced by `worldgen/structure_set/sect`, and `/locate`-able, resting on a mountain derived from the terrace profile (反推山形)
 - generated optional-mod runtime fallback map and fallback coverage validation
 - `myvillage:simple_fox`: vanilla-model custom entity, spawn egg, empty first-pass loot table, and low-weight taiga natural spawning
 - `myvillage:demon_wolf` (妖狼): hostile beast with its own generated model and clips and two data-driven moves; summon and spawn egg only, no drop
-- /myvillage beast move <targets> <move_id> | status <targets> | debug on|off
+- /yuanxian beast move <targets> <move_id> | status <targets> | debug on|off
 - the world ledger (命簿): sects and named cultivators simulated by the day, saved per world, with chat rumors
-- /myvillage world [info] | sects [all] | sect <id|name> | sect <id> build [here] | sect <id> join|leave <player> | sect <id> rank <player> <rank> | sect <id> shelves [place] | sect <a> war <b> | sect <id> destroy | player <player> | gates [retry] | person <name> | chronicle [1-50] | here | pause | resume | advance <1-3650>
+- /yuanxian world [info] | sects [all] | sect <id|name> | sect <id> build [here] | sect <id> join|leave <player> | sect <id> rank <player> <rank> | sect <id> shelves [place] | sect <a> war <b> | sect <id> destroy | player <player> | gates [retry] | person <name> | chronicle [1-50] | here | pause | resume | advance <1-3650>
 - player sect entry (0.41.0): a player's ledger record, joining and leaving at the gate steward (守山执事), yearly promotion, the 我的宗门 card, framed gate building near a player; the scripture hall (0.42.0): scripture shelves (经架) in a ledger compound's pavilions lending sect manuals by rank; sect tasks and apprenticeship (0.43.0): one task a year from the steward for contribution, a master whose guidance speeds meditation; world response (0.44.0): news of the player's sect in chat anywhere, hostile sects refuse visitors
 - the H panel's 天下 page: the world ledger read-only for every player (overview, sects, people search, chronicle, here), with drill-down into sects and people
 - world-sim avatars: ledger members shown as never-saved, invulnerable cultivators on a built compound's courtyard while a player is near
@@ -4417,7 +4419,7 @@ Included:
 Not included:
 
 ```text
-- passive/natural *town* worldgen (towns remain command-built via `/myvillage town`; only sects are sited during world generation)
+- passive/natural *town* worldgen (towns remain command-built via `/yuanxian town`; only sects are sited during world generation)
 - jigsaw / template-pool generation (the sect structure is a hand-written `Structure`, not a jigsaw template pool)
 - reward-bearing entity loot or complex authored block-entity NBT
 ```
@@ -4449,18 +4451,18 @@ roof generation logic. Pay special attention to:
 
 The automated validators check the mechanical parts of this list, but final
 acceptance still needs a v0.9 mod jar plus in-game visual inspection with
-`/myvillage list`, `/myvillage town 20260618`,
-`/myvillage place chinese_courtyard_001`,
-`/myvillage place tavern_001`, `/myvillage place lord_manor_001`,
-`/myvillage place cultivation_town_001` (courtyard fragment),
-`/myvillage place cultivation_inn_001`,
-`/myvillage place pagoda_001`, `/myvillage place pagoda_002`,
-`/myvillage place pagoda_003`, `/myvillage place pavilion_001`,
-`/myvillage place bell_drum_tower_001`,
-`/myvillage place sect_gate_001`,
-`/myvillage place scripture_pavilion_001`,
-`/myvillage place cultivation_sect_001`, `/myvillage gallery`,
-`/myvillage gallery original`, and `/myvillage gallery cultivation`. The
+`/yuanxian list`, `/yuanxian town 20260618`,
+`/yuanxian place chinese_courtyard_001`,
+`/yuanxian place tavern_001`, `/yuanxian place lord_manor_001`,
+`/yuanxian place cultivation_town_001` (courtyard fragment),
+`/yuanxian place cultivation_inn_001`,
+`/yuanxian place pagoda_001`, `/yuanxian place pagoda_002`,
+`/yuanxian place pagoda_003`, `/yuanxian place pavilion_001`,
+`/yuanxian place bell_drum_tower_001`,
+`/yuanxian place sect_gate_001`,
+`/yuanxian place scripture_pavilion_001`,
+`/yuanxian place cultivation_sect_001`, `/yuanxian gallery`,
+`/yuanxian gallery original`, and `/yuanxian gallery cultivation`. The
 simple-fox slice completed its summon, spawn-egg, save/reload,
 natural-frequency, multiplayer, and multi-view Minecraft acceptance on
 2026-07-12.
@@ -4546,12 +4548,12 @@ Both `cultivation` and `xiulian` accept both
 | `reset <player>` | `qingchu <player>` | Operator-only removal/reselection; invalidates the session and preserves cooldown deadlines. |
 
 ```mcfunction
-/myvillage cultivation fate status
-/myvillage xiulian mingge chongzhi
-/myvillage cultivation fate lock 1
-/myvillage cultivation fate lock 0
-/myvillage cultivation fate confirm 7
-/myvillage cultivation fate reset @s
+/yuanxian cultivation fate status
+/yuanxian xiulian mingge chongzhi
+/yuanxian cultivation fate lock 1
+/yuanxian cultivation fate lock 0
+/yuanxian cultivation fate confirm 7
+/yuanxian cultivation fate reset @s
 ```
 
 Mask 7 selects the first three slots and is rejected if the actual combination is
@@ -4565,7 +4567,7 @@ effect number, health, mana or cooldown. See [KB 48](docs/ai-kb/48_innate_fates.
 /usr/bin/python3 -m unittest tools.tests.test_validate_innate_fates
 ./gradlew test --tests 'com.example.myvillage.cultivation.*' --tests 'com.example.myvillage.client.cultivation.*'
 /usr/bin/python3 tools/release_gate.py
-/usr/bin/python3 tools/validate_innate_fates.py --jar build/libs/myvillage-0.133.0.jar
+/usr/bin/python3 tools/validate_innate_fates.py --jar build/libs/myvillage-0.133.1.jar
 python3 tools/run_chunky_acceptance.py --stage 1
 python3 tools/innate_fates_evidence.py --ui-only --out out/preview/stele_awakening
 ```
@@ -4767,7 +4769,7 @@ stacking. Explicit component 1 has lower effects but a distinct component map.
 
 ### Administrator setup and developer verification
 
-All thirteen items appear in the MyVillage creative tab. Example fixtures:
+All thirteen items appear in the 源仙 creative tab. Example fixtures:
 
 ```mcfunction
 /give @s myvillage:alchemy_furnace
@@ -4852,12 +4854,12 @@ validate the new manual-start/quality behavior.
 Administrator diagnostics (permission2) support both command roots and aliases:
 
 ```mcfunction
-/myvillage cultivation crafting @s
-/myvillage xiulian jiyi @s
-/myvillage cultivation crafting set @s alchemy 70
-/myvillage xiulian jiyi shezhi @s liandan 70
-/myvillage cultivation crafting set @s forging 100
-/myvillage xiulian jiyi shezhi @s lianqi 100
+/yuanxian cultivation crafting @s
+/yuanxian xiulian jiyi @s
+/yuanxian cultivation crafting set @s alchemy 70
+/yuanxian xiulian jiyi shezhi @s liandan 70
+/yuanxian cultivation crafting set @s forging 100
+/yuanxian xiulian jiyi shezhi @s lianqi 100
 ```
 
 设置要求目标已觉醒且完成资质初始化，接受非负整数并保留其他资质。玩家通常使用现有研习、制作练习等培养途径；管理员命令用于测试准备，状态返回一行 `CRAFTING` JSON。
@@ -4902,7 +4904,7 @@ Current quality validation: [0.52.0 developer evidence](docs/testing/2026-10-16-
 
 ### 品质取物器（0.58.4）
 
-在创造栏的 MyVillage 分类取得“品质取物器”，或使用 `/give @s myvillage:quality_picker`。
+在创造栏的 源仙 分类取得“品质取物器”，或使用 `/give @s myvillage:quality_picker`。
 手持主手或副手右键打开；获取后可在任意游戏模式使用，不需要管理员权限或炼器/炼丹资质。
 搜索物品名称或注册 ID，点击物品，选择品质；兵器还可选择其支持的专长。
 点击“取一个”或“取一组”放入背包，背包放不下时不生成物品。保持取物器在手中即可连续取物。
@@ -4992,7 +4994,7 @@ Sword, spear and fist each gain two learned arts on remappable Z/C keys. The exi
 
 ### Waystones 灵石袋支付与境界路程计价（0.114.2）
 
-客户端和服务器均更新到 MyVillage 0.114.2，并安装 NeoForge 版 Waystones 21.1.46 和 Balm 21.0.67 后，Waystones 的灵石物品费用会合计背包与灵石袋余额，暂停收纳的袋也可支付。[费用规则示例](config-examples/waystones-common.toml)从传送石出发按大境界和路程收费；价格参数在目标世界的 `serverconfig/myvillage-waystones-server.toml`，另有[参数示例](config-examples/myvillage-waystones-server.toml)。默认凡人、炼气 ×1，筑基 ×3，金丹 ×10；同维度水平距离每 1000 格向上取一档，系数 1～10，跨维度固定为 10。移除原 XP 费用后仅收灵石，修改后重启世界或服务器。适配不覆盖已有规则、不自动兑换不同品级。第三方模组需单独安装；开发运行可用 `-Pwaystones_test`。完整事务与适用范围见[灵石袋说明](docs/ai-kb/59_spirit_stone_bag.md)。
+客户端和服务器均更新到 源仙 0.114.2，并安装 NeoForge 版 Waystones 21.1.46 和 Balm 21.0.67 后，Waystones 的灵石物品费用会合计背包与灵石袋余额，暂停收纳的袋也可支付。[费用规则示例](config-examples/waystones-common.toml)从传送石出发按大境界和路程收费；价格参数在目标世界的 `serverconfig/myvillage-waystones-server.toml`，另有[参数示例](config-examples/myvillage-waystones-server.toml)。默认凡人、炼气 ×1，筑基 ×3，金丹 ×10；同维度水平距离每 1000 格向上取一档，系数 1～10，跨维度固定为 10。移除原 XP 费用后仅收灵石，修改后重启世界或服务器。适配不覆盖已有规则、不自动兑换不同品级。第三方模组需单独安装；开发运行可用 `-Pwaystones_test`。完整事务与适用范围见[灵石袋说明](docs/ai-kb/59_spirit_stone_bag.md)。
 
 ### 中品、上品灵石（0.73.1）
 
@@ -5031,7 +5033,7 @@ Sword, spear and fist each gain two learned arts on remappable Z/C keys. The exi
 
 ### 自定义符灯与晒布架（0.103.1）
 
-两类设施可在 MyVillage 创造栏中取得，也可按配方合成。符灯提供灯光，晒布架使用细木框和薄布模型。
+两类设施可在 源仙 创造栏中取得，也可按配方合成。符灯提供灯光，晒布架使用细木框和薄布模型。
 新建修仙大陆的 V11 城市使用新设施；旧世界保持原样。
 
 ```mcfunction
@@ -5049,7 +5051,7 @@ Sword, spear and fist each gain two learned arts on remappable Z/C keys. The exi
 
 ## 四组遗迹传承
 
-0.116.0 新增游剑妖、照影妖、吞火蟾和守碑石灵，对应回锋御剑诀、分影步、伏火诀与镇岳诀，以及归燕剑、照水镜、赤玉葫芦和镇岳尺。功法需炼气四层，沿用秘籍研读与 H 技能分配；详细获取和操作见 [四组遗迹传承](docs/features/legacy-encounters.md)。管理员可用 `/function myvillage:legacy_encounters_kit` 获取验收物品，用 `/myvillage legacy status <玩家>` 只读当前状态。
+0.116.0 新增游剑妖、照影妖、吞火蟾和守碑石灵，对应回锋御剑诀、分影步、伏火诀与镇岳诀，以及归燕剑、照水镜、赤玉葫芦和镇岳尺。功法需炼气四层，沿用秘籍研读与 H 技能分配；详细获取和操作见 [四组遗迹传承](docs/features/legacy-encounters.md)。管理员可用 `/function myvillage:legacy_encounters_kit` 获取验收物品，用 `/yuanxian legacy status <玩家>` 只读当前状态。
 
 
 ### 逐阶段属性与突破雷劫（0.118.0）
@@ -5058,7 +5060,7 @@ Sword, spear and fist each gain two learned arts on remappable Z/C keys. The exi
 H → 内视可查看实际生命、攻击、肉身防御、灵力、筑基来源与金丹品质。
 满足阶段修为、稳定度及正常修炼条件后，在露天场地按 N 或从内视页选择正式引劫。天道筑基需承受 6 次命中，下、中、上品金丹分别需 6、9、12 次；存活通过后才获得对应品质，筑基来源不锁定金丹品级。
 地道筑基仍使用原有筑基丹。低血失败保护、一次惩罚、断线和重启续接继续由服务器处理，不补满生命或灵力。
-权限 2 辅助入口：`/myvillage tribulation start heaven <玩家>`，或将 `heaven` 换成 `golden_low`、`golden_middle`、`golden_high`；`status`、`stop` 后直接跟玩家。
+权限 2 辅助入口：`/yuanxian tribulation start heaven <玩家>`，或将 `heaven` 换成 `golden_low`、`golden_middle`、`golden_high`；`status`、`stop` 后直接跟玩家。
 详见[雷劫流程](docs/features/tribulation.md)与[属性、品质和防御公式](docs/features/additive-cultivation-stats.md)。
 
 ### 金刚灵体与凤凰灵体
@@ -5067,12 +5069,12 @@ H → 内视可查看实际生命、攻击、肉身防御、灵力、筑基来�
 
 宗门等级、每月供奉与分宗长老考核：[玩法说明](docs/features/sect-tiers-and-stipends.md)。
 
-中州千机阁总舵已接入御街西侧住宅坊。请在新修仙世界查看，管理员可用 `/myvillage worldplan qianji zhongzhou` 查询入口；任务榜位于办事廊。八州千机阁及实际任务位置见 [功能说明](docs/features/qianji-halls.md)。
+中州千机阁总舵已接入御街西侧住宅坊。请在新修仙世界查看，管理员可用 `/yuanxian worldplan qianji zhongzhou` 查询入口；任务榜位于办事廊。八州千机阁及实际任务位置见 [功能说明](docs/features/qianji-halls.md)。
 
 ### 东荒群落与地区分档（0.132.0）
 
-新修仙大陆从东荒出生，按东荒、灵岳、北原、东海／西漠、南疆／魔域、中州六档推进。东荒的兽巢与劫修营地按自然历法月份恢复成员，刷新保留玩家建设。管理员使用 `/myvillage habitat` 查询实际据点和本轮名单。[规则与使用说明](docs/features/east-wilderness.md)。
+新修仙大陆从东荒出生，按东荒、灵岳、北原、东海／西漠、南疆／魔域、中州六档推进。东荒的兽巢与劫修营地按自然历法月份恢复成员，刷新保留玩家建设。管理员使用 `/yuanxian habitat` 查询实际据点和本轮名单。[规则与使用说明](docs/features/east-wilderness.md)。
 
 ## 怪物掉落配置
 
-0.133.0 起，服务端使用 `config/myvillage/monster_drops.json`。编辑后管理员执行 `/myvillage drops reload`；可用 `inspect` 查询实际目标，用 `show` 指定场景与境界，用 `export` 导出当前规则。默认掉落保持原值，完整格式和示例见 [怪物掉落动态配置](docs/features/monster-drops.md)。
+0.133.0 起，服务端使用 `config/myvillage/monster_drops.json`。编辑后管理员执行 `/yuanxian drops reload`；可用 `inspect` 查询实际目标，用 `show` 指定场景与境界，用 `export` 导出当前规则。默认掉落保持原值，完整格式和示例见 [怪物掉落动态配置](docs/features/monster-drops.md)。

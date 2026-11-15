@@ -43,7 +43,7 @@ class CraftingEvidence(Evidence):
         self.save()
 
     def state(self,root='cultivation',command='crafting'):
-        value=self.one(f'myvillage {root} {command} {self.s.username}','CRAFTING')
+        value=self.one(f'yuanxian {root} {command} {self.s.username}','CRAFTING')
         for key in ('initialized','alchemy','forging','alchemy_quality_cap','forging_quality_cap'):
             if key not in value:raise ValueError('Missing crafting readback: '+key)
         return value
@@ -90,12 +90,12 @@ class CraftingEvidence(Evidence):
     def initial(self):
         user=self.s.username
         for cmd in (*scene.world_rules(),*scene.player_setup(user,'minecraft:air'),
-                    'myvillage world pause','forceload add -16 -16 32 32'):
+                    'yuanxian world pause','forceload add -16 -16 32 32'):
             self.rc(cmd)
         empty=self.state()
         self.check('new_unawakened_is_pending',empty=={'initialized':False,'alchemy':0,'forging':0,'alchemy_quality_cap':0,'forging_quality_cap':0},empty)
         self.panel();self.capture('zh_cn_pending.png');self.close_panel()
-        self.rc(f'myvillage cultivation crafting set {user} alchemy 100')
+        self.rc(f'yuanxian cultivation crafting set {user} alchemy 100')
         self.check('uninitialized_admin_set_rejected',self.state()==empty,self.state())
         for cmd in ('setblock 0 -60 2 minecraft:stone','setblock 0 -59 2 myvillage:spirit_testing_stele',
                     f'tp {user} .5 -60 .5 0 3.4'):
@@ -115,18 +115,18 @@ class CraftingEvidence(Evidence):
             before=self.state()
             for value in points:
                 expected=max(r['quality'] for r in rules['quality_thresholds'] if value>=r['minimum'])
-                self.rc(f'myvillage cultivation crafting set {user} {profession} {value}')
+                self.rc(f'yuanxian cultivation crafting set {user} {profession} {value}')
                 actual=self.state()
                 self.check(f'{profession}_quality_boundary_{value}',actual[profession]==value and
                            actual[profession+'_quality_cap']==expected and actual[other]==before[other],actual)
         for prefix in ('cultivation','xiulian'):
             for branch in ('crafting','jiyi'):
                 self.check('alias_status_'+prefix+'_'+branch,self.state(prefix,branch)==self.state(),self.state(prefix,branch))
-        self.rc(f'myvillage xiulian jiyi shezhi {user} liandan 70')
-        self.rc(f'myvillage cultivation jiyi shezhi {user} lianqi 100')
+        self.rc(f'yuanxian xiulian jiyi shezhi {user} liandan 70')
+        self.rc(f'yuanxian cultivation jiyi shezhi {user} lianqi 100')
         fixed=self.state();self.check('pinyin_setters_preserve_independent_scores',fixed['alchemy']==70 and fixed['forging']==100,fixed)
         for value in (-1,101):
-            self.rc(f'myvillage cultivation crafting set {user} alchemy {value}')
+            self.rc(f'yuanxian cultivation crafting set {user} alchemy {value}')
             self.check('invalid_score_'+str(value),self.state()==fixed,self.state())
         self.layouts('zh_cn')
         self.rc(f'kill {user}')
@@ -134,13 +134,13 @@ class CraftingEvidence(Evidence):
         self.poll(self.state,lambda s:s==fixed,10,'death preservation')
         time.sleep(1);self.s.game.recover_grab()
         self.check('death_keeps_aptitudes',self.state()==fixed,self.state())
-        self.rc(f'myvillage cultivation clearroot {user}')
+        self.rc(f'yuanxian cultivation clearroot {user}')
         self.check('clear_root_keeps_aptitudes',self.state()==fixed,self.state())
-        self.rc(f'myvillage cultivation awaken {user}')
+        self.rc(f'yuanxian cultivation awaken {user}')
         self.check('reawakening_does_not_reroll',self.state()==fixed,self.state())
-        self.rc(f'myvillage cultivation reset {user}')
+        self.rc(f'yuanxian cultivation reset {user}')
         self.check('profile_reset_keeps_aptitudes',self.state()==fixed,self.state())
-        self.rc(f'myvillage cultivation awaken {user}')
+        self.rc(f'yuanxian cultivation awaken {user}')
         self.report['before_restart']=self.state();self.rc('save-all flush');self.save()
 
     def restart_checks(self):

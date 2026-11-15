@@ -177,7 +177,7 @@ technique only scales the gain.
   payloads `CombatDodgeIntentPayload` and `CombatDodgeStartPayload`, see
   [42_movement_dodge.md](42_movement_dodge.md)); it was `11` in 0.38.0 (the
   meditation status carries study progress) and `10` in 0.37.0 (was `9`).
-- `/myvillage cultivation|xiulian core|xinfa <target> <technique_id>`
+- `/yuanxian cultivation|xiulian core|xinfa <target> <technique_id>`
   (permission 2, suggestions are the registered core techniques) calls the
   same service; `info` prints `running core technique: <id>` or `none`.
 
@@ -238,7 +238,7 @@ falls back to it. Details: [37_cultivation_panel.md](37_cultivation_panel.md).
   The PNGs come only from `tools/gen_manual_textures.py` (standard library;
   `--check` is the release-gate step `gen-manual-textures-check`, `--preview
   DIR` draws every icon in the four colours); never edit them by hand.
-- Command `/myvillage cultivation|xiulian manual|miji <target> <technique_id>`
+- Command `/yuanxian cultivation|xiulian manual|miji <target> <technique_id>`
   (permission 2) gives the manual of that technique (into the inventory, else
   dropped at the target); an unknown technique or grade 0 is refused. Vanilla
   `/give @s myvillage:manual_active_xuan[myvillage:technique="myvillage:gengjin_jianjue"]`
@@ -399,7 +399,7 @@ creative tab, `/give`, and the `manual` command.
   only while the pool is not empty: the finder takes the chain's highest
   technique not above the grade they practise (at least the first), even if
   it is no stronger (`fortune.heritage.1`). The heritage stays in the pool.
-- `/myvillage world sect <id>` prints `commands.myvillage.world.sect.heritage`
+- `/yuanxian world sect <id>` prints `commands.myvillage.world.sect.heritage`
   (传承); `SectView` and `WorldSimSnapshot.SectDetail` carry the heritage
   name, shown on the 天下 sect detail; `tools/world_sim_report.py` shows it on
   the sect timeline; `WorldSim.lostHeritageIds()` lists the pool.

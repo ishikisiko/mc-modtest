@@ -37,7 +37,7 @@ class TagEvidence(ForgingEvidence):
     def reload_for(self,item,key,expected):
         self.rc('reload');self.poll(lambda:self.has_tag(item,key),lambda b:b==expected,30,'authoritative tag reload')
     def fill_power(self):
-        cap=self.profile()['power_cap'];self.rc(f'myvillage cultivation setpower {self.s.username} {cap}')
+        cap=self.profile()['power_cap'];self.rc(f'yuanxian cultivation setpower {self.s.username} {cap}')
         if self.profile()['power']!=cap:raise RuntimeError('Power fixture rejected')
         return cap
     def infusion(self):self.open_table();self.click(248,13)
@@ -98,7 +98,7 @@ class TagEvidence(ForgingEvidence):
     def forging_cases(self):
         u=self.s.username
         # The learned-pattern helper uses slot 0; infused output is in the reverse-transfer hotbar slot 8.
-        self.learn('qingfeng_sword');self.rc(f'myvillage cultivation crafting set {u} forging 0')
+        self.learn('qingfeng_sword');self.rc(f'yuanxian cultivation crafting set {u} forging 0')
         self.forge('channeling',{},True,clear=False,label='infused_alias_to_weapon')
         self.check('infused_output_used_as_material_tag',self.count('myvillage:chitong_ingot')==1,self.inventory())
         self.forge('sharp',{'minecraft:quartz':1},True,label='overlapping_diamond_and_sand_tag')
@@ -112,7 +112,7 @@ class TagEvidence(ForgingEvidence):
         self.report['completed'].append('empty_tag')
     def run(self):
         self.start();u=self.s.username
-        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_table',f'setblock {PROBE} minecraft:barrel',f'myvillage cultivation awaken {u}'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_table',f'setblock {PROBE} minecraft:barrel',f'yuanxian cultivation awaken {u}'):
             self.rc(cmd)
         self.default_tags();self.alias_infusion();self.forging_cases();self.report['status']='pass'
 

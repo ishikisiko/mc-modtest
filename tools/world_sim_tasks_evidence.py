@@ -827,16 +827,16 @@ class Run(entry.Run):
             if self.court:
                 self.tp(*self.court, 180.0, 10.0, settle=2.0)
             if not med.get("realm_set"):
-                r = self.rc(f"myvillage cultivation setrealm {PLAYER} myvillage:qi_refining myvillage:qi_refining_1")
+                r = self.rc(f"yuanxian cultivation setrealm {PLAYER} myvillage:qi_refining myvillage:qi_refining_1")
                 med["realm_set"] = "Cultivation update for" in r
                 self.note("meditation: realm set to qi_refining_1 so the stage gains progress (both samples)")
-            self.rc(f"myvillage cultivation setprogress {PLAYER} 0")
-            p0 = progress_of(self.rc(f"myvillage cultivation info {PLAYER}"))
+            self.rc(f"yuanxian cultivation setprogress {PLAYER} 0")
+            p0 = progress_of(self.rc(f"yuanxian cultivation info {PLAYER}"))
             self.s.game.require_ingame("meditation")
             t0 = time.time()
             self.s.game.key("v")
             time.sleep(self.a.meditation_seconds + 2.0)  # + the 40 preparation ticks
-            p1 = progress_of(self.rc(f"myvillage cultivation info {PLAYER}"))
+            p1 = progress_of(self.rc(f"yuanxian cultivation info {PLAYER}"))
             self.s.game.key("x")
             gain = (p1 - p0) if p0 is not None and p1 is not None else None
             med[label] = {"before": p0, "after": p1, "gain": gain, "wall_seconds": round(time.time() - t0, 1)}

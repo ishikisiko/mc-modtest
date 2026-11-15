@@ -109,7 +109,7 @@ class VisualEvidence(LegacyEvidence):
                 elif idx==2:
                     for yaw in (-25,0,25):
                         self.rc(f'tp {u} .5 -60 .5 {yaw} 24');self.cast(self.ids[2]);self.step(45)
-                    self.rc(f'tp {u} .5 -60 .5 0 0');self.rc(f'myvillage cultivation qi fill {u}');self.step(15)
+                    self.rc(f'tp {u} .5 -60 .5 0 0');self.rc(f'yuanxian cultivation qi fill {u}');self.step(15)
                     def action():
                         time.sleep(.8);self.s.game.xdo('keydown','Shift_L');time.sleep(.2)
                         try:self.real_cast(self.ids[2])

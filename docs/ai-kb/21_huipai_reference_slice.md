@@ -52,8 +52,8 @@ python3 tools/buildgen/tests/test_huipai_reference_slice.py
 Review it in-game:
 
 ```mcfunction
-/myvillage place chinese_huipai_mansion_001
-/myvillage place chinese_huipai_mansion_002
+/yuanxian place chinese_huipai_mansion_001
+/yuanxian place chinese_huipai_mansion_002
 /function myvillage:gallery/chinese_huipai_mansion
 ```
 

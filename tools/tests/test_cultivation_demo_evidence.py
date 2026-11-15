@@ -5,14 +5,14 @@ from tools.cultivation_demo_evidence import allowed_rcon, menu_point, select_cas
 
 class DemoEvidenceBoundaryTest(unittest.TestCase):
     def test_player_actions_cannot_be_sent_as_rcon(self):
-        for command in ['myvillage tribulation start DemoTester', 'myvillage cultivation advance DemoTester',
-                        'myvillage combat cast 1', 'execute as DemoTester run myvillage combat cast 1',
+        for command in ['yuanxian tribulation start DemoTester', 'yuanxian cultivation advance DemoTester',
+                        'yuanxian combat cast 1', 'execute as DemoTester run yuanxian combat cast 1',
                         'give DemoTester minecraft:stone\nmyvillage tribulation start DemoTester']:
             self.assertFalse(allowed_rcon(command), command)
 
     def test_fixture_and_readback_remain_available(self):
-        for command in ['myvillage tribulation status DemoTester', 'myvillage talisman status DemoTester 0 -60 3',
-                        'myvillage flying_sword status DemoTester', 'myvillage cultivation qi set DemoTester 0',
+        for command in ['yuanxian tribulation status DemoTester', 'yuanxian talisman status DemoTester 0 -60 3',
+                        'yuanxian flying_sword status DemoTester', 'yuanxian cultivation qi set DemoTester 0',
                         'data get entity DemoTester Inventory', 'save-all flush']:
             self.assertTrue(allowed_rcon(command), command)
 

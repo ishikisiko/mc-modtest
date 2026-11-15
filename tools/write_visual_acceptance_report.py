@@ -149,7 +149,7 @@ def load_chunky_summary(path: Path) -> dict[str, Any]:
     for stage in report.get("stages", []):
         for command in stage.get("commands", []):
             command_text = str(command.get("command", ""))
-            if command_text.startswith("myvillage ") and command_text != "myvillage list":
+            if command_text.startswith("yuanxian ") and command_text != "yuanxian list":
                 command_targets.append(
                     {
                         "stage": stage.get("id"),

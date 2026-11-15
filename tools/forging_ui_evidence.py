@@ -35,8 +35,8 @@ class ForgingUiEvidence(PhysicalForgingEvidence):
   self.take('myvillage:forged_pickaxe')
  def infusion_ui(self):
   self.clean();self.rc('setblock '+POS+' myvillage:forging_table[facing=north]')
-  self.rc(f'clear {self.username}');self.rc(f'myvillage cultivation awaken {self.username}')
-  self.rc(f'myvillage cultivation crafting set {self.username} forging 0')
+  self.rc(f'clear {self.username}');self.rc(f'yuanxian cultivation awaken {self.username}')
+  self.rc(f'yuanxian cultivation crafting set {self.username} forging 0')
   for item,n in [('myvillage:xuantie_chestplate',1),('myvillage:xuantie_ingot',4),('myvillage:low_grade_spirit_stone',8)]:self.give(item,n)
   self.open();self.insert('myvillage:xuantie_chestplate');data=self.inspect()
   self.check('ding_rejects_forging_actions',data['station']=='infusion' and data['start_reason']==18 and data['quench_reason']==18,data)

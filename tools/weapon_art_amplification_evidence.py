@@ -25,7 +25,7 @@ class AmplificationEvidence(LockedEvidence):
                            learning='administrator learned fixtures; unchanged learning not rerun',owner_audio='not_verified')
     def start(self):
         super().start()
-        for art in self.weapons:self.rc(f'myvillage cultivation learn {self.s.username} {art["id"]}')
+        for art in self.weapons:self.rc(f'yuanxian cultivation learn {self.s.username} {art["id"]}')
         self.rc('forceload add -48 -32 48 80')
         self.poll(lambda:self.rc('execute if loaded 0 -61 64 run time query gametime'),lambda s:'The time is' in s,label='extended test area loaded')
         self.rc('fill -32 -61 -24 32 -61 72 minecraft:stone')
@@ -169,7 +169,7 @@ class AmplificationEvidence(LockedEvidence):
         self.clean();self.rc('tick unfreeze')
         with SecondClient(self) as guest:
             self.guest=guest;self.position(guest.game);self.configure(guest.username)
-            self.rc(f'myvillage cultivation learn {guest.username} myvillage:liuyun_bu')
+            self.rc(f'yuanxian cultivation learn {guest.username} myvillage:liuyun_bu')
             self.rc(f'tp {guest.username} 5 -60 12 180 0')
             if scene.parse_combat_mode(self.rc(f'data get entity {guest.username} "neoforge:attachments"'))!='cultivation':self.key('r',guest.game)
             time.sleep(.5);self.freeze()

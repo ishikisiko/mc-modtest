@@ -6,11 +6,11 @@ from tools.physical_forging_evidence import physical_readback,blank
 
 class PhysicalForgingCollectorTest(unittest.TestCase):
     def test_scoped_extra_routes_are_read_only(self):
-        for command in ('myvillage workshop anvil 0 -60 3','myvillage workshop inspect DemoTester',
+        for command in ('yuanxian workshop anvil 0 -60 3','yuanxian workshop inspect DemoTester',
                         'execute as @e[type=minecraft:item,nbt={Item:{id:"myvillage:workpiece_lingxiao_spear_rough"}}] run data get entity @s Item'):
             self.assertTrue(physical_readback(command),command)
-        for command in ('myvillage workshop start DemoTester','myvillage workshop strike DemoTester',
-                        'myvillage workshop anvil 0 -60 3\ngive DemoTester minecraft:diamond',
+        for command in ('yuanxian workshop start DemoTester','yuanxian workshop strike DemoTester',
+                        'yuanxian workshop anvil 0 -60 3\ngive DemoTester minecraft:diamond',
                         'execute as @e[type=minecraft:item] run kill @s'):
             self.assertFalse(physical_readback(command),command)
     def test_fixture_identity_matches_its_saved_stage(self):

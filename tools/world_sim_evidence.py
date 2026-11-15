@@ -9,7 +9,7 @@ instance's ``config/`` (a world's ``serverconfig/`` only overrides it, and the s
 start), so ``ticks_per_day`` in ``run-acceptance/config/myvillage-server.toml`` is set (default 200 = 10 s
 per calendar day) for the session and the file is restored byte for byte afterwards. The player is
 switched to creative, then
-every ``/myvillage world`` command runs over RCON; the calendar and the ledger are shown advancing in
+every ``/yuanxian world`` command runs over RCON; the calendar and the ledger are shown advancing in
 creative; ``pause`` holds the ledger while at least two calendar days pass; ``resume`` restarts it without
 catching up; ``advance 60`` with the player online produces rumors, whose chat lines are read from the
 client log (plus one screenshot of the chat); ``advance 600`` then floods the queue to show the per-minute
@@ -60,7 +60,7 @@ PROPS_BACKUP = WORK_DIR / "server.properties.orig"
 PROPS_ABSENT = WORK_DIR / "server.properties.absent"
 RESTART_WORLD = "world_sim_evidence_world"
 PLAYER = "CaptureDev"
-W = "myvillage world"
+W = "yuanxian world"
 
 SIM_DAY = re.compile(r"\(sim day (\d+)\)")
 SETTLEMENT = re.compile(r"Cultivation calendar day (\d+); (\d+) day\(s\) pending; settlement (\w+)")
@@ -146,7 +146,7 @@ def part_session(ticks_per_day: int, results: list[dict[str, Any]]) -> dict[str,
     CULTIVATION_CONFIG.write_text(re.sub(r"ticks_per_day = \d+", f"ticks_per_day = {ticks_per_day}", text),
                                   encoding="utf-8")
     log(f"{CULTIVATION_CONFIG.relative_to(REPO)}: ticks_per_day = {ticks_per_day} for this session")
-    t = Transcript(OUT / "commands.txt", f"/myvillage world session transcript (creative, ticks_per_day={ticks_per_day})")
+    t = Transcript(OUT / "commands.txt", f"/yuanxian world session transcript (creative, ticks_per_day={ticks_per_day})")
     facts: dict[str, Any] = {"ticks_per_day": ticks_per_day}
     try:
         log("starting the capture session (Xvfb + acceptance server + client); it takes the heavy lock")
@@ -176,7 +176,7 @@ def part_session(ticks_per_day: int, results: list[dict[str, Any]]) -> dict[str,
         mode = rc(f"data get entity {PLAYER} playerGameType")
         check(results, "player_in_creative", mode.rstrip().endswith(" 1"), mode.strip())
 
-        t.note("every /myvillage world command")
+        t.note("every /yuanxian world command")
         first = rc(W)
         check(results, "world_ledger_active", "World ledger:" in first, first.split("\n")[0])
         rc(f"{W} info")

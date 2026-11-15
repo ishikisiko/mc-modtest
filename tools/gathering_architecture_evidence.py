@@ -53,7 +53,7 @@ class ArchitectureEvidence(TierEvidence):
             self.poll(self.inspect,lambda d:d['formed'],8,'clearance restored')
     def run(self):
         self.start(reuse=True)
-        for command in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),'myvillage world pause'):self.rc(command)
+        for command in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),'yuanxian world pause'):self.rc(command)
         self.legacy_architecture();self.complete('legacy_architecture')
         self.assembly();self.complete('assembly')
         class Guest(SecondClient):username='GatheringGuest'
@@ -94,7 +94,7 @@ class ArchitectureEvidence(TierEvidence):
     def style_only(self):
         self.report.update(selected=['lamp_placement','visual'],completed=[],unrun=['lamp_placement','visual'])
         self.start(reuse=True)
-        for command in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),'myvillage world pause'):self.rc(command)
+        for command in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),'yuanxian world pause'):self.rc(command)
         self.fixture('high')
         lamp=next(p for p in self.parts['high'] if p['block'].endswith('purple_gathering_lamp'))
         self.put(lamp,'high','minecraft:air');self.poll(self.inspect,lambda d:not d['formed'],8,'lamp removal')
@@ -123,7 +123,7 @@ class ArchitectureEvidence(TierEvidence):
         class Guest(SecondClient):username='GatheringGuest'
         with Guest(self) as guest:
             # Restart meditation after the observer's startup so a stage cap cannot end the visual fixture.
-            self.key('x');self.rc(f'myvillage cultivation setprogress {self.s.username} 0');self.key('v')
+            self.key('x');self.rc(f'yuanxian cultivation setprogress {self.s.username} 0');self.key('v')
             self.poll(lambda:self.inspect(core),lambda d:d['running'],15,'final high running after observer joins')
             self.rc(f'gamemode spectator {guest.username}');self.key('F1',guest.game,guest.username)
             self.camera(guest,(28.5,-52,-9),(18.5,-59.9,3.5));self.capture_game(guest.game,'high-running.png')

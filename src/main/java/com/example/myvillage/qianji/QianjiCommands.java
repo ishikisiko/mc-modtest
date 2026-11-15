@@ -1,5 +1,7 @@
 package com.example.myvillage.qianji;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.worldplan.capital.CapitalCity;
 import com.example.myvillage.worldplan.runtime.WorldPlanRuntime;
 import com.google.gson.*;
@@ -15,7 +17,7 @@ import net.minecraft.world.phys.*;
 /** 管理员的实际碰撞读回与动效相位检查；不提供玩家侧状态写入入口。 */
 public final class QianjiCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
-        dispatcher.register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(Commands.literal("qianji")
+        dispatcher.register(ModCommands.adminRoot().then(Commands.literal("qianji")
                 .then(Commands.literal("probe").executes(c->probe(c.getSource())))
                 .then(Commands.literal("phase").then(Commands.argument("seconds",DoubleArgumentType.doubleArg(0,3600)).executes(c->phase(c.getSource(),DoubleArgumentType.getDouble(c,"seconds")))))));
     }

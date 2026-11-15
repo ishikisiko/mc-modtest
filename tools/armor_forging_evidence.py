@@ -29,10 +29,10 @@ class ArmorForgingEvidence(EquipmentEvidence):
         super().verify_source()
         self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     def rc(self,command):
-        if command in ('myvillage workshop inspect '+self.username,'difficulty normal','myvillage forgingarray inspect 0 -59 8'):
+        if command in ('yuanxian workshop inspect '+self.username,'difficulty normal','yuanxian forgingarray inspect 0 -59 8'):
             reply=self.s.run(command,warn=False)[0];self.report['commands'].append({'command':command,'reply':reply});self.save();return reply
         return super().rc(command)
-    def inspect(self,user=None):return status_json(self.rc('myvillage workshop inspect '+(user or self.username)),'WORKSHOP ')
+    def inspect(self,user=None):return status_json(self.rc('yuanxian workshop inspect '+(user or self.username)),'WORKSHOP ')
     def click(self,x,y,shift=False,game=None,wait=.2):
         self.guard(menu=True)
         return WorkshopEvidence.click(self,x,y,shift,game,wait)
@@ -93,7 +93,7 @@ class ArmorForgingEvidence(EquipmentEvidence):
         self.stop_video()
     def infusion(self):
         u=self.username
-        self.rc(f'myvillage cultivation awaken {u}');self.rc(f'myvillage cultivation crafting set {u} forging 0')
+        self.rc(f'yuanxian cultivation awaken {u}');self.rc(f'yuanxian cultivation crafting set {u} forging 0')
         self.rc(f'setblock {POS} myvillage:forging_table[facing=north]')
         for slot in SLOTS:
             self.open();self.insert('myvillage:xuantie_'+slot)
@@ -163,7 +163,7 @@ class ArmorForgingEvidence(EquipmentEvidence):
             self.rc(f"setblock {pos} "+('minecraft:air' if cell['role']=='air' else 'myvillage:forging_array_'+cell['role']+'[facing=north]'))
         self.give('myvillage:xuantie_boots');self.give('myvillage:xuantie_ingot');self.give('myvillage:low_grade_spirit_stone',2)
         self.rc('fill -7 -61 1 7 -61 15 minecraft:smooth_stone')
-        self.poll(lambda:status_json(self.rc('myvillage forgingarray inspect 0 -59 8'),'FORGING_ARRAY '),lambda d:d.get('formed') is True,label='array formed')
+        self.poll(lambda:status_json(self.rc('yuanxian forgingarray inspect 0 -59 8'),'FORGING_ARRAY '),lambda d:d.get('formed') is True,label='array formed')
         mesh=json.loads((ROOT/'src/main/resources/assets/myvillage/forging_array/formed_mesh.json').read_text())
         cell=next(c for c in rules['cells'] if c['role']=='controller')
         attempted=set()

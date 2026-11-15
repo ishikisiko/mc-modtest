@@ -67,7 +67,7 @@ python -m tools.regiongen.bay_assets --check
 
 聚落完整占地及缓冲进入 `RegionGeometry`，由既有 `GatePlacement` 避让；`PlannedChunkGenerator.createStructures` 同时拒绝碰撞的原生结构。V5 禁止独立随机湾口结构再生成一份。`PlannedSettlement` 在与主城相同的 FEATURES 阶段调用原 `BayTerracesPiece` 实现器，每次只写当前区块；`WorldPlanGuard` 保护核心空间和矿石直接写入路径。地下及外围衔接继续由既有聚落实现器处理，不改变全局地形算法。
 
-`/myvillage worldplan settlements` 输出冻结站点，`worldplan.json` 包含同一清单。它与主城一样是规划切片，不是原生 StructureStart；普通世界继续使用 `/locate structure myvillage:bay_terraces`。舆图的地形采样仍是装饰前地形，不承诺展示聚落局部地表或新增聚落图标。
+`/yuanxian worldplan settlements` 输出冻结站点，`worldplan.json` 包含同一清单。它与主城一样是规划切片，不是原生 StructureStart；普通世界继续使用 `/locate structure myvillage:bay_terraces`。舆图的地形采样仍是装饰前地形，不承诺展示聚落局部地表或新增聚落图标。
 
 V1–V4 的 codec、冻结 JSON 和资源继续保留，V4 的 239 个资源另以已交付 jar 的字节哈希锁定。完整云山与生活布局保持原样。旧档不会切换成 V5；本次不自动安装或重开玩家正在游玩的世界，也不新增聚落人物、商业或剧情绑定。
 

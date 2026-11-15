@@ -1,5 +1,7 @@
 package com.example.myvillage.wilderness;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.alchemy.*;
 import com.example.myvillage.forging.ForgeMark;
@@ -83,7 +85,7 @@ public final class ExpeditionCombat {
     public static void cast(ServerPlayer p){if(value(p,"warding")<=0||!ready(p,"warding"))return;state(p).ward=ExpeditionRules.get().trait("warding").duration();cooldown(p,"warding");refresh(p);feedback(p,"护符：元素防护");}
     public static java.util.Map<String,Object> status(ServerPlayer p){var s=STATES.get(p.getUUID());var result=new java.util.LinkedHashMap<String,Object>();result.put("trait",mark(p)==null?"":mark(p).trait());result.put("ready",s==null?0:s.ready);result.put("ward",s==null?0:s.ward);result.put("quiet",s==null?0:s.quiet);result.put("active_pierce",s==null?0:s.activePierce);result.put("active_boost",s==null?0:s.activeBoost);var cd=new java.util.LinkedHashMap<String,Integer>();for(String id:ExpeditionRules.get().traitIds())cd.put(id,cooldowns(p).getInt(id));result.put("cooldowns",cd);return result;}
     @SubscribeEvent public static void commands(net.neoforged.neoforge.event.RegisterCommandsEvent event){
-        event.getDispatcher().register(net.minecraft.commands.Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(net.minecraft.commands.Commands.literal("expedition").then(net.minecraft.commands.Commands.literal("status").then(net.minecraft.commands.Commands.argument("player",net.minecraft.commands.arguments.EntityArgument.player()).executes(c->{var p=net.minecraft.commands.arguments.EntityArgument.getPlayer(c,"player");c.getSource().sendSuccess(()->net.minecraft.network.chat.Component.literal("EXPEDITION "+new com.google.gson.Gson().toJson(status(p))),false);return 1;})))));
+        event.getDispatcher().register(ModCommands.adminRoot().then(net.minecraft.commands.Commands.literal("expedition").then(net.minecraft.commands.Commands.literal("status").then(net.minecraft.commands.Commands.argument("player",net.minecraft.commands.arguments.EntityArgument.player()).executes(c->{var p=net.minecraft.commands.arguments.EntityArgument.getPlayer(c,"player");c.getSource().sendSuccess(()->net.minecraft.network.chat.Component.literal("EXPEDITION "+new com.google.gson.Gson().toJson(status(p))),false);return 1;})))));
     }
     private static void feedback(ServerPlayer p,String text){p.displayClientMessage(net.minecraft.network.chat.Component.literal(text),true);}
     private static double medicine(ServerPlayer p,String id){var m=MedicineRuntime.state(p);var r=ExpeditionRules.get().medicine(id);return r!=null&&m.effect().equals(id)&&m.effectTicks()>0?r.strengthForQuality(m.quality()):0;}

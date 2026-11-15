@@ -60,10 +60,10 @@
 管理员命令：
 
 ```text
-/myvillage aptitude info <玩家>
-/myvillage aptitude set <玩家> <metal|wood|water|fire|earth|sword|spear|fist|alchemy|forging|talisman> <点数>
-/myvillage aptitude npc <命簿人物ID>
-/myvillage aptitude npc <命簿人物ID> <资质名> <点数>
+/yuanxian aptitude info <玩家>
+/yuanxian aptitude set <玩家> <metal|wood|water|fire|earth|sword|spear|fist|alchemy|forging|talisman> <点数>
+/yuanxian aptitude npc <命簿人物ID>
+/yuanxian aptitude npc <命簿人物ID> <资质名> <点数>
 ```
 
 玩家培养使用正常物品、场地和人物交互；管理员命令用于读取与准备验证。当前开发版使用玩家格式6、命簿格式14、协议65；未观察的玩家外观、手感、平衡和多人体验保持 `not_verified`。

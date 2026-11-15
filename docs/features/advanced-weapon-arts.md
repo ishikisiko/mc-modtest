@@ -36,12 +36,12 @@
 单本示例，沿用原有技能书系统：
 
 ```mcfunction
-/myvillage cultivation manual @s myvillage:qinglian_jiange
-/myvillage cultivation manual @s myvillage:huifeng_jianzhen
-/myvillage cultivation manual @s myvillage:canglong_chushui
-/myvillage cultivation manual @s myvillage:hengsao_qianjun
-/myvillage cultivation manual @s myvillage:bengshan_jin
-/myvillage cultivation manual @s myvillage:jingang_zhen
+/yuanxian cultivation manual @s myvillage:qinglian_jiange
+/yuanxian cultivation manual @s myvillage:huifeng_jianzhen
+/yuanxian cultivation manual @s myvillage:canglong_chushui
+/yuanxian cultivation manual @s myvillage:hengsao_qianjun
+/yuanxian cultivation manual @s myvillage:bengshan_jin
+/yuanxian cultivation manual @s myvillage:jingang_zhen
 ```
 
 自 0.77.0 起六本书有工作台生存配方；使用书、墨囊、下品灵石及各书专属材料，见游戏指南或配方书。材料唯一来源是 `tools/advanced_arts/acquisition.json`。制作得到绑定武技的空进度秘籍，仍需研读；未新增商店、掉落或宗门任务入口。
@@ -120,7 +120,7 @@ runtime 使用隔离存档与真实客户端映射输入，覆盖六本书从零
 - 枪修：按玩家到目标碰撞箱最近表面的距离判断枪锋区间。命中时显示“枪锋命中”，伤害和硬直略增；贴身没有奖励。沿用原有硬直递减、Boss 抗性与 PvP 权限。
 - 体修：金刚震第一段正面护体窗口内，匹配同一来源且造成实际伤害的接招获得蓄劲，每次施放最多一次；下一次崩山劲在扣费后消耗，全招固定增幅。环境伤害、背击、过期和重复受击不能刷蓄劲。
 
-参数唯一来源：`data/myvillage/combat/disciplines.json`。剑意／蓄劲会超时；精确主手堆叠或槽位变化、退出战斗模式、死亡、离线、切维度和服务器停止清空。新资源不写入存档；原武技冷却仍保留其既有规则。只读开发入口 `/myvillage combat discipline [player]`。
+参数唯一来源：`data/myvillage/combat/disciplines.json`。剑意／蓄劲会超时；精确主手堆叠或槽位变化、退出战斗模式、死亡、离线、切维度和服务器停止清空。新资源不写入存档；原武技冷却仍保留其既有规则。只读开发入口 `/yuanxian combat discipline [player]`。
 
 首版沿用原动作、护体特效和动作栏提示，没有另建流派面板。玩家手感与平衡仍需实际试用。
 

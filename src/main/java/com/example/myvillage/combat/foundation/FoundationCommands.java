@@ -1,5 +1,7 @@
 package com.example.myvillage.combat.foundation;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityRuntime;
 import com.google.gson.JsonArray;
@@ -85,7 +87,7 @@ public final class FoundationCommands {
                                         .then(Commands.argument("interval", IntegerArgumentType.integer(1, 1200))
                                                 .executes(FoundationCommands::healingField)))))));
         foundation.then(grant);
-        dispatcher.register(Commands.literal("myvillage").then(foundation));
+        dispatcher.register(ModCommands.root().then(foundation));
     }
 
     private static List<LivingEntity> targets(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

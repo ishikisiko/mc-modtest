@@ -20,7 +20,7 @@
 `WorldPlan.Qianzhen` 保存原点、基础标高、旋转、种子及身份；六处入口经相同变换得到实际世界坐标。查询不生成区块：
 
 ```mcfunction
-/myvillage worldplan qianzhen
+/yuanxian worldplan qianzhen
 ```
 
 `PlannedQianzhen` 在与主城相同的 FEATURES 阶段调用原生结构模板 API，每个区块只放自己的切片。原建筑与道路内部标高不改变，外围基础渐变衔接规划地形。`WorldPlanGuard` 保护核心地面和建筑空气，空间预留同步供原生结构与命簿宗门选址使用。已有 FULL 区块与玩家改建不回填。

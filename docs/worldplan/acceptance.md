@@ -40,11 +40,11 @@ generate-structures=true
 先执行：
 
 ```mcfunction
-/myvillage worldplan info
-/myvillage worldplan city
-/myvillage worldplan at 4000 0
-/myvillage worldplan at 100000 -100000
-/myvillage worldplan export
+/yuanxian worldplan info
+/yuanxian worldplan city
+/yuanxian worldplan at 4000 0
+/yuanxian worldplan at 100000 -100000
+/yuanxian worldplan export
 ```
 
 `info` 返回当前种子、规则和规划 SHA-256、城市西北角、尺寸、出生点以及文件输出目录。不同种子的地点不同，不要照搬别的种子的传送坐标。
@@ -146,14 +146,14 @@ V1 保留了原版地下噪声与部分洞穴，但不是完整地质模拟：�
 管理员自动验收接口：
 
 ```mcfunction
-/myvillage worldplan pregen_city forward 8
-/myvillage worldplan audit_city
-/myvillage worldplan pregen_city reverse
-/myvillage worldplan audit_city
-/myvillage worldplan probe 249 0
-/myvillage worldplan probe 250 0
-/myvillage worldplan probe -251 0
-/myvillage worldplan probe 6250 -6250
+/yuanxian worldplan pregen_city forward 8
+/yuanxian worldplan audit_city
+/yuanxian worldplan pregen_city reverse
+/yuanxian worldplan audit_city
+/yuanxian worldplan probe 249 0
+/yuanxian worldplan probe 250 0
+/yuanxian worldplan probe -251 0
+/yuanxian worldplan probe 6250 -6250
 ```
 
 `pregen_city` 是显式开发命令，可能有生成耗时，不应在正常服务器循环执行。它不设置永久强制加载票据。`audit_city` 只读已经加载的 FULL 城市切片；缺少切片不会为了审计而自动加载。`raw_differences` 保留全部差异，`natural_changes` 只统计原模板不透明遮挡仍完整的草方块变泥土；`differences` 是剩余实际改动。`complete` 要求全部加载且实际差异为零，`strict_complete` 还要求原始方块完全相同。没有遮挡的泥土改建、缺路、缺墙和遮挡损坏不会被忽略。

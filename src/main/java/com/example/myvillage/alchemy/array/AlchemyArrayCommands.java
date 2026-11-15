@@ -1,5 +1,7 @@
 package com.example.myvillage.alchemy.array;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.alchemy.PillQuality;
 import com.google.gson.JsonArray;
@@ -28,7 +30,7 @@ public final class AlchemyArrayCommands {
 
     @SubscribeEvent
     public static void register(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("myvillage")
+        event.getDispatcher().register(ModCommands.root()
                 .then(Commands.literal("array").requires(source -> source.hasPermission(2))
                         .then(Commands.literal("inspect").then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .executes(ctx -> inspect(ctx.getSource(), BlockPosArgument.getLoadedBlockPos(ctx, "pos")))))

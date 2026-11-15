@@ -334,7 +334,7 @@ public final class CombatDodgeService {
         STATES.clear();
     }
 
-    /** For {@code /myvillage combat dodge status}: the technique a dodge would use now, if any. */
+    /** For {@code /yuanxian combat dodge status}: the technique a dodge would use now, if any. */
     public static Optional<Choice> currentChoice(ServerPlayer player) {
         return chooseTechnique(
                 CultivationService.getProfile(player).learnedTechniques().keySet(),

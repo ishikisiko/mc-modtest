@@ -27,7 +27,7 @@ def main():
     clientdir=ROOT/'run-qianji-client'/secrets.token_hex(5);clientdir.mkdir(parents=True)
     display=next(':'+str(i) for i in range(91,150) if not Path(f'/tmp/.X11-unix/X{i}').exists())
     def complete():result['completed'].append(stage);write(a.out/'capture.json',result)
-    def query(command):return json.loads(server.command('myvillage worldplan '+command).split('WORLDPLAN ',1)[1])
+    def query(command):return json.loads(server.command('yuanxian worldplan '+command).split('WORLDPLAN ',1)[1])
     def pose(eye,target):
         dx,dy,dz=[b-c for c,b in zip(eye,target)];yaw=math.degrees(math.atan2(-dx,dz));pitch=-math.degrees(math.atan2(dy,math.hypot(dx,dz)))
         server.command(f'tp {USER} '+ ' '.join(f'{v:.3f}' for v in [eye[0],eye[1]-1.62,eye[2],yaw,pitch]))
@@ -79,13 +79,13 @@ def main():
             result['screenshots'].append(dict(file=file.name,eye=eye,target=target,stability=stability,kind='captured_for_review'))
         pose(authored([180,130,90],'core'),authored([84,45,153],'core'));time.sleep(20)
         for name,phase in [('quiet',0),('array',20),('mirage',50)]:
-            server.command('myvillage qianji phase '+str(phase));time.sleep(2);file=a.out/('atmosphere-'+name+'.png');screen.shot(file,max_wait=5,settle=.2)
+            server.command('yuanxian qianji phase '+str(phase));time.sleep(2);file=a.out/('atmosphere-'+name+'.png');screen.shot(file,max_wait=5,settle=.2)
             result['screenshots'].append(dict(file=file.name,phase_start=phase,kind='captured_for_review'))
-        pose(authored([84,66,132],'core'),authored([84,110,183],'core'));server.command('myvillage qianji phase 50');time.sleep(3)
+        pose(authored([84,66,132],'core'),authored([84,110,183],'core'));server.command('yuanxian qianji phase 50');time.sleep(3)
         screen.shot(a.out/'atmosphere-upper-floor.png',max_wait=5,settle=.2)
         result['screenshots'].append(dict(file='atmosphere-upper-floor.png',phase_start=50,kind='captured_for_review',scope='高层仰视，地面阵枢位于视野外'))
         pose(authored([180,130,90],'core'),authored([84,45,153],'core'));time.sleep(2)
-        server.command('myvillage qianji phase 9')
+        server.command('yuanxian qianji phase 9')
         video=a.out/'atmosphere-array.mp4'
         recorder=subprocess.run(['ffmpeg','-y','-f','x11grab','-framerate','12','-video_size','1280x720','-i',display,'-t','15','-c:v','libx264','-preset','veryfast','-crf','22','-pix_fmt','yuv420p',str(video)],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=40)
         if recorder.returncode:raise RuntimeError(recorder.stderr.decode(errors='replace')[-2000:])

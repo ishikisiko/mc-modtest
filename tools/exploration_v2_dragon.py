@@ -50,7 +50,7 @@ def run_dragon(e):
         return int(number(f"data get entity {TARGET} DragonPhase"))
 
     def trace():
-        rows = json_lines(rc(f"myvillage stats trace {TARGET}"), "STATS_TRACE")
+        rows = json_lines(rc(f"yuanxian stats trace {TARGET}"), "STATS_TRACE")
         if len(rows) != 1:
             raise RuntimeError("Missing unique dragon STATS_TRACE: " + repr(rows))
         return rows[0]
@@ -107,7 +107,7 @@ def run_dragon(e):
         return second
 
     def sword_qi(label):
-        rc(f"myvillage cultivation qi fill {u}")
+        rc(f"yuanxian cultivation qi fill {u}")
         before = hp()
         mark = (cs.LOG_DIR / "server.log").stat().st_size
         click(3, .32)
@@ -142,10 +142,10 @@ def run_dragon(e):
     e.rc("tick unfreeze")
     e.rc("gamerule doMobSpawning false")
     e.rc(f"gamemode creative {u}")
-    e.rc(f"myvillage cultivation awaken {u}")
-    e.rc(f"myvillage cultivation initiate {u}")
-    e.rc(f"myvillage cultivation setrealm {u} myvillage:golden_core myvillage:golden_early")
-    e.rc(f"myvillage cultivation learn {u} myvillage:jianqi_jue")
+    e.rc(f"yuanxian cultivation awaken {u}")
+    e.rc(f"yuanxian cultivation initiate {u}")
+    e.rc(f"yuanxian cultivation setrealm {u} myvillage:golden_core myvillage:golden_early")
+    e.rc(f"yuanxian cultivation learn {u} myvillage:jianqi_jue")
     rc(f"kill @e[tag={TAG}]")
     rc("forceload add 384 368 416 416")
     # A narrow player floor lies below all dragon hurt boxes, so no block obscures the strike.

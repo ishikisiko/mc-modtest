@@ -81,9 +81,9 @@ class QualityEvidence(ForgingEvidence):
     def run(self):
         self.start()
         u = self.s.username
-        for cmd in (*scene.world_rules(), *scene.player_setup(u, 'minecraft:air'), 'myvillage world pause',
+        for cmd in (*scene.world_rules(), *scene.player_setup(u, 'minecraft:air'), 'yuanxian world pause',
                     'forceload add -16 -16 32 32', f'setblock {POS} myvillage:forging_table',
-                    f'myvillage cultivation awaken {u}', f'myvillage cultivation crafting set {u} forging 100', f'clear {u}'):
+                    f'yuanxian cultivation awaken {u}', f'yuanxian cultivation crafting set {u} forging 100', f'clear {u}'):
             self.rc(cmd)
         for q in range(5):
             self.rc(f'item replace entity {u} hotbar.{q} with {spec("qingfeng_sword", q)}')

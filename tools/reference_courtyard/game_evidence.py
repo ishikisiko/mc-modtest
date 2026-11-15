@@ -48,7 +48,7 @@ class CourtyardEvidence(BuildingEvidence):
         u=self.s.username
         for cmd in (*scene.world_rules(),f'op {u}',f'clear {u}',f'gamemode creative {u}',
                     f'effect give {u} minecraft:saturation infinite 255 true',
-                    'gamerule doFireTick false','gamerule randomTickSpeed 0','myvillage world pause',
+                    'gamerule doFireTick false','gamerule randomTickSpeed 0','yuanxian world pause',
                     'forceload add -16 -16 96 64','fill -8 -62 -8 64 -61 48 minecraft:smooth_stone',
                     'setworldspawn 45 -57 2 0','defaultgamemode creative'):
             self.rc(cmd)

@@ -61,7 +61,7 @@ def run(out,commit,cases):
             self.report['inputs'].append({'key':'w','method':'mapped X11 keydown/keyup','hold_seconds':.7,'display':g.display})
             after=self.poll(position,lambda p:sum((a-b)**2 for a,b in zip(p,before))>.01,'映射W实际位移')
             self.must('服务器位置证明已移动',sum((a-b)**2 for a,b in zip(after,before))>.01,{'before':before,'after':after})
-        def profile(self):return parse_profile(self.rc(f'myvillage cultivation info {self.s.username}'))
+        def profile(self):return parse_profile(self.rc(f'yuanxian cultivation info {self.s.username}'))
         def start(self):
             self.report['launch_files_matching_jar']=verify_launch_artifacts(ROOT)
             jar=next((ROOT/'build/libs').glob('*.jar'))
@@ -74,16 +74,16 @@ def run(out,commit,cases):
             self.report['phases'].append({'phase':'setup','timings':state.get('timings',{})})
             u=self.s.username
             self.opening_complete(u)
-            for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause',
+            for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause',
                     'fill -12 -61 -12 12 -61 12 minecraft:smooth_stone',
-                    f'tp {u} .5 -60 .5 0 0',f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',
-                    f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_6'):
+                    f'tp {u} .5 -60 .5 0 0',f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',
+                    f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_6'):
                 self.rc(command)
             self.poll(self.profile,lambda p:p['root']!='none','开灵读回')
             time.sleep(2)
             self.key('F5');self.key('F5');self.key('F1')
         def opening_complete(self,name):
-            self.poll(lambda:status_json(self.rc('myvillage qianzhen realm_status '+name),'QIANZHEN_REALM_STATUS '),
+            self.poll(lambda:status_json(self.rc('yuanxian qianzhen realm_status '+name),'QIANZHEN_REALM_STATUS '),
                       lambda s:not s['building'] and not s['waiting'],'首次秘境传送完成',150)
         def shot(self,name,game=None):
             game=game or self.s.game
@@ -174,7 +174,7 @@ def run(out,commit,cases):
                 time.sleep(2.5);self.shot('旁观者_恢复站立',game)
                 # Cold second-client startup can fill the current stage. Prepare a fresh growth
                 # budget after stopping, without weakening the real-settlement assertion.
-                self.rc(f'myvillage cultivation setprogress {self.s.username} 0')
+                self.rc(f'yuanxian cultivation setprogress {self.s.username} 0')
                 self.must('旁观者中断场景未满修为',self.profile()['progress']==0,'administrator fixture reset while idle')
                 self.active();mark=len(log.read_text());self.move()
                 self.poll(lambda:log.read_text()[mark:],lambda s:'active=false' in s and 'graceful=false' in s,'旁观者同步移动中断')

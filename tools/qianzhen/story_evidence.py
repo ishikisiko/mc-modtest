@@ -101,7 +101,7 @@ class StoryEvidence(QianzhenEvidence):
         # Even camera alignment during the uninterrupted chapter uses mouse input.
         if self.continuous and re.search(r'(?:^|\s)(?:tp|teleport)\s', command):
             raise AssertionError('Teleport prohibited during continuous chapter: '+command)
-        if ('myvillage story ' in command and not command.startswith('myvillage story status ')):
+        if ('yuanxian story ' in command and not command.startswith('yuanxian story status ')):
             raise AssertionError('Story RCON is read-only: '+command)
         return Evidence.rc(self, command)
 
@@ -205,7 +205,7 @@ class StoryEvidence(QianzhenEvidence):
 
     def status(self, label, username=None):
         username = username or self.username
-        value = status_object(self.rc(f'myvillage story status {username}'))
+        value = status_object(self.rc(f'yuanxian story status {username}'))
         self.report['readbacks'].append({'label': label, 'player': username, 'state': value})
         self.save()
         return value
@@ -460,7 +460,7 @@ class StoryEvidence(QianzhenEvidence):
         self.poll(lambda: self.rc(f'execute if loaded {x2} {self.origin[1]} {z2}'),
                   lambda reply: 'passed' in reply, 30, 'production plot loaded')
         self.action('production_deploy', origin=self.origin)
-        self.rc('myvillage qianzhen deploy '+' '.join(str(int(v)) for v in self.origin))
+        self.rc('yuanxian qianzhen deploy '+' '.join(str(int(v)) for v in self.origin))
         state = self.poll(lambda: self.status('deploy_wait'), self.deployed, 90, 'production story deployment')
         self.initial_people = {role: self.actor_row(state, role)['personId']
                                for role in self.chapter['roles']}
@@ -833,7 +833,7 @@ class StoryEvidence(QianzhenEvidence):
                 if handoff[field] != self.chapter[field]:
                     raise ValueError('Runtime handoff differs from actual chapter '+field)
         require_subset(handoff, {'schema':1, 'resource':'data/myvillage/story/qianzhen_chapter_1.json',
-            'readback':{'command':'/myvillage story status <player>', 'prefix':'QIANZHEN_STORY_STATUS '},
+            'readback':{'command':'/yuanxian story status <player>', 'prefix':'QIANZHEN_STORY_STATUS '},
             'opening':{'no_automatic_accept':True}})
         self.contract = {
             'primary':compile_route(self.chapter, handoff['routes']['medical']),
@@ -867,7 +867,7 @@ class StoryEvidence(QianzhenEvidence):
             if source.is_relative_to(ROOT) else str(source),
             handoff_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
             chapter_sha256=chapter_hash, planned_routes=route_summary,
-            api_dependencies=['生产 /myvillage qianzhen deploy <x> <y> <z>',
+            api_dependencies=['生产 /yuanxian qianzhen deploy <x> <y> <z>',
                 'QIANZHEN_STORY_STATUS 稳定 JSON：个人状态/shared/npc',
                 'QIANZHEN_DIALOGUE 实际物理按钮矩形 + nonce',
                 'story_assets.assemble / graph_for；实际 manifest + authored 场景',

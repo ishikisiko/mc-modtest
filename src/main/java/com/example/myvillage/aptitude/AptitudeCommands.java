@@ -1,5 +1,7 @@
 package com.example.myvillage.aptitude;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -15,7 +17,7 @@ public final class AptitudeCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("资质").executes(c -> info(c.getSource(), c.getSource().getPlayerOrException()))
                 .then(Commands.literal("停止").executes(c -> { AptitudeCultivation.stop(c.getSource().getPlayerOrException()); return 1; })));
-        dispatcher.register(Commands.literal("myvillage").then(Commands.literal("aptitude")
+        dispatcher.register(ModCommands.root().then(Commands.literal("aptitude")
                 .executes(c -> info(c.getSource(), c.getSource().getPlayerOrException()))
                 .then(Commands.literal("info").requires(s -> s.hasPermission(2)).then(Commands.argument("target", EntityArgument.player())
                         .executes(c -> info(c.getSource(), EntityArgument.getPlayer(c, "target")))))

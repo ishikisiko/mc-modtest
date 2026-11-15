@@ -54,7 +54,7 @@ class BossHudEvidence(TigerEvidence):
         self.prepare_platform()
         self.rc(f'tp {self.s.username} 256.5 201 274.5 180 5')
         self.rc('summon myvillage:thunder_tiger 256.5 201 256.5 {Silent:1b,PersistenceRequired:1b,Tags:["boss_hud_fixture"]}')
-        self.poll(lambda: self.rc('myvillage beast status '+self.target),
+        self.poll(lambda: self.rc('yuanxian beast status '+self.target),
                   lambda reply: reply.startswith('myvillage:thunder_tiger '),15,'boss becomes queryable')
         self.rc(f'attribute {self.target} minecraft:generic.movement_speed base set 0')
         time.sleep(2)
@@ -143,8 +143,8 @@ class BossHudEvidence(TigerEvidence):
     def qi_fixture(self):
         self.rc('tick unfreeze')
         user=self.s.username
-        for command in (f'myvillage cultivation awaken {user}',f'myvillage cultivation initiate {user}',
-                        f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1'):
+        for command in (f'yuanxian cultivation awaken {user}',f'yuanxian cultivation initiate {user}',
+                        f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1'):
             self.rc(command)
         self.report['qi_combat_mode']=scene.ensure_cultivation(self.s)
         self.must('qi_mode_confirmed',scene.combat_mode(self.s)=='cultivation',self.report['qi_combat_mode'])

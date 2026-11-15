@@ -47,8 +47,8 @@ python3 tools/buildgen/tests/test_ganlan_stilted_house.py
 Review it in-game:
 
 ```mcfunction
-/myvillage place ganlan_stilted_house_001
-/myvillage place ganlan_stilted_house_002
+/yuanxian place ganlan_stilted_house_001
+/yuanxian place ganlan_stilted_house_002
 /function myvillage:gallery/ganlan_stilted_house
 ```
 

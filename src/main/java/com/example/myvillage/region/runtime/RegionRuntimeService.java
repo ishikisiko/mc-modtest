@@ -112,7 +112,7 @@ public final class RegionRuntimeService {
 
     /**
      * The per-world persistent spawn-binding audit, or empty if no server is
-     * running. Read by the {@code /myvillage spawn info} query.
+     * running. Read by the {@code /yuanxian spawn info} query.
      */
     public static Optional<RegionRuntimeState> state() {
         ServerLevel overworld = currentOverworld();
@@ -182,7 +182,7 @@ public final class RegionRuntimeService {
 
     /**
      * Force a spawn recompute for the current world (admin command path,
-     * {@code /myvillage spawn recompute}). Recomputes the spawn block from the
+     * {@code /yuanxian spawn recompute}). Recomputes the spawn block from the
      * cached selection, calls {@code setSpawnPos} (overriding any existing
      * spawn — this is the documented admin-override semantics), and re-marks
      * the per-world state bound. Returns false if the runtime is inactive or

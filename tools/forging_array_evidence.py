@@ -340,7 +340,7 @@ class ForgingArrayEvidence(AlchemyEvidence):
             raise RuntimeError('Owned capture processes still alive: '+str(alive))
 
     def inspect(self, origin=None):
-        return self.one('myvillage forgingarray inspect '+position(origin or self.origin), 'FORGING_ARRAY')
+        return self.one('yuanxian forgingarray inspect '+position(origin or self.origin), 'FORGING_ARRAY')
 
     def saved(self, origin=None):
         state = self.inspect(origin)
@@ -447,8 +447,8 @@ class ForgingArrayEvidence(AlchemyEvidence):
 
     def awaken(self, user=None):
         user = user or self.s.username
-        for command in (f'gamemode survival {user}', f'myvillage cultivation awaken {user}',
-                        f'myvillage cultivation crafting set {user} forging 100'):
+        for command in (f'gamemode survival {user}', f'yuanxian cultivation awaken {user}',
+                        f'yuanxian cultivation crafting set {user} forging 100'):
             self.rc(command)
 
     def give(self, item, n=1, user=None):
@@ -902,7 +902,7 @@ class ForgingArrayEvidence(AlchemyEvidence):
     def run(self):
         self.start()
         for command in (*scene.world_rules(), *scene.player_setup(self.s.username, 'minecraft:air'),
-                        'myvillage world pause', 'forceload add -32 -32 96 32'):
+                        'yuanxian world pause', 'forceload add -32 -32 96 32'):
             self.rc(command)
         for case in self.cases:
             self.current_case = case; self.report['case_status'][case] = 'running'; self.save()

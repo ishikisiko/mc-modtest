@@ -152,7 +152,7 @@ class Evidence:
         user = self.s.username
         self.rc(f'damage {TARGET} {amount} {source} by {user}')
         after = self.number(f'data get entity {TARGET} Health')
-        trace = self.one(f'myvillage stats trace {TARGET}', 'STATS_TRACE')
+        trace = self.one(f'yuanxian stats trace {TARGET}', 'STATS_TRACE')
         expected_loss = max(0, expected_final - (4 if absorption else 0))
         self.check(name, close(trace.get('postVanilla'), expected_post)
                    and close(trace.get('afterResistance'), expected_final)
@@ -161,10 +161,10 @@ class Evidence:
 
     def wilderness_probe(self, user):
         """Observe existing rogue projection and actual natural births in an isolated flat world."""
-        origin = self.one('myvillage wilderness info 0 -60 0', 'WILDERNESS_INFO')
+        origin = self.one('yuanxian wilderness info 0 -60 0', 'WILDERNESS_INFO')
         chosen = None
         for center in origin['centers']:
-            row = self.one(f'myvillage wilderness info {center["x"]} -60 {center["z"]}', 'WILDERNESS_INFO')
+            row = self.one(f'yuanxian wilderness info {center["x"]} -60 {center["z"]}', 'WILDERNESS_INFO')
             if row.get('eligibleRogues', 0) > 0:
                 chosen = (center, row)
                 break
@@ -178,7 +178,7 @@ class Evidence:
         current = before
         while time.monotonic() < deadline:
             time.sleep(2)
-            current = self.one(f'myvillage wilderness info {x} -60 {z}', 'WILDERNESS_INFO')
+            current = self.one(f'yuanxian wilderness info {x} -60 {z}', 'WILDERNESS_INFO')
             if current.get('projectedRogues', 0) > 0:
                 break
         count = current.get('projectedRogues', 0)
@@ -189,7 +189,7 @@ class Evidence:
         ids = [int(value) for value in re.findall(r': (\d+)\s*$', people, flags=re.MULTILINE)]
         self.check('rogue_identity_deduplicated', len(ids) >= count and len(ids) == len(set(ids)), ids)
         self.report['rogue_stats'] = json_lines(
-            self.rc('myvillage stats info @e[type=myvillage:cultivator,nbt={Tags:["myvillage:wild_avatar"]}]'), 'STATS_INFO')
+            self.rc('yuanxian stats info @e[type=myvillage:cultivator,nbt={Tags:["myvillage:wild_avatar"]}]'), 'STATS_INFO')
         self.check('projected_rogues_inside_region_range',
                    len(self.report['rogue_stats']) >= count and all(
                        realm_in_range({'realmId': row['realm'], 'stage': row['stage']}, current['rogueRange'])
@@ -201,13 +201,13 @@ class Evidence:
         self.rc('gamerule doMobSpawning true')
         time.sleep(0.5)
         self.report['spawn_conditions'] = self.one(
-            f'myvillage wilderness info {x} -60 {z}', 'WILDERNESS_INFO')['spawnDiagnostics']
+            f'yuanxian wilderness info {x} -60 {z}', 'WILDERNESS_INFO')['spawnDiagnostics']
         deadline = time.monotonic() + 60
         births = []
         try:
             while time.monotonic() < deadline:
                 time.sleep(5)
-                births = json_lines(self.rc('myvillage wilderness birth @e[type=myvillage:demon_wolf]'),
+                births = json_lines(self.rc('yuanxian wilderness birth @e[type=myvillage:demon_wolf]'),
                                     'WILDERNESS_BIRTH')
                 natural = [b for b in births if (b.get('birth') or {}).get('natural')]
                 if natural:
@@ -235,21 +235,21 @@ class Evidence:
             self.rc(f'tag {uuid} add realm_stat_natural_persist')
             self.rc(f'data merge entity {uuid} {{NoAI:1b,PersistenceRequired:1b}}')
             self.rc(f'damage {uuid} 5 minecraft:generic')
-            self.report['natural_before'] = self.one(f'myvillage wilderness birth {uuid}', 'WILDERNESS_BIRTH')
+            self.report['natural_before'] = self.one(f'yuanxian wilderness birth {uuid}', 'WILDERNESS_BIRTH')
             self.rc(f'tp {uuid} 12.5 -60 12.5')
 
         self.rc(f'tp {user} 8000.5 -60 8000.5')
         time.sleep(7)
-        withdrawn = self.one(f'myvillage wilderness info {x} -60 {z}', 'WILDERNESS_INFO')
+        withdrawn = self.one(f'yuanxian wilderness info {x} -60 {z}', 'WILDERNESS_INFO')
         self.check('rogues_withdraw_out_of_range', withdrawn.get('projectedRogues') == 0, withdrawn)
-        outside = self.one('myvillage wilderness info 8000 -60 8000', 'WILDERNESS_INFO')
+        outside = self.one('yuanxian wilderness info 8000 -60 8000', 'WILDERNESS_INFO')
         self.check('outside_region_has_no_fallback', outside.get('region') == '', outside)
-        other = self.one('execute in minecraft:the_nether run myvillage wilderness info 0 80 0', 'WILDERNESS_INFO')
+        other = self.one('execute in minecraft:the_nether run yuanxian wilderness info 0 80 0', 'WILDERNESS_INFO')
         self.check('other_dimension_has_no_region', other.get('region') == '', other)
         self.rc(f'tp {user} 0.5 -60 0.5 0 0')
         time.sleep(3)
         if natural:
-            crossed = self.one(f'myvillage wilderness birth {NATURAL_WOLF}', 'WILDERNESS_BIRTH')
+            crossed = self.one(f'yuanxian wilderness birth {NATURAL_WOLF}', 'WILDERNESS_BIRTH')
             self.check('natural_birth_not_rerolled_after_move',
                        crossed.get('birth') == self.report['natural_before'].get('birth')
                        and close(crossed.get('maxHealth'), self.report['natural_before']['maxHealth']), crossed)
@@ -258,18 +258,18 @@ class Evidence:
         user = self.s.username
         started = time.monotonic()
         for command in (*scene.world_rules(), *scene.player_setup(user, 'myvillage:qingfeng_sword'),
-                        'gamerule naturalRegeneration false', 'myvillage world pause'):
+                        'gamerule naturalRegeneration false', 'yuanxian world pause'):
             self.rc(command)
         # Fixture chunks are explicit. Production wilderness placement never force-loads chunks.
         self.rc('forceload add -16 -16 32 32')
-        self.rc(f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1')
+        self.rc(f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1')
         self.rc(f'attribute {user} myvillage:resistance_penetration base set 0')
-        growth = json_lines(self.rc('myvillage stats growth'), 'STATS_GROWTH')
+        growth = json_lines(self.rc('yuanxian stats growth'), 'STATS_GROWTH')
         self.check('growth_table_exposed', bool(growth), growth)
-        first = self.one('myvillage stats growth myvillage:qi_refining 0', 'STATS_GROWTH')
+        first = self.one('yuanxian stats growth myvillage:qi_refining 0', 'STATS_GROWTH')
         expected_first = next(row for row in growth if row['realm'] == 'myvillage:qi_refining' and row['stage'] == 0)
         self.check('namespaced_growth_query', first == expected_first, first)
-        preview = self.one('myvillage stats damage preview 10 0 1 0 1 10 physical 0.5 0.1', 'STATS_PREVIEW')
+        preview = self.one('yuanxian stats damage preview 10 0 1 0 1 10 physical 0.5 0.1', 'STATS_PREVIEW')
         self.check('damage_preview_readout', close(preview['mitigation']['damage'], 6), preview)
         self.damage_probe('physical_resistance', 10, 10, 5, resistance=0.5)
         self.damage_probe('armor_then_resistance_once', 10, 8, 4, armor=10, resistance=0.5)
@@ -295,7 +295,7 @@ class Evidence:
         self.s.game.click(0.06)
         time.sleep(2.0)
         after = self.number(f'data get entity {TARGET} Health')
-        trace = self.one(f'myvillage stats trace {TARGET}', 'STATS_TRACE')
+        trace = self.one(f'yuanxian stats trace {TARGET}', 'STATS_TRACE')
         self.check('mapped_melee_damage_buckets', close(before - after, expected),
                    {'base': base, 'move': multiplier, 'expected': expected,
                     'before': before, 'after': after, 'trace': trace})
@@ -317,29 +317,29 @@ class Evidence:
         self.wilderness_probe(user)
         # Birth fixture uses the same validated assignment as natural wolves;
         # this is explicitly not evidence of natural spawn frequency.
-        self.report['wilderness_info'] = self.rc('myvillage wilderness info 0 -60 0')
-        self.report['sample_a'] = self.rc('myvillage wilderness sample zhongzhou 12345 64')
-        self.report['sample_b'] = self.rc('myvillage wilderness sample zhongzhou 12345 64')
+        self.report['wilderness_info'] = self.rc('yuanxian wilderness info 0 -60 0')
+        self.report['sample_a'] = self.rc('yuanxian wilderness sample zhongzhou 12345 64')
+        self.report['sample_b'] = self.rc('yuanxian wilderness sample zhongzhou 12345 64')
         self.check('region_sampling_replay', self.report['sample_a'] == self.report['sample_b']
                    and 'incorrect' not in self.report['sample_a'].lower(), self.report['sample_a'])
-        diagnostic = self.one('myvillage wilderness spawn_test 8 -60 8 12345', 'WILDERNESS_BIRTH')
+        diagnostic = self.one('yuanxian wilderness spawn_test 8 -60 8 12345', 'WILDERNESS_BIRTH')
         self.rc(f'tag {diagnostic["uuid"]} add realm_stat_persist')
         self.rc(f'data merge entity {WOLF} {{NoAI:1b,PersistenceRequired:1b}}')
-        self.report['wolf_birth_before'] = self.one(f'myvillage wilderness birth {WOLF}', 'WILDERNESS_BIRTH')
+        self.report['wolf_birth_before'] = self.one(f'yuanxian wilderness birth {WOLF}', 'WILDERNESS_BIRTH')
         self.report['wolf_max_before'] = self.number(f'attribute {WOLF} minecraft:generic.max_health get')
         self.rc(f'damage {WOLF} 5 minecraft:generic')
         self.report['wolf_health_before'] = self.number(f'data get entity {WOLF} Health')
 
         # Save health above vanilla player base max, then restart: this catches
         # transient-modifier loading that would silently clamp Health to 20.
-        self.rc(f'myvillage cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early')
         self.rc(f'gamemode survival {user}')
         self.rc(f'effect give {user} minecraft:instant_health 1 10 true')
         time.sleep(1.2)
         self.rc(f'damage {user} 7 minecraft:generic')
         self.report['player_max_before'] = self.number(f'attribute {user} minecraft:generic.max_health get')
         self.report['player_health_before'] = self.number(f'data get entity {user} Health')
-        self.rc(f'myvillage cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early')
         refreshed = self.number(f'data get entity {user} Health')
         self.check('refresh_does_not_heal', close(refreshed, self.report['player_health_before']), refreshed)
         self.rc(f'tp {user} 0.5 -60 0.5 0 0')
@@ -361,14 +361,14 @@ class Evidence:
         wolf_max = self.number(f'attribute {WOLF} minecraft:generic.max_health get')
         self.check('beast_health_survives_restart', close(wolf_hp, self.report['wolf_health_before'])
                    and close(wolf_max, self.report['wolf_max_before']), {'health': wolf_hp, 'max': wolf_max})
-        self.report['wolf_birth_after'] = self.one(f'myvillage wilderness birth {WOLF}', 'WILDERNESS_BIRTH')
+        self.report['wolf_birth_after'] = self.one(f'yuanxian wilderness birth {WOLF}', 'WILDERNESS_BIRTH')
         self.check('birth_realm_survives_restart',
                    self.report['wolf_birth_after'].get('birth') == self.report['wolf_birth_before'].get('birth')
                    and self.report['wolf_birth_after'].get('uuid') == self.report['wolf_birth_before'].get('uuid'),
                    self.report['wolf_birth_after'])
-        self.report['player_stats_after'] = self.rc(f'myvillage stats info {user}')
+        self.report['player_stats_after'] = self.rc(f'yuanxian stats info {user}')
         if 'natural_before' in self.report:
-            natural = self.one(f'myvillage wilderness birth {NATURAL_WOLF}', 'WILDERNESS_BIRTH')
+            natural = self.one(f'yuanxian wilderness birth {NATURAL_WOLF}', 'WILDERNESS_BIRTH')
             before = self.report['natural_before']
             self.check('natural_birth_and_health_survive_restart',
                        natural.get('birth') == before.get('birth') and natural['birth']['natural']

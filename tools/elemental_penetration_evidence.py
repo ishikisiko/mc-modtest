@@ -40,7 +40,7 @@ class PenetrationEvidence(ArmorEvidence):
         if not close(actual,value):raise RuntimeError(f'{channel} base fixture mismatch: {actual} != {value}')
 
     def values(self):
-        info=self.one(f'myvillage stats info {self.s.username}','STATS_INFO')
+        info=self.one(f'yuanxian stats info {self.s.username}','STATS_INFO')
         values={channel:info['attributes'][attr] for channel,attr in IDS.items()}
         return info,values
 
@@ -70,8 +70,8 @@ class PenetrationEvidence(ArmorEvidence):
         self.rc(f'item replace entity {user} hotbar.0 with myvillage:qingfeng_sword')
         self.s.game.key('1');scene.ensure_cultivation(self.s)
         if qi:
-            self.rc(f'myvillage cultivation learn {user} myvillage:jianqi_jue')
-            self.rc(f'myvillage cultivation qi fill {user}')
+            self.rc(f'yuanxian cultivation learn {user} myvillage:jianqi_jue')
+            self.rc(f'yuanxian cultivation qi fill {user}')
         self.s.game.require_ingame('typed penetration mapped attack')
         if qi:
             self.s.game.xdo('mousedown','3')
@@ -90,10 +90,10 @@ class PenetrationEvidence(ArmorEvidence):
     def initial(self):
         started=time.monotonic();user=self.s.username
         for command in (*scene.world_rules(),*scene.player_setup(user,'myvillage:qingfeng_sword'),
-                        'gamerule naturalRegeneration false','myvillage world pause',
-                        'forceload add -16 -16 32 32',f'myvillage cultivation awaken {user}',
-                        f'myvillage cultivation initiate {user}',
-                        f'myvillage cultivation setrealm {user} myvillage:golden_core myvillage:golden_late'):
+                        'gamerule naturalRegeneration false','yuanxian world pause',
+                        'forceload add -16 -16 32 32',f'yuanxian cultivation awaken {user}',
+                        f'yuanxian cultivation initiate {user}',
+                        f'yuanxian cultivation setrealm {user} myvillage:golden_core myvillage:golden_late'):
             self.rc(command)
         info,values=self.values()
         self.check('fresh_six_channel_defaults',all(close(v,0) for v in values.values()),values)

@@ -60,7 +60,7 @@ def main():
     def complete():
         result['completed'].append(stage);result['unrun'].remove(stage);write(a.out/'result.json',result)
     def query(command):
-        answer=server.command('myvillage worldplan '+command)
+        answer=server.command('yuanxian worldplan '+command)
         if 'WORLDPLAN ' not in answer:raise RuntimeError(answer)
         return json.loads(answer.split('WORLDPLAN ',1)[1])
     def load(x,z):
@@ -143,7 +143,7 @@ def main():
                     for dy in [0,1]:assert server.test(f'if block {wx} {wy+dy} {wz} minecraft:air'),(city['region_id'],target,dy)
             if detailed:
                 anchor=office['atmosphere']['anchor'];load(city['x']+anchor[0],city['z']+anchor[2])
-                answer=server.command('myvillage qianji probe');collision=json.loads(answer[answer.index('{'):])
+                answer=server.command('yuanxian qianji probe');collision=json.loads(answer[answer.index('{'):])
                 assert collision['all_standing'] and collision['anchor_bound'] and len(collision['targets'])==len(points)==31,collision
                 assert all(t['loaded'] and t['standing'] for t in collision['targets']),collision
                 write(a.out/'headquarters-collision-readback.json',collision)

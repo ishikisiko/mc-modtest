@@ -12,7 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * {@code /myvillage world sect <id> shelves [place]}: the scripture shelf sites of a realized gate
+ * {@code /yuanxian world sect <id> shelves [place]}: the scripture shelf sites of a realized gate
  * and the shelf found in each ({@link ScriptureShelves#survey}), and {@code place} to place them
  * again (compounds built before the shelves existed). Hung under the {@code sect <id>} node by
  * {@code WorldSimCommands} (which already requires permission 2); reads the {@code id} argument.

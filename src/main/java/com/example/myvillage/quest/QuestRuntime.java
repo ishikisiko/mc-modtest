@@ -1,5 +1,7 @@
 package com.example.myvillage.quest;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.mixin.RealmServerAccess;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.ruins.BattleReceipts;
@@ -501,7 +503,7 @@ public final class QuestRuntime {
                 .then(Commands.literal("claim").executes(c->{claim(c.getSource().getPlayerOrException());return 1;}))
                 .then(Commands.literal("accept").executes(c->{accept(c.getSource().getPlayerOrException());return 1;}))
                 .then(Commands.literal("invite").then(Commands.argument("player",EntityArgument.player()).executes(c->{invite(c.getSource().getPlayerOrException(),EntityArgument.getPlayer(c,"player"));return 1;}))));
-        e.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(Commands.literal("quest").then(Commands.literal("status").then(Commands.argument("player",EntityArgument.player()).executes(c->{
+        e.getDispatcher().register(ModCommands.adminRoot().then(Commands.literal("quest").then(Commands.literal("status").then(Commands.argument("player",EntityArgument.player()).executes(c->{
             var p=EntityArgument.getPlayer(c,"player");var j=new JsonObject();var r=current(p);var m=member(p);
             j.addProperty("dimension",p.level().dimension().location().toString());j.addProperty("member",m==null?"NONE":m.result);
             var local=new JsonObject();local.addProperty("natural_spawns",p.serverLevel().getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING));local.addProperty("mob_griefing",p.serverLevel().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING));local.addProperty("fire_tick",p.serverLevel().getGameRules().getBoolean(GameRules.RULE_DOFIRETICK));j.add("local_rules",local);

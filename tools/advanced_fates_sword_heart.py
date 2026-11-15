@@ -55,7 +55,7 @@ def _dodge_ready(e):
     # No short opening is active when this helper is called. Fast-forward by normal ticking only.
     e.rc('tick rate 20')
     def remaining():
-        reply = e.rc(f'myvillage combat dodge status {e.s.username}')
+        reply = e.rc(f'yuanxian combat dodge status {e.s.username}')
         match = re.search(r'\bcooldown_remaining=(\d+)', reply)
         if not match:
             raise ValueError('Missing dodge cooldown readback: ' + reply)
@@ -190,7 +190,7 @@ def run(e):
         e.choose_focus('innate_sword_heart')
         e.equip('myvillage:qingfeng_sword')
         scene.ensure_cultivation(e.s)
-        e.rc(f'myvillage cultivation qi fill {user}')
+        e.rc(f'yuanxian cultivation qi fill {user}')
         e.heal()
         _heart_ready(e)
         # Both targets have identical armor-free mitigation. The distant target isolates wave
@@ -210,7 +210,7 @@ def run(e):
         with SecondClient(e) as guest:
             visitor = guest.username
             for command in (f'gamemode survival {visitor}', f'effect clear {visitor}',
-                            f'myvillage cultivation fate reset {visitor}',
+                            f'yuanxian cultivation fate reset {visitor}',
                             f'item replace entity {visitor} weapon.offhand with minecraft:air',
                             *(f'item replace entity {visitor} armor.{slot} with minecraft:air'
                               for slot in ('head', 'chest', 'legs', 'feet'))):
@@ -222,7 +222,7 @@ def run(e):
             if guest_mode() != 'vanilla':
                 guest.game.key('r')
             e.poll(guest_mode, lambda mode: mode == 'vanilla', timeout=5, label='guest has vanilla iron-sword attacks')
-            guest_before = e.one(f'myvillage cultivation fate status {visitor}', 'FATES')
+            guest_before = e.one(f'yuanxian cultivation fate status {visitor}', 'FATES')
             # Establish that this exact second client's mapped input can really hit this owner.
             e.rc(f'tp {user} .5 -60 -1.5 0 0')
             e.rc(f'tp {visitor} .5 -60 -4 0 0')
@@ -327,7 +327,7 @@ def run(e):
                     {'before': death_ready, 'after': death_after})
             report['death'] = {'before': death_ready, 'after': death_after}
             e.report['multiplayer'] = 'two_actual_clients_mapped_sword_precise_dodge_and_private_fate_state'
-            other = e.one(f'myvillage cultivation fate status {visitor}', 'FATES')
+            other = e.one(f'yuanxian cultivation fate status {visitor}', 'FATES')
             e.check('second_player_does_not_inherit_sword_heart_opening',
                     _heart(other) == _heart(guest_before), {'before': guest_before, 'after': other})
         return report

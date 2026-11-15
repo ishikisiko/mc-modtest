@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 /**
- * {@code /myvillage beast ...} debug commands (permission 2), for captures and server checks
+ * {@code /yuanxian beast ...} debug commands (permission 2), for captures and server checks
  * ({@code debug on|off} logs each beast's move starts, ends, staggers and hits taken as
  * {@code BEAST_DEBUG} lines in the server log):
  * {@code move <targets> <move_id>} forces the selected beasts to start that move on their next AI

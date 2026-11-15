@@ -79,7 +79,7 @@ class ForgingEvidence(AlchemyEvidence):
         self.check('one_marked_product_'+r['id']+'_'+trait,len(products)==1 and products[0][1]['components'][MARK]['trait']==trait and 1<=products[0][1]['components'][MARK]['quality']<=cap,products)
         return products[0]
     def cast(self,slot,stack):
-        u=self.s.username;self.rc(f'tp {u} .5 -60 .5 90 0');self.rc(f'myvillage cultivation learn {u} myvillage:jianqi_jue');self.rc(f'myvillage cultivation qi fill {u}')
+        u=self.s.username;self.rc(f'tp {u} .5 -60 .5 90 0');self.rc(f'yuanxian cultivation learn {u} myvillage:jianqi_jue');self.rc(f'yuanxian cultivation qi fill {u}')
         if not 0<=slot<=8:raise RuntimeError('Expected reverse-transfer output in hotbar')
         self.s.game.key(str(slot+1));time.sleep(.4);scene.ensure_cultivation(self.s)
         log=cs.LOG_DIR/'server.log';offset=log.stat().st_size
@@ -117,14 +117,14 @@ class ForgingEvidence(AlchemyEvidence):
         self.check('repair_costs_once',all(self.count(i)==0 for i in self.rules['repair']['costs']),self.inventory())
     def run(self):
         self.start();u=self.s.username
-        for c in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_table'):
+        for c in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_table'):
             self.rc(c)
         self.open_table();self.capture('unlearned.png');self.close_menu()
         for r in self.rules['recipes']:self.learn(r['id'])
         self.report['completed'].append('learning')
-        self.rc(f'myvillage cultivation awaken {u}');self.rc(f'myvillage cultivation initiate {u}');self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'myvillage cultivation crafting set {u} forging 0')
+        self.rc(f'yuanxian cultivation awaken {u}');self.rc(f'yuanxian cultivation initiate {u}');self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'yuanxian cultivation crafting set {u} forging 0')
         # Query actual cap rather than assuming administrator commands succeeded.
-        cap=self.one(f'myvillage cultivation crafting {u}','CRAFTING')
+        cap=self.one(f'yuanxian cultivation crafting {u}','CRAFTING')
         self.check('low_cap_fixture',cap.get('forging_quality_cap')==1,cap)
         self.rc(f'clear {u}');self.rc(f'give {u} minecraft:diamond 1');before=self.inventory();self.open_table();self.click(152,137)
         self.capture('missing-materials.png');self.close_menu();self.check('missing_materials_atomic',self.inventory()==before,self.inventory())
@@ -144,14 +144,14 @@ class ForgingEvidence(AlchemyEvidence):
             self.prepare_materials(self.rules['recipes'][0],'sharp',user=v)
             self.open_table(g,v);before=self.inventory(v);self.click(152,137,game=g);self.close_menu(g)
             self.check('guest_cannot_borrow_knowledge',self.learned(v)==[] and self.inventory(v)==before,self.inventory(v))
-            self.learn('qingfeng_sword',v,g);self.rc(f'myvillage cultivation awaken {v}');self.rc(f'myvillage cultivation crafting set {v} forging 0')
+            self.learn('qingfeng_sword',v,g);self.rc(f'yuanxian cultivation awaken {v}');self.rc(f'yuanxian cultivation crafting set {v} forging 0')
             self.prepare_materials(self.rules['recipes'][0],'sharp',user=v);owner_before=self.inventory()
             self.open_table(g,v);self.click(152,137,game=g);self.close_menu(g)
             self.check('guest_forges_own_weapon',self.count('myvillage:qingfeng_sword',v)==1,self.inventory(v))
             self.check('guest_does_not_consume_owner_inventory',self.inventory()==owner_before,owner_before)
             self.check('knowledge_stays_private',self.learned(v)==['qingfeng_sword'],self.learned(v))
         self.report['completed'].append('two_players');self.report['multiplayer']='bounded_developer_checks_pass'
-        self.rc(f'myvillage cultivation crafting set {u} forging 100');self.forge(0,'sharp',cap=4)
+        self.rc(f'yuanxian cultivation crafting set {u} forging 100');self.forge(0,'sharp',cap=4)
         self.persistence()
     def persistence(self):
         before=self.inventory();knowledge=self.learned();self.rc('save-all flush');self.stop();self.language='en_us';self.start(reuse=True)
@@ -165,10 +165,10 @@ class ForgingEvidence(AlchemyEvidence):
     def lifecycle_only(self):
         self.report['selected']=['learning','forging','persistence']
         self.start();u=self.s.username
-        for c in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_table'):
+        for c in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_table'):
             self.rc(c)
         self.learn('qingfeng_sword');self.report['completed'].append('learning')
-        self.rc(f'myvillage cultivation awaken {u}');self.rc(f'myvillage cultivation crafting set {u} forging 100')
+        self.rc(f'yuanxian cultivation awaken {u}');self.rc(f'yuanxian cultivation crafting set {u} forging 100')
         self.forge(0,'sharp',cap=4);self.report['completed'].append('forging')
         self.persistence()
 

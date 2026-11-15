@@ -37,9 +37,9 @@
 新世界无需执行修路命令。
 
 ```text
-/myvillage roads status
-/myvillage roads export
-/myvillage roads audit
+/yuanxian roads status
+/yuanxian roads export
+/yuanxian roads audit
 ```
 
 `status` 显示布局计算、已规划路线和当前加载的道路区块。加载区块数不是整张大陆已经生成或玩家已经走通的证明。`export` 导出世界目录下 `data/myvillage/worldplan/roads.json`；`audit` 只读检查当前已加载道路区块，未加载项明确保留。
@@ -47,9 +47,9 @@
 管理员可显式预生成并逐区块检查整张道路范围（包括城门）:
 
 ```text
-/myvillage roads pregenerate
-/myvillage roads pause
-/myvillage roads resume
+/yuanxian roads pregenerate
+/yuanxian roads pause
+/yuanxian roads resume
 ```
 
 `pregenerate` 会生成缺失区块并读回道路；已生成区块只读，不会覆盖玩家改动。报告保留实际路面、基础、护栏、净空、只读城门差异与观察到的掉落物数量，写入 `roads-audit.json`。管理员预生成任务的游标仅在当前会话有效；区块本身与路网布局正常存档。重启后可重新检查，已生成区块不会重新铺装。

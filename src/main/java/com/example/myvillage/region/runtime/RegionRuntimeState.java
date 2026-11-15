@@ -10,7 +10,7 @@ import net.minecraft.world.level.saveddata.SavedData;
  * Per-world persistent state for the region runtime — records whether the
  * mod has already bound spawn for this world (so the binding runs
  * <em>exactly once per world</em>) and audits the computed spawn region +
- * block for the {@code /myvillage spawn info} query and the no-override policy.
+ * block for the {@code /yuanxian spawn info} query and the no-override policy.
  *
  * <p>The region graph itself is NOT persisted: it is recomputed deterministically
  * from the world seed on every server start, so persisting it would be

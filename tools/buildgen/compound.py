@@ -949,7 +949,7 @@ def generate_hero_rockery_fragment(seed: int = 0x4A1A5A) -> CompoundGraph:
 
     Builds a minimal :class:`CompoundGraph` carrying nothing but the hero
     cluster + its foliage/water dressing on a small contained ground+basin slab,
-    so ``/myvillage place hero_rockery`` stamps a standalone specimen that holds
+    so ``/yuanxian place hero_rockery`` stamps a standalone specimen that holds
     its 山脚水池 without an external ``garden_pond``. The slab is a 2-cell-thick
     foundation (stone floor + grass surface) over the footprint plus a 2-cell
     margin; the foot pool is a 1-deep pocket carved into the surface layer, so

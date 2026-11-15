@@ -1,5 +1,7 @@
 package com.example.myvillage.manor;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.MyVillageMod;
 import com.google.gson.*;
 import com.mojang.brigadier.CommandDispatcher;
@@ -62,7 +64,7 @@ public final class ManorCommands {
         NeoForge.EVENT_BUS.addListener((ServerStoppedEvent event)->STATES.remove(event.getServer()));
     }
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal(MyVillageMod.MOD_ID).requires(s->s.hasPermission(2))
+        dispatcher.register(ModCommands.adminRoot()
             .then(Commands.literal("manor")
                 .then(Commands.literal("list").executes(c->list(c.getSource())))
                 .then(Commands.literal("visit").then(Commands.argument("city",StringArgumentType.word())
@@ -73,7 +75,7 @@ public final class ManorCommands {
     }
     private static int list(CommandSourceStack source) {
         for(var m:ManorCatalog.get().manors)source.sendSuccess(()->Component.literal(m.city()+" — "+m.name()+"（"+m.width()+"×"+m.height()+"×"+m.depth()+"）"),false);
-        source.sendSuccess(()->Component.literal("创造模式使用 /myvillage manor visit <city>，仅进入独立样板，不接入城市。"),false);return 7;
+        source.sendSuccess(()->Component.literal("创造模式使用 /yuanxian manor visit <city>，仅进入独立样板，不接入城市。"),false);return 7;
     }
     private static int visit(CommandSourceStack source,String city) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         var player=source.getPlayerOrException();
@@ -106,7 +108,7 @@ public final class ManorCommands {
         float yaw=(float)Math.toDegrees(Math.atan2(-dx,dz)),pitch=(float)-Math.toDegrees(Math.atan2(dy,Math.hypot(dx,dz)));
         player.teleportTo(level,job.origin.getX()+eye[0],job.origin.getY()+eye[1]-player.getEyeHeight(),job.origin.getZ()+eye[2],Set.of(),yaw,pitch);
         player.getAbilities().flying=true;player.onUpdateAbilities();player.fallDistance=0;
-        player.sendSystemMessage(Component.literal(job.manor.name()+" · 独立样板。可自由飞行查看，/myvillage manor leave 离开。"));
+        player.sendSystemMessage(Component.literal(job.manor.name()+" · 独立样板。可自由飞行查看，/yuanxian manor leave 离开。"));
     }
     private static int leave(CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         var player=source.getPlayerOrException();var point=state(source.getServer()).returns.remove(player.getUUID());

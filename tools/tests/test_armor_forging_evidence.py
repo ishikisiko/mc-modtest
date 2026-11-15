@@ -15,7 +15,7 @@ class ArmorForgingCollectorTest(unittest.TestCase):
     def test_correctly_scoped_readback_does_not_allow_menu_action_commands(self):
         from tools.armor_forging_evidence import ArmorForgingEvidence
         collector=object.__new__(ArmorForgingEvidence);collector.username='DemoTester'
-        for command in ('myvillage workshop start DemoTester','myvillage forgingarray start 0 -59 8','myvillage workshop inspect DemoTester\ngive DemoTester minecraft:diamond'):
+        for command in ('yuanxian workshop start DemoTester','yuanxian forgingarray start 0 -59 8','yuanxian workshop inspect DemoTester\ngive DemoTester minecraft:diamond'):
             with self.assertRaises(ValueError):collector.rc(command)
 
 if __name__=='__main__':unittest.main()

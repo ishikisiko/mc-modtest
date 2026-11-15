@@ -51,12 +51,12 @@ python3 -m unittest tools.tests.test_tribulation -v
 权限 2 命令启动同一正式执行器，仍检查全部资格和场地：
 
 ```mcfunction
-/myvillage tribulation start heaven Player
-/myvillage tribulation start golden_low Player
-/myvillage tribulation start golden_middle Player
-/myvillage tribulation start golden_high Player
-/myvillage tribulation status Player
-/myvillage tribulation stop Player
+/yuanxian tribulation start heaven Player
+/yuanxian tribulation start golden_low Player
+/yuanxian tribulation start golden_middle Player
+/yuanxian tribulation start golden_high Player
+/yuanxian tribulation status Player
+/yuanxian tribulation stop Player
 ```
 
 状态输出为 `TRIBULATION_STATUS ` 加单行 schema 2 JSON。`main_completed` 是已确认有效命中数，`next_strike` 是已发雷序；`required_hits`、`kind`、`quality`、冻结 rules/plan SHA-256 和 attempt_id 用于续接检查。没有 force 晋升、演练奖励或 MOCK 旁路。

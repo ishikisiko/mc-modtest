@@ -11,9 +11,9 @@
 ```mcfunction
 /give @s myvillage:rideable_flying_sword
 /give @s myvillage:azure_cloud_flying_sword
-/myvillage cultivation qi fill @s
-/myvillage flying_sword status
-/myvillage flying_sword status <玩家名>
+/yuanxian cultivation qi fill @s
+/yuanxian flying_sword status
+/yuanxian flying_sword status <玩家名>
 ```
 
 生存默认需已觉醒且达到筑基，在干燥地面、头顶及周围空间充足时手持右键唤剑。创造模式跳过修为和灵力门槛，仍拒绝渡劫、已有骑乘、水中等状态。境界门槛由 registry 定义的排序比较，不推算 ID 前缀。管理员境界准备复用现有 cultivation 命令，本模块不添加跳级或自动飞行命令。

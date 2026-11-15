@@ -49,10 +49,10 @@ class Evidence:
     def case(self,name,fn):
         if name not in self.selected:return
         self.current=name;self.report['current']=name;self.save();fn();self.report['completed'].append(name);self.report['unrun']=[v for v in self.selected if v not in self.report['completed']];self.save()
-    def status(self):return self.value('myvillage drops status','DROPS_STATUS ')
+    def status(self):return self.value('yuanxian drops status','DROPS_STATUS ')
     def config(self,data):
         self.path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
-        answer=self.rc('myvillage drops reload');self.check('reload_accepted','掉落配置已生效' in answer,answer)
+        answer=self.rc('yuanxian drops reload');self.check('reload_accepted','掉落配置已生效' in answer,answer)
     def entity_policy(self,mode,drops=None):
         data=copy.deepcopy(self.defaults);data['entities']['myvillage:stele_guardian']={'mode':mode,'drops':drops or []};return data
     @staticmethod
@@ -114,7 +114,7 @@ class Evidence:
         self.check('first_start_creates_pretty_defaults',json.loads(self.path.read_text())==self.defaults and '\n  "' in self.path.read_text())
         self.export('defaults');self.check('initial_snapshot',self.status()['revision']==1)
     def export(self,label):
-        reply=self.rc('myvillage drops export');self.check('export_command','已导出' in reply,reply)
+        reply=self.rc('yuanxian drops export');self.check('export_command','已导出' in reply,reply)
         result=json.loads(self.path.with_name('monster_drops_effective.json').read_text());status=self.status()
         self.check('export_snapshot_identity',result['revision']==status['revision'] and result['sha256']==status['sha256'])
         self.check('export_all_scenes',len(result['rows'])>=71*6 and len({r['context']['scene'] for r in result['rows']})==6)
@@ -124,9 +124,9 @@ class Evidence:
         self.check('csv_includes_native_drop_expression','myvillage:stele_stone_heart' in inherited['继承战利品表'],inherited)
         for suffix in ['json','csv']:shutil.copyfile(self.path.with_name('monster_drops_effective.'+suffix),self.out/f'{label}-effective.{suffix}')
     def query(self):
-        born=self.spawn();v=self.value('myvillage drops inspect '+born['uuid'],'DROPS ')
+        born=self.spawn();v=self.value('yuanxian drops inspect '+born['uuid'],'DROPS ')
         self.check('inspect_live_realm',v['context']['realmRank'] is not None and v['effective']['origin']=='entities.myvillage:stele_guardian',v)
-        v=self.value('myvillage drops show myvillage:stele_guardian habitat donghuang','DROPS ')
+        v=self.value('yuanxian drops show myvillage:stele_guardian habitat donghuang','DROPS ')
         self.check('show_scene',v['effective']['origin']=='overrides.donghuang_habitat',v)
         self.finish()
     def mode(self,mode,want):
@@ -136,7 +136,7 @@ class Evidence:
     def invalid(self):
         before=self.status();valid=self.path.read_bytes()
         for raw in ['{','{"schema":1,"schema":1}',json.dumps(self.entity_policy('replace',[self.entry('minecraft:missing_drop_item')]))]:
-            self.path.write_text(raw);reply=self.rc('myvillage drops reload');after=self.status()
+            self.path.write_text(raw);reply=self.rc('yuanxian drops reload');after=self.status()
             self.check('rejected_keeps_snapshot','重载失败' in reply and before['revision']==after['revision'] and before['sha256']==after['sha256'],reply)
             self.items({'minecraft:emerald':3})
         self.path.write_bytes(valid)
@@ -150,7 +150,7 @@ class Evidence:
         self.check('real_donghuang_context',region=='donghuang',born)
         data['overrides'].insert(0,dict(id='qi9_in_donghuang',when=dict(entities=['myvillage:stele_guardian'],scenes=['normal'],regions=[region],min_realm=dict(realm='myvillage:qi_refining',stage=8),max_realm=dict(realm='myvillage:qi_refining',stage=8)),mode='replace',drops=[self.entry()]))
         self.config(data);self.items({'minecraft:diamond':2},stage=8);self.items({},stage=7)
-        v=self.value('myvillage drops show myvillage:stele_guardian normal beiyuan myvillage:qi_refining 8','DROPS ')
+        v=self.value('yuanxian drops show myvillage:stele_guardian normal beiyuan myvillage:qi_refining 8','DROPS ')
         self.check('other_region_not_matched',v['effective']['origin']=='entities.myvillage:stele_guardian',v)
     def looting(self):
         entries=[self.entry(count=2,looting=dict(min_per_level=1,max_per_level=1,limit=4)),self.entry('minecraft:emerald',64,0)]
@@ -171,7 +171,7 @@ class Evidence:
     def restart(self):
         raw=self.path.read_bytes();sha=self.status()['sha256'];self.server.stop();self.server.start()
         self.check('restart_keeps_external_file',self.path.read_bytes()==raw and self.status()['sha256']==sha)
-        v=self.value('myvillage drops show myvillage:demon_wolf habitat donghuang','DROPS ')
+        v=self.value('yuanxian drops show myvillage:demon_wolf habitat donghuang','DROPS ')
         self.check('restart_custom_rule_live',v['effective']['policy']['drops'][0]['min']==7,v)
     def restore(self):self.config(self.defaults);self.export('restored-defaults');self.check('restored_configuration',json.loads(self.path.read_text())==self.defaults)
 

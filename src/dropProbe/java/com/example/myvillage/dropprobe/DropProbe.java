@@ -88,7 +88,7 @@ public final class DropProbe {
     }
     private static int deny(CommandSourceStack source){
         var server=source.getServer();var before=DropRuntime.snapshot(server);var low=FakePlayerFactory.getMinecraft(server.overworld()).createCommandSourceStack().withPermission(0);
-        boolean denied=false;try{var result=server.getCommands().getDispatcher().execute("myvillage drops reload",low);denied=result==0;}catch(Exception expected){denied=true;}
+        boolean denied=false;try{var result=server.getCommands().getDispatcher().execute("yuanxian drops reload",low);denied=result==0;}catch(Exception expected){denied=true;}
         last=new JsonObject();last.addProperty("permission_zero_denied",denied);last.addProperty("revision_unchanged",before.revision()==DropRuntime.snapshot(server).revision());reply(source);return denied?1:0;
     }
     private static void commands(RegisterCommandsEvent e){

@@ -19,10 +19,10 @@
 管理员可查询实际入口与任务操作位置：
 
 ```text
-/myvillage worldplan qianji
-/myvillage worldplan qianji zhongzhou
-/myvillage qianji probe
-/myvillage qianji phase 20
+/yuanxian worldplan qianji
+/yuanxian worldplan qianji zhongzhou
+/yuanxian qianji probe
+/yuanxian qianji phase 20
 ```
 
 `probe` 读取已加载总舵的31个功能点，报告实际站立空间、方块光和阵枢绑定；它只读取这些点的状态。`phase` 设置周期内的秒数后继续正常播放，仅管理员可调用。

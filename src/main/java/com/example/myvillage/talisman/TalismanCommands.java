@@ -1,5 +1,7 @@
 package com.example.myvillage.talisman;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.crafting.CraftingAptitudes;
 import com.example.myvillage.cultivation.crafting.CraftingRules;
@@ -24,7 +26,7 @@ public final class TalismanCommands {
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(c -> status(c.getSource(), EntityArgument.getPlayer(c, "player"), null))
                         .then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(c -> status(c.getSource(), EntityArgument.getPlayer(c, "player"), BlockPosArgument.getBlockPos(c, "pos")))));
-        e.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("talisman").requires(s -> s.hasPermission(2)).then(status)));
+        e.getDispatcher().register(ModCommands.root().then(Commands.literal("talisman").requires(s -> s.hasPermission(2)).then(status)));
     }
     private static int status(CommandSourceStack source, ServerPlayer player, BlockPos requested) {
         BlockPos pos = requested;

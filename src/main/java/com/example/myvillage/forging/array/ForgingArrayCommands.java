@@ -1,5 +1,7 @@
 package com.example.myvillage.forging.array;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.MyVillageMod;
 import com.google.gson.*;
 import net.minecraft.commands.Commands;
@@ -15,7 +17,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 public final class ForgingArrayCommands {
     private ForgingArrayCommands(){}
     @SubscribeEvent public static void register(RegisterCommandsEvent event){
-        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("forgingarray").requires(s->s.hasPermission(2))
+        event.getDispatcher().register(ModCommands.root().then(Commands.literal("forgingarray").requires(s->s.hasPermission(2))
             .then(Commands.literal("inspect").then(Commands.argument("pos",BlockPosArgument.blockPos()).executes(ctx->{
                 var source=ctx.getSource();var pos=BlockPosArgument.getLoadedBlockPos(ctx,"pos");var result=new JsonObject();
                 if(source.getLevel().getBlockEntity(pos) instanceof ForgingArrayBlockEntity root){

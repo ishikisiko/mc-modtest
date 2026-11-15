@@ -170,9 +170,9 @@ class QualityCaptureContractTest(unittest.TestCase):
             def use_after_eligibility(*args):
                 # A fresh player has zero progress; a previous medicine case must not be required.
                 commands = [call.args[0] for call in evidence.rc.call_args_list]
-                self.assertTrue(any(command.startswith('myvillage cultivation setprogress CaptureDev ')
+                self.assertTrue(any(command.startswith('yuanxian cultivation setprogress CaptureDev ')
                                     for command in commands))
-                self.assertIn('myvillage cultivation setstability CaptureDev 0', commands)
+                self.assertIn('yuanxian cultivation setstability CaptureDev 0', commands)
                 return 1
             evidence.held_quality = Mock(side_effect=use_after_eligibility)
             evidence.med = Mock(return_value={'quality': 4, 'effect': 'ningshen', 'effect_ticks': 1100})

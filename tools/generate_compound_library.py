@@ -272,7 +272,7 @@ def main() -> int:
 
     if group.layout_strategy == "mansion_compound":
         # Standalone hero 假山 review fragment (add-hero-rockery task 4.0): a
-        # self-contained specimen + basin, stamped via /myvillage place hero_rockery.
+        # self-contained specimen + basin, stamped via /yuanxian place hero_rockery.
         fragment = generate_hero_rockery_fragment()
         _, frag_info = export.write_structure_nbt(deepcopy(fragment.grid),
                                                   style.style_id, "hero_rockery")

@@ -7,15 +7,15 @@ one command:
 Scene (as `beast dodge`): a survival player with no armour, no effects and
 naturalRegeneration off, holding the Qingfeng sword in cultivation combat
 mode, who has learned the movement technique (default
-myvillage:taxue_wuhen, through `/myvillage cultivation learn`). The dodge key
+myvillage:taxue_wuhen, through `/yuanxian cultivation learn`). The dodge key
 is the default Left Alt; a left dodge holds A first, no direction is the
 backstep.
 
 Trials, all at /tick rate 5 (client and server slow down together):
 
 - per beast move, against a fresh beast forced into it with
-  `/myvillage beast move`: no dodge; a backstep pressed when the polled
-  `/myvillage beast status` first shows each planned move tick; a left dodge
+  `/yuanxian beast move`: no dodge; a backstep pressed when the polled
+  `/yuanxian beast status` first shows each planned move tick; a left dodge
   at one tick (see DODGE_TRIALS);
 - cooldown: no beast, two presses about COOLDOWN_GAP_TICKS game ticks apart
   (the second should be `rejected reason=COOLDOWN`);
@@ -289,7 +289,7 @@ class DodgeCapture(BeastCapture):
         self.run(f"gamemode survival {u}", "gamerule naturalRegeneration false",
                  f"tp {u} 0.5 {self.y} 0.5 0 {PITCH:g}", f"item replace entity {u} weapon.mainhand with {SWORD}",
                  f"effect give {u} minecraft:instant_health 1 10 true", warn=False)
-        learn = self.run(f"myvillage cultivation learn {u} {self.technique}", warn=False)[0].strip()
+        learn = self.run(f"yuanxian cultivation learn {u} {self.technique}", warn=False)[0].strip()
         self.manifest["notes"].append(f"learn {self.technique}: {learn[:200] or '(no reply)'}")
         self.manifest["notes"].append("survival, no armour, no effects but saturation, naturalRegeneration false, "
                                       f"Qingfeng sword in hand, healed before each trial; trials at /tick rate {TRIAL_RATE}")
@@ -332,7 +332,7 @@ class DodgeCapture(BeastCapture):
         hp_before = self.health()
         start_pos = self.pos(None)
         self.run(f"damage {self.sel()} 0.5 minecraft:player_attack by {self.user}",
-                 f"myvillage beast move {self.sel()} {trial['move']}", f"tick rate {TRIAL_RATE}", "tick unfreeze")
+                 f"yuanxian beast move {self.sel()} {trial['move']}", f"tick rate {TRIAL_RATE}", "tick unfreeze")
         at, left = trial["at"], trial["direction"] == "left"
         held = False
         release_at = None
@@ -343,7 +343,7 @@ class DodgeCapture(BeastCapture):
         try:
             with self.s.rcon() as r:
                 while time.time() - t0 < 30:
-                    st = parse_status(r.cmd(f"myvillage beast status {self.sel()}"))
+                    st = parse_status(r.cmd(f"yuanxian beast status {self.sel()}"))
                     gt = self.gametime(r)
                     moving = st.get("move", "none") != "none"
                     tick = int(st.get("tick", "-1")) if moving else -1
@@ -540,7 +540,7 @@ def run_dodge(session: Session, beast: str, technique: str, out: Path, log=print
         cap.run_trials()
     finally:
         steps = [lambda: cap.g.xdo("keyup", "a"), lambda: cap.g.xdo("keyup", "Alt_L"),
-                 lambda: cap.run("tick rate 20", "tick unfreeze", "myvillage beast debug off",
+                 lambda: cap.run("tick rate 20", "tick unfreeze", "yuanxian beast debug off",
                                  "gamerule naturalRegeneration true", f"kill @e[tag={TAG_BEAST}]", warn=False),
                  cap.bury, lambda: press_f5_to(cap.s, "first")]
         for step in steps:

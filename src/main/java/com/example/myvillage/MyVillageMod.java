@@ -1,5 +1,7 @@
 package com.example.myvillage;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.block.ModBlockEntities;
 import com.example.myvillage.alchemy.AlchemyMenus;
 import com.example.myvillage.alchemy.AlchemyRules;
@@ -74,7 +76,7 @@ import java.util.Optional;
  * biome-gated landmark whose mountain is derived from the compound's terrace
  * profile (反推山形) and baked into chunks; locatable via
  * {@code /locate structure myvillage:sect} and force-generatable via
- * {@code /myvillage sect worldgen [seed] [variant]}.
+ * {@code /yuanxian sect worldgen [seed] [variant]}.
  */
 @Mod(MyVillageMod.MOD_ID)
 public final class MyVillageMod {
@@ -94,7 +96,7 @@ public final class MyVillageMod {
     private static final Logger LOGGER = LoggerFactory.getLogger(MyVillageMod.class);
 
     public MyVillageMod(IEventBus modEventBus, ModContainer modContainer) {
-        LOGGER.info("MyVillage resource mod loaded");
+        LOGGER.info("{}模组已载入", ModBrand.DISPLAY_NAME);
         com.example.myvillage.legacy.LegacyContent.initialize();
         modContainer.registerConfig(ModConfig.Type.SERVER, CultivationServerConfig.SPEC);
         modContainer.registerConfig(ModConfig.Type.SERVER, WorldSimServerConfig.SPEC, WorldSimServerConfig.FILE_NAME);
@@ -175,6 +177,7 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.BattleReceipts::conversion);
         com.example.myvillage.quest.QuestRuntime.register();
         com.example.myvillage.drops.DropRuntime.register();
+        ModCommands.register();
         WildernessRuntime.register();
         com.example.myvillage.exploration.boss.BossRuntime.register();
         com.example.myvillage.exploration.ExplorationRuntime.register();
@@ -207,8 +210,7 @@ public final class MyVillageMod {
         com.example.myvillage.combat.foundation.FoundationCommands.register(event.getDispatcher());
         com.example.myvillage.spiritstone.SpiritStoneCommands.register(event.getDispatcher());
         event.getDispatcher().register(
-                Commands.literal(MOD_ID)
-                        .requires(source -> source.hasPermission(2))
+                ModCommands.adminRoot()
                         .then(Commands.literal("place")
                                 .then(Commands.argument("structure_id", StringArgumentType.string())
                                         .executes(ctx -> placeNamedStructure(

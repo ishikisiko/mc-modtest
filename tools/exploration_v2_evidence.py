@@ -70,8 +70,8 @@ class ExplorationV2Evidence(ExplorationEvidence):
     def progression(self):
         u,g=self.s.username,self.s.game
         self.rc(f'deop {u}')
-        self.rc(f'myvillage cultivation awaken {u}');self.rc(f'myvillage cultivation initiate {u}')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
+        self.rc(f'yuanxian cultivation awaken {u}');self.rc(f'yuanxian cultivation initiate {u}')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/exploration/rules.json').read_text())
         final={'dragon','islands','end_city','elytra'}
         for flag,advancement in rules['advancements'].items():
@@ -94,7 +94,7 @@ class ExplorationV2Evidence(ExplorationEvidence):
     def portal(self):
         u,g=self.s.username,self.s.game
         self.rc(f'gamemode creative {u}')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early')
         self.travel('minecraft:overworld',.5,-60,.5)
         self.rc('fill -3 -61 -3 3 -61 6 minecraft:smooth_stone')
         self.rc('fill -3 -60 -3 3 -57 6 minecraft:air')
@@ -159,9 +159,9 @@ class ExplorationV2Evidence(ExplorationEvidence):
                          10,'shared boss native first-tick attributes initialized')
         self.check('shared_boss_native_defaults_ready',
                    defaults <= {row['id'] for row in before['attributes']},before['attributes'])
-        self.rc(f'myvillage cultivation awaken {u}')
-        self.rc(f'myvillage cultivation initiate {u}')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
+        self.rc(f'yuanxian cultivation awaken {u}')
+        self.rc(f'yuanxian cultivation initiate {u}')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/exploration/rules.json').read_text())
         for advancement in rules['advancements'].values():
             self.rc(f'advancement grant {u} only {advancement}')

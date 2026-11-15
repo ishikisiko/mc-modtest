@@ -73,20 +73,20 @@ class ParserTests(unittest.TestCase):
 
 class AuthorityTests(unittest.TestCase):
     def test_rcon_can_prepare_and_read_but_cannot_bind_or_cast(self):
-        allowed = ('myvillage foundation grant shield CaptureDev myvillage:fixture_a 8 60',
-                   'myvillage foundation grant root CaptureDev @e[tag=fixture,limit=1] 60',
-                   'myvillage foundation grant poise CaptureDev myvillage:fixture 60',
-                   'myvillage foundation status CaptureDev', 'tick freeze', 'tick step 60',
-                   'execute as CaptureDev run myvillage combat bindings',
+        allowed = ('yuanxian foundation grant shield CaptureDev myvillage:fixture_a 8 60',
+                   'yuanxian foundation grant root CaptureDev @e[tag=fixture,limit=1] 60',
+                   'yuanxian foundation grant poise CaptureDev myvillage:fixture 60',
+                   'yuanxian foundation status CaptureDev', 'tick freeze', 'tick step 60',
+                   'execute as CaptureDev run yuanxian combat bindings',
                    'execute if loaded 0 -61 0 run time query gametime',
-                   'myvillage cultivation fate roll CaptureDev')
+                   'yuanxian cultivation fate roll CaptureDev')
         for command in allowed:
             with self.subTest(command=command):
                 self.assertTrue(allow_rcon(command))
-        forbidden = ('myvillage foundation cast wood_root', 'myvillage combat skill 0',
-                     'myvillage cultivation fate confirm CaptureDev 7',
-                     'execute as CaptureDev run myvillage foundation cast wood_root',
-                     'execute if entity @a run myvillage combat cast wood_root',
+        forbidden = ('yuanxian foundation cast wood_root', 'yuanxian combat skill 0',
+                     'yuanxian cultivation fate confirm CaptureDev 7',
+                     'execute as CaptureDev run yuanxian foundation cast wood_root',
+                     'execute if entity @a run yuanxian combat cast wood_root',
                      'tick freeze\nmyvillage combat cast wood_root',
                      'data modify entity CaptureDev Health set value 100f')
         for command in forbidden:
@@ -112,7 +112,7 @@ class AuthorityTests(unittest.TestCase):
         evidence = FoundationEvidence.__new__(FoundationEvidence)
         evidence.s = Mock()
         with self.assertRaises(ValueError):
-            evidence.rc('myvillage foundation cast wood_root')
+            evidence.rc('yuanxian foundation cast wood_root')
         evidence.s.run.assert_not_called()
 
 

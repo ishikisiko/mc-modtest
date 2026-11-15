@@ -50,7 +50,7 @@
 - 中品青玉莲座与双环四瓣，上品紫金框架悬心与三环八卦；共用阵心 BlockEntity 类型，实例档位由所属方块决定，不相信存档自报档位。
 - 世界阵纹由客户端 `GatheringRenderer` 绘制，读取服务器成型／运转标志，不用实体充当光点。
 - 菜单使用原版容器同步和按钮意图，无自定义客户端收益、距离或成本请求。
-- `/myvillage gathering inspect <x> <y> <z>` 是管理员只读诊断，不是玩家启动入口。
+- `/yuanxian gathering inspect <x> <y> <z>` 是管理员只读诊断，不是玩家启动入口。
 - Modal `gathering-build`：资源检查、聚灵阵与修炼结算 Java 测试、完整依赖 jar。
 - Modal `gathering-runtime`：上述检查再执行独立 `structure,mapped,economy,overlap,two_players,restart,visual` 场景。
   `gathering-play` 用于采集器局部重试，可用 `--cases` 选择范围，必须记录复用证据和固定源。

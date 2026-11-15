@@ -159,7 +159,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         u,g=self.s.username,self.s.game
         target='@e[tag=exploration_target,limit=1]'
         self.rc(f'gamemode survival {u}');self.rc(f'tp {u} .5 -60 .5 0 0')
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
         self.rc(f'item replace entity {u} weapon.mainhand with myvillage:qingfeng_sword')
         self.rc('time set midnight')
         # The preceding recipe case used this exact spot as a ding. Leave a genuine two-block
@@ -182,7 +182,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.check('combat_keeps_birth',read_data(self.rc(f'data get entity {target} {birth_path}'))==before,before)
         g.shot(self.out/'assigned-monster-combat.png',max_wait=3,settle=.2)
         self.rc(f'kill {target}');self.rc(f'gamemode creative {u}');self.rc('time set day');self.center()
-        self.rc(f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early')
         self.report['completed'].append('mapped_combat')
 
     def chest_restart(self):
@@ -216,15 +216,15 @@ class ExplorationEvidence(NpcLifeEvidence):
     def run(self):
         self.start();u=self.s.username
         self.setup();x,z=self.offset
-        self.rc(f'myvillage life bind showcase yunshan_showcase_v2 {x} -61 {z}')
+        self.rc(f'yuanxian life bind showcase yunshan_showcase_v2 {x} -61 {z}')
         rows=self.poll(self.residents,lambda rows:any(r['role']=='guide' for r in rows),20,'automatic guide staffing')
         pid=next(r['personId'] for r in rows if r['role']=='guide');self.ids={'guide':pid}
-        self.rc('myvillage world resume')
+        self.rc('yuanxian world resume')
         self.poll(lambda:self.status(pid),lambda r:r['embodied'],30,'guide real body')
         self.rc(f'deop {u}')
         self.mapped_guide(pid,'awaken');self.report['completed'].append('town_guide')
-        for command in (f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',
-            f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early',
+        for command in (f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',
+            f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early',
             f'advancement grant {u} only minecraft:story/smelt_iron',f'advancement grant {u} only minecraft:story/enter_the_nether'):
             self.rc(command)
         self.mapped_guide(pid,'fortress')
@@ -234,7 +234,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.check('non_operator_tips_command',rows[-1].get('next')=='fortress' and rows[-1].get('tipOnly')=='true',rows)
         self.report['completed'].append('player_progress')
         self.book();self.chest();self.crafting();self.combat()
-        self.center();self.rc('myvillage world resume')
+        self.center();self.rc('yuanxian world resume')
         self.poll(lambda:self.status(pid),lambda r:r['embodied'],30,'guide before multiplayer')
         with SecondClient(self) as guest:
             self.rc(f'gamemode creative {guest.username}');self.center(guest.username)
@@ -243,8 +243,8 @@ class ExplorationEvidence(NpcLifeEvidence):
             self.check('two_clients_share_one_guide',self.count(pid)==1 and self.body(pid)['UUID']==uuid,self.status(pid))
             self.mapped_guide(pid,'fortress')
         self.report['completed'].append('two_clients');self.report['multiplayer']='two actual clients; separate progress, one body'
-        self.rc('myvillage world pause');before=self.ledger('before-restart');self.stop()
-        self.start(reuse=True);self.center();self.rc('myvillage world resume')
+        self.rc('yuanxian world pause');before=self.ledger('before-restart');self.stop()
+        self.start(reuse=True);self.center();self.rc('yuanxian world resume')
         self.poll(lambda:self.status(pid),lambda r:r['embodied'],35,'guide after restart')
         after=self.ledger('after-restart')
         self.check('mapped_restart_guide_identity',before['life']['guide_assignments']==after['life']['guide_assignments']

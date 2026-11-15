@@ -2,7 +2,7 @@
 
 Implemented in 0.13.0 by change `town-shape-vocabulary`.
 
-The runtime `/myvillage town [seed]` planner selects a base wall family from
+The runtime `/yuanxian town [seed]` planner selects a base wall family from
 `square`, `circle` (天圆), `oval`, `dshape` (半月), `octagon`, and `trapezoid`.
 It independently selects `none`, `barbican`, or `bastion` as a modifier. All
 selection and geometry parameters use `town_hash`; Python and Java therefore

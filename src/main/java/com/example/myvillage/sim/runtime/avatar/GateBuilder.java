@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@code /myvillage world sect <id> build [here]}: builds a sect's compound (山门) where the ledger
+ * {@code /yuanxian world sect <id> build [here]}: builds a sect's compound (山门) where the ledger
  * puts its gate and records the realization. The ledger stays the authority: the build follows the
  * sect's record, never the other way round, and {@code here} moves the ledger's gate first.
  *

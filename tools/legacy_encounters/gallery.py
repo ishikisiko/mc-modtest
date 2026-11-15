@@ -23,7 +23,7 @@ def main():
             language='zh_cn',view_distance=3,settle=3,server_timeout=600,client_timeout=600,lock=str(procs.default_lock_path(ROOT))))
         if not state or state.get('phase')!='ready':raise RuntimeError('No ready gallery client')
         session=cs.Session.attach(ui_check=True)
-        for text in ['tick unfreeze','myvillage world pause','weather clear','time set noon','gamerule doDaylightCycle false',
+        for text in ['tick unfreeze','yuanxian world pause','weather clear','time set noon','gamerule doDaylightCycle false',
                      'gamerule doWeatherCycle false','kill @e[tag=legacy_target]','kill @e[tag=locked_fixture]',
                      *['kill @e[type=myvillage:'+m['id']+']' for m in catalogue()['mobs']],
                      'fill -8 -61 -2 8 -61 16 minecraft:stone','kill @e[type=minecraft:item]','kill @e[type=minecraft:experience_orb]',

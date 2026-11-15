@@ -1,5 +1,7 @@
 package com.example.myvillage.wilderness.habitat;
 
+import com.example.myvillage.command.ModCommands;
+
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.cultivation.time.CultivationCalendarSavedData;
 import com.example.myvillage.cultivation.time.CultivationServerConfig;
@@ -162,7 +164,7 @@ public final class HabitatRuntime {
     @SubscribeEvent public static void broken(BlockEvent.BreakEvent event){if(event.getPlayer() instanceof ServerPlayer player)construction(player.serverLevel(),event.getPos(),false);}
     @SubscribeEvent public static void stopped(ServerStoppedEvent event){INSTALLED.clear();NEAR.clear();}
     @SubscribeEvent public static void commands(RegisterCommandsEvent event){
-        event.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(Commands.literal("habitat").executes(c->{
+        event.getDispatcher().register(ModCommands.adminRoot().then(Commands.literal("habitat").executes(c->{
             var level=c.getSource().getServer().overworld();var layout=layout(level);if(layout==null){c.getSource().sendFailure(Component.literal("当前世界没有东荒生态规划。"));return 0;}
             var data=new LinkedHashMap<String,Object>();data.put("month",month(level));data.put("region",layout.rules().region);data.put("sites",layout.sites());data.put("state",HabitatSavedData.get(level).state);data.put("refresh_months",layout.rules().integer("refresh_months"));data.put("ticks_per_month",(long)CultivationServerConfig.scale().ticksPerDay()*CultivationServerConfig.scale().daysPerMonth());data.put("loaded_sites",layout.sites().stream().filter(s->ready(level,s,layout.rules().integer("site_radius")+2)).map(HabitatLayout.Site::id).toList());
             var living=new ArrayList<Map<String,Object>>();for(var round:HabitatSavedData.get(level).state.rounds.values())for(var member:round.members){var mob=level.getEntity(member.id);if(mob instanceof LivingEntity entity)living.add(Map.of("uuid",member.id,"realm",StatsRuntime.assignedRealm(entity).map(k->k.realmId()+"/"+k.stage()).orElse(""),"site",round.site,"health",entity.getHealth(),"max_health",entity.getMaxHealth(),"x",entity.getX(),"y",entity.getY(),"z",entity.getZ(),"activity",member.activity,"target",entity instanceof Mob m&&m.getTarget()!=null?m.getTarget().getUUID().toString():""));}data.put("living",living);

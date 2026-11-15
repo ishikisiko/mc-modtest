@@ -59,7 +59,7 @@ class Server:
         return answer
 
     def roads(self, action):
-        answer = self.command('myvillage roads '+action)
+        answer = self.command('yuanxian roads '+action)
         # RCON's Unicode JSON is read as the explicit production command result.
         match = re.search(r'\{"phase":.*\}', answer)
         if not match:
