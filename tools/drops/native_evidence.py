@@ -131,7 +131,11 @@ class Evidence:
     def toggle(self):
         self.spawn();self.config(self.entity_policy('replace',[self.entry()]));self.check('external_source',self.status()['source']=='external')
         value=self.finish();self.check('enable_affects_existing_entity',value['world_items']=={'minecraft:diamond':2},value)
-        self.export('external');original=self.path.read_bytes();self.spawn();self.bundled()
+        rows=self.export('external','yuanxian:thornback_badger','yuanxian:thorn_bone')
+        replaced=next(row for row in rows if row['实体ID']=='yuanxian:stele_guardian' and row['场景']=='normal')
+        entries=json.loads(replaced['配置掉落'])
+        self.check('csv_replacement_has_only_configured_drops',replaced['模式']=='replace' and not replaced['原始战利品表ID'] and not replaced['继承战利品表'] and len(entries)==1 and entries[0]['item']=='minecraft:diamond' and entries[0]['min']==entries[0]['max']==2,replaced)
+        original=self.path.read_bytes();self.spawn();self.bundled()
         value=self.finish();self.check('disable_affects_existing_entity',value['world_items']=={'yuanxian:stele_stone_heart':1},value)
         self.check('toggle_preserves_custom_file',self.path.read_bytes()==original)
     def invalid_settings(self):
@@ -149,16 +153,17 @@ class Evidence:
         self.bundled();self.path.write_text('{old unused config');original=self.path.read_bytes();before=self.status();self.server.stop();self.server.start()
         after=self.status();self.check('restart_uses_current_bundle',after['source']=='bundled' and after['sha256']==before['sha256'] and not after['last_error'] and self.path.read_bytes()==original)
         self.items({'yuanxian:stele_stone_heart':1})
-    def export(self,label):
+    def export(self,label,inherited_entity='yuanxian:stele_guardian',inherited_item='yuanxian:stele_stone_heart'):
         reply=self.rc('yuanxian drops export');self.check('export_command','已导出' in reply,reply)
         result=json.loads(self.path.with_name('monster_drops_effective.json').read_text());status=self.status()
         self.check('export_snapshot_identity',result['revision']==status['revision'] and result['sha256']==status['sha256'] and result['source']==status['source'] and all(row['source']==status['source'] for row in result['rows']))
         self.check('export_all_scenes',len(result['rows'])>=71*6 and len({r['context']['scene'] for r in result['rows']})==6)
         self.check('csv_bom',self.path.with_name('monster_drops_effective.csv').read_bytes().startswith(b'\xef\xbb\xbf'))
         with self.path.with_name('monster_drops_effective.csv').open(encoding='utf-8-sig',newline='') as stream:csv_rows=list(csv.DictReader(stream))
-        inherited=next(row for row in csv_rows if row['实体ID']=='yuanxian:stele_guardian' and row['场景']=='normal')
-        self.check('csv_includes_native_drop_expression','yuanxian:stele_stone_heart' in inherited['继承战利品表'],inherited)
+        inherited=next(row for row in csv_rows if row['实体ID']==inherited_entity and row['场景']=='normal')
+        self.check('csv_includes_native_drop_expression',inherited['模式'] in ('inherit','append') and inherited_item in inherited['继承战利品表'],inherited)
         for suffix in ['json','csv']:shutil.copyfile(self.path.with_name('monster_drops_effective.'+suffix),self.out/f'{label}-effective.{suffix}')
+        return csv_rows
     def query(self):
         born=self.spawn();v=self.value('yuanxian drops inspect '+born['uuid'],'DROPS ')
         self.check('inspect_live_realm',v['context']['realmRank'] is not None and v['effective']['origin']=='entities.yuanxian:stele_guardian',v)
