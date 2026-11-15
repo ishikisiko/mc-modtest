@@ -15,7 +15,7 @@ public record SpiritStoneBagRules(int collectionIntervalTicks) {
     }
     public static SpiritStoneBagRules get() { return Holder.INSTANCE; }
     private static SpiritStoneBagRules load() {
-        try (var stream = SpiritStoneBagRules.class.getResourceAsStream("/data/myvillage/spirit_stones/bag.json")) {
+        try (var stream = SpiritStoneBagRules.class.getResourceAsStream("/data/yuanxian/spirit_stones/bag.json")) {
             if (stream == null) throw new IllegalStateException("Missing spirit stone bag rules");
             var data = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
             if (!data.keySet().equals(java.util.Set.of("collection_interval_ticks")))

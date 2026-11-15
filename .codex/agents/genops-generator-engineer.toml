@@ -16,7 +16,7 @@ Forbidden unless explicitly assigned by the parent:
 - Java runtime/worldgen files.
 - gradle.properties, CHANGELOG.md, release metadata.
 - build/libs/*.
-- Hand-editing src/main/resources/data/myvillage/structure/*.nbt.
+- Hand-editing src/main/resources/data/yuanxian/structure/*.nbt.
 
 Rules:
 - Prefer existing generator registries and patterns.

@@ -1,18 +1,18 @@
 # 怪物掉落动态配置
 
-0.133.0 起，服务端首次启动创建 `config/myvillage/monster_drops.json`。单机游戏使用该游戏实例的 config 目录，独立服务器使用服务器自己的 config 目录。现有文件保持原内容，更新模组不会覆盖自定义规则。
+0.133.0 起，服务端首次启动创建 `config/yuanxian/monster_drops.json`。单机游戏使用该游戏实例的 config 目录，独立服务器使用服务器自己的 config 目录。现有文件保持原内容，更新模组不会覆盖自定义规则。
 
 该文件集中控制普通怪物、主世界群落、委托秘境、宗门考核和资质试炼的物品掉落。默认继承原版及模组战利品表；东荒群落继续掉落1–3枚下品灵石，委托秘境与两类考核继续禁止直接物品掉落。烈焰人兽火的3.5%额外掉落也迁入本文件。玩家背包掉落不属于此配置的作用范围。
 
 ## 修改与重载
 
-1. 编辑 `config/myvillage/monster_drops.json`。
+1. 编辑 `config/yuanxian/monster_drops.json`。
 2. 管理员执行 `/yuanxian drops reload`。
 3. 成功回复显示本次规则版本和 SHA-256；从下一次死亡起使用新规则，已有怪物也适用。
 
 重载先完整读取并校验全部配置，通过后一次性替换服务器当前快照。语法、重复字段、未知字段、物品/实体/地区ID、数量、概率、境界或格式错误都会拒绝本次重载，当前快照及其版本保持原值。启动时已有文件无效则记录错误并使用本次包内默认规则，`status` 显示启动错误；可修正文件后再次重载。
 
-重载成功后自动导出 `config/myvillage/monster_drops_effective.json` 和 `.csv`。这两份是查询产物，编辑入口始终是 `monster_drops.json`。单独执行 `/yuanxian drops export` 也可重新导出；原版数据包 `/reload` 后会刷新导出所引用的基础战利品表。导出失败会记录错误，已经生效的掉落规则继续运行。
+重载成功后自动导出 `config/yuanxian/monster_drops_effective.json` 和 `.csv`。这两份是查询产物，编辑入口始终是 `monster_drops.json`。单独执行 `/yuanxian drops export` 也可重新导出；原版数据包 `/reload` 后会刷新导出所引用的基础战利品表。导出失败会记录错误，已经生效的掉落规则继续运行。
 
 ## 四种模式
 
@@ -38,14 +38,14 @@
 
 ## 普通赤甲蜥示例
 
-在 `entities` 中将 `myvillage:redplate_lizard` 改成以下内容，可使普通赤甲蜥每次掉2–4片赤甲片：
+在 `entities` 中将 `yuanxian:redplate_lizard` 改成以下内容，可使普通赤甲蜥每次掉2–4片赤甲片：
 
 ```json
 {
   "mode": "replace",
   "drops": [
     {
-      "item": "myvillage:redplate_scale",
+      "item": "yuanxian:redplate_scale",
       "min": 2,
       "max": 4,
       "chance": 1,
@@ -70,9 +70,9 @@
 - 数组条件中的任一值可以匹配，不同字段之间须同时满足；填写的数组不能为空。
 - 场景为 `normal`、`habitat`、`quest_realm`、`sect_trial`、`aptitude_trial`、`battle_ruin`。多重身份按此模块的服务器来源判定处理，试炼与考核先于其他身份。
 - 地区条件只使用主世界地区归属；其他维度没有主世界地区。
-- 境界使用 `{"realm":"myvillage:qi_refining","stage":8}`，stage从0开始，炼气九层为8。上下限均包含端点，未分配境界的目标不匹配境界限定。
+- 境界使用 `{"realm":"yuanxian:qi_refining","stage":8}`，stage从0开始，炼气九层为8。上下限均包含端点，未分配境界的目标不匹配境界限定。
 - `player_kill` 检查最终伤害来源是否为 ServerPlayer，包括玩家发射的投射物。
-- 兽火使用 `factory: "beast_fire"`，同时要求 item 为 `myvillage:beast_fire_seed`；它生成带有兽火种类、成熟度和来源信息的正式物品。默认烈焰人规则还要求尚未被捕火。普通物品可省略 factory，或填写 `plain`。
+- 兽火使用 `factory: "beast_fire"`，同时要求 item 为 `yuanxian:beast_fire_seed`；它生成带有兽火种类、成熟度和来源信息的正式物品。默认烈焰人规则还要求尚未被捕火。普通物品可省略 factory，或填写 `plain`。
 
 ## 查询
 
@@ -80,9 +80,9 @@
 
 ```text
 /yuanxian drops status
-/yuanxian drops inspect @e[type=myvillage:redplate_lizard,sort=nearest,limit=1]
-/yuanxian drops show myvillage:redplate_lizard normal donghuang myvillage:qi_refining 8
-/yuanxian drops show myvillage:redplate_lizard habitat donghuang
+/yuanxian drops inspect @e[type=yuanxian:redplate_lizard,sort=nearest,limit=1]
+/yuanxian drops show yuanxian:redplate_lizard normal donghuang yuanxian:qi_refining 8
+/yuanxian drops show yuanxian:redplate_lizard habitat donghuang
 /yuanxian drops export
 ```
 
@@ -92,7 +92,7 @@ JSON导出保留完整配置、各实体各场景的规则预览和继承表。C
 
 ## 作者入口
 
-包内默认文件为 `src/main/resources/data/myvillage/drops/monster_drops.json`。它与外置文件使用同一格式；发布时修改默认文件，运行时编辑服务器外置文件。掉落参数已从冻结的生态模板及炼器兽火配置中移出。
+包内默认文件为 `src/main/resources/data/yuanxian/drops/monster_drops.json`。它与外置文件使用同一格式；发布时修改默认文件，运行时编辑服务器外置文件。掉落参数已从冻结的生态模板及炼器兽火配置中移出。
 
 仅生态资源引用发生变化时，拥有者生成器可执行 `tools/province_capitals/game/compile_v11.py --refresh-habitat-only --out <资源根目录>`。该入口核对当前作者输出，只更新生态摘要、预设内的冻结规则及索引摘要，保留其他世界规划输入。
 

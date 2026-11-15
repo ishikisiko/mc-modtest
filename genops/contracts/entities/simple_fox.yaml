@@ -1,7 +1,7 @@
 schema_version: 1
 
 project:
-  mod_id: myvillage
+  mod_id: yuanxian
   java_package: com.example.myvillage
   minecraft_version: 1.21.1
   neoforge_version: 21.1.233
@@ -9,7 +9,7 @@ project:
 
 entity:
   id: simple_fox
-  resource_location: myvillage:simple_fox
+  resource_location: yuanxian:simple_fox
   display_name:
     zh_cn: 简易狐狸
     en_us: Simple Fox
@@ -132,7 +132,7 @@ rendering:
   renderer_strategy: custom entity renderer reusing FoxModel and always returning the single custom texture
   geo: null
   animation: null
-  base_texture: myvillage:textures/entity/simple_fox/simple_fox.png
+  base_texture: yuanxian:textures/entity/simple_fox/simple_fox.png
   glow_texture: null
   final_texture_size:
     width: 48
@@ -209,7 +209,7 @@ items:
     id: simple_fox_spawn_egg
     primary_color: "#D77A2F"
     secondary_color: "#F1C58F"
-    creative_tab: myvillage:main
+    creative_tab: yuanxian:main
 
 sound:
   strategy: direct_vanilla_reuse
@@ -228,7 +228,7 @@ sound:
   subtitles: inherit_vanilla
 
 loot:
-  table: myvillage:entities/simple_fox
+  table: yuanxian:entities/simple_fox
   intent: empty_first_iteration_entity_loot_table
   pools: []
   entries: []
@@ -236,8 +236,8 @@ loot:
 
 spawn:
   natural: true
-  biome_tag: myvillage:has_simple_fox
-  biome_modifier: myvillage:add_simple_fox_spawns
+  biome_tag: yuanxian:has_simple_fox
+  biome_modifier: yuanxian:add_simple_fox_spawns
   biome_values:
     - "#minecraft:is_taiga"
   placement: no_restrictions
@@ -285,7 +285,7 @@ acceptance:
   human_verdict_status: accepted
 
 assumptions:
-  - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。
+  - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 yuanxian，Java 包根为 com.example.myvillage。
   - SimpleFox 直接继承原版 Fox；除自定义 EntityType、后代类型保持为 simple_fox 所需的窄适配，以及固定贴图渲染外，不替换原版 AI、交互、战斗或状态逻辑。
   - 所有外观状态共用一张 48x32 橙色贴图；不添加雪狐、睡眠、发光或外观变体贴图。继承的 DATA_TYPE_ID 仅为原版数据和行为兼容保留，不选择贴图。
   - 空战利品指实体 loot table 没有 pools；狐狸继承的拾取物品和原版装备掉落语义不被本轮改写。

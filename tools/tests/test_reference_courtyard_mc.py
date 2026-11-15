@@ -79,15 +79,15 @@ class CourtyardKitTest(unittest.TestCase):
     def test_gallery_wall_plates_and_gate_heads_reach_the_roof(self):
         for z in [25,32]:
             for x in range(3,24):
-                self.assertEqual('myvillage:courtyard_floor[facing=north,variant=1,waterlogged=false]',self.site.blocks[x,8,z])
+                self.assertEqual('yuanxian:courtyard_floor[facing=north,variant=1,waterlogged=false]',self.site.blocks[x,8,z])
         for x in [6,12,18]:
             for y in range(3,8):
-                self.assertEqual('myvillage:courtyard_wall[facing=north,variant=0,waterlogged=false,part=0]',self.site.blocks[x,y,31])
+                self.assertEqual('yuanxian:courtyard_wall[facing=north,variant=0,waterlogged=false,part=0]',self.site.blocks[x,y,31])
             for z in range(26,32):
                 roof_y=9
                 for y in range(8,roof_y):
-                    self.assertEqual('myvillage:courtyard_wall[facing=east,variant=3,waterlogged=false,part=0]',self.site.blocks[x,y,z])
-                self.assertTrue(self.site.blocks[x,roof_y,z].startswith(('myvillage:courtyard_roof','myvillage:courtyard_ridge')))
+                    self.assertEqual('yuanxian:courtyard_wall[facing=east,variant=3,waterlogged=false,part=0]',self.site.blocks[x,y,z])
+                self.assertTrue(self.site.blocks[x,roof_y,z].startswith(('yuanxian:courtyard_roof','yuanxian:courtyard_ridge')))
 
     def test_curved_roofs_have_closed_seams_thin_shells_and_raised_ends(self):
         roof=next(f for f in self.config['families'] if f['id']=='courtyard_roof')
@@ -152,8 +152,8 @@ class CourtyardKitTest(unittest.TestCase):
 
     def test_main_roof_has_two_separated_tiers_without_old_firewall_spikes(self):
         for z in range(27,37):
-            self.assertTrue(self.site.blocks[35,11,z].startswith('myvillage:courtyard_roof'))
-            self.assertTrue(self.site.blocks[35,15,z].startswith('myvillage:courtyard_roof'))
+            self.assertTrue(self.site.blocks[35,11,z].startswith('yuanxian:courtyard_roof'))
+            self.assertTrue(self.site.blocks[35,15,z].startswith('yuanxian:courtyard_roof'))
             self.assertEqual(self.site.owners[35,11,z],self.site.owners[35,15,z])
         for x in [24,44]:
             for z in range(27,39):
@@ -194,7 +194,7 @@ class CourtyardKitTest(unittest.TestCase):
             for part,pos in enumerate(unit['parts']):
                 p=tuple(pos);self.assertNotIn(p,occupied);occupied.add(p)
                 name,props=mc.nbt.parse_block_state(self.site.blocks[p])
-                self.assertEqual(name,'myvillage:'+unit['family'])
+                self.assertEqual(name,'yuanxian:'+unit['family'])
                 self.assertEqual(int(props['part']),part)
                 self.assertEqual(int(props['variant']),unit['variant'])
                 self.assertEqual(props['facing'],unit['facing'])
@@ -207,7 +207,7 @@ class CourtyardKitTest(unittest.TestCase):
                 properties=pool['conditions'][0]['properties']
                 self.assertEqual(properties['variant'],str(vi))
                 self.assertEqual(properties.get('part'),'0' if max_parts>1 else None)
-                entry=pool['entries'][0];self.assertEqual(entry['name'],'myvillage:'+f['id'])
+                entry=pool['entries'][0];self.assertEqual(entry['name'],'yuanxian:'+f['id'])
                 self.assertEqual(entry['functions'][0]['components']['minecraft:block_state'],{'variant':str(vi)})
 
     def test_item_icons_show_whole_units_inside_vanilla_bounds(self):

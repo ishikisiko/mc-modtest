@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class AptitudePointsTest {
     @Test void elementPointsAreIndependentAndCanExceedOneHundred() {
-        var fire=ResourceLocation.parse("myvillage:fire"); var water=ResourceLocation.parse("myvillage:water");
+        var fire=ResourceLocation.parse("yuanxian:fire"); var water=ResourceLocation.parse("yuanxian:water");
         var root=new SpiritualRoot(Map.of(fire,300,water,200));
         assertEquals(200,root.with(fire,315).points().get(water));
         assertEquals(315,root.with(fire,315).points().get(fire));
@@ -59,8 +59,8 @@ class AptitudePointsTest {
         assertThrows(IllegalArgumentException.class,()->AptitudeRules.add(0,-1));
     }
     @Test void confirmedFateRemainsActiveAfterDevelopingAnotherRoot() {
-        var fire = ResourceLocation.parse("myvillage:fire");
-        var water = ResourceLocation.parse("myvillage:water");
+        var fire = ResourceLocation.parse("yuanxian:fire");
+        var water = ResourceLocation.parse("yuanxian:water");
         var fate = new com.example.myvillage.cultivation.fate.FateDefinition("test.name", "test.description",
                 0, 1, "test", true, Map.of(), Optional.of(fire), 90, 1);
         var initial = Optional.of(new SpiritualRoot(Map.of(fire,100)));

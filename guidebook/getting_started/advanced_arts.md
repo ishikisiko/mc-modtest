@@ -3,14 +3,14 @@ navigation:
   title: 高级武技
   parent: index.md
   position: 35
-  icon: myvillage:qingfeng_sword
+  icon: yuanxian:qingfeng_sword
 ---
 # 高级武技
 
 学习对应技能书并达到炼气四层。在修炼战斗模式下，手持对应武器：
 
-<KeyBind id="key.myvillage.art_primary" />：第一招。
-<KeyBind id="key.myvillage.art_secondary" />：第二招。
+<KeyBind id="key.yuanxian.art_primary" />：第一招。
+<KeyBind id="key.yuanxian.art_secondary" />：第二招。
 右键剑气、普攻和闪避保留原入口；主动招式也可在技能页重新分配。
 
 ## 青莲剑歌
@@ -57,27 +57,27 @@ navigation:
 
 ### 青莲剑歌
 
-<Recipe id="myvillage:manual_qinglian_jiange" />
+<Recipe id="yuanxian:manual_qinglian_jiange" />
 
 ### 回风剑阵
 
-<Recipe id="myvillage:manual_huifeng_jianzhen" />
+<Recipe id="yuanxian:manual_huifeng_jianzhen" />
 
 ### 苍龙出水
 
-<Recipe id="myvillage:manual_canglong_chushui" />
+<Recipe id="yuanxian:manual_canglong_chushui" />
 
 ### 横扫千军
 
-<Recipe id="myvillage:manual_hengsao_qianjun" />
+<Recipe id="yuanxian:manual_hengsao_qianjun" />
 
 ### 崩山劲
 
-<Recipe id="myvillage:manual_bengshan_jin" />
+<Recipe id="yuanxian:manual_bengshan_jin" />
 
 ### 金刚震
 
-<Recipe id="myvillage:manual_jingang_zhen" />
+<Recipe id="yuanxian:manual_jingang_zhen" />
 
 ## 流派战法
 
@@ -95,6 +95,6 @@ navigation:
 
 ## 已学技能按键分配
 
-打开修仙面板 <KeyBind id="key.myvillage.open_cultivation_profile" />，进入「技能」页，先选下方键位，再点已学技能右侧的「分配」。当前有六个可分配槽，实际物理按键以页内提示和按键设置为准；前两槽默认随武器切换两招，其余留空。可清空选中键、让前两槽恢复随武器，或恢复整套默认。绑定同一技能到另一键会移动原绑定。剑气绑定键按住蓄力、松开释放；身法按下闪避。右键剑气与身法原入口也可使用。额外槽位只在分配后显示，仍检查武器、学习和冷却；换键不能绕过共享冷却。
+打开修仙面板 <KeyBind id="key.yuanxian.open_cultivation_profile" />，进入「技能」页，先选下方键位，再点已学技能右侧的「分配」。当前有六个可分配槽，实际物理按键以页内提示和按键设置为准；前两槽默认随武器切换两招，其余留空。可清空选中键、让前两槽恢复随武器，或恢复整套默认。绑定同一技能到另一键会移动原绑定。剑气绑定键按住蓄力、松开释放；身法按下闪避。右键剑气与身法原入口也可使用。额外槽位只在分配后显示，仍检查武器、学习和冷却；换键不能绕过共享冷却。
 
 按键冲突会在页内提示；可进入「按键设置」更换该槽的物理按键。绑定保存在当前角色，退出或死亡重生后保留；心法、被动和尚无施放入口的功法在「功法」页查看。

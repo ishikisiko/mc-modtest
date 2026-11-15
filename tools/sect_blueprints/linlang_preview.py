@@ -12,9 +12,9 @@ def build(out,resources):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);resources=Path(resources)
     boxes=[];palette={};buildings=[];anchors=[];sources=[]
     views=[{'id':'all','name':'六套琳琅阁对照','eye':[178,87,-65],'target':[86,5,50]}]
-    catalog=json.loads((resources/'data/myvillage/sect_blueprints/catalog.json').read_text())
+    catalog=json.loads((resources/'data/yuanxian/sect_blueprints/catalog.json').read_text())
     for i,row in enumerate(catalog['layouts']):
-        key=row['id'].split(':')[1];path=resources/f'data/myvillage/sect_blueprints/{key}/sect.json';data=json.loads(path.read_text())
+        key=row['id'].split(':')[1];path=resources/f'data/yuanxian/sect_blueprints/{key}/sect.json';data=json.loads(path.read_text())
         if digest(path)!=row['sha256']:raise ValueError('正式宗门清单摘要不一致')
         spec=json.loads((ROOT/f'blueprints/sects/{key}.json').read_text());model=SectModel(spec)
         b=next(v for v in data['buildings'] if v['id']=='linlang');ox,oy,oz=b['origin'];w,h,d=b['size']
@@ -23,17 +23,17 @@ def build(out,resources):
         scene.palette={**COLORS,**spec['palette']};palette.update({key+'_'+k:v for k,v in scene.palette.items()})
         for tile in data['tiles']:
             if not(tile['x']<ox+w and tile['x']+16>ox and tile['z']<oz+d and tile['z']+16>oz):continue
-            path=resources/('data/myvillage/structure/'+tile['template'].split(':')[1]+'.nbt')
+            path=resources/('data/yuanxian/structure/'+tile['template'].split(':')[1]+'.nbt')
             if digest(path)!=tile['sha256']:raise ValueError('正式宗门切片摘要不一致')
             _,nbt=read_gzipped_nbt(path);states=[state_string(s) for s in nbt['palette']];cells={}
             for block in nbt['blocks']:
                 lx,y,lz=block['pos'];wx,wz=tile['x']+lx,tile['z']+lz;state=states[block['state']]
-                if not(ox<=wx<ox+w and oy<=y<oy+h and oz<=wz<oz+d) or state.startswith('myvillage:linlang_counter'):continue
+                if not(ox<=wx<ox+w and oy<=y<oy+h and oz<=wz<oz+d) or state.startswith('yuanxian:linlang_counter'):continue
                 layer='roof' if '_stairs[' in state and y>=oy+10 or '_slab[' in state and y>=oy+10 else 'building'
                 cells[lx,y,lz]=(state,key,layer)
             scene.add_tile(tile['x']//16,tile['z']//16,cells)
         for box in scene.boxes:boxes.append([[box['p'][j]+offset[j] for j in range(3)],box['s'],key+'_'+box['m'],box['layer'],key])
-        counter=data['linlang']['position'];counter_model=json.loads((ROOT/'src/main/resources/assets/myvillage/models/block/linlang_counter.json').read_text())
+        counter=data['linlang']['position'];counter_model=json.loads((ROOT/'src/main/resources/assets/yuanxian/models/block/linlang_counter.json').read_text())
         for element in counter_model['elements']:
             low,high=element['from'],element['to'];p=[counter[j]+(low[j]+high[j])/32+offset[j] for j in range(3)]
             boxes.append([p,[(high[j]-low[j])/16 for j in range(3)],key+'_wood','facility',key])

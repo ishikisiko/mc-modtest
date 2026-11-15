@@ -106,7 +106,7 @@ all combinations; 6 seeds hit all 6 templates.
 - `garden_pavilion`: 亭; `chinese_round_ridge` vocabulary where applicable;
   placed as a pond-adjacent dry-bank 水亭 in the surface-zoned mansion garden
 
-**Garden elements:** `garden_rockery` (假山: `myvillage:rockery_block` with
+**Garden elements:** `garden_rockery` (假山: `yuanxian:rockery_block` with
 variant/moss), `garden_pond` (水池: freeform noise shoreline, `minecraft:water`
 at y=-1), `moon_gate_passage` (月洞门穿墙通道 and tour-route material boundary),
 `garden_pavilion` 亭, and the `PATH_WATERSIDE` crossing: stone-brick stairs down
@@ -142,9 +142,9 @@ is tracked in `docs/ai-kb/14_deferred_roadmap.md`.
 old 2D graph reachability check for both `chinese_courtyard` and
 `chinese_mansion`.
 
-**Mod decor blocks:** The `myvillage:rockery_block` is a self-namespace block
+**Mod decor blocks:** The `yuanxian:rockery_block` is a self-namespace block
 shipped with the mod (not an external mod dependency). It is exempt from
-`mod_block_fallbacks.json` under the `myvillage:` self-namespace rule and is
+`mod_block_fallbacks.json` under the `yuanxian:` self-namespace rule and is
 legal under both `vanilla` and `full` modset profiles. See
 [mod-decor-block-family](../contracts/assets.md#mod-decor-block-family)
 for the registration scaffolding.

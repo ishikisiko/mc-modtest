@@ -9,23 +9,23 @@ class ForgingResourcesTest(unittest.TestCase):
     def test_generator_outputs_match_and_pattern_sources_exist(self):
         generated=assets.outputs()
         for path,data in generated.items():self.assertEqual(data,path.read_bytes(),str(path))
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/rules.json').read_text())
         registered=(ROOT/'src/main/java/com/example/myvillage/item/ModItems.java').read_text()
         for recipe in rules['recipes']:
-            catalogue=json.loads((ROOT/'src/main/resources/data/myvillage/equipment/catalogue.json').read_text())
+            catalogue=json.loads((ROOT/'src/main/resources/data/yuanxian/equipment/catalogue.json').read_text())
             armor_ids={a['id'] for a in catalogue['items']}
             if recipe['output'] in armor_ids:
                 self.assertIn('WorkshopItems.registerArmorPatterns(ITEMS)',registered)
-                craft=next(c for c in json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())['crafts'] if c['recipe']==recipe['id'])
+                craft=next(c for c in json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())['crafts'] if c['recipe']==recipe['id'])
                 self.assertIn(craft['kind'],('helmet','chestplate','leggings','boots'))
-                self.assertEqual('myvillage:pattern_'+recipe['id'],recipe['pattern'])
+                self.assertEqual('yuanxian:pattern_'+recipe['id'],recipe['pattern'])
             else:
                 self.assertIn('"'+recipe['output'].split(':')[1]+'"',registered)
                 self.assertIn('"'+recipe['pattern'].split(':')[1]+'"',registered)
-            path=ROOT/'src/main/resources/data/myvillage/recipe'/f"{recipe['pattern'].split(':')[1]}.json"
+            path=ROOT/'src/main/resources/data/yuanxian/recipe'/f"{recipe['pattern'].split(':')[1]}.json"
             if recipe['output'] in armor_ids:
                 self.assertFalse(path.exists())
-                offers=json.loads((ROOT/'src/main/resources/data/myvillage/world_sim/commerce_rules.json').read_text())['offers']
+                offers=json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/commerce_rules.json').read_text())['offers']
                 matches=[o for o in offers if o['item']==recipe['pattern'] and o['kind']=='buy']
                 self.assertEqual(1,len(matches))
                 self.assertEqual('herbalist',matches[0]['role'])
@@ -41,7 +41,7 @@ class ForgingResourcesTest(unittest.TestCase):
         for key,(en,zh) in assets.LANG.items():
             self.assertEqual(en.count('%s'),zh.count('%s'),key)
             for lang,text in [('en_us',en),('zh_cn',zh)]:
-                data=json.loads((ROOT/f'src/main/resources/assets/myvillage/lang/{lang}.json').read_text())
+                data=json.loads((ROOT/f'src/main/resources/assets/yuanxian/lang/{lang}.json').read_text())
                 self.assertEqual(text,data[key])
     def test_focused_runtime_builds_then_runs_only_forging(self):
         commands=commands_for('forging-runtime')
@@ -69,9 +69,9 @@ class DingGeometryTest(unittest.TestCase):
     def test_generated_collision_and_states_have_one_geometry_owner(self):
         from tools.forging import ding
         base=ROOT/'src/main/resources';generated=ding.outputs()
-        data=json.loads(generated[base/'data/myvillage/forging/ding.json'])
+        data=json.loads(generated[base/'data/yuanxian/forging/ding.json'])
         self.assertEqual(ding.geometry()[1],data['collision'])
-        states=json.loads(generated[base/'assets/myvillage/blockstates/forging_table.json'])['variants']
+        states=json.loads(generated[base/'assets/yuanxian/blockstates/forging_table.json'])['variants']
         self.assertEqual(8,len(states))
         for direction,angle in [('north',0),('east',90),('south',180),('west',270)]:
             for lit in ['false','true']:
@@ -83,11 +83,11 @@ class DingGeometryTest(unittest.TestCase):
 class MaterialResourcesTest(unittest.TestCase):
     def test_materials_keep_consumers_and_only_allow_the_nether_conversion(self):
         from tools.forging import materials
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/rules.json').read_text())
         generated=materials.outputs()
         registry=(ROOT/'src/main/java/com/example/myvillage/item/ModItems.java').read_text()
         for m in materials.load():
-            rid='myvillage:'+m['id'];self.assertEqual({'#'+m['tag']:1},rules['traits'][m['trait']]['costs'])
+            rid='yuanxian:'+m['id'];self.assertEqual({'#'+m['tag']:1},rules['traits'][m['trait']]['costs'])
             namespace,tag=m['tag'].split(':')
             self.assertEqual({'replace':False,'values':[rid]},json.loads(generated[ROOT/f'src/main/resources/data/{namespace}/tags/item/{tag}.json']))
             self.assertIn('"'+m['id']+'"',registry)
@@ -96,23 +96,23 @@ class MaterialResourcesTest(unittest.TestCase):
             self.assertNotIn(path,generated)
             self.assertFalse(path.exists(),str(path))
         copper=ROOT/'src/main/resources/data/c/tags/item/ingots/copper.json'
-        self.assertNotIn('myvillage:chitong_ingot',json.loads(copper.read_text())['values'] if copper.exists() else [])
-        ids={'myvillage:'+m['id'] for m in materials.load()}
+        self.assertNotIn('yuanxian:chitong_ingot',json.loads(copper.read_text())['values'] if copper.exists() else [])
+        ids={'yuanxian:'+m['id'] for m in materials.load()}
         allowed={'chitong_from_blaze.json','xuantie_ingot_from_smelting.json','xuantie_ingot_from_blasting.json'}
-        for path in (ROOT/'src/main/resources/data/myvillage/recipe').glob('*.json'):
+        for path in (ROOT/'src/main/resources/data/yuanxian/recipe').glob('*.json'):
             recipe=json.loads(path.read_text());result=recipe.get('result',{})
             if isinstance(result,dict) and result.get('id') in ids:
                 self.assertIn(path.name,allowed)
                 if path.name=='chitong_from_blaze.json':
-                    self.assertEqual({'id':'myvillage:chitong_ingot','count':1},result)
+                    self.assertEqual({'id':'yuanxian:chitong_ingot','count':1},result)
                     self.assertEqual([{'tag':'c:ingots/copper'},{'item':'minecraft:blaze_powder'},
                                       {'tag':'c:spirit_stones/low_grade'}],recipe['ingredients'])
                 else:
-                    self.assertEqual({'id':'myvillage:xuantie_ingot','count':1},result)
-                    self.assertEqual({'item':'myvillage:raw_xuantie'},recipe['ingredient'])
+                    self.assertEqual({'id':'yuanxian:xuantie_ingot','count':1},result)
+                    self.assertEqual({'item':'yuanxian:raw_xuantie'},recipe['ingredient'])
 
     def test_materials_do_not_change_base_weapon_or_repair_costs(self):
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/rules.json').read_text())
         self.assertEqual({'minecraft:iron_ingot':1,'#c:spirit_stones/low_grade':1},rules['repair']['costs'])
         for recipe in rules['recipes'][:2]:
             self.assertEqual({'minecraft:diamond','minecraft:stick','#c:spirit_stones/low_grade'},set(recipe['costs']))
@@ -123,9 +123,9 @@ class MaterialResourcesTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp)
             retired=list(materials.retired_paths(root))+assets.workshop.retired_paths(root)
-            config=root/'src/main/resources/data/myvillage/forging/workshop.json'
+            config=root/'src/main/resources/data/yuanxian/forging/workshop.json'
             config.parent.mkdir(parents=True,exist_ok=True)
-            config.write_text((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())
+            config.write_text((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())
             for path in retired:path.parent.mkdir(parents=True,exist_ok=True);path.write_text('{}')
             other=retired[0].with_name('unrelated.json');other.write_text('{}')
             with patch.object(assets,'ROOT',root),patch.object(assets,'outputs',return_value={}):
@@ -165,27 +165,27 @@ class AcquisitionResourcesTest(unittest.TestCase):
         from tools.forging import acquisition
         config=acquisition.load();out=acquisition.outputs();base=ROOT/'src/main/resources'
         def obj(path):return json.loads(out[base/path])
-        ore=obj('data/myvillage/worldgen/configured_feature/xuantie_ore.json')
+        ore=obj('data/yuanxian/worldgen/configured_feature/xuantie_ore.json')
         self.assertEqual(config['xuantie']['vein_size'],ore['config']['size'])
         self.assertEqual(0,ore['config']['discard_chance_on_air_exposure'])
-        self.assertIn('myvillage:xuantie_ore',obj('data/minecraft/tags/block/needs_iron_tool.json')['values'])
-        self.assertIn('myvillage:edge_tempering_sand_deposit',obj('data/minecraft/tags/block/mineable/shovel.json')['values'])
+        self.assertIn('yuanxian:xuantie_ore',obj('data/minecraft/tags/block/needs_iron_tool.json')['values'])
+        self.assertIn('yuanxian:edge_tempering_sand_deposit',obj('data/minecraft/tags/block/mineable/shovel.json')['values'])
         for block,item in [('xuantie_ore','raw_xuantie'),('edge_tempering_sand_deposit','edge_tempering_sand')]:
-            loot=obj(f'data/myvillage/loot_table/blocks/{block}.json')
+            loot=obj(f'data/yuanxian/loot_table/blocks/{block}.json')
             alternatives=loot['pools'][0]['entries'][0]['children']
-            self.assertEqual('myvillage:'+block,alternatives[0]['name'])
-            self.assertEqual('myvillage:'+item,alternatives[1]['name'])
+            self.assertEqual('yuanxian:'+block,alternatives[0]['name'])
+            self.assertEqual('yuanxian:'+item,alternatives[1]['name'])
             self.assertGreaterEqual(alternatives[1]['functions'][0]['count']['min'],1)
-        raw=obj('assets/myvillage/models/item/raw_xuantie.json')
-        self.assertEqual('myvillage:item/raw_xuantie',raw['textures']['layer0'])
-        self.assertIn(base/'assets/myvillage/textures/item/raw_xuantie.png',out)
-        sand=obj('data/myvillage/worldgen/configured_feature/edge_tempering_sand.json')
-        self.assertEqual('myvillage:edge_tempering_sand',sand['type'])
+        raw=obj('assets/yuanxian/models/item/raw_xuantie.json')
+        self.assertEqual('yuanxian:item/raw_xuantie',raw['textures']['layer0'])
+        self.assertIn(base/'assets/yuanxian/textures/item/raw_xuantie.png',out)
+        sand=obj('data/yuanxian/worldgen/configured_feature/edge_tempering_sand.json')
+        self.assertEqual('yuanxian:edge_tempering_sand',sand['type'])
         self.assertEqual(1,sand['config']['max_water_depth'])
-        placement=obj('data/myvillage/worldgen/placed_feature/edge_tempering_sand.json')['placement']
+        placement=obj('data/yuanxian/worldgen/placed_feature/edge_tempering_sand.json')['placement']
         self.assertEqual({'type':'minecraft:heightmap','heightmap':'WORLD_SURFACE_WG'},placement[-2])
         self.assertEqual({'type':'minecraft:biome'},placement[-1])
-        self.assertEqual(config['sand']['biomes'],obj('data/myvillage/tags/worldgen/biome/has_edge_tempering_sand.json')['values'])
+        self.assertEqual(config['sand']['biomes'],obj('data/yuanxian/tags/worldgen/biome/has_edge_tempering_sand.json')['values'])
     def test_invalid_acquisition_bounds_are_rejected_before_export(self):
         import tempfile
         from tools.forging import acquisition
@@ -193,5 +193,5 @@ class AcquisitionResourcesTest(unittest.TestCase):
         for group,key,value in [('infusion','qi_per_ingot',0),('infusion','max_batch',65),('infusion','qi_per_pulse',100),('xuantie','min_y',100),('sand','max_water_depth',3),('sand','drop_min',0)]:
             data=json.loads(json.dumps(source));data[group][key]=value
             with tempfile.TemporaryDirectory() as temp:
-                root=Path(temp);p=root/'src/main/resources/data/myvillage/forging/acquisition.json';p.parent.mkdir(parents=True);p.write_text(json.dumps(data))
+                root=Path(temp);p=root/'src/main/resources/data/yuanxian/forging/acquisition.json';p.parent.mkdir(parents=True);p.write_text(json.dumps(data))
                 with self.assertRaises(ValueError):acquisition.load(root)

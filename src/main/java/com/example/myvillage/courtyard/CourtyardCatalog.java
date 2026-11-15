@@ -12,7 +12,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** One semantic family per item, bounded style variants, per-cell render/collision geometry. */
 public final class CourtyardCatalog {
-    public static final String RESOURCE="/data/myvillage/courtyard/assemblies.json";
+    public static final String RESOURCE="/data/yuanxian/courtyard/assemblies.json";
     public record Box(int x0,int y0,int z0,int x1,int y1,int z1) {
         public Box {if(x0<0||y0<0||z0<0||x1>16||y1>16||z1>16||x0>=x1||y0>=y1||z0>=z1)throw new IllegalArgumentException("Invalid assembly box");}
         public Box clockwise(){return new Box(16-z1,y0,x0,16-z0,y1,x1);}

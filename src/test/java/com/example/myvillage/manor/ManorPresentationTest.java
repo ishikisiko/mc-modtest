@@ -23,12 +23,12 @@ class ManorPresentationTest {
     @Test void realWindowNameComesFromItsShapeAndIncludesEveryMaterial() {
         var info=ManorPresentation.get().component("manor_lingyue_carved_7",21);
         assertEquals("lingyue",info.city());
-        assertEquals("manor_part.myvillage.window",((TranslatableContents)info.name().getContents()).getKey());
-        assertEquals(java.util.List.of("manor_material.myvillage.frame","manor_material.myvillage.window","manor_material.myvillage.wood"),info.materials());
+        assertEquals("manor_part.yuanxian.window",((TranslatableContents)info.name().getContents()).getKey());
+        assertEquals(java.util.List.of("manor_material.yuanxian.frame","manor_material.yuanxian.window","manor_material.yuanxian.wood"),info.materials());
         assertNotEquals(info.nameKey(),ManorPresentation.get().component("manor_lingyue_carved_7",0).nameKey());
     }
     @Test void everyRegisteredShapeHasAnIndependentTranslatedDescription() throws Exception {
-        try(var input=getClass().getResourceAsStream("/assets/myvillage/lang/zh_cn.json")) {
+        try(var input=getClass().getResourceAsStream("/assets/yuanxian/lang/zh_cn.json")) {
             assertNotNull(input);var lang=JsonParser.parseString(new String(input.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
             int total=0;
             for(var bank:ManorCatalog.get().banks)for(int shape=0;shape<32;shape++) {

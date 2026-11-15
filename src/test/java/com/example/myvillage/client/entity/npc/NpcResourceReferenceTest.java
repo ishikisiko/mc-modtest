@@ -18,12 +18,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NpcResourceReferenceTest {
-    private static final ResourceLocation ORIGINAL = ResourceLocation.parse("myvillage:npc/example_model.json");
-    private static final ResourceLocation SHARED = ResourceLocation.parse("myvillage:npc/shared/"+"a".repeat(64)+"_model.json");
+    private static final ResourceLocation ORIGINAL = ResourceLocation.parse("yuanxian:npc/example_model.json");
+    private static final ResourceLocation SHARED = ResourceLocation.parse("yuanxian:npc/shared/"+"a".repeat(64)+"_model.json");
     private static JsonObject ref(String id) { var j=new JsonObject();j.addProperty("resource_ref",id);return j; }
 
     @Test void packedModelsAndAnimationsResolveToEveryUnchangedAuthoringPayload() throws Exception {
-        var dir=Path.of("src/main/resources/assets/myvillage/npc");
+        var dir=Path.of("src/main/resources/assets/yuanxian/npc");
         List<Path> files;
         try(var stream=Files.list(dir)) {
             files=stream.filter(p->p.toString().endsWith("_model.json")||p.toString().endsWith("_animations.json")).toList();
@@ -33,7 +33,7 @@ class NpcResourceReferenceTest {
         int aliases=0;
         for(var p:files) {
             String original=Files.readString(p);
-            var id=ResourceLocation.parse("myvillage:npc/"+p.getFileName());
+            var id=ResourceLocation.parse("yuanxian:npc/"+p.getFileName());
             JsonObject root=classpath(id);
             boolean shared=counts.get(original)>1;
             assertEquals(shared,root.has("resource_ref"),p.toString());
@@ -64,7 +64,7 @@ class NpcResourceReferenceTest {
 
     @Test void chainsCyclesWrongKindsAndNamespacesAreRejected() {
         assertThrows(BeastDataException.class,()->NpcResourceReference.resolve(ORIGINAL,id->ref(SHARED.toString())));
-        for(String target:List.of("other:"+SHARED.getPath(),"myvillage:npc/../bad_model.json",
+        for(String target:List.of("other:"+SHARED.getPath(),"yuanxian:npc/../bad_model.json",
                 SHARED.toString().replace("_model","_animations"),ORIGINAL.toString()))
             assertThrows(BeastDataException.class,()->NpcResourceReference.resolve(ORIGINAL,id->ref(target)));
     }

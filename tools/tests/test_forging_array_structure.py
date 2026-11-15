@@ -38,8 +38,8 @@ def cell_slices(box):
 class ForgingArrayStructureTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.rules = json.loads((RESOURCES / "data/myvillage/forging/array.json").read_text())
-        cls.mesh = json.loads((RESOURCES / "assets/myvillage/forging_array/formed_mesh.json").read_text())
+        cls.rules = json.loads((RESOURCES / "data/yuanxian/forging/array.json").read_text())
+        cls.mesh = json.loads((RESOURCES / "assets/yuanxian/forging_array/formed_mesh.json").read_text())
         cls.cells = {(c["x"], c["y"], c["z"]): c["role"] for c in cls.rules["cells"]}
 
     def test_structure_has_complete_unique_lattice_and_component_quantities(self):

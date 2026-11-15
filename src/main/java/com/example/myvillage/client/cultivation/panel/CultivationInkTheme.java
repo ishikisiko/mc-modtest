@@ -24,7 +24,7 @@ public final class CultivationInkTheme {
     public static Component book(String text) { return Component.literal(text).withStyle(BOOK); }
     public static Component brush(String text) { return Component.literal(text).withStyle(BRUSH); }
     public static String tr(String suffix, Object... args) {
-        return Component.translatable("screen.myvillage.cultivation.ink." + suffix, args).getString();
+        return Component.translatable("screen.yuanxian.cultivation.ink." + suffix, args).getString();
     }
 
     public static Component fit(Font font, String text, int width, boolean title) {

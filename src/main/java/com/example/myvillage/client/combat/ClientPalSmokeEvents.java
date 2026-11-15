@@ -37,7 +37,7 @@ public final class ClientPalSmokeEvents {
 
     @SubscribeEvent
     static void registerCommands(RegisterClientCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("myvillage_pal_smoke")
+        event.getDispatcher().register(Commands.literal("yuanxian_pal_smoke")
                 .then(Commands.literal("play").executes(context -> play()))
                 .then(Commands.literal("move")
                         .then(Commands.argument("index", IntegerArgumentType.integer(1))

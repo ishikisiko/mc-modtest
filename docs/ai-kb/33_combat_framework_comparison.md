@@ -50,12 +50,12 @@ report section 11 and `downloads/*/MANIFEST.md`.
 
 | Station | Mods | What was recorded |
 |---|---|---|
-| A | myvillage 0.26.2 (`686637e`), PAL 1.1.4, GuideME 21.1.17 | Self-developed baseline, first person and F5 |
+| A | yuanxian 0.26.2 (`686637e`), PAL 1.1.4, GuideME 21.1.17 | Self-developed baseline, first person and F5 |
 | B | A plus Better Combat 2.4.0, playerAnimator 2.0.4, Cloth Config 15.0.140 | Zero configuration; a five-move datapack; the same datapack referencing our PAL animations |
 | C | A plus Epic Fight 21.15.8 | Zero configuration; an optional datapack; a feature clip (lock-on, roll, skill, guard) |
 | D | C plus a data-only jar | One custom Epic Fight thrust, authored with Blender 3.6.23 and the official add-on |
-| E | myvillage 0.27.0 development build | Evidence for the action-feel revision |
-| F | myvillage 0.27.1 development builds | Evidence for the grip and 3D sword model, compared with E per move |
+| E | yuanxian 0.27.0 development build | Evidence for the action-feel revision |
+| F | yuanxian 0.27.1 development builds | Evidence for the grip and 3D sword model, compared with E per move |
 
 ## Findings
 
@@ -150,7 +150,7 @@ collect evidence. Its scripts still point at the lab folder.
 | Tool | Lab path | Use |
 |---|---|---|
 | Development resource pack | `harness/lab.py devpack` | Rig, model, texture, and contract edits take effect on F3+T in about 5 seconds, without a rebuild |
-| Grip capture | `harness/grip_shots.py` | Per-move stills at fixed ticks: first person through `/myvillage_pal_smoke first_person`, third person through a barrier wall and `tick rate 5` bursts |
+| Grip capture | `harness/grip_shots.py` | Per-move stills at fixed ticks: first person through `/yuanxian_pal_smoke first_person`, third person through a barrier wall and `tick rate 5` bursts |
 | Before/after sheets | `harness/tools/compare_grip.py` | Pairs two captures by move and moment |
 
 Since 0.28.0 the capture workflow is in the repository as `tools/combat_capture/`
@@ -159,7 +159,7 @@ repository's own run tasks.
 | Offline model preview | `harness/tools/preview_item_model.py` | Renders a JSON item model in about a second |
 
 Until 0.28.0 the repository had no third-person freeze probe, and the lab worked
-around that with slow-motion bursts. `/myvillage_pal_smoke third_person` now
+around that with slow-motion bursts. `/yuanxian_pal_smoke third_person` now
 provides one.
 
 ## Scale-Up Assessment

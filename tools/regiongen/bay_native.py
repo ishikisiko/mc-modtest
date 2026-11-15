@@ -58,12 +58,12 @@ class SavedWorld:
 def structure_piece(saved,cx,cz):
     chunk=saved.chunk(cx,cz)
     starts=chunk.get('structures',{}).get('starts',{}) if chunk else {}
-    start=starts.get('myvillage:bay_terraces',{})
+    start=starts.get('yuanxian:bay_terraces',{})
     children=start.get('Children',[])
-    if start.get('id')!='myvillage:bay_terraces' or len(children)!=1:
+    if start.get('id')!='yuanxian:bay_terraces' or len(children)!=1:
         raise ValueError(f'No natural bay StructureStart at {cx},{cz}: {start}')
     piece=children[0]
-    if piece.get('id')!='myvillage:bay_terraces' or not 0<=piece.get('rotation',-1)<4:
+    if piece.get('id')!='yuanxian:bay_terraces' or not 0<=piece.get('rotation',-1)<4:
         raise ValueError('Invalid persisted bay piece')
     return piece
 
@@ -77,7 +77,7 @@ def audit(world,piece,manifest):
             chunks+=1
     errors=[];counts=Counter();derived=Counter();cache={};expected={};signs=0
     for tile in manifest['tiles']:
-        path=DEFAULT_OUT/('data/myvillage/structure/'+tile['template'].split(':',1)[1]+'.nbt')
+        path=DEFAULT_OUT/('data/yuanxian/structure/'+tile['template'].split(':',1)[1]+'.nbt')
         if hashlib.sha256(path.read_bytes()).hexdigest()!=tile['sha256']:raise ValueError('Audit tile hash differs')
         _,tag=read_gzipped_nbt(str(path));palette=[rotated_state(state_string(p),piece['rotation']) for p in tag['palette']]
         for block in tag['blocks']:
@@ -185,7 +185,7 @@ def main():
         raise SystemExit('Heavy bay-world validation must run in the authorized Modal environment')
     out=args.out;out.mkdir(parents=True,exist_ok=False)
     server_support.OUT=out;server_support.SEED=args.seed
-    manifest=json.loads((DEFAULT_OUT/'data/myvillage/regiongen/bay_terraces_v1.json').read_text())
+    manifest=json.loads((DEFAULT_OUT/'data/yuanxian/regiongen/bay_terraces_v1.json').read_text())
     name='bay_terraces_'+str(args.seed)+'_'+secrets.token_hex(4);world=server_support.GAME/name
     if world.exists():raise ValueError('Fresh world path already exists')
     request=json.loads(Path('/workspace/request.json').read_text())
@@ -200,14 +200,14 @@ def main():
     try:
         jar=server_support.check_jar();report['jar']=jar
         with zipfile.ZipFile(ROOT/'build/libs'/jar['file']) as archive:
-            packaged=json.loads(archive.read('data/myvillage/regiongen/bay_terraces_v1.json'))
-            check('jar_resources',packaged==manifest and all('data/myvillage/structure/'+t['template'].split(':',1)[1]+'.nbt' in archive.namelist() for t in manifest['tiles']))
+            packaged=json.loads(archive.read('data/yuanxian/regiongen/bay_terraces_v1.json'))
+            check('jar_resources',packaged==manifest and all('data/yuanxian/structure/'+t['template'].split(':',1)[1]+'.nbt' in archive.namelist() for t in manifest['tiles']))
         report['completed'].append('jar_resources')
         with server_support.Server(name,'initial',planned=False) as server:
-            reply=server.cmd('execute positioned 0 80 0 run locate structure myvillage:bay_terraces')
+            reply=server.cmd('execute positioned 0 80 0 run locate structure yuanxian:bay_terraces')
             match=re.search(r'\[(-?\d+),\s*(?:~|-?\d+),\s*(-?\d+)\]',reply)
             check('natural_locate',match is not None,reply);x,z=map(int,match.groups());cx,cz=x//16,z//16
-            report['locate']={'command':'/locate structure myvillage:bay_terraces','reply':reply,'x':x,'z':z}
+            report['locate']={'command':'/locate structure yuanxian:bay_terraces','reply':reply,'x':x,'z':z}
             report['completed'].append('natural_locate')
             server.cmd(f'forceload add {cx*16} {cz*16}');wait_loaded(server,[(cx*16,cz*16)])
             flush=server.cmd('save-all flush');check('initial_flush','Saved' in flush,flush)

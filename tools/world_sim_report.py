@@ -26,8 +26,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 OUT_DIR = REPO / "out" / "preview" / "world_sim"
-LANG_FILE = REPO / "src" / "main" / "resources" / "assets" / "myvillage" / "lang" / "zh_cn.json"
-SIM_DATA_DIR = REPO / "src" / "main" / "resources" / "data" / "myvillage" / "world_sim"
+LANG_FILE = REPO / "src" / "main" / "resources" / "assets" / "yuanxian" / "lang" / "zh_cn.json"
+SIM_DATA_DIR = REPO / "src" / "main" / "resources" / "data" / "yuanxian" / "world_sim"
 CLI = REPO / "tools" / "world_sim_cli.py"
 PUBLIC_BASE = "http://43.156.135.198:8766/world_sim/"
 

@@ -8,8 +8,8 @@ import java.util.*;
 /** Saved choices, not physical keys. Unknown/unlearned IDs stay inert until valid again. */
 public record SkillBindings(List<ResourceLocation> slots) {
     public static final int SIZE=6;
-    public static final ResourceLocation AUTO=ResourceLocation.parse("myvillage:auto_weapon_art");
-    public static final ResourceLocation EMPTY=ResourceLocation.parse("myvillage:unassigned");
+    public static final ResourceLocation AUTO=ResourceLocation.parse("yuanxian:auto_weapon_art");
+    public static final ResourceLocation EMPTY=ResourceLocation.parse("yuanxian:unassigned");
     public static final Codec<SkillBindings> CODEC=ResourceLocation.CODEC.listOf().validate(ids -> {
         try { new SkillBindings(ids);return DataResult.success(ids); }
         catch(IllegalArgumentException e){return DataResult.error(e::getMessage);}

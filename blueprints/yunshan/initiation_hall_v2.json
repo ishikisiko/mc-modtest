@@ -1,5 +1,5 @@
 {
-  "id": "myvillage:yunshan_initiation_hall_v2",
+  "id": "yuanxian:yunshan_initiation_hall_v2",
   "author": "MyVillage",
   "mc_version": "1.21.1",
   "size": [
@@ -119,7 +119,7 @@
         3,
         14
       ],
-      "state": "myvillage:spirit_testing_stele",
+      "state": "yuanxian:spirit_testing_stele",
       "name": "测灵石碑",
       "approach": "testing"
     },
@@ -129,7 +129,7 @@
         3,
         14
       ],
-      "state": "myvillage:technique_inheritance_stele",
+      "state": "yuanxian:technique_inheritance_stele",
       "name": "传承石碑",
       "approach": "inheritance"
     }
@@ -348,9 +348,9 @@
     {"op":"set","pos":[15,1,5],"state":"minecraft:chiseled_stone_bricks"},
     {"op":"set","pos":[15,2,5],"state":"minecraft:potted_bamboo"},
     {"op":"set","pos":[5,2,14],"state":"minecraft:chiseled_stone_bricks"},
-    {"op":"set","pos":[5,3,14],"state":"myvillage:spirit_testing_stele"},
+    {"op":"set","pos":[5,3,14],"state":"yuanxian:spirit_testing_stele"},
     {"op":"set","pos":[13,2,14],"state":"minecraft:chiseled_stone_bricks"},
-    {"op":"set","pos":[13,3,14],"state":"myvillage:technique_inheritance_stele"},
+    {"op":"set","pos":[13,3,14],"state":"yuanxian:technique_inheritance_stele"},
     {"op":"fill","from":[2,2,20],"to":[6,4,20],"state":"minecraft:bookshelf"},
     {"op":"fill","from":[12,2,20],"to":[16,4,20],"state":"minecraft:bookshelf"},
     {"op":"set","pos":[9,2,19],"state":"minecraft:lectern[facing=north,has_book=false,powered=false]"},

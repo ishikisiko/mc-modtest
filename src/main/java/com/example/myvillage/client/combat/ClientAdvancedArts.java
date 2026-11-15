@@ -50,7 +50,7 @@ public final class ClientAdvancedArts {
                 ClientAdvancedArts::suppressConflictingInput);
     }
     private static void registerHud(RegisterGuiLayersEvent event) {
-        event.registerAbove(VanillaGuiLayers.HOTBAR,ResourceLocation.parse("myvillage:advanced_arts"),ClientAdvancedArts::hud);
+        event.registerAbove(VanillaGuiLayers.HOTBAR,ResourceLocation.parse("yuanxian:advanced_arts"),ClientAdvancedArts::hud);
     }
     private static void ensureWorld() {
         ClientLevel current=Minecraft.getInstance().level;

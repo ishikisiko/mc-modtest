@@ -10,9 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 /** The bundled beast data read straight from the source tree, for unit tests. */
 final class BeastTestData {
     static final Path RESOURCES = Path.of("src/main/resources");
-    static final ResourceLocation DEMON_WOLF = ResourceLocation.fromNamespaceAndPath("myvillage", "demon_wolf");
-    static final ResourceLocation BITE = ResourceLocation.fromNamespaceAndPath("myvillage", "demon_wolf_bite");
-    static final ResourceLocation POUNCE = ResourceLocation.fromNamespaceAndPath("myvillage", "demon_wolf_pounce");
+    static final ResourceLocation DEMON_WOLF = ResourceLocation.fromNamespaceAndPath("yuanxian", "demon_wolf");
+    static final ResourceLocation BITE = ResourceLocation.fromNamespaceAndPath("yuanxian", "demon_wolf_bite");
+    static final ResourceLocation POUNCE = ResourceLocation.fromNamespaceAndPath("yuanxian", "demon_wolf_pounce");
 
     private BeastTestData() {
     }

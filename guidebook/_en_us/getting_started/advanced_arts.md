@@ -3,15 +3,15 @@ navigation:
   title: 高级武技 / Advanced Weapon Arts
   parent: index.md
   position: 35
-  icon: myvillage:qingfeng_sword
+  icon: yuanxian:qingfeng_sword
 ---
 # 高级武技 / Advanced Weapon Arts
 
 学习对应技能书并达到炼气四层。在修炼战斗模式下，手持对应武器：
 Learn the matching manual and reach Qi Refining IV. Hold its weapon in cultivation combat mode.
 
-<KeyBind id="key.myvillage.art_primary" />：第一招 / art I。
-<KeyBind id="key.myvillage.art_secondary" />：第二招 / art II。
+<KeyBind id="key.yuanxian.art_primary" />：第一招 / art I。
+<KeyBind id="key.yuanxian.art_secondary" />：第二招 / art II。
 原右键剑气、普攻和闪避不变。Existing sword qi, basic attacks and dodge keep their bindings.
 
 ## 青莲剑歌 / Jade Lotus Refrain
@@ -71,27 +71,27 @@ Guards only protect the first wind-up from frontal attacks, not sustained invuln
 
 ### 青莲剑歌
 
-<Recipe id="myvillage:manual_qinglian_jiange" />
+<Recipe id="yuanxian:manual_qinglian_jiange" />
 
 ### 回风剑阵
 
-<Recipe id="myvillage:manual_huifeng_jianzhen" />
+<Recipe id="yuanxian:manual_huifeng_jianzhen" />
 
 ### 苍龙出水
 
-<Recipe id="myvillage:manual_canglong_chushui" />
+<Recipe id="yuanxian:manual_canglong_chushui" />
 
 ### 横扫千军
 
-<Recipe id="myvillage:manual_hengsao_qianjun" />
+<Recipe id="yuanxian:manual_hengsao_qianjun" />
 
 ### 崩山劲
 
-<Recipe id="myvillage:manual_bengshan_jin" />
+<Recipe id="yuanxian:manual_bengshan_jin" />
 
 ### 金刚震
 
-<Recipe id="myvillage:manual_jingang_zhen" />
+<Recipe id="yuanxian:manual_jingang_zhen" />
 
 
 ## 流派战法

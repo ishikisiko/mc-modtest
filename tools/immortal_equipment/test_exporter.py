@@ -77,7 +77,7 @@ class ExporterBoundaryTest(unittest.TestCase):
         mtl = out['models/immortal_equipment/test_ingot.mtl'].decode()
         self.assertIn('Kd 1 1 1 0.64\n', mtl)
         self.assertIn('d 0.64\n', mtl)
-        self.assertIn('map_Kd myvillage:immortal_equipment/test/glass', mtl)
+        self.assertIn('map_Kd yuanxian:immortal_equipment/test/glass', mtl)
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ class RealmIsolationTest {
     private final UUID alice=UUID.fromString("00000000-0000-0000-0000-000000000001"),bob=UUID.fromString("00000000-0000-0000-0000-000000000002");
     @Test void vanillaBedChecksCannotExplodeOrWriteAnOutsideRespawn() throws Exception {
         var type=com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(java.nio.file.Path.of(
-                "src/main/resources/data/myvillage/dimension_type/qianzhen_realm.json"))).getAsJsonObject();
+                "src/main/resources/data/yuanxian/dimension_type/qianzhen_realm.json"))).getAsJsonObject();
         // BedBlock explodes before a sleep event when false; ServerPlayer writes spawn before that event when natural.
         assertTrue(type.get("bed_works").getAsBoolean());
         assertFalse(type.get("natural").getAsBoolean());
@@ -18,7 +18,7 @@ class RealmIsolationTest {
     @Test void ownershipIsExactAndTemplateAndMalformedKeysNeverBecomePublic(){
         assertTrue(RealmIdentity.permits(alice,RealmIdentity.dimension(alice)));
         assertFalse(RealmIdentity.permits(bob,RealmIdentity.dimension(alice)));
-        for(String key:new String[]{RealmIdentity.TEMPLATE,"myvillage:qianzhen/not-a-uuid","myvillage:qianzhen/0-0-0-0-1",RealmIdentity.dimension(alice)+"/extra"})
+        for(String key:new String[]{RealmIdentity.TEMPLATE,"yuanxian:qianzhen/not-a-uuid","yuanxian:qianzhen/0-0-0-0-1",RealmIdentity.dimension(alice)+"/extra"})
             assertFalse(RealmIdentity.permits(alice,key),key);
         assertTrue(RealmIdentity.permits(alice,"minecraft:overworld"));
         assertNotEquals(RealmIdentity.cast(alice),RealmIdentity.cast(bob));

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 class NpcProfessionTextTest {
     @Test void marketInventoryUsesChineseQualityNamesInsteadOfInternalStockKeys() {
-        String inventory=NpcProfessionText.inventory(Map.of("myvillage:pill_huiling#3",2,"myvillage:pill_huiling#4",1));
+        String inventory=NpcProfessionText.inventory(Map.of("yuanxian:pill_huiling#3",2,"yuanxian:pill_huiling#4",1));
         assertTrue(inventory.contains("上品回灵丹×2"),inventory);
         assertTrue(inventory.contains("极品回灵丹×1"),inventory);
         assertFalse(inventory.contains("#"),inventory);
@@ -21,7 +21,7 @@ class NpcProfessionTextTest {
         assertEquals("灵植师", NpcProfessionText.role("spirit_grower"));
         assertEquals("炼丹师", NpcProfessionText.role("alchemist"));
         var view = new ProfessionView(7, "alchemist", 3, 0, 22, 1, 81, 4,
-                Map.of("myvillage:spirit_leaf", 2), 9);
+                Map.of("yuanxian:spirit_leaf", 2), 9);
         var lines = NpcProfessionText.resident(view);
         assertTrue(lines.get(1).contains("采集 0 级（经验 3）"));
         assertTrue(lines.get(1).contains("种植 1 级（经验 22）"));
@@ -41,10 +41,10 @@ class NpcProfessionTextTest {
     }
 
     @Test void GardenReadbackDistinguishesSeedsGrowthMaturityAndExpertCare() {
-        var view = new ProfessionSupplyView("town", Map.of("myvillage:spirit_leaf", 2), 8, List.of(
-                new GardenView("empty", "myvillage:spirit_leaf", -1, -1, false),
-                new GardenView("growing", "myvillage:spirit_leaf", 90, 120, true),
-                new GardenView("mature", "myvillage:spirit_leaf", 80, 100, false)));
+        var view = new ProfessionSupplyView("town", Map.of("yuanxian:spirit_leaf", 2), 8, List.of(
+                new GardenView("empty", "yuanxian:spirit_leaf", -1, -1, false),
+                new GardenView("growing", "yuanxian:spirit_leaf", 90, 120, true),
+                new GardenView("mature", "yuanxian:spirit_leaf", 80, 100, false)));
         var lines = NpcProfessionText.supply(view, 100);
         assertTrue(lines.get(0).contains("灵叶×2"));
         assertTrue(lines.get(0).contains("未分类药材 8（不可替代丹方原料）"));
@@ -53,7 +53,7 @@ class NpcProfessionTextTest {
         assertTrue(lines.get(2).contains("已专业照料"));
         assertTrue(lines.get(3).contains("已成熟，待收获"));
         assertTrue(lines.get(3).contains("未专业照料"));
-        assertEquals("暂无", NpcProfessionText.inventory(Map.of("myvillage:spirit_leaf", 0)));
+        assertEquals("暂无", NpcProfessionText.inventory(Map.of("yuanxian:spirit_leaf", 0)));
         assertTrue(NpcProfessionText.supply(new ProfessionSupplyView("town", Map.of(), 0, List.of()), 100)
                 .stream().anyMatch(line -> line.contains("尚未配置命簿药圃")));
     }

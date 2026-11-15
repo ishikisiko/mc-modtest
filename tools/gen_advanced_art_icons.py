@@ -14,7 +14,7 @@ def main():
     if ids!=set(ICONS)-{'wave','dodge','unavailable'}:raise ValueError('Every current art must have one distinct authored icon')
     changed=[]
     for name,kind in ICONS.items():
-        path=ROOT/f'src/main/resources/assets/myvillage/textures/gui/advanced_arts/{name}.png'
+        path=ROOT/f'src/main/resources/assets/yuanxian/textures/gui/advanced_arts/{name}.png'
         data=icon(kind)
         if not path.exists() or path.read_bytes()!=data:
             changed.append(name)

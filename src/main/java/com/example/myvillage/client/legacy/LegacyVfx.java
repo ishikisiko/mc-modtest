@@ -20,7 +20,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 /** Continuous geometry from tracked server views. No client hit, cost, or skill scheduler. */
 @EventBusSubscriber(modid=MyVillageMod.MOD_ID,value=Dist.CLIENT)
 public final class LegacyVfx {
-    private static final RenderType LAYER=RenderType.create("myvillage_legacy_effects",DefaultVertexFormat.POSITION_COLOR,
+    private static final RenderType LAYER=RenderType.create("yuanxian_legacy_effects",DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.QUADS,8192,false,true,RenderType.CompositeState.builder()
                     .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
                     .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)

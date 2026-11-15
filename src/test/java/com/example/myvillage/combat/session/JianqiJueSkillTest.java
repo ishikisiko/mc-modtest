@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JianqiJueSkillTest {
     private final CombatStyles styles = CombatTestData.styles();
     private final CombatSkillDefinition skill = styles.skill(id("jianqi_jue")).orElseThrow();
-    private static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("myvillage", path); }
+    private static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("yuanxian", path); }
     private CombatSkillSession charge() { return new CombatSkillSession(skill, skill.id(), 8, 100, 1); }
 
     @Test void horizontalReleaseKeepsItsExistingHitReaction() {

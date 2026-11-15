@@ -47,7 +47,7 @@ public final class CopperInfusionMenu extends AbstractContainerMenu {
     @Override public boolean clickMenuButton(Player p,int button){
         if(!(p instanceof ServerPlayer server)||!authorized(p))return false;
         if(button==BACK){
-            server.openMenu(new SimpleMenuProvider((id,inv,viewer)->new FoundryMenu(id,inv,levelFoundry(),levelFoundry().data,FoundryMenu.Kind.PREPARATION),Component.translatable("workshop.myvillage.infusion.title")));
+            server.openMenu(new SimpleMenuProvider((id,inv,viewer)->new FoundryMenu(id,inv,levelFoundry(),levelFoundry().data,FoundryMenu.Kind.PREPARATION),Component.translatable("workshop.yuanxian.infusion.title")));
             return true;
         }
         if(button==PAUSE){pause(2);return true;}

@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = "tools/npcgen/female_variants.json"
 FACTORY = "tools/npcgen/female.py"
-RUNTIME = "src/main/resources/assets/myvillage/npc/cultivator_variants.json"
+RUNTIME = "src/main/resources/assets/yuanxian/npc/cultivator_variants.json"
 APPEARANCE_RULES = "tools/npcgen/appearance_rules.json"
 
 

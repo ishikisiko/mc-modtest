@@ -41,7 +41,7 @@ class DemonPactPillarResourcesTest(unittest.TestCase):
         for ref in states.values():self.assertIn(ASSETS/('models/'+ref['model'].split(':',1)[1]+'.json'),files)
         pools=json.loads(files[DATA/f'loot_table/blocks/{IDENTITY}.json'])['pools']
         self.assertEqual(1,len(pools));self.assertEqual(1,pools[0]['rolls'])
-        self.assertIn({'condition':'minecraft:block_state_property','block':'myvillage:'+IDENTITY,'properties':{'part':'0'}},pools[0]['conditions'])
+        self.assertIn({'condition':'minecraft:block_state_property','block':'yuanxian:'+IDENTITY,'properties':{'part':'0'}},pools[0]['conditions'])
 
 
 if __name__=='__main__':unittest.main()

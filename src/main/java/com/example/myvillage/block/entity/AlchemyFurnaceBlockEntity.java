@@ -58,7 +58,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         var payment=com.example.myvillage.spiritstone.SpiritStoneSources.open(player);
         var plan=AlchemyAutofill.plan(payment.copies(),java.util.List.of(items.get(0),items.get(1),items.get(3),items.get(2)),
             recipe.refillItems(),recipe.refillCounts(),36);
-        if(plan.isEmpty()){player.displayClientMessage(Component.translatable("message.myvillage.alchemy.inventory_full"),true);return false;}
+        if(plan.isEmpty()){player.displayClientMessage(Component.translatable("message.yuanxian.alchemy.inventory_full"),true);return false;}
         var transfer=plan.orElseThrow();if(!payment.commit(transfer.inventory()))return false;
         items.set(0,transfer.inputs().get(0));items.set(1,transfer.inputs().get(1));
         items.set(3,transfer.inputs().get(2));items.set(2,transfer.inputs().get(3));
@@ -78,7 +78,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     public boolean start(ServerPlayer player,AlchemyMenu menu){
         var r=matching();var aptitude=CultivationService.craftingAptitudes(player);boolean valid=actor(player,menu);
         if(valid&&!active()&&!AlchemyKnowledge.knows(player,selectedRecipe)){
-            player.displayClientMessage(Component.translatable("message.myvillage.alchemy.formula_unknown"),true);return false;
+            player.displayClientMessage(Component.translatable("message.yuanxian.alchemy.formula_unknown"),true);return false;
         }
         var rejection=AlchemyBatch.rejection(valid,active(),aptitude.initialized()&&CultivationService.getProfile(player).awakened(),r!=null,hasFuel(r),outputEmpty());
         if(rejection!=null){player.displayClientMessage(Component.translatable(rejection.messageKey()),true);return false;}
@@ -139,7 +139,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         return slot>=0&&slot<3?AlchemyRules.get().isHerb(id(stack)):slot==3&&SpiritStoneTags.isLowGrade(stack);
     }
     @Override public void clearContent(){items.clear();clearBatch();completed=false;captureInputChanges();super.setChanged();}
-    @Override public Component getDisplayName(){return Component.translatable("container.myvillage.alchemy_furnace");}
+    @Override public Component getDisplayName(){return Component.translatable("container.yuanxian.alchemy_furnace");}
     @Override public AbstractContainerMenu createMenu(int id,Inventory inventory,Player player){return new AlchemyMenu(id,inventory,this,data);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.saveAdditional(tag,registries);tag.putInt("InventoryVersion",2);ContainerHelper.saveAllItems(tag,items,registries);

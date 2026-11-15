@@ -10,7 +10,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** 妖狼: the first beast. Moves and attributes come from {@code data/myvillage/beast/demon_wolf.json}. */
+/** 妖狼: the first beast. Moves and attributes come from {@code data/yuanxian/beast/demon_wolf.json}. */
 public final class DemonWolfEntity extends BeastEntity {
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "demon_wolf");
     static final int EXPERIENCE_REWARD = 10;

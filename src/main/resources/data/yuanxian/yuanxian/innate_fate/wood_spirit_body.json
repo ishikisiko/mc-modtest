@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.yuanxian.wood_spirit_body",
+  "description_key": "fate.yuanxian.wood_spirit_body.description",
+  "tier": 4,
+  "cost": 5,
+  "group": "spirit_body",
+  "effects": {
+    "lifesteal_fraction": 0.08,
+    "lifesteal_cap_fraction": 0.05
+  }
+}

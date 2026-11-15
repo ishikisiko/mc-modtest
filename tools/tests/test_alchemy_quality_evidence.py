@@ -12,8 +12,8 @@ from tools.modal_runner.remote import ALCHEMY_CASES
 
 class QualityReadbackTest(unittest.TestCase):
     def test_full_components_survive_saved_stack_parsing(self):
-        reply = ('Player has the following entity data: [{Slot: 0b, count: 2, id: "myvillage:pill_huiling", '
-                 'components: {"myvillage:pill_quality": 4, "minecraft:custom_data": '
+        reply = ('Player has the following entity data: [{Slot: 0b, count: 2, id: "yuanxian:pill_huiling", '
+                 'components: {"yuanxian:pill_quality": 4, "minecraft:custom_data": '
                  '{proof: "same, nested: [value]", list: [1b,2L]}}}]')
         rows = quality_stacks(reply)
         self.assertEqual(rows[0]['components'][QUALITY], 4)
@@ -22,10 +22,10 @@ class QualityReadbackTest(unittest.TestCase):
         self.assertEqual(pill_quality(rows[0]), 4)
 
     def test_legacy_component_absence_is_preserved_not_normalized(self):
-        rows = quality_stacks('Block has the following block data: [{Slot:4b,id:"myvillage:pill_huiling",count:2}]')
+        rows = quality_stacks('Block has the following block data: [{Slot:4b,id:"yuanxian:pill_huiling",count:2}]')
         self.assertEqual(pill_quality(rows[4]), 1)
         self.assertNotIn('components', rows[4])
-        explicit = {'id': 'myvillage:pill_huiling', 'count': 2, 'components': {QUALITY: 1}}
+        explicit = {'id': 'yuanxian:pill_huiling', 'count': 2, 'components': {QUALITY: 1}}
         self.assertEqual(pill_quality(explicit), 1)
         self.assertNotEqual(rows[4], explicit)
 
@@ -37,7 +37,7 @@ class QualityReadbackTest(unittest.TestCase):
         for reply in ('No entity was found', 'data: {}', 'data: [{Slot:0b,id:"a:b"}]',
                       'data: [{Slot:0b,id:"a:b",count:1},{Slot:0b,id:"a:b",count:1}]',
                       'data: [{Slot:0b,id:"a:b",count:0}]',
-                      'data: [{Slot:0b,id:"a:b",count:1,components:{"myvillage:pill_quality":4}]'):
+                      'data: [{Slot:0b,id:"a:b",count:1,components:{"yuanxian:pill_quality":4}]'):
             with self.subTest(reply=reply), self.assertRaises(ValueError):
                 quality_stacks(reply)
 
@@ -77,7 +77,7 @@ class AtomicHealingTest(unittest.TestCase):
         import json
         custom_name = json.dumps(json.dumps({'text': 'quote " and line\nnext'}))
         reply = ('Player has the following entity data: {Health:12.5f, UUID:[I;1,-2,3,-4], '
-                 'CustomName:'+custom_name+', unused:NaNf, NeoForgeData:{myvillage_medicine:'
+                 'CustomName:'+custom_name+', unused:NaNf, NeoForgeData:{yuanxian_medicine:'
                  '{effect:"yangyuan",effect_ticks:173,healing_elapsed:7,quality:4,cooldown_ticks:573}}}')
         snapshot = healing_snapshot(reply)
         self.assertEqual(snapshot['health'], 12.5)
@@ -183,7 +183,7 @@ class QualityCaptureContractTest(unittest.TestCase):
             evidence.pill_tooltips.assert_not_called()
             item_commands = [call.args[0] for call in evidence.rc.call_args_list if call.args[0].startswith('item replace entity')]
             self.assertEqual(len(item_commands), 3)
-            self.assertTrue(all('[myvillage:pill_quality=4]' in command for command in item_commands))
+            self.assertTrue(all('[yuanxian:pill_quality=4]' in command for command in item_commands))
 
     def test_start_coordinates_fit_all_required_gui_sizes(self):
         for size, expected in (((960, 540), (480, 274)), ((854, 480), (426, 244)), ((640, 480), (320, 244))):

@@ -30,7 +30,7 @@ class BossHudEvidence(TigerEvidence):
     def __init__(self, typography=False):
         super().__init__(ROOT/('out/preview/bossbar-fonts/runtime' if typography else 'out/preview/bossbar-a/runtime'), 'visuals')
         self.typography_only = typography
-        self.target = '@e[type=myvillage:thunder_tiger,tag=boss_hud_fixture,limit=1]'
+        self.target = '@e[type=yuanxian:thunder_tiger,tag=boss_hud_fixture,limit=1]'
         self.report.update(kind='bossbar_a', selected=['hud'], completed=[], unrun=['hud'],
                            method=__doc__, fixture='disposable flat platform, creative observer, command-driven health/phase/horn')
         if typography:
@@ -53,9 +53,9 @@ class BossHudEvidence(TigerEvidence):
         self.rc(f'tp {self.s.username} 256.5 201 274.5 180 5')
         self.prepare_platform()
         self.rc(f'tp {self.s.username} 256.5 201 274.5 180 5')
-        self.rc('summon myvillage:thunder_tiger 256.5 201 256.5 {Silent:1b,PersistenceRequired:1b,Tags:["boss_hud_fixture"]}')
+        self.rc('summon yuanxian:thunder_tiger 256.5 201 256.5 {Silent:1b,PersistenceRequired:1b,Tags:["boss_hud_fixture"]}')
         self.poll(lambda: self.rc('yuanxian beast status '+self.target),
-                  lambda reply: reply.startswith('myvillage:thunder_tiger '),15,'boss becomes queryable')
+                  lambda reply: reply.startswith('yuanxian:thunder_tiger '),15,'boss becomes queryable')
         self.rc(f'attribute {self.target} minecraft:generic.movement_speed base set 0')
         time.sleep(2)
         self.maximum = self.status()['max']
@@ -101,15 +101,15 @@ class BossHudEvidence(TigerEvidence):
         healed = self.frame('04_healed')
         self.must('healing_restores_fill', abs(full-healed) < .08*full,[full,healed])
 
-        self.rc('bossbar add myvillage:hud_control {"text":"原版对照"}')
-        self.rc(f'bossbar set myvillage:hud_control players {self.s.username}')
-        self.rc('bossbar set myvillage:hud_control color green')
-        self.rc('summon myvillage:thunder_tiger 263.5 201 256.5 {Silent:1b,PersistenceRequired:1b,Tags:["boss_hud_second"]}')
+        self.rc('bossbar add yuanxian:hud_control {"text":"原版对照"}')
+        self.rc(f'bossbar set yuanxian:hud_control players {self.s.username}')
+        self.rc('bossbar set yuanxian:hud_control color green')
+        self.rc('summon yuanxian:thunder_tiger 263.5 201 256.5 {Silent:1b,PersistenceRequired:1b,Tags:["boss_hud_second"]}')
         self.rc('attribute @e[tag=boss_hud_second,limit=1] minecraft:generic.movement_speed base set 0')
         stacked = self.frame('05_two_bosses_and_vanilla', expanded=True)
         self.must('two_boss_events_render_separately', stacked > 1.6*full, [full,stacked])
         self.rc('kill @e[tag=boss_hud_second]')
-        self.rc('bossbar remove myvillage:hud_control')
+        self.rc('bossbar remove yuanxian:hud_control')
         self.rc('tick step 40')
         time.sleep(2.2)
 
@@ -144,7 +144,7 @@ class BossHudEvidence(TigerEvidence):
         self.rc('tick unfreeze')
         user=self.s.username
         for command in (f'yuanxian cultivation awaken {user}',f'yuanxian cultivation initiate {user}',
-                        f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1'):
+                        f'yuanxian cultivation setrealm {user} yuanxian:qi_refining yuanxian:qi_refining_1'):
             self.rc(command)
         self.report['qi_combat_mode']=scene.ensure_cultivation(self.s)
         self.must('qi_mode_confirmed',scene.combat_mode(self.s)=='cultivation',self.report['qi_combat_mode'])

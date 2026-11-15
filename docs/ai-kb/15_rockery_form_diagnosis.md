@@ -47,7 +47,7 @@ The shipped mansion garden now uses the fixed micro-voxel sculpt at
 `rockery_block` cells and stamped as one stacked 3×3×3 cluster. Stone and moss
 remain visible at 1/16-block resolution through separately baked material
 masks; real blocks provide the summit foliage, contained source-water pool,
-waterlogged rock foot/outlet, and passable `myvillage:rockery_cascade`.
+waterlogged rock foot/outlet, and passable `yuanxian:rockery_cascade`.
 
 The standalone `/yuanxian place hero_rockery` review fragment carries the same
 self-contained cluster. The generic heightfield/codebook path remains available
@@ -58,17 +58,17 @@ for non-hero specimens and is intentionally unchanged.
 In-game `/yuanxian place chinese_mansion_*`, the 假山 reads as "地上一排小石头
 材质的尖刺状，完全没有山" — a row of small stone-textured spikes on the ground,
 not a mountain. Confirmed by NBT inspection of `chinese_mansion_001`:
-`myvillage:rockery_block` appears on only **two Y layers** (y=0: 3 blocks,
+`yuanxian:rockery_block` appears on only **two Y layers** (y=0: 3 blocks,
 y=1: 13 blocks). The whole 假山 is 1–2 blocks tall.
 
 ## Root cause: architecture, not art
 
 The 假山 is built by `tools/buildgen/rockery.py` (`derive_rockery`), which
 computes a **2D heightfield** over the parcel bbox and emits
-`{cell: (variant_id, moss_level)}` — exactly **one** `myvillage:rockery_block`
+`{cell: (variant_id, moss_level)}` — exactly **one** `yuanxian:rockery_block`
 per cell, placed at the cell's natural surface y. It never stacks vertically.
 
-Each `myvillage:rockery_block` is a self-contained mini-mountain: a 16×16×16
+Each `yuanxian:rockery_block` is a self-contained mini-mountain: a 16×16×16
 sub-cell voxel field (role-driven: `peak`/`slope`/`base`/`corner`/`standalone`),
 greedy-merged into ≤ 32 model cubes, with a matching `VoxelShape`. Physically
 each block occupies one Minecraft cell and reaches ~1 block tall at most
@@ -109,7 +109,7 @@ Before the reference sculpt arrived, the tentative direction was to rebuild
   voxel-walkability valid). The 亭 can then sit on the summit.
 - **太湖石 孔洞 (leak-through holes)** — deterministic carved air pockets
   through the body for the "漏/透" quality.
-- **rockery_block demotion** — `myvillage:rockery_block` moves from "the
+- **rockery_block demotion** — `yuanxian:rockery_block` moves from "the
   paving主力" to a finishing accent: one `peak` variant on the true summit, a
   few `base`/`standalone` accents at the foot. The 16×16×16 sub-cell precision
   still earns its place on these accents, but no longer carries the whole mass.

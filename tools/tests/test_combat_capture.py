@@ -13,7 +13,7 @@ from tools.combat_capture.session import (CLIENT_DIR_REL, client_extra, gradle_a
 
 ROOT = Path(__file__).resolve().parents[2]
 RESOURCES = ROOT / "src/main/resources"
-QINGFENG = "myvillage:qingfeng_sword"
+QINGFENG = "yuanxian:qingfeng_sword"
 
 
 def rig_move(strike, contact, ticks, last_pose="neutral"):
@@ -24,8 +24,8 @@ def rig_move(strike, contact, ticks, last_pose="neutral"):
 
 class PlannedWorldCaptureTest(unittest.TestCase):
     def test_cultivation_world_preset_selects_real_generation_with_structures(self):
-        result=server_properties(1234,1235,'fixture',world_preset='myvillage:cultivation',world_seed=-20261102)
-        self.assertEqual(r'myvillage\:cultivation',result['level-type'])
+        result=server_properties(1234,1235,'fixture',world_preset='yuanxian:cultivation',world_seed=-20261102)
+        self.assertEqual(r'yuanxian\:cultivation',result['level-type'])
         self.assertEqual('true',result['generate-structures'])
         self.assertEqual('{}',result['generator-settings'])
         self.assertEqual('-20261102',result['level-seed'])
@@ -34,11 +34,11 @@ class PlannedWorldCaptureTest(unittest.TestCase):
 
 class IdResolutionTest(unittest.TestCase):
     def test_ids_map_to_bundled_paths(self):
-        self.assertEqual(data.style_rel("myvillage:basic_sword"), "data/myvillage/combat/style/basic_sword.json")
-        self.assertEqual(data.weapon_rel("myvillage:qingfeng_sword"),
-                         "data/myvillage/combat/weapon/qingfeng_sword.json")
-        self.assertEqual(data.asset_rel("myvillage:combat/qingfeng_first_person.json"),
-                         "assets/myvillage/combat/qingfeng_first_person.json")
+        self.assertEqual(data.style_rel("yuanxian:basic_sword"), "data/yuanxian/combat/style/basic_sword.json")
+        self.assertEqual(data.weapon_rel("yuanxian:qingfeng_sword"),
+                         "data/yuanxian/combat/weapon/qingfeng_sword.json")
+        self.assertEqual(data.asset_rel("yuanxian:combat/qingfeng_first_person.json"),
+                         "assets/yuanxian/combat/qingfeng_first_person.json")
         self.assertEqual(data.style_rel("other:dir/x"), "data/other/combat/style/dir/x.json")
 
     def test_bad_ids_are_rejected(self):
@@ -49,7 +49,7 @@ class IdResolutionTest(unittest.TestCase):
 
     def test_unlisted_weapon_is_rejected(self):
         with self.assertRaises(data.DataError):
-            data.load_weapon(RESOURCES, "myvillage:not_a_weapon")
+            data.load_weapon(RESOURCES, "yuanxian:not_a_weapon")
 
 
 class KeyTickTest(unittest.TestCase):
@@ -71,7 +71,7 @@ class KeyTickTest(unittest.TestCase):
 
     def test_bundled_qingfeng_moves_and_ticks(self):
         w = data.load_weapon(RESOURCES, QINGFENG)
-        self.assertEqual(w.style_id, "myvillage:basic_sword")
+        self.assertEqual(w.style_id, "yuanxian:basic_sword")
         self.assertEqual([m.index for m in w.moves], [1, 2, 3, 4, 5])
         self.assertEqual(w.moves[0].short, "01_thrust")
         style = json.loads((RESOURCES / w.files["style"]).read_text(encoding="utf-8"))
@@ -87,7 +87,7 @@ class KeyTickTest(unittest.TestCase):
             self.assertLess(ticks["recovery"], m.total_ticks + 1e-9)
 
     def test_short_name(self):
-        self.assertEqual(data.short_name("myvillage:basic_sword_05_lunge_thrust"), "05_lunge_thrust")
+        self.assertEqual(data.short_name("yuanxian:basic_sword_05_lunge_thrust"), "05_lunge_thrust")
         self.assertEqual(data.short_name("ns:plain"), "plain")
 
 
@@ -217,7 +217,7 @@ class ViewTest(unittest.TestCase):
     def test_bundled_spear_is_long_and_has_its_rig(self):
         """The spear is bundled with its final rig and geometry contract: it
         must resolve fully (rig required) and get the long-weapon views."""
-        spear_id = "myvillage:lingxiao_spear"
+        spear_id = "yuanxian:lingxiao_spear"
         index = json.loads((RESOURCES / data.INDEX_REL).read_text(encoding="utf-8"))
         self.assertIn(spear_id, index["weapons"])
         spear = data.load_weapon(RESOURCES, spear_id)  # require_rig=True: a missing rig fails here
@@ -240,9 +240,9 @@ class ViewTest(unittest.TestCase):
     def test_missing_rig_is_allowed_only_on_request(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            for rel in (data.INDEX_REL, "data/myvillage/combat/weapon/qingfeng_sword.json",
-                        "data/myvillage/combat/style/basic_sword.json",
-                        "assets/myvillage/combat/qingfeng_sword_geometry.json"):
+            for rel in (data.INDEX_REL, "data/yuanxian/combat/weapon/qingfeng_sword.json",
+                        "data/yuanxian/combat/style/basic_sword.json",
+                        "assets/yuanxian/combat/qingfeng_sword_geometry.json"):
                 (root / rel).parent.mkdir(parents=True, exist_ok=True)
                 (root / rel).write_bytes((RESOURCES / rel).read_bytes())
             with self.assertRaises(data.DataError):
@@ -558,7 +558,7 @@ class SceneTest(unittest.TestCase):
         self.assertEqual(scene.parse_float_data("Husk has the following entity data: 41.5f"), 41.5)
         self.assertIsNone(scene.parse_float_data("No entity was found"))
         self.assertEqual(scene.ints_to_uuid([0, 0, 0, 1]), "00000000-0000-0000-0000-000000000001")
-        self.assertEqual(scene.parse_combat_mode('{"myvillage:combat_preference": {combat_mode: "cultivation"}}'),
+        self.assertEqual(scene.parse_combat_mode('{"yuanxian:combat_preference": {combat_mode: "cultivation"}}'),
                          "cultivation")
         self.assertEqual(scene.parse_combat_mode("Player has the following entity data: {}"), "vanilla")
 
@@ -608,7 +608,7 @@ class ChatRecoveryTest(unittest.TestCase):
         # in game before typing, then never re-grabbed until the middle click
         g = FakeGame(self.log, [True] + [False] * 200 + [True])
         with mock.patch.object(g, "wait_ingame", side_effect=[True, False]):
-            m, _ = g.chat("/myvillage_pal_smoke first_person 1 0", confirm=r"PAL_SMOKE first_person move=1")
+            m, _ = g.chat("/yuanxian_pal_smoke first_person 1 0", confirm=r"PAL_SMOKE first_person move=1")
         self.assertIsNotNone(m)
         self.assertIn(("click", "2"), g.sent)
         self.assertNotIn(("key", "Escape"), g.sent)
@@ -633,7 +633,7 @@ class ChatRecoveryTest(unittest.TestCase):
             return orig(*args)
         g.xdo = xdo
         with self.assertRaises(xgame.ProbeRejected) as ctx:
-            g.chat("/myvillage_pal_smoke third_person 1 12", confirm=r"PAL_SMOKE third_person move=1 tick=(\S+)",
+            g.chat("/yuanxian_pal_smoke third_person 1 12", confirm=r"PAL_SMOKE third_person move=1 tick=(\S+)",
                    reject=capture.probe_reject_pattern("third_person"), timeout=30)
         self.assertEqual(ctx.exception.reason, "tick_out_of_range")
         self.assertIn("tick_out_of_range", str(ctx.exception))
@@ -761,7 +761,7 @@ class ComboRunTest(unittest.TestCase):
         target and the lunge's range covers the whole line (static check of
         the placement, not of the game)."""
         import math
-        style = json.loads((RESOURCES / "data/myvillage/combat/style/basic_spear.json").read_text())
+        style = json.loads((RESOURCES / "data/yuanxian/combat/style/basic_spear.json").read_text())
         moves = {m["id"].split(":")[1]: m for m in style["moves"]}
 
         def seg_dist(p, a, b):
@@ -843,8 +843,8 @@ class RigRecordTest(unittest.TestCase):
             self.assertFalse(capture.rig_record(build, "missing.json")["present"])
 
     def test_bundled_rigs(self):
-        spear = capture.rig_record(RESOURCES, "assets/myvillage/combat/lingxiao_spear_first_person.json")
-        sword = capture.rig_record(RESOURCES, "assets/myvillage/combat/qingfeng_first_person.json")
+        spear = capture.rig_record(RESOURCES, "assets/yuanxian/combat/lingxiao_spear_first_person.json")
+        sword = capture.rig_record(RESOURCES, "assets/yuanxian/combat/qingfeng_first_person.json")
         self.assertTrue(spear["off_hand"])
         self.assertFalse(sword["off_hand"])
 

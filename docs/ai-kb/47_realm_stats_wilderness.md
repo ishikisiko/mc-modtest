@@ -1,7 +1,7 @@
 # Realm Statistics and Wilderness
 
 当前修炼属性已改为[逐阶段加值与肉身防御](../features/additive-cultivation-stats.md)。
-`data/myvillage/stats/progression.json` 是凡人至金丹的生命、攻击、肉身防御、灵力和品质奖励的唯一数表。
+`data/yuanxian/stats/progression.json` 是凡人至金丹的生命、攻击、肉身防御、灵力和品质奖励的唯一数表。
 玩家保存筑基来源与金丹品质，profile v5 / protocol59；装备贡献不会再被境界整体放大。
 
 ## 成长和权威
@@ -32,7 +32,7 @@ H → 内视已接入天道筑基和三档金丹正式雷劫；承受指定次�
 ### 普通怪物的生成权重与境界下限（0.112.2）
 
 `VanillaMonsterSpawnModifier` 在 NeoForge 的 `MODIFY` 阶段修改群系敌对生成表。
-`data/myvillage/neoforge/biome_modifier/scale_vanilla_monsters.json` 中的 `multiplier`
+`data/yuanxian/neoforge/biome_modifier/scale_vanilla_monsters.json` 中的 `multiplier`
 是原版怪物的权重系数，只作用于 `minecraft` 命名空间的 `MONSTER` 条目。
 整数权重四舍五入，正值至少保留 1，原有 0 继续为 0。新增怪物、动物、群体数量、
 生成成本和敌对生物容量不跟随改变；刷怪笼、袭击等独立生成入口不走群系权重。
@@ -45,7 +45,7 @@ H → 内视已接入天道筑基和三档金丹正式雷劫；承受指定次�
 新增妖兽、六种野怪和地域亡灵继续使用 `WildernessRules` 的地区 `beast` 范围，
 最低为炼气一层或当地更高下限。已保存的出生境界不重抽、不随移动改变。
 
-`data/myvillage/wilderness/rules.json` maps region IDs to inclusive beast and
+`data/yuanxian/wilderness/rules.json` maps region IDs to inclusive beast and
 rogue realm-stage ranges. Region IDs, generated region tiers and realm indices
 are separate concepts. The existing region runtime is read-only; wilderness
 consumes its position queries. Outside its supported area or outside the
@@ -73,7 +73,7 @@ No region assignment is invented outside the supported overworld area.
 The finalize-spawn event records a pending birth before vanilla initialization;
 the entity-join event applies permanent health/attack modifiers after native
 size and attribute initialization, then fills health once. The saved
-`myvillage:vanilla_monster_birth` records realm/stage, profile, actual region,
+`yuanxian:vanilla_monster_birth` records realm/stage, profile, actual region,
 birth coordinates and reason. Later joins do not heal or reroll. Native slime
 splits and hostile conversions inherit that record. Outer worldplan births
 retain their actual outer region ID while consuming their profile's range;
@@ -133,7 +133,7 @@ density or multiplayer acceptance.
 See [the measured verification report](../testing/2026-10-14-realm-stats.md).
 
 
-0.61.0 adds `myvillage:fire_spirit`, tagged as fire damage, for attributed fate burns
+0.61.0 adds `yuanxian:fire_spirit`, tagged as fire damage, for attributed fate burns
 and bursts. It uses the existing fire-resistance channel without changing physical
 hits or granting the other elemental attack routes. Derivative amounts enter the
 ordinary mitigation path once, with explicit no-proc attribution; see [48](48_innate_fates.md).

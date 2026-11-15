@@ -3,7 +3,7 @@ navigation:
   title: 锻造、组装与辅助火
   parent: index.md
   position: 55
-  icon: myvillage:forging_table
+  icon: yuanxian:forging_table
 ---
 
 # 锻造、组装与辅助火
@@ -24,7 +24,7 @@ navigation:
 
 ## 普通鼎起坯或自动制作
 
-<Recipe id="myvillage:forging_table" />
+<Recipe id="yuanxian:forging_table" />
 
 「只起坯」消耗主材，把器坯留在输入槽，取出后可手工加工。「自动制作」预付主材、普通燃料、用水、燧石及普通木柄用料，产出可用标准器物，用水后返还空桶。已有手工器坯也能自动续作，保留已完成部分的手工贡献。
 
@@ -32,13 +32,13 @@ navigation:
 
 ## 手工加热和成形
 
-<Recipe id="myvillage:heating_kiln" />
+<Recipe id="yuanxian:heating_kiln" />
 
-<Recipe id="myvillage:forging_anvil" />
+<Recipe id="yuanxian:forging_anvil" />
 
-<Recipe id="myvillage:forging_hammer" />
+<Recipe id="yuanxian:forging_hammer" />
 
-<Recipe id="myvillage:quenching_trough" />
+<Recipe id="yuanxian:quenching_trough" />
 
 1. 手持器坯右键窑放入，潜行右键打开燃料槽。放好煤炭或木炭后自动加热和保温，热好时有声音提示。
 2. 空手右键取出热坯，再右键放到锻台。窑与锻台同层相邻时，持锤右键空锻台可接过热坯；持锤右键窑可把台上器物送回。
@@ -54,7 +54,7 @@ navigation:
 
 ## 组装和换柄
 
-<Recipe id="myvillage:assembly_table" />
+<Recipe id="yuanxian:assembly_table" />
 
 精磨器坯与一个柄材放入组装台，核对预览后装配。护甲使用皮革，不装武器柄。开始装配时按操作者的炼器资质随机判定失败或四种品质，未觉醒的入门工具按资质 0 计算。普通鼎自动成器同样判定；只起坯不判定品质。失败在工序完成时消耗已投入的器坯和材料，暂停或重启保留原结果。
 
@@ -77,7 +77,7 @@ navigation:
 
 辅助火只在完整多方块鼎使用。火种放入专用槽，自动和手工成品均能精炼，每件器物只接受一次辅助火。已炼灵成品可补做首次辅助火精炼，原专长不变，仍付该专长的完整炼制耗材。
 
-<Recipe id="myvillage:fire_capture_bottle" />
+<Recipe id="yuanxian:fire_capture_bottle" />
 
 | 火种 | 获取与适性 |
 |---|---|

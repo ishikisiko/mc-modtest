@@ -27,7 +27,7 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public final class QualityPickerScreen extends Screen {
-    private static final String KEY = "screen.myvillage.quality_picker.";
+    private static final String KEY = "screen.yuanxian.quality_picker.";
     private static final int ROWS = 6;
     private final List<Item> catalogue = QualityPicker.catalogue().stream()
             .sorted(Comparator.<Item>comparingInt(item -> QualityPicker.allows(item, 4) ? 0 : 1)
@@ -42,7 +42,7 @@ public final class QualityPickerScreen extends Screen {
     private ItemStack preview = ItemStack.EMPTY;
     private boolean requested;
 
-    public QualityPickerScreen() { super(Component.translatable("item.myvillage.quality_picker")); }
+    public QualityPickerScreen() { super(Component.translatable("item.yuanxian.quality_picker")); }
     private Component text(String id) { return Component.translatable(KEY + id); }
 
     @Override protected void init() {
@@ -84,7 +84,7 @@ public final class QualityPickerScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal("换页"), b -> {traitPage=(traitPage+1)%((ForgeMark.TRAITS.size()+2)/3);refresh();}).bounds(left+260,top+105,36,18).build());
         for (int t = 0; t < 3; t++) {
             final int value = t;
-            traits.add(addRenderableWidget(Button.builder(Component.translatable("forging.myvillage.trait." + ForgeMark.TRAITS.get(t)),
+            traits.add(addRenderableWidget(Button.builder(Component.translatable("forging.yuanxian.trait." + ForgeMark.TRAITS.get(t)),
                     b -> { trait = traitPage*3+value; refresh(); }).bounds(left + 158 + t * 47, top + 80, 44, 20).build()));
         }
         addRenderableWidget(Button.builder(text("one"), b -> give(false)).bounds(left + 158, top + 170, 64, 20).build());
@@ -115,7 +115,7 @@ public final class QualityPickerScreen extends Screen {
         for (int t = 0; t < traits.size(); t++) {
             String id = ForgeMark.TRAITS.get(traitPage*3+t); var button = traits.get(t);
             button.active = quality > 0 && QualityPicker.traits(selected).contains(id);
-            button.setMessage(Component.translatable("forging.myvillage.trait." + id).withStyle(style -> style.withUnderlined(id.equals(ForgeMark.TRAITS.get(trait)) && button.active)));
+            button.setMessage(Component.translatable("forging.yuanxian.trait." + id).withStyle(style -> style.withUnderlined(id.equals(ForgeMark.TRAITS.get(trait)) && button.active)));
         }
         preview = QualityPicker.create(selected, quality, trait, false);
     }

@@ -47,7 +47,7 @@ class OrchardEvidence(Evidence):
                            mapped_input=[],status='running',growth_pacing='not_verified',owner_appearance='not_verified',
                            owner_sound='not_verified',owner_fps='not_verified',broad_multiplayer='not_verified',
                            natural_acquisition='not_verified',termination='pending')
-        self.rules=json.loads((ROOT/'src/main/resources/data/myvillage/orchard/rules.json').read_text())
+        self.rules=json.loads((ROOT/'src/main/resources/data/yuanxian/orchard/rules.json').read_text())
         self.natural=False
     def rc(self,command):
         # A cold natural-area load may legitimately outlast the ordinary input probe timeout.
@@ -96,15 +96,15 @@ class OrchardEvidence(Evidence):
         self.rc(f'tp {self.s.username} {p[0]+.5} -60 {p[2]+.5}');time.sleep(1)
     def crop_fixture(self,p=FRUIT,age=0,enriched=False):
         x,y,z=p
-        for command in [f'setblock {x} {y+1} {z+1} myvillage:ningyuan_log',
-                        f'setblock {x} {y+1} {z} myvillage:ningyuan_leaves[persistent=true,distance=1]',
-                        f'setblock {pos(p)} myvillage:ningyuan_fruit_cluster[age={age},enriched={str(enriched).lower()}]']:
+        for command in [f'setblock {x} {y+1} {z+1} yuanxian:ningyuan_log',
+                        f'setblock {x} {y+1} {z} yuanxian:ningyuan_leaves[persistent=true,distance=1]',
+                        f'setblock {pos(p)} yuanxian:ningyuan_fruit_cluster[age={age},enriched={str(enriched).lower()}]']:
             self.rc(command)
         self.look((x+.5,y+.65,z+.5))
     def grow_crop(self,p=FRUIT):
         self.held('minecraft:bone_meal',2);self.look((p[0]+.5,p[1]+.65,p[2]+.5))
         self.use('bone_meal_stage_one');self.use('bone_meal_stage_two')
-        self.check('mature_after_two_mapped_bonemeals',self.is_block(p,'myvillage:ningyuan_fruit_cluster[age=2]'),self.count('minecraft:bone_meal'))
+        self.check('mature_after_two_mapped_bonemeals',self.is_block(p,'yuanxian:ningyuan_fruit_cluster[age=2]'),self.count('minecraft:bone_meal'))
     def setup(self):
         u=self.s.username
         for command in (*scene.world_rules(),f'gamemode survival {u}',f'clear {u}',
@@ -114,64 +114,64 @@ class OrchardEvidence(Evidence):
             self.rc(command)
     def sapling_growth_and_clearance(self):
         u=self.s.username;p=(-10,-60,3)
-        self.held('myvillage:ningyuan_sapling',1);self.look((-9.5,-60,3.5));self.use('plant_sapling_on_dirt')
-        self.check('sapling_placed_and_consumed',self.is_block(p,'myvillage:ningyuan_sapling') and self.count('myvillage:ningyuan_sapling')==0,self.inventory())
+        self.held('yuanxian:ningyuan_sapling',1);self.look((-9.5,-60,3.5));self.use('plant_sapling_on_dirt')
+        self.check('sapling_placed_and_consumed',self.is_block(p,'yuanxian:ningyuan_sapling') and self.count('yuanxian:ningyuan_sapling')==0,self.inventory())
         self.rc('setblock -10 -58 3 minecraft:stone');self.held('minecraft:bone_meal',32);self.look((-9.5,-59.7,3.5))
         self.use('blocked_tree_bonemeal',seconds=2)
-        self.check('blocked_growth_preserves_sapling_and_obstacle',self.is_block(p,'myvillage:ningyuan_sapling') and self.is_block((-10,-58,3),'minecraft:stone'),'full-plan preflight')
+        self.check('blocked_growth_preserves_sapling_and_obstacle',self.is_block(p,'yuanxian:ningyuan_sapling') and self.is_block((-10,-58,3),'minecraft:stone'),'full-plan preflight')
         self.rc('setblock -10 -58 3 minecraft:air');self.use('grow_tree_bonemeal',seconds=3)
-        self.poll(lambda:self.is_block(p,'myvillage:ningyuan_log'),bool,6,'sapling becomes tree')
+        self.poll(lambda:self.is_block(p,'yuanxian:ningyuan_log'),bool,6,'sapling becomes tree')
         self.check('tree_grew_from_mapped_bonemeal',True,self.count('minecraft:bone_meal'))
-        self.rc('setblock -10 -61 14 myvillage:spirit_soil');self.held('myvillage:ningyuan_sapling');self.look((-9.5,-60,14.5));self.use('plant_sapling_on_spirit_soil')
-        self.check('spirit_soil_accepts_tree_sapling',self.is_block((-10,-60,14),'myvillage:ningyuan_sapling'),'existing herbs retain their tests')
+        self.rc('setblock -10 -61 14 yuanxian:spirit_soil');self.held('yuanxian:ningyuan_sapling');self.look((-9.5,-60,14.5));self.use('plant_sapling_on_spirit_soil')
+        self.check('spirit_soil_accepts_tree_sapling',self.is_block((-10,-60,14),'yuanxian:ningyuan_sapling'),'existing herbs retain their tests')
         self.held('minecraft:bone_meal',32);self.look((-9.5,-59.7,14.5));self.use('grow_tree_on_spirit_soil',seconds=3)
-        self.poll(lambda:self.is_block((-10,-60,14),'myvillage:ningyuan_log'),bool,6,'spirit soil tree')
-        self.check('tree_preserves_spirit_soil',self.is_block((-10,-61,14),'myvillage:spirit_soil'),'no dirt conversion')
+        self.poll(lambda:self.is_block((-10,-60,14),'yuanxian:ningyuan_log'),bool,6,'spirit soil tree')
+        self.check('tree_preserves_spirit_soil',self.is_block((-10,-61,14),'yuanxian:spirit_soil'),'no dirt conversion')
         self.rc(f'clear {u}');self.done('sapling_growth_and_clearance')
     def fruit_cycle(self):
-        self.crop_fixture();self.held('myvillage:ningyuan_fertilizer',2);self.use('fertilize_bud')
-        self.check('fertilizer_spends_once',self.is_block(FRUIT,'myvillage:ningyuan_fruit_cluster[age=0,enriched=true]') and self.count('myvillage:ningyuan_fertilizer')==1,self.inventory())
-        self.use('reject_second_fertilizer');self.check('duplicate_fertilizer_not_consumed',self.count('myvillage:ningyuan_fertilizer')==1,self.inventory())
+        self.crop_fixture();self.held('yuanxian:ningyuan_fertilizer',2);self.use('fertilize_bud')
+        self.check('fertilizer_spends_once',self.is_block(FRUIT,'yuanxian:ningyuan_fruit_cluster[age=0,enriched=true]') and self.count('yuanxian:ningyuan_fertilizer')==1,self.inventory())
+        self.use('reject_second_fertilizer');self.check('duplicate_fertilizer_not_consumed',self.count('yuanxian:ningyuan_fertilizer')==1,self.inventory())
         self.grow_crop();self.capture('high-fruit.png')
-        self.held('myvillage:ningyuan_fertilizer',1);self.use('reject_fertilizer_on_ripe_fruit')
-        self.check('ripe_fruit_rejects_fertilizer',self.count('myvillage:ningyuan_fertilizer')==1,self.inventory())
+        self.held('yuanxian:ningyuan_fertilizer',1);self.use('reject_fertilizer_on_ripe_fruit')
+        self.check('ripe_fruit_rejects_fertilizer',self.count('yuanxian:ningyuan_fertilizer')==1,self.inventory())
         self.held();self.use('harvest_high_fruit');self.collect(FRUIT)
-        self.check('one_high_harvest_resets_enrichment',self.count('myvillage:ningyuan_fruit_high')==self.rules['harvest']['count'] and self.is_block(FRUIT,'myvillage:ningyuan_fruit_cluster[age=0,enriched=false]'),self.inventory())
+        self.check('one_high_harvest_resets_enrichment',self.count('yuanxian:ningyuan_fruit_high')==self.rules['harvest']['count'] and self.is_block(FRUIT,'yuanxian:ningyuan_fruit_cluster[age=0,enriched=false]'),self.inventory())
         self.look((.5,-57.35,3.5));self.use('duplicate_harvest');self.collect(FRUIT)
-        self.check('duplicate_harvest_grants_nothing',self.count('myvillage:ningyuan_fruit_high')==self.rules['harvest']['count'],self.inventory())
+        self.check('duplicate_harvest_grants_nothing',self.count('yuanxian:ningyuan_fruit_high')==self.rules['harvest']['count'],self.inventory())
         self.grow_crop();self.held();self.use('next_cycle_low_harvest');self.collect(FRUIT)
-        self.check('next_harvest_is_low_grade',self.count('myvillage:ningyuan_fruit_low')==self.rules['harvest']['count'],self.inventory())
+        self.check('next_harvest_is_low_grade',self.count('yuanxian:ningyuan_fruit_low')==self.rules['harvest']['count'],self.inventory())
         self.held('minecraft:bone_meal',1);self.look((.5,-57.35,3.5));self.use('grow_before_late_fertilizer')
-        self.held('myvillage:ningyuan_fertilizer',1);self.use('reject_fertilizer_during_growth')
-        self.check('growing_fruit_rejects_fertilizer',self.count('myvillage:ningyuan_fertilizer')==1 and self.is_block(FRUIT,'myvillage:ningyuan_fruit_cluster[age=1,enriched=false]'),self.inventory())
+        self.held('yuanxian:ningyuan_fertilizer',1);self.use('reject_fertilizer_during_growth')
+        self.check('growing_fruit_rejects_fertilizer',self.count('yuanxian:ningyuan_fertilizer')==1 and self.is_block(FRUIT,'yuanxian:ningyuan_fruit_cluster[age=1,enriched=false]'),self.inventory())
         self.done('fruit_cycle')
     def wood_crafting_and_placement(self):
-        u=self.s.username;self.rc(f'clear {u}');self.held('myvillage:ningyuan_log')
+        u=self.s.username;self.rc(f'clear {u}');self.held('yuanxian:ningyuan_log')
         self.s.game.key('e');time.sleep(.4)
         for x,y,shift,label in [(16,150,False,'take_log'),(106,26,False,'put_log_in_crafting'),(162,36,True,'craft_four_planks')]:
             self.click(x,y,shift=shift,label=label,dimensions=(176,166))
         self.capture('crafting-planks.png');self.close_menu()
-        self.check('native_inventory_crafting_produces_four_planks',self.count('myvillage:ningyuan_planks')==4 and self.count('myvillage:ningyuan_log')==0,self.inventory())
-        self.held('myvillage:ningyuan_door',2);self.look((5.5,-60,3.5));self.use('place_lattice_door')
-        self.check('door_occupies_two_blocks',self.is_block((5,-60,3),'myvillage:ningyuan_door[half=lower]') and self.is_block((5,-59,3),'myvillage:ningyuan_door[half=upper]'),self.inventory())
+        self.check('native_inventory_crafting_produces_four_planks',self.count('yuanxian:ningyuan_planks')==4 and self.count('yuanxian:ningyuan_log')==0,self.inventory())
+        self.held('yuanxian:ningyuan_door',2);self.look((5.5,-60,3.5));self.use('place_lattice_door')
+        self.check('door_occupies_two_blocks',self.is_block((5,-60,3),'yuanxian:ningyuan_door[half=lower]') and self.is_block((5,-59,3),'yuanxian:ningyuan_door[half=upper]'),self.inventory())
         self.held();self.look((5.5,-59.5,3.5));self.use('open_door')
-        self.check('door_opens_by_hand',self.is_block((5,-60,3),'myvillage:ningyuan_door[open=true]'),'mapped right click')
-        self.held('myvillage:ningyuan_slab',2);self.look((8.5,-60,3.5));self.use('place_bottom_slab')
+        self.check('door_opens_by_hand',self.is_block((5,-60,3),'yuanxian:ningyuan_door[open=true]'),'mapped right click')
+        self.held('yuanxian:ningyuan_slab',2);self.look((8.5,-60,3.5));self.use('place_bottom_slab')
         self.look((8.5,-59.5,3.5));self.use('combine_double_slab')
-        self.check('two_slabs_combine_without_extra_cost',self.is_block((8,-60,3),'myvillage:ningyuan_slab[type=double]') and self.count('myvillage:ningyuan_slab')==0,self.inventory())
+        self.check('two_slabs_combine_without_extra_cost',self.is_block((8,-60,3),'yuanxian:ningyuan_slab[type=double]') and self.count('yuanxian:ningyuan_slab')==0,self.inventory())
         self.held('minecraft:netherite_axe');self.look((8.5,-59.6,3.5));self.use('break_double_slab',seconds=.8,button=1);self.collect((8,-60,3))
-        self.check('double_slab_drops_two',self.count('myvillage:ningyuan_slab')==2,self.inventory())
-        self.rc('setblock 8 -60 6 minecraft:flower_pot');self.held('myvillage:ningyuan_sapling');self.look((8.5,-59.8,6.5));self.use('pot_sapling')
-        self.check('sapling_fits_vanilla_flower_pot',self.is_block((8,-60,6),'myvillage:potted_ningyuan_sapling'),self.inventory())
+        self.check('double_slab_drops_two',self.count('yuanxian:ningyuan_slab')==2,self.inventory())
+        self.rc('setblock 8 -60 6 minecraft:flower_pot');self.held('yuanxian:ningyuan_sapling');self.look((8.5,-59.8,6.5));self.use('pot_sapling')
+        self.check('sapling_fits_vanilla_flower_pot',self.is_block((8,-60,6),'yuanxian:potted_ningyuan_sapling'),self.inventory())
         self.done('wood_crafting_and_placement')
     def leaf_loot_and_stripping(self):
         u=self.s.username;self.rc(f'clear {u}')
-        self.rc('setblock 5 -60 9 myvillage:ningyuan_log[axis=x]');self.held('minecraft:iron_axe');self.look((5.5,-59.5,9.5));self.use('strip_log')
-        self.check('axe_strips_and_preserves_axis',self.is_block((5,-60,9),'myvillage:stripped_ningyuan_log[axis=x]'),'server blockstate')
-        self.rc('setblock 8 -60 9 myvillage:ningyuan_log');self.rc('setblock 8 -59 9 myvillage:ningyuan_leaves[persistent=false,distance=1]')
+        self.rc('setblock 5 -60 9 yuanxian:ningyuan_log[axis=x]');self.held('minecraft:iron_axe');self.look((5.5,-59.5,9.5));self.use('strip_log')
+        self.check('axe_strips_and_preserves_axis',self.is_block((5,-60,9),'yuanxian:stripped_ningyuan_log[axis=x]'),'server blockstate')
+        self.rc('setblock 8 -60 9 yuanxian:ningyuan_log');self.rc('setblock 8 -59 9 yuanxian:ningyuan_leaves[persistent=false,distance=1]')
         self.held('minecraft:shears');self.look((8.5,-58.5,9.5));self.use('shear_leaves',seconds=.5,button=1);self.collect((8,-59,9))
-        self.check('shears_return_the_leaf_block',self.count('myvillage:ningyuan_leaves')==1,self.inventory())
-        self.rc('setblock 8 -59 9 myvillage:ningyuan_leaves[persistent=false,distance=1]');self.held('minecraft:netherite_axe');self.look((8.5,-59.5,9.5));self.use('chop_support_log',seconds=.8,button=1)
+        self.check('shears_return_the_leaf_block',self.count('yuanxian:ningyuan_leaves')==1,self.inventory())
+        self.rc('setblock 8 -59 9 yuanxian:ningyuan_leaves[persistent=false,distance=1]');self.held('minecraft:netherite_axe');self.look((8.5,-59.5,9.5));self.use('chop_support_log',seconds=.8,button=1)
         self.rc('gamerule randomTickSpeed 500')
         self.poll(lambda:self.is_block((8,-59,9),'minecraft:air'),bool,10,'unsupported leaf decay')
         self.rc('gamerule randomTickSpeed 0');self.check('unsupported_leaf_decays',True,'support was chopped using mapped input')
@@ -183,32 +183,32 @@ class OrchardEvidence(Evidence):
     def signs_and_boats(self):
         self.rc('setblock 5 -60 14 minecraft:air');self.rc('setblock 8 -58 14 minecraft:air')
         self.rc('kill @e[type=minecraft:boat]');self.rc('kill @e[type=minecraft:chest_boat]')
-        self.held('myvillage:ningyuan_sign');self.look((5.5,-60,14.5));self.use('place_editable_sign');self.edit_sign('type_sign_text')
+        self.held('yuanxian:ningyuan_sign');self.look((5.5,-60,14.5));self.use('place_editable_sign');self.edit_sign('type_sign_text')
         data=read_data(self.rc('data get block 5 -60 14'))
         self.check('sign_saves_typed_text','0760' in str(data),data)
-        self.rc('setblock 8 -57 14 myvillage:ningyuan_log');self.held('myvillage:ningyuan_hanging_sign');self.look((8.5,-57,14.5),(8.5,-60,12.0));self.use('place_hanging_sign');self.edit_sign('type_hanging_sign_text')
+        self.rc('setblock 8 -57 14 yuanxian:ningyuan_log');self.held('yuanxian:ningyuan_hanging_sign');self.look((8.5,-57,14.5),(8.5,-60,12.0));self.use('place_hanging_sign');self.edit_sign('type_hanging_sign_text')
         data=read_data(self.rc('data get block 8 -58 14'))
         self.check('hanging_sign_saves_typed_text','0760' in str(data),data)
         self.rc('fill 14 -61 -4 22 -61 4 minecraft:water');self.rc('setblock 17 -61 -3 minecraft:stone')
-        self.held('myvillage:ningyuan_boat');self.look((17.5,-60.1,.5),(17.5,-60,-2.5));self.use('place_wood_boat')
+        self.held('yuanxian:ningyuan_boat');self.look((17.5,-60.1,.5),(17.5,-60,-2.5));self.use('place_wood_boat')
         boat='@e[type=minecraft:boat,sort=nearest,limit=1]'
         data=read_data(self.rc(f'data get entity {boat}'))
-        self.check('boat_uses_ningyuan_variant',data.get('Type')=='myvillage:ningyuan',data)
+        self.check('boat_uses_ningyuan_variant',data.get('Type')=='yuanxian:ningyuan',data)
         bpos=data['Pos'];feet=(bpos[0],-60,bpos[2]-2)
         self.rc(f'setblock {math.floor(feet[0])} -61 {math.floor(feet[2])} minecraft:stone')
         self.held();self.look((bpos[0],bpos[1]+.3,bpos[2]),feet);self.use('mount_boat')
         reply=self.rc(f'execute as {self.s.username} on vehicle run data get entity @s Type')
-        self.check('player_mounts_custom_boat','myvillage:ningyuan' in reply,reply)
+        self.check('player_mounts_custom_boat','yuanxian:ningyuan' in reply,reply)
         self.s.game.xdo('keydown','w');time.sleep(1);self.s.game.xdo('keyup','w')
         self.report['mapped_input'].append({'kind':'row_boat','key':'w','seconds':1})
         after=read_data(self.rc(f'data get entity {boat}'))
         self.check('mapped_rowing_moves_boat',math.dist(bpos,after['Pos'])>.15,{'before':bpos,'after':after['Pos']})
         self.s.game.xdo('key','Shift_L');time.sleep(.3);self.rc(f'tp {self.s.username} 18.5 -60 -3.5');self.rc('kill @e[type=minecraft:boat]')
         self.rc('setblock 18 -61 -3 minecraft:stone')
-        self.held('myvillage:ningyuan_chest_boat');self.look((18.5,-60.1,.5),(18.5,-60,-2.5));self.use('place_chest_boat')
+        self.held('yuanxian:ningyuan_chest_boat');self.look((18.5,-60.1,.5),(18.5,-60,-2.5));self.use('place_chest_boat')
         chest='@e[type=minecraft:chest_boat,sort=nearest,limit=1]'
         data=read_data(self.rc(f'data get entity {chest}'));bpos=data['Pos']
-        self.check('chest_boat_uses_ningyuan_variant',data.get('Type')=='myvillage:ningyuan',data)
+        self.check('chest_boat_uses_ningyuan_variant',data.get('Type')=='yuanxian:ningyuan',data)
         feet=(bpos[0],-60,bpos[2]-2);self.rc(f'setblock {math.floor(feet[0])} -61 {math.floor(feet[2])} minecraft:stone')
         self.held();self.rc(f'item replace entity {self.s.username} hotbar.1 with minecraft:bone_meal 3')
         self.s.game.xdo('keydown','Shift_L')
@@ -221,44 +221,44 @@ class OrchardEvidence(Evidence):
         self.check('chest_boat_stores_native_inventory',any(i['id']=='minecraft:bone_meal' and i['count']==3 for i in data.get('Items',[])),data)
         self.done('signs_and_boats')
     def persistence(self):
-        self.crop_fixture();self.held('myvillage:ningyuan_fertilizer');self.use('enrich_before_restart');self.held('minecraft:bone_meal');self.use('grow_before_restart')
-        self.check('saved_crop_fixture_is_growing_and_enriched',self.is_block(FRUIT,'myvillage:ningyuan_fruit_cluster[age=1,enriched=true]'),'mapped preparation')
+        self.crop_fixture();self.held('yuanxian:ningyuan_fertilizer');self.use('enrich_before_restart');self.held('minecraft:bone_meal');self.use('grow_before_restart')
+        self.check('saved_crop_fixture_is_growing_and_enriched',self.is_block(FRUIT,'yuanxian:ningyuan_fruit_cluster[age=1,enriched=true]'),'mapped preparation')
         self.rc('save-all flush');self.stop();self.start(reuse=True)
-        self.check('fruit_cycle_survives_restart',self.is_block(FRUIT,'myvillage:ningyuan_fruit_cluster[age=1,enriched=true]'),'saved blockstate')
+        self.check('fruit_cycle_survives_restart',self.is_block(FRUIT,'yuanxian:ningyuan_fruit_cluster[age=1,enriched=true]'),'saved blockstate')
         for p in [(5,-60,14),(8,-58,14)]:
             data=read_data(self.rc(f'data get block {pos(p)}'));self.check('sign_text_survives_restart_'+str(p),'0760' in str(data),data)
         data=read_data(self.rc('data get entity @e[type=minecraft:chest_boat,limit=1]'))
-        self.check('chest_boat_identity_and_inventory_survive_restart',data.get('Type')=='myvillage:ningyuan' and any(i['id']=='minecraft:bone_meal' and i['count']==3 for i in data.get('Items',[])),data)
+        self.check('chest_boat_identity_and_inventory_survive_restart',data.get('Type')=='yuanxian:ningyuan' and any(i['id']=='minecraft:bone_meal' and i['count']==3 for i in data.get('Items',[])),data)
         self.held('minecraft:bone_meal');self.look((.5,-57.35,3.5));self.use('finish_saved_crop');self.held();self.use('harvest_saved_high_crop');self.collect(FRUIT)
-        self.check('resumed_crop_produces_one_high_fruit',self.count('myvillage:ningyuan_fruit_high')==self.rules['harvest']['count'],self.inventory())
+        self.check('resumed_crop_produces_one_high_fruit',self.count('yuanxian:ningyuan_fruit_high')==self.rules['harvest']['count'],self.inventory())
         self.done('persistence')
     def visuals(self):
         u=self.s.username
         self.rc(f'gamemode creative {u}');self.rc(f'clear {u}');self.rc('gamerule randomTickSpeed 0')
         self.rc('fill -24 -60 16 2 -49 48 minecraft:air');self.rc('fill -20 -61 22 0 -61 42 minecraft:grass_block')
-        self.rc('place feature myvillage:ningyuan_tree -10 -60 32')
-        self.rc('fill -15 -60 27 -5 -60 27 myvillage:jade_tree_pool_border');self.rc('fill -15 -60 37 -5 -60 37 myvillage:jade_tree_pool_border')
-        self.rc('fill -15 -60 28 -15 -60 36 myvillage:jade_tree_pool_border');self.rc('fill -5 -60 28 -5 -60 36 myvillage:jade_tree_pool_border')
+        self.rc('place feature yuanxian:ningyuan_tree -10 -60 32')
+        self.rc('fill -15 -60 27 -5 -60 27 yuanxian:jade_tree_pool_border');self.rc('fill -15 -60 37 -5 -60 37 yuanxian:jade_tree_pool_border')
+        self.rc('fill -15 -60 28 -15 -60 36 yuanxian:jade_tree_pool_border');self.rc('fill -5 -60 28 -5 -60 36 yuanxian:jade_tree_pool_border')
         # Set only the existing fruits' presentation state; tree geometry remains the runtime feature's output.
         count=0
         for x in range(-14,-5):
             for y in range(-58,-51):
                 for z in range(28,37):
-                    reply=self.s.run(f'execute if block {x} {y} {z} myvillage:ningyuan_fruit_cluster run setblock {x} {y} {z} myvillage:ningyuan_fruit_cluster[age=2,enriched={str(count%4==0).lower()}]',warn=False)[0]
+                    reply=self.s.run(f'execute if block {x} {y} {z} yuanxian:ningyuan_fruit_cluster run setblock {x} {y} {z} yuanxian:ningyuan_fruit_cluster[age=2,enriched={str(count%4==0).lower()}]',warn=False)[0]
                     if 'Changed the block' in reply:count+=1
         self.report['visual_fixture']={'runtime_tree_origin':[-10,-60,32],'mature_fruit_count':count,'fruit_maturity_was_set_for_presentation':True}
         for x,z in [(-15,27),(-5,27),(-15,37),(-5,37)]:
-            self.rc(f'setblock {x} -60 {z} myvillage:jade_tree_pool_border[type=double]')
-            self.rc(f'setblock {x} -59 {z} myvillage:ningyuan_fruit_lantern')
-        self.rc('setblock -6 -60 25 myvillage:potted_ningyuan_sapling')
-        self.rc('fill -15 -60 24 -11 -60 24 myvillage:ningyuan_lattice')
-        self.rc('fill -15 -61 24 -11 -61 24 myvillage:ningyuan_planks')
+            self.rc(f'setblock {x} -60 {z} yuanxian:jade_tree_pool_border[type=double]')
+            self.rc(f'setblock {x} -59 {z} yuanxian:ningyuan_fruit_lantern')
+        self.rc('setblock -6 -60 25 yuanxian:potted_ningyuan_sapling')
+        self.rc('fill -15 -60 24 -11 -60 24 yuanxian:ningyuan_lattice')
+        self.rc('fill -15 -61 24 -11 -61 24 yuanxian:ningyuan_planks')
         self.capture_tree_views()
-        names=json.loads((ROOT/'src/main/resources/data/myvillage/orchard/catalogue.json').read_text())['items']
+        names=json.loads((ROOT/'src/main/resources/data/yuanxian/orchard/catalogue.json').read_text())['items']
         self.rc(f'tp {u} -9.5 -60 23.5 0 -12');self.rc(f'gamemode survival {u}')
-        for i,name in enumerate(names):self.rc(f'item replace entity {u} inventory.{i} with myvillage:{name}')
+        for i,name in enumerate(names):self.rc(f'item replace entity {u} inventory.{i} with yuanxian:{name}')
         inventory=self.inventory()
-        self.check('all_twenty_four_items_exist_in_inventory',all(any(stack['id']=='myvillage:'+name and stack['count']==1 for stack in inventory.values()) for name in names),{'expected':names,'inventory':inventory})
+        self.check('all_twenty_four_items_exist_in_inventory',all(any(stack['id']=='yuanxian:'+name and stack['count']==1 for stack in inventory.values()) for name in names),{'expected':names,'inventory':inventory})
         self.s.game.key('e');time.sleep(.5);self.capture('all-items.png');self.close_menu()
         self.prepare_preview_spawn();self.done('visuals')
     def capture_tree_views(self):
@@ -274,14 +274,14 @@ class OrchardEvidence(Evidence):
     def visual_review(self):
         self.rc('gamerule randomTickSpeed 0')
         for x,z in [(-15,27),(-5,27),(-15,37),(-5,37)]:
-            self.check('preview_border_exists_'+str((x,z)),self.is_block((x,-60,z),'myvillage:jade_tree_pool_border'),'restored independent preview world')
-            self.rc(f'setblock {x} -60 {z} myvillage:jade_tree_pool_border[type=double]')
-            self.rc(f'setblock {x} -59 {z} myvillage:ningyuan_fruit_lantern')
+            self.check('preview_border_exists_'+str((x,z)),self.is_block((x,-60,z),'yuanxian:jade_tree_pool_border'),'restored independent preview world')
+            self.rc(f'setblock {x} -60 {z} yuanxian:jade_tree_pool_border[type=double]')
+            self.rc(f'setblock {x} -59 {z} yuanxian:ningyuan_fruit_lantern')
         self.capture_tree_views()
         # Representative boat appearance only; mapped riding/storage are separately proven.
         self.rc('fill 5 -61 26 14 -61 33 minecraft:water')
-        self.rc('summon minecraft:boat 8 -60.5 29 {Type:"myvillage:ningyuan"}')
-        self.rc('summon minecraft:chest_boat 11 -60.5 30 {Type:"myvillage:ningyuan"}')
+        self.rc('summon minecraft:boat 8 -60.5 29 {Type:"yuanxian:ningyuan"}')
+        self.rc('summon minecraft:chest_boat 11 -60.5 30 {Type:"yuanxian:ningyuan"}')
         self.s.game.key('F1');self.look((9.5,-60,29.5),(15.5,-56.5,22.5));time.sleep(1);self.capture('wood-boats.png');self.s.game.key('F1')
         self.report['visual_fixture']={'correction':'full-height double-slab lamp supports; same saved tree geometry','boats':'administrator visual fixtures; gameplay in signs_and_boats case'}
         self.prepare_preview_spawn();self.done('visual_review')
@@ -308,10 +308,10 @@ class OrchardEvidence(Evidence):
             self.rc('forceload remove all');self.rc(f'forceload add {x-64} {z-64} {x+64} {z+64}');self.rc(f'tp {u} {x+.5} 150 {z+.5}')
             for attempt in range(6):
                 time.sleep(3);self.rc('save-all flush');found=scan_natural_tree(cs.SERVER_DIR/cs.LEVEL_NAME/'region',(x,z),6)
-                if found.get('myvillage:ningyuan_log'):break
-            if found.get('myvillage:ningyuan_log'):break
-        self.check('naturally_generated_tree_has_logs_and_leaves',bool(found.get('myvillage:ningyuan_log')) and bool(found.get('myvillage:ningyuan_leaves')),{'searched':searched,'counts':{k:len(v) for k,v in found.items()}})
-        root=min(found['myvillage:ningyuan_log'],key=lambda p:p[1]);x,y,z=root
+                if found.get('yuanxian:ningyuan_log'):break
+            if found.get('yuanxian:ningyuan_log'):break
+        self.check('naturally_generated_tree_has_logs_and_leaves',bool(found.get('yuanxian:ningyuan_log')) and bool(found.get('yuanxian:ningyuan_leaves')),{'searched':searched,'counts':{k:len(v) for k,v in found.items()}})
+        root=min(found['yuanxian:ningyuan_log'],key=lambda p:p[1]);x,y,z=root
         self.look((x+.5,y+4,z+.5),(x+11.5,y+7,z-12.5));self.s.game.key('F1');time.sleep(.8);self.capture('natural-tree.png');self.s.game.key('F1')
         self.report['natural_generation']={'status':'verified','root':root,'samples':searched,'counts':{k:len(v) for k,v in found.items()},'operator_placed_tree_in_this_world':False}
         self.report['natural_acquisition']='generation_verified; full survival journey and density not_verified'
@@ -323,7 +323,7 @@ class OrchardEvidence(Evidence):
         self.report['status']='pass';self.save()
 
 def scan_natural_tree(region_dir,center,radius):
-    wanted={k:[] for k in ['myvillage:ningyuan_log','myvillage:ningyuan_leaves','myvillage:ningyuan_fruit_cluster']}
+    wanted={k:[] for k in ['yuanxian:ningyuan_log','yuanxian:ningyuan_leaves','yuanxian:ningyuan_fruit_cluster']}
     cx,cz=center[0]//16,center[1]//16
     for x in range(cx-radius,cx+radius+1):
         for z in range(cz-radius,cz+radius+1):

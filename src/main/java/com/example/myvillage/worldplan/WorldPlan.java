@@ -542,7 +542,7 @@ public final class WorldPlan {
         double influence=1-smooth((d-rules.spawnPadRadius)/rules.spawnSkirt);return new Values(lerp(v.height,spawn.y,influence),v.qi,v.danger);
     }
     public boolean allowsStructure(String id,int x,int z) {
-        if(id.equals("myvillage:sect"))return false;
+        if(id.equals("yuanxian:sect"))return false;
         var policy=rules.structurePolicies.get(id);if(policy==null)return true;Context c=sample(x,z);
         return(policy.allowOuter()||c.core())&&(policy.allowWalled()||!rules.profile(c.profileId()).role().equals("walled"))
             &&c.qi()>=policy.minimumQi()&&c.tier()>=policy.minimumTier()&&c.tier()<=policy.maximumTier();

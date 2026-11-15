@@ -6,9 +6,9 @@ Usage: python3 tools/gen_technique_catalogue.py [--check] [--root PATH] [--sourc
   (no flag)  write every output that differs; a second run changes nothing.
   --check    exit non-zero, listing each output that is missing, differs or is stale.
 
-Outputs (never hand-edit them): data/myvillage/myvillage/{technique,school,heritage}/*.json (the
-hand-written techniques named in rules.json are left alone), data/myvillage/world_sim/techniques.json and
-heritages.json, and the cultivation.{technique,school,heritage}.myvillage.* keys in en_us and zh_cn.
+Outputs (never hand-edit them): data/yuanxian/yuanxian/{technique,school,heritage}/*.json (the
+hand-written techniques named in rules.json are left alone), data/yuanxian/world_sim/techniques.json and
+heritages.json, and the cultivation.{technique,school,heritage}.yuanxian.* keys in en_us and zh_cn.
 Edit catalogue.json, schools.json, heritages.json or rules.json instead; see tools/technique_catalogue/.
 """
 

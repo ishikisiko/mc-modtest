@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = Path('src/main/resources/data/myvillage')
+DATA = Path('src/main/resources/data/yuanxian')
 NATIVE_MAX_HEALTH = 1024
 NATIVE_MAX_ATTACK = 2048
 ID = re.compile(r'^[a-z0-9_.-]+:[a-z0-9_./-]+$')
@@ -274,7 +274,7 @@ def check_wilderness(data: Any, rules: Any, region_ids: set[str]) -> list[str]:
 
 
 JAVA_ROOT = Path('src/main/java/com/example/myvillage')
-MIXIN_CONFIG = Path('src/main/resources/myvillage.mixins.json')
+MIXIN_CONFIG = Path('src/main/resources/yuanxian.mixins.json')
 MOD_METADATA = Path('src/main/resources/META-INF/neoforge.mods.toml')
 ARMOR_DESCRIPTOR = 'getDamageAfterAbsorb(Lnet/minecraft/world/entity/LivingEntity;FLnet/minecraft/world/damagesource/DamageSource;FF)F'
 CLAMP_DESCRIPTOR = 'Lnet/minecraft/util/Mth;clamp(FFF)F'
@@ -673,7 +673,7 @@ def check_penetration_sources(attributes: str, runtime: str) -> list[str]:
         numeric_zero = lambda value: compact(value) in {'0', '0.0', '0D', '0d', '0.0D', '0.0d'}
         if len(args) != 4 or not numeric_zero(args[1]) or not numeric_zero(args[2]) or not limits or compact(args[3]) != f'{limits.group(1)}.maxPenetration()':
             errors.append('PENETRATION_BOUNDS:independent defaults/minimum are zero and maximum must use bundled limits.maxPenetration')
-        if len(args) != 4 or compact(args[0]) != f'"attribute.myvillage."+{leaf[0][0][1]}':
+        if len(args) != 4 or compact(args[0]) != f'"attribute.yuanxian."+{leaf[0][0][1]}':
             errors.append('PENETRATION_TRANSLATION_FLOW:registered labels must use the independent registry ID')
         local = re.search(r'\bRangedAttribute\s+([\w$]+)\s*=\s*new\s+RangedAttribute', java_text(leaf_body, mask_strings=True))
         if local:
@@ -735,11 +735,11 @@ def check_penetration_languages(languages: dict[str, Any]) -> list[str]:
     for locale in ('en_us', 'zh_cn'):
         table = languages.get(locale)
         for rid in PENETRATION_IDS.values():
-            key = f'attribute.myvillage.{rid}'
+            key = f'attribute.yuanxian.{rid}'
             value = table.get(key) if isinstance(table, dict) else None
             if not isinstance(value, str) or not value.strip():
                 errors.append(f'PENETRATION_LANG:{locale}:{key}:missing nonempty channel label')
-        physical = table.get('attribute.myvillage.resistance_penetration', '') if isinstance(table, dict) else ''
+        physical = table.get('attribute.yuanxian.resistance_penetration', '') if isinstance(table, dict) else ''
         label = 'physical' if locale == 'en_us' else '物理'
         if not isinstance(physical, str) or label not in physical.lower():
             errors.append(f'PENETRATION_PHYSICAL_LABEL:{locale}:legacy registry ID must be labeled explicitly physical')
@@ -754,20 +754,20 @@ def check_penetration_contract(root: Path, jar: Path | None = None) -> list[str]
         errors.extend(check_penetration_sources(attributes, runtime))
     except (OSError, ValueError) as exc:
         errors.append(f'PENETRATION_SOURCE:{exc}')
-    languages = {locale: read_json(root, Path(f'src/main/resources/assets/myvillage/lang/{locale}.json'), errors)
+    languages = {locale: read_json(root, Path(f'src/main/resources/assets/yuanxian/lang/{locale}.json'), errors)
                  for locale in ('en_us', 'zh_cn')}
     errors.extend(check_penetration_languages(languages))
     if jar is not None:
         try:
             with zipfile.ZipFile(jar) as archive:
                 for locale in ('en_us', 'zh_cn'):
-                    entry = f'assets/myvillage/lang/{locale}.json'
+                    entry = f'assets/yuanxian/lang/{locale}.json'
                     if archive.namelist().count(entry) != 1:
                         errors.append(f'PENETRATION_JAR:{entry}:must occur exactly once')
                         continue
                     packed = json.loads(archive.read(entry), object_pairs_hook=unique_object)
                     for rid in PENETRATION_IDS.values():
-                        key = f'attribute.myvillage.{rid}'
+                        key = f'attribute.yuanxian.{rid}'
                         if not isinstance(packed, dict) or packed.get(key) != languages[locale].get(key):
                             errors.append(f'PENETRATION_JAR:{entry}:{key}:missing or stale channel label')
                 entry = 'com/example/myvillage/stats/runtime/ModStatsAttributes.class'
@@ -795,7 +795,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict[str, Any]:
     rules = read_json(root, DATA / 'stats/rules.json', errors)
     player_stages = set()
     player_stage_keys = {}
-    for path in sorted((root / DATA / 'myvillage/realm').glob('*.json')):
+    for path in sorted((root / DATA / 'yuanxian/realm').glob('*.json')):
         realm = read_json(root, path.relative_to(root), errors)
         stages = realm.get('stages')
         if not isinstance(stages, list) or any(not isinstance(s, dict) or not integer(s.get('sort_order')) for s in stages):

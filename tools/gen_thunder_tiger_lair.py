@@ -14,8 +14,8 @@ from buildgen.groups import get_group
 from buildgen.modset import load_modset
 from gen_danxia_ruin import template_bytes
 
-DATA = ROOT / 'src/main/resources/data/myvillage'
-ASSETS = ROOT / 'src/main/resources/assets/myvillage'
+DATA = ROOT / 'src/main/resources/data/yuanxian'
+ASSETS = ROOT / 'src/main/resources/assets/yuanxian'
 IDENTITY = 'thunder_tiger_lair'
 RULES = DATA / f'boss/{IDENTITY}.json'
 
@@ -85,13 +85,13 @@ def blueprint():
                 for dy in range(r['pillar_height']):
                     put(px + dx, py + dy, pz + dz, p['pillar'] if (dx + dz + dy) % 3 else p['rock'])
     anchor = tuple(r['anchor'])
-    put(*anchor, 'myvillage:thunder_tiger_lair_anchor[facing=north]')
+    put(*anchor, 'yuanxian:thunder_tiger_lair_anchor[facing=north]')
     errors = load_modset('vanilla').palette_block_errors(sorted(set(blocks.values())))
     if errors:
         raise ValueError(errors)
     data = {'size': r['size'], 'author': 'gen_thunder_tiger_lair.py',
             'blocks': [{'pos': list(pos), 'state': state} for pos, state in sorted(blocks.items())]}
-    bes = {anchor: {'id': 'myvillage:thunder_tiger_lair_anchor', 'LairState': 'READY'}}
+    bes = {anchor: {'id': 'yuanxian:thunder_tiger_lair_anchor', 'LairState': 'READY'}}
     return r, data, bes, []
 
 
@@ -101,24 +101,24 @@ def outputs():
     def emit(path, value):
         files[path] = (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode()
     emit(DATA / f'worldgen/structure/{IDENTITY}.json', {
-        'type': 'minecraft:jigsaw', 'biomes': f'#myvillage:has_{IDENTITY}',
+        'type': 'minecraft:jigsaw', 'biomes': f'#yuanxian:has_{IDENTITY}',
         'step': 'surface_structures', 'terrain_adaptation': 'beard_thin', 'spawn_overrides': {},
-        'start_pool': f'myvillage:{IDENTITY}', 'size': 1,
+        'start_pool': f'yuanxian:{IDENTITY}', 'size': 1,
         'start_height': {'absolute': -r['surface_y']}, 'project_start_to_heightmap': 'WORLD_SURFACE_WG',
         'max_distance_from_center': 80, 'use_expansion_hack': False})
     emit(DATA / f'worldgen/template_pool/{IDENTITY}.json', {
-        'name': f'myvillage:{IDENTITY}', 'fallback': 'minecraft:empty', 'elements': [{
+        'name': f'yuanxian:{IDENTITY}', 'fallback': 'minecraft:empty', 'elements': [{
             'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element',
-                'location': f'myvillage:{IDENTITY}', 'processors': 'minecraft:empty',
+                'location': f'yuanxian:{IDENTITY}', 'processors': 'minecraft:empty',
                 'projection': 'rigid', 'override_liquid_settings': r['liquid_settings']}}]})
     emit(DATA / f'worldgen/structure_set/{IDENTITY}.json', {
-        'structures': [{'structure': f'myvillage:{IDENTITY}', 'weight': 1}],
+        'structures': [{'structure': f'yuanxian:{IDENTITY}', 'weight': 1}],
         'placement': {'type': 'minecraft:random_spread', **r['placement']}})
     emit(DATA / f'tags/worldgen/biome/has_{IDENTITY}.json', {'replace': False, 'values': r['biomes']})
     emit(ASSETS / 'models/block/thunder_tiger_lair_anchor.json', {
         'parent': 'minecraft:block/cube_all', 'textures': {'all': 'minecraft:block/stone'}})
     emit(ASSETS / 'blockstates/thunder_tiger_lair_anchor.json', {
-        'variants': {f'facing={face}': {'model': 'myvillage:block/thunder_tiger_lair_anchor', 'y': turn}
+        'variants': {f'facing={face}': {'model': 'yuanxian:block/thunder_tiger_lair_anchor', 'y': turn}
                      for face, turn in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
     return files
 

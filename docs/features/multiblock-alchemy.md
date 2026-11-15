@@ -41,7 +41,7 @@
 深铜与铜绿为主，少量玉质符路和双层悬浮八角阵环提供赛博点缀。
 
 静态造型 authored input 为 `tools/alchemy_array/formed_model.py`，由丹炉资源生成器输出
-`assets/myvillage/alchemy_array/formed_mesh.json`。客户端与
+`assets/yuanxian/alchemy_array/formed_mesh.json`。客户端与
 `tools/preview_alchemy_array_mesh.py` 读取同一网格；离线图只表示静态造型，不包含动态炉火、
 阵环或实机光照。离线命令：`.venv-preview/bin/python tools/preview_alchemy_array_mesh.py`
 （需要 NumPy 与 Pillow）。材质调色板仍归 `tools/alchemy_array/visual.json`。
@@ -55,7 +55,7 @@
 最后一块补上后，炉体展开、炉盖落下、丹核升起；待机时淡烟升起，炉火与符路微亮。
 运行时炉火与玉符增强，丹核和阵环加速。拆坏后恢复散件，批次仍按原规则暂停。
 普通铜面采样炉上方环境光，炉火和玉符单独发光。
-成型动画时长、丹核转速与浮动幅度由 `data/myvillage/alchemy/array.json` 的
+成型动画时长、丹核转速与浮动幅度由 `data/yuanxian/alchemy/array.json` 的
 `assembly_ticks`、`core_speed_degrees`、`core_bob` 控制；它们只影响表现，
 不参与结构判定、成本或产出。玩家外观、手感、音效、真实硬件 FPS 与广泛多人
 仍需单独验收。

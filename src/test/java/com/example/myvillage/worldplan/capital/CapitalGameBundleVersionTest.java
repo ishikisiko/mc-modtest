@@ -10,36 +10,36 @@ class CapitalGameBundleVersionTest {
 
     @Test void currentVersionRetainsTheExistingPathGrammar() {
         for (String version : new String[]{"v4"}) {
-            assertEquals(version, CapitalGameBundle.manifestVersion(CITY, "myvillage:capitals/" + version + "/" + CITY + "/city.json"));
-            assertDoesNotThrow(() -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + CITY + "/terrain.bin.gz"));
-            assertDoesNotThrow(() -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + CITY + "/legacy_ground.bin.gz"));
-            assertDoesNotThrow(() -> CapitalGameBundle.requireTilePath(CITY, version, "myvillage:province_capitals/" + version + "/" + CITY + "/tile_0_0"));
+            assertEquals(version, CapitalGameBundle.manifestVersion(CITY, "yuanxian:capitals/" + version + "/" + CITY + "/city.json"));
+            assertDoesNotThrow(() -> CapitalGameBundle.requireTerrainPath(CITY, version, "yuanxian:capitals/" + version + "/" + CITY + "/terrain.bin.gz"));
+            assertDoesNotThrow(() -> CapitalGameBundle.requireTerrainPath(CITY, version, "yuanxian:capitals/" + version + "/" + CITY + "/legacy_ground.bin.gz"));
+            assertDoesNotThrow(() -> CapitalGameBundle.requireTilePath(CITY, version, "yuanxian:province_capitals/" + version + "/" + CITY + "/tile_0_0"));
         }
     }
 
     @Test void mixedAssetVersionsCityIdsAndTraversalAreRejected() {
         for (String version : VERSIONS) {
             for (String cityPath : new String[]{"capital_ximo", CITY + "/.."}) {
-                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.manifestVersion(CITY, "myvillage:capitals/" + version + "/" + cityPath + "/city.json"));
-                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + cityPath + "/terrain.bin.gz"));
-                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTilePath(CITY, version, "myvillage:province_capitals/" + version + "/" + cityPath + "/tile_0_0"));
+                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.manifestVersion(CITY, "yuanxian:capitals/" + version + "/" + cityPath + "/city.json"));
+                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTerrainPath(CITY, version, "yuanxian:capitals/" + version + "/" + cityPath + "/terrain.bin.gz"));
+                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTilePath(CITY, version, "yuanxian:province_capitals/" + version + "/" + cityPath + "/tile_0_0"));
             }
             assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.manifestVersion(CITY, "other:capitals/" + version + "/" + CITY + "/city.json"));
             assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTerrainPath(CITY, version, "other:capitals/" + version + "/" + CITY + "/terrain.bin.gz"));
             assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTilePath(CITY, version, "other:province_capitals/" + version + "/" + CITY + "/tile_0_0"));
             for (String otherVersion : VERSIONS) {
                 if (version.equals(otherVersion)) continue;
-                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + otherVersion + "/" + CITY + "/terrain.bin.gz"));
-                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTilePath(CITY, version, "myvillage:province_capitals/" + otherVersion + "/" + CITY + "/tile_0_0"));
+                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTerrainPath(CITY, version, "yuanxian:capitals/" + otherVersion + "/" + CITY + "/terrain.bin.gz"));
+                assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTilePath(CITY, version, "yuanxian:province_capitals/" + otherVersion + "/" + CITY + "/tile_0_0"));
             }
         }
     }
 
     @Test void unsupportedVersionsAreRejected() {
         for (String version : new String[]{"v0", "v1", "v2", "v3", "v5"}) {
-            assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.manifestVersion(CITY, "myvillage:capitals/" + version + "/" + CITY + "/city.json"));
-            assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + CITY + "/terrain.bin.gz"));
-            assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTilePath(CITY, version, "myvillage:province_capitals/" + version + "/" + CITY + "/tile_0_0"));
+            assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.manifestVersion(CITY, "yuanxian:capitals/" + version + "/" + CITY + "/city.json"));
+            assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTerrainPath(CITY, version, "yuanxian:capitals/" + version + "/" + CITY + "/terrain.bin.gz"));
+            assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTilePath(CITY, version, "yuanxian:province_capitals/" + version + "/" + CITY + "/tile_0_0"));
         }
     }
 }

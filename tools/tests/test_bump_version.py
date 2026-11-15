@@ -8,16 +8,16 @@ from pathlib import Path
 
 from tools import bump_version as bump
 
-GRADLE = "org.gradle.jvmargs=-Xmx2G\n\nmod_id=myvillage\nmod_version=0.29.0-fix1\nminecraft_version=1.21.1\n"
+GRADLE = "org.gradle.jvmargs=-Xmx2G\n\nmod_id=yuanxian\nmod_version=0.29.0-fix1\nminecraft_version=1.21.1\n"
 TOML = '''modLoader = "javafml"
 loaderVersion = "[4,)"
 
 [[mods]]
-modId = "myvillage"
+modId = "yuanxian"
 version = "0.29.0-fix1"
 displayName = "MyVillage"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "neoforge"
 versionRange = "[21.1.0,)"
 
@@ -25,14 +25,14 @@ versionRange = "[21.1.0,)"
 modId = "other"
 version = "0.29.0-fix1"
 '''
-README = '''# myvillage
+README = '''# yuanxian
 
 ```bash
-jar tf build/libs/myvillage-0.29.0-fix1.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.29.0-fix1.jar | grep "assets/myvillage/combat/"
+jar tf build/libs/yuanxian-0.29.0-fix1.jar | grep "data/yuanxian/structure"
+jar tf build/libs/yuanxian-0.29.0-fix1.jar | grep "assets/yuanxian/combat/"
 ```
 
-The expected jar is build/libs/myvillage-0.29.0-fix1.jar.
+The expected jar is build/libs/yuanxian-0.29.0-fix1.jar.
 
 The main hand holds this sword, or since 0.29.0 the spear.
 0.29.0-fix1 thickened the off arm.
@@ -53,7 +53,7 @@ See docs/WORKFLOW.md.
 
 ## 0.29.0
 
-- The spear. Built myvillage-0.29.0.jar.
+- The spear. Built yuanxian-0.29.0.jar.
 '''
 
 
@@ -117,7 +117,7 @@ class ReadSourcesTest(unittest.TestCase):
         self.assertEqual(bump.read_sources(self.root).toml, "0.28.0")
 
     def test_each_kind_of_disagreement_is_named(self):
-        make_tree(self.root, README=README + "\njar tf build/libs/myvillage-0.28.0.jar | grep \"x\"\n",
+        make_tree(self.root, README=README + "\njar tf build/libs/yuanxian-0.28.0.jar | grep \"x\"\n",
                   CHANGELOG=CHANGELOG.replace("## 0.29.0-fix1", "## 0.29.0-fix2"))
         problems = " | ".join(bump.read_sources(self.root).problems())
         self.assertIn("several versions: 0.29.0-fix1, 0.28.0", problems)
@@ -146,7 +146,7 @@ class BumpTest(unittest.TestCase):
         self.assertEqual(snapshot(self.root), before)
         self.assertIn("+mod_version=0.30.0", out)
         self.assertIn('+version = "0.30.0"', out)
-        self.assertIn("3 jar names myvillage-0.29.0-fix1.jar -> myvillage-0.30.0.jar", out)
+        self.assertIn("3 jar names yuanxian-0.29.0-fix1.jar -> yuanxian-0.30.0.jar", out)
         self.assertIn("lines 4-5, 8", out)
         self.assertIn("dry run: nothing written", out)
 
@@ -161,7 +161,7 @@ class BumpTest(unittest.TestCase):
     def test_bump_leaves_historical_mentions_alone(self):
         run(self.root, "0.29.1")
         readme = (self.root / bump.README).read_text(encoding="utf-8")
-        self.assertEqual(readme, README.replace("myvillage-0.29.0-fix1.jar", "myvillage-0.29.1.jar"))
+        self.assertEqual(readme, README.replace("yuanxian-0.29.0-fix1.jar", "yuanxian-0.29.1.jar"))
         self.assertIn("since 0.29.0 the spear", readme)
         self.assertIn("0.29.0-fix1 thickened the off arm.", readme)
         toml = (self.root / bump.MODS_TOML).read_text(encoding="utf-8")

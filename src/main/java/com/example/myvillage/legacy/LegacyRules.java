@@ -28,7 +28,7 @@ public final class LegacyRules {
     private LegacyRules(JsonObject root, Map<String,Beast> beasts, Map<ResourceLocation,Art> arts) {
         document=root;this.beasts=Map.copyOf(beasts);this.arts=Map.copyOf(arts);
     }
-    private static final class Holder { static final LegacyRules INSTANCE=parse(read("/data/myvillage/legacy/encounters.json")); }
+    private static final class Holder { static final LegacyRules INSTANCE=parse(read("/data/yuanxian/legacy/encounters.json")); }
     public static LegacyRules get() { return Holder.INSTANCE; }
     public static JsonObject read(String path) {
         try (var stream=LegacyRules.class.getResourceAsStream(path)) {
@@ -36,7 +36,7 @@ public final class LegacyRules {
             return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
         } catch(IOException e) {throw new UncheckedIOException(e);}
     }
-    public static JsonObject artsDocument() { return read("/data/myvillage/combat/legacy_arts.json"); }
+    public static JsonObject artsDocument() { return read("/data/yuanxian/combat/legacy_arts.json"); }
     public static LegacyRules parse(JsonObject root) {
         if(root.get("schema").getAsInt()!=1)throw new IllegalArgumentException("legacy schema");
         Map<String,Beast> beasts=new LinkedHashMap<>();
@@ -47,10 +47,10 @@ public final class LegacyRules {
         }
         Map<ResourceLocation,Art> arts=new LinkedHashMap<>();
         for(var e:root.getAsJsonArray("arts")) {
-            var a=e.getAsJsonObject();var id=ResourceLocation.fromNamespaceAndPath("myvillage",a.get("id").getAsString());
+            var a=e.getAsJsonObject();var id=ResourceLocation.fromNamespaceAndPath("yuanxian",a.get("id").getAsString());
             String mode=a.get("mode").getAsString();
             if(!Set.of("sword","shadow","fire","ruler").contains(mode))throw new IllegalArgumentException("legacy mode");
-            var item=a.get("item").isJsonNull()?Optional.<ResourceLocation>empty():Optional.of(ResourceLocation.fromNamespaceAndPath("myvillage",a.get("item").getAsString()));
+            var item=a.get("item").isJsonNull()?Optional.<ResourceLocation>empty():Optional.of(ResourceLocation.fromNamespaceAndPath("yuanxian",a.get("item").getAsString()));
             var art=new Art(id,mode,item,integer(a,"qi_cost",1,100),integer(a,"cooldown_ticks",20,1200),integer(a,"duration_ticks",1,600),bounded(a,"range",1,24),bounded(a,"speed",0,3),bounded(a,"return_speed",0,3),bounded(a,"radius",.1,8),bounded(a,"damage",0,4));
             if(arts.put(id,art)!=null)throw new IllegalArgumentException("duplicate legacy art");
         }

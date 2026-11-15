@@ -16,14 +16,14 @@ public abstract class PhoenixInteractionMixin {
     @Inject(method={"handleContainerClick","handlePlayerAction","handleSetCarriedItem","handlePickItem","handlePlaceRecipe",
             "handleContainerButtonClick","handleSetCreativeModeSlot","handlePlayerCommand","handlePlayerAbilities"},
             at=@At(value="INVOKE",target="Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",shift=At.Shift.AFTER),cancellable=true)
-    private void myvillage$emberCannotUseInventory(CallbackInfo ci) {
+    private void yuanxian$emberCannotUseInventory(CallbackInfo ci) {
         if(PhoenixRuntime.active(player)) {
             player.containerMenu.broadcastFullState();
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket(player.getInventory().selected));ci.cancel();
         }
     }
     @Inject(method={"updateBookContents","signBook","updateSignText"},at=@At("HEAD"),cancellable=true)
-    private void myvillage$emberCannotFinishFilteredEdits(CallbackInfo ci) {
+    private void yuanxian$emberCannotFinishFilteredEdits(CallbackInfo ci) {
         if(PhoenixRuntime.active(player))ci.cancel();
     }
 }

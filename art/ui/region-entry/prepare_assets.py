@@ -8,7 +8,7 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.boundsPen import BoundsPen
 
 ROOT=Path(__file__).resolve().parents[3]
-BACKGROUND=Path('/home/ubuntu/.local/share/myvillage-assets/www/previews/qianji-infill-20261113/headquarters-front.png')
+BACKGROUND=Path('/home/ubuntu/.local/share/yuanxian-assets/www/previews/qianji-infill-20261113/headquarters-front.png')
 WORDS={'region':'中州','town':'云山城'}
 
 def title(font:TTFont,word:str,vertical:bool,color:str)->str:
@@ -28,14 +28,14 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);a=p.parse_args();a.out.mkdir(parents=True,exist_ok=True)
     sources={}
     for family,name in (('brush','brush.ttf'),('book','book.ttf')):
-        path=ROOT/'src/main/resources/assets/myvillage/font'/name;sources[name]=hashlib.sha256(path.read_bytes()).hexdigest()
+        path=ROOT/'src/main/resources/assets/yuanxian/font'/name;sources[name]=hashlib.sha256(path.read_bytes()).hexdigest()
         with TTFont(path) as font:
             for key,word in WORDS.items():
                 for vertical,orientation in ((False,'h'),(True,'v')):
                     for ink,color in (('light','#f3ead3'),('dark','#30382e')):
                         if family=='book' and (vertical or ink=='dark'):continue
                         (a.out/f'{family}-{key}-{orientation}-{ink}.svg').write_text(title(font,word,vertical,color),encoding='utf-8')
-        license=ROOT/'src/main/resources/assets/myvillage/font'/name.replace('.ttf','-ofl.txt');shutil.copy2(license,a.out/license.name)
+        license=ROOT/'src/main/resources/assets/yuanxian/font'/name.replace('.ttf','-ofl.txt');shutil.copy2(license,a.out/license.name)
     shutil.copy2(BACKGROUND,a.out/'background.png');sources['background.png']=hashlib.sha256(BACKGROUND.read_bytes()).hexdigest()
     (a.out/'sources.json').write_text(json.dumps({'purpose':'报幕候选叠加，不是游戏运行证据','samples':WORDS,'background_origin':str(BACKGROUND),'sha256':sources},ensure_ascii=False,indent=2)+'\n')
     print(json.dumps({'output':str(a.out),'files':len(list(a.out.iterdir())),'sources':sources},ensure_ascii=False))

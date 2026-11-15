@@ -134,18 +134,18 @@ def replace(world,plan,design,policy,catalog,building_base):
 def export(region,out,source,v9_source,legacy_source):
     plan=read(ENV/'cities'/f'{region}.json');config=read(ENV/'materials.json');design=read(DESIGN);policy=read(POLICY);catalog=read(CATALOG)
     if (policy['schema'],policy['source_version'],policy['target_version'])!=(1,'v3','v4'):raise ValueError('街景替换版本错误')
-    resource=f'myvillage:capitals/v3/capital_{region}/city.json';previous=read(resource_file(source,resource));manifest=copy.deepcopy(previous);world=World(source,manifest,config)
+    resource=f'yuanxian:capitals/v3/capital_{region}/city.json';previous=read(resource_file(source,resource));manifest=copy.deepcopy(previous);world=World(source,manifest,config)
     base_resource=previous['source']['base_resource']
     base_root=legacy_source if plan['base_version']=='v1' else v9_source
     base_manifest=read(resource_file(base_root,base_resource))
     if sha(canonical(identity(base_manifest)))!=previous['source']['base_manifest_sha256']:raise ValueError('原房屋资源身份不一致')
     building_base=World(base_root,base_manifest,config)
     records=replace(world,plan,design,policy,catalog,building_base)
-    target=out/f'data/myvillage/capitals/v4/capital_{region}';target.mkdir(parents=True,exist_ok=True)
-    shutil.copyfile(resource_file(source,previous['terrain']['resource']),target/'terrain.bin.gz');manifest['terrain']['resource']=f'myvillage:capitals/v4/capital_{region}/terrain.bin.gz'
+    target=out/f'data/yuanxian/capitals/v4/capital_{region}';target.mkdir(parents=True,exist_ok=True)
+    shutil.copyfile(resource_file(source,previous['terrain']['resource']),target/'terrain.bin.gz');manifest['terrain']['resource']=f'yuanxian:capitals/v4/capital_{region}/terrain.bin.gz'
     tiles=[];palette=set()
     for tx,tz in sorted(set(world.refs)|world.dirty):
-        path=out/f'data/myvillage/structure/province_capitals/v4/capital_{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
+        path=out/f'data/yuanxian/structure/province_capitals/v4/capital_{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
         original=world.refs.get((tx,tz))
         if (tx,tz) in world.dirty:
             if (tx,tz) in world.nbt_tiles:raise ValueError('街景改造不得丢弃原分块 NBT：'+str((tx,tz)))
@@ -154,7 +154,7 @@ def export(region,out,source,v9_source,legacy_source):
         else:
             palette.update(copy_unchanged_tile(resource_file(source,original['template'],template=True),path))
             record={k:v for k,v in original.items() if k not in {'x','z','template','sha256','bytes'}}
-        tiles.append({**record,'x':tx*16,'z':tz*16,'template':f'myvillage:province_capitals/v4/capital_{region}/'+path.stem,'sha256':sha(path.read_bytes()),'bytes':path.stat().st_size})
+        tiles.append({**record,'x':tx*16,'z':tz*16,'template':f'yuanxian:province_capitals/v4/capital_{region}/'+path.stem,'sha256':sha(path.read_bytes()),'bytes':path.stat().st_size})
     errors=load_modset('vanilla').palette_block_errors(sorted(palette))
     if errors:raise ValueError('; '.join(errors))
     manifest['tiles']=tiles;manifest['palette_states']=sorted(palette);manifest['appearance_id']='capital_'+region+'_street_furniture_v4'
@@ -172,7 +172,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,default=ROOT/'build/generated/province_capitals_v11/resources');parser.add_argument('--source',type=Path,default=ROOT/'build/generated/province_capitals_v10/resources');parser.add_argument('--v9-source',type=Path,default=ROOT/'build/generated/province_capitals_v9/resources');parser.add_argument('--legacy-source',type=Path,default=ROOT/'build/generated/province_capitals/resources');parser.add_argument('--regions',nargs='+',choices=REGIONS,default=list(REGIONS));args=parser.parse_args()
     if args.out.resolve() in {args.source.resolve(),args.v9_source.resolve(),args.legacy_source.resolve()}:raise ValueError('新街景资源不得覆盖已发布资源')
     # 用户选择旧城保持原样，撤销本轮草稿曾生成的旧城改造清单。
-    abandoned=args.out/'data/myvillage/street_furniture/repairs'
+    abandoned=args.out/'data/yuanxian/street_furniture/repairs'
     if abandoned.is_dir():shutil.rmtree(abandoned)
     for region in args.regions:export(region,args.out,args.source,args.v9_source,args.legacy_source)
 

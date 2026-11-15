@@ -4,11 +4,11 @@
 
 ## 已接入的源码和资源
 
-新建修仙大陆指向 `myvillage:planned_v8`，核心八州齐全、每州一城（含魔域）。旧 V1–V7 仍走各自冻结规则和城市资源，不自动替换既有世界建筑。八城共享服务器生成计划、城市入口、结构避让和命簿 siteId；生活位置按城幂等登记，商贸继续使用原权威流程。设施未加载或人员空缺不会被当成已营业。
+新建修仙大陆指向 `yuanxian:planned_v8`，核心八州齐全、每州一城（含魔域）。旧 V1–V7 仍走各自冻结规则和城市资源，不自动替换既有世界建筑。八城共享服务器生成计划、城市入口、结构避让和命簿 siteId；生活位置按城幂等登记，商贸继续使用原权威流程。设施未加载或人员空缺不会被当成已营业。
 
 七州共 490 栋民居，各有五类服务与地域布局；中州保留原作完整城形、587 民居、28 商铺、1 茶楼及地标/桥共 662 个实例。方块资源由 authored 输入和 owning generator 生成，山基来自一格 heightfield，结构按当前区块稀疏覆盖。
 
-查询入口：`/myvillage worldplan city`（八城简洁列表），`/myvillage worldplan city zhongzhou`（指定州）；H → 天下 → 舆图显示主城标记。协议 54 要求客户端与服务器同时更新。新界面和游戏行为尚未实机观察。
+查询入口：`/yuanxian worldplan city`（八城简洁列表），`/yuanxian worldplan city zhongzhou`（指定州）；H → 天下 → 舆图显示主城标记。协议 54 要求客户端与服务器同时更新。新界面和游戏行为尚未实机观察。
 
 ## 父代理的正常资源聚合
 
@@ -17,7 +17,7 @@
 ```bash
 python3 tools/province_capitals/game/compile.py \
   --out build/generated/province_capitals/resources \
-  --base-rules build/province_capitals/base-0.100.2/data/myvillage/worldplan/frozen_v7.json \
+  --base-rules build/province_capitals/base-0.100.2/data/yuanxian/worldplan/frozen_v7.json \
   --aggregate-only
 ```
 

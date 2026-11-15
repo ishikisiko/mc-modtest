@@ -15,8 +15,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path('tools/advanced_arts/arts.json')
-DATA = Path('src/main/resources/data/myvillage')
-ASSETS = Path('src/main/resources/assets/myvillage')
+DATA = Path('src/main/resources/data/yuanxian')
+ASSETS = Path('src/main/resources/assets/yuanxian')
 ART_FIELDS = set('id name_zh name_en description_zh description_en family school slot qi_cost cooldown_ticks grade minimum_realm minimum_stage study guard_reduction guard_arc_degrees counter_multiplier color particle_count phases requires_ground interrupt_on_damage fx_lifetime_ticks cast_pitch'.split())
 PHASE_FIELDS = set('move shape reach arc_degrees width height half_height damage_multiplier maximum_targets step_distance reaction fx'.split())
 STUDY_FIELDS = {'points', 'gates', 'gate_stability_cost'}
@@ -73,8 +73,8 @@ def validate(root: Path, doc: dict) -> None:
     for art in doc['arts']:
         exact(art, ART_FIELDS, 'art')
         import re
-        if not isinstance(art['id'], str) or not re.fullmatch(r'myvillage:[a-z0-9_]+', art['id']):
-            raise ValueError('art ID must be myvillage:<path>')
+        if not isinstance(art['id'], str) or not re.fullmatch(r'yuanxian:[a-z0-9_]+', art['id']):
+            raise ValueError('art ID must be yuanxian:<path>')
         if art['id'] in ids or (art['family'], art['slot']) in slots:
             raise ValueError('duplicate art ID or family/slot')
         ids.add(art['id']); slots.add((art['family'], art['slot']))
@@ -92,9 +92,9 @@ def validate(root: Path, doc: dict) -> None:
         if not isinstance(art['color'], list) or len(art['color']) != 3: raise ValueError('RGB needs 3 values')
         for c in art['color']: number({'color':c}, 'color', 0, 1)
         if art['family'] not in families: raise ValueError('unknown weapon family')
-        school = read(root / DATA / 'myvillage/school' / (art['school'].split(':')[1]+'.json'))
+        school = read(root / DATA / 'yuanxian/school' / (art['school'].split(':')[1]+'.json'))
         if school.get('weapon_family') != art['family']: raise ValueError('school/family mismatch')
-        realm = read(root / DATA / 'myvillage/realm' / (art['minimum_realm'].split(':')[1]+'.json'))
+        realm = read(root / DATA / 'yuanxian/realm' / (art['minimum_realm'].split(':')[1]+'.json'))
         if art['minimum_stage'] not in {s['id'] for s in realm['stages']}: raise ValueError('unknown stage')
         exact(art['study'], STUDY_FIELDS, 'study')
         number(art['study'],'points',1,1000000,True)
@@ -126,34 +126,34 @@ def plan(root: Path = ROOT) -> dict[Path, str]:
         {k:v for k,v in art.items() if k not in META_FIELDS} for art in arts]})}
     keys = {
         'zh_cn': {
-            'key.myvillage.art_primary':'技能快捷键 1（默认 Z）', 'key.myvillage.art_secondary':'技能快捷键 2（默认 C）',
-            'combat.myvillage.art.unlearned':'需学会 %s 并满足当前境界条件',
-            'combat.myvillage.art.cooldown':'武技冷却：%s 秒',
-            'combat.myvillage.art.power':'灵力不足，需要 %s 点',
-            'combat.myvillage.art.ground':'此武技需要站稳地面',
-            'combat.myvillage.art.counter':'格挡成功：本次反击强化',
-            'combat.myvillage.art.locked':'未学', 'combat.myvillage.art.qi':'灵力',
+            'key.yuanxian.art_primary':'技能快捷键 1（默认 Z）', 'key.yuanxian.art_secondary':'技能快捷键 2（默认 C）',
+            'combat.yuanxian.art.unlearned':'需学会 %s 并满足当前境界条件',
+            'combat.yuanxian.art.cooldown':'武技冷却：%s 秒',
+            'combat.yuanxian.art.power':'灵力不足，需要 %s 点',
+            'combat.yuanxian.art.ground':'此武技需要站稳地面',
+            'combat.yuanxian.art.counter':'格挡成功：本次反击强化',
+            'combat.yuanxian.art.locked':'未学', 'combat.yuanxian.art.qi':'灵力',
         },
         'en_us': {
-            'key.myvillage.art_primary':'Advanced weapon art I', 'key.myvillage.art_secondary':'Advanced weapon art II',
-            'combat.myvillage.art.unlearned':'Learn %s and meet its current realm requirements',
-            'combat.myvillage.art.cooldown':'Art cooldown: %s seconds',
-            'combat.myvillage.art.power':'Not enough spiritual power: %s required',
-            'combat.myvillage.art.ground':'This art requires firm ground',
-            'combat.myvillage.art.counter':'Guarded: this cast is empowered',
-            'combat.myvillage.art.locked':'Locked', 'combat.myvillage.art.qi':'Qi',
+            'key.yuanxian.art_primary':'Advanced weapon art I', 'key.yuanxian.art_secondary':'Advanced weapon art II',
+            'combat.yuanxian.art.unlearned':'Learn %s and meet its current realm requirements',
+            'combat.yuanxian.art.cooldown':'Art cooldown: %s seconds',
+            'combat.yuanxian.art.power':'Not enough spiritual power: %s required',
+            'combat.yuanxian.art.ground':'This art requires firm ground',
+            'combat.yuanxian.art.counter':'Guarded: this cast is empowered',
+            'combat.yuanxian.art.locked':'Locked', 'combat.yuanxian.art.qi':'Qi',
         }
     }
     for art in arts:
         rid = art['id'].split(':')[1]
-        translation = f'cultivation.technique.myvillage.{rid}'
-        output[DATA / f'myvillage/technique/{rid}.json'] = dump({
+        translation = f'cultivation.technique.yuanxian.{rid}'
+        output[DATA / f'yuanxian/technique/{rid}.json'] = dump({
             'translation_key':translation, 'category':'active', 'grade':art['grade'], 'elements':[],
             'school':art['school'], 'requirements':{'minimum_realm':art['minimum_realm'], 'minimum_stage':art['minimum_stage']},
             'effects':{'active':{'skill':art['id'], 'qi_cost':art['qi_cost'], 'slots':1}}, 'study':art['study']})
         for lang,suffix in [('zh_cn','zh'),('en_us','en')]:
             keys[lang][translation] = art[f'name_{suffix}']
-            keys[lang][f'combat.myvillage.art.{rid}.description'] = art[f'description_{suffix}']
+            keys[lang][f'combat.yuanxian.art.{rid}.description'] = art[f'description_{suffix}']
     for lang, patch in keys.items():
         path = ASSETS / f'lang/{lang}.json'
         current = read(root / path)
@@ -167,15 +167,15 @@ navigation:
   title: 高级武技 / Advanced Weapon Arts
   parent: index.md
   position: 35
-  icon: myvillage:qingfeng_sword
+  icon: yuanxian:qingfeng_sword
 ---
 # 高级武技 / Advanced Weapon Arts
 
 学习对应技能书并达到炼气四层。在修炼战斗模式下，手持对应武器：
 Learn the matching manual and reach Qi Refining IV. Hold its weapon in cultivation combat mode.
 
-<KeyBind id="key.myvillage.art_primary" />：第一招 / art I。
-<KeyBind id="key.myvillage.art_secondary" />：第二招 / art II。
+<KeyBind id="key.yuanxian.art_primary" />：第一招 / art I。
+<KeyBind id="key.yuanxian.art_secondary" />：第二招 / art II。
 原右键剑气、普攻和闪避不变。Existing sword qi, basic attacks and dodge keep their bindings.
 
 '''
@@ -196,10 +196,10 @@ Learn the matching manual and reach Qi Refining IV. Hold its weapon in cultivati
         if any(not isinstance(v,str) or not re.fullmatch(r'[a-z0-9_.-]+:[a-z0-9_./-]+',v)
                for i in ingredients for v in i.values()):
             raise ValueError('invalid acquisition resource id')
-        recipe_id = f'myvillage:manual_{rid}'
+        recipe_id = f'yuanxian:manual_{rid}'
         output[DATA / f'recipe/manual_{rid}.json'] = dump({
             'type':'minecraft:crafting_shapeless','category':'misc','ingredients':ingredients,
-            'result':{'id':'myvillage:manual_active_xuan','count':1,'components':{'myvillage:technique':art['id']}}})
+            'result':{'id':'yuanxian:manual_active_xuan','count':1,'components':{'yuanxian:technique':art['id']}}})
         output[DATA / f'advancement/recipes/manual_{rid}.json'] = dump({
             'parent':'minecraft:recipes/root',
             'criteria':{'has_book':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':'minecraft:book'}]}},

@@ -48,7 +48,7 @@ def compile_resources(out:Path,work:Path):
                      for s in signs if s['pos'][0]//16==tx and s['pos'][2]//16==tz]
         attach_signs(root,nbt.Compound({}),local_signs)
         template=f'regiongen/bay_terraces_v1/tile_{tx}_{tz}'
-        path=out/f'data/myvillage/structure/{template}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
+        path=out/f'data/yuanxian/structure/{template}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
         nbt.write_gzipped_nbt(root,str(path))
         _,restored=read_gzipped_nbt(str(path))
         decoded={tuple(b['pos']):canonical(state_string(restored['palette'][b['state']])) for b in restored['blocks']}
@@ -57,7 +57,7 @@ def compile_resources(out:Path,work:Path):
             saved=next(b['nbt'] for b in restored['blocks'] if b['pos']==s['pos'])
             if [json.loads(line)['text'] for line in saved['front_text']['messages']]!=s['messages']:
                 raise AssertionError('Sign text differs: '+template)
-        tiles.append({'x':tx*16,'z':tz*16,'template':'myvillage:'+template,
+        tiles.append({'x':tx*16,'z':tz*16,'template':'yuanxian:'+template,
                       'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'cells':len(cells)})
     manifest={'schema':1,'id':recipe['id'],'size':n,'base_y':base,'height':volume.size[1],
               'layout_hash':plan['plan_sha256'],'geometry_sha256':report['geometry_sha256'],
@@ -65,16 +65,16 @@ def compile_resources(out:Path,work:Path):
               'water_y':recipe['river']['water_y'],'heights':plan['heights'],'kinds':plan['kinds'],
               'tiles':tiles,'buildings':plan['buildings'],'entry':plan['spawn'],
               'source_sha256':hashlib.sha256(RECIPE.read_bytes()).hexdigest()}
-    write_json(out/'data/myvillage/regiongen/bay_terraces_v1.json',manifest)
-    write_json(out/'data/myvillage/worldgen/structure/bay_terraces.json',
-               {'type':'myvillage:bay_terraces','biomes':'#myvillage:has_bay_terraces','step':'surface_structures',
+    write_json(out/'data/yuanxian/regiongen/bay_terraces_v1.json',manifest)
+    write_json(out/'data/yuanxian/worldgen/structure/bay_terraces.json',
+               {'type':'yuanxian:bay_terraces','biomes':'#yuanxian:has_bay_terraces','step':'surface_structures',
                 'terrain_adaptation':'none','spawn_overrides':{}})
-    write_json(out/'data/myvillage/worldgen/structure_set/bay_terraces.json',
-               {'structures':[{'structure':'myvillage:bay_terraces','weight':1}],
+    write_json(out/'data/yuanxian/worldgen/structure_set/bay_terraces.json',
+               {'structures':[{'structure':'yuanxian:bay_terraces','weight':1}],
                 'placement':{'type':'minecraft:random_spread','spacing':cfg['spacing'],'separation':cfg['separation'],
                              'salt':cfg['salt'],'exclusion_zone':{'other_set':cfg['exclusion_structure_set'],'chunk_count':cfg['exclusion_chunks']}}})
-    write_json(out/'data/myvillage/tags/worldgen/biome/has_bay_terraces.json',{'replace':False,'values':cfg['biomes']})
-    write_json(out/'assets/myvillage_regiongen/lang/zh_cn.json',{'structure.myvillage.bay_terraces':'湾口台地集'})
+    write_json(out/'data/yuanxian/tags/worldgen/biome/has_bay_terraces.json',{'replace':False,'values':cfg['biomes']})
+    write_json(out/'assets/yuanxian_regiongen/lang/zh_cn.json',{'structure.yuanxian.bay_terraces':'湾口台地集'})
     frozen=json.loads(FROZEN.read_text())['resources']
     for relative,sha in frozen.items():
         path=out/relative

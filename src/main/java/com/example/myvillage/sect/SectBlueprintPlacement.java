@@ -94,7 +94,7 @@ public final class SectBlueprintPlacement {
     private static BlockState parseState(ServerLevel level,CompoundTag tag) {
         ResourceLocation id=ResourceLocation.parse(tag.getString("Name"));
         if (!BuiltInRegistries.BLOCK.containsKey(id)) {
-            if (id.getNamespace().equals("minecraft") || id.getNamespace().equals("myvillage"))
+            if (id.getNamespace().equals("minecraft") || id.getNamespace().equals("yuanxian"))
                 throw new IllegalArgumentException("宗门必需方块没有注册："+id);
             return ModBlockFallback.resolveBlockState(level.getServer(),id);
         }

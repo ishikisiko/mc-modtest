@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 
 /** Chinese, read-only presentation shared by administrator inspection and real conversations. */
 public final class NpcProfessionText {
-    private static final String KEY = "message.myvillage.life.profession.";
+    private static final String KEY = "message.yuanxian.life.profession.";
     private NpcProfessionText() { }
 
     private static String text(String suffix, Object... args) {
@@ -18,7 +18,7 @@ public final class NpcProfessionText {
     }
 
     public static String role(String role) {
-        return NpcDialogueText.of(Component.translatable("message.myvillage.life.role."
+        return NpcDialogueText.of(Component.translatable("message.yuanxian.life.role."
                 + (role.isEmpty() ? "none" : role)));
     }
 
@@ -26,7 +26,7 @@ public final class NpcProfessionText {
         int quality=com.example.myvillage.sim.commerce.CommerceRules.stockQuality(id);
         id=com.example.myvillage.sim.commerce.CommerceRules.stockItem(id);
         int colon = id.indexOf(':');
-        String namespace = colon < 0 ? "myvillage" : id.substring(0, colon);
+        String namespace = colon < 0 ? "yuanxian" : id.substring(0, colon);
         String path = colon < 0 ? id : id.substring(colon + 1);
         String name=NpcDialogueText.of(Component.translatable("item." + namespace + "." + path));
         return quality>1?NpcDialogueText.of(com.example.myvillage.alchemy.PillQuality.name(quality))+name:name;

@@ -63,7 +63,7 @@ class StatsRulesTest {
     }
 
     @Test void duplicateRealmAliasAndInvalidStageFail() throws IOException {
-        rejects(json -> json.getAsJsonArray("realms").get(2).getAsJsonObject().addProperty("id", "myvillage:qi_refining"), "duplicate");
+        rejects(json -> json.getAsJsonArray("realms").get(2).getAsJsonObject().addProperty("id", "yuanxian:qi_refining"), "duplicate");
         rejects(json -> json.getAsJsonArray("realms").get(2).getAsJsonObject().getAsJsonArray("aliases").add("qi_refining"), "duplicate");
         rejects(json -> json.getAsJsonArray("realms").get(2).getAsJsonObject().addProperty("order", 3), "order");
         rejects(json -> json.getAsJsonArray("realms").get(1).getAsJsonObject().addProperty("stages", 0), "stages");

@@ -5,10 +5,10 @@ import net.minecraft.nbt.CompoundTag;
 import org.junit.jupiter.api.Test;
 
 class ShulkerBirthInheritanceTest {
-    private static final String REALM = "myvillage:stats_realm";
+    private static final String REALM = "yuanxian:stats_realm";
     private static CompoundTag owned() {
         var parent = new CompoundTag(); var assignment = new CompoundTag();
-        assignment.putString("realm", "myvillage:golden_core"); assignment.putInt("stage", 1);
+        assignment.putString("realm", "yuanxian:golden_core"); assignment.putInt("stage", 1);
         parent.put(REALM, assignment.copy());
         var birth = assignment.copy(); birth.putString("location", "end_city");
         birth.putString("dimension", "minecraft:the_end");

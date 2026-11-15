@@ -83,10 +83,10 @@ public final class NpcCultivationRuntime {
         }
         NpcFateRuntime.initialize(npc);
         boolean foundation = switch (realm.realmId()) {
-            case "myvillage:foundation_establishment", "myvillage:golden_core", "myvillage:nascent_soul", "myvillage:spirit_transformation" -> true;
+            case "yuanxian:foundation_establishment", "yuanxian:golden_core", "yuanxian:nascent_soul", "yuanxian:spirit_transformation" -> true;
             default -> false;
         };
-        boolean golden = realm.realmId().equals("myvillage:golden_core") || (realm.realmId().equals("myvillage:nascent_soul") || realm.realmId().equals("myvillage:spirit_transformation"));
+        boolean golden = realm.realmId().equals("yuanxian:golden_core") || (realm.realmId().equals("yuanxian:nascent_soul") || realm.realmId().equals("yuanxian:spirit_transformation"));
         if (!foundation) npc.foundationQuality = 0;
         else if (npc.foundationQuality == 0) npc.foundationQuality = quality(npc);
         if (!golden) npc.goldenCoreQuality = 0;
@@ -103,7 +103,7 @@ public final class NpcCultivationRuntime {
     }
 
     private static RealmKey realm(NpcEntity npc) {
-        return StatsRuntime.assignedRealm(npc).orElse(new RealmKey("myvillage:mortal", 1));
+        return StatsRuntime.assignedRealm(npc).orElse(new RealmKey("yuanxian:mortal", 1));
     }
 
     public static long cap(NpcEntity npc) {
@@ -222,9 +222,9 @@ public final class NpcCultivationRuntime {
         npc.spiritualPower = value.getLong("spiritual_power");
         RealmKey realm = realm(npc);
         int fq = npc.foundationQuality, gq = npc.goldenCoreQuality;
-        boolean foundation = realm.realmId().equals("myvillage:foundation_establishment")
-                || realm.realmId().equals("myvillage:golden_core") || (realm.realmId().equals("myvillage:nascent_soul") || realm.realmId().equals("myvillage:spirit_transformation"));
-        boolean golden = realm.realmId().equals("myvillage:golden_core") || (realm.realmId().equals("myvillage:nascent_soul") || realm.realmId().equals("myvillage:spirit_transformation"));
+        boolean foundation = realm.realmId().equals("yuanxian:foundation_establishment")
+                || realm.realmId().equals("yuanxian:golden_core") || (realm.realmId().equals("yuanxian:nascent_soul") || realm.realmId().equals("yuanxian:spirit_transformation"));
+        boolean golden = realm.realmId().equals("yuanxian:golden_core") || (realm.realmId().equals("yuanxian:nascent_soul") || realm.realmId().equals("yuanxian:spirit_transformation"));
         if (!(foundation ? npc.testConfigured ? fq >= 1 && fq <= 4 : validQuality(npc.prodigy(), fq) : fq == 0)
                 || !(golden ? npc.testConfigured ? gq >= 1 && gq <= 3 : validQuality(npc.prodigy(), gq) : gq == 0)
                 || npc.spiritualPower < 0 || npc.spiritualPower > cap(npc)) throw new IllegalArgumentException("Invalid NPC cultivation state");

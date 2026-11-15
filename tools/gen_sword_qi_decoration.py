@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.gen_alchemy_assets import png
 
-ASSET = Path('src/main/resources/assets/myvillage')
-DATA = Path('src/main/resources/data/myvillage')
+ASSET = Path('src/main/resources/assets/yuanxian')
+DATA = Path('src/main/resources/data/yuanxian')
 IDENTITY = 'sword_qi_pedestal'
 
 
@@ -121,19 +121,19 @@ def icon(a):
 
 def generated(a):
     out = {}
-    variants = {f'facing={f},lit={lit}': {'model': f'myvillage:block/{IDENTITY}', 'y': angle}
+    variants = {f'facing={f},lit={lit}': {'model': f'yuanxian:block/{IDENTITY}', 'y': angle}
                 for f, angle in (('north', 0), ('east', 90), ('south', 180), ('west', 270)) for lit in ('false', 'true')}
     out[ASSET / f'blockstates/{IDENTITY}.json'] = encoded({'variants': variants})
     faces = {f: {'texture': '#top' if f == 'up' else '#side'} for f in ('north', 'south', 'east', 'west', 'up', 'down')}
     box = a['base_box']
     out[ASSET / f'models/block/{IDENTITY}.json'] = encoded({
-        'parent': 'minecraft:block/block', 'textures': {'top': 'myvillage:block/sword_qi_pedestal_top',
-        'side': 'myvillage:block/sword_qi_pedestal_side', 'particle': 'myvillage:block/sword_qi_pedestal_side'},
+        'parent': 'minecraft:block/block', 'textures': {'top': 'yuanxian:block/sword_qi_pedestal_top',
+        'side': 'yuanxian:block/sword_qi_pedestal_side', 'particle': 'yuanxian:block/sword_qi_pedestal_side'},
         'elements': [{'from': box[:3], 'to': box[3:], 'faces': faces}]})
     out[ASSET / f'models/item/{IDENTITY}.json'] = encoded({'parent': 'minecraft:item/generated',
-        'textures': {'layer0': f'myvillage:item/{IDENTITY}'}})
+        'textures': {'layer0': f'yuanxian:item/{IDENTITY}'}})
     out[DATA / f'loot_table/blocks/{IDENTITY}.json'] = encoded({'type': 'minecraft:block', 'pools': [{
-        'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': f'myvillage:{IDENTITY}'}],
+        'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': f'yuanxian:{IDENTITY}'}],
         'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})
     out[ASSET / 'textures/block/sword_qi_pedestal_top.png'] = stone_texture(a, True)
     out[ASSET / 'textures/block/sword_qi_pedestal_side.png'] = stone_texture(a, False)
@@ -142,7 +142,7 @@ def generated(a):
     out[ASSET / f'textures/item/{IDENTITY}.png'] = icon(a)
     path = ASSET / 'lang/zh_cn.json'
     names = json.loads((ROOT / path).read_text())
-    names[f'block.myvillage.{IDENTITY}'] = a['name']
+    names[f'block.yuanxian.{IDENTITY}'] = a['name']
     out[path] = encoded(names)
     return out
 

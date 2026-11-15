@@ -101,7 +101,7 @@
       "minecraft:sand"
     ],
     "EXTERIOR_FLOOR": [
-      "myvillage:manor_town_sandstone_walk",
+      "yuanxian:manor_town_sandstone_walk",
       "minecraft:sandstone"
     ]
   },

@@ -12,7 +12,7 @@ from .pix import Grid
 from .render import to_image
 from .roles import palette
 
-DEFAULT_DIR = "src/main/resources/assets/myvillage/portrait"
+DEFAULT_DIR = "src/main/resources/assets/yuanxian/portrait"
 
 
 class Maps:

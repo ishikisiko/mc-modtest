@@ -17,7 +17,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 原生界面采集准备，排除在交付包外；命簿详情仍经正式查询同步。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class NpcFateUiServerEvidence {
     private static int ticks;
     private static boolean prepared;
@@ -46,12 +46,12 @@ public final class NpcFateUiServerEvidence {
         player.getAbilities().flying=true;player.onUpdateAbilities();
         level.setChunkForced(0,0,true);level.getChunk(0,0);
         var npc=ModEntities.CULTIVATOR.get().create(level);
-        var ids=List.of("myvillage:phoenix_body","myvillage:bright","myvillage:robust");
+        var ids=List.of("yuanxian:phoenix_body","yuanxian:bright","yuanxian:robust");
         int cost=ids.stream().map(FateService.definitions(level.registryAccess())::get).mapToInt(d->d.cost()).sum();
         npc.cultivationInitialized=true;npc.setProdigy(cost==9);
         npc.fates=new com.example.myvillage.sim.fate.NpcFateRoll(ids,9,cost);
         npc.setNoAi(true);npc.setCustomName(Component.literal("天赋展示修士"));npc.moveTo(10,-60,8,0,0);
-        StatsRuntime.applyRealm(npc,"myvillage:qi_refining",2);level.addFreshEntity(npc);
+        StatsRuntime.applyRealm(npc,"yuanxian:qi_refining",2);level.addFreshEntity(npc);
         var sim=WorldSimRuntime.sim().orElseThrow();WorldSimRuntime.setPaused(true);
         var person=sim.findPersons("",Integer.MAX_VALUE).stream().filter(p->p.alive()).findFirst().orElseThrow();
         var data=new JsonObject();data.addProperty("world_person_id",person.id());

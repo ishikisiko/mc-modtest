@@ -64,7 +64,7 @@ class WorldPlanTest {
     @Test void invalidFrozenRulesFailInsteadOfMovingOldWorld()throws Exception{
         String source=rules().json();
         for(String field:new String[]{"warp_amplitude","outer_jitter","region_count"}){var o=JsonParser.parseString(source).getAsJsonObject();o.addProperty(field,100000);assertThrows(RuntimeException.class,()->new WorldPlanRules(o.toString()));}
-        var bad=JsonParser.parseString(source).getAsJsonObject();bad.addProperty("algorithm","myvillage:unknown_v9");assertThrows(RuntimeException.class,()->new WorldPlanRules(bad.toString()));
+        var bad=JsonParser.parseString(source).getAsJsonObject();bad.addProperty("algorithm","yuanxian:unknown_v9");assertThrows(RuntimeException.class,()->new WorldPlanRules(bad.toString()));
         var o=JsonParser.parseString(source).getAsJsonObject();o.getAsJsonObject("city").getAsJsonObject("layout").getAsJsonArray("tiles").remove(0);
         String incomplete=o.toString();assertThrows(RuntimeException.class,()->new WorldPlanRules(incomplete));
     }

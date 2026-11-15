@@ -14,8 +14,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,default=ROOT/'out/preview/alchemy_array/sculpted/model')
     args=parser.parse_args();args.out.mkdir(parents=True,exist_ok=True)
-    mesh=json.loads((ROOT/'src/main/resources/assets/myvillage/alchemy_array/formed_mesh.json').read_text())
-    texture=np.asarray(Image.open(ROOT/'src/main/resources/assets/myvillage/textures/block/alchemy_array_formed.png').convert('RGBA'),dtype=np.float32)/255
+    mesh=json.loads((ROOT/'src/main/resources/assets/yuanxian/alchemy_array/formed_mesh.json').read_text())
+    texture=np.asarray(Image.open(ROOT/'src/main/resources/assets/yuanxian/textures/block/alchemy_array_formed.png').convert('RGBA'),dtype=np.float32)/255
     quads=[]
     for face in mesh['faces']:
         i=face['m'];x,y=(i%4)*4,(i//4)*4

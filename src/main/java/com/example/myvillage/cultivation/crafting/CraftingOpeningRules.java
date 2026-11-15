@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Per-fate contributions depend only on permanent identity and authored rules, never selection order or world seed. */
 public final class CraftingOpeningRules {
-    public static final String RESOURCE="/data/myvillage/crafting/opening.json";
+    public static final String RESOURCE="/data/yuanxian/crafting/opening.json";
     public static final int CHOICES=3;
     public record Delta(int value,int weight){}
     public record Selection(List<String> ids,int alchemyOverride,int forgingOverride) {

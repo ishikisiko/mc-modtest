@@ -12,7 +12,7 @@ from .. import anim, quadruped as quad
 from ..builder import Builder
 from ..paint import pick, ramp, value_noise
 
-ID = "myvillage:demon_wolf"
+ID = "yuanxian:demon_wolf"
 NAME = "demon_wolf"
 HITBOX = (1.3, 1.45)  # width, height in blocks (server registration)
 

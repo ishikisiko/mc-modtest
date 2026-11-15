@@ -4,7 +4,7 @@
 
 世界生成照常把共享构件放入新区块。客户端为区块建立模型时，依据书架横向位置和整排底部计算稳定的排列种子，生成书册四边形并缓存。重新进入世界、资源重载和不同玩家观察同一位置时，排列保持一致。书册沿用原有青、朱、素三份像素贴图。
 
-书册排列的宽度、高度、间隙、种子范围和缓存上限由 `blueprints/qianji/bookcases.json` 维护，生成到 `data/myvillage/qianji/components/bookcases.json`。`ProceduralBooks` 与 `tools/qianji/bookcases.py` 使用同一整数算法，Java 检查读取 Python 生成的固定样本核对。每个烘焙模型最多保留配置指定数量的排列缓存；当前上限为4，不按世界中的每个位置永久保存一份模型。
+书册排列的宽度、高度、间隙、种子范围和缓存上限由 `blueprints/qianji/bookcases.json` 维护，生成到 `data/yuanxian/qianji/components/bookcases.json`。`ProceduralBooks` 与 `tools/qianji/bookcases.py` 使用同一整数算法，Java 检查读取 Python 生成的固定样本核对。每个烘焙模型最多保留配置指定数量的排列缓存；当前上限为4，不按世界中的每个位置永久保存一份模型。
 
 区块使用普通静态模型渲染，没有新增书架方块实体、显示实体、网络消息或逐帧渲染器。资源重载会创建新的烘焙模型和缓存，贴图继续参与正常材质图集。木框和相邻透明窗的渲染层仍沿用原实现。
 

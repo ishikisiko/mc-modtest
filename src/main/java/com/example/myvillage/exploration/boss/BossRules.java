@@ -13,7 +13,7 @@ import java.util.*;
 
 /** Independently authored effective attributes and pre-mitigation damage policies for vanilla bosses. */
 public final class BossRules {
-    public static final String PATH = "/data/myvillage/exploration/bosses.json";
+    public static final String PATH = "/data/yuanxian/exploration/bosses.json";
     public enum Channel {
         GUARDIAN_BEAM, GUARDIAN_THORNS, DRAGON_CONTACT, DRAGON_BREATH,
         WITHER_SKULL, WITHER_SKULL_EXPLOSION, WITHER_SPAWN_EXPLOSION, WARDEN_SONIC

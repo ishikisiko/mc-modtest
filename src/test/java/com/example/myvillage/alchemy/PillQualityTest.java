@@ -79,7 +79,7 @@ class PillQualityTest {
 
     @Test void qualityNamesUseLocalizedKeysAndRejectOutOfRangeInputs() {
         for (int quality = 1; quality <= 4; quality++)
-            assertEquals("alchemy.myvillage.quality." + quality,
+            assertEquals("alchemy.yuanxian.quality." + quality,
                     ((TranslatableContents) PillQuality.name(quality).getContents()).getKey());
         assertThrows(IllegalArgumentException.class, () -> PillQuality.name(0));
         assertThrows(IllegalArgumentException.class, () -> PillQuality.name(5));

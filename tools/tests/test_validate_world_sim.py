@@ -173,10 +173,10 @@ class WorldSimValidatorTest(unittest.TestCase):
         self.assert_new("world_sim.event.stage_up variants", "is in the other language file only")
 
     def test_runtime_command_keys_are_checked(self) -> None:
-        self.edit_lang("en_us", lambda d: d.pop("commands.myvillage.world.info.realms"))
-        self.edit_lang("zh_cn", lambda d: d.pop("message.myvillage.world.rumor"))
-        self.assert_new("en_us.json: commands.myvillage.world.info.realms is missing",
-                        "zh_cn.json: message.myvillage.world.rumor is missing")
+        self.edit_lang("en_us", lambda d: d.pop("commands.yuanxian.world.info.realms"))
+        self.edit_lang("zh_cn", lambda d: d.pop("message.yuanxian.world.rumor"))
+        self.assert_new("en_us.json: commands.yuanxian.world.info.realms is missing",
+                        "zh_cn.json: message.yuanxian.world.rumor is missing")
 
     # ------------------------------------------------------------------ purity
     def test_core_must_not_import_minecraft_but_runtime_may(self) -> None:

@@ -20,7 +20,7 @@ public final class SettlementNoticeBoard {
     private static final class Current { static final Definition VALUE = load(); }
     private SettlementNoticeBoard() { }
     private static Definition load() {
-        try (var stream = SettlementNoticeBoard.class.getResourceAsStream("/data/myvillage/regiongen/settlement_board.json")) {
+        try (var stream = SettlementNoticeBoard.class.getResourceAsStream("/data/yuanxian/regiongen/settlement_board.json")) {
             if (stream == null) throw new IllegalArgumentException("缺少聚落江湖榜输入");
             var o = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
             if (o.get("schema").getAsInt() != 1) throw new IllegalArgumentException("江湖榜schema无效");
@@ -60,7 +60,7 @@ public final class SettlementNoticeBoard {
             if (!transform(origin, site.rotation(), false).equals(root)) continue;
             var reader = transform(origin, site.rotation(), true);
             var place = new LifePlace("jianghu_board", "entry", reader.getX(), reader.getY(), reader.getZ(), 1,
-                    "myvillage:jianghu_board", root.getX(), root.getY(), root.getZ());
+                    "yuanxian:jianghu_board", root.getX(), root.getY(), root.getZ());
             var binding = new LifeSite(site.id(), "湾口台地集", "minecraft:overworld", site.host(), root.getX(), root.getY(), root.getZ(), List.of(place));
             if (sim.lifeSite(site.id()).isEmpty()) { sim.registerLifeSite(binding); EconomyRuntime.dirty(player); }
             return sim.lifeSite(site.id()).filter(binding::equals).isPresent();

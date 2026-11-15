@@ -17,7 +17,7 @@ class MeridianChartTest {
         for (MeridianChart.Acupoint point : MeridianChart.points()) {
             assertTrue(ids.add(point.id()), "duplicate " + point.id());
             assertInSquare(point.x(), point.y(), point.id());
-            assertEquals("screen.myvillage.cultivation.acupoint." + point.id(), point.translationKey());
+            assertEquals("screen.yuanxian.cultivation.acupoint." + point.id(), point.translationKey());
             point.label().ifPresent(label -> assertInSquare(label.x(), label.y(), point.id() + " label"));
         }
         assertEquals(1, MeridianChart.points().stream()

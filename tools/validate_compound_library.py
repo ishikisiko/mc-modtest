@@ -23,7 +23,7 @@ from buildgen.modset import load_modset
 from buildgen.style import load_style, modset_namespaces
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MOD_ID = "myvillage"
+MOD_ID = "yuanxian"
 RES = os.path.join(PROJECT_ROOT, "src", "main", "resources", "data", MOD_ID)
 DEFAULT_REPORT = os.path.join(PROJECT_ROOT, "reports", "compound_library_report.json")
 OUT_REPORT = os.path.join(PROJECT_ROOT, "reports", "compound_library_validation.json")
@@ -96,7 +96,7 @@ def validate_functions(style_id: str, names: list) -> list:
         for name in names:
             if f"place template {MOD_ID}:{name} " not in text:
                 errors.append(f"gallery_missing_structure: {name}")
-    pat = re.compile(r"^place template myvillage:\w+ ~ ~(-?\d+)? ~$")
+    pat = re.compile(r"^place template yuanxian:\w+ ~ ~(-?\d+)? ~$")
     for name in names:
         path = os.path.join(RES, "function", "place", f"{name}.mcfunction")
         if not os.path.isfile(path):

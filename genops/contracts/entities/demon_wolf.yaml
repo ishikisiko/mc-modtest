@@ -8,22 +8,22 @@ schema_version: 1
 # Java-pinned dimensions below agree with the data file, the model files, and the Java registration.
 
 project:
-  mod_id: myvillage
+  mod_id: yuanxian
   java_package: com.example.myvillage
   minecraft_version: 1.21.1
   neoforge_version: 21.1.233
   java_version: 21
 
 data_sources:
-  server_index: data/myvillage/beast/index.json
-  server_data: data/myvillage/beast/demon_wolf.json
-  model: assets/myvillage/beast/demon_wolf_model.json
-  animations: assets/myvillage/beast/demon_wolf_animations.json
+  server_index: data/yuanxian/beast/index.json
+  server_data: data/yuanxian/beast/demon_wolf.json
+  model: assets/yuanxian/beast/demon_wolf_model.json
+  animations: assets/yuanxian/beast/demon_wolf_animations.json
   art_generator: tools/beastgen/defs/demon_wolf.py
 
 entity:
   id: demon_wolf
-  resource_location: myvillage:demon_wolf
+  resource_location: yuanxian:demon_wolf
   display_name:
     zh_cn: 妖狼
     en_us: Demon Wolf
@@ -46,7 +46,7 @@ physical:
   width: 1.3
   height: 1.45
   eye_height: 1.2
-  shadow_radius_source: assets/myvillage/beast/demon_wolf_model.json#shadow_radius
+  shadow_radius_source: assets/yuanxian/beast/demon_wolf_model.json#shadow_radius
   fire_immune: false
   summonable: true
   saveable: true
@@ -55,7 +55,7 @@ physical:
   despawn_policy: natural births use normal Monster distance despawn; command, egg and diagnostic births remain persistent
 
 attributes:
-  source: data/myvillage/beast/demon_wolf.json#attributes
+  source: data/yuanxian/beast/demon_wolf.json#attributes
   base: Monster.createMonsterAttributes()
   registered:
     - max_health
@@ -66,7 +66,7 @@ attributes:
     - knockback_resistance
     - step_height
   transient_modifiers:
-    - id: myvillage:beast_poise
+    - id: yuanxian:beast_poise
       attribute: knockback_resistance
       operation: add_value
       amount: 1.0
@@ -101,7 +101,7 @@ behavior:
   combat:
     mode: data_driven_moves
     server_authoritative: true
-    tuning_source: data/myvillage/beast/demon_wolf.json
+    tuning_source: data/yuanxian/beast/demon_wolf.json
     move_runtime: >-
       BeastEntity runs one move tick per server AI step (a hit-stop freeze pauses it): stop
       navigation, turn toward the target before turn_lock_tick, lock yaw and aim point at
@@ -113,11 +113,11 @@ behavior:
     damage: mob attack damage source, attack_damage times damage_multiplier, then the move's own knockback along the locked yaw
     victims: the current target, any attackable player, and any mob targeting the beast
     moves:
-      - id: myvillage:demon_wolf_bite
+      - id: yuanxian:demon_wolf_bite
         animation: bite
         name: 撕咬
         intent: close range; short telegraph, early yaw lock, small forward snap, long recovery as the punish window
-      - id: myvillage:demon_wolf_pounce
+      - id: yuanxian:demon_wolf_pounce
         animation: pounce
         name: 扑击
         intent: mid range; long crouch telegraph, aim locks on the target's position, leap, long skidding recovery
@@ -153,7 +153,7 @@ state:
     - name: attributes
       type: vanilla saved attributes
       purpose: permanent realm modifiers restore derived maximum health before Health is read
-    - name: myvillage:stats_realm
+    - name: yuanxian:stats_realm
       type: compound in persistent entity data
       purpose: diagnostic realm identity used by the shared statistics runtime
   transient:
@@ -174,11 +174,11 @@ rendering:
   geckolib: false
   model_class: com.example.myvillage.client.entity.beast.BeastModel
   renderer_class: com.example.myvillage.client.entity.beast.BeastRenderer
-  model_layer: myvillage:demon_wolf#main
-  geo: myvillage:beast/demon_wolf_model.json
-  animation: myvillage:beast/demon_wolf_animations.json
-  base_texture: myvillage:textures/entity/demon_wolf/demon_wolf.png
-  glow_texture: myvillage:textures/entity/demon_wolf/demon_wolf_eyes.png
+  model_layer: yuanxian:demon_wolf#main
+  geo: yuanxian:beast/demon_wolf_model.json
+  animation: yuanxian:beast/demon_wolf_animations.json
+  base_texture: yuanxian:textures/entity/demon_wolf/demon_wolf.png
+  glow_texture: yuanxian:textures/entity/demon_wolf/demon_wolf_eyes.png
   glow_render_type: eyes
   move_presentation: >-
     While a move is shown, BeastEntity.lerpTo applies each position packet in one step and the
@@ -186,14 +186,14 @@ rendering:
     drawn position; under /tick freeze the clip shows the server's move tick exactly. Vanilla
     three-step smoothing applies outside moves.
   final_texture_size:
-    source: assets/myvillage/beast/demon_wolf_model.json#texture
+    source: assets/yuanxian/beast/demon_wolf_model.json#texture
   generator:
     owner: tools/beastgen
     definition: tools/beastgen/defs/demon_wolf.py
     check: python3 -m tools.beastgen build demon_wolf --check
     hand_edits: forbidden
   bones:
-    source: assets/myvillage/beast/demon_wolf_model.json#bones
+    source: assets/yuanxian/beast/demon_wolf_model.json#bones
     look_bone: head
   animations:
     - id: idle
@@ -207,10 +207,10 @@ rendering:
       driver: animateWalk while aggressive
     - id: bite
       loop: false
-      driver: move myvillage:demon_wolf_bite, length total_ticks / 20
+      driver: move yuanxian:demon_wolf_bite, length total_ticks / 20
     - id: pounce
       loop: false
-      driver: move myvillage:demon_wolf_pounce, length total_ticks / 20
+      driver: move yuanxian:demon_wolf_pounce, length total_ticks / 20
     - id: stagger
       loop: false
       driver: while the synced stagger flag is set
@@ -243,7 +243,7 @@ items:
     id: demon_wolf_spawn_egg
     primary_color: "#353B44"
     secondary_color: "#4FD0C8"
-    creative_tab: myvillage:main
+    creative_tab: yuanxian:main
 
 sound:
   strategy: direct_vanilla_reuse
@@ -258,32 +258,32 @@ sound:
   subtitles: inherit_vanilla
 
 loot:
-  table: myvillage:entities/demon_wolf
+  table: yuanxian:entities/demon_wolf
   intent: no special drop in this version
   pools: []
 
 spawn:
   natural: true
-  biome_modifier: myvillage:add_demon_wolf_spawns
-  spawn_biome_tag: myvillage:has_demon_wolf
+  biome_modifier: yuanxian:add_demon_wolf_spawns
+  spawn_biome_tag: yuanxian:has_demon_wolf
   spawn_placement: ON_GROUND
   heightmap: MOTION_BLOCKING_NO_LEAVES
   spawn_predicate: WildernessRuntime::checkWolfSpawnRules
-  realm_rules: data/myvillage/wilderness/rules.json
+  realm_rules: data/yuanxian/wilderness/rules.json
   birth_record: wilderness_birth (realm, stage, region, x, y, z, natural); assigned once, saved, never rerolled
   natural_sources: NATURAL and CHUNK_GENERATION only
   unassigned_sources: command and spawn egg keep baseline stats until an explicit diagnostic assignment
   routes:
     - overworld natural spawning in an explicitly configured runtime region
-    - /summon myvillage:demon_wolf
-    - myvillage:demon_wolf_spawn_egg
+    - /summon yuanxian:demon_wolf
+    - yuanxian:demon_wolf_spawn_egg
 
 debug_commands:
   permission: 2
   commands:
-    - /myvillage beast move <targets> <move_id>
-    - /myvillage beast status <targets>
-    - /myvillage beast debug on|off
+    - /yuanxian beast move <targets> <move_id>
+    - /yuanxian beast status <targets>
+    - /yuanxian beast debug on|off
 
 acceptance:
   build: true
@@ -320,9 +320,9 @@ acceptance:
   human_verdict_status: not_verified
 
 assumptions:
-  - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。
+  - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 yuanxian，Java 包根为 com.example.myvillage。
   - 妖狼不继承原版 Wolf；模型、动画、AI 与攻击状态机都是自有的，复用原版 ModelPart、AnimationDefinition 与 Goal 系统，不引入 GeckoLib 或新依赖。
-  - 招式时序与数值只存在于 data/myvillage/beast/demon_wolf.json，Java 与动画生成器都从它读取。
+  - 招式时序与数值只存在于 data/yuanxian/beast/demon_wolf.json，Java 与动画生成器都从它读取。
   - 声音直接复用原版狼的 SoundEvent，降低音高；不创建 sounds.json 条目或 OGG 文件。
   - 自然生成只在主世界有效运行时区域内发生；出生境界存盘且不随移动或重载重抽，命令与刷怪蛋保留未分配的基线属性。
 
@@ -336,6 +336,6 @@ out_of_scope:
   - visual_variants
 
 schema_limitations:
-  - attributes 只列出属性名并指向数据文件，不写数值；schema 要求的 max_health/movement_speed/follow_range 数值以 data/myvillage/beast/demon_wolf.json 为唯一来源，避免契约与调参漂移。
+  - attributes 只列出属性名并指向数据文件，不写数值；schema 要求的 max_health/movement_speed/follow_range 数值以 data/yuanxian/beast/demon_wolf.json 为唯一来源，避免契约与调参漂移。
   - rendering.final_texture_size、bones、shadow_radius 指向 tools/beastgen 生成的模型文件，图集尺寸由打包器决定，不在契约里重复。
   - schema 不校验招式数据、动画片段时长、刷怪蛋、声音或空 loot table；这些由 tools/validate_custom_entities.py、Java 加载器与单元测试、构建和游戏内验收覆盖。

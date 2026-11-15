@@ -74,7 +74,7 @@ class ArrayEvidence(AlchemyEvidence):
     def __init__(self, out, cases):
         super().__init__(out, 'zh_cn')
         self.cases = cases
-        self.layout = json.loads((ROOT/'src/main/resources/data/myvillage/alchemy/array.json').read_text())
+        self.layout = json.loads((ROOT/'src/main/resources/data/yuanxian/alchemy/array.json').read_text())
         self.recorders = []
         self.report.update(kind='alchemy_array', selected=cases, completed=[], unrun=list(cases),
                            mapped_input=[], native_fixtures=[],
@@ -146,7 +146,7 @@ class ArrayEvidence(AlchemyEvidence):
             role = cell['role'].lower()
             if role == 'air' or (cell['x'], cell['y'], cell['z']) == omit:
                 continue
-            block = 'myvillage:alchemy_array_'+role
+            block = 'yuanxian:alchemy_array_'+role
             self.rc(f'setblock {position(world_pos(origin, facing, cell))} {block}[facing={outward(facing,role)}]')
         self.report['native_fixtures'].append({'origin': origin, 'facing': facing, 'omitted': omit})
 
@@ -155,7 +155,7 @@ class ArrayEvidence(AlchemyEvidence):
         u = self.s.username
         for command in ('kill @e[type=minecraft:item]',f'clear {u}', f'gamemode survival {u}', f'yuanxian cultivation awaken {u}',
                         f'yuanxian cultivation initiate {u}',
-                        f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1',
+                        f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_1',
                         f'yuanxian cultivation crafting set {u} alchemy 100'):
             self.rc(command)
         self.poll(self.inspect, lambda data: data['formed'], 10, 'complete array')
@@ -196,7 +196,7 @@ class ArrayEvidence(AlchemyEvidence):
             self.close_menu()
         for i, item in enumerate(recipe['ingredients']):
             self.slot(i, item, batches)
-        self.slot(2, 'myvillage:low_grade_spirit_stone', batches*recipe['fuel_count'])
+        self.slot(2, 'yuanxian:low_grade_spirit_stone', batches*recipe['fuel_count'])
 
     def await_output(self, recipe):
         return self.poll(self.saved, lambda data: any(row['id'] == recipe['output']
@@ -263,12 +263,12 @@ class ArrayEvidence(AlchemyEvidence):
         # the exact new block, rather than accepting an animation or command plan.
         self.rc('setblock -1 -58 3 minecraft:air')
         self.poll(self.inspect, lambda data: not data['formed'], 10, 'missing mapped target')
-        self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:alchemy_array_casing')
+        self.rc(f'item replace entity {self.s.username} hotbar.0 with yuanxian:alchemy_array_casing')
         self.rc('setblock -1 -58 1 minecraft:smooth_stone')
         self.rc(f'tp {self.s.username} -.5 -57 1.5 0 52.64')
         self.s.game.key('1'); time.sleep(.5); self.s.game.xdo('click', '3')
         self.report['mapped_input'].append({'kind':'place_missing_casing','position':[-1,-58,3]})
-        self.poll(lambda:self.rc('execute if block -1 -58 3 myvillage:alchemy_array_casing'),
+        self.poll(lambda:self.rc('execute if block -1 -58 3 yuanxian:alchemy_array_casing'),
                   lambda reply:'Test passed' in reply, 8, 'real casing placement')
         self.poll(self.inspect, lambda data:data['formed'], 10, 'mapped repaired array')
         self.select()
@@ -329,14 +329,14 @@ class ArrayEvidence(AlchemyEvidence):
         finally:
             self.rc('tick unfreeze')
         self.rc('setblock 0 -59 2 minecraft:air')
-        self.rc('setblock 0 -60 3 myvillage:alchemy_array_casing[facing=north]')
+        self.rc('setblock 0 -60 3 yuanxian:alchemy_array_casing[facing=north]')
         self.poll(self.inspect,lambda state:state['formed'],8,'controller boundary fixture repaired')
 
     def hopper_feed(self, recipe, batches=1):
         """Administrator puts supply into donors; real hoppers perform transfer."""
         for i,item in enumerate(recipe['ingredients']):
             self.rc(f'item replace block -2 -59 4 container.{i} with {item} {batches}')
-        self.rc(f'item replace block 0 -59 6 container.0 with myvillage:low_grade_spirit_stone {recipe["fuel_count"]*batches}')
+        self.rc(f'item replace block 0 -59 6 container.0 with yuanxian:low_grade_spirit_stone {recipe["fuel_count"]*batches}')
 
     def chest_products(self):
         return quality_stacks(self.rc('data get block 1 -62 4 Items'))
@@ -412,7 +412,7 @@ class ArrayEvidence(AlchemyEvidence):
             # /item replace honors canPlaceItem, so intentionally closed output
             # slots need an explicit NBT fixture. Verify it before testing pause.
             stack={'Slot':slot,'id':recipe['output'],'count':64}
-            if quality>1: stack['components']={'myvillage:pill_quality':quality}
+            if quality>1: stack['components']={'yuanxian:pill_quality':quality}
             self.rc('data modify block '+position(ORIGIN)+' Items append value '+json.dumps(stack))
         before=self.saved()
         filled=saved_items(before)
@@ -457,7 +457,7 @@ class ArrayEvidence(AlchemyEvidence):
         restored = self.saved()
         self.check('real_restart_keeps_batch_and_authorization', frozen_identity(restored)==identity and
                    restored['Progress']==paused['Progress'] and saved_items(restored)==saved_items(paused), restored)
-        self.rc('setblock -1 -58 3 myvillage:alchemy_array_casing[facing=north]')
+        self.rc('setblock -1 -58 3 yuanxian:alchemy_array_casing[facing=north]')
         self.poll(self.inspect, lambda data:data['formed'], 8, 'repaired restart structure')
         done = self.await_output(recipe)
         outputs = [s for i,s in saved_items(done).items() if i>=3]
@@ -496,7 +496,7 @@ class ArrayEvidence(AlchemyEvidence):
         self.poll(self.inspect, lambda data:not data['formed'], 8, 'visual broken shell')
         time.sleep(.3); self.capture('array-unformed.png')
         recording = self.record('array-assembly.mp4',4)
-        self.rc('setblock -1 -58 3 myvillage:alchemy_array_casing[facing=north]')
+        self.rc('setblock -1 -58 3 yuanxian:alchemy_array_casing[facing=north]')
         self.poll(self.inspect, lambda data:data['formed'], 8, 'visual assembled shell')
         time.sleep(.12); self.capture('array-assembling-early.png')
         time.sleep(.4); self.capture('array-assembling-mid.png')
@@ -505,7 +505,7 @@ class ArrayEvidence(AlchemyEvidence):
         # The component mask must also unwind when the controller itself is removed.
         self.rc('setblock 0 -59 3 minecraft:air')
         time.sleep(.8); self.capture('array-controller-removed.png')
-        self.rc('setblock 0 -59 3 myvillage:alchemy_array_controller[facing=north]')
+        self.rc('setblock 0 -59 3 yuanxian:alchemy_array_controller[facing=north]')
         self.poll(self.inspect, lambda data:data['formed'], 8, 'controller restored')
         time.sleep(2.3); self.capture('array-controller-restored.png')
         self.s.game.key('F1')
@@ -554,11 +554,11 @@ class ArrayEvidence(AlchemyEvidence):
 
     def legacy(self):
         recipe = self.prepare(); self.close_menu()
-        self.rc('setblock 0 -60 0 myvillage:alchemy_furnace[facing=north]')
+        self.rc('setblock 0 -60 0 yuanxian:alchemy_furnace[facing=north]')
         # Reuse the real legacy UI only for this one bounded compatibility case.
         self.rc(f'tp {self.s.username} .5 -60 -2.5 0 20.5')
         time.sleep(.4)
-        for i,item in ((1,recipe['ingredients'][0]),(2,recipe['ingredients'][1]),(3,'myvillage:low_grade_spirit_stone')):
+        for i,item in ((1,recipe['ingredients'][0]),(2,recipe['ingredients'][1]),(3,'yuanxian:low_grade_spirit_stone')):
             self.rc(f'item replace block 0 -60 0 container.{i} with {item} {recipe["fuel_count"] if i==3 else 1}')
         self.s.game.xdo('click','3'); time.sleep(.5)
         self.poll(self.s.game.pointer_grabbed, lambda grabbed:grabbed is False, 8, 'legacy furnace menu')
@@ -608,27 +608,27 @@ class ArrayEvidence(AlchemyEvidence):
             self.rc(command)
         self.rc('setblock 3 -60 0 minecraft:chest')
         for index,(item,count) in enumerate([(recipe['formula'],1),
-                *[(item,32) for item in recipe['ingredients']],('myvillage:low_grade_spirit_stone',32),
-                ('myvillage:alchemy_array_casing',21),('myvillage:alchemy_array_controller',1),
-                ('myvillage:alchemy_array_input',1),('myvillage:alchemy_array_output',1),
-                ('myvillage:alchemy_array_fuel',1),('myvillage:alchemy_array_vent',1),('minecraft:hopper',8)]):
+                *[(item,32) for item in recipe['ingredients']],('yuanxian:low_grade_spirit_stone',32),
+                ('yuanxian:alchemy_array_casing',21),('yuanxian:alchemy_array_controller',1),
+                ('yuanxian:alchemy_array_input',1),('yuanxian:alchemy_array_output',1),
+                ('yuanxian:alchemy_array_fuel',1),('yuanxian:alchemy_array_vent',1),('minecraft:hopper',8)]):
             self.rc(f'item replace block 3 -60 0 container.{index} with {item} {count}')
         # New owner UUIDs must be able to awaken and learn in the exported world.
         # Keep this handoff station outside the disposable machine fixture bounds.
         for command in ('fill -8 -61 -1 -5 -61 5 minecraft:smooth_stone',
                         'fill -8 -60 -1 -5 -57 5 minecraft:air',
-                        'setblock -6 -60 0 myvillage:spirit_testing_stele',
-                        'setblock -6 -60 2 myvillage:technique_inheritance_stele',
+                        'setblock -6 -60 0 yuanxian:spirit_testing_stele',
+                        'setblock -6 -60 2 yuanxian:technique_inheritance_stele',
                         'setblock -6 -60 4 minecraft:chest'):
             self.rc(command)
-        supplies=[('myvillage:cultivation_handbook',1),('minecraft:iron_pickaxe',1),('minecraft:bread',64),
-                  ('myvillage:low_grade_spirit_stone',64)]
+        supplies=[('yuanxian:cultivation_handbook',1),('minecraft:iron_pickaxe',1),('minecraft:bread',64),
+                  ('yuanxian:low_grade_spirit_stone',64)]
         supplies.extend((definition['formula'],1) for definition in self.rules['recipes'])
         supplies.extend((herb,32) for definition in self.rules['recipes'] for herb in definition['ingredients'])
         for index,(item,count) in enumerate(supplies):
             self.rc(f'item replace block -6 -60 4 container.{index} with {item} {count}')
         self.check('showcase_awaken_and_formula_supplies_exist',
-                   'Test passed' in self.rc('execute if block -6 -60 0 myvillage:spirit_testing_stele')
+                   'Test passed' in self.rc('execute if block -6 -60 0 yuanxian:spirit_testing_stele')
                    and len(quality_stacks(self.rc('data get block -6 -60 4 Items')))==len(supplies),
                    {'testing_stele':[-6,-60,0],'inheritance_stele':[-6,-60,2],'supplies':[-6,-60,4]})
         self.check('showcase_is_formed_with_accessible_output_chest',self.inspect()['formed']

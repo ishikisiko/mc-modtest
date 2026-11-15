@@ -1,10 +1,10 @@
 # 雷角山君
 
-`myvillage:thunder_tiger` 是灰白底色、黑色虎纹、额生雷角的守巢首领。实体继承 `BeastEntity`，复用原版 `ModelPart`、生成骨骼与动画管线，不增加 GeckoLib 依赖。约六格的视觉身长与三格肩高由模型表达；服务器使用独立身体／头部 `PartEntity` 受伤几何。技术边界见 [战斗与实体契约](../contracts/combat-entities.md#hostile-beast-runtime)，机器可读契约为 `genops/contracts/entities/thunder_tiger.yaml`。
+`yuanxian:thunder_tiger` 是灰白底色、黑色虎纹、额生雷角的守巢首领。实体继承 `BeastEntity`，复用原版 `ModelPart`、生成骨骼与动画管线，不增加 GeckoLib 依赖。约六格的视觉身长与三格肩高由模型表达；服务器使用独立身体／头部 `PartEntity` 受伤几何。技术边界见 [战斗与实体契约](../contracts/combat-entities.md#hostile-beast-runtime)，机器可读契约为 `genops/contracts/entities/thunder_tiger.yaml`。
 
 ## 游玩入口
 
-主世界山地的新生成区块中会出现 `myvillage:thunder_tiger_lair` 洞府。可用群系、间距及地形均由 `data/myvillage/boss/thunder_tiger_lair.json` 决定。旧区块不会补放洞府；保留原有世界和玩家建筑。洞府锚点处于已加载区块、地面与生成空间安全、附近有存活的生存／冒险玩家且难度允许时，才绑定并生成一只首领。
+主世界山地的新生成区块中会出现 `yuanxian:thunder_tiger_lair` 洞府。可用群系、间距及地形均由 `data/yuanxian/boss/thunder_tiger_lair.json` 决定。旧区块不会补放洞府；保留原有世界和玩家建筑。洞府锚点处于已加载区块、地面与生成空间安全、附近有存活的生存／冒险玩家且难度允许时，才绑定并生成一只首领。
 
 玩家可用 `/exploration guide tiger` 阅读当前遭遇境界、位置线索、招式、断角、余震、撤退和零奖励说明。普通探索向导与城镇向导对话提供可点击的“山君传闻”。`ThunderTigerGuide` 从作者配置读取境界，仅发送提示，不查找世界结构、不生成实体、不修改进度。
 
@@ -20,7 +20,7 @@
 
 已选 A「朱砂横锋」：顶部居中、朱砂气血、枯墨轮廓、小印及淡金受伤残影；显示名称、实际出生境界、百分比、阶段和断角状态。B/C 保留于 [候选目录](../../art/ui/bossbar/README.md)，不作为运行时皮肤。
 
-`0.69.1-fix1` 按用户反馈替换默认像素字体：名称使用马善政 `boss_title`，境界／状态／百分比使用站酷小薇 `boss_detail`，通过 Minecraft 原生 TTF provider 三倍采样绘制。字体与舆图共用 `assets/myvillage/font/` 下未修改的上游文件和许可证，不覆盖全局默认字体；缺字回退原版。测宽和截断使用对应字体 Style，轻偏移字影替代默认硬像素阴影，并增加标题留白。
+`0.69.1-fix1` 按用户反馈替换默认像素字体：名称使用马善政 `boss_title`，境界／状态／百分比使用站酷小薇 `boss_detail`，通过 Minecraft 原生 TTF provider 三倍采样绘制。字体与舆图共用 `assets/yuanxian/font/` 下未修改的上游文件和许可证，不覆盖全局默认字体；缺字回退原版。测宽和截断使用对应字体 Style，轻偏移字影替代默认硬像素阴影，并增加标题留白。
 
 [字体修正记录](../testing/2026-10-20-bossbar-typography.md) 包含场景准备失败与修复、6 Java 检查、5 张真实字体画面、最终 jar 身份，以及与实机一致的生产类／字体资源检查。玩家审美未代为确认。
 
@@ -35,21 +35,21 @@
 以下命令需要相应管理员权限。`locate` 只查询结构位置；不会创建首领或重置洞府。
 
 ```mcfunction
-/locate structure myvillage:thunder_tiger_lair
-/yuanxian beast status @e[type=myvillage:thunder_tiger,sort=nearest,limit=1]
+/locate structure yuanxian:thunder_tiger_lair
+/yuanxian beast status @e[type=yuanxian:thunder_tiger,sort=nearest,limit=1]
 ```
 
 独立诊断实体与生成蛋入口：
 
 ```mcfunction
-/summon myvillage:thunder_tiger ~ ~ ~
-/give @s myvillage:thunder_tiger_spawn_egg
+/summon yuanxian:thunder_tiger ~ ~ ~
+/give @s yuanxian:thunder_tiger_spawn_egg
 ```
 
 诊断出生没有洞府柱绑定，不能通过普通墙面获得露角窗口。生成蛋可在现有创造物品栏找到。强制动作命令会绕过一般起手距离和冷却，属于开发者准备工具，不能作为真实战斗输入证明；断角后依然拒绝强制主要雷击。
 
 ```mcfunction
-/yuanxian beast move @e[type=myvillage:thunder_tiger,sort=nearest,limit=1] myvillage:thunder_tiger_pounce
+/yuanxian beast move @e[type=yuanxian:thunder_tiger,sort=nearest,limit=1] yuanxian:thunder_tiger_pounce
 /yuanxian beast debug on
 /yuanxian beast debug off
 ```
@@ -60,10 +60,10 @@
 
 | 内容 | 真相源／实现 |
 |---|---|
-| 基础属性、四招时序、范围和冷却 | `data/myvillage/beast/thunder_tiger.json`，保留通用 beast schema 1 |
-| 固定遭遇境界、两阶段、角、追击、粒子、表现时长与反馈参数 | `data/myvillage/beast/thunder_tiger_boss.json`；`ThunderTigerRules` 严格加载 |
+| 基础属性、四招时序、范围和冷却 | `data/yuanxian/beast/thunder_tiger.json`，保留通用 beast schema 1 |
+| 固定遭遇境界、两阶段、角、追击、粒子、表现时长与反馈参数 | `data/yuanxian/beast/thunder_tiger_boss.json`；`ThunderTigerRules` 严格加载 |
 | 服务器招式与真实部位、血条、同步和存档 | `entity/beast/ThunderTigerEntity.java`、`ThunderTigerPart.java` |
-| 洞府布局、柱脚中心、触发和自然分布 | `data/myvillage/boss/thunder_tiger_lair.json` |
+| 洞府布局、柱脚中心、触发和自然分布 | `data/yuanxian/boss/thunder_tiger_lair.json` |
 | 洞府生成资源 | `tools/gen_thunder_tiger_lair.py`；native structure、structure_set、template_pool、biome tag 和 NBT |
 | 单一首领槽及回执 | `boss/lair/ThunderTigerLairBlockEntity.java`、`LairProgress.java`、既有 `BattleReceipts` |
 | 灰白黑纹模型、UV、贴图和动画 | `tools/beastgen/defs/thunder_tiger.py`、`art/entities/thunder_tiger/`；`tools.beastgen` 生成运行时资源 |
@@ -71,9 +71,9 @@
 | 声音注册 | `entity/beast/ThunderTigerSounds.java`；录音复用原版，Boss 专用中英文字幕 |
 | 采集与证据判定工具 | `tools/thunder_tiger_evidence.py`、对应工具测试；实际运行证据另行记录 |
 
-模型与动画位于 `assets/myvillage/beast/thunder_tiger_{model,animations}.json`。基础图和局部发光图位于 `assets/myvillage/textures/entity/thunder_tiger/`，最终尺寸由模型文件决定。`horn_base` 保留断茬，断角隐藏 `horn_tip`。所有输出由各自生成器拥有，不手改生成文件。
+模型与动画位于 `assets/yuanxian/beast/thunder_tiger_{model,animations}.json`。基础图和局部发光图位于 `assets/yuanxian/textures/entity/thunder_tiger/`，最终尺寸由模型文件决定。`horn_base` 保留断茬，断角隐藏 `horn_tip`。所有输出由各自生成器拥有，不手改生成文件。
 
-声音事件为 `myvillage:thunder_tiger.<cue>`，包括 ambient、hurt、death、attack、charge、thunder、roar、horn_break 和 step。`sounds.json` 将事件指向原版录音，字幕使用 `subtitles.myvillage.thunder_tiger.<cue>`。这些是新事件与字幕别名，不是新录制音频。
+声音事件为 `yuanxian:thunder_tiger.<cue>`，包括 ambient、hurt、death、attack、charge、thunder、roar、horn_break 和 step。`sounds.json` 将事件指向原版录音，字幕使用 `subtitles.yuanxian.thunder_tiger.<cue>`。这些是新事件与字幕别名，不是新录制音频。
 
 ## 持久状态与安全边界
 

@@ -37,7 +37,7 @@ public final class PillQuality {
     }
 
     public static Component name(int quality) {
-        return Component.translatable("alchemy.myvillage.quality." + require(quality))
+        return Component.translatable("alchemy.yuanxian.quality." + require(quality))
                 .withStyle(style -> style.withColor(QualityDisplay.color(quality)));
     }
 

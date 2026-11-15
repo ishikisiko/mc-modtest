@@ -17,10 +17,10 @@ class DemonTrialResourcesTest(unittest.TestCase):
                 self.assertTrue(all(0<=a<b<=16 for a,b in zip(e['from'],e['to'])))
     def test_crafting_and_recipe_discovery_match(self):
         files=gen.outputs();recipe=json.loads(files[gen.DATA/'recipe/demon_lure_pearl.json'])
-        self.assertEqual(recipe['result'],{'id':'myvillage:demon_lure_pearl','count':1})
+        self.assertEqual(recipe['result'],{'id':'yuanxian:demon_lure_pearl','count':1})
         self.assertIn('minecraft:ender_pearl',[v.get('item') for v in recipe['key'].values()])
         advancement=json.loads(files[gen.DATA/'advancement/recipes/misc/demon_lure_pearl.json'])
-        self.assertEqual(advancement['rewards']['recipes'],['myvillage:demon_lure_pearl'])
+        self.assertEqual(advancement['rewards']['recipes'],['yuanxian:demon_lure_pearl'])
     def test_bilingual_keys_and_placeholders_match(self):
         self.assertEqual(gen.MESSAGES['zh_cn'].keys(),gen.MESSAGES['en_us'].keys())
         for k,v in gen.MESSAGES['zh_cn'].items():self.assertEqual(v.count('%s'),gen.MESSAGES['en_us'][k].count('%s'),k)

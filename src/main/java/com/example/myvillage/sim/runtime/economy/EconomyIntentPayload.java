@@ -6,7 +6,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 public record EconomyIntentPayload(int menuId, long token, int sequence, int row) implements CustomPacketPayload {
-    public static final Type<EconomyIntentPayload> TYPE = new Type<>(ResourceLocation.parse("myvillage:economy_intent"));
+    public static final Type<EconomyIntentPayload> TYPE = new Type<>(ResourceLocation.parse("yuanxian:economy_intent"));
     public static final StreamCodec<RegistryFriendlyByteBuf, EconomyIntentPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, EconomyIntentPayload::menuId, ByteBufCodecs.VAR_LONG, EconomyIntentPayload::token,
             ByteBufCodecs.VAR_INT, EconomyIntentPayload::sequence, ByteBufCodecs.VAR_INT, EconomyIntentPayload::row, EconomyIntentPayload::new);

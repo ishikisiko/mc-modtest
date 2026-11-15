@@ -143,7 +143,7 @@ class FireSpiritEffectsTest {
     }
 
     @Test void authoredDefinitionOwnsAllSixValuesAndIsNoLongerPlaceholder() throws Exception {
-        try (var stream = getClass().getResourceAsStream("/data/myvillage/myvillage/innate_fate/fire_spirit_body.json")) {
+        try (var stream = getClass().getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/fire_spirit_body.json")) {
             assertNotNull(stream);
             var json = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             assertFalse(json.getAsJsonObject().has("placeholder"));

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * {@code tools/buildgen/region_topology.py}.
  *
  * <p>The parity test points this at the shipped
- * {@code src/main/resources/data/myvillage/worldgen} tree. The runtime service
+ * {@code src/main/resources/data/yuanxian/worldgen} tree. The runtime service
  * (task group 3) adds a NeoForge {@code ResourceManager}-based loader that
  * reads the same JSON through the mod's resource pipeline; the {@code fromJson}
  * parsers on {@link Ruleset} / {@link RegionProfile} are shared by both paths
@@ -91,7 +91,7 @@ public final class RegionCatalogLoader {
      * the filesystem path so there is no second source of truth.
      *
      * @param resourceManager the server's resource manager
-     * @param namespace       the mod namespace ({@code myvillage})
+     * @param namespace       the mod namespace ({@code yuanxian})
      */
     public static RegionData loadFromResourceManager(
             net.minecraft.server.packs.resources.ResourceManager resourceManager,

@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DemonTrialRulesTest {
     private JsonObject json()throws Exception{
-        try(var in=getClass().getResourceAsStream("/data/myvillage/ruins/demon_trial.json")){
+        try(var in=getClass().getResourceAsStream("/data/yuanxian/ruins/demon_trial.json")){
             return JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject();
         }
     }

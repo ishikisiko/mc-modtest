@@ -125,7 +125,7 @@ def textures(catalog):
 
 def model(elements,family,texture_names):
     return {'parent':'minecraft:block/block','render_type':'minecraft:cutout','ambientocclusion':False,
-            'textures':{'particle':'#'+family['particle'],**{n:'myvillage:block/street_furniture/'+n for n in texture_names}},'elements':elements}
+            'textures':{'particle':'#'+family['particle'],**{n:'yuanxian:block/street_furniture/'+n for n in texture_names}},'elements':elements}
 
 
 def outputs(catalog):
@@ -135,13 +135,13 @@ def outputs(catalog):
         ident=f['id'];split=parts(f);variants={}
         runtime['families'].append({k:f[k] for k in ('id','name','size','sound','strength')}|{'parts':[{k:p[k] for k in ('offset','outline','collision','light')} for p in split]})
         for index,p in enumerate(split):
-            name=f'street_furniture/{ident}_p{index}';put(f'assets/myvillage/models/block/{name}.json',model(p['elements'],f,catalog['textures']))
+            name=f'street_furniture/{ident}_p{index}';put(f'assets/yuanxian/models/block/{name}.json',model(p['elements'],f,catalog['textures']))
             for facing,turn in [('north',0),('east',90),('south',180),('west',270)]:
                 for water in ('false','true'):
-                    value={'model':'myvillage:block/'+name}
+                    value={'model':'yuanxian:block/'+name}
                     if turn:value['y']=turn
                     variants[f'facing={facing},part={index},waterlogged={water}']=value
-        put(f'assets/myvillage/blockstates/{ident}.json',{'variants':variants})
+        put(f'assets/yuanxian/blockstates/{ident}.json',{'variants':variants})
         # Inventory geometry is centered and uniformly scaled; placed geometry is untouched.
         scale=1/max(f['size']);elements=[]
         for e in f['elements']:
@@ -155,24 +155,24 @@ def outputs(catalog):
             'thirdperson_righthand':{'rotation':[75,45,0],'translation':[0,2.5,0],'scale':[.375]*3},
             'firstperson_righthand':{'rotation':[0,45,0],'translation':[0,0,0],'scale':[.4]*3},
             'firstperson_lefthand':{'rotation':[0,225,0],'translation':[0,0,0],'scale':[.4]*3}}
-        put(f'assets/myvillage/models/item/{ident}.json',item)
-        put(f'data/myvillage/loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+ident}],
-            'conditions':[{'condition':'minecraft:block_state_property','block':'myvillage:'+ident,'properties':{'part':'0'}},{'condition':'minecraft:survives_explosion'}]}]})
-        put(f'data/myvillage/recipe/{ident}.json',{'type':'minecraft:crafting_shaped','category':'building',**f['recipe'],'result':{'id':'myvillage:'+ident,'count':1}})
-    put('data/myvillage/street_furniture/catalog.json',runtime)
-    for name,data in textures(catalog).items():files[f'assets/myvillage/textures/block/street_furniture/{name}.png']=data
+        put(f'assets/yuanxian/models/item/{ident}.json',item)
+        put(f'data/yuanxian/loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:'+ident}],
+            'conditions':[{'condition':'minecraft:block_state_property','block':'yuanxian:'+ident,'properties':{'part':'0'}},{'condition':'minecraft:survives_explosion'}]}]})
+        put(f'data/yuanxian/recipe/{ident}.json',{'type':'minecraft:crafting_shaped','category':'building',**f['recipe'],'result':{'id':'yuanxian:'+ident,'count':1}})
+    put('data/yuanxian/street_furniture/catalog.json',runtime)
+    for name,data in textures(catalog).items():files[f'assets/yuanxian/textures/block/street_furniture/{name}.png']=data
     return files
 
 
 def shared_outputs(catalog):
-    files={};owned={'myvillage:'+f['id'] for f in catalog['families']}
+    files={};owned={'yuanxian:'+f['id'] for f in catalog['families']}
     for language in ('zh_cn','en_us'):
-        relative=f'assets/myvillage/lang/{language}.json';p=RESOURCES/relative;data=read(p) if p.exists() else {}
-        for f in catalog['families']:data['block.myvillage.'+f['id']]=f['name']
+        relative=f'assets/yuanxian/lang/{language}.json';p=RESOURCES/relative;data=read(p) if p.exists() else {}
+        for f in catalog['families']:data['block.yuanxian.'+f['id']]=f['name']
         files[relative]=encoded(data)
     for tool in ('axe','pickaxe'):
         relative=f'data/minecraft/tags/block/mineable/{tool}.json';p=RESOURCES/relative;data=read(p) if p.exists() else {'replace':False,'values':[]}
-        data['values']=[x for x in data['values'] if x not in owned]+['myvillage:'+f['id'] for f in catalog['families'] if f['mineable']==tool]
+        data['values']=[x for x in data['values'] if x not in owned]+['yuanxian:'+f['id'] for f in catalog['families'] if f['mineable']==tool]
         files[relative]=encoded(data)
     return files
 

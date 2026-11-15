@@ -11,7 +11,7 @@ from tools.genops.models import TaskSpec
 
 
 GENERATED_DENY_PATTERNS = [
-    "src/main/resources/data/myvillage/structure/*.nbt",
+    "src/main/resources/data/yuanxian/structure/*.nbt",
     "reports/*.json",
     "reports/*.md",
     "out/preview/*",

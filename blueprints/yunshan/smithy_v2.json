@@ -1,5 +1,5 @@
 {
-  "id": "myvillage:yunshan_smithy_v2",
+  "id": "yuanxian:yunshan_smithy_v2",
   "author": "MyVillage",
   "mc_version": "1.21.1",
   "size": [
@@ -127,7 +127,7 @@
         1,
         15
       ],
-      "state": "myvillage:forging_table[facing=north,lit=false]",
+      "state": "yuanxian:forging_table[facing=north,lit=false]",
       "name": "炼器鼎",
       "approach": "forging"
     }
@@ -357,7 +357,7 @@
     {"op":"fill","from":[14,1,20],"to":[14,4,20],"state":"post"},
     {"op":"fill","from":[17,1,20],"to":[17,4,20],"state":"post"},
     {"op":"fill","from":[12,1,20],"to":[17,2,20],"state":"stone"},
-    {"op":"set","pos":[4,1,15],"state":"myvillage:forging_table[facing=north,lit=false]"},
+    {"op":"set","pos":[4,1,15],"state":"yuanxian:forging_table[facing=north,lit=false]"},
     {"op":"set","pos":[7,1,16],"state":"minecraft:smithing_table"},
     {"op":"set","pos":[3,1,19],"state":"minecraft:crafting_table"},
     {"op":"set","pos":[2,1,19],"state":"minecraft:barrel[facing=north,open=false]"},

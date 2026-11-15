@@ -49,7 +49,7 @@ class Server:
         self.process = None
         self.commands = []
         self.starts = 0
-        self.data = game/'world/data/myvillage/worldplan'
+        self.data = game/'world/data/yuanxian/worldplan'
 
     def command(self, text):
         with Rcon('127.0.0.1', self.rport, self.password, timeout=180) as connection:
@@ -89,7 +89,7 @@ class Server:
         properties = {'server-ip': '127.0.0.1', 'server-port': self.sport, 'online-mode': 'false',
             'enforce-secure-profile': 'false', 'enable-rcon': 'true', 'rcon.port': self.rport,
             'rcon.password': self.password, 'broadcast-rcon-to-ops': 'false', 'enable-query': 'false',
-            'level-name': 'world', 'level-seed': self.seed, 'level-type': 'myvillage\\:cultivation',
+            'level-name': 'world', 'level-seed': self.seed, 'level-type': 'yuanxian\\:cultivation',
             'generate-structures': 'true', 'gamemode': 'creative', 'difficulty': 'peaceful',
             'spawn-protection': 0, 'allow-flight': 'true', 'view-distance': max(3,min(24,getattr(self,'view_distance',4))), 'simulation-distance': 3,
             'max-tick-time': 180000, 'max-players': 2, 'sync-chunk-writes': 'true', 'pause-when-empty-seconds': -1}

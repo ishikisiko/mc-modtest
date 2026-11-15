@@ -52,7 +52,7 @@ public final class TestUnitScreen extends Screen {
     private final Screen parent;
     private final List<EntityType<?>> types = BuiltInRegistries.ENTITY_TYPE.stream()
             .filter(TestUnitRuntime::allowedType).filter(DefaultAttributes::hasSupplier)
-            .sorted(Comparator.<EntityType<?>>comparingInt(t -> id(t).equals("myvillage:cultivator") ? 0 : 1)
+            .sorted(Comparator.<EntityType<?>>comparingInt(t -> id(t).equals("yuanxian:cultivator") ? 0 : 1)
                     .thenComparing(t -> id(t))).toList();
     private EntityType<?> selectedType = types.getFirst();
     private final List<StatsRules.RealmDefinition> realms = StatsRules.bundled().realms();
@@ -175,7 +175,7 @@ public final class TestUnitScreen extends Screen {
                 : Component.translatable(realm.stages().get(stage).translationKey()).getString();
     }
     private static String quality(int value) { return switch (value) { case 1 -> "下品"; case 2 -> "中品"; case 3 -> "上品"; default -> "极品"; }; }
-    private boolean npc() { return id(selectedType).equals("myvillage:cultivator") || id(selectedType).equals("myvillage:ridge_reaver"); }
+    private boolean npc() { return id(selectedType).equals("yuanxian:cultivator") || id(selectedType).equals("yuanxian:ridge_reaver"); }
 
     @SuppressWarnings("unchecked")
     private List<Holder.Reference<Attribute>> availableAttributes() {
@@ -183,7 +183,7 @@ public final class TestUnitScreen extends Screen {
         return BuiltInRegistries.ATTRIBUTE.holders().filter(supplier::hasAttribute)
                 .sorted(Comparator.comparingInt((Holder.Reference<Attribute> a) -> {
                     String id = a.key().location().toString();
-                    int index = List.of("minecraft:generic.max_health", "minecraft:generic.attack_damage", "myvillage:body_defense",
+                    int index = List.of("minecraft:generic.max_health", "minecraft:generic.attack_damage", "yuanxian:body_defense",
                             "minecraft:generic.armor", "minecraft:generic.movement_speed", "minecraft:generic.follow_range").indexOf(id);
                     return index < 0 ? 100 : index;
                 }).thenComparing(a -> a.key().location().toString())).toList();

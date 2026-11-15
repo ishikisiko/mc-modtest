@@ -8,7 +8,7 @@ import java.util.*;
 
 /** Building-only view of the existing Chapter 1 scene. No story lifecycle writes. */
 public final class QianzhenRegionLayout {
-    public static final String RESOURCE="/data/myvillage/regiongen/qianzhen_region_v1.json";
+    public static final String RESOURCE="/data/yuanxian/regiongen/qianzhen_region_v1.json";
     public record Point(int x,int z) {}
     public record Tile(int x,int z,String template,String sha256) {}
     public final String id,resourceHash,layoutHash,sceneVersion,surface,foundation;
@@ -37,7 +37,7 @@ public final class QianzhenRegionLayout {
         for(var item:r.getAsJsonArray("tiles")){
             var t=item.getAsJsonObject();int x=QianzhenRegionRules.integer(t,"x",0,size-16),z=QianzhenRegionRules.integer(t,"z",0,size-16);
             String template=QianzhenRegionRules.text(t,"template"),hash=QianzhenRegionRules.text(t,"sha256");
-            if(x%16!=0||z%16!=0||!hash.matches("[a-f0-9]{64}")||!template.equals("myvillage:regiongen/"+id+"/tile_"+x/16+"_"+z/16))throw new IllegalArgumentException("Invalid Chapter 1 tile");
+            if(x%16!=0||z%16!=0||!hash.matches("[a-f0-9]{64}")||!template.equals("yuanxian:regiongen/"+id+"/tile_"+x/16+"_"+z/16))throw new IllegalArgumentException("Invalid Chapter 1 tile");
             if(selected.put(key(x,z),new Tile(x,z,template,hash))!=null)throw new IllegalArgumentException("Duplicate Chapter 1 tile");
         }
         if(selected.isEmpty())throw new IllegalArgumentException("Empty Chapter 1 settlement");tiles=Map.copyOf(selected);

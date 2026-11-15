@@ -77,7 +77,7 @@ def validate_services(data,blocks):
         pos = tuple(service['pos'])
         assert blocks[pos]==service['state'], f'overwritten facility {service["name"]}'
         name,props = nbt.parse_block_state(blocks[pos])
-        state_file = ROOT/'src/main/resources/assets/myvillage/blockstates'/f'{name.split(":")[1]}.json'
+        state_file = ROOT/'src/main/resources/assets/yuanxian/blockstates'/f'{name.split(":")[1]}.json'
         variants = json.loads(state_file.read_text())['variants']
         keys = [dict(p.split('=') for p in key.split(',')) if key else {} for key in variants]
         assert dict(props) in keys, f'unknown facility state: {blocks[pos]}'

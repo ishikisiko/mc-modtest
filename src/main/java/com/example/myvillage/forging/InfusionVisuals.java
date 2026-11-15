@@ -31,7 +31,7 @@ public record InfusionVisuals(int version,int sync_ticks,int segments,int stream
     private static final class Holder{static final InfusionVisuals VALUE=load();}
     public static InfusionVisuals get(){return Holder.VALUE;}
     private static InfusionVisuals load(){
-        try(var stream=InfusionVisuals.class.getResourceAsStream("/data/myvillage/forging/infusion_visuals.json")){
+        try(var stream=InfusionVisuals.class.getResourceAsStream("/data/yuanxian/forging/infusion_visuals.json")){
             if(stream==null)throw new IllegalStateException("Missing infusion visuals");return parse(new InputStreamReader(stream,StandardCharsets.UTF_8));
         }catch(IOException e){throw new IllegalStateException(e);}
     }

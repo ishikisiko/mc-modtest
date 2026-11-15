@@ -37,7 +37,7 @@ class PlannedSectTest {
                     assertTrue(plan.graph().geometry().reserved(x,z,0));
                 }
                 for(var other:plan.sectSites())if(s!=other)assertFalse(s.intersects(other.x()-other.margin(),other.z()-other.margin(),other.x()+other.width()+other.margin()-1,other.z()+other.depth()+other.margin()-1,0));
-                assertFalse(plan.allowsStructure("myvillage:sect",s.gateX(),s.gateZ()));
+                assertFalse(plan.allowsStructure("yuanxian:sect",s.gateX(),s.gateZ()));
             }
         }
     }

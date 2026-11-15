@@ -35,7 +35,7 @@ def mapped_swap_hands(driver, label):
 
 
 def load_sets(root=ROOT):
-    source = root / 'src/main/resources/data/myvillage/immortal_equipment/catalogue.json'
+    source = root / 'src/main/resources/data/yuanxian/immortal_equipment/catalogue.json'
     return [s['id'] for s in json.loads(source.read_text())['sets']]
 
 
@@ -50,7 +50,7 @@ def verify_launch_artifacts(root):
                 continue
             if name.startswith('com/example/myvillage/') and name.endswith('.class'):
                 actual = root / 'build/classes/java/main' / name
-            elif name.startswith(('assets/myvillage/', 'data/myvillage/')):
+            elif name.startswith(('assets/yuanxian/', 'data/yuanxian/')):
                 actual = root / 'build/resources/main' / name
             else:
                 continue
@@ -101,7 +101,7 @@ def make_collector():
         def start(self, reuse=False):
             cs.merge_options(cs.CLIENT_DIR/'options.txt', {
                 'key_key.swapOffhand': 'key.keyboard.f',
-                'key_key.myvillage.toggle_combat_mode': 'key.keyboard.r'})
+                'key_key.yuanxian.toggle_combat_mode': 'key.keyboard.r'})
             return super().start(reuse)
 
         def hands(self):
@@ -113,11 +113,11 @@ def make_collector():
             self.report['collector_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
             self.report['launch_entries_equal_jar'] = verify_launch_artifacts(ROOT)
             # DemoEvidence校验冻结源与唯一jar；这里补验证客户端实际使用的松散构建资源。
-            frozen = ROOT / 'src/main/resources/assets/myvillage/immortal_equipment'
+            frozen = ROOT / 'src/main/resources/assets/yuanxian/immortal_equipment'
             originals = [p for p in frozen.glob('*.json') if p.stem in self.designs]
             if len(originals) != 15: raise RuntimeError('冻结源缺十五套穿戴资源')
             for original in originals:
-                built = ROOT / 'build/resources/main/assets/myvillage/immortal_equipment' / original.name
+                built = ROOT / 'build/resources/main/assets/yuanxian/immortal_equipment' / original.name
                 if not built.is_file() or built.read_bytes() != original.read_bytes():
                     raise RuntimeError('运行资源与冻结源不同：' + str(built))
 
@@ -136,7 +136,7 @@ def make_collector():
             # 已用映射输入脱下并读回，再清理库存fixture；十五套不会挤满36格而妨碍后续脱装。
             self.rc(f'clear {self.username}')
             for index, (design, suffix, slot) in enumerate(rows):
-                identity = 'myvillage:' + design + '_' + suffix
+                identity = 'yuanxian:' + design + '_' + suffix
                 self.rc(f'item replace entity {self.username} hotbar.{index} with {identity}')
                 self.key(str(index + 1));self.right()
                 equipped = self.poll(self.armor_rows, lambda values: values.get(slot) == identity, label='映射穿戴' + identity)
@@ -147,7 +147,7 @@ def make_collector():
         def equip(self):
             for design in self.designs:
                 self.wear([(design, suffix, slot) for suffix, slot in ARMOR], design)
-                ingot='myvillage:'+design+'_ingot'
+                ingot='yuanxian:'+design+'_ingot'
                 self.rc(f'item replace entity {self.username} hotbar.4 with {ingot}')
                 self.key('5');self.capture(self.username+'-'+design+'-锭手持')
                 self.check(design+'_锭进入实际物品栏',self.count(ingot)==1,self.inventory())
@@ -165,7 +165,7 @@ def make_collector():
                 for design in ('qi_tingyu','jindan_zixiao','yuanying_jiuse','huashen_taixu'):
                     self.wear([(design,suffix,slot) for suffix,slot in ARMOR],design)
                     for weapon in ('qingfeng_sword','lingxiao_spear','xuantie_gauntlet'):
-                        identity='myvillage:'+weapon
+                        identity='yuanxian:'+weapon
                         self.rc(f'item replace entity {self.username} hotbar.4 with {identity}')
                         self.key('5')
                         self.poll(self.hands, lambda value: value == {'main': identity, 'off': None}, label='真实主手与空副手')
@@ -209,7 +209,7 @@ def make_collector():
 
         def reload(self):
             before = self.armor_rows()
-            self.check('重载前至少一件新装备', bool(before) and all(v.startswith('myvillage:') and not v.startswith('myvillage:xuantie_') for v in before.values()), before)
+            self.check('重载前至少一件新装备', bool(before) and all(v.startswith('yuanxian:') and not v.startswith('yuanxian:xuantie_') for v in before.values()), before)
             log = cs.CLIENT_DIR / 'logs/latest.log';offset = log.stat().st_size
             self.guard();self.s.game.xdo('keydown', 'F3')
             try:

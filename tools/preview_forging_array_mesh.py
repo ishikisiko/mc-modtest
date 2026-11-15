@@ -27,7 +27,7 @@ def main(argv=None):
     parser.add_argument("--out",type=Path,default=ROOT/"out/preview/forging_array/model")
     args = parser.parse_args(argv)
     args.out.mkdir(parents=True,exist_ok=True)
-    assets = args.root/"src/main/resources/assets/myvillage"
+    assets = args.root/"src/main/resources/assets/yuanxian"
     mesh_path = assets/"forging_array/formed_mesh.json"
     texture_path = assets/"textures/block/forging_array_formed.png"
     mesh = json.loads(mesh_path.read_text())

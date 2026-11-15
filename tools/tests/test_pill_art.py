@@ -50,7 +50,7 @@ class PillArtTest(unittest.TestCase):
     def test_both_resource_owners_publish_the_shared_composition(self):
         root = Path(__file__).resolve().parents[2]
         for kind in art.catalogue():
-            path = root / f"src/main/resources/assets/myvillage/textures/item/pill_{kind}.png"
+            path = root / f"src/main/resources/assets/yuanxian/textures/item/pill_{kind}.png"
             self.assertEqual(png(art.pill_icon(kind)), path.read_bytes(), kind)
 
     def test_invalid_composition_fails_instead_of_silently_changing_support(self):

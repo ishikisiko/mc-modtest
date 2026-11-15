@@ -19,12 +19,12 @@ See also:
 
 ```bash
 # Start: always look at the dry run first.
-python3 tools/new_combat_weapon.py scaffold --from myvillage:qingfeng_sword --id myvillage:jade_sword --dry-run
-python3 tools/new_combat_weapon.py scaffold --from myvillage:lingxiao_spear --id myvillage:iron_halberd \
-    --style myvillage:basic_halberd --moves thrust,sweep,hook,chop,lunge
+python3 tools/new_combat_weapon.py scaffold --from yuanxian:qingfeng_sword --id yuanxian:jade_sword --dry-run
+python3 tools/new_combat_weapon.py scaffold --from yuanxian:lingxiao_spear --id yuanxian:iron_halberd \
+    --style yuanxian:basic_halberd --moves thrust,sweep,hook,chop,lunge
 
 # Where it stands (exit 0 when no checked step is open, 1 otherwise, 2 for a bad request).
-python3 tools/new_combat_weapon.py progress myvillage:iron_halberd [--fast] [--json]
+python3 tools/new_combat_weapon.py progress yuanxian:iron_halberd [--fast] [--json]
 ```
 
 `scaffold` writes the weapon file, appends the weapon (and with `--style` the
@@ -50,15 +50,15 @@ name or contract that still holds `TODO(new_combat_weapon)`, is
 
 ### 1. Choose the weapon, its template, and its style (`choose`)
 
-- The weapon id is the item id, `myvillage:<lower_case_name>`.
+- The weapon id is the item id, `yuanxian:<lower_case_name>`.
 - Same move set as an existing weapon: template is a weapon of that style, no
   `--style`. The weapon is then drawn with that style's pose table, which was
   solved for the template's model (step 11 checks the fit), and the style's
   hit samples serve both weapons (step 10).
-- New move set: `--style myvillage:<name>`, and `--moves` with one name per
+- New move set: `--style yuanxian:<name>`, and `--moves` with one name per
   template move to get ids `<style>_NN_<name>`; without it the template's
   suffixes are kept.
-- Two-handed: start from `myvillage:lingxiao_spear`, so the rig copy carries
+- Two-handed: start from `yuanxian:lingxiao_spear`, so the rig copy carries
   `rig.off_hand` and the manual steps ask for `off_hand_grip_center` and
   `two_handed=True`.
 - No combat Java names an item (`combat/**`, `client/combat/**` resolve
@@ -106,7 +106,7 @@ offsets in Java.
 
 ### 7. Weapon file and index entries (`weapon-data`)
 
-Written by the scaffold: `data/myvillage/combat/weapon/<item>.json` (item,
+Written by the scaffold: `data/yuanxian/combat/weapon/<item>.json` (item,
 style, rig, geometry) and the index entries. Appending keeps the first weapon
 of a style and the first style in their roles.
 
@@ -221,7 +221,7 @@ example in the preview README.
 on this host only one Gradle or Minecraft job runs at a time. Views default
 by length (`fp,tp_back,tp_front` under 1.8 blocks, cropped quarter views
 above). `combo --layout sweep|line` and `--tick-rate` give multi-target and
-slowed server evidence. `/myvillage_pal_smoke` poses are visual probes, never
+slowed server evidence. `/yuanxian_pal_smoke` poses are visual probes, never
 mapped-click or server evidence.
 
 ### 21. Owner review and the not_verified list (`owner-review`)
@@ -246,12 +246,12 @@ fast-forward to `main`. Push only after the owner confirms.
 
 On a scratch copy of the repository at the 0.30.0 release commit:
 
-- `scaffold --from myvillage:lingxiao_spear --id myvillage:iron_halberd
-  --style myvillage:basic_halberd --moves thrust,sweep,hook,chop,lunge`
+- `scaffold --from yuanxian:lingxiao_spear --id yuanxian:iron_halberd
+  --style yuanxian:basic_halberd --moves thrust,sweep,hook,chop,lunge`
   wrote three files and changed three; `progress` then reported step 7 `DONE`,
   steps 8, 9, and 12 `PLACEHOLDER`, step 10 and 16 `BLOCKED` on step 6, and
   the rest `MISSING` with the file or finding behind each.
-- `scaffold --from myvillage:qingfeng_sword --id myvillage:jade_sword` (shared
+- `scaffold --from yuanxian:qingfeng_sword --id yuanxian:jade_sword` (shared
   style) wrote two files and changed three; step 8 was `N/A` and step 11
   `BLOCKED` until a model exists.
 - A second run, `--moves` without `--style`, an unknown template, and a
@@ -261,9 +261,9 @@ On a scratch copy of the repository at the 0.30.0 release commit:
 
 ## Third weapon: the Xuantie gauntlet (0.39.0)
 
-`myvillage:xuantie_gauntlet` (玄铁拳套, style `myvillage:basic_fist`) went through
-steps 2 to 20 from `scaffold --from myvillage:qingfeng_sword --style
-myvillage:basic_fist --moves straight_punch,horizontal_palm,uppercut,chop,step_double_strike`.
+`yuanxian:xuantie_gauntlet` (玄铁拳套, style `yuanxian:basic_fist`) went through
+steps 2 to 20 from `scaffold --from yuanxian:qingfeng_sword --style
+yuanxian:basic_fist --moves straight_punch,horizontal_palm,uppercut,chop,step_double_strike`.
 The steps held; what a worn weapon with a free off hand needed beyond them:
 
 - Contract: the format 2 names read for a gauntlet as cuff (`butt`), the hand

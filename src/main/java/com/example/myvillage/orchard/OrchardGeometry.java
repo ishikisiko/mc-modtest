@@ -14,7 +14,7 @@ final class OrchardGeometry {
     static VoxelShape fruit(int age) { return FRUIT[age]; }
     static VoxelShape lantern(boolean hanging) { return LANTERN[hanging?1:0]; }
     private static VoxelShape[] loadLantern() {
-        try(var stream=OrchardGeometry.class.getResourceAsStream("/data/myvillage/orchard/geometry.json")) {
+        try(var stream=OrchardGeometry.class.getResourceAsStream("/data/yuanxian/orchard/geometry.json")) {
             if(stream==null) throw new IllegalStateException("Missing orchard geometry");
             var root=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("lantern_shapes");
             var shapes=new VoxelShape[2];
@@ -30,7 +30,7 @@ final class OrchardGeometry {
         } catch(java.io.IOException e) { throw new IllegalStateException(e); }
     }
     private static VoxelShape[] load() {
-        try(var stream=OrchardGeometry.class.getResourceAsStream("/data/myvillage/orchard/geometry.json")) {
+        try(var stream=OrchardGeometry.class.getResourceAsStream("/data/yuanxian/orchard/geometry.json")) {
             if(stream==null) throw new IllegalStateException("Missing orchard geometry");
             var array=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("fruit_bounds");
             if(array.size()!=3) throw new IllegalStateException("Fruit geometry needs three stages");

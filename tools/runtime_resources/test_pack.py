@@ -15,9 +15,9 @@ from tools.runtime_resources.archive import compact
 
 class RuntimeResourcesTest(unittest.TestCase):
     def test_geometry_is_shared_across_materials_and_uv_without_changing_bytes(self):
-        a={'parent':'minecraft:block/block','ambientocclusion':False,'textures':{'a':'myvillage:block/a','particle':'#a'},
+        a={'parent':'minecraft:block/block','ambientocclusion':False,'textures':{'a':'yuanxian:block/a','particle':'#a'},
            'elements':[{'from':[0,0,0],'to':[16,16,16],'faces':{'north':{'texture':'#a','uv':[0,0,16,16],'cullface':'north'}}}]}
-        b=json.loads(json.dumps(a));b['textures']={'jade':'myvillage:block/jade','particle':'#jade'}
+        b=json.loads(json.dumps(a));b['textures']={'jade':'yuanxian:block/jade','particle':'#jade'}
         b['elements'][0]['faces']['north'].update(texture='#jade',uv=[1.25,2.5,14.75,15])
         ca,pa=factor_model(encoded(a)+b'\n');cb,pb=factor_model(encoded(b)+b'\n')
         self.assertEqual(ca,cb)
@@ -28,7 +28,7 @@ class RuntimeResourcesTest(unittest.TestCase):
         self.assertNotEqual(ca,factor_model(encoded(b)+b'\n')[0])
 
     def test_composite_order_and_procedural_book_regions_survive(self):
-        value={'loader':'myvillage:procedural_books','textures':{'book':'myvillage:block/book'},'book_regions':[[0,1,2,3,4,5,0,-8]],
+        value={'loader':'yuanxian:procedural_books','textures':{'book':'yuanxian:block/book'},'book_regions':[[0,1,2,3,4,5,0,-8]],
                'base_model':{'loader':'neoforge:composite','children':{'solid':{'elements':[]},'translucent':{'elements':[]}},
                              'item_render_order':['solid','translucent']}}
         blob=encoded(value)+b'\n';constants,parameters=factor_model(blob)
@@ -43,7 +43,7 @@ class RuntimeResourcesTest(unittest.TestCase):
         with self.assertRaises(ValueError):decode_records(blob,1)
 
     def test_path_validation_rejects_traversal_and_namespaces(self):
-        self.assertTrue(valid_path('assets/myvillage/models/block/a.json'))
+        self.assertTrue(valid_path('assets/yuanxian/models/block/a.json'))
         for value in ['', '/absolute','../escape','a//b','a/../b','a/./b','a\\b','a:b']:
             self.assertFalse(valid_path(value),value)
 
@@ -56,44 +56,44 @@ class RuntimeResourcesTest(unittest.TestCase):
 
     def test_build_output_contains_one_geometry_for_two_instances_and_no_expanded_copy(self):
         with tempfile.TemporaryDirectory()as tmp:
-            root=Path(tmp);cfg=json.loads(CONFIG.read_text());cfg.update(catalogs=['data/myvillage/catalog.json'],png_recompress=False)
+            root=Path(tmp);cfg=json.loads(CONFIG.read_text());cfg.update(catalogs=['data/yuanxian/catalog.json'],png_recompress=False)
             config=root/'rules.json';config.write_bytes(encoded(cfg))
             def write(name,value):
                 f=root/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(value)
-            write('data/myvillage/catalog.json',encoded({'banks':[{'id':'sample','profiles':[{},{}]}]}))
-            for i in range(2):write(f'assets/myvillage/models/block/sample/shape_{i}.json',encoded({'textures':{'all':f'myvillage:block/{i}'},'elements':[]})+b'\n')
-            for name in ['assets/myvillage/blockstates/sample.json','assets/myvillage/models/item/sample.json','data/myvillage/loot_table/blocks/sample.json']:
+            write('data/yuanxian/catalog.json',encoded({'banks':[{'id':'sample','profiles':[{},{}]}]}))
+            for i in range(2):write(f'assets/yuanxian/models/block/sample/shape_{i}.json',encoded({'textures':{'all':f'yuanxian:block/{i}'},'elements':[]})+b'\n')
+            for name in ['assets/yuanxian/blockstates/sample.json','assets/yuanxian/models/item/sample.json','data/yuanxian/loot_table/blocks/sample.json']:
                 write(name,b'{}\n')
-            write('assets/myvillage/models/equipment/probe.obj',b'mtllib probe.mtl\nv 0 0 0\n')
-            write('assets/myvillage/models/equipment/probe.mtl',b'newmtl material\n')
-            write('assets/myvillage/models/item/other.json',b'{ "parent": "minecraft:item/generated" }\n')
-            raw=gzip.compress(b'original structure bytes',mtime=0);write('data/myvillage/structure/sample.nbt',raw)
+            write('assets/yuanxian/models/equipment/probe.obj',b'mtllib probe.mtl\nv 0 0 0\n')
+            write('assets/yuanxian/models/equipment/probe.mtl',b'newmtl material\n')
+            write('assets/yuanxian/models/item/other.json',b'{ "parent": "minecraft:item/generated" }\n')
+            raw=gzip.compress(b'original structure bytes',mtime=0);write('data/yuanxian/structure/sample.nbt',raw)
             result=pack(root,config_path=config)
             self.assertEqual(1,result['shared_geometry_templates']);self.assertEqual(2,result['model_instances'])
-            self.assertEqual(9,result['logical_files']);self.assertEqual(3,result['other_model_resources']);self.assertFalse((root/'data/myvillage/structure/sample.nbt').exists())
-            self.assertTrue((root/'myvillage_packed/manifest.json').exists());self.assertTrue((root/'myvillage_packed/rules.json').exists())
+            self.assertEqual(9,result['logical_files']);self.assertEqual(3,result['other_model_resources']);self.assertFalse((root/'data/yuanxian/structure/sample.nbt').exists())
+            self.assertTrue((root/'yuanxian_packed/manifest.json').exists());self.assertTrue((root/'yuanxian_packed/rules.json').exists())
             from tools.runtime_resources.read import DirectoryResources
             reader=DirectoryResources(root)
-            self.assertEqual(raw,reader.read('data/myvillage/structure/sample.nbt'))
-            self.assertEqual(encoded({'textures':{'all':'myvillage:block/0'},'elements':[]})+b'\n',reader.read('assets/myvillage/models/block/sample/shape_0.json'))
-            self.assertEqual(b'mtllib probe.mtl\nv 0 0 0\n',reader.read('assets/myvillage/models/equipment/probe.obj'))
-            self.assertEqual(b'{ "parent": "minecraft:item/generated" }\n',reader.read('assets/myvillage/models/item/other.json'))
+            self.assertEqual(raw,reader.read('data/yuanxian/structure/sample.nbt'))
+            self.assertEqual(encoded({'textures':{'all':'yuanxian:block/0'},'elements':[]})+b'\n',reader.read('assets/yuanxian/models/block/sample/shape_0.json'))
+            self.assertEqual(b'mtllib probe.mtl\nv 0 0 0\n',reader.read('assets/yuanxian/models/equipment/probe.obj'))
+            self.assertEqual(b'{ "parent": "minecraft:item/generated" }\n',reader.read('assets/yuanxian/models/item/other.json'))
 
     def test_archive_normalization_preserves_payloads_and_chooses_smaller_group_storage(self):
         with tempfile.TemporaryDirectory()as tmp:
-            path=Path(tmp)/'test.jar';original={'META-INF/MANIFEST.MF':b'Manifest-Version: 1.0\n','test.class':b'\xca\xfe\xba\xbe','myvillage_packed/0.bytes.gz':gzip.compress(bytes(range(256)),mtime=0)}
+            path=Path(tmp)/'test.jar';original={'META-INF/MANIFEST.MF':b'Manifest-Version: 1.0\n','test.class':b'\xca\xfe\xba\xbe','yuanxian_packed/0.bytes.gz':gzip.compress(bytes(range(256)),mtime=0)}
             with zipfile.ZipFile(path,'w',compression=zipfile.ZIP_DEFLATED)as z:
                 for name,value in original.items():z.writestr(name,value)
             compact(path)
             with zipfile.ZipFile(path)as z:
                 self.assertEqual(original,{n:z.read(n)for n in z.namelist()})
-                self.assertEqual(zipfile.ZIP_STORED,z.getinfo('myvillage_packed/0.bytes.gz').compress_type)
+                self.assertEqual(zipfile.ZIP_STORED,z.getinfo('yuanxian_packed/0.bytes.gz').compress_type)
             repeated=gzip.compress(b'abc'*4096,mtime=0)
-            with zipfile.ZipFile(path,'a')as z:z.writestr('myvillage_packed/repeated.bytes.gz',repeated)
+            with zipfile.ZipFile(path,'a')as z:z.writestr('yuanxian_packed/repeated.bytes.gz',repeated)
             compact(path)
             with zipfile.ZipFile(path)as z:
-                self.assertEqual(repeated,z.read('myvillage_packed/repeated.bytes.gz'))
-                self.assertEqual(zipfile.ZIP_DEFLATED,z.getinfo('myvillage_packed/repeated.bytes.gz').compress_type)
+                self.assertEqual(repeated,z.read('yuanxian_packed/repeated.bytes.gz'))
+                self.assertEqual(zipfile.ZIP_DEFLATED,z.getinfo('yuanxian_packed/repeated.bytes.gz').compress_type)
 
 
 if __name__=='__main__':unittest.main()

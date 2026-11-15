@@ -16,13 +16,13 @@
 从模组创造栏取得装备，放入原版护甲槽试穿；也可使用命令，例如：
 
 ```mcfunction
-/give @s myvillage:qi_moqing_chestplate
-/give @s myvillage:yuanying_jiuse_ingot
+/give @s yuanxian:qi_moqing_chestplate
+/give @s yuanxian:yuanying_jiuse_ingot
 ```
 
 支持宽／细臂玩家，头饰、袖臂、腿部和背部装饰随对应骨骼运动。
 流光、局部发光和悬浮动作仅为装饰。客户端配置
-`myvillage-immortal-client.toml` 提供动效开关、距离与数量限制。
+`yuanxian-immortal-client.toml` 提供动效开关、距离与数量限制。
 当前不支持原版盔甲纹饰；附魔沿用原版护甲行为。
 
 检查范围见[模型采集方案](../testing/immortal-equipment-plan.md)。

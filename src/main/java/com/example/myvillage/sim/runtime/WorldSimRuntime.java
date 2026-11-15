@@ -383,7 +383,7 @@ public final class WorldSimRuntime {
     /** World rules support datapacks; NPC recipes share the player's bundled alchemy definition. */
     static SimData.ResourceOpener opener(ResourceManager resources) {
         return path -> {
-            if (path.equals("data/myvillage/alchemy/rules.json"))
+            if (path.equals("data/yuanxian/alchemy/rules.json"))
                 return WorldSimRuntime.class.getResourceAsStream("/" + path);
             if (!path.startsWith("data/")) {
                 return null;

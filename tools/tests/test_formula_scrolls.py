@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 class FormulaScrollTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.rules = json.loads((ROOT/'src/main/resources/data/myvillage/alchemy/rules.json').read_text())
+        cls.rules = json.loads((ROOT/'src/main/resources/data/yuanxian/alchemy/rules.json').read_text())
         cls.config = scroll_art.load(ROOT)
 
     def test_both_owners_emit_disjoint_complete_formula_resources(self):
@@ -34,7 +34,7 @@ class FormulaScrollTest(unittest.TestCase):
                 seen.add(image.tobytes())
                 reduced.add(image.resize((16,16),Image.Resampling.NEAREST).tobytes())
         self.assertFalse(emitted[0] & emitted[1])
-        expected = {ROOT/'src/main/resources/assets/myvillage/textures/item'/f"{r['formula'].split(':')[1]}.png" for r in self.rules['recipes']}
+        expected = {ROOT/'src/main/resources/assets/yuanxian/textures/item'/f"{r['formula'].split(':')[1]}.png" for r in self.rules['recipes']}
         self.assertEqual(expected, emitted[0] | emitted[1])
         self.assertEqual(14,len(seen));self.assertEqual(14,len(reduced))
 
@@ -61,7 +61,7 @@ class FormulaScrollTest(unittest.TestCase):
             rules = json.loads(json.dumps(self.rules))
             recipe = next(r for r in rules['recipes'] if r['id']=='zhuji_high')
             recipe.pop('scroll_quality')
-            target = root/'src/main/resources/data/myvillage/alchemy/rules.json';target.parent.mkdir(parents=True)
+            target = root/'src/main/resources/data/yuanxian/alchemy/rules.json';target.parent.mkdir(parents=True)
             target.write_text(json.dumps(rules))
             neutral = formulas.icon('zhuji_high',root)
             ordinary = formulas.icon('huiling',root)

@@ -11,14 +11,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CapitalOpeningRulesTest {
     private CapitalOpeningRules rules() throws Exception {
-        try (var in = Files.newBufferedReader(Path.of("src/main/resources/data/myvillage/story/capital_opening.json"))) { return CapitalOpeningRules.read(in); }
+        try (var in = Files.newBufferedReader(Path.of("src/main/resources/data/yuanxian/story/capital_opening.json"))) { return CapitalOpeningRules.read(in); }
     }
     @Test void everyCurrentCityHasRealBedsWorkPointsAndBoundedHomeWorkDistances() throws Exception {
         var opening = rules();
         try (var input = getClass().getResourceAsStream(WorldPlanRules.V11_RESOURCE)) {
             assertNotNull(input);
             var world = new WorldPlanRules(new String(input.readAllBytes(),StandardCharsets.UTF_8));
-            int maxDistance = JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/life_rules.json")))
+            int maxDistance = JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/life_rules.json")))
                     .getAsJsonObject().get("max_path_distance").getAsInt();
             for (var city : world.capitals.bundles) {
                 var places = city.life().getAsJsonArray("places");
@@ -40,7 +40,7 @@ class CapitalOpeningRulesTest {
         }
     }
     @Test void fractionalCountsAndDuplicateRolesCannotLoad() throws Exception {
-        var path = Path.of("src/main/resources/data/myvillage/story/capital_opening.json");
+        var path = Path.of("src/main/resources/data/yuanxian/story/capital_opening.json");
         var json=JsonParser.parseString(Files.readString(path)).getAsJsonObject(); json.getAsJsonObject("work").addProperty("count",1.5);
         assertThrows(ArithmeticException.class,()->CapitalOpeningRules.read(new StringReader(json.toString())));
         json.getAsJsonObject("work").addProperty("count",3);

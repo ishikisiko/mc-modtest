@@ -17,7 +17,7 @@ class NpcDialogueTest {
     @Test void headlessPagesResolveChineseLabelsWithoutTheServersLocale() {
         assertEquals("炼气",NpcDialogueText.of(com.example.myvillage.sim.runtime.WorldSimText.realm("qi_refining")));
         assertEquals("采药",NpcDialogueText.of(com.example.myvillage.sim.runtime.life.NpcLifeInteraction.activityText("gather")));
-        assertEquals("正在赶路",NpcDialogueText.of(net.minecraft.network.chat.Component.translatable("message.myvillage.life.phase.moving")));
+        assertEquals("正在赶路",NpcDialogueText.of(net.minecraft.network.chat.Component.translatable("message.yuanxian.life.phase.moving")));
         assertEquals("近况未明",NpcDialogueText.of(net.minecraft.network.chat.Component.translatable("world_sim.realm.unknown")));
         assertEquals("炼制丹药",NpcDialogueText.of(com.example.myvillage.sim.runtime.life.NpcLifeInteraction.activityText("brew")));
         assertTrue(NpcDialogueText.of(com.example.myvillage.sim.runtime.life.NpcLifeInteraction.reasonText("brew_pills")).contains("丹方"));
@@ -122,7 +122,7 @@ class NpcDialogueTest {
         sessions.forget(player);assertNull(sessions.current(player));
     }
     private static com.example.myvillage.sim.fate.NpcFateRoll fates() {
-        return new com.example.myvillage.sim.fate.NpcFateRoll(List.of("myvillage:robust", "myvillage:bright", "myvillage:future_trait"), 9, 7);
+        return new com.example.myvillage.sim.fate.NpcFateRoll(List.of("yuanxian:robust", "yuanxian:bright", "yuanxian:future_trait"), 9, 7);
     }
     @Test void independentWireChannelsRoundTripChineseAndRetainBounds() {
         var b=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
@@ -140,13 +140,13 @@ class NpcDialogueTest {
     }
     @Test void professionDetailsRoundTripEveryStatusPageWithinTheExistingWireBounds() {
         var resident = new com.example.myvillage.sim.profession.ProfessionView(7, "spirit_grower", 0, 0, 21, 1, 0, 0,
-                Map.of("myvillage:spirit_leaf", 2), 3);
+                Map.of("yuanxian:spirit_leaf", 2), 3);
         var gardens = java.util.stream.IntStream.range(0, 12)
                 .mapToObj(i -> new com.example.myvillage.sim.profession.ProfessionSupplyView.GardenView("garden_" + i,
-                        "myvillage:spirit_leaf", 50, 200, i % 2 == 0)).toList();
+                        "yuanxian:spirit_leaf", 50, 200, i % 2 == 0)).toList();
         var lines = new ArrayList<>(NpcProfessionText.resident(resident));
         lines.addAll(NpcProfessionText.supply(new com.example.myvillage.sim.profession.ProfessionSupplyView("town",
-                Map.of("myvillage:spirit_leaf", 4), 5, gardens), 100));
+                Map.of("yuanxian:spirit_leaf", 4), 5, gardens), 100));
         var portrait = PortraitAssign.of(7, false, "qi_refining", "rogue", -1, 20,
                 new int[]{2000,2000,2000,2000,2000}, new int[]{50,50,50,50,50}, 0, true);
         var b = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);

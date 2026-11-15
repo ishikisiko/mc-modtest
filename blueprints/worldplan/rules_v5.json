@@ -1,6 +1,6 @@
 {
   "base": "rules_v4.json",
-  "algorithm": "myvillage:worldplan_v5",
+  "algorithm": "yuanxian:worldplan_v5",
   "settlements": {
     "layout": "bay_terraces_v1",
     "attempts_per_region": 256,

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TechniquePracticeSessionTest {
-    private static final ResourceLocation TECHNIQUE = ResourceLocation.parse("myvillage:jianqi_jue");
+    private static final ResourceLocation TECHNIQUE = ResourceLocation.parse("yuanxian:jianqi_jue");
     @Test void practiceOwnsOneSessionAndOnlyFullActiveBatchesCanSettle() {
         var session = MeditationSession.practice(TECHNIQUE, 0, 64, 0, Level.OVERWORLD);
         assertTrue(session.status(MeditationStopReason.PRACTICE_ACCEPTED).study().isEmpty());

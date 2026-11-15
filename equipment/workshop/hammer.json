@@ -10,6 +10,6 @@
       "P": {"tag": "minecraft:planks"},
       "S": {"item": "minecraft:stick"}
     },
-    "result": {"id": "myvillage:forging_hammer", "count": 1}
+    "result": {"id": "yuanxian:forging_hammer", "count": 1}
   }
 }

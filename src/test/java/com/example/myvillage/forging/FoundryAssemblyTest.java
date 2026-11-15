@@ -93,7 +93,7 @@ class FoundryAssemblyTest {
         for(String kind:java.util.List.of("helmet","chestplate","leggings","boots")){
             var item=AssemblyPlan.prepare(ground("xuantie_"+kind,8000),new ItemStack(Items.LEATHER),2).result();
             var modifiers=item.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers().stream()
-                    .filter(e->e.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR)&&e.modifier().id().getNamespace().equals("myvillage")).toList();
+                    .filter(e->e.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR)&&e.modifier().id().getNamespace().equals("yuanxian")).toList();
             assertEquals(1,modifiers.size(),kind);assertTrue(modifiers.getFirst().modifier().amount()>0);
             assertTrue(ids.add(modifiers.getFirst().modifier().id()),"Each armor slot needs its own modifier identity");
             double base=item.getItem().getDefaultInstance().getAttributeModifiers().modifiers().stream().filter(e->e.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR)).mapToDouble(e->e.modifier().amount()).sum();

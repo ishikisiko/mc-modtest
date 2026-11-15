@@ -24,13 +24,13 @@ public final class AptitudeContent {
     private AptitudeContent() { }
     public static void bootstrap() { }
     public static CompoundTag data(ItemStack stack) {
-        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("myvillage_aptitude");
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("yuanxian_aptitude");
     }
     public static ItemStack create(String kind, String aptitude, int tier) {
         ItemStack result = new ItemStack(switch(kind) { case "fruit" -> FRUIT.get(); case "book" -> BOOK.get();
             case "memory" -> MEMORY.get(); case "research" -> RESEARCH.get(); default -> throw new IllegalArgumentException(kind); });
         CompoundTag payload = new CompoundTag(); payload.putString("aptitude", aptitude); payload.putInt("tier", tier);
-        CompoundTag root = new CompoundTag(); root.put("myvillage_aptitude", payload);
+        CompoundTag root = new CompoundTag(); root.put("yuanxian_aptitude", payload);
         result.set(DataComponents.CUSTOM_DATA, CustomData.of(root)); return result;
     }
     public static final class TrainingItem extends Item {

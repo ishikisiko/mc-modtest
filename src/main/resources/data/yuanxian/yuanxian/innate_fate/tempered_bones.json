@@ -1,0 +1,13 @@
+{
+  "translation_key": "fate.yuanxian.tempered_bones",
+  "description_key": "fate.yuanxian.tempered_bones.description",
+  "tier": 3,
+  "cost": 4,
+  "group": "spirit_body",
+  "effects": {
+    "bones_threshold": 0.3,
+    "bones_damage_bonus": 1.0,
+    "bones_knockback_radius": 4.0,
+    "bones_knockback_strength": 1.0
+  }
+}

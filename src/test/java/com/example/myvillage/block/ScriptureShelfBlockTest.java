@@ -53,7 +53,7 @@ class ScriptureShelfBlockTest {
         synchronized (registry) {
             registry.unfreeze();
             try {
-                block = Registry.register(registry, ResourceLocation.fromNamespaceAndPath("myvillage_test", "scripture_shelf_block"),
+                block = Registry.register(registry, ResourceLocation.fromNamespaceAndPath("yuanxian_test", "scripture_shelf_block"),
                         new ScriptureShelfBlock(BlockBehaviour.Properties.of().noOcclusion()));
             } finally {
                 registry.freeze();
@@ -179,17 +179,17 @@ class ScriptureShelfBlockTest {
     @Test
     void onlyTheRootLootPoolCanProduceTheSingleShelfItem() throws Exception {
         JsonObject loot = JsonParser.parseString(Files.readString(Path.of(
-                "src/main/resources/data/myvillage/loot_table/blocks/scripture_shelf.json"))).getAsJsonObject();
+                "src/main/resources/data/yuanxian/loot_table/blocks/scripture_shelf.json"))).getAsJsonObject();
         assertEquals(1, loot.getAsJsonArray("pools").size());
         JsonObject pool = loot.getAsJsonArray("pools").get(0).getAsJsonObject();
         assertEquals(1, pool.get("rolls").getAsInt());
         assertEquals(1, pool.getAsJsonArray("entries").size());
-        assertEquals("myvillage:scripture_shelf", pool.getAsJsonArray("entries").get(0).getAsJsonObject().get("name").getAsString());
+        assertEquals("yuanxian:scripture_shelf", pool.getAsJsonArray("entries").get(0).getAsJsonObject().get("name").getAsString());
         boolean rootOnly = false;
         for (var value : pool.getAsJsonArray("conditions")) {
             JsonObject condition = value.getAsJsonObject();
             if (condition.get("condition").getAsString().equals("minecraft:block_state_property")) {
-                assertEquals("myvillage:scripture_shelf", condition.get("block").getAsString());
+                assertEquals("yuanxian:scripture_shelf", condition.get("block").getAsString());
                 assertEquals("lower", condition.getAsJsonObject("properties").get("half").getAsString());
                 rootOnly = true;
             }

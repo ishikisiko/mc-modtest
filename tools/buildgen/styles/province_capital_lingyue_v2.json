@@ -96,7 +96,7 @@
       "minecraft:stone_bricks"
     ],
     "EXTERIOR_FLOOR": [
-      "myvillage:manor_town_grey_flagstone",
+      "yuanxian:manor_town_grey_flagstone",
       "minecraft:stone_bricks"
     ]
   },

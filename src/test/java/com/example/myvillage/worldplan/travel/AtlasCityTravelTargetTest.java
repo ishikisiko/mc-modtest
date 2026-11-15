@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AtlasCityTravelTargetTest {
     private WorldPlan plan(int version) throws Exception {
-        String path="/data/myvillage/worldplan/frozen_v"+version+".json";
+        String path="/data/yuanxian/worldplan/frozen_v"+version+".json";
         try (var in=getClass().getResourceAsStream(path)) {
             assertNotNull(in,"必须先经正常资源生成提供 "+path);
             return new WorldPlan(20261029,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));

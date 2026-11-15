@@ -29,25 +29,25 @@ def model(azure):
             parts.append(box(a,b,'jade'))
             parts.append(box([16-b[0],a[1],a[2]],[16-a[0],b[1],b[2]],'jade'))
         parts += [box([6.2,3,6.7],[6.5,19,7.1],'gold'),box([9.5,3,6.7],[9.8,19,7.1],'gold')]
-    return {'textures':{'palette':'myvillage:item/flying_sword_palette','particle':'myvillage:item/flying_sword_palette'},'elements':parts,
+    return {'textures':{'palette':'yuanxian:item/flying_sword_palette','particle':'yuanxian:item/flying_sword_palette'},'elements':parts,
             'display':{'gui':{'rotation':[20,0,-35],'translation':[0,0,0],'scale':[.48,.48,.48]},
                        'ground':{'rotation':[0,0,0],'translation':[0,3,0],'scale':[.32,.32,.32]},
                        'thirdperson_righthand':{'rotation':[0,-90,15],'translation':[0,0,0],'scale':[.55,.55,.55]},
                        'firstperson_righthand':{'rotation':[0,-90,25],'translation':[0,0,0],'scale':[.55,.55,.55]}}}
 
 def outputs():
-    result={RES/'assets/myvillage/flying_sword/visuals.json':(ROOT/'tools/flying_sword/visuals.json').read_bytes()}
+    result={RES/'assets/yuanxian/flying_sword/visuals.json':(ROOT/'tools/flying_sword/visuals.json').read_bytes()}
     for name,azure in [('rideable_flying_sword',False),('azure_cloud_flying_sword',True)]:
-        result[RES/f'assets/myvillage/models/item/{name}.json']=(json.dumps(model(azure),indent=2)+'\n').encode()
+        result[RES/f'assets/yuanxian/models/item/{name}.json']=(json.dumps(model(azure),indent=2)+'\n').encode()
         key={'I':{'item':'minecraft:iron_ingot'},'D':{'item':'minecraft:diamond'},'S':{'item':'minecraft:stick'}}
-        recipe={'type':'minecraft:crafting_shaped','category':'equipment','pattern':['  I',' I ','S  '], 'key':{'I':key['I'],'S':key['S']},'result':{'id':f'myvillage:{name}','count':1}}
-        if azure: recipe.update(pattern=[' D ','DID',' D '],key={'D':key['D'],'I':{'item':'myvillage:rideable_flying_sword'}})
-        result[RES/f'data/myvillage/recipe/{name}.json']=(json.dumps(recipe,indent=2)+'\n').encode()
+        recipe={'type':'minecraft:crafting_shaped','category':'equipment','pattern':['  I',' I ','S  '], 'key':{'I':key['I'],'S':key['S']},'result':{'id':f'yuanxian:{name}','count':1}}
+        if azure: recipe.update(pattern=[' D ','DID',' D '],key={'D':key['D'],'I':{'item':'yuanxian:rideable_flying_sword'}})
+        result[RES/f'data/yuanxian/recipe/{name}.json']=(json.dumps(recipe,indent=2)+'\n').encode()
     def chunk(kind,data):
         return struct.pack('>I',len(data))+kind+data+struct.pack('>I',zlib.crc32(kind+data)&0xffffffff)
     pixels=b''.join(bytes.fromhex(c[1:])*4 for c in COLORS.values())+bytes(12*3)
     png=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',32,8,8,2,0,0,0))+chunk(b'IDAT',zlib.compress((b'\0'+pixels)*8))+chunk(b'IEND',b'')
-    result[RES/'assets/myvillage/textures/item/flying_sword_palette.png']=png
+    result[RES/'assets/yuanxian/textures/item/flying_sword_palette.png']=png
     return result
 
 def preview(out):
@@ -58,11 +58,11 @@ def preview(out):
     out.mkdir(parents=True,exist_ok=True)
     font=ImageFont.truetype('/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc',24)
     sheet=Image.new('RGB',(1650,640),'#edf0e9');draw=ImageDraw.Draw(sheet)
-    old=Image.open(RES/'assets/myvillage/textures/item/rideable_flying_sword.png').convert('RGBA').resize((440,440),Image.Resampling.NEAREST)
+    old=Image.open(RES/'assets/yuanxian/textures/item/rideable_flying_sword.png').convert('RGBA').resize((440,440),Image.Resampling.NEAREST)
     sheet.paste(old,(55,100),old);draw.text((30,25),'旧版参考：平面占位图',font=font,fill='#253c41')
     assets=Assets([RES],None)
     for i,(name,title) in enumerate([('rideable_flying_sword','基础飞剑：厚刃与剑脊'),('azure_cloud_flying_sword','青霄飞剑：青玉、金纹、承托')],1):
-        m=ItemModel(assets,'myvillage:item/'+name)
+        m=ItemModel(assets,'yuanxian:item/'+name)
         if m.messages():raise ValueError(m.messages())
         quads=transform_quads(m.base.quads,affine(rot_xyz(90,0,0)))
         image,_,_=render(quads,Camera((.7,.9,.75)),520,bg=(237,240,233))

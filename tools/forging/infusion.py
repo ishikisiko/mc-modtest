@@ -15,13 +15,13 @@ def outputs(root=ROOT):
   presentation[rid]={'center':center,'scale':extent*16/max(b-a for a,b in zip(lo,hi)), 'rotate_z':0 if catalogue.armor(rid) else 90}
  config['items']=presentation
  base=root/'src/main/resources'
- out={base/'data/myvillage/forging/infusion_visuals.json':(json.dumps(config,ensure_ascii=False,indent=2)+'\n').encode()}
+ out={base/'data/yuanxian/forging/infusion_visuals.json':(json.dumps(config,ensure_ascii=False,indent=2)+'\n').encode()}
  # White transparent-edged strip; renderer supplies the authored jade/gold tint.
  rows=[]
  for y in range(16):
   a=round(255*max(0,1-abs((y+.5)/8-1))**.5)
   rows.append([(255,255,255,a)]*16)
- out[base/'assets/myvillage/textures/effect/infusion_ribbon.png']=png(rows)
+ out[base/'assets/yuanxian/textures/effect/infusion_ribbon.png']=png(rows)
  # Eight original geometric seal marks in a horizontal atlas. No external font or raster dependency.
  c=Canvas(128)
  for i in range(8):
@@ -34,5 +34,5 @@ def outputs(root=ROOT):
   else:line(4,1,10,1)
   if i&4:line(3,13,6,10);line(8,10,11,13)
   else:line(4,13,10,13)
- out[base/'assets/myvillage/textures/effect/infusion_runes.png']=png(c.rows[:16])
+ out[base/'assets/yuanxian/textures/effect/infusion_runes.png']=png(c.rows[:16])
  return out

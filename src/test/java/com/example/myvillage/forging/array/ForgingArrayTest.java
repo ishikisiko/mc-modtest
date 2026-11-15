@@ -175,7 +175,7 @@ class ForgingArrayTest {
     }
 
     private static String rulesText() throws IOException {
-        try (var stream = ForgingArrayTest.class.getResourceAsStream("/data/myvillage/forging/array.json")) {
+        try (var stream = ForgingArrayTest.class.getResourceAsStream("/data/yuanxian/forging/array.json")) {
             return new String(Objects.requireNonNull(stream).readAllBytes(), StandardCharsets.UTF_8);
         }
     }

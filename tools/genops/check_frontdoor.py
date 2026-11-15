@@ -27,7 +27,7 @@ PROTECTED_PATTERNS: list[tuple[str, str]] = [
     ("gradle.properties", "release"),
     ("src/main/resources/META-INF/neoforge.mods.toml", "release"),
     ("CHANGELOG.md", "release"),
-    ("src/main/resources/data/myvillage/structure/*.nbt", "generated-structure"),
+    ("src/main/resources/data/yuanxian/structure/*.nbt", "generated-structure"),
     ("src/main/java/**", "runtime-java"),
     ("src/main/resources/assets/**", "client-resource"),
     ("src/main/resources/data/**", "data-resource"),

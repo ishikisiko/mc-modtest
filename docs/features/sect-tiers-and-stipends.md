@@ -40,6 +40,6 @@
 
 ## 配置与验证
 
-配置入口为 `data/myvillage/world_sim/rules.json` 的 `sect_progression`：等级、地区分配、宗主概率、总舵与主宗晋升门槛、币种、金额及考核参数。分宗晋升基础门槛仍由 `player.promotion` 定义。命簿格式15、网络协议67；当前开发版不做旧格式迁移。
+配置入口为 `data/yuanxian/world_sim/rules.json` 的 `sect_progression`：等级、地区分配、宗主概率、总舵与主宗晋升门槛、币种、金额及考核参数。分宗晋升基础门槛仍由 `player.promotion` 定义。命簿格式15、网络协议67；当前开发版不做旧格式迁移。
 
 局部检查覆盖实际配置、生成境界、月结幂等、部分领取、退出重入、保存恢复、考核目标绑定和分级晋升。`-PsectProgressionEvidence` 加载独立新世界原生探针，启用时禁止打包；原生回执和玩家映射操作分别报告，探针不能替代玩家战斗手感与界面验收。

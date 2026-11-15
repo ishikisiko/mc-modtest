@@ -17,9 +17,9 @@ and the realm stage mortal_qi_sensed.
    a) ``world player <p>`` names it, b) the latest ``SECT_TASK player=<p> kind=<k>`` server line, c) the
    ``SectDialogue: <p> speaks ...`` line or the chat line of the acceptance (client log ``[CHAT]``, en_us task
    name), else ``unknown`` (then all three are tried; the first ``SECT_TASK`` line settles it).
-3. The work. patrol: ``summon myvillage:demon_wolf ... {NoAI:1b}`` next to the player at the steward (the sect's
+3. The work. patrol: ``summon yuanxian:demon_wolf ... {NoAI:1b}`` next to the player at the steward (the sect's
    region), ``damage ... 1000 minecraft:player_attack by <p>``, one ``SECT_TASK ... kind=patrol progress=<i>/3``
-   per kill. tribute: ``give <p> myvillage:low_grade_spirit_stone 5``, counted in ``data get entity <p>
+   per kill. tribute: ``give <p> yuanxian:low_grade_spirit_stone 5``, counted in ``data get entity <p>
    Inventory``. courier: ``tp`` to the gate of another active sect (the one the task names first, if any text
    names it), ``SECT_TASK ... kind=courier progress=1/1`` within 15 s; back to the steward.
 4. Right click the steward: ``option=TASK_TURN_IN``, shot ``task_ready.png``, a click,
@@ -90,8 +90,8 @@ ITEM_ID = re.compile(r"\bid: ?\"([^\"]+)\"")
 ITEM_COUNT = re.compile(r"\b[Cc]ount: ?(\d+)")
 WITH_FIRST = re.compile(r'"with":\["((?:[^"\\]|\\.)*)"')
 
-STONE = "myvillage:low_grade_spirit_stone"
-WOLF = "myvillage:demon_wolf"
+STONE = "yuanxian:low_grade_spirit_stone"
+WOLF = "yuanxian:demon_wolf"
 NONE_WORDS = ("none", "无", "")
 
 KINDS = ("patrol", "tribute", "courier")
@@ -154,7 +154,7 @@ def master_of(record: str) -> str | None:
 
 
 def progress_of(info: str) -> int | None:
-    """``cultivation progress: N`` of ``myvillage cultivation info <p>``."""
+    """``cultivation progress: N`` of ``yuanxian cultivation info <p>``."""
     m = PROGRESS.search(info)
     return int(m.group(1)) if m else None
 
@@ -827,7 +827,7 @@ class Run(entry.Run):
             if self.court:
                 self.tp(*self.court, 180.0, 10.0, settle=2.0)
             if not med.get("realm_set"):
-                r = self.rc(f"yuanxian cultivation setrealm {PLAYER} myvillage:qi_refining myvillage:qi_refining_1")
+                r = self.rc(f"yuanxian cultivation setrealm {PLAYER} yuanxian:qi_refining yuanxian:qi_refining_1")
                 med["realm_set"] = "Cultivation update for" in r
                 self.note("meditation: realm set to qi_refining_1 so the stage gains progress (both samples)")
             self.rc(f"yuanxian cultivation setprogress {PLAYER} 0")

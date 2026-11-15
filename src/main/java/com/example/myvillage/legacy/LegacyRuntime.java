@@ -253,9 +253,9 @@ public final class LegacyRuntime {
     private static void remove(ServerPlayer p,State s) {s.view.discard();var list=STATES.get(p.getUUID());if(list!=null){list.remove(s);if(list.isEmpty())STATES.remove(p.getUUID());}}
     public static void forget(UUID id) {var states=STATES.remove(id);if(states!=null)states.forEach(s->s.view.discard());var mirror=MIRRORS.remove(id);if(mirror!=null&&mirror.view()!=null)mirror.view().discard();}
     public static void clearAll() {List.copyOf(STATES.keySet()).forEach(LegacyRuntime::forget);MIRRORS.clear();ITEM_COOLDOWNS.clear();}
-    public static int charges(ItemStack stack,int maximum) {return Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getInt("myvillage_legacy_charge"),0,maximum);}
+    public static int charges(ItemStack stack,int maximum) {return Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getInt("yuanxian_legacy_charge"),0,maximum);}
     private static void setCharges(ItemStack stack,int value) {
-        CompoundTag tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();tag.putInt("myvillage_legacy_charge",value);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
+        CompoundTag tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();tag.putInt("yuanxian_legacy_charge",value);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
     }
     public static boolean useArtifact(ServerPlayer p,ItemStack stack,String kind) {
         return CombatSessionManager.handleLegacyArtifact(p,()->useArtifactNow(p,stack,kind),rules().ticks("artifact_recovery_ticks"));
@@ -342,6 +342,6 @@ public final class LegacyRuntime {
         }
         out.add("nearby_views",views);return "LEGACY_STATUS "+out;
     }
-    public static void message(ServerPlayer p,String key) {p.displayClientMessage(Component.translatable("legacy.myvillage."+key),true);}
+    public static void message(ServerPlayer p,String key) {p.displayClientMessage(Component.translatable("legacy.yuanxian."+key),true);}
     private static void log(ServerPlayer p,String result,String detail) {LoggerFactory.getLogger(LegacyRuntime.class).info("LEGACY player={} result={} detail={}",p.getGameProfile().getName(),result,detail);}
 }

@@ -86,14 +86,14 @@ public final class UndeadNativeProbe {
             if(mob==null)throw new IllegalStateException("create "+s.label);
             mob.moveTo(s.x+.5,100,s.z+.5,0,0);
             String region=s.variant.region().equals("common")?"ximo":s.variant.region();
-            mob.assignWildernessBirth(new BeastBirth(new RealmKey("myvillage:qi_refining",0),region,s.x,100,s.z,false));
+            mob.assignWildernessBirth(new BeastBirth(new RealmKey("yuanxian:qi_refining",0),region,s.x,100,s.z,false));
             mob.setHealth(mob.getMaxHealth()-1);
             var target=EntityType.IRON_GOLEM.create(level);
             target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(2000);target.setHealth(2000);target.setNoAi(true);target.setNoGravity(true);
             Vec3 pos=new Vec3(s.x+.5,100,s.z+(s.close?2.0:s.variant.archer()?8.5:3.5));target.setPos(pos);target.setTarget(mob);
             if(!level.addFreshEntity(target)||!level.addFreshEntity(mob))throw new IllegalStateException("fixture add rejected "+s.label);
             mob.setTarget(target);
-            if(!BuiltInRegistries.ITEM.containsKey(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("myvillage",s.variant.id()+"_spawn_egg")))throw new IllegalStateException("missing egg "+s.label);
+            if(!BuiltInRegistries.ITEM.containsKey(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("yuanxian",s.variant.id()+"_spawn_egg")))throw new IllegalStateException("missing egg "+s.label);
             CASES.add(new Case(s.label,mob,target,pos,s.blocked));
         }
         System.out.println("UNDEAD_PROBE started 21 ordinary AI fixtures after "+waitTicks+" readiness ticks");

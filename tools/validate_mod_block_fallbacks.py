@@ -11,8 +11,8 @@ from typing import Iterable
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
-DEFAULT_STRUCTURE_DIR = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "structure"
-DEFAULT_FALLBACK_MAP = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "mod_block_fallbacks.json"
+DEFAULT_STRUCTURE_DIR = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "structure"
+DEFAULT_FALLBACK_MAP = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "mod_block_fallbacks.json"
 DEFAULT_REPORT = REPO_ROOT / "reports" / "mod_block_fallback_validation.json"
 BLOCKS_121 = REPO_ROOT / "docs" / "ai-kb" / "references" / "blocks_121.json"
 
@@ -44,7 +44,7 @@ def shipped_mod_blocks(structure_dir: Path, profile: str) -> tuple[set[str], set
     Returns ``(external_blocks, self_blocks, hero_variants, errors)``:
 
     - ``external_blocks`` — third-party mod block ids (need a fallback);
-    - ``self_blocks`` — ``myvillage:`` self-namespace block ids (the mod ships
+    - ``self_blocks`` — ``yuanxian:`` self-namespace block ids (the mod ships
       these natively, so they are fallback-exempt under both profiles);
     - ``hero_variants`` — the ``hero_taihu_*`` ``rockery_block`` variant values
       seen, so the hero 假山 cluster's acceptance is explicit (add-hero-rockery

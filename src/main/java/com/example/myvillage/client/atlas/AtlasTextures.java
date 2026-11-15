@@ -55,7 +55,7 @@ public final class AtlasTextures {
         for(int y=0;y<source.getHeight();y++)for(int x=0;x<source.getWidth();x++){
             int c=source.getRGB(x,y);image.setPixelRGBA(x,y,(c&0xff00ff00)|((c>>>16)&255)|((c&255)<<16));
         }
-        ResourceLocation id=ResourceLocation.fromNamespaceAndPath("myvillage","atlas/dynamic/"+name);
+        ResourceLocation id=ResourceLocation.fromNamespaceAndPath("yuanxian","atlas/dynamic/"+name);
         DynamicTexture texture=new DynamicTexture(image);texture.setFilter(true,false);
         Minecraft.getInstance().getTextureManager().register(id,texture);return id;
     }

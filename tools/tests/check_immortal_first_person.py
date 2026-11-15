@@ -55,10 +55,10 @@ def main() -> None:
             raise SystemExit(result.returncode)
 
     inputs = set(sources + definitions + [TEST, Path(__file__).relative_to(ROOT)] + PROTECTED)
-    inputs.update(p.relative_to(ROOT) for p in (ROOT / "src/main/resources/assets/myvillage/immortal_equipment").glob("*.json"))
-    inputs.update(p.relative_to(ROOT) for p in (ROOT / "src/main/resources/assets/myvillage/combat").glob("*.json"))
+    inputs.update(p.relative_to(ROOT) for p in (ROOT / "src/main/resources/assets/yuanxian/immortal_equipment").glob("*.json"))
+    inputs.update(p.relative_to(ROOT) for p in (ROOT / "src/main/resources/assets/yuanxian/combat").glob("*.json"))
     # Anchor paths to the repository even if invoked from another cwd.
-    inputs.update(p.relative_to(ROOT) for p in (ROOT / "src/main/resources/data/myvillage/combat").rglob("*.json"))
+    inputs.update(p.relative_to(ROOT) for p in (ROOT / "src/main/resources/data/yuanxian/combat").rglob("*.json"))
     hashes = {str(p): hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in sorted(inputs)}
     hashes[str(pal.name)] = hashlib.sha256(pal.read_bytes()).hexdigest()
     (out / "inputs.sha256.json").write_text(json.dumps(hashes, indent=2) + "\n")

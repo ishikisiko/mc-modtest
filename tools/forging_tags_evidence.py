@@ -47,18 +47,18 @@ class TagEvidence(ForgingEvidence):
     def stacks(self,item):return [s for s in self.inventory().values() if s['id']==item]
     def default_tags(self):
         self.check('vanilla_copper_in_common_tag',self.has_tag('minecraft:copper_ingot',COPPER),COPPER)
-        self.check('spirit_copper_not_plain_copper',not self.has_tag('myvillage:chitong_ingot',COPPER),COPPER)
+        self.check('spirit_copper_not_plain_copper',not self.has_tag('yuanxian:chitong_ingot',COPPER),COPPER)
         for item,tag in [('minecraft:iron_ingot',TAGS['tough']),('minecraft:copper_ingot',TAGS['channeling']),('minecraft:sand',TAGS['sharp'])]:
             self.check('ordinary_material_not_special_'+item,not self.has_tag(item,tag),tag)
-        for m in materials():self.check('own_material_in_tag_'+m['id'],self.has_tag('myvillage:'+m['id'],m['tag']),m['tag'])
-        self.check('ore_item_common_classification',self.has_tag('myvillage:xuantie_ore','c:ores'),'c:ores')
-        self.rc('setblock 5 -60 3 myvillage:xuantie_ore')
+        for m in materials():self.check('own_material_in_tag_'+m['id'],self.has_tag('yuanxian:'+m['id'],m['tag']),m['tag'])
+        self.check('ore_item_common_classification',self.has_tag('yuanxian:xuantie_ore','c:ores'),'c:ores')
+        self.rc('setblock 5 -60 3 yuanxian:xuantie_ore')
         self.check('ore_block_common_classification','passed' in self.rc('execute if block 5 -60 3 #c:ores'),'c:ores')
         self.report['completed'].append('default_tags')
     def alias_infusion(self):
         u=self.s.username;self.rc(f'clear {u}');self.rc(f'give {u} minecraft:brick 2');self.fill_power()
         self.infusion();self.insert('minecraft:brick');self.click(120,137);self.close_menu()
-        self.check('untagged_alias_refused',self.count('minecraft:brick')==2 and self.count('myvillage:chitong_ingot')==0 and not any(PROGRESS in s.get('components',{}) for s in self.stacks('minecraft:brick')),self.inventory())
+        self.check('untagged_alias_refused',self.count('minecraft:brick')==2 and self.count('yuanxian:chitong_ingot')==0 and not any(PROGRESS in s.get('components',{}) for s in self.stacks('minecraft:brick')),self.inventory())
         self.pack.mkdir(parents=True,exist_ok=True);(self.pack/'pack.mcmeta').write_text(json.dumps({'pack':{'pack_format':48,'description':'Temporary forging tag evidence'}}))
         for key,values in ALIASES.items():self.tag(key,values)
         self.reload_for('minecraft:brick',COPPER,True)
@@ -74,13 +74,13 @@ class TagEvidence(ForgingEvidence):
         self.check('alias_datapack_restart',self.has_tag('minecraft:brick',COPPER),COPPER);self.report['completed'].append('alias_restart')
         self.tag(COPPER,[]);self.reload_for('minecraft:brick',COPPER,False)
         before=self.stacks('minecraft:brick');self.infusion();self.insert('minecraft:brick');self.click(120,137);self.close_menu()
-        self.check('removed_tag_rejects_without_erasing_progress',self.stacks('minecraft:brick')==before and self.count('myvillage:chitong_ingot')==0,self.inventory())
+        self.check('removed_tag_rejects_without_erasing_progress',self.stacks('minecraft:brick')==before and self.count('yuanxian:chitong_ingot')==0,self.inventory())
         self.tag(COPPER,['minecraft:brick']);self.reload_for('minecraft:brick',COPPER,True)
         cap=self.fill_power();self.infusion();self.insert('minecraft:brick');self.click(120,137)
-        total=json.loads((ROOT/'src/main/resources/data/myvillage/forging/acquisition.json').read_text())['infusion']['qi_per_ingot'];remaining=(total-paid)*2
+        total=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/acquisition.json').read_text())['infusion']['qi_per_ingot'];remaining=(total-paid)*2
         self.poll(lambda:self.profile()['power'],lambda n:n<=cap-remaining,12,'resumed alias completion')
         self.click(208,64,shift=True);self.close_menu()
-        self.check('restored_tag_resumes_exact_output',self.count('minecraft:brick')==0 and self.count('myvillage:chitong_ingot')==2,self.inventory())
+        self.check('restored_tag_resumes_exact_output',self.count('minecraft:brick')==0 and self.count('yuanxian:chitong_ingot')==2,self.inventory())
         self.check('restored_tag_only_remaining_qi',self.profile()['power']==cap-remaining,{'power':self.profile()['power'],'remaining':remaining})
         self.report['completed'].append('live_tag_reload')
     def forge(self,trait,extras,expected,clear=True,label=None):
@@ -89,7 +89,7 @@ class TagEvidence(ForgingEvidence):
         for item,n in self.rules['recipes'][0]['costs'].items():self.rc(f'give {u} {item} {n}')
         for item,n in extras.items():self.rc(f'give {u} {item} {n}')
         before=self.inventory();self.open_table();self.click(50,94+['sharp','channeling','tough'].index(trait)*22);self.capture((label or trait)+'-tag-costs.png');self.click(152,137);self.close_menu()
-        after=self.inventory();products=[s for s in after.values() if s['id']=='myvillage:qingfeng_sword' and s.get('components',{}).get(MARK,{}).get('trait')==trait]
+        after=self.inventory();products=[s for s in after.values() if s['id']=='yuanxian:qingfeng_sword' and s.get('components',{}).get(MARK,{}).get('trait')==trait]
         if expected:
             self.check((label or trait)+'_tagged_weapon',len(products)==1,products)
             self.check((label or trait)+'_base_costs_consumed',all(self.count(item)==0 for item in self.rules['recipes'][0]['costs']),after)
@@ -100,19 +100,19 @@ class TagEvidence(ForgingEvidence):
         # The learned-pattern helper uses slot 0; infused output is in the reverse-transfer hotbar slot 8.
         self.learn('qingfeng_sword');self.rc(f'yuanxian cultivation crafting set {u} forging 0')
         self.forge('channeling',{},True,clear=False,label='infused_alias_to_weapon')
-        self.check('infused_output_used_as_material_tag',self.count('myvillage:chitong_ingot')==1,self.inventory())
+        self.check('infused_output_used_as_material_tag',self.count('yuanxian:chitong_ingot')==1,self.inventory())
         self.forge('sharp',{'minecraft:quartz':1},True,label='overlapping_diamond_and_sand_tag')
         self.forge('tough',{'minecraft:amethyst_shard':1},True)
         self.forge('channeling',{'minecraft:emerald':1},True)
         self.report['completed'].append('tagged_forging')
         self.forge('sharp',{},False,label='same_diamonds_cannot_pay_two_costs');self.report['completed'].append('overlap_refusal')
         self.tag(TAGS['sharp'],[],replace=True);self.reload_for('minecraft:quartz',TAGS['sharp'],False)
-        self.check('empty_tag_has_no_default_member',not self.has_tag('myvillage:edge_tempering_sand',TAGS['sharp']),TAGS['sharp'])
-        self.forge('sharp',{'myvillage:edge_tempering_sand':1},False,label='empty_tag')
+        self.check('empty_tag_has_no_default_member',not self.has_tag('yuanxian:edge_tempering_sand',TAGS['sharp']),TAGS['sharp'])
+        self.forge('sharp',{'yuanxian:edge_tempering_sand':1},False,label='empty_tag')
         self.report['completed'].append('empty_tag')
     def run(self):
         self.start();u=self.s.username
-        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_table',f'setblock {PROBE} minecraft:barrel',f'yuanxian cultivation awaken {u}'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','forceload add -16 -16 32 32',f'setblock {POS} yuanxian:forging_table',f'setblock {PROBE} minecraft:barrel',f'yuanxian cultivation awaken {u}'):
             self.rc(cmd)
         self.default_tags();self.alias_infusion();self.forging_cases();self.report['status']='pass'
 

@@ -9,7 +9,7 @@
     "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json",
     "layout": "blueprints/province_capitals/blueprint_plan/layouts/lingyue.json",
     "manor": "blueprints/lord_manors/cities/lingyue.json",
-    "manor_manifest": "src/main/resources/data/myvillage/lord_manors/lingyue.json"
+    "manor_manifest": "src/main/resources/data/yuanxian/lord_manors/lingyue.json"
   },
   "scope": "正式整城蓝图；同一实际构造经 runtime.py 导出为默认 V11/v4 主城，独立预览与试放包仍可单独使用。",
   "rules": {
@@ -116,7 +116,7 @@
             2,
             1
           ],
-          "block": "myvillage:drying_rack"
+          "block": "yuanxian:drying_rack"
         },
         {
           "kind": "workbench",
@@ -149,15 +149,15 @@
       "path": "minecraft:stone_bricks",
       "stairs": "minecraft:stone_brick_stairs",
       "edge": "minecraft:stone_brick_slab[type=bottom,waterlogged=false]",
-      "soil": "myvillage:spirit_soil",
-      "crop": "myvillage:spirit_leaf_crop[age=2]",
+      "soil": "yuanxian:spirit_soil",
+      "crop": "yuanxian:spirit_leaf_crop[age=2]",
       "well": "minecraft:stone_bricks",
       "well_water": "minecraft:water[level=0]",
       "log": "minecraft:oak_log[axis=y]",
       "leaves": "minecraft:oak_leaves[persistent=false,waterlogged=false]",
       "bench": "minecraft:spruce_slab[type=bottom,waterlogged=false]",
       "workbench": "minecraft:crafting_table",
-      "drying_rack": "myvillage:drying_rack",
+      "drying_rack": "yuanxian:drying_rack",
       "tree_soil": "minecraft:dirt"
     },
     "rack_facing": "north",

@@ -58,7 +58,7 @@ public final class ForgingMenu extends AbstractContainerMenu {
         if(!(player instanceof ServerPlayer server)||player.containerMenu!=this||!player.isAlive()||player.isSpectator()||!stillValid(player))return false;
         if(button==INFUSE){
             server.openMenu(new SimpleMenuProvider((id,inv,viewer)->new CopperInfusionMenu(id,inv,access),
-                    net.minecraft.network.chat.Component.translatable("screen.myvillage.infusion.title")));
+                    net.minecraft.network.chat.Component.translatable("screen.yuanxian.infusion.title")));
             return true;
         }
         var rules=ForgingRules.get();

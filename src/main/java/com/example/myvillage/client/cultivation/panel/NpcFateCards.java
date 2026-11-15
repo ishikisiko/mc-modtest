@@ -33,7 +33,7 @@ public final class NpcFateCards {
                 var lines = new ArrayList<Component>();
                 if (definition == null) lines.add(name);
                 else lines.addAll(FatePresentation.description(definition));
-                if (!available) lines.add(Component.translatable("fate.myvillage.error.unavailable"));
+                if (!available) lines.add(Component.translatable("fate.yuanxian.error.unavailable"));
                 hovered = List.copyOf(lines);
             }
         }

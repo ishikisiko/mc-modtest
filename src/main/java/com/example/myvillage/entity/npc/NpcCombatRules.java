@@ -10,7 +10,7 @@ public record NpcCombatRules(int schema, String weapon, double health, double at
         int lostTargetTicks, double retreatFraction, double escapeDistance, double approachSpeed,
         double retreatSpeed, int recoveryDelayTicks, int healIntervalTicks, double healFraction,
         int playerKillStandingPenalty, int attributionTicks) {
-    private static final String PATH = "/data/myvillage/npc_combat/rules.json";
+    private static final String PATH = "/data/yuanxian/npc_combat/rules.json";
     private static final NpcCombatRules INSTANCE = load();
     public NpcCombatRules {
         if (schema != 2 || weapon == null || !weapon.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")

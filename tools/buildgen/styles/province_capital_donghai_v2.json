@@ -92,7 +92,7 @@
       "minecraft:sand"
     ],
     "EXTERIOR_FLOOR": [
-      "myvillage:manor_town_salt_flagstone",
+      "yuanxian:manor_town_salt_flagstone",
       "minecraft:sandstone"
     ]
   },

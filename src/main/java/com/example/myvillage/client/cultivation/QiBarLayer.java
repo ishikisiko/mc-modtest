@@ -55,7 +55,7 @@ public final class QiBarLayer {
         frame(graphics, bar, refused);
         seal(graphics, bar, mc);
         int textColor = refused ? 0xFFFFA696 : 0xFFE5F0DE;
-        graphics.drawString(mc.font, Component.translatable("hud.myvillage.qi.label"),
+        graphics.drawString(mc.font, Component.translatable("hud.yuanxian.qi.label"),
                 bar.x(), bar.textY(), 0xFFCDDBC8, false);
         String balance = previous + " / " + maximum;
         graphics.drawString(mc.font, balance, bar.x() + bar.width() - mc.font.width(balance),
@@ -71,7 +71,7 @@ public final class QiBarLayer {
         }
         double charge = ClientSwordQi.localCharge();
         if (charge >= 0) {
-            graphics.drawString(mc.font, Component.translatable("hud.myvillage.qi.charging"),
+            graphics.drawString(mc.font, Component.translatable("hud.yuanxian.qi.charging"),
                     bar.x(), bar.chargeY(), 0xFFDEC88C, false);
             graphics.fill(bar.chargeX(), bar.chargeY() + 3,
                     bar.chargeX() + bar.chargeWidth(), bar.chargeY() + 5, 0xFF24382F);
@@ -100,7 +100,7 @@ public final class QiBarLayer {
             if (radius > 1) graphics.fill(cx - radius + 1, cy + row, cx + radius, cy + row + 1,
                     row < 0 ? 0xFF2E6959 : 0xFF234F45);
         }
-        var glyph = Component.translatable("hud.myvillage.qi.seal");
+        var glyph = Component.translatable("hud.yuanxian.qi.seal");
         graphics.drawString(mc.font, glyph, cx - mc.font.width(glyph) / 2, cy - 4, 0xFFD6E7C8, false);
     }
 }

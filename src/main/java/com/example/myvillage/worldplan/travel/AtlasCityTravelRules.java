@@ -13,8 +13,8 @@ public record AtlasCityTravelRules(boolean enabled, int searchRadius, int vertic
         int maxChunksPerRequest, int maxConcurrentRequests, int loadTimeoutTicks, int requestCooldownTicks,
         int feedbackIntervalTicks, int candidateChecksPerTick, int clickSlopPixels, int markerHitRadiusPixels,
         Set<String> hazardBlocks, Set<String> hazardTags) {
-    public static final String RESOURCE = "myvillage:worldplan/atlas_city_travel.json";
-    public static final String CLASSPATH = "/data/myvillage/worldplan/atlas_city_travel.json";
+    public static final String RESOURCE = "yuanxian:worldplan/atlas_city_travel.json";
+    public static final String CLASSPATH = "/data/yuanxian/worldplan/atlas_city_travel.json";
 
     public AtlasCityTravelRules {
         hazardBlocks = Set.copyOf(hazardBlocks);

@@ -13,7 +13,7 @@ and the realm stage mortal_qi_sensed.
    ``world sect <A> build``); ``world sect <A> join <player>`` (admin join).
 2. News wherever the player is: ``tp`` 140 blocks in front of B's gate (far from A; B's gate starts to realize),
    the player's position is recorded; ``world sect <A> war <B>`` (reply: ``sect_war.done``); the client chat line
-   with the prefix ``【宗门】`` (zh_cn) or ``[Sect]`` (en_us) of ``message.myvillage.world.sect.news`` is awaited
+   with the prefix ``【宗门】`` (zh_cn) or ``[Sect]`` (en_us) of ``message.yuanxian.world.sect.news`` is awaited
    (the admin act announces at once; then ``world advance 1``, one settled day, and the line is awaited again,
    10 s each); shots ``news_chat.png`` (in game) and ``news_chat_open.png`` (the chat screen, T).
 3. Hostile refusal: B's gate realized (auto, fallback ``world sect <B> build``); B's steward (name tag
@@ -63,7 +63,7 @@ from tools.world_sim_tasks_evidence import avatar_names, parse_sects  # noqa: E4
 OUT = REPO / "out" / "preview" / "world_sim" / "news"
 
 # ---------------------------------------------------------------- log lines and replies (package S4-A)
-# message.myvillage.world.sect.news: zh_cn "【宗门】%1$s", en_us "[Sect] %1$s"
+# message.yuanxian.world.sect.news: zh_cn "【宗门】%1$s", en_us "[Sect] %1$s"
 NEWS_PREFIX = r"(?:【宗门】|\[Sect\])"
 NEWS_CHAT = re.compile(rf"\[CHAT\]\s*{NEWS_PREFIX}\s*(.*?)\s*$")
 CHAT = re.compile(r"\[CHAT\]\s*(.*?)\s*$")
@@ -386,7 +386,7 @@ class Run(tasks.Run):
     def count_avatars(self, row: dict[str, Any]) -> dict[str, int]:
         """Cultivators in the compound's footprint, and loaded avatars whose name tag names the sect."""
         bx, bz, dx, dz = site_box(row["gate"])
-        site = count_of(self.rc(f"execute if entity @e[type=myvillage:cultivator,nbt=!{{Tags:[\"myvillage:wild_avatar\"]}},x={bx},y={SURFACE_Y - 8},"
+        site = count_of(self.rc(f"execute if entity @e[type=yuanxian:cultivator,nbt=!{{Tags:[\"yuanxian:wild_avatar\"]}},x={bx},y={SURFACE_Y - 8},"
                                 f"z={bz},dx={dx},dy=72,dz={dz}]"))
         named = f"execute as {CULT} if data entity @s CustomName run data get entity @s"
         tagged = avatars_of(avatar_names(self.rc(f"{named} CustomName")), row["name"])

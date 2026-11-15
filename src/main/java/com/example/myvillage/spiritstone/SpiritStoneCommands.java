@@ -49,8 +49,8 @@ public final class SpiritStoneCommands {
         var player = source.getPlayerOrException();
         if (!player.isAlive() || player.isSpectator()) return 0;
         var rules = SpiritStoneDenominations.get();
-        var from = rules.tier(ResourceLocation.fromNamespaceAndPath("myvillage", fromId));
-        var to = rules.tier(ResourceLocation.fromNamespaceAndPath("myvillage", toId));
+        var from = rules.tier(ResourceLocation.fromNamespaceAndPath("yuanxian", fromId));
+        var to = rules.tier(ResourceLocation.fromNamespaceAndPath("yuanxian", toId));
         var access = SpiritStoneSources.open(player);
         var plan = SpiritStoneExchange.plan(access.copies(), from, to, batches);
         if (!plan.ready()) {

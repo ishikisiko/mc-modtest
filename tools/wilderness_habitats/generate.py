@@ -44,7 +44,7 @@ def generate():
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--check',action='store_true');a=p.parse_args()
-    path=ROOT/'src/main/resources/data/myvillage/wilderness/habitats.json'
+    path=ROOT/'src/main/resources/data/yuanxian/wilderness/habitats.json'
     content=json.dumps(generate(),ensure_ascii=False,indent=2)+'\n'
     if a.check:
         if not path.is_file() or path.read_text()!=content:raise SystemExit('东荒生态输出需要重新生成')

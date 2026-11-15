@@ -19,7 +19,7 @@ owner 2026-10-07："npc 和妖兽建模，修仙者女性增加两个不同的�
 
 ## 1. 现状（能复用什么）
 
-- 现有男修 `myvillage:cultivator`：`tools/npcgen/defs/cultivator.py`（874 行）产出模型、动画、贴图三件，半格单位（`scale 0.5`，32 texel/格），一层衣一个 cube，贴图按三维位置着色（`shade.py`），剪切透出下层。owner 对衣服、背身、姿势、走路已认可，脸按"俊朗英气"重做过一次（`docs/ai-kb/39_humanoid_npcs.md` 的 Faces 一节是经验清单）。
+- 现有男修 `yuanxian:cultivator`：`tools/npcgen/defs/cultivator.py`（874 行）产出模型、动画、贴图三件，半格单位（`scale 0.5`，32 texel/格），一层衣一个 cube，贴图按三维位置着色（`shade.py`），剪切透出下层。owner 对衣服、背身、姿势、走路已认可，脸按"俊朗英气"重做过一次（`docs/ai-kb/39_humanoid_npcs.md` 的 Faces 一节是经验清单）。
 - 运行时：`NpcEntity` 通用，`NpcRenderer` 按实体 id 读三个文件；一个实体类型只有一套外观，"同一实体的贴图变体还没做"（KB 39）。
 - 命簿人物有性别字段 `Person.gender`（m/f），化身现在不分性别，全用男修的样子。
 - 工具：`python3 -m tools.npcgen build|preview <npc>`，`python3 -m tools.combat_capture npc --parts idle,walk`，gate 里有 `npcgen_check("cultivator")`，`validate_custom_entities.py` 钉同步字段与资源路径，契约 `genops/contracts/entities/cultivator.yaml`。
@@ -29,13 +29,13 @@ owner 2026-10-07："npc 和妖兽建模，修仙者女性增加两个不同的�
 不加新实体 id。给 `NpcEntity` 一个同步字段 `DATA_LOOK`（字符串或小整数，默认 `default`），`NpcRenderer` 按 `<entity>_<look>` 读模型、动画、贴图：
 
 ```
-assets/myvillage/npc/cultivator_model.json                 默认（现男修）
-assets/myvillage/npc/cultivator_f_novice_model.json         女·刚入门
-assets/myvillage/npc/cultivator_f_adept_model.json          女·小有所成
+assets/yuanxian/npc/cultivator_model.json                 默认（现男修）
+assets/yuanxian/npc/cultivator_f_novice_model.json         女·刚入门
+assets/yuanxian/npc/cultivator_f_adept_model.json          女·小有所成
 textures/entity/cultivator/cultivator_f_novice.png  …
 ```
 
-- `/summon myvillage:cultivator ~ ~ ~ {Look:"f_novice"}`；刷怪蛋随机三选一（或按配置）。
+- `/summon yuanxian:cultivator ~ ~ ~ {Look:"f_novice"}`；刷怪蛋随机三选一（或按配置）。
 - 命簿化身按人物选外观：`gender == f` 且境界 ≤ 炼气 → `f_novice`；`gender == f` 且 ≥ 筑基 → `f_adept`；男性照旧。这样院子里的人群立刻有了性别与资历层次，不需要新实体。
 - 每套外观是独立的 npcgen 定义：`tools/npcgen/defs/cultivator_f_novice.py`、`cultivator_f_adept.py`，共享男修定义里的通用件（`_box`、`_pair`、`_Paint` 的材质函数、步态函数），身体骨架与 `HITBOX (0.6, 1.9)` 相同，所以 `animateWalk`、名牌、化身格子都不用改。
 - 契约：`cultivator.yaml` 加 `looks:` 一节列出三套文件路径与 `state.synced` 的 `look`；校验器跟着校验每一套的三个文件与骨骼。

@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * A school (流派), file {@code data/<ns>/myvillage/school/<id>.json}. A weapon school names the weapon
+ * A school (流派), file {@code data/<ns>/yuanxian/school/<id>.json}. A weapon school names the weapon
  * family it fights with; a special school names its runtime hook. {@code element_lean} may be empty.
  * Sects carry no school.
  */

@@ -9,8 +9,8 @@ schema_status:
     false, so this vehicle contract and the technical contract are authoritative.
 
 identity:
-  entity_id: myvillage:rideable_flying_sword
-  item_id: myvillage:rideable_flying_sword
+  entity_id: yuanxian:rideable_flying_sword
+  item_id: yuanxian:rideable_flying_sword
   java_class: com.example.myvillage.entity.RideableFlyingSwordEntity
   base_class: net.minecraft.world.entity.Entity
   category: misc
@@ -102,8 +102,8 @@ lifecycle_cleanup:
 rendering:
   route: vanilla_item_model
   renderer_class: com.example.myvillage.client.entity.RideableFlyingSwordRenderer
-  item_model: myvillage:rideable_flying_sword
-  texture: myvillage:item/rideable_flying_sword
+  item_model: yuanxian:rideable_flying_sword
+  texture: yuanxian:item/rideable_flying_sword
   pose: horizontal
   forward_axis: texture blade tip aligned to the entity yaw
   geckolib: false

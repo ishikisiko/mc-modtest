@@ -37,7 +37,7 @@ public final class PhoenixEmbersData extends SavedData {
         void capture() {
             if(player!=null){
                 snapshot=player.saveWithoutId(new CompoundTag());dimension=player.level().dimension().location().toString();
-                int ticks=((com.example.myvillage.mixin.PhoenixLivingCreditAccess)player).myvillage$emberCreditTicks();
+                int ticks=((com.example.myvillage.mixin.PhoenixLivingCreditAccess)player).yuanxian$emberCreditTicks();
                 if(ticks>0&&player.getKillCredit() instanceof ServerPlayer credit&&!credit.isFakePlayer()) {
                     creditPlayer=credit.getUUID();creditName=credit.getGameProfile().getName();creditTicks=ticks;
                 } else {creditPlayer=null;creditName="";creditTicks=0;}
@@ -46,7 +46,7 @@ public final class PhoenixEmbersData extends SavedData {
     }
     final Map<UUID,Ember> embers=new HashMap<>();
     public static PhoenixEmbersData get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(PhoenixEmbersData::new,PhoenixEmbersData::load),"myvillage_phoenix_embers");
+        return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(PhoenixEmbersData::new,PhoenixEmbersData::load),"yuanxian_phoenix_embers");
     }
     public static PhoenixEmbersData load(CompoundTag tag,HolderLookup.Provider registries) {
         if(tag.getInt("schema")!=1)throw new IllegalStateException("无法读取凤凰余烬格式");

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SpiritualRootGeneratorTest {
     private List<SpiritualRootGenerator.ElementCandidate> candidates() {
-        return AptitudeRules.get().elements().stream().map(id -> new SpiritualRootGenerator.ElementCandidate(ResourceLocation.parse("myvillage:" + id), 1)).toList();
+        return AptitudeRules.get().elements().stream().map(id -> new SpiritualRootGenerator.ElementCandidate(ResourceLocation.parse("yuanxian:" + id), 1)).toList();
     }
     @Test void generationIsStableAndCandidateOrderIndependent() {
         var identity = new UUID(17, 29);
@@ -18,7 +18,7 @@ class SpiritualRootGeneratorTest {
     }
     @Test void emptyAndZeroWeightCataloguesHaveNoRoot() {
         assertTrue(SpiritualRootGenerator.generate(1, new UUID(0,1), List.of()).isEmpty());
-        assertTrue(SpiritualRootGenerator.generate(1, new UUID(0,1), List.of(new SpiritualRootGenerator.ElementCandidate(ResourceLocation.parse("myvillage:fire"), 0))).isEmpty());
+        assertTrue(SpiritualRootGenerator.generate(1, new UUID(0,1), List.of(new SpiritualRootGenerator.ElementCandidate(ResourceLocation.parse("yuanxian:fire"), 0))).isEmpty());
     }
     @Test void generatedPointsRespectAuthoredRangesAndDoNotHaveAFixedSum() {
         var sums = new java.util.HashSet<Long>();

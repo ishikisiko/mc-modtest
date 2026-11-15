@@ -18,7 +18,7 @@ public final class ForgingHammerItem extends Item {
     public com.example.myvillage.forging.FoundryRules.Hammer definition(){return com.example.myvillage.forging.FoundryRules.get().hammer(hammerId);}
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         super.appendHoverText(stack, context, lines, flag);
-        lines.add(Component.translatable("workshop.myvillage.manual.hammer_hint").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("workshop.yuanxian.manual.hammer_hint").withStyle(ChatFormatting.GRAY));
         lines.add(Component.literal("基础锻造力："+definition().power()+"　工艺成效："+definition().quality()/100+"%").withStyle(ChatFormatting.AQUA));
     }
     @Override public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {

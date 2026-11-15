@@ -25,7 +25,7 @@ def main():
         session=cs.Session.attach(ui_check=True)
         for text in ['tick unfreeze','yuanxian world pause','weather clear','time set noon','gamerule doDaylightCycle false',
                      'gamerule doWeatherCycle false','kill @e[tag=legacy_target]','kill @e[tag=locked_fixture]',
-                     *['kill @e[type=myvillage:'+m['id']+']' for m in catalogue()['mobs']],
+                     *['kill @e[type=yuanxian:'+m['id']+']' for m in catalogue()['mobs']],
                      'fill -8 -61 -2 8 -61 16 minecraft:stone','kill @e[type=minecraft:item]','kill @e[type=minecraft:experience_orb]',
                      f'gamemode spectator {session.username}']:
             command(text)
@@ -36,7 +36,7 @@ def main():
             pitch=math.degrees(math.atan2(1.62-mob['physical']['height']*.5,math.hypot(1.2,2.8)))
             yaw=math.degrees(math.atan2(-1.2,2.8));rotation=yaw+180
             command(f'tp {session.username} -.7 -60 5.2 {yaw} {pitch}')
-            command('summon myvillage:'+mob['id']+' .5 -60 8 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Tags:["legacy_gallery"],Rotation:['+str(rotation)+'f,0f]}')
+            command('summon yuanxian:'+mob['id']+' .5 -60 8 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Tags:["legacy_gallery"],Rotation:['+str(rotation)+'f,0f]}')
             time.sleep(2)
             file=mob['id']+'-gallery.png';session.game.save_png(session.game.grab_raw(),out/file)
             report['images'].append({'file':file,'group':mob['id'],'label':mob['name']+'的实机模型（静态审阅夹具）'});save()

@@ -18,22 +18,22 @@ class TechniqueGrowthTest {
     static final TechniqueGrowthRules RULES = TechniqueGrowthRules.bundled();
     static final Map<ResourceLocation, TechniqueDefinition> TECHNIQUES = techniques();
     static final Map<ResourceLocation, RealmDefinition> REALMS = realms();
-    static ResourceLocation id(String path) { return ResourceLocation.parse("myvillage:" + path); }
+    static ResourceLocation id(String path) { return ResourceLocation.parse("yuanxian:" + path); }
     static JsonObject json(String path) {
-        try { return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/" + path))).getAsJsonObject(); }
+        try { return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/" + path))).getAsJsonObject(); }
         catch (Exception e) { throw new AssertionError(e); }
     }
     static Map<ResourceLocation, TechniqueDefinition> techniques() {
         var map = new HashMap<ResourceLocation, TechniqueDefinition>();
         for (var id : List.of(BASIC, QING, YI, SWORD)) map.put(id, TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE,
-                json("myvillage/technique/" + id.getPath() + ".json")).getOrThrow());
+                json("yuanxian/technique/" + id.getPath() + ".json")).getOrThrow());
         return Map.copyOf(map);
     }
     static Map<ResourceLocation, RealmDefinition> realms() {
         var map = new HashMap<ResourceLocation, RealmDefinition>();
         for (String name : List.of("mortal", "qi_refining", "foundation_establishment", "golden_core")) {
-            var path = Path.of("src/main/resources/data/myvillage/myvillage/realm/" + name + ".json");
-            if (Files.exists(path)) map.put(id(name), RealmDefinition.CODEC.parse(JsonOps.INSTANCE, json("myvillage/realm/" + name + ".json")).getOrThrow());
+            var path = Path.of("src/main/resources/data/yuanxian/yuanxian/realm/" + name + ".json");
+            if (Files.exists(path)) map.put(id(name), RealmDefinition.CODEC.parse(JsonOps.INSTANCE, json("yuanxian/realm/" + name + ".json")).getOrThrow());
         }
         return Map.copyOf(map);
     }
@@ -240,7 +240,7 @@ class TechniqueGrowthTest {
                 .add("cultivation", JsonParser.parseString("[0,1,2,3,4]"));
         assertThrows(IllegalArgumentException.class, () -> TechniqueGrowthRules.parse(root));
         var unknown = json("cultivation/technique_growth.json");
-        unknown.getAsJsonObject("techniques").getAsJsonObject(QING.toString()).addProperty("next", "myvillage:missing");
+        unknown.getAsJsonObject("techniques").getAsJsonObject(QING.toString()).addProperty("next", "yuanxian:missing");
         assertThrows(IllegalArgumentException.class, () -> TechniqueGrowthRules.parse(unknown));
     }
 

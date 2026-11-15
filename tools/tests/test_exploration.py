@@ -20,14 +20,14 @@ class ExplorationResourceTests(unittest.TestCase):
             root = Path(directory)
             shutil.copytree(ROOT / 'src/main/resources', root / 'src/main/resources',
                             ignore=shutil.ignore_patterns('structure', 'textures', 'models', 'blockstates'))
-            path = root / 'src/main/resources/assets/myvillage/lang/en_us.json'
+            path = root / 'src/main/resources/assets/yuanxian/lang/en_us.json'
             data = json.loads(path.read_text())
-            del data['exploration.myvillage.tip.fire']
+            del data['exploration.yuanxian.tip.fire']
             path.write_text(json.dumps(data))
-            self.assertIn('missing translation exploration.myvillage.tip.fire', validate(root))
+            self.assertIn('missing translation exploration.yuanxian.tip.fire', validate(root))
 
     def test_end_city_rewards_and_optional_branches_remain_separate(self):
-        data = json.loads((ROOT / 'src/main/resources/data/myvillage/exploration/rules.json').read_text())
+        data = json.loads((ROOT / 'src/main/resources/data/yuanxian/exploration/rules.json').read_text())
         self.assertEqual('endgame', data['loot_tables']['minecraft:chests/end_city_treasure'])
         self.assertEqual(['minecraft:chests/end_city_treasure'],
                          [table for table, pool in data['loot_tables'].items() if pool == 'endgame'])
@@ -42,7 +42,7 @@ class ExplorationResourceTests(unittest.TestCase):
                             if location['dimension'] != 'minecraft:overworld'))
 
     def test_no_repeatable_trial_or_monster_rewards(self):
-        data = json.loads((ROOT / 'src/main/resources/data/myvillage/exploration/rules.json').read_text())
+        data = json.loads((ROOT / 'src/main/resources/data/yuanxian/exploration/rules.json').read_text())
         self.assertIn('minecraft:chests/trial_chambers/reward', data['loot_tables'])
         self.assertIn('minecraft:chests/trial_chambers/reward_ominous', data['loot_tables'])
         self.assertFalse(any('spawners' in s or '/entities/' in s or s.endswith('_common') for s in data['loot_tables']))

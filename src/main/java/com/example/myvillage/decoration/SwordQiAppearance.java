@@ -21,7 +21,7 @@ public final class SwordQiAppearance {
     public static SwordQiAppearance get() { return Holder.VALUE; }
     public int color(String key) { return Integer.parseInt(colors.get(key), 16); }
     private static SwordQiAppearance load() {
-        var stream = SwordQiAppearance.class.getResourceAsStream("/assets/myvillage/sword_qi/appearance.json");
+        var stream = SwordQiAppearance.class.getResourceAsStream("/assets/yuanxian/sword_qi/appearance.json");
         if (stream == null) throw new IllegalStateException("Missing sword-qi decoration appearance");
         try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return new Gson().fromJson(reader, SwordQiAppearance.class);

@@ -336,7 +336,7 @@ def write_index(out_root: Path) -> Path:
         from preview_structure import RenderResult, render_preview_index
 
         structure_dir = (
-            REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "structure"
+            REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "structure"
         )
         results = []
         for v in viewers:

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TechniqueShelfTest {
     private static TechniqueShelf.Item item(String id, TechniqueCategory category, int grade, String name) {
-        return new TechniqueShelf.Item(ResourceLocation.fromNamespaceAndPath("myvillage", id), category, grade, name);
+        return new TechniqueShelf.Item(ResourceLocation.fromNamespaceAndPath("yuanxian", id), category, grade, name);
     }
 
     private static List<String> ids(TechniqueShelf.Group group) {
@@ -30,9 +30,9 @@ class TechniqueShelfTest {
         assertEquals(TechniqueCategory.CORE, groups.get(0).category());
         assertEquals(TechniqueCategory.ACTIVE, groups.get(1).category());
         assertEquals(TechniqueCategory.BODY, groups.get(2).category());
-        assertEquals("screen.myvillage.cultivation.technique_group.core", groups.get(0).titleKey());
-        assertEquals("screen.myvillage.cultivation.technique_group.active", groups.get(1).titleKey());
-        assertEquals("screen.myvillage.cultivation.technique_group.body", groups.get(2).titleKey());
+        assertEquals("screen.yuanxian.cultivation.technique_group.core", groups.get(0).titleKey());
+        assertEquals("screen.yuanxian.cultivation.technique_group.active", groups.get(1).titleKey());
+        assertEquals("screen.yuanxian.cultivation.technique_group.body", groups.get(2).titleKey());
         assertEquals(List.of(TechniqueCategory.CORE, TechniqueCategory.ACTIVE, TechniqueCategory.MOVEMENT,
                 TechniqueCategory.BODY), TechniqueShelf.ORDER);
         assertTrue(TechniqueShelf.group(List.of()).isEmpty());
@@ -55,19 +55,19 @@ class TechniqueShelfTest {
     @Test
     void unresolvedTechniquesGoInALastGroupOfTheirOwn() {
         List<TechniqueShelf.Group> groups = TechniqueShelf.group(List.of(
-                item("gone", null, -1, "myvillage:gone"),
+                item("gone", null, -1, "yuanxian:gone"),
                 item("move", TechniqueCategory.MOVEMENT, 1, "踏云步")));
         assertEquals(2, groups.size());
         assertEquals(TechniqueCategory.MOVEMENT, groups.get(0).category());
         assertNull(groups.get(1).category());
-        assertEquals("screen.myvillage.cultivation.technique_group.unresolved", groups.get(1).titleKey());
+        assertEquals("screen.yuanxian.cultivation.technique_group.unresolved", groups.get(1).titleKey());
         assertEquals(List.of("gone"), ids(groups.get(1)));
     }
 
     @Test
     void gradesAreNamedFromMortalToHeaven() {
         for (int grade = 0; grade <= 4; grade++) {
-            assertEquals("screen.myvillage.cultivation.grade_name." + grade, TechniqueShelf.gradeNameKey(grade));
+            assertEquals("screen.yuanxian.cultivation.grade_name." + grade, TechniqueShelf.gradeNameKey(grade));
         }
         assertNull(TechniqueShelf.gradeNameKey(-1));
         assertNull(TechniqueShelf.gradeNameKey(5));

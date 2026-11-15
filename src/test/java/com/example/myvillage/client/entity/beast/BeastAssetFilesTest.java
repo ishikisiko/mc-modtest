@@ -33,8 +33,8 @@ import org.junit.jupiter.api.Test;
 
 /** Schema-1 model and animation files: strict parsing, vanilla mapping, and the cross-file rules. */
 final class BeastAssetFilesTest {
-    private static final ResourceLocation FIXTURE = ResourceLocation.fromNamespaceAndPath("myvillage", "fixture_beast");
-    private static final ResourceLocation WOLF = ResourceLocation.fromNamespaceAndPath("myvillage", "demon_wolf");
+    private static final ResourceLocation FIXTURE = ResourceLocation.fromNamespaceAndPath("yuanxian", "fixture_beast");
+    private static final ResourceLocation WOLF = ResourceLocation.fromNamespaceAndPath("yuanxian", "demon_wolf");
     private static final String MODEL = "beast_fixture/fixture_model.json";
     private static final String ANIMATIONS = "beast_fixture/fixture_animations.json";
     private static final float EPSILON = 1.0E-6F;
@@ -80,7 +80,7 @@ final class BeastAssetFilesTest {
                 "parent must be present, null for a top bone");
         assertEquals("look.bone", modelFailure(json -> json.getAsJsonObject("look").addProperty("bone", "neck")).field());
         assertEquals("look.max_yaw", modelFailure(json -> json.getAsJsonObject("look").addProperty("max_yaw", 200)).field());
-        assertEquals("id", modelFailure(json -> json.addProperty("id", "myvillage:other")).field());
+        assertEquals("id", modelFailure(json -> json.addProperty("id", "yuanxian:other")).field());
         assertEquals("schema", modelFailure(json -> json.addProperty("schema", 2)).field());
         BeastDataException error = modelFailure(json -> bone(json, 1).add("pivot", pair(0, 1)));
         assertEquals(MODEL, error.file());
@@ -181,8 +181,8 @@ final class BeastAssetFilesTest {
     /** The generated demon wolf files, once tools/beastgen has written them, pass every rule here too. */
     @Test
     void generatedDemonWolfFilesLoadWhenPresent() throws IOException {
-        Path modelPath = Path.of("src/main/resources/assets/myvillage/beast/demon_wolf_model.json");
-        Path animationPath = Path.of("src/main/resources/assets/myvillage/beast/demon_wolf_animations.json");
+        Path modelPath = Path.of("src/main/resources/assets/yuanxian/beast/demon_wolf_model.json");
+        Path animationPath = Path.of("src/main/resources/assets/yuanxian/beast/demon_wolf_animations.json");
         Assumptions.assumeTrue(Files.exists(modelPath) && Files.exists(animationPath), "art not generated yet");
         BeastModelFile model;
         try (Reader reader = Files.newBufferedReader(modelPath)) {

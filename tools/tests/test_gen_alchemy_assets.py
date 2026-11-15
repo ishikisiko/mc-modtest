@@ -47,7 +47,7 @@ class AlchemyAssetsTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        authored=self.root/'src/main/resources/data/myvillage/alchemy/rules.json'
+        authored=self.root/'src/main/resources/data/yuanxian/alchemy/rules.json'
         authored.parent.mkdir(parents=True,exist_ok=True)
         authored.write_bytes((validator.ROOT/validator.RULES).read_bytes())
         self.files = gen.outputs(self.root)
@@ -58,7 +58,7 @@ class AlchemyAssetsTest(unittest.TestCase):
             self.assertEqual(0,gen.main(['--root',str(self.root)]))
             self.assertEqual(0,gen.main(['--root',str(self.root),'--check']))
         for item in gen.REMOVED_RECIPES:
-            path=self.root / f'src/main/resources/data/myvillage/recipe/{item}.json'
+            path=self.root / f'src/main/resources/data/yuanxian/recipe/{item}.json'
             self.assertNotIn(path,self.files)
             path.parent.mkdir(parents=True,exist_ok=True)
             path.write_text('{}')
@@ -67,7 +67,7 @@ class AlchemyAssetsTest(unittest.TestCase):
             self.assertEqual(0,gen.main(['--root',str(self.root)]))
             self.assertEqual(0,gen.main(['--root',str(self.root),'--check']))
         for item in gen.REMOVED_RECIPES:
-            self.assertFalse((self.root / f'src/main/resources/data/myvillage/recipe/{item}.json').exists())
+            self.assertFalse((self.root / f'src/main/resources/data/yuanxian/recipe/{item}.json').exists())
 
     def test_exact_thirteen_models_and_twelve_dedicated_icons(self):
         models = {p.name for p in self.files if p.parent == self.assets / 'models/item'}
@@ -77,9 +77,9 @@ class AlchemyAssetsTest(unittest.TestCase):
         for item in validator.ITEMS:
             model = json.loads(self.files[self.assets / f'models/item/{item}.json'])
             if item == 'alchemy_furnace':
-                self.assertEqual('myvillage:block/alchemy_furnace', model['parent'])
+                self.assertEqual('yuanxian:block/alchemy_furnace', model['parent'])
             else:
-                self.assertEqual({'layer0': f'myvillage:item/{item}'}, model['textures'])
+                self.assertEqual({'layer0': f'yuanxian:item/{item}'}, model['textures'])
 
     def test_formula_acquisition_has_no_ambiguous_ingredient_multisets(self):
         recipes = [json.loads(raw) for path,raw in self.files.items() if path.name.startswith('formula_') and path.parent.name=='recipe']
@@ -136,26 +136,26 @@ class AlchemyAssetsTest(unittest.TestCase):
         lang.write_text(json.dumps({'test.unrelated': '保留'}))
         tag = self.root / validator.RESOURCES / 'data/minecraft/tags/block/mineable/pickaxe.json'
         tag.parent.mkdir(parents=True)
-        tag.write_text(json.dumps({'replace': False, 'values': ['myvillage:scripture_shelf']}))
+        tag.write_text(json.dumps({'replace': False, 'values': ['yuanxian:scripture_shelf']}))
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(0, gen.main(['--root', str(self.root)]))
             self.assertEqual(0, gen.main(['--root', str(self.root)]))
         self.assertEqual('保留', json.loads(lang.read_text())['test.unrelated'])
         values = json.loads(tag.read_text())['values']
-        self.assertIn('myvillage:scripture_shelf', values)
-        self.assertEqual(1, values.count('myvillage:alchemy_furnace'))
+        self.assertIn('yuanxian:scripture_shelf', values)
+        self.assertEqual(1, values.count('yuanxian:alchemy_furnace'))
 
     def test_shipped_assets_have_no_generator_drift(self):
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(0, gen.main(['--check']))
 
     def test_formula_names_follow_the_local_authored_difficulty(self):
-        path=self.root/'src/main/resources/data/myvillage/alchemy/rules.json'
+        path=self.root/'src/main/resources/data/yuanxian/alchemy/rules.json'
         rules=json.loads(path.read_text());rules['recipes'][0]['difficulty']=3
         path.write_text(json.dumps(rules))
         lang=self.assets/'lang/zh_cn.json'
         generated=json.loads(gen.merged_outputs(self.root)[lang])
-        self.assertEqual('回灵丹方（难度3）',generated['item.myvillage.formula_huiling'])
+        self.assertEqual('回灵丹方（难度3）',generated['item.yuanxian.formula_huiling'])
 
 
 if __name__ == '__main__':

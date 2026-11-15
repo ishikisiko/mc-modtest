@@ -251,7 +251,7 @@ def construct(world,plan,catalog):
 def export(region,out,old,v9):
     started=time.monotonic();plan=read(INPUT/'cities'/f'{region}.json');config=read(INPUT/'materials.json');catalog=read(DESIGN)
     source=old if plan['base_version']=='v1' else v9
-    resource=f'myvillage:capitals/{plan["base_version"]}/capital_{region}/city.json'
+    resource=f'yuanxian:capitals/{plan["base_version"]}/capital_{region}/city.json'
     previous=read(resource_file(source,resource));m=copy.deepcopy(previous)
     world=World(source,m,config)
     construct(world,plan,catalog)
@@ -259,12 +259,12 @@ def export(region,out,old,v9):
     m.update(display_name=plan['name'],layout_family_id=group.scale_params['layout_family_id'],group_id=group.group_id,style_id=group.style_id,appearance_id='capital_'+region+'_environment_v3')
     m['life']['layout_id']='capital_'+region+'_blocks_v3'
     if 'details' in m:m['inherited_details']=m.pop('details')
-    data=out/f'data/myvillage/capitals/v3/capital_{region}';data.mkdir(parents=True,exist_ok=True)
+    data=out/f'data/yuanxian/capitals/v3/capital_{region}';data.mkdir(parents=True,exist_ok=True)
     terrain=resource_file(source,previous['terrain']['resource']);shutil.copyfile(terrain,data/'terrain.bin.gz')
-    m['terrain']['resource']=f'myvillage:capitals/v3/capital_{region}/terrain.bin.gz'
+    m['terrain']['resource']=f'yuanxian:capitals/v3/capital_{region}/terrain.bin.gz'
     tiles=[];palette=set();rewrites=config['inherited_state_rewrites'];rewrite_blocks={};rewrite_tiles=0;rewrite_only_tiles=0
     for tx,tz in sorted(set(world.refs)|world.dirty):
-        path=out/f'data/myvillage/structure/province_capitals/v3/capital_{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
+        path=out/f'data/yuanxian/structure/province_capitals/v3/capital_{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
         if (tx,tz) in world.dirty:
             if (tx,tz) in world.nbt_tiles:raise ValueError('修改的分块含原有实体 NBT，拒绝丢弃：'+str((tx,tz)))
             cells=world.tile((tx,tz))
@@ -282,7 +282,7 @@ def export(region,out,old,v9):
         if counts:
             rewrite_tiles+=1
             for state,count in counts.items():rewrite_blocks[state]=rewrite_blocks.get(state,0)+count
-        tiles.append({**record,'x':tx*16,'z':tz*16,'template':f'myvillage:province_capitals/v3/capital_{region}/'+path.stem,'sha256':sha(path.read_bytes()),'bytes':path.stat().st_size})
+        tiles.append({**record,'x':tx*16,'z':tz*16,'template':f'yuanxian:province_capitals/v3/capital_{region}/'+path.stem,'sha256':sha(path.read_bytes()),'bytes':path.stat().st_size})
     errors=load_modset('vanilla').palette_block_errors(sorted(palette))
     if errors:raise ValueError('; '.join(errors))
     m['tiles']=tiles;m['palette_states']=sorted(palette)

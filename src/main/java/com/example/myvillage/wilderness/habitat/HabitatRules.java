@@ -14,7 +14,7 @@ public final class HabitatRules {
     public HabitatRules(JsonObject input) {
         if(input==null)throw new IllegalArgumentException("缺少东荒生态规则");
         if(!input.keySet().equals(Set.of("resource_sha256")))throw new IllegalArgumentException("生态规则必须使用精确资源引用");
-        try(var stream=HabitatRules.class.getResourceAsStream("/data/myvillage/wilderness/habitats.json")){
+        try(var stream=HabitatRules.class.getResourceAsStream("/data/yuanxian/wilderness/habitats.json")){
             if(stream==null)throw new IllegalArgumentException("缺少生态模板资源");
             byte[] bytes=stream.readAllBytes();
             if(bytes.length>1024*1024||!com.example.myvillage.worldplan.WorldPlanRules.sha256(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).equals(input.get("resource_sha256").getAsString()))throw new IllegalArgumentException("生态模板摘要不一致");

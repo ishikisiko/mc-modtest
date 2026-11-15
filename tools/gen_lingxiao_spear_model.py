@@ -53,16 +53,16 @@ except ImportError:  # run as a script: tools/ itself is on sys.path
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
-ASSETS = ROOT / "src/main/resources/assets/myvillage"
+ASSETS = ROOT / "src/main/resources/assets/yuanxian"
 MODEL_PATH = ASSETS / "models/item/lingxiao_spear.json"
 MODEL_3D_PATH = ASSETS / "models/item/lingxiao_spear_3d.json"
 TEXTURE_PATH = ASSETS / "textures/item/lingxiao_spear_model.png"
 ICON_PATH = ASSETS / "textures/item/lingxiao_spear.png"
 GEOMETRY_PATH = ASSETS / "combat/lingxiao_spear_geometry.json"
 
-MODEL_3D_ID = "myvillage:item/lingxiao_spear_3d"
-TEXTURE_ID = "myvillage:item/lingxiao_spear_model"
-ICON_TEXTURE_ID = "myvillage:item/lingxiao_spear"
+MODEL_3D_ID = "yuanxian:item/lingxiao_spear_3d"
+TEXTURE_ID = "yuanxian:item/lingxiao_spear_model"
+ICON_TEXTURE_ID = "yuanxian:item/lingxiao_spear"
 TEXTURE_SIZE = 128
 TEXELS_PER_UV = TEXTURE_SIZE / 16.0
 ICON_SIZE = 64

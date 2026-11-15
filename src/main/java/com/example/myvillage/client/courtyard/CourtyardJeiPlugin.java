@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 /** Optional JEI leaf. Variants stay behind the native selector, not separate ingredients. */
 @JeiPlugin
 public final class CourtyardJeiPlugin implements IModPlugin {
-    @Override public ResourceLocation getPluginUid(){return ResourceLocation.fromNamespaceAndPath("myvillage","courtyard");}
+    @Override public ResourceLocation getPluginUid(){return ResourceLocation.fromNamespaceAndPath("yuanxian","courtyard");}
     @Override public void registerRecipes(IRecipeRegistration registration){
-        CourtyardContent.ITEMS_BY_FAMILY.values().forEach(item->registration.addIngredientInfo(item.get(),Component.translatable("tooltip.myvillage.courtyard.select")));
+        CourtyardContent.ITEMS_BY_FAMILY.values().forEach(item->registration.addIngredientInfo(item.get(),Component.translatable("tooltip.yuanxian.courtyard.select")));
     }
     @Override public void onRuntimeAvailable(IJeiRuntime runtime){
         var entries=runtime.getIngredientManager().getAllIngredients(VanillaTypes.ITEM_STACK).stream().filter(s->s.getItem() instanceof CourtyardAssemblyItem).toList();

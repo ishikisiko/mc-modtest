@@ -8,7 +8,7 @@
 
 各流派已学主动招式首次有效命中获得基础熟练，默认1点；四门成长样例中已指定的命中奖励仍读各自数表，剑气诀仍为2点。多目标、多段、领域脉冲和持续奇术每次施法只结算一次。未命中、免疫或没有实际成功伤害的攻击不奖励；纯防御法术没有攻击命中奖励。该基础入口也供没有流派悟性的玩家使用；未配置五阶段成长的招式只保存熟练点数，本轮没有为全部招式增加五阶段数值效果。
 
-配置分别为 `myvillage/innate_fate/school_insight.json` 的两项加成，以及 `tools/technique_growth/sample.json` 的 `default_active_hit_gain`。成长输出经 `tools/gen_technique_growth.py` 生成。
+配置分别为 `yuanxian/innate_fate/school_insight.json` 的两项加成，以及 `tools/technique_growth/sample.json` 的 `default_active_hit_gain`。成长输出经 `tools/gen_technique_growth.py` 生成。
 
 选定流派由 `SchoolInsightState` 附件持有，只经 `CultivationService` 写入并使用 copyOnDeath。原天命意图追加有界流派ID，依旧复核会话token、距离、存活、根、草稿revision、三选预算和流派资格；非确认动作不能携带流派，未选择对应天命不能附带流派。协议68同步该选择及功法熟练余数。当前开发版不增加旧存档迁移。
 

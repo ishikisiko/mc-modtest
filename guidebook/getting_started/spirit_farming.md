@@ -3,12 +3,12 @@ navigation:
   title: 灵土与六味药材
   parent: index.md
   position: 42
-  icon: myvillage:spirit_soil
+  icon: yuanxian:spirit_soil
 ---
 
 # 灵土与六味药材
 
-<Recipe id="myvillage:spirit_soil" />
+<Recipe id="yuanxian:spirit_soil" />
 
 灵土可以直接种植，不需要锄耕、邻水或定期浇水，也不会像原版耕地一样被踩回泥土。六味灵药须种在灵土上，不能用普通耕地替代。
 

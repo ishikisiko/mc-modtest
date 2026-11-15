@@ -42,7 +42,7 @@
 /yuanxian roads audit
 ```
 
-`status` 显示布局计算、已规划路线和当前加载的道路区块。加载区块数不是整张大陆已经生成或玩家已经走通的证明。`export` 导出世界目录下 `data/myvillage/worldplan/roads.json`；`audit` 只读检查当前已加载道路区块，未加载项明确保留。
+`status` 显示布局计算、已规划路线和当前加载的道路区块。加载区块数不是整张大陆已经生成或玩家已经走通的证明。`export` 导出世界目录下 `data/yuanxian/worldplan/roads.json`；`audit` 只读检查当前已加载道路区块，未加载项明确保留。
 
 管理员可显式预生成并逐区块检查整张道路范围（包括城门）:
 

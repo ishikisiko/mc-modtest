@@ -57,7 +57,7 @@ public final class ForgingAnvilBlock extends HorizontalDirectionalBlock implemen
         if(player.isSpectator()||!player.isAlive())return InteractionResult.FAIL;
         if(player instanceof ServerPlayer server){
             if (!(level.getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil) || !anvil.available()) {
-                server.displayClientMessage(Component.translatable("workshop.myvillage.occupied"),true);
+                server.displayClientMessage(Component.translatable("workshop.yuanxian.occupied"),true);
                 return InteractionResult.CONSUME;
             }
             if(!player.isShiftKeyDown()){
@@ -66,7 +66,7 @@ public final class ForgingAnvilBlock extends HorizontalDirectionalBlock implemen
             }
             server.openMenu(new SimpleMenuProvider(
                 (id,inventory,viewer)->new WorkshopMenu(id,inventory,ContainerLevelAccess.create(level,pos)),
-                Component.translatable("workshop.myvillage.title")));
+                Component.translatable("workshop.yuanxian.title")));
         }
         return InteractionResult.sidedSuccess(level.isClientSide());
     }

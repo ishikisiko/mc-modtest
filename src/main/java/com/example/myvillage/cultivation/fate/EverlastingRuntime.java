@@ -10,10 +10,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 /** 由个人寿元的有效 tick 驱动；无离线追补、世界时间或客户端计数入口。 */
 public final class EverlastingRuntime {
-    private static final String FATE = "myvillage:everlasting_embryo";
-    public static final ResourceLocation HEALTH = ResourceLocation.parse("myvillage:everlasting_health");
-    public static final ResourceLocation DEFENSE = ResourceLocation.parse("myvillage:everlasting_defense");
-    public static final ResourceLocation ATTACK = ResourceLocation.parse("myvillage:everlasting_attack");
+    private static final String FATE = "yuanxian:everlasting_embryo";
+    public static final ResourceLocation HEALTH = ResourceLocation.parse("yuanxian:everlasting_health");
+    public static final ResourceLocation DEFENSE = ResourceLocation.parse("yuanxian:everlasting_defense");
+    public static final ResourceLocation ATTACK = ResourceLocation.parse("yuanxian:everlasting_attack");
     private EverlastingRuntime() { }
     public static EverlastingState state(ServerPlayer player) { return player.getData(CultivationAttachments.EVERLASTING.get()); }
     public static EverlastingState state(net.minecraft.world.entity.LivingEntity actor) {

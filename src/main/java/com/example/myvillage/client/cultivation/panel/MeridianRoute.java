@@ -28,8 +28,8 @@ public record MeridianRoute(
             XIAOZHOUTIAN,
             MeridianChart.smallCircuit(),
             allChannels(),
-            "screen.myvillage.cultivation.meridian.title",
-            "screen.myvillage.cultivation.meridian.flow");
+            "screen.yuanxian.cultivation.meridian.title",
+            "screen.yuanxian.cultivation.meridian.flow");
 
     private static final Map<String, MeridianRoute> ROUTES = Map.of(XIAOZHOUTIAN, SMALL_CIRCUIT);
 

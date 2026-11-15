@@ -70,7 +70,7 @@
     "mask": "uv_islands_mask.png",
     "preview": "atlas_preview.png",
     "validation": "texture_validation.json",
-    "runtime_texture": "src/main/resources/assets/myvillage/textures/entity/simple_fox/simple_fox.png",
+    "runtime_texture": "src/main/resources/assets/yuanxian/textures/entity/simple_fox/simple_fox.png",
     "runtime_texture_sha256": "8e367c8ac884ac8c55b15fd268a3f56309b0d4cba72987bbb6ffab5c843f5ecd",
     "resampling": "nearest",
     "unused_texels": "transparent black",

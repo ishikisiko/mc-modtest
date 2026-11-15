@@ -29,7 +29,7 @@ def main():
     d.text((25,20),'凝元灵木 · 实际模型与贴图',font=title,fill=(42,67,53))
     d.text((25,62),'离线模型检查；整树、告示牌与船以云端实机画面为准',font=font,fill=(93,91,76))
     for i,(name,label) in enumerate(samples):
-        ref='myvillage:block/'+name;m=pim.resolve_model(assets,assets.model_json(ref),ref)
+        ref='yuanxian:block/'+name;m=pim.resolve_model(assets,assets.model_json(ref),ref)
         if m.errors:raise ValueError((name,m.errors))
         quads=[((q.pos-np.array([8,0,8]))/16,q.uv,q.tex,None) for j,e in enumerate(m.elements) for q in pim.element_quads(assets,m,e,j)]
         shot=render(quads,Frame((-1,.65,-1.3),260,200,135,(0,.5,0),ss=2),bg=bg,ground=False,body_rot=180)

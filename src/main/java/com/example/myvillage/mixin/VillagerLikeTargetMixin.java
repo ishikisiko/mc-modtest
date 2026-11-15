@@ -29,7 +29,7 @@ public abstract class VillagerLikeTargetMixin extends TargetGoal {
     protected VillagerLikeTargetMixin(Mob mob, boolean mustSee) { super(mob, mustSee); }
 
     @Inject(method = "findTarget()V", at = @At("HEAD"), cancellable = true, require = 1, allow = 1, remap = false)
-    private void myvillage$includeCultivators(CallbackInfo callback) {
+    private void yuanxian$includeCultivators(CallbackInfo callback) {
         if (!(mob instanceof Enemy) || !AbstractVillager.class.isAssignableFrom(targetType)
                 || !BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).getNamespace().equals("minecraft")) return;
         target = mob.level().getNearestEntity(

@@ -11,8 +11,8 @@ from tools.forging.patterns import PatternArt, ROOT
 
 def generate(out, root=ROOT):
     out = Path(out); out.mkdir(parents=True, exist_ok=True)
-    base = root / 'src/main/resources/assets/myvillage'
-    rules = json.loads((root / 'src/main/resources/data/myvillage/forging/rules.json').read_text())['recipes']
+    base = root / 'src/main/resources/assets/yuanxian'
+    rules = json.loads((root / 'src/main/resources/data/yuanxian/forging/rules.json').read_text())['recipes']
     names = json.loads((base / 'lang/zh_cn.json').read_text())
     art = PatternArt(root)
     # Show armor first: this was the acceptance request, with the rest sharing its template.
@@ -25,7 +25,7 @@ def generate(out, root=ROOT):
         source = base / f'textures/item/{item}.png'
         destination = out / source.name
         destination.write_bytes(source.read_bytes())
-        label = names['item.myvillage.' + item]
+        label = names['item.yuanxian.' + item]
         cards.append(f'<figure><div class="icon"><img src="{destination.resolve()}" alt="{html.escape(label)}"></div><figcaption>{html.escape(label)}</figcaption></figure>')
         icon = Image.open(source).convert('RGBA')
         x, y = (index % 5)*200+36, (index//5)*220+14

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class WildernessRulesTest {
     private static JsonObject json() throws Exception {
-        return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/wilderness/rules.json"))).getAsJsonObject();
+        return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/wilderness/rules.json"))).getAsJsonObject();
     }
     @Test void catalogRangesHaveInclusiveReachableEndpointsAndStableDraws() {
         WildernessRules rules = WildernessRules.bundled();
@@ -48,13 +48,13 @@ class WildernessRulesTest {
     @Test void invalidRangeRealmAndBoundedSettingsFailAsOneRuleset() throws Exception {
         JsonObject root = json();
         JsonObject endpoint = root.getAsJsonObject("regions").getAsJsonObject("ximo").getAsJsonObject("beast").getAsJsonObject("min");
-        endpoint.addProperty("realm", "myvillage:nascent_soul");
+        endpoint.addProperty("realm", "yuanxian:nascent_soul");
         assertThrows(IllegalArgumentException.class, () -> WildernessRules.parse(root.toString(), StatsRules.bundled()));
         JsonObject invalidStage = json();
         invalidStage.getAsJsonObject("regions").getAsJsonObject("ximo").getAsJsonObject("beast").getAsJsonObject("min").addProperty("stage", 9);
         assertThrows(IllegalArgumentException.class, () -> WildernessRules.parse(invalidStage.toString(), StatsRules.bundled()));
         JsonObject unknown = json();
-        unknown.getAsJsonObject("regions").getAsJsonObject("ximo").getAsJsonObject("beast").getAsJsonObject("max").addProperty("realm", "myvillage:made_up");
+        unknown.getAsJsonObject("regions").getAsJsonObject("ximo").getAsJsonObject("beast").getAsJsonObject("max").addProperty("realm", "yuanxian:made_up");
         assertThrows(IllegalArgumentException.class, () -> WildernessRules.parse(unknown.toString(), StatsRules.bundled()));
         for (String field : new String[]{"interval_ticks", "max_total", "attempts_per_pass", "probes_per_person"}) {
             JsonObject bad = json(); bad.getAsJsonObject("rogues").addProperty(field, 0);

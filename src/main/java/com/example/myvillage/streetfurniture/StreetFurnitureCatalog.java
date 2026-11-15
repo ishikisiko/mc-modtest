@@ -18,7 +18,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** 模型与碰撞来自同一份 authored 设施目录，不再把小构件取整为完整方块。 */
 public final class StreetFurnitureCatalog {
-    public static final String RESOURCE="/data/myvillage/street_furniture/catalog.json";
+    public static final String RESOURCE="/data/yuanxian/street_furniture/catalog.json";
 
     public record Box(double x0,double y0,double z0,double x1,double y1,double z1) {
         public Box {

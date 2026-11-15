@@ -16,7 +16,7 @@ def main():
         for c in ('gamerule doDaylightCycle false','weather clear',f'effect clear {e.s.username}',f'gamemode spectator {e.s.username}'):e.rc(c)
         # Re-place the four fixture lamps so both builds recompute saved block lighting.
         for part in e.parts['high']:
-            if part['block']!='myvillage:purple_gathering_lamp':continue
+            if part['block']!='yuanxian:purple_gathering_lamp':continue
             dx,dy,dz=part['offset'];where=f'{18+dx} {-61+dy} {3+dz}'
             e.rc(f'setblock {where} minecraft:air')
             e.rc(f'setblock {where} '+part['block']+'[facing='+part['facing']+']')

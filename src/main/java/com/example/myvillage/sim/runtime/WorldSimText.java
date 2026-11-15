@@ -12,7 +12,7 @@ import net.minecraft.network.chat.MutableComponent;
  * cause phrase) and become nested translatables; any other param (names, numbers) is literal.
  */
 public final class WorldSimText {
-    public static final String KEY = "commands.myvillage.world.";
+    public static final String KEY = "commands.yuanxian.world.";
 
     private WorldSimText() {
     }
@@ -78,7 +78,7 @@ public final class WorldSimText {
         return Component.translatableWithFallback(KEY + "sect_state." + state, state);
     }
 
-    /** A {@code commands.myvillage.world.<suffix>} line. */
+    /** A {@code commands.yuanxian.world.<suffix>} line. */
     public static MutableComponent line(String suffix, Object... args) {
         return Component.translatable(KEY + suffix, args);
     }

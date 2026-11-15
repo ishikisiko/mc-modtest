@@ -52,7 +52,7 @@ public record SpiritBodyRules(Adaptation adaptation, Phoenix phoenix,
     private static final class Holder { private static final SpiritBodyRules VALUE = load(); }
     public static SpiritBodyRules get() { return Holder.VALUE; }
     private static SpiritBodyRules load() {
-        try (var in = SpiritBodyRules.class.getResourceAsStream("/data/myvillage/fates/spirit_bodies.json")) {
+        try (var in = SpiritBodyRules.class.getResourceAsStream("/data/yuanxian/fates/spirit_bodies.json")) {
             if (in == null) throw new IllegalStateException("缺少灵体配置");
             return parse(JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (java.io.IOException e) { throw new IllegalStateException("读取灵体配置失败", e); }

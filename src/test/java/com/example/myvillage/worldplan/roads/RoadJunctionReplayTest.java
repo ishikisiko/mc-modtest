@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** 重放完整寻路后保留下来的真实输入；失败不会以缩路幅或改土方上限放行。 */
 class RoadJunctionReplayTest {
-    static java.util.stream.Stream<Path> capturedInputs(){return Arrays.stream(System.getProperty("myvillage.road.junction.replay").split(",")).map(Path::of);}
-    @ParameterizedTest @MethodSource("capturedInputs") @EnabledIfSystemProperty(named="myvillage.road.junction.replay",matches=".+")
+    static java.util.stream.Stream<Path> capturedInputs(){return Arrays.stream(System.getProperty("yuanxian.road.junction.replay").split(",")).map(Path::of);}
+    @ParameterizedTest @MethodSource("capturedInputs") @EnabledIfSystemProperty(named="yuanxian.road.junction.replay",matches=".+")
     void capturedNetworkStillKeepsEveryHubAndOriginalCarriageColumn(Path captured)throws Exception {
         JsonObject input;
         try(var stream=new GZIPInputStream(Files.newInputStream(captured))){
@@ -22,7 +22,7 @@ class RoadJunctionReplayTest {
         Map<Long,Integer> heights=new HashMap<>();
         for(var value:input.getAsJsonArray("heights")){var p=value.getAsJsonArray();heights.put(RoadPlan.Cell.key(p.get(0).getAsInt(),p.get(1).getAsInt()),p.get(2).getAsInt());}
         com.example.myvillage.worldplan.WorldPlan world;
-        try(var stream=getClass().getResourceAsStream("/data/myvillage/worldplan/frozen_v11.json")){
+        try(var stream=getClass().getResourceAsStream("/data/yuanxian/worldplan/frozen_v11.json")){
             world=new com.example.myvillage.worldplan.WorldPlan(input.get("seed").getAsLong(),new com.example.myvillage.worldplan.WorldPlanRules(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)));
         }
         var rules=RoadRules.load();var permission=RoadJunctionPlanner.permission(world,rules);

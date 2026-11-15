@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import org.junit.jupiter.api.Test;
 
 class ObservationRuntimeTest {
-    private static final String REALM = "myvillage:stats_realm";
+    private static final String REALM = "yuanxian:stats_realm";
     @Test void unassignedEntitiesAreMortalButMalformedAssignmentsAreUnknown() {
         assertEquals(StatsRules.bundled().realmKey("mortal", 0),
                 ObservationRuntime.storedRealm(new CompoundTag()).orElseThrow());
@@ -16,7 +16,7 @@ class ObservationRuntimeTest {
         assertTrue(ObservationRuntime.storedRealm(data).isEmpty());
         var realm = new CompoundTag(); data.put(REALM, realm);
         assertTrue(ObservationRuntime.storedRealm(data).isEmpty());
-        realm.putString("realm", "myvillage:qi_refining"); realm.putInt("stage", 3);
+        realm.putString("realm", "yuanxian:qi_refining"); realm.putInt("stage", 3);
         assertEquals(StatsRules.bundled().realmKey("qi_refining", 3),
                 ObservationRuntime.storedRealm(data).orElseThrow());
         realm.putString("stage", "3");
@@ -25,7 +25,7 @@ class ObservationRuntimeTest {
         assertTrue(ObservationRuntime.storedRealm(data).isEmpty());
         realm.putInt("stage", 9);
         assertTrue(ObservationRuntime.storedRealm(data).isEmpty());
-        realm.putString("realm", "myvillage:unknown"); realm.putInt("stage", 0);
+        realm.putString("realm", "yuanxian:unknown"); realm.putInt("stage", 0);
         assertTrue(ObservationRuntime.storedRealm(data).isEmpty());
     }
     @Test void coarseChatContainsTheSameComponentForEveryLayerInItsInterval() {

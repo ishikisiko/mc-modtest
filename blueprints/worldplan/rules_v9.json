@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "algorithm": "myvillage:worldplan_v9",
+  "algorithm": "yuanxian:worldplan_v9",
   "base": "frozen_v8.json",
   "assets": {
     "accepted_versions": ["v1", "v2"],

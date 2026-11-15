@@ -50,7 +50,7 @@ final class CombatHotbarHud {
                 var palette=PanelAssets.grade(ModCultivationRegistries.technique(mc.level.registryAccess(),id).map(d->d.grade()).orElse(1));
                 g.fill(x+2,y+2,x+size-2,y+size-2,palette.wash());
                 PanelAssets.draw(g,PanelAssets.technique(id,TechniqueCategory.ACTIVE),x+2,y+2,size-4);
-                g.drawString(mc.font,Component.translatable("combat.myvillage.elemental."+elemental.get().element().id()+".symbol"),
+                g.drawString(mc.font,Component.translatable("combat.yuanxian.elemental."+elemental.get().element().id()+".symbol"),
                         x+size-10,y+size-10,palette.text(),false);
             } else {
             var texture=kind==com.example.myvillage.combat.SkillBindingRules.Kind.WAVE || index==2?icon("wave"):
@@ -92,7 +92,7 @@ final class CombatHotbarHud {
             g.drawString(mc.font,label,0,0,0xFFF2E6CB,false);g.pose().popPose();
         }
     }
-    private static ResourceLocation icon(String name){return ResourceLocation.parse("myvillage:textures/gui/advanced_arts/"+name+".png");}
+    private static ResourceLocation icon(String name){return ResourceLocation.parse("yuanxian:textures/gui/advanced_arts/"+name+".png");}
     private static String keyName(KeyMapping key){
         return switch(key.getKey().getName()) {
             case "key.mouse.right"->"右键";case "key.mouse.left"->"左键";case "key.mouse.middle"->"中键";

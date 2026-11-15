@@ -24,19 +24,19 @@ public final class CultivationInitiationMessages {
             SpiritualRootAwakeningService.Outcome outcome) {
         return switch (outcome.status()) {
             case SUCCESS -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.awakening.success",
+                    "message.yuanxian.cultivation.awakening.success",
                     affinitySummary(player, outcome.profile())));
             case ALREADY_AWAKENED -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.awakening.already_awakened",
+                    "message.yuanxian.cultivation.awakening.already_awakened",
                     affinitySummary(player, outcome.profile())));
             case INVALID_PROFILE_STATE -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.awakening.invalid_profile_state"));
+                    "message.yuanxian.cultivation.awakening.invalid_profile_state"));
             case NO_ELIGIBLE_ELEMENTS -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.awakening.no_eligible_elements"));
+                    "message.yuanxian.cultivation.awakening.no_eligible_elements"));
             case GENERATION_FAILED -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.awakening.generation_failed"));
+                    "message.yuanxian.cultivation.awakening.generation_failed"));
             case UPDATE_REJECTED -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.awakening.update_rejected"));
+                    "message.yuanxian.cultivation.awakening.update_rejected"));
         };
     }
 
@@ -46,21 +46,21 @@ public final class CultivationInitiationMessages {
         return switch (outcome.status()) {
             case SUCCESS -> List.of(
                     Component.translatable(
-                            "message.myvillage.cultivation.inheritance.success",
+                            "message.yuanxian.cultivation.inheritance.success",
                             basicBreathingName(player)),
-                    Component.translatable("message.myvillage.cultivation.inheritance.view_profile"),
-                    Component.translatable("message.myvillage.cultivation.inheritance.practice_controls"));
+                    Component.translatable("message.yuanxian.cultivation.inheritance.view_profile"),
+                    Component.translatable("message.yuanxian.cultivation.inheritance.practice_controls"));
             case NOT_AWAKENED -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.inheritance.not_awakened"));
+                    "message.yuanxian.cultivation.inheritance.not_awakened"));
             case REQUIREMENTS_NOT_MET -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.inheritance.requirements_not_met"));
+                    "message.yuanxian.cultivation.inheritance.requirements_not_met"));
             case TECHNIQUE_NOT_REGISTERED -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.inheritance.technique_not_registered"));
+                    "message.yuanxian.cultivation.inheritance.technique_not_registered"));
             case ALREADY_LEARNED -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.inheritance.already_learned",
+                    "message.yuanxian.cultivation.inheritance.already_learned",
                     basicBreathingName(player)));
             case UPDATE_REJECTED -> List.of(Component.translatable(
-                    "message.myvillage.cultivation.inheritance.update_rejected"));
+                    "message.yuanxian.cultivation.inheritance.update_rejected"));
         };
     }
 
@@ -77,7 +77,7 @@ public final class CultivationInitiationMessages {
                         .reversed()
                         .thenComparing(entry -> entry.getKey().toString()))
                 .map(entry -> Component.translatable(
-                        "message.myvillage.cultivation.affinity_entry",
+                        "message.yuanxian.cultivation.affinity_entry",
                         elementName(elements, entry.getKey()),
                         entry.getValue() / 100,
                         String.format(java.util.Locale.ROOT, "%02d", entry.getValue() % 100)))
@@ -86,7 +86,7 @@ public final class CultivationInitiationMessages {
         for (int index = 0; index < entries.size(); index++) {
             if (index > 0) {
                 summary.append(Component.translatable(
-                        "message.myvillage.cultivation.affinity_separator"));
+                        "message.yuanxian.cultivation.affinity_separator"));
             }
             summary.append(entries.get(index));
         }

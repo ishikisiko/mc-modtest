@@ -45,7 +45,7 @@ public record TechniqueGrowthRules(int practiceTicks, int insightUnlockStage, in
     public Optional<Technique> find(ResourceLocation id) { return Optional.ofNullable(techniques.get(id)); }
 
     private static TechniqueGrowthRules load() {
-        String path = "/data/myvillage/cultivation/technique_growth.json";
+        String path = "/data/yuanxian/cultivation/technique_growth.json";
         try (var input = TechniqueGrowthRules.class.getResourceAsStream(path)) {
             if (input == null) throw new IllegalStateException("Missing " + path);
             return parse(JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject());

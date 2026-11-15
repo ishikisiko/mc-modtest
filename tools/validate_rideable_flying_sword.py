@@ -10,8 +10,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-JAVA = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage"
-ASSETS = ROOT / "src" / "main" / "resources" / "assets" / "myvillage"
+JAVA = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian"
+ASSETS = ROOT / "src" / "main" / "resources" / "assets" / "yuanxian"
 
 REQUIRED_FILES = (
     ROOT / "genops" / "contracts" / "items" / "rideable_flying_sword.json",
@@ -28,7 +28,7 @@ REQUIRED_FILES = (
     ASSETS / "textures" / "item" / "rideable_flying_sword.png",
     ASSETS / "models" / "item" / "azure_cloud_flying_sword.json",
     ASSETS / "textures" / "item" / "flying_sword_palette.png",
-    ROOT / "src/main/resources/data/myvillage/flying_sword/rules.json",
+    ROOT / "src/main/resources/data/yuanxian/flying_sword/rules.json",
     JAVA / "entity" / "flight" / "FlyingSwordEvents.java",
     JAVA / "entity" / "flight" / "FlyingSwordInventory.java",
 )
@@ -145,13 +145,13 @@ def validate() -> list[str]:
             if any(not (-16 <= a < b <= 32) for a,b in zip(element["from"], element["to"])):
                 errors.append(f"invalid_model_volume:{name}")
     lang = json.loads(read(ASSETS / "lang" / "zh_cn.json"))
-    if lang.get("item.myvillage.azure_cloud_flying_sword") != "青霄飞剑": errors.append("missing_azure_name")
+    if lang.get("item.yuanxian.azure_cloud_flying_sword") != "青霄飞剑": errors.append("missing_azure_name")
 
     for locale in ("en_us", "zh_cn"):
         lang = json.loads(read(ASSETS / "lang" / f"{locale}.json"))
         for key in (
-            "item.myvillage.rideable_flying_sword",
-            "entity.myvillage.rideable_flying_sword",
+            "item.yuanxian.rideable_flying_sword",
+            "entity.yuanxian.rideable_flying_sword",
         ):
             if key not in lang:
                 errors.append(f"missing_lang:{locale}:{key}")

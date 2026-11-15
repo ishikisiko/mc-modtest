@@ -10,7 +10,7 @@ class FieldLedgerTest {
     private static final UUID SOURCE = new UUID(1, 1), OTHER_SOURCE = new UUID(2, 2);
     private static final UUID TARGET = new UUID(3, 3), OTHER_TARGET = new UUID(4, 4);
     private static FieldLedger.Key key(UUID source, String kind) {
-        return new FieldLedger.Key(source, kind, "ROOT", "myvillage:测试维度");
+        return new FieldLedger.Key(source, kind, "ROOT", "yuanxian:测试维度");
     }
     private static void root(FieldLedger ledger, long id, UUID source, String kind, long now) {
         ledger.add(id, key(source, kind), now, 60, 5, 2, true);

@@ -12,7 +12,7 @@ import net.minecraft.world.item.ArmorItem;
 
 /** Bundled item identities are fixed at registration; resource reloads only replace their art. */
 public final class EquipmentCatalogue {
-    private static final String PATH = "/data/myvillage/equipment/catalogue.json";
+    private static final String PATH = "/data/yuanxian/equipment/catalogue.json";
 
     public record Entry(ResourceLocation id, ArmorItem.Type type, int durabilityMultiplier,
                         ResourceLocation model, ResourceLocation texture) { }
@@ -43,7 +43,7 @@ public final class EquipmentCatalogue {
         for (var element : array) {
             var item = element.getAsJsonObject();
             var id = ResourceLocation.parse(item.get("id").getAsString());
-            if (!id.getNamespace().equals("myvillage") || !id.getPath().matches("[a-z][a-z0-9_]*") || !seen.add(id))
+            if (!id.getNamespace().equals("yuanxian") || !id.getPath().matches("[a-z][a-z0-9_]*") || !seen.add(id))
                 throw new IllegalArgumentException("Invalid or duplicate equipment id " + id);
             var type = switch (item.get("slot").getAsString()) {
                 case "head" -> ArmorItem.Type.HELMET;

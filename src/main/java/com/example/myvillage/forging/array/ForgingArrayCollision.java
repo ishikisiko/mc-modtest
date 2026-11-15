@@ -13,7 +13,7 @@ public final class ForgingArrayCollision {
     private static class Holder { static final Map<Direction,Map<BlockPos,VoxelShape>> SHAPES=load(); }
     private ForgingArrayCollision() { }
     private static Map<Direction,Map<BlockPos,VoxelShape>> load(){
-        try(var stream=ForgingArrayCollision.class.getResourceAsStream("/assets/myvillage/forging_array/formed_mesh.json")){
+        try(var stream=ForgingArrayCollision.class.getResourceAsStream("/assets/yuanxian/forging_array/formed_mesh.json")){
             if(stream==null)throw new IllegalStateException("Missing forging array mesh");
             var root=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
             Map<Direction,Map<BlockPos,VoxelShape>> all=new EnumMap<>(Direction.class);

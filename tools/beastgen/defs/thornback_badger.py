@@ -1,6 +1,6 @@
 """thornback_badger owned model, material and animation adapter."""
 from .. import roster
-ID = "myvillage:thornback_badger"
+ID = "yuanxian:thornback_badger"
 NAME = "thornback_badger"
 HITBOX = tuple(roster.entry(NAME)["dimensions"][k] for k in ("width","height"))
 def build_model(): return roster.build_model(NAME)

@@ -21,7 +21,7 @@ def build_shared_context(root: Path, run_dir: Path, repo: dict[str, Any], pipeli
                 "AGENTS.md",
                 "docs/contracts/",
                 "tools/",
-                "src/main/resources/data/myvillage/",
+                "src/main/resources/data/yuanxian/",
             ],
             "pipeline": pipeline.path,
         },

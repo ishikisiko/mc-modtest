@@ -16,7 +16,7 @@ class ThunderTigerEvidenceTest(unittest.TestCase):
         before={'UUID':[1,2,3,4],'Health':600.0,'Pos':[0,70,0],'Motion':[0,0,0],
                 'Rotation':[0,0],'HurtTime':0,'DeathTime':0,'thunder_tiger':{
                 'horn_broken':0,'phase':1,'home':1,'pillars':[2,3],
-                'encounter_realm':'myvillage:foundation_establishment','encounter_stage':0}}
+                'encounter_realm':'yuanxian:foundation_establishment','encounter_stage':0}}
         instance.s=type('Actor',(),{'username':'CaptureDev'})()
         instance.target='boss-uuid'
         def command(command):
@@ -149,14 +149,14 @@ class ThunderTigerEvidenceTest(unittest.TestCase):
             self.assertIn('tag=thunder_tiger_lair_boss',instance.target)
 
     def test_root_status_parser_accepts_real_root_only_and_refuses_incomplete_root(self):
-        root=('myvillage:thunder_tiger #7 pos=(1,70,3) hp=600 move=none tick=-1 '
+        root=('yuanxian:thunder_tiger #7 pos=(1,70,3) hp=600 move=none tick=-1 '
               'uuid=00000000-0000-0000-0000-000000000007 max=600 boss_phase=1 '
               'horn_broken=false horn_exposure=0')
         rows=evidence.parse_boss_roots(root+'\n')
         self.assertEqual(len(rows),1)
         self.assertEqual(rows[0]['uuid'],'00000000-0000-0000-0000-000000000007')
         self.assertEqual(evidence.parse_boss_roots('No beast selected\n'),[])
-        with self.assertRaises(ValueError):evidence.parse_boss_roots('myvillage:thunder_tiger #7 hp=600')
+        with self.assertRaises(ValueError):evidence.parse_boss_roots('yuanxian:thunder_tiger #7 hp=600')
 
     def test_pristine_export_precedes_combat_and_wounded_export_has_distinct_stage(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -243,7 +243,7 @@ class ThunderTigerEvidenceTest(unittest.TestCase):
             with self.assertRaises(ValueError): evidence.select_cases(value)
 
     def test_status_refuses_incomplete_or_invalid_authoritative_data(self):
-        line = ('myvillage:thunder_tiger pos=(1.0, 70.0, -8.0) hp=580 yaw=180 move=none tick=-1 '
+        line = ('yuanxian:thunder_tiger pos=(1.0, 70.0, -8.0) hp=580 yaw=180 move=none tick=-1 '
                 'uuid=01234567-89ab-cdef-0123-456789abcdef max=600 boss_phase=2 '
                 'horn_broken=true horn_exposure=0 home=<1,70,-8> horn_pos=<1,71.45,-10.9>')
         row=evidence.parse_boss_status(line)
@@ -280,7 +280,7 @@ class ThunderTigerEvidenceTest(unittest.TestCase):
     def test_restart_requires_identity_health_horn_phase_and_lair_not_defaults(self):
         before={'UUID':[1,2,3,4],'Health':123.5,'thunder_tiger':{
             'horn_broken':1,'phase':2,'home':12345,'pillars':[456,789],
-            'encounter_realm':'myvillage:foundation','encounter_stage':0}}
+            'encounter_realm':'yuanxian:foundation','encounter_stage':0}}
         after=copy.deepcopy(before)
         self.assertTrue(evidence.persistence_equal(before,after))
         after['thunder_tiger']['horn_broken']=0
@@ -293,8 +293,8 @@ class ThunderTigerEvidenceTest(unittest.TestCase):
         self.assertFalse(evidence.persistence_equal(before,after))
 
     def test_reward_inventory_readback_allows_weapon_wear_but_detects_added_items(self):
-        initial=[{'id':'myvillage:qingfeng_sword','count':1,'components':{'minecraft:damage':0}}]
-        used=[{'id':'myvillage:qingfeng_sword','count':1,'components':{'minecraft:damage':1}}]
+        initial=[{'id':'yuanxian:qingfeng_sword','count':1,'components':{'minecraft:damage':0}}]
+        used=[{'id':'yuanxian:qingfeng_sword','count':1,'components':{'minecraft:damage':1}}]
         self.assertEqual(evidence.inventory_counts(initial),evidence.inventory_counts(used))
         used.append({'id':'minecraft:diamond','count':1})
         self.assertNotEqual(evidence.inventory_counts(initial),evidence.inventory_counts(used))

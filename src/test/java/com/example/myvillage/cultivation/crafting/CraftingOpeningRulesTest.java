@@ -11,7 +11,7 @@ class CraftingOpeningRulesTest {
     private String source()throws Exception{try(var in=getClass().getResourceAsStream(CraftingOpeningRules.RESOURCE)){return new String(in.readAllBytes(),StandardCharsets.UTF_8);}}
     @Test void hashMatchesIndependentPythonOracleAndUsesProfessionAndFateDomains(){
         var rules=CraftingOpeningRules.get();var player=UUID.fromString("00112233-4455-6677-8899-aabbccddeeff");
-        var ids=List.of("myvillage:robust","myvillage:lightfoot","myvillage:bright");
+        var ids=List.of("yuanxian:robust","yuanxian:lightfoot","yuanxian:bright");
         int[] alchemy={5,0,-5},forging={-5,0,0};
         for(int i=0;i<3;i++){
             assertEquals(alchemy[i],rules.contribution(player,CraftingAptitudes.Profession.ALCHEMY,ids.get(i)));
@@ -24,8 +24,8 @@ class CraftingOpeningRulesTest {
     }
     @Test void invalidSelectionsAndBucketsCannotGenerateScores(){
         var rules=CraftingOpeningRules.get();
-        assertThrows(IllegalArgumentException.class,()->new CraftingOpeningRules.Selection(List.of("myvillage:a","myvillage:a","myvillage:b"),-1,-1));
-        assertThrows(IllegalArgumentException.class,()->new CraftingOpeningRules.Selection(List.of("myvillage:a"),-1,-1));
+        assertThrows(IllegalArgumentException.class,()->new CraftingOpeningRules.Selection(List.of("yuanxian:a","yuanxian:a","yuanxian:b"),-1,-1));
+        assertThrows(IllegalArgumentException.class,()->new CraftingOpeningRules.Selection(List.of("yuanxian:a"),-1,-1));
         assertThrows(IllegalArgumentException.class,()->new CraftingOpeningRules.Selection(List.of(),60,-1));
         assertThrows(IllegalArgumentException.class,()->rules.deltaForBucket(-1));assertThrows(IllegalArgumentException.class,()->rules.deltaForBucket(100));
         assertThrows(IllegalArgumentException.class,()->rules.score(UUID.randomUUID(),CraftingAptitudes.Profession.ALCHEMY,CraftingOpeningRules.Selection.PENDING));

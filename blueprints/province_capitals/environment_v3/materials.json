@@ -27,7 +27,7 @@
     "rope": "minecraft:oak_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
     "wood_light": "minecraft:oak_planks",
     "cloth": "minecraft:white_wool",
-    "soil": "myvillage:spirit_soil",
+    "soil": "yuanxian:spirit_soil",
     "herb": "minecraft:flowering_azalea",
     "flower": "minecraft:potted_dandelion",
     "path": "minecraft:stone_bricks",
@@ -38,8 +38,8 @@
   "garden": {
     "wall": "minecraft:stone_brick_wall",
     "floor": "minecraft:stone_bricks",
-    "soil": "myvillage:spirit_soil",
-    "crop": "myvillage:spirit_leaf_crop[age=2]",
+    "soil": "yuanxian:spirit_soil",
+    "crop": "yuanxian:spirit_leaf_crop[age=2]",
     "crop_spacing": 2,
     "bed_margin": 2
   },

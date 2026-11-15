@@ -78,7 +78,7 @@ class ArchiveTests(unittest.TestCase):
     def test_release_archive_baseline_detects_generated_drift(self):
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)
-            generated = repo / "src/main/resources/data/myvillage/example.json"
+            generated = repo / "src/main/resources/data/yuanxian/example.json"
             generated.parent.mkdir(parents=True)
             generated.write_text("original")
             (repo / ".gitignore").write_text("src/main/resources/\n")
@@ -88,7 +88,7 @@ class ArchiveTests(unittest.TestCase):
             status_command = ["git", "status", "--porcelain=v1", "--untracked-files=all", "--", "src/main/resources"]
             self.assertEqual(subprocess.check_output(status_command, cwd=repo), b"")
             generated.write_text("changed by generator")
-            self.assertIn(b" M src/main/resources/data/myvillage/example.json", subprocess.check_output(status_command, cwd=repo))
+            self.assertIn(b" M src/main/resources/data/yuanxian/example.json", subprocess.check_output(status_command, cwd=repo))
             with self.assertRaisesRegex(ValueError, "unexpectedly contains .git"):
                 remote.initialize_archive_git(repo)
 

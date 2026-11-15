@@ -11,7 +11,7 @@
   "accepted_draft_sha256": "26b9b7706b79fe6ca696c82f630af502872b67a49aa0cd24fd543113c77e0280",
   "manor": {
     "scene": "blueprints/lord_manors/cities/donghuang.json",
-    "manifest": "src/main/resources/data/myvillage/lord_manors/donghuang.json",
+    "manifest": "src/main/resources/data/yuanxian/lord_manors/donghuang.json",
     "site": [
       72,
       128
@@ -32,9 +32,9 @@
         26,
         4
       ],
-      "surface": "myvillage:manor_town_grey_flagstone",
-      "slab": "myvillage:road_grey_flagstone_slab",
-      "foundation": "myvillage:manor_donghuang_stone_dark",
+      "surface": "yuanxian:manor_town_grey_flagstone",
+      "slab": "yuanxian:road_grey_flagstone_slab",
+      "foundation": "yuanxian:manor_donghuang_stone_dark",
       "rows": [
         [
           -22,
@@ -175,8 +175,8 @@
         ]
       ],
       "curb_rise2": 1,
-      "curb_surface": "myvillage:manor_town_grey_ashlar",
-      "curb_slab": "myvillage:road_grey_ashlar_slab"
+      "curb_surface": "yuanxian:manor_town_grey_ashlar",
+      "curb_slab": "yuanxian:road_grey_ashlar_slab"
     }
   },
   "landmark": {

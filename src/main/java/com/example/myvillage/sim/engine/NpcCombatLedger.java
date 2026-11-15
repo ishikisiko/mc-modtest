@@ -75,7 +75,7 @@ public final class NpcCombatLedger {
         Person victim = ctx.state.persons.get(id);
         var message = ctx.chronicle.event("slain", Math.max(2, Deaths.importance(ctx, victim)))
                 .actors(id).region(victim.regionId);
-        String causeWord = "@commands.myvillage.world.cause." + cause;
+        String causeWord = "@commands.yuanxian.world.cause." + cause;
         long event = killerName.isEmpty()
                 ? message.say(TextKeys.P + "near_death_environment", victim.name(), causeWord)
                 : message.say(TextKeys.P + "near_death", victim.name(), killerName, causeWord);

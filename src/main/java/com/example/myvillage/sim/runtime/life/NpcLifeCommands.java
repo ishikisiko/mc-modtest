@@ -29,7 +29,7 @@ import net.minecraft.server.level.ServerLevel;
 
 /** Administrator-only registration and inspection. None of these commands builds or loads chunks. */
 public final class NpcLifeCommands {
-    public static final String KEY = "commands.myvillage.life.";
+    public static final String KEY = "commands.yuanxian.life.";
     private static final Gson JSON = new GsonBuilder().disableHtmlEscaping().create();
     private static final List<String> ROLES = List.of("innkeeper", "herbalist", "smith", "rogue", "visitor", "guide",
             "herb_child", "spirit_grower", "alchemist");
@@ -147,7 +147,7 @@ public final class NpcLifeCommands {
         NpcLifeSites.observe(source.getServer(), sim, site(sim, siteId));
         List<Integer> added = NpcLifeSites.enableCommerce(source.getServer(), sim, siteId);
         var view = sim.commerce(siteId).orElseThrow();
-        source.sendSuccess(() -> Component.translatable("commands.myvillage.life.commerce", siteId,
+        source.sendSuccess(() -> Component.translatable("commands.yuanxian.life.commerce", siteId,
                 added.size(), view.treasury(), view.transactions(), view.items().toString()), false);
         return 1;
     }

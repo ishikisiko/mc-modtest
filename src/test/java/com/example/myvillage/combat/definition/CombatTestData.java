@@ -10,12 +10,12 @@ import java.nio.file.Path;
 /** The bundled combat data read straight from the source tree, for unit tests. */
 public final class CombatTestData {
     public static final Path RESOURCES = Path.of("src/main/resources");
-    public static final ResourceLocation BASIC_SWORD = ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword");
-    public static final ResourceLocation QINGFENG_SWORD = ResourceLocation.fromNamespaceAndPath("myvillage", "qingfeng_sword");
-    public static final ResourceLocation BASIC_SPEAR = ResourceLocation.fromNamespaceAndPath("myvillage", "basic_spear");
-    public static final ResourceLocation LINGXIAO_SPEAR = ResourceLocation.fromNamespaceAndPath("myvillage", "lingxiao_spear");
-    public static final ResourceLocation BASIC_FIST = ResourceLocation.fromNamespaceAndPath("myvillage", "basic_fist");
-    public static final ResourceLocation XUANTIE_GAUNTLET = ResourceLocation.fromNamespaceAndPath("myvillage", "xuantie_gauntlet");
+    public static final ResourceLocation BASIC_SWORD = ResourceLocation.fromNamespaceAndPath("yuanxian", "basic_sword");
+    public static final ResourceLocation QINGFENG_SWORD = ResourceLocation.fromNamespaceAndPath("yuanxian", "qingfeng_sword");
+    public static final ResourceLocation BASIC_SPEAR = ResourceLocation.fromNamespaceAndPath("yuanxian", "basic_spear");
+    public static final ResourceLocation LINGXIAO_SPEAR = ResourceLocation.fromNamespaceAndPath("yuanxian", "lingxiao_spear");
+    public static final ResourceLocation BASIC_FIST = ResourceLocation.fromNamespaceAndPath("yuanxian", "basic_fist");
+    public static final ResourceLocation XUANTIE_GAUNTLET = ResourceLocation.fromNamespaceAndPath("yuanxian", "xuantie_gauntlet");
 
     private static CombatStyles styles;
 

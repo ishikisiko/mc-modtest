@@ -8,8 +8,8 @@ from tools.validate_cultivation_core import CultivationValidator
 
 
 ROOT = Path(__file__).resolve().parents[2]
-RESOURCE_ROOT = Path("src/main/resources/data/myvillage/myvillage")
-LANG_ROOT = Path("src/main/resources/assets/myvillage/lang")
+RESOURCE_ROOT = Path("src/main/resources/data/yuanxian/yuanxian")
+LANG_ROOT = Path("src/main/resources/assets/yuanxian/lang")
 
 
 class CultivationCoreValidationTest(unittest.TestCase):
@@ -22,10 +22,10 @@ class CultivationCoreValidationTest(unittest.TestCase):
             ROOT / RESOURCE_ROOT,
             self.fixture_root / RESOURCE_ROOT,
         )
-        qi = Path("src/main/resources/data/myvillage/qi")
+        qi = Path("src/main/resources/data/yuanxian/qi")
         shutil.copytree(ROOT / qi, self.fixture_root / qi)
-        for relative in ("src/main/resources/data/myvillage/stats/rules.json",
-                         "src/main/resources/data/myvillage/world_sim/realms.json"):
+        for relative in ("src/main/resources/data/yuanxian/stats/rules.json",
+                         "src/main/resources/data/yuanxian/world_sim/realms.json"):
             target = self.fixture_root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, target)
@@ -64,7 +64,7 @@ class CultivationCoreValidationTest(unittest.TestCase):
         self.assert_error_contains(self.validate(), "spiritual_power_cap")
 
     def test_qi_rules_reject_zero_interval_and_unknown_fields(self) -> None:
-        path = Path("src/main/resources/data/myvillage/qi/rules.json")
+        path = Path("src/main/resources/data/yuanxian/qi/rules.json")
         data = self.load_json(path)
         data.update(regen_interval_ticks=0, mystery=1)
         self.write_json(path, data)
@@ -86,22 +86,22 @@ class CultivationCoreValidationTest(unittest.TestCase):
     def test_missing_element_reference_is_rejected(self) -> None:
         path = RESOURCE_ROOT / "technique/basic_breathing.json"
         technique = self.load_json(path)
-        technique["elements"] = ["myvillage:missing_element"]
+        technique["elements"] = ["yuanxian:missing_element"]
         self.write_json(path, technique)
 
         result = self.validate()
 
         self.assert_error_contains(
             result,
-            "references missing element myvillage:missing_element",
+            "references missing element yuanxian:missing_element",
         )
 
     def test_mismatched_requirement_stage_is_rejected(self) -> None:
         path = RESOURCE_ROOT / "technique/basic_breathing.json"
         technique = self.load_json(path)
         technique["requirements"] = {
-            "minimum_realm": "myvillage:mortal",
-            "minimum_stage": "myvillage:qi_refining_1",
+            "minimum_realm": "yuanxian:mortal",
+            "minimum_stage": "yuanxian:qi_refining_1",
         }
         self.write_json(path, technique)
 
@@ -109,8 +109,8 @@ class CultivationCoreValidationTest(unittest.TestCase):
 
         self.assert_error_contains(
             result,
-            "requires mismatched realm/stage: myvillage:mortal does not own "
-            "myvillage:qi_refining_1",
+            "requires mismatched realm/stage: yuanxian:mortal does not own "
+            "yuanxian:qi_refining_1",
         )
 
     def test_invalid_number_is_rejected(self) -> None:
@@ -173,7 +173,7 @@ class CultivationCoreValidationTest(unittest.TestCase):
         self.assert_error_contains(result, "missing required field 'maximum_lifespan_years'")
         self.assert_error_contains(
             result,
-            "realm myvillage:mortal maximum_lifespan_years must be 80",
+            "realm yuanxian:mortal maximum_lifespan_years must be 80",
         )
 
     def test_release_ceiling_rejects_extra_stage_cap(self) -> None:
@@ -181,7 +181,7 @@ class CultivationCoreValidationTest(unittest.TestCase):
         realm = self.load_json(path)
         realm["stages"][2]["cultivation_cap"] = 8400
         self.write_json(path, realm)
-        self.assert_error_contains(self.validate(), "myvillage:golden_late must omit cultivation_cap and advancement")
+        self.assert_error_contains(self.validate(), "yuanxian:golden_late must omit cultivation_cap and advancement")
 
     def test_cultivatable_stage_requires_positive_spirit_stone_cost(self) -> None:
         path = RESOURCE_ROOT / "realm/qi_refining.json"
@@ -197,24 +197,24 @@ class CultivationCoreValidationTest(unittest.TestCase):
         )
         self.assert_error_contains(
             result,
-            "stage myvillage:qi_refining_2 spirit_stone_cost must be 2",
+            "stage yuanxian:qi_refining_2 spirit_stone_cost must be 2",
         )
 
     def test_advancement_target_owner_drift_is_rejected(self) -> None:
         path = RESOURCE_ROOT / "realm/qi_refining.json"
         realm = self.load_json(path)
-        realm["stages"][0]["advancement"]["target_realm"] = "myvillage:mortal"
+        realm["stages"][0]["advancement"]["target_realm"] = "yuanxian:mortal"
         self.write_json(path, realm)
 
         result = self.validate()
 
         self.assert_error_contains(
             result,
-            "advancement target stage myvillage:qi_refining_2 does not belong to myvillage:mortal",
+            "advancement target stage yuanxian:qi_refining_2 does not belong to yuanxian:mortal",
         )
         self.assert_error_contains(
             result,
-            "PROGRESSION_BASELINE: myvillage:qi_refining_1 advancement must be",
+            "PROGRESSION_BASELINE: yuanxian:qi_refining_1 advancement must be",
         )
 
     def test_advancement_stability_ratio_drift_is_rejected(self) -> None:
@@ -231,10 +231,10 @@ class CultivationCoreValidationTest(unittest.TestCase):
         )
 
     def test_core_gate_rejects_missing_new_player_alias(self) -> None:
-        path = Path("src/main/resources/data/myvillage/stats/rules.json")
+        path = Path("src/main/resources/data/yuanxian/stats/rules.json")
         rules = self.load_json(path)
         rules["player_stage_aliases"] = [a for a in rules["player_stage_aliases"]
-                                       if a["id"] != "myvillage:golden_late"]
+                                       if a["id"] != "yuanxian:golden_late"]
         self.write_json(path, rules)
         self.assert_error_contains(self.validate(), "PROGRESSION_ALIAS")
 
@@ -253,13 +253,13 @@ class CultivationCoreValidationTest(unittest.TestCase):
 
         self.assert_error_contains(
             result,
-            "missing required spiritual element myvillage:metal",
+            "missing required spiritual element yuanxian:metal",
         )
 
     def test_missing_translation_is_rejected(self) -> None:
         path = LANG_ROOT / "zh_cn.json"
         language = self.load_json(path)
-        del language["cultivation.technique.myvillage.basic_breathing"]
+        del language["cultivation.technique.yuanxian.basic_breathing"]
         self.write_json(path, language)
 
         result = self.validate()
@@ -267,7 +267,7 @@ class CultivationCoreValidationTest(unittest.TestCase):
         self.assert_error_contains(
             result,
             "missing declared translation key "
-            "'cultivation.technique.myvillage.basic_breathing'",
+            "'cultivation.technique.yuanxian.basic_breathing'",
         )
 
 

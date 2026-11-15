@@ -60,7 +60,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:robust",
+      "runtime_id": "yuanxian:robust",
       "implementation": "first_batch"
     },
     {
@@ -92,7 +92,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗 · 探索",
-      "runtime_id": "myvillage:lightfoot",
+      "runtime_id": "yuanxian:lightfoot",
       "implementation": "first_batch"
     },
     {
@@ -108,7 +108,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "探索",
-      "runtime_id": "myvillage:herbal_lore",
+      "runtime_id": "yuanxian:herbal_lore",
       "implementation": "implemented"
     },
     {
@@ -124,7 +124,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "成长",
-      "runtime_id": "myvillage:bright",
+      "runtime_id": "yuanxian:bright",
       "implementation": "first_batch"
     },
     {
@@ -156,7 +156,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:fire_affinity",
+      "runtime_id": "yuanxian:fire_affinity",
       "implementation": "first_batch"
     },
     {
@@ -172,7 +172,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗 · 探索",
-      "runtime_id": "myvillage:water_affinity",
+      "runtime_id": "yuanxian:water_affinity",
       "implementation": "elemental_affinity"
     },
     {
@@ -188,7 +188,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:wood_affinity",
+      "runtime_id": "yuanxian:wood_affinity",
       "implementation": "elemental_affinity"
     },
     {
@@ -204,7 +204,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:metal_affinity",
+      "runtime_id": "yuanxian:metal_affinity",
       "implementation": "elemental_affinity"
     },
     {
@@ -220,7 +220,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:earth_affinity",
+      "runtime_id": "yuanxian:earth_affinity",
       "implementation": "elemental_affinity"
     },
     {
@@ -236,7 +236,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:alchemist_descendant",
+      "runtime_id": "yuanxian:alchemist_descendant",
       "implementation": "first_batch"
     },
     {
@@ -252,7 +252,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "成长",
-      "runtime_id": "myvillage:school_insight",
+      "runtime_id": "yuanxian:school_insight",
       "implementation": "implemented"
     },
     {
@@ -268,7 +268,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:unyielding",
+      "runtime_id": "yuanxian:unyielding",
       "implementation": "first_batch"
     },
     {
@@ -300,7 +300,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:beast_hunter",
+      "runtime_id": "yuanxian:beast_hunter",
       "implementation": "first_batch"
     },
     {
@@ -316,7 +316,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗 · 探索",
-      "runtime_id": "myvillage:wind_step",
+      "runtime_id": "yuanxian:wind_step",
       "implementation": "advanced_batch"
     },
     {
@@ -348,7 +348,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:sword_obsession",
+      "runtime_id": "yuanxian:sword_obsession",
       "implementation": "sword_batch"
     },
     {
@@ -364,7 +364,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:pill_aegis",
+      "runtime_id": "yuanxian:pill_aegis",
       "implementation": "purple_batch"
     },
     {
@@ -380,7 +380,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:tempered_bones",
+      "runtime_id": "yuanxian:tempered_bones",
       "implementation": "purple_batch"
     },
     {
@@ -396,7 +396,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:open_meridians",
+      "runtime_id": "yuanxian:open_meridians",
       "implementation": "purple_batch"
     },
     {
@@ -412,7 +412,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:burning_star",
+      "runtime_id": "yuanxian:burning_star",
       "implementation": "first_batch"
     },
     {
@@ -428,7 +428,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "探索",
-      "runtime_id": "myvillage:dragon_sight",
+      "runtime_id": "yuanxian:dragon_sight",
       "implementation": "selectable_placeholder"
     },
     {
@@ -444,7 +444,7 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": "myvillage:fire_spirit_body",
+      "runtime_id": "yuanxian:fire_spirit_body",
       "implementation": "advanced_batch"
     },
     {
@@ -460,7 +460,7 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": "myvillage:wood_spirit_body",
+      "runtime_id": "yuanxian:wood_spirit_body",
       "implementation": "foundations_batch"
     },
     {
@@ -476,7 +476,7 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗 · 探索",
-      "runtime_id": "myvillage:water_spirit_body",
+      "runtime_id": "yuanxian:water_spirit_body",
       "implementation": "selectable_placeholder"
     },
     {
@@ -492,7 +492,7 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": "myvillage:metal_spirit_body",
+      "runtime_id": "yuanxian:metal_spirit_body",
       "implementation": "spirit_bodies_batch"
     },
     {
@@ -508,7 +508,7 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗 · 探索",
-      "runtime_id": "myvillage:earth_spirit_body",
+      "runtime_id": "yuanxian:earth_spirit_body",
       "implementation": "selectable_placeholder"
     },
     {
@@ -524,7 +524,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": "myvillage:innate_sword_heart",
+      "runtime_id": "yuanxian:innate_sword_heart",
       "implementation": "advanced_batch"
     },
     {
@@ -540,7 +540,7 @@
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗 · 探索",
-      "runtime_id": "myvillage:phoenix_body",
+      "runtime_id": "yuanxian:phoenix_body",
       "implementation": "spirit_bodies_batch"
     },
     {
@@ -556,7 +556,7 @@
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": "myvillage:primordial_sword_bone",
+      "runtime_id": "yuanxian:primordial_sword_bone",
       "implementation": "selectable_placeholder"
     },
     {
@@ -572,7 +572,7 @@
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗 · 探索",
-      "runtime_id": "myvillage:nether_body",
+      "runtime_id": "yuanxian:nether_body",
       "implementation": "selectable_placeholder"
     },
     {
@@ -585,7 +585,7 @@
       "tradeoff": "凡人不成长，不离线补算；突破保留旧加值，后续成长采用新境界档位。普通死亡和退出保留加值及进度。",
       "group": "体质",
       "focus": "长期成长",
-      "runtime_id": "myvillage:everlasting_embryo",
+      "runtime_id": "yuanxian:everlasting_embryo",
       "implementation": "spirit_bodies_batch"
     },
     {
@@ -601,7 +601,7 @@
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": "myvillage:sacred_earth_embryo",
+      "runtime_id": "yuanxian:sacred_earth_embryo",
       "implementation": "selectable_placeholder"
     },
     {
@@ -617,7 +617,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗 · 探索",
-      "runtime_id": "myvillage:flawless_dao_heart",
+      "runtime_id": "yuanxian:flawless_dao_heart",
       "implementation": "selectable_placeholder"
     },
     {
@@ -633,7 +633,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "成长",
-      "runtime_id": "myvillage:alchemy_prodigy",
+      "runtime_id": "yuanxian:alchemy_prodigy",
       "implementation": "implemented"
     },
     {
@@ -649,7 +649,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "成长",
-      "runtime_id": "myvillage:forging_prodigy",
+      "runtime_id": "yuanxian:forging_prodigy",
       "implementation": "implemented"
     },
     {
@@ -665,7 +665,7 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "成长",
-      "runtime_id": "myvillage:clod",
+      "runtime_id": "yuanxian:clod",
       "implementation": "implemented"
     }
   ]

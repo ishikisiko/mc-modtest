@@ -27,7 +27,7 @@ final class CombatStyleSelectionTest {
         CombatSession session = new CombatSession(held.orElseThrow());
         CombatSession.StartEvent start = session.acceptIntent(0, CombatTestData.QINGFENG_SWORD, WORLD, 0.0F)
                 .start().orElseThrow();
-        assertEquals(ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword_01_thrust"), start.move().id());
+        assertEquals(ResourceLocation.fromNamespaceAndPath("yuanxian", "basic_sword_01_thrust"), start.move().id());
         assertEquals(CombatTestData.QINGFENG_SWORD, start.weaponId());
     }
 
@@ -73,7 +73,7 @@ final class CombatStyleSelectionTest {
         assertEquals(other, session.style());
         assertEquals(0, session.nextMoveIndex());
         CombatSession.StartEvent next = session.acceptIntent(first.move().totalTicks() + 1L,
-                ResourceLocation.fromNamespaceAndPath("myvillage", "other_sword"), WORLD, 0.0F).start().orElseThrow();
+                ResourceLocation.fromNamespaceAndPath("yuanxian", "other_sword"), WORLD, 0.0F).start().orElseThrow();
         assertEquals(other.move(0).id(), next.move().id());
         assertTrue(next.revision() > first.revision(), "clients never see the revision go backwards");
     }
@@ -81,7 +81,7 @@ final class CombatStyleSelectionTest {
     /** A second style with the basic moves under new ids. */
     private static CombatStyleDefinition otherStyle() {
         List<AttackMoveDefinition> moves = BASIC.moves().stream().map(move -> {
-            ResourceLocation id = ResourceLocation.fromNamespaceAndPath("myvillage", "other_" + move.id().getPath());
+            ResourceLocation id = ResourceLocation.fromNamespaceAndPath("yuanxian", "other_" + move.id().getPath());
             return new AttackMoveDefinition(
                     id, move.displayKey(), move.kind(), move.totalTicks(), move.activeStartTick(),
                     move.activeEndTick(), move.damageMultiplier(), move.maximumTargets(), move.range(),
@@ -90,7 +90,7 @@ final class CombatStyleSelectionTest {
                     move.hitbox(), move.step(), move.feedback(), move.camera());
         }).toList();
         return new CombatStyleDefinition(
-                ResourceLocation.fromNamespaceAndPath("myvillage", "other_sword"),
+                ResourceLocation.fromNamespaceAndPath("yuanxian", "other_sword"),
                 BASIC.readyIdleAnimation(), BASIC.modeEnterAnimation(),
                 BASIC.comboTimeoutTicks(), BASIC.minimumIntentIntervalTicks(), moves);
     }

@@ -13,7 +13,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 /** 世界游戏时钟下的逐人冷却；没有玩家附加数据或 Clone 写入，重启不重置。 */
 public final class FateAbilityCooldowns extends SavedData {
-    private static final String DATA_NAME = "myvillage_fate_ability_cooldowns";
+    private static final String DATA_NAME = "yuanxian_fate_ability_cooldowns";
     private final Map<UUID, Map<ResourceLocation, Long>> deadlines = new HashMap<>();
 
     public FateAbilityCooldowns() { }

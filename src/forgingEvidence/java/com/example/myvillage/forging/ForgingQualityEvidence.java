@@ -38,7 +38,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Isolated native fixtures: actual menu assembly and disk restart, not mapped player input. */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class ForgingQualityEvidence {
     private static final boolean ENABLED="1".equals(System.getenv("MYVILLAGE_FORGING_QUALITY_EVIDENCE"));
     private static final Path OUT=Path.of("../reports/forging-quality-native");
@@ -69,7 +69,7 @@ public final class ForgingQualityEvidence {
         var p=FakePlayerFactory.get(server.overworld(),new GameProfile(UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8)),name));
         p.setPos(.5,81,.5);p.setHealth(p.getMaxHealth());
         if(score>=0){
-            CultivationService.setSpiritualRoot(p,new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:metal"),10000)));
+            CultivationService.setSpiritualRoot(p,new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:metal"),10000)));
             CultivationService.initializeCraftingAptitudes(p);
             CultivationService.setCraftingAptitude(p,CraftingAptitudes.Profession.FORGING,score);
         }
@@ -107,13 +107,13 @@ public final class ForgingQualityEvidence {
                 check(trial.id()+"_completed",result.getCount()==1&&ForgeMark.uninfused(trial.quality()).equals(result.get(ModDataComponents.FORGE_MARK.get())),result);
                 check(trial.id()+"_display",QualityDisplay.quality(result)==trial.quality(),QualityDisplay.quality(result));
                 var lines=new ArrayList<Component>();result.getItem().appendHoverText(result,Item.TooltipContext.of(level),lines,TooltipFlag.NORMAL);
-                check(trial.id()+"_tooltip",lines.stream().noneMatch(x->x.getString().equals("forging.myvillage.trait.")),lines);
+                check(trial.id()+"_tooltip",lines.stream().noneMatch(x->x.getString().equals("forging.yuanxian.trait.")),lines);
                 result.set(DataComponents.CUSTOM_NAME,Component.literal("品质留存 "+index));result.setDamageValue(3);
                 store(server,index,result);
                 ((ForgingAnvilBlockEntity)level.getBlockEntity(ANVIL)).contents().setItem(1,ItemStack.EMPTY);
                 menu.removed(player);player.containerMenu=player.inventoryMenu;menu=null;DONE.add(trial.id());index++;return;
             }
-            var crafted=new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(ResourceLocation.parse("myvillage:qingfeng_sword")));
+            var crafted=new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(ResourceLocation.parse("yuanxian:qingfeng_sword")));
             player=player(server,"ForgeRecipe",90);
             NeoForge.EVENT_BUS.post(new PlayerEvent.ItemCraftedEvent(player,crafted,new SimpleContainer(9)));
             check("craft_event_quality",ForgeMark.uninfused(4).equals(crafted.get(ModDataComponents.FORGE_MARK.get())),crafted);

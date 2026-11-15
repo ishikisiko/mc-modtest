@@ -47,7 +47,7 @@ class Evidence:
     def setup(self):
         for command in ['gamerule doMobSpawning true','difficulty normal','gamerule mobGriefing false','weather clear','time set noon']:self.rc(command)
     def prepare_player(self,client):
-        for command in [f'op {client.name}',f'gamemode creative {client.name}',f'effect give {client.name} minecraft:resistance infinite 4 true',f'attribute {client.name} minecraft:generic.max_health base set 1024',f'effect give {client.name} minecraft:instant_health 1 10 true',f'item replace entity {client.name} hotbar.0 with myvillage:qingfeng_sword',f'attribute {client.name} minecraft:generic.attack_damage base set 8']:
+        for command in [f'op {client.name}',f'gamemode creative {client.name}',f'effect give {client.name} minecraft:resistance infinite 4 true',f'attribute {client.name} minecraft:generic.max_health base set 1024',f'effect give {client.name} minecraft:instant_health 1 10 true',f'item replace entity {client.name} hotbar.0 with yuanxian:qingfeng_sword',f'attribute {client.name} minecraft:generic.attack_damage base set 8']:
             self.rc(command)
         client.guard();client.game.xdo('key','1');self.action('mapped_hotbar',player=client.name,slot=1)
     def fixture(self,client,position,target):
@@ -64,7 +64,7 @@ class Evidence:
         self.fixture(client,[actor['x']+2.1,actor['y'],actor['z']],[actor['x'],actor['y']+.75,actor['z']])
         client.guard();client.game.xdo('mousedown','1');time.sleep(.12);client.game.xdo('mouseup','1');self.action('mapped_attack',player=client.name,target=actor['uuid']);time.sleep(.8)
     def calendar(self,month,ticks_per_month):
-        path=self.game/'world/data/myvillage_cultivation_calendar.dat';assert self.server.process is None or self.server.process.poll()is not None
+        path=self.game/'world/data/yuanxian_cultivation_calendar.dat';assert self.server.process is None or self.server.process.poll()is not None
         original=path.read_bytes();backup=self.out/f'calendar-before-{len(self.report["actions"])}.dat';backup.write_bytes(original)
         data=bytearray(gzip.decompress(original));key=b'elapsed_calendar_ticks';needle=b'\x04'+struct.pack('>H',len(key))+key
         assert data.count(needle)==1;offset=data.index(needle)+len(needle);before=struct.unpack_from('>q',data,offset)[0];struct.pack_into('>q',data,offset,month*ticks_per_month)
@@ -82,7 +82,7 @@ class Evidence:
                     reply=self.rc(f'yuanxian worldplan at {site["x"]} {site["z"]}');self.check('据点归属东荒 '+site['id'],'"profileId":"donghuang"'in reply or '"regionId":"donghuang"'in reply,reply)
                 self.done('natural_world_sites');wolf=next(s for s in sites if s['id']=='wolf_den_0');camp=next(s for s in sites if s['id']=='bandit_camp_0')
                 self.begin('finite_native_members')
-                east_ranges=json.loads((ROOT/'src/main/resources/data/myvillage/wilderness/rules.json').read_text())['regions']['donghuang']
+                east_ranges=json.loads((ROOT/'src/main/resources/data/yuanxian/wilderness/rules.json').read_text())['regions']['donghuang']
                 for kind in ('wolf_den','lizard_shelf','spore_grove','bandit_camp'):
                     site=next(s for s in sites if s['kind']==kind);self.visit(client,site);members=self.populate(site)
                     expected=east_ranges['rogue' if kind=='bandit_camp' else 'beast']
@@ -127,7 +127,7 @@ class Evidence:
                 cleared=self.round(wolf['id']);time.sleep(3);self.check('同月清理后保持空名单',not self.living(wolf['id']) and all(m['dead']for m in self.round(wolf['id'])['members']),cleared)
                 drops=self.rc(f'execute positioned {wolf["x"]} {wolf["y"]} {wolf["z"]} as @e[type=minecraft:item,distance=..120] run data get entity @s Item')
                 inventory=self.rc(f'data get entity {client.name} Inventory')
-                self.check('临时灵石掉落','myvillage:low_grade_spirit_stone'in drops or'myvillage:low_grade_spirit_stone'in inventory,{'ground_items':drops,'player_inventory':inventory});self.done('mapped_clear_and_temporary_loot')
+                self.check('临时灵石掉落','yuanxian:low_grade_spirit_stone'in drops or'yuanxian:low_grade_spirit_stone'in inventory,{'ground_items':drops,'player_inventory':inventory});self.done('mapped_clear_and_temporary_loot')
                 self.rc(f'gamemode creative {client.name}');self.rc(f'gamemode creative {second.name}');self.fixture(client,[wolf['x']+.5,wolf['y']+1,wolf['z']+.5],[wolf['x'],wolf['y'],wolf['z']]);client.capture('cleared-wolf-den')
                 self.rc('save-all flush')
             self.server.stop();self.calendar(status['month']+1,status['ticks_per_month'])

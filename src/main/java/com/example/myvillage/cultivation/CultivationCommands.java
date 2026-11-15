@@ -475,7 +475,7 @@ public final class CultivationCommands {
             java.util.List<Component> messages) {
         for (Component message : messages) {
             Component output = Component.translatable(
-                    "commands.myvillage.cultivation.initiation_result",
+                    "commands.yuanxian.cultivation.initiation_result",
                     target.getDisplayName(),
                     message);
             if (success) {

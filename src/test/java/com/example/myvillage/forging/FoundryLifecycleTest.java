@@ -15,7 +15,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FoundryLifecycleTest {
-    private static final TagKey<Item> FUEL=TagKey.create(net.minecraft.core.registries.Registries.ITEM,ResourceLocation.parse("myvillage:forging_fuels"));
+    private static final TagKey<Item> FUEL=TagKey.create(net.minecraft.core.registries.Registries.ITEM,ResourceLocation.parse("yuanxian:forging_fuels"));
     private static final HolderLookup.Provider REGISTRIES=RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
     @BeforeAll @SuppressWarnings("deprecation") static void bootstrap(){
         PhysicalWorkshopTest.bootstrap();
@@ -23,15 +23,15 @@ class FoundryLifecycleTest {
         try{
             if(!blocks.containsKey(ModBlocks.FORGING_TABLE.getId()))Registry.register(blocks,ModBlocks.FORGING_TABLE.getId(),new com.example.myvillage.block.ForgingTableBlock(Block.Properties.of()));
             for(var kind:List.of(FoundryMenu.Kind.KILN,FoundryMenu.Kind.ASSEMBLY)){
-                var id=ResourceLocation.parse("myvillage:"+(kind==FoundryMenu.Kind.KILN?"heating_kiln":"assembly_table"));
+                var id=ResourceLocation.parse("yuanxian:"+(kind==FoundryMenu.Kind.KILN?"heating_kiln":"assembly_table"));
                 if(!blocks.containsKey(id))Registry.register(blocks,id,new FoundryStationBlock(Block.Properties.of(),kind));
             }
         }finally{blocks.freeze();}
         var types=(MappedRegistry<BlockEntityType<?>>)BuiltInRegistries.BLOCK_ENTITY_TYPE;types.unfreeze();
         try{
-            Registry.register(types,ResourceLocation.parse("myvillage:forging_ding"),BlockEntityType.Builder.of(PreparationBlockEntity::new,ModBlocks.FORGING_TABLE.get()).build(null));
-            Registry.register(types,ResourceLocation.parse("myvillage:heating_kiln"),BlockEntityType.Builder.of(HeatingKilnBlockEntity::new,ModBlocks.HEATING_KILN.get()).build(null));
-            Registry.register(types,ResourceLocation.parse("myvillage:assembly_table"),BlockEntityType.Builder.of(AssemblyBlockEntity::new,ModBlocks.ASSEMBLY_TABLE.get()).build(null));
+            Registry.register(types,ResourceLocation.parse("yuanxian:forging_ding"),BlockEntityType.Builder.of(PreparationBlockEntity::new,ModBlocks.FORGING_TABLE.get()).build(null));
+            Registry.register(types,ResourceLocation.parse("yuanxian:heating_kiln"),BlockEntityType.Builder.of(HeatingKilnBlockEntity::new,ModBlocks.HEATING_KILN.get()).build(null));
+            Registry.register(types,ResourceLocation.parse("yuanxian:assembly_table"),BlockEntityType.Builder.of(AssemblyBlockEntity::new,ModBlocks.ASSEMBLY_TABLE.get()).build(null));
         }finally{types.freeze();}
     }
     @BeforeEach void fuel(){BuiltInRegistries.ITEM.bindTags(Map.of(FUEL,List.of(Items.COAL.builtInRegistryHolder())));}

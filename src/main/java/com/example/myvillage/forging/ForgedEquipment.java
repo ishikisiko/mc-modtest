@@ -33,7 +33,7 @@ public final class ForgedEquipment {
         if(mark.trait().equals("sharp")){
             var attributes=stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,ItemAttributeModifiers.EMPTY);
             stack.set(DataComponents.ATTRIBUTE_MODIFIERS,attributes.withModifierAdded(Attributes.ATTACK_DAMAGE,
-                    new AttributeModifier(ResourceLocation.fromNamespaceAndPath("myvillage","forging_sharp"),value,
+                    new AttributeModifier(ResourceLocation.fromNamespaceAndPath("yuanxian","forging_sharp"),value,
                             AttributeModifier.Operation.ADD_VALUE),EquipmentSlotGroup.MAINHAND));
         }else if(mark.trait().equals("tough")){
             stack.set(DataComponents.MAX_DAMAGE,(int)Math.ceil(stack.getMaxDamage()*value));

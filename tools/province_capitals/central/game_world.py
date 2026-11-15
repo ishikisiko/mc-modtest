@@ -68,7 +68,7 @@ class TileSpool:
     def export(self,out):
         self.close()
         city_id=self.spec['city_id'];height=self.spec['bounds']['height']
-        dest=out/f'data/myvillage/structure/province_capitals/v1/{city_id}'
+        dest=out/f'data/yuanxian/structure/province_capitals/v1/{city_id}'
         dest.mkdir(parents=True,exist_ok=True)
         tiles=[];counts=Counter();max_solid=-1;total=0;peak_column=0
         state_tags={i:nbt.palette_state_to_tag(s) for i,s in enumerate(self.states)}
@@ -99,7 +99,7 @@ class TileSpool:
                 'blocks':nbt.ListTag(nbt.TAG_COMPOUND,blocks),'entities':nbt.ListTag(nbt.TAG_COMPOUND,[])})
             name=f'tile_{tx}_{tz}';target=dest/f'{name}.nbt'
             nbt.write_gzipped_nbt(tag,str(target))
-            tiles.append({'x':tx*16,'z':tz*16,'template':f'myvillage:province_capitals/v1/{city_id}/{name}',
+            tiles.append({'x':tx*16,'z':tz*16,'template':f'yuanxian:province_capitals/v1/{city_id}/{name}',
                           'sha256':sha(target),'blocks':len(cells),'bytes':target.stat().st_size})
             total+=len(cells)
             if number%600==0:print(f'导出稀疏区块列 {number}/{len(self.tiles)}',flush=True)

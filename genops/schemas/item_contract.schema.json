@@ -19,7 +19,7 @@
   "properties": {
     "item_id": {
       "type": "string",
-      "pattern": "^myvillage:[a-z0-9_./-]+$"
+      "pattern": "^yuanxian:[a-z0-9_./-]+$"
     },
     "kind": {
       "type": "string",

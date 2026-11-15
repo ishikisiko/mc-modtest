@@ -15,7 +15,7 @@ public final class GatheringAppearance {
     private static class Holder { private static final Map<GatheringTier, Style> VALUES = load(); }
     public static Style get(GatheringTier tier) { return Holder.VALUES.get(tier); }
     private static Map<GatheringTier, Style> load() {
-        try (var stream = GatheringAppearance.class.getResourceAsStream("/data/myvillage/gathering/appearance.json")) {
+        try (var stream = GatheringAppearance.class.getResourceAsStream("/data/yuanxian/gathering/appearance.json")) {
             if (stream == null) throw new IllegalStateException("Missing gathering appearance");
             var root = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
             var result = new EnumMap<GatheringTier, Style>(GatheringTier.class);

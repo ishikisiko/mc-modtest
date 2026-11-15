@@ -20,7 +20,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.lwjgl.glfw.GLFW;
 
 /** 直接准备页面后的真实客户端绘制检查，不宣称映射输入或玩家验收。 */
-@EventBusSubscriber(modid="myvillage",value=Dist.CLIENT)
+@EventBusSubscriber(modid="yuanxian",value=Dist.CLIENT)
 public final class NpcFateUiClientEvidence {
     private static int stage,ticks,personId;
     private static JsonObject fixture;

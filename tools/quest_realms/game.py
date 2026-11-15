@@ -153,7 +153,7 @@ def compile_map(ident,rules):
 
 
 def export(out):
-    out=Path(out);data=out/'data/myvillage';folder=data/'expedition';folder.mkdir(parents=True,exist_ok=True)
+    out=Path(out);data=out/'data/yuanxian';folder=data/'expedition';folder.mkdir(parents=True,exist_ok=True)
     rules=read('runtime');manifest={}
     for ident in rules['maps']:
         model=compile_map(ident,rules);payload=gzip.compress(encode(model),mtime=0)
@@ -163,7 +163,7 @@ def export(out):
     (folder/'rules.json').write_bytes(encode(dict(rules,manifest=manifest)))
     for relative,value in {
         'dimension_type/expedition.json':rules['dimension_type'],
-        'dimension/expedition_template.json':{'type':'myvillage:expedition','generator':{'type':'minecraft:flat','settings':{'biome':'minecraft:the_void','features':False,'lakes':False,'structure_overrides':[],'layers':[{'height':1,'block':'minecraft:air'}]}}}
+        'dimension/expedition_template.json':{'type':'yuanxian:expedition','generator':{'type':'minecraft:flat','settings':{'biome':'minecraft:the_void','features':False,'lakes':False,'structure_overrides':[],'layers':[{'height':1,'block':'minecraft:air'}]}}}
     }.items():
         path=data/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(encode(value))
     return manifest

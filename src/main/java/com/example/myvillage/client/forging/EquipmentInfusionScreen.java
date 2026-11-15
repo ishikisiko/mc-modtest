@@ -19,8 +19,8 @@ public final class EquipmentInfusionScreen extends AbstractContainerScreen<Equip
     private final List<WorkshopScreen.InkButton> traits=new ArrayList<>();
     private WorkshopScreen.InkButton infuse,next,copper;
     private int page,lastRecipe=-1;
-    private static ResourceLocation id(String path){return ResourceLocation.fromNamespaceAndPath("myvillage",path);}
-    private static Component text(String key,Object...args){return Component.translatable("workshop.myvillage."+key,args).withStyle(BOOK);}
+    private static ResourceLocation id(String path){return ResourceLocation.fromNamespaceAndPath("yuanxian",path);}
+    private static Component text(String key,Object...args){return Component.translatable("workshop.yuanxian."+key,args).withStyle(BOOK);}
     public EquipmentInfusionScreen(EquipmentInfusionMenu menu,Inventory inventory,Component title){
         super(menu,inventory,title);imageWidth=WorkshopMenu.WIDTH;imageHeight=WorkshopMenu.HEIGHT;
     }
@@ -49,8 +49,8 @@ public final class EquipmentInfusionScreen extends AbstractContainerScreen<Equip
         page=Math.min(page,pages()-1);
         for(int i=0;i<traits.size();i++){
             var button=traits.get(i);int index=page*PER_PAGE+i;button.visible=index<options().size();button.active=!menu.busy();
-            if(button.visible){String trait=options().get(index);button.setMessage(Component.translatable("forging.myvillage.trait."+trait).withStyle(BOOK));
-                button.setTooltip(Tooltip.create(Component.translatable("screen.myvillage.forging.trait."+trait).withStyle(BOOK)));}
+            if(button.visible){String trait=options().get(index);button.setMessage(Component.translatable("forging.yuanxian.trait."+trait).withStyle(BOOK));
+                button.setTooltip(Tooltip.create(Component.translatable("screen.yuanxian.forging.trait."+trait).withStyle(BOOK)));}
         }
         next.visible=pages()>1;next.setMessage(text("infusion.page",page+1,pages()));
         infuse.active=!menu.busy()&&menu.reason(WorkshopMenu.INFUSE)==0;copper.active=!menu.busy();

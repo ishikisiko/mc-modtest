@@ -70,7 +70,7 @@ class Builder:
         self.road_blocks = set(materials['central_road_blocks'])
         surfaces = read(ROOT/'blueprints/province_capitals/blueprint_plan/road_surfaces.json')
         def collect(value):
-            if isinstance(value,str) and value.startswith(('minecraft:','myvillage:')):self.road_blocks.add(block_name(value))
+            if isinstance(value,str) and value.startswith(('minecraft:','yuanxian:')):self.road_blocks.add(block_name(value))
             elif isinstance(value,dict):
                 for item in value.values():collect(item)
             elif isinstance(value,list):
@@ -218,7 +218,7 @@ class Builder:
         changed = []
         for key in sorted(self.world.dirty):
             tx,tz=key
-            path = resource_file(root, refs[key]['template'], template=True) if key in refs else Path(root)/f'data/myvillage/structure/province_capitals/v4/{manifest["city_id"]}/tile_{tx}_{tz}.nbt'
+            path = resource_file(root, refs[key]['template'], template=True) if key in refs else Path(root)/f'data/yuanxian/structure/province_capitals/v4/{manifest["city_id"]}/tile_{tx}_{tz}.nbt'
             if key in refs and sha(path.read_bytes()) != refs[key]['sha256']:raise ValueError('原分块摘要不符 '+str(path))
             entities = block_entities(path) if path.exists() else {}
             for p,row in entities.items():
@@ -228,13 +228,13 @@ class Builder:
             write_tile(path, values, self.world.height, entities)
             check_tile(path, values)
             if block_entities(path) != entities:raise ValueError('原方块实体 NBT 被改动 '+str(path))
-            refs[key]={'x':tx*16,'z':tz*16,'template':f'myvillage:province_capitals/v4/{manifest["city_id"]}/'+path.stem,'sha256':sha(path.read_bytes()),'bytes':path.stat().st_size,'block_count':len(values),'palette_count':len({s[0] for s in values.values()})}
+            refs[key]={'x':tx*16,'z':tz*16,'template':f'yuanxian:province_capitals/v4/{manifest["city_id"]}/'+path.stem,'sha256':sha(path.read_bytes()),'bytes':path.stat().st_size,'block_count':len(values),'palette_count':len({s[0] for s in values.values()})}
             changed.append({'tile':[tx,tz], 'cells':sum(1 for x,y,z in self.edits if (x//16,z//16)==key), 'preserved_block_entities':len(entities)})
         manifest['tiles'] = [refs[k] for k in sorted(refs,key=lambda p:(p[1],p[0]))]
         manifest['waystones'] = self.rows
         manifest.setdefault('source',{})['capital_waystones']={'hashes':source_hashes(),'changed_tiles':len(changed)}
         manifest['palette_states'] = sorted(set(manifest.get('palette_states',[])) | set(self.edits.values()))
-        write(Path(root)/f'data/myvillage/capitals/v4/{manifest["city_id"]}/city.json', manifest)
+        write(Path(root)/f'data/yuanxian/capitals/v4/{manifest["city_id"]}/city.json', manifest)
         return changed
 
 
@@ -250,7 +250,7 @@ def generate(resources, *, out=None):
     report={'schema':1,'selected':[], 'completed':[], 'failed':[], 'cities':{}, 'source_hashes':hashes, 'runtime':'not_run'}
     for city in config['cities']:
         region=city['id'];report['selected'].extend(s['id'] for s in city['sites'])
-        manifest=read(resources/f'data/myvillage/capitals/v4/capital_{region}/city.json')
+        manifest=read(resources/f'data/yuanxian/capitals/v4/capital_{region}/city.json')
         if manifest.get('waystones'):raise ValueError('请从未附加传送亭台的正式八城资源生成，不能重复修补')
         builder=Builder(resources,manifest,materials,config['constraints'])
         result=[]

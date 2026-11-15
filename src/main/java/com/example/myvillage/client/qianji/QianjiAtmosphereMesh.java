@@ -20,5 +20,5 @@ final class QianjiAtmosphereMesh {
     static Vec3 sample(Vec3[] path,double u){double p=Math.clamp(u,0,1)*(path.length-1);int i=Math.min(path.length-2,(int)p);return path[i].lerp(path[i+1],p-i);}
     private static final class Holder {static final QianjiAtmosphereMesh INSTANCE=read();}
     static QianjiAtmosphereMesh get(){return Holder.INSTANCE;}
-    private static QianjiAtmosphereMesh read(){try(var in=QianjiAtmosphereMesh.class.getResourceAsStream("/data/myvillage/qianji/atmosphere_mesh.json")){if(in==null)throw new IllegalStateException("缺少千机阁动效网格");return new QianjiAtmosphereMesh(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());}catch(java.io.IOException e){throw new IllegalStateException(e);}}
+    private static QianjiAtmosphereMesh read(){try(var in=QianjiAtmosphereMesh.class.getResourceAsStream("/data/yuanxian/qianji/atmosphere_mesh.json")){if(in==null)throw new IllegalStateException("缺少千机阁动效网格");return new QianjiAtmosphereMesh(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());}catch(java.io.IOException e){throw new IllegalStateException(e);}}
 }

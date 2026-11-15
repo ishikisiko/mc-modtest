@@ -158,7 +158,7 @@ def main():
     keys=[*config['materials'],'grass','leaves','water']
     textures={};sources={}
     for name,stem in config['materials'].items():
-        f=ROOT/'src/main/resources/assets/myvillage/textures/block/lord_manors'/f'{stem}.png'
+        f=ROOT/'src/main/resources/assets/yuanxian/textures/block/lord_manors'/f'{stem}.png'
         b=f.read_bytes();textures[name]='data:image/png;base64,'+base64.b64encode(b).decode()
         sources[str(f.relative_to(ROOT))]=hashlib.sha256(b).hexdigest()
     models=[]

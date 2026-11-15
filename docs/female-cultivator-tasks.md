@@ -11,13 +11,13 @@
 | 化身按性别与境界自动换外观 | 是：`gender == f` 且境界 ≤ 炼气 → `f_novice`；≥ 筑基 → `f_adept`；男性 `default` |
 | 男修分档 | 不做 |
 | 第二只妖兽 | owner 未点名，不做 |
-| 外观名 | `default` / `f_novice` / `f_adept`；实体 id 仍只有 `myvillage:cultivator` |
-| 文件布局 | `assets/myvillage/npc/cultivator_f_novice_model.json`、`..._animations.json`、`textures/entity/cultivator/cultivator_f_novice.png`（贴图放实体目录下，不另开目录） |
+| 外观名 | `default` / `f_novice` / `f_adept`；实体 id 仍只有 `yuanxian:cultivator` |
+| 文件布局 | `assets/yuanxian/npc/cultivator_f_novice_model.json`、`..._animations.json`、`textures/entity/cultivator/cultivator_f_novice.png`（贴图放实体目录下，不另开目录） |
 | 骨架 | 与男修同名的身体骨骼（root/body/head/arm_*/forearm_*/leg_*/hair_back），`HITBOX (0.6, 1.9)`、`look` 骨 `head`、`scale 0.5` 相同；女修可以多骨骼（披帛、坠物、马尾）但不能少 |
 
 ## 1. 已落的契约（统筹）
 
-- `NpcEntity.DATA_LOOK`（String，默认 `default`），`look()/setLook()`，存档标签 `Look`（`/summon myvillage:cultivator ~ ~ ~ {Look:"f_novice"}`），`protected List<String> looks()` 由子类给出；`CultivatorEntity.LOOKS = List.of("default", "f_novice", "f_adept")`。
+- `NpcEntity.DATA_LOOK`（String，默认 `default`），`look()/setLook()`，存档标签 `Look`（`/summon yuanxian:cultivator ~ ~ ~ {Look:"f_novice"}`），`protected List<String> looks()` 由子类给出；`CultivatorEntity.LOOKS = List.of("default", "f_novice", "f_adept")`。
 - `cultivator.yaml` 已有 `state.synced` 的 `look` 条目；`looks:` 一节由包 F1 加。
 
 ## 2. 工作包（文件互不相交；只 `git add` 自己的路径；提交信息末尾 `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`；Gradle 一律 `flock /home/ubuntu/code/mc/.mc-heavy.lock ./gradlew <task> -x generateAllStructures`，只跑 `compileJava compileTestJava` 和自己的 `test --tests`；`/usr/bin/python3` 跑单测；预览用 `python3 -m tools.npcgen preview <look>`（它自己换到 `.venv-preview`）；不 push）
@@ -42,9 +42,9 @@
    ```yaml
    looks:
      - id: default
-       model: assets/myvillage/npc/cultivator_model.json
-       animations: assets/myvillage/npc/cultivator_animations.json
-       texture: assets/myvillage/textures/entity/cultivator/cultivator.png
+       model: assets/yuanxian/npc/cultivator_model.json
+       animations: assets/yuanxian/npc/cultivator_animations.json
+       texture: assets/yuanxian/textures/entity/cultivator/cultivator.png
        definition: tools/npcgen/defs/cultivator.py
      - id: f_novice
        ...

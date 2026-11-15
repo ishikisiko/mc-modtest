@@ -8,7 +8,7 @@ class SwordScaleEvidence(VisualEvidence):
     def run(self):
         self.start(reuse=True);self.clean();self.rc('kill @e[tag=legacy_saved_beast]');self.step(25);self.ready(20)
         self.rc(f'tp {self.s.username} -1.4 -60 .5 0 -10')
-        self.rc('summon myvillage:wandering_sword 1.2 -60 .5 {NoAI:1b,PersistenceRequired:1b,Rotation:[180f,0f],Tags:["legacy_beast"]}')
+        self.rc('summon yuanxian:wandering_sword 1.2 -60 .5 {NoAI:1b,PersistenceRequired:1b,Rotation:[180f,0f],Tags:["legacy_beast"]}')
         self.step(6);self.key('F5');self.key('F1');time.sleep(2)
         # The previous spectator shot was taken before chunks appeared. Require the
         # known stone-floor fixture to be rendered before accepting another shot.
@@ -24,7 +24,7 @@ class SwordScaleEvidence(VisualEvidence):
             time.sleep(2)
         self.check('native_stone_floor_is_visible',fraction>.5,samples)
         self.report.update(kind='legacy_sword_scale',scale_screenshot=name,scene='真实玩家与 NoAI 游剑妖同框；F5 第三人称相机，HUD 关闭。',source_collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
-        state=self.status();mob=next(b for b in state['nearby_beasts'] if b['type']=='myvillage:wandering_sword')
+        state=self.status();mob=next(b for b in state['nearby_beasts'] if b['type']=='yuanxian:wandering_sword')
         expected=next(b['physical']['height'] for b in self.source['mobs'] if b['id']=='wandering_sword')
         self.check('sword_scale_fixture_height',abs(mob['height']-expected)<.0001,{'beast':mob,'player_position':self.pos(),'camera':'third person back; pitch -10 degrees'})
         self.key('F1');self.key('F5');self.key('F5');self.done('sword_scale')

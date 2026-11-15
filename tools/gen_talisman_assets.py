@@ -12,8 +12,8 @@ import zlib
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path: sys.path.insert(0, str(ROOT))
 SOURCE = ROOT / 'tools/talisman'
-ASSETS = Path('src/main/resources/assets/myvillage')
-DATA = Path('src/main/resources/data/myvillage')
+ASSETS = Path('src/main/resources/assets/yuanxian')
+DATA = Path('src/main/resources/data/yuanxian')
 FACES = ('up','down','north','south','east','west')
 
 def encoded(value): return (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode()
@@ -114,22 +114,22 @@ def outputs():
     rule=read('rules.json');desk=read('desk.json');out={DATA/'talisman/rules.json':encoded({k:v for k,v in rule.items() if k!='names'})}
     for kind in ('wood','copper','paper_surface','inkwell'): out[ASSETS/f'textures/block/talisman_{kind}.png']=png(texture(kind))
     elements=[{'from':p['from'],'to':p['to'],'faces':{f:{'texture':'#'+p['material']} for f in FACES}} for p in desk['parts']]
-    model={'parent':'minecraft:block/block','textures':{k:'myvillage:block/'+v for k,v in desk['textures'].items()},'elements':elements}
+    model={'parent':'minecraft:block/block','textures':{k:'yuanxian:block/'+v for k,v in desk['textures'].items()},'elements':elements}
     model['textures']['particle']=model['textures']['wood']
     out[ASSETS/'models/block/talisman_desk.json']=encoded(model)
-    out[ASSETS/'blockstates/talisman_desk.json']=encoded({'variants':{'':{'model':'myvillage:block/talisman_desk'}}})
-    out[ASSETS/'models/item/talisman_desk.json']=encoded({'parent':'myvillage:block/talisman_desk'})
+    out[ASSETS/'blockstates/talisman_desk.json']=encoded({'variants':{'':{'model':'yuanxian:block/talisman_desk'}}})
+    out[ASSETS/'models/item/talisman_desk.json']=encoded({'parent':'yuanxian:block/talisman_desk'})
     for kind in rule['names']:
         if kind=='talisman_desk': continue
         out[ASSETS/f'textures/item/{kind}.png']=png(icon(kind))
-        out[ASSETS/f'models/item/{kind}.json']=encoded({'parent':'minecraft:item/generated','textures':{'layer0':f'myvillage:item/{kind}'}})
+        out[ASSETS/f'models/item/{kind}.json']=encoded({'parent':'minecraft:item/generated','textures':{'layer0':f'yuanxian:item/{kind}'}})
     for name,recipe in read('recipes.json').items(): out[DATA/f'recipe/{name}.json']=encoded(recipe)
     out[DATA/'loot_table/blocks/talisman_desk.json']=encoded({'type':'minecraft:block','pools':[]})
     # Only new keys are owned here; existing alchemy/forging translations keep their generator.
     for language in ('zh_cn','en_us'):
         langpath=ASSETS/f'lang/{language}.json'; lang=json.loads((ROOT/langpath).read_text())
-        for name,label in rule['names'].items(): lang[('block' if name=='talisman_desk' else 'item')+'.myvillage.'+name]=label
-        lang.update({'screen.myvillage.crafting.talisman':'制符','screen.myvillage.crafting.talisman_awaken':'前往测灵碑觉醒灵根，测定炼丹、炼器与制符天资。','screen.myvillage.crafting.talisman_footer':'三项天资独立保存。制符案持续按住注灵，松开暂停；同一符式按品质增强。'})
+        for name,label in rule['names'].items(): lang[('block' if name=='talisman_desk' else 'item')+'.yuanxian.'+name]=label
+        lang.update({'screen.yuanxian.crafting.talisman':'制符','screen.yuanxian.crafting.talisman_awaken':'前往测灵碑觉醒灵根，测定炼丹、炼器与制符天资。','screen.yuanxian.crafting.talisman_footer':'三项天资独立保存。制符案持续按住注灵，松开暂停；同一符式按品质增强。'})
         out[langpath]=encoded(lang)
     return out
 
@@ -147,9 +147,9 @@ def preview():
     assets=pim.Assets([ROOT/'src/main/resources'],pim.VANILLA_JAR)
     if assets.jar is None:
         # Only the vanilla transform parent is missing in isolated worktrees; exact cuboids/UVs are local.
-        model=assets.model_json('myvillage:block/talisman_desk');model.pop('parent',None)
-    else: model=assets.model_json('myvillage:block/talisman_desk')
-    ref='myvillage:block/talisman_desk'
+        model=assets.model_json('yuanxian:block/talisman_desk');model.pop('parent',None)
+    else: model=assets.model_json('yuanxian:block/talisman_desk')
+    ref='yuanxian:block/talisman_desk'
     resolved=pim.resolve_model(assets,model,ref)
     if resolved.errors or resolved.warnings: raise ValueError(resolved.errors+resolved.warnings)
     quads=[((q.pos-np.array([8,0,8]))/16,q.uv,q.tex,None) for idx,el in enumerate(resolved.elements) for q in pim.element_quads(assets,resolved,el,idx)]

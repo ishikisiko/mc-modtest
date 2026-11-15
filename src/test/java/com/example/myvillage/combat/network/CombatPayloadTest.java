@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 class CombatPayloadTest {
     private static final ResourceLocation MOVE =
-            ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword_01_thrust");
+            ResourceLocation.fromNamespaceAndPath("yuanxian", "basic_sword_01_thrust");
 
     @Test
     void c2sIntentsCarryNoAuthorityFieldsOrBytes() {
@@ -61,7 +61,7 @@ class CombatPayloadTest {
                 new CombatAttackStartPayload(
                         42,
                         ResourceLocation.fromNamespaceAndPath(
-                                "myvillage", "basic_sword_03_rising_cut"),
+                                "yuanxian", "basic_sword_03_rising_cut"),
                         1_234,
                         8,
                         -37.5F,1.15F),
@@ -76,7 +76,7 @@ class CombatPayloadTest {
                 new CombatImpactPayload(
                         42,
                         8,
-                        ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword_05_lunge_thrust"),
+                        ResourceLocation.fromNamespaceAndPath("yuanxian", "basic_sword_05_lunge_thrust"),
                         List.of(7, 99),
                         List.of(new Vec3(1.25, 65.5, -3.0), new Vec3(-0.125, 64.0, 2.75))),
                 CombatImpactPayload.STREAM_CODEC);
@@ -124,7 +124,7 @@ class CombatPayloadTest {
                 IllegalArgumentException.class,
                 () -> new CombatAttackStartPayload(
                         42,
-                        ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword_01_thrust"),
+                        ResourceLocation.fromNamespaceAndPath("yuanxian", "basic_sword_01_thrust"),
                         1,
                         1,
                         Float.NaN,1F));
@@ -163,7 +163,7 @@ class CombatPayloadTest {
 
     @Test
     void dodgeStartRoundTripsAndRejectsOutOfBoundsFields() {
-        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("myvillage", "taxue_wuhen");
+        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("yuanxian", "taxue_wuhen");
         CombatDodgeStartPayload start = new CombatDodgeStartPayload(42, 1_234L, -135.0F, 4.5F, 7, 7, 24, technique);
         assertRoundTrip(start, CombatDodgeStartPayload.STREAM_CODEC);
         assertRoundTrip(

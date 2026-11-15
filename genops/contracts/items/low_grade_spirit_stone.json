@@ -1,5 +1,5 @@
 {
-  "item_id": "myvillage:low_grade_spirit_stone",
+  "item_id": "yuanxian:low_grade_spirit_stone",
   "kind": "functional_item",
   "display_name": {
     "en_us": "Low-Grade Spirit Stone",
@@ -8,7 +8,7 @@
   "owner_facing_goal": "提供可由灵石原矿直接产出的下品灵石，并在服务器权威的灵石修炼结算中作为逐批消耗资源。",
   "creative_tab": {
     "visibility": "visible",
-    "tab_id": "myvillage:main",
+    "tab_id": "yuanxian:main",
     "ordering": "append"
   },
   "java_registration": {
@@ -17,10 +17,10 @@
     "properties": "new Item.Properties() with vanilla-default stack size 64"
   },
   "client_assets": {
-    "lang_key": "item.myvillage.low_grade_spirit_stone",
-    "model": "src/main/resources/assets/myvillage/models/item/low_grade_spirit_stone.json",
+    "lang_key": "item.yuanxian.low_grade_spirit_stone",
+    "model": "src/main/resources/assets/yuanxian/models/item/low_grade_spirit_stone.json",
     "textures": [
-      "src/main/resources/assets/myvillage/textures/item/low_grade_spirit_stone.png"
+      "src/main/resources/assets/yuanxian/textures/item/low_grade_spirit_stone.png"
     ],
     "visual_verdict": "accept"
   },
@@ -28,8 +28,8 @@
     "recipes": [],
     "tags": [],
     "loot_or_advancement_hooks": [
-      "src/main/resources/data/myvillage/loot_table/blocks/spirit_stone_ore.json",
-      "src/main/resources/data/myvillage/loot_table/blocks/deepslate_spirit_stone_ore.json"
+      "src/main/resources/data/yuanxian/loot_table/blocks/spirit_stone_ore.json",
+      "src/main/resources/data/yuanxian/loot_table/blocks/deepslate_spirit_stone_ore.json"
     ]
   },
   "behavior": {
@@ -39,7 +39,7 @@
     "cooldown_or_durability": "No cooldown, durability, rarity override, or custom data components.",
     "data_components": [],
     "tests": [
-      "registered in ModItems and exposed in myvillage:main",
+      "registered in ModItems and exposed in yuanxian:main",
       "both non-Silk-Touch ore loot tables drop this exact item id",
       "Fortune uses the vanilla ore-drops bonus formula",
       "server derives the stage-owned batch cost and never accepts a client-authored count",
@@ -50,7 +50,7 @@
   },
   "acceptance": {
     "commands": [
-      "/give @s myvillage:low_grade_spirit_stone"
+      "/give @s yuanxian:low_grade_spirit_stone"
     ],
     "gates": [
       "python3 tools/validate_mod_items.py",
@@ -60,10 +60,10 @@
       "./gradlew build"
     ],
     "jar_checks": [
-      "assets/myvillage/models/item/low_grade_spirit_stone.json",
-      "assets/myvillage/textures/item/low_grade_spirit_stone.png",
+      "assets/yuanxian/models/item/low_grade_spirit_stone.json",
+      "assets/yuanxian/textures/item/low_grade_spirit_stone.png",
       "English and Chinese item translation keys",
-      "both ore loot tables reference myvillage:low_grade_spirit_stone"
+      "both ore loot tables reference yuanxian:low_grade_spirit_stone"
     ],
     "human_verdict": "accept"
   },

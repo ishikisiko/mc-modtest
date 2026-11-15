@@ -33,7 +33,7 @@
 
 ## 持久化和输入边界
 
-每玩家仍只使用 `myvillage:tribulation` persistent data。当前尝试格式为 schema 2，保存尝试 UUID、owner、四档选择、源/目标、资格门槛、伤害基准、冻结规则、场地、已发雷序和已确认受击数。先记录发出，再执行 hurt，再确认受击；重复确认被拒绝。读取到发出后未完成确认的记录时保留数据并无奖励中止，不重放或猜测一次命中。
+每玩家仍只使用 `yuanxian:tribulation` persistent data。当前尝试格式为 schema 2，保存尝试 UUID、owner、四档选择、源/目标、资格门槛、伤害基准、冻结规则、场地、已发雷序和已确认受击数。先记录发出，再执行 hurt，再确认受击；重复确认被拒绝。读取到发出后未完成确认的记录时保留数据并无奖励中止，不重放或猜测一次命中。
 
 断线、停服和未知区块暂停时钟；重登准备后继续同一雷序，不补离线时间，已确认的命中不重放。出界宽限、只读已加载区块与低血保护沿用原有实现。copyOnDeath 继续是修炼档案唯一复制机制，雷劫终止态不另发奖励。
 
@@ -46,7 +46,7 @@ python3 tools/gen_tribulation.py --check
 python3 -m unittest tools.tests.test_tribulation -v
 ```
 
-生成器拥有四份 `data/myvillage/tribulation/{heaven,golden_low,golden_middle,golden_high}.json`、主雷 damage type 与相关 tags。旧六雷/余雷资源和 MOCK 领奖类已退役，不保留旧资源别名。
+生成器拥有四份 `data/yuanxian/tribulation/{heaven,golden_low,golden_middle,golden_high}.json`、主雷 damage type 与相关 tags。旧六雷/余雷资源和 MOCK 领奖类已退役，不保留旧资源别名。
 
 权限 2 命令启动同一正式执行器，仍检查全部资格和场地：
 

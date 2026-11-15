@@ -26,9 +26,9 @@
     "spring_core":{"site":"spring_array","pos":[23,3,26],"walk_target":"array_core","block":"minecraft:chiseled_stone_bricks"}
   },
   "facilities": {
-    "testing_stele":{"site":"initiation_court","pos":[9,4,22],"walk_target":"testing","block":"myvillage:spirit_testing_stele"},
-    "inheritance_stele":{"site":"initiation_court","pos":[12,5,37],"walk_target":"inheritance","block":"myvillage:technique_inheritance_stele"},
-    "apprentice_plot":{"site":"apothecary","pos":[34,0,37],"walk_target":"apprentice_plot","block":"myvillage:spirit_soil"}
+    "testing_stele":{"site":"initiation_court","pos":[9,4,22],"walk_target":"testing","block":"yuanxian:spirit_testing_stele"},
+    "inheritance_stele":{"site":"initiation_court","pos":[12,5,37],"walk_target":"inheritance","block":"yuanxian:technique_inheritance_stele"},
+    "apprentice_plot":{"site":"apothecary","pos":[34,0,37],"walk_target":"apprentice_plot","block":"yuanxian:spirit_soil"}
   },
   "roads": {
     "width": 3,

@@ -38,7 +38,7 @@ def expected_ledger_look(person):
 
 def egg_item(tag):
     # 只设置采集标签与静止姿态；Look／Colours 必须来自实际出生链路。
-    return ('myvillage:cultivator_spawn_egg[minecraft:entity_data={id:"myvillage:cultivator",'
+    return ('yuanxian:cultivator_spawn_egg[minecraft:entity_data={id:"yuanxian:cultivator",'
             f'NoAI:1b,PersistenceRequired:1b,Tags:["{tag}"]}}]')
 
 
@@ -87,7 +87,7 @@ class AppearanceEvidence(Evidence):
         self.report['source_commit']=json.loads(Path('/workspace/request.json').read_text())['commit']
         self.save()
         if not reuse:
-            config=session.SERVER_DIR/'config/myvillage-world_sim-server.toml'
+            config=session.SERVER_DIR/'config/yuanxian-world_sim-server.toml'
             config.parent.mkdir(parents=True,exist_ok=True)
             config.write_text('[world_sim]\ntier = "large"\n[avatars]\nauto_realize_gates = false\n')
         session.merge_options(session.CLIENT_DIR/'options.txt',{'key_key.use':'key.mouse.right'})
@@ -105,13 +105,13 @@ class AppearanceEvidence(Evidence):
         raw=self.rc(f'data get entity {selector}')
         return read_data(raw) if 'data: ' in raw else {}
 
-    def tagged(self,tag):return self.inspect(f'@e[type=myvillage:cultivator,tag={tag},limit=1]')
+    def tagged(self,tag):return self.inspect(f'@e[type=yuanxian:cultivator,tag={tag},limit=1]')
 
-    def entity(self,pid):return '@e[type=myvillage:cultivator,nbt={WorldSimPerson:'+str(pid)+'},limit=1]'
+    def entity(self,pid):return '@e[type=yuanxian:cultivator,nbt={WorldSimPerson:'+str(pid)+'},limit=1]'
 
     def ledger(self,label):
         self.rc('save-all flush')
-        data=read_ledger(session.SERVER_DIR/session.LEVEL_NAME/'data/myvillage_world_sim.dat')
+        data=read_ledger(session.SERVER_DIR/session.LEVEL_NAME/'data/yuanxian_world_sim.dat')
         (self.out/(label+'-ledger.json')).write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
         return data
 
@@ -135,7 +135,7 @@ class AppearanceEvidence(Evidence):
     def command_spawn(self):
         for i in range(12):
             tag=f'appearance_command_{i}';x=(i%6)*4-10;z=6+(i//6)*4
-            self.rc(f'summon myvillage:cultivator {x+.5} -60 {z+.5} {{NoAI:1b,PersistenceRequired:1b,Tags:["{tag}"]}}')
+            self.rc(f'summon yuanxian:cultivator {x+.5} -60 {z+.5} {{NoAI:1b,PersistenceRequired:1b,Tags:["{tag}"]}}')
             body=self.poll(lambda:self.tagged(tag),lambda b:bool(b.get('UUID')),5,tag)
             self.check(tag,automatic_look_ok(body),appearance(body));self.samples[tag]=appearance(body)
         self.photo('@e[tag=appearance_command_0,limit=1]','command_spawn')
@@ -160,7 +160,7 @@ class AppearanceEvidence(Evidence):
     def explicit_look_compatibility(self):
         for i,look in enumerate(('default','f_novice','f_adept','m_02_04_b','f_novice_02_a_pants')):
             tag=f'appearance_explicit_{i}'
-            self.rc(f'summon myvillage:cultivator {i*4-8+.5} -60 16.5 {{NoAI:1b,PersistenceRequired:1b,Tags:["{tag}"],Look:"{look}",Colours:66}}')
+            self.rc(f'summon yuanxian:cultivator {i*4-8+.5} -60 16.5 {{NoAI:1b,PersistenceRequired:1b,Tags:["{tag}"],Look:"{look}",Colours:66}}')
             body=self.tagged(tag)
             self.check(tag,bool(body.get('UUID')) and body.get('Look')==look and body.get('Colours')==66,appearance(body))
             self.samples[tag]=appearance(body)

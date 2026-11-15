@@ -3,7 +3,7 @@ navigation:
   title: 朱纹制符案与三种符
   parent: index.md
   position: 58
-  icon: myvillage:talisman_desk
+  icon: yuanxian:talisman_desk
 ---
 
 # 朱纹制符案与三种符
@@ -12,11 +12,11 @@ navigation:
 
 ## 制作一张符
 
-<Recipe id="myvillage:talisman_desk" />
+<Recipe id="yuanxian:talisman_desk" />
 
-<Recipe id="myvillage:talisman_paper" />
+<Recipe id="yuanxian:talisman_paper" />
 
-<Recipe id="myvillage:spiritual_ink" />
+<Recipe id="yuanxian:spiritual_ink" />
 
 右键制符案，放入素符纸和朱砂灵墨，选择符式，再用鼠标持续按住「注灵绘制」。它持续消耗自己的灵力；松手、移出按钮或关闭界面都会暂停，不能点一下就离开等成品。
 

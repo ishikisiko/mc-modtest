@@ -3,7 +3,7 @@ navigation:
   title: 太白剑脉绝技
   parent: index.md
   position: 36
-  icon: myvillage:qingfeng_sword
+  icon: yuanxian:qingfeng_sword
 ---
 # 太白剑脉绝技
 

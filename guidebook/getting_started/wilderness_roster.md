@@ -3,7 +3,7 @@ navigation:
   title: 野外历练与战利品
   parent: index.md
   position: 80
-  icon: myvillage:qingfeng_sword
+  icon: yuanxian:qingfeng_sword
 ---
 
 # 野外历练与战利品

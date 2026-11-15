@@ -14,7 +14,7 @@ from tools.technique_catalogue import generator, importer
 
 SOURCES = ("catalogue.json", "schools.json", "heritages.json", "rules.json")
 BASIC = generator.TECHNIQUE_REL / "basic_breathing.json"
-BASIC_KEY = "cultivation.technique.myvillage.basic_breathing"
+BASIC_KEY = "cultivation.technique.yuanxian.basic_breathing"
 
 
 class Fixture(unittest.TestCase):
@@ -36,7 +36,7 @@ class Fixture(unittest.TestCase):
             path = self.root / generator.LANG_REL / f"{code}.json"
             lang = json.loads(path.read_text(encoding="utf-8"))
             path.write_text(generator.dump({k: v for k, v in lang.items() if k == BASIC_KEY
-                                            or not generator.managed_key(k, "myvillage")}), encoding="utf-8")
+                                            or not generator.managed_key(k, "yuanxian")}), encoding="utf-8")
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
@@ -74,19 +74,19 @@ class GenerationTest(Fixture):
         doc = json.loads((self.root / generator.TECHNIQUE_REL / "tiangang_jiandian.json").read_text("utf-8"))
         self.assertEqual(list(doc), ["translation_key", "category", "grade", "elements", "school", "requirements",
                                      "lineage", "effects", "study"])
-        self.assertEqual(doc["effects"]["active"]["skill"], "myvillage:tiangang_jiandian")
+        self.assertEqual(doc["effects"]["active"]["skill"], "yuanxian:tiangang_jiandian")
         self.assertGreater(doc["effects"]["active"]["qi_cost"], 0)
         self.assertEqual(doc["study"], {"points": 36000, "gates": 2, "gate_stability_cost": 100})
         self.assertEqual(doc["requirements"], {
-            "minimum_realm": "myvillage:foundation_establishment", "minimum_stage": "myvillage:foundation_early",
-            "minimum_element_affinity": {"myvillage:metal": 1500}})
+            "minimum_realm": "yuanxian:foundation_establishment", "minimum_stage": "yuanxian:foundation_early",
+            "minimum_element_affinity": {"yuanxian:metal": 1500}})
         core = json.loads((self.root / generator.TECHNIQUE_REL / "yinqi_jue.json").read_text("utf-8"))
         self.assertNotIn("school", core)
         self.assertNotIn("lineage", core)
         self.assertEqual(core["elements"], [])
         self.assertEqual(core["effects"], {"core": {"meditation_route": "xiaozhoutian"}})
-        self.assertEqual(core["requirements"], {"minimum_realm": "myvillage:qi_refining",
-                                                "minimum_stage": "myvillage:qi_refining_1"})
+        self.assertEqual(core["requirements"], {"minimum_realm": "yuanxian:qi_refining",
+                                                "minimum_stage": "yuanxian:qi_refining_1"})
         self.assertEqual(core["study"], {"points": 160, "gates": 0, "gate_stability_cost": 0})
 
     def test_every_generated_technique_carries_the_study_block_of_its_grade(self) -> None:
@@ -131,7 +131,7 @@ class GenerationTest(Fixture):
         self.assertIn(f"{(generator.SCHOOL_REL / 'spear.json').as_posix()} (removed)", changed)
         for code in generator.LANGS:
             lang = json.loads((self.root / generator.LANG_REL / f"{code}.json").read_text("utf-8"))
-            self.assertNotIn("cultivation.school.myvillage.spear", lang)
+            self.assertNotIn("cultivation.school.yuanxian.spear", lang)
         self.assertTrue((self.root / BASIC).is_file())
 
     def test_bad_sources_are_refused(self) -> None:
@@ -170,14 +170,14 @@ class RowEffectsTest(Fixture):
     def test_sword_qi_is_an_initial_public_grade_one_manual(self) -> None:
         self.write()
         technique = self.technique("jianqi_jue")
-        self.assertEqual(technique["effects"], {"active": {"skill": "myvillage:jianqi_jue", "qi_cost": 8, "slots": 1}})
+        self.assertEqual(technique["effects"], {"active": {"skill": "yuanxian:jianqi_jue", "qi_cost": 8, "slots": 1}})
         self.assertEqual(technique["grade"], 1)
-        self.assertEqual(technique["requirements"]["minimum_stage"], "myvillage:qi_refining_1")
+        self.assertEqual(technique["requirements"]["minimum_stage"], "yuanxian:qi_refining_1")
         self.assertNotIn("lineage", technique)
         self.assertNotIn("minimum_element_affinity", technique["requirements"])
 
     def test_active_runtime_reference_and_fields_are_checked(self) -> None:
-        self.edit_row("jianqi_jue", lambda r: r["effects"]["active"].update(skill="myvillage:missing"))
+        self.edit_row("jianqi_jue", lambda r: r["effects"]["active"].update(skill="yuanxian:missing"))
         self.assertIn("is not a registered skill", self.problems())
         self.edit_row("jianqi_jue", lambda r: r["effects"]["active"].update(skill="bad id", qi_cost=-1, slots=0))
         text = self.problems()
@@ -203,7 +203,7 @@ class RowEffectsTest(Fixture):
         self.assertEqual(liuyun["effects"], {"movement": self.MOVEMENT})
         self.assertEqual(list(liuyun["effects"]["movement"]), list(generator.MOVEMENT_FIELDS))
         taxue = self.technique("taxue_wuhen")
-        self.assertEqual(taxue["lineage"], {"previous": "myvillage:liuyun_bu"})
+        self.assertEqual(taxue["lineage"], {"previous": "yuanxian:liuyun_bu"})
         self.assertEqual(taxue["effects"], {"movement": {"dash_distance": 4.5, "invulnerable_ticks": 7,
                                                          "qi_cost": 10, "cooldown_ticks": 24}})
         self.assertEqual(list(taxue), ["translation_key", "category", "grade", "elements", "requirements",
@@ -313,7 +313,7 @@ class LangTest(Fixture):
         return (self.root / generator.LANG_REL / f"{code}.json").read_text(encoding="utf-8")
 
     def test_only_managed_keys_change_and_every_other_key_keeps_its_place(self) -> None:
-        managed = lambda k: generator.managed_key(k, "myvillage")  # noqa: E731
+        managed = lambda k: generator.managed_key(k, "yuanxian")  # noqa: E731
         for code in generator.LANGS:
             path = self.root / generator.LANG_REL / f"{code}.json"
             doc = json.loads(path.read_text("utf-8"))
@@ -323,8 +323,8 @@ class LangTest(Fixture):
             for i, key in enumerate(keys):
                 seeded[key] = doc[key]
                 if i == 3:
-                    seeded["cultivation.technique.myvillage.jingang_gong"] = "old"
-                    seeded["cultivation.heritage.myvillage.gone"] = "stale"
+                    seeded["cultivation.technique.yuanxian.jingang_gong"] = "old"
+                    seeded["cultivation.heritage.yuanxian.gone"] = "stale"
             path.write_text(generator.dump(seeded), encoding="utf-8")
         before = {code: json.loads(self.lang(code)) for code in generator.LANGS}
         self.write()
@@ -336,13 +336,13 @@ class LangTest(Fixture):
                             or k == BASIC_KEY]
             self.assertEqual(others_after, others_before, code)
             order = list(after)
-            self.assertEqual(order.index("cultivation.technique.myvillage.jingang_gong"),
-                             list(before[code]).index("cultivation.technique.myvillage.jingang_gong"))
-            self.assertEqual(after["cultivation.technique.myvillage.jingang_gong"], "金刚功")
-            self.assertNotIn("cultivation.heritage.myvillage.gone", after)
-            self.assertEqual(after["cultivation.technique.myvillage.taibai_jianjing"], "太白剑经")
-            self.assertEqual(after["cultivation.school.myvillage.fist"], "拳掌")
-            self.assertEqual(after["cultivation.heritage.myvillage.taibai_jianmai"], "太白剑脉")
+            self.assertEqual(order.index("cultivation.technique.yuanxian.jingang_gong"),
+                             list(before[code]).index("cultivation.technique.yuanxian.jingang_gong"))
+            self.assertEqual(after["cultivation.technique.yuanxian.jingang_gong"], "金刚功")
+            self.assertNotIn("cultivation.heritage.yuanxian.gone", after)
+            self.assertEqual(after["cultivation.technique.yuanxian.taibai_jianjing"], "太白剑经")
+            self.assertEqual(after["cultivation.school.yuanxian.fist"], "拳掌")
+            self.assertEqual(after["cultivation.heritage.yuanxian.taibai_jianmai"], "太白剑脉")
             new_keys = [k for k in order if managed(k) and k not in before[code]]
             self.assertEqual(order[-len(new_keys):], new_keys, "new keys are appended as one group")
             self.assertTrue(self.lang(code).startswith('{\n  "'))
@@ -418,14 +418,14 @@ class ValidatorCrossCheckTest(unittest.TestCase):
                             in e for e in errors), errors)
 
     def test_element_mismatch_and_missing_file(self) -> None:
-        self.edit_technique("qingxi_jue", lambda d: d.update(elements=["myvillage:fire"]))
+        self.edit_technique("qingxi_jue", lambda d: d.update(elements=["yuanxian:fire"]))
         (self.root / validator.TECHNIQUE_REL / "hantan_gong.json").unlink()
         errors = self.new_errors()
         self.assertTrue(any("technique/qingxi_jue.json: elements" in e for e in errors), errors)
         self.assertTrue(any("hantan_gong has no datapack file" in e for e in errors), errors)
 
     def test_lineage_cycle(self) -> None:
-        self.edit_technique("gengjin_yinqi_fa", lambda d: d.update(lineage={"previous": "myvillage:taibai_jianjing"}))
+        self.edit_technique("gengjin_yinqi_fa", lambda d: d.update(lineage={"previous": "yuanxian:taibai_jianjing"}))
         errors = self.new_errors()
         self.assertTrue(any("lineage.previous cycle through ['gengjin_jianjue', 'gengjin_yinqi_fa', "
                             "'taibai_jianjing', 'tiangang_jiandian']" in e for e in errors), errors)

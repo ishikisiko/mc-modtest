@@ -48,9 +48,9 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
         start.setTooltip(Tooltip.create(costs));
         for(int i=0;i<traits.size();i++){
             int index=traitPage*3+i;var b=traits.get(i);b.visible=index<ForgeMark.TRAITS.size();if(!b.visible)continue;String trait=ForgeMark.TRAITS.get(index);
-            b.setMessage(Component.literal(menu.traitIndex()==index?"◆":"").append(Component.translatable("forging.myvillage.trait."+trait)));
+            b.setMessage(Component.literal(menu.traitIndex()==index?"◆":"").append(Component.translatable("forging.yuanxian.trait."+trait)));
             b.active=!menu.active()&&(menu.input().isEmpty()||AuxiliaryRefining.prepare(menu.input(),menu.fire(),trait,Math.max(1,menu.qualityCap())).valid());
-            b.setTooltip(Tooltip.create(Component.translatable("screen.myvillage.forging.trait."+trait)));
+            b.setTooltip(Tooltip.create(Component.translatable("screen.yuanxian.forging.trait."+trait)));
         }
     }
     @Override protected void containerTick(){super.containerTick();updateButtons();}

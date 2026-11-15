@@ -6,7 +6,7 @@ from pathlib import Path
 from tools.equipment import mesh
 from tools.equipment.geometry import encode_png
 ROOT=Path(__file__).resolve().parents[2]
-PREFIX='myvillage:equipment/forging/'
+PREFIX='yuanxian:equipment/forging/'
 
 def read(path):return json.loads(path.read_text())
 def encoded(v):return (json.dumps(v,ensure_ascii=False,indent=2)+'\n').encode()
@@ -64,7 +64,7 @@ class Catalogue:
   from tools.equipment.export import compile_armor
   spec=read(self.root/f"equipment/{self.config['armor']['set']}/equipment.json");materials=read(self.root/'equipment/materials.json')['materials']
   compiled,pixels=compile_armor(spec,materials)
-  self.material_outputs[f"assets/myvillage/textures/equipment/{self.config['armor']['set']}.png"]=encode_png(pixels)
+  self.material_outputs[f"assets/yuanxian/textures/equipment/{self.config['armor']['set']}.png"]=encode_png(pixels)
   for item in spec['items']:
    faces=mesh.armor_mesh(compiled,item['id'],self.root);selected={b['name'] for b in item['boxes'] if b['material'] in self.config['armor']['metal_materials'] and (item['slot'] not in self.config['armor']['body_only_slots'] or b['bone']=='body')}
    all_metal={b['name'] for b in item['boxes'] if b['material'] in self.config['armor']['metal_materials']}
@@ -111,7 +111,7 @@ class Catalogue:
   return mesh.map_points(f,lambda p:(8+(p[0]-(lo[0]+hi[0])/2)*s,(p[1]-lo[1])*s,8+(p[2]-(lo[2]+hi[2])/2)*s))
  def outputs(self):
   base=self.root/'src/main/resources';out={};atlas=set()
-  for name,colors in self.authored['palette'].items():out[base/f'assets/myvillage/textures/equipment/forging/{name}.png']=palette_texture(name,colors)
+  for name,colors in self.authored['palette'].items():out[base/f'assets/yuanxian/textures/equipment/forging/{name}.png']=palette_texture(name,colors)
   def emit(faces,ref,path,display=None):
    atlas.update(f['texture'] for f in faces if not f['texture'].split(':',1)[1].startswith(('item/','block/')))
    assets,model=mesh.obj_assets(faces,ref,display)
@@ -121,18 +121,18 @@ class Catalogue:
     fs=self.stage(rid,stage)
     if stage<5:
      sid=self.config['states'][stage]['id'];name=f'workpiece_{rid}_{sid}'
-     emit(fs,'myvillage:equipment/forging/'+name,f'assets/myvillage/models/item/{name}.json',mesh.item_display(fs,armor=self.armor(rid)))
+     emit(fs,'yuanxian:equipment/forging/'+name,f'assets/yuanxian/models/item/{name}.json',mesh.item_display(fs,armor=self.armor(rid)))
     elif rid in {t['id'] for t in self.authored['tools']}:
-     emit(fs,'myvillage:equipment/forging/'+rid,f'assets/myvillage/models/item/{rid}.json',self.displays[rid])
+     emit(fs,'yuanxian:equipment/forging/'+rid,f'assets/yuanxian/models/item/{rid}.json',self.displays[rid])
     for hot in ([False,True] if stage in (0,1,5) else [False]):
      key=f'{kind}_{stage}'+('_hot' if hot else '')
-     emit(self.bench(rid,self.stage(rid,stage,hot),stage),'myvillage:equipment/forging/bench_'+key,f'assets/myvillage/models/block/workshop/{key}.json')
+     emit(self.bench(rid,self.stage(rid,stage,hot),stage),'yuanxian:equipment/forging/bench_'+key,f'assets/yuanxian/models/block/workshop/{key}.json')
   # OBJ materials still use the vanilla block atlas. Existing direct armor textures
   # and equipment palettes are outside its default item/block directory sources.
   sources={ref:{'type':'minecraft:single','resource':ref} for ref in atlas}
   # This generator owns the shared block atlas. The new family contributes only
   # material sprites here, without adding forging recipes or workshop models.
-  manifest=base/'assets/myvillage/immortal_equipment/atlas_sources.json'
+  manifest=base/'assets/yuanxian/immortal_equipment/atlas_sources.json'
   if manifest.is_file():
    for source in read(manifest)['sources']:
     if source.get('type')!='minecraft:single':raise ValueError('非法装备图集源')

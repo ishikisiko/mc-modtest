@@ -12,9 +12,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
 /** Optional read-only native UI evidence. Actions still use mapped keyboard/mouse, never this observer. */
-@EventBusSubscriber(modid="myvillage",value=Dist.CLIENT)
+@EventBusSubscriber(modid="yuanxian",value=Dist.CLIENT)
 public final class WorldUiEvidence {
-    private static final boolean ENABLED=Boolean.getBoolean("myvillage.uiEvidence");
+    private static final boolean ENABLED=Boolean.getBoolean("yuanxian.uiEvidence");
     private static String last="";
     @SubscribeEvent public static void rendered(ScreenEvent.Render.Post event) {
         if(!ENABLED)return;

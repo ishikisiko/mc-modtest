@@ -15,12 +15,12 @@ from tools.combat_capture import scene, session as cs
 from tools.realm_stats_evidence import json_lines
 
 ROOT = Path(__file__).resolve().parents[1]
-BIRTH = 'NeoForgeData."myvillage:exploration_boss_birth"'
-REALM = 'NeoForgeData."myvillage:stats_realm"'
-ORDINARY_BIRTH = 'NeoForgeData."myvillage:vanilla_monster_birth"'
-STAGES = {('myvillage:foundation_establishment', 1): 'myvillage:foundation_middle',
-          ('myvillage:golden_core', 1): 'myvillage:golden_middle',
-          ('myvillage:golden_core', 2): 'myvillage:golden_late'}
+BIRTH = 'NeoForgeData."yuanxian:exploration_boss_birth"'
+REALM = 'NeoForgeData."yuanxian:stats_realm"'
+ORDINARY_BIRTH = 'NeoForgeData."yuanxian:vanilla_monster_birth"'
+STAGES = {('yuanxian:foundation_establishment', 1): 'yuanxian:foundation_middle',
+          ('yuanxian:golden_core', 1): 'yuanxian:golden_middle',
+          ('yuanxian:golden_core', 2): 'yuanxian:golden_late'}
 
 
 def _trace(e, target):
@@ -52,10 +52,10 @@ def _player(e, realm, stage):
     e.rc(f'effect clear {u}')
     for slot in ('armor.head', 'armor.chest', 'armor.legs', 'armor.feet', 'weapon.offhand'):
         e.rc(f'item replace entity {u} {slot} with minecraft:air')
-    e.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword')
+    e.rc(f'item replace entity {u} hotbar.0 with yuanxian:qingfeng_sword')
     g.key('1')
     e.poll(lambda: e.rc(f'data get entity {u} SelectedItem.id'),
-           lambda r: 'myvillage:qingfeng_sword' in r, 8, 'mapped hotbar one selects fixed sword')
+           lambda r: 'yuanxian:qingfeng_sword' in r, 8, 'mapped hotbar one selects fixed sword')
     e.rc(f'gamemode survival {u}')
     # Healing the actor is fixture setup; targets always retain their actual full profile HP.
     e.rc(f'effect give {u} minecraft:instant_health 1 10 true')
@@ -107,7 +107,7 @@ def run_bosses(e):
     e.rc(f'yuanxian cultivation awaken {e.s.username}')
     e.rc(f'yuanxian cultivation initiate {e.s.username}')
     profiles = {row['entity']: row for row in json.loads(
-        (ROOT/'src/main/resources/data/myvillage/exploration/bosses.json').read_text())['profiles']}
+        (ROOT/'src/main/resources/data/yuanxian/exploration/bosses.json').read_text())['profiles']}
     options = dict(line.split(':', 1) for line in (cs.CLIENT_DIR/'options.txt').read_text().splitlines()
                    if ':' in line)
     e.check('boss_mapped_attack_binding', options.get('key_key.attack') == 'key.mouse.left',
@@ -190,7 +190,7 @@ def run_bosses(e):
         e.check('ordinary_regression_has_spawner_birth', birth_before.get('reason') == 'SPAWNER', birth_before)
         # Foundation middle actor uses the same fixed equipment and shared move. The regional
         # zombie has its genuine rolled HP; no test lowers it to manufacture a player kill.
-        _player(e, 'myvillage:foundation_establishment', 1)
+        _player(e, 'yuanxian:foundation_establishment', 1)
         before = e.number(f'data get entity {target} Health')
         row = _hit(e, target, 'ordinary_zombie', before)
         e.check('ordinary_birth_kept_after_mapped_shared_hit',

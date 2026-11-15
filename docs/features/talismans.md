@@ -13,7 +13,7 @@
 - 材料不足、灵力不足或输出不兼容／满堆叠时拒绝当前脉冲，不扣原料／灵力。活动符稿锁定两输入槽与符式；产物只生成一次，完成后必须松开重新按住才能另画一张。
 - 生存拆案掉落**唯一封存制符案物品**，库存和已付符稿随 `BLOCK_ENTITY_DATA` 保存；不会同时散落库存。放回后继续。方块无漏斗／管道能力；创造模式删块沿用原版不掉落语义。
 
-所有数字与效果来自 `tools/talisman/rules.json` 经专属生成器发布的 `data/myvillage/talisman/rules.json`；上面只是当前默认值说明。
+所有数字与效果来自 `tools/talisman/rules.json` 经专属生成器发布的 `data/yuanxian/talisman/rules.json`；上面只是当前默认值说明。
 
 ## 五种符
 
@@ -29,7 +29,7 @@
 
 ## 传送符（0.114.6）
 
-- 两种新符都沿用制符案的一纸一墨与持续注灵流程，成品 ID 为 `myvillage:talisman_home`、`myvillage:talisman_recall`。
+- 两种新符都沿用制符案的一纸一墨与持续注灵流程，成品 ID 为 `yuanxian:talisman_home`、`yuanxian:talisman_recall`。
 - 回城符需要可选 Waystones 模组。服务器读取该玩家的激活记录，不建立另一套解锁数据；分页列表每页六处，所有已激活的普通传送石碑均可翻页选择。未安装依赖时给出提示，其余符箓仍可使用。
 - 回城列表仅发送当前页的名称、维度与坐标供展示；点击只提交按钮编号，服务器使用自己的 UUID 列表并重新检查激活状态、石碑是否存在、落点和手持符。菜单打开后切换手持物会失效。未激活、已拆除和不安全的目标不能传送。
 - 回城符使用 Waystones 自定义传送上下文，正常发出原生传送事件；本路线支付一张符和激活灵力，不额外收取石碑之间传送的灵石费用。既有石碑收费配置保持原有用途。
@@ -43,7 +43,7 @@
 
 镇步复用 `ControlService.root`，强敌缩短、霸体／免控拒绝，重复根缠递减；自己、友军／同宗、禁 PvP 玩家不会触发。每张符至多控制一个合法目标。潜行空主手右击未触发地符附近可收回，背包满时不移除。每玩家同时最多 3 张地符（引雷与镇步共用），服务器总量有界；离线、死亡、跨维度、区块卸载或到期消散，不作为持久生产器。展示使用不可拾取的 ItemDisplay 视觉副本；重启遗留展示在加载时删除。
 
-护身符唯一稳定来源为 **`myvillage:talisman_ward`**，复用 `ShieldRuntime`。新增通用 `grantPaid` 在独立账簿副本上检查容量，成功付款后才安装护盾；失败付款保留所有旧盾余额和期限。雷劫可通过同一共享护盾管线吸收，符系统不导入雷劫管理器。
+护身符唯一稳定来源为 **`yuanxian:talisman_ward`**，复用 `ShieldRuntime`。新增通用 `grantPaid` 在独立账簿副本上检查容量，成功付款后才安装护盾；失败付款保留所有旧盾余额和期限。雷劫可通过同一共享护盾管线吸收，符系统不导入雷劫管理器。
 
 ## 独立制符资质
 
@@ -76,7 +76,7 @@ H → 技艺页显示炼丹／炼器／制符三项资质与服务器计算品�
 | 3..29 | 玩家主背包 3 行，每行 9 槽 | 70+列×18,156+行×18 | 左上角+8 |
 | 30..38 | 玩家快捷栏，列 0..8 | 70+列×18,214 | 左上角+8 |
 
-菜单／物品／资源 ID：`myvillage:talisman_desk`，`myvillage:talisman_paper`，`myvillage:spiritual_ink`，`myvillage:talisman_lightning`，`myvillage:talisman_snare`，`myvillage:talisman_ward`，`myvillage:talisman_home`，`myvillage:talisman_recall`。创造栏同样可取。回城列表使用 `myvillage:talisman_travel` 菜单。
+菜单／物品／资源 ID：`yuanxian:talisman_desk`，`yuanxian:talisman_paper`，`yuanxian:spiritual_ink`，`yuanxian:talisman_lightning`，`yuanxian:talisman_snare`，`yuanxian:talisman_ward`，`yuanxian:talisman_home`，`yuanxian:talisman_recall`。创造栏同样可取。回城列表使用 `yuanxian:talisman_travel` 菜单。
 
 ## 只读诊断 schema 1
 

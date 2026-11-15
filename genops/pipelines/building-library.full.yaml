@@ -31,7 +31,7 @@ tasks:
     forbidden_files:
       - "gradle.properties"
       - "CHANGELOG.md"
-      - "src/main/resources/data/myvillage/structure/*.nbt"
+      - "src/main/resources/data/yuanxian/structure/*.nbt"
     outputs: [patch.diff, task_result.json, evidence.json]
 
   - id: patch-validators
@@ -46,7 +46,7 @@ tasks:
       - "tools/buildgen/tests/**"
     gates:
       - "python3 tools/validate_building_library.py --count 10"
-      - "python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure"
+      - "python3 tools/validate_generated_structures.py src/main/resources/data/yuanxian/structure"
     outputs:
       - "patch.diff"
       - "task_result.json"
@@ -82,8 +82,8 @@ tasks:
     agent: regression-steward
     depends_on: [docs-sync]
     gates:
-      - "python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure"
-      - "python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure"
+      - "python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/yuanxian/structure"
+      - "python3 tools/validate_generated_structures.py src/main/resources/data/yuanxian/structure"
       - "python3 tools/check_style_policy.py"
       - "python3 tools/check_cultivation_forms.py"
       - "./gradlew build"

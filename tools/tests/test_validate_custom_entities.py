@@ -13,8 +13,8 @@ MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
 
-WOLF = "myvillage:demon_wolf"
-NPC = "myvillage:cultivator"
+WOLF = "yuanxian:demon_wolf"
+NPC = "yuanxian:cultivator"
 RESOURCES = ROOT / "src/main/resources"
 
 
@@ -56,14 +56,14 @@ class CustomEntityValidationTest(unittest.TestCase):
         self.assertEqual(index["beasts"], list(report["beasts"]))
         wolf = report["beasts"][WOLF]
         self.assertEqual(0, wolf["errors"])
-        self.assertEqual([m["id"] for m in load("data/myvillage/beast/demon_wolf.json")["moves"]], wolf["moves"])
+        self.assertEqual([m["id"] for m in load("data/yuanxian/beast/demon_wolf.json")["moves"]], wolf["moves"])
         self.assertTrue({"idle", "walk", "run", "stagger"} <= set(wolf["clips"]))
         self.assertEqual(wolf["textures"]["texture"], wolf["textures"]["glow"])
 
 
 class BeastDataTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.data = load("data/myvillage/beast/demon_wolf.json")
+        self.data = load("data/yuanxian/beast/demon_wolf.json")
 
     def errors(self, data=None):
         return MODULE.check_beast_data(self.data if data is None else data, WOLF)
@@ -107,11 +107,11 @@ class BeastDataTest(unittest.TestCase):
         data = copy.deepcopy(self.data)
         data["moves"][1]["id"] = data["moves"][0]["id"]
         data["moves"][1]["animation"] = "walk"
-        data["entity"] = "myvillage:other"
+        data["entity"] = "yuanxian:other"
         errors = self.errors(data)
         self.assertIn(f"duplicate_move_id:{self.move()['id']}", errors)
         self.assertTrue(any(e.startswith("clip_reserved_or_reused") for e in errors))
-        self.assertIn("entity_mismatch:myvillage:other", errors)
+        self.assertIn("entity_mismatch:yuanxian:other", errors)
         data = copy.deepcopy(self.data)
         data["stagger"]["animation"] = "idle"
         self.assertIn("reserved_clip:stagger.animation:idle", self.errors(data))
@@ -135,9 +135,9 @@ class BeastDataTest(unittest.TestCase):
 
 class BeastAssetFilesTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.data = load("data/myvillage/beast/demon_wolf.json")
-        self.model = load("assets/myvillage/beast/demon_wolf_model.json")
-        self.animations = load("assets/myvillage/beast/demon_wolf_animations.json")
+        self.data = load("data/yuanxian/beast/demon_wolf.json")
+        self.model = load("assets/yuanxian/beast/demon_wolf_model.json")
+        self.animations = load("assets/yuanxian/beast/demon_wolf_animations.json")
         errors, self.bones = MODULE.check_beast_model(self.model, WOLF)
         self.assertEqual([], errors)
 
@@ -180,8 +180,8 @@ class BeastAssetFilesTest(unittest.TestCase):
 class BeastContractTest(unittest.TestCase):
     def setUp(self) -> None:
         self.contract = (ROOT / "genops/contracts/entities/demon_wolf.yaml").read_text(encoding="utf-8")
-        self.data = load("data/myvillage/beast/demon_wolf.json")
-        self.lang = {locale: load(f"assets/myvillage/lang/{locale}.json") for locale in ("en_us", "zh_cn")}
+        self.data = load("data/yuanxian/beast/demon_wolf.json")
+        self.lang = {locale: load(f"assets/yuanxian/lang/{locale}.json") for locale in ("en_us", "zh_cn")}
 
     def errors(self, contract=None, data=None):
         return MODULE.check_beast_contract(
@@ -193,7 +193,7 @@ class BeastContractTest(unittest.TestCase):
     def test_a_new_move_in_the_data_needs_the_contract(self) -> None:
         data = copy.deepcopy(self.data)
         extra = copy.deepcopy(data["moves"][0])
-        extra["id"], extra["animation"] = "myvillage:demon_wolf_howl", "howl"
+        extra["id"], extra["animation"] = "yuanxian:demon_wolf_howl", "howl"
         data["moves"].append(extra)
         errors = self.errors(data=data)
         self.assertIn("contract_move_ids_differ_from_data", errors)
@@ -209,23 +209,23 @@ class BeastContractTest(unittest.TestCase):
         data["attributes"]["luck"] = 1.0
         self.assertTrue(any(e.startswith("contract_attribute_names") for e in self.errors(data=data)))
         lang = copy.deepcopy(self.lang)
-        lang["zh_cn"]["entity.myvillage.demon_wolf"] = "狼"
+        lang["zh_cn"]["entity.yuanxian.demon_wolf"] = "狼"
         self.assertIn("contract_display_name_differs_from_lang:zh_cn",
                       MODULE.check_beast_contract(self.contract, WOLF, self.data, lang))
 
 
 class NpcValidationTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.model = load("assets/myvillage/npc/cultivator_model.json")
-        self.animations = load("assets/myvillage/npc/cultivator_animations.json")
+        self.model = load("assets/yuanxian/npc/cultivator_model.json")
+        self.animations = load("assets/yuanxian/npc/cultivator_animations.json")
         self.contract = "\n".join(line for line in (ROOT / "genops/contracts/entities/cultivator.yaml").read_text(encoding="utf-8").splitlines() if not line.startswith("variant_"))
-        self.lang = {locale: load(f"assets/myvillage/lang/{locale}.json") for locale in ("en_us", "zh_cn")}
+        self.lang = {locale: load(f"assets/yuanxian/lang/{locale}.json") for locale in ("en_us", "zh_cn")}
 
     def test_every_generated_npc_is_validated(self) -> None:
         report = MODULE.validate(ROOT)
         # One entity, one npcgen definition per look: the definitions group by ENTITY into looks.
-        self.assertEqual([NPC, "myvillage:ridge_reaver"], MODULE.npc_ids(ROOT))
-        self.assertEqual([NPC, "myvillage:ridge_reaver"], list(report["npcs"]))
+        self.assertEqual([NPC, "yuanxian:ridge_reaver"], MODULE.npc_ids(ROOT))
+        self.assertEqual([NPC, "yuanxian:ridge_reaver"], list(report["npcs"]))
         self.assertEqual(1, report["entities"].count(NPC))
         npc = report["npcs"][NPC]
         self.assertEqual(LOOKS + [v["look"] for v in MODULE.npc_catalog(ROOT)["variants"]], list(npc["looks"]))
@@ -243,7 +243,7 @@ class NpcValidationTest(unittest.TestCase):
 
     def test_definitions_group_by_entity_and_a_missing_module_is_a_missing_file(self) -> None:
         groups, errors = MODULE.npc_definitions(ROOT)
-        self.assertEqual([NPC, "myvillage:ridge_reaver"], list(groups))
+        self.assertEqual([NPC, "yuanxian:ridge_reaver"], list(groups))
         written = {look: f"cultivator_{look}" for look in LOOKS[1:] if (ROOT / f"{MODULE.NPCGEN_DEFS}/cultivator_{look}.py").is_file()}
         variants = {v["look"]: "cultivator_" + v["look"] for v in MODULE.npc_catalog(ROOT)["variants"]}
         self.assertEqual({"default": "cultivator", **written, **variants}, groups[NPC])
@@ -257,18 +257,18 @@ class NpcValidationTest(unittest.TestCase):
             (defs / "monk_old.py").write_text('ENTITY = "monk"  # dir\nLOOK = "old"\n', encoding="utf-8")
             (defs / "nun.py").write_text('ENTITY = "nun"\n', encoding="utf-8")
             groups, errors = MODULE.npc_definitions(root)
-            self.assertEqual({"myvillage:monk": {"default": "monk", "old": "monk_old"}}, groups)
+            self.assertEqual({"yuanxian:monk": {"default": "monk", "old": "monk_old"}}, groups)
             self.assertEqual(["npc_definition_without_entity_or_look:nun", f"missing_file:{defs / 'ghost.py'}"], errors)
-            self.assertEqual(["myvillage:monk"], MODULE.npc_ids(root))
+            self.assertEqual(["yuanxian:monk"], MODULE.npc_ids(root))
 
     def test_look_files_follow_the_renderer(self) -> None:
-        self.assertEqual({"model": "assets/myvillage/npc/cultivator_model.json",
-                          "animations": "assets/myvillage/npc/cultivator_animations.json",
-                          "texture": "assets/myvillage/textures/entity/cultivator/cultivator.png"},
+        self.assertEqual({"model": "assets/yuanxian/npc/cultivator_model.json",
+                          "animations": "assets/yuanxian/npc/cultivator_animations.json",
+                          "texture": "assets/yuanxian/textures/entity/cultivator/cultivator.png"},
                          MODULE.npc_look_files(NPC, "default"))
-        self.assertEqual({"model": "assets/myvillage/npc/cultivator_f_adept_model.json",
-                          "animations": "assets/myvillage/npc/cultivator_f_adept_animations.json",
-                          "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_adept.png"},
+        self.assertEqual({"model": "assets/yuanxian/npc/cultivator_f_adept_model.json",
+                          "animations": "assets/yuanxian/npc/cultivator_f_adept_animations.json",
+                          "texture": "assets/yuanxian/textures/entity/cultivator/cultivator_f_adept.png"},
                          MODULE.npc_look_files(NPC, "f_adept"))
 
     def test_contract_looks_equal_definitions_and_java(self) -> None:
@@ -294,7 +294,7 @@ class NpcValidationTest(unittest.TestCase):
                                       "textures/entity/cultivator_f_novice/cultivator_f_novice.png")
         self.assertTrue(any(e.startswith("contract_look_texture:f_novice:")
                             for e in MODULE.check_npc_looks(ROOT, moved, NPC, defined, LOOKS)[0]))
-        layer = self.contract.replace("myvillage:cultivator#f_adept", "myvillage:cultivator#main")
+        layer = self.contract.replace("yuanxian:cultivator#f_adept", "yuanxian:cultivator#main")
         self.assertTrue(any(e.startswith("contract_look_model_layer:f_adept:")
                             for e in MODULE.check_npc_looks(ROOT, layer, NPC, defined, LOOKS)[0]))
         stray = self.contract.replace("defs/cultivator_f_adept.py", "defs/somebody_else.py")
@@ -341,7 +341,7 @@ class NpcValidationTest(unittest.TestCase):
         errors, bones = MODULE.check_beast_model(self.model, NPC)
         self.assertEqual([], errors)
         self.assertIn("head", bones)
-        self.assertNotIn("scale", load("assets/myvillage/beast/demon_wolf_model.json"))
+        self.assertNotIn("scale", load("assets/yuanxian/beast/demon_wolf_model.json"))
         model = copy.deepcopy(self.model)
         model["scale"] = 0
         self.assertIn("invalid_scale", MODULE.check_beast_model(model, NPC)[0])
@@ -371,7 +371,7 @@ class NpcValidationTest(unittest.TestCase):
         self.assertIn("contract_data_source:model",
                       MODULE.check_npc_contract(self.contract.replace("npc/cultivator_model.json", "beast/x.json", 1), NPC, self.lang))
         lang = copy.deepcopy(self.lang)
-        lang["zh_cn"]["entity.myvillage.cultivator"] = "道士"
+        lang["zh_cn"]["entity.yuanxian.cultivator"] = "道士"
         self.assertIn("contract_display_name_differs_from_lang:zh_cn", MODULE.check_npc_contract(self.contract, NPC, lang))
         without_walk = self.contract.replace("    - id: walk\n", "", 1)
         self.assertTrue(any(e.startswith("contract_rendering_clips_missing")
@@ -418,8 +418,8 @@ class SourceScanTest(unittest.TestCase):
 
 class NaturalSpawnPolicyTest(unittest.TestCase):
     """A declaration is permission only when its placement and data routes agree."""
-    MODIFIER = 'src/main/resources/data/myvillage/neoforge/biome_modifier/add_demon_wolf_spawns.json'
-    TAG = 'src/main/resources/data/myvillage/tags/worldgen/biome/has_demon_wolf.json'
+    MODIFIER = 'src/main/resources/data/yuanxian/neoforge/biome_modifier/add_demon_wolf_spawns.json'
+    TAG = 'src/main/resources/data/yuanxian/tags/worldgen/biome/has_demon_wolf.json'
     EVENTS = MODULE.JAVA_ROOT + '/entity/ModEntityEvents.java'
 
     def setUp(self):
@@ -456,14 +456,14 @@ class NaturalSpawnPolicyTest(unittest.TestCase):
 
     def test_contract_modifier_and_actual_entity_must_agree(self):
         self.assertIn('beast_natural_biome_modifier_mismatch',
-                      self.errors(self.contract.replace('myvillage:add_demon_wolf_spawns', 'myvillage:wrong_route')))
-        self.modifier(lambda d: d['spawners'].update(type='myvillage:other'))
+                      self.errors(self.contract.replace('yuanxian:add_demon_wolf_spawns', 'yuanxian:wrong_route')))
+        self.modifier(lambda d: d['spawners'].update(type='yuanxian:other'))
         self.assertIn('beast_natural_spawner_entity_mismatch', self.errors())
 
     def test_modifier_type_and_tag_are_checked(self):
         self.modifier(lambda d: d.update(type='neoforge:remove_spawns'))
         self.assertIn('beast_natural_biome_modifier_invalid', self.errors())
-        self.modifier(lambda d: d.update(type='neoforge:add_spawns', biomes='#myvillage:wrong_tag'))
+        self.modifier(lambda d: d.update(type='neoforge:add_spawns', biomes='#yuanxian:wrong_tag'))
         self.assertIn('beast_natural_biome_tag_mismatch', self.errors())
 
     def test_spawner_requires_positive_weight_and_ordered_positive_counts(self):
@@ -517,7 +517,7 @@ class NaturalSpawnPolicyTest(unittest.TestCase):
 
 class StructureEncounterPolicyTest(unittest.TestCase):
     """Structure-only bosses must prove their native route without permitting ambient spawns."""
-    ENTITY = "myvillage:test_boss"
+    ENTITY = "yuanxian:test_boss"
 
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -531,26 +531,26 @@ spawn:
   structure_encounter: true
   biome_modifier: null
   spawn_placement: null
-  structure: myvillage:test_lair
-  structure_set: myvillage:test_lair
-  template_pool: myvillage:test_lair
-  template: myvillage:test_lair
-  structure_biome_tag: myvillage:has_test_lair
-  anchor: myvillage:test_lair_anchor
-  encounter_rules: data/myvillage/boss/test_lair.json
+  structure: yuanxian:test_lair
+  structure_set: yuanxian:test_lair
+  template_pool: yuanxian:test_lair
+  template: yuanxian:test_lair
+  structure_biome_tag: yuanxian:has_test_lair
+  anchor: yuanxian:test_lair_anchor
+  encounter_rules: data/yuanxian/boss/test_lair.json
 '''
         self.write_json('worldgen/structure/test_lair.json', {
-            'type': 'minecraft:jigsaw', 'start_pool': 'myvillage:test_lair',
-            'biomes': '#myvillage:has_test_lair'})
+            'type': 'minecraft:jigsaw', 'start_pool': 'yuanxian:test_lair',
+            'biomes': '#yuanxian:has_test_lair'})
         self.write_json('worldgen/structure_set/test_lair.json', {
-            'structures': [{'structure': 'myvillage:test_lair', 'weight': 1}],
+            'structures': [{'structure': 'yuanxian:test_lair', 'weight': 1}],
             'placement': {'type': 'minecraft:random_spread', 'spacing': 30, 'separation': 12, 'salt': 1}})
         self.write_json('worldgen/template_pool/test_lair.json', {
             'elements': [{'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element',
-                                               'location': 'myvillage:test_lair'}}]})
+                                               'location': 'yuanxian:test_lair'}}]})
         self.write_json('tags/worldgen/biome/has_test_lair.json', {'values': ['minecraft:meadow']})
         self.write_json('boss/test_lair.json', {'entity': self.ENTITY})
-        self.write('src/main/resources/data/myvillage/structure/test_lair.nbt', 'fixture presence only')
+        self.write('src/main/resources/data/yuanxian/structure/test_lair.nbt', 'fixture presence only')
         self.write(MODULE.JAVA_ROOT + '/block/ModBlocks.java', 'BLOCKS.registerBlock("test_lair_anchor", factory)')
         self.write(MODULE.JAVA_ROOT + '/block/ModBlockEntities.java', 'BLOCK_ENTITIES.register("test_lair_anchor", factory)')
 
@@ -560,7 +560,7 @@ spawn:
         target.write_text(text)
 
     def write_json(self, path, data):
-        self.write('src/main/resources/data/myvillage/' + path, json.dumps(data))
+        self.write('src/main/resources/data/yuanxian/' + path, json.dumps(data))
 
     def errors(self, contract=None, kind='beast'):
         return MODULE.check_no_natural_spawning(
@@ -570,17 +570,17 @@ spawn:
         self.assertEqual([], self.errors())
 
     def test_missing_native_template_and_anchor_registration_fail(self):
-        (self.root / 'src/main/resources/data/myvillage/structure/test_lair.nbt').unlink()
+        (self.root / 'src/main/resources/data/yuanxian/structure/test_lair.nbt').unlink()
         (self.root / MODULE.JAVA_ROOT / 'block/ModBlockEntities.java').unlink()
         errors = self.errors()
         self.assertEqual(2, sum(e.startswith('missing_file:') for e in errors), errors)
 
     def test_structure_pool_entity_and_spread_must_agree(self):
         self.write_json('worldgen/structure/test_lair.json', {'type': 'minecraft:jigsaw',
-            'start_pool': 'myvillage:other', 'biomes': '#myvillage:has_test_lair'})
-        self.write_json('boss/test_lair.json', {'entity': 'myvillage:other'})
+            'start_pool': 'yuanxian:other', 'biomes': '#yuanxian:has_test_lair'})
+        self.write_json('boss/test_lair.json', {'entity': 'yuanxian:other'})
         self.write_json('worldgen/structure_set/test_lair.json', {
-            'structures': [{'structure': 'myvillage:other', 'weight': True}],
+            'structures': [{'structure': 'yuanxian:other', 'weight': True}],
             'placement': {'type': 'minecraft:random_spread', 'spacing': 10, 'separation': 10, 'salt': 1}})
         errors = self.errors()
         for suffix in ('structure_mismatch', 'rules_entity_mismatch', 'set_mismatch', 'placement_invalid'):
@@ -588,7 +588,7 @@ spawn:
 
     def test_broken_pool_and_empty_biome_tag_fail(self):
         self.write_json('worldgen/template_pool/test_lair.json', {'elements': [{'weight': 1,
-            'element': {'element_type': 'minecraft:single_pool_element', 'location': 'myvillage:other'}}]})
+            'element': {'element_type': 'minecraft:single_pool_element', 'location': 'yuanxian:other'}}]})
         self.write_json('tags/worldgen/biome/has_test_lair.json', {'values': []})
         self.assertIn('beast_structure_encounter_template_mismatch', self.errors())
         self.assertIn('beast_structure_encounter_biomes_invalid', self.errors())
@@ -609,7 +609,7 @@ spawn:
         self.assertIn('npc_structure_encounter_requires_boss', self.errors(kind='npc'))
 
     def test_boss_data_does_not_weaken_generic_beast_schema(self):
-        data = load('data/myvillage/beast/demon_wolf.json')
+        data = load('data/yuanxian/beast/demon_wolf.json')
         data['boss'] = {'phase_health_fraction': 0.5}
         self.assertIn('unknown_field:boss', MODULE.check_beast_data(data, WOLF))
 

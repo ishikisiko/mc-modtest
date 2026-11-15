@@ -48,7 +48,7 @@ python3 tools/province_capitals/blueprint_plan/export_minecraft.py \
 
 导出核对 authored 输入、生成代码、原府邸切片 SHA；检查全路幅三格净空、门口与庭院实际支撑、逐格高差、全部原功能站位及府邸原构件未被覆盖。所有输出状态通过 modset/catalogue 核对。所有 NBT 模板都回读比对方块；离线通过、Minecraft 运行、映射输入和玩家接受分开记录。
 
-数据包只用于**新建独立测试世界**，使用具有现有七府注册构件的 MyVillage 0.104.0 或当前匹配版本。不要覆盖已有城市或存档。包本身没有自动放置入口；按 `inventory.json` 的 `origin`（默认 `[0,64,0]`）和 `batches` 顺序手工执行 `/function myvillage:blueprint_trial/<region>/batch_XX` 及后续完整组件批次。每批自行有界加载并释放所需区块；执行区域应为空白。七府共用试验原点，须分世界或明确修改 authored 原点后重新生成。
+数据包只用于**新建独立测试世界**，使用具有现有七府注册构件的 MyVillage 0.104.0 或当前匹配版本。不要覆盖已有城市或存档。包本身没有自动放置入口；按 `inventory.json` 的 `origin`（默认 `[0,64,0]`）和 `batches` 顺序手工执行 `/function yuanxian:blueprint_trial/<region>/batch_XX` 及后续完整组件批次。每批自行有界加载并释放所需区块；执行区域应为空白。七府共用试验原点，须分世界或明确修改 authored 原点后重新生成。
 
 原生清单 schema 2：先放 `tiles`，再放 `atomic_groups`。跨切片的床、晒架及魔域两座完整魔契柱独立后置；模板有独立 `x/y/z` 偏移与 `size`，不能仅按 Z 重新分组或忽略 Y。原地区建筑从 owning generator 重新构造；这套新七府包不声明保留旧城市存档的方块实体，也不执行 NPC 绑定。
 

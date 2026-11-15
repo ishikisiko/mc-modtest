@@ -12,7 +12,7 @@ import shutil
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = Path(__file__).with_name('packing.json')
-PREFIX = Path('assets/myvillage/npc')
+PREFIX = Path('assets/yuanxian/npc')
 
 
 def compile_resources(source: Path, config: dict):
@@ -34,7 +34,7 @@ def compile_resources(source: Path, config: dict):
         if len(files) >= config['minimum_copies']:
             shared = f'shared/{digest}_{kind}.json'
             result[PREFIX / shared] = data
-            ref = (json.dumps({'resource_ref': f'myvillage:npc/{shared}'}, separators=(',', ':'))+'\n').encode()
+            ref = (json.dumps({'resource_ref': f'yuanxian:npc/{shared}'}, separators=(',', ':'))+'\n').encode()
             for name, _ in files:
                 result[PREFIX / name] = ref
                 aliases += 1

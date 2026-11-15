@@ -3,7 +3,7 @@ navigation:
   title: 灵石、灵石袋与兑换
   parent: index.md
   position: 60
-  icon: myvillage:spirit_stone_bag
+  icon: yuanxian:spirit_stone_bag
 ---
 
 # 灵石、灵石袋与兑换
@@ -12,7 +12,7 @@ navigation:
 
 ## 随身灵石袋
 
-<Recipe id="myvillage:spirit_stone_bag" />
+<Recipe id="yuanxian:spirit_stone_bag" />
 
 把灵石袋放在背包或副手，可自动收纳支持品级的灵石。悬停查看各品级余额；对空右键切换自动收纳，潜行右键暂停本袋并取出一叠。
 

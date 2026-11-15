@@ -15,18 +15,18 @@
 
 - 4 类 × 4 阶 = 16 个物品，id `manual_<category>_<grade>`，category ∈ core/active/movement/body，grade ∈ huang/xuan/di/tian。类 `TechniqueManualItem`（`item/`），最大堆叠 1。
 - 原版 `Rarity`：黄 COMMON、玄 UNCOMMON、地 RARE、天 EPIC；天阶 `isFoil` 为真（附魔光）。
-- 创造模式物品栏 `myvillage:main`：先 16 个空白本体，再像附魔书一样列出每门功法的秘籍（注册表里 grade ≥ 1 的每一门一个，按类别、品阶、id 排序），用 `BuildCreativeModeTabContentsEvent` 和参数里的 `HolderLookup.Provider` 读注册表。
-- 名字：有功法组件时显示 `《功法名》`（键 `item.myvillage.manual.named` = `《%1$s》`）；没有组件时显示 `空白秘籍 · 绝技 · 玄阶`；组件和物品对不上（功法不存在、类别或品阶不符）显示红色 `残损秘籍`，不能读。
+- 创造模式物品栏 `yuanxian:main`：先 16 个空白本体，再像附魔书一样列出每门功法的秘籍（注册表里 grade ≥ 1 的每一门一个，按类别、品阶、id 排序），用 `BuildCreativeModeTabContentsEvent` 和参数里的 `HolderLookup.Provider` 读注册表。
+- 名字：有功法组件时显示 `《功法名》`（键 `item.yuanxian.manual.named` = `《%1$s》`）；没有组件时显示 `空白秘籍 · 绝技 · 玄阶`；组件和物品对不上（功法不存在、类别或品阶不符）显示红色 `残损秘籍`，不能读。
 - tooltip：类别·品阶、流派、五行、传承位置（太白剑脉 2/4）、修习条件（照功法页的写法）、参悟进度 `参悟 37%`（有进度时）、残损原因。
 - 贴图：4 张 16×16 基础图（`manual_core` 线装书、`manual_active` 卷轴、`manual_movement` 折页、`manual_body` 玉简），`tools/gen_manual_textures.py` 用纯标准库写 PNG（照 `tools/gen_meridian_figure.py` 的做法），`--check` 进发布闸门，不得手改。模型：每类一个共享模型，layer0 = 不染色的线稿细节，layer1 = 染色遮罩（`tintindex` 1）；16 个物品模型各自 parent 到类模型；品阶颜色在 `MyVillageClient` 用 `RegisterColorHandlersEvent.Item` 注册（黄 `0xC9A227`、玄 `0x3F6FB5`、地 `0x8B5A2B`、天 `0xE8D9A0`；数字放在一个 Java 常量表里即可，这是颜色不是平衡数）。
-- 命令：`/myvillage cultivation manual <target> <technique_id>`，拼音别名 `miji`，给对应类别品阶的秘籍（凡阶功法拒绝）；原版 `/give @s myvillage:manual_active_xuan[myvillage:technique="myvillage:gengjin_jianjue"]` 也要能用。
+- 命令：`/yuanxian cultivation manual <target> <technique_id>`，拼音别名 `miji`，给对应类别品阶的秘籍（凡阶功法拒绝）；原版 `/give @s yuanxian:manual_active_xuan[yuanxian:technique="yuanxian:gengjin_jianjue"]` 也要能用。
 
 ## 2. 组件（已落地为接缝，`item/ModDataComponents.java`，冻结）
 
 | 组件 | 类型 | 含义 |
 |---|---|---|
-| `myvillage:technique` | `ResourceLocation` | 这本秘籍教哪门功法 |
-| `myvillage:comprehension` | `int ≥ 0` | 已参悟的研读点数；缺省 0 |
+| `yuanxian:technique` | `ResourceLocation` | 这本秘籍教哪门功法 |
+| `yuanxian:comprehension` | `int ≥ 0` | 已参悟的研读点数；缺省 0 |
 
 两者持久化并同步到客户端。统筹已注册到 mod 总线。
 
@@ -92,17 +92,17 @@
 
 ### F1：物品与数据
 
-拥有：`item/TechniqueManualItem.java`（新）、`item/ModItems.java`（16 个注册 + 创造栏变体）、`client/MyVillageClient.java`（只加物品 tint 注册）、`assets/myvillage/models/item/manual_*.json`、`assets/myvillage/textures/item/manual_*.png`、`tools/gen_manual_textures.py`（新）+ 测试、`tools/release_gate.py`（加一步 `gen-manual-textures-check`）、`tools/technique_catalogue/rules.json`（`study_by_grade`）与 `tools/technique_catalogue/*.py`（写出 `study` 块）+ 重新生成 `data/myvillage/myvillage/technique/*.json`、`cultivation/data/TechniqueDefinition.java` 只加可选 `study` 记录（`TechniqueStudy(points, gates, gateStabilityCost)`，校验 points > 0、gates ≥ 0、cost ≥ 0）、`cultivation/CultivationCommands.java` 的 `manual|miji`、语言文件里 `item.myvillage.*`、`tooltip.myvillage.*`、命令文案键，`tools/validate_mod_items.py` 若需登记新物品，`genops/contracts/items/` 若该流程要求契约。测试：物品名/残损判定/创造栏变体数（Gradle），生成器幂等与 `--check`（Python）。
+拥有：`item/TechniqueManualItem.java`（新）、`item/ModItems.java`（16 个注册 + 创造栏变体）、`client/MyVillageClient.java`（只加物品 tint 注册）、`assets/yuanxian/models/item/manual_*.json`、`assets/yuanxian/textures/item/manual_*.png`、`tools/gen_manual_textures.py`（新）+ 测试、`tools/release_gate.py`（加一步 `gen-manual-textures-check`）、`tools/technique_catalogue/rules.json`（`study_by_grade`）与 `tools/technique_catalogue/*.py`（写出 `study` 块）+ 重新生成 `data/yuanxian/yuanxian/technique/*.json`、`cultivation/data/TechniqueDefinition.java` 只加可选 `study` 记录（`TechniqueStudy(points, gates, gateStabilityCost)`，校验 points > 0、gates ≥ 0、cost ≥ 0）、`cultivation/CultivationCommands.java` 的 `manual|miji`、语言文件里 `item.yuanxian.*`、`tooltip.yuanxian.*`、命令文案键，`tools/validate_mod_items.py` 若需登记新物品，`genops/contracts/items/` 若该流程要求契约。测试：物品名/残损判定/创造栏变体数（Gradle），生成器幂等与 `--check`（Python）。
 验收：`tools/validate_mod_items.py`、`gen_technique_catalogue.py --check`、`gen_manual_textures.py --check`、`validate_cultivation_core.py`、`validate_world_sim.py`、`./gradlew test --tests 'com.example.myvillage.item.*' 'com.example.myvillage.cultivation.data.*'`，最后全量 `./gradlew test`。
 
 ### F2：研读机制
 
-拥有：`cultivation/study/**`（`ManualStudy` 实现、纯逻辑 `StudyLedger`/`StudyGates` 等）、`cultivation/meditation/**`（STUDY 模式、会话槽位、结算、停止原因、状态）、`cultivation/network/MeditationStatusPayload.java` 与接收端、`network/ModPayloads.java` 只改协议号 10 → 11、`cultivation/CultivationService.java` 只在需要时加学习入口、`cultivation/CultivationEvents.java` 若需要、相应测试、`tools/validate_cultivation_meditation.py` / `validate_cultivation_gain.py` 中因新模式必须更新的扫描（保持 `input=one-of-4-actions`、`random=none`、结算常量名不变）、语言文件里 `message.myvillage.cultivation.study.*`。读取组件用 `ModDataComponents`；物品类型判断用 `stack.getItem() instanceof TechniqueManualItem`，F1 未落地前用 `ModDataComponents.TECHNIQUE` 是否存在代替并在报告里写明。测试：开始检查链每条一个用例、结算点数与契合、关卡扣费与不足停止、完成学会并消耗、槽位换物停止、打断后进度保留、状态编解码往返。
+拥有：`cultivation/study/**`（`ManualStudy` 实现、纯逻辑 `StudyLedger`/`StudyGates` 等）、`cultivation/meditation/**`（STUDY 模式、会话槽位、结算、停止原因、状态）、`cultivation/network/MeditationStatusPayload.java` 与接收端、`network/ModPayloads.java` 只改协议号 10 → 11、`cultivation/CultivationService.java` 只在需要时加学习入口、`cultivation/CultivationEvents.java` 若需要、相应测试、`tools/validate_cultivation_meditation.py` / `validate_cultivation_gain.py` 中因新模式必须更新的扫描（保持 `input=one-of-4-actions`、`random=none`、结算常量名不变）、语言文件里 `message.yuanxian.cultivation.study.*`。读取组件用 `ModDataComponents`；物品类型判断用 `stack.getItem() instanceof TechniqueManualItem`，F1 未落地前用 `ModDataComponents.TECHNIQUE` 是否存在代替并在报告里写明。测试：开始检查链每条一个用例、结算点数与契合、关卡扣费与不足停止、完成学会并消耗、槽位换物停止、打断后进度保留、状态编解码往返。
 验收：六个 cultivation 校验器、`validate_cultivation*` 的 Python 测试、`./gradlew test --tests 'com.example.myvillage.cultivation.*'`，最后全量 `./gradlew test`。
 
 ### F3：面板、文档、版本（F1、F2 合入后）
 
-拥有：`client/cultivation/panel/MeditationPage.java`（研读卡）、`PanelContext`/`PanelReadouts` 的只读辅助、`screen.myvillage.cultivation.*` 语言键、面板测试；`docs/ai-kb/41_technique_system.md`、`28`、`30`、`37` 的相应段落、README（命令、秘籍小节、0.38.0 台账全 `not_verified`）、CHANGELOG、AGENTS.md 一条、`python3 tools/bump_version.py 0.38.0`。
+拥有：`client/cultivation/panel/MeditationPage.java`（研读卡）、`PanelContext`/`PanelReadouts` 的只读辅助、`screen.yuanxian.cultivation.*` 语言键、面板测试；`docs/ai-kb/41_technique_system.md`、`28`、`30`、`37` 的相应段落、README（命令、秘籍小节、0.38.0 台账全 `not_verified`）、CHANGELOG、AGENTS.md 一条、`python3 tools/bump_version.py 0.38.0`。
 
 ### 顺序
 

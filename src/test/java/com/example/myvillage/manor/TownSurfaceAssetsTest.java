@@ -18,15 +18,15 @@ class TownSurfaceAssetsTest {
     }
     @Test void everyTownMaterialClosesItemTextureLootAndDirectionalStateResources() throws Exception {
         int total=0,directional=0;
-        var language=json("/assets/myvillage/lang/zh_cn.json");
-        for(var element:json("/data/myvillage/lord_manors/catalog.json").getAsJsonArray("materials")) {
+        var language=json("/assets/yuanxian/lang/zh_cn.json");
+        for(var element:json("/data/yuanxian/lord_manors/catalog.json").getAsJsonArray("materials")) {
             var material=element.getAsJsonObject();if(!material.has("pattern"))continue;
-            var id=material.get("id").getAsString();var root="/assets/myvillage/";
-            assertEquals(material.get("name").getAsString(),language.get("block.myvillage."+id).getAsString());
-            assertEquals("myvillage:block/"+id,json(root+"models/item/"+id+".json").get("parent").getAsString());
+            var id=material.get("id").getAsString();var root="/assets/yuanxian/";
+            assertEquals(material.get("name").getAsString(),language.get("block.yuanxian."+id).getAsString());
+            assertEquals("yuanxian:block/"+id,json(root+"models/item/"+id+".json").get("parent").getAsString());
             var model=json(root+"models/block/"+id+".json");
             assertEquals("minecraft:solid",model.get("render_type").getAsString());
-            var texture=model.getAsJsonObject("textures").get("all").getAsString().substring("myvillage:".length());
+            var texture=model.getAsJsonObject("textures").get("all").getAsString().substring("yuanxian:".length());
             var png=bytes(root+"textures/"+texture+".png");
             assertTrue(png.length>100,id);assertEquals(0x89,png[0]&255);assertEquals('P',png[1]);
             var variants=json(root+"blockstates/"+id+".json").getAsJsonObject("variants");
@@ -38,8 +38,8 @@ class TownSurfaceAssetsTest {
                 }
                 assertEquals(4,variants.size());directional++;
             }else assertEquals(1,variants.size());
-            var loot=json("/data/myvillage/loot_table/blocks/"+id+".json");
-            assertEquals("myvillage:"+id,loot.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject().get("name").getAsString());
+            var loot=json("/data/yuanxian/loot_table/blocks/"+id+".json");
+            assertEquals("yuanxian:"+id,loot.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject().get("name").getAsString());
             total++;
         }
         assertEquals(23,total);assertTrue(directional>0);
@@ -48,14 +48,14 @@ class TownSurfaceAssetsTest {
     @Test void everyDefaultRegionalCityActuallyUsesItsDeclaredStreetSurfaces() throws Exception {
         var names=new HashSet<String>();
         for(var region:new String[]{"beiyuan","nanjiang","lingyue","ximo","donghai","donghuang","moyu"}) {
-            var city=json("/data/myvillage/capitals/v4/capital_"+region+"/city.json");
+            var city=json("/data/yuanxian/capitals/v4/capital_"+region+"/city.json");
             var paving=city.getAsJsonObject("paving");assertNotNull(paving,region);
             names.add(paving.get("profile").getAsString());
             var counts=paving.getAsJsonObject("actual_surface_counts");assertTrue(counts.size()>1,region);
             int cells=0;
             for(var entry:counts.entrySet())cells+=entry.getValue().getAsInt();
             assertEquals(city.getAsJsonObject("blueprint").getAsJsonObject("construction_audit").get("road_columns").getAsInt(),cells);
-            assertTrue(counts.keySet().stream().anyMatch(k->k.startsWith("myvillage:manor_town_")),region);
+            assertTrue(counts.keySet().stream().anyMatch(k->k.startsWith("yuanxian:manor_town_")),region);
         }
         assertEquals(7,names.size());
     }

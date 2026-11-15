@@ -13,7 +13,7 @@ class StarterMineTests(unittest.TestCase):
     def setUpClass(cls):
         cls.temp=tempfile.TemporaryDirectory();cls.out=Path(cls.temp.name)
         cls.reference,cls.model=gen.export(cls.out)
-        cls.root=cls.out/'data/myvillage/starter_mine'
+        cls.root=cls.out/'data/yuanxian/starter_mine'
         cls.definition=json.loads((cls.root/'layout.json').read_text())
         cls.body=json.loads(gzip.decompress((cls.root/'blocks.json.gz').read_bytes()))
         cls.blocks={(x,y,z):cls.body['palette'][state] for x,y,z,state in cls.body['cells']}

@@ -19,12 +19,12 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 JAVA_ROOT = Path("src/main/java/com/example/myvillage")
 RESOURCE_ROOT = Path("src/main/resources")
-ASSET_ROOT = RESOURCE_ROOT / "assets/myvillage"
-DATA_ROOT = RESOURCE_ROOT / "data/myvillage"
+ASSET_ROOT = RESOURCE_ROOT / "assets/yuanxian"
+DATA_ROOT = RESOURCE_ROOT / "data/yuanxian"
 
 STONE_ITEM = "low_grade_spirit_stone"
 ORES = ("spirit_stone_ore", "deepslate_spirit_stone_ore")
-ORE_IDS = tuple(f"myvillage:{ore}" for ore in ORES)
+ORE_IDS = tuple(f"yuanxian:{ore}" for ore in ORES)
 
 # These later-capability recipes consume an existing plain stone; none creates stones or processes ore.
 ALCHEMY_STONE_CONSUMERS = {
@@ -34,9 +34,9 @@ ALCHEMY_STONE_CONSUMERS = {
     "blood_berry": ("minecraft:sweet_berries",),
     "cloud_fungus": ("minecraft:brown_mushroom",),
     "calm_lotus": ("minecraft:lily_pad",),
-    "formula_huiling": ("minecraft:paper", "myvillage:spirit_leaf", "myvillage:dew_blossom"),
-    "formula_yangyuan": ("minecraft:paper", "myvillage:sunroot", "myvillage:blood_berry"),
-    "formula_ningshen": ("minecraft:paper", "myvillage:cloud_fungus", "myvillage:calm_lotus"),
+    "formula_huiling": ("minecraft:paper", "yuanxian:spirit_leaf", "yuanxian:dew_blossom"),
+    "formula_yangyuan": ("minecraft:paper", "yuanxian:sunroot", "yuanxian:blood_berry"),
+    "formula_ningshen": ("minecraft:paper", "yuanxian:cloud_fungus", "yuanxian:calm_lotus"),
 }
 
 
@@ -50,9 +50,9 @@ STONE_CONSUMERS = {
     "pattern_lingxiao_spear": ("minecraft:book", "minecraft:iron_ingot"),
 }
 COMMON_TAGS = {
-    "item/spirit_stones/low_grade": ["myvillage:low_grade_spirit_stone"],
-    "item/spirit_stones/medium_grade": ["myvillage:medium_grade_spirit_stone"],
-    "item/spirit_stones/high_grade": ["myvillage:high_grade_spirit_stone"],
+    "item/spirit_stones/low_grade": ["yuanxian:low_grade_spirit_stone"],
+    "item/spirit_stones/medium_grade": ["yuanxian:medium_grade_spirit_stone"],
+    "item/spirit_stones/high_grade": ["yuanxian:high_grade_spirit_stone"],
     "item/spirit_stones": ["#c:spirit_stones/low_grade", "#c:spirit_stones/medium_grade", "#c:spirit_stones/high_grade"],
     "item/gems/spirit_stone": ["#c:spirit_stones"],
     "item/gems": ["#c:gems/spirit_stone"],
@@ -69,7 +69,7 @@ CONFIGURED_FEATURES = {
 }
 PLACED_FEATURES = {
     "spirit_stone_ore_upper": {
-        "feature": "myvillage:spirit_stone_ore",
+        "feature": "yuanxian:spirit_stone_ore",
         "count": 90,
         "height": {
             "type": "minecraft:trapezoid",
@@ -78,7 +78,7 @@ PLACED_FEATURES = {
         },
     },
     "spirit_stone_ore_middle": {
-        "feature": "myvillage:spirit_stone_ore",
+        "feature": "yuanxian:spirit_stone_ore",
         "count": 9,
         "height": {
             "type": "minecraft:trapezoid",
@@ -87,7 +87,7 @@ PLACED_FEATURES = {
         },
     },
     "spirit_stone_ore_deep": {
-        "feature": "myvillage:spirit_stone_ore_small",
+        "feature": "yuanxian:spirit_stone_ore_small",
         "count": 9,
         "height": {
             "type": "minecraft:uniform",
@@ -98,34 +98,34 @@ PLACED_FEATURES = {
 }
 
 REQUIRED_RESOURCE_FILES = tuple(f"data/c/tags/{tag}.json" for tag in COMMON_TAGS) + (
-    "data/myvillage/spirit_stones/denominations.json",
-    "assets/myvillage/models/item/medium_grade_spirit_stone.json",
-    "assets/myvillage/models/item/high_grade_spirit_stone.json",
-    "assets/myvillage/textures/item/medium_grade_spirit_stone.png",
-    "assets/myvillage/textures/item/high_grade_spirit_stone.png",
-    "assets/myvillage/lang/en_us.json",
-    "assets/myvillage/lang/zh_cn.json",
-    "assets/myvillage/blockstates/spirit_stone_ore.json",
-    "assets/myvillage/blockstates/deepslate_spirit_stone_ore.json",
-    "assets/myvillage/models/item/low_grade_spirit_stone.json",
-    "assets/myvillage/models/item/spirit_stone_ore.json",
-    "assets/myvillage/models/item/deepslate_spirit_stone_ore.json",
-    "assets/myvillage/models/block/spirit_stone_ore.json",
-    "assets/myvillage/models/block/deepslate_spirit_stone_ore.json",
-    "assets/myvillage/textures/item/low_grade_spirit_stone.png",
-    "assets/myvillage/textures/block/spirit_stone_ore.png",
-    "assets/myvillage/textures/block/deepslate_spirit_stone_ore.png",
-    "data/myvillage/loot_table/blocks/spirit_stone_ore.json",
-    "data/myvillage/loot_table/blocks/deepslate_spirit_stone_ore.json",
+    "data/yuanxian/spirit_stones/denominations.json",
+    "assets/yuanxian/models/item/medium_grade_spirit_stone.json",
+    "assets/yuanxian/models/item/high_grade_spirit_stone.json",
+    "assets/yuanxian/textures/item/medium_grade_spirit_stone.png",
+    "assets/yuanxian/textures/item/high_grade_spirit_stone.png",
+    "assets/yuanxian/lang/en_us.json",
+    "assets/yuanxian/lang/zh_cn.json",
+    "assets/yuanxian/blockstates/spirit_stone_ore.json",
+    "assets/yuanxian/blockstates/deepslate_spirit_stone_ore.json",
+    "assets/yuanxian/models/item/low_grade_spirit_stone.json",
+    "assets/yuanxian/models/item/spirit_stone_ore.json",
+    "assets/yuanxian/models/item/deepslate_spirit_stone_ore.json",
+    "assets/yuanxian/models/block/spirit_stone_ore.json",
+    "assets/yuanxian/models/block/deepslate_spirit_stone_ore.json",
+    "assets/yuanxian/textures/item/low_grade_spirit_stone.png",
+    "assets/yuanxian/textures/block/spirit_stone_ore.png",
+    "assets/yuanxian/textures/block/deepslate_spirit_stone_ore.png",
+    "data/yuanxian/loot_table/blocks/spirit_stone_ore.json",
+    "data/yuanxian/loot_table/blocks/deepslate_spirit_stone_ore.json",
     "data/minecraft/tags/block/mineable/pickaxe.json",
     "data/minecraft/tags/block/needs_iron_tool.json",
-    "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json",
-    "data/myvillage/worldgen/configured_feature/spirit_stone_ore_small.json",
-    "data/myvillage/worldgen/placed_feature/spirit_stone_ore_upper.json",
-    "data/myvillage/worldgen/placed_feature/spirit_stone_ore_middle.json",
-    "data/myvillage/worldgen/placed_feature/spirit_stone_ore_deep.json",
-    "data/myvillage/tags/worldgen/biome/has_spirit_stone_ore.json",
-    "data/myvillage/neoforge/biome_modifier/add_spirit_stone_ores.json",
+    "data/yuanxian/worldgen/configured_feature/spirit_stone_ore.json",
+    "data/yuanxian/worldgen/configured_feature/spirit_stone_ore_small.json",
+    "data/yuanxian/worldgen/placed_feature/spirit_stone_ore_upper.json",
+    "data/yuanxian/worldgen/placed_feature/spirit_stone_ore_middle.json",
+    "data/yuanxian/worldgen/placed_feature/spirit_stone_ore_deep.json",
+    "data/yuanxian/tags/worldgen/biome/has_spirit_stone_ore.json",
+    "data/yuanxian/neoforge/biome_modifier/add_spirit_stone_ores.json",
 )
 
 FORBIDDEN_ITEM_IDS = (
@@ -171,21 +171,21 @@ def _approved_alchemy_consumption(relative: Path, recipe: Any) -> bool:
         return recipe == {
             "type":"minecraft:crafting_shapeless", "category":"misc",
             "ingredients":[{"tag":"c:ingots/copper"},{"item":"minecraft:blaze_powder"},{"tag":STONE_TAG}],
-            "result":{"id":"myvillage:chitong_ingot","count":1},
+            "result":{"id":"yuanxian:chitong_ingot","count":1},
         }
     if item in ("alchemy_array_fuel", "spirit_gathering_core"):
         pattern, key = (
-            ([" C ", "CSC", " C "], {"C":{"item":"myvillage:alchemy_array_casing"},"S":{"tag":STONE_TAG}})
+            ([" C ", "CSC", " C "], {"C":{"item":"yuanxian:alchemy_array_casing"},"S":{"tag":STONE_TAG}})
             if item == "alchemy_array_fuel" else
             (["SCS", "CLC", "SCS"], {"S":{"item":"minecraft:stone_bricks"},"C":{"item":"minecraft:copper_ingot"},"L":{"tag":STONE_TAG}})
         )
         return recipe == {"type":"minecraft:crafting_shaped", "category":"misc", "pattern":pattern, "key":key,
-                          "result":{"id":"myvillage:"+item,"count":1}}
+                          "result":{"id":"yuanxian:"+item,"count":1}}
     if item == "demon_lure_pearl":
         return recipe == {
             "type": "minecraft:crafting_shaped", "category": "misc", "pattern": [" S ", "BEB", " S "],
             "key": {"S": {"tag": STONE_TAG}, "B": {"item": "minecraft:bone"}, "E": {"item": "minecraft:ender_pearl"}},
-            "result": {"id": "myvillage:demon_lure_pearl", "count": 1},
+            "result": {"id": "yuanxian:demon_lure_pearl", "count": 1},
         }
     if expected_inputs is None or not isinstance(recipe, dict):
         return False
@@ -195,7 +195,7 @@ def _approved_alchemy_consumption(relative: Path, recipe: Any) -> bool:
         return False
     result = recipe["result"]
     if (not isinstance(result, dict) or set(result) != {"id", "count"}
-            or result["id"] != f"myvillage:{item}" or type(result["count"]) is not int or result["count"] != 1):
+            or result["id"] != f"yuanxian:{item}" or type(result["count"]) is not int or result["count"] != 1):
         return False
     ingredients = recipe["ingredients"]
     expected = [{"item": value} for value in expected_inputs] + [{"tag": STONE_TAG}]
@@ -396,13 +396,13 @@ class SpiritStoneResourcesValidator:
             "DEEPSLATE_SPIRIT_STONE_ORE_ITEM",
         ):
             if re.search(rf"output\.accept\(\s*{constant}\.get\(\)\s*\)", item_source) is None:
-                self.error(item_path, f"creative tab myvillage:main omits {constant}")
+                self.error(item_path, f"creative tab yuanxian:main omits {constant}")
 
         ids_match = re.search(r"\bBLOCK_IDS\s*=\s*List\.of\((.*?)\)\s*;", block_source, re.DOTALL)
         registered_ids = set(re.findall(r'"([a-z0-9_]+)"', ids_match.group(1))) if ids_match else set()
         for ore in ORES:
             if ore not in registered_ids:
-                self.error(block_path, f"registered-block verification omits myvillage:{ore}")
+                self.error(block_path, f"registered-block verification omits yuanxian:{ore}")
         verify_body = _method_body(block_source, "verifyRegistered")
         if verify_body is None or not all(
             fragment in verify_body
@@ -417,28 +417,28 @@ class SpiritStoneResourcesValidator:
 
         for forbidden in FORBIDDEN_ITEM_IDS:
             if re.search(rf'"{re.escape(forbidden)}"', item_source + block_source):
-                self.error(JAVA_ROOT, f"forbidden intermediate or higher-grade id myvillage:{forbidden}")
+                self.error(JAVA_ROOT, f"forbidden intermediate or higher-grade id yuanxian:{forbidden}")
 
     def validate_assets(self) -> None:
         self.validate_grades()
         expected_models: dict[Path, dict[str, Any]] = {
             ASSET_ROOT / "models/item/low_grade_spirit_stone.json": {
                 "parent": "minecraft:item/generated",
-                "textures": {"layer0": "myvillage:item/low_grade_spirit_stone"},
+                "textures": {"layer0": "yuanxian:item/low_grade_spirit_stone"},
             },
             ASSET_ROOT / "models/item/spirit_stone_ore.json": {
-                "parent": "myvillage:block/spirit_stone_ore",
+                "parent": "yuanxian:block/spirit_stone_ore",
             },
             ASSET_ROOT / "models/item/deepslate_spirit_stone_ore.json": {
-                "parent": "myvillage:block/deepslate_spirit_stone_ore",
+                "parent": "yuanxian:block/deepslate_spirit_stone_ore",
             },
             ASSET_ROOT / "models/block/spirit_stone_ore.json": {
                 "parent": "minecraft:block/cube_all",
-                "textures": {"all": "myvillage:block/spirit_stone_ore"},
+                "textures": {"all": "yuanxian:block/spirit_stone_ore"},
             },
             ASSET_ROOT / "models/block/deepslate_spirit_stone_ore.json": {
                 "parent": "minecraft:block/cube_all",
-                "textures": {"all": "myvillage:block/deepslate_spirit_stone_ore"},
+                "textures": {"all": "yuanxian:block/deepslate_spirit_stone_ore"},
             },
         }
         for path, expected in expected_models.items():
@@ -452,9 +452,9 @@ class SpiritStoneResourcesValidator:
         for ore in ORES:
             path = ASSET_ROOT / f"blockstates/{ore}.json"
             value = self.load_json(path)
-            expected = {"variants": {"": {"model": f"myvillage:block/{ore}"}}}
+            expected = {"variants": {"": {"model": f"yuanxian:block/{ore}"}}}
             if isinstance(value, dict) and value != expected:
-                self.error(path, f"must contain the single default model myvillage:block/{ore}")
+                self.error(path, f"must contain the single default model yuanxian:block/{ore}")
 
         texture_paths = (
             ASSET_ROOT / "textures/item/low_grade_spirit_stone.png",
@@ -480,9 +480,9 @@ class SpiritStoneResourcesValidator:
             self.error(ASSET_ROOT / "textures", "item, stone ore, and deepslate ore textures must be distinct")
 
         keys = (
-            "item.myvillage.low_grade_spirit_stone",
-            "block.myvillage.spirit_stone_ore",
-            "block.myvillage.deepslate_spirit_stone_ore",
+            "item.yuanxian.low_grade_spirit_stone",
+            "block.yuanxian.spirit_stone_ore",
+            "block.yuanxian.deepslate_spirit_stone_ore",
         )
         for locale in ("en_us", "zh_cn"):
             path = ASSET_ROOT / f"lang/{locale}.json"
@@ -521,8 +521,8 @@ class SpiritStoneResourcesValidator:
             if not isinstance(silk, dict) or not isinstance(ordinary, dict):
                 self.error(path, "loot alternatives must be objects")
                 continue
-            if silk.get("type") != "minecraft:item" or silk.get("name") != f"myvillage:{ore}":
-                self.error(path, f"Silk Touch branch must drop myvillage:{ore}")
+            if silk.get("type") != "minecraft:item" or silk.get("name") != f"yuanxian:{ore}":
+                self.error(path, f"Silk Touch branch must drop yuanxian:{ore}")
             conditions = silk.get("conditions")
             silk_valid = False
             if isinstance(conditions, list):
@@ -547,8 +547,8 @@ class SpiritStoneResourcesValidator:
             if not silk_valid:
                 self.error(path, "Silk Touch branch is missing the level-1 match_tool predicate")
 
-            if ordinary.get("type") != "minecraft:item" or ordinary.get("name") != "myvillage:low_grade_spirit_stone":
-                self.error(path, "ordinary branch must drop myvillage:low_grade_spirit_stone")
+            if ordinary.get("type") != "minecraft:item" or ordinary.get("name") != "yuanxian:low_grade_spirit_stone":
+                self.error(path, "ordinary branch must drop yuanxian:low_grade_spirit_stone")
             if ordinary.get("conditions"):
                 self.error(path, "ordinary low-grade drop must not require an extra condition")
             functions = ordinary.get("functions")
@@ -599,7 +599,7 @@ class SpiritStoneResourcesValidator:
                         collect_item_names(nested)
 
             collect_item_names(table)
-            expected_names = {f"myvillage:{ore}", "myvillage:low_grade_spirit_stone"}
+            expected_names = {f"yuanxian:{ore}", "yuanxian:low_grade_spirit_stone"}
             if item_names != expected_names:
                 self.error(path, f"loot item set must be {sorted(expected_names)}, got {sorted(item_names)}")
 
@@ -621,11 +621,11 @@ class SpiritStoneResourcesValidator:
         expected_targets = {
             (
                 "minecraft:stone_ore_replaceables",
-                "myvillage:spirit_stone_ore",
+                "yuanxian:spirit_stone_ore",
             ),
             (
                 "minecraft:deepslate_ore_replaceables",
-                "myvillage:deepslate_spirit_stone_ore",
+                "yuanxian:deepslate_spirit_stone_ore",
             ),
         }
         for feature, expected_size in CONFIGURED_FEATURES.items():
@@ -709,9 +709,9 @@ class SpiritStoneResourcesValidator:
             return
         if modifier.get("type") != "neoforge:add_features":
             self.error(modifier_path, "type must be neoforge:add_features")
-        if modifier.get("biomes") != "#myvillage:has_spirit_stone_ore":
-            self.error(modifier_path, "biomes must use #myvillage:has_spirit_stone_ore")
-        expected_features = {f"myvillage:{feature}" for feature in PLACED_FEATURES}
+        if modifier.get("biomes") != "#yuanxian:has_spirit_stone_ore":
+            self.error(modifier_path, "biomes must use #yuanxian:has_spirit_stone_ore")
+        expected_features = {f"yuanxian:{feature}" for feature in PLACED_FEATURES}
         features = modifier.get("features")
         if not isinstance(features, list) or set(features) != expected_features or len(features) != 3:
             self.error(modifier_path, f"features must be {sorted(expected_features)}")
@@ -732,7 +732,7 @@ class SpiritStoneResourcesValidator:
         previous = 1
         for index, (grade, row) in enumerate(zip(expected, tiers)):
             item = grade + '_spirit_stone'
-            if (row.get('id') != 'myvillage:'+grade or row.get('item') != 'myvillage:'+item
+            if (row.get('id') != 'yuanxian:'+grade or row.get('item') != 'yuanxian:'+item
                     or row.get('tag') != 'c:spirit_stones/'+grade):
                 self.error(path, 'denomination identity/tag mismatch: '+grade)
             value = row.get('units')
@@ -749,7 +749,7 @@ class SpiritStoneResourcesValidator:
             if f'ITEMS.registerSimpleItem("{item}")' not in source or f'output.accept({item.upper()}.get())' not in source:
                 self.error(JAVA_ROOT / 'item/ModItems.java', 'missing grade registration/creative entry: '+item)
             model = ASSET_ROOT / f'models/item/{item}.json'
-            if self.load_json(model) != {'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+item}}:
+            if self.load_json(model) != {'parent':'minecraft:item/generated','textures':{'layer0':'yuanxian:item/'+item}}:
                 self.error(model, 'invalid grade item model')
             texture = ASSET_ROOT / f'textures/item/{item}.png'
             try:
@@ -758,7 +758,7 @@ class SpiritStoneResourcesValidator:
             except (OSError, ValueError) as exc:
                 self.error(texture, str(exc))
             zh = self.load_json(ASSET_ROOT / 'lang/zh_cn.json') or {}
-            if not zh.get('item.myvillage.'+item):
+            if not zh.get('item.yuanxian.'+item):
                 self.error(ASSET_ROOT / 'lang/zh_cn.json', 'missing grade Chinese name')
         low = self.load_json(RESOURCE_ROOT / 'data/c/tags/item/spirit_stones/low_grade.json') or {}
         if any(name in str(low) for name in ('medium_grade', 'high_grade', '#c:spirit_stones"')):
@@ -791,7 +791,7 @@ class SpiritStoneResourcesValidator:
                 # Decode references before inspecting them, so escaped JSON ids cannot hide processing.
                 lowered = json.dumps(recipe, ensure_ascii=False).lower()
                 stone_related = "spirit_stone" in path.name.lower() or any(
-                    identifier in lowered for identifier in (STONE_TAG, "c:gems/spirit_stone", "c:spirit_stones", f"myvillage:{STONE_ITEM}", *ORE_IDS, *FORBIDDEN_ITEM_IDS)
+                    identifier in lowered for identifier in (STONE_TAG, "c:gems/spirit_stone", "c:spirit_stones", f"yuanxian:{STONE_ITEM}", *ORE_IDS, *FORBIDDEN_ITEM_IDS)
                 )
                 if stone_related and not _approved_alchemy_consumption(path.relative_to(self.root), recipe):
                     self.error(path, "spirit-stone recipe or smelting chain is forbidden in this slice; "
@@ -825,7 +825,7 @@ class SpiritStoneResourcesValidator:
         match = re.search(r"(?m)^mod_version\s*=\s*([^\s#]+)\s*$", properties)
         if match is None:
             return None, "gradle.properties has no mod_version"
-        return self.root / "build/libs" / f"myvillage-{match.group(1)}.jar", None
+        return self.root / "build/libs" / f"yuanxian-{match.group(1)}.jar", None
 
     def validate_jar(
         self,

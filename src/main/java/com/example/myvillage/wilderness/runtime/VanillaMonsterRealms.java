@@ -30,8 +30,8 @@ import net.neoforged.neoforge.event.entity.living.MobSplitEvent;
 
 /** Birth intent is recorded before vanilla initialization and applied only after it completes. */
 public final class VanillaMonsterRealms {
-    public static final String BIRTH = "myvillage:vanilla_monster_birth";
-    private static final String REALM = "myvillage:stats_realm";
+    public static final String BIRTH = "yuanxian:vanilla_monster_birth";
+    private static final String REALM = "yuanxian:stats_realm";
     private VanillaMonsterRealms() {}
 
     public static void register() {

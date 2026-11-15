@@ -3,7 +3,7 @@
 Single shared module so the offline generator (``tools/generate_region_topology.py``)
 and the offline validator (``tools/validate_region_topology.py``) agree on one
 source of truth. The model + ruleset are JSON under the mod worldgen data tree
-(``data/myvillage/worldgen/``); this module loads them and builds a per-seed
+(``data/yuanxian/worldgen/``); this module loads them and builds a per-seed
 region graph constructively.
 
 Design (see ``openspec/changes/add-region-topology/design.md``):
@@ -210,7 +210,7 @@ class Ruleset:
             non_tree_edge_lian_chance=float(edge_rules.get("non_tree_edge_lian_chance", 0.5)),
             walled_gate_chance=float(edge_rules.get("walled_gate_chance", 0.7)),
             walled_pass_label=str(walled_rule.get("pass_label", PASS_GUANAI)),
-            catalog_dir=str(data.get("catalog", "data/myvillage/worldgen/region_profile")),
+            catalog_dir=str(data.get("catalog", "data/yuanxian/worldgen/region_profile")),
         )
 
 
@@ -239,7 +239,7 @@ DEFAULT_RULESET_PATH = (
     / "main"
     / "resources"
     / "data"
-    / "myvillage"
+    / "yuanxian"
     / "worldgen"
     / "region_topology.json"
 )
@@ -249,7 +249,7 @@ DEFAULT_CATALOG_DIR = (
     / "main"
     / "resources"
     / "data"
-    / "myvillage"
+    / "yuanxian"
     / "worldgen"
     / "region_profile"
 )

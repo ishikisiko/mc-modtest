@@ -15,7 +15,7 @@ class ProvinceCapitalV11FocusedTest {
         try(var in=ProvinceCapitalV11FocusedTest.class.getResourceAsStream(path)){assertNotNull(in,path);return JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();}
     }
     @Test void v10StaysFrozenAndV11ChangesOnlyAlgorithmAndAssetReferences()throws Exception{
-        CapitalGameBundle.requireHash(CapitalGameBundle.readResource("myvillage:worldplan/frozen_v10.json",4*1024*1024),"9308a842d9dfedb64c43622cac1aaf4d46b07c614ed66c40d3e3d3484537fbc1","frozen_v10");
+        CapitalGameBundle.requireHash(CapitalGameBundle.readResource("yuanxian:worldplan/frozen_v10.json",4*1024*1024),"9308a842d9dfedb64c43622cac1aaf4d46b07c614ed66c40d3e3d3484537fbc1","frozen_v10");
         var old=json(WorldPlanRules.V10_RESOURCE);var current=json(WorldPlanRules.V11_RESOURCE);var rules=new WorldPlanRules(current.toString());
         assertEquals(8,rules.capitals.bundles.size());assertEquals(192,rules.capitals.lifePlaceLimit);
         assertEquals(Set.of("v4"),Set.copyOf(rules.capitals.bundles.stream().map(b->b.resourceVersion).toList()));
@@ -34,9 +34,9 @@ class ProvinceCapitalV11FocusedTest {
         assertEquals(plan.fingerprint(),restored.fingerprint());assertEquals(plan.manifest(),restored.manifest());assertEquals(8,plan.cities().size());
     }
     @Test void defaultV11IsUniqueAndEveryTemplateMatchesItsFrozenHash()throws Exception{
-        String preset="data/myvillage/worldgen/world_preset/cultivation.json";assertEquals(1,Collections.list(getClass().getClassLoader().getResources(preset)).size());
+        String preset="data/yuanxian/worldgen/world_preset/cultivation.json";assertEquals(1,Collections.list(getClass().getClassLoader().getResources(preset)).size());
         var generator=json("/"+preset).getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
-        assertEquals("myvillage:planned_v11",generator.get("type").getAsString());
+        assertEquals("yuanxian:planned_v11",generator.get("type").getAsString());
         assertEquals(json(WorldPlanRules.V11_RESOURCE),JsonParser.parseString(FrozenRulesEncoding.decode(generator.get("rules").getAsString())));
         for(var bundle:new WorldPlanRules(json(WorldPlanRules.V11_RESOURCE).toString()).capitals.bundles){
             CapitalGameBundle.requireHash(CapitalGameBundle.readResource(bundle.terrainResource,16*1024*1024),bundle.terrainHash,bundle.terrainResource);

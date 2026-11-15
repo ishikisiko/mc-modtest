@@ -19,7 +19,7 @@ The browser prototype remains a design playground; it is not the game's registry
 ## NPC 出生词条（0.123.3）
 
 所有新生成的命簿人物，以及普通召唤、蛋生 NPC，在确定天骄身份后抽取三个词条。
-NPC 独立预算取 `data/myvillage/fates/npc_rules.json` 的 `point_budget`，默认 9；玩家预算保持原配置。
+NPC 独立预算取 `data/yuanxian/fates/npc_rules.json` 的 `point_budget`，默认 9；玩家预算保持原配置。
 普通 NPC 在低于上限且可实现的总花费中等概率选择，再从该花费下合法组合中等概率选择；天骄只选择恰好用满预算的组合。
 抽取遵守当前定义的 enabled、cost、group 和灵根门槛，词条不重复。池中缺少可行组合时明确报错，不降低天骄的满额条件。
 
@@ -66,7 +66,7 @@ reset and server stop invalidate it. The server issues a positive session token;
 requests carry it, and an old close token cannot end a newer session.
 
 `CultivationServerConfig` adds `[innate_fates] point_budget` in the existing
-`myvillage-server.toml` server config (3..18, default 8). The owning snapshot
+`yuanxian-server.toml` server config (3..18, default 8). The owning snapshot
 carries the actual server budget. A later budget reduction applies to future
 confirmations; it does not revoke confirmed builds. Since 0.49.2 there is no high-tier count cap; the three-choice count,
 point budget and exclusive-group constraints still apply. See the
@@ -75,9 +75,9 @@ adds further ordinary entries if needed to guarantee a legal low-budget triple.
 
 ## Ownership and persistence
 
-- Synced registry: `data/myvillage/myvillage/innate_fate/*.json`,
+- Synced registry: `data/yuanxian/yuanxian/innate_fate/*.json`,
   `FateDefinition`. Numeric effects are in this data, not per-ID Java branches.
-- Startup-only tier weights and request throttle: `data/myvillage/fates/rules.json`.
+- Startup-only tier weights and request throttle: `data/yuanxian/fates/rules.json`.
 - `FateSelection` is the actual pure transition/roll/validation path used by
   `FateService`; client intent is action + seen revision + bounded slot/mask +
   server-issued session token only.

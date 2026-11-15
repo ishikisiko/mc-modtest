@@ -11,7 +11,7 @@ from pathlib import Path
 
 from tools import combat_data
 
-INDEX_REL = "data/myvillage/combat/index.json"
+INDEX_REL = "data/yuanxian/combat/index.json"
 
 # Column order of every stills sheet; see key_ticks().
 KEY_NAMES = ("idle", "strike_start", "contact", "strike_end", "recovery")
@@ -84,7 +84,7 @@ def key_ticks(rig_move: dict) -> list[tuple[str, float]]:
 
 
 def short_name(move_id: str) -> str:
-    """``myvillage:basic_sword_02_horizontal_cut`` -> ``02_horizontal_cut``."""
+    """``yuanxian:basic_sword_02_horizontal_cut`` -> ``02_horizontal_cut``."""
     path = move_id.split(":", 1)[-1]
     parts = path.split("_")
     for i, p in enumerate(parts):

@@ -22,7 +22,7 @@ def sign_payload(text):
 
 def atmosphere_payload():
     # 自然生成使用方块实体的默认零偏移；管理员调整后由实体自己保存 long 值。
-    tag=nbt.Compound({'id':nbt.String('myvillage:qianji_atmosphere_anchor')})
+    tag=nbt.Compound({'id':nbt.String('yuanxian:qianji_atmosphere_anchor')})
     stream=io.BytesIO();nbt._write_payload(stream,tag);return stream.getvalue()
 
 def entrance_road(entry,road_z,base,policy,paving):
@@ -43,7 +43,7 @@ def integrate(out):
     for name in ['tools/player_estates/zhongzhou_plan.py','tools/player_estates/build_terraces.py']:inputs[name]=sha((ROOT/name).read_bytes())
     for f in ['tools/buildgen/groups.py','tools/buildgen/modset.py','tools/buildgen/style.py','tools/buildgen/massing.py','tools/buildgen/compound.py','exmod/mod_block_catalog.json']:inputs[f]=sha((ROOT/f).read_bytes())
     for region,ident in spec['regions'].items():
-        file=out/f'data/myvillage/capitals/v4/capital_{region}/city.json';city=json.loads(file.read_text())
+        file=out/f'data/yuanxian/capitals/v4/capital_{region}/city.json';city=json.loads(file.read_text())
         if region=='zhongzhou':
             from qianji.infill_export import integrate as integrate_infill
             reports.append(integrate_infill(out,city,inputs));continue
@@ -107,7 +107,7 @@ def integrate(out):
             if x<ow and z<od:
                 # 原城唯一允许的改动是撤下旧江湖榜，绝不覆盖房屋、城门或道路。
                 before=source.block(x,y,z)
-                if before!=state and not(before.startswith('myvillage:jianghu_board[') and state==AIR):
+                if before!=state and not(before.startswith('yuanxian:jianghu_board[') and state==AIR):
                     raise ValueError('千机阁施工试图覆盖原城：'+str((region,x,y,z,before,state)))
             cells=tile(key);cells[p]=(state,'qianji','organization');new_cells[key][p]=state
             if entity:entities[key][p]=entity
@@ -115,12 +115,12 @@ def integrate(out):
         old=next((p for p in city['life']['places'] if p['id']=='jianghu_board'),None)
         if old:
             px,py,pz=old['block_pos']
-            if source.block(px,py,pz).startswith('myvillage:jianghu_board['):put(px,py,pz,AIR)
+            if source.block(px,py,pz).startswith('yuanxian:jianghu_board['):put(px,py,pz,AIR)
             city['life']['places'].remove(old)
         def point(p):return [x0+m.w-1-p[0],base+p[1],z0+m.d-1-p[2]]
         def direction(state):return rotate_state(state,2)
         for (x,y,z),state in m.blocks.items():
-            px,py,pz=point((x,y,z));entity=dict(block='myvillage:qianji_atmosphere_anchor',payload=atmosphere_payload()) if state.split('[',1)[0]=='myvillage:qianji_atmosphere_anchor' else None
+            px,py,pz=point((x,y,z));entity=dict(block='yuanxian:qianji_atmosphere_anchor',payload=atmosphere_payload()) if state.split('[',1)[0]=='yuanxian:qianji_atmosphere_anchor' else None
             put(px,py,pz,direction(state),entity)
         for sign in m.signs:
             px,py,pz=point(sign['position']);state=direction('minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]')
@@ -155,7 +155,7 @@ def integrate(out):
         for key,cells in cache.items():
             tx,tz=key;ref=refs.get(key)
             if ref is None:
-                template=f'myvillage:province_capitals/v4/capital_{region}/tile_{tx}_{tz}'
+                template=f'yuanxian:province_capitals/v4/capital_{region}/tile_{tx}_{tz}'
                 ref=dict(x=tx*16,z=tz*16,template=template);refs[key]=ref
             p=resource_file(out,ref['template'],template=True);count,colors,_=write_tile(p,cells,nh,entities[key]);palette.update(v[0] for v in cells.values())
             ref.update(sha256=sha(p.read_bytes()),bytes=p.stat().st_size,block_count=count,palette_count=colors)
@@ -170,7 +170,7 @@ def integrate(out):
                         checks=checks,inputs=inputs,old_city_preserved=True,old_board_retired=old is not None)
         descriptor['landmarks']=[]
         if 'atmosphere_anchor' in m.spec:
-            descriptor['atmosphere']={'anchor':point(m.spec['atmosphere_anchor']),'appearance':'myvillage:qianji/atmosphere.json','source_offset':m.spec['source_offset']}
+            descriptor['atmosphere']={'anchor':point(m.spec['atmosphere_anchor']),'appearance':'yuanxian:qianji/atmosphere.json','source_offset':m.spec['source_offset']}
         descriptor['lighting_checks']=[dict(name=v['name'],position=point(v['position']),minimum_light=m.lighting['minimum_light']) for v in m.lighting['checks'].get(ident,[])]
         descriptor['interior_lights']=len(m.lights)
         if 'roof_instrument' in m.spec:

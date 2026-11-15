@@ -37,4 +37,4 @@ size: [9, 7, 9]
 palette count: 14
 block count: 567
 
-$ python tools/export_to_world.py out/test_house_02_1_21_1.nbt --world StructureTest --namespace myvillage --name test_house_02
+$ python tools/export_to_world.py out/test_house_02_1_21_1.nbt --world StructureTest --namespace yuanxian --name test_house_02

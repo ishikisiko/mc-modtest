@@ -14,7 +14,7 @@ import java.util.*;
 
 /** One authored source for recommendations, encounters, loot and the town guide. Stages are zero-based. */
 public final class ExplorationRules {
-    public static final String PATH = "/data/myvillage/exploration/rules.json";
+    public static final String PATH = "/data/yuanxian/exploration/rules.json";
     public record Location(String id, String dimension, List<String> structures, List<String> biomes,
                            int minY, int maxY, int priority, RealmRange recommended,
                            RealmRange encounters, boolean regional, boolean contextOnly, String reward) { }

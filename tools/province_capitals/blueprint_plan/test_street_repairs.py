@@ -82,8 +82,8 @@ class ExteriorFloorTests(unittest.TestCase):
 
     def test_donghuang_uses_finished_wall_and_timber_even_in_vanilla_modset(self):
         c=Capital(load_city('donghuang'))
-        self.assertEqual('myvillage:manor_town_warm_plaster',c.material('WALL_MAIN'))
-        self.assertEqual('myvillage:manor_town_chestnut_frame',c.material('FRAME_WOOD'))
+        self.assertEqual('yuanxian:manor_town_warm_plaster',c.material('WALL_MAIN'))
+        self.assertEqual('yuanxian:manor_town_chestnut_frame',c.material('FRAME_WOOD'))
         self.assertEqual('minecraft:dark_oak_door',c.material('DOOR'))
 
 
@@ -104,8 +104,8 @@ class RoadSurfaceTests(unittest.TestCase):
 
     def test_wear_follows_the_road_axis(self):
         z,_=self.road(axis='z');x,_=self.road(axis='x')
-        self.assertEqual('myvillage:manor_town_worn_sand[facing=north]',z.state(1,1))
-        self.assertEqual('myvillage:manor_town_worn_sand[facing=east]',x.state(1,1))
+        self.assertEqual('yuanxian:manor_town_worn_sand[facing=north]',z.state(1,1))
+        self.assertEqual('yuanxian:manor_town_worn_sand[facing=east]',x.state(1,1))
 
     def test_missing_road_width_cannot_silently_pass(self):
         road={'id':'broken','width':1,'surface':'main','points':[[0,11,0],[0,11,2]]}

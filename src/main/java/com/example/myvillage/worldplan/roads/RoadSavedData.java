@@ -64,7 +64,7 @@ public final class RoadSavedData extends SavedData {
     public Job job;
     public int revision;
     public RoadSavedData() {}
-    public static RoadSavedData get(ServerLevel level){return level.getDataStorage().computeIfAbsent(new Factory<>(RoadSavedData::new,RoadSavedData::load),"myvillage_roads");}
+    public static RoadSavedData get(ServerLevel level){return level.getDataStorage().computeIfAbsent(new Factory<>(RoadSavedData::new,RoadSavedData::load),"yuanxian_roads");}
     public Route selected(){return routes.get(selectedId);}
     public List<RoadPlan> completedPlans(){return routes.values().stream().filter(r->r.phase.equals("complete")).map(r->r.plan).toList();}
     public void stage(List<RoadPlan> plans,List<Cell> target) {

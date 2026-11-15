@@ -14,9 +14,9 @@ from tools import crafting_quality
 def render(root=ROOT):
     root = Path(root)
     rules = crafting_quality.load(root)
-    recipes = json.loads((root/'src/main/resources/data/myvillage/alchemy/rules.json').read_text())['recipes']
-    names = json.loads((root/'src/main/resources/assets/myvillage/lang/zh_cn.json').read_text())
-    payload = {'rules': rules, 'recipes': [dict(r, name=names['item.myvillage.'+r['formula'].split(':')[1]]) for r in recipes],
+    recipes = json.loads((root/'src/main/resources/data/yuanxian/alchemy/rules.json').read_text())['recipes']
+    names = json.loads((root/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_text())
+    payload = {'rules': rules, 'recipes': [dict(r, name=names['item.yuanxian.'+r['formula'].split(':')[1]]) for r in recipes],
                'references': [crafting_quality.probabilities(rules, t['baseline']+60, t['id'], d)
                               for t in rules['tiers'] for d in range(rules['maximum_difficulty']+1)]}
     return TEMPLATE.replace('__DATA__', json.dumps(payload, ensure_ascii=False).replace('</', '<\\/'))

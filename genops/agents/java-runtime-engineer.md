@@ -8,7 +8,7 @@ work.
 - Item and block registration.
 - Creative tab exposure.
 - Runtime command or behavior code when explicitly assigned.
-- NeoForge registration consistency under the `myvillage` namespace.
+- NeoForge registration consistency under the `yuanxian` namespace.
 
 ## Guardrails
 

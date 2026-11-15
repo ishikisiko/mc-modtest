@@ -41,14 +41,14 @@ class HallLineTest(unittest.TestCase):
     def test_borrow(self):
         p = ev.parse_hall("SCRIPTURE_HALL player=CaptureDev intent=BORROW sect=3 technique=azure_breath result=ok")
         self.assertEqual((p["intent"], p["technique"], p["result"]), ("BORROW", "azure_breath", "ok"))
-        p = ev.parse_hall("SCRIPTURE_HALL player=CaptureDev intent=BORROW sect=3 technique=myvillage:x "
+        p = ev.parse_hall("SCRIPTURE_HALL player=CaptureDev intent=BORROW sect=3 technique=yuanxian:x "
                           "result=already_borrowed")
         self.assertEqual((ev.tech_path(p["technique"]), p["result"]), ("x", "already_borrowed"))
         self.assertIsNone(ev.parse_hall("SCRIPTURE_HALL player=CaptureDev intent=STEAL sect=3"))
         self.assertIsNone(ev.parse_hall("SCRIPTURE_HALL_UI technique=a x=1 y=2 w=3 h=4"))
 
     def test_ui(self):
-        p = ev.parse_hall_ui(CLIENT + "SCRIPTURE_HALL_UI technique=myvillage:azure_breath borrowed=false "
+        p = ev.parse_hall_ui(CLIENT + "SCRIPTURE_HALL_UI technique=yuanxian:azure_breath borrowed=false "
                                       "x=600 y=180 w=80 h=40")
         self.assertEqual(p, {"technique": "azure_breath", "borrowed": False,
                              "x": 600.0, "y": 180.0, "w": 80.0, "h": 40.0})
@@ -73,11 +73,11 @@ class SectReplyTest(unittest.TestCase):
 
 class InventoryTest(unittest.TestCase):
     REPLY = ('CaptureDev has the following entity data: [{count: 1, Slot: 0b, components: '
-             '{"minecraft:custom_name": \'{"text":"a } [ odd name"}\', "myvillage:technique": '
-             '"myvillage:azure_breath"}, id: "myvillage:manual_breathing_huang"}, '
+             '{"minecraft:custom_name": \'{"text":"a } [ odd name"}\', "yuanxian:technique": '
+             '"yuanxian:azure_breath"}, id: "yuanxian:manual_breathing_huang"}, '
              '{count: 64, Slot: 1b, id: "minecraft:stone"}, '
-             '{count: 1, Slot: 2b, components: {"myvillage:technique": "myvillage:cloud_step"}, '
-             'id: "myvillage:manual_movement_xuan"}]')
+             '{count: 1, Slot: 2b, components: {"yuanxian:technique": "yuanxian:cloud_step"}, '
+             'id: "yuanxian:manual_movement_xuan"}]')
 
     def test_split(self):
         items = ev.split_items(self.REPLY)
@@ -90,10 +90,10 @@ class InventoryTest(unittest.TestCase):
         self.assertEqual(ev.manuals_in_inventory(self.REPLY),
                          [{"manual": "manual_breathing_huang", "technique": "azure_breath"},
                           {"manual": "manual_movement_xuan", "technique": "cloud_step"}])
-        self.assertEqual(ev.manual_count(self.REPLY, "myvillage:azure_breath"), 1)
+        self.assertEqual(ev.manual_count(self.REPLY, "yuanxian:azure_breath"), 1)
         self.assertEqual(ev.manual_count(self.REPLY, "cloud_step"), 1)
         self.assertEqual(ev.manual_count(self.REPLY, "iron_body"), 0)
-        blank = 'CaptureDev has the following entity data: [{count: 1, Slot: 0b, id: "myvillage:manual_body_huang"}]'
+        blank = 'CaptureDev has the following entity data: [{count: 1, Slot: 0b, id: "yuanxian:manual_body_huang"}]'
         self.assertEqual(ev.manuals_in_inventory(blank), [{"manual": "manual_body_huang", "technique": None}])
 
 

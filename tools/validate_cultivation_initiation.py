@@ -20,9 +20,9 @@ from typing import Any, Iterable
 ROOT = Path(__file__).resolve().parents[1]
 JAVA_ROOT = Path("src/main/java/com/example/myvillage")
 RESOURCE_ROOT = Path("src/main/resources")
-ASSET_ROOT = RESOURCE_ROOT / "assets/myvillage"
-DATA_ROOT = RESOURCE_ROOT / "data/myvillage"
-CULTIVATION_DATA_ROOT = DATA_ROOT / "myvillage"
+ASSET_ROOT = RESOURCE_ROOT / "assets/yuanxian"
+DATA_ROOT = RESOURCE_ROOT / "data/yuanxian"
+CULTIVATION_DATA_ROOT = DATA_ROOT / "yuanxian"
 LANG_ROOT = ASSET_ROOT / "lang"
 
 STELES = {
@@ -377,15 +377,15 @@ class CultivationInitiationValidator:
             if not isinstance(requirements, dict):
                 self.error(technique_path, "requirements must be a JSON object")
             else:
-                if requirements.get("minimum_realm") != "myvillage:mortal":
+                if requirements.get("minimum_realm") != "yuanxian:mortal":
                     self.error(
                         technique_path,
-                        "minimum_realm must be myvillage:mortal",
+                        "minimum_realm must be yuanxian:mortal",
                     )
-                if requirements.get("minimum_stage") != "myvillage:mortal_qi_sensed":
+                if requirements.get("minimum_stage") != "yuanxian:mortal_qi_sensed":
                     self.error(
                         technique_path,
-                        "minimum_stage must be myvillage:mortal_qi_sensed",
+                        "minimum_stage must be yuanxian:mortal_qi_sensed",
                     )
                 affinity = requirements.get("minimum_element_aptitude")
                 if affinity not in (None, {}):
@@ -526,7 +526,7 @@ class CultivationInitiationValidator:
             )
 
         for identifier in STELES:
-            resource_id = f"myvillage:{identifier}"
+            resource_id = f"yuanxian:{identifier}"
             blockstate_path = ASSET_ROOT / "blockstates" / f"{identifier}.json"
             block_model_path = ASSET_ROOT / "models/block" / f"{identifier}.json"
             item_model_path = ASSET_ROOT / "models/item" / f"{identifier}.json"
@@ -538,7 +538,7 @@ class CultivationInitiationValidator:
 
             if isinstance(blockstate, dict):
                 references = set(_json_model_references(blockstate))
-                expected = f"myvillage:block/{identifier}"
+                expected = f"yuanxian:block/{identifier}"
                 if expected not in references:
                     self.error(blockstate_path, f"blockstate must reference {expected}")
             elif blockstate is not None:
@@ -555,7 +555,7 @@ class CultivationInitiationValidator:
                     for texture in textures.values():
                         if not isinstance(texture, str) or ":" not in texture:
                             self.error(block_model_path, "texture references must be namespaced strings")
-                        elif texture.startswith("myvillage:"):
+                        elif texture.startswith("yuanxian:"):
                             texture_path = ASSET_ROOT / "textures" / (texture.split(":", 1)[1] + ".png")
                             if not (self.root / texture_path).is_file():
                                 self.error(texture_path, "missing referenced mod texture")
@@ -564,8 +564,8 @@ class CultivationInitiationValidator:
             elif block_model is not None:
                 self.error(block_model_path, "block model must be a JSON object")
 
-            if not isinstance(item_model, dict) or item_model.get("parent") != f"myvillage:block/{identifier}":
-                self.error(item_model_path, f"item model must parent myvillage:block/{identifier}")
+            if not isinstance(item_model, dict) or item_model.get("parent") != f"yuanxian:block/{identifier}":
+                self.error(item_model_path, f"item model must parent yuanxian:block/{identifier}")
             if not isinstance(loot, dict) or loot.get("type") != "minecraft:block":
                 self.error(loot_path, "loot table must use type minecraft:block")
             elif not _json_contains_item_entry(loot, resource_id):
@@ -573,7 +573,7 @@ class CultivationInitiationValidator:
             if resource_id not in mineable_values:
                 self.error("mineable tool tags", f"missing {resource_id}")
 
-            name_key = f"block.myvillage.{identifier}"
+            name_key = f"block.yuanxian.{identifier}"
             for locale, language in languages.items():
                 if not isinstance(language.get(name_key), str) or not language[name_key].strip():
                     self.error(LANG_ROOT / f"{locale}.json", f"missing non-empty {name_key}")
@@ -587,7 +587,7 @@ class CultivationInitiationValidator:
                 translation_sources.append(service[1])
         declared_keys = set(
             re.findall(
-                r'"((?:message|command|block)\.myvillage\.[a-z0-9_.-]+)"',
+                r'"((?:message|command|block)\.yuanxian\.[a-z0-9_.-]+)"',
                 "\n".join(translation_sources),
             )
         )
@@ -618,7 +618,7 @@ class CultivationInitiationValidator:
         hardcoded = sorted(
             element
             for element in ELEMENTS
-            if element in literal_values or f"myvillage:{element}" in literal_values
+            if element in literal_values or f"yuanxian:{element}" in literal_values
         )
         if hardcoded:
             self.error(path, "generator hard-codes shipped element ids: " + ", ".join(hardcoded))
@@ -926,19 +926,19 @@ class CultivationInitiationValidator:
 
             declared_keys = set(
                 re.findall(
-                    r'"(screen\.myvillage\.cultivation\.[a-z0-9_.-]+)"',
+                    r'"(screen\.yuanxian\.cultivation\.[a-z0-9_.-]+)"',
                     source,
                 )
             )
             declared_keys = {key for key in declared_keys if not key.endswith(".")}
             required_keys = {
-                "screen.myvillage.cultivation.tab.profile",
-                "screen.myvillage.cultivation.tab.meditation",
-                "screen.myvillage.cultivation.button.normal",
-                "screen.myvillage.cultivation.button.spirit",
-                "screen.myvillage.cultivation.button.stop",
-                "screen.myvillage.cultivation.button.advancement",
-                "screen.myvillage.cultivation.spiritual_affinity",
+                "screen.yuanxian.cultivation.tab.profile",
+                "screen.yuanxian.cultivation.tab.meditation",
+                "screen.yuanxian.cultivation.button.normal",
+                "screen.yuanxian.cultivation.button.spirit",
+                "screen.yuanxian.cultivation.button.stop",
+                "screen.yuanxian.cultivation.button.advancement",
+                "screen.yuanxian.cultivation.spiritual_affinity",
             }
             for key in sorted(required_keys - declared_keys):
                 self.error(path, f"H screen must declare translatable UI key {key}")
@@ -962,7 +962,7 @@ class CultivationInitiationValidator:
                     self.error(path, f"cannot inspect out-of-scope resource: {exc}")
                     continue
                 for identifier in STELES:
-                    if f"myvillage:{identifier}" in text:
+                    if f"yuanxian:{identifier}" in text:
                         self.error(path, f"{identifier} must not have recipe or worldgen integration")
 
         properties_path = Path("gradle.properties")
@@ -984,12 +984,12 @@ class CultivationInitiationValidator:
         version = version_match.group(1)
         mods_match = re.search(
             r'(?ms)^[ \t]*\[\[mods\]\][ \t]*$.*?'
-            r'^[ \t]*modId\s*=\s*"myvillage"[ \t]*$.*?'
+            r'^[ \t]*modId\s*=\s*"yuanxian"[ \t]*$.*?'
             r'^[ \t]*version\s*=\s*"([^"]+)"',
             mods,
         )
         if mods_match is None:
-            self.error(mods_path, "cannot resolve myvillage mod version")
+            self.error(mods_path, "cannot resolve yuanxian mod version")
         elif mods_match.group(1) != version:
             self.error(mods_path, f"version {mods_match.group(1)} does not match {version}")
         if not re.search(
@@ -998,7 +998,7 @@ class CultivationInitiationValidator:
             self.error(changelog_path, f"missing release heading for {version}")
 
         jar_versions = re.findall(
-            r"build/libs/myvillage-([0-9]+\.[0-9]+\.[0-9]+(?:-fix[0-9]+)?)\.jar",
+            r"build/libs/yuanxian-([0-9]+\.[0-9]+\.[0-9]+(?:-fix[0-9]+)?)\.jar",
             readme,
         )
         if not jar_versions:

@@ -27,13 +27,13 @@ import org.junit.jupiter.api.Test;
 
 final class CombatDataLoaderTest {
     private static final String INDEX = CombatDataLoader.INDEX_PATH;
-    private static final String STYLE = "data/myvillage/combat/style/basic_sword.json";
-    private static final String WEAPON = "data/myvillage/combat/weapon/qingfeng_sword.json";
-    private static final ResourceLocation QINGFENG_FILE = ResourceLocation.fromNamespaceAndPath("myvillage", "qingfeng_sword");
+    private static final String STYLE = "data/yuanxian/combat/style/basic_sword.json";
+    private static final String WEAPON = "data/yuanxian/combat/weapon/qingfeng_sword.json";
+    private static final ResourceLocation QINGFENG_FILE = ResourceLocation.fromNamespaceAndPath("yuanxian", "qingfeng_sword");
 
     @Test
     void skillSchemaRejectsUnknownUnboundedAndMissingReferences() {
-        String file = "data/myvillage/combat/skill/jianqi_jue.json";
+        String file = "data/yuanxian/combat/skill/jianqi_jue.json";
         assertRejected(file, "unknown", "unknown field", files -> files.edit(file,
                 skill -> skill.addProperty("unknown", 1)));
         assertRejected(file, "<root>", "bounded", files -> files.edit(file,
@@ -322,7 +322,7 @@ final class CombatDataLoaderTest {
                         .addProperty("hit_sound", "combat.sword.hit")));
         assertRejected(STYLE, "moves[3].feedback.heavy_layer_sound", "namespaced id",
                 files -> files.edit(STYLE, style -> move(style, 3).getAsJsonObject("feedback")
-                        .addProperty("heavy_layer_sound", "myvillage:")));
+                        .addProperty("heavy_layer_sound", "yuanxian:")));
         assertRejected(STYLE, "moves[0].kind", "thrust or cut",
                 files -> files.edit(STYLE, style -> move(style, 0).addProperty("kind", "stab")));
         assertRejected(STYLE, "moves[0].hitbox.samples.generator", "thrust, arc, or diagonal",
@@ -336,7 +336,7 @@ final class CombatDataLoaderTest {
         assertRejected(STYLE, "schema", "must be 1",
                 files -> files.edit(STYLE, style -> style.addProperty("schema", 2)));
         assertRejected(STYLE, "id", "index lists",
-                files -> files.edit(STYLE, style -> style.addProperty("id", "myvillage:other_sword")));
+                files -> files.edit(STYLE, style -> style.addProperty("id", "yuanxian:other_sword")));
         assertRejected(STYLE, "<root>", "JSON",
                 files -> files.put(STYLE, "{\"schema\": 1,"));
     }
@@ -348,14 +348,14 @@ final class CombatDataLoaderTest {
         assertRejected(STYLE, "moves[0].chain_tick", "duplicate key",
                 files -> files.put(STYLE, style.replaceFirst("\"chain_tick\": 7,", "\"chain_tick\": 7, \"chain_tick\": 8,")));
         assertRejected(STYLE, "id", "duplicate key",
-                files -> files.put(STYLE, style.replaceFirst("\"id\": \"myvillage:basic_sword\",",
-                        "\"id\": \"myvillage:basic_sword\", \"id\": \"myvillage:basic_sword\",")));
+                files -> files.put(STYLE, style.replaceFirst("\"id\": \"yuanxian:basic_sword\",",
+                        "\"id\": \"yuanxian:basic_sword\", \"id\": \"yuanxian:basic_sword\",")));
         assertRejected(WEAPON, "<root>", "not valid JSON",
                 files -> files.put(WEAPON, "// comment\n" + files.contents(WEAPON)));
         assertRejected(WEAPON, "<root>", "not valid JSON",
                 files -> files.put(WEAPON, files.contents(WEAPON).replace("\"item\"", "item")));
         assertRejected(WEAPON, "<root>", "not valid JSON",
-                files -> files.put(WEAPON, files.contents(WEAPON).replace("\"myvillage:basic_sword\"", "'myvillage:basic_sword'")));
+                files -> files.put(WEAPON, files.contents(WEAPON).replace("\"yuanxian:basic_sword\"", "'yuanxian:basic_sword'")));
         assertRejected(WEAPON, "<root>", "not valid JSON",
                 files -> files.put(WEAPON, files.contents(WEAPON) + "{}"));
         assertRejected(STYLE, "<root>", "not valid JSON",
@@ -367,35 +367,35 @@ final class CombatDataLoaderTest {
     void missingListedFilesAreRejected() {
         // The field is the missing entry's position in the index: appended after the bundled styles.
         assertRejected(INDEX, "styles[" + indexIds("styles").size() + "]",
-                "data/myvillage/combat/style/missing_sword.json is missing",
-                files -> files.edit(INDEX, index -> index.getAsJsonArray("styles").add("myvillage:missing_sword")));
+                "data/yuanxian/combat/style/missing_sword.json is missing",
+                files -> files.edit(INDEX, index -> index.getAsJsonArray("styles").add("yuanxian:missing_sword")));
         assertRejected(INDEX, "weapons[" + indexIds("weapons").indexOf(QINGFENG_FILE) + "]",
-                "data/myvillage/combat/weapon/qingfeng_sword.json is missing",
+                "data/yuanxian/combat/weapon/qingfeng_sword.json is missing",
                 files -> files.remove(WEAPON));
-        assertRejected(INDEX, "<file>", "data/myvillage/combat/index.json is missing",
+        assertRejected(INDEX, "<file>", "data/yuanxian/combat/index.json is missing",
                 files -> files.remove(INDEX));
     }
 
     @Test
     void duplicateMoveIdsAcrossStylesNameBothStyles() {
-        String other = "data/myvillage/combat/style/other_sword.json";
-        CombatDataException failure = assertRejected(other, "moves[0].id", "myvillage:basic_sword", files -> {
+        String other = "data/yuanxian/combat/style/other_sword.json";
+        CombatDataException failure = assertRejected(other, "moves[0].id", "yuanxian:basic_sword", files -> {
             JsonObject copy = files.json(STYLE).deepCopy();
-            copy.addProperty("id", "myvillage:other_sword");
+            copy.addProperty("id", "yuanxian:other_sword");
             files.put(other, copy.toString());
-            files.edit(INDEX, index -> index.getAsJsonArray("styles").add("myvillage:other_sword"));
+            files.edit(INDEX, index -> index.getAsJsonArray("styles").add("yuanxian:other_sword"));
         });
-        assertTrue(failure.getMessage().contains("myvillage:other_sword"), failure.getMessage());
+        assertTrue(failure.getMessage().contains("yuanxian:other_sword"), failure.getMessage());
     }
 
     @Test
     void weaponCrossReferencesAreChecked() {
         assertRejected(WEAPON, "style", "not listed",
-                files -> files.edit(WEAPON, weapon -> weapon.addProperty("style", "myvillage:spear")));
-        String twin = "data/myvillage/combat/weapon/twin.json";
+                files -> files.edit(WEAPON, weapon -> weapon.addProperty("style", "yuanxian:spear")));
+        String twin = "data/yuanxian/combat/weapon/twin.json";
         assertRejected(twin, "item", "already has a weapon entry", files -> {
             files.put(twin, files.json(WEAPON).toString());
-            files.edit(INDEX, index -> index.getAsJsonArray("weapons").add("myvillage:twin"));
+            files.edit(INDEX, index -> index.getAsJsonArray("weapons").add("yuanxian:twin"));
         });
     }
 
@@ -414,12 +414,12 @@ final class CombatDataLoaderTest {
     @Test
     void twoWeaponsMayShareAStyle() {
         Files files = Files.bundled();
-        String twin = "data/myvillage/combat/weapon/twin.json";
+        String twin = "data/yuanxian/combat/weapon/twin.json";
         JsonObject weapon = files.json(WEAPON).deepCopy();
-        weapon.addProperty("item", "myvillage:twin_sword");
-        weapon.addProperty("geometry", "myvillage:combat/twin_geometry.json");
+        weapon.addProperty("item", "yuanxian:twin_sword");
+        weapon.addProperty("geometry", "yuanxian:combat/twin_geometry.json");
         files.put(twin, weapon.toString());
-        files.edit(INDEX, index -> index.getAsJsonArray("weapons").add("myvillage:twin"));
+        files.edit(INDEX, index -> index.getAsJsonArray("weapons").add("yuanxian:twin"));
         CombatStyles styles = files.load();
         assertEquals(indexIds("weapons").size() + 1, styles.weapons().size());
         assertEquals(styles.styleForItem(CombatTestData.QINGFENG_SWORD), styles.styleForItem(id("twin_sword")));
@@ -458,7 +458,7 @@ final class CombatDataLoaderTest {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 
     /** An editable in-memory copy of the bundled data files: the index and every file it lists. */

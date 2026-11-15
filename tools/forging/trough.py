@@ -27,7 +27,7 @@ def trough(filled):
     if filled:
         b('水面', [2.01, 8.5, 4.26], [13.99, 8.55, 11.74], 'water')
     result = model(p)
-    result['textures']['water'] = 'myvillage:block/workshop_water'
+    result['textures']['water'] = 'yuanxian:block/workshop_water'
     return result
 
 
@@ -35,10 +35,10 @@ def outputs(base):
     out = {}
     def add(path, obj): out[base/path] = (json.dumps(obj, ensure_ascii=False, indent=2)+'\n').encode()
     for filled in (False, True):
-        add('assets/myvillage/models/block/quenching_trough'+('_filled' if filled else '')+'.json', trough(filled))
-    add('assets/myvillage/blockstates/quenching_trough.json', {'variants': {
+        add('assets/yuanxian/models/block/quenching_trough'+('_filled' if filled else '')+'.json', trough(filled))
+    add('assets/yuanxian/blockstates/quenching_trough.json', {'variants': {
         f'facing={direction},filled={str(filled).lower()}': {
-            'model': 'myvillage:block/quenching_trough'+('_filled' if filled else ''), 'y': rotation}
+            'model': 'yuanxian:block/quenching_trough'+('_filled' if filled else ''), 'y': rotation}
         for filled in (False, True) for direction, rotation in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
     rows = []
     for y in range(16):
@@ -48,15 +48,15 @@ def outputs(base):
             if (x+2*y) % 13 in (0, 1): shade += 13
             row.append((43+shade, 87+shade, 95+shade, 255))
         rows.append(row)
-    out[base/'assets/myvillage/textures/block/workshop_water.png'] = png(rows)
-    add('assets/myvillage/models/item/quenching_trough.json', {
-        'parent': 'myvillage:block/quenching_trough',
+    out[base/'assets/yuanxian/textures/block/workshop_water.png'] = png(rows)
+    add('assets/yuanxian/models/item/quenching_trough.json', {
+        'parent': 'yuanxian:block/quenching_trough',
         'display': {'gui': {'rotation': [25, 225, 0], 'scale': [.8, .8, .8]}}})
-    add('data/myvillage/recipe/quenching_trough.json', {
+    add('data/yuanxian/recipe/quenching_trough.json', {
         'type': 'minecraft:crafting_shaped', 'pattern': ['I I', 'WWW', 'SSS'],
         'key': {'I': {'item': 'minecraft:iron_ingot'}, 'W': {'tag': 'minecraft:planks'}, 'S': {'item': 'minecraft:cobblestone'}},
-        'result': {'id': 'myvillage:quenching_trough'}})
-    add('data/myvillage/loot_table/blocks/quenching_trough.json', {
-        'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'myvillage:quenching_trough'}],
+        'result': {'id': 'yuanxian:quenching_trough'}})
+    add('data/yuanxian/loot_table/blocks/quenching_trough.json', {
+        'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'yuanxian:quenching_trough'}],
                                             'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})
     return out

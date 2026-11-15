@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 class CombatDodgeCancelTest {
-    private static final ResourceLocation WEAPON = ResourceLocation.fromNamespaceAndPath("myvillage", "test_weapon");
+    private static final ResourceLocation WEAPON = ResourceLocation.fromNamespaceAndPath("yuanxian", "test_weapon");
     private static final ResourceLocation WORLD = ResourceLocation.withDefaultNamespace("overworld");
 
     @Test

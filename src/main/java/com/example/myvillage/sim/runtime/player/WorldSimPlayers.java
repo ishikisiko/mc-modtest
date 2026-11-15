@@ -43,8 +43,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class WorldSimPlayers {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldSimPlayers.class);
-    static final String JOINED_KEY = "message.myvillage.world.sect.joined";
-    static final String LEFT_KEY = "message.myvillage.world.sect.left";
+    static final String JOINED_KEY = "message.yuanxian.world.sect.joined";
+    static final String LEFT_KEY = "message.yuanxian.world.sect.left";
     /** The event types sent to the player they name ({@code params[0]}). */
     static final String PLAYER_EVENT_PREFIX = "player_";
     /** {@link #masterGuidanceBasisPoints} without a master: the factor 1. */

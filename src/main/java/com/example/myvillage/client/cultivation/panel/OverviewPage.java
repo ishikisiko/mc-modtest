@@ -75,7 +75,7 @@ public final class OverviewPage extends PanelPage {
         Font font = context.font();
         CultivationProfile profile = context.profile();
         InkPanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.card.realm").append(profile.foundationQuality()>0?" · "+com.example.myvillage.cultivation.CultivationStats.foundationName(profile.foundationQuality()):""));
+                Component.translatable("screen.yuanxian.cultivation.card.realm").append(profile.foundationQuality()>0?" · "+com.example.myvillage.cultivation.CultivationStats.foundationName(profile.foundationQuality()):""));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
         int cursor = y + InkPanelTheme.CARD_TITLE_HEIGHT + 1;
@@ -84,7 +84,7 @@ public final class OverviewPage extends PanelPage {
         InkPanelTheme.meter(
                 graphics,
                 font,
-                context.text("screen.myvillage.cultivation.progress"),
+                context.text("screen.yuanxian.cultivation.progress"),
                 context.progressValue(),
                 innerX,
                 cursor,
@@ -96,7 +96,7 @@ public final class OverviewPage extends PanelPage {
         InkPanelTheme.meter(
                 graphics,
                 font,
-                context.text("screen.myvillage.cultivation.stability"),
+                context.text("screen.yuanxian.cultivation.stability"),
                 context.stabilityValue(),
                 innerX,
                 cursor,
@@ -109,7 +109,7 @@ public final class OverviewPage extends PanelPage {
         InkPanelTheme.pair(
                 graphics,
                 font,
-                context.text("screen.myvillage.cultivation.power"),
+                context.text("screen.yuanxian.cultivation.power"),
                 context.spiritualPowerValue(),
                 innerX,
                 cursor,
@@ -118,7 +118,7 @@ public final class OverviewPage extends PanelPage {
         InkPanelTheme.pair(
                 graphics,
                 font,
-                context.text("screen.myvillage.cultivation.spiritual_affinity"),
+                context.text("screen.yuanxian.cultivation.spiritual_affinity"),
                 Integer.toString(profile.spiritualAffinity()),
                 innerX + half + 10,
                 cursor,
@@ -189,7 +189,7 @@ public final class OverviewPage extends PanelPage {
     private void drawLifespan(GuiGraphics graphics, PanelContext context, int x, int y, int width, int height) {
         Font font = context.font();
         InkPanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.card.lifespan"));
+                Component.translatable("screen.yuanxian.cultivation.card.lifespan"));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
         int cursor = y + InkPanelTheme.CARD_TITLE_HEIGHT + 1;
@@ -197,7 +197,7 @@ public final class OverviewPage extends PanelPage {
         InkPanelTheme.pair(
                 graphics,
                 font,
-                context.text("screen.myvillage.cultivation.calendar"),
+                context.text("screen.yuanxian.cultivation.calendar"),
                 context.calendarValue(),
                 innerX,
                 cursor,
@@ -212,7 +212,7 @@ public final class OverviewPage extends PanelPage {
             InkPanelTheme.pair(
                     graphics,
                     font,
-                    context.text("screen.myvillage.cultivation.lifespan_remaining"),
+                    context.text("screen.yuanxian.cultivation.lifespan_remaining"),
                     context.remainingLifespanValue(),
                     innerX,
                     cursor,
@@ -224,9 +224,9 @@ public final class OverviewPage extends PanelPage {
             InkPanelTheme.pair(
                     graphics,
                     font,
-                    context.text("screen.myvillage.cultivation.lifespan_consumed"),
+                    context.text("screen.yuanxian.cultivation.lifespan_consumed"),
                     context.text(
-                            "screen.myvillage.cultivation.years_value",
+                            "screen.yuanxian.cultivation.years_value",
                             PanelReadouts.yearsFloor(
                                     time.lifespanConsumedTicks(), time.ticksPerDay(), time.daysPerYear())),
                     innerX,
@@ -238,7 +238,7 @@ public final class OverviewPage extends PanelPage {
         InkPanelTheme.pair(
                 graphics,
                 font,
-                context.text("screen.myvillage.cultivation.session"),
+                context.text("screen.yuanxian.cultivation.session"),
                 context.sessionText(),
                 innerX,
                 cursor,
@@ -248,9 +248,9 @@ public final class OverviewPage extends PanelPage {
         InkPanelTheme.pair(
                 graphics,
                 font,
-                context.text("screen.myvillage.cultivation.techniques"),
+                context.text("screen.yuanxian.cultivation.techniques"),
                 context.text(
-                        "screen.myvillage.cultivation.techniques_count",
+                        "screen.yuanxian.cultivation.techniques_count",
                         context.profile().learnedTechniques().size()),
                 innerX,
                 cursor,
@@ -267,7 +267,7 @@ public final class OverviewPage extends PanelPage {
     private void drawRoot(GuiGraphics graphics, PanelContext context, int x, int y, int width, int height) {
         Font font = context.font();
         InkPanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.spiritual_root"));
+                Component.translatable("screen.yuanxian.cultivation.spiritual_root"));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
         int cursor = y + InkPanelTheme.CARD_TITLE_HEIGHT + 2;
@@ -275,14 +275,14 @@ public final class OverviewPage extends PanelPage {
         if (root.isEmpty()) {
             graphics.drawString(
                     font,
-                    context.text("screen.myvillage.cultivation.unawakened"),
+                    context.text("screen.yuanxian.cultivation.unawakened"),
                     innerX,
                     cursor,
                     InkPanelTheme.MUTED,
                     false);
             graphics.drawString(
                     font,
-                    InkPanelTheme.fit(font, context.text("screen.myvillage.cultivation.root_hint"), innerWidth),
+                    InkPanelTheme.fit(font, context.text("screen.yuanxian.cultivation.root_hint"), innerWidth),
                     innerX,
                     cursor + ROW + 2,
                     InkPanelTheme.FAINT,
@@ -352,7 +352,7 @@ public final class OverviewPage extends PanelPage {
         Font font = context.font();
         CultivationProfile profile = context.profile();
         InkPanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.advancement"));
+                Component.translatable("screen.yuanxian.cultivation.advancement"));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
         int cursor = y + InkPanelTheme.CARD_TITLE_HEIGHT + 1;
@@ -365,8 +365,8 @@ public final class OverviewPage extends PanelPage {
         if (advancement == null) {
             Component message = Component.translatable(
                     context.releaseCeiling()
-                            ? "screen.myvillage.cultivation.advancement_release_ceiling"
-                            : "screen.myvillage.cultivation.advancement_unavailable");
+                            ? "screen.yuanxian.cultivation.advancement_release_ceiling"
+                            : "screen.yuanxian.cultivation.advancement_unavailable");
             for (FormattedCharSequence line : font.split(message, innerWidth)) {
                 graphics.drawString(font, line, innerX, cursor, InkPanelTheme.MUTED, false);
                 cursor += ROW;
@@ -375,7 +375,7 @@ public final class OverviewPage extends PanelPage {
         }
 
         String target = context.text(
-                "screen.myvillage.cultivation.advancement_target",
+                "screen.yuanxian.cultivation.advancement_target",
                 context.stageName(profile.realmId(), profile.stageId()),
                 context.stageName(advancement.targetRealm(), advancement.targetStage()));
         graphics.drawString(font, InkPanelTheme.fit(font, target, innerWidth), innerX, cursor, InkPanelTheme.TEXT, false);
@@ -383,7 +383,7 @@ public final class OverviewPage extends PanelPage {
         InkPanelTheme.chip(
                 graphics,
                 font,
-                context.text("screen.myvillage.cultivation.advancement_kind."
+                context.text("screen.yuanxian.cultivation.advancement_kind."
                         + advancement.kind().serializedName()),
                 innerX,
                 cursor,
@@ -393,7 +393,7 @@ public final class OverviewPage extends PanelPage {
                 graphics,
                 font,
                 context.progressFull(),
-                context.text("screen.myvillage.cultivation.condition_progress"),
+                context.text("screen.yuanxian.cultivation.condition_progress"),
                 context.progressValue(),
                 innerX,
                 cursor,
@@ -403,7 +403,7 @@ public final class OverviewPage extends PanelPage {
                 graphics,
                 font,
                 profile.stability() >= advancement.requiredStability(),
-                context.text("screen.myvillage.cultivation.condition_stability"),
+                context.text("screen.yuanxian.cultivation.condition_stability"),
                 profile.stability() + " / " + advancement.requiredStability(),
                 innerX,
                 cursor,
@@ -412,8 +412,8 @@ public final class OverviewPage extends PanelPage {
         InkPanelTheme.pair(
                 graphics,
                 font,
-                context.text("screen.myvillage.cultivation.advancement_duration"),
-                context.text("screen.myvillage.cultivation.ticks_value", advancement.durationTicks()),
+                context.text("screen.yuanxian.cultivation.advancement_duration"),
+                context.text("screen.yuanxian.cultivation.ticks_value", advancement.durationTicks()),
                 innerX,
                 cursor,
                 innerWidth,

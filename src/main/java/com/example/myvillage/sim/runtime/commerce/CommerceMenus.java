@@ -8,7 +8,7 @@ import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class CommerceMenus {
-    private static final DeferredRegister<MenuType<?>> MENUS=DeferredRegister.create(Registries.MENU,"myvillage");
+    private static final DeferredRegister<MenuType<?>> MENUS=DeferredRegister.create(Registries.MENU,"yuanxian");
     public static final Supplier<MenuType<CommerceMenu>> SHOP=MENUS.register("npc_commerce",()->IMenuTypeExtension.create(CommerceMenu::new));
     public static final Supplier<MenuType<com.example.myvillage.sim.runtime.economy.EconomyMenu>> ECONOMY = MENUS.register("player_economy", () -> IMenuTypeExtension.create(com.example.myvillage.sim.runtime.economy.EconomyMenu::new));
     private CommerceMenus() { }

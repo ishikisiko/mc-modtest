@@ -9,20 +9,20 @@ if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from tools.forging import ding,materials,acquisition,workshop,infusion,foundry
 LANG={
  'tag.item.c.spirit_stones.low_grade':('Low-Grade Spirit Stones','下品灵石'),
- 'block.myvillage.forging_table':('Forging Ding','炼器鼎'),
- 'item.myvillage.pattern_qingfeng_sword':('Pattern: Qingfeng Sword','青锋剑器谱'),
- 'item.myvillage.pattern_lingxiao_spear':('Pattern: Lingxiao Spear','凌霄枪器谱'),
- 'tooltip.myvillage.forging.pattern_learn':('Use to permanently learn this pattern.','右键使用，永久学会此器谱。'),
- 'message.myvillage.forging.formula_learned':('Learned %s','已学会：%s'),
- 'message.myvillage.forging.formula_known':('Already learned %s','已经学会：%s'),
- 'tooltip.myvillage.forging.mark':('%s · %s','%s · %s'),
- 'forging.myvillage.quality.0':('Mundane','凡品'),
- 'tooltip.myvillage.forging.sharp':('Forging attack bonus: +%s','炼器攻击加成：+%s'),
- 'tooltip.myvillage.forging.channeling':('Sword Qi cost reduction: %s%%','剑气耗灵降低：%s%%'),
- 'tooltip.myvillage.forging.tough':('Durability and repair yield: ×%s','耐久与维修效率：×%s'),
+ 'block.yuanxian.forging_table':('Forging Ding','炼器鼎'),
+ 'item.yuanxian.pattern_qingfeng_sword':('Pattern: Qingfeng Sword','青锋剑器谱'),
+ 'item.yuanxian.pattern_lingxiao_spear':('Pattern: Lingxiao Spear','凌霄枪器谱'),
+ 'tooltip.yuanxian.forging.pattern_learn':('Use to permanently learn this pattern.','右键使用，永久学会此器谱。'),
+ 'message.yuanxian.forging.formula_learned':('Learned %s','已学会：%s'),
+ 'message.yuanxian.forging.formula_known':('Already learned %s','已经学会：%s'),
+ 'tooltip.yuanxian.forging.mark':('%s · %s','%s · %s'),
+ 'forging.yuanxian.quality.0':('Mundane','凡品'),
+ 'tooltip.yuanxian.forging.sharp':('Forging attack bonus: +%s','炼器攻击加成：+%s'),
+ 'tooltip.yuanxian.forging.channeling':('Sword Qi cost reduction: %s%%','剑气耗灵降低：%s%%'),
+ 'tooltip.yuanxian.forging.tough':('Durability and repair yield: ×%s','耐久与维修效率：×%s'),
 }
-for i,(en,zh) in enumerate([('Lower','下品'),('Middle','中品'),('Upper','上品'),('Perfect','极品')],1):LANG[f'forging.myvillage.quality.{i}']=(en,zh)
-for key,en,zh in [('sharp','Sharp','锋锐'),('channeling','Channeling','导灵'),('tough','Tough','坚韧')]:LANG[f'forging.myvillage.trait.{key}']=(en,zh)
+for i,(en,zh) in enumerate([('Lower','下品'),('Middle','中品'),('Upper','上品'),('Perfect','极品')],1):LANG[f'forging.yuanxian.quality.{i}']=(en,zh)
+for key,en,zh in [('sharp','Sharp','锋锐'),('channeling','Channeling','导灵'),('tough','Tough','坚韧')]:LANG[f'forging.yuanxian.trait.{key}']=(en,zh)
 SCREEN={
  'forge':('Forge','炼制'),'repair':('Repair','维修'),'cap':('Quality cap: %s','品质上限：%s'),
  'awaken':('Awaken before forging','觉醒后可炼制'),'costs':('Materials from inventory','从背包消耗以下材料'),
@@ -38,7 +38,7 @@ SCREEN={
  'status.4':('Missing materials.','背包材料不足。'),'status.5':('Insert a damaged weapon.','请放入受损剑枪。'),
  'status.6':('Check repair slot / trait.','检查维修槽或专长。'),'status.7':('Forged. Take the weapon.','炼制完成，请取走。'),
  'status.8':('Repaired. Take the weapon.','维修完成，请取走。')}
-LANG.update({'screen.myvillage.forging.'+k:v for k,v in SCREEN.items()})
+LANG.update({'screen.yuanxian.forging.'+k:v for k,v in SCREEN.items()})
 LANG.update(materials.lang())
 LANG.update(acquisition.LANG)
 LANG.update(workshop.LANG)
@@ -51,46 +51,46 @@ for key, value in {
  'quality':'成器品质由装配时的炼器资质决定，图中不指定品质。',
  'overview':'普通鼎起坯或自动制作；手工使用窑、锻台和组装台，成品在多方块鼎炼灵。',
  'auxiliaries':'仅列起坯主材；煤炭、燧石、淬火用水和后续炼灵材料另备。',
-}.items():LANG['jei.myvillage.forging.'+key]=(value,value)
+}.items():LANG['jei.yuanxian.forging.'+key]=(value,value)
 def encoded(value):return (json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode()
 def language_outputs(root=ROOT):
     files={}
     for lang,i in [('en_us',0),('zh_cn',1)]:
-        path=root/f'src/main/resources/assets/myvillage/lang/{lang}.json'
+        path=root/f'src/main/resources/assets/yuanxian/lang/{lang}.json'
         current=json.loads(path.read_text());current.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(current)
     return files
 def outputs(root=ROOT):
     files={}
     def add(p,v):files[root/'src/main/resources'/p]=encoded(v)
-    add('assets/myvillage/blockstates/forging_table.json',{'variants':{'':{'model':'myvillage:block/forging_table'}}})
-    add('assets/myvillage/models/block/forging_table.json',{'parent':'minecraft:block/smithing_table'})
-    add('assets/myvillage/models/item/forging_table.json',{'parent':'myvillage:block/forging_table'})
-    add('data/myvillage/loot_table/blocks/forging_table.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:forging_table'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
-    def shapeless(id,items,output=None):add('data/myvillage/recipe/'+id+'.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'tag':i[1:]} if i.startswith('#') else {'item':i} for i in items],'result':{'id':'myvillage:'+(output or id),'count':1}})
+    add('assets/yuanxian/blockstates/forging_table.json',{'variants':{'':{'model':'yuanxian:block/forging_table'}}})
+    add('assets/yuanxian/models/block/forging_table.json',{'parent':'minecraft:block/smithing_table'})
+    add('assets/yuanxian/models/item/forging_table.json',{'parent':'yuanxian:block/forging_table'})
+    add('data/yuanxian/loot_table/blocks/forging_table.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:forging_table'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
+    def shapeless(id,items,output=None):add('data/yuanxian/recipe/'+id+'.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'tag':i[1:]} if i.startswith('#') else {'item':i} for i in items],'result':{'id':'yuanxian:'+(output or id),'count':1}})
     shapeless('forging_table',['minecraft:smithing_table','#c:spirit_stones/low_grade'])
     # A Nether exploration alternative to the existing qi-infusion route.
     shapeless('chitong_from_blaze',['#c:ingots/copper','minecraft:blaze_powder','#c:spirit_stones/low_grade'],'chitong_ingot')
     # Raw dark iron is the mining product; only the smelted result is an ingot.
     for kind,ticks in [('smelting',200),('blasting',100)]:
         rid='xuantie_ingot_from_'+kind
-        add('data/myvillage/recipe/'+rid+'.json',{'type':'minecraft:'+kind,'category':'misc',
-            'ingredient':{'item':'myvillage:raw_xuantie'},
-            'result':{'id':'myvillage:xuantie_ingot','count':1},'experience':0.7,'cookingtime':ticks})
-        add('data/myvillage/advancement/recipes/misc/'+rid+'.json',{
+        add('data/yuanxian/recipe/'+rid+'.json',{'type':'minecraft:'+kind,'category':'misc',
+            'ingredient':{'item':'yuanxian:raw_xuantie'},
+            'result':{'id':'yuanxian:xuantie_ingot','count':1},'experience':0.7,'cookingtime':ticks})
+        add('data/yuanxian/advancement/recipes/misc/'+rid+'.json',{
             'parent':'minecraft:recipes/root',
             'criteria':{
-                'has_raw_xuantie':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':['myvillage:raw_xuantie']}]}},
-                'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'myvillage:'+rid}}},
+                'has_raw_xuantie':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':['yuanxian:raw_xuantie']}]}},
+                'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'yuanxian:'+rid}}},
             'requirements':[['has_raw_xuantie','has_the_recipe']],
-            'rewards':{'recipes':['myvillage:'+rid]}})
+            'rewards':{'recipes':['yuanxian:'+rid]}})
     for id,material in [('qingfeng_sword','minecraft:quartz'),('lingxiao_spear','minecraft:iron_ingot')]:
         name='pattern_'+id
         shapeless(name,['minecraft:book',material,'#c:spirit_stones/low_grade'])
     for lang,i in [('en_us',0),('zh_cn',1)]:
-        path=root/f'src/main/resources/assets/myvillage/lang/{lang}.json'
-        current=json.loads(path.read_text());current.pop('tooltip.myvillage.forging_material.craft',None);current.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(current)
+        path=root/f'src/main/resources/assets/yuanxian/lang/{lang}.json'
+        current=json.loads(path.read_text());current.pop('tooltip.yuanxian.forging_material.craft',None);current.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(current)
     path=root/'src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json'
-    tag=json.loads(path.read_text());tag['values']=sorted(set(tag['values'])|{'myvillage:forging_table'});files[path]=encoded(tag)
+    tag=json.loads(path.read_text());tag['values']=sorted(set(tag['values'])|{'yuanxian:forging_table'});files[path]=encoded(tag)
     files.update(ding.outputs(root))
     files.update(infusion.outputs(root))
     files.update(materials.outputs(root))
@@ -103,7 +103,7 @@ def outputs(root=ROOT):
     # Workshop reads the on-disk lang, so re-apply the authored base strings last;
     # otherwise stale material names can overwrite the current ones.
     for lang,i in [('en_us',0),('zh_cn',1)]:
-        path=root/f'src/main/resources/assets/myvillage/lang/{lang}.json'
+        path=root/f'src/main/resources/assets/yuanxian/lang/{lang}.json'
         data=json.loads(files[path]);data.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(data)
     return files
 def main():
@@ -113,11 +113,11 @@ def main():
             if not path.exists() or path.read_bytes()!=data:stale.append(str(path.relative_to(ROOT)))
         else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
     retired=[] if a.lang_only else list(materials.retired_paths(ROOT))+workshop.retired_paths(ROOT)
-    crafts=json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())['crafts']
+    crafts=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())['crafts']
     for craft in ([] if a.lang_only else crafts):
         rid=craft['recipe']
-        retired.extend(ROOT/f'src/main/resources/assets/myvillage/textures/item/workpiece_{rid}_{stage}.png' for stage in workshop.STAGES)
-        if rid.startswith('forged_'):retired.append(ROOT/f'src/main/resources/assets/myvillage/textures/item/{rid}.png')
+        retired.extend(ROOT/f'src/main/resources/assets/yuanxian/textures/item/workpiece_{rid}_{stage}.png' for stage in workshop.STAGES)
+        if rid.startswith('forged_'):retired.append(ROOT/f'src/main/resources/assets/yuanxian/textures/item/{rid}.png')
     for path in retired:
         if path.exists():
             if a.check:stale.append(str(path.relative_to(ROOT)))

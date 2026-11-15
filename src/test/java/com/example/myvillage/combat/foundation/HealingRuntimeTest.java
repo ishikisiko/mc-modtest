@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class HealingRuntimeTest {
     @Test void absentEntitiesCannotCreateHealingOrModifiersOrBreakLifecycleCleanup() {
-        var source = ResourceLocation.parse("myvillage:fixture");
+        var source = ResourceLocation.parse("yuanxian:fixture");
         assertEquals(0, HealingRuntime.heal(null, 10, source));
         assertFalse(HealingRuntime.modifier(null, source, .5, 20));
         assertEquals(HealingRuntime.UNATTRIBUTED, HealingRuntime.currentSource(null));

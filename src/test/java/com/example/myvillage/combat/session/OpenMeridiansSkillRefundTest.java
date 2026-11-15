@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Cast ownership, final payment and one accepted-hit receipt, independent of victim count. */
 class OpenMeridiansSkillRefundTest {
     private final CombatSkillDefinition skill = CombatTestData.styles()
-            .skill(ResourceLocation.parse("myvillage:jianqi_jue")).orElseThrow();
+            .skill(ResourceLocation.parse("yuanxian:jianqi_jue")).orElseThrow();
     private CombatSkillSession charge(long revision) {
         return new CombatSkillSession(skill, skill.id(), 8, 100, revision);
     }

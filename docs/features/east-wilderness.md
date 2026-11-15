@@ -25,7 +25,7 @@
 
 ## 作者入口和检查
 
-- 地区分组：`blueprints/worldplan/rules_v11.json`；地区阶位：`data/myvillage/worldgen/region_profile/`；出生境界：`data/myvillage/wilderness/rules.json`。
+- 地区分组：`blueprints/worldplan/rules_v11.json`；地区阶位：`data/yuanxian/worldgen/region_profile/`；出生境界：`data/yuanxian/wilderness/rules.json`。
 - 生态作者输入：`blueprints/wilderness/habitats.json`；`python3 -m tools.wilderness_habitats.generate` 导出规则和据点方块，`--check` 核对输出。
 - 当前世界冻结的规则拥有地形、规划与刷新参数。仅新建修仙大陆使用本次布局，不追加旧世界迁移或回填。
 - 管理员 `/yuanxian habitat` 只读查看月份、据点、有限名单、活动与已加载实体；不会加载区块或重置进度。

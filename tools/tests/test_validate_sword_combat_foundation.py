@@ -14,34 +14,34 @@ from pathlib import Path
 from tools import validate_sword_combat_foundation as validator
 
 RESOURCES = "src/main/resources"
-DATA = f"{RESOURCES}/data/myvillage/combat"
+DATA = f"{RESOURCES}/data/yuanxian/combat"
 STYLE = f"{DATA}/style/basic_sword.json"
 WEAPON = f"{DATA}/weapon/qingfeng_sword.json"
-RIG = f"{RESOURCES}/assets/myvillage/combat/qingfeng_first_person.json"
-GEOMETRY = f"{RESOURCES}/assets/myvillage/combat/qingfeng_sword_geometry.json"
-ANIMATIONS = f"{RESOURCES}/assets/myvillage/player_animations/sword_combat.json"
-SOUNDS = f"{RESOURCES}/assets/myvillage/sounds.json"
-EN_US = f"{RESOURCES}/assets/myvillage/lang/en_us.json"
+RIG = f"{RESOURCES}/assets/yuanxian/combat/qingfeng_first_person.json"
+GEOMETRY = f"{RESOURCES}/assets/yuanxian/combat/qingfeng_sword_geometry.json"
+ANIMATIONS = f"{RESOURCES}/assets/yuanxian/player_animations/sword_combat.json"
+SOUNDS = f"{RESOURCES}/assets/yuanxian/sounds.json"
+EN_US = f"{RESOURCES}/assets/yuanxian/lang/en_us.json"
 COMBAT_JAVA = "src/main/java/com/example/myvillage/combat/"
 CLIENT_COMBAT_JAVA = "src/main/java/com/example/myvillage/client/combat/"
-THRUST = "myvillage:basic_sword_01_thrust"
-HORIZONTAL = "myvillage:basic_sword_02_horizontal_cut"
+THRUST = "yuanxian:basic_sword_01_thrust"
+HORIZONTAL = "yuanxian:basic_sword_02_horizontal_cut"
 
 # The second weapon (add-lingxiao-spear design).  Its data, item model, 3D model, textures, contract,
 # and model generator are committed; its first-person rig and third-person animations are built
 # synthetically in the fixture from its style file (see SECOND_WEAPON_SYNTHETIC), so the cross-file
 # tests do not depend on the committed rig and PAL file.  Tests that run the PAL generator's --check
 # first regenerate the PAL files with it (regenerate_player_animations) and fail if it cannot.
-SPEAR_WEAPON_ID = "myvillage:lingxiao_spear"
+SPEAR_WEAPON_ID = "yuanxian:lingxiao_spear"
 SPEAR_STYLE = f"{DATA}/style/basic_spear.json"
 SPEAR_WEAPON = f"{DATA}/weapon/lingxiao_spear.json"
-SPEAR_RIG = f"{RESOURCES}/assets/myvillage/combat/lingxiao_spear_first_person.json"
-SPEAR_GEOMETRY = f"{RESOURCES}/assets/myvillage/combat/lingxiao_spear_geometry.json"
-SPEAR_ANIMATIONS = f"{RESOURCES}/assets/myvillage/player_animations/spear_combat.json"
-SPEAR_MODEL = f"{RESOURCES}/assets/myvillage/models/item/lingxiao_spear.json"
-SPEAR_MODEL_3D = f"{RESOURCES}/assets/myvillage/models/item/lingxiao_spear_3d.json"
-SPEAR_MODEL_TEXTURE = f"{RESOURCES}/assets/myvillage/textures/item/lingxiao_spear_model.png"
-SPEAR_TEXTURE = f"{RESOURCES}/assets/myvillage/textures/item/lingxiao_spear.png"
+SPEAR_RIG = f"{RESOURCES}/assets/yuanxian/combat/lingxiao_spear_first_person.json"
+SPEAR_GEOMETRY = f"{RESOURCES}/assets/yuanxian/combat/lingxiao_spear_geometry.json"
+SPEAR_ANIMATIONS = f"{RESOURCES}/assets/yuanxian/player_animations/spear_combat.json"
+SPEAR_MODEL = f"{RESOURCES}/assets/yuanxian/models/item/lingxiao_spear.json"
+SPEAR_MODEL_3D = f"{RESOURCES}/assets/yuanxian/models/item/lingxiao_spear_3d.json"
+SPEAR_MODEL_TEXTURE = f"{RESOURCES}/assets/yuanxian/textures/item/lingxiao_spear_model.png"
+SPEAR_TEXTURE = f"{RESOURCES}/assets/yuanxian/textures/item/lingxiao_spear.png"
 SPEAR_GENERATOR = "tools/gen_lingxiao_spear_model.py"
 PAL_GENERATOR = "tools/gen_sword_pal_anims.py"
 
@@ -57,11 +57,11 @@ FIXTURE = (
     f"{RESOURCES}/META-INF/neoforge.mods.toml",
     DATA,
     validator.SCHOOL_DIR,
-    f"{RESOURCES}/assets/myvillage/combat",
-    f"{RESOURCES}/assets/myvillage/player_animations",
-    f"{RESOURCES}/assets/myvillage/lang",
-    f"{RESOURCES}/assets/myvillage/models/item",
-    f"{RESOURCES}/assets/myvillage/textures/item",
+    f"{RESOURCES}/assets/yuanxian/combat",
+    f"{RESOURCES}/assets/yuanxian/player_animations",
+    f"{RESOURCES}/assets/yuanxian/lang",
+    f"{RESOURCES}/assets/yuanxian/models/item",
+    f"{RESOURCES}/assets/yuanxian/textures/item",
     SOUNDS,
     validator.QINGFENG_RECIPE,
     validator.SWORD_TAG,
@@ -182,8 +182,8 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_valid_repository_fixture_passes(self) -> None:
         data = validator.combat_data.load(self.root)
-        self.assertEqual(["myvillage:qingfeng_sword", SPEAR_WEAPON_ID, "myvillage:xuantie_gauntlet"], list(data.weapons))
-        self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear", "myvillage:basic_fist"], list(data.styles))
+        self.assertEqual(["yuanxian:qingfeng_sword", SPEAR_WEAPON_ID, "yuanxian:xuantie_gauntlet"], list(data.weapons))
+        self.assertEqual(["yuanxian:basic_sword", "yuanxian:basic_spear", "yuanxian:basic_fist"], list(data.styles))
         self.assertTrue((self.root / ANIMATIONS).is_file() and (self.root / SPEAR_ANIMATIONS).is_file())
         self.assertEqual([], [str(f) for f in self.findings()])
 
@@ -218,7 +218,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.assertIn("PAL_DEPENDENCY_MOD_ID", self.codes())
 
     def test_shaded_pal_class_is_rejected(self) -> None:
-        jar = self.root / "build/libs/myvillage-negative.jar"
+        jar = self.root / "build/libs/yuanxian-negative.jar"
         jar.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(jar, "w") as archive:
             archive.writestr("com/zigythebird/playeranim/Fake.class", b"")
@@ -240,7 +240,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_index_entry_without_file_is_reported(self) -> None:
         (self.root / WEAPON).unlink()
-        self.assertTrue(any("myvillage:qingfeng_sword" in d for d in self.details("COMBAT_DATA_INDEX")))
+        self.assertTrue(any("yuanxian:qingfeng_sword" in d for d in self.details("COMBAT_DATA_INDEX")))
 
     def test_explicit_samples_out_of_tick_order_are_reported(self) -> None:
         style = self.read_json(STYLE)
@@ -267,7 +267,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         del document["animations"]["basic_sword_03_rising_cut"]
         self.write_json(ANIMATIONS, document)
         details = self.details("COMBAT_ANIMATION_MISSING")
-        self.assertTrue(any("myvillage:basic_sword_03_rising_cut" in d for d in details), details)
+        self.assertTrue(any("yuanxian:basic_sword_03_rising_cut" in d for d in details), details)
 
     def test_style_animation_missing_is_reported(self) -> None:
         document = self.read_json(ANIMATIONS)
@@ -328,7 +328,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_slow_strike_has_named_failure(self) -> None:
         rig = self.read_json(RIG)
-        rig["moves"]["myvillage:basic_sword_04_diagonal_cut"]["strike"] = [2.0, 9.0]
+        rig["moves"]["yuanxian:basic_sword_04_diagonal_cut"]["strike"] = [2.0, 9.0]
         self.write_json(RIG, rig)
         self.assertIn("COMBAT_FIRST_PERSON_RIG_STRIKE", self.codes())
 
@@ -340,14 +340,14 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_rig_unknown_or_missing_move_has_named_failure(self) -> None:
         rig = self.read_json(RIG)
-        rig["moves"]["myvillage:basic_sword_06_extra"] = rig["moves"].pop(THRUST)
+        rig["moves"]["yuanxian:basic_sword_06_extra"] = rig["moves"].pop(THRUST)
         self.write_json(RIG, rig)
         details = self.details("COMBAT_FIRST_PERSON_RIG_MOVES")
         self.assertTrue(any(THRUST in d and "basic_sword_06_extra" in d for d in details), details)
 
     def test_rig_not_ending_neutral_has_named_failure(self) -> None:
         rig = self.read_json(RIG)
-        rig["moves"]["myvillage:basic_sword_03_rising_cut"]["keys"][-1].pop("pose")
+        rig["moves"]["yuanxian:basic_sword_03_rising_cut"]["keys"][-1].pop("pose")
         self.write_json(RIG, rig)
         self.assertIn("COMBAT_FIRST_PERSON_RIG_NEUTRAL", self.codes())
 
@@ -396,7 +396,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_missing_display_translation_has_named_failure(self) -> None:
         language = self.read_json(EN_US)
-        del language["combat.myvillage.move.basic_sword_05_lunge_thrust"]
+        del language["combat.yuanxian.move.basic_sword_05_lunge_thrust"]
         self.write_json(EN_US, language)
         details = self.details("COMBAT_TRANSLATIONS")
         self.assertTrue(any("en_us.json" in d and "basic_sword_05_lunge_thrust" in d for d in details), details)
@@ -406,7 +406,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         del sounds["combat.sword.hit"]
         self.write_json(SOUNDS, sounds)
         details = self.details("COMBAT_SOUND_EVENT")
-        self.assertTrue(any("myvillage:combat.sword.hit" in d for d in details), details)
+        self.assertTrue(any("yuanxian:combat.sword.hit" in d for d in details), details)
 
     def test_sound_event_without_subtitle_has_named_failure(self) -> None:
         sounds = self.read_json(SOUNDS)
@@ -416,13 +416,13 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_style_sound_id_must_resolve(self) -> None:
         style = self.read_json(STYLE)
-        self.style_move(style, THRUST)["feedback"]["swing_sound"] = "myvillage:combat.sword.whoosh"
+        self.style_move(style, THRUST)["feedback"]["swing_sound"] = "yuanxian:combat.sword.whoosh"
         self.write_json(STYLE, style)
         self.assertTrue(any("combat.sword.whoosh" in d for d in self.details("COMBAT_SOUND_EVENT")))
 
     def test_weapon_item_must_be_registered_with_a_model(self) -> None:
         weapon = self.read_json(WEAPON)
-        weapon["item"] = "myvillage:unknown_blade"
+        weapon["item"] = "yuanxian:unknown_blade"
         self.write_json(WEAPON, weapon)
         codes = self.codes()
         self.assertIn("COMBAT_WEAPON_ITEM_UNREGISTERED", codes)
@@ -447,7 +447,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         document = self.read_json(SPEAR_ANIMATIONS)
         del document["animations"]["basic_spear_02_sweep"]
         self.write_json(SPEAR_ANIMATIONS, document)
-        self.assert_finding("COMBAT_ANIMATION_MISSING", "myvillage:basic_spear", "basic_spear_02_sweep")
+        self.assert_finding("COMBAT_ANIMATION_MISSING", "yuanxian:basic_spear", "basic_spear_02_sweep")
 
     def test_second_weapon_item_model_missing_has_named_failure(self) -> None:
         (self.root / SPEAR_MODEL).unlink()
@@ -455,7 +455,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_second_weapon_3d_model_missing_has_named_failure(self) -> None:
         (self.root / SPEAR_MODEL_3D).unlink()
-        self.assert_finding("COMBAT_WEAPON_MODEL_MISSING", SPEAR_WEAPON_ID, "myvillage:item/lingxiao_spear_3d")
+        self.assert_finding("COMBAT_WEAPON_MODEL_MISSING", SPEAR_WEAPON_ID, "yuanxian:item/lingxiao_spear_3d")
 
     def test_second_weapon_3d_model_invalid_json_has_named_failure(self) -> None:
         (self.root / SPEAR_MODEL_3D).write_text("{", encoding="utf-8")
@@ -463,7 +463,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_second_weapon_model_texture_missing_has_named_failure(self) -> None:
         (self.root / SPEAR_MODEL_TEXTURE).unlink()
-        self.assert_finding("COMBAT_WEAPON_TEXTURE_MISSING", SPEAR_WEAPON_ID, "myvillage:item/lingxiao_spear_model")
+        self.assert_finding("COMBAT_WEAPON_TEXTURE_MISSING", SPEAR_WEAPON_ID, "yuanxian:item/lingxiao_spear_model")
 
     def test_second_weapon_icon_texture_missing_has_named_failure(self) -> None:
         (self.root / SPEAR_TEXTURE).unlink()
@@ -475,8 +475,8 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_second_weapon_flat_item_model_has_named_failure(self) -> None:
         self.write_json(SPEAR_MODEL, {"parent": "minecraft:item/handheld",
-                                      "textures": {"layer0": "myvillage:item/lingxiao_spear"}})
-        self.assert_finding("COMBAT_WEAPON_MODEL_3D", SPEAR_WEAPON_ID, "myvillage:item/lingxiao_spear_3d")
+                                      "textures": {"layer0": "yuanxian:item/lingxiao_spear"}})
+        self.assert_finding("COMBAT_WEAPON_MODEL_3D", SPEAR_WEAPON_ID, "yuanxian:item/lingxiao_spear_3d")
 
     def test_second_weapon_model_without_geometry_or_hand_display_has_named_failure(self) -> None:
         model = self.read_json(SPEAR_MODEL_3D)
@@ -490,9 +490,9 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_contract_naming_another_model_has_named_failure(self) -> None:
         geometry = self.read_json(SPEAR_GEOMETRY)
-        geometry["model"] = "myvillage:item/qingfeng_sword_3d"
+        geometry["model"] = "yuanxian:item/qingfeng_sword_3d"
         self.write_json(SPEAR_GEOMETRY, geometry)
-        self.assert_finding("COMBAT_WEAPON_MODEL_3D", SPEAR_WEAPON_ID, "does not draw myvillage:item/qingfeng_sword_3d")
+        self.assert_finding("COMBAT_WEAPON_MODEL_3D", SPEAR_WEAPON_ID, "does not draw yuanxian:item/qingfeng_sword_3d")
 
     def test_second_weapon_rig_missing_has_named_failure(self) -> None:
         (self.root / SPEAR_RIG).unlink()
@@ -500,21 +500,21 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_second_weapon_rig_checked_against_its_own_style(self) -> None:
         rig = self.read_json(SPEAR_RIG)
-        del rig["moves"]["myvillage:basic_spear_05_dragon_lunge"]
+        del rig["moves"]["yuanxian:basic_spear_05_dragon_lunge"]
         rig["moves"][THRUST] = self.read_json(RIG)["moves"][THRUST]
         self.write_json(SPEAR_RIG, rig)
         self.assert_finding("COMBAT_FIRST_PERSON_RIG_MOVES", "lingxiao_spear_first_person.json",
-                            "myvillage:basic_spear", "basic_spear_05_dragon_lunge", THRUST)
+                            "yuanxian:basic_spear", "basic_spear_05_dragon_lunge", THRUST)
         rig = self.read_json(SPEAR_RIG)
-        rig["moves"]["myvillage:basic_spear_02_sweep"]["strike"] = [1.0, 3.0]
+        rig["moves"]["yuanxian:basic_spear_02_sweep"]["strike"] = [1.0, 3.0]
         self.write_json(SPEAR_RIG, rig)
-        self.assert_finding("COMBAT_FIRST_PERSON_RIG_STRIKE", "myvillage:basic_spear_02_sweep", "[5, 7]")
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_STRIKE", "yuanxian:basic_spear_02_sweep", "[5, 7]")
 
     def test_off_hand_rig_on_a_one_handed_weapon_has_named_failure(self) -> None:
         rig = self.read_json(RIG)
         rig["rig"]["off_hand"] = {}
         self.write_json(RIG, rig)
-        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "myvillage:qingfeng_sword", "off_hand_grip_center")
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "yuanxian:qingfeng_sword", "off_hand_grip_center")
         rig = self.read_json(SPEAR_RIG)
         rig["rig"]["off_hand"] = {}
         self.write_json(SPEAR_RIG, rig)
@@ -526,7 +526,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.assertEqual("fist", weapon["family"])
         weapon["family"] = "staff"
         self.write_json(path, weapon)
-        self.assert_finding("COMBAT_WEAPON_FAMILY", "myvillage:xuantie_gauntlet", "'staff'")
+        self.assert_finding("COMBAT_WEAPON_FAMILY", "yuanxian:xuantie_gauntlet", "'staff'")
         del weapon["family"]
         self.write_json(path, weapon)
         self.assertEqual([], self.details("COMBAT_WEAPON_FAMILY"), "the family is optional")
@@ -538,11 +538,11 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.assertEqual([], self.details("COMBAT_WEAPON_PAIRED"))
         path = f"{DATA}/weapon/xuantie_gauntlet.json"
         self.assertIs(True, self.read_json(path)["paired"])
-        rig_path = f"{RESOURCES}/assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+        rig_path = f"{RESOURCES}/assets/yuanxian/combat/xuantie_gauntlet_first_person.json"
         rig = self.read_json(rig_path)
         rig["rig"]["off_hand"]["free"] = False
         self.write_json(rig_path, rig)
-        self.assert_finding("COMBAT_WEAPON_PAIRED", "myvillage:xuantie_gauntlet", "free")
+        self.assert_finding("COMBAT_WEAPON_PAIRED", "yuanxian:xuantie_gauntlet", "free")
         spear = f"{DATA}/weapon/lingxiao_spear.json"
         weapon = self.read_json(spear)
         weapon["paired"] = True
@@ -554,15 +554,15 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_free_off_hand_needs_no_off_hand_grip(self) -> None:
         self.assertEqual([], self.details("COMBAT_FIRST_PERSON_RIG_OFF_HAND"))
-        path = f"{RESOURCES}/assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+        path = f"{RESOURCES}/assets/yuanxian/combat/xuantie_gauntlet_first_person.json"
         rig = self.read_json(path)
         rig["rig"]["off_hand"]["free"] = False
         self.write_json(path, rig)
-        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "myvillage:xuantie_gauntlet", "off_hand_grip_center")
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "yuanxian:xuantie_gauntlet", "off_hand_grip_center")
         rig["rig"]["off_hand"]["free"] = True
         next(iter(rig["moves"].values()))["keys"][1]["off_hand_hold"] = 0.5
         self.write_json(path, rig)
-        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "myvillage:xuantie_gauntlet", "no effect on a free")
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "yuanxian:xuantie_gauntlet", "no effect on a free")
 
     def test_off_hand_block_content_has_named_failure(self) -> None:
         good = self.read_json(SPEAR_RIG)
@@ -696,10 +696,10 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_trail_tip_radius_follows_the_java_trail_size(self) -> None:
         contracts = validator.read_geometry_contracts(self.root, validator.combat_data.load(self.root))
-        sword = contracts["myvillage:combat/qingfeng_sword_geometry.json"]
+        sword = contracts["yuanxian:combat/qingfeng_sword_geometry.json"]
         # CombatWorldTrailsTest pins the jian at 1.7 (0.705 + 19.9 px * 0.8 / 16).
         self.assertAlmostEqual(1.7, validator.trail_tip_radius(self.root, sword), places=6)
-        spear = contracts["myvillage:combat/lingxiao_spear_geometry.json"]
+        spear = contracts["yuanxian:combat/lingxiao_spear_geometry.json"]
         model = self.read_json(SPEAR_MODEL_3D)
         tip = spear["trail"]["tip"] if "trail" in spear else spear["head_tip"]
         expected = 0.705 + abs(tip[1] - spear["grip_center"][1]) * model["display"]["thirdperson_righthand"]["scale"][1] / 16
@@ -740,7 +740,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         style = self.read_json(SPEAR_STYLE)
         move = self.spear_cut(style)
         contracts = validator.read_geometry_contracts(self.root, validator.combat_data.load(self.root))
-        reach = validator.trail_tip_radius(self.root, contracts["myvillage:combat/lingxiao_spear_geometry.json"]) + 0.05
+        reach = validator.trail_tip_radius(self.root, contracts["yuanxian:combat/lingxiao_spear_geometry.json"]) + 0.05
         for index, sample in enumerate(move["hitbox"]["samples"]):
             sample["end"] = [0.0, validator.TRAIL_PIVOT_HEIGHT, reach] if index % 2 == 0 else \
                 [0.0, validator.TRAIL_PIVOT_HEIGHT + reach, 0.0]
@@ -752,7 +752,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         move = self.style_move(style, HORIZONTAL)
         move["hitbox"]["samples"]["range"] = 1.5
         self.write_json(STYLE, style)
-        self.assert_finding("COMBAT_TRAIL_CUT_REACH", "myvillage:qingfeng_sword", HORIZONTAL, "arc generator")
+        self.assert_finding("COMBAT_TRAIL_CUT_REACH", "yuanxian:qingfeng_sword", HORIZONTAL, "arc generator")
 
     def test_thrusts_are_not_held_to_the_tip_radius(self) -> None:
         style = self.read_json(STYLE)
@@ -764,12 +764,12 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         # The sword's rising cut (diagonal generator, far ends from about 2.60) clears the jian's 1.7
         # but not the spear's longer radius: a spear sharing the sword style fails for the spear only.
         weapon = self.read_json(SPEAR_WEAPON)
-        weapon["style"] = "myvillage:basic_sword"
+        weapon["style"] = "yuanxian:basic_sword"
         self.write_json(SPEAR_WEAPON, weapon)
         details = self.trail_reach()
         self.assertTrue(any(d.startswith(SPEAR_WEAPON_ID) and "basic_sword_03_rising_cut" in d for d in details),
                         details)
-        self.assertFalse(any(d.startswith("myvillage:qingfeng_sword") for d in details), details)
+        self.assertFalse(any(d.startswith("yuanxian:qingfeng_sword") for d in details), details)
 
     # --- Java source invariants -------------------------------------------------------------
 
@@ -931,7 +931,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_qingfeng_flat_handheld_model_has_named_failure(self) -> None:
         self.write_json(validator.QINGFENG_MODEL, {"parent": "minecraft:item/handheld",
-                                                   "textures": {"layer0": "myvillage:item/qingfeng_sword"}})
+                                                   "textures": {"layer0": "yuanxian:item/qingfeng_sword"}})
         self.assertIn("QINGFENG_MODEL_CONTRACT", self.codes())
 
     def test_qingfeng_3d_model_missing_has_named_failure(self) -> None:
@@ -964,8 +964,8 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.regenerate_player_animations()
         style = self.read_json(STYLE)
         extra = json.loads(json.dumps(style["moves"][0]))
-        extra["id"] = "myvillage:basic_sword_06_extra"
-        extra["display_key"] = "combat.myvillage.move.basic_sword_06_extra"
+        extra["id"] = "yuanxian:basic_sword_06_extra"
+        extra["display_key"] = "combat.yuanxian.move.basic_sword_06_extra"
         style["moves"].append(extra)
         self.write_json(STYLE, style)
         drift = [f.detail for f in self.findings(run_generators=True) if f.code == "COMBAT_PAL_GENERATOR_DRIFT"]
@@ -1045,7 +1045,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         properties = (self.root / "gradle.properties").read_text(encoding="utf-8")
         version = next(line.split("=", 1)[1] for line in properties.splitlines()
                        if line.startswith("mod_version="))
-        jar = self.root / "build/libs" / f"myvillage-{version}.jar"
+        jar = self.root / "build/libs" / f"yuanxian-{version}.jar"
         jar.parent.mkdir(parents=True, exist_ok=True)
         return jar
 
@@ -1090,12 +1090,12 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         with zipfile.ZipFile(self.current_jar(), "w") as archive:
             archive.writestr("META-INF/MANIFEST.MF", "Manifest-Version: 1.0\n")
         details = self.details("COMBAT_JAR_RESOURCE_MISSING")
-        self.assertTrue(any("data/myvillage/combat/index.json" in d
-                            and "data/myvillage/combat/style/basic_sword.json" in d
-                            and "data/myvillage/combat/weapon/qingfeng_sword.json" in d for d in details), details)
+        self.assertTrue(any("data/yuanxian/combat/index.json" in d
+                            and "data/yuanxian/combat/style/basic_sword.json" in d
+                            and "data/yuanxian/combat/weapon/qingfeng_sword.json" in d for d in details), details)
 
     def test_packaged_combat_data_drift_has_named_failure(self) -> None:
-        name = "data/myvillage/combat/style/basic_sword.json"
+        name = "data/yuanxian/combat/style/basic_sword.json"
         self.write_complete_jar(self.current_jar(), {name: b"{}"})
         self.assertIn(name, self.details("COMBAT_JAR_DATA_DRIFT"))
 
@@ -1107,7 +1107,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         # Gradle keeps the jar when a rebuild changes no bytes, e.g. after a comment-only edit.
         jar = self.current_jar()
         self.write_complete_jar(jar)
-        self.touch_after(self.root / RESOURCES / "data/myvillage/combat/style/basic_sword.json", jar)
+        self.touch_after(self.root / RESOURCES / "data/yuanxian/combat/style/basic_sword.json", jar)
         source = validator.combat_sources(self.root)[0][0]
         self.touch_after(source, jar)
         compiled = (self.root / validator.COMPILED_CLASSES
@@ -1119,7 +1119,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_jar_older_than_a_changed_resource_is_stale(self) -> None:
         jar = self.current_jar()
-        name = "data/myvillage/combat/style/basic_sword.json"
+        name = "data/yuanxian/combat/style/basic_sword.json"
         self.write_complete_jar(jar, {name: b"{}"})
         self.touch_after(self.root / RESOURCES / name, jar)
         self.assertTrue(any(name in d for d in self.details("COMBAT_JAR_STALE")))
@@ -1142,7 +1142,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.assertTrue(any(needle in d for d in self.details("COMBAT_JAR_STALE")))  # compiled before the edit
 
     def test_jar_from_an_older_version_is_stale(self) -> None:
-        jar = self.root / "build/libs/myvillage-0.0.1.jar"
+        jar = self.root / "build/libs/yuanxian-0.0.1.jar"
         jar.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(jar, "w") as archive:
             archive.writestr("META-INF/MANIFEST.MF", "Manifest-Version: 1.0\n")

@@ -26,7 +26,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 
 /** Explicit server fixtures: accepted death callbacks and real spawned item entities, no mapped player input. */
-@Mod("myvillage_drop_probe")
+@Mod("yuanxian_drop_probe")
 public final class DropProbe {
     private static UUID target;
     private static ServerLevel lastLevel;
@@ -56,18 +56,18 @@ public final class DropProbe {
         }
         level.setChunkForced(x>>4,z>>4,true);level.getChunk(x>>4,z>>4);int y=level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z)+4;
         mob.moveTo(x+.5,y,z+.5,0,0);mob.setNoAi(true);mob.setPersistenceRequired();mob.setSilent(true);
-        if(stage>=0)StatsRuntime.applyRealm(mob,"myvillage:qi_refining",stage);
-        if(siteId!=null){var tag=new net.minecraft.nbt.CompoundTag();tag.putString("site",siteId);tag.putLong("generation",generation);mob.getPersistentData().put("myvillage_habitat",tag);}
+        if(stage>=0)StatsRuntime.applyRealm(mob,"yuanxian:qi_refining",stage);
+        if(siteId!=null){var tag=new net.minecraft.nbt.CompoundTag();tag.putString("site",siteId);tag.putLong("generation",generation);mob.getPersistentData().put("yuanxian_habitat",tag);}
         if(!level.addFreshEntity(mob))throw new IllegalArgumentException("探针实体加入失败");
         var fake=FakePlayerFactory.getMinecraft(level);
-        switch(scene){case "quest_realm"->mob.getPersistentData().putUUID("myvillage:quest_instance",UUID.randomUUID());case "sect_trial"->mob.getPersistentData().putUUID("myvillage:elder_trial_owner",fake.getUUID());case "aptitude_trial"->mob.getPersistentData().putUUID("myvillage_memory_owner",fake.getUUID());case "stale_habitat"->{var tag=new net.minecraft.nbt.CompoundTag();tag.putString("site","invalid");tag.putLong("generation",999);mob.getPersistentData().put("myvillage_habitat",tag);}default->{}}
+        switch(scene){case "quest_realm"->mob.getPersistentData().putUUID("yuanxian:quest_instance",UUID.randomUUID());case "sect_trial"->mob.getPersistentData().putUUID("yuanxian:elder_trial_owner",fake.getUUID());case "aptitude_trial"->mob.getPersistentData().putUUID("yuanxian_memory_owner",fake.getUUID());case "stale_habitat"->{var tag=new net.minecraft.nbt.CompoundTag();tag.putString("site","invalid");tag.putLong("generation",999);mob.getPersistentData().put("yuanxian_habitat",tag);}default->{}}
         target=mob.getUUID();lastLevel=level;area=new AABB(x-8,y-16,z-8,x+9,y+16,z+9);last=new JsonObject();last.addProperty("uuid",target.toString());last.addProperty("entity",id);last.addProperty("fixture_scene",scene);last.add("spawn_context",JSON.toJsonTree(DropRuntime.context(mob,true)));reply(source);return 1;
     }
     private static int finish(CommandSourceStack source,int looting,boolean captured){
         if(target==null||!(lastLevel.getEntity(target) instanceof LivingEntity mob))throw new IllegalArgumentException("没有已加载的探针目标");
         var fake=FakePlayerFactory.getMinecraft(lastLevel);var sword=new ItemStack(Items.DIAMOND_SWORD);
         if(looting>0)sword.enchant(lastLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.LOOTING),looting);
-        fake.setItemSlot(EquipmentSlot.MAINHAND,sword);mob.getPersistentData().putBoolean("myvillage_fire_captured",captured);
+        fake.setItemSlot(EquipmentSlot.MAINHAND,sword);mob.getPersistentData().putBoolean("yuanxian_fire_captured",captured);
         mob.setLastHurtByPlayer(fake);mob.setHealth(0);mob.die(lastLevel.damageSources().playerAttack(fake));
         last.addProperty("fixture_death_callback",true);last.addProperty("looting",looting);reply(source);return 1;
     }

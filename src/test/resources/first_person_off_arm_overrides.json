@@ -1,7 +1,7 @@
 {
   "about": "Off-arm overrides (rig.off_hand upper_arm, forearm, rest_direction, rest_reach) on a modified copy of the shipped spear rig, with the right main arm: FirstPersonOffHandTest (Java) and tools/tests/test_combat_preview_parity.py (the Python port) both solve these cases and check these numbers. No shipped rig uses the overrides, so the first-person parity golden does not cover them. A change to the spear rig's neutral hold or smash keys moves the numbers; re-derive them from the Java test's failure message.",
-  "rig": "myvillage:combat/lingxiao_spear_first_person.json",
-  "geometry": "myvillage:combat/lingxiao_spear_geometry.json",
+  "rig": "yuanxian:combat/lingxiao_spear_first_person.json",
+  "geometry": "yuanxian:combat/lingxiao_spear_geometry.json",
   "off_hand_overrides": {"upper_arm": 0.36, "forearm": 0.30, "rest_direction": [0.3, -1.0, 0.1], "rest_reach": 0.8},
   "tolerance": 2.0E-4,
   "cases": [

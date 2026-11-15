@@ -264,7 +264,7 @@ def geometry(kind, lit=False):
 def outputs(root=ROOT):
     root = Path(root)
     cfg = config(root)
-    assets = root / "src/main/resources/assets/myvillage"
+    assets = root / "src/main/resources/assets/yuanxian"
     data = root / "src/main/resources/data"
     result = {assets / "textures/block/alchemy_array.png": texture(cfg),
               assets / "textures/block/alchemy_array_formed.png": formed_texture(cfg),
@@ -275,47 +275,47 @@ def outputs(root=ROOT):
             suffix = "_lit" if lit else ""
             result[assets / f"models/block/{bid}{suffix}.json"] = encode({
                 "ambientocclusion": True,
-                "textures": {"atlas": "myvillage:block/alchemy_array", "particle": "myvillage:block/alchemy_array"},
+                "textures": {"atlas": "yuanxian:block/alchemy_array", "particle": "yuanxian:block/alchemy_array"},
                 "elements": geometry(kind, lit)})
         variants = {}
         for lit in (False, True):
             for direction, angle in DIRECTIONS:
                 suffix = "_lit" if lit and kind in ("controller", "vent") else ""
                 variants[f"facing={direction},lit={str(lit).lower()}"] = {
-                    "model": f"myvillage:block/{bid}{suffix}", "y": 0 if kind == "vent" else angle}
+                    "model": f"yuanxian:block/{bid}{suffix}", "y": 0 if kind == "vent" else angle}
         result[assets / f"blockstates/{bid}.json"] = encode({"variants": variants})
-        result[assets / f"models/item/{bid}.json"] = encode({"parent": f"myvillage:block/{bid}", "display": {
+        result[assets / f"models/item/{bid}.json"] = encode({"parent": f"yuanxian:block/{bid}", "display": {
             "gui": {"rotation": [25, 225, 0], "translation": [0, -1, 0], "scale": [.6, .6, .6]},
             "ground": {"translation": [0, 3, 0], "scale": [.3, .3, .3]},
             "fixed": {"rotation": [0, 180, 0], "scale": [.5, .5, .5]},
             "firstperson_righthand": {"rotation": [0, 135, 0], "scale": [.4, .4, .4]},
             "firstperson_lefthand": {"rotation": [0, 45, 0], "scale": [.4, .4, .4]},
             "thirdperson_righthand": {"rotation": [75, 45, 0], "scale": [.35, .35, .35]}}})
-        result[data / f"myvillage/loot_table/blocks/{bid}.json"] = encode({"type": "minecraft:block", "pools": [{
-            "rolls": 1, "entries": [{"type": "minecraft:item", "name": f"myvillage:{bid}"}],
-            "conditions": [{"condition": "minecraft:survives_explosion"}]}], "random_sequence": f"myvillage:blocks/{bid}"})
+        result[data / f"yuanxian/loot_table/blocks/{bid}.json"] = encode({"type": "minecraft:block", "pools": [{
+            "rolls": 1, "entries": [{"type": "minecraft:item", "name": f"yuanxian:{bid}"}],
+            "conditions": [{"condition": "minecraft:survives_explosion"}]}], "random_sequence": f"yuanxian:blocks/{bid}"})
         recipe = cfg["recipes"][kind]
-        result[data / f"myvillage/recipe/{bid}.json"] = encode({"type": "minecraft:crafting_shaped", "category": "misc",
+        result[data / f"yuanxian/recipe/{bid}.json"] = encode({"type": "minecraft:crafting_shaped", "category": "misc",
             "pattern": recipe["pattern"], "key": {k: {"tag" if v.startswith("#") else "item": v.removeprefix("#")}
-            for k, v in recipe["key"].items()}, "result": {"id": f"myvillage:{bid}", "count": recipe["count"]}})
-    result[data / "myvillage/tags/block/alchemy_array_components.json"] = encode({
-        "replace": False, "values": [f"myvillage:{block_id(k)}" for k in KINDS]})
-    result[data / "myvillage/tags/item/alchemy_array_components.json"] = result[data / "myvillage/tags/block/alchemy_array_components.json"]
+            for k, v in recipe["key"].items()}, "result": {"id": f"yuanxian:{bid}", "count": recipe["count"]}})
+    result[data / "yuanxian/tags/block/alchemy_array_components.json"] = encode({
+        "replace": False, "values": [f"yuanxian:{block_id(k)}" for k in KINDS]})
+    result[data / "yuanxian/tags/item/alchemy_array_components.json"] = result[data / "yuanxian/tags/block/alchemy_array_components.json"]
     return result
 
 
 def merged_outputs(root=ROOT):
     root = Path(root)
     cfg = config(root)
-    lang_path = root / "src/main/resources/assets/myvillage/lang/zh_cn.json"
+    lang_path = root / "src/main/resources/assets/yuanxian/lang/zh_cn.json"
     lang = json.loads(lang_path.read_text()) if lang_path.exists() else {}
-    lang.update({f"block.myvillage.{block_id(k)}": v for k, v in cfg["names"].items()})
+    lang.update({f"block.yuanxian.{block_id(k)}": v for k, v in cfg["names"].items()})
     result = {lang_path: encode(lang)}
     for tag in ("mineable/pickaxe", "needs_stone_tool"):
         path = root / f"src/main/resources/data/minecraft/tags/block/{tag}.json"
         obj = json.loads(path.read_text()) if path.exists() else {"replace": False, "values": []}
         for kind in KINDS:
-            value = f"myvillage:{block_id(kind)}"
+            value = f"yuanxian:{block_id(kind)}"
             if value not in obj["values"]:
                 obj["values"].append(value)
         result[path] = encode(obj)
@@ -324,7 +324,7 @@ def merged_outputs(root=ROOT):
 
 def structure(root=ROOT):
     """Read the runtime's only authored structure, preserving its coordinates."""
-    path = Path(root) / "src/main/resources/data/myvillage/alchemy/array.json"
+    path = Path(root) / "src/main/resources/data/yuanxian/alchemy/array.json"
     if not path.exists():
         raise ValueError("Runtime alchemy/array.json is required for the assembly preview")
     return json.loads(path.read_text())
@@ -347,7 +347,7 @@ def preview(root=ROOT):
     def quads(kind, lit=False, angle=0, offset=(0, 0, 0)):
         key = (kind, lit and kind in ("controller", "vent"))
         if key not in cache:
-            ref = f"myvillage:block/{block_id(kind)}" + ("_lit" if key[1] else "")
+            ref = f"yuanxian:block/{block_id(kind)}" + ("_lit" if key[1] else "")
             model = pim.resolve_model(assets, assets.model_json(ref), ref)
             if model.errors or model.warnings:
                 raise ValueError(model.errors + model.warnings)

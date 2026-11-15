@@ -8,8 +8,8 @@ import net.minecraft.world.damagesource.DamageType;
 
 /** 专用标记不绕过护甲、抗性、护盾或原版死亡生命周期。 */
 public final class TribulationDamage {
-    public static final TagKey<DamageType> ALL = TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse("myvillage:tribulation"));
-    public static final TagKey<DamageType> UNAVOIDABLE = TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse("myvillage:tribulation_unavoidable"));
+    public static final TagKey<DamageType> ALL = TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse("yuanxian:tribulation"));
+    public static final TagKey<DamageType> UNAVOIDABLE = TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse("yuanxian:tribulation_unavoidable"));
     private TribulationDamage() { }
     public static boolean bypassesDodge(DamageSource source) { return source.is(UNAVOIDABLE); }
     public static boolean tribulation(DamageSource source) { return source.is(ALL); }

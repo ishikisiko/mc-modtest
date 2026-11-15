@@ -50,7 +50,7 @@ public final class ThunderTigerLairBlockEntity extends BlockEntity {
         BlockPos home = target(rules.spawn());
         List<BlockPos> pillars = rules.pillars().stream().map(this::target).toList();
         if (!server.hasChunkAt(home) || pillars.stream().anyMatch(p -> !server.hasChunkAt(p))) return;
-        var entity = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("myvillage", "thunder_tiger")).create(server);
+        var entity = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("yuanxian", "thunder_tiger")).create(server);
         if (!(entity instanceof ThunderTigerEntity boss)) return;
         boss.moveTo(home.getX() + .5, home.getY(), home.getZ() + .5, 180, 0);
         var body = boss.getSpawnOccupiedBounds();
@@ -66,7 +66,7 @@ public final class ThunderTigerLairBlockEntity extends BlockEntity {
         boss.setCanPickUpLoot(false);
         boss.bindLair(home, pillars);
         boss.addTag("thunder_tiger_lair_boss");
-        boss.getPersistentData().putLong("myvillage:thunder_tiger_lair_anchor", worldPosition.asLong());
+        boss.getPersistentData().putLong("yuanxian:thunder_tiger_lair_anchor", worldPosition.asLong());
         UUID id = boss.getUUID();
         if (!progress.bind(id)) return;
         receipts.register(id);

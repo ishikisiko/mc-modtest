@@ -20,7 +20,7 @@ runs during chunk generation in this change.
 ## The model
 
 Authored content is a **ruleset**, not pairwise relations. Two JSON bodies under
-`src/main/resources/data/myvillage/worldgen/`:
+`src/main/resources/data/yuanxian/worldgen/`:
 
 - `region_profile/*.json` — the catalog. Each region (洲) declares `id`,
   `display_name`, a nominal `tier`, `qi` / `danger` ranges, a placement `role`

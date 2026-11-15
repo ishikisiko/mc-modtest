@@ -18,7 +18,7 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import java.util.*;
 
 public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
-    private static final String KEY="screen.myvillage.forging.";
+    private static final String KEY="screen.yuanxian.forging.";
     private final List<Button> recipes=new ArrayList<>(),traits=new ArrayList<>();
     private Button forge,repair;
     private int recipePage,traitPage;
@@ -30,7 +30,7 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
     private Component itemName(String id){return BuiltInRegistries.ITEM.get(ResourceLocation.parse(id)).getDescription();}
     @Override protected void init(){
         super.init();recipes.clear();traits.clear();
-        addRenderableWidget(Button.builder(Component.translatable("screen.myvillage.infusion.title"),b->send(ForgingMenu.INFUSE))
+        addRenderableWidget(Button.builder(Component.translatable("screen.yuanxian.infusion.title"),b->send(ForgingMenu.INFUSE))
                 .bounds(leftPos+204,topPos+4,88,18).build());
         for(int i=0;i<ForgingRules.get().recipes().size();i++){
             final int index=i;
@@ -39,7 +39,7 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
         }
         for(int i=0;i<ForgeMark.TRAITS.size();i++){
             final int index=i;String id=ForgeMark.TRAITS.get(i);
-            var b=Button.builder(Component.translatable("forging.myvillage.trait."+id),v->send(ForgingMenu.TRAIT_BASE+index))
+            var b=Button.builder(Component.translatable("forging.yuanxian.trait."+id),v->send(ForgingMenu.TRAIT_BASE+index))
                     .bounds(leftPos+8,topPos+84+(i%3)*22,96,20).build();
             b.setTooltip(Tooltip.create(Component.translatable(KEY+"trait."+id)));traits.add(addRenderableWidget(b));
         }
@@ -63,7 +63,7 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
         }
         for(int i=0;i<traits.size();i++){
             String id=ForgeMark.TRAITS.get(i);var b=traits.get(i);b.visible=i/3==traitPage;b.active=menu.recipe().traits().contains(id);
-            b.setMessage(Component.literal(menu.traitIndex()==i?"• ":"").append(Component.translatable("forging.myvillage.trait."+id)));
+            b.setMessage(Component.literal(menu.traitIndex()==i?"• ":"").append(Component.translatable("forging.yuanxian.trait."+id)));
             b.setTooltip(Tooltip.create(Component.translatable(KEY+(b.active?"trait."+id:"unsupported"))));
         }
         forge.active=menu.canForge();repair.active=menu.canRepair();

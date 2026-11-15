@@ -23,7 +23,7 @@ SKIP_REASON = (f"{sys.executable} has no {' or '.join(MISSING)}; run this test w
                ".venv-preview/bin/python -m unittest tools.tests.test_combat_preview_sweep "
                "(setup: python3 -m venv .venv-preview && "
                ".venv-preview/bin/pip install -r tools/combat_preview/requirements.txt)")
-SPEAR = "myvillage:lingxiao_spear"
+SPEAR = "yuanxian:lingxiao_spear"
 OFF_ARM_TAGS = (5, 6, 7)  # fp_rig.TAGS off_upper, off_forearm, off_fist
 
 

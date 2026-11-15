@@ -10,7 +10,7 @@ public final class EstateSavedData extends SavedData {
     public final EstateTitles titles = new EstateTitles();
     public static EstateSavedData get(MinecraftServer server) {
         return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(EstateSavedData::new,
-                EstateSavedData::load), "myvillage_estates");
+                EstateSavedData::load), "yuanxian_estates");
     }
     static EstateSavedData load(CompoundTag tag, HolderLookup.Provider registries) {
         if (tag.getInt("format") != 1) throw new IllegalArgumentException("房契格式无效");

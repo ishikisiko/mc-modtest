@@ -26,7 +26,7 @@ class SceneFrozenDeploymentTest {
     @Test void private090SchemaOneResolvesItsExactOldGeometryWithoutAcquiringNewFacilities() {
         var old=SceneGeometryArchive.legacy("1-93b7ddbc5c59392e");
         var tag=receipt(old);tag.putInt("schema",1);tag.remove("geometry");
-        String dimension="myvillage:qianzhen/00000000-0000-0000-0000-000000000001";
+        String dimension="yuanxian:qianzhen/00000000-0000-0000-0000-000000000001";
         tag.putString("dimension",dimension);tag.putBoolean("regulated",true);
         var saved=SceneDeploymentData.load(tag,null);
         var current=SceneGeometryArchive.legacy("1-f795e60913419e05");

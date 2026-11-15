@@ -32,21 +32,21 @@ class CompileV9Test(unittest.TestCase):
             refs.append(compiler.inspect_city(self.legacy, old, 192)[0])
             if definition['resource_version'] == 'v2':
                 self.bundle(self.out, definition)
-        self.base = {'schema': 1, 'algorithm': 'myvillage:worldplan_v8', **v8['world'],
+        self.base = {'schema': 1, 'algorithm': 'yuanxian:worldplan_v8', **v8['world'],
                      'profiles': [{'id': c['region_id']} for c in self.spec['assets']['cities']],
                      'capitals': {'schema': 1, **v8['planning'], 'bundles': refs}}
-        compiler.write(self.legacy / 'data/myvillage/worldplan/frozen_v8.json', self.base)
-        compiler.write(self.legacy / 'data/myvillage/worldgen/world_preset/cultivation.json',
-                       {'dimensions': {'minecraft:overworld': {'generator': {'type': 'myvillage:planned_v8', 'rules': '旧预设', 'plan_hash': '旧指纹'}}}})
+        compiler.write(self.legacy / 'data/yuanxian/worldplan/frozen_v8.json', self.base)
+        compiler.write(self.legacy / 'data/yuanxian/worldgen/world_preset/cultivation.json',
+                       {'dimensions': {'minecraft:overworld': {'generator': {'type': 'yuanxian:planned_v8', 'rules': '旧预设', 'plan_hash': '旧指纹'}}}})
 
     @staticmethod
     def bundle(root, definition):
         city, region, version = (definition[key] for key in ('city_id', 'region_id', 'resource_version'))
-        terrain_id = f'myvillage:capitals/{version}/{city}/terrain.bin.gz'
+        terrain_id = f'yuanxian:capitals/{version}/{city}/terrain.bin.gz'
         terrain = gzip.compress(struct.pack('<256h', *([1] * 256)), mtime=0)
         terrain_path = compiler.resource_file(root, terrain_id)
         terrain_path.parent.mkdir(parents=True, exist_ok=True); terrain_path.write_bytes(terrain)
-        tile_id = f'myvillage:province_capitals/{version}/{city}/tile_0_0'
+        tile_id = f'yuanxian:province_capitals/{version}/{city}/tile_0_0'
         tile = gzip.compress(b'unit-test-opaque-tile-bytes', mtime=0)
         tile_path = compiler.resource_file(root, tile_id, template=True)
         tile_path.parent.mkdir(parents=True, exist_ok=True); tile_path.write_bytes(tile)
@@ -65,10 +65,10 @@ class CompileV9Test(unittest.TestCase):
                         {'id': key, 'kind': kind, 'pos': [8, 2, 8], 'capacity': 1, 'block': '', 'block_pos': [0, 0, 0]}
                         for key, kind in slots.items()]},
                     'source': {'hashes': {'tools/buildgen/groups.py': '0' * 64, 'tools/buildgen/ops.py': '1' * 64}}}
-        compiler.write(root / f'data/myvillage/capitals/{version}/{city}/city.json', manifest)
+        compiler.write(root / f'data/yuanxian/capitals/{version}/{city}/city.json', manifest)
 
     def manifest(self, root=None, version='v2', city='capital_beiyuan'):
-        path = (root or self.out) / f'data/myvillage/capitals/{version}/{city}/city.json'
+        path = (root or self.out) / f'data/yuanxian/capitals/{version}/{city}/city.json'
         return path, json.loads(path.read_text(encoding='utf-8'))
 
     def test_aggregate_keeps_all_legacy_bytes_and_changes_only_versioned_inputs(self):
@@ -76,18 +76,18 @@ class CompileV9Test(unittest.TestCase):
         report = compiler.aggregate(self.out, self.legacy)
         after = {str(p.relative_to(self.legacy)): p.read_bytes() for p in self.legacy.rglob('*') if p.is_file()}
         self.assertEqual(before, after)
-        frozen = json.loads((self.out / 'data/myvillage/worldplan/frozen_v9.json').read_text())
+        frozen = json.loads((self.out / 'data/yuanxian/worldplan/frozen_v9.json').read_text())
         self.assertEqual(7, sum(c['resource_version'] == 'v2' for c in report['cities']))
         self.assertEqual(192, frozen['capitals']['life_places_limit'])
         expected = copy.deepcopy(self.base); expected['algorithm'] = self.spec['algorithm']
         expected['capitals']['assets'] = self.spec['assets']
         expected['capitals']['bundles'] = [{key: c[key] for key in ('city_id', 'region_id', 'resource', 'manifest_sha256', 'bundle_sha256')} for c in report['cities']]
         self.assertEqual(expected, frozen)
-        preset = json.loads((self.out / 'data/myvillage/worldgen/world_preset/cultivation.json').read_text())
+        preset = json.loads((self.out / 'data/yuanxian/worldgen/world_preset/cultivation.json').read_text())
         generator = preset['dimensions']['minecraft:overworld']['generator']
-        self.assertEqual('myvillage:planned_v9', generator['type']); self.assertNotIn('plan_hash', generator)
+        self.assertEqual('yuanxian:planned_v9', generator['type']); self.assertNotIn('plan_hash', generator)
         self.assertEqual(frozen, json.loads(gzip.decompress(base64.b64decode(generator['rules'][5:]))))
-        self.assertFalse((self.out / 'data/myvillage/capitals/v1').exists())
+        self.assertFalse((self.out / 'data/yuanxian/capitals/v1').exists())
 
     def test_source_hash_diagnostics_change_raw_json_but_not_runtime_identity(self):
         definition = {**self.spec['assets']['cities'][0], 'resource_version': 'v1'}
@@ -109,10 +109,10 @@ class CompileV9Test(unittest.TestCase):
     def test_cross_version_and_cross_city_resource_paths_are_rejected(self):
         definition = self.spec['assets']['cities'][0]
         path, original = self.manifest()
-        for key, value in [('terrain', 'myvillage:capitals/v1/capital_beiyuan/terrain.bin.gz'),
-                           ('terrain', 'myvillage:capitals/v2/capital_ximo/terrain.bin.gz'),
-                           ('tile', 'myvillage:province_capitals/v1/capital_beiyuan/tile_0_0'),
-                           ('tile', 'myvillage:province_capitals/v2/capital_ximo/tile_0_0')]:
+        for key, value in [('terrain', 'yuanxian:capitals/v1/capital_beiyuan/terrain.bin.gz'),
+                           ('terrain', 'yuanxian:capitals/v2/capital_ximo/terrain.bin.gz'),
+                           ('tile', 'yuanxian:province_capitals/v1/capital_beiyuan/tile_0_0'),
+                           ('tile', 'yuanxian:province_capitals/v2/capital_ximo/tile_0_0')]:
             city = copy.deepcopy(original)
             if key == 'terrain': city['terrain']['resource'] = value
             else: city['tiles'][0]['template'] = value
@@ -124,7 +124,7 @@ class CompileV9Test(unittest.TestCase):
         self.manifest()[0].unlink()
         with self.assertRaises(FileNotFoundError): compiler.aggregate(self.out, self.legacy)
         for relative in ('worldplan/frozen_v9.json', 'worldgen/world_preset/cultivation.json', 'capitals/v2/index.json'):
-            self.assertFalse((self.out / 'data/myvillage' / relative).exists())
+            self.assertFalse((self.out / 'data/yuanxian' / relative).exists())
         with self.assertRaisesRegex(ValueError, '不能覆盖旧 cultivation.json'):
             compiler.aggregate(self.legacy, self.legacy)
 
@@ -145,7 +145,7 @@ class CompileV9Test(unittest.TestCase):
         baseline = Path(self.tmp.name) / 'baseline.json'
         records = {}
         for relative in ('worldplan', 'capitals/v1', 'structure/province_capitals/v1'):
-            for path in (self.legacy / 'data/myvillage' / relative).rglob('*'):
+            for path in (self.legacy / 'data/yuanxian' / relative).rglob('*'):
                 if not path.is_file(): continue
                 records[str(path)] = compiler.sha(path.read_bytes())
                 if path.suffix == '.json':
@@ -161,7 +161,7 @@ class CompileV9Test(unittest.TestCase):
         self.assertEqual(1, len(report['diagnostic_changed_files']))
         self.assertEqual({'source.hashes[tools/buildgen/groups.py]', 'source.hashes[tools/buildgen/ops.py]'},
                          {item['field'] for item in report['diagnostic_changed_files'][0]['fields']})
-        tile = next((self.legacy / 'data/myvillage/structure/province_capitals/v1').rglob('*.nbt'))
+        tile = next((self.legacy / 'data/yuanxian/structure/province_capitals/v1').rglob('*.nbt'))
         tile.write_bytes(b'changed')
         with self.assertRaisesRegex(ValueError, '字节漂移'):
             compiler.audit_legacy(self.legacy, baseline)
@@ -177,7 +177,7 @@ class CompileV9Test(unittest.TestCase):
         city['source']['modset'] = {'profile': 'vanilla', 'resolver': 'tools/buildgen/modset.py',
                                     'external_catalogue': None, 'external_catalogue_required': False}
         compiler.write(path, city)
-        index_path = self.legacy / 'data/myvillage/capitals/v1/index.json'
+        index_path = self.legacy / 'data/yuanxian/capitals/v1/index.json'
 
         def make_index():
             cities = []
@@ -193,7 +193,7 @@ class CompileV9Test(unittest.TestCase):
         baseline = Path(self.tmp.name) / 'baseline.json'
         records = {}
         for relative in ('worldplan', 'capitals/v1', 'structure/province_capitals/v1'):
-            for file in (self.legacy / 'data/myvillage' / relative).rglob('*'):
+            for file in (self.legacy / 'data/yuanxian' / relative).rglob('*'):
                 if not file.is_file(): continue
                 records[str(file)] = compiler.sha(file.read_bytes())
                 if file.suffix == '.json':

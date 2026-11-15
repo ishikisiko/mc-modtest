@@ -30,7 +30,7 @@ public final class ScriptureHallList {
     public static final String INACTIVE = "inactive";
     public static final String TOO_FAR = "too_far";
     public static final String UNOWNED = "unowned";
-    /** Every reason a borrow can be refused with (each has a {@code message.myvillage.world.scripture.refused.*} line). */
+    /** Every reason a borrow can be refused with (each has a {@code message.yuanxian.world.scripture.refused.*} line). */
     public static final List<String> REFUSALS = List.of(NOT_MEMBER, MEMBER_ELSEWHERE, NOT_BORROWABLE,
             ALREADY_BORROWED, NO_MANUAL, INACTIVE, TOO_FAR, UNOWNED);
 

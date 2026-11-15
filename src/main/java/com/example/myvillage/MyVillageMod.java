@@ -70,17 +70,17 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Ships myvillage structure NBTs as datapack resources and exposes small
+ * Ships yuanxian structure NBTs as datapack resources and exposes small
  * debug commands for in-game NeoForge validation. Registers the cultivation
  * sect as a custom worldgen {@link SectStructures#SECT structure} — a rare,
  * biome-gated landmark whose mountain is derived from the compound's terrace
  * profile (反推山形) and baked into chunks; locatable via
- * {@code /locate structure myvillage:sect} and force-generatable via
+ * {@code /locate structure yuanxian:sect} and force-generatable via
  * {@code /yuanxian sect worldgen [seed] [variant]}.
  */
 @Mod(MyVillageMod.MOD_ID)
 public final class MyVillageMod {
-    public static final String MOD_ID = "myvillage";
+    public static final String MOD_ID = ModBrand.NAMESPACE;
     private static final int GALLERY_SPACING = 128;
     private static final List<String> GALLERY_GROUP_ORDER = List.of(
             "house",
@@ -324,7 +324,7 @@ public final class MyVillageMod {
     private int placeNamedStructureAt(CommandSourceStack source, String rawId, BlockPos origin) {
         ResourceLocation structureId = parseStructureId(rawId);
         if (structureId == null) {
-            source.sendFailure(Component.literal("Invalid myvillage structure id: " + rawId));
+            source.sendFailure(Component.literal("Invalid yuanxian structure id: " + rawId));
             return 0;
         }
 
@@ -338,17 +338,17 @@ public final class MyVillageMod {
 
     private int placeGalleryAt(CommandSourceStack source, GalleryScope scope, BlockPos origin) {
         ServerLevel level = source.getLevel();
-        List<ResourceLocation> structures = myvillageStructures(level);
+        List<ResourceLocation> structures = yuanxianStructures(level);
 
         if (structures.isEmpty()) {
-            source.sendFailure(Component.literal("No myvillage structures are loaded"));
+            source.sendFailure(Component.literal("No yuanxian structures are loaded"));
             return 0;
         }
 
         int placed = 0;
         Map<String, List<ResourceLocation>> columns = groupedGalleryStructures(structures, scope);
         if (columns.isEmpty()) {
-            source.sendFailure(Component.literal("No myvillage " + scope.label() + " structures are loaded"));
+            source.sendFailure(Component.literal("No yuanxian " + scope.label() + " structures are loaded"));
             return 0;
         }
 
@@ -367,16 +367,16 @@ public final class MyVillageMod {
 
         final int placedCount = placed;
         source.sendSuccess(
-                () -> Component.literal("Placed myvillage " + scope.label() + " gallery: "
+                () -> Component.literal("Placed yuanxian " + scope.label() + " gallery: "
                         + placedCount + " structures"),
                 false);
         return placedCount;
     }
 
     private int listStructures(CommandSourceStack source) {
-        List<ResourceLocation> structures = myvillageStructures(source.getLevel());
+        List<ResourceLocation> structures = yuanxianStructures(source.getLevel());
         if (structures.isEmpty()) {
-            source.sendFailure(Component.literal("No myvillage structures are loaded"));
+            source.sendFailure(Component.literal("No yuanxian structures are loaded"));
             return 0;
         }
 
@@ -385,7 +385,7 @@ public final class MyVillageMod {
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("");
         source.sendSuccess(
-                () -> Component.literal("Loaded myvillage structures (" + structures.size() + "): " + names),
+                () -> Component.literal("Loaded yuanxian structures (" + structures.size() + "): " + names),
                 false);
         return structures.size();
     }
@@ -436,7 +436,7 @@ public final class MyVillageMod {
         return ResourceLocation.tryBuild(MOD_ID, trimmed);
     }
 
-    private static List<ResourceLocation> myvillageStructures(ServerLevel level) {
+    private static List<ResourceLocation> yuanxianStructures(ServerLevel level) {
         return level.getStructureManager()
                 .listTemplates()
                 .filter(id -> MOD_ID.equals(id.getNamespace()))

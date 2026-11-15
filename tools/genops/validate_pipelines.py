@@ -35,7 +35,7 @@ PLAN_ONLY_FORBIDDEN_ALLOWED_PATTERNS = [
     "src/main/**",
     "src/main/java/**",
     "src/main/resources/**",
-    "src/main/resources/data/myvillage/structure/*.nbt",
+    "src/main/resources/data/yuanxian/structure/*.nbt",
     "gradle.properties",
     "src/main/resources/META-INF/neoforge.mods.toml",
     "CHANGELOG.md",

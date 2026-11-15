@@ -12,7 +12,7 @@ import static com.example.myvillage.sim.WorldSimCommerceTest.*;
 
 class WorldSimPharmacyTest {
     private final WorldSimCommerceTest fixture=new WorldSimCommerceTest();
-    private static final String HERB="myvillage:spirit_leaf";
+    private static final String HERB="yuanxian:spirit_leaf";
     private static final long WEEK=7L*DAY;
     /** 品质库存用例先满足真实声望门槛；低声望拒绝由玩家经济测试单独覆盖。 */
     private WorldSim unlockedPharmacy() {
@@ -122,7 +122,7 @@ class WorldSimPharmacyTest {
         sim.advanceLife(WEEK+DAY,DAY);assertEquals(16,sim.commerce(other).orElseThrow().items().get(HERB));
     }
     @Test void malformedDeliveryTimesAndQualityStockFailClosed() {
-        for(String invalid:List.of("myvillage:pill_huiling#0","myvillage:pill_huiling#1","myvillage:pill_huiling#5")) {
+        for(String invalid:List.of("yuanxian:pill_huiling#0","yuanxian:pill_huiling#1","yuanxian:pill_huiling#5")) {
             var root=json(fixture.fresh());savedMarket(root,SITE).getAsJsonObject("items").addProperty(invalid,1);
             assertThrows(SimFormatException.class,()->read(root));
         }
@@ -130,7 +130,7 @@ class WorldSimPharmacyTest {
         assertThrows(SimFormatException.class,()->read(root));
     }
     @Test void malformedQualityPricesAndRestockTargetsAreRejected() throws Exception {
-        String source=Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"));
+        String source=Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/commerce_rules.json"));
         for(String multipliers:List.of("[1,1,2,3]","[1,1.5,2]","[1,\"1.5\",2,3]","[1,1.3,2,3]")) {
             var root=JsonParser.parseString(source).getAsJsonObject();
             root.getAsJsonObject("pill_trading").add("quality_multipliers",JsonParser.parseString(multipliers));

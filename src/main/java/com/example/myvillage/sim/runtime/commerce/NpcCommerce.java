@@ -28,7 +28,7 @@ public final class NpcCommerce {
         LifeResidentView life=sim==null?null:sim.life(npc.ledgerPersonId()).orElse(null);
         if(life==null||!CommerceRules.ROLES.contains(life.role())||sim.commerce(life.siteId()).isEmpty())return false;
         if(!valid(player,npc,sim)) {
-            player.displayClientMessage(Component.translatable("message.myvillage.commerce.off_duty"),true);return true;
+            player.displayClientMessage(Component.translatable("message.yuanxian.commerce.off_duty"),true);return true;
         }
         var rules=sim.commerceRules();var offers=rules.offers(life.role());
         if(offers.isEmpty())return false;
@@ -38,14 +38,14 @@ public final class NpcCommerce {
             offers.forEach(o->{if(!o.kind().equals("rest"))CommerceInventory.item(o.item());});
         } catch (IllegalArgumentException invalidPack) {
             org.slf4j.LoggerFactory.getLogger(NpcCommerce.class).warn("NPC commerce item definition unavailable", invalidPack);
-            player.displayClientMessage(Component.translatable("screen.myvillage.commerce.status.unavailable"),true);
+            player.displayClientMessage(Component.translatable("screen.yuanxian.commerce.status.unavailable"),true);
             return true;
         }
         sim.registerPlayerActor(player.getUUID().toString(),player.getGameProfile().getName());
         sim.rememberConversation(life.personId(),player.getUUID().toString());
         pause(player,npc,sim);dirty(player);
         long token=UUID.randomUUID().getLeastSignificantBits();
-        var title=Component.translatable("screen.myvillage.commerce.title",
+        var title=Component.translatable("screen.yuanxian.commerce.title",
                 sim.person(life.personId()).map(p->p.name()).orElse(""));
         player.openMenu(new SimpleMenuProvider((id,inventory,viewer)->new CommerceMenu(id,inventory,npc,token,rules.currency(),rules.stockLimit(),offers),title),
                 buf->CommerceMenu.writeOpening(buf,token,rules.currency(),rules.stockLimit(),offers));

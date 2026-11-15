@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 /** Owner-only server notice; the client never submits a place, name or replay request. */
 public record ArrivalPayload(ResourceLocation dimension, ArrivalLocation location, boolean showRegion,
         boolean showTown) implements CustomPacketPayload {
-    public static final Type<ArrivalPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("myvillage", "arrival"));
+    public static final Type<ArrivalPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("yuanxian", "arrival"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ArrivalPayload> STREAM_CODEC = new StreamCodec<>() {
         @Override public ArrivalPayload decode(RegistryFriendlyByteBuf b) {
             return new ArrivalPayload(b.readResourceLocation(), new ArrivalLocation(b.readUtf(ArrivalLocation.MAX_ID),

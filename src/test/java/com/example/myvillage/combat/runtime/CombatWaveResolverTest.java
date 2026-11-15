@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CombatWaveResolverTest {
     @Test void bundledWaveHitsNewLateralAndVerticalMarginsButMissesOutsideItsBounds() {
         var skill = com.example.myvillage.combat.definition.CombatTestData.styles().skill(
-                net.minecraft.resources.ResourceLocation.parse("myvillage:jianqi_jue")).orElseThrow();
+                net.minecraft.resources.ResourceLocation.parse("yuanxian:jianqi_jue")).orElseThrow();
         Vec3 start = new Vec3(0, skill.launchHeight(), 0), end = start.add(0, 0, skill.range());
         Vec3 tap = CombatWaveResolver.extents(new Vec3(0, 0, 1), 0, skill.halfWidth(), skill.halfHeight());
         Vec3 full = tap.scale(skill.scale(255));

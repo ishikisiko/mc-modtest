@@ -59,7 +59,7 @@ public record ControlRules(int maximumTicks, int maximumTargets, int maximumSour
     }
 
     private static ControlRules read() {
-        try (var stream = ControlRules.class.getResourceAsStream("/data/myvillage/combat/foundation/control.json")) {
+        try (var stream = ControlRules.class.getResourceAsStream("/data/yuanxian/combat/foundation/control.json")) {
             if (stream == null) throw new IllegalStateException("缺少控制配置");
             return parse(JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (Exception failure) {

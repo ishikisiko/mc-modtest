@@ -10,7 +10,7 @@ import net.neoforged.neoforge.common.IOUtilities;
 
 /** Dedicated durable instance directory; unrelated personal realms are never touched. */
 public final class QuestSaves extends SavedData {
-    private static final String NAME="myvillage_expeditions";
+    private static final String NAME="yuanxian_expeditions";
     public final QuestState state;
     public QuestSaves(){state=new QuestState();}
     private QuestSaves(QuestState state){this.state=state;}

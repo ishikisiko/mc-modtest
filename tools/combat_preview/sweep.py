@@ -1,6 +1,6 @@
 """Candidate sheets for first-person rig values (numpy rasteriser via fp; light).
 
-    python3 -m tools.combat_preview sweep --weapon myvillage:lingxiao_spear \\
+    python3 -m tools.combat_preview sweep --weapon yuanxian:lingxiao_spear \\
         --set rig.off_hand.thickness=0.42,0.5,0.56,0.62 --frames 1:0,1:4,2:6,3:7.5,5:7.4 \\
         --out out/preview/combat_preview/sweep_offarm
 

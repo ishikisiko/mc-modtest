@@ -36,7 +36,7 @@ def appearance():
 class Anatomy:
     """以原版模型单位写造型；导出时加倍，渲染缩回，允许半单位厚度。"""
     def __init__(self, name, shadow):
-        self.b = Builder('myvillage:' + name, look={'bone': 'head', 'max_yaw': 35, 'max_pitch': 25},
+        self.b = Builder('yuanxian:' + name, look={'bone': 'head', 'max_yaw': 35, 'max_pitch': 25},
                          shadow_radius=shadow)
         self.b.model.scale = appearance()['model_scale']
         self.materials = {}

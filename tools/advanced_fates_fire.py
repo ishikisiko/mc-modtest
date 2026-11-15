@@ -46,7 +46,7 @@ def run(e):
     log = cs.LOG_DIR/'server.log'
     start = log.stat().st_size
     artifacts = e.report.setdefault('fire_spirit', {})
-    effects = e.definitions['myvillage:fire_spirit_body']['effects']
+    effects = e.definitions['yuanxian:fire_spirit_body']['effects']
     duration = int(effects['fire_burn_ticks'])
     interval = int(effects['fire_burn_interval_ticks'])
     installments = math.ceil(duration/interval)
@@ -86,8 +86,8 @@ def run(e):
     def dummy(tag, pos=(.5, -60, 2.5), fire_resistance=0):
         target = e.dummy(tag, pos)
         e.rc(f'tag {target} add advanced_fire_fixture')
-        e.rc(f'attribute {target} myvillage:physical_resistance base set 0')
-        e.rc(f'attribute {target} myvillage:fire_resistance base set {fire_resistance}')
+        e.rc(f'attribute {target} yuanxian:physical_resistance base set 0')
+        e.rc(f'attribute {target} yuanxian:fire_resistance base set {fire_resistance}')
         return target, _entity_uuid(e, target)
 
     def mapped_hit(target, target_id):
@@ -133,7 +133,7 @@ def run(e):
         fire = e.number(f'data get entity {target} Fire')
         trace = e.one(f'yuanxian stats trace {target}', 'STATS_TRACE')
         check(label+'_typed_fire_without_vanilla_ignition', fire <= 0
-              and trace.get('type') == 'fire' and trace.get('sourceId') == 'myvillage:fire_spirit'
+              and trace.get('type') == 'fire' and trace.get('sourceId') == 'yuanxian:fire_spirit'
               and close(trace.get('afterResistance', -1), trace.get('postVanilla', -1)*(1-resistance)),
               {'fire_ticks': fire, 'trace': trace})
         e.rc(f'kill {target}')
@@ -153,7 +153,7 @@ def run(e):
         e.choose_focus('fire_spirit_body')
         e.home()
         e.equip('minecraft:iron_sword')
-        for attribute in ('myvillage:fire_resistance_penetration', 'myvillage:resistance_penetration'):
+        for attribute in ('yuanxian:fire_resistance_penetration', 'yuanxian:resistance_penetration'):
             restored[attribute] = e.number(f'attribute {u} {attribute} base get')
             e.rc(f'attribute {u} {attribute} base set 0')
         single_burn('unresisted', 0)
@@ -216,8 +216,8 @@ def run(e):
             e.rc(f'attribute {v} minecraft:generic.max_health base set 200')
             e.rc(f'attribute {v} minecraft:generic.knockback_resistance base set 1')
             e.rc(f'attribute {v} minecraft:generic.armor base set 0')
-            e.rc(f'attribute {v} myvillage:physical_resistance base set 0')
-            e.rc(f'attribute {v} myvillage:fire_resistance base set 0')
+            e.rc(f'attribute {v} yuanxian:physical_resistance base set 0')
+            e.rc(f'attribute {v} yuanxian:fire_resistance base set 0')
             e.rc(f'effect give {v} minecraft:instant_health 1 10 true')
             e.home()
             e.rc(f'tp {v} .5 -60 2.5 180 0')
@@ -232,7 +232,7 @@ def run(e):
             check('two_clients_mapped_pvp_source_and_private_state', len(pvp_burn) == installments
                   and all(row['owner'] == owner_id and row['target'] == victim_id for row in pvp_burn)
                   and guest_before.get('fire_spirit', {}) == guest_after.get('fire_spirit', {})
-                  and 'myvillage:fire_spirit_body' not in guest_after.get('selected', []),
+                  and 'yuanxian:fire_spirit_body' not in guest_after.get('selected', []),
                   {'hit': pvp_hit, 'events': pvp_burn, 'guest_before': guest_before, 'guest_after': guest_after})
 
             # Reverse the actual mapped attack: being struck by an unawakened player grants no fire.

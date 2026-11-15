@@ -20,7 +20,7 @@ public final class LegacyArtifactItem extends Item {
         if(!(player instanceof ServerPlayer p)||!p.isAlive()||p.isSpectator())return InteractionResultHolder.fail(stack);
         if(kind.equals("watermarked_silk")) {
             if(!p.isInWaterOrBubble()){LegacyRuntime.message(p,"water");return InteractionResultHolder.fail(stack);}
-            ItemStack book=TechniqueManualItem.manualFor(p.registryAccess(),ResourceLocation.parse("myvillage:fenying_bu"));
+            ItemStack book=TechniqueManualItem.manualFor(p.registryAccess(),ResourceLocation.parse("yuanxian:fenying_bu"));
             if(book.isEmpty())return InteractionResultHolder.fail(stack);
             // Item.use installs its returned stack in the used hand. Returning an emptied silk
             // stack after Inventory.add filled that same slot would erase the newly revealed book.
@@ -35,8 +35,8 @@ public final class LegacyArtifactItem extends Item {
         super.appendHoverText(stack,context,lines,flag);
         if(kind.equals("mirror")||kind.equals("gourd")) {
             int max=kind.equals("mirror")?1:LegacyRules.get().ticks("gourd_max_charges");
-            lines.add(Component.translatable("legacy.myvillage.charge",LegacyRuntime.charges(stack,max),max));
-            lines.add(Component.translatable("tooltip.myvillage.legacy."+(kind.equals("mirror")?"zhaoshui_mirror":"chiyu_gourd")));
-        } else if(kind.equals("watermarked_silk"))lines.add(Component.translatable("legacy.myvillage.water"));
+            lines.add(Component.translatable("legacy.yuanxian.charge",LegacyRuntime.charges(stack,max),max));
+            lines.add(Component.translatable("tooltip.yuanxian.legacy."+(kind.equals("mirror")?"zhaoshui_mirror":"chiyu_gourd")));
+        } else if(kind.equals("watermarked_silk"))lines.add(Component.translatable("legacy.yuanxian.water"));
     }
 }

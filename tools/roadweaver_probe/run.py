@@ -93,7 +93,7 @@ class ExperimentServer:
             'server-ip': '127.0.0.1', 'server-port': self.sport, 'online-mode': 'false',
             'enforce-secure-profile': 'false', 'enable-rcon': 'true', 'rcon.port': self.rport,
             'rcon.password': self.password, 'broadcast-rcon-to-ops': 'false', 'enable-query': 'false',
-            'level-name': 'world', 'level-seed': config['seed'], 'level-type': 'myvillage\\:cultivation',
+            'level-name': 'world', 'level-seed': config['seed'], 'level-type': 'yuanxian\\:cultivation',
             'generate-structures': 'true', 'gamemode': 'creative', 'difficulty': 'peaceful',
             'spawn-protection': 0, 'allow-flight': 'true', 'view-distance': 4,
             'simulation-distance': 3, 'max-tick-time': 180000, 'max-players': 2,

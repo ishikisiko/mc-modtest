@@ -53,14 +53,14 @@ import org.slf4j.LoggerFactory;
 
 /** 雷角山君: a persistent lair boss. All intent, hit geometry and state changes run on the server. */
 public final class ThunderTigerEntity extends BeastEntity {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("myvillage", "thunder_tiger");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("yuanxian", "thunder_tiger");
     private static final Logger LOG = LoggerFactory.getLogger(ThunderTigerEntity.class);
     private static final EntityDataAccessor<Boolean> HORN_BROKEN = SynchedEntityData.defineId(ThunderTigerEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> HORN_EXPOSURE = SynchedEntityData.defineId(ThunderTigerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> BOSS_PHASE = SynchedEntityData.defineId(ThunderTigerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Long> HORN_BREAK_START = SynchedEntityData.defineId(ThunderTigerEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Long> PHASE_CHANGE_START = SynchedEntityData.defineId(ThunderTigerEntity.class, EntityDataSerializers.LONG);
-    private final ServerBossEvent bossEvent = new ServerBossEvent(Component.translatable("entity.myvillage.thunder_tiger"), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
+    private final ServerBossEvent bossEvent = new ServerBossEvent(Component.translatable("entity.yuanxian.thunder_tiger"), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
     private final ThunderTigerPart headPart;
     private final ThunderTigerPart bodyPart;
     private final ThunderTigerPart[] parts;

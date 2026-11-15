@@ -6,7 +6,7 @@ in a concise design note.
 
 ## Required Fields
 
-- `item_id`: `myvillage:<path>`.
+- `item_id`: `yuanxian:<path>`.
 - `kind`: one of `plain_item`, `block_item`, `decor_block_item`,
   `functional_item`.
 - `display_name`: English `en_us` display text and any Chinese design name.
@@ -67,13 +67,13 @@ framework-level task completion unless the owner asks for in-game review.
 
 - Java items: `src/main/java/com/example/myvillage/item/ModItems.java`
 - Java blocks: `src/main/java/com/example/myvillage/block/ModBlocks.java`
-- Item models: `src/main/resources/assets/myvillage/models/item/<id>.json`
-- Item textures: `src/main/resources/assets/myvillage/textures/item/<id>.png`
-- Blockstates: `src/main/resources/assets/myvillage/blockstates/<id>.json`
-- Block models: `src/main/resources/assets/myvillage/models/block/<id>.json`
-- Block textures: `src/main/resources/assets/myvillage/textures/block/<id>.png`
-- Lang: `src/main/resources/assets/myvillage/lang/en_us.json`
-- Recipes: `src/main/resources/data/myvillage/recipe/<id>.json`
+- Item models: `src/main/resources/assets/yuanxian/models/item/<id>.json`
+- Item textures: `src/main/resources/assets/yuanxian/textures/item/<id>.png`
+- Blockstates: `src/main/resources/assets/yuanxian/blockstates/<id>.json`
+- Block models: `src/main/resources/assets/yuanxian/models/block/<id>.json`
+- Block textures: `src/main/resources/assets/yuanxian/textures/block/<id>.png`
+- Lang: `src/main/resources/assets/yuanxian/lang/en_us.json`
+- Recipes: `src/main/resources/data/yuanxian/recipe/<id>.json`
 - Item tags: `src/main/resources/data/<namespace>/tags/item/<tag>.json`
 
 ## Stop Conditions

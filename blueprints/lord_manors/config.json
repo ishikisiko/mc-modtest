@@ -22,7 +22,7 @@
   "strength": 2.5,
   "explosion_resistance": 10,
   "gallery": {
-    "dimension": "myvillage:manor_gallery",
+    "dimension": "yuanxian:manor_gallery",
     "spacing": 512,
     "columns": 4,
     "floor_y": 32,
@@ -104,7 +104,7 @@
   ],
   "material_resolution": 64,
   "inscriptions": {
-    "font": "src/main/resources/assets/myvillage/font/brush.ttf",
+    "font": "src/main/resources/assets/yuanxian/font/brush.ttf",
     "color": "d6bc81",
     "background": "3e3125",
     "width": 512,

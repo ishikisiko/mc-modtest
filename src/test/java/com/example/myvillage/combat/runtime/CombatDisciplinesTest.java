@@ -36,7 +36,7 @@ class CombatDisciplinesTest {
         assertFalse(r.spearTip(Double.NaN)); assertFalse(r.spearTip(Double.POSITIVE_INFINITY));
     }
     @Test void invalidTuningCannotStartRuntime() throws Exception {
-        try(var in=getClass().getResourceAsStream("/data/myvillage/combat/disciplines.json")) {
+        try(var in=getClass().getResourceAsStream("/data/yuanxian/combat/disciplines.json")) {
             String text=new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
             var root=JsonParser.parseString(text).getAsJsonObject();
             root.getAsJsonObject("sword").addProperty("maximum",1.5);

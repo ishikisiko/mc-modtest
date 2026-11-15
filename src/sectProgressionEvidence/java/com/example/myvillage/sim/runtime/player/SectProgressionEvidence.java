@@ -28,7 +28,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.*;
 
 /** 仅用于独立新世界原生回执与重启检查，不进入交付包，不代表玩家操作验收。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class SectProgressionEvidence {
     private static final String PHASE = System.getenv("MYVILLAGE_SECT_PHASE");
     private static final Path OUT = Path.of(System.getenv().getOrDefault("MYVILLAGE_SECT_OUT", "../reports/sect-native"));
@@ -68,7 +68,7 @@ public final class SectProgressionEvidence {
         while(calendar.elapsedCalendarTicks()<until)calendar.incrementSaturated();calendar.checkpoint();
     }
     private static BigInteger low(ServerPlayer p) {
-        var item=new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(ResourceLocation.parse("myvillage:low_grade_spirit_stone")));
+        var item=new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(ResourceLocation.parse("yuanxian:low_grade_spirit_stone")));
         return SpiritStoneSources.open(p).copies().stream().map(stack->SpiritStoneStorage.count(stack,SpiritStoneStorage.ordinary(item)))
                 .reduce(BigInteger.ZERO,BigInteger::add);
     }
@@ -86,8 +86,8 @@ public final class SectProgressionEvidence {
         }
         owner=actor(server,OWNER,"SectOwner",false);
         other=actor(server,UUID.nameUUIDFromBytes("sect-proof-other".getBytes()),"SectOther",false);
-        var profile=CultivationProfile.defaultProfile().withSpiritualRoot(new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:metal"),60)))
-                .withRealmAndStage(ResourceLocation.parse("myvillage:foundation_establishment"),ResourceLocation.parse("myvillage:foundation_early")).withFoundationQuality(1);
+        var profile=CultivationProfile.defaultProfile().withSpiritualRoot(new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:metal"),60)))
+                .withRealmAndStage(ResourceLocation.parse("yuanxian:foundation_establishment"),ResourceLocation.parse("yuanxian:foundation_early")).withFoundationQuality(1);
         check("profile_fixture",CultivationService.replaceProfile(owner,profile).success(),profile);
         owner.setHealth(owner.getMaxHealth());
         var home=sim().sects(false).stream().filter(s->s.tierId().equals("branch")).findFirst().orElseThrow();sectId=home.id();
@@ -127,7 +127,7 @@ public final class SectProgressionEvidence {
         check("old_opponent_cannot_cancel_new_trial",sim().elderTrial(OWNER.toString()).orElseThrow().equals(current),current);
         Mob target=(Mob)owner.serverLevel().getEntity(UUID.fromString(current.target()));
         check("current_opponent_registered",target!=null,current);target.setNoAi(true);
-        var assigned=target.getPersistentData().getCompound("myvillage:stats_realm");
+        var assigned=target.getPersistentData().getCompound("yuanxian:stats_realm");
         check("opponent_is_qi_peak",assigned.getString("realm").endsWith("qi_refining")&&assigned.getInt("stage")==8,assigned);
         float hp=target.getHealth();target.hurt(other.damageSources().playerAttack(other),1000);
         check("other_player_cannot_damage_trial",target.getHealth()==hp,target.getHealth());

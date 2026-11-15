@@ -60,7 +60,7 @@ class FunctionalBuildingsTests(unittest.TestCase):
         overwritten=dict(blocks);overwritten[pos]='minecraft:stone_bricks'
         with self.assertRaisesRegex(AssertionError,'overwritten facility'):
             validate_services(d,overwritten)
-        bad=copy.deepcopy(d);bad['service_blocks'][0]['state']='myvillage:forging_table[facing=up,lit=false]'
+        bad=copy.deepcopy(d);bad['service_blocks'][0]['state']='yuanxian:forging_table[facing=up,lit=false]'
         blocks[pos]=bad['service_blocks'][0]['state']
         with self.assertRaisesRegex(AssertionError,'unknown facility state'):
             validate_services(bad,blocks)

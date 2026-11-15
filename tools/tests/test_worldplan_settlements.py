@@ -16,11 +16,11 @@ class SettlementEvidenceTest(unittest.TestCase):
             self.assertFalse(tickets_released(reply),reply)
 
     def test_saved_algorithm_must_match_the_requested_version(self):
-        source={'algorithm':'myvillage:worldplan_v5'};encoded=encode_rules(source)
-        self.assertEqual(source,decode_saved_rules(encoded,'myvillage:worldplan_v5'))
+        source={'algorithm':'yuanxian:worldplan_v5'};encoded=encode_rules(source)
+        self.assertEqual(source,decode_saved_rules(encoded,'yuanxian:worldplan_v5'))
         with self.assertRaises(ValueError):decode_saved_rules(encoded)
         with self.assertRaises(ValueError):
-            decode_saved_rules(encode_rules({'algorithm':'myvillage:worldplan_v4'}),'myvillage:worldplan_v5')
+            decode_saved_rules(encode_rules({'algorithm':'yuanxian:worldplan_v4'}),'yuanxian:worldplan_v5')
 
 
 if __name__=='__main__':unittest.main()

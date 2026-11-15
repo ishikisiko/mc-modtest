@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 public abstract class NewServerWorldPresetMixin {
     @ModifyArg(method="<init>", at=@At(value="INVOKE",
             target="Lnet/minecraft/server/dedicated/Settings;<init>(Ljava/util/Properties;)V"), index=0, require=1, allow=1)
-    private static Properties myvillage$default(Properties properties) {
+    private static Properties yuanxian$default(Properties properties) {
         return NewWorldDefaults.server(properties);
     }
 }

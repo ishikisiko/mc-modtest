@@ -64,7 +64,7 @@ public final class StoryRuntime {
         openingDefinition=load(e,StoryDefinition.OPENING_RESOURCE);
     }
     private static StoryDefinition load(ServerStartedEvent e,String resource) {
-        try(var stream=e.getServer().getResourceManager().open(ResourceLocation.fromNamespaceAndPath("myvillage",resource));
+        try(var stream=e.getServer().getResourceManager().open(ResourceLocation.fromNamespaceAndPath("yuanxian",resource));
                 var reader=new InputStreamReader(stream,StandardCharsets.UTF_8)) {
             var loaded=StoryDefinition.parse(reader);
             for(var r:loaded.rewards())com.example.myvillage.sim.runtime.commerce.CommerceInventory.item(r.item());
@@ -272,7 +272,7 @@ public final class StoryRuntime {
         if(!QianzhenScene.layout(scene).facilities().stream().map(com.example.myvillage.story.scene.SceneLayout.Target::id)
                 .collect(java.util.stream.Collectors.toSet()).containsAll(StoryDefinition.FACILITIES))
             return new OpeningFacilities(false,"旧场景没有完整登记学徒设施",0,0,0,0);
-        for(var entry:Map.of("testing_stele","myvillage:spirit_testing_stele","inheritance_stele","myvillage:technique_inheritance_stele").entrySet()) {
+        for(var entry:Map.of("testing_stele","yuanxian:spirit_testing_stele","inheritance_stele","yuanxian:technique_inheritance_stele").entrySet()) {
             var pos=QianzhenScene.position(scene,entry.getKey()).orElse(null);
             if(pos==null)return new OpeningFacilities(false,"旧场景未登记测灵与传承设施",0,0,0,0);
             if(!scene.hasChunkAt(pos))return new OpeningFacilities(false,"入门院设施所在区块尚未加载，请先走近入门院再来",0,0,0,0);

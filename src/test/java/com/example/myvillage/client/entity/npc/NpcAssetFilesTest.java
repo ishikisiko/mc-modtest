@@ -30,7 +30,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 /** The generated cultivator files of every look against the rules the NPC renderer applies when it loads them. */
 final class NpcAssetFilesTest {
     // Not CultivatorEntity.ID: initialising an entity class needs the game's registries.
-    private static final ResourceLocation CULTIVATOR = ResourceLocation.fromNamespaceAndPath("myvillage", "cultivator");
+    private static final ResourceLocation CULTIVATOR = ResourceLocation.fromNamespaceAndPath("yuanxian", "cultivator");
     // CultivatorEntity.LOOKS, written out for the same reason; tools/validate_custom_entities.py keeps
     // that list, the contract's looks and the npcgen definitions equal.
     static final List<String> LOOKS = CultivatorVariants.looks();
@@ -78,15 +78,15 @@ final class NpcAssetFilesTest {
 
     @Test
     void lookFilesFollowTheEntityAndLookNames() {
-        assertEquals("myvillage:npc/cultivator_model.json", NpcRenderer.modelFile(CULTIVATOR).toString());
+        assertEquals("yuanxian:npc/cultivator_model.json", NpcRenderer.modelFile(CULTIVATOR).toString());
         assertEquals(NpcRenderer.modelFile(CULTIVATOR), NpcRenderer.modelFile(CULTIVATOR, "default"));
-        assertEquals("myvillage:npc/cultivator_f_novice_model.json", NpcRenderer.modelFile(CULTIVATOR, "f_novice").toString());
-        assertEquals("myvillage:npc/cultivator_f_adept_animations.json",
+        assertEquals("yuanxian:npc/cultivator_f_novice_model.json", NpcRenderer.modelFile(CULTIVATOR, "f_novice").toString());
+        assertEquals("yuanxian:npc/cultivator_f_adept_animations.json",
                 NpcRenderer.animationFile(CULTIVATOR, "f_adept").toString());
-        assertEquals("myvillage:textures/entity/cultivator/cultivator.png", NpcRenderer.texture(CULTIVATOR).toString());
-        assertEquals("myvillage:textures/entity/cultivator/cultivator_f_novice.png",
+        assertEquals("yuanxian:textures/entity/cultivator/cultivator.png", NpcRenderer.texture(CULTIVATOR).toString());
+        assertEquals("yuanxian:textures/entity/cultivator/cultivator_f_novice.png",
                 NpcRenderer.texture(CULTIVATOR, "f_novice").toString());
-        assertEquals("main", NpcRenderer.layer(CULTIVATOR).getLayer(), "the contract's model_layer myvillage:cultivator#main");
+        assertEquals("main", NpcRenderer.layer(CULTIVATOR).getLayer(), "the contract's model_layer yuanxian:cultivator#main");
         assertEquals("f_adept", NpcRenderer.layer(CULTIVATOR, "f_adept").getLayer());
         assertEquals(List.of("default", "f_novice"), NpcRenderer.withDefault(List.of("f_novice", "default")));
     }

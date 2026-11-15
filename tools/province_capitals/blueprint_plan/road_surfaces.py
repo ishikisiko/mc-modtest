@@ -20,7 +20,7 @@ def settings():
 class RoadSurfaces:
     def __init__(self,region,roads,field,owners):
         self.config=settings();self.profile=self.config['profiles'][region];self.members={}
-        self.materials={'myvillage:'+m['id']:m for m in town_materials()}
+        self.materials={'yuanxian:'+m['id']:m for m in town_materials()}
         self.classes={r['id']:r['surface'] for r in roads}
         priorities=self.config['priority']
         for road in roads:
@@ -44,7 +44,7 @@ class RoadSurfaces:
                 along+=length
         if set(self.members)!=set(field):raise ValueError('道路铺装遗漏实际路幅')
         for slot,material in self.profile.items():
-            if slot!='name' and material.startswith('myvillage:') and material not in self.materials:
+            if slot!='name' and material.startswith('yuanxian:') and material not in self.materials:
                 raise ValueError('道路引用未注册自有材质：'+material)
 
     def oriented(self,material,axis='z',reverse=False):

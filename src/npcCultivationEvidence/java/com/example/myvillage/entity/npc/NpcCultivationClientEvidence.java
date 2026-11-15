@@ -12,7 +12,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 /** 采集器只读客户端收到的身份与当前屏幕；打开页面仍须映射右键输入。 */
-@EventBusSubscriber(modid="myvillage",value=Dist.CLIENT)
+@EventBusSubscriber(modid="yuanxian",value=Dist.CLIENT)
 public final class NpcCultivationClientEvidence {
     private static int ticks;
     @SubscribeEvent public static void tick(ClientTickEvent.Post e)throws Exception{

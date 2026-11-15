@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 public final class ManorLocation {
     public record Name(String title,boolean gallery) {
         public Component component() {
-            return gallery?Component.translatable("tooltip.myvillage.manor_gallery",title):Component.literal(title);
+            return gallery?Component.translatable("tooltip.yuanxian.manor_gallery",title):Component.literal(title);
         }
     }
     public static Optional<Name> at(ServerLevel level,BlockPos pos,ManorPresentation.Info info) {

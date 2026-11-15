@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "resource": "data/myvillage/story/qianzhen_chapter_1.json",
+  "resource": "data/yuanxian/story/qianzhen_chapter_1.json",
   "readback": {
     "command": "/yuanxian story status <player>",
     "prefix": "QIANZHEN_STORY_STATUS ",

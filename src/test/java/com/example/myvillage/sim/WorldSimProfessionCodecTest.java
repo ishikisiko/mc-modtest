@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 /** Saved professions migrate explicitly; unknown aggregates never become classified herbs. */
 class WorldSimProfessionCodecTest {
     static final long SEED=42;
-    static final String SITE="codec_town",LEAF="myvillage:spirit_leaf",DEW="myvillage:dew_blossom";
+    static final String SITE="codec_town",LEAF="yuanxian:spirit_leaf",DEW="yuanxian:dew_blossom";
     SimContext fixture() {
         var state=new WorldState();state.seed=SEED;state.tierId="small";state.genesisDaysPerYear=24;
         var graph=SimFixtures.graph(SEED);String region=graph.regions().getFirst().id();
@@ -52,7 +52,7 @@ class WorldSimProfessionCodecTest {
         assertEquals(7,sim.professionSupply(SITE).orElseThrow().legacyStock());
         assertEquals(7,sim.lifeSupply(SITE).orElseThrow().medicine());
         assertEquals(6,sim.profession(1).orElseThrow().alchemyExperience());
-        assertEquals(4,sim.commerce(SITE).orElseThrow().items().get("myvillage:pill_huiling"));
+        assertEquals(4,sim.commerce(SITE).orElseThrow().items().get("yuanxian:pill_huiling"));
         assertEquals(51400,sim.professionSupply(SITE).orElseThrow().gardens().getFirst().matureAt());
     }
     byte[] ctxToBytes(SimContext ctx) { return StateCodec.toBytes(ctx.state,ctx.realms); }
@@ -81,7 +81,7 @@ class WorldSimProfessionCodecTest {
         life(missing).getAsJsonObject("professions").remove("1");assertThrows(SimFormatException.class,()->restore(missing));
     }
     @Test void rejectsUnknownNegativeAndExcessClassifiedMaterials() {
-        for(String herb:List.of(LEAF,"myvillage:invented_rare_herb")) {
+        for(String herb:List.of(LEAF,"yuanxian:invented_rare_herb")) {
             var broken=json(fixture());var stock=life(broken).getAsJsonObject("supplies").getAsJsonObject(SITE).getAsJsonObject("herb_stock");
             stock.addProperty(herb,11);assertThrows(SimFormatException.class,()->restore(broken));
         }

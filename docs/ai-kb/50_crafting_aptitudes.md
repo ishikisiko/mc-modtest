@@ -10,14 +10,14 @@
 
 - `cultivation/crafting/CraftingAptitudes`: immutable version1 codec, explicit
   uninitialized state and independent alchemy/forging scores. Format bounds0..100.
-- `CultivationAttachments.CRAFTING`: serialized `myvillage:crafting_aptitudes`
+- `CultivationAttachments.CRAFTING`: serialized `yuanxian:crafting_aptitudes`
   with copyOnDeath. `CultivationProfile` stays v4; no manual Clone copy.
 - `CultivationService`: sole replacement owner. Once-only initialization on
   awakened legacy login and before the owning snapshot after root assignment.
   Generated data survives root clearing/reawakening and profile resets.
 - `CraftingGenerator`: deterministic worldseed/UUID generation with separate
   permanent profession domains; does not consume the root/world RNG stream.
-- `data/myvillage/crafting/rules.json` / `CraftingRules`: initial roll range and
+- `data/yuanxian/crafting/rules.json` / `CraftingRules`: initial roll range and
   ordered product-quality thresholds, strict schema/bounds validation. State
   quality eligibility rejects uninitialized players even though initialized0
   legitimately maps to lower quality. Rebuild/restart for rule changes.

@@ -29,7 +29,7 @@ from tools.combat_capture.xgame import Game
 from tools.realm_stats_evidence import close
 from tools.modal_runner.remote import ALCHEMY_CASES, select_cases
 
-QUALITY = 'myvillage:pill_quality'
+QUALITY = 'yuanxian:pill_quality'
 SLOTS = ((16, 38), (52, 38), (76, 38), (112, 38), (178, 38))
 MAIN_VIEW = '.5 -60 .5 0 20.5'
 GUEST_VIEW = '-1.5 -60 1.5 -45 21.6'
@@ -171,7 +171,7 @@ def healing_snapshot(reply):
     if type(health) not in (int, float) or not math.isfinite(health) or health < 0:
         raise ValueError('Missing or invalid atomic player health')
     persistent = player.get('NeoForgeData')
-    medication = persistent.get('myvillage_medicine') if isinstance(persistent, dict) else None
+    medication = persistent.get('yuanxian_medicine') if isinstance(persistent, dict) else None
     if not isinstance(medication, dict):
         raise ValueError('Missing atomic medication compound')
     return {'health': health, 'medicine': medication}
@@ -376,13 +376,13 @@ class QualityEvidence(AlchemyEvidence):
         for command in ('tick rate 20', f'setblock {POS} minecraft:air',
                         *scene.world_rules(), *scene.player_setup(user, 'minecraft:air'),
                         'gamerule naturalRegeneration false', 'yuanxian world pause', 'forceload add -16 -16 32 32',
-                        f'setblock {POS} myvillage:alchemy_furnace[facing=north]'):
+                        f'setblock {POS} yuanxian:alchemy_furnace[facing=north]'):
             self.rc(command)
         if awakened:
             self.s.game.key('x')
             self.wait_medication()
             for command in (f'yuanxian cultivation awaken {user}', f'yuanxian cultivation initiate {user}',
-                            f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
+                            f'yuanxian cultivation setrealm {user} yuanxian:qi_refining yuanxian:qi_refining_1',
                             f'yuanxian cultivation crafting set {user} alchemy 100'):
                 self.rc(command)
 
@@ -455,13 +455,13 @@ class QualityEvidence(AlchemyEvidence):
     def initial(self):
         user = self.s.username; recipe = self.rules['recipes'][0]
         self.prepare_scene(awakened=False)
-        self.fixture(recipe, herbs=2); self.slot(3, 'myvillage:low_grade_spirit_stone', 2)
+        self.fixture(recipe, herbs=2); self.slot(3, 'yuanxian:low_grade_spirit_stone', 2)
         before = self.block_items(); time.sleep(1)
         self.check('ready_furnace_never_autostarts', self.batch() is None and self.progress() == 0 and self.block_items() == before, before)
         self.open_furnace(); self.mapped_start(); self.capture('unawakened-start-rejected.png'); self.close_menu()
         self.check('mapped_unawakened_start_rejected_without_cost', self.batch() is None and self.block_items() == before, self.block_items())
         for command in (f'yuanxian cultivation awaken {user}', f'yuanxian cultivation initiate {user}',
-                        f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
+                        f'yuanxian cultivation setrealm {user} yuanxian:qi_refining yuanxian:qi_refining_1',
                         f'yuanxian cultivation crafting set {user} alchemy 0'):
             self.rc(command)
         batch = self.begin(); owner = read_data(self.rc(f'data get entity {user} UUID'))
@@ -572,7 +572,7 @@ class QualityEvidence(AlchemyEvidence):
         user = self.s.username
         suffix = '' if quality is None else '['+QUALITY+'='+str(quality)+']'
         self.rc(f'tp {user} .5 -60 .5 180 0')
-        self.rc(f'item replace entity {user} hotbar.0 with myvillage:pill_{pill}{suffix} 2')
+        self.rc(f'item replace entity {user} hotbar.0 with yuanxian:pill_{pill}{suffix} 2')
         self.s.game.key('1'); self.s.game.require_ingame('mapped quality pill use')
         self.s.game.xdo('mousedown', '3')
         try: time.sleep(self.rules['use_ticks']/20+.8)
@@ -621,7 +621,7 @@ class QualityEvidence(AlchemyEvidence):
                         'method': 'same-command Health+medicine snapshots; elapsed online counters; no tick freeze'})
         self.check('quality4_healing_stronger_than_legacy', heals['4'] > heals['None'], heals)
         # Exact readback checks below test multiplier, while pure Java tests cover rounding/cap edges.
-        stage = json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/realm/qi_refining.json').read_text())['stages'][0]
+        stage = json.loads((ROOT/'src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json').read_text())['stages'][0]
         stability = {}
         for quality in (None, 4):
             self.wait_medication()
@@ -679,7 +679,7 @@ class QualityEvidence(AlchemyEvidence):
     def prepare_restart(self):
         recipe = self.rules['recipes'][0]
         # Persistence must work without first running the medicine or UI cases.
-        stage = json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/realm/qi_refining.json').read_text())['stages'][0]
+        stage = json.loads((ROOT/'src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json').read_text())['stages'][0]
         self.rc(f'yuanxian cultivation setprogress {self.s.username} {stage["cultivation_cap"]}')
         self.rc(f'yuanxian cultivation setstability {self.s.username} 0')
         count = self.held_quality('ningshen', 4)

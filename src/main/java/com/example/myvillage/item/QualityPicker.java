@@ -26,7 +26,7 @@ public final class QualityPicker {
 
     public static List<Item> catalogue() {
         return BuiltInRegistries.ITEM.stream()
-                .filter(item -> BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("myvillage"))
+                .filter(item -> BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("yuanxian"))
                 .sorted(Comparator.comparing(item -> BuiltInRegistries.ITEM.getKey(item).toString())).toList();
     }
 
@@ -62,7 +62,7 @@ public final class QualityPicker {
     }
 
     public static void give(ServerPlayer player, ResourceLocation id, int quality, int trait, boolean fullStack) {
-        if (!player.isAlive() || player.isRemoved() || !held(player) || !id.getNamespace().equals("myvillage")) return;
+        if (!player.isAlive() || player.isRemoved() || !held(player) || !id.getNamespace().equals("yuanxian")) return;
         var item = BuiltInRegistries.ITEM.getOptional(id);
         if (item.isEmpty()) return;
         ItemStack result = create(item.get(), quality, trait, fullStack);
@@ -83,11 +83,11 @@ public final class QualityPicker {
             if (copies.get(i).isEmpty()) { copies.set(i, remaining.copy()); remaining = ItemStack.EMPTY; }
         }
         if (!remaining.isEmpty()) {
-            player.displayClientMessage(Component.translatable("message.myvillage.quality_picker.full"), false);
+            player.displayClientMessage(Component.translatable("message.yuanxian.quality_picker.full"), false);
             return;
         }
         for (int i = 0; i < copies.size(); i++) inventory.items.set(i, copies.get(i));
         inventory.setChanged(); player.inventoryMenu.broadcastChanges();
-        player.displayClientMessage(Component.translatable("message.myvillage.quality_picker.given", result.getHoverName(), result.getCount()), false);
+        player.displayClientMessage(Component.translatable("message.yuanxian.quality_picker.given", result.getHoverName(), result.getCount()), false);
     }
 }

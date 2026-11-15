@@ -3,17 +3,17 @@ navigation:
   title: 筑基与补全根基
   parent: index.md
   position: 36
-  icon: myvillage:pill_zhuji
+  icon: yuanxian:pill_zhuji
 item_ids:
-  - myvillage:pill_zhuji
-  - myvillage:pill_buji
-  - myvillage:ningyuan_fruit_low
-  - myvillage:ningyuan_fruit_high
+  - yuanxian:pill_zhuji
+  - yuanxian:pill_buji
+  - yuanxian:ningyuan_fruit_low
+  - yuanxian:ningyuan_fruit_high
 ---
 
 # 筑基与补全根基
 
-炼气九层修为满、稳定度达标后，手持 <ItemLink id="myvillage:pill_zhuji" /> 长按右键服用，静止等待地道筑基。按普通突破键不能代替服丹；也可以选择独立的[天道筑基雷劫](./tribulation.md)。
+炼气九层修为满、稳定度达标后，手持 <ItemLink id="yuanxian:pill_zhuji" /> 长按右键服用，静止等待地道筑基。按普通突破键不能代替服丹；也可以选择独立的[天道筑基雷劫](./tribulation.md)。
 
 - 下品：成功率 40%，得到地道下品根基。
 - 中品：成功率 75%，得到地道中品根基。
@@ -23,7 +23,7 @@ item_ids:
 
 ## 补基丹
 
-<ItemLink id="myvillage:pill_buji" /> 同样可炼出四品，分别补至地道下品、中品、上品、上品。筑基之后任何更高境界都可使用，只补品质差额；同效果或低效果时拒绝消耗，不重复叠加，也不能把地道根基改为天道。
+<ItemLink id="yuanxian:pill_buji" /> 同样可炼出四品，分别补至地道下品、中品、上品、上品。筑基之后任何更高境界都可使用，只补品质差额；同效果或低效果时拒绝消耗，不重复叠加，也不能把地道根基改为天道。
 
 ## 在丹炉中炼制
 

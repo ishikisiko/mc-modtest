@@ -57,7 +57,7 @@ class StoneEvidence(LegacyEvidence):
 
     def model_views(self):
         self.clean();self.rc(f'gamemode spectator {self.s.username}');self.hud(True)
-        self.rc('summon myvillage:stele_guardian .5 -60 8.5 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Tags:["legacy_beast"],Rotation:[180f,0f]}')
+        self.rc('summon yuanxian:stele_guardian .5 -60 8.5 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Tags:["legacy_beast"],Rotation:[180f,0f]}')
         self.step(15);time.sleep(3)
         for name,position,target,label in [
             ('guardian-front',(.5,-59,1.7),(.5,-58,8.5),'石灵正面'),
@@ -69,18 +69,18 @@ class StoneEvidence(LegacyEvidence):
         self.rc('yuanxian beast debug on');self.rc('data merge entity @e[tag=legacy_beast,limit=1] {NoAI:0b}')
         self.camera((5.8,-55.8,-.4),(.5,-57,8.5))
         def action():
-            self.rc('yuanxian beast move @e[tag=legacy_beast,limit=1] myvillage:stele_guardian_quake')
+            self.rc('yuanxian beast move @e[tag=legacy_beast,limit=1] yuanxian:stele_guardian_quake')
             time.sleep(4.0)
-            self.rc('yuanxian beast move @e[tag=legacy_beast,limit=1] myvillage:stele_guardian_slam')
+            self.rc('yuanxian beast move @e[tag=legacy_beast,limit=1] yuanxian:stele_guardian_slam')
         self.record('guardian-motion','石灵动作展示（管理员触发动作，用于检查骨骼与表面）',action,8)
         self.report['guardian_pose_boundary']='静态图为 NoAI 造型夹具；动作由管理员命令触发，均不作为自然遭遇或玩家战斗验收。'
         self.rc('kill @e[tag=legacy_beast]');self.step(25)
-        self.rc('summon myvillage:demon_wolf .5 -60 8.5 {NoAI:1b,PersistenceRequired:1b,Tags:["legacy_beast"],Rotation:[180f,0f]}')
+        self.rc('summon yuanxian:demon_wolf .5 -60 8.5 {NoAI:1b,PersistenceRequired:1b,Tags:["legacy_beast"],Rotation:[180f,0f]}')
         self.camera((3,-59.4,5),(.5,-59.3,8.5));self.picture('cuboid-regression','原长方体模型路径的实机回归参照')
         self.rc('kill @e[tag=legacy_beast]');self.step(25);self.hud(False)
 
     def weapon_contexts(self):
-        self.configure(self.s.username);self.clean();self.fixture_bind();self.ready(240);self.equip('myvillage:zhenyue_ruler')
+        self.configure(self.s.username);self.clean();self.fixture_bind();self.ready(240);self.equip('yuanxian:zhenyue_ruler')
         self.rc(f'tp {self.s.username} .5 -60 .5 0 0');self.step(8)
         self.picture('ruler-first-person','镇岳尺第一人称握持')
         self.hud(True);self.key('F5');self.step(4);self.picture('ruler-third-person-back','镇岳尺第三人称背面握持')
@@ -103,8 +103,8 @@ class StoneEvidence(LegacyEvidence):
         self.hud(False);self.picture('ruler-recalled','镇岳尺收回后恢复握持');self.clean()
 
     def resource_reload(self):
-        self.equip('myvillage:zhenyue_ruler');self.rc('tick unfreeze')
-        result=self.s.game.f3_t(r'Beast myvillage:stele_guardian: walk rate',timeout=180,settle=3)
+        self.equip('yuanxian:zhenyue_ruler');self.rc('tick unfreeze')
+        result=self.s.game.f3_t(r'Beast yuanxian:stele_guardian: walk rate',timeout=180,settle=3)
         self.report['inputs'].append({'method':'mapped F3+T resource reload'})
         self.s.game.require_ingame('资源重载后检查模型');self.freeze()
         self.picture('after-resource-reload','资源重载后的镇岳尺握持')

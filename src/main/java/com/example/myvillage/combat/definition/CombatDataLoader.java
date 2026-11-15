@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * Reads the bundled combat data (schema 1): {@code data/myvillage/combat/index.json}, which lists
+ * Reads the bundled combat data (schema 1): {@code data/yuanxian/combat/index.json}, which lists
  * style and weapon ids, and one file per id at {@code data/<ns>/combat/style/<path>.json} or
  * {@code data/<ns>/combat/weapon/<path>.json}. Pure functions over JSON: the caller supplies how a
  * path is opened, so the same code reads the mod jar at runtime and the source tree in tests.
@@ -36,7 +36,7 @@ import java.util.function.Supplier;
  */
 public final class CombatDataLoader {
     public static final int SCHEMA_VERSION = 1;
-    public static final String INDEX_PATH = "data/myvillage/combat/index.json";
+    public static final String INDEX_PATH = "data/yuanxian/combat/index.json";
 
     private static final Set<String> INDEX_FIELDS = Set.of("schema", "styles", "weapons", "skills");
     private static final Set<String> STYLE_FIELDS = Set.of(
@@ -643,7 +643,7 @@ public final class CombatDataLoader {
             int separator = value.indexOf(':');
             ResourceLocation id = ResourceLocation.tryParse(value);
             if (separator <= 0 || separator == value.length() - 1 || id == null) {
-                throw error(key, "must be a namespaced id like myvillage:name, got \"" + value + "\"");
+                throw error(key, "must be a namespaced id like yuanxian:name, got \"" + value + "\"");
             }
             return id;
         }

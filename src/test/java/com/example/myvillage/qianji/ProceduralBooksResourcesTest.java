@@ -13,7 +13,7 @@ class ProceduralBooksResourcesTest {
         }
     }
     @Test void packagedBookGeometryContainsOnlyRegionsAndSharedAlgorithmParameters()throws Exception {
-        var catalog=read("/data/myvillage/qianji/components/catalog.json");
+        var catalog=read("/data/yuanxian/qianji/components/catalog.json");
         int procedural=0;var rules=ProceduralBooks.rules();
         for(var entry:catalog.getAsJsonArray("banks")){
             var bank=entry.getAsJsonObject();int shape=0;
@@ -27,8 +27,8 @@ class ProceduralBooksResourcesTest {
                     }
                 }
                 if(!expected.isEmpty()){
-                    var model=read("/assets/myvillage/models/block/"+bank.get("id").getAsString()+"/shape_"+shape+".json");
-                    assertEquals("myvillage:procedural_books",model.get("loader").getAsString());
+                    var model=read("/assets/yuanxian/models/block/"+bank.get("id").getAsString()+"/shape_"+shape+".json");
+                    assertEquals("yuanxian:procedural_books",model.get("loader").getAsString());
                     assertTrue(model.has("base_model"));
                     assertEquals(expected,model.getAsJsonArray("book_regions").asList().stream().map(v->ProceduralBooks.Region.fromJson(v.getAsJsonArray())).toList());
                     for(var region:expected)for(int seed=0;seed<rules.patterns();seed++)for(var b:ProceduralBooks.generate(region,seed,rules)){

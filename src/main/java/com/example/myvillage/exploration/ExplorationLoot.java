@@ -22,7 +22,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 public final class ExplorationLoot extends LootModifier {
     public static final MapCodec<ExplorationLoot> CODEC = RecordCodecBuilder.mapCodec(i -> codecStart(i).apply(i, ExplorationLoot::new));
     private static final DeferredRegister<MapCodec<? extends IGlobalLootModifier>> SERIALIZERS =
-            DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, "myvillage");
+            DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, "yuanxian");
     static { SERIALIZERS.register("exploration", () -> CODEC); }
     public static void register(IEventBus bus) { SERIALIZERS.register(bus); }
     public ExplorationLoot(LootItemCondition[] conditions) { super(conditions); }

@@ -11,7 +11,7 @@ import java.util.*;
 
 /** Generated collision and authored feedback settings share the model's geometry source. */
 public final class ForgingDingVisuals {
-    public static final String RESOURCE = "/data/myvillage/forging/ding.json";
+    public static final String RESOURCE = "/data/yuanxian/forging/ding.json";
     public record Box(double x0, double y0, double z0, double x1, double y1, double z1) {
         public Box {
             if (!Double.isFinite(x0+y0+z0+x1+y1+z1) || x0<0 || y0<0 || z0<0

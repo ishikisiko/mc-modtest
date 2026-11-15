@@ -15,7 +15,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 
 /** Resource-owned presentation only: six explicit art overrides, shared category symbols and grade colours. */
 public final class PanelAssets {
-    private static final ResourceLocation CONFIG = ResourceLocation.fromNamespaceAndPath("myvillage", "cultivation_panel.json");
+    private static final ResourceLocation CONFIG = ResourceLocation.fromNamespaceAndPath("yuanxian", "cultivation_panel.json");
     private static volatile Look look;
 
     public record Grade(int color, int text, int wash, int label, int edge) {}

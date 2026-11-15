@@ -2,7 +2,7 @@
   "schema": 1,
   "id": "road_stone_guardrail",
   "name": "青石官道护栏",
-  "texture": "myvillage:block/lord_manors/manor_town_grey_ashlar",
+  "texture": "yuanxian:block/lord_manors/manor_town_grey_ashlar",
   "mode": "hazards",
   "min_drop2": 4,
   "probe_distance": 3,
@@ -139,6 +139,6 @@
       10
     ]
   ],
-  "recipe_input": "myvillage:manor_town_grey_ashlar",
+  "recipe_input": "yuanxian:manor_town_grey_ashlar",
   "recipe_count": 6
 }

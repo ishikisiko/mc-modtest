@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 /** Single server-owned drop entry point, evaluated on each accepted death. */
 public final class DropRuntime {
-    public static final String DEFAULTS="data/myvillage/drops/monster_drops.json";
+    public static final String DEFAULTS="data/yuanxian/drops/monster_drops.json";
     private static final Gson JSON=new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static final Map<MinecraftServer,DropConfigStore> STORES=new ConcurrentHashMap<>();
     private static final Map<MinecraftServer,String> ERRORS=new ConcurrentHashMap<>();
@@ -54,7 +54,7 @@ public final class DropRuntime {
     }
     public static int realmRank(RealmKey key){var rules=StatsRules.bundled();rules.definition(key);return rules.definition(key).order()*16+key.stage();}
     private static DropRules.Catalog catalog(MinecraftServer server){
-        var regions=RegionCatalogLoader.loadFromResourceManager(server.getResourceManager(),"myvillage").catalog().stream().map(p->p.id()).collect(java.util.stream.Collectors.toSet());
+        var regions=RegionCatalogLoader.loadFromResourceManager(server.getResourceManager(),"yuanxian").catalog().stream().map(p->p.id()).collect(java.util.stream.Collectors.toSet());
         return new DropRules.Catalog(id->BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(id)),
                 id->!id.equals("minecraft:player")&&BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.parse(id)),regions::contains,DropRuntime::realmRank);
     }
@@ -62,7 +62,7 @@ public final class DropRuntime {
         try(var stream=com.example.myvillage.resources.BuiltinResources.open(DEFAULTS)){
             if(stream==null)throw new IllegalStateException("缺少掉落默认配置");
             String defaults=new String(stream.readNBytes(DropRules.MAX_BYTES+1),StandardCharsets.UTF_8);
-            var store=new DropConfigStore(FMLPaths.CONFIGDIR.get().resolve("myvillage/monster_drops.json"),defaults,catalog(e.getServer()));
+            var store=new DropConfigStore(FMLPaths.CONFIGDIR.get().resolve("yuanxian/monster_drops.json"),defaults,catalog(e.getServer()));
             STORES.put(e.getServer(),store);
             try{store.reload();ERRORS.remove(e.getServer());}catch(Exception error){ERRORS.put(e.getServer(),error.getMessage());LoggerFactory.getLogger(DropRuntime.class).error("掉落外置配置未载入，使用本次包内默认值：{}",error.getMessage());}
             exportQuietly(e.getServer());
@@ -71,17 +71,17 @@ public final class DropRuntime {
     public static DropConfigStore.Snapshot snapshot(MinecraftServer server){var store=STORES.get(server);if(store==null)throw new IllegalStateException("掉落配置尚未就绪");return store.active();}
     public static DropRules.Scene scene(LivingEntity entity){
         var tag=entity.getPersistentData();
-        if(tag.hasUUID("myvillage_memory_owner"))return DropRules.Scene.APTITUDE_TRIAL;
-        if(tag.hasUUID("myvillage:elder_trial_owner"))return DropRules.Scene.SECT_TRIAL;
-        if(tag.hasUUID("myvillage:quest_instance"))return DropRules.Scene.QUEST_REALM;
-        if(tag.contains("myvillage_habitat"))return DropRules.Scene.HABITAT;
+        if(tag.hasUUID("yuanxian_memory_owner"))return DropRules.Scene.APTITUDE_TRIAL;
+        if(tag.hasUUID("yuanxian:elder_trial_owner"))return DropRules.Scene.SECT_TRIAL;
+        if(tag.hasUUID("yuanxian:quest_instance"))return DropRules.Scene.QUEST_REALM;
+        if(tag.contains("yuanxian_habitat"))return DropRules.Scene.HABITAT;
         if(entity.level() instanceof ServerLevel level&&!com.example.myvillage.ruins.BattleReceipts.get(level).status(entity.getUUID()).equals("unknown"))return DropRules.Scene.BATTLE_RUIN;
         return DropRules.Scene.NORMAL;
     }
     private static String region(LivingEntity entity){return entity.level().dimension().equals(Level.OVERWORLD)?RegionRuntimeService.regionAt(entity.getBlockX(),entity.getBlockZ()).orElse(""):"";}
     public static DropRules.Context context(LivingEntity entity,boolean playerKill){
         return new DropRules.Context(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString(),scene(entity),region(entity),
-                StatsRuntime.assignedRealm(entity).map(DropRuntime::realmRank).orElse(null),playerKill,entity.getPersistentData().getBoolean("myvillage_fire_captured"));
+                StatsRuntime.assignedRealm(entity).map(DropRuntime::realmRank).orElse(null),playerKill,entity.getPersistentData().getBoolean("yuanxian_fire_captured"));
     }
     private static void drops(LivingDropsEvent event){
         if(!(event.getEntity().level() instanceof ServerLevel level))return;
@@ -92,7 +92,7 @@ public final class DropRuntime {
         if(context.scene()==DropRules.Scene.NORMAL&&!(entity instanceof net.minecraft.world.entity.monster.Enemy)
                 &&entity.getType().getCategory()!=MobCategory.MONSTER&&!snapshot.rules().entities().contains(context.entity()))return;
         // Epoch/identity validation remains a server invariant, separate from editable reward amounts.
-        if(entity.getPersistentData().contains("myvillage_habitat")&&!HabitatRuntime.validLootReceipt(entity)){event.getDrops().clear();return;}
+        if(entity.getPersistentData().contains("yuanxian_habitat")&&!HabitatRuntime.validLootReceipt(entity)){event.getDrops().clear();return;}
         var resolution=snapshot.rules().resolve(context);
         if(resolution.policy().mode()==DropRules.Mode.REPLACE||resolution.policy().mode()==DropRules.Mode.DISABLED)event.getDrops().clear();
         if(resolution.policy().mode()==DropRules.Mode.DISABLED)return;
@@ -146,7 +146,7 @@ public final class DropRuntime {
             .executes(c->status(c.getSource())).then(Commands.literal("status").executes(c->status(c.getSource())))
             .then(Commands.literal("reload").executes(c->reload(c.getSource())))
             .then(Commands.literal("inspect").then(Commands.argument("target",EntityArgument.entity()).executes(c->inspect(c.getSource(),EntityArgument.getEntity(c,"target")))))
-            .then(show).then(Commands.literal("export").executes(c->{try{export(c.getSource().getServer());c.getSource().sendSuccess(()->Component.literal("已导出 config/myvillage/monster_drops_effective.json 与 .csv。"),false);return 1;}catch(Exception error){c.getSource().sendFailure(Component.literal("导出失败："+error.getMessage()));return 0;}}))));
+            .then(show).then(Commands.literal("export").executes(c->{try{export(c.getSource().getServer());c.getSource().sendSuccess(()->Component.literal("已导出 config/yuanxian/monster_drops_effective.json 与 .csv。"),false);return 1;}catch(Exception error){c.getSource().sendFailure(Component.literal("导出失败："+error.getMessage()));return 0;}}))));
     }
     private static int status(CommandSourceStack source){var s=snapshot(source.getServer());var out=new JsonObject();out.addProperty("revision",s.revision());out.addProperty("sha256",s.sha256());out.addProperty("config",STORES.get(source.getServer()).file().toAbsolutePath().toString());out.addProperty("last_error",ERRORS.getOrDefault(source.getServer(),""));source.sendSuccess(()->Component.literal("DROPS_STATUS "+out),false);return 1;}
     private static int reload(CommandSourceStack source){

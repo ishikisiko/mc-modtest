@@ -6,7 +6,7 @@ Each combat style has a pose table (``POSE_TABLES``) keyed by *server tick*
 and phase (guard, anticipation, coil, contact, sweep, through, hold,
 recovery).  The moves themselves, their order, and their timing (total, active
 window, chain tick, step tick) and kind come from the style file under
-``data/myvillage/combat/style/`` through ``tools/combat_data.py``; the pose
+``data/yuanxian/combat/style/`` through ``tools/combat_data.py``; the pose
 table holds only the authored poses, and the generator fails when the table and
 the style disagree on the set of moves.  Each key stores readable intent
 instead of raw Euler soup:
@@ -103,12 +103,12 @@ except ImportError:  # run as a script: tools/ itself is on sys.path
     import combat_data
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "src/main/resources/assets/myvillage/player_animations/sword_combat.json"
+OUTPUT = ROOT / "src/main/resources/assets/yuanxian/player_animations/sword_combat.json"
 # The Qingfeng 3D jian: its thirdperson_righthand display transform and the grip / tip points come
 # from the committed model and geometry contract written by tools/gen_qingfeng_sword_model.py, so
 # the rig of the basic_sword table measures the sword that the game renders.
-SWORD_MODEL_3D = ROOT / "src/main/resources/assets/myvillage/models/item/qingfeng_sword_3d.json"
-SWORD_GEOMETRY = ROOT / "src/main/resources/assets/myvillage/combat/qingfeng_sword_geometry.json"
+SWORD_MODEL_3D = ROOT / "src/main/resources/assets/yuanxian/models/item/qingfeng_sword_3d.json"
+SWORD_GEOMETRY = ROOT / "src/main/resources/assets/yuanxian/combat/qingfeng_sword_geometry.json"
 FORMAT_VERSION = "1.8.0"
 TICKS_PER_SECOND = 20
 
@@ -350,7 +350,7 @@ def key(tick, phase, easing, body, stance, rarm, larm, item, blade, pos=(0.0, 0.
 
 
 # ---------------------------------------------------------------------------------------------
-# Pose table of myvillage:basic_sword (the Qingfeng jian).  Directions in the player's frame:
+# Pose table of yuanxian:basic_sword (the Qingfeng jian).  Directions in the player's frame:
 # yaw 0 = action facing, +90 = player's right, -90 = player's left; elevation + = up.  Cut
 # directions follow the server hitboxes: 横 sweeps the player's left -> right, 撩 rises
 # right-low -> left-high, 斜 descends left-high -> right-low.  Key ticks are authored against
@@ -370,7 +370,7 @@ def guard(tick: int, phase: str, easing: str) -> Key:
 
 
 BASIC_SWORD_MOVES: dict[str, MovePoses] = {
-    "myvillage:basic_sword_01_thrust": MovePoses((
+    "yuanxian:basic_sword_01_thrust": MovePoses((
         guard(0, "guard", "linear"),
         key(1, "anticipation", "easeinoutsine", (-2, 15, 0), ("R", 28, 0), (-165, -72), (-8, 0),
             (-32, -16, -4), (0, 5)),
@@ -384,7 +384,7 @@ BASIC_SWORD_MOVES: dict[str, MovePoses] = {
             (80, 17, -2), (10, -3), pos=(0, -1.5)),
         guard(11, "recovery", "easeinoutsine"),
     )),
-    "myvillage:basic_sword_02_horizontal_cut": MovePoses((
+    "yuanxian:basic_sword_02_horizontal_cut": MovePoses((
         guard(0, "guard", "linear"),
         key(2, "anticipation", "easeinoutsine", (4, -45, 0), ("R", 30, 10), (-95, -32), (-100, -30),
             (27.5, -43.8, -49.2), (-155, 2)),
@@ -400,7 +400,7 @@ BASIC_SWORD_MOVES: dict[str, MovePoses] = {
             (99, -76, 1), (98, -6)),
         guard(13, "recovery", "easeinoutsine"),
     ), cut_path="left_to_right"),
-    "myvillage:basic_sword_03_rising_cut": MovePoses((
+    "yuanxian:basic_sword_03_rising_cut": MovePoses((
         guard(0, "guard", "linear"),
         key(3, "anticipation", "easeinoutsine", (12, 36, 0), ("R", 38, 0), (140, -50), (-40, -10),
             (55, 42, 8), (160, -30)),
@@ -416,7 +416,7 @@ BASIC_SWORD_MOVES: dict[str, MovePoses] = {
             (66, 73, -26), (-101, 46)),
         guard(15, "recovery", "easeinoutsine"),
     ), cut_path="rising"),
-    "myvillage:basic_sword_04_diagonal_cut": MovePoses((
+    "yuanxian:basic_sword_04_diagonal_cut": MovePoses((
         guard(0, "guard", "linear"),
         key(4, "anticipation", "easeinoutsine", (-6, -35, 0), ("R", 28, 0), (-80, 55), (-120, -40),
             (74, -19, -25), (-115, 45)),
@@ -432,7 +432,7 @@ BASIC_SWORD_MOVES: dict[str, MovePoses] = {
             (88, -20, 23), (97, -36)),
         guard(17, "recovery", "easeinoutsine"),
     ), cut_path="descending"),
-    "myvillage:basic_sword_05_lunge_thrust": MovePoses((
+    "yuanxian:basic_sword_05_lunge_thrust": MovePoses((
         guard(0, "guard", "linear"),
         key(4, "anticipation", "easeinoutsine", (-8, 38, 0), ("R", 30, 0), (-142, -70), (-5, 5),
             (-32, -32, 4), (5, 5), pos=(0, 1)),
@@ -470,7 +470,7 @@ def enter_keys() -> tuple[Key, ...]:
 
 
 BASIC_SWORD = PoseTable(
-    style_id="myvillage:basic_sword",
+    style_id="yuanxian:basic_sword",
     output=OUTPUT,
     guard=GUARD,
     mode_enter=enter_keys(),
@@ -485,7 +485,7 @@ BASIC_SWORD = PoseTable(
 )
 
 # ---------------------------------------------------------------------------------------------
-# Pose table of myvillage:basic_spear (the Lingxiao spear, two-handed).  The item rides the right
+# Pose table of yuanxian:basic_spear (the Lingxiao spear, two-handed).  The item rides the right
 # (rear) hand at the contract's grip_center; every ON_SHAFT key solves the left (leading) hand onto
 # the shaft.  With rigid arms the left fist only reaches a shaft that points roughly 45-120
 # degrees to the left of the chest, so the guard is bladed (body turned right, left foot and left
@@ -506,9 +506,9 @@ BASIC_SWORD = PoseTable(
 # right-low -> left-high and 劈枪 descends left-high -> right-low, both through the centre line.
 # ---------------------------------------------------------------------------------------------
 
-SPEAR_GEOMETRY = ROOT / "src/main/resources/assets/myvillage/combat/lingxiao_spear_geometry.json"
-SPEAR_MODEL_3D = ROOT / "src/main/resources/assets/myvillage/models/item/lingxiao_spear_3d.json"
-SPEAR_OUTPUT = ROOT / "src/main/resources/assets/myvillage/player_animations/spear_combat.json"
+SPEAR_GEOMETRY = ROOT / "src/main/resources/assets/yuanxian/combat/lingxiao_spear_geometry.json"
+SPEAR_MODEL_3D = ROOT / "src/main/resources/assets/yuanxian/models/item/lingxiao_spear_3d.json"
+SPEAR_OUTPUT = ROOT / "src/main/resources/assets/yuanxian/player_animations/spear_combat.json"
 
 SPEAR_RULES = replace(
     SWORD_RULES,
@@ -577,7 +577,7 @@ def spear_guard(tick: int, phase: str, easing: str) -> Key:
 
 
 BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
-    "myvillage:basic_spear_01_mid_thrust": MovePoses((
+    "yuanxian:basic_spear_01_mid_thrust": MovePoses((
         spear_guard(0, "guard", "linear"),
         key(2, "coil", "easeinoutsine", (4, 72, 0), ("L", 30, 0), (145, -55), OnShaft(at=14),
             (-50.9, -144.6, -18.7), (-1, 10), pos=(0, 1.2)),
@@ -595,7 +595,7 @@ BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
             (-17.5, -61.9, -4.4), (-2, 9), pos=(0, -0.8)),
         spear_guard(12, "recovery", "easeinoutsine"),
     )),
-    "myvillage:basic_spear_02_sweep": MovePoses((
+    "yuanxian:basic_spear_02_sweep": MovePoses((
         spear_guard(0, "guard", "linear"),
         key(2, "wind", "easeinoutsine", (6, 30, 0), ("L", 31, -5), (50, -70), ON_SHAFT,
             (-24.2, -101.1, -19.3), (-55, 8)),
@@ -615,7 +615,7 @@ BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
             (-27.1, -101.9, -5.6), (4, 8), pos=(0, -1)),
         spear_guard(15, "recovery", "easeinoutsine"),
     ), cut_path="left_to_right"),
-    "myvillage:basic_spear_03_rising_flick": MovePoses((
+    "yuanxian:basic_spear_03_rising_flick": MovePoses((
         spear_guard(0, "guard", "linear"),
         key(2, "drop", "easeinoutsine", (10, 72, 0), ("L", 32, 0), (165, -40), ON_SHAFT,
             (-53.8, -153.1, -15.9), (6, -5)),
@@ -637,7 +637,7 @@ BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
             (-10.3, -26.6, 3.1), (-2, 9), pos=(0, -1)),
         spear_guard(15, "recovery", "easeinoutsine"),
     ), cut_path="rising"),
-    "myvillage:basic_spear_04_overhead_smash": MovePoses((
+    "yuanxian:basic_spear_04_overhead_smash": MovePoses((
         spear_guard(0, "guard", "linear"),
         key(2, "lift", "easeinoutsine", (-6, 22, 0), ("L", 30, 0), (10, -30), OnShaft(at=9),
             (-55.9, -88.5, -60), (-80, 45)),
@@ -661,7 +661,7 @@ BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
             (-9.4, -25.3, -66.9), (-2, 9), pos=(0, -2)),
         spear_guard(19, "recovery", "easeinoutsine"),
     ), cut_path="descending"),
-    "myvillage:basic_spear_05_dragon_lunge": MovePoses((
+    "yuanxian:basic_spear_05_dragon_lunge": MovePoses((
         spear_guard(0, "guard", "linear"),
         key(4, "anticipation", "easeinoutsine", (-12, 86, 0), ("L", 32, 0), (105, -30), OnShaft(at=10),
             (-45, -123.4, -56.8), (0, 10), pos=(0, 2.5)),
@@ -706,7 +706,7 @@ def spear_enter_keys() -> tuple[Key, ...]:
 
 
 BASIC_SPEAR = PoseTable(
-    style_id="myvillage:basic_spear",
+    style_id="yuanxian:basic_spear",
     output=SPEAR_OUTPUT,
     guard=SPEAR_GUARD,
     mode_enter=spear_enter_keys(),
@@ -723,7 +723,7 @@ BASIC_SPEAR = PoseTable(
 
 
 # ---------------------------------------------------------------------------------------------
-# Pose table of myvillage:basic_fist (the Xuantie gauntlet, worn on the right hand; both hands
+# Pose table of yuanxian:basic_fist (the Xuantie gauntlet, worn on the right hand; both hands
 # free).  The gauntlet never turns on the hand (WORN_ITEM), so its punch axis is the right arm's
 # own direction and fist_key derives the blade from rarm.  The left hand holds nothing: it guards in
 # the stance and counter-moves on every strike (free_off_hand; each move names its role):
@@ -745,9 +745,9 @@ BASIC_SPEAR = PoseTable(
 # waist" is an arm pointing down and back, and a guard is a straight arm held out.
 # ---------------------------------------------------------------------------------------------
 
-FIST_GEOMETRY = ROOT / "src/main/resources/assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-FIST_MODEL_3D = ROOT / "src/main/resources/assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-FIST_OUTPUT = ROOT / "src/main/resources/assets/myvillage/player_animations/fist_combat.json"
+FIST_GEOMETRY = ROOT / "src/main/resources/assets/yuanxian/combat/xuantie_gauntlet_geometry.json"
+FIST_MODEL_3D = ROOT / "src/main/resources/assets/yuanxian/models/item/xuantie_gauntlet_3d.json"
+FIST_OUTPUT = ROOT / "src/main/resources/assets/yuanxian/player_animations/fist_combat.json"
 WORN_ITEM = (0.0, 0.0, 0.0)
 
 
@@ -815,7 +815,7 @@ def fist_guard(tick: int, phase: str, easing: str) -> Key:
 
 
 BASIC_FIST_MOVES: dict[str, MovePoses] = {
-    "myvillage:basic_fist_01_straight_punch": MovePoses((
+    "yuanxian:basic_fist_01_straight_punch": MovePoses((
         fist_guard(0, "guard", "linear"),
         fist_key(1, "anticipation", "easeinoutsine", (6, 34, 0), ("L", 33, 0), (12, -72), (-6, -8), pos=(0, 0.5)),
         fist_key(2, "coil", "linear", (6, 38, 0), ("L", 34, 0), (16, -76), (-8, -6), pos=(0, 0.6)),
@@ -824,7 +824,7 @@ BASIC_FIST_MOVES: dict[str, MovePoses] = {
         fist_key(7, "hold", "linear", (13, -31, 0), ("L", 41, 0), (-16, -5), (-126, -65), pos=(0, -2)),
         fist_guard(9, "recovery", "easeinoutsine"),
     ), off_hand="chamber"),
-    "myvillage:basic_fist_02_horizontal_palm": MovePoses((
+    "yuanxian:basic_fist_02_horizontal_palm": MovePoses((
         fist_guard(0, "guard", "linear"),
         fist_key(2, "anticipation", "easeinoutsine", (6, 48, 0), ("L", 33, 0), (75, -10), (8, 8)),
         fist_key(3, "coil", "linear", (6, 54, 0), ("L", 34, 0), (86, -8), (5, 8)),
@@ -833,7 +833,7 @@ BASIC_FIST_MOVES: dict[str, MovePoses] = {
         fist_key(8, "hold", "linear", (12, -44, 0), ("L", 40, 0), (-52, -8), (-19, 0), pos=(0, -1.5)),
         fist_guard(10, "recovery", "easeinoutsine"),
     ), cut_path="right_to_left", off_hand="guard"),
-    "myvillage:basic_fist_03_uppercut": MovePoses((
+    "yuanxian:basic_fist_03_uppercut": MovePoses((
         fist_guard(0, "guard", "linear"),
         fist_key(2, "anticipation", "easeinoutsine", (14, 30, 0), ("L", 40, 0), (20, -80), (-6, 12), pos=(0, 0.5)),
         fist_key(3, "coil", "linear", (16, 32, 0), ("L", 41, 0), (25, -82), (-6, 14), pos=(0, 0.6)),
@@ -842,7 +842,7 @@ BASIC_FIST_MOVES: dict[str, MovePoses] = {
         fist_key(8, "hold", "linear", (-7, -12, 0), ("L", 35, 0), (-11, 45), (-18, 10), pos=(0, -1.2)),
         fist_guard(10, "recovery", "easeinoutsine"),
     ), cut_path="uppercut", off_hand="guard"),
-    "myvillage:basic_fist_04_chop": MovePoses((
+    "yuanxian:basic_fist_04_chop": MovePoses((
         fist_guard(0, "guard", "linear"),
         fist_key(2, "anticipation", "easeinoutsine", (-6, 35, 0), ("L", 32, 0), (25, 70), (-5, -15)),
         fist_key(4, "coil", "linear", (-8, 38, 0), ("L", 33, 0), (20, 78), (-5, -12)),
@@ -851,7 +851,7 @@ BASIC_FIST_MOVES: dict[str, MovePoses] = {
         fist_key(9, "hold", "linear", (19, -16, 0), ("L", 42, 0), (-12, -37), (-151, -70), pos=(0, -1.5)),
         fist_guard(11, "recovery", "easeinoutsine"),
     ), cut_path="chop", off_hand="chamber"),
-    "myvillage:basic_fist_05_step_double_strike": MovePoses((
+    "yuanxian:basic_fist_05_step_double_strike": MovePoses((
         fist_guard(0, "guard", "linear"),
         fist_key(3, "anticipation", "easeinoutsine", (4, 10, 0), ("L", 36, 0), (20, -75), (-20, -75), pos=(0, 1.5)),
         fist_key(5, "coil", "linear", (6, 8, 0), ("L", 38, 0), (22, -78), (-22, -78), pos=(0, 2)),
@@ -884,7 +884,7 @@ def fist_enter_keys() -> tuple[Key, ...]:
 
 
 BASIC_FIST = PoseTable(
-    style_id="myvillage:basic_fist",
+    style_id="yuanxian:basic_fist",
     output=FIST_OUTPUT,
     guard=FIST_GUARD,
     mode_enter=fist_enter_keys(),

@@ -49,7 +49,7 @@ class FateEvidence(Evidence):
     def heal(self):self.rc(f'effect give {self.s.username} minecraft:instant_health 1 10 true');time.sleep(1.1)
     def reset(self):self.rc(f'yuanxian cultivation fate reset {self.s.username}');time.sleep(.3)
     def choose(self,*short_ids):
-        self.reset();ids={'myvillage:'+id for id in short_ids}
+        self.reset();ids={'yuanxian:'+id for id in short_ids}
         for _ in range(80):
             self.rc(f'yuanxian cultivation fate roll {self.s.username}');time.sleep(.25);s=self.state()
             if ids<=set(s.get('candidates',[])):
@@ -67,7 +67,7 @@ class FateEvidence(Evidence):
         self.click(55,2*(top+36+4*21+9));time.sleep(.3)
     def close_panel(self):self.s.game.xdo('key','Escape');time.sleep(.3);self.s.game.require_ingame('close H')
     def root(self):
-        reply=self.rc(f'data get entity {self.s.username} "neoforge:attachments"."myvillage:cultivation_profile".spiritual_root')
+        reply=self.rc(f'data get entity {self.s.username} "neoforge:attachments"."yuanxian:cultivation_profile".spiritual_root')
         return reply.split('data:',1)[1].strip() if 'data:' in reply else None
     @staticmethod
     def draft(state):
@@ -95,7 +95,7 @@ class FateEvidence(Evidence):
         user=self.s.username
         for cmd in (f'item replace entity {user} weapon.mainhand with minecraft:air',
                     f'item replace entity {user} weapon.offhand with minecraft:air',
-                    'setblock 0 -60 2 minecraft:stone','setblock 0 -59 2 myvillage:spirit_testing_stele',
+                    'setblock 0 -60 2 minecraft:stone','setblock 0 -59 2 yuanxian:spirit_testing_stele',
                     f'tp {user} .5 -60 .5 0 3.4'):
             self.rc(cmd)
         time.sleep(.4)
@@ -111,7 +111,7 @@ class FateEvidence(Evidence):
         self.s.game.require_ingame('close awakening')
     def valid_slots(self,state):
         from itertools import combinations
-        definitions={"myvillage:"+p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/myvillage/innate_fate').glob('*.json')}
+        definitions={"yuanxian:"+p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/yuanxian/yuanxian/innate_fate').glob('*.json')}
         for slots in combinations(range(len(state['candidates'])),3):
             values=[definitions[state['candidates'][i]] for i in slots]
             if sum(d['cost'] for d in values)<=state['budget'] and len({d['group'] for d in values})==3:
@@ -171,13 +171,13 @@ class FateEvidence(Evidence):
         self.stele_fixture()
     def tooltip(self,state,language):
         """Hover the largest localized candidate explanation without changing any selection."""
-        translations=json.loads((ROOT/f'src/main/resources/assets/myvillage/lang/{language}.json').read_text())
+        translations=json.loads((ROOT/f'src/main/resources/assets/yuanxian/lang/{language}.json').read_text())
         def explanation_size(identifier):
-            definition=json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/innate_fate'/
+            definition=json.loads((ROOT/'src/main/resources/data/yuanxian/yuanxian/innate_fate'/
                                    (identifier.split(':',1)[1]+'.json')).read_text())
             description=translations.get(definition['description_key'],definition['description_key'])
             effects=definition.get('effects',{})
-            return len(description)+sum(len(translations.get('fate.myvillage.effect.'+key,key))+18 for key in effects),len(effects)
+            return len(description)+sum(len(translations.get('fate.yuanxian.effect.'+key,key))+18 for key in effects),len(effects)
         slot=max(range(len(state['candidates'])),key=lambda i:explanation_size(state['candidates'][i]))
         before=self.draft(self.state());root=self.root();g=self.s.game
         x,y,w,h=self.geometry()['card_'+str(slot)]
@@ -230,17 +230,17 @@ class FateEvidence(Evidence):
         self.rc(f'damage {TARGET} {amount} minecraft:{source}'+(f' by {self.s.username}' if by else ''));time.sleep(.15)
     def qi(self):
         # Profile diagnostic is JSON; the command is the established service readback.
-        reply=self.rc(f'data get entity {self.s.username} "neoforge:attachments"."myvillage:cultivation_profile".current_spiritual_power')
+        reply=self.rc(f'data get entity {self.s.username} "neoforge:attachments"."yuanxian:cultivation_profile".current_spiritual_power')
         m=re.search(r'data:\s*(-?\d+)[Ll]?\s*$',reply)
         if not m:raise RuntimeError('No long qi value: '+reply)
         return int(m.group(1))
     def initial(self):
         user=self.s.username
-        for cmd in (*scene.world_rules(),*scene.player_setup(user,'myvillage:qingfeng_sword'),
+        for cmd in (*scene.world_rules(),*scene.player_setup(user,'yuanxian:qingfeng_sword'),
                     'gamerule naturalRegeneration false','yuanxian world pause'):
             self.rc(cmd)
         self.ui();self.layouts('en_us')
-        for cmd in ('setblock 0 -59 2 minecraft:air','setblock 0 -60 2 minecraft:air',f'tp {user} .5 -60 .5 0 0',f'yuanxian cultivation initiate {user}',f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',f'item replace entity {user} weapon.mainhand with myvillage:qingfeng_sword'):
+        for cmd in ('setblock 0 -59 2 minecraft:air','setblock 0 -60 2 minecraft:air',f'tp {user} .5 -60 .5 0 0',f'yuanxian cultivation initiate {user}',f'yuanxian cultivation setrealm {user} yuanxian:qi_refining yuanxian:qi_refining_1',f'item replace entity {user} weapon.mainhand with yuanxian:qingfeng_sword'):
             self.rc(cmd)
         started=time.monotonic()
         self.reset();base=self.maximum();self.heal();hp=self.hp()
@@ -262,7 +262,7 @@ class FateEvidence(Evidence):
         self.check('unyielding_low_health_reduction',close(before-self.hp(),1.6,.01),before-self.hp())
         before=self.hp();self.rc(f'damage {user} 2 minecraft:out_of_world');time.sleep(.7)
         self.check('bypass_unmodified',close(before-self.hp(),2,.01),before-self.hp())
-        self.rc(f'yuanxian cultivation setrealm {user} myvillage:golden_core myvillage:golden_late')
+        self.rc(f'yuanxian cultivation setrealm {user} yuanxian:golden_core yuanxian:golden_late')
         self.choose('beast_hunter','robust','bright');self.heal();self.rc(f'yuanxian cultivation qi set {user} 0')
         before=self.target();self.attack();self.check('hunter_hostile_bonus',close(before-self.hp(TARGET),11.5,.01),before-self.hp(TARGET))
         before=self.target();attack=self.number(f'attribute {user} minecraft:generic.attack_damage get')
@@ -271,8 +271,8 @@ class FateEvidence(Evidence):
         self.rc('tick freeze')
         try:
             self.rc(f'yuanxian cultivation qi set {user} 0');started_kill=time.monotonic();self.attack(amount=1000);power=self.qi();hunter=self.state()
-            cap=json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/realm/golden_core.json').read_text())['stages'][-1]['spiritual_power_cap']
-            fraction=json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/innate_fate/beast_hunter.json').read_text())['effects']['hunter_recovery']
+            cap=json.loads((ROOT/'src/main/resources/data/yuanxian/yuanxian/realm/golden_core.json').read_text())['stages'][-1]['spiritual_power_cap']
+            fraction=json.loads((ROOT/'src/main/resources/data/yuanxian/yuanxian/innate_fate/beast_hunter.json').read_text())['effects']['hunter_recovery']
             expected=int(cap*fraction)
             self.check('hunter_personal_kill_recovers',expected<=power<=expected+math.ceil(time.monotonic()-started_kill)+1 and hunter.get('hunter_ready_at',0)>hunter.get('now',0),{'power':power,'expected_kill_gain':expected,'passive_regen_allowance':math.ceil(time.monotonic()-started_kill)+1,'state':hunter})
             # Advance beyond the cooldown. ServerTick-based passive qi regen continues during tick freeze;

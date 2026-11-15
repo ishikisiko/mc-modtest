@@ -62,7 +62,7 @@ class CommercePayloadTest {
         assertThrows(IllegalArgumentException.class,()->new CommerceIntentPayload(1,0,1,64,1));
     }
     @Test void openingSnapshotCarriesEveryDisplayedQualityAndItsServerPrice() throws Exception {
-        var rules=CommerceRules.parse("test",JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"))).getAsJsonObject());
+        var rules=CommerceRules.parse("test",JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/commerce_rules.json"))).getAsJsonObject());
         var offers=rules.offers("herbalist");assertTrue(offers.size()>32);assertTrue(offers.size()<=CommerceRules.MAX_OFFERS);
         assertTrue(offers.subList(0,6).stream().allMatch(o->o.kind().equals("buy")&&o.restockStock()>0));
         var buf=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
@@ -82,7 +82,7 @@ class CommercePayloadTest {
     @Test void invalidDisplayQualityAndOversizedCatalogueAreRejected() {
         var buf=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
         try {
-            buf.writeVarInt(1);buf.writeUtf("pill");buf.writeUtf("herbalist");buf.writeUtf("sell");buf.writeUtf("myvillage:pill_huiling");
+            buf.writeVarInt(1);buf.writeUtf("pill");buf.writeUtf("herbalist");buf.writeUtf("sell");buf.writeUtf("yuanxian:pill_huiling");
             buf.writeVarInt(1);buf.writeVarInt(18);buf.writeVarInt(5);
             assertThrows(IllegalArgumentException.class,()->CommerceMenu.readOffers(buf));
             buf.clear();buf.writeVarInt(CommerceRules.MAX_OFFERS+1);

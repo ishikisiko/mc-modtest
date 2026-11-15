@@ -49,7 +49,7 @@ Cell = Tuple[int, int]
 Rect = Tuple[int, int, int, int]
 
 TEMPLATE_GROUND_LAYER = 1
-STRUCTURE_DIR = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "structure"
+STRUCTURE_DIR = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "structure"
 
 REQUIRED_KINDS = ("gate", "market", "residential", "civic_core", "fringe")
 DEFAULT_SEED = 20260618

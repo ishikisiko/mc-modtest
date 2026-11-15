@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WaystonesPricingRulesTest {
-    private static final ResourceLocation QI = ResourceLocation.parse("myvillage:qi_refining");
-    private static final ResourceLocation FOUNDATION = ResourceLocation.parse("myvillage:foundation_establishment");
-    private static final ResourceLocation CORE = ResourceLocation.parse("myvillage:golden_core");
+    private static final ResourceLocation QI = ResourceLocation.parse("yuanxian:qi_refining");
+    private static final ResourceLocation FOUNDATION = ResourceLocation.parse("yuanxian:foundation_establishment");
+    private static final ResourceLocation CORE = ResourceLocation.parse("yuanxian:golden_core");
 
     @Test void configuredDefaultsUseOnlyTheMajorRealm() {
         var rules = WaystonesPricingConfig.rules();
-        assertEquals(1, rules.cost(ResourceLocation.parse("myvillage:mortal"), 64, false));
+        assertEquals(1, rules.cost(ResourceLocation.parse("yuanxian:mortal"), 64, false));
         assertEquals(5, rules.cost(QI, 5000, false));
         assertEquals(15, rules.cost(FOUNDATION, 5000, false));
         assertEquals(50, rules.cost(CORE, 5000, false));
@@ -97,13 +97,13 @@ class WaystonesPricingRulesTest {
     }
 
     @Test void realmEntriesUseExactIdsAndRejectMalformedOrDuplicateValues() {
-        var parsed = WaystonesPricingConfig.parseRealmMultipliers(List.of("myvillage:qi_refining=2", " example:extra = 7 "));
+        var parsed = WaystonesPricingConfig.parseRealmMultipliers(List.of("yuanxian:qi_refining=2", " example:extra = 7 "));
         assertEquals(Map.of(QI, 2, ResourceLocation.parse("example:extra"), 7), parsed);
         assertTrue(WaystonesPricingConfig.parseRealmMultipliers(List.of()).isEmpty());
-        for (String entry : List.of("qi_refining=1", "myvillage:qi_refining=0", "myvillage:qi_refining=-1",
-                "myvillage:qi_refining=1.5", "myvillage:qi_refining=2147483648", "myvillage:qi_refining=1=2"))
+        for (String entry : List.of("qi_refining=1", "yuanxian:qi_refining=0", "yuanxian:qi_refining=-1",
+                "yuanxian:qi_refining=1.5", "yuanxian:qi_refining=2147483648", "yuanxian:qi_refining=1=2"))
             assertThrows(IllegalArgumentException.class, () -> WaystonesPricingConfig.parseRealmMultipliers(List.of(entry)));
         assertThrows(IllegalArgumentException.class, () -> WaystonesPricingConfig.parseRealmMultipliers(
-                List.of("myvillage:qi_refining=1", "myvillage:qi_refining=2")));
+                List.of("yuanxian:qi_refining=1", "yuanxian:qi_refining=2")));
     }
 }

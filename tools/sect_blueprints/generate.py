@@ -246,7 +246,7 @@ class SectModel:
         for b in self.spec["buildings"]:
             if b["template"] not in TEMPLATE_VARIANTS[b["archetype"]]:
                 raise ValueError("组件未在宗门模板表注册："+b["template"])
-            source = ROOT/"src/main/resources/data/myvillage/structure"/(b["template"]+".nbt")
+            source = ROOT/"src/main/resources/data/yuanxian/structure"/(b["template"]+".nbt")
             self.template_hashes[str(source.relative_to(ROOT))] = digest(source)
             _, root = read_gzipped_nbt(source)
             custom=bool(self.spec.get('architecture_profile'))
@@ -610,11 +610,11 @@ def final_tiles(model, *, terrain=True):
                 sx,sy,sz=shelf['position']
                 if sx//16==tx and sz//16==tz:
                     for dy,half in ((0,'lower'),(1,'upper')):
-                        overlay[sx%16,sy+dy,sz%16]=(f"myvillage:scripture_shelf[facing={shelf['facing']},half={half}]",'scripture_shelf','facility')
+                        overlay[sx%16,sy+dy,sz%16]=(f"yuanxian:scripture_shelf[facing={shelf['facing']},half={half}]",'scripture_shelf','facility')
             shop=model.spec['runtime'].get('linlang')
             if shop:
                 sx,sy,sz=shop['position']
-                if sx//16==tx and sz//16==tz:overlay[sx%16,sy,sz%16]=(f"myvillage:linlang_counter[facing={shop['facing']}]",'linlang_counter','facility')
+                if sx//16==tx and sz//16==tz:overlay[sx%16,sy,sz%16]=(f"yuanxian:linlang_counter[facing={shop['facing']}]",'linlang_counter','facility')
             cells.update(overlay)
             entities = {(x%16,y,z%16):v for (x,y,z),v in model.entities.items() if x//16==tx and z//16==tz}
             yield tx,tz,cells,entities,overlay

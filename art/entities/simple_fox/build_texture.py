@@ -20,7 +20,7 @@ PREVIEW_PATH = ART_DIR / "atlas_preview.png"
 REPORT_PATH = ART_DIR / "texture_validation.json"
 TEXTURE_PATH = (
     REPO_ROOT
-    / "src/main/resources/assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+    / "src/main/resources/assets/yuanxian/textures/entity/simple_fox/simple_fox.png"
 )
 
 PALETTE = {

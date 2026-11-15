@@ -24,25 +24,25 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 /** 所有者专用局部劫云、雷弧、固定落点与状态条；不生成实体、不改天气、不提交命中。 */
-@EventBusSubscriber(modid = "myvillage", value = Dist.CLIENT)
+@EventBusSubscriber(modid = "yuanxian", value = Dist.CLIENT)
 public final class TribulationClient {
     private static TribulationStatusPayload status;
     private static long ticks, receivedAt;
     private static final List<Bolt> BOLTS = new ArrayList<>();
     private static final double BOLT_SWAY = .65, BOLT_HALF_WIDTH = .16;
     private record Bolt(TribulationStatusPayload.Mark mark, double top, long born, int mainNumber) { }
-    private static final RenderType GLOW = RenderType.create("myvillage_tribulation",
+    private static final RenderType GLOW = RenderType.create("yuanxian_tribulation",
             DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 4096, false, true,
             RenderType.CompositeState.builder().setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
                     .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY).setCullState(RenderStateShard.NO_CULL)
                     .setWriteMaskState(RenderStateShard.COLOR_WRITE).createCompositeState(false));
     private TribulationClient() { }
 
-    @EventBusSubscriber(modid = "myvillage", value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = "yuanxian", value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
     public static final class Registration {
         @SubscribeEvent public static void register(RegisterGuiLayersEvent event) {
             TribulationStatusPayload.installReceiver(TribulationClient::receive);
-            event.registerAbove(VanillaGuiLayers.HOTBAR, ResourceLocation.parse("myvillage:tribulation"), TribulationClient::hud);
+            event.registerAbove(VanillaGuiLayers.HOTBAR, ResourceLocation.parse("yuanxian:tribulation"), TribulationClient::hud);
         }
     }
     private static void receive(TribulationStatusPayload p) {

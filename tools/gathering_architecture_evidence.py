@@ -10,7 +10,7 @@ from tools.combat_capture import scene
 class ArchitectureEvidence(TierEvidence):
     def __init__(self,out):
         super().__init__(out,['legacy_architecture','assembly','visual'])
-        self.parts=json.loads((ROOT/'src/main/resources/data/myvillage/gathering/construction.json').read_text())['tiers']
+        self.parts=json.loads((ROOT/'src/main/resources/data/yuanxian/gathering/construction.json').read_text())['tiers']
     def put(self,part,tier,block=None):
         p=part['offset'];bid=block or part['block'];suffix='' if bid.startswith('minecraft:') else '[facing='+part['facing']+']'
         self.rc(f'setblock {p[0]} {CORE[1]+p[1]} {CORE[2]+p[2]} {bid}{suffix}')

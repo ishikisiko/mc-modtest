@@ -78,7 +78,7 @@ Open the PNG and look at it at 4× before calling a variant done. `python3` with
 ## Into the game (0.45.0)
 
 The drawing stays here; Java composes. `export.py` writes every part variant as a role map
-(`src/main/resources/assets/myvillage/portrait/<layer>/<variant>.png`, R = role index + 1, G = the
+(`src/main/resources/assets/yuanxian/portrait/<layer>/<variant>.png`, R = role index + 1, G = the
 step's mask, plus `manifest.json`) by replaying `render.compose` with a journal of every cell a step
 writes, in the context of the base person. `replay.py` composes from those maps with the shared
 rules and is the executable spec of the Java `PortraitComposer`; `tools/tests/test_portraitgen_export.py`

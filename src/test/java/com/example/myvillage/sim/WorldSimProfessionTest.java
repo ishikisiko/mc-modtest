@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 class WorldSimProfessionTest {
     static final long SEED=42;
     static final int DAY=24000;
-    static final String SITE="herb_town", LEAF="myvillage:spirit_leaf", DEW="myvillage:dew_blossom";
-    static final String PILL="myvillage:pill_huiling";
+    static final String SITE="herb_town", LEAF="yuanxian:spirit_leaf", DEW="yuanxian:dew_blossom";
+    static final String PILL="yuanxian:pill_huiling";
     SimContext context() { return context(SimFixtures.data()); }
     SimContext context(SimData data) {
         var state=new WorldState();state.seed=SEED;state.tierId="small";state.genesisDaysPerYear=24;
@@ -111,13 +111,13 @@ class WorldSimProfessionTest {
         var alchemist=assign(ctx,2,"alchemist","work");ctx.state.life.professions.get(2).gatheringExperience=ctx.data.professionRules().maxExperience();
         assertFalse(ProfessionEngine.canGather(ctx,alchemist,place,DAY));
         assertThrows(IllegalArgumentException.class,()->ProfessionEngine.registerGathering(ctx,SITE,"work",LEAF,1));
-        assertThrows(IllegalArgumentException.class,()->ProfessionEngine.configureGarden(ctx,SITE,"garden","myvillage:invented_rare_herb"));
+        assertThrows(IllegalArgumentException.class,()->ProfessionEngine.configureGarden(ctx,SITE,"garden","yuanxian:invented_rare_herb"));
     }
     @Test void higherConfiguredSkillGateAppliesIndependentlyOfRoleAndRealm() throws Exception {
-        var input=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/herbal_profession_rules.json"))).getAsJsonObject();
+        var input=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/herbal_profession_rules.json"))).getAsJsonObject();
         input.getAsJsonObject("herbs").getAsJsonObject(LEAF).addProperty("planting_level",2);
         input.getAsJsonObject("herbs").getAsJsonObject(LEAF).addProperty("gathering_level",2);
-        var old=SimFixtures.data();var alchemy=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/alchemy/rules.json"))).getAsJsonObject();
+        var old=SimFixtures.data();var alchemy=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/alchemy/rules.json"))).getAsJsonObject();
         var rules=ProfessionRules.parse("test",input,alchemy,old.commerceRules());
         var data=new SimData(old.rules(),old.realms(),old.encounters(),old.names(),old.techniques(),old.lore(),old.heritages(),old.sectTasks(),old.lifeRules(),old.commerceRules(),rules);
         var ctx=context(data);var child=assign(ctx,1,"herb_child","garden");ctx.state.persons.get(1).realm=3;
@@ -171,8 +171,8 @@ class WorldSimProfessionTest {
         assertEquals(0,full.state.life.professions.get(1).gatheringExperience);
     }
     @Test void recipesProjectTheirOnlyIngredientCountAndDurationSourceAndRulesRejectUnknownContent() throws Exception {
-        var input=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/herbal_profession_rules.json"))).getAsJsonObject();
-        var alchemy=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/alchemy/rules.json"))).getAsJsonObject();
+        var input=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/herbal_profession_rules.json"))).getAsJsonObject();
+        var alchemy=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/alchemy/rules.json"))).getAsJsonObject();
         var recipe=alchemy.getAsJsonArray("recipes").get(0).getAsJsonObject();
         var counts=new JsonArray();counts.add(2);counts.add(3);recipe.add("ingredient_counts",counts);
         recipe.addProperty("duration_ticks",777);recipe.addProperty("output_count",3);
@@ -181,7 +181,7 @@ class WorldSimProfessionTest {
         assertEquals(777,projected.durationTicks());assertEquals(3,projected.outputCount());
         input.addProperty("unknown_tuning",1);
         assertThrows(SimDataException.class,()->ProfessionRules.parse("test",input,alchemy,SimFixtures.data().commerceRules()));
-        input.remove("unknown_tuning");input.getAsJsonObject("herbs").add("myvillage:rare_invented",new JsonObject());
+        input.remove("unknown_tuning");input.getAsJsonObject("herbs").add("yuanxian:rare_invented",new JsonObject());
         assertThrows(SimDataException.class,()->ProfessionRules.parse("test",input,alchemy,SimFixtures.data().commerceRules()));
     }
     @Test void professionReadsAreDetachedAndNeverRegisterOrPromotePeople() {

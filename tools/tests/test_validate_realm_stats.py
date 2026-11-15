@@ -19,10 +19,10 @@ class RealmStatsValidationTest(unittest.TestCase):
         self.rules = json.loads((DATA / 'stats/rules.json').read_text())
         self.sim = json.loads((DATA / 'world_sim/realms.json').read_text())
         self.beasts = [json.loads((DATA / 'beast/demon_wolf.json').read_text())['attributes']]
-        self.stages = {stage['id'] for path in (DATA / 'myvillage/realm').glob('*.json')
+        self.stages = {stage['id'] for path in (DATA / 'yuanxian/realm').glob('*.json')
                        for stage in json.loads(path.read_text())['stages']}
         self.stage_keys = {stage['id']: (f'{path.parent.parent.name}:{path.stem}', index)
-                           for path in (DATA / 'myvillage/realm').glob('*.json')
+                           for path in (DATA / 'yuanxian/realm').glob('*.json')
                            for index, stage in enumerate(sorted(json.loads(path.read_text())['stages'],
                                                                 key=lambda s: s['sort_order']))}
         self.wilderness = json.loads((DATA / 'wilderness/rules.json').read_text())
@@ -89,11 +89,11 @@ class RealmStatsValidationTest(unittest.TestCase):
     def test_missing_unknown_duplicate_and_invalid_player_aliases(self):
         for mutation, code in (
             (lambda d: d['player_stage_aliases'].pop(), 'REALM_PLAYER_ALIAS_COVERAGE'),
-            (lambda d: d['player_stage_aliases'][0].update(id='myvillage:unknown'), 'REALM_PLAYER_ALIAS_COVERAGE'),
+            (lambda d: d['player_stage_aliases'][0].update(id='yuanxian:unknown'), 'REALM_PLAYER_ALIAS_COVERAGE'),
             (lambda d: d['player_stage_aliases'].append(d['player_stage_aliases'][0]), 'REALM_PLAYER_ALIAS'),
             (lambda d: d['player_stage_aliases'][0].update(stage=True), 'REALM_ENDPOINT'),
             (lambda d: d['player_stage_aliases'][0].update(stage=999), 'REALM_ENDPOINT'),
-            (lambda d: d['player_stage_aliases'][0].update(realm='myvillage:unknown'), 'REALM_ENDPOINT'),
+            (lambda d: d['player_stage_aliases'][0].update(realm='yuanxian:unknown'), 'REALM_ENDPOINT'),
         ):
             data = copy.deepcopy(self.rules)
             mutation(data)
@@ -108,7 +108,7 @@ class RealmStatsValidationTest(unittest.TestCase):
         self.assert_code('REALM_SIM_MAPPING', self.errors(data))
 
     def test_existing_alias_cannot_silently_map_to_another_valid_realm_or_stage(self):
-        for realm, stage in (('myvillage:qi_refining', 0), ('myvillage:mortal', 1)):
+        for realm, stage in (('yuanxian:qi_refining', 0), ('yuanxian:mortal', 1)):
             data = copy.deepcopy(self.rules)
             data['player_stage_aliases'][0].update(realm=realm, stage=stage)
             self.assert_code('REALM_PLAYER_ALIAS_MAPPING', self.errors(data))
@@ -154,7 +154,7 @@ class RealmStatsValidationTest(unittest.TestCase):
         self.assert_code('WILDERNESS_REGION_COVERAGE', self.wilderness_errors(data))
 
     def test_range_endpoints_have_known_realm_and_valid_stage(self):
-        for key, value in (('realm', 'myvillage:unknown'), ('stage', True), ('stage', -1), ('stage', 999), ('stage', float('inf'))):
+        for key, value in (('realm', 'yuanxian:unknown'), ('stage', True), ('stage', -1), ('stage', 999), ('stage', float('inf'))):
             data = copy.deepcopy(self.wilderness)
             next(iter(data['regions'].values()))['beast']['min'][key] = value
             self.assert_code('REALM_ENDPOINT', self.wilderness_errors(data))
@@ -310,7 +310,7 @@ class RealmArmorContractTest(unittest.TestCase):
         for old, new in (('Tag.TAG_COMPOUND', 'Tag.TAG_STRING'), ('Tag.TAG_STRING', 'Tag.TAG_INT'),
                          ('Tag.TAG_INT', 'Tag.TAG_ANY_NUMERIC')):
             self.assert_code('ARMOR_ASSIGNMENT_TYPES', self.runtime_errors(runtime=self.replace('runtime', old, new)))
-        self.assert_code('ARMOR_ASSIGNMENT_KEY', self.runtime_errors(runtime=self.replace('runtime', '"myvillage:stats_realm"', '"myvillage:fake_realm"')))
+        self.assert_code('ARMOR_ASSIGNMENT_KEY', self.runtime_errors(runtime=self.replace('runtime', '"yuanxian:stats_realm"', '"yuanxian:fake_realm"')))
 
     def test_assignment_is_validated_once_without_a_realm_multiplier(self):
         for old, new in (('rules.realmKey(assignment.getString', 'rules.definition(assignment.getString'),
@@ -365,7 +365,7 @@ class RealmArmorContractTest(unittest.TestCase):
             self.assert_code('ARMOR_MIXIN_CONFIG', validator.check_armor_packaging(self.root))
         (self.root / validator.MIXIN_CONFIG).write_text(original)
         metadata = self.root / validator.MOD_METADATA
-        metadata.write_text(metadata.read_text().replace('config = "myvillage.mixins.json"', 'config = "missing.mixins.json"'))
+        metadata.write_text(metadata.read_text().replace('config = "yuanxian.mixins.json"', 'config = "missing.mixins.json"'))
         self.assert_code('ARMOR_MIXIN_METADATA', validator.check_armor_packaging(self.root))
 
     def test_client_only_registration_and_missing_source_fail(self):
@@ -393,7 +393,7 @@ class RealmArmorContractTest(unittest.TestCase):
 
     def test_jar_entries_are_complete_and_authored_configuration_is_current(self):
         self.assertEqual([], validator.check_armor_packaging(self.root, self.make_jar()))
-        for omitted in ('myvillage.mixins.json', 'META-INF/neoforge.mods.toml',
+        for omitted in ('yuanxian.mixins.json', 'META-INF/neoforge.mods.toml',
                         'com/example/myvillage/mixin/CombatRulesMixin.class',
                         'com/example/myvillage/stats/runtime/RealmArmorRuntime$ArmorTrace.class'):
             self.assert_code('ARMOR_JAR_ENTRY', validator.check_armor_packaging(self.root, self.make_jar(omit=omitted)))
@@ -407,7 +407,7 @@ class ElementalPenetrationContractTest(unittest.TestCase):
     def setUp(self):
         self.attributes = (ROOT / validator.JAVA_ROOT / 'stats/runtime/ModStatsAttributes.java').read_text()
         self.runtime = (ROOT / validator.JAVA_ROOT / 'stats/runtime/StatsRuntime.java').read_text()
-        self.languages = {locale: json.loads((ROOT / f'src/main/resources/assets/myvillage/lang/{locale}.json').read_text())
+        self.languages = {locale: json.loads((ROOT / f'src/main/resources/assets/yuanxian/lang/{locale}.json').read_text())
                           for locale in ('en_us', 'zh_cn')}
 
     def errors(self, attributes=None, runtime=None):
@@ -455,7 +455,7 @@ class ElementalPenetrationContractTest(unittest.TestCase):
         self.assert_code('PENETRATION_SYNC', self.errors(attributes=self.attributes.replace(
             'attribute.setSyncable(true)', 'attribute.setSyncable(false)')))
         self.assert_code('PENETRATION_TRANSLATION_FLOW', self.errors(attributes=self.attributes.replace(
-            '"attribute.myvillage." + id, 0, 0, LIMITS.maxPenetration()', '"attribute.myvillage.resistance_penetration", 0, 0, LIMITS.maxPenetration()')))
+            '"attribute.yuanxian." + id, 0, 0, LIMITS.maxPenetration()', '"attribute.yuanxian.resistance_penetration", 0, 0, LIMITS.maxPenetration()')))
 
     def test_all_attributes_are_attached_and_physical_values_are_not_migrated(self):
         self.assert_code('PENETRATION_ATTACH', self.errors(attributes=self.attributes.replace(
@@ -508,7 +508,7 @@ class ElementalPenetrationContractTest(unittest.TestCase):
         for old, new in (('LIMITS', 'BOUNDS'), ('id', 'registryName'), ('attribute', 'entry')):
             attributes = re.sub(r'\b' + old + r'\b', new, attributes)
         # Keep the translation prefix (a literal), while changing only the local parameter names.
-        attributes = attributes.replace('"entry.myvillage."', '"attribute.myvillage."')
+        attributes = attributes.replace('"entry.yuanxian."', '"attribute.yuanxian."')
         runtime = self.runtime
         for old, new in (('reader', 'lookup'), ('attacker', 'hitter'), ('attribute', 'chosenHolder')):
             runtime = re.sub(r'\b' + old + r'\b', new, runtime)
@@ -518,12 +518,12 @@ class ElementalPenetrationContractTest(unittest.TestCase):
         for locale in ('en_us', 'zh_cn'):
             for rid in validator.PENETRATION_IDS.values():
                 languages = copy.deepcopy(self.languages)
-                languages[locale].pop('attribute.myvillage.' + rid)
+                languages[locale].pop('attribute.yuanxian.' + rid)
                 self.assert_code('PENETRATION_LANG', validator.check_penetration_languages(languages))
             languages = copy.deepcopy(self.languages)
-            languages[locale]['attribute.myvillage.resistance_penetration'] = 'Resistance Penetration' if locale == 'en_us' else '抗性穿透'
+            languages[locale]['attribute.yuanxian.resistance_penetration'] = 'Resistance Penetration' if locale == 'en_us' else '抗性穿透'
             self.assert_code('PENETRATION_PHYSICAL_LABEL', validator.check_penetration_languages(languages))
-            languages[locale]['attribute.myvillage.fire_resistance_penetration'] = ' '
+            languages[locale]['attribute.yuanxian.fire_resistance_penetration'] = ' '
             self.assert_code('PENETRATION_LANG', validator.check_penetration_languages(languages))
 
     def test_jar_requires_current_labels_and_independent_compiled_registry_ids(self):
@@ -536,7 +536,7 @@ class ElementalPenetrationContractTest(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(ROOT / relative, target)
             for locale, table in self.languages.items():
-                path = root / f'src/main/resources/assets/myvillage/lang/{locale}.json'
+                path = root / f'src/main/resources/assets/yuanxian/lang/{locale}.json'
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(json.dumps(table))
 
@@ -546,8 +546,8 @@ class ElementalPenetrationContractTest(unittest.TestCase):
                     for locale, table in self.languages.items():
                         values = dict(table)
                         if missing_label:
-                            values.pop('attribute.myvillage.' + missing_label)
-                        archive.writestr(f'assets/myvillage/lang/{locale}.json', json.dumps(values))
+                            values.pop('attribute.yuanxian.' + missing_label)
+                        archive.writestr(f'assets/yuanxian/lang/{locale}.json', json.dumps(values))
                     ids = [rid for rid in validator.PENETRATION_IDS.values() if rid != missing_id]
                     archive.writestr('com/example/myvillage/stats/runtime/ModStatsAttributes.class',
                                      b'\xca\xfe\xba\xbe' + '\n'.join(ids).encode())

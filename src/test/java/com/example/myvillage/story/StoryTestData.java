@@ -5,7 +5,7 @@ import java.nio.file.*;
 
 final class StoryTestData {
     static StoryDefinition definition() {
-        try(var r=Files.newBufferedReader(Path.of("src/main/resources/data/myvillage/story/qianzhen_chapter_1.json"))) {return StoryDefinition.parse(r);}
+        try(var r=Files.newBufferedReader(Path.of("src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json"))) {return StoryDefinition.parse(r);}
         catch(IOException e){throw new UncheckedIOException(e);}
     }
     static StoryEngine.Plan act(StoryDefinition d,StoryProgress p,String id) {

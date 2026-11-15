@@ -20,7 +20,7 @@ DUMP = [
     [10, -60, 5, "minecraft:stone_bricks"],
     [12, -60, 6, STAIRS],
     [11, -59, 5, WALL],
-    [12, -59, 6, "myvillage:plaque"],
+    [12, -59, 6, "yuanxian:plaque"],
     [11, -60, 6, "minecraft:grass_block[snowy=false]"],  # natural, dropped by default
     [13, -60, 7, "minecraft:dirt"],                      # natural, would widen the box
     [10, -61, 5, "minecraft:stone"],                     # below min y
@@ -49,11 +49,11 @@ class VoxelDumpToStructuresTests(unittest.TestCase):
         data = json.loads(Path(report["paths"]["blueprint"]).read_text(encoding="utf-8"))
         self.assertEqual(validate_blueprint(data), [])
         self.assertEqual(data["schema_version"], 1)
-        self.assertEqual(data["id"], "myvillage:site")
+        self.assertEqual(data["id"], "yuanxian:site")
         self.assertEqual(data["origin"], [0, 0, 0])
         self.assertEqual(sorted(data["palette"].values()), [
             "minecraft:stone_brick_stairs", "minecraft:stone_bricks",
-            "myvillage:plaque", "supplementaries:blackstone_tile_wall",
+            "yuanxian:plaque", "supplementaries:blackstone_tile_wall",
         ])
         by_pos = {tuple(b["pos"]): b for b in data["blocks"]}
         stairs = by_pos[(2, 0, 1)]
@@ -76,7 +76,7 @@ class VoxelDumpToStructuresTests(unittest.TestCase):
         cells = {tuple(b["pos"]): state_string(root["palette"][b["state"]]) for b in root["blocks"]}
         self.assertEqual(cells[(2, 0, 1)], STAIRS)
         self.assertEqual(cells[(1, 1, 0)], WALL)
-        self.assertEqual(cells[(2, 1, 1)], "myvillage:plaque")
+        self.assertEqual(cells[(2, 1, 1)], "yuanxian:plaque")
         self.assertEqual(cells[(0, 0, 0)], "minecraft:stone_bricks")
 
     def test_schem(self) -> None:
@@ -107,7 +107,7 @@ class VoxelDumpToStructuresTests(unittest.TestCase):
         self.assertEqual(ids[1], 0)                                    # x=1,y=0,z=0 is air
         self.assertEqual(ids[5], palette[STAIRS])                      # x=2,y=0,z=1
         self.assertEqual(ids[7], palette[WALL])                        # x=1,y=1,z=0
-        self.assertEqual(at(2, 1, 1), "myvillage:plaque")
+        self.assertEqual(at(2, 1, 1), "yuanxian:plaque")
         self.assertEqual(sum(1 for i in ids if i != 0), 4)
         self.assertEqual(report["schem_normalised"], [])
 

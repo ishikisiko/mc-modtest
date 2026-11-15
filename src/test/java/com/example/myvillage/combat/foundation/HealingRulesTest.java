@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 class HealingRulesTest {
     private JsonObject authored() throws Exception {
-        try (var in = getClass().getResourceAsStream("/data/myvillage/combat/foundation/healing.json")) {
+        try (var in = getClass().getResourceAsStream("/data/yuanxian/combat/foundation/healing.json")) {
             assertNotNull(in);
             return JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
         }

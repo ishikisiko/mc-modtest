@@ -10,15 +10,15 @@ class WorkshopResourcesTest(unittest.TestCase):
         from tools.forging import anvil
         from tools.equipment import mesh,geometry
         base=ROOT/'src/main/resources';out=workshop.outputs()
-        held=json.loads(out[base/'assets/myvillage/models/item/forging_hammer.json'])
+        held=json.loads(out[base/'assets/yuanxian/models/item/forging_hammer.json'])
         self.assertEqual(anvil.hammer()['elements'],held['elements'])
         faces=mesh.elements_mesh(held)
         for face in faces:
             for p in face['points']:
                 self.assertTrue(all(abs(v)<=7.000001 for v in geometry.display_point(held['display']['gui'],p)[:2]))
-        self.assertEqual('锻锤',json.loads(out[base/'assets/myvillage/lang/zh_cn.json'])['item.myvillage.forging_hammer'])
-        recipe=json.loads(out[base/'data/myvillage/recipe/forging_hammer.json'])
-        self.assertEqual('myvillage:forging_hammer',recipe['result']['id'])
+        self.assertEqual('锻锤',json.loads(out[base/'assets/yuanxian/lang/zh_cn.json'])['item.yuanxian.forging_hammer'])
+        recipe=json.loads(out[base/'data/yuanxian/recipe/forging_hammer.json'])
+        self.assertEqual('yuanxian:forging_hammer',recipe['result']['id'])
         self.assertEqual({'item':'minecraft:iron_ingot'},recipe['key']['I'])
         self.assertEqual({'tag':'minecraft:planks'},recipe['key']['P'])
         self.assertEqual({'item':'minecraft:stick'},recipe['key']['S'])
@@ -32,14 +32,14 @@ class WorkshopResourcesTest(unittest.TestCase):
         self.assertEqual(['III',' P ',' S '],authored['pattern'])
         for hammer in config['hammers']:
             with self.subTest(hammer=hammer['id']):
-                path=base/f"data/myvillage/recipe/{hammer['id']}.json"
+                path=base/f"data/yuanxian/recipe/{hammer['id']}.json"
                 self.assertEqual(out[path],path.read_bytes())
                 recipe=json.loads(out[path])
                 self.assertEqual(authored['pattern'],recipe['pattern'])
                 self.assertEqual({'item':hammer['material']},recipe['key']['I'])
                 self.assertEqual(authored['key']['P'],recipe['key']['P'])
                 self.assertEqual(authored['key']['S'],recipe['key']['S'])
-                self.assertEqual({'id':'myvillage:'+hammer['id'],'count':1},recipe['result'])
+                self.assertEqual({'id':'yuanxian:'+hammer['id'],'count':1},recipe['result'])
 
     def test_station_does_not_keep_an_automatic_hammer_arm(self):
         from tools.forging import anvil
@@ -51,66 +51,66 @@ class WorkshopResourcesTest(unittest.TestCase):
     def test_trough_states_resolve_and_only_filled_model_has_water(self):
         from tools.forging import trough
         base=ROOT/'src/main/resources';out=workshop.outputs()
-        states=json.loads(out[base/'assets/myvillage/blockstates/quenching_trough.json'])['variants']
+        states=json.loads(out[base/'assets/yuanxian/blockstates/quenching_trough.json'])['variants']
         self.assertEqual(8,len(states))
         for state,variant in states.items():
-            path=base/f"assets/myvillage/models/{variant['model'].split(':')[1]}.json"
+            path=base/f"assets/yuanxian/models/{variant['model'].split(':')[1]}.json"
             model=json.loads(out[path])
             self.assertEqual('filled=true' in state,any(e['name']=='水面' for e in model['elements']))
             for element in model['elements']:
                 self.assertTrue(all(a<b for a,b in zip(element['from'],element['to'])))
                 for face in element['faces'].values():
-                    self.assertIn(base/f"assets/myvillage/textures/{model['textures'][face['texture'][1:]].split(':')[1]}.png",out)
-        self.assertIn(base/'data/myvillage/recipe/quenching_trough.json',out)
-        self.assertIn(base/'data/myvillage/loot_table/blocks/quenching_trough.json',out)
+                    self.assertIn(base/f"assets/yuanxian/textures/{model['textures'][face['texture'][1:]].split(':')[1]}.png",out)
+        self.assertIn(base/'data/yuanxian/recipe/quenching_trough.json',out)
+        self.assertIn(base/'data/yuanxian/loot_table/blocks/quenching_trough.json',out)
     def test_physical_stage_models_and_orientation_variants_resolve(self):
         from tools.forging import anvil
         base=ROOT/'src/main/resources';out=workshop.outputs()
-        states=json.loads(out[base/'assets/myvillage/blockstates/forging_anvil.json'])['variants']
+        states=json.loads(out[base/'assets/yuanxian/blockstates/forging_anvil.json'])['variants']
         self.assertEqual(8,len(states))
         for kind in anvil.KINDS:
             for stage in range(6):
-                model=json.loads(out[base/f'assets/myvillage/models/block/workshop/{kind}_{stage}.json'])
+                model=json.loads(out[base/f'assets/yuanxian/models/block/workshop/{kind}_{stage}.json'])
                 from tools.equipment.mesh import read_obj
                 ref=model['model'].split(':')[1]
-                faces=read_obj(out[base/'assets/myvillage'/ref],out[base/'assets/myvillage'/ref.replace('.obj','.mtl')])
+                faces=read_obj(out[base/'assets/yuanxian'/ref],out[base/'assets/yuanxian'/ref.replace('.obj','.mtl')])
                 self.assertTrue(faces)
                 for face in faces:
                     self.assertTrue(all(-16<=v<=32 for point in face['points'] for v in point))
-                    texture=base/f"assets/myvillage/textures/{face['texture'].split(':')[1]}.png"
+                    texture=base/f"assets/yuanxian/textures/{face['texture'].split(':')[1]}.png"
                     self.assertTrue(texture in out or texture.is_file(),str(texture))
     def test_each_stage_has_a_distinct_owned_sprite_model_and_localization(self):
         output=workshop.outputs();base=ROOT/'src/main/resources'
-        rules=json.loads((base/'data/myvillage/forging/workshop.json').read_text())
+        rules=json.loads((base/'data/yuanxian/forging/workshop.json').read_text())
         for craft in rules['crafts']:
             seen=set()
             for stage in workshop.STAGES:
                 name=f"workpiece_{craft['recipe']}_{stage}"
-                model=base/f'assets/myvillage/models/item/{name}.json'
+                model=base/f'assets/yuanxian/models/item/{name}.json'
                 from tools.equipment.mesh import read_obj
                 descriptor=json.loads(output[model]);self.assertEqual('neoforge:obj',descriptor['loader'])
                 ref=descriptor['model'].split(':')[1]
-                faces=read_obj(output[base/'assets/myvillage'/ref],output[base/'assets/myvillage'/ref.replace('.obj','.mtl')])
-                self.assertIn('item.myvillage.'+name,json.loads(output[base/'assets/myvillage/lang/zh_cn.json']))
+                faces=read_obj(output[base/'assets/yuanxian'/ref],output[base/'assets/yuanxian'/ref.replace('.obj','.mtl')])
+                self.assertIn('item.yuanxian.'+name,json.loads(output[base/'assets/yuanxian/lang/zh_cn.json']))
                 seen.add(json.dumps(faces,sort_keys=True))
             self.assertGreaterEqual(len(seen),4)
         for path,data in gen_forging_assets.outputs().items():self.assertEqual(data,path.read_bytes(),str(path))
     def test_armor_patterns_cost_partition_and_non_tool_geometry(self):
         from tools.forging import anvil
         base=ROOT/'src/main/resources';out=workshop.outputs()
-        recipes=json.loads((base/'data/myvillage/forging/rules.json').read_text())['recipes']
+        recipes=json.loads((base/'data/yuanxian/forging/rules.json').read_text())['recipes']
         seen=set()
         for slot in ('helmet','chestplate','leggings','boots'):
             recipe=next(r for r in recipes if r['id']=='xuantie_'+slot)
             self.assertEqual(['tough'],recipe['traits'])
-            self.assertGreater(recipe['costs']['#myvillage:forging_materials/xuantie'],0)
-            retired=base/f'data/myvillage/recipe/pattern_xuantie_{slot}.json'
+            self.assertGreater(recipe['costs']['#yuanxian:forging_materials/xuantie'],0)
+            retired=base/f'data/yuanxian/recipe/pattern_xuantie_{slot}.json'
             self.assertNotIn(retired,out)
             self.assertIn(retired,workshop.retired_paths())
-            pattern=base/f'assets/myvillage/models/item/pattern_xuantie_{slot}.json'
+            pattern=base/f'assets/yuanxian/models/item/pattern_xuantie_{slot}.json'
             self.assertIn(pattern,out);seen.add(pattern)
-            for path in (base/'data/myvillage/recipe').glob('*.json'):
-                self.assertNotEqual('myvillage:pattern_xuantie_'+slot,json.loads(path.read_text()).get('result',{}).get('id'),str(path))
+            for path in (base/'data/yuanxian/recipe').glob('*.json'):
+                self.assertNotEqual('yuanxian:pattern_xuantie_'+slot,json.loads(path.read_text()).get('result',{}).get('id'),str(path))
             for stage in range(1,6):
                 from tools.forging.models import Catalogue
                 names=[f['part'] for f in Catalogue().stage('xuantie_'+slot,stage)]
@@ -118,7 +118,7 @@ class WorkshopResourcesTest(unittest.TestCase):
         self.assertEqual(4,len(seen))
 
     def test_strike_variants_and_each_operation_have_real_vanilla_sound_references(self):
-        path=ROOT/'src/main/resources/assets/myvillage/sounds.json';sounds=json.loads(workshop.outputs()[path])
+        path=ROOT/'src/main/resources/assets/yuanxian/sounds.json';sounds=json.loads(workshop.outputs()[path])
         self.assertEqual(3,len(sounds['forging.strike']['sounds']))
         for name in ('strike','heat','quench','temper','grind','assemble','infuse','repair'):
             event=sounds['forging.'+name]
@@ -126,10 +126,10 @@ class WorkshopResourcesTest(unittest.TestCase):
             self.assertTrue(all(s['name'].startswith('minecraft:') and s['type']=='event' for s in event['sounds']))
     def test_workbench_is_available_without_spirit_materials_and_all_tools_have_patterns(self):
         out=workshop.outputs();base=ROOT/'src/main/resources'
-        recipe=json.loads(out[base/'data/myvillage/recipe/forging_anvil.json'])
+        recipe=json.loads(out[base/'data/yuanxian/recipe/forging_anvil.json'])
         self.assertFalse(any('spirit' in str(value) for value in recipe['key'].values()))
         for kind in ['pickaxe','axe','shovel','hoe']:
-            self.assertIn(base/f'assets/myvillage/models/item/forged_{kind}.json',out)
-            self.assertIn(base/f'data/myvillage/recipe/pattern_forged_{kind}.json',out)
+            self.assertIn(base/f'assets/yuanxian/models/item/forged_{kind}.json',out)
+            self.assertIn(base/f'data/yuanxian/recipe/pattern_forged_{kind}.json',out)
 
 if __name__=='__main__':unittest.main()

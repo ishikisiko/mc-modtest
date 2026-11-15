@@ -77,7 +77,7 @@ def run(out,commit,cases):
             for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause',
                     'fill -12 -61 -12 12 -61 12 minecraft:smooth_stone',
                     f'tp {u} .5 -60 .5 0 0',f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',
-                    f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_6'):
+                    f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_6'):
                 self.rc(command)
             self.poll(self.profile,lambda p:p['root']!='none','开灵读回')
             time.sleep(2)
@@ -113,7 +113,7 @@ def run(out,commit,cases):
                 self.key('v');time.sleep(3);self.shot('盘坐_裸装');time.sleep(2);self.key('x');time.sleep(2.5);self.shot('收功站立')
             before=self.profile()['progress'];self.record('入座_呼吸_收功',10,sequence)
             self.must('映射V启动真实结算',self.profile()['progress']>before,self.profile());self.stopped()
-            self.rc(f'give {self.s.username} myvillage:low_grade_spirit_stone 64')
+            self.rc(f'give {self.s.username} yuanxian:low_grade_spirit_stone 64')
             self.active('b');self.shot('灵石修炼')
             self.move();self.stopped();self.shot('移动打断')
             self.active();self.rc(f'damage {self.s.username} 1 minecraft:generic');self.stopped();self.shot('受击打断')
@@ -122,7 +122,7 @@ def run(out,commit,cases):
             self.key('F5');self.active(require_model=False);self.shot('第一人称调息');self.key('x');time.sleep(2.2);self.key('F5');self.key('F5')
         def armor(self):
             self.active()
-            for set_id in ('minecraft:iron','myvillage:qi_moqing'):
+            for set_id in ('minecraft:iron','yuanxian:qi_moqing'):
                 for slot,suffix in (('head','helmet'),('chest','chestplate'),('legs','leggings'),('feet','boots')):
                     self.rc(f'item replace entity {self.s.username} armor.{slot} with {set_id}_{suffix}')
                 time.sleep(1);self.shot('盘坐_'+set_id.replace(':','_'))

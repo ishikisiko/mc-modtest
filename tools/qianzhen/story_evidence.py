@@ -39,7 +39,7 @@ from tools.qianzhen import story_resume
 
 HANDOFF = ROOT/'reports/qianzhen-story/runtime-handoff.json'
 HANDOFF_SNAPSHOT = Path(__file__).with_name('story_evidence_handoff.json')
-CHAPTER = ROOT/'src/main/resources/data/myvillage/story/qianzhen_chapter_1.json'
+CHAPTER = ROOT/'src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json'
 SELECTED = ['production_deploy', 'continuous_first_chapter', 'rescue_restart',
             'full_inventory_reward', 'reward_restart', 'late_second_player_other_branch',
             'death_relog_dimension', 'normal_narrow_ui', 'fresh_entry_world', 'saved_world']
@@ -316,7 +316,7 @@ class StoryEvidence(QianzhenEvidence):
     def open_actor(self, role, state):
         self.walk(role, state)
         person = self.actor_row(state, role)['personId']
-        selector = f'@e[type=myvillage:cultivator,nbt={{WorldSimPerson:{person}}}]'
+        selector = f'@e[type=yuanxian:cultivator,nbt={{WorldSimPerson:{person}}}]'
         def live_body():
             reply = self.rc(f'execute as {selector} run data get entity @s Pos')
             return reply, [read_data(line) for line in reply.splitlines() if 'data: ' in line]
@@ -832,15 +832,15 @@ class StoryEvidence(QianzhenEvidence):
             for field in ('actions', 'stages', 'rewards'):
                 if handoff[field] != self.chapter[field]:
                     raise ValueError('Runtime handoff differs from actual chapter '+field)
-        require_subset(handoff, {'schema':1, 'resource':'data/myvillage/story/qianzhen_chapter_1.json',
+        require_subset(handoff, {'schema':1, 'resource':'data/yuanxian/story/qianzhen_chapter_1.json',
             'readback':{'command':'/yuanxian story status <player>', 'prefix':'QIANZHEN_STORY_STATUS '},
             'opening':{'no_automatic_accept':True}})
         self.contract = {
             'primary':compile_route(self.chapter, handoff['routes']['medical']),
             'secondary':compile_route(self.chapter, handoff['routes']['road']),
             'opening':handoff['opening'],
-            'bindings':{'key_key.myvillage.story_journal':'key.keyboard.o',
-                        'key_key.myvillage.story_tracker':'key.keyboard.y'},
+            'bindings':{'key_key.yuanxian.story_journal':'key.keyboard.o',
+                        'key_key.yuanxian.story_tracker':'key.keyboard.y'},
         }
         self.load_scene()
         # Prove both authored action sequences have continuous graph routes with

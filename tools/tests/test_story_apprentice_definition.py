@@ -5,8 +5,8 @@ import subprocess
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-OPENING = ROOT / 'src/main/resources/data/myvillage/story/qianzhen_opening.json'
-LEGACY = 'src/main/resources/data/myvillage/story/qianzhen_chapter_1.json'
+OPENING = ROOT / 'src/main/resources/data/yuanxian/story/qianzhen_opening.json'
+LEGACY = 'src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json'
 
 
 class ApprenticeDefinitionTest(unittest.TestCase):
@@ -35,8 +35,8 @@ class ApprenticeDefinitionTest(unittest.TestCase):
         self.assertEqual('', next(s for s in self.data['stages'] if s['id'] == 'first_breath')['target'])
 
     def test_work_and_pay_have_one_bounded_authored_source(self):
-        self.assertEqual({'item': 'myvillage:spirit_leaf', 'count': 3, 'radius': 8, 'target': 'apprentice_plot'}, self.data['work'])
-        self.assertEqual([{'item': 'minecraft:bread', 'count': 6}, {'item': 'myvillage:low_grade_spirit_stone', 'count': 1}], self.data['rewards'])
+        self.assertEqual({'item': 'yuanxian:spirit_leaf', 'count': 3, 'radius': 8, 'target': 'apprentice_plot'}, self.data['work'])
+        self.assertEqual([{'item': 'minecraft:bread', 'count': 6}, {'item': 'yuanxian:low_grade_spirit_stone', 'count': 1}], self.data['rewards'])
         claims = [a for a in self.actions.values() if a['kind'] == 'claim']
         self.assertEqual(1, len(claims))
         self.assertEqual(['report'], claims[0]['stages'])

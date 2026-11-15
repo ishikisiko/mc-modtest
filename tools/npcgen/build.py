@@ -36,11 +36,11 @@ def definition(name):
 def paths(name):
     d = definition(name)
     return {
-        "model": RESOURCES / f"assets/myvillage/npc/{d.NAME}_model.json",
-        "animations": RESOURCES / f"assets/myvillage/npc/{d.NAME}_animations.json",
-        "texture": RESOURCES / f"assets/myvillage/textures/entity/{d.ENTITY}/{d.NAME}.png",
+        "model": RESOURCES / f"assets/yuanxian/npc/{d.NAME}_model.json",
+        "animations": RESOURCES / f"assets/yuanxian/npc/{d.NAME}_animations.json",
+        "texture": RESOURCES / f"assets/yuanxian/textures/entity/{d.ENTITY}/{d.NAME}.png",
         # hair and iris texels for the client's per-person recolour (roles.py, NpcSkinComposer)
-        "roles": RESOURCES / f"assets/myvillage/npc/{d.NAME}_roles.png",
+        "roles": RESOURCES / f"assets/yuanxian/npc/{d.NAME}_roles.png",
     }
 
 

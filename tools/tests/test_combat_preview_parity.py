@@ -31,7 +31,7 @@ BONES = (("upper_arm", "upper_R"), ("forearm", "fore_R"), ("fist", "fist_R"))
 
 
 def shipped_weapons() -> list[str]:
-    return json.loads((RESOURCES / "data/myvillage/combat/index.json").read_text(encoding="utf-8"))["weapons"]
+    return json.loads((RESOURCES / "data/yuanxian/combat/index.json").read_text(encoding="utf-8"))["weapons"]
 
 
 @unittest.skipIf(MISSING, SKIP_REASON)
@@ -141,7 +141,7 @@ class FirstPersonSolverParityTest(unittest.TestCase):
         geo = fp.Geometry(data.json(f"assets/{geo_ns}/{geo_path}", "geometry")[0])
         rig_json, _ = data.json(f"assets/{rig_ns}/{rig_path}", "rig")
         rig_json["rig"]["off_hand"].update(fixture["off_hand_overrides"])
-        style = fp.load_weapon(data, "myvillage:lingxiao_spear")["style"]
+        style = fp.load_weapon(data, "yuanxian:lingxiao_spear")["style"]
         rig = fp.Rig(rig_json, style, "overrides", geo)
         tol = fixture["tolerance"]
         for case in fixture["cases"]:

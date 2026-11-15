@@ -27,13 +27,13 @@ BUILD_GRADLE = Path("build.gradle")
 GRADLE_PROPERTIES = Path("gradle.properties")
 MODS_TOML = Path("src/main/resources/META-INF/neoforge.mods.toml")
 GUIDE_DEFINITION = Path(
-    "src/main/resources/assets/myvillage/guideme_guides/cultivation.json"
+    "src/main/resources/assets/yuanxian/guideme_guides/cultivation.json"
 )
 GUIDEBOOK = Path("guidebook")
 RESOURCE_MIRROR = Path(
-    "src/main/resources/assets/myvillage/guides/myvillage/cultivation"
+    "src/main/resources/assets/yuanxian/guides/yuanxian/cultivation"
 )
-ASSET_ROOT = Path("src/main/resources/assets/myvillage")
+ASSET_ROOT = Path("src/main/resources/assets/yuanxian")
 JAVA_ROOT = Path("src/main/java/com/example/myvillage")
 MOD_ITEMS = JAVA_ROOT / "item/ModItems.java"
 MOD_BLOCKS = JAVA_ROOT / "block/ModBlocks.java"
@@ -51,43 +51,43 @@ ENGLISH_PAGES = tuple(f"_en_us/{path}" for path in DEFAULT_PAGES)
 EXPECTED_PAGES = frozenset((*DEFAULT_PAGES, *ENGLISH_PAGES))
 
 PAGE_ITEM_IDS = {
-    "index.md": frozenset({"myvillage:cultivation_handbook"}),
+    "index.md": frozenset({"yuanxian:cultivation_handbook"}),
     "getting_started/initiation.md": frozenset(
         {
-            "myvillage:spirit_testing_stele",
-            "myvillage:technique_inheritance_stele",
+            "yuanxian:spirit_testing_stele",
+            "yuanxian:technique_inheritance_stele",
         }
     ),
     "getting_started/cultivation_loop.md": frozenset(
         {
-            "myvillage:low_grade_spirit_stone",
-            "myvillage:spirit_stone_ore",
-            "myvillage:deepslate_spirit_stone_ore",
+            "yuanxian:low_grade_spirit_stone",
+            "yuanxian:spirit_stone_ore",
+            "yuanxian:deepslate_spirit_stone_ore",
         }
     ),
 }
 
 REQUIRED_KEYBINDS = frozenset(
     {
-        "key.myvillage.open_cultivation_profile",
-        "key.myvillage.start_normal_meditation",
-        "key.myvillage.start_spirit_meditation",
-        "key.myvillage.stop_meditation",
-        "key.myvillage.start_advancement",
+        "key.yuanxian.open_cultivation_profile",
+        "key.yuanxian.start_normal_meditation",
+        "key.yuanxian.start_spirit_meditation",
+        "key.yuanxian.stop_meditation",
+        "key.yuanxian.start_advancement",
     }
 )
 
-PACKAGED_GUIDE_ROOT = "assets/myvillage/guides/myvillage/cultivation"
+PACKAGED_GUIDE_ROOT = "assets/yuanxian/guides/yuanxian/cultivation"
 PACKAGED_PAGE_ENTRIES = frozenset(
     f"{PACKAGED_GUIDE_ROOT}/{path}" for path in EXPECTED_PAGES
 )
 REQUIRED_JAR_ENTRIES = frozenset(
     {
         "META-INF/neoforge.mods.toml",
-        "assets/myvillage/guideme_guides/cultivation.json",
-        "assets/myvillage/models/item/cultivation_handbook.json",
-        "assets/myvillage/lang/en_us.json",
-        "assets/myvillage/lang/zh_cn.json",
+        "assets/yuanxian/guideme_guides/cultivation.json",
+        "assets/yuanxian/models/item/cultivation_handbook.json",
+        "assets/yuanxian/lang/en_us.json",
+        "assets/yuanxian/lang/zh_cn.json",
         "com/example/myvillage/item/ModItems.class",
         "com/example/myvillage/item/CultivationHandbookItem.class",
         *PACKAGED_PAGE_ENTRIES,
@@ -323,12 +323,12 @@ class GuideMECultivationGuideValidator:
             self.error(MODS_TOML, f"invalid TOML: {exc}")
             return
         dependencies = metadata.get("dependencies", {})
-        myvillage = dependencies.get("myvillage", []) if isinstance(dependencies, dict) else []
+        yuanxian = dependencies.get("yuanxian", []) if isinstance(dependencies, dict) else []
         guide_entries = [
             entry
-            for entry in myvillage
+            for entry in yuanxian
             if isinstance(entry, dict) and entry.get("modId") == "guideme"
-        ] if isinstance(myvillage, list) else []
+        ] if isinstance(yuanxian, list) else []
         if len(guide_entries) != 1:
             self.error(MODS_TOML, "must declare exactly one guideme dependency")
             return
@@ -360,22 +360,22 @@ class GuideMECultivationGuideValidator:
         display_name = settings.get("display_name")
         expected_name = {
             "type": "translatable",
-            "translate": "item.myvillage.cultivation_handbook",
+            "translate": "item.yuanxian.cultivation_handbook",
         }
         if display_name != expected_name:
             self.error(
                 GUIDE_DEFINITION,
                 f"item_settings.display_name must be {expected_name!r}",
             )
-        if settings.get("model") != "myvillage:item/cultivation_handbook":
+        if settings.get("model") != "yuanxian:item/cultivation_handbook":
             self.error(
                 GUIDE_DEFINITION,
-                "item_settings.model must be myvillage:item/cultivation_handbook",
+                "item_settings.model must be yuanxian:item/cultivation_handbook",
             )
         tooltip_lines = settings.get("tooltip_lines")
         if not isinstance(tooltip_lines, list) or not tooltip_lines:
             self.error(GUIDE_DEFINITION, "item_settings.tooltip_lines must be non-empty")
-        elif "item.myvillage.cultivation_handbook.tooltip" not in json.dumps(
+        elif "item.yuanxian.cultivation_handbook.tooltip" not in json.dumps(
             tooltip_lines, ensure_ascii=False
         ):
             self.error(
@@ -455,7 +455,7 @@ class GuideMECultivationGuideValidator:
                 if match:
                     ids = {f"{kind}_array_{role.strip().lower()}" for role in match.group(1).split(",") if role.strip() != "AIR"}
                     items.update(ids); blocks.update(ids)
-        return ({f"myvillage:{item}" for item in items}, {f"myvillage:{block}" for block in blocks})
+        return ({f"yuanxian:{item}" for item in items}, {f"yuanxian:{block}" for block in blocks})
 
     @staticmethod
     def _tag_ids(body: str, tag: str) -> set[str]:
@@ -470,7 +470,7 @@ class GuideMECultivationGuideValidator:
         target = target.split("#", 1)[0].split("?", 1)[0]
         if not target or "://" in target or target.startswith("#"):
             return None
-        if target.startswith("myvillage:"):
+        if target.startswith("yuanxian:"):
             return target.split(":", 1)[1]
         if ":" in target:
             return None
@@ -563,20 +563,20 @@ class GuideMECultivationGuideValidator:
             for item_id in sorted(self._tag_ids(page.body, "ItemLink")):
                 if ":" not in item_id:
                     self.error(location, f"ItemLink id must be fully qualified: {item_id}")
-                elif item_id.startswith("myvillage:") and item_id not in registered_items:
+                elif item_id.startswith("yuanxian:") and item_id not in registered_items:
                     self.error(location, f"ItemLink references unknown registered item {item_id}")
             for block_id in sorted(self._tag_ids(page.body, "BlockImage")):
                 if ":" not in block_id:
                     self.error(location, f"BlockImage id must be fully qualified: {block_id}")
-                elif block_id.startswith("myvillage:") and block_id not in registered_blocks:
+                elif block_id.startswith("yuanxian:") and block_id not in registered_blocks:
                     self.error(location, f"BlockImage references unknown registered block {block_id}")
             item_ids = _string_set(page.frontmatter.get("item_ids")) or set()
             for item_id in sorted(item_ids):
                 if item_id not in registered_items:
                     self.error(location, f"item_ids references unknown registered item {item_id}")
             for recipe_id in sorted(self._tag_ids(page.body, "Recipe")):
-                if recipe_id.startswith("myvillage:"):
-                    recipe_path = Path("src/main/resources/data/myvillage/recipe") / (recipe_id.split(":", 1)[1] + ".json")
+                if recipe_id.startswith("yuanxian:"):
+                    recipe_path = Path("src/main/resources/data/yuanxian/recipe") / (recipe_id.split(":", 1)[1] + ".json")
                     if not (self.root / recipe_path).is_file():
                         self.error(location, f"Recipe references missing recipe {recipe_id}")
                     else:
@@ -598,14 +598,14 @@ class GuideMECultivationGuideValidator:
             if loop is not None:
                 item_links = self._tag_ids(loop.body, "ItemLink")
                 block_images = self._tag_ids(loop.body, "BlockImage")
-                if "myvillage:low_grade_spirit_stone" not in item_links:
+                if "yuanxian:low_grade_spirit_stone" not in item_links:
                     self.error(
                         GUIDEBOOK / loop.path,
                         "cultivation loop must ItemLink the low-grade spirit stone",
                     )
                 required_ores = {
-                    "myvillage:spirit_stone_ore",
-                    "myvillage:deepslate_spirit_stone_ore",
+                    "yuanxian:spirit_stone_ore",
+                    "yuanxian:deepslate_spirit_stone_ore",
                 }
                 if not required_ores.issubset(block_images):
                     self.error(
@@ -831,7 +831,7 @@ class GuideMECultivationGuideValidator:
             self.error(BUILD_GRADLE, "missing processResources configuration")
         elif re.search(
             r"from\(\s*['\"]guidebook['\"]\s*\)\s*\{.*?"
-            r"into\s+['\"]assets/myvillage/guides/myvillage/cultivation['\"]",
+            r"into\s+['\"]assets/yuanxian/guides/yuanxian/cultivation['\"]",
             process_body,
             re.DOTALL,
         ) is None:
@@ -846,19 +846,19 @@ class GuideMECultivationGuideValidator:
             self.error(BUILD_GRADLE, "missing client-backed guide run configuration")
             return
         required_fragments = (
-            "systemProperty 'guideme.myvillage.cultivation.sources', file('guidebook').absolutePath",
-            "systemProperty 'guideme.myvillage.cultivation.sourcesNamespace', 'myvillage'",
-            "systemProperty 'guideme.showOnStartup', 'myvillage:cultivation'",
-            "systemProperty 'guideme.validateAtStartup', 'myvillage:cultivation'",
+            "systemProperty 'guideme.yuanxian.cultivation.sources', file('guidebook').absolutePath",
+            "systemProperty 'guideme.yuanxian.cultivation.sourcesNamespace', 'yuanxian'",
+            "systemProperty 'guideme.showOnStartup', 'yuanxian:cultivation'",
+            "systemProperty 'guideme.validateAtStartup', 'yuanxian:cultivation'",
         )
         normalized = re.sub(r"\s+", " ", guide_body)
         for fragment in required_fragments:
             if re.sub(r"\s+", " ", fragment) not in normalized:
                 self.error(BUILD_GRADLE, f"runGuide missing exact preview setting: {fragment}")
-        if "!index.md" in guide_body or "myvillage:index.md" in guide_body:
+        if "!index.md" in guide_body or "yuanxian:index.md" in guide_body:
             self.error(
                 BUILD_GRADLE,
-                "showOnStartup/validateAtStartup must use only guide id myvillage:cultivation",
+                "showOnStartup/validateAtStartup must use only guide id yuanxian:cultivation",
             )
 
     def validate_handbook(self) -> None:
@@ -881,7 +881,7 @@ class GuideMECultivationGuideValidator:
             if re.search(
                 r"output\.accept\(\s*CULTIVATION_HANDBOOK\.get\(\)\s*\)", active
             ) is None:
-                self.error(MOD_ITEMS, "creative tab myvillage:main omits CULTIVATION_HANDBOOK")
+                self.error(MOD_ITEMS, "creative tab yuanxian:main omits CULTIVATION_HANDBOOK")
             stele_position = active.find("output.accept(TECHNIQUE_INHERITANCE_STELE_ITEM.get())")
             handbook_position = active.find("output.accept(CULTIVATION_HANDBOOK.get())")
             if stele_position < 0 or handbook_position <= stele_position:
@@ -900,7 +900,7 @@ class GuideMECultivationGuideValidator:
                 "MyVillageMod.MOD_ID" in active
                 and re.search(r'["\']cultivation["\']', active)
             ):
-                self.error(HANDBOOK_JAVA, "handbook guide id must be myvillage:cultivation")
+                self.error(HANDBOOK_JAVA, "handbook guide id must be yuanxian:cultivation")
             use_body = _method_body(active, "use")
             if use_body is None:
                 self.error(HANDBOOK_JAVA, "missing handbook use method")
@@ -919,7 +919,7 @@ class GuideMECultivationGuideValidator:
                 if "InteractionResultHolder.sidedSuccess" not in use_body:
                     self.error(HANDBOOK_JAVA, "handbook use must retain the stack via sidedSuccess")
             tooltip_body = _method_body(active, "appendHoverText")
-            if tooltip_body is None or "item.myvillage.cultivation_handbook.tooltip" not in tooltip_body:
+            if tooltip_body is None or "item.yuanxian.cultivation_handbook.tooltip" not in tooltip_body:
                 self.error(HANDBOOK_JAVA, "handbook must append its translated tooltip")
             forbidden_network = (
                 "PacketDistributor",
@@ -962,8 +962,8 @@ class GuideMECultivationGuideValidator:
             if not isinstance(language, dict):
                 continue
             for key in (
-                "item.myvillage.cultivation_handbook",
-                "item.myvillage.cultivation_handbook.tooltip",
+                "item.yuanxian.cultivation_handbook",
+                "item.yuanxian.cultivation_handbook.tooltip",
             ):
                 if not isinstance(language.get(key), str) or not language[key].strip():
                     self.error(lang_path, f"missing non-empty handbook translation {key}")
@@ -988,13 +988,13 @@ class GuideMECultivationGuideValidator:
                 mod_version = match.group(1)
         if mods is not None and mod_version is not None:
             match = re.search(
-                r'(?ms)^\s*\[\[mods\]\]\s*$.*?^\s*modId\s*=\s*"myvillage"\s*$.*?'
+                r'(?ms)^\s*\[\[mods\]\]\s*$.*?^\s*modId\s*=\s*"yuanxian"\s*$.*?'
                 r'^\s*version\s*=\s*"([^"]+)"',
                 mods,
             )
             if match is None or match.group(1) != mod_version:
                 got = match.group(1) if match else None
-                self.error(MODS_TOML, f"myvillage version must be {mod_version}, got {got!r}")
+                self.error(MODS_TOML, f"yuanxian version must be {mod_version}, got {got!r}")
         if changelog is not None and mod_version is not None:
             if re.search(rf"(?m)^##\s+{re.escape(mod_version)}\s*$", changelog) is None:
                 self.error(Path("CHANGELOG.md"), f"missing release heading {mod_version}")
@@ -1005,8 +1005,8 @@ class GuideMECultivationGuideValidator:
                 )
         if readme is not None:
             required = (
-                "/give @s myvillage:cultivation_handbook",
-                "/guidemec myvillage:cultivation open",
+                "/give @s yuanxian:cultivation_handbook",
+                "/guidemec yuanxian:cultivation open",
                 "runGuide",
                 "validate_guideme_cultivation_guide.py",
                 "not_verified",
@@ -1014,10 +1014,10 @@ class GuideMECultivationGuideValidator:
             for fragment in required:
                 if fragment not in readme:
                     self.error(Path("README.md"), f"missing GuideME usage detail {fragment}")
-            if "/guidemec open myvillage:cultivation" in readme:
+            if "/guidemec open yuanxian:cultivation" in readme:
                 self.error(
                     Path("README.md"),
-                    "GuideME preview command order is wrong; use /guidemec myvillage:cultivation open",
+                    "GuideME preview command order is wrong; use /guidemec yuanxian:cultivation open",
                 )
             guide_required = (
                 "GuideME" in readme
@@ -1027,7 +1027,7 @@ class GuideMECultivationGuideValidator:
             if not guide_required:
                 self.error(Path("README.md"), "must document GuideME as required on client and server")
             jar_versions = re.findall(
-                r"(?:build/libs/)?myvillage-([0-9]+\.[0-9]+\.[0-9]+(?:-fix[0-9]+)?)\.jar",
+                r"(?:build/libs/)?yuanxian-([0-9]+\.[0-9]+\.[0-9]+(?:-fix[0-9]+)?)\.jar",
                 readme,
             )
             if not jar_versions:
@@ -1041,9 +1041,9 @@ class GuideMECultivationGuideValidator:
         if kb is not None:
             for fragment in (
                 "guidebook/",
-                "myvillage:cultivation",
+                "yuanxian:cultivation",
                 "validate_guideme_cultivation_guide.py",
-                "/guidemec myvillage:cultivation open",
+                "/guidemec yuanxian:cultivation open",
             ):
                 if fragment not in kb:
                     self.error(
@@ -1064,7 +1064,7 @@ class GuideMECultivationGuideValidator:
         match = re.search(r"(?m)^mod_version\s*=\s*([^\s#]+)\s*$", properties)
         if match is None:
             return None, "gradle.properties has no mod_version"
-        return self.root / "build/libs" / f"myvillage-{match.group(1)}.jar", None
+        return self.root / "build/libs" / f"yuanxian-{match.group(1)}.jar", None
 
     def validate_jar(self, explicit_jar: Path | None, require_current_jar: bool) -> str:
         expected_jar, resolution_error = self._expected_jar()
@@ -1130,10 +1130,10 @@ class GuideMECultivationGuideValidator:
                     )
                 source_map = {
                     "META-INF/neoforge.mods.toml": self.root / MODS_TOML,
-                    "assets/myvillage/guideme_guides/cultivation.json": self.root / GUIDE_DEFINITION,
-                    "assets/myvillage/models/item/cultivation_handbook.json": self.root / HANDBOOK_MODEL,
-                    "assets/myvillage/lang/en_us.json": self.root / ASSET_ROOT / "lang/en_us.json",
-                    "assets/myvillage/lang/zh_cn.json": self.root / ASSET_ROOT / "lang/zh_cn.json",
+                    "assets/yuanxian/guideme_guides/cultivation.json": self.root / GUIDE_DEFINITION,
+                    "assets/yuanxian/models/item/cultivation_handbook.json": self.root / HANDBOOK_MODEL,
+                    "assets/yuanxian/lang/en_us.json": self.root / ASSET_ROOT / "lang/en_us.json",
+                    "assets/yuanxian/lang/zh_cn.json": self.root / ASSET_ROOT / "lang/zh_cn.json",
                     **{
                         f"{PACKAGED_GUIDE_ROOT}/{page}": self.root / GUIDEBOOK / page
                         for page in source_pages
@@ -1143,7 +1143,7 @@ class GuideMECultivationGuideValidator:
                     if entry in names and source.is_file() and archive.read(entry) != source.read_bytes():
                         self.error(jar, f"packaged entry differs from source truth: {entry}")
 
-                if "assets/myvillage/textures/item/cultivation_handbook.png" in names:
+                if "assets/yuanxian/textures/item/cultivation_handbook.png" in names:
                     self.error(jar, "must not package a MyVillage handbook texture")
                 for name in sorted(names):
                     lowered = name.lower()

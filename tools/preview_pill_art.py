@@ -18,7 +18,7 @@ def export(out, url):
     cards = []
     for kind, entry in entries.items():
         raw = png(pill_icon(kind))
-        packaged = ROOT / f"src/main/resources/assets/myvillage/textures/item/pill_{kind}.png"
+        packaged = ROOT / f"src/main/resources/assets/yuanxian/textures/item/pill_{kind}.png"
         if raw != packaged.read_bytes():
             raise ValueError(f"Regenerate resource owner first: {packaged}")
         (out / f"pill_{kind}.png").write_bytes(raw)

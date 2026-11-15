@@ -33,7 +33,7 @@ class AlchemyFurnaceNavigationTest {
         synchronized (registry) {
             registry.unfreeze();
             try {
-                furnace = Registry.register(registry, ResourceLocation.parse("myvillage_test:npc_furnace"),
+                furnace = Registry.register(registry, ResourceLocation.parse("yuanxian_test:npc_furnace"),
                         new AlchemyFurnaceBlock(BlockBehaviour.Properties.of()));
             } finally { registry.freeze(); }
         }

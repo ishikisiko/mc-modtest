@@ -48,12 +48,12 @@ final class BrandProbe {
     }
     private static int run(CommandSourceStack source){
         var server=source.getServer();var dispatcher=server.getCommands().getDispatcher();checks=new JsonArray();executions=new JsonArray();
-        check("metadata",()->require(ModList.get().getModContainerById("myvillage").orElseThrow().getModInfo().getDisplayName().equals("源仙"),"模组显示名错误"));
-        check("namespace",()->{require(BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.parse("myvillage:demon_wolf")),"原实体ID缺失");require(!BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.parse("yuanxian:demon_wolf")),"资源ID被意外更名");});
+        check("metadata",()->require(ModList.get().getModContainerById("yuanxian").orElseThrow().getModInfo().getDisplayName().equals("源仙"),"模组显示名错误"));
+        check("namespace",()->{require(BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.parse("yuanxian:demon_wolf")),"新实体ID缺失");require(!BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.parse("myvillage:demon_wolf")),"旧实体ID仍被注册");});
         for(String locale:List.of("zh_cn","en_us"))check("language_"+locale,()->{
-            try(var input=BuiltinResources.open("assets/myvillage/lang/"+locale+".json")){
+            try(var input=BuiltinResources.open("assets/yuanxian/lang/"+locale+".json")){
                 var data=JsonParser.parseString(new String(input.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
-                require(data.get("itemGroup.myvillage.main").getAsString().equals("源仙"),"主创造栏名称错误");require(data.get("key.categories.myvillage").getAsString().equals("源仙"),"按键分类名称错误");
+                require(data.get("itemGroup.yuanxian.main").getAsString().equals("源仙"),"主创造栏名称错误");require(data.get("key.categories.yuanxian").getAsString().equals("源仙"),"按键分类名称错误");
             }
         });
         check("shared_tree",()->require(dispatcher.getRoot().getChild(ModBrand.COMMAND_SHORT).getRedirect()==dispatcher.getRoot().getChild(ModBrand.COMMAND_ROOT),"快捷入口未引用同一棵树"));
@@ -82,7 +82,7 @@ final class BrandProbe {
         });
         check("public_command_execution",()->{for(String name:List.of("yuanxian","yx"))require(execute(server,name+" aptitude",0).result()==1,"普通玩家资质查询失败");});
         check("parameter_roundtrip",()->{
-            var full=execute(server,"yuanxian drops show minecraft:zombie normal donghuang myvillage:qi_refining 8",2);var shortName=execute(server,"yx drops show minecraft:zombie normal donghuang myvillage:qi_refining 8",2);
+            var full=execute(server,"yuanxian drops show minecraft:zombie normal donghuang yuanxian:qi_refining 8",2);var shortName=execute(server,"yx drops show minecraft:zombie normal donghuang yuanxian:qi_refining 8",2);
             require(full.result()==1&&shortName.result()==1&&full.lines().equals(shortName.lines()),"快捷入口参数或查询结果不同");
         });
         check("completion_parity",()->{

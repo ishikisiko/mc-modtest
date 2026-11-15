@@ -20,7 +20,7 @@ public final class ForgingQualityDisplay {
     }
 
     public static MutableComponent name(int quality) {
-        return Component.translatable("forging.myvillage.quality." + quality)
+        return Component.translatable("forging.yuanxian.quality." + quality)
                 .withStyle(style -> style.withColor(color(quality)));
     }
 }

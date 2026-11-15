@@ -57,7 +57,7 @@ class XuantieGauntletModelTest(unittest.TestCase):
         self.assertEqual("front", model["gui_light"])
         self.assertEqual({"parent": gen.MODEL_3D_ID}, model["base"])
         self.assertEqual({"gui": {"parent": "minecraft:item/handheld",
-                                  "textures": {"layer0": "myvillage:item/xuantie_gauntlet"}}}, model["perspectives"])
+                                  "textures": {"layer0": "yuanxian:item/xuantie_gauntlet"}}}, model["perspectives"])
         model_3d = gen.build_model_3d()
         self.assertNotIn("parent", model_3d)
         self.assertNotIn("gui", model_3d["display"])
@@ -66,7 +66,7 @@ class XuantieGauntletModelTest(unittest.TestCase):
             self.assertIn(context, model_3d["display"])
         for key, ref in model_3d["textures"].items():
             if key != "particle":
-                self.assertTrue(ref.startswith("myvillage:item/xuantie_gauntlet_"), ref)
+                self.assertTrue(ref.startswith("yuanxian:item/xuantie_gauntlet_"), ref)
 
     def test_model_stays_within_vanilla_element_limits(self) -> None:
         elements = gen.build_elements()

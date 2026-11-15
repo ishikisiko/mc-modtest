@@ -28,8 +28,8 @@ import org.junit.jupiter.api.Test;
  */
 final class NpcSkinComposerTest {
     private static final String GOLDENS = "/npc_skin_goldens/";
-    private static final String TEXTURES = "/assets/myvillage/textures/entity/cultivator/";
-    private static final String ROLES = "/assets/myvillage/npc/";
+    private static final String TEXTURES = "/assets/yuanxian/textures/entity/cultivator/";
+    private static final String ROLES = "/assets/yuanxian/npc/";
 
     @Test
     void everyGoldenMatchesPixelForPixel() throws IOException {

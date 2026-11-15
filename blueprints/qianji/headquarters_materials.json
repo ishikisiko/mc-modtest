@@ -160,7 +160,7 @@
   "explosion_resistance": 6,
   "light_level": 15,
   "texture_resolution": 32,
-  "font": "src/main/resources/assets/myvillage/font/brush.ttf",
+  "font": "src/main/resources/assets/yuanxian/font/brush.ttf",
   "non_collision_roles": [
     "procedural_books",
     "lamp",

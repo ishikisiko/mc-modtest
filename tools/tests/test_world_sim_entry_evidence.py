@@ -61,12 +61,12 @@ class LogLineTest(unittest.TestCase):
 
 class StewardTest(unittest.TestCase):
     REPLY = ("Li Qing · Qi Refining · Azure Cloud has the following entity data: "
-             "'{\"translate\":\"entity.myvillage.cultivator.avatar\",\"with\":[\"Li Qing\",{\"translate\":"
+             "'{\"translate\":\"entity.yuanxian.cultivator.avatar\",\"with\":[\"Li Qing\",{\"translate\":"
              "\"world_sim.realm.qi_refining\"},\"Azure Cloud\"]}'"
              "Wang Ming · Qi Refining · Azure Cloud · Gate Steward has the following entity data: "
-             "'{\"translate\":\"entity.myvillage.cultivator.avatar.steward\",\"with\":[\"Wang Ming\",{\"translate\":"
+             "'{\"translate\":\"entity.yuanxian.cultivator.avatar.steward\",\"with\":[\"Wang Ming\",{\"translate\":"
              "\"world_sim.realm.qi_refining\"},\"Azure Cloud\"]}'\n"
-             "Zhao Yun has the following entity data: '{\"translate\":\"entity.myvillage.cultivator.avatar\"}'")
+             "Zhao Yun has the following entity data: '{\"translate\":\"entity.yuanxian.cultivator.avatar\"}'")
 
     def test_split_and_find(self):
         self.assertEqual(len(ev.split_entities(self.REPLY)), 3)

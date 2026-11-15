@@ -34,14 +34,14 @@ class AdvancedArtsTest {
     }
     @Test void manualCodecAndCostMatchRuntime() throws Exception {
         for(var art:ArtDefinition.all()) {
-            var json=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/myvillage/technique/"+art.id().getPath()+".json")));
+            var json=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/yuanxian/technique/"+art.id().getPath()+".json")));
             var technique=TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE,json).getOrThrow();
             assertEquals(art.qiCost(),technique.effects().orElseThrow().active().orElseThrow().qiCost());
             assertEquals(art.id(),technique.effects().orElseThrow().active().orElseThrow().skill());
             assertEquals(Optional.of(art.school()),technique.school());
             if(art.lock().isPresent() || art.elemental().isPresent())continue;
             assertEquals(2,technique.grade());
-            assertEquals("myvillage:qi_refining_4",json.getAsJsonObject().getAsJsonObject("requirements").get("minimum_stage").getAsString());
+            assertEquals("yuanxian:qi_refining_4",json.getAsJsonObject().getAsJsonObject("requirements").get("minimum_stage").getAsString());
         }
     }
     @Test void phasesShareAuthorityAndPreserveAuthoredBaselineAnimation() {
@@ -56,7 +56,7 @@ class AdvancedArtsTest {
                 assertEquals(base.animation(),move.animation());
                 assertEquals(base.totalTicks(),move.totalTicks());
                 assertEquals(base.activeStartTick(),move.activeStartTick());
-                var start=session.startExternal(move,time,ResourceLocation.parse("myvillage:test_weapon"),ResourceLocation.parse("minecraft:overworld"),35);
+                var start=session.startExternal(move,time,ResourceLocation.parse("yuanxian:test_weapon"),ResourceLocation.parse("minecraft:overworld"),35);
                 assertTrue(start.revision()>revision);revision=start.revision();
                 assertTrue(session.markAttempted(10));assertFalse(session.markAttempted(10));
                 assertEquals(CombatSession.IntentDecision.REJECTED_TIMING,session.acceptIntent(time+move.bufferStartTick(),start.weaponId(),start.worldId(),35).decision());

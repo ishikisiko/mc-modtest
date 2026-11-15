@@ -26,9 +26,9 @@ class ForgingJeiRecipeTest {
     @Test void xuantieArmorShowsBlankMaterialsAndPatternAsACondition() {
         var recipes = ForgingJeiRecipe.create(ForgingRules.get(), WorkshopRules.get());
         var armor = recipes.stream().filter(r -> r.id().equals("xuantie_chestplate")).findFirst().orElseThrow();
-        assertEquals("myvillage:xuantie_chestplate", armor.output());
-        assertEquals("myvillage:pattern_xuantie_chestplate", armor.pattern());
-        assertEquals(Map.of("#myvillage:forging_materials/xuantie", 8, "minecraft:leather", 2), armor.materials());
+        assertEquals("yuanxian:xuantie_chestplate", armor.output());
+        assertEquals("yuanxian:pattern_xuantie_chestplate", armor.pattern());
+        assertEquals(Map.of("#yuanxian:forging_materials/xuantie", 8, "minecraft:leather", 2), armor.materials());
         assertEquals(4, recipes.stream().filter(r -> WorkshopRules.get().craft(r.id()).armor()).count());
     }
 

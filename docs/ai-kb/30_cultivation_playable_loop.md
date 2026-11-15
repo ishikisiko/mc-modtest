@@ -77,9 +77,9 @@ profile.
 The resource slice adds:
 
 ```text
-myvillage:low_grade_spirit_stone
-myvillage:spirit_stone_ore
-myvillage:deepslate_spirit_stone_ore
+yuanxian:low_grade_spirit_stone
+yuanxian:spirit_stone_ore
+yuanxian:deepslate_spirit_stone_ore
 ```
 
 Both ores require an iron-tier-or-better pickaxe. Silk Touch drops the matching
@@ -297,7 +297,7 @@ clean acceptance stage 1 first. See [the measured report](../testing/2026-10-14-
 - 入座长度来自服务器准备时长。主动停止及正常完成平滑收功；移动、受击、攻击、死亡等强制停止立即释放。
   客户端世界更换/断线清缓存，实体 ID 与 UUID 同时匹配，晚到旧 epoch 不覆盖新状态。
 - `tools/meditation_motion/pose.json` 是姿态与呼吸参数的唯一作者，`tools/gen_meditation_motion.py --check`
-  检查生成的 `assets/myvillage/cultivation/meditation_motion.json`。不改战斗 PAL 动画生成器。
+  检查生成的 `assets/yuanxian/cultivation/meditation_motion.json`。不改战斗 PAL 动画生成器。
 - 当前 PAL 1.1.4 的实际 ModelPart 渲染不消费 bend。客户端专用 mixin 在 PAL 后应用修炼姿态，
   仅为当帧标记的肢体绘制连续变形表面；原 UV、像素比例与材质保留，没有拼片装饰。
   `copyFrom` 把变形传递到原版盔甲，现有仙衣材质/透明/发光/glint 通路使用同一变形。

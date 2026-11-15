@@ -61,12 +61,12 @@ public final class FoundryEquipment {
         var h=handle(stack);var benefits=benefits(stack);boolean armor=craft.get().armor();
         var before=stack.getAttributeModifiers();
         var entries=new ArrayList<>(before.modifiers());
-        entries.removeIf(e->e.modifier().id().getNamespace().equals("myvillage")&&MODIFIERS.contains(e.modifier().id().getPath()));
+        entries.removeIf(e->e.modifier().id().getNamespace().equals("yuanxian")&&MODIFIERS.contains(e.modifier().id().getPath()));
         var defaults=stack.getItem().getDefaultInstance().getAttributeModifiers();
         if(!armor){
             double base=1+defaults.modifiers().stream().filter(e->e.attribute().equals(Attributes.ATTACK_DAMAGE)&&e.modifier().operation()==AttributeModifier.Operation.ADD_VALUE).mapToDouble(e->e.modifier().amount()).sum();
             double ordinary=base+entries.stream().filter(e->e.attribute().equals(Attributes.ATTACK_DAMAGE)
-                    &&e.modifier().id().getNamespace().equals("myvillage")
+                    &&e.modifier().id().getNamespace().equals("yuanxian")
                     &&Set.of("forging_sharp","tempered_edge").contains(e.modifier().id().getPath()))
                     .mapToDouble(e->e.modifier().amount()).sum();
             double total=Math.min(base*(1+FoundryRules.get().caps().attack()),ordinary*(1+benefits.attack())*h.attack());
@@ -87,7 +87,7 @@ public final class FoundryEquipment {
     }
     private static void add(List<ItemAttributeModifiers.Entry> entries,net.minecraft.core.Holder<Attribute> attribute,String id,double value,EquipmentSlotGroup slot){add(entries,attribute,id,value,slot,AttributeModifier.Operation.ADD_VALUE);}
     private static void add(List<ItemAttributeModifiers.Entry> entries,net.minecraft.core.Holder<Attribute> attribute,String id,double value,EquipmentSlotGroup slot,AttributeModifier.Operation operation){
-        if(Math.abs(value)>0.0000001)entries.add(new ItemAttributeModifiers.Entry(attribute,new AttributeModifier(ResourceLocation.fromNamespaceAndPath("myvillage",id),value,operation),slot));
+        if(Math.abs(value)>0.0000001)entries.add(new ItemAttributeModifiers.Entry(attribute,new AttributeModifier(ResourceLocation.fromNamespaceAndPath("yuanxian",id),value,operation),slot));
     }
     public static long qiCost(ItemStack stack,long original){
         if(original<0)throw new IllegalArgumentException("Negative qi cost");if(original==0)return 0;

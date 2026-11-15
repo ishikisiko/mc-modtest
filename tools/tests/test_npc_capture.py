@@ -45,7 +45,7 @@ class NpcCaptureTest(unittest.TestCase):
             root=Path(tmp)
             with self.assertRaises(RuntimeError):session.require_prebuilt_resources(root)
             for name in ('build/resources/main/META-INF/neoforge.mods.toml',
-                         'build/resources/main/data/myvillage/story/qianzhen_scene.json',
+                         'build/resources/main/data/yuanxian/story/qianzhen_scene.json',
                          'build/classes/java/main/com/example/myvillage/MyVillageMod.class'):
                 p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'fixture')
             session.require_prebuilt_resources(root)
@@ -65,12 +65,12 @@ class NpcCaptureTest(unittest.TestCase):
 
     def test_colours_are_bounded_written_and_read_back_independently(self):
         from tools.npc_variant_evidence import parse_colours
-        cmd=npc.summon_npc('myvillage:cultivator',beast.WOLF_POS,0,look='m_02_04_b',colours=66)
+        cmd=npc.summon_npc('yuanxian:cultivator',beast.WOLF_POS,0,look='m_02_04_b',colours=66)
         self.assertIn(',Look:"m_02_04_b",Colours:66}',cmd)
         self.assertEqual(66,parse_colours('{Look:"m_02_04_b",Colours:66}'))
         self.assertEqual(-1,parse_colours('{CustomName:"Colours:66"}'))
         for value in (-1,6,144):
-            with self.assertRaises(ValueError):npc.summon_npc('myvillage:cultivator',beast.WOLF_POS,0,colours=value)
+            with self.assertRaises(ValueError):npc.summon_npc('yuanxian:cultivator',beast.WOLF_POS,0,colours=value)
 
     def test_native_fixture_fits_loaded_chunks_and_covers_all_colours(self):
         from tools.npc_variant_evidence import fixture_colours
@@ -87,16 +87,16 @@ class NpcCaptureTest(unittest.TestCase):
 
     def test_needs_no_beast_data_and_never_uses_beast_commands(self):
         session = FakeSession()
-        capture = npc.NpcCapture(session, "myvillage:cultivator", out=None)
+        capture = npc.NpcCapture(session, "yuanxian:cultivator", out=None)
         self.assertEqual({}, capture.data)
-        self.assertEqual("myvillage:cultivator", capture.manifest["beast"])
+        self.assertEqual("yuanxian:cultivator", capture.manifest["beast"])
         capture.setup_world()
         self.assertFalse([c for c in session.commands if "yuanxian beast" in c])
-        self.assertIn("summon myvillage:cultivator", beast.summon(capture.beast, beast.WOLF_POS, 0.0))
+        self.assertIn("summon yuanxian:cultivator", beast.summon(capture.beast, beast.WOLF_POS, 0.0))
 
     def test_cli_has_the_npc_command(self):
         args = cli.build_parser().parse_args(["npc", "--parts", "idle"])
-        self.assertEqual("myvillage:cultivator", args.npc)
+        self.assertEqual("yuanxian:cultivator", args.npc)
         self.assertEqual("idle", args.parts)
         self.assertEqual(("idle", "walk"), npc.NPC_PARTS)
 
@@ -125,18 +125,18 @@ class NpcCaptureTest(unittest.TestCase):
         self.assertEqual("ingame_f_adept", npc.ingame_dir_name("f_adept"))
 
     def test_fixed_default_capture_is_explicit_and_ordinary_summon_is_not(self):
-        plain = beast.summon("myvillage:cultivator", beast.WOLF_POS, 0.0)
+        plain = beast.summon("yuanxian:cultivator", beast.WOLF_POS, 0.0)
         self.assertNotIn("Look", plain)
-        self.assertIn(',Look:"default"}', npc.summon_npc("myvillage:cultivator", beast.WOLF_POS, 0.0))
-        cmd = npc.summon_npc("myvillage:cultivator", (0.5, -60, 8.5), 90.0, tag="npc_1", look="f_adept")
-        self.assertTrue(cmd.startswith("summon myvillage:cultivator 0.5 -60 8.5 {"), cmd)
+        self.assertIn(',Look:"default"}', npc.summon_npc("yuanxian:cultivator", beast.WOLF_POS, 0.0))
+        cmd = npc.summon_npc("yuanxian:cultivator", (0.5, -60, 8.5), 90.0, tag="npc_1", look="f_adept")
+        self.assertTrue(cmd.startswith("summon yuanxian:cultivator 0.5 -60 8.5 {"), cmd)
         self.assertTrue(cmd.endswith(',Look:"f_adept"}'), cmd)
         self.assertIn('Tags:["npc_1"]', cmd)
 
     def test_capture_summons_with_its_look_and_records_it(self):
         session = FakeSession()
         with tempfile.TemporaryDirectory() as tmp:
-            capture = npc.NpcCapture(session, "myvillage:cultivator", out=Path(tmp), look="f_novice")
+            capture = npc.NpcCapture(session, "yuanxian:cultivator", out=Path(tmp), look="f_novice")
             capture.fresh_beast()
             summons = [c for c in session.commands if c.startswith("summon ")]
             self.assertEqual(1, len(summons))
@@ -144,16 +144,16 @@ class NpcCaptureTest(unittest.TestCase):
             capture.finish()
             manifest = json.loads((Path(tmp) / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual("f_novice", manifest["look"])
-            self.assertEqual("myvillage:cultivator", manifest["beast"])
+            self.assertEqual("yuanxian:cultivator", manifest["beast"])
             page = (Path(tmp) / "index.html").read_text(encoding="utf-8")
-            self.assertIn("<title>myvillage:cultivator · f_novice in game</title>", page)
+            self.assertIn("<title>yuanxian:cultivator · f_novice in game</title>", page)
 
     def test_default_capture_pins_the_legacy_look_explicitly(self):
         session = FakeSession()
-        capture = npc.NpcCapture(session, "myvillage:cultivator", out=None)
+        capture = npc.NpcCapture(session, "yuanxian:cultivator", out=None)
         self.assertEqual("default", capture.manifest["look"])
         capture.fresh_beast()
-        summons=[c for c in session.commands if c.startswith('summon myvillage:cultivator')]
+        summons=[c for c in session.commands if c.startswith('summon yuanxian:cultivator')]
         self.assertEqual(1,len(summons))
         self.assertIn('Look:"default"',summons[0])
 

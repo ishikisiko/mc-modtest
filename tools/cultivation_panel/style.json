@@ -9,12 +9,12 @@
     {"color": "E8D9A0", "text": "71561B", "wash": "D8C996", "label": "49370E", "edge": "9C8240"}
   ],
   "technique_icons": {
-    "myvillage:qinglian_jiange": "qinglian_jiange",
-    "myvillage:huifeng_jianzhen": "huifeng_jianzhen",
-    "myvillage:canglong_chushui": "canglong_chushui",
-    "myvillage:hengsao_qianjun": "hengsao_qianjun",
-    "myvillage:bengshan_jin": "bengshan_jin",
-    "myvillage:jingang_zhen": "jingang_zhen"
+    "yuanxian:qinglian_jiange": "qinglian_jiange",
+    "yuanxian:huifeng_jianzhen": "huifeng_jianzhen",
+    "yuanxian:canglong_chushui": "canglong_chushui",
+    "yuanxian:hengsao_qianjun": "hengsao_qianjun",
+    "yuanxian:bengshan_jin": "bengshan_jin",
+    "yuanxian:jingang_zhen": "jingang_zhen"
   },
   "categories": ["core", "active", "movement", "body", "unknown"],
   "navigation": ["profile", "meditation", "techniques", "skills", "world", "fates", "crafting", "alchemy", "forging"]

@@ -31,7 +31,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         if ROOT != Path('/workspace/repo'):
             raise RuntimeError('Exploration game evidence requires the disposable Modal checkout')
         if not reuse:
-            config = cs.SERVER_DIR/'config/myvillage-world_sim-server.toml'
+            config = cs.SERVER_DIR/'config/yuanxian-world_sim-server.toml'
             config.parent.mkdir(parents=True, exist_ok=True)
             config.write_text('[world_sim]\ntier = "large"\n')
         cs.merge_options(cs.CLIENT_DIR/'options.txt', {'key_key.use': 'key.mouse.right', 'key_key.attack': 'key.mouse.left'})
@@ -82,7 +82,7 @@ class ExplorationEvidence(NpcLifeEvidence):
     def book(self):
         u,g=self.s.username,self.s.game
         self.rc(f'tp {u} .5 -60 .5 180 -60')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:cultivation_handbook')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:cultivation_handbook')
         g.key('1');time.sleep(.3);g.require_ingame('guidebook mapped use');g.xdo('click','3')
         self.poll(g.pointer_grabbed,lambda value:not value,10,'GuideME opens')
         self.gui_shot(g,'guidebook-index.png')
@@ -103,7 +103,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         time.sleep(.5); g.require_ingame('finite chest'); g.xdo('click','3')
         self.poll(g.pointer_grabbed,lambda value: not value,8,'mapped chest opens')
         contents = read_data(self.rc(f'data get block {p} Items'))
-        mod = [row for row in contents if row['id'].startswith('myvillage:')]
+        mod = [row for row in contents if row['id'].startswith('yuanxian:')]
         self.check('mapped_chest_has_cultivation_reward',bool(mod),contents)
         self.check('mapped_chest_keeps_vanilla_loot',any(row['id'].startswith('minecraft:') for row in contents),contents)
         self.gui_shot(g,'exploration-chest.png')
@@ -125,7 +125,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         helper=ForgingEvidence(self.out/'forging-use');helper.s=self.s
         helper.learn('qingfeng_sword')
         self.rc(f'clear {u}')
-        for slot,item in enumerate(('minecraft:copper_ingot','minecraft:blaze_powder','myvillage:low_grade_spirit_stone')):
+        for slot,item in enumerate(('minecraft:copper_ingot','minecraft:blaze_powder','yuanxian:low_grade_spirit_stone')):
             self.rc(f'item replace entity {u} hotbar.{slot} with {item}')
         self.rc(f'tp {u} .5 -60 .5 180 -60');g.key('e')
         self.poll(g.pointer_grabbed,lambda value:not value,8,'mapped inventory crafting')
@@ -141,17 +141,17 @@ class ExplorationEvidence(NpcLifeEvidence):
             click(16+18*slot,150);click(x,y)
         self.gui_shot(g,'nether-conversion-ready.png')
         click(154,36,True);g.xdo('key','Escape');time.sleep(.4);g.require_ingame('craft complete')
-        self.check('mapped_nether_conversion_exact',self.count_item('myvillage:chitong_ingot')==1
-            and all(self.count_item(item)==0 for item in ('minecraft:copper_ingot','minecraft:blaze_powder','myvillage:low_grade_spirit_stone')),self.inventory())
+        self.check('mapped_nether_conversion_exact',self.count_item('yuanxian:chitong_ingot')==1
+            and all(self.count_item(item)==0 for item in ('minecraft:copper_ingot','minecraft:blaze_powder','yuanxian:low_grade_spirit_stone')),self.inventory())
         # The crafted ingot is then consumed by the existing forging transaction.
-        self.rc('setblock 0 -60 3 myvillage:forging_table')
-        for item,count in [('minecraft:diamond',2),('minecraft:stick',1),('myvillage:low_grade_spirit_stone',2)]:
+        self.rc('setblock 0 -60 3 yuanxian:forging_table')
+        for item,count in [('minecraft:diamond',2),('minecraft:stick',1),('yuanxian:low_grade_spirit_stone',2)]:
             self.rc(f'give {u} {item} {count}')
         helper.open_table();helper.click(50,116);helper.click(152,137);helper.click(284,104,shift=True);helper.close_menu()
-        weapons=[(slot,row) for slot,row in self.inventory().items() if row['id']=='myvillage:qingfeng_sword']
+        weapons=[(slot,row) for slot,row in self.inventory().items() if row['id']=='yuanxian:qingfeng_sword']
         self.check('nether_conversion_used_for_channeling',len(weapons)==1
-            and weapons[0][1].get('components',{}).get('myvillage:forge_mark',{}).get('trait')=='channeling'
-            and self.count_item('myvillage:chitong_ingot')==0,weapons)
+            and weapons[0][1].get('components',{}).get('yuanxian:forge_mark',{}).get('trait')=='channeling'
+            and self.count_item('yuanxian:chitong_ingot')==0,weapons)
         helper.report['status']='pass';helper.save()
         self.report['completed'].append('nether_material_craft')
 
@@ -159,8 +159,8 @@ class ExplorationEvidence(NpcLifeEvidence):
         u,g=self.s.username,self.s.game
         target='@e[tag=exploration_target,limit=1]'
         self.rc(f'gamemode survival {u}');self.rc(f'tp {u} .5 -60 .5 0 0')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
-        self.rc(f'item replace entity {u} weapon.mainhand with myvillage:qingfeng_sword')
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_1')
+        self.rc(f'item replace entity {u} weapon.mainhand with yuanxian:qingfeng_sword')
         self.rc('time set midnight')
         # The preceding recipe case used this exact spot as a ding. Leave a genuine two-block
         # spawn space over the buried spawner instead of asking it to spawn inside that ding.
@@ -169,7 +169,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.rc('setblock 0 -61 3 minecraft:spawner{Delay:1s,MinSpawnDelay:200s,MaxSpawnDelay:200s,SpawnCount:1s,SpawnRange:0s,RequiredPlayerRange:16s,MaxNearbyEntities:1s,SpawnData:{entity:{id:"minecraft:zombie",NoAI:1b,PersistenceRequired:1b,Tags:["exploration_target"]},custom_spawn_rules:{block_light_limit:{min_inclusive:0,max_inclusive:15},sky_light_limit:{min_inclusive:0,max_inclusive:15}}}}')
         self.report['spawner_fixture'] = self.rc('data get block 0 -61 3')
         self.poll(lambda:self.rc(f'data get entity {target} Health'),lambda reply:'data: ' in reply,30,'native spawner birth')
-        birth_path='NeoForgeData."myvillage:vanilla_monster_birth"'
+        birth_path='NeoForgeData."yuanxian:vanilla_monster_birth"'
         before=read_data(self.rc(f'data get entity {target} {birth_path}'))
         self.rc('setblock 0 -61 3 minecraft:smooth_stone');self.rc(f'data merge entity {target} {{NoGravity:1b,Fire:0s}}')
         self.rc(f'tp {target} .5 -60 3');self.rc('time set midnight')
@@ -182,7 +182,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.check('combat_keeps_birth',read_data(self.rc(f'data get entity {target} {birth_path}'))==before,before)
         g.shot(self.out/'assigned-monster-combat.png',max_wait=3,settle=.2)
         self.rc(f'kill {target}');self.rc(f'gamemode creative {u}');self.rc('time set day');self.center()
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:foundation_establishment yuanxian:foundation_early')
         self.report['completed'].append('mapped_combat')
 
     def chest_restart(self):
@@ -224,7 +224,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.rc(f'deop {u}')
         self.mapped_guide(pid,'awaken');self.report['completed'].append('town_guide')
         for command in (f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',
-            f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early',
+            f'yuanxian cultivation setrealm {u} yuanxian:foundation_establishment yuanxian:foundation_early',
             f'advancement grant {u} only minecraft:story/smelt_iron',f'advancement grant {u} only minecraft:story/enter_the_nether'):
             self.rc(command)
         self.mapped_guide(pid,'fortress')

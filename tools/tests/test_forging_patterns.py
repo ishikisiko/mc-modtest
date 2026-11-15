@@ -15,11 +15,11 @@ class ForgingPatternArtTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.art = patterns.PatternArt(ROOT)
-        cls.rules = json.loads((ROOT / 'src/main/resources/data/myvillage/forging/rules.json').read_text())['recipes']
+        cls.rules = json.loads((ROOT / 'src/main/resources/data/yuanxian/forging/rules.json').read_text())['recipes']
         cls.resources = patterns.outputs(ROOT, cls.art.catalogue)
 
     def test_every_registered_pattern_uses_its_own_generated_scroll(self):
-        base = ROOT / 'src/main/resources/assets/myvillage'
+        base = ROOT / 'src/main/resources/assets/yuanxian'
         seen, small = set(), set()
         for recipe in self.rules:
             item = recipe['pattern'].split(':')[1]
@@ -27,7 +27,7 @@ class ForgingPatternArtTest(unittest.TestCase):
             texture_path = base / f'textures/item/{item}.png'
             model = json.loads(self.resources[model_path])
             self.assertEqual('minecraft:item/generated', model['parent'])
-            self.assertEqual({'layer0': 'myvillage:item/' + item}, model['textures'])
+            self.assertEqual({'layer0': 'yuanxian:item/' + item}, model['textures'])
             self.assertEqual(self.resources[model_path], model_path.read_bytes())
             self.assertEqual(self.resources[texture_path], texture_path.read_bytes())
             image = Image.open(io.BytesIO(self.resources[texture_path]))

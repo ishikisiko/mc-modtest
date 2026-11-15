@@ -53,7 +53,7 @@ class ScriptureHallPayloadTest {
     }
 
     private static ScriptureHallPayload.Entry entry(String id, int grade, boolean borrowed) {
-        return new ScriptureHallPayload.Entry(id, Component.translatable("technique.myvillage." + id),
+        return new ScriptureHallPayload.Entry(id, Component.translatable("technique.yuanxian." + id),
                 grade, "sword", borrowed, 0);
     }
 
@@ -190,7 +190,7 @@ class ScriptureHallPayloadTest {
 
     @Test
     void typeIds() {
-        assertEquals("myvillage:scripture_hall", ScriptureHallPayload.TYPE.id().toString());
-        assertEquals("myvillage:scripture_borrow", ScriptureBorrowPayload.TYPE.id().toString());
+        assertEquals("yuanxian:scripture_hall", ScriptureHallPayload.TYPE.id().toString());
+        assertEquals("yuanxian:scripture_borrow", ScriptureBorrowPayload.TYPE.id().toString());
     }
 }

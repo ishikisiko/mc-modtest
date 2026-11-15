@@ -26,7 +26,7 @@ import java.util.WeakHashMap;
  */
 public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyArrayBlockEntity> {
     private static final ResourceLocation SHELL_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath("myvillage", "textures/block/alchemy_array_formed.png");
+            ResourceLocation.fromNamespaceAndPath("yuanxian", "textures/block/alchemy_array_formed.png");
     private static final int GLOW = 0xF000F0;
     private static final int TRIM = 3;
     private static final int JADE = 5;

@@ -15,7 +15,7 @@ public final class ForgingMaterialItem extends Item {
     }
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag) {
         super.appendHoverText(stack,context,lines,flag);
-        lines.add(Component.translatable("tooltip.myvillage.forging_material."+materialId).withStyle(ChatFormatting.GOLD));
-        lines.add(Component.translatable("tooltip.myvillage.forging_material.source."+materialId).withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("tooltip.yuanxian.forging_material."+materialId).withStyle(ChatFormatting.GOLD));
+        lines.add(Component.translatable("tooltip.yuanxian.forging_material.source."+materialId).withStyle(ChatFormatting.GRAY));
     }
 }

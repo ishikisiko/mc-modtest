@@ -55,7 +55,7 @@
 
 ## 配置与开发入口
 
-`data/myvillage/aptitudes/rules.json` 维护类别、初始分布、伤害曲线、品阶门槛和培养参数；技艺成品品质档位继续由 `crafting/rules.json` 维护。生成器读取这些输入，数值不从界面推导。
+`data/yuanxian/aptitudes/rules.json` 维护类别、初始分布、伤害曲线、品阶门槛和培养参数；技艺成品品质档位继续由 `crafting/rules.json` 维护。生成器读取这些输入，数值不从界面推导。
 
 管理员命令：
 

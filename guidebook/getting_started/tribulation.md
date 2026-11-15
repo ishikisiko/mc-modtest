@@ -14,7 +14,7 @@ navigation:
 
 先觉醒灵根、学会基础吐纳，让当前修为和稳定度都达到要求，收功并落地，离开飞剑或其他坐骑。生存或冒险模式下，在露天、无液体且足够平整的地方准备回复丹药、护体技能和[符箓](./talismans.md)。不需要额外的引雷物品。
 
-按冲关键 <KeyBind id="key.myvillage.start_advancement" /> 打开「内视」选择，或在修仙面板「修炼」点击「选择引劫」。点击对应试炼后关闭面板，顶部状态条会显示准备倒计时和有效受击次数。初次准备期可以用收功键 <KeyBind id="key.myvillage.stop_meditation" /> 取消，不扣稳定度；正式起雷后不能靠收功结束。
+按冲关键 <KeyBind id="key.yuanxian.start_advancement" /> 打开「内视」选择，或在修仙面板「修炼」点击「选择引劫」。点击对应试炼后关闭面板，顶部状态条会显示准备倒计时和有效受击次数。初次准备期可以用收功键 <KeyBind id="key.yuanxian.stop_meditation" /> 取消，不扣稳定度；正式起雷后不能靠收功结束。
 
 | 试炼 | 所需有效命中 |
 |---|---:|

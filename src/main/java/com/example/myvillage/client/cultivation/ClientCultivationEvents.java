@@ -91,7 +91,7 @@ public final class ClientCultivationEvents {
         }
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player != null) {
-            String key = "message.myvillage.cultivation.session."
+            String key = "message.yuanxian.cultivation.session."
                     + status.reason().name().toLowerCase(Locale.ROOT);
             minecraft.player.displayClientMessage(Component.translatable(key), true);
         }

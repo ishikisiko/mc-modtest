@@ -126,7 +126,7 @@ class ElderTest(unittest.TestCase):
         self.assertEqual(ev.elder_names(zh), ["周甲"])
 
     def test_avatar_names(self):
-        tag = '{{"translate":"entity.myvillage.cultivator.avatar{s}","with":["{n}","玄黄阁"]}}'
+        tag = '{{"translate":"entity.yuanxian.cultivator.avatar{s}","with":["{n}","玄黄阁"]}}'
         reply = (f"Cultivator has the following entity data: '{tag.format(s='.steward', n='赵明')}'"
                  f"李青云 · 玄黄阁 has the following entity data: '{tag.format(s='', n='李青云')}'"
                  "Other has the following entity data: '{\"text\":\"plain\"}'")
@@ -148,9 +148,9 @@ class ElderTest(unittest.TestCase):
 
 class InventoryAndPlacesTest(unittest.TestCase):
     def test_inventory_count(self):
-        reply = ('CaptureDev has the following entity data: [{count: 3, Slot: 0b, id: "myvillage:low_grade_spirit_stone"}, '
+        reply = ('CaptureDev has the following entity data: [{count: 3, Slot: 0b, id: "yuanxian:low_grade_spirit_stone"}, '
                  '{count: 1, Slot: 1b, id: "minecraft:stone"}, '
-                 '{Slot: 2b, id: "myvillage:low_grade_spirit_stone", count: 2}]')
+                 '{Slot: 2b, id: "yuanxian:low_grade_spirit_stone", count: 2}]')
         self.assertEqual(ev.inventory_count(reply, ev.STONE), 5)
         self.assertEqual(ev.inventory_count(reply, "minecraft:stone"), 1)
         self.assertEqual(ev.inventory_count("CaptureDev has the following entity data: []", ev.STONE), 0)

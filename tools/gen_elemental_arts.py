@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path('tools/elemental_arts/arts.json')
-DATA = Path('src/main/resources/data/myvillage')
+DATA = Path('src/main/resources/data/yuanxian')
 ELEMENTS = {'metal', 'wood', 'water', 'fire', 'earth'}
 ROLES = {'basic', 'ward', 'burst', 'field'}
 META = {'name', 'description', 'grade', 'minimum_realm', 'minimum_stage', 'study_points', 'previous'}
@@ -70,7 +70,7 @@ navigation:
   title: 五行法修
   parent: index.md
   position: 36
-  icon: myvillage:manual_active_huang
+  icon: yuanxian:manual_active_huang
 ---
 # 五行法修
 
@@ -88,23 +88,23 @@ navigation:
 
 '''
     for a in doc['arts']:
-        ident=a['id'];rid='myvillage:'+ident;e=schools[a['element']]
+        ident=a['id'];rid='yuanxian:'+ident;e=schools[a['element']]
         spell={k:v for k,v in a.items() if k not in META|{'id','qi_cost','cooldown_ticks'}}
-        runtime.append({'id':rid,'school':'myvillage:'+a['element']+'_arts','family':'elemental','slot':-1,
+        runtime.append({'id':rid,'school':'yuanxian:'+a['element']+'_arts','family':'elemental','slot':-1,
             'qi_cost':a['qi_cost'],'cooldown_ticks':a['cooldown_ticks'],'guard_reduction':0,'guard_arc_degrees':180,
             'counter_multiplier':1,'requires_ground':False,'interrupt_on_damage':False,'fx_lifetime_ticks':12,
             'cast_pitch':1.1,'color':e['color'],'particle_count':24,
-            'elemental':spell,'phases':[{'move':'myvillage:basic_fist_02_horizontal_palm','shape':'ring','reach':a['radius'],
+            'elemental':spell,'phases':[{'move':'yuanxian:basic_fist_02_horizontal_palm','shape':'ring','reach':a['radius'],
                 'arc_degrees':360,'width':.5,'height':1,'half_height':1,'damage_multiplier':a['damage_multiplier'],
                 'maximum_targets':a['maximum_targets'],'step_distance':0,
                 'reaction':{'hitstun_ticks':0,'slide_distance':0,'lift':0,'lateral_bias':0},'fx':'ring'}]})
-        technique={'translation_key':'cultivation.technique.myvillage.'+ident,'category':'active','grade':a['grade'],
-            'elements':['myvillage:'+a['element']],'school':'myvillage:'+a['element']+'_arts',
-            'requirements':{'minimum_realm':'myvillage:'+a['minimum_realm'],'minimum_stage':'myvillage:'+a['minimum_stage']},
+        technique={'translation_key':'cultivation.technique.yuanxian.'+ident,'category':'active','grade':a['grade'],
+            'elements':['yuanxian:'+a['element']],'school':'yuanxian:'+a['element']+'_arts',
+            'requirements':{'minimum_realm':'yuanxian:'+a['minimum_realm'],'minimum_stage':'yuanxian:'+a['minimum_stage']},
             'effects':{'active':{'skill':rid,'qi_cost':a['qi_cost'],'slots':1}},
             'study':{'points':a['study_points'],'gates':0,'gate_stability_cost':0}}
-        if a['previous']:technique['lineage']={'previous':'myvillage:'+a['previous']}
-        out[DATA/f'myvillage/technique/{ident}.json']=dump(technique)
+        if a['previous']:technique['lineage']={'previous':'yuanxian:'+a['previous']}
+        out[DATA/f'yuanxian/technique/{ident}.json']=dump(technique)
         grade={1:'huang',2:'xuan',3:'di',4:'tian'}[a['grade']]
         # Different role ingredients prevent ambiguous shapeless recipes for four books of one element.
         role_item={'basic':'minecraft:paper','ward':'minecraft:leather','burst':'minecraft:redstone','field':'minecraft:amethyst_shard'}[a['role']]
@@ -113,37 +113,37 @@ navigation:
             if 'tag' in ingredient:
                 namespace,tag=ingredient['tag'].split(':');tag_path=root/f'src/main/resources/data/{namespace}/tags/item/{tag}.json'
                 if not tag_path.is_file():raise ValueError('Missing ingredient tag '+ingredient['tag'])
-        recipe_id='myvillage:manual_'+ident
+        recipe_id='yuanxian:manual_'+ident
         out[DATA/f'recipe/manual_{ident}.json']=dump({'type':'minecraft:crafting_shapeless','category':'misc',
             'ingredients':ingredients,
-            'result':{'id':'myvillage:manual_active_'+grade,'count':1,'components':{'myvillage:technique':rid}}})
+            'result':{'id':'yuanxian:manual_active_'+grade,'count':1,'components':{'yuanxian:technique':rid}}})
         out[DATA/f'advancement/recipes/manual_{ident}.json']=dump({'parent':'minecraft:recipes/root',
             'criteria':{'has_book':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':'minecraft:book'}]}},
                 'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':recipe_id}}},
             'requirements':[['has_book','has_the_recipe']],'rewards':{'recipes':[recipe_id]}})
-        lang[technique['translation_key']]=a['name'];lang['combat.myvillage.art.'+ident+'.description']=a['description']
+        lang[technique['translation_key']]=a['name'];lang['combat.yuanxian.art.'+ident+'.description']=a['description']
         distance = (f'自身前方 {a["radius"]*2:g} 格扇形' if a['shape']=='cone' else
                     f'落点距离 {a["range"]:g} 格；作用半径 {a["radius"]:g} 格' if a['shape'] in ('burst','field') else
                     f'射程 {a["range"]:g} 格' if a['shape'] in ('bolt','ray') else
                     f'自身护体；推退半径 {a["radius"]:g} 格' if a['push']>0 else '自身护体')
         guide+=f'## {e["name"]} · {a["name"]}\n\n{a["description"]}\n\n灵力 {a["qi_cost"]}；冷却 {a["cooldown_ticks"]/20:g} 秒。{distance}。\n\n<Recipe id="{recipe_id}" />\n\n'
     for e in doc['schools']:
-        ident=e['element'];out[DATA/f'damage_type/elemental_{ident}.json']=dump({'message_id':'myvillage.elemental_'+ident,'exhaustion':.1,'scaling':'never'})
-        lang['death.attack.myvillage.elemental_'+ident]='%1$s 被%2$s的'+e['name']+'击败了'
-        lang['combat.myvillage.elemental.'+ident]=e['charge_name']+' %s / %s'
-        lang['combat.myvillage.elemental.'+ident+'.symbol']=e['symbol']
+        ident=e['element'];out[DATA/f'damage_type/elemental_{ident}.json']=dump({'message_id':'yuanxian.elemental_'+ident,'exhaustion':.1,'scaling':'never'})
+        lang['death.attack.yuanxian.elemental_'+ident]='%1$s 被%2$s的'+e['name']+'击败了'
+        lang['combat.yuanxian.elemental.'+ident]=e['charge_name']+' %s / %s'
+        lang['combat.yuanxian.elemental.'+ident+'.symbol']=e['symbol']
     out[DATA/'combat/elemental_arts.json']=dump({'schema':1,'rules':doc['rules'],'arts':runtime})
     # Fire damage is also recognized by vanilla fire immunity/resistance; the other four use their own typed channels.
     firetag=Path('src/main/resources/data/minecraft/tags/damage_type/is_fire.json')
     tag=json.loads((root/firetag).read_text()) if (root/firetag).exists() else {'replace':False,'values':[]}
-    if 'myvillage:elemental_fire' not in tag['values']:tag['values'].append('myvillage:elemental_fire')
+    if 'yuanxian:elemental_fire' not in tag['values']:tag['values'].append('yuanxian:elemental_fire')
     out[firetag]=dump(tag)
     for locale in ['zh_cn','en_us']:
-        p=Path(f'src/main/resources/assets/myvillage/lang/{locale}.json');existing=json.loads((root/p).read_text())
-        for a in doc['arts']:existing.pop('cultivation.technique.myvillage.'+a['id']+'.description',None)
+        p=Path(f'src/main/resources/assets/yuanxian/lang/{locale}.json');existing=json.loads((root/p).read_text())
+        for a in doc['arts']:existing.pop('cultivation.technique.yuanxian.'+a['id']+'.description',None)
         existing.update(lang);out[p]=dump(existing)
     out[Path('guidebook/getting_started/elemental_arts.md')]=guide
-    out[DATA/'function/elemental_arts_books.mcfunction']='# 仅给予秘籍，不改变境界或学习记录\n'+'\n'.join('yuanxian cultivation manual @s myvillage:'+a['id'] for a in doc['arts'])+'\n'
+    out[DATA/'function/elemental_arts_books.mcfunction']='# 仅给予秘籍，不改变境界或学习记录\n'+'\n'.join('yuanxian cultivation manual @s yuanxian:'+a['id'] for a in doc['arts'])+'\n'
     return out
 
 

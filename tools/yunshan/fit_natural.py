@@ -534,7 +534,7 @@ def metadata(result):
                         'pitch':math.degrees(math.atan2(-dy,math.hypot(dx,dz)))})
     spawn_art=data[0]['recommended_spawn_artwork']
     spawn=t.point([spawn_art[0]+ox+.5,spawn_art[1]+oy,spawn_art[2]+oz+.5],continuous=True)
-    return {'schema_version':1,'id':'myvillage:yunshan_natural/'+str(candidate['id']),
+    return {'schema_version':1,'id':'yuanxian:yunshan_natural/'+str(candidate['id']),
             'source_variant':data[0].get('variant','terraced_v2'),
             'flat_ground_y':data[0]['flat_ground_level']+oy+t.dy if 'flat_ground_level' in data[0] else None,
             'street_height_range':[min(data[7].values())+oy+t.dy,max(data[7].values())+oy+t.dy],
@@ -700,8 +700,8 @@ def export_core_tiles(result,out):
             name=f't_{bx}_{by}_{bz}';relative=f'tiles/{name}.nbt';path=out/relative;path.parent.mkdir(parents=True,exist_ok=True)
             nbt.write_gzipped_nbt(root,str(path))
             resource=f'yunshan_natural/{candidate_id}/{name}'
-            dest=out/f'datapack/data/myvillage/structure/{resource}.nbt';dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(path.read_bytes())
-            tiles.append({'id':'myvillage:'+resource,'nbt':relative,'world_min':minimum,'size':[step]*3,'probe':probe,
+            dest=out/f'datapack/data/yuanxian/structure/{resource}.nbt';dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(path.read_bytes())
+            tiles.append({'id':'yuanxian:'+resource,'nbt':relative,'world_min':minimum,'size':[step]*3,'probe':probe,
                           'blocks':len(blocks),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
     if voxel_count!=len(result['core'])*volume.size[1]:raise AssertionError('protected column voxels were lost')
     (out/'datapack/pack.mcmeta').write_text(json.dumps({'pack':{'pack_format':cfg['export']['pack_format'],'description':'Yunshan natural core patch'}})+'\n')

@@ -2,7 +2,7 @@
 
 # 山门（宗门建筑）重构任务书
 
-> 2026-10-06 上午。owner 在 agent-test 里看过 0.35.0 用 `/myvillage world sect 1 build here` 建出的天池楼山门，判定不合格，授权任意规模的重构，不需要再确认。实施由 Opus 5.5 子代理完成，统筹者（Fable 会话）负责设计决定、派工、验收和部署。
+> 2026-10-06 上午。owner 在 agent-test 里看过 0.35.0 用 `/yuanxian world sect 1 build here` 建出的天池楼山门，判定不合格，授权任意规模的重构，不需要再确认。实施由 Opus 5.5 子代理完成，统筹者（Fable 会话）负责设计决定、派工、验收和部署。
 > 读者：实施子代理。先读本文件，再读第 4 节列出的代码。两个工作包（第 8 节）并行，分别只碰自己的文件。
 
 ## 1. owner 的两条原话（验收的底线）
@@ -86,7 +86,7 @@ owner 回来会直接进游戏看，不看文档。验收标准是：从门前�
 
 - `SectGenerator.java`（1276 行）：常量 :54-73；`buildAt` :112-174（base = anchor−(32,0,90)，worldgen 路径 buildMountain→writeMountain→placeCloudSea→realizeCompound；命令路径只 realizeCompound）；`computePlan` :332-398（台地 :339-350，slots roster :403-441，`slotBounds` :451-478，`zSpan` :480-490，axisCells :374-379 只用于校验，stairs/retaining :383-392，`buildGalleries` :492-517，`buildFeature` :519-553，变体 :587-606）；`validatePlan` :686-755；`realizeCompound` :776-785 顺序 carveTerraces(:791-814) → placeAxisStairs(:816-840) → placeRetainingFaces(:842-862) → placeCliffBack(:879-907) → realizeSlots(:909-949，origin=(slot.x0, elev−1, slot.z0)，先 clearVolume，默认 StructurePlaceSettings，无过滤) → placeCoveredGalleries(:955-988) → realizeFeature(:995-1038)；`templateFor` :610-632；`templateFootprint` :655-673；记录类型 :1205-1275（`Rect(x0,z0,x2,z1)`，x2 是最大 x）。
 - `SectMountain.java`：常量 :22-27，`height()` :149-184，带状区插值 :192-201，cloudSeaY :84。
-- `SectSink.java`：`set/clip/surfaceY/loadTemplate/placeTemplate`。模板加载经 `town/ModBlockFallback.loadTemplate`（:85-100），缺 mod 时按 `data/myvillage/mod_block_fallbacks.json` 替换且丢掉方块属性。
+- `SectSink.java`：`set/clip/surfaceY/loadTemplate/placeTemplate`。模板加载经 `town/ModBlockFallback.loadTemplate`（:85-100），缺 mod 时按 `data/yuanxian/mod_block_fallbacks.json` 替换且丢掉方块属性。
 - `SectCourtyard.java` :50-94：读台地、slot（并模板尺寸，外扩 1）、廊格子、feature；排除台地边行；不读台阶和挡土面。
 - `SectStructurePiece.java`：worldgen 逐区块调用同一套 realizer，按区块盒裁剪。
 - `sim/runtime/avatar/GateBuilder.java` :39-117：命簿建造入口，锚点 y 取 MOTION_BLOCKING_NO_LEAVES，调 `generateForcedAt`。
@@ -98,7 +98,7 @@ owner 回来会直接进游戏看，不看文档。验收标准是：从门前�
 
 ### 5.1 Java 侧（进 gradle test）
 
-先试 `SharedConstants.tryDetectVersion(); Bootstrap.bootStrap();` 能否在本仓库的测试环境里跑通（现有测试都没碰过方块状态）。能跑通就写一个内存 `SectSink`（`set` 进 HashMap；`loadTemplate` 用 `NbtIo.readCompressed` 读 `src/main/resources/data/myvillage/structure/*.nbt` 再 `StructureTemplate.load(BuiltInRegistries.BLOCK.asLookup(), tag)`；`placeTemplate` 不走 `placeInWorld`，而是遍历模板的方块列表直接 `set`，可用反射取 `palettes` 或 `filterBlocks`），对固定种子（至少 7 和另两个）跑完整 `realizeCompound`（和 worldgen 路径的 writeMountain），断言：
+先试 `SharedConstants.tryDetectVersion(); Bootstrap.bootStrap();` 能否在本仓库的测试环境里跑通（现有测试都没碰过方块状态）。能跑通就写一个内存 `SectSink`（`set` 进 HashMap；`loadTemplate` 用 `NbtIo.readCompressed` 读 `src/main/resources/data/yuanxian/structure/*.nbt` 再 `StructureTemplate.load(BuiltInRegistries.BLOCK.asLookup(), tag)`；`placeTemplate` 不走 `placeInWorld`，而是遍历模板的方块列表直接 `set`，可用反射取 `palettes` 或 `filterBlocks`），对固定种子（至少 7 和另两个）跑完整 `realizeCompound`（和 worldgen 路径的 writeMountain），断言：
 
 1. **中轴可走**：z 从 −8 到 150，x∈{29,30,31,32,33}（gate slot 的 z 范围内只看 x∈{30,31,32}），每格"落脚高度"（该列最高非空气方块的顶面；楼梯按整格算）相邻 z 之差 ≤ 1，且落脚面之上 3 格空气。
 2. **无悬空残件**：输出里六面都不接触任何非空气方块的方块数 = 0。
@@ -139,7 +139,7 @@ owner 回来会直接进游戏看，不看文档。验收标准是：从门前�
 
 ### 工作包 B（Python，独立 worktree）
 
-文件：`tools/buildgen/ops.py`、`tools/buildgen/archetypes.py`（如需）、`tools/buildgen/sect.py`、`tools/buildgen/sect_mountain.py`、`tools/validate_sect_generation.py`、`tools/buildgen/tests/*`、`tools/release_gate.py`（只加一步）、`src/main/resources/data/myvillage/structure/*.nbt`（重生成的产物）。
+文件：`tools/buildgen/ops.py`、`tools/buildgen/archetypes.py`（如需）、`tools/buildgen/sect.py`、`tools/buildgen/sect_mountain.py`、`tools/validate_sect_generation.py`、`tools/buildgen/tests/*`、`tools/release_gate.py`（只加一步）、`src/main/resources/data/yuanxian/structure/*.nbt`（重生成的产物）。
 内容：
 1. 模板源头修正：`_place_eave_corners` 去掉翼和帽（檐口做直）；找出并修正产生孤立楼梯串/孤立活板门的 op（pagoda 各层角、scripture pavilion、main hall、bell tower），使 5.2 的断言成立。斗拱/贴墙的栅栏托（有面接触的）保留。
 2. 重生成全部模板（`tools/generate_all_structures.py`，用闸门同样的调用方式），只提交内容变化的 NBT；跑 `validate_generated_structures`、`validate_mod_block_fallbacks`、`validate_plaque_bindings`、`check_style_policy` 确认仍过。

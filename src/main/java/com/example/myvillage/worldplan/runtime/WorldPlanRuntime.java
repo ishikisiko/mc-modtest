@@ -45,7 +45,7 @@ public final class WorldPlanRuntime {
         return level.dimension().equals(Level.OVERWORLD)&&level.getChunkSource().getGenerator() instanceof PlannedChunkGenerator g?Optional.of(g):Optional.empty();
     }
     public static Optional<WorldPlan.Context> context(ServerLevel level,int x,int z){return generator(level).map(g->g.plan().sample(x,z));}
-    public static Path directory(ServerLevel level){return level.getServer().getWorldPath(LevelResource.ROOT).resolve("data/myvillage/worldplan");}
+    public static Path directory(ServerLevel level){return level.getServer().getWorldPath(LevelResource.ROOT).resolve("data/yuanxian/worldplan");}
     public static void export(ServerLevel level,int resolution)throws IOException{
         WorldPlan plan=generator(level).orElseThrow(()->new IllegalArgumentException("Not a cultivation world")).plan();
         WorldPlanExporter.export(plan,directory(level),resolution,plan.rules().coreRadius+2*plan.rules().coreBlend);

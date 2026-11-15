@@ -17,7 +17,7 @@ import net.neoforged.neoforge.common.IOUtilities;
 
 /** Durable directory of private dimensions. A missing/corrupt record never resets an existing realm. */
 public final class RealmSaves extends SavedData {
-    private static final String NAME="myvillage_qianzhen_realms";
+    private static final String NAME="yuanxian_qianzhen_realms";
     public record Location(String dimension,double x,double y,double z,float yaw,float pitch) {
         public Location {
             if(dimension==null||!dimension.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")

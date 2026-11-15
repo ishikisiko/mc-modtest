@@ -67,10 +67,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 /** 火种由不可变天命状态拥有；余烬保留真实玩家承伤，离线也不改用第二套减伤/死亡算法。 */
 public final class PhoenixRuntime {
-    private static final ResourceLocation EMBER_SPEED=ResourceLocation.parse("myvillage:phoenix_ember_speed");
-    private static final ResourceLocation HEAL_SOURCE=ResourceLocation.parse("myvillage:fate/phoenix_body");
-    private static final TicketType<UUID> TICKET=TicketType.create("myvillage_phoenix_ember",Comparator.comparing(UUID::toString));
-    private static final String REFORMED_UNTIL="myvillage:phoenix_reformed_until";
+    private static final ResourceLocation EMBER_SPEED=ResourceLocation.parse("yuanxian:phoenix_ember_speed");
+    private static final ResourceLocation HEAL_SOURCE=ResourceLocation.parse("yuanxian:fate/phoenix_body");
+    private static final TicketType<UUID> TICKET=TicketType.create("yuanxian_phoenix_ember",Comparator.comparing(UUID::toString));
+    private static final String REFORMED_UNTIL="yuanxian:phoenix_reformed_until";
     private static final Map<UUID,Long> NEXT_HEAL=new HashMap<>();
     private static MinecraftServer running;
     private static boolean stopping;
@@ -255,7 +255,7 @@ public final class PhoenixRuntime {
         player.setForcedPose(null);player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).removeModifier(EMBER_SPEED);broadcastForm(player,false);releaseTicket(e);
         data.embers.remove(e.owner);data.setDirty();
         if(e.offline) {
-            ((PhoenixPlayerListAccess)server.getPlayerList()).myvillage$savePhoenixPlayer(player);
+            ((PhoenixPlayerListAccess)server.getPlayerList()).yuanxian$savePhoenixPlayer(player);
             player.serverLevel().removePlayerImmediately(player,Entity.RemovalReason.UNLOADED_WITH_PLAYER);
             server.getPlayerList().broadcastAll(new ClientboundPlayerInfoRemovePacket(java.util.List.of(e.owner)));
         } else {
@@ -278,7 +278,7 @@ public final class PhoenixRuntime {
         if(e==null)return;
         if(e.player==null)restore(running,e);
         if(e.player!=null) {
-            e.capture();((PhoenixPlayerListAccess)running.getPlayerList()).myvillage$savePhoenixPlayer(e.player);
+            e.capture();((PhoenixPlayerListAccess)running.getPlayerList()).yuanxian$savePhoenixPlayer(e.player);
             releaseTicket(e);e.player.serverLevel().removePlayerImmediately(e.player,Entity.RemovalReason.UNLOADED_WITH_PLAYER);
             e.player=null;e.offline=false;data.setDirty();
         }
@@ -286,7 +286,7 @@ public final class PhoenixRuntime {
     private static void login(PlayerEvent.PlayerLoggedInEvent event) {
         if(!(event.getEntity() instanceof ServerPlayer player))return;
         var data=PhoenixEmbersData.get(player.getServer());var e=data.embers.get(player.getUUID());
-        if(e!=null){e.player=player;e.offline=false;restoreDamageContext(player.getServer(),e,player);((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);applySpeed(player);ticket(e);broadcastForm(player,true);data.setDirty();}
+        if(e!=null){e.player=player;e.offline=false;restoreDamageContext(player.getServer(),e,player);((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).yuanxian$setEmberSpawnProtection(0);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);applySpeed(player);ticket(e);broadcastForm(player,true);data.setDirty();}
         else refresh(player);
         SpiritBodyRuntime.sync(player);
     }
@@ -302,7 +302,7 @@ public final class PhoenixRuntime {
         var level=server.getLevel(ResourceKey.create(Registries.DIMENSION,ResourceLocation.parse(e.dimension)));if(level==null)return;
         var player=new ServerPlayer(server,level,new GameProfile(e.owner,e.name),ClientInformation.createDefault());
         player.connection=new OfflineListener(server,player);
-        player.load(e.snapshot.copy());((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setServerLevel(level);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);
+        player.load(e.snapshot.copy());((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).yuanxian$setEmberSpawnProtection(0);player.setServerLevel(level);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);
         applySpeed(player);e.player=player;e.offline=true;
         restoreDamageContext(server,e,player);
         ticket(e);server.getPlayerList().broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(java.util.List.of(player)));
@@ -320,7 +320,7 @@ public final class PhoenixRuntime {
                 credit.connection=new OfflineListener(server,credit);
                 e.syntheticCredit=credit;
             }
-            player.setLastHurtByPlayer(credit);((com.example.myvillage.mixin.PhoenixLivingCreditAccess)player).myvillage$emberCreditTicks(e.creditTicks);
+            player.setLastHurtByPlayer(credit);((com.example.myvillage.mixin.PhoenixLivingCreditAccess)player).yuanxian$emberCreditTicks(e.creditTicks);
             if(e.creditPlayer.equals(e.attacker))attacker=credit;
         }
         e.source=new DamageSource(holder,attacker);
@@ -334,13 +334,13 @@ public final class PhoenixRuntime {
         if(e.syntheticCredit==null)return;
         var online=e.player.getServer().getPlayerList().getPlayer(e.syntheticCredit.getUUID());
         if(online==null)return;
-        int ticks=((com.example.myvillage.mixin.PhoenixLivingCreditAccess)e.player).myvillage$emberCreditTicks();
-        if(ticks>0){e.player.setLastHurtByPlayer(online);((com.example.myvillage.mixin.PhoenixLivingCreditAccess)e.player).myvillage$emberCreditTicks(ticks);}
+        int ticks=((com.example.myvillage.mixin.PhoenixLivingCreditAccess)e.player).yuanxian$emberCreditTicks();
+        if(ticks>0){e.player.setLastHurtByPlayer(online);((com.example.myvillage.mixin.PhoenixLivingCreditAccess)e.player).yuanxian$emberCreditTicks(ticks);}
         e.syntheticCredit=null;
     }
     private static void stopping(ServerStoppingEvent event) {
         stopping=true;var data=PhoenixEmbersData.get(event.getServer());
-        for(var e:data.embers.values()){e.capture();if(e.player!=null&&e.offline)((PhoenixPlayerListAccess)event.getServer().getPlayerList()).myvillage$savePhoenixPlayer(e.player);releaseTicket(e);}
+        for(var e:data.embers.values()){e.capture();if(e.player!=null&&e.offline)((PhoenixPlayerListAccess)event.getServer().getPlayerList()).yuanxian$savePhoenixPlayer(e.player);releaseTicket(e);}
         data.setDirty();NEXT_HEAL.clear();
     }
     private static void ticket(PhoenixEmbersData.Ember e) {

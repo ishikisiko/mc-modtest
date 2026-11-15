@@ -74,7 +74,7 @@ public record GatheringRules(Map<GatheringTier, Tier> tiers, Map<GatheringFuel, 
     private static class Holder { private static final GatheringRules INSTANCE = load(); }
     public static GatheringRules get() { return Holder.INSTANCE; }
     private static GatheringRules load() {
-        try (var stream = GatheringRules.class.getResourceAsStream("/data/myvillage/gathering/rules.json")) {
+        try (var stream = GatheringRules.class.getResourceAsStream("/data/yuanxian/gathering/rules.json")) {
             if (stream == null) throw new IllegalStateException("Missing gathering rules");
             return parse(JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (java.io.IOException e) { throw new IllegalStateException(e); }

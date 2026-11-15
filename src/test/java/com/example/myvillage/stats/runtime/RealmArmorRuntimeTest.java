@@ -11,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 class RealmArmorRuntimeTest {
-    private static final String ASSIGNMENT = "myvillage:stats_realm";
+    private static final String ASSIGNMENT = "yuanxian:stats_realm";
 
     @AfterEach
     void clear() {
@@ -25,8 +25,8 @@ class RealmArmorRuntimeTest {
         assertEquals(new RealmArmorRuntime.Scale(1, "unassigned"),
                 RealmArmorRuntime.resolveScale(null, StatsRules.bundled()));
         assertEquals(new RealmArmorRuntime.Scale(1, "additive"),
-                RealmArmorRuntime.resolveScale(assigned("myvillage:mortal", 0), StatsRules.bundled()));
-        var golden = RealmArmorRuntime.resolveScale(assigned("myvillage:golden_core", 2), StatsRules.bundled());
+                RealmArmorRuntime.resolveScale(assigned("yuanxian:mortal", 0), StatsRules.bundled()));
+        var golden = RealmArmorRuntime.resolveScale(assigned("yuanxian:golden_core", 2), StatsRules.bundled());
         assertEquals(1, golden.factor(), 1e-12);
         assertEquals("additive", golden.status());
     }
@@ -36,24 +36,24 @@ class RealmArmorRuntimeTest {
         CompoundTag wrongTopType = new CompoundTag();
         wrongTopType.putString(ASSIGNMENT, "not a compound");
         invalid(wrongTopType);
-        invalid(assigned("myvillage:missing", 0));
-        invalid(assigned("myvillage:golden_core", -1));
-        invalid(assigned("myvillage:golden_core", 3));
+        invalid(assigned("yuanxian:missing", 0));
+        invalid(assigned("yuanxian:golden_core", -1));
+        invalid(assigned("yuanxian:golden_core", 3));
         for (String missing : new String[]{"realm", "stage"}) {
-            CompoundTag persistent = assigned("myvillage:golden_core", 2);
+            CompoundTag persistent = assigned("yuanxian:golden_core", 2);
             persistent.getCompound(ASSIGNMENT).remove(missing);
             invalid(persistent);
         }
-        CompoundTag stageByte = assigned("myvillage:golden_core", 2);
+        CompoundTag stageByte = assigned("yuanxian:golden_core", 2);
         stageByte.getCompound(ASSIGNMENT).putByte("stage", (byte) 2);
         invalid(stageByte);
-        CompoundTag stageLong = assigned("myvillage:golden_core", 2);
+        CompoundTag stageLong = assigned("yuanxian:golden_core", 2);
         stageLong.getCompound(ASSIGNMENT).putLong("stage", 2);
         invalid(stageLong);
-        CompoundTag stageText = assigned("myvillage:golden_core", 2);
+        CompoundTag stageText = assigned("yuanxian:golden_core", 2);
         stageText.getCompound(ASSIGNMENT).putString("stage", "2");
         invalid(stageText);
-        CompoundTag realmInt = assigned("myvillage:golden_core", 2);
+        CompoundTag realmInt = assigned("yuanxian:golden_core", 2);
         realmInt.getCompound(ASSIGNMENT).putInt("realm", 2);
         invalid(realmInt);
     }

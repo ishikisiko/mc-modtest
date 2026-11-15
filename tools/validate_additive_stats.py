@@ -9,7 +9,7 @@ from pathlib import Path
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = Path('src/main/resources/data/myvillage')
+DATA = Path('src/main/resources/data/yuanxian')
 PROGRESSION = DATA / 'stats/progression.json'
 
 def unique(pairs):
@@ -23,8 +23,8 @@ def unique(pairs):
 def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     errors = []
     resources = [PROGRESSION, DATA / 'alchemy/foundation.json', DATA / 'npc_combat/rules.json',
-                 *[DATA / f'myvillage/realm/{name}.json' for name in ('mortal','qi_refining','foundation_establishment','golden_core')],
-                 Path('src/main/resources/assets/myvillage/lang/zh_cn.json')]
+                 *[DATA / f'yuanxian/realm/{name}.json' for name in ('mortal','qi_refining','foundation_establishment','golden_core')],
+                 Path('src/main/resources/assets/yuanxian/lang/zh_cn.json')]
     checked = {}
     for path in resources:
         try:
@@ -56,7 +56,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     if combat.get('schema') != 2 or 'spirit' in combat:
         errors.append('NPC 战斗配置仍保留独立灵力容量')
     for name in ('mortal','qi_refining','foundation_establishment','golden_core'):
-        realm = checked.get(str(DATA / f'myvillage/realm/{name}.json'),{})
+        realm = checked.get(str(DATA / f'yuanxian/realm/{name}.json'),{})
         if any('spiritual_power_cap' in stage for stage in realm.get('stages',[])):
             errors.append(f'{name}：灵力上限必须只由 progression.json 提供')
     foundation = checked.get(str(DATA / 'alchemy/foundation.json'),{})

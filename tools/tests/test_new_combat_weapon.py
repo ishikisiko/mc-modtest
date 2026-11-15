@@ -14,23 +14,23 @@ from tools import combat_data
 from tools import new_combat_weapon as tool
 
 RESOURCES = "src/main/resources"
-DATA = f"{RESOURCES}/data/myvillage/combat"
-LANG = f"{RESOURCES}/assets/myvillage/lang"
-SPEAR = "myvillage:lingxiao_spear"
-SWORD = "myvillage:qingfeng_sword"
-HALBERD = "myvillage:iron_halberd"
-HALBERD_STYLE = "myvillage:basic_halberd"
+DATA = f"{RESOURCES}/data/yuanxian/combat"
+LANG = f"{RESOURCES}/assets/yuanxian/lang"
+SPEAR = "yuanxian:lingxiao_spear"
+SWORD = "yuanxian:qingfeng_sword"
+HALBERD = "yuanxian:iron_halberd"
+HALBERD_STYLE = "yuanxian:basic_halberd"
 HALBERD_MOVES = ["thrust", "sweep", "hook", "chop", "lunge"]
-JADE = "myvillage:jade_sword"
+JADE = "yuanxian:jade_sword"
 
 # What the scaffold reads: the combat data, the assets it copies or checks for, the item contracts,
 # the item registration, and the tag.
 SCAFFOLD_FIXTURE = (
     DATA,
-    f"{RESOURCES}/assets/myvillage/combat",
+    f"{RESOURCES}/assets/yuanxian/combat",
     LANG,
-    f"{RESOURCES}/assets/myvillage/player_animations",
-    f"{RESOURCES}/assets/myvillage/models/item",
+    f"{RESOURCES}/assets/yuanxian/player_animations",
+    f"{RESOURCES}/assets/yuanxian/models/item",
     tool.ITEM_CONTRACTS,
     tool.MOD_ITEMS,
     tool.SWORD_TAG,
@@ -93,28 +93,28 @@ class ScaffoldTest(unittest.TestCase):
         self.assertEqual(data.index["weapons"][-1], HALBERD)
         weapon = data.weapons[HALBERD]
         self.assertEqual(weapon["style"], HALBERD_STYLE)
-        self.assertEqual(weapon["first_person_rig"], "myvillage:combat/iron_halberd_first_person.json")
-        self.assertEqual(weapon["geometry"], "myvillage:combat/iron_halberd_geometry.json")
+        self.assertEqual(weapon["first_person_rig"], "yuanxian:combat/iron_halberd_first_person.json")
+        self.assertEqual(weapon["geometry"], "yuanxian:combat/iron_halberd_geometry.json")
 
-        style, template = data.styles[HALBERD_STYLE], data.styles["myvillage:basic_spear"]
-        move_ids = [f"myvillage:basic_halberd_{n:02d}_{name}" for n, name in enumerate(HALBERD_MOVES, start=1)]
+        style, template = data.styles[HALBERD_STYLE], data.styles["yuanxian:basic_spear"]
+        move_ids = [f"yuanxian:basic_halberd_{n:02d}_{name}" for n, name in enumerate(HALBERD_MOVES, start=1)]
         self.assertEqual([move["id"] for move in style["moves"]], move_ids)
         self.assertEqual(tool.canonical_style(style), tool.canonical_style(template))
         self.assertEqual(set(style["animations"].values()),
-                         {f"myvillage:basic_halberd_{role}" for role in template["animations"]})
+                         {f"yuanxian:basic_halberd_{role}" for role in template["animations"]})
 
-        rig = self.read_json(f"{RESOURCES}/assets/myvillage/combat/iron_halberd_first_person.json")
-        template_rig = self.read_json(f"{RESOURCES}/assets/myvillage/combat/lingxiao_spear_first_person.json")
+        rig = self.read_json(f"{RESOURCES}/assets/yuanxian/combat/iron_halberd_first_person.json")
+        template_rig = self.read_json(f"{RESOURCES}/assets/yuanxian/combat/lingxiao_spear_first_person.json")
         self.assertEqual(list(rig["moves"]), move_ids)
         self.assertEqual(tool.canonical_rig(rig, move_ids),
                          tool.canonical_rig(template_rig, [move["id"] for move in template["moves"]]))
 
         for path in sorted((self.root / LANG).glob("*.json")):
             language = json.loads(path.read_text(encoding="utf-8"))
-            keys = ["item.myvillage.iron_halberd"] + [tool.display_key(move_id) for move_id in move_ids]
+            keys = ["item.yuanxian.iron_halberd"] + [tool.display_key(move_id) for move_id in move_ids]
             for key in keys:
                 self.assertTrue(language[key].startswith(tool.PLACEHOLDER), f"{path.name}: {key}")
-        self.assertIn("Progress: python3 tools/new_combat_weapon.py progress myvillage:iron_halberd", out)
+        self.assertIn("Progress: python3 tools/new_combat_weapon.py progress yuanxian:iron_halberd", out)
 
     def test_shared_style_writes_no_style(self) -> None:
         before_styles = sorted((self.root / DATA / "style").iterdir())
@@ -140,12 +140,12 @@ class ScaffoldTest(unittest.TestCase):
         before = snapshot(self.root)
         cases = {
             "taken": ("--from", SWORD, "--id", JADE),
-            "taken style": ("--from", SPEAR, "--id", HALBERD, "--style", "myvillage:basic_sword"),
+            "taken style": ("--from", SPEAR, "--id", HALBERD, "--style", "yuanxian:basic_sword"),
             "moves without style": ("--from", SWORD, "--id", HALBERD, "--moves", "a,b"),
             "move count": ("--from", SPEAR, "--id", HALBERD, "--style", HALBERD_STYLE, "--moves", "a,b"),
             "repeated move": ("--from", SPEAR, "--id", HALBERD, "--style", HALBERD_STYLE,
                               "--moves", "a,a,b,c,d"),
-            "unknown template": ("--from", "myvillage:nope", "--id", HALBERD),
+            "unknown template": ("--from", "yuanxian:nope", "--id", HALBERD),
             "namespace": ("--from", SWORD, "--id", "minecraft:iron_halberd"),
             "taken item": ("--from", SWORD, "--id", SPEAR),
         }
@@ -182,7 +182,7 @@ class ProgressTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             copy_into(root, SCAFFOLD_FIXTURE + ("tools", "README.md", "src/main/java",
-                                                tool.PARITY_GOLDEN, f"{RESOURCES}/assets/myvillage/sounds.json"))
+                                                tool.PARITY_GOLDEN, f"{RESOURCES}/assets/yuanxian/sounds.json"))
             code, _, err = run("--root", str(root), "scaffold", "--from", SPEAR, "--id", HALBERD,
                                "--style", HALBERD_STYLE)
             self.assertEqual(code, 0, err)

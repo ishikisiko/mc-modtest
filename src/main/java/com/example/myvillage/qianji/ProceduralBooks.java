@@ -38,7 +38,7 @@ public final class ProceduralBooks {
     private static final class Holder {
         static final Rules RULES=read();
         static Rules read(){
-            try(var in=ProceduralBooks.class.getResourceAsStream("/data/myvillage/qianji/components/bookcases.json")){
+            try(var in=ProceduralBooks.class.getResourceAsStream("/data/yuanxian/qianji/components/bookcases.json")){
                 if(in==null)throw new IllegalStateException("缺少书册生成参数");
                 return Rules.fromJson(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());
             }catch(java.io.IOException e){throw new IllegalStateException(e);}

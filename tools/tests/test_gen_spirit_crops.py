@@ -20,9 +20,9 @@ class SpiritCropsAssetsTest(unittest.TestCase):
         for herb in gen.HERBS:
             state=json.loads(files[gen.ROOT/gen.ASSET/f'blockstates/{herb}_crop.json'])
             self.assertEqual({'age=0','age=1','age=2'},set(state['variants']))
-            loot=json.loads(files[gen.ROOT/gen.DATA/f'myvillage/loot_table/blocks/{herb}_crop.json'])
+            loot=json.loads(files[gen.ROOT/gen.DATA/f'yuanxian/loot_table/blocks/{herb}_crop.json'])
             item=loot['pools'][0]['entries'][0]
-            self.assertEqual('myvillage:'+herb,item['name'])
+            self.assertEqual('yuanxian:'+herb,item['name'])
             function=item['functions'][0]
             self.assertEqual({'age':'2'},function['conditions'][0]['properties'])
             self.assertGreaterEqual(function['count']['min'],2)

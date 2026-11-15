@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StoryOpeningTest {
     private StoryDefinition opening() throws IOException {
-        try(var reader=Files.newBufferedReader(Path.of("src/main/resources/data/myvillage/story/qianzhen_opening.json"))) {
+        try(var reader=Files.newBufferedReader(Path.of("src/main/resources/data/yuanxian/story/qianzhen_opening.json"))) {
             return StoryDefinition.parse(reader);
         }
     }
@@ -100,10 +100,10 @@ class StoryOpeningTest {
         assertFalse(p.receipts().contains(StoryEngine.RECEIPT));p=apply(d,p,"claim_reward");
         assertTrue(p.completed());assertTrue(p.receipts().contains(StoryEngine.RECEIPT));
         assertFalse(StoryTestData.act(d,p,"claim_reward").changed());
-        assertEquals(List.of(new StoryDefinition.Reward("minecraft:bread",6),new StoryDefinition.Reward("myvillage:low_grade_spirit_stone",1)),d.rewards());
+        assertEquals(List.of(new StoryDefinition.Reward("minecraft:bread",6),new StoryDefinition.Reward("yuanxian:low_grade_spirit_stone",1)),d.rewards());
     }
     @Test void workConfigurationIsBoundedAndCannotGrantArbitraryUnboundPlanting() throws Exception {
-        var path=Path.of("src/main/resources/data/myvillage/story/qianzhen_opening.json");
+        var path=Path.of("src/main/resources/data/yuanxian/story/qianzhen_opening.json");
         for(String field:List.of("count","radius")) {
             var json=JsonParser.parseString(Files.readString(path)).getAsJsonObject();json.getAsJsonObject("work").addProperty(field,0);
             assertThrows(RuntimeException.class,()->StoryDefinition.parse(new StringReader(json.toString())));
@@ -166,7 +166,7 @@ class StoryOpeningTest {
     }
     @Test void serverFactDefinitionCannotBeChangedIntoARewardTalkOrCycle() throws Exception {
         for(String change:List.of("talk","reward","cycle","duplicate")) {
-            var json=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/story/qianzhen_opening.json"))).getAsJsonObject();
+            var json=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/story/qianzhen_opening.json"))).getAsJsonObject();
             var actions=json.getAsJsonArray("actions");
             var fact=java.util.stream.StreamSupport.stream(actions.spliterator(),false).map(e->e.getAsJsonObject())
                     .filter(a->a.get("id").getAsString().equals("confirm_root")).findFirst().orElseThrow();

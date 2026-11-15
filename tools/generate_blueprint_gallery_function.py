@@ -4,19 +4,19 @@ Scans out/1_21_1/*.nbt (the project's generated structure output), skips
 temporary structures (test/debug/gallery/preview), and emits a datapack
 containing one mcfunction that lays every building out along one axis:
 
-    place template myvillage:small_house_01 ~0 ~ ~0
-    place template myvillage:small_house_02 ~20 ~ ~0
+    place template yuanxian:small_house_01 ~0 ~ ~0
+    place template yuanxian:small_house_02 ~20 ~ ~0
     ...
 
 Output:
     out/datapack_phase5_gallery/pack.mcmeta
-    out/datapack_phase5_gallery/data/myvillage/function/phase5_blueprint_gallery.mcfunction
+    out/datapack_phase5_gallery/data/yuanxian/function/phase5_blueprint_gallery.mcfunction
     reports/phase5_blueprint_gallery_manifest.json
 
 In-game usage (after copying the datapack into <world>/datapacks/ and the
-structures into <world>/generated/myvillage/structures/):
+structures into <world>/generated/yuanxian/structures/):
     /reload
-    /function myvillage:phase5_blueprint_gallery
+    /function yuanxian:phase5_blueprint_gallery
 
 This is a phase 5 *pre-stage* visual acceptance tool only: no roads, no
 terrain fitting, no village layout.
@@ -31,7 +31,7 @@ import os
 import struct
 import sys
 
-NAMESPACE = "myvillage"
+NAMESPACE = "yuanxian"
 EXCLUDE_KEYWORDS = ("test", "debug", "gallery", "preview")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

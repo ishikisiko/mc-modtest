@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 public final class JourneyPage extends PanelPage {
     private PanelButton travel;
     private PanelButton questStatus,questTravel;
-    private boolean questRealm(){var mc=Minecraft.getInstance();return mc.level!=null&&mc.level.dimension().location().toString().startsWith("myvillage:expedition/");}
+    private boolean questRealm(){var mc=Minecraft.getInstance();return mc.level!=null&&mc.level.dimension().location().toString().startsWith("yuanxian:expedition/");}
     private static void command(String command){var mc=Minecraft.getInstance();if(mc.getConnection()!=null)mc.getConnection().sendCommand(command);if(mc.screen!=null)mc.screen.onClose();}
     private JourneyView.Travel reported;
     private String reportedQuest;

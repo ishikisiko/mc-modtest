@@ -16,9 +16,9 @@ import net.minecraft.world.phys.AABB;
 /** Continuous faceted light, feathered halos and two smooth streams; no entity/particle spawning. */
 public final class SwordQiPedestalRenderer implements BlockEntityRenderer<SwordQiPedestalEntity> {
     private static final ResourceLocation GLOW = ResourceLocation.fromNamespaceAndPath(
-            "myvillage", "textures/block/sword_qi_glow.png");
+            "yuanxian", "textures/block/sword_qi_glow.png");
     private static final ResourceLocation MOTE = ResourceLocation.fromNamespaceAndPath(
-            "myvillage", "textures/block/sword_qi_mote.png");
+            "yuanxian", "textures/block/sword_qi_mote.png");
     private static final int FULL_BRIGHT = 0xF000F0;
     private static final double TAU = Math.PI * 2;
 

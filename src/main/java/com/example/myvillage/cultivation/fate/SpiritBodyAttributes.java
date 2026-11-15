@@ -11,8 +11,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 /** 新灵体只添加境界/根基对应的贡献，不放大装备和其他天命，也不被旧百分比二次放大。 */
 public final class SpiritBodyAttributes {
-    public static final ResourceLocation HEALTH=ResourceLocation.parse("myvillage:spirit_body_health");
-    public static final ResourceLocation DEFENSE=ResourceLocation.parse("myvillage:spirit_body_defense");
+    public static final ResourceLocation HEALTH=ResourceLocation.parse("yuanxian:spirit_body_health");
+    public static final ResourceLocation DEFENSE=ResourceLocation.parse("yuanxian:spirit_body_defense");
     private SpiritBodyAttributes() { }
     public static void refresh(ServerPlayer player) {
         var body=CultivationStats.find(CultivationService.getProfile(player));
@@ -23,7 +23,7 @@ public final class SpiritBodyAttributes {
         if(actor instanceof ServerPlayer player){refresh(player);return;}
         if(!(actor instanceof com.example.myvillage.entity.npc.NpcEntity npc))return;
         var key=com.example.myvillage.stats.runtime.StatsRuntime.assignedRealm(npc)
-                .orElse(new com.example.myvillage.stats.RealmKey("myvillage:mortal",1));
+                .orElse(new com.example.myvillage.stats.RealmKey("yuanxian:mortal",1));
         var body=com.example.myvillage.stats.CultivationStatsRules.bundled().at(key,npc.foundationQuality(),npc.goldenCoreQuality());
         addition(npc.getAttribute(Attributes.MAX_HEALTH),HEALTH,body.health()*FateService.effect(npc,"body_health_bonus"));
         addition(npc.getAttribute(ModStatsAttributes.BODY_DEFENSE),DEFENSE,body.defense()*FateService.effect(npc,"body_defense_bonus"));

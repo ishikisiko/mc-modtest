@@ -32,12 +32,12 @@ class CultivationSnapshotPayloadTest {
                 12_345L,
                 678L,
                 Optional.of(new SpiritualRoot(Map.of(
-                        id("myvillage", "fire"), 7_000,
+                        id("yuanxian", "fire"), 7_000,
                         id("removed_pack", "storm"), 3_000))),
                 Map.of(
-                        id("myvillage", "basic_breathing"), new TechniqueProgress(17),
+                        id("yuanxian", "basic_breathing"), new TechniqueProgress(17),
                         id("removed_pack", "lost_art"), new TechniqueProgress(23)),
-                Optional.of(id("myvillage", "basic_breathing")));
+                Optional.of(id("yuanxian", "basic_breathing")));
         CultivationSnapshotPayload payload = new CultivationSnapshotPayload(profile);
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
                 Unpooled.buffer(),
@@ -62,7 +62,7 @@ class CultivationSnapshotPayloadTest {
     @Test
     void privateSnapshotCarriesActualLongLifeCreditsAndUnpaidProgress() {
         var growth = com.example.myvillage.cultivation.fate.EverlastingState.EMPTY.advance(
-                com.example.myvillage.cultivation.fate.EverlastingRules.get().at("myvillage:qi_refining"),576000,123456);
+                com.example.myvillage.cultivation.fate.EverlastingRules.get().at("yuanxian:qi_refining"),576000,123456);
         var payload = new CultivationSnapshotPayload(CultivationProfile.defaultProfile(), FateState.empty(),8,
                 CraftingAptitudes.EMPTY,0,0,0,growth);
         var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);

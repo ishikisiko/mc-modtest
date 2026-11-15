@@ -338,7 +338,7 @@ public abstract class NpcEntity extends PathfinderMob {
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (combatEngaged()) {
             if (!level().isClientSide()) player.displayClientMessage(
-                    net.minecraft.network.chat.Component.translatable("entity.myvillage.cultivator.in_combat"), true);
+                    net.minecraft.network.chat.Component.translatable("entity.yuanxian.cultivator.in_combat"), true);
             return InteractionResult.CONSUME;
         }
         if (this instanceof net.minecraft.world.entity.monster.Enemy || hand != InteractionHand.MAIN_HAND)

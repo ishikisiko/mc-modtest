@@ -176,7 +176,7 @@ public final class NpcDialogue {
             if (life != null) {
                 var out = new ArrayList<String>();
                 out.add("我眼下的安排是" + NpcDialogueText.of(NpcLifeInteraction.activityText(life.activity()))
-                        + "，目前" + NpcDialogueText.of(Component.translatable("message.myvillage.life.phase." + life.phase())) + "。");
+                        + "，目前" + NpcDialogueText.of(Component.translatable("message.yuanxian.life.phase." + life.phase())) + "。");
                 out.add(life.reason().equals("none") || life.reason().isEmpty() ? "道友有话请讲。"
                         : NpcDialogueText.of(NpcLifeInteraction.reasonText(life.reason())));
                 sim.profession(person.id()).ifPresentOrElse(view -> out.addAll(NpcProfessionText.resident(view)),

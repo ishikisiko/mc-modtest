@@ -1,9 +1,9 @@
 # 矿物贴图与自然生成参数
 
-当前自然生成矿物包括 `myvillage:spirit_stone_ore`（灵石矿）、
-`myvillage:deepslate_spirit_stone_ore`（深层灵石矿）、
-`myvillage:xuantie_ore`（玄铁矿）和
-`myvillage:edge_tempering_sand_deposit`（淬锋砂层）。两种灵石矿共享矿脉配置，
+当前自然生成矿物包括 `yuanxian:spirit_stone_ore`（灵石矿）、
+`yuanxian:deepslate_spirit_stone_ore`（深层灵石矿）、
+`yuanxian:xuantie_ore`（玄铁矿）和
+`yuanxian:edge_tempering_sand_deposit`（淬锋砂层）。两种灵石矿共享矿脉配置，
 由石头与深板岩替换目标决定方块种类。
 
 ## 贴图输入与导出
@@ -21,7 +21,7 @@
 python3 -m tools.ore_textures.generate
 ```
 
-输出目录为 `src/main/resources/assets/myvillage/textures/block/`。
+输出目录为 `src/main/resources/assets/yuanxian/textures/block/`。
 玄铁矿和淬锋砂层的原拥有者 `tools/forging/acquisition.py` 调用同一贴图函数，
 因此正常炼器资源生成也使用这份输入。生成器仅使用 Python 标准库，预览制图可用 Pillow。
 
@@ -38,9 +38,9 @@ python3 -m tools.ore_textures.generate
 | 淬锋砂层 | 5 → 15 | `max_blocks` 10 → 30 | 原河流、风袭砂砾丘陵、风袭丘陵、石岸；原地表／水边判定 |
 
 灵石矿的两份 configured feature 与三份 placed feature JSON 是 authored 静态输入，
-直接维护于 `src/main/resources/data/myvillage/worldgen/`。
+直接维护于 `src/main/resources/data/yuanxian/worldgen/`。
 玄铁和砂层参数的唯一输入为
-`src/main/resources/data/myvillage/forging/acquisition.json`，
+`src/main/resources/data/yuanxian/forging/acquisition.json`，
 由 `tools/forging/acquisition.py` 导出对应 configured/placed feature。
 
 砂层搜索半径从 3 调整为 4，因为 `EdgeSandFeature.offsets` 的半径 3 圆盘仅有

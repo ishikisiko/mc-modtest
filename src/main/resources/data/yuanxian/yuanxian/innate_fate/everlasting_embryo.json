@@ -1,0 +1,10 @@
+{
+  "translation_key": "fate.yuanxian.everlasting_embryo",
+  "description_key": "fate.yuanxian.everlasting_embryo.description",
+  "tier": 5,
+  "cost": 6,
+  "group": "spirit_body",
+  "effects": {
+    "everlasting": 1
+  }
+}

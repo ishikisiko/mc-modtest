@@ -9,11 +9,11 @@ generated original output.
 Generated resources:
 
 ```text
-src/main/resources/data/myvillage/structure/ganlan_stilted_house_001.nbt
-src/main/resources/data/myvillage/structure/ganlan_stilted_house_002.nbt
-src/main/resources/data/myvillage/function/gallery/ganlan_stilted_house.mcfunction
-src/main/resources/data/myvillage/function/place/ganlan_stilted_house_001.mcfunction
-src/main/resources/data/myvillage/function/place/ganlan_stilted_house_002.mcfunction
+src/main/resources/data/yuanxian/structure/ganlan_stilted_house_001.nbt
+src/main/resources/data/yuanxian/structure/ganlan_stilted_house_002.nbt
+src/main/resources/data/yuanxian/function/gallery/ganlan_stilted_house.mcfunction
+src/main/resources/data/yuanxian/function/place/ganlan_stilted_house_001.mcfunction
+src/main/resources/data/yuanxian/function/place/ganlan_stilted_house_002.mcfunction
 reports/ganlan_stilted_house_compound_library_report.json
 ```
 
@@ -49,7 +49,7 @@ Review it in-game:
 ```mcfunction
 /yuanxian place ganlan_stilted_house_001
 /yuanxian place ganlan_stilted_house_002
-/function myvillage:gallery/ganlan_stilted_house
+/function yuanxian:gallery/ganlan_stilted_house
 ```
 
 The owner accepted these two generated samples as the narrow Ganlan visual

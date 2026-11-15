@@ -9,12 +9,12 @@ class SpiritStoneBagResourcesTest(unittest.TestCase):
     def test_owned_resources_match_and_recipe_uses_grade_tag(self):
         files=assets.outputs()
         for path,data in files.items():self.assertEqual(data,path.read_bytes(),str(path))
-        recipe=json.loads(files[ROOT/'src/main/resources/data/myvillage/recipe/spirit_stone_bag.json'])
+        recipe=json.loads(files[ROOT/'src/main/resources/data/yuanxian/recipe/spirit_stone_bag.json'])
         self.assertEqual(1,sum(i=={'tag':'c:spirit_stones/low_grade'} for i in recipe['ingredients']))
         self.assertEqual({'id':BAG,'count':1},recipe['result'])
         self.assertNotIn('spirit_stone_bags',str(recipe['ingredients']))
     def test_unbounded_capacity_and_scan_values_have_one_bundled_source(self):
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/spirit_stones/bag.json').read_text())
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/spirit_stones/bag.json').read_text())
         self.assertEqual({'collection_interval_ticks'},set(rules))
         self.assertGreaterEqual(rules['collection_interval_ticks'],1)
         for en,zh in assets.LANG.values():self.assertEqual(en.count('%s'),zh.count('%s'))

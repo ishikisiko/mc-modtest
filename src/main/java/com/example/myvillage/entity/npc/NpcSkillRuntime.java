@@ -24,7 +24,7 @@ import net.minecraft.world.item.ItemStack;
 
 /** 普通测试 NPC 的学习配置；技能动作由正式 CombatSessionManager 推进。 */
 public final class NpcSkillRuntime {
-    private static final String TAG = "myvillage:npc_skills", CDS = "myvillage:npc_skill_cooldowns";
+    private static final String TAG = "yuanxian:npc_skills", CDS = "yuanxian:npc_skill_cooldowns";
     private static final Map<NpcEntity, NpcSkillLoadout> CACHE = new WeakHashMap<>();
     private NpcSkillRuntime() { }
     public static NpcSkillLoadout get(NpcEntity npc) {
@@ -42,10 +42,10 @@ public final class NpcSkillRuntime {
         return new RealmDefinition("cultivation.realm." + id.getPath(), numerical.order() + 1, Integer.MAX_VALUE, stages, Optional.empty());
     }
     public static CultivationProfile profile(NpcEntity npc) {
-        var key = StatsRuntime.assignedRealm(npc).orElse(new com.example.myvillage.stats.RealmKey("myvillage:mortal", 1));
+        var key = StatsRuntime.assignedRealm(npc).orElse(new com.example.myvillage.stats.RealmKey("yuanxian:mortal", 1));
         var realmId = ResourceLocation.parse(key.realmId());
         var root = new LinkedHashMap<ResourceLocation, Integer>();
-        for (String id : AptitudeRules.get().elements()) root.put(ResourceLocation.parse("myvillage:" + id), AptitudeRuntime.score(npc, id));
+        for (String id : AptitudeRules.get().elements()) root.put(ResourceLocation.parse("yuanxian:" + id), AptitudeRuntime.score(npc, id));
         var learned = new LinkedHashMap<ResourceLocation, TechniqueProgress>();
         for (var row : get(npc).learned()) if (ModCultivationRegistries.technique(npc.registryAccess(), ResourceLocation.parse(row.id())).isPresent())
             learned.put(ResourceLocation.parse(row.id()), new TechniqueProgress(row.mastery()));
@@ -100,7 +100,7 @@ public final class NpcSkillRuntime {
         refreshBody(npc);
     }
     private static ResourceLocation modifier(String id) {
-        var key = ResourceLocation.parse(id); return ResourceLocation.parse("myvillage:npc_technique/" + key.getNamespace() + "/" + key.getPath());
+        var key = ResourceLocation.parse(id); return ResourceLocation.parse("yuanxian:npc_technique/" + key.getNamespace() + "/" + key.getPath());
     }
     private static void clearBody(NpcEntity npc, NpcSkillLoadout state) {
         for (var row : state.learned()) for (var attribute : BuiltInRegistries.ATTRIBUTE.holders().toList()) {

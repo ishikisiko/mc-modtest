@@ -15,7 +15,7 @@ public final class WorkshopHarvestLedger extends SavedData {
         var data=new WorkshopHarvestLedger();data.worked.addAll(new LongOpenHashSet(tag.getLongArray("worked")));return data;
     }
     public static WorkshopHarvestLedger get(ServerLevel level){
-        return level.getDataStorage().computeIfAbsent(new Factory<>(WorkshopHarvestLedger::new,WorkshopHarvestLedger::load),"myvillage_workshop_harvest");
+        return level.getDataStorage().computeIfAbsent(new Factory<>(WorkshopHarvestLedger::new,WorkshopHarvestLedger::load),"yuanxian_workshop_harvest");
     }
     public boolean claim(BlockPos pos){if(!worked.add(pos.asLong()))return false;setDirty();return true;}
     @Override public CompoundTag save(CompoundTag tag,HolderLookup.Provider registries){tag.putLongArray("worked",worked.toLongArray());return tag;}

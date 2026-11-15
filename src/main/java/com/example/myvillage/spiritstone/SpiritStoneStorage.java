@@ -15,8 +15,8 @@ import net.minecraft.world.item.component.ItemContainerContents;
 
 /** Aggregated exact quantities with lazy, lossless migration of the old vanilla container. */
 public final class SpiritStoneStorage {
-    public static final TagKey<Item> BAGS = TagKey.create(Registries.ITEM, ResourceLocation.parse("myvillage:spirit_stone_bags"));
-    private static final String AUTO = "myvillage:spirit_bag_auto_collect";
+    public static final TagKey<Item> BAGS = TagKey.create(Registries.ITEM, ResourceLocation.parse("yuanxian:spirit_stone_bags"));
+    private static final String AUTO = "yuanxian:spirit_bag_auto_collect";
     private SpiritStoneStorage() { }
     public static boolean isBag(ItemStack stack) { return stack.getCount() == 1 && stack.is(BAGS); }
     public static boolean collectible(ItemStack stack) {

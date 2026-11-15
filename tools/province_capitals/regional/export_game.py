@@ -74,8 +74,8 @@ def export_city(city, inputs, definition, out, preview_out):
     from game_preview import SceneBuilder, write_city_preview
     model = Capital(city, inputs["modset"]).construct()
     city_id = city["city_id"]
-    data_dir = out / "data/myvillage/capitals/v1" / city_id
-    structure_dir = out / "data/myvillage/structure/province_capitals/v1" / city_id
+    data_dir = out / "data/yuanxian/capitals/v1" / city_id
+    structure_dir = out / "data/yuanxian/structure/province_capitals/v1" / city_id
     data_dir.mkdir(parents=True, exist_ok=True)
     structure_dir.mkdir(parents=True, exist_ok=True)
     terrain_path = data_dir / "terrain.bin.gz"
@@ -92,7 +92,7 @@ def export_city(city, inputs, definition, out, preview_out):
         tile_path = structure_dir / f"tile_{tx}_{tz}.nbt"
         blocks, palette_count = write_tile(tile_path, tile, model.height)
         tiles.append({"x": tx * 16, "z": tz * 16,
-                      "template": f"myvillage:province_capitals/v1/{city_id}/tile_{tx}_{tz}",
+                      "template": f"yuanxian:province_capitals/v1/{city_id}/tile_{tx}_{tz}",
                       "sha256": sha(tile_path), "bytes": tile_path.stat().st_size,
                       "block_count": blocks, "palette_count": palette_count})
         counts["blocks"] += blocks
@@ -107,7 +107,7 @@ def export_city(city, inputs, definition, out, preview_out):
     if previous.exists():
         old = json.loads(previous.read_text(encoding="utf-8"))
         retained = {t["template"] for t in tiles}
-        own_prefix = f"myvillage:province_capitals/v1/{city_id}/"
+        own_prefix = f"yuanxian:province_capitals/v1/{city_id}/"
         for tile in old.get("tiles", []):
             name = tile.get("template", "")
             leaf = name.removeprefix(own_prefix)
@@ -123,7 +123,7 @@ def export_city(city, inputs, definition, out, preview_out):
         "group_id": city["group_id"], "style_id": model.group.style_id,
         "size": city["dimensions"], "source_offset": city["source_offset"],
         "placement": city["placement"],
-        "terrain": {"resource": f"myvillage:capitals/v1/{city_id}/terrain.bin.gz", "sha256": sha(terrain_path),
+        "terrain": {"resource": f"yuanxian:capitals/v1/{city_id}/terrain.bin.gz", "sha256": sha(terrain_path),
                     "encoding": "i16le_z_major_top_solid", "width": model.width, "depth": model.depth,
                     "top_block": model.material("GROUND_TOP"), "fill_block": model.material("GROUND_FILL"),
                     "subsurface_block": model.material("GROUND_SUBSURFACE"), "subsurface_depth": 3,
@@ -187,9 +187,9 @@ def main():
     # Regional inventory is a preview/handoff artifact, never the shared index.
     inventory = {"schema": 1, "owner": "regional", "resource_root": str(args.out),
                  "generation_command": "python3 tools/province_capitals/regional/export_game.py --out " + str(args.out),
-                 "cities": [{"city_id": b["city_id"], "city_json": str(args.out / "data/myvillage/capitals/v1" / b["city_id"] / "city.json"),
+                 "cities": [{"city_id": b["city_id"], "city_json": str(args.out / "data/yuanxian/capitals/v1" / b["city_id"] / "city.json"),
                              "size": b["size"], "coverage": b["coverage"], "terrain_bytes": b["terrain"]["bytes"],
-                             "city_json_bytes": (args.out / "data/myvillage/capitals/v1" / b["city_id"] / "city.json").stat().st_size,
+                             "city_json_bytes": (args.out / "data/yuanxian/capitals/v1" / b["city_id"] / "city.json").stat().st_size,
                              "source_hashes": b["source"]["hashes"]} for b in bundles],
                  "all_tests": "not_run", "owner_appearance": "not_verified", "contract_deviations": []}
     write_json(args.preview_out / "resource-inventory.json", inventory)

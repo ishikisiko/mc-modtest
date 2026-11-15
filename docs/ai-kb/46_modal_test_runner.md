@@ -15,7 +15,7 @@ Install the pinned SDK in a separate environment:
 python3 -m venv .venv-modal
 .venv-modal/bin/python -m pip install -r tools/modal_runner/requirements.txt
 # First authentication, or renewal after the token expires:
-.venv-modal/bin/modal token new --profile myvillage --expires-in 7d
+.venv-modal/bin/modal token new --profile yuanxian --expires-in 7d
 .venv-modal/bin/python -m tools.modal_runner doctor
 test_commit=$(git rev-parse HEAD)
 .venv-modal/bin/python -m tools.modal_runner plan --preset release-alchemy --ref "$test_commit" --timeout 3600
@@ -151,10 +151,10 @@ For release generator-drift checks, the executor creates a synthetic local Git
 baseline from the extracted archive before adding dependencies or outputs. This
 is disclosed in the result and never replaces the original `request.commit`.
 
-The app is `myvillage-tests`, with Sandbox name `myvillage-test-runner`.
+The app is `yuanxian-tests`, with Sandbox name `yuanxian-test-runner`.
 `reports/modal-runs/runner.lock` serializes local launches. All source and worlds
 live under the ephemeral `/workspace`; the dedicated volume
-`myvillage-gradle-cache-v1` mounts at `/cache`, with `GRADLE_USER_HOME=/cache/gradle`.
+`yuanxian-gradle-cache-v1` mounts at `/cache`, with `GRADLE_USER_HOME=/cache/gradle`.
 Only dependency-cache state persists. A configured cache does not establish an
 observed cache hit or a warm benchmark.
 

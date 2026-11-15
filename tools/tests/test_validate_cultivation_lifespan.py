@@ -31,9 +31,9 @@ class CultivationLifespanValidationTest(unittest.TestCase):
             "src/main/java/com/example/myvillage/cultivation/time",
             "src/main/java/com/example/myvillage/client/cultivation/CultivationProfileScreen.java",
             "src/main/java/com/example/myvillage/client/cultivation/panel",
-            "src/main/resources/data/myvillage/myvillage/realm",
-            "src/main/resources/assets/myvillage/lang/en_us.json",
-            "src/main/resources/assets/myvillage/lang/zh_cn.json",
+            "src/main/resources/data/yuanxian/yuanxian/realm",
+            "src/main/resources/assets/yuanxian/lang/en_us.json",
+            "src/main/resources/assets/yuanxian/lang/zh_cn.json",
         )
         for relative in paths:
             source = ROOT / relative
@@ -115,7 +115,7 @@ class CultivationLifespanValidationTest(unittest.TestCase):
         self.assert_error_contains(result, "new/reset profile must use spiritual affinity 10")
 
     def test_realm_lifespan_drift_is_rejected(self) -> None:
-        relative = "src/main/resources/data/myvillage/myvillage/realm/mortal.json"
+        relative = "src/main/resources/data/yuanxian/yuanxian/realm/mortal.json"
         path = self.fixture_root / relative
         value = json.loads(path.read_text(encoding="utf-8"))
         value["maximum_lifespan_years"] = 81
@@ -126,7 +126,7 @@ class CultivationLifespanValidationTest(unittest.TestCase):
         self.assert_error_contains(result, "maximum_lifespan_years must be integer 80")
 
     def test_golden_core_lifespan_is_required_and_cannot_drift(self) -> None:
-        path = self.fixture_root / "src/main/resources/data/myvillage/myvillage/realm/golden_core.json"
+        path = self.fixture_root / "src/main/resources/data/yuanxian/yuanxian/realm/golden_core.json"
         realm = json.loads(path.read_text(encoding="utf-8"))
         realm["maximum_lifespan_years"] = 499
         path.write_text(json.dumps(realm), encoding="utf-8")

@@ -14,7 +14,7 @@ import java.util.*;
 
 /** Idempotent equipment effects. Vanilla enchantments, names and damage remain on the same item. */
 public final class WorkshopEquipment {
-    private static final ResourceLocation ATTACK=ResourceLocation.fromNamespaceAndPath("myvillage","tempered_edge");
+    private static final ResourceLocation ATTACK=ResourceLocation.fromNamespaceAndPath("yuanxian","tempered_edge");
     private WorkshopEquipment(){}
     public static Optional<WorkshopRules.Craft> craft(ItemStack stack){
         if(stack.isEmpty()||!stack.isDamageableItem())return Optional.empty();
@@ -75,14 +75,14 @@ public final class WorkshopEquipment {
         var craft=craft(stack);if(craft.isEmpty())return;
         var r=record(stack);var rules=WorkshopRules.get();
         var work=FoundryEquipment.record(stack);var benefits=FoundryEquipment.benefits(stack);
-        lines.add(Component.translatable("foundry.myvillage.bonus_detail",amount(benefits.attack()*100),amount(benefits.speed()*100),amount(benefits.durability()*100),amount(benefits.armor()*100),amount(-benefits.qiDiscount()*100)).withStyle(net.minecraft.ChatFormatting.AQUA));
-        if(!craft.get().armor())lines.add(Component.translatable("foundry.myvillage.handle",FoundryEquipment.handle(stack).name()).withStyle(net.minecraft.ChatFormatting.GRAY));
-        if(!work.fire().isEmpty())lines.add(Component.translatable("foundry.myvillage.fire",FoundryRules.get().flame(work.fire()).name(),work.fireMaturity()).withStyle(net.minecraft.ChatFormatting.AQUA));
-        lines.add(Component.translatable("workshop.myvillage.experience",r.experience(),rules.available(r,craft.get())).withStyle(net.minecraft.ChatFormatting.GRAY));
-        lines.add(Component.translatable("workshop.myvillage.tempering",r.strikes(),craft.get().max_strikes()).withStyle(net.minecraft.ChatFormatting.DARK_AQUA));
-        if(r.edge()>0)lines.add(Component.translatable("workshop.myvillage.bonus."+(craft.get().weapon()?"attack":"speed"),
+        lines.add(Component.translatable("foundry.yuanxian.bonus_detail",amount(benefits.attack()*100),amount(benefits.speed()*100),amount(benefits.durability()*100),amount(benefits.armor()*100),amount(-benefits.qiDiscount()*100)).withStyle(net.minecraft.ChatFormatting.AQUA));
+        if(!craft.get().armor())lines.add(Component.translatable("foundry.yuanxian.handle",FoundryEquipment.handle(stack).name()).withStyle(net.minecraft.ChatFormatting.GRAY));
+        if(!work.fire().isEmpty())lines.add(Component.translatable("foundry.yuanxian.fire",FoundryRules.get().flame(work.fire()).name(),work.fireMaturity()).withStyle(net.minecraft.ChatFormatting.AQUA));
+        lines.add(Component.translatable("workshop.yuanxian.experience",r.experience(),rules.available(r,craft.get())).withStyle(net.minecraft.ChatFormatting.GRAY));
+        lines.add(Component.translatable("workshop.yuanxian.tempering",r.strikes(),craft.get().max_strikes()).withStyle(net.minecraft.ChatFormatting.DARK_AQUA));
+        if(r.edge()>0)lines.add(Component.translatable("workshop.yuanxian.bonus."+(craft.get().weapon()?"attack":"speed"),
                 amount(r.edge()*(craft.get().weapon()?rules.attack_per_strike():rules.speed_per_strike()*100))).withStyle(net.minecraft.ChatFormatting.GRAY));
-        if(r.endurance()>0)lines.add(Component.translatable("workshop.myvillage.bonus.durability",amount(r.endurance()*rules.durability_per_strike()*100)).withStyle(net.minecraft.ChatFormatting.GRAY));
-        if(r.channeling()>0)lines.add(Component.translatable("workshop.myvillage.bonus.qi",amount(r.channeling()*rules.qi_discount_per_strike()*100)).withStyle(net.minecraft.ChatFormatting.GRAY));
+        if(r.endurance()>0)lines.add(Component.translatable("workshop.yuanxian.bonus.durability",amount(r.endurance()*rules.durability_per_strike()*100)).withStyle(net.minecraft.ChatFormatting.GRAY));
+        if(r.channeling()>0)lines.add(Component.translatable("workshop.yuanxian.bonus.qi",amount(r.channeling()*rules.qi_discount_per_strike()*100)).withStyle(net.minecraft.ChatFormatting.GRAY));
     }
 }

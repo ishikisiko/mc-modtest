@@ -53,8 +53,8 @@ public final class CombatService {
         syncToClient(player, replacement, revision);
         player.displayClientMessage(Component.translatable(
                 replacement.combatMode() == CombatMode.CULTIVATION
-                        ? "message.myvillage.combat.mode.cultivation"
-                        : "message.myvillage.combat.mode.vanilla"), true);
+                        ? "message.yuanxian.combat.mode.cultivation"
+                        : "message.yuanxian.combat.mode.vanilla"), true);
         return true;
     }
 

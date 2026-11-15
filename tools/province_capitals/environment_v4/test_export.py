@@ -13,8 +13,8 @@ from .export_game import read,ENV,DESIGN,POLICY,CATALOG,source_cells,replace
 class FurnitureReplacementTest(unittest.TestCase):
     def setUp(self):
         temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup);self.root=Path(temporary.name)
-        terrain=self.root/'data/myvillage/capitals/v3/test/terrain.bin.gz';terrain.parent.mkdir(parents=True);terrain.write_bytes(gzip.compress(struct.pack('<'+'h'*1024,*([3]*1024)),mtime=0))
-        self.manifest={'size':[32,40,32],'terrain':{'resource':'myvillage:capitals/v3/test/terrain.bin.gz','top_block':'minecraft:stone','fill_block':'minecraft:stone'},'tiles':[],
+        terrain=self.root/'data/yuanxian/capitals/v3/test/terrain.bin.gz';terrain.parent.mkdir(parents=True);terrain.write_bytes(gzip.compress(struct.pack('<'+'h'*1024,*([3]*1024)),mtime=0))
+        self.manifest={'size':[32,40,32],'terrain':{'resource':'yuanxian:capitals/v3/test/terrain.bin.gz','top_block':'minecraft:stone','fill_block':'minecraft:stone'},'tiles':[],
                        'life':{'places':[]},'entries':[],'roads':[],'access_paths':[],'buildings':[],'environment':{'decorations':[]}}
         self.config=read(ENV/'materials.json');self.design=read(DESIGN);self.policy=read(POLICY);self.catalog=read(CATALOG)
         self.world=World(self.root,copy.deepcopy(self.manifest),self.config);self.base=World(self.root,copy.deepcopy(self.manifest),self.config)

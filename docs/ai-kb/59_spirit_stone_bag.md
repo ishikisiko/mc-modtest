@@ -1,14 +1,14 @@
 # 灵石袋与随身灵石来源
 
-`myvillage:spirit_stone_bag` 是不可堆叠物品，创造栏与皮革/线/下品灵石合成可得。物品栏和副手生效；原版工作台合成先潜行右键取出一叠。对空右键切换自动收纳；瞄着工作台时普通右键按原版规则交互工作台。自动收纳切换只影响入袋，暂停的袋仍可支付。
+`yuanxian:spirit_stone_bag` 是不可堆叠物品，创造栏与皮革/线/下品灵石合成可得。物品栏和副手生效；原版工作台合成先潜行右键取出一叠。对空右键切换自动收纳；瞄着工作台时普通右键按原版规则交互工作台。自动收纳切换只影响入袋，暂停的袋仍可支付。
 
-数量没有固定容量上限；扫描间隔唯一来源为 `data/myvillage/spirit_stones/bag.json`。取出时才按实际物品堆叠上限生成一叠。`tools/gen_spirit_stone_bag.py` 维护模型、配方、发现进度、袋标签和双语名称/提示；沿用原版 bundle 图标，不新增容器 GUI。
+数量没有固定容量上限；扫描间隔唯一来源为 `data/yuanxian/spirit_stones/bag.json`。取出时才按实际物品堆叠上限生成一叠。`tools/gen_spirit_stone_bag.py` 维护模型、配方、发现进度、袋标签和双语名称/提示；沿用原版 bundle 图标，不新增容器 GUI。
 
 ## 存储与事务
 
-`SpiritStoneStorage` 使用持久、同步的 `myvillage:spirit_stone_balance` 组件：每种精确物品/组件身份仅存一份 count=1 原型和十进制字符串数量。`SpiritStoneLedger` 使用 `BigInteger`，不以 int/long/浮点保存余额；组件不可变，读取原型返回副本。自动开关保存在同物品 `CUSTOM_DATA` 的独立键中。不做人物附件或全局 UUID 余额。死亡、丢弃、放箱与存档均归原版物品生命周期；不额外 Clone，不额外散落一次内容。
+`SpiritStoneStorage` 使用持久、同步的 `yuanxian:spirit_stone_balance` 组件：每种精确物品/组件身份仅存一份 count=1 原型和十进制字符串数量。`SpiritStoneLedger` 使用 `BigInteger`，不以 int/long/浮点保存余额；组件不可变，读取原型返回副本。自动开关保存在同物品 `CUSTOM_DATA` 的独立键中。不做人物附件或全局 UUID 余额。死亡、丢弃、放箱与存档均归原版物品生命周期；不额外 Clone，不额外散落一次内容。
 
-袋标签 `myvillage:spirit_stone_bags` 默认只收录本物品。仅单件袋、无内嵌 container/ledger 的已配置品级灵石可自动收纳，不嵌套袋子。标签重载失去灵石资格后，原内容保留、停止自动支付，仍可取出。
+袋标签 `yuanxian:spirit_stone_bags` 默认只收录本物品。仅单件袋、无内嵌 container/ledger 的已配置品级灵石可自动收纳，不嵌套袋子。标签重载失去灵石资格后，原内容保留、停止自动支付，仍可取出。
 
 - `SpiritStoneStorage.count/remove/insertBags` 共用原物品身份；短款整批不扣。
 - `Expanded` 每种身份只向既有完整材料分配器投影一项，数量上界为本次总需求；写回仅从真实大整数余额减去消耗。不会展开成数万/亿叠物品；炼器需求仍是本次有界 int 成本，重叠标签不重复计数。
@@ -23,7 +23,7 @@
 
 计算和存储随物品身份数及数量位数增长，不随灵石颗数线性增长；没有游戏设定的数量/槽位上限，但仍受内存、存档与网络包的物理限制。取出最多一叠；满背包失败保持整个袋子不变。修炼、供奉、交易、炼器和炼丹的余额比较均避免 long 溢出，现有单次消费仍按各系统有界成本执行。
 
-`data/myvillage/spirit_stones/denominations.json` 是品级、普通物品 ID、标签和整数量级的唯一来源，现有下品、中品、上品三级。`SpiritStoneDenominations` 提供大整数价值合计、拆分和余数精确算术；量级必须为前一级的正整数倍。
+`data/yuanxian/spirit_stones/denominations.json` 是品级、普通物品 ID、标签和整数量级的唯一来源，现有下品、中品、上品三级。`SpiritStoneDenominations` 提供大整数价值合计、拆分和余数精确算术；量级必须为前一级的正整数倍。
 
 ### 高阶灵石与主动兑换（0.73.1）
 
@@ -46,16 +46,16 @@
 
 ```toml
 warpRequirements = [
-    "[source_is_waystone] scaled_add_item_cost(myvillage:waystone_spirit_stone_cost, myvillage:low_grade_spirit_stone, 1)",
+    "[source_is_waystone] scaled_add_item_cost(yuanxian:waystone_spirit_stone_cost, yuanxian:low_grade_spirit_stone, 1)",
     "[source_is_inventory_button] add_cooldown(inventory_button, 300)"
 ]
 ```
 
 示例仅从传送石出发收费，保留背包按钮冷却；其他传送方式未在示例中收取灵石。若要所有传送方式收费，可去掉第一条的条件。移除原 XP 费用项才能避免同时收费；修改后重启游戏或服务器。已有 0.114.1 的固定一枚规则不会自动替换，需采用上述新变量规则。
 
-`WaystonesPricingRules` 计算 `base_cost × realm_multiplier × distance_coefficient`，所有数值以世界的 `serverconfig/myvillage-waystones-server.toml` 为准；初始文件由 `WaystonesPricingConfig` 创建，可参考[参数示例](../../config-examples/myvillage-waystones-server.toml)。默认凡人、炼气倍率为 1，筑基为 3，金丹为 10，只读取大境界 ID。路程系数按同维度水平直线距离除以 1000 向上取整，并限制在 1～10；传送石以源石与目标石中心为准，其他方式以玩家当前位置为起点，Y 坐标不参与。跨维度固定使用系数 10。单次下品费用分别为 1～10、3～30、10～100 枚。未配置境界和缺失的客户端档案使用显式配置的备用倍率，默认 10。
+`WaystonesPricingRules` 计算 `base_cost × realm_multiplier × distance_coefficient`，所有数值以世界的 `serverconfig/yuanxian-waystones-server.toml` 为准；初始文件由 `WaystonesPricingConfig` 创建，可参考[参数示例](../../config-examples/yuanxian-waystones-server.toml)。默认凡人、炼气倍率为 1，筑基为 3，金丹为 10，只读取大境界 ID。路程系数按同维度水平直线距离除以 1000 向上取整，并限制在 1～10；传送石以源石与目标石中心为准，其他方式以玩家当前位置为起点，Y 坐标不参与。跨维度固定使用系数 10。单次下品费用分别为 1～10、3～30、10～100 枚。未配置境界和缺失的客户端档案使用显式配置的备用倍率，默认 10。
 
-`WaystonesPricingVariable` 注册 `myvillage:waystone_spirit_stone_cost`。Waystones 的原生菜单在客户端计算报价，因此服务器配置由 NeoForge SERVER 配置同步，客户端境界从已有 `ClientCultivationState` 快照读取；实际服务器费用始终读取 `CultivationService` 的玩家档案，不接受客户端提供价格或境界。两侧共用整数定价规则，没有新增报价网络包。价格参数要求重启世界或服务器；境界改变后应重新打开菜单刷新报价。
+`WaystonesPricingVariable` 注册 `yuanxian:waystone_spirit_stone_cost`。Waystones 的原生菜单在客户端计算报价，因此服务器配置由 NeoForge SERVER 配置同步，客户端境界从已有 `ClientCultivationState` 快照读取；实际服务器费用始终读取 `CultivationService` 的玩家档案，不接受客户端提供价格或境界。两侧共用整数定价规则，没有新增报价网络包。价格参数要求重启世界或服务器；境界改变后应重新打开菜单刷新报价。
 
 Waystones 的公开变量为 float，规则先验证最坏单次价格不超过可连续精确表示整数的 16777216，随后才将有界整数作为变量交给原生物品规则；超范围配置直接报错，不静默截断。这个限制仅属于一次费用，灵石袋余额仍为无上限 `BigInteger`。
 

@@ -1,0 +1,277 @@
+{
+  "version": 3,
+  "use_ticks": 32,
+  "shared_cooldown_ticks": 600,
+  "recipes": [
+    {
+      "id": "huiling",
+      "formula": "yuanxian:formula_huiling",
+      "ingredients": [
+        "yuanxian:spirit_leaf",
+        "yuanxian:dew_blossom"
+      ],
+      "fuel_count": 1,
+      "duration_ticks": 400,
+      "output": "yuanxian:pill_huiling",
+      "output_count": 2,
+      "quality_tier": "yuanxian:qi_refining",
+      "difficulty": 0
+    },
+    {
+      "id": "yangyuan",
+      "formula": "yuanxian:formula_yangyuan",
+      "ingredients": [
+        "yuanxian:sunroot",
+        "yuanxian:blood_berry"
+      ],
+      "fuel_count": 1,
+      "duration_ticks": 400,
+      "output": "yuanxian:pill_yangyuan",
+      "output_count": 2,
+      "quality_tier": "yuanxian:qi_refining",
+      "difficulty": 1
+    },
+    {
+      "id": "ningshen",
+      "formula": "yuanxian:formula_ningshen",
+      "ingredients": [
+        "yuanxian:cloud_fungus",
+        "yuanxian:calm_lotus"
+      ],
+      "fuel_count": 1,
+      "duration_ticks": 400,
+      "output": "yuanxian:pill_ningshen",
+      "output_count": 2,
+      "quality_tier": "yuanxian:qi_refining",
+      "difficulty": 2
+    },
+    {
+      "id": "zhuji_low",
+      "formula": "yuanxian:formula_zhuji_low",
+      "ingredients": [
+        "yuanxian:ningyuan_fruit_low",
+        "yuanxian:spirit_leaf",
+        "yuanxian:calm_lotus"
+      ],
+      "ingredient_counts": [
+        1,
+        1,
+        1
+      ],
+      "fuel_count": 8,
+      "duration_ticks": 600,
+      "output": "yuanxian:pill_zhuji",
+      "output_count": 1,
+      "minimum_aptitude": 120,
+      "quality_tier": "yuanxian:foundation_establishment",
+      "difficulty": 3,
+      "scroll_quality": 1
+    },
+    {
+      "id": "zhuji_middle",
+      "formula": "yuanxian:formula_zhuji_middle",
+      "ingredients": [
+        "yuanxian:ningyuan_fruit_low",
+        "yuanxian:spirit_leaf",
+        "yuanxian:calm_lotus"
+      ],
+      "ingredient_counts": [
+        1,
+        1,
+        1
+      ],
+      "fuel_count": 12,
+      "duration_ticks": 800,
+      "output": "yuanxian:pill_zhuji",
+      "output_count": 1,
+      "minimum_aptitude": 150,
+      "quality_tier": "yuanxian:foundation_establishment",
+      "difficulty": 2,
+      "scroll_quality": 2
+    },
+    {
+      "id": "zhuji_high",
+      "formula": "yuanxian:formula_zhuji_high",
+      "ingredients": [
+        "yuanxian:ningyuan_fruit_high",
+        "yuanxian:spirit_leaf",
+        "yuanxian:calm_lotus"
+      ],
+      "ingredient_counts": [
+        1,
+        1,
+        1
+      ],
+      "fuel_count": 16,
+      "duration_ticks": 1000,
+      "output": "yuanxian:pill_zhuji",
+      "output_count": 1,
+      "minimum_aptitude": 170,
+      "quality_tier": "yuanxian:foundation_establishment",
+      "difficulty": 1,
+      "scroll_quality": 3
+    },
+    {
+      "id": "buji_middle",
+      "formula": "yuanxian:formula_buji_middle",
+      "ingredients": [
+        "yuanxian:ningyuan_fruit_low",
+        "yuanxian:spirit_leaf",
+        "yuanxian:calm_lotus"
+      ],
+      "ingredient_counts": [
+        4,
+        4,
+        4
+      ],
+      "fuel_count": 32,
+      "duration_ticks": 1200,
+      "output": "yuanxian:pill_buji",
+      "output_count": 1,
+      "minimum_aptitude": 160,
+      "quality_tier": "yuanxian:foundation_establishment",
+      "difficulty": 2,
+      "scroll_quality": 2
+    },
+    {
+      "id": "buji_high",
+      "formula": "yuanxian:formula_buji_high",
+      "ingredients": [
+        "yuanxian:ningyuan_fruit_high",
+        "yuanxian:spirit_leaf",
+        "yuanxian:calm_lotus"
+      ],
+      "ingredient_counts": [
+        4,
+        4,
+        4
+      ],
+      "fuel_count": 48,
+      "duration_ticks": 1600,
+      "output": "yuanxian:pill_buji",
+      "output_count": 1,
+      "minimum_aptitude": 185,
+      "quality_tier": "yuanxian:foundation_establishment",
+      "difficulty": 1,
+      "scroll_quality": 3
+    },
+    {
+      "id": "pozhang",
+      "formula": "yuanxian:formula_pozhang",
+      "ingredients": [
+        "yuanxian:reaver_grit",
+        "yuanxian:sunroot",
+        "yuanxian:spirit_leaf"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "yuanxian:pill_pozhang",
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "quality_tier": "yuanxian:qi_refining",
+      "difficulty": 1
+    },
+    {
+      "id": "dingshen",
+      "formula": "yuanxian:formula_dingshen",
+      "ingredients": [
+        "yuanxian:talisman_ash",
+        "yuanxian:calm_lotus",
+        "yuanxian:cloud_fungus"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "yuanxian:pill_dingshen",
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "quality_tier": "yuanxian:qi_refining",
+      "difficulty": 2
+    },
+    {
+      "id": "humai",
+      "formula": "yuanxian:formula_humai",
+      "ingredients": [
+        "yuanxian:thorn_bone",
+        "yuanxian:blood_berry",
+        "yuanxian:sunroot"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "yuanxian:pill_humai",
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "quality_tier": "yuanxian:qi_refining",
+      "difficulty": 2
+    },
+    {
+      "id": "yuyan",
+      "formula": "yuanxian:formula_yuyan",
+      "ingredients": [
+        "yuanxian:redplate_scale",
+        "yuanxian:dew_blossom",
+        "yuanxian:calm_lotus"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "yuanxian:pill_yuyan",
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "quality_tier": "yuanxian:qi_refining",
+      "difficulty": 2
+    },
+    {
+      "id": "qingshen",
+      "formula": "yuanxian:formula_qingshen",
+      "ingredients": [
+        "yuanxian:frost_plume",
+        "yuanxian:dew_blossom",
+        "yuanxian:spirit_leaf"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "yuanxian:pill_qingshen",
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "quality_tier": "yuanxian:qi_refining",
+      "difficulty": 1
+    },
+    {
+      "id": "qingzhang",
+      "formula": "yuanxian:formula_qingzhang",
+      "ingredients": [
+        "yuanxian:lantern_spore",
+        "yuanxian:cloud_fungus",
+        "yuanxian:calm_lotus"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "yuanxian:pill_qingzhang",
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "quality_tier": "yuanxian:qi_refining",
+      "difficulty": 1
+    }
+  ],
+  "effects": {
+    "huiling": {
+      "power_fraction": 0.25
+    },
+    "yangyuan": {
+      "duration_ticks": 200,
+      "interval_ticks": 20,
+      "heal_fraction": 0.02
+    },
+    "ningshen": {
+      "duration_ticks": 1200,
+      "stability_multiplier": 1.5
+    }
+  },
+  "quality": {
+    "strength_multipliers": [
+      1,
+      1.25,
+      1.5,
+      2
+    ]
+  }
+}

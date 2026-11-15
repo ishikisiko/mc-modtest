@@ -102,7 +102,7 @@ final class CombatWorldTrailsTest {
         assertEquals(Optional.of(qingfeng), CombatWorldTrails.trailWeapon(
                 styles, ResourceLocation.withDefaultNamespace("stick"), move));
         assertEquals(Optional.empty(), CombatWorldTrails.trailWeapon(
-                styles, qingfeng, ResourceLocation.fromNamespaceAndPath("myvillage", "unknown")));
+                styles, qingfeng, ResourceLocation.fromNamespaceAndPath("yuanxian", "unknown")));
         var spearMove = CombatTestData.basicSpear().move(1).id();
         assertEquals(Optional.of(CombatTestData.LINGXIAO_SPEAR),
                 CombatWorldTrails.trailWeapon(styles, qingfeng, spearMove));

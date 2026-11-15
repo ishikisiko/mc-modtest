@@ -22,7 +22,7 @@ public final class QuestRules {
     public List<String> maps(){var result=new ArrayList<String>();json.getAsJsonArray("maps").forEach(v->result.add(v.getAsString()));return List.copyOf(result);}
     public String hash(String map){return json.getAsJsonObject("manifest").getAsJsonObject(map).get("sha256").getAsString();}
     public static QuestRules get(){
-        if(bundled==null)try(var in=QuestRules.class.getResourceAsStream("/data/myvillage/expedition/rules.json")){
+        if(bundled==null)try(var in=QuestRules.class.getResourceAsStream("/data/yuanxian/expedition/rules.json")){
             if(in==null)throw new IllegalStateException("远征配置资源缺失");
             bundled=new QuestRules(JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject());
         }catch(Exception error){throw new IllegalStateException("无法读取远征配置",error);}

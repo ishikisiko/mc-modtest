@@ -10,7 +10,7 @@ public record DemonTrialRules(int radius, int height, int separation, int stackS
     private static final class Bundled { static final DemonTrialRules INSTANCE=load(); }
     public static DemonTrialRules get(){return Bundled.INSTANCE;}
     private static DemonTrialRules load(){
-        try(var in=Objects.requireNonNull(DemonTrialRules.class.getResourceAsStream("/data/myvillage/ruins/demon_trial.json"))){
+        try(var in=Objects.requireNonNull(DemonTrialRules.class.getResourceAsStream("/data/yuanxian/ruins/demon_trial.json"))){
             return parse(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());
         }catch(IOException e){throw new IllegalStateException(e);}
     }

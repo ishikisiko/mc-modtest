@@ -23,7 +23,7 @@ public record FlyingSwordRules(boolean require_awakened, String minimum_realm,
     }
     private static boolean positive(double value, double max) { return Double.isFinite(value) && value > 0 && value <= max; }
     public static FlyingSwordRules load(ServerPlayer player) {
-        var id = ResourceLocation.fromNamespaceAndPath("myvillage", "flying_sword/rules.json");
+        var id = ResourceLocation.fromNamespaceAndPath("yuanxian", "flying_sword/rules.json");
         try (var reader = player.getServer().getResourceManager().getResource(id).orElseThrow().openAsReader()) {
             return new Gson().fromJson(reader, FlyingSwordRules.class);
         } catch (java.io.IOException e) { throw new IllegalStateException("无法读取御剑规则", e); }

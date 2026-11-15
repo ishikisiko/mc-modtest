@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SceneLayoutTest {
     private JsonObject resource() throws Exception {
-        return JsonParser.parseString(Files.readString(Path.of(System.getProperty("myvillage.test.sceneLayout",
-                "build/generated/qianzhen/resources/data/myvillage/story/qianzhen_scene.json")))).getAsJsonObject();
+        return JsonParser.parseString(Files.readString(Path.of(System.getProperty("yuanxian.test.sceneLayout",
+                "build/generated/qianzhen/resources/data/yuanxian/story/qianzhen_scene.json")))).getAsJsonObject();
     }
     @Test void productionContractContainsEveryRoleAndClickableTarget() throws Exception {
         SceneLayout layout = SceneLayout.parse(resource());
@@ -39,7 +39,7 @@ class SceneLayoutTest {
         SceneLayout layout = SceneLayout.parse(resource());
         assertEquals(3, layout.facilities().size()); assertEquals(9, layout.targets().size());
         var soil = layout.facilities().stream().filter(f -> f.id().equals("apprentice_plot")).findFirst().orElseThrow();
-        assertEquals("myvillage:spirit_soil", soil.block());
+        assertEquals("yuanxian:spirit_soil", soil.block());
         assertEquals(new SceneLayout.Pos(96, 0, 102), soil.pos());
         assertEquals(new SceneLayout.Pos(95, 1, 102), soil.approach());
         assertNotEquals(soil.pos(), soil.approach());

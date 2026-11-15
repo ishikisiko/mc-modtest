@@ -45,9 +45,9 @@ class PurpleEvidence(FateEvidence):
                            unrun=list(CASES), owner_appearance='not_verified', owner_fps='not_verified',
                            method='mapped stele confirmation, right-mouse sword qi/pill use, left-mouse melee; RCON fixtures and labelled damage probes; two actual clients',
                            default_fate_rules=True)
-        self.definitions = {'myvillage:'+p.stem: json.loads(p.read_text()) for p in
-                            (ROOT/'src/main/resources/data/myvillage/myvillage/innate_fate').glob('*.json')}
-        self.medicine = json.loads((ROOT/'src/main/resources/data/myvillage/alchemy/rules.json').read_text())
+        self.definitions = {'yuanxian:'+p.stem: json.loads(p.read_text()) for p in
+                            (ROOT/'src/main/resources/data/yuanxian/yuanxian/innate_fate').glob('*.json')}
+        self.medicine = json.loads((ROOT/'src/main/resources/data/yuanxian/alchemy/rules.json').read_text())
 
     def check(self, name, passed, detail):
         super().check(name, passed, detail)
@@ -84,8 +84,8 @@ class PurpleEvidence(FateEvidence):
         self.open_stele(); self.leave_stele()
         self.check('mapped_root_prepared', self.root() is not None, self.root())
         self.rc(f'yuanxian cultivation initiate {u}')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
-        self.rc(f'yuanxian cultivation learn {u} myvillage:jianqi_jue')
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_1')
+        self.rc(f'yuanxian cultivation learn {u} yuanxian:jianqi_jue')
         self.home()
         self.rc(f'spawnpoint {u} 0 -60 0')
 
@@ -105,7 +105,7 @@ class PurpleEvidence(FateEvidence):
 
     def choose_focus(self, focus):
         self.reset()
-        wanted = 'myvillage:'+focus
+        wanted = 'yuanxian:'+focus
         for _ in range(160):
             self.rc(f'yuanxian cultivation fate roll {self.s.username}')
             time.sleep(.22)
@@ -172,9 +172,9 @@ class PurpleEvidence(FateEvidence):
 
     def cast(self, label, forged=False, hold=.4):
         self.home()
-        spec = 'myvillage:qingfeng_sword'
+        spec = 'yuanxian:qingfeng_sword'
         if forged:
-            spec += '[myvillage:forge_mark={trait:"channeling",quality:4}]'
+            spec += '[yuanxian:forge_mark={trait:"channeling",quality:4}]'
         self.equip(spec)
         scene.ensure_cultivation(self.s)
         self.rc(f'yuanxian cultivation qi fill {self.s.username}')
@@ -197,7 +197,7 @@ class PurpleEvidence(FateEvidence):
         self.rc(f'yuanxian cultivation qi set {u} 0')
         before = self.power()
         self.choose_focus('open_meridians')
-        after = self.power(); e = self.definitions['myvillage:open_meridians']['effects']
+        after = self.power(); e = self.definitions['yuanxian:open_meridians']['effects']
         self.check('effective_cap', after['cap'] == math.floor(base*(1+e['power_cap_bonus'])), {'base':base,'after':after})
         self.check('capacity_does_not_fill', after['current'] < after['cap'], {'before':before,'after':after})
         self.panel(); self.capture('meridians-h-cap.png'); self.close_panel()
@@ -215,7 +215,7 @@ class PurpleEvidence(FateEvidence):
         self.check('removing_fate_clamps_cap', self.power()['cap']==base and self.power()['current']<=base, self.power())
 
     def use_pill(self, quality=1, count=2):
-        spec = 'myvillage:pill_yangyuan'+(f'[myvillage:pill_quality={quality}]' if quality>1 else '')
+        spec = 'yuanxian:pill_yangyuan'+(f'[yuanxian:pill_quality={quality}]' if quality>1 else '')
         self.equip(spec,count)
         self.s.game.require_ingame('mapped pill use')
         self.s.game.xdo('mousedown','3')
@@ -230,15 +230,15 @@ class PurpleEvidence(FateEvidence):
         def ready():
             state = self.state(); aegis = {**{'cooldown_ready_at':0}, **state.get('pill_aegis',{})}
             medicine = read_data(self.rc(f'data get entity {self.s.username}'))
-            current = medicine.get('NeoForgeData',{}).get('myvillage_medicine',{})
+            current = medicine.get('NeoForgeData',{}).get('yuanxian_medicine',{})
             return (state['now'] >= aegis['cooldown_ready_at'] and current.get('cooldown_ticks',0)==0
                     and current.get('effect_ticks',0)==0)
         self.poll(ready,bool,timeout=38,label='medicine and shield cooldown')
 
     def pill_aegis(self):
         self.choose_focus('pill_aegis'); u=self.s.username; self.heal()
-        maximum=self.maximum(); e=self.definitions['myvillage:pill_aegis']['effects']
-        self.equip('myvillage:pill_yangyuan',2)
+        maximum=self.maximum(); e=self.definitions['yuanxian:pill_aegis']['effects']
+        self.equip('yuanxian:pill_yangyuan',2)
         self.s.game.xdo('mousedown','3')
         try:
             time.sleep(self.medicine['use_ticks']/20+.4)
@@ -280,7 +280,7 @@ class PurpleEvidence(FateEvidence):
         u=self.s.username
         self.heal()
         attacker=self.dummy('purple_attacker',(8,-60,0))
-        e=self.definitions['myvillage:tempered_bones']['effects']
+        e=self.definitions['yuanxian:tempered_bones']['effects']
         amount=self.maximum()*e['bones_threshold']+.01
         self.rc(f'damage {u} {amount} minecraft:mob_attack by {attacker}')
         result=self.poll(lambda:self.own_state('tempered_bones'),lambda s:s['ready'],label='labelled hostile damage probe')

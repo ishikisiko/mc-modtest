@@ -16,7 +16,7 @@ from tools.alchemy_quality_evidence import quality_stacks,SecondClient,read_data
 from tools.combat_capture import scene,session as cs
 
 CASES=('stages','training','tools','combat','two_players','lifecycle','ui','trough')
-PIECE='myvillage:workpiece';TEMPER='myvillage:temper';MARK='myvillage:forge_mark'
+PIECE='yuanxian:workpiece';TEMPER='yuanxian:temper';MARK='yuanxian:forge_mark'
 POS='0 -60 3'
 TROUGH='1 -60 3'
 POINTS={'start':(262,117),'heat':(114,135),'strike':(173,135),'quench':(262,117),'temper':(262,117),
@@ -32,8 +32,8 @@ def stack_spec(stack):
 class WorkshopEvidence(AlchemyEvidence):
     def __init__(self,out,cases):
         super().__init__(out,'zh_cn');self.cases=cases;self.pulse=None;self.recorders=[]
-        self.config=json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())
-        self.recipes=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())['recipes']
+        self.config=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())
+        self.recipes=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/rules.json').read_text())['recipes']
         self.report.update(kind='forging_workshop',selected=cases,completed=[],unrun=list(cases),mapped_input=[],
             method='native mouse/key input, operator-only readback and fixtures; isolated cloud world',
             owner_sound='not_verified',owner_feel='not_verified',owner_fps='not_verified',owner_balance='not_verified')
@@ -72,12 +72,12 @@ class WorkshopEvidence(AlchemyEvidence):
     def give(self,item,n=1,user=None):self.rc(f'give {user or self.s.username} {item} {n}')
     def materials(self,user=None):
         for item,n in [('minecraft:iron_ingot',32),('minecraft:stick',16),('minecraft:diamond',12),('minecraft:coal',24),
-                       ('minecraft:water_bucket',1),('minecraft:flint',8),('minecraft:iron_nugget',32),('myvillage:low_grade_spirit_stone',16),
-                       ('myvillage:edge_tempering_sand',4),('myvillage:xuantie_ingot',4),('myvillage:chitong_ingot',4)]:self.give(item,n,user)
+                       ('minecraft:water_bucket',1),('minecraft:flint',8),('minecraft:iron_nugget',32),('yuanxian:low_grade_spirit_stone',16),
+                       ('yuanxian:edge_tempering_sand',4),('yuanxian:xuantie_ingot',4),('yuanxian:chitong_ingot',4)]:self.give(item,n,user)
     def clean(self):
         if self.inspect()['open']:self.close_menu()
-        self.rc(f'clear {self.s.username}');self.rc(f'setblock {POS} myvillage:forging_anvil[facing=north]')
-        self.rc(f'setblock {TROUGH} myvillage:quenching_trough[facing=north,filled=true]');self.rc('kill @e[type=minecraft:item]');self.s.game.key('1')
+        self.rc(f'clear {self.s.username}');self.rc(f'setblock {POS} yuanxian:forging_anvil[facing=north]')
+        self.rc(f'setblock {TROUGH} yuanxian:quenching_trough[facing=north,filled=true]');self.rc('kill @e[type=minecraft:item]');self.s.game.key('1')
     def hold(self,seconds,game=None):
         game=game or self.s.game;px,py=point(game.size,*POINTS['strike']);game.xdo('mousemove',str(px),str(py));game.xdo('mousedown','1')
         self.report['mapped_input'].append({'kind':'hold_hammer','seconds':seconds,'wall':time.monotonic()})
@@ -114,7 +114,7 @@ class WorkshopEvidence(AlchemyEvidence):
         self.close_menu();self.materials();time.sleep(20);self.open();self.click(45,76)
         before=self.inventory();self.operate('start');data=self.inspect()
         self.check('mundane_without_awakening',data['cap']==0 and data['input']['piece']['stage']==0,data)
-        self.check('base_costs_only',self.count('minecraft:iron_ingot')==29 and self.count('minecraft:stick')==14 and self.count('myvillage:low_grade_spirit_stone')==16,self.inventory())
+        self.check('base_costs_only',self.count('minecraft:iron_ingot')==29 and self.count('minecraft:stick')==14 and self.count('yuanxian:low_grade_spirit_stone')==16,self.inventory())
         self.capture('01-rough-zh.png');before=self.inspect()['input'];self.click(*POINTS['strike']);time.sleep(.8)
         self.check('cold_strike_has_no_effect',self.inspect()['input']==before,self.inspect())
         self.operate('heat');before=self.inspect();rec=self.record_start('hammer-with-audio.mp4',9)
@@ -130,12 +130,12 @@ class WorkshopEvidence(AlchemyEvidence):
         self.operate('temper');self.capture('04-tempered-zh.png');self.operate('grind');self.capture('05-ground-zh.png')
         ground=self.inspect()['input'];self.close_menu();self.check('intermediate_returned_once',self.count(ground['id'])==1,self.inventory())
         self.open();self.insert(ground['id']);self.operate('assemble');final=self.inspect()['output']
-        self.check('ordinary_tool_is_usable_unmarked',final['id']=='myvillage:forged_pickaxe' and 'temper' in final and 'mark' not in final and final['max_damage']>0,final)
+        self.check('ordinary_tool_is_usable_unmarked',final['id']=='yuanxian:forged_pickaxe' and 'temper' in final and 'mark' not in final and final['max_damage']>0,final)
         self.capture('06-finished-zh.png');self.click(196,112,True);self.close_menu()
     def training(self):
         self.clean();self.materials()
-        spec='myvillage:qingfeng_sword[myvillage:temper={experience:16,edge:0,endurance:0,channeling:0,treatment:1},myvillage:forge_mark={trait:"sharp",quality:2},minecraft:damage=100]'
-        self.give(spec);self.open();self.insert('myvillage:qingfeng_sword');before=self.inspect()
+        spec='yuanxian:qingfeng_sword[yuanxian:temper={experience:16,edge:0,endurance:0,channeling:0,treatment:1},yuanxian:forge_mark={trait:"sharp",quality:2},minecraft:damage=100]'
+        self.give(spec);self.open();self.insert('yuanxian:qingfeng_sword');before=self.inspect()
         self.check('item_experience_budget',before['available']==2,before)
         self.operate('heat');cost_before=self.count('minecraft:iron_nugget');self.operate('strike');first=self.inspect()['input']
         self.check('each_strike_has_exact_cost_and_gain',first['temper']['experience']==10 and first['temper']['edge']==1 and self.count('minecraft:iron_nugget')==cost_before-1,first)
@@ -144,27 +144,27 @@ class WorkshopEvidence(AlchemyEvidence):
         self.check('quality_and_damage_preserved',second['mark']==before['input']['mark'] and second['damage']==100 and second['max_damage']>first['max_damage'],{'before':before,'after':second})
         snapshot=self.inspect()['input'];self.click(*POINTS['strike']);time.sleep(1);self.check('no_experience_no_strike',self.inspect()['input']==snapshot,self.inspect())
         self.capture('07-tempering-zh.png');self.close_menu()
-        grown=next(v for v in self.inventory().values() if v['id']=='myvillage:qingfeng_sword')
+        grown=next(v for v in self.inventory().values() if v['id']=='yuanxian:qingfeng_sword')
         modifiers=grown['components']['minecraft:attribute_modifiers']['modifiers']
-        edge=[m for m in modifiers if m['id']=='myvillage:tempered_edge']
+        edge=[m for m in modifiers if m['id']=='yuanxian:tempered_edge']
         self.check('growth_is_one_real_attack_modifier',len(edge)==1 and abs(edge[0]['amount']-(self.config['attack_per_strike']+self.config['treatment_attack']))<1e-6,modifiers)
         # A missing last material must not consume experience or change the existing object.
-        self.clean();self.give(spec);self.give('minecraft:coal',1);self.open();self.insert('myvillage:qingfeng_sword');self.operate('heat')
+        self.clean();self.give(spec);self.give('minecraft:coal',1);self.open();self.insert('yuanxian:qingfeng_sword');self.operate('heat')
         before=self.inspect()['input'];self.click(*POINTS['strike']);time.sleep(1);self.check('missing_training_material_atomic',self.inspect()['input']==before and self.inspect()['status']==4,self.inspect());self.close_menu()
-        self.give('minecraft:coal',1);self.open();self.insert('myvillage:qingfeng_sword');coal_before=self.count('minecraft:coal')
+        self.give('minecraft:coal',1);self.open();self.insert('yuanxian:qingfeng_sword');coal_before=self.count('minecraft:coal')
         self.click(*POINTS['heat'],wait=.05);self.close_menu()
-        self.check('cancel_unpaid_heating_returns_piece_and_fuel',self.count('minecraft:coal')==coal_before and self.count('myvillage:qingfeng_sword')==1,self.inventory())
+        self.check('cancel_unpaid_heating_returns_piece_and_fuel',self.count('minecraft:coal')==coal_before and self.count('yuanxian:qingfeng_sword')==1,self.inventory())
         # Infusion is a one-time operation, preserving the temper record and capping quality.
-        self.clean();self.materials();self.give('myvillage:forged_axe[myvillage:temper={experience:7,edge:1,endurance:2,channeling:0,treatment:2}]')
+        self.clean();self.materials();self.give('yuanxian:forged_axe[yuanxian:temper={experience:7,edge:1,endurance:2,channeling:0,treatment:2}]')
         u=self.s.username;self.rc(f'yuanxian cultivation awaken {u}');self.rc(f'yuanxian cultivation crafting set {u} forging 0')
-        self.rc(f'setblock {POS} myvillage:forging_table[facing=north]');self.open();self.insert('myvillage:forged_axe');self.click(285,36);self.operate('infuse');out=self.inspect()['output']
+        self.rc(f'setblock {POS} yuanxian:forging_table[facing=north]');self.open();self.insert('yuanxian:forged_axe');self.click(285,36);self.operate('infuse');out=self.inspect()['output']
         self.check('infusion_respects_cap_and_keeps_training',out.get('mark')=={'trait':'tough','quality':1} and out['temper']=={'experience':7,'edge':1,'endurance':2,'channeling':0,'treatment':2},out)
         self.capture('08-infused-zh.png');self.close_menu()
-        saved=next(v for v in self.inventory().values() if v['id']=='myvillage:forged_axe')
+        saved=next(v for v in self.inventory().values() if v['id']=='yuanxian:forged_axe')
         saved['components']['minecraft:damage']=100
-        self.clean();self.give(stack_spec(saved));self.give('minecraft:iron_ingot');self.give('myvillage:low_grade_spirit_stone')
-        self.open();self.insert('myvillage:forged_axe');self.operate('repair');self.close_menu()
-        repaired=next(v for v in self.inventory().values() if v['id']=='myvillage:forged_axe')
+        self.clean();self.give(stack_spec(saved));self.give('minecraft:iron_ingot');self.give('yuanxian:low_grade_spirit_stone')
+        self.open();self.insert('yuanxian:forged_axe');self.operate('repair');self.close_menu()
+        repaired=next(v for v in self.inventory().values() if v['id']=='yuanxian:forged_axe')
         self.check('repair_keeps_all_non_damage_components',
             {k:v for k,v in repaired['components'].items() if k!='minecraft:damage'}=={k:v for k,v in saved['components'].items() if k!='minecraft:damage'}
             and repaired['components'].get('minecraft:damage',0)<100,{'before':saved,'after':repaired})
@@ -180,20 +180,20 @@ class WorkshopEvidence(AlchemyEvidence):
         time.sleep(.3)
     def tools(self):
         for kind,x,block in [('pickaxe',4,'minecraft:iron_ore'),('axe',6,'minecraft:oak_log'),('shovel',8,'minecraft:clay')]:
-            self.tool_fixture('myvillage:forged_'+kind,x,block);self.mine(x);state=self.inspect()['held'];expected=next(c['work_experience'] for c in self.config['crafts'] if c['kind']==kind)
+            self.tool_fixture('yuanxian:forged_'+kind,x,block);self.mine(x);state=self.inspect()['held'];expected=next(c['work_experience'] for c in self.config['crafts'] if c['kind']==kind)
             self.check('actual_'+kind+'_earns_experience',state.get('temper',{}).get('experience')==expected,state)
             self.rc(f'setblock {x} -60 2 {block}');self.mine(x);self.check('reworked_position_no_experience_'+kind,self.inspect()['held'].get('temper',{}).get('experience')==expected,self.inspect())
-        self.clean();u=self.s.username;self.rc(f'item replace entity {u} hotbar.0 with myvillage:forged_hoe');self.s.game.key('1')
+        self.clean();u=self.s.username;self.rc(f'item replace entity {u} hotbar.0 with yuanxian:forged_hoe');self.s.game.key('1')
         self.rc('setblock 10 -61 2 minecraft:dirt');self.rc('setblock 10 -60 2 minecraft:air');self.rc(f'tp {u} 10.5 -60 .5 0 39');time.sleep(.5);self.s.game.xdo('click','3')
         self.poll(lambda:self.inspect()['held'],lambda d:d.get('temper',{}).get('experience',0)>0,8,'mapped tilling');self.check('actual_hoe_earns_experience',self.inspect()['held']['temper']['experience']==1,self.inspect())
         # Fresh location, real player placement, then real mining with a forged shovel.
-        self.clean();self.rc(f'item replace entity {u} hotbar.0 with minecraft:clay');self.rc(f'item replace entity {u} hotbar.1 with myvillage:forged_shovel')
+        self.clean();self.rc(f'item replace entity {u} hotbar.0 with minecraft:clay');self.rc(f'item replace entity {u} hotbar.1 with yuanxian:forged_shovel')
         self.rc('setblock 12 -61 2 minecraft:stone');self.rc('setblock 12 -60 2 minecraft:air');self.rc(f'tp {u} 12.5 -60 .5 0 39');self.s.game.key('1');time.sleep(.5);self.s.game.xdo('click','3')
         self.poll(lambda:self.rc('execute if block 12 -60 2 minecraft:clay'),lambda s:'Test passed' in s,8,'mapped player placement')
         self.s.game.key('2');self.rc(f'tp {u} 12.5 -60 .5 0 29.2');time.sleep(.4);self.mine(12)
         self.check('placed_block_cannot_mint_experience',self.inspect()['held'].get('temper',{}).get('experience',0)==0,self.inspect())
     def combat(self):
-        self.clean();u=self.s.username;self.rc('time set midnight');self.rc('difficulty normal');self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword');self.s.game.key('1')
+        self.clean();u=self.s.username;self.rc('time set midnight');self.rc('difficulty normal');self.rc(f'item replace entity {u} hotbar.0 with yuanxian:qingfeng_sword');self.s.game.key('1')
         self.rc(f'tp {u} 18.5 -60 .5 0 0');self.rc('summon minecraft:zombie 18.5 -60 2.5 {NoAI:1b,PersistenceRequired:1b,Tags:["workshop_target"]}')
         self.poll(lambda:self.rc('data get entity @e[tag=workshop_target,limit=1] Health'),lambda s:'data: ' in s,10,'combat target')
         time.sleep(.6)
@@ -234,7 +234,7 @@ class WorkshopEvidence(AlchemyEvidence):
             # 注回刚取出的水，操作方继续原器坯。
             game.xdo('click','3');time.sleep(.35)
             self.check('second_player_refills_released_trough',self.trough_filled() and self.count('minecraft:bucket',user)==1,self.inventory(user))
-            self.open();self.insert('myvillage:workpiece_forged_pickaxe_shaped');self.operate('heat')
+            self.open();self.insert('yuanxian:workpiece_forged_pickaxe_shaped');self.operate('heat')
             self.rc(f'tp {self.s.username} -2 -60 3.5')
             self.rc(f'gamemode spectator {user}');self.rc(f'tp {user} 2.8 -59.3 1.2 40 28');time.sleep(.5)
             rec=self.record_start('world-quench-with-audio.mp4',6,game);time.sleep(.4)
@@ -251,8 +251,8 @@ class WorkshopEvidence(AlchemyEvidence):
             time.sleep(.5);self.world_capture('world-08-empty.png',game)
             # 六类器坯都经真实槽位输入，命令只准备物品。
             for recipe,kind in [('qingfeng_sword','sword'),('lingxiao_spear','spear'),('forged_axe','axe'),('forged_shovel','shovel'),('forged_hoe','hoe')]:
-                item='myvillage:workpiece_'+recipe+'_ground'
-                self.give(item+'[myvillage:workpiece={recipe:"'+recipe+'",stage:4,blows:12,treatment:0}]')
+                item='yuanxian:workpiece_'+recipe+'_ground'
+                self.give(item+'[yuanxian:workpiece={recipe:"'+recipe+'",stage:4,blows:12,treatment:0}]')
                 self.open();self.insert(item);self.rc(f'tp {self.s.username} -2 -60 3.5')
                 time.sleep(.5);self.world_capture('world-kind-'+kind+'.png',game);self.close_menu()
             self.rc(f'tp {self.s.username} -2 -60 3.5')
@@ -262,7 +262,7 @@ class WorkshopEvidence(AlchemyEvidence):
         self.report['multiplayer']='two_native_clients_station_occupancy_and_observer_capture_pass'
     def lifecycle(self):
         self.clean();self.materials();self.open();self.click(45,76);self.operate('start');self.operate('heat');self.operate('strike');partial=self.inspect()['input'];self.close_menu()
-        self.give('myvillage:forged_axe[myvillage:temper={experience:17,edge:2,endurance:3,channeling:0,treatment:2},myvillage:forge_mark={trait:"tough",quality:2}]');before=self.inventory();self.rc('save-all flush');self.stop();self.language='zh_cn';self.start(reuse=True)
+        self.give('yuanxian:forged_axe[yuanxian:temper={experience:17,edge:2,endurance:3,channeling:0,treatment:2},yuanxian:forge_mark={trait:"tough",quality:2}]');before=self.inventory();self.rc('save-all flush');self.stop();self.language='zh_cn';self.start(reuse=True)
         self.check('partial_workpiece_and_inventory_survive_restart',self.inventory()==before,self.inventory())
         self.open();self.insert(partial['id']);self.check('reopen_retains_work_but_heat_is_cold',self.inspect()['input']==partial and self.inspect()['heat']==0,self.inspect());self.operate('heat');self.operate('strike')
         self.check('resume_continues_existing_progress',self.inspect()['input']['piece']['blows']==partial['piece']['blows']+1,self.inspect())
@@ -271,7 +271,7 @@ class WorkshopEvidence(AlchemyEvidence):
         self.poll(self.inventory,lambda v:v==before,15,'keepInventory survives death');self.check('death_keeps_components_once',self.inventory()==before,self.inventory())
         self.open();self.insert(partial['id']);self.rc(f'setblock {POS} minecraft:air')
         self.poll(lambda:self.inspect()['open'],lambda b:not b,10,'block removal closes menu')
-        self.check('station_removal_returns_work_once',self.inventory()==before,self.inventory());self.rc(f'setblock {POS} myvillage:forging_anvil[facing=north]')
+        self.check('station_removal_returns_work_once',self.inventory()==before,self.inventory());self.rc(f'setblock {POS} yuanxian:forging_anvil[facing=north]')
     def ui(self):
         self.clean();self.materials();self.open();self.click(45,76);self.operate('start')
         game=self.s.game;window=game.xdo('search','--name','Minecraft').split()[0]
@@ -279,7 +279,7 @@ class WorkshopEvidence(AlchemyEvidence):
             game.xdo('windowsize',window,str(w),str(h));game.xdo('windowmove',window,'0','0');game.size=(w,h);time.sleep(.8);self.capture(f'ui-{self.language}-{w}x{h}.png')
             self.check('native_menu_visible_'+str(w),game.pointer_grabbed() is False,{'size':[w,h],'visual_review':'pending'})
         game.xdo('windowsize',window,'960','540');game.size=(960,540);self.close_menu();self.rc(f'tp {self.s.username} 2 -60 .5 28 18');time.sleep(.6);self.capture('workshop-in-world.png')
-        self.rc(f'setblock {POS} myvillage:forging_table[facing=north]');self.open();self.click(99,219)
+        self.rc(f'setblock {POS} yuanxian:forging_table[facing=north]');self.open();self.click(99,219)
         self.poll(lambda:self.inspect()['open'],lambda opened:not opened,6,'copper sub-menu opens')
         self.check('copper_native_menu_visible',game.pointer_grabbed() is False,self.inspect())
         self.capture('copper-infusion-'+self.language+'.png')
@@ -287,12 +287,12 @@ class WorkshopEvidence(AlchemyEvidence):
         game.xdo('mousemove',str(px),str(py));game.xdo('click','1')
         self.poll(lambda:self.inspect()['open'],bool,6,'copper back opens workshop');self.check('copper_back_returns_to_workshop',self.inspect()['open'],self.inspect());self.close_menu()
     def trough_filled(self):
-        return 'myvillage:quenching_trough' in self.rc(f'execute if block {TROUGH} myvillage:quenching_trough[filled=true] run data get block {TROUGH}')
+        return 'yuanxian:quenching_trough' in self.rc(f'execute if block {TROUGH} yuanxian:quenching_trough[filled=true] run data get block {TROUGH}')
     def trough_click(self):
         self.rc(f'tp {self.s.username} 1.5 -60 .5 0 25');self.s.game.key('1');time.sleep(.4)
         self.s.game.xdo('click','3');self.report['mapped_input'].append({'kind':'use_trough_bucket','wall':time.monotonic()});time.sleep(.4)
     def trough(self):
-        self.clean();self.rc(f'setblock {TROUGH} myvillage:quenching_trough[filled=false]')
+        self.clean();self.rc(f'setblock {TROUGH} yuanxian:quenching_trough[filled=false]')
         self.give('minecraft:water_bucket');self.trough_click()
         self.check('mapped_bucket_fills_trough_returns_bucket',self.trough_filled() and self.count('minecraft:bucket')==1 and self.count('minecraft:water_bucket')==0,self.inventory())
         self.capture('trough-filled.png');self.trough_click()
@@ -300,26 +300,26 @@ class WorkshopEvidence(AlchemyEvidence):
         self.trough_click();before=self.inventory();self.rc('save-all flush');self.stop();self.start(reuse=True)
         self.check('water_and_bucket_survive_restart',self.trough_filled() and self.inventory()==before,self.inventory())
         self.rc(f'clear {self.s.username}');self.materials()
-        item='myvillage:workpiece_forged_pickaxe_shaped'
-        self.give(item+'[myvillage:workpiece={recipe:"forged_pickaxe",stage:1,blows:12,treatment:0}]')
+        item='yuanxian:workpiece_forged_pickaxe_shaped'
+        self.give(item+'[yuanxian:workpiece={recipe:"forged_pickaxe",stage:1,blows:12,treatment:0}]')
         self.open();self.insert(item);self.operate('heat');before=self.inspect()['input']
         self.rc(f'setblock {TROUGH} minecraft:air');time.sleep(.3);self.click(*POINTS['quench'])
         self.check('missing_trough_rejects_quench',self.inspect()['quench_reason']==16 and self.inspect()['action']<0 and self.inspect()['input']==before,self.inspect())
-        self.rc(f'setblock {TROUGH} myvillage:quenching_trough[filled=false]');time.sleep(.3);self.click(*POINTS['quench'])
+        self.rc(f'setblock {TROUGH} yuanxian:quenching_trough[filled=false]');time.sleep(.3);self.click(*POINTS['quench'])
         self.check('dry_trough_rejects_quench',self.inspect()['quench_reason']==16 and self.inspect()['input']==before,self.inspect())
-        self.rc(f'setblock {TROUGH} myvillage:quenching_trough[filled=true]');time.sleep(.3)
+        self.rc(f'setblock {TROUGH} yuanxian:quenching_trough[filled=true]');time.sleep(.3)
         self.click(*POINTS['quench']);self.poll(self.inspect,lambda d:d['action']==3,3,'cancelled quench starts');self.close_menu()
         self.check('cancel_returns_one_piece_and_preserves_water',self.count(item)==1 and self.trough_filled(),self.inventory())
         self.open();self.insert(item);self.operate('heat');self.click(*POINTS['quench'])
         self.poll(self.inspect,lambda d:d['action']==3,3,'removed trough quench starts');self.rc(f'setblock {TROUGH} minecraft:air')
         self.poll(self.inspect,lambda d:d['action']<0,5,'removed trough finishes safely')
         self.check('trough_removal_cannot_complete_or_duplicate',self.inspect()['input']==before and self.inspect()['status']==16,self.inspect())
-        self.rc(f'setblock {TROUGH} myvillage:quenching_trough[filled=true]');self.operate('heat');self.operate('quench')
+        self.rc(f'setblock {TROUGH} yuanxian:quenching_trough[filled=true]');self.operate('heat');self.operate('quench')
         self.check('one_water_charge_one_stage_transition',not self.trough_filled() and self.inspect()['input']['piece']['stage']==2 and self.inspect()['input']['count']==1,self.inspect())
-        self.close_menu();self.check('completed_piece_returned_once',self.count('myvillage:workpiece_forged_pickaxe_quenched')==1 and self.count(item)==0,self.inventory())
+        self.close_menu();self.check('completed_piece_returned_once',self.count('yuanxian:workpiece_forged_pickaxe_quenched')==1 and self.count(item)==0,self.inventory())
     def run(self):
         self.audio_start();self.start();u=self.s.username
-        for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_anvil[facing=north]'):self.rc(command)
+        for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','forceload add -16 -16 32 32',f'setblock {POS} yuanxian:forging_anvil[facing=north]'):self.rc(command)
         for case in self.cases:
             getattr(self,case)();self.report['completed'].append(case);self.report['unrun'].remove(case);self.save()
         self.report['status']='pass';self.save()

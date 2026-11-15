@@ -73,28 +73,28 @@ public final class CombatCommands {
     private static int setDebug(CommandSourceStack source, boolean enabled) {
         ServerPlayer player = source.getPlayer();
         if (player == null) {
-            source.sendFailure(Component.translatable("commands.myvillage.combat.debug.player_only"));
+            source.sendFailure(Component.translatable("commands.yuanxian.combat.debug.player_only"));
             return 0;
         }
         CombatDebugService.setEnabled(player, enabled);
         source.sendSuccess(() -> Component.translatable(
                 enabled
-                        ? "commands.myvillage.combat.debug.on"
-                        : "commands.myvillage.combat.debug.off"), false);
+                        ? "commands.yuanxian.combat.debug.on"
+                        : "commands.yuanxian.combat.debug.off"), false);
         return 1;
     }
 
     private static int debugStatus(CommandSourceStack source) {
         ServerPlayer player = source.getPlayer();
         if (player == null) {
-            source.sendFailure(Component.translatable("commands.myvillage.combat.debug.player_only"));
+            source.sendFailure(Component.translatable("commands.yuanxian.combat.debug.player_only"));
             return 0;
         }
         boolean enabled = CombatDebugService.isEnabled(player);
         source.sendSuccess(() -> Component.translatable(
                 enabled
-                        ? "commands.myvillage.combat.debug.on"
-                        : "commands.myvillage.combat.debug.off"), false);
+                        ? "commands.yuanxian.combat.debug.on"
+                        : "commands.yuanxian.combat.debug.off"), false);
         return enabled ? 1 : 0;
     }
 }

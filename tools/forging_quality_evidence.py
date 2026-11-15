@@ -26,7 +26,7 @@ def spec(item, quality, **extra):
     if quality:
         components[MARK] = {'trait': 'sharp', 'quality': quality}
     suffix = ','.join(k + '=' + json.dumps(v, separators=(',', ':')) for k, v in components.items())
-    return 'myvillage:' + item + ('[' + suffix + ']' if suffix else '')
+    return 'yuanxian:' + item + ('[' + suffix + ']' if suffix else '')
 
 
 class QualityEvidence(ForgingEvidence):
@@ -82,13 +82,13 @@ class QualityEvidence(ForgingEvidence):
         self.start()
         u = self.s.username
         for cmd in (*scene.world_rules(), *scene.player_setup(u, 'minecraft:air'), 'yuanxian world pause',
-                    'forceload add -16 -16 32 32', f'setblock {POS} myvillage:forging_table',
+                    'forceload add -16 -16 32 32', f'setblock {POS} yuanxian:forging_table',
                     f'yuanxian cultivation awaken {u}', f'yuanxian cultivation crafting set {u} forging 100', f'clear {u}'):
             self.rc(cmd)
         for q in range(5):
             self.rc(f'item replace entity {u} hotbar.{q} with {spec("qingfeng_sword", q)}')
             self.rc(f'item replace entity {u} inventory.{q} with {spec("lingxiao_spear", q)}')
-        self.rc(f'item replace entity {u} inventory.5 with myvillage:xuantie_gauntlet')
+        self.rc(f'item replace entity {u} inventory.5 with yuanxian:xuantie_gauntlet')
         enchanted = {'minecraft:enchantments': {'levels': {'minecraft:unbreaking': 1}}, 'minecraft:damage': 100}
         self.rc(f'item replace entity {u} hotbar.5 with {spec("qingfeng_sword", 3, **enchanted)}')
         self.rc(f'item replace entity {u} hotbar.6 with {spec("qingfeng_sword", 0, **enchanted)}')

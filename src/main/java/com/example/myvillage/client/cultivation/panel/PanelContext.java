@@ -71,7 +71,7 @@ public record PanelContext(
     }
 
     public String unavailableText() {
-        return text("screen.myvillage.cultivation.unavailable");
+        return text("screen.yuanxian.cultivation.unavailable");
     }
 
     public Optional<RealmDefinition> realm(ResourceLocation realmId) {
@@ -146,17 +146,17 @@ public record PanelContext(
     public String progressValue() {
         RealmStageDefinition stage = currentStage().orElse(null);
         if (stage == null) {
-            return text("screen.myvillage.cultivation.progress_unavailable", profile.cultivationProgress());
+            return text("screen.yuanxian.cultivation.progress_unavailable", profile.cultivationProgress());
         }
         if (stage.cultivationCap().isPresent()) {
             return text(
-                    "screen.myvillage.cultivation.progress_capped",
+                    "screen.yuanxian.cultivation.progress_capped",
                     profile.cultivationProgress(),
                     stage.cultivationCap().orElseThrow());
         }
         String suffix = releaseCeiling()
-                ? text("screen.myvillage.cultivation.progress_release_ceiling")
-                : text("screen.myvillage.cultivation.progress_unsupported");
+                ? text("screen.yuanxian.cultivation.progress_release_ceiling")
+                : text("screen.yuanxian.cultivation.progress_unsupported");
         return profile.cultivationProgress() + " / " + suffix;
     }
 
@@ -222,11 +222,11 @@ public record PanelContext(
     /** 显示年月日；时间快照尚未到达时显示等待文字。 */
     public String calendarValue() {
         if (time == null) {
-            return text("screen.myvillage.cultivation.time_waiting");
+            return text("screen.yuanxian.cultivation.time_waiting");
         }
         long elapsed = time.elapsedCalendarTicks();
         return text(
-                "screen.myvillage.cultivation.calendar_value",
+                "screen.yuanxian.cultivation.calendar_value",
                 PanelReadouts.calendarYear(elapsed, time.ticksPerDay(), time.daysPerYear()),
                 PanelReadouts.calendarMonth(elapsed, time.ticksPerDay(), time.daysPerYear(), time.daysPerMonth()),
                 PanelReadouts.calendarDayOfMonth(
@@ -236,16 +236,16 @@ public record PanelContext(
     /** Remaining over maximum lifespan in years; exhaustion and unavailability are spelled out. */
     public String remainingLifespanValue() {
         if (time == null) {
-            return text("screen.myvillage.cultivation.time_waiting");
+            return text("screen.yuanxian.cultivation.time_waiting");
         }
         if (!time.lifespanAvailable()) {
             return unavailableText();
         }
         if (time.exhausted()) {
-            return text("screen.myvillage.cultivation.lifespan_exhausted", time.maximumLifespanYears());
+            return text("screen.yuanxian.cultivation.lifespan_exhausted", time.maximumLifespanYears());
         }
         return text(
-                "screen.myvillage.cultivation.lifespan_fraction",
+                "screen.yuanxian.cultivation.lifespan_fraction",
                 PanelReadouts.yearsCeil(time.remainingLifespanTicks(), time.ticksPerDay(), time.daysPerYear()),
                 time.maximumLifespanYears());
     }
@@ -253,7 +253,7 @@ public record PanelContext(
     public Component unavailable(ResourceLocation id) {
         return Component.literal(id.toString())
                 .append(" ")
-                .append(Component.translatable("screen.myvillage.cultivation.unavailable"))
+                .append(Component.translatable("screen.yuanxian.cultivation.unavailable"))
                 .withStyle(ChatFormatting.RED);
     }
 }

@@ -45,11 +45,11 @@ def refresh_components(out,city,inputs):
         if not(tile['x']<e and tile['x']+16>a and tile['z']<f and tile['z']+16>b):continue
         for(lx,y,lz),state in world.tile((tile['x']//16,tile['z']//16)).items():
             x,z=tile['x']+lx,tile['z']+lz
-            if a<=x<e and b<=z<f and state.startswith('myvillage:qianji_'):owned[x,y,z]=state
+            if a<=x<e and b<=z<f and state.startswith('yuanxian:qianji_'):owned[x,y,z]=state
     changes={}
     for p,state in desired.items():
         current=world.get(p)
-        if p in owned or state.startswith('myvillage:qianji_'):
+        if p in owned or state.startswith('yuanxian:qianji_'):
             if p not in owned and current!=AIR and current!=state:raise ValueError('构件更新覆盖非千机阁方块 '+str((p,current,state)))
             if current!=state:changes[p]=state
         elif current!=state:raise ValueError('构件更新改变非千机阁方块 '+str((p,current,state)))
@@ -66,16 +66,16 @@ def refresh_components(out,city,inputs):
         if {tuple(v['pos']):palette[v['state']]for v in saved['blocks']}!={p:v[0]for p,v in cells.items()}:raise ValueError('构件更新切片回读不一致')
         if block_entities(path)!=entities:raise ValueError('构件更新丢失原始方块实体')
         tile.update(block_count=count,palette_count=pal,bytes=path.stat().st_size,sha256=sha(path.read_bytes()))
-    city['palette_states']=sorted({s for s in city['palette_states']if not s.startswith('myvillage:qianji_')}|{s for s in desired.values()if s.startswith('myvillage:qianji_')})
+    city['palette_states']=sorted({s for s in city['palette_states']if not s.startswith('yuanxian:qianji_')}|{s for s in desired.values()if s.startswith('yuanxian:qianji_')})
     previous.update(inputs=inputs,checks=checks)
     previous['infill']['components']=component_summary()
-    write(out/'data/myvillage/capitals/v4/capital_zhongzhou/city.json',city)
+    write(out/'data/yuanxian/capitals/v4/capital_zhongzhou/city.json',city)
     print('总舵构件重导出：'+json.dumps(dict(changed_blocks=len(changes),changed_tiles=len(world.dirty),**component_summary()),ensure_ascii=False),flush=True)
     return previous
 
 def integrate(out,city,inputs):
     from .runtime_export import atmosphere_payload
-    out=Path(out);file=out/'data/myvillage/capitals/v4/capital_zhongzhou/city.json';cfg=read()
+    out=Path(out);file=out/'data/yuanxian/capitals/v4/capital_zhongzhou/city.json';cfg=read()
     previous=city.get('qianji')
     if previous:
         if previous.get('infill',{}).get('id')!=cfg['id']:
@@ -129,22 +129,22 @@ def integrate(out,city,inputs):
     old=next((p for p in city['life']['places']if p['id']=='jianghu_board'),None)
     if old:
         p=tuple(old['block_pos'])
-        if world.get(p).startswith('myvillage:jianghu_board['):world.set(p,AIR,'撤下原委托榜')
+        if world.get(p).startswith('yuanxian:jianghu_board['):world.set(p,AIR,'撤下原委托榜')
         city['life']['places'].remove(old)
     board=point(m.spec['board']);reader=point(m.spec['reader']);entry=point(m.spec['paths'][0]);anchor=point(m.spec['atmosphere_anchor'])
-    city['life']['places'].append(dict(id='jianghu_board',kind='entry',pos=reader,block_pos=board,block='myvillage:jianghu_board',capacity=1,building_id='qianji'))
+    city['life']['places'].append(dict(id='jianghu_board',kind='entry',pos=reader,block_pos=board,block='yuanxian:jianghu_board',capacity=1,building_id='qianji'))
     for p,state in retained.items():
         if world.get(p)!=state:raise ValueError('总舵改动保留建筑 '+str((p,state,world.get(p))))
     # The existing estate and every functional life point remain active.
     world.verify_life()
-    if world.get(tuple(board))!='myvillage:jianghu_board[facing=east]':raise ValueError('任务榜未朝向实际操作地坪')
+    if world.get(tuple(board))!='yuanxian:jianghu_board[facing=east]':raise ValueError('任务榜未朝向实际操作地坪')
     expected_terrain_before=site()['terrain'];cut=max(int(expected_terrain_before[z,x])-int(m.terrain[z*m.w+x])for z in range(m.d)for x in range(m.w))
     if cut>cfg['local_earthwork_limit']:raise ValueError('总舵局部整地超过三格')
     for tile in city['tiles']:
         key=tile['x']//16,tile['z']//16
         if key not in world.dirty:continue
         path=resource_file(out,tile['template'],template=True);entities=block_entities(path);cells={p:(s,'qianji','infill')for p,s in world.tile(key).items()}
-        if key==(anchor[0]//16,anchor[2]//16):entities[anchor[0]%16,anchor[1],anchor[2]%16]=dict(block='myvillage:qianji_atmosphere_anchor',payload=atmosphere_payload())
+        if key==(anchor[0]//16,anchor[2]//16):entities[anchor[0]%16,anchor[1],anchor[2]%16]=dict(block='yuanxian:qianji_atmosphere_anchor',payload=atmosphere_payload())
         count,pal,_=write_tile(path,cells,world.height,entities);_,saved=read_gzipped_nbt(path);palette=[state_string(v)for v in saved['palette']]
         actual={tuple(v['pos']):palette[v['state']]for v in saved['blocks']}
         if actual!={p:v[0]for p,v in cells.items()}:raise ValueError('总舵正式切片逐坐标回读不一致')
@@ -160,14 +160,14 @@ def integrate(out,city,inputs):
     lighting=json.loads((ROOT/'blueprints/qianji/lighting.json').read_text())
     from .infill import lighting_checks
     light_checks=[dict(name=row['name'],position=point(row['position']),minimum_light=lighting['minimum_light'])for row in lighting_checks()]
-    descriptor=dict(variant='zhongzhou_headquarters',name=cfg['name'],scale='headquarters',group='qianji',facing='east',source_dimensions=city['size'],bounds=cfg['plot'],size=[m.w,m.h,m.d],base_y=base,rotation_quarters=1,entry=entry,access=entry,board=dict(position=board,reader=reader,facing='east'),rooms=m.rooms,targets=[dict(id=t['id'],position=point(t['position']))for t in m.targets],checks=checks,inputs=inputs,old_city_preserved=False,old_board_retired=old is not None,atmosphere=dict(anchor=anchor,appearance='myvillage:qianji/atmosphere.json',source_offset=m.spec['source_offset']),lighting_checks=light_checks,interior_lights=len(m.lights),landmarks=[],infill=dict(id=cfg['id'],plot=cfg['plot'],retired_buildings=sorted(retired),retained_structural_cells=len(retained),preserved_road_columns=preserved_roads,changed_tiles=len(world.dirty),maximum_terrain_cut=cut,construction=m.construction_checks,route_count=len(m.routes)))
+    descriptor=dict(variant='zhongzhou_headquarters',name=cfg['name'],scale='headquarters',group='qianji',facing='east',source_dimensions=city['size'],bounds=cfg['plot'],size=[m.w,m.h,m.d],base_y=base,rotation_quarters=1,entry=entry,access=entry,board=dict(position=board,reader=reader,facing='east'),rooms=m.rooms,targets=[dict(id=t['id'],position=point(t['position']))for t in m.targets],checks=checks,inputs=inputs,old_city_preserved=False,old_board_retired=old is not None,atmosphere=dict(anchor=anchor,appearance='yuanxian:qianji/atmosphere.json',source_offset=m.spec['source_offset']),lighting_checks=light_checks,interior_lights=len(m.lights),landmarks=[],infill=dict(id=cfg['id'],plot=cfg['plot'],retired_buildings=sorted(retired),retained_structural_cells=len(retained),preserved_road_columns=preserved_roads,changed_tiles=len(world.dirty),maximum_terrain_cut=cut,construction=m.construction_checks,route_count=len(m.routes)))
     descriptor['infill']['verified_existing_road_cut_columns']=existing_road_readback
     descriptor['infill']['existing_road_columns_with_blocked_headroom']=overbuilt_roads
     descriptor['infill']['components']=component_summary()
     city['qianji']=descriptor;life_inputs(city,*city['size'],192);write(file,city)
     # Only templates referenced by the newly authored current city are packed.
     used={resource_file(out,t['template'],template=True).resolve()for t in city['tiles']}
-    templates=out/'data/myvillage/structure/province_capitals/v4/capital_zhongzhou'
+    templates=out/'data/yuanxian/structure/province_capitals/v4/capital_zhongzhou'
     removed=[]
     for p in templates.glob('tile_*.nbt'):
         if p.resolve()not in used:removed.append(p.name);p.unlink()

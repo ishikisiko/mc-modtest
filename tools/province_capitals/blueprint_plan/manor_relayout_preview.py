@@ -7,8 +7,8 @@ def properties(state):
     return dict(v.split('=',1) for v in state[:-1].split('[',1)[1].split(',')) if '[' in state else {}
 
 def preview_scene(planner,data):
-    builder=SceneBuilder(planner.model);catalog=manor_catalog();banks={'myvillage:'+b['id']:b for b in catalog['banks']}
-    materials={'myvillage:'+m['id']:m for m in catalog['materials']};scene_materials=planner.manor_scene['materials'];extra={}
+    builder=SceneBuilder(planner.model);catalog=manor_catalog();banks={'yuanxian:'+b['id']:b for b in catalog['banks']}
+    materials={'yuanxian:'+m['id']:m for m in catalog['materials']};scene_materials=planner.manor_scene['materials'];extra={}
     def color(role):
         key='manor_'+role;value=scene_materials.get(role,'#725838' if role.startswith('plaque_') else '#655f63')
         extra[key]={'color':value};return key
@@ -25,10 +25,10 @@ def preview_scene(planner,data):
                     extra[base]={'color':'#'+materials[base]['color']}
                     boxes=[[0,0,0,16,16,16,base]]
                 else:boxes=[[0,0,0,16,16,16,materials[base]['role']]]
-            elif base=='myvillage:demon_pact_pillar':
+            elif base=='yuanxian:demon_pact_pillar':
                 part=int(values['part']);turn=('north','east','south','west').index(values['facing'])
                 if part not in pillar_models:
-                    f=ROOT/f'src/main/resources/assets/myvillage/models/block/demon_pact_pillar/part_{part}.json'
+                    f=ROOT/f'src/main/resources/assets/yuanxian/models/block/demon_pact_pillar/part_{part}.json'
                     pillar_models[part]=read(str(f.relative_to(ROOT)))['elements']
                 boxes=[e['from']+e['to']+['stone_dark'] for e in pillar_models[part]]
             else:standard[p]=record;continue

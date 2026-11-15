@@ -43,7 +43,7 @@ public final class NumericalStatsPage extends PanelPage {
         for (int i = 0; i < buttons.size(); i++) {
             buttons.get(i).visible = visible;
             buttons.get(i).active = visible && ready
-                    && p.stageId().toString().equals(i == 0 ? "myvillage:qi_refining_9" : "myvillage:foundation_late");
+                    && p.stageId().toString().equals(i == 0 ? "yuanxian:qi_refining_9" : "yuanxian:foundation_late");
         }
     }
     @Override public int render(GuiGraphics g, PanelContext c, int x, int y, int width, int viewportHeight) {

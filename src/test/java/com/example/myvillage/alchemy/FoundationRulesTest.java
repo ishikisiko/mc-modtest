@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FoundationRulesTest {
-    private static CultivationProfile established(){return CultivationProfile.DEFAULT.withRealmAndStage(ResourceLocation.parse("myvillage:foundation_establishment"),ResourceLocation.parse("myvillage:foundation_early"));}
+    private static CultivationProfile established(){return CultivationProfile.DEFAULT.withRealmAndStage(ResourceLocation.parse("yuanxian:foundation_establishment"),ResourceLocation.parse("yuanxian:foundation_early"));}
     @Test void exhaustivelyChecksAllOneHundredOutcomesAndBoundaries(){
         var r=FoundationRules.get();int[] expected={40,75,92};
         for(int q=1;q<=3;q++){int n=0;for(int draw=0;draw<100;draw++)if(r.succeeds(q,draw))n++;assertEquals(expected[q-1],n);assertTrue(r.succeeds(q,expected[q-1]-1));assertFalse(r.succeeds(q,expected[q-1]));}
@@ -20,7 +20,7 @@ class FoundationRulesTest {
         var r=FoundationRules.get();var low=established().withFoundationQuality(1);
         assertFalse(r.canRepair(low,1));assertTrue(r.canRepair(low,2));assertTrue(r.canRepair(low,3));assertTrue(r.canRepair(low,4));assertEquals(3,r.pillFoundationQuality(4));
         var high=low.withFoundationQuality(3);assertFalse(r.canRepair(high,2));assertFalse(r.canRepair(high,3));assertFalse(r.canRepair(high,4));
-        var golden=low.withRealmAndStage(ResourceLocation.parse("myvillage:golden_core"),ResourceLocation.parse("myvillage:golden_early"));assertTrue(r.canRepair(golden,3));
+        var golden=low.withRealmAndStage(ResourceLocation.parse("yuanxian:golden_core"),ResourceLocation.parse("yuanxian:golden_early"));assertTrue(r.canRepair(golden,3));
         assertFalse(r.canRepair(CultivationProfile.DEFAULT,3));
         var table=com.example.myvillage.stats.CultivationStatsRules.bundled();
         assertEquals(8,table.foundationBonus(3).health()-table.foundationBonus(1).health());
@@ -55,7 +55,7 @@ class FoundationRulesTest {
         assertNotEquals(r.recipe("zhuji_middle").orElseThrow().ingredients().getFirst(),r.recipe("zhuji_high").orElseThrow().ingredients().getFirst());
         assertTrue(r.recipe("buji_high").orElseThrow().count(0)>r.recipe("zhuji_high").orElseThrow().count(0));
         var quality=com.example.myvillage.cultivation.crafting.CraftingQualityRules.get();
-        assertTrue(quality.probabilities(200,"myvillage:foundation_establishment",1).get(4)>quality.probabilities(200,"myvillage:foundation_establishment",3).get(4));
+        assertTrue(quality.probabilities(200,"yuanxian:foundation_establishment",1).get(4)>quality.probabilities(200,"yuanxian:foundation_establishment",3).get(4));
     }
 
 }

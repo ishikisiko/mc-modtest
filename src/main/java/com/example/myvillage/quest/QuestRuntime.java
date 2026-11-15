@@ -51,9 +51,9 @@ import org.slf4j.LoggerFactory;
 
 /** Server-owned temporary realms; all admission, spawning and settlement is checked here. */
 public final class QuestRuntime {
-    private static final String TAG="myvillage:quest_instance";
-    private static final String MARKER="myvillage-expedition.txt";
-    private static final ResourceLocation HEALTH=ResourceLocation.parse("myvillage:expedition_health");
+    private static final String TAG="yuanxian:quest_instance";
+    private static final String MARKER="yuanxian-expedition.txt";
+    private static final ResourceLocation HEALTH=ResourceLocation.parse("yuanxian:expedition_health");
     private static final Map<UUID,ServerBossEvent> BARS=new HashMap<>();
     private static final Map<UUID,Invitation> INVITES=new HashMap<>();
     private static final Map<UUID,ReturnRequest> RETURNS=new HashMap<>();
@@ -61,7 +61,7 @@ public final class QuestRuntime {
     private static final Map<UUID,List<BlockState>> PALETTES=new HashMap<>();
     private static final Map<UUID,Set<ChunkPos>> TICKETS=new HashMap<>();
     private static final Set<UUID> WAITING=new HashSet<>();
-    private static final TicketType<UUID> TICKET=TicketType.<UUID>create("myvillage_expedition",Comparator.naturalOrder());
+    private static final TicketType<UUID> TICKET=TicketType.<UUID>create("yuanxian_expedition",Comparator.naturalOrder());
     private record Invitation(UUID instance,long until){}
     private record ReturnRequest(long at,Vec3 origin,boolean abandon){}
     private static final ChunkProgressListener NO_PROGRESS=new ChunkProgressListener(){
@@ -126,13 +126,13 @@ public final class QuestRuntime {
         try{
             if(fresh&&Files.exists(folder))throw new IllegalStateException("远征目录已存在，未覆盖");
             if(!fresh&&(!Files.isRegularFile(folder.resolve(MARKER))||!Files.readString(folder.resolve(MARKER)).equals(run.id+"\n"+run.hash)))throw new IllegalStateException("远征目录标记无效");
-            var template=server.registryAccess().registryOrThrow(Registries.LEVEL_STEM).get(ResourceLocation.parse("myvillage:expedition_template"));
+            var template=server.registryAccess().registryOrThrow(Registries.LEVEL_STEM).get(ResourceLocation.parse("yuanxian:expedition_template"));
             if(template==null||!(template.generator() instanceof FlatLevelSource flat))throw new IllegalStateException("远征模板缺失");
             var worldData=new DerivedLevelData(server.getWorldData(),server.getWorldData().overworldData()){
                 private final GameRules ownRules=localRules(server);
                 @Override public GameRules getGameRules(){return ownRules;}
             };
-            var level=new ServerLevel(server,Util.backgroundExecutor(),((RealmServerAccess)server).myvillage$storage(),worldData,dimension,
+            var level=new ServerLevel(server,Util.backgroundExecutor(),((RealmServerAccess)server).yuanxian$storage(),worldData,dimension,
                     new LevelStem(template.type(),freshGenerator(flat)),NO_PROGRESS,false,server.overworld().getSeed(),List.of(),false,null);
             var map=QuestMap.get(run.map);level.getWorldBorder().setCenter(map.origin()[0]+map.size()[0]/2.0,map.origin()[2]+map.size()[2]/2.0);
             level.getWorldBorder().setSize(Math.max(map.size()[0],map.size()[2])+2);level.setSpawnSettings(false,false);
@@ -171,8 +171,8 @@ public final class QuestRuntime {
         var range=pool.equals("rogue")?r.rogue():r.beast();return label(range.min())+"至"+label(range.max());
     }
     private static String label(com.example.myvillage.stats.RealmKey key){
-        String name=switch(key.realmId()){case "myvillage:qi_refining"->"炼气";case "myvillage:foundation_establishment"->"筑基";case "myvillage:golden_core"->"金丹";case "myvillage:nascent_soul"->"元婴";default->key.realmId();};
-        return key.realmId().equals("myvillage:qi_refining")?name+(key.stage()+1)+"层":name+List.of("初期","中期","后期").get(Math.min(2,key.stage()));
+        String name=switch(key.realmId()){case "yuanxian:qi_refining"->"炼气";case "yuanxian:foundation_establishment"->"筑基";case "yuanxian:golden_core"->"金丹";case "yuanxian:nascent_soul"->"元婴";default->key.realmId();};
+        return key.realmId().equals("yuanxian:qi_refining")?name+(key.stage()+1)+"层":name+List.of("初期","中期","后期").get(Math.min(2,key.stage()));
     }
     public static void atBoard(ServerPlayer p,BlockPos board,String site,String mapId){
         if(!EconomyRuntime.valid(p,board,false,site,-1)||!rules().maps().contains(mapId))throw new IllegalArgumentException("unavailable");
@@ -481,7 +481,7 @@ public final class QuestRuntime {
         r.state="RECLAIMING";save(server);
         if(level!=null){tickets(level,r,List.of());NeoForge.EVENT_BUS.post(new LevelEvent.Unload(level));level.save(null,true,false);server.forgeGetWorldMap().remove(key(r.id));server.markWorldsDirty();level.close();}
         Path root=server.getWorldPath(LevelResource.ROOT).toRealPath();Path folder=DimensionType.getStorageFolder(key(r.id),root).normalize();
-        Path expected=root.resolve("dimensions/myvillage/expedition/"+r.id).normalize();
+        Path expected=root.resolve("dimensions/yuanxian/expedition/"+r.id).normalize();
         if(!folder.equals(expected)||!folder.startsWith(root)||Files.isSymbolicLink(folder))throw new IllegalStateException("远征回收路径无效");
         if(Files.exists(folder)){
             if(!folder.toRealPath().equals(folder))throw new IllegalStateException("远征回收路径含重定向，保留目录");

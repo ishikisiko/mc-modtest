@@ -3,7 +3,7 @@
 仅在 Colab 使用固定源码、匹配 JAR 和已核对资源运行。测试工具不会加载 RoadWeaver 外部模组，不将证据代码放入生产 source set。
 
 ```bash
-python3 tools/roads_smoke/run.py --jar build/libs/myvillage-0.105.6.jar \
+python3 tools/roads_smoke/run.py --jar build/libs/yuanxian-0.105.6.jar \
   --source <固定源码身份> --out reports/roads/native --capture
 ```
 

@@ -3,16 +3,16 @@
 ``plan(root)`` computes the full set of outputs without touching the tree; ``write(root)`` applies it and
 ``check(root)`` lists every output that differs. Owned outputs:
 
-- ``data/myvillage/myvillage/technique/<id>.json`` for every catalogue row (hand-written techniques named
+- ``data/yuanxian/yuanxian/technique/<id>.json`` for every catalogue row (hand-written techniques named
   in ``rules.json`` ``hand_written_techniques`` are never written or removed); any other JSON file in that
   directory is stale and removed. Each file ends with the manual ``study`` block of its grade
   (``rules.json`` ``study_by_grade``). Its ``effects`` are the ``rules.json`` default for the category,
   overridden per effect kind (core/active/movement/body) by the row's optional ``effects`` object; a
   ``movement`` block is validated like the Java ``TechniqueEffects.Movement``.
-- ``data/myvillage/myvillage/school/<id>.json`` and ``heritage/<id>.json``: the whole directories.
-- ``data/myvillage/world_sim/techniques.json`` and ``heritages.json``.
-- In ``assets/myvillage/lang/{en_us,zh_cn}.json``: the keys ``cultivation.technique.myvillage.<id>``,
-  ``cultivation.school.myvillage.<id>`` and ``cultivation.heritage.myvillage.<id>``. Existing keys are
+- ``data/yuanxian/yuanxian/school/<id>.json`` and ``heritage/<id>.json``: the whole directories.
+- ``data/yuanxian/world_sim/techniques.json`` and ``heritages.json``.
+- In ``assets/yuanxian/lang/{en_us,zh_cn}.json``: the keys ``cultivation.technique.yuanxian.<id>``,
+  ``cultivation.school.yuanxian.<id>`` and ``cultivation.heritage.yuanxian.<id>``. Existing keys are
   updated in place, new keys appended as a group at the end, stale ones removed; every other key and the
   file's order stay as they are. Both languages carry the Chinese name.
 """
@@ -29,13 +29,13 @@ from typing import Any
 SOURCE_DIR = Path(__file__).resolve().parent
 ROOT = SOURCE_DIR.parents[1]
 
-DATAPACK_REL = Path("src/main/resources/data/myvillage/myvillage")
+DATAPACK_REL = Path("src/main/resources/data/yuanxian/yuanxian")
 TECHNIQUE_REL = DATAPACK_REL / "technique"
 SCHOOL_REL = DATAPACK_REL / "school"
 HERITAGE_REL = DATAPACK_REL / "heritage"
 REALM_REL = DATAPACK_REL / "realm"
-WORLD_SIM_REL = Path("src/main/resources/data/myvillage/world_sim")
-LANG_REL = Path("src/main/resources/assets/myvillage/lang")
+WORLD_SIM_REL = Path("src/main/resources/data/yuanxian/world_sim")
+LANG_REL = Path("src/main/resources/assets/yuanxian/lang")
 LANGS = ("en_us", "zh_cn")
 
 SCHEMA = 1
@@ -50,7 +50,7 @@ ID = re.compile(r"[a-z0-9_]+")
 LANG_SECTIONS = ("technique", "school", "heritage")
 STUDY_FIELDS = ("points", "gates", "gate_stability_cost")
 CATALOGUE_FIELDS = ("id", "zh", "category", "grade", "element", "school", "previous", "effects")
-COMBAT_REL = Path("src/main/resources/data/myvillage/combat")
+COMBAT_REL = Path("src/main/resources/data/yuanxian/combat")
 ACTIVE_FIELDS = ("skill", "qi_cost", "slots")
 MOVEMENT_FIELDS = ("dash_distance", "invulnerable_ticks", "qi_cost", "cooldown_ticks")
 JAVA_INT_MAX = 2**31 - 1
@@ -70,7 +70,7 @@ class Sources:
     techniques: list[dict]
     schools: list[dict]
     heritages: list[dict]
-    aptitudes: dict = field(default_factory=lambda: _read_json(ROOT / "src/main/resources/data/myvillage/aptitudes/rules.json"))
+    aptitudes: dict = field(default_factory=lambda: _read_json(ROOT / "src/main/resources/data/yuanxian/aptitudes/rules.json"))
 
     @property
     def namespace(self) -> str:

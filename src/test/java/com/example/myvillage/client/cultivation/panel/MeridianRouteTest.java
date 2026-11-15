@@ -26,8 +26,8 @@ class MeridianRouteTest {
         for (String id : chart) {
             assertTrue(route.lights(id), id);
         }
-        assertEquals("screen.myvillage.cultivation.meridian.title", route.titleKey());
-        assertEquals("screen.myvillage.cultivation.meridian.flow", route.flowKey());
+        assertEquals("screen.yuanxian.cultivation.meridian.title", route.titleKey());
+        assertEquals("screen.yuanxian.cultivation.meridian.flow", route.flowKey());
     }
 
     @Test

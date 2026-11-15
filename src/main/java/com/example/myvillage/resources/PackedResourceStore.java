@@ -9,7 +9,7 @@ import java.util.zip.GZIPInputStream;
 
 /** 当前构建的共享几何与原始资源；不依赖客户端，也不保存世界状态。 */
 public final class PackedResourceStore implements AutoCloseable {
-    public static final String ROOT="myvillage_packed/";
+    public static final String ROOT="yuanxian_packed/";
     @FunctionalInterface public interface Source { InputStream open(String path) throws IOException; }
     public record Entry(String path,int group,int index,String sha256,int bytes) { }
     private record Chunk(String path,String codec,int bytes,String sha256,int count) { }
@@ -30,14 +30,14 @@ public final class PackedResourceStore implements AutoCloseable {
     public static PackedResourceStore load(Source source) throws IOException {
         byte[] rules=read(source,ROOT+"rules.json",16384);
         JsonObject config=parse(rules);
-        if(integer(config,"schema")!=1||!config.get("root").getAsString().equals("myvillage_packed")
-                ||!config.get("namespace").getAsString().equals("myvillage"))throw new IOException("共享资源规则版本或命名空间错误");
+        if(integer(config,"schema")!=1||!config.get("root").getAsString().equals("yuanxian_packed")
+                ||!config.get("namespace").getAsString().equals("yuanxian"))throw new IOException("共享资源规则版本或命名空间错误");
         int maximum=positive(config,"max_manifest_bytes");
         return new PackedResourceStore(source,config,parse(read(source,ROOT+"manifest.json",maximum)));
     }
     private PackedResourceStore(Source source,JsonObject config,JsonObject manifest) throws IOException {
         this.source=source;
-        if(integer(manifest,"schema")!=1||!manifest.get("namespace").getAsString().equals("myvillage"))throw new IOException("共享资源清单版本错误");
+        if(integer(manifest,"schema")!=1||!manifest.get("namespace").getAsString().equals("yuanxian"))throw new IOException("共享资源清单版本错误");
         JsonObject limits=manifest.getAsJsonObject("limits");
         for(String key:List.of("max_entries","max_file_bytes","max_group_bytes","max_manifest_bytes","cache_bytes","cache_groups"))
             if(positive(limits,key)!=positive(config,key))throw new IOException("共享资源规则和清单限制不一致："+key);
@@ -63,7 +63,7 @@ public final class PackedResourceStore implements AutoCloseable {
         for(JsonElement row:manifest.getAsJsonArray("entries")){
             JsonArray a=array(row,5);String path=a.get(0).getAsString(),sha=a.get(3).getAsString();
             int group=number(a.get(1)),index=number(a.get(2)),bytes=number(a.get(4));
-            if(!validPath(path)||!(path.startsWith("assets/myvillage/")||path.startsWith("data/myvillage/"))
+            if(!validPath(path)||!(path.startsWith("assets/yuanxian/")||path.startsWith("data/yuanxian/"))
                     ||bytes<0||bytes>maxFile||!validHash(sha)||group<0||group>=chunks.size())throw new IOException("共享资源路径或大小错误："+path);
             requireRecord(group,index,chunks.get(group).codec);
             if(chunks.get(group).codec.equals("templates")||files.putIfAbsent(path,new Entry(path,group,index,sha,bytes))!=null

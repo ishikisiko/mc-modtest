@@ -79,7 +79,7 @@ final class TechniqueManualItemTest {
         for (TechniqueCategory category : TechniqueCategory.values()) {
             for (int grade = 1; grade <= 4; grade++) {
                 DeferredItem<TechniqueManualItem> manual = ModItems.manual(category, grade);
-                assertEquals(ResourceLocation.fromNamespaceAndPath("myvillage", TechniqueManualItem.itemId(category, grade)),
+                assertEquals(ResourceLocation.fromNamespaceAndPath("yuanxian", TechniqueManualItem.itemId(category, grade)),
                         manual.getId());
             }
         }
@@ -117,26 +117,26 @@ final class TechniqueManualItemTest {
     @Test
     void namesForValidBlankDamagedAndUnresolvedManuals() {
         Component named = TechniqueManualItem.name(TechniqueCategory.ACTIVE, 2, SWORD_ART, LOOKUP);
-        assertEquals("item.myvillage.manual.named", key(named));
-        assertEquals("cultivation.technique.myvillage.gengjin_jianjue", key((Component) args(named)[0]));
+        assertEquals("item.yuanxian.manual.named", key(named));
+        assertEquals("cultivation.technique.yuanxian.gengjin_jianjue", key((Component) args(named)[0]));
         assertNull(named.getStyle().getColor());
 
         Component blank = TechniqueManualItem.name(TechniqueCategory.ACTIVE, 2, null, LOOKUP);
-        assertEquals("item.myvillage.manual.blank", key(blank));
-        assertEquals("screen.myvillage.cultivation.category.active", key((Component) args(blank)[0]));
-        assertEquals("screen.myvillage.cultivation.grade_name.2", key((Component) args(blank)[1]));
+        assertEquals("item.yuanxian.manual.blank", key(blank));
+        assertEquals("screen.yuanxian.cultivation.category.active", key((Component) args(blank)[0]));
+        assertEquals("screen.yuanxian.cultivation.grade_name.2", key((Component) args(blank)[1]));
 
         for (Component damaged : List.of(
                 TechniqueManualItem.name(TechniqueCategory.ACTIVE, 2, id("lost_art"), LOOKUP),
                 TechniqueManualItem.name(TechniqueCategory.BODY, 2, SWORD_ART, LOOKUP),
                 TechniqueManualItem.name(TechniqueCategory.ACTIVE, 4, SWORD_ART, LOOKUP))) {
-            assertEquals("item.myvillage.manual.damaged", key(damaged));
+            assertEquals("item.yuanxian.manual.damaged", key(damaged));
             assertEquals(TextColor.fromLegacyFormat(ChatFormatting.RED), damaged.getStyle().getColor());
         }
 
         Component unresolved = TechniqueManualItem.name(TechniqueCategory.ACTIVE, 2, SWORD_ART, null);
-        assertEquals("item.myvillage.manual.named", key(unresolved));
-        assertEquals("cultivation.technique.myvillage.gengjin_jianjue", key((Component) args(unresolved)[0]));
+        assertEquals("item.yuanxian.manual.named", key(unresolved));
+        assertEquals("cultivation.technique.yuanxian.gengjin_jianjue", key((Component) args(unresolved)[0]));
     }
 
     @Test
@@ -160,7 +160,7 @@ final class TechniqueManualItemTest {
     @Test
     void creativeTabListsEveryShippedTechniqueAboveGradeZeroInOrder() throws Exception {
         Map<ResourceLocation, TechniqueDefinition> shipped = new TreeMap<>();
-        Path directory = Path.of("src/main/resources/data/myvillage/myvillage/technique");
+        Path directory = Path.of("src/main/resources/data/yuanxian/yuanxian/technique");
         try (var files = Files.list(directory)) {
             for (Path file : files.filter(path -> path.toString().endsWith(".json")).toList()) {
                 String name = file.getFileName().toString();
@@ -198,11 +198,11 @@ final class TechniqueManualItemTest {
     }
 
     private static TechniqueDefinition technique(String path, TechniqueCategory category, int grade) {
-        return new TechniqueDefinition("cultivation.technique.myvillage." + path, category, grade, List.of(),
+        return new TechniqueDefinition("cultivation.technique.yuanxian." + path, category, grade, List.of(),
                 TechniqueRequirements.none());
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 }

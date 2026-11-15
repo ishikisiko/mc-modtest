@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /** Action 0 practices; 1/2 choose an authored insight. No client costs or gains are accepted. */
 public record TechniqueGrowthIntentPayload(ResourceLocation technique, int action, long revision) implements CustomPacketPayload {
-    public static final Type<TechniqueGrowthIntentPayload> TYPE = new Type<>(ResourceLocation.parse("myvillage:technique_growth_intent"));
+    public static final Type<TechniqueGrowthIntentPayload> TYPE = new Type<>(ResourceLocation.parse("yuanxian:technique_growth_intent"));
     public static final StreamCodec<RegistryFriendlyByteBuf, TechniqueGrowthIntentPayload> STREAM_CODEC = new StreamCodec<>() {
         public TechniqueGrowthIntentPayload decode(RegistryFriendlyByteBuf b) {
             return new TechniqueGrowthIntentPayload(b.readResourceLocation(), b.readUnsignedByte(), b.readVarLong());

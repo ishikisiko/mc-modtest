@@ -9,7 +9,7 @@ owner 2026-10-07："先做做看看"。功法任务书第二阶段"手感"的第
 
 | 项 | 决定 |
 |---|---|
-| 按键 | 独立键 `key.myvillage.dodge`，默认 Left Alt，可改绑。方向取按下瞬间的 WASD 输入（8 向），无输入 = 后撤 |
+| 按键 | 独立键 `key.yuanxian.dodge`，默认 Left Alt，可改绑。方向取按下瞬间的 WASD 输入（8 向），无输入 = 后撤 |
 | 灵力 | 首版不扣。`qi_cost` 写进数据，运行时不读（当前灵力只是一个数字，没有上限、回复和 HUD 条） |
 | 攻击中闪避 | 只在收招段允许（`actionTick > move.activeEndTick()`），打断会话并重置连段，停止原因 `DODGED`；前摇、命中段的闪避请求直接拒绝，不排队 |
 | 闪避中攻击 | 无敌窗内拒绝攻击意图；窗口结束后允许（闪避接攻击） |
@@ -28,7 +28,7 @@ owner 2026-10-07："先做做看看"。功法任务书第二阶段"手感"的第
 - `combat/network/CombatDodgeReceiver.install(Consumer<CombatDodgeStartPayload>)`：客户端装回调。
 - `CombatPayloads` 已注册两者；serverbound 调 `CombatDodgeService.handleIntent(player, direction)`。
 - `combat/runtime/CombatDodgeService`：桩类，签名即契约：`handleIntent`、`tick(MinecraftServer)`、`onIncomingDamage(LivingIncomingDamageEvent)`、`isDodging(ServerPlayer)`、`clear(UUID)`、`clearAll()`。
-- 语言键 `key.myvillage.dodge`（zh 身法闪避 / en Movement Dodge）已在两份语言文件里。
+- 语言键 `key.yuanxian.dodge`（zh 身法闪避 / en Movement Dodge）已在两份语言文件里。
 
 ## 2. 可复用的现成件
 
@@ -44,7 +44,7 @@ owner 2026-10-07："先做做看看"。功法任务书第二阶段"手感"的第
 
 ### 包 A：身法数据（Python + 资源，不碰 Java main）
 
-拥有：`tools/technique_catalogue/{catalogue.json,rules.json,generator.py}`、`tools/tests/test_gen_technique_catalogue.py`、生成产物 `src/main/resources/data/myvillage/myvillage/technique/**`、`src/main/resources/data/myvillage/world_sim/techniques.json`、两份语言文件里生成器管理的 `cultivation.technique.*` 键（只经生成器）、必要时 `tools/validate_world_sim.py`。
+拥有：`tools/technique_catalogue/{catalogue.json,rules.json,generator.py}`、`tools/tests/test_gen_technique_catalogue.py`、生成产物 `src/main/resources/data/yuanxian/yuanxian/technique/**`、`src/main/resources/data/yuanxian/world_sim/techniques.json`、两份语言文件里生成器管理的 `cultivation.technique.*` 键（只经生成器）、必要时 `tools/validate_world_sim.py`。
 
 1. 生成器支持行级可选字段 `effects`（对象），覆盖 `rules.json` 的类别默认（按 effect 种类浅合并，行优先）。校验 movement 形状与 Java `TechniqueEffects.Movement` 一致：`dash_distance` 有限且 > 0，`invulnerable_ticks`/`qi_cost`/`cooldown_ticks` 为 ≥ 0 的整数，未知键拒绝。`--check` 仍幂等。
 2. 加两行（category `movement`，school null，element `water`）：
@@ -79,12 +79,12 @@ owner 2026-10-07："先做做看看"。功法任务书第二阶段"手感"的第
 
 ### 包 C：客户端（Java `client/combat/**`）
 
-拥有：`client/combat/ClientCombatKeyMappings.java`（加 `DODGE`，`key.myvillage.dodge`，`GLFW_KEY_LEFT_ALT`，类别 `key.categories.myvillage`）、`client/combat/ClientCombatEvents.java`（按键、收包）、新 `client/combat/CombatDodgeFx.java`（表现）、`client/combat/ClientCombatState.java`（如需记录本地闪避状态）、`src/test/java/com/example/myvillage/client/combat/**` 新测试。语言键已加，不碰语言文件。
+拥有：`client/combat/ClientCombatKeyMappings.java`（加 `DODGE`，`key.yuanxian.dodge`，`GLFW_KEY_LEFT_ALT`，类别 `key.categories.yuanxian`）、`client/combat/ClientCombatEvents.java`（按键、收包）、新 `client/combat/CombatDodgeFx.java`（表现）、`client/combat/ClientCombatState.java`（如需记录本地闪避状态）、`src/test/java/com/example/myvillage/client/combat/**` 新测试。语言键已加，不碰语言文件。
 
 1. `onClientTick` 里 `while (DODGE.consumeClick())`：有玩家、存活、无屏幕、`ClientCombatState.mode() == CULTIVATION`、未打坐，且距上次意图 ≥ 4 个 `ClientCombatClock` tick → `DodgeDirection.fromInput(player.input.forwardImpulse, player.input.leftImpulse)` → `PacketDistributor.sendToServer(new CombatDodgeIntentPayload(dir))`。不做位移预测（服务端冲量很快到）。
 2. 静态初始化里 `CombatDodgeReceiver.install(ClientCombatEvents::receiveDodgeStart)`。收到后：找实体；本地玩家则 `CombatCameraFx.stepSurge(约 6°)` + 轻微 `swingLean`；所有玩家在 `durationTicks` 内每 tick 在脚后方加 `CLOUD`/`POOF` 残影粒子（`CombatDodgeFx`，用 `ClientCombatClock` 计时）。
 3. 服务端 `CombatAttackStopPayload` 带 `DODGED` 到来时：现有 `receiveAttackStop` 对非 COMPLETED 原因已停动画和拖尾，确认本地状态清理路径正确（`resetsServerSession` 不含 DODGED），ready idle 由现有逻辑重新进入。
-4. 可选加分（核心稳了再做，否则明说没做）：一段冲刺 PAL 短片。三份 style PAL 文件由 `tools/gen_sword_pal_anims.py` 生成且不许手改，所以要新文件 `assets/myvillage/player_animations/movement_combat.json` + 新小生成器 `tools/gen_movement_pal_anims.py`（`--check` 加进 `tools/release_gate.py` 一行），由 `CombatAnimationController.play` 播放。
+4. 可选加分（核心稳了再做，否则明说没做）：一段冲刺 PAL 短片。三份 style PAL 文件由 `tools/gen_sword_pal_anims.py` 生成且不许手改，所以要新文件 `assets/yuanxian/player_animations/movement_combat.json` + 新小生成器 `tools/gen_movement_pal_anims.py`（`--check` 加进 `tools/release_gate.py` 一行），由 `CombatAnimationController.play` 播放。
 5. 规则：`client/combat` 内只读 `ClientCombatClock`，不调 `getGameTime()`；不按物品 id 写死任何东西。
 测试：纯函数单测（残影节奏、冷却剩余等）。`flock ... ./gradlew compileJava compileTestJava` 过了再提交。
 提交：`feat(client): dodge key, intent and dodge presentation`。
@@ -95,9 +95,9 @@ owner 2026-10-07："先做做看看"。功法任务书第二阶段"手感"的第
 
 先写代码和纯 helper 测试；真机运行等统筹说"构建好了"再跑（A、B、C 合入并构建之后）。
 
-场景（照 `beast.py` 的 `dodge()`）：会话复用 `Session`；生存模式玩家、无甲、`naturalRegeneration false`、修仙战斗模式（`scene.ensure_cultivation`）；rcon `myvillage cultivation learn <user> myvillage:taxue_wuhen`（根为 `/myvillage cultivation`，拼音别名 `xuexi`）。按键用 xdotool：`self.g.xdo("key", "Alt_L")`（方向：先 `keydown a` 再按 Alt，再 `keyup a`；无方向 = 后撤）。
+场景（照 `beast.py` 的 `dodge()`）：会话复用 `Session`；生存模式玩家、无甲、`naturalRegeneration false`、修仙战斗模式（`scene.ensure_cultivation`）；rcon `yuanxian cultivation learn <user> yuanxian:taxue_wuhen`（根为 `/yuanxian cultivation`，拼音别名 `xuexi`）。按键用 xdotool：`self.g.xdo("key", "Alt_L")`（方向：先 `keydown a` 再按 Alt，再 `keyup a`；无方向 = 后撤）。
 
-试验（`/tick rate 5`，每次新妖狼，`myvillage beast move` 强制出招，状态轮询 `myvillage beast status`）：
+试验（`/tick rate 5`，每次新妖狼，`yuanxian beast move` 强制出招，状态轮询 `yuanxian beast status`）：
 - 撕咬（妖狼 2.9 格前）：不闪避；在 move tick 4、7、9、10 后撤；在 tick 9 左闪。
 - 扑击（妖狼 6 格前）：不闪避；在 move tick 14、17、18、19 后撤；在 tick 18 左闪。
 - 冷却：连按两次相隔 5 tick，第二次应 `rejected reason=COOLDOWN`。

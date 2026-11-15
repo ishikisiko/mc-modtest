@@ -40,10 +40,10 @@ import org.slf4j.LoggerFactory;
 public final class SectTasks {
     private static final Logger LOGGER = LoggerFactory.getLogger(SectTasks.class);
     static final int COURIER_INTERVAL_TICKS = 20;
-    static final String PROGRESS_KEY = "message.myvillage.world.sect.task_progress";
-    static final String ACCEPTED_KEY = "message.myvillage.world.sect.task_accepted";
-    static final String DONE_KEY = "message.myvillage.world.sect.task_done";
-    static final String APPRENTICED_KEY = "message.myvillage.world.sect.apprenticed";
+    static final String PROGRESS_KEY = "message.yuanxian.world.sect.task_progress";
+    static final String ACCEPTED_KEY = "message.yuanxian.world.sect.task_accepted";
+    static final String DONE_KEY = "message.yuanxian.world.sect.task_done";
+    static final String APPRENTICED_KEY = "message.yuanxian.world.sect.apprenticed";
     static final String TASK_ACCEPT = "TASK_ACCEPT";
     static final String TASK_TURN_IN = "TASK_TURN_IN";
     static final String APPRENTICE = "APPRENTICE";

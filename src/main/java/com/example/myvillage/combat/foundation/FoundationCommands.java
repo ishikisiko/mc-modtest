@@ -25,9 +25,9 @@ import net.minecraft.world.entity.LivingEntity;
 
 /** 仅管理员的有界 fixture 与服务器读回；不提供玩家施法、扣费或冷却改写入口。 */
 public final class FoundationCommands {
-    private static final ResourceLocation WOOD = ResourceLocation.parse("myvillage:wood_root");
-    private static final ResourceLocation FIXTURE_ROOT = ResourceLocation.parse("myvillage:fixture/root");
-    private static final ResourceLocation FIXTURE_HEAL = ResourceLocation.parse("myvillage:fixture/healing_field");
+    private static final ResourceLocation WOOD = ResourceLocation.parse("yuanxian:wood_root");
+    private static final ResourceLocation FIXTURE_ROOT = ResourceLocation.parse("yuanxian:fixture/root");
+    private static final ResourceLocation FIXTURE_HEAL = ResourceLocation.parse("yuanxian:fixture/healing_field");
     private static final SimpleCommandExceptionType INVALID = new SimpleCommandExceptionType(
             Component.literal("基础验收 fixture 被拒绝：目标必须为存活实体，数量不超过64，参数必须有界且来源有效"));
 

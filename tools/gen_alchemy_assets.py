@@ -16,7 +16,7 @@ import zlib
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-ASSETS = ROOT / "src/main/resources/assets/myvillage"
+ASSETS = ROOT / "src/main/resources/assets/yuanxian"
 DATA = ROOT / "src/main/resources/data"
 HERBS = ("spirit_leaf", "dew_blossom", "sunroot", "blood_berry", "cloud_fungus", "calm_lotus")
 REMOVED_RECIPES = (*HERBS, "ningyuan_fruit_low", "ningyuan_fruit_high")
@@ -38,64 +38,64 @@ NAMES = {
     "pill_ningshen": ("Mind Calming Pill", "凝神丹"),
 }
 LANG = {
-    "alchemy.myvillage.quality.1": ("Lower", "下品"),
-    "alchemy.myvillage.quality.2": ("Middle", "中品"),
-    "alchemy.myvillage.quality.3": ("Upper", "上品"),
-    "alchemy.myvillage.quality.4": ("Perfect", "极品"),
-    "item.myvillage.alchemy.quality_name": ("%s %s", "%s%s"),
-    "tooltip.myvillage.alchemy.quality": ("Quality: %s", "品质：%s"),
-    "screen.myvillage.crafting.foundation": ("Alchemy and forging use your quality ceilings. Learn patterns and use a Forging Ding.", "炼丹逐颗、炼器逐件判定成败与品质；结果受资质、品阶和丹方难度影响。"),
-    "container.myvillage.alchemy_furnace": ("Bronze Alchemy Furnace", "青铜丹炉"),
-    "alchemy.myvillage.formula_hint": ("Use to learn permanently; brewing needs no formula item", "右键永久学习，炼丹不再需要携带丹方"),
-    "alchemy.myvillage.ingredients": ("Ingredients: %s + %s", "药材：%s + %s"),
-    "alchemy.myvillage.fuel_hint": ("Fuel: Low-grade Spirit Stone", "炉火：下品灵石"),
-    "alchemy.myvillage.herb_hint": ("Plant on Spirit Soil; harvest this same herb", "可直接种在灵土上，成熟收获同种药材"),
-    "alchemy.myvillage.huiling_hint": ("Restores spiritual power", "恢复灵力"),
-    "alchemy.myvillage.yangyuan_hint": ("Slowly restores health; damage interrupts recovery", "缓慢恢复生命；受到伤害会中断药效"),
-    "alchemy.myvillage.ningshen_hint": ("Assists stability meditation after reaching the stage cap", "修为达到当前上限后，辅助打坐巩固稳定度"),
-    "alchemy.myvillage.shared_cooldown": ("Medicines share a cooldown", "丹药共用服药间隔"),
-    "tooltip.myvillage.alchemy.formula_learn": ("Use to learn permanently; consumes one copy", "右键永久学习，消耗一份丹方；已学不消耗"),
-    "tooltip.myvillage.alchemy.ingredient": ("%s ×1", "%s ×1"),
-    "tooltip.myvillage.alchemy.pill_huiling": ("Restore %s%% of maximum spiritual power", "恢复最大灵力的 %s%%"),
-    "tooltip.myvillage.alchemy.pill_yangyuan": ("Heal %s%% maximum health every %ss for %ss; damage stops recovery", "每次恢复最大生命的 %s%%，间隔 %s 秒，持续 %s 秒；受伤中断"),
-    "tooltip.myvillage.alchemy.pill_ningshen": ("%s× stability consolidation for %ss; only after cultivation cap", "稳定度巩固效率 %s 倍，持续 %s 秒；仅限修为达到当前上限后"),
-    "tooltip.myvillage.alchemy.shared_interval": ("Shared medicine interval: %s s", "共用服药间隔：%s 秒"),
-    "message.myvillage.alchemy.cooldown": ("Wait for the medication interval", "尚未达到下次服药时间"),
-    "message.myvillage.alchemy.active": ("Another medicine is still active", "已有丹药正在生效"),
-    "message.myvillage.alchemy.full_power": ("Spiritual power is full", "灵力已满"),
-    "message.myvillage.alchemy.full_health": ("Health is full", "生命已满"),
-    "message.myvillage.alchemy.ineligible": ("Cannot use this medicine in the current cultivation state", "当前修炼状态无法服用此丹药"),
-    "message.myvillage.alchemy.start_invalid": ("Open this furnace nearby to start a batch", "请在丹炉旁打开界面后开炉"),
-    "message.myvillage.alchemy.start_busy": ("This furnace already has an active batch", "此炉正在炼制，不能重新开炉"),
-    "message.myvillage.alchemy.start_unawakened": ("Awaken your spiritual root before brewing", "请先完成测灵与开局天赋确认，再开始炼丹"),
-    "message.myvillage.alchemy.start_ingredients": ("Choose a learned recipe and supply its herbs", "请选择已学丹方并补齐药材"),
-    "message.myvillage.alchemy.start_fuel": ("Add enough low-grade spirit stones", "请放入足够的下品灵石"),
-    "message.myvillage.alchemy.start_output": ("Take the finished pills before starting a new batch", "请先取走丹药，再开下一炉"),
-    "message.myvillage.alchemy.formula_learned": ("Learned %s permanently", "已永久习得：%s"),
-    "message.myvillage.alchemy.formula_known": ("You already know %s", "已经习得：%s"),
-    "message.myvillage.alchemy.formula_unknown": ("Learn this formula before brewing", "需要先学习这张丹方"),
-    "message.myvillage.alchemy.inventory_full": ("Make room for the previous ingredients first", "背包放不下旧材料，请先腾出空间"),
-    "screen.myvillage.alchemy.learned": ("Learned recipes", "已学丹方"),
-    "screen.myvillage.alchemy.learn_hint": ("Use a formula to learn it. Select a recipe here to fill one batch.", "手持丹方右键学习。点击已学丹方，自动补齐一炉材料。"),
-    "screen.myvillage.alchemy.autofill": ("Click to fill one batch from your inventory", "点击从背包补齐一炉药材和灵石"),
-    "screen.myvillage.alchemy.not_learned": ("Recipe not learned", "尚未学习此丹方"),
-    "screen.myvillage.alchemy.legacy": ("Old copy", "旧丹方"),
-    "screen.myvillage.alchemy.formula": ("Formula", "丹方"),
-    "screen.myvillage.alchemy.herbs": ("Herbs", "药材"),
-    "screen.myvillage.alchemy.fuel": ("Fuel", "灵石"),
-    "screen.myvillage.alchemy.output": ("Pills", "丹药"),
-    "screen.myvillage.alchemy.status.0": ("Choose a learned recipe", "请选择已学丹方"),
-    "screen.myvillage.alchemy.status.1": ("Check ingredients", "药材不符"),
-    "screen.myvillage.alchemy.status.2": ("Needs spirit stone", "需要下品灵石"),
-    "screen.myvillage.alchemy.status.3": ("Output blocked", "丹药格已满或不兼容"),
-    "screen.myvillage.alchemy.status.4": ("Brewing", "炼制中"),
-    "screen.myvillage.alchemy.status.5": ("Ready to brew", "材料齐备 · 每次一炉"),
-    "screen.myvillage.alchemy.start": ("Start brewing", "开始炼制"),
-    "screen.myvillage.alchemy.locked": ("Brewing · Locked", "炼制中 · 材料已锁定"),
-    "screen.myvillage.alchemy.ceiling": ("Skill %s · %s", "资质 %s · 本炉上限：%s"),
-    "screen.myvillage.alchemy.ceiling_pending": ("Aptitude locked on start", "开炉时锁定你的炼丹资质"),
-    "screen.myvillage.alchemy.ingredients": ("Herbs: %s + %s", "药材：%s + %s"),
-    "screen.myvillage.alchemy.batch": ("%s stone · %s pills · %ss", "每炉 %s 灵石 · %s 丹 · %s 秒"),
+    "alchemy.yuanxian.quality.1": ("Lower", "下品"),
+    "alchemy.yuanxian.quality.2": ("Middle", "中品"),
+    "alchemy.yuanxian.quality.3": ("Upper", "上品"),
+    "alchemy.yuanxian.quality.4": ("Perfect", "极品"),
+    "item.yuanxian.alchemy.quality_name": ("%s %s", "%s%s"),
+    "tooltip.yuanxian.alchemy.quality": ("Quality: %s", "品质：%s"),
+    "screen.yuanxian.crafting.foundation": ("Alchemy and forging use your quality ceilings. Learn patterns and use a Forging Ding.", "炼丹逐颗、炼器逐件判定成败与品质；结果受资质、品阶和丹方难度影响。"),
+    "container.yuanxian.alchemy_furnace": ("Bronze Alchemy Furnace", "青铜丹炉"),
+    "alchemy.yuanxian.formula_hint": ("Use to learn permanently; brewing needs no formula item", "右键永久学习，炼丹不再需要携带丹方"),
+    "alchemy.yuanxian.ingredients": ("Ingredients: %s + %s", "药材：%s + %s"),
+    "alchemy.yuanxian.fuel_hint": ("Fuel: Low-grade Spirit Stone", "炉火：下品灵石"),
+    "alchemy.yuanxian.herb_hint": ("Plant on Spirit Soil; harvest this same herb", "可直接种在灵土上，成熟收获同种药材"),
+    "alchemy.yuanxian.huiling_hint": ("Restores spiritual power", "恢复灵力"),
+    "alchemy.yuanxian.yangyuan_hint": ("Slowly restores health; damage interrupts recovery", "缓慢恢复生命；受到伤害会中断药效"),
+    "alchemy.yuanxian.ningshen_hint": ("Assists stability meditation after reaching the stage cap", "修为达到当前上限后，辅助打坐巩固稳定度"),
+    "alchemy.yuanxian.shared_cooldown": ("Medicines share a cooldown", "丹药共用服药间隔"),
+    "tooltip.yuanxian.alchemy.formula_learn": ("Use to learn permanently; consumes one copy", "右键永久学习，消耗一份丹方；已学不消耗"),
+    "tooltip.yuanxian.alchemy.ingredient": ("%s ×1", "%s ×1"),
+    "tooltip.yuanxian.alchemy.pill_huiling": ("Restore %s%% of maximum spiritual power", "恢复最大灵力的 %s%%"),
+    "tooltip.yuanxian.alchemy.pill_yangyuan": ("Heal %s%% maximum health every %ss for %ss; damage stops recovery", "每次恢复最大生命的 %s%%，间隔 %s 秒，持续 %s 秒；受伤中断"),
+    "tooltip.yuanxian.alchemy.pill_ningshen": ("%s× stability consolidation for %ss; only after cultivation cap", "稳定度巩固效率 %s 倍，持续 %s 秒；仅限修为达到当前上限后"),
+    "tooltip.yuanxian.alchemy.shared_interval": ("Shared medicine interval: %s s", "共用服药间隔：%s 秒"),
+    "message.yuanxian.alchemy.cooldown": ("Wait for the medication interval", "尚未达到下次服药时间"),
+    "message.yuanxian.alchemy.active": ("Another medicine is still active", "已有丹药正在生效"),
+    "message.yuanxian.alchemy.full_power": ("Spiritual power is full", "灵力已满"),
+    "message.yuanxian.alchemy.full_health": ("Health is full", "生命已满"),
+    "message.yuanxian.alchemy.ineligible": ("Cannot use this medicine in the current cultivation state", "当前修炼状态无法服用此丹药"),
+    "message.yuanxian.alchemy.start_invalid": ("Open this furnace nearby to start a batch", "请在丹炉旁打开界面后开炉"),
+    "message.yuanxian.alchemy.start_busy": ("This furnace already has an active batch", "此炉正在炼制，不能重新开炉"),
+    "message.yuanxian.alchemy.start_unawakened": ("Awaken your spiritual root before brewing", "请先完成测灵与开局天赋确认，再开始炼丹"),
+    "message.yuanxian.alchemy.start_ingredients": ("Choose a learned recipe and supply its herbs", "请选择已学丹方并补齐药材"),
+    "message.yuanxian.alchemy.start_fuel": ("Add enough low-grade spirit stones", "请放入足够的下品灵石"),
+    "message.yuanxian.alchemy.start_output": ("Take the finished pills before starting a new batch", "请先取走丹药，再开下一炉"),
+    "message.yuanxian.alchemy.formula_learned": ("Learned %s permanently", "已永久习得：%s"),
+    "message.yuanxian.alchemy.formula_known": ("You already know %s", "已经习得：%s"),
+    "message.yuanxian.alchemy.formula_unknown": ("Learn this formula before brewing", "需要先学习这张丹方"),
+    "message.yuanxian.alchemy.inventory_full": ("Make room for the previous ingredients first", "背包放不下旧材料，请先腾出空间"),
+    "screen.yuanxian.alchemy.learned": ("Learned recipes", "已学丹方"),
+    "screen.yuanxian.alchemy.learn_hint": ("Use a formula to learn it. Select a recipe here to fill one batch.", "手持丹方右键学习。点击已学丹方，自动补齐一炉材料。"),
+    "screen.yuanxian.alchemy.autofill": ("Click to fill one batch from your inventory", "点击从背包补齐一炉药材和灵石"),
+    "screen.yuanxian.alchemy.not_learned": ("Recipe not learned", "尚未学习此丹方"),
+    "screen.yuanxian.alchemy.legacy": ("Old copy", "旧丹方"),
+    "screen.yuanxian.alchemy.formula": ("Formula", "丹方"),
+    "screen.yuanxian.alchemy.herbs": ("Herbs", "药材"),
+    "screen.yuanxian.alchemy.fuel": ("Fuel", "灵石"),
+    "screen.yuanxian.alchemy.output": ("Pills", "丹药"),
+    "screen.yuanxian.alchemy.status.0": ("Choose a learned recipe", "请选择已学丹方"),
+    "screen.yuanxian.alchemy.status.1": ("Check ingredients", "药材不符"),
+    "screen.yuanxian.alchemy.status.2": ("Needs spirit stone", "需要下品灵石"),
+    "screen.yuanxian.alchemy.status.3": ("Output blocked", "丹药格已满或不兼容"),
+    "screen.yuanxian.alchemy.status.4": ("Brewing", "炼制中"),
+    "screen.yuanxian.alchemy.status.5": ("Ready to brew", "材料齐备 · 每次一炉"),
+    "screen.yuanxian.alchemy.start": ("Start brewing", "开始炼制"),
+    "screen.yuanxian.alchemy.locked": ("Brewing · Locked", "炼制中 · 材料已锁定"),
+    "screen.yuanxian.alchemy.ceiling": ("Skill %s · %s", "资质 %s · 本炉上限：%s"),
+    "screen.yuanxian.alchemy.ceiling_pending": ("Aptitude locked on start", "开炉时锁定你的炼丹资质"),
+    "screen.yuanxian.alchemy.ingredients": ("Herbs: %s + %s", "药材：%s + %s"),
+    "screen.yuanxian.alchemy.batch": ("%s stone · %s pills · %ss", "每炉 %s 灵石 · %s 丹 · %s 秒"),
 }
 ZH_FOUNDATION = {
     "ningyuan_fruit_low":"下品凝元果", "ningyuan_fruit_high":"上品凝元果",
@@ -103,9 +103,9 @@ ZH_FOUNDATION = {
     "formula_zhuji_low":"筑基丹方", "formula_zhuji_middle":"筑基丹方", "formula_zhuji_high":"筑基丹方",
     "formula_buji_middle":"补基丹方", "formula_buji_high":"补基丹方",
 }
-ZH_EXTRA = {"message.myvillage.cultivation.session.foundation_pill_required":"筑基需要服用筑基丹；手持丹药右键开始","message.myvillage.cultivation.session.foundation_failed":"筑基失败，需重新巩固稳定度"}
+ZH_EXTRA = {"message.yuanxian.cultivation.session.foundation_pill_required":"筑基需要服用筑基丹；手持丹药右键开始","message.yuanxian.cultivation.session.foundation_failed":"筑基失败，需重新巩固稳定度"}
 for _id, _names in NAMES.items():
-    LANG[f"{'block' if _id == 'alchemy_furnace' else 'item'}.myvillage.{_id}"] = _names
+    LANG[f"{'block' if _id == 'alchemy_furnace' else 'item'}.yuanxian.{_id}"] = _names
 
 
 def encode(obj):
@@ -293,14 +293,14 @@ def furnace_elements(lit=False):
 
 
 def outputs(root=ROOT):
-    assets=Path(root)/"src/main/resources/assets/myvillage"
+    assets=Path(root)/"src/main/resources/assets/yuanxian"
     data=Path(root)/"src/main/resources/data"
     result={assets/"textures/block/alchemy_furnace.png":png(furnace_texture())}
     for lit in (False,True):
         suffix="_lit" if lit else ""
-        result[assets/f"models/block/alchemy_furnace{suffix}.json"]=encode({"ambientocclusion":True,"textures":{"atlas":"myvillage:block/alchemy_furnace","particle":"myvillage:block/alchemy_furnace"},"elements":furnace_elements(lit)})
-    result[assets/"blockstates/alchemy_furnace.json"]=encode({"variants":{f"facing={d},lit={str(lit).lower()}":{"model":"myvillage:block/alchemy_furnace"+("_lit" if lit else ""),"y":r} for lit in (False,True) for d,r in (("north",0),("east",90),("south",180),("west",270))}})
-    result[assets/"models/item/alchemy_furnace.json"]=encode({"parent":"myvillage:block/alchemy_furnace","display":{
+        result[assets/f"models/block/alchemy_furnace{suffix}.json"]=encode({"ambientocclusion":True,"textures":{"atlas":"yuanxian:block/alchemy_furnace","particle":"yuanxian:block/alchemy_furnace"},"elements":furnace_elements(lit)})
+    result[assets/"blockstates/alchemy_furnace.json"]=encode({"variants":{f"facing={d},lit={str(lit).lower()}":{"model":"yuanxian:block/alchemy_furnace"+("_lit" if lit else ""),"y":r} for lit in (False,True) for d,r in (("north",0),("east",90),("south",180),("west",270))}})
+    result[assets/"models/item/alchemy_furnace.json"]=encode({"parent":"yuanxian:block/alchemy_furnace","display":{
         "gui":{"rotation":[25,225,0],"translation":[0,0,0],"scale":[.8,.8,.8]},
         "ground":{"translation":[0,3,0],"scale":[.35,.35,.35]},
         "fixed":{"rotation":[0,180,0],"scale":[.6,.6,.6]},
@@ -310,25 +310,25 @@ def outputs(root=ROOT):
     for item in ITEM_IDS[1:]:
         rows=fruit_icon(item.endswith("high")) if item.startswith("ningyuan_fruit_") else herb_icon(item) if item in HERBS else formula_icon(item[8:]) if item.startswith("formula_") else pill_icon(item[5:])
         result[assets/f"textures/item/{item}.png"]=png(rows)
-        result[assets/f"models/item/{item}.json"]=encode({"parent":"minecraft:item/generated","textures":{"layer0":f"myvillage:item/{item}"}})
+        result[assets/f"models/item/{item}.json"]=encode({"parent":"minecraft:item/generated","textures":{"layer0":f"yuanxian:item/{item}"}})
     def shapeless(item,ingredients):
-        result[data/f"myvillage/recipe/{item}.json"]=encode({"type":"minecraft:crafting_shapeless","category":"misc","ingredients":[{"tag":i[1:]} if i.startswith("#") else {"item":i} for i in ingredients],"result":{"id":"myvillage:"+item,"count":1}})
+        result[data/f"yuanxian/recipe/{item}.json"]=encode({"type":"minecraft:crafting_shapeless","category":"misc","ingredients":[{"tag":i[1:]} if i.startswith("#") else {"item":i} for i in ingredients],"result":{"id":"yuanxian:"+item,"count":1}})
     for i,kind in enumerate(MEDICINES):
-        shapeless("formula_"+kind,["minecraft:paper",*("myvillage:"+h for h in HERBS[i*2:i*2+2]),"#c:spirit_stones/low_grade"])
+        shapeless("formula_"+kind,["minecraft:paper",*("yuanxian:"+h for h in HERBS[i*2:i*2+2]),"#c:spirit_stones/low_grade"])
     # Each acquisition signature must be unique: vanilla crafting cannot select
     # between different formula outputs with exactly the same ingredient multiset.
     formula_materials = {
         "zhuji_low": ("minecraft:paper", "#c:spirit_stones/low_grade"),
-        "zhuji_middle": ("minecraft:paper", "myvillage:medium_grade_spirit_stone"),
-        "zhuji_high": ("minecraft:paper", "myvillage:medium_grade_spirit_stone"),
-        "buji_middle": ("minecraft:book", "myvillage:medium_grade_spirit_stone"),
-        "buji_high": ("minecraft:book", "myvillage:high_grade_spirit_stone"),
+        "zhuji_middle": ("minecraft:paper", "yuanxian:medium_grade_spirit_stone"),
+        "zhuji_high": ("minecraft:paper", "yuanxian:medium_grade_spirit_stone"),
+        "buji_middle": ("minecraft:book", "yuanxian:medium_grade_spirit_stone"),
+        "buji_high": ("minecraft:book", "yuanxian:high_grade_spirit_stone"),
     }
     for kind in FOUNDATION_FORMULAS:
         sheet, stone = formula_materials[kind]
-        shapeless("formula_"+kind,[sheet,"myvillage:ningyuan_fruit_"+("high" if kind.endswith("high") else "low"),"myvillage:spirit_leaf","myvillage:calm_lotus",stone])
-    result[data/"myvillage/recipe/alchemy_furnace.json"]=encode({"type":"minecraft:crafting_shaped","category":"misc","pattern":["CIC","CFC","C C"],"key":{"C":{"item":"minecraft:copper_ingot"},"I":{"item":"minecraft:iron_ingot"},"F":{"item":"minecraft:furnace"}},"result":{"id":"myvillage:alchemy_furnace","count":1}})
-    result[data/"myvillage/loot_table/blocks/alchemy_furnace.json"]=encode({"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"myvillage:alchemy_furnace"}],"conditions":[{"condition":"minecraft:survives_explosion"}]}],"random_sequence":"myvillage:blocks/alchemy_furnace"})
+        shapeless("formula_"+kind,[sheet,"yuanxian:ningyuan_fruit_"+("high" if kind.endswith("high") else "low"),"yuanxian:spirit_leaf","yuanxian:calm_lotus",stone])
+    result[data/"yuanxian/recipe/alchemy_furnace.json"]=encode({"type":"minecraft:crafting_shaped","category":"misc","pattern":["CIC","CFC","C C"],"key":{"C":{"item":"minecraft:copper_ingot"},"I":{"item":"minecraft:iron_ingot"},"F":{"item":"minecraft:furnace"}},"result":{"id":"yuanxian:alchemy_furnace","count":1}})
+    result[data/"yuanxian/loot_table/blocks/alchemy_furnace.json"]=encode({"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"yuanxian:alchemy_furnace"}],"conditions":[{"condition":"minecraft:survives_explosion"}]}],"random_sequence":"yuanxian:blocks/alchemy_furnace"})
     return result
 
 
@@ -336,13 +336,13 @@ def merged_outputs(root=ROOT):
     """Check/merge only our lang keys and tag value; preserve other owners' keys."""
     root=Path(root); result={}
     for n,language in enumerate(("en_us","zh_cn")):
-        path=root/f"src/main/resources/assets/myvillage/lang/{language}.json"
+        path=root/f"src/main/resources/assets/yuanxian/lang/{language}.json"
         obj=json.loads(path.read_text()) if path.exists() else {}
         obj.update({key:value[n] for key,value in LANG.items()})
         if language=="zh_cn":
-            obj.update({"item.myvillage."+key:value for key,value in ZH_FOUNDATION.items()})
+            obj.update({"item.yuanxian."+key:value for key,value in ZH_FOUNDATION.items()})
             obj.update(ZH_EXTRA)
-            definitions=json.loads((root/"src/main/resources/data/myvillage/alchemy/rules.json").read_text())
+            definitions=json.loads((root/"src/main/resources/data/yuanxian/alchemy/rules.json").read_text())
             for recipe in definitions["recipes"]:
                 if recipe["id"] in (*MEDICINES,*FOUNDATION_FORMULAS):
                     key="item."+recipe["formula"].replace(":",".")
@@ -351,8 +351,8 @@ def merged_outputs(root=ROOT):
         result[path]=encode(obj)
     path=root/"src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json"
     obj=json.loads(path.read_text()) if path.exists() else {"replace":False,"values":[]}
-    if "myvillage:alchemy_furnace" not in obj["values"]:
-        obj["values"].append("myvillage:alchemy_furnace")
+    if "yuanxian:alchemy_furnace" not in obj["values"]:
+        obj["values"].append("yuanxian:alchemy_furnace")
     result[path]=encode(obj)
     return result
 
@@ -366,7 +366,7 @@ def preview():
     out=ROOT/"out/preview/alchemy"; out.mkdir(parents=True,exist_ok=True)
     assets=pim.Assets([ROOT/"src/main/resources"],None)
     for lit in (False,True):
-        ref="myvillage:block/alchemy_furnace"+("_lit" if lit else "")
+        ref="yuanxian:block/alchemy_furnace"+("_lit" if lit else "")
         resolved=pim.resolve_model(assets,assets.model_json(ref),ref)
         if resolved.errors or resolved.warnings: raise ValueError(resolved.errors+resolved.warnings)
         quads=[((q.pos-np.array([8,0,8]))/16,q.uv,q.tex,None) for idx,el in enumerate(resolved.elements) for q in pim.element_quads(assets,resolved,el,idx)]
@@ -400,7 +400,7 @@ def main(argv=None):
     args=parser.parse_args(argv)
     generated={**outputs(args.root),**merged_outputs(args.root)}; stale=[]
     for item in REMOVED_RECIPES:
-        obsolete=args.root/f"src/main/resources/data/myvillage/recipe/{item}.json"
+        obsolete=args.root/f"src/main/resources/data/yuanxian/recipe/{item}.json"
         if obsolete.exists():
             if args.check:stale.append(str(obsolete.relative_to(args.root))+" (removed acquisition recipe)")
             else:obsolete.unlink()

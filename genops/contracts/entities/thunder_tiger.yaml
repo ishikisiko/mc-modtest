@@ -2,23 +2,23 @@ schema_version: 1
 # Runtime tuning lives only in server_data. Generated model/UV facts live only in model.
 # The generic skill schema needs materialization of references; see schema_limitations.
 project:
-  mod_id: myvillage
+  mod_id: yuanxian
   java_package: com.example.myvillage
   minecraft_version: 1.21.1
   neoforge_version: 21.1.233
   java_version: 21
 
 data_sources:
-  server_index: data/myvillage/beast/index.json
-  server_data: data/myvillage/beast/thunder_tiger.json
-  boss_data: data/myvillage/beast/thunder_tiger_boss.json
-  model: assets/myvillage/beast/thunder_tiger_model.json
-  animations: assets/myvillage/beast/thunder_tiger_animations.json
+  server_index: data/yuanxian/beast/index.json
+  server_data: data/yuanxian/beast/thunder_tiger.json
+  boss_data: data/yuanxian/beast/thunder_tiger_boss.json
+  model: assets/yuanxian/beast/thunder_tiger_model.json
+  animations: assets/yuanxian/beast/thunder_tiger_animations.json
   art_generator: tools/beastgen/defs/thunder_tiger.py
 
 entity:
   id: thunder_tiger
-  resource_location: myvillage:thunder_tiger
+  resource_location: yuanxian:thunder_tiger
   display_name:
     zh_cn: 雷角山君
     en_us: Thunderhorn Tiger
@@ -37,7 +37,7 @@ physical:
   width: 2.8
   height: 3.0
   eye_height: 2.6
-  shadow_radius_source: assets/myvillage/beast/thunder_tiger_model.json#shadow_radius
+  shadow_radius_source: assets/yuanxian/beast/thunder_tiger_model.json#shadow_radius
   visual_length_intent: approximately six blocks nose to rump, with tail overhang
   fire_immune: false
   summonable: true
@@ -47,7 +47,7 @@ physical:
   despawn_policy: persistent lair boss; commands and eggs remain diagnostic independent encounters
 
 attributes:
-  source: data/myvillage/beast/thunder_tiger.json#attributes
+  source: data/yuanxian/beast/thunder_tiger.json#attributes
   base: Monster.createMonsterAttributes()
   registered:
     - max_health
@@ -86,25 +86,25 @@ behavior:
   combat:
     mode: data_driven_boss_moves
     server_authoritative: true
-    tuning_source: data/myvillage/beast/thunder_tiger.json
-    boss_tuning_source: data/myvillage/beast/thunder_tiger_boss.json
-    encounter_realm_source: data/myvillage/beast/thunder_tiger_boss.json#encounter_realm
-    encounter_stage_source: data/myvillage/beast/thunder_tiger_boss.json#encounter_stage
+    tuning_source: data/yuanxian/beast/thunder_tiger.json
+    boss_tuning_source: data/yuanxian/beast/thunder_tiger_boss.json
+    encounter_realm_source: data/yuanxian/beast/thunder_tiger_boss.json#encounter_realm
+    encounter_stage_source: data/yuanxian/beast/thunder_tiger_boss.json#encounter_stage
     realm_policy: assign authored fixed encounter realm once through StatsRuntime.applyVanillaRealm; persist identity and reuse it after reload; never regional birth reroll
     moves:
-      - id: myvillage:thunder_tiger_claw
+      - id: yuanxian:thunder_tiger_claw
         animation: claw
         name: 裂山爪
         intent: close frontal sweep, visible raised foreleg windup and punishable recovery
-      - id: myvillage:thunder_tiger_pounce
+      - id: yuanxian:thunder_tiger_pounce
         animation: pounce
         name: 撼岳扑
         intent: crouch, lock facing, bounded leap; only a collision with an authored lair pillar exposes horn
-      - id: myvillage:thunder_tiger_thunder_stomp
+      - id: yuanxian:thunder_tiger_thunder_stomp
         animation: thunder_stomp
         name: 踏地惊雷
         intent: raised forequarters telegraph a bounded ground thunder strike, disabled after horn break
-      - id: myvillage:thunder_tiger_roar
+      - id: yuanxian:thunder_tiger_roar
         animation: roar
         name: 山君雷啸
         intent: readable bounded LOS anti-range thunder; useful against flying targets, disabled after horn break
@@ -119,13 +119,13 @@ behavior:
     hit_accounting: one hit per victim per move, never driven by client animation or particles
     phases:
       count: 2
-      transition_source: data/myvillage/beast/thunder_tiger_boss.json#phase_health_fraction
+      transition_source: data/yuanxian/beast/thunder_tiger_boss.json#phase_health_fraction
       policy: lower health increases pressure through authored timing/selection settings; no healing or horn restoration
     chase:
-      source: data/myvillage/beast/thunder_tiger_boss.json
+      source: data/yuanxian/beast/thunder_tiger_boss.json
       policy: finite target, home and vertical bounds; return home when invalid; no teleport kill or arbitrary flight punishment
     horn:
-      exposure_source: data/myvillage/beast/thunder_tiger_boss.json
+      exposure_source: data/yuanxian/beast/thunder_tiger_boss.json
       trigger: pounce swept collision against a registered authored lair pillar that still exists
       pillar_binding: finite FOOT CENTER list for authored three-by-three stone/andesite pillars; verify actual pillar material
       part_damage: real body and head PartEntity route hits to the same parent; horn progress accepts head/horn part only
@@ -133,7 +133,7 @@ behavior:
       break_effect: persist horn_broken, stop major thunder moves, keep physical attacks viable, show broken horn
       no_exposure: ordinary walls and unrelated player blocks do not count as lair pillars
     bossbar:
-      name: entity.myvillage.thunder_tiger
+      name: entity.yuanxian.thunder_tiger
       health: actual boss health ratio
       visibility: tracking eligible nearby players; clear on death/removal/dimension change
   performance:
@@ -174,7 +174,7 @@ state:
     - thunder_tiger.encounter_stage
     - thunder_tiger.home
     - thunder_tiger.pillars
-    - myvillage:thunder_tiger_lair_anchor in persistent entity data
+    - yuanxian:thunder_tiger_lair_anchor in persistent entity data
     - lair anchor BlockEntity boss UUID and ACTIVE/CLEARED encounter state
     - vanilla entity health and attributes
   transient:
@@ -194,21 +194,21 @@ rendering:
   geckolib: false
   model_class: com.example.myvillage.client.entity.beast.BeastModel
   renderer_class: com.example.myvillage.client.entity.beast.BeastRenderer
-  model_layer: myvillage:thunder_tiger#main
-  geo: myvillage:beast/thunder_tiger_model.json
-  animation: myvillage:beast/thunder_tiger_animations.json
-  base_texture: myvillage:textures/entity/thunder_tiger/thunder_tiger.png
-  glow_texture: myvillage:textures/entity/thunder_tiger/thunder_tiger_eyes.png
+  model_layer: yuanxian:thunder_tiger#main
+  geo: yuanxian:beast/thunder_tiger_model.json
+  animation: yuanxian:beast/thunder_tiger_animations.json
+  base_texture: yuanxian:textures/entity/thunder_tiger/thunder_tiger.png
+  glow_texture: yuanxian:textures/entity/thunder_tiger/thunder_tiger_eyes.png
   glow_render_type: eyes
   final_texture_size:
-    source: assets/myvillage/beast/thunder_tiger_model.json#texture
+    source: assets/yuanxian/beast/thunder_tiger_model.json#texture
   generator:
     owner: tools/beastgen
     definition: tools/beastgen/defs/thunder_tiger.py
     check: python3 -m tools.beastgen build thunder_tiger --check
     hand_edits: forbidden
   bones:
-    source: assets/myvillage/beast/thunder_tiger_model.json#bones
+    source: assets/yuanxian/beast/thunder_tiger_model.json#bones
     look_bone: head
     required_horn_bones: [horn_base, horn_tip]
   animations:
@@ -264,7 +264,7 @@ items:
     id: thunder_tiger_spawn_egg
     primary_color: '#B9C0C6'
     secondary_color: '#252930'
-    creative_tab: myvillage:main
+    creative_tab: yuanxian:main
 
 sound:
   strategy: vanilla_recording_aliases_with_boss_subtitles
@@ -272,19 +272,19 @@ sound:
   generator: tools/gen_thunder_tiger_support.py
   registry: com.example.myvillage.entity.beast.ThunderTigerSounds
   events:
-    ambient: myvillage:thunder_tiger.ambient
-    hurt: myvillage:thunder_tiger.hurt
-    death: myvillage:thunder_tiger.death
-    step: myvillage:thunder_tiger.step
-    attack: myvillage:thunder_tiger.attack
-    charge: myvillage:thunder_tiger.charge
-    roar: myvillage:thunder_tiger.roar
-    thunder: myvillage:thunder_tiger.thunder
-    horn_break: myvillage:thunder_tiger.horn_break
-  subtitles: subtitles.myvillage.thunder_tiger.<cue>, bilingual generated aliases
+    ambient: yuanxian:thunder_tiger.ambient
+    hurt: yuanxian:thunder_tiger.hurt
+    death: yuanxian:thunder_tiger.death
+    step: yuanxian:thunder_tiger.step
+    attack: yuanxian:thunder_tiger.attack
+    charge: yuanxian:thunder_tiger.charge
+    roar: yuanxian:thunder_tiger.roar
+    thunder: yuanxian:thunder_tiger.thunder
+    horn_break: yuanxian:thunder_tiger.horn_break
+  subtitles: subtitles.yuanxian.thunder_tiger.<cue>, bilingual generated aliases
 
 loot:
-  table: myvillage:entities/thunder_tiger
+  table: yuanxian:entities/thunder_tiger
   intent: explicitly no rewards, no horn drop, no chest, no progression grant
   pools: []
   experience_reward: 0
@@ -295,14 +295,14 @@ spawn:
   structure_encounter: true
   biome_modifier: null
   spawn_placement: null
-  structure: myvillage:thunder_tiger_lair
-  structure_set: myvillage:thunder_tiger_lair
-  template_pool: myvillage:thunder_tiger_lair
-  template: myvillage:thunder_tiger_lair
-  structure_biome_tag: myvillage:has_thunder_tiger_lair
-  encounter_id: myvillage:thunder_tiger_lair
-  encounter_rules: data/myvillage/boss/thunder_tiger_lair.json
-  anchor: myvillage:thunder_tiger_lair_anchor
+  structure: yuanxian:thunder_tiger_lair
+  structure_set: yuanxian:thunder_tiger_lair
+  template_pool: yuanxian:thunder_tiger_lair
+  template: yuanxian:thunder_tiger_lair
+  structure_biome_tag: yuanxian:has_thunder_tiger_lair
+  encounter_id: yuanxian:thunder_tiger_lair
+  encounter_rules: data/yuanxian/boss/thunder_tiger_lair.json
+  anchor: yuanxian:thunder_tiger_lair_anchor
   anchor_policy: hidden unbreakable no-item no-reward BlockEntity with persisted encounter state
   explanation: natural world placement through a bounded authored lair encounter, never ambient mob spawning
   placement: authored_lair_ground_anchor
@@ -313,8 +313,8 @@ spawn:
   diagnostic_sources: command and spawn egg remain unbound diagnostic bosses
   routes:
     - natural lair structure encounter
-    - /summon myvillage:thunder_tiger
-    - myvillage:thunder_tiger_spawn_egg
+    - /summon yuanxian:thunder_tiger
+    - yuanxian:thunder_tiger_spawn_egg
 
 acceptance:
   build: true
@@ -340,7 +340,7 @@ acceptance:
 
 assumptions:
   - Existing generated BeastModel/BeastRenderer pipeline takes precedence over the skill's GeckoLib default; no dependency additions.
-  - Generic move/attribute tuning is authored in thunder_tiger.json; boss-specific tuning is authored only in thunder_tiger_boss.json. Both use data/myvillage/beast/.
+  - Generic move/attribute tuning is authored in thunder_tiger.json; boss-specific tuning is authored only in thunder_tiger_boss.json. Both use data/yuanxian/beast/.
   - Physical registry dimensions are compatibility facts; six-block visual length is a design target, not a six-block square collision box.
   - Natural encounter means a world-generated lair, not biome modifier ambient spawning; no ambient placement pair is required.
   - Sound aliases reuse legal vanilla recordings with boss-specific bilingual subtitles; no empty OGG placeholders or invented custom audio.

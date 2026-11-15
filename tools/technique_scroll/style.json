@@ -4,9 +4,9 @@
   "max_texture_bytes": 204800,
   "max_total_bytes": 786432,
   "techniques": {
-    "myvillage:basic_breathing": "basic",
-    "myvillage:qingmu_changchun_gong": "qingmu",
-    "myvillage:yimu_shenghua_jue": "yimu",
-    "myvillage:jianqi_jue": "sword"
+    "yuanxian:basic_breathing": "basic",
+    "yuanxian:qingmu_changchun_gong": "qingmu",
+    "yuanxian:yimu_shenghua_jue": "yimu",
+    "yuanxian:jianqi_jue": "sword"
   }
 }

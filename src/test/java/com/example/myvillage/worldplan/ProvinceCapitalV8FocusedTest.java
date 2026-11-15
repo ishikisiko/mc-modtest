@@ -26,7 +26,7 @@ class ProvinceCapitalV8FocusedTest {
   }
  }
  @Test void changedManifestAndWrongAssetHashFailClosed() throws Exception {
-   var b=v8().capitals.bundles.getFirst();String path="/data/myvillage/"+b.resource.substring("myvillage:".length());
+   var b=v8().capitals.bundles.getFirst();String path="/data/yuanxian/"+b.resource.substring("yuanxian:".length());
    try(var in=getClass().getResourceAsStream(path)){var root=JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();b.requireManifest(root);root.getAsJsonObject("placement").addProperty("anchor_y",42);assertThrows(IllegalStateException.class,()->b.requireManifest(root));}
    assertThrows(IllegalStateException.class,()->com.example.myvillage.worldplan.capital.CapitalGameBundle.requireHash(new byte[]{1},"0".repeat(64),"tamper"));
  }

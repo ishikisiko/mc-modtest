@@ -53,7 +53,7 @@ def _source_text(m: dict) -> str:
 
 
 NOTE = ("Developer evidence. The stills come from the client freeze probes "
-        "(<code>/myvillage_pal_smoke first_person</code> and <code>third_person</code>), which pose the local "
+        "(<code>/yuanxian_pal_smoke first_person</code> and <code>third_person</code>), which pose the local "
         "client only and send nothing to the server; each still was kept once two consecutive screen grabs were "
         "identical, or three were within two colour levels of each other everywhere (whole-frame rendering "
         "noise). The combo run uses real mapped left clicks, and target health is read from the server over "

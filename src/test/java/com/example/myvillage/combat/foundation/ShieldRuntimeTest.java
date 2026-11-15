@@ -38,7 +38,7 @@ class ShieldRuntimeTest {
         var customBypass = register(registry, key("custom_bypass"));
         registry.freeze();
         registry.bindTags(Map.of(DamageTypeTags.BYPASSES_INVULNERABILITY, List.of(invulnerableBypass),
-                TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse("myvillage:bypasses_shields")),
+                TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse("yuanxian:bypasses_shields")),
                 List.of(customBypass)));
         assertFalse(ShieldRuntime.bypassesShields(new DamageSource(ordinary)));
         assertTrue(ShieldRuntime.bypassesShields(new DamageSource(voidSource)));
@@ -48,7 +48,7 @@ class ShieldRuntimeTest {
     }
 
     @Test void absentTargetsCannotGrantReadOrRemoveAnyServerState() {
-        var source = ResourceLocation.parse("myvillage:fixture");
+        var source = ResourceLocation.parse("yuanxian:fixture");
         assertFalse(ShieldRuntime.grant(null, source, 10, 20));
         var paid = new java.util.concurrent.atomic.AtomicInteger();
         assertFalse(ShieldRuntime.grantPaid(null, source, 10, 20, () -> { paid.incrementAndGet(); return true; }));
@@ -61,7 +61,7 @@ class ShieldRuntimeTest {
     }
 
     private static ResourceKey<DamageType> key(String path) {
-        return ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse("myvillage:" + path));
+        return ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse("yuanxian:" + path));
     }
 
     private static Holder.Reference<DamageType> register(MappedRegistry<DamageType> registry,

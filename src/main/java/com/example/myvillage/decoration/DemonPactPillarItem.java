@@ -22,8 +22,8 @@ public final class DemonPactPillarItem extends BlockItem {
     private final DemonPactPillarBlock pillar;
     public DemonPactPillarItem(DemonPactPillarBlock pillar,Properties properties) { super(pillar,properties);this.pillar=pillar; }
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag) {
-        lines.add(Component.translatable("tooltip.myvillage.demon_pact_pillar").withStyle(ChatFormatting.GOLD));
-        lines.add(Component.translatable("tooltip.myvillage.demon_pact_pillar.anchor").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("tooltip.yuanxian.demon_pact_pillar").withStyle(ChatFormatting.GOLD));
+        lines.add(Component.translatable("tooltip.yuanxian.demon_pact_pillar.anchor").withStyle(ChatFormatting.GRAY));
     }
     @Override public InteractionResult place(BlockPlaceContext context) {
         var level=context.getLevel();var player=context.getPlayer();var stack=context.getItemInHand();

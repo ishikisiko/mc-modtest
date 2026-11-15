@@ -3,7 +3,7 @@ version: 1
 
 current_golden:
   candidate_id: "chinese_mansion_001"
-  source: "src/main/resources/data/myvillage/structure/chinese_mansion_001.nbt"
+  source: "src/main/resources/data/yuanxian/structure/chinese_mansion_001.nbt"
   accepted_in_run: "manual-or-agent-run-id"
   human_reason: "三进序列、花园焦点、水亭/假山/路径层次可作为后续比较基线。"
 

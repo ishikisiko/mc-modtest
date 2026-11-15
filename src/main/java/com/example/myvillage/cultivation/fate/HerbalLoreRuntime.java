@@ -23,7 +23,7 @@ import net.neoforged.neoforge.event.level.BlockDropsEvent;
 /** 玩家有效破坏植物后，在原有掉落中追加一次药材抽取。 */
 public final class HerbalLoreRuntime {
     public static final TagKey<Block> PLANTS = TagKey.create(Registries.BLOCK,
-            ResourceLocation.parse("myvillage:herbal_lore_plants"));
+            ResourceLocation.parse("yuanxian:herbal_lore_plants"));
     private HerbalLoreRuntime() { }
     public static void register() { NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, HerbalLoreRuntime::drops); }
     private static final class Materials {

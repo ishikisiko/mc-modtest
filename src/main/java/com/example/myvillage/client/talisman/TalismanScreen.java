@@ -83,7 +83,7 @@ public final class TalismanScreen extends AbstractContainerScreen<TalismanMenu> 
         if (!completed.isEmpty()) {
             ResourceLocation item = BuiltInRegistries.ITEM.getKey(completed.getItem());
             icon = ResourceLocation.fromNamespaceAndPath(item.getNamespace(), "textures/item/" + item.getPath() + ".png");
-        } else icon = ResourceLocation.parse("myvillage:textures/item/talisman_" + TalismanContent.formulaId(menu.selected()) + ".png");
+        } else icon = ResourceLocation.parse("yuanxian:textures/item/talisman_" + TalismanContent.formulaId(menu.selected()) + ".png");
         double fraction = !completed.isEmpty() ? 1 : menu.required() <= 0 ? 0 : (double) menu.progress() / menu.required();
         int height = (int) (32 * fraction);
         if (height > 0) g.blit(icon, paperX + 7, paperY + 3, 0, 0, 32, height, 32, 32);

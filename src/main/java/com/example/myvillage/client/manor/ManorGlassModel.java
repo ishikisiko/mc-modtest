@@ -27,12 +27,12 @@ final class ManorGlassModel extends BakedModelWrapper<BakedModel> {
     private static final ModelProperty<Map<Direction,Map<String,List<ManorQuadClipper.Rect>>>> MASKS=new ModelProperty<>();
     static {
         for(var m:ManorCatalog.get().materials)if(!m.opaque()){
-            MATERIALS.put(ResourceLocation.fromNamespaceAndPath("myvillage",m.id()),m.id());
-            TEXTURES.put(ResourceLocation.fromNamespaceAndPath("myvillage","block/lord_manors/"+m.id()),m.id());
+            MATERIALS.put(ResourceLocation.fromNamespaceAndPath("yuanxian",m.id()),m.id());
+            TEXTURES.put(ResourceLocation.fromNamespaceAndPath("yuanxian","block/lord_manors/"+m.id()),m.id());
         }
         for(var m:QianjiCatalog.get().materials)if(!m.opaque()){
-            MATERIALS.put(ResourceLocation.fromNamespaceAndPath("myvillage",m.id()),m.id());
-            TEXTURES.put(ResourceLocation.fromNamespaceAndPath("myvillage","block/qianji/"+m.id()),m.id());
+            MATERIALS.put(ResourceLocation.fromNamespaceAndPath("yuanxian",m.id()),m.id());
+            TEXTURES.put(ResourceLocation.fromNamespaceAndPath("yuanxian","block/qianji/"+m.id()),m.id());
         }
     }
     ManorGlassModel(BakedModel original){super(original);}

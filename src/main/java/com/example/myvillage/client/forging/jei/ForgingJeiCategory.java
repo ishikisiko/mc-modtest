@@ -23,7 +23,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 public final class ForgingJeiCategory implements IRecipeCategory<ForgingJeiRecipe> {
     public static final RecipeType<ForgingJeiRecipe> TYPE =
-            RecipeType.create("myvillage", "forging", ForgingJeiRecipe.class);
+            RecipeType.create("yuanxian", "forging", ForgingJeiRecipe.class);
     private final IDrawable ding;
     private final IDrawable arrow;
 
@@ -93,10 +93,10 @@ public final class ForgingJeiCategory implements IRecipeCategory<ForgingJeiRecip
     }
 
     @Override public ResourceLocation getRegistryName(ForgingJeiRecipe recipe) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", "forging/" + recipe.id());
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", "forging/" + recipe.id());
     }
 
     private static Component text(String key) {
-        return Component.translatable("jei.myvillage.forging." + key);
+        return Component.translatable("jei.yuanxian.forging." + key);
     }
 }

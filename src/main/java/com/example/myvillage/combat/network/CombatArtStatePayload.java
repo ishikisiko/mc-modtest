@@ -10,7 +10,7 @@ import net.minecraft.world.phys.Vec3;
 public record CombatArtStatePayload(int entityId, ResourceLocation artId, int kind, int phase,
         int age, long revision, long serverTick, Vec3 origin, float yaw, int cooldown) implements CustomPacketPayload {
     public static final int START=0, PULSE=1, STOP=2, WARD=3, COOLDOWN=4;
-    public static final Type<CombatArtStatePayload> TYPE = new Type<>(ResourceLocation.parse("myvillage:art_state"));
+    public static final Type<CombatArtStatePayload> TYPE = new Type<>(ResourceLocation.parse("yuanxian:art_state"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CombatArtStatePayload> STREAM_CODEC =
             StreamCodec.of((b,p) -> {
                 b.writeVarInt(p.entityId); b.writeResourceLocation(p.artId); b.writeByte(p.kind);

@@ -29,14 +29,14 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.common.NeoForge;
 
 /** Separate CLIENT entrypoint: no central registration edits and no changes to the old armor renderer. */
-@Mod(value="myvillage",dist=Dist.CLIENT)
+@Mod(value="yuanxian",dist=Dist.CLIENT)
 public final class ClientImmortalBootstrap {
     private static final Model EMPTY=new Model(RenderType::entitySolid) {
         @Override public void renderToBuffer(PoseStack poses,VertexConsumer out,int light,int overlay,int color) { }
     };
     private static final HumanoidModel<LivingEntity> FIRST_PERSON=skeleton();
     public ClientImmortalBootstrap(IEventBus bus,ModContainer container) {
-        container.registerConfig(ModConfig.Type.CLIENT,ImmortalClientConfig.SPEC,"myvillage-immortal-client.toml");
+        container.registerConfig(ModConfig.Type.CLIENT,ImmortalClientConfig.SPEC,"yuanxian-immortal-client.toml");
         bus.addListener(ClientImmortalBootstrap::reload);
         bus.addListener(ClientImmortalBootstrap::extensions);
         bus.addListener(ClientImmortalBootstrap::layers);

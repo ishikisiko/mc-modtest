@@ -20,7 +20,7 @@ class TribulationStateTest {
         SharedConstants.tryDetectVersion();Bootstrap.bootStrap();
     }
     static TribulationRules rules(TribulationKind kind)throws Exception{
-        try(var r=Files.newBufferedReader(Path.of("src/main/resources/data/myvillage/tribulation/"+kind.id()+".json"))){return TribulationRules.read(r);}
+        try(var r=Files.newBufferedReader(Path.of("src/main/resources/data/yuanxian/tribulation/"+kind.id()+".json"))){return TribulationRules.read(r);}
     }
     static TribulationAttempt attempt(TribulationKind kind)throws Exception{
         return TribulationAttempt.create(UUID.fromString("11111111-2222-3333-4444-555555555555"),UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
@@ -42,7 +42,7 @@ class TribulationStateTest {
         int[] counts={6,6,9,12};
         for(var kind:TribulationKind.values()){
             var r=rules(kind);assertEquals(counts[kind.networkId()],r.requiredHits());assertEquals(kind,r.kind());
-            var source=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/myvillage/realm/"+kind.sourceRealm().split(":")[1]+".json"))).getAsJsonObject();
+            var source=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/yuanxian/realm/"+kind.sourceRealm().split(":")[1]+".json"))).getAsJsonObject();
             var stage=source.getAsJsonArray("stages").asList().stream().map(e->e.getAsJsonObject()).filter(e->e.get("id").getAsString().equals(kind.sourceStage())).findFirst().orElseThrow();
             assertEquals(kind.targetStage(),stage.getAsJsonObject("advancement").get("target_stage").getAsString());
             assertTrue(kind.source(profile(kind,1)));assertEquals(kind,TribulationKind.fromNetwork(kind.networkId()));

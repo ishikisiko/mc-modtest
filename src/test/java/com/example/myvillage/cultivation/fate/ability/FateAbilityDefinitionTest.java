@@ -14,18 +14,18 @@ import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 class FateAbilityDefinitionTest {
-    private static ResourceLocation id(String value) { return ResourceLocation.parse("myvillage:" + value); }
+    private static ResourceLocation id(String value) { return ResourceLocation.parse("yuanxian:" + value); }
 
     private static JsonObject config() {
         return JsonParser.parseString("""
-                {"schema":1,"abilities":[{"id":"myvillage:wood_root","required_fate":"myvillage:wood_spirit_body",
+                {"schema":1,"abilities":[{"id":"yuanxian:wood_root","required_fate":"yuanxian:wood_spirit_body",
                 "name":"乙木缠根","description":"生成缠根领域","cooldown_ticks":400,
                 "cost_fraction":0.1,"minimum_cost":1,"radius":5}]}
                 """).getAsJsonObject();
     }
 
     private static FateState confirmed(String first) {
-        var ids = List.of("myvillage:" + first, "myvillage:robust", "myvillage:bright");
+        var ids = List.of("yuanxian:" + first, "yuanxian:robust", "yuanxian:bright");
         return new FateState(1, 1, ids, "", ids, true, 0, 0, 0, 0);
     }
 
@@ -49,7 +49,7 @@ class FateAbilityDefinitionTest {
     @Test void candidateOrDifferentConfirmedFateDoesNotGrantAbility() {
         var ability = FateAbilityDefinition.find(id("wood_root")).orElseThrow();
         assertFalse(ability.granted(FateState.empty(),fate(true)));
-        var draft = FateState.empty().choice(List.of("myvillage:wood_spirit_body"), "", List.of(), false, 1);
+        var draft = FateState.empty().choice(List.of("yuanxian:wood_spirit_body"), "", List.of(), false, 1);
         assertFalse(ability.granted(draft,fate(true)));
         assertFalse(ability.granted(confirmed("water_spirit_body"),fate(true)));
         assertTrue(ability.granted(confirmed("wood_spirit_body"),fate(true)));
@@ -94,7 +94,7 @@ class FateAbilityDefinitionTest {
         textNumber.getAsJsonArray("abilities").get(0).getAsJsonObject().addProperty("cost_fraction", "0.1");
         assertThrows(IllegalArgumentException.class, () -> FateAbilityDefinition.parse(textNumber));
         var reserved = config();
-        reserved.getAsJsonArray("abilities").get(0).getAsJsonObject().addProperty("id", "myvillage:unassigned");
+        reserved.getAsJsonArray("abilities").get(0).getAsJsonObject().addProperty("id", "yuanxian:unassigned");
         assertThrows(IllegalArgumentException.class, () -> FateAbilityDefinition.parse(reserved));
     }
 }

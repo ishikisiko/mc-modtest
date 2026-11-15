@@ -181,7 +181,7 @@ public final class ExplorationRuntime {
         Long previous = GATE_NOTICES.get(player.getUUID());
         if (previous == null || now - previous >= rules.settings().noticeTicks()) {
             GATE_NOTICES.put(player.getUUID(), now);
-            player.sendSystemMessage(Component.translatable("exploration.myvillage.portal.denied", realmText(minimum.get())));
+            player.sendSystemMessage(Component.translatable("exploration.yuanxian.portal.denied", realmText(minimum.get())));
         }
         return true;
     }
@@ -201,17 +201,17 @@ public final class ExplorationRuntime {
     }
 
     public static Component realmText(RealmKey key) {
-        if (key.realmId().equals("myvillage:mortal")) return Component.translatable("exploration.myvillage.mortal");
-        if (key.realmId().equals("myvillage:qi_refining")) return Component.translatable("exploration.myvillage.qi", key.stage() + 1);
-        return Component.translatable("exploration.myvillage.realm_stage", Component.translatable("cultivation.realm." + key.realmId().replace(':', '.')),
-                Component.translatable("exploration.myvillage.stage." + key.stage()));
+        if (key.realmId().equals("yuanxian:mortal")) return Component.translatable("exploration.yuanxian.mortal");
+        if (key.realmId().equals("yuanxian:qi_refining")) return Component.translatable("exploration.yuanxian.qi", key.stage() + 1);
+        return Component.translatable("exploration.yuanxian.realm_stage", Component.translatable("cultivation.realm." + key.realmId().replace(':', '.')),
+                Component.translatable("exploration.yuanxian.stage." + key.stage()));
     }
     public static Component rangeText(RealmRange range) {
         return range.min().equals(range.max()) ? realmText(range.min())
-                : Component.translatable("exploration.myvillage.range", realmText(range.min()), realmText(range.max()));
+                : Component.translatable("exploration.yuanxian.range", realmText(range.min()), realmText(range.max()));
     }
-    public static Component summary(Context c) { return Component.translatable("exploration.myvillage.notice", Component.translatable("exploration.myvillage.location." + c.location().id()), rangeText(c.recommended())); }
-    public static Component prepare(Context c) { return Component.translatable("exploration.myvillage.prepare." + c.location().id()); }
+    public static Component summary(Context c) { return Component.translatable("exploration.yuanxian.notice", Component.translatable("exploration.yuanxian.location." + c.location().id()), rangeText(c.recommended())); }
+    public static Component prepare(Context c) { return Component.translatable("exploration.yuanxian.prepare." + c.location().id()); }
 
     public static RealmKey playerRealm(ServerPlayer player) {
         var profile = CultivationService.getProfile(player);
@@ -220,7 +220,7 @@ public final class ExplorationRuntime {
         } catch (IllegalArgumentException legacyDefinition) {
             // Custom/legacy cultivation definitions retain their saved profile. Advice can fall
             // back to the baseline without turning a harmless NPC conversation into an exception.
-            return StatsRules.bundled().realmKey("myvillage:mortal", 0);
+            return StatsRules.bundled().realmKey("yuanxian:mortal", 0);
         }
     }
     public static Set<String> progress(ServerPlayer player) {
@@ -235,20 +235,20 @@ public final class ExplorationRuntime {
     public static void guide(ServerPlayer player, Component speaker, boolean tipOnly) {
         var next = ExplorationRules.get().next(playerRealm(player), progress(player));
         if (!tipOnly) {
-            player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.title", speaker));
-            player.sendSystemMessage(next == null ? Component.translatable("exploration.myvillage.guide.complete")
-                    : Component.translatable("exploration.myvillage.guide.next", Component.translatable("exploration.myvillage.guide." + next.id())));
+            player.sendSystemMessage(Component.translatable("exploration.yuanxian.guide.title", speaker));
+            player.sendSystemMessage(next == null ? Component.translatable("exploration.yuanxian.guide.complete")
+                    : Component.translatable("exploration.yuanxian.guide.next", Component.translatable("exploration.yuanxian.guide." + next.id())));
         }
         if (next != null) {
             int tip = TIPS.merge(player.getUUID(), 1, (a,b) -> a == Integer.MAX_VALUE ? 1 : a + b) - 1;
             String key = next.tips().get(Math.floorMod(tip, next.tips().size()));
-            player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.tip", Component.translatable("exploration.myvillage.tip." + key)));
+            player.sendSystemMessage(Component.translatable("exploration.yuanxian.guide.tip", Component.translatable("exploration.yuanxian.tip." + key)));
         }
-        if (!tipOnly) player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.side_hint").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
+        if (!tipOnly) player.sendSystemMessage(Component.translatable("exploration.yuanxian.guide.side_hint").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/exploration guide side"))));
-        if (!tipOnly) player.sendSystemMessage(Component.translatable("exploration.myvillage.tiger.hint").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
+        if (!tipOnly) player.sendSystemMessage(Component.translatable("exploration.yuanxian.tiger.hint").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/exploration guide tiger"))));
-        player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.more").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
+        player.sendSystemMessage(Component.translatable("exploration.yuanxian.guide.more").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/exploration guide tips"))));
         LOG.info("EXPLORATION_GUIDE player={} next={} tipOnly={}", player.getUUID(), next == null ? "complete" : next.id(), tipOnly);
     }
@@ -256,8 +256,8 @@ public final class ExplorationRuntime {
     public static void sideRoutes(ServerPlayer player) {
         for (var route : ExplorationRules.get().sideRoutes()) {
             var boss = BossRules.get().forEntity(route.entity()).orElseThrow();
-            player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.side", Component.translatable("exploration.myvillage.side." + route.id()), realmText(boss.realm())));
-            for (String tip : route.tips()) player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.tip", Component.translatable("exploration.myvillage.tip." + tip)));
+            player.sendSystemMessage(Component.translatable("exploration.yuanxian.guide.side", Component.translatable("exploration.yuanxian.side." + route.id()), realmText(boss.realm())));
+            for (String tip : route.tips()) player.sendSystemMessage(Component.translatable("exploration.yuanxian.guide.tip", Component.translatable("exploration.yuanxian.tip." + tip)));
         }
     }
 
@@ -265,9 +265,9 @@ public final class ExplorationRuntime {
         var command = Commands.literal("exploration")
                 .executes(c -> { var player = c.getSource().getPlayerOrException(); current(player).ifPresentOrElse(ctx -> {
                     player.sendSystemMessage(summary(ctx)); player.sendSystemMessage(prepare(ctx));
-                    player.sendSystemMessage(Component.translatable("exploration.myvillage.advice_only"));
-                }, () -> player.sendSystemMessage(Component.translatable("exploration.myvillage.none"))); return 1; })
-                .then(Commands.literal("guide").executes(c -> { var p = c.getSource().getPlayerOrException(); guide(p, Component.translatable("exploration.myvillage.guide.label"), false); return 1; })
+                    player.sendSystemMessage(Component.translatable("exploration.yuanxian.advice_only"));
+                }, () -> player.sendSystemMessage(Component.translatable("exploration.yuanxian.none"))); return 1; })
+                .then(Commands.literal("guide").executes(c -> { var p = c.getSource().getPlayerOrException(); guide(p, Component.translatable("exploration.yuanxian.guide.label"), false); return 1; })
                         .then(Commands.literal("where").executes(c -> {
                             var sim = com.example.myvillage.sim.runtime.WorldSimRuntime.sim().orElse(null); int count = 0;
                             if (sim != null) for (var site : sim.lifeSites()) {
@@ -275,9 +275,9 @@ public final class ExplorationRuntime {
                                 if (assigned.isEmpty()) continue;
                                 var life = sim.life(assigned.get()); var person = sim.person(assigned.get());
                                 if (life.isEmpty() || person.isEmpty() || !life.get().role().equals("guide")) continue;
-                                c.getSource().sendSuccess(() -> Component.translatable("exploration.myvillage.guide.position", person.get().name(), site.name(), life.get().x(), life.get().y(), life.get().z()), false); count++;
+                                c.getSource().sendSuccess(() -> Component.translatable("exploration.yuanxian.guide.position", person.get().name(), site.name(), life.get().x(), life.get().y(), life.get().z()), false); count++;
                             }
-                            if (count == 0) c.getSource().sendFailure(Component.translatable("exploration.myvillage.guide.not_ready")); return count;
+                            if (count == 0) c.getSource().sendFailure(Component.translatable("exploration.yuanxian.guide.not_ready")); return count;
                         }))
                         .then(Commands.literal("side").executes(c -> { sideRoutes(c.getSource().getPlayerOrException()); return 1; }))
                         .then(Commands.literal("tiger").executes(c -> {

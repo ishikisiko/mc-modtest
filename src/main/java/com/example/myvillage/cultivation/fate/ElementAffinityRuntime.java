@@ -17,12 +17,12 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
 /** 亲和命中特性只读取服务器确认的直接主伤害；不创建额外伤害。 */
 public final class ElementAffinityRuntime {
-    private static final ResourceLocation WATER_SLOW = ResourceLocation.parse("myvillage:affinity/water_slow");
+    private static final ResourceLocation WATER_SLOW = ResourceLocation.parse("yuanxian:affinity/water_slow");
     private ElementAffinityRuntime() { }
     public static void register() { NeoForge.EVENT_BUS.addListener(ElementAffinityRuntime::damaged); }
 
     public static ResourceLocation waterCooldownKey(java.util.UUID target) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", "affinity/water/" + target);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", "affinity/water/" + target);
     }
 
     private static void damaged(LivingDamageEvent.Post event) {

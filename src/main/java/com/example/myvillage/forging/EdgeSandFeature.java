@@ -26,7 +26,7 @@ public final class EdgeSandFeature extends Feature<EdgeSandFeature.Config> {
                 Codec.intRange(0,2).fieldOf("max_water_depth").forGetter(Config::maxWaterDepth),
                 Codec.intRange(1,64).fieldOf("max_blocks").forGetter(Config::maxBlocks)).apply(i,Config::new));
     }
-    private static final TagKey<Block> REPLACEABLE=TagKey.create(Registries.BLOCK,ResourceLocation.fromNamespaceAndPath("myvillage","edge_sand_replaceables"));
+    private static final TagKey<Block> REPLACEABLE=TagKey.create(Registries.BLOCK,ResourceLocation.fromNamespaceAndPath("yuanxian","edge_sand_replaceables"));
     public EdgeSandFeature(){super(Config.CODEC);}
     static List<BlockPos> offsets(int radius){
         List<BlockPos> positions=new ArrayList<>();

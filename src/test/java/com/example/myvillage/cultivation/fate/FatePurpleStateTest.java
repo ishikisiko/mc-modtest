@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class FatePurpleStateTest {
     private static FateState chosen() {
-        var ids = List.of("myvillage:pill_aegis", "myvillage:robust", "myvillage:bright");
+        var ids = List.of("yuanxian:pill_aegis", "yuanxian:robust", "yuanxian:bright");
         return new FateState(4, 3, ids, "", ids, true, 1000, 30, .2, 2000)
                 .withPillAegis(new PillAegisState(5, 100, 600))
                 .withTemperedBones(new TemperedBonesState(6, true));

@@ -7,7 +7,7 @@ from tools.physical_forging_evidence import physical_readback,blank
 class PhysicalForgingCollectorTest(unittest.TestCase):
     def test_scoped_extra_routes_are_read_only(self):
         for command in ('yuanxian workshop anvil 0 -60 3','yuanxian workshop inspect DemoTester',
-                        'execute as @e[type=minecraft:item,nbt={Item:{id:"myvillage:workpiece_lingxiao_spear_rough"}}] run data get entity @s Item'):
+                        'execute as @e[type=minecraft:item,nbt={Item:{id:"yuanxian:workpiece_lingxiao_spear_rough"}}] run data get entity @s Item'):
             self.assertTrue(physical_readback(command),command)
         for command in ('yuanxian workshop start DemoTester','yuanxian workshop strike DemoTester',
                         'yuanxian workshop anvil 0 -60 3\ngive DemoTester minecraft:diamond',

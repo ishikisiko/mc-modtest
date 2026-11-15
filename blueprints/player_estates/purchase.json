@@ -3,7 +3,7 @@
   "id": "west_gray_courtyard",
   "name": "西坡灰瓦庄园",
   "city_id": "capital_zhongzhou",
-  "price": {"item": "myvillage:high_grade_spirit_stone", "count": 100, "name": "上品灵石"},
+  "price": {"item": "yuanxian:high_grade_spirit_stone", "count": 100, "name": "上品灵石"},
   "steward": {"name": "庄园管家", "plot_point": [50, 1], "yaw": 270},
   "exit_plot_point": [52, 1],
   "access": "open_after_purchase",

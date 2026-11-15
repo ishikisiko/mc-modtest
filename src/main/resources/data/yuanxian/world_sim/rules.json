@@ -1,0 +1,368 @@
+{
+  "schema": 1,
+  "time": {"prehistory_years": 100, "default_days_per_year": 24},
+  "tiers": {
+    "small": {"population": 80, "sects": 5, "rogue_share": 0.2},
+    "medium": {"population": 300, "sects": 10, "rogue_share": 0.2},
+    "large": {"population": 1000, "sects": 20, "rogue_share": 0.2}
+  },
+  "chronicle": {"minor_per_person": 8},
+  "scheduler": {"max_pending_days": 30},
+  "roots": {
+    "element_threshold": 15,
+    "grades": [
+      {"id": "heaven", "max_elements": 1, "weight": 2, "cultivation": 2.0, "breakthrough": 2.0},
+      {"id": "dual", "max_elements": 2, "weight": 8, "cultivation": 1.5, "breakthrough": 1.5},
+      {"id": "triple", "max_elements": 3, "weight": 20, "cultivation": 1.0, "breakthrough": 1.0},
+      {"id": "quad", "max_elements": 4, "weight": 32, "cultivation": 0.75, "breakthrough": 0.75},
+      {"id": "penta", "max_elements": 5, "weight": 38, "cultivation": 0.6, "breakthrough": 0.55}
+    ]
+  },
+  "techniques": {
+    "grades": {
+      "huang": {"cultivation": 1.0, "breakthrough": 1.0, "combat": 1.0},
+      "xuan": {"cultivation": 1.3, "breakthrough": 1.25, "combat": 1.2},
+      "di": {"cultivation": 1.7, "breakthrough": 1.6, "combat": 1.45},
+      "tian": {"cultivation": 2.3, "breakthrough": 2.2, "combat": 1.8}
+    },
+    "none": {"cultivation": 0.6, "breakthrough": 0.7, "combat": 0.85},
+    "element_match_bonus": 0.15,
+    "switch_progress_loss": 0.3
+  },
+  "cultivation": {
+    "base_per_year": 1.0,
+    "status": {"at_sect": 1.0, "travelling": 0.6, "secluded": 1.4},
+    "qi_base": 0.55,
+    "qi_per_point": 0.075,
+    "rank": {"sect_master": 1.15, "elder": 1.1, "inner": 1.0, "outer": 0.85, "rogue": 0.9},
+    "resource_bonus": 0.3,
+    "resource_reference_per_member": 20.0,
+    "master_guidance": 0.15,
+    "injury_per_point": 0.006,
+    "injury_floor": 0.3
+  },
+  "breakthrough": {
+    "attempt_rate_per_year": 0.4,
+    "caution_weight": 0.5,
+    "desperate_years_left": 6,
+    "desperate_attempt_rate_per_year": 0.9,
+    "desperate_chance_factor": 0.6,
+    "desperate_death_factor": 2.5,
+    "failure_penalty": 0.65,
+    "retry_damping": 0.85,
+    "age_weight": 0.6,
+    "injury_per_point": 0.006,
+    "master_bonus": 0.06,
+    "min_chance": 0.005,
+    "max_chance": 0.9,
+    "wound_cause_threshold": 20
+  },
+  "injury": {"heal_per_year": 12},
+  "death_importance_by_rank": {"sect_master": 3, "elder": 2},
+  "entrants": {
+    "base_rate": 0.006,
+    "gain": 0.15,
+    "max_fraction_per_year": 0.12,
+    "age": [12, 18],
+    "rogue_technique_chance": 0.4
+  },
+  "sects": {
+    "recruit_weight_floor": 20.0,
+    "recruit_size_damping": 1.0,
+    "young_sect_boost": 4.0,
+    "prestige_per_candidate": 60.0,
+    "max_candidates": 4,
+    "promotion": {
+      "inner": {"realm": "qi_refining", "stage": 5},
+      "elder": {"realm": "foundation_establishment", "stage": 0}
+    },
+    "disciples_per_master": 3,
+    "mentor_chance_per_year": 0.5,
+    "income_base": 6.0,
+    "income_per_member": 1.5,
+    "upkeep_per_member": 1.0,
+    "resource_cap_per_member": 60.0,
+    "prestige_smoothing": 0.25,
+    "pills": {
+      "foundation_establishment": {"cost": 45.0, "bonus": 0.1},
+      "golden_core": {"cost": 150.0, "bonus": 0.06},
+      "nascent_soul": {"cost": 600.0, "bonus": 0.03}
+    }
+  },
+  "genesis": {
+    "sect_age_years": [200, 900],
+    "size_weights": [1.6, 1.3, 1.1, 1.0, 0.9],
+    "signature_grades": ["di", "xuan", "xuan", "huang"],
+    "elder_share": 0.15,
+    "inner_share": 0.35,
+    "region_qi_exponent": 1.5,
+    "region_crowding": 0.6,
+    "ages": {
+      "qi_refining": [14, 70],
+      "foundation_establishment": [45, 170],
+      "golden_core": [140, 380],
+      "nascent_soul": [400, 800], "spirit_transformation": [650, 1500]
+    },
+    "rogue_foundation_chance": 0.12,
+    "founder_realm_bonus": 1,
+    "heritage_chance": 0.25
+  },
+  "gates": {"max_radius": 3700, "min_spacing": 320, "max_offset": 1500, "retries": 200},
+  "naming": {"surname_rank_scale": 20.0, "banned_name_prefixes": ["朱德"]},
+  "importance": {"prodigy_foundation_age": 40, "notable": {"realm": "golden_core", "stage": 0}},
+  "travel": {
+    "start_rate_per_year": 0.12,
+    "rank_factor": {"sect_master": 0.05, "elder": 0.35, "inner": 1.0, "outer": 0.7, "rogue": 1.3},
+    "years": [2, 8],
+    "moves_per_year": 1.2,
+    "qi_weight": 1.0,
+    "tier_weight": 0.05,
+    "danger_weight": 0.15,
+    "walled_boldness": 65
+  },
+  "seclusion": {"rate_per_year": 0.015, "years": [1, 6], "near_cap_factor": 2.0},
+  "danger": {
+    "beast_rate_per_year": 0.3,
+    "danger_exponent": 2.0,
+    "beast_power": [1.2, 3.5, 11.0, 35.0],
+    "flee_chance": 0.55,
+    "death_on_loss": 0.35,
+    "injury": 30,
+    "slay_progress_years": 1.0,
+    "recorded_beast_rank": 3
+  },
+  "fortune": {
+    "rate_per_year": 0.5,
+    "secluded_rate_per_year": 0.15,
+    "tier_weight": 0.5,
+    "rarity_boost": 1.5,
+    "richness_cost": 15,
+    "richness_regen_per_year": 4,
+    "contest_chance": 0.5
+  },
+  "artifact_power": {"huang": 1.1, "xuan": 1.25, "di": 1.45, "tian": 1.8},
+  "meetings": {
+    "rate_per_year": {"at_sect": 0.12, "travelling": 0.7, "secluded": 0.0},
+    "friend": 0.4,
+    "quarrel": 0.3,
+    "spar": 2.4,
+    "rob": 0.3,
+    "duel_chance": 0.3,
+    "grudge_chance": 0.5,
+    "max_friends": 4,
+    "friend_strength": 50,
+    "enemy_strength": 40
+  },
+  "combat": {
+    "steepness": 4.0,
+    "noise": 0.25,
+    "injury_per_point": 0.006,
+    "injury_floor": 0.35,
+    "flee_base": 0.45,
+    "kill_base": 0.06,
+    "kill_enemy": 0.25,
+    "kill_war": 0.25,
+    "same_sect_kill_factor": 0.25,
+    "wound": [15, 45],
+    "loot_chance": 0.6
+  },
+  "revenge": {
+    "strength": 70,
+    "friend_min_strength": 75,
+    "confidence": 0.55,
+    "caution_weight": 0.3,
+    "reckless_aggression": 75,
+    "seek_rate_per_year": 0.5,
+    "give_up_years": 120,
+    "late_years": 10
+  },
+  "sect_relations": {
+    "drift_per_year": 3,
+    "neighbour_baseline": -25,
+    "kill_penalty": 35,
+    "notable_kill_penalty": 50,
+    "wound_penalty": 10,
+    "feud_at": -35,
+    "war_at": -50,
+    "war_chance_per_year": 0.6,
+    "truce_per_year": 0.05,
+    "truce_per_year_of_war": 0.015,
+    "battles_per_year": 1.0,
+    "battle_interval_years": 2,
+    "champion_max_injury": 15,
+    "tribute_score": 3,
+    "tribute_years": 30,
+    "tribute_share": 0.2,
+    "annex_below": 3,
+    "peace_years": 25,
+    "split_value": -20,
+    "split_grace_years": 30,
+    "victory_prestige": 15.0
+  },
+  "succession": {
+    "contest_ambition": 60,
+    "contest_gap": 15.0,
+    "contest_chance": 0.5,
+    "leave_chance": 0.6,
+    "follower_share": 0.3,
+    "min_master": {"realm": "foundation_establishment", "stage": 0},
+    "min_years_left": 15,
+    "min_split_followers": 2
+  },
+  "decline": {
+    "desert_rate_per_year": 0.12,
+    "desertion_rate_per_year": 0.004,
+    "min_members": 3,
+    "min_share": 0.25,
+    "recruit_factor": 0.3,
+    "rogue_join_rate_per_year": 0.015,
+    "schism_size_ratio": 1.8,
+    "schism_rate_per_year": 0.05,
+    "schism_ambition": 70,
+    "grace_years": 30
+  },
+  "founding": {
+    "min_realm": {"realm": "foundation_establishment", "stage": 2},
+    "min_ambition": 55,
+    "rate_per_year": 0.04,
+    "deficit_boost": 3.0,
+    "surplus_exponent": 4.0,
+    "min_years_left": 40,
+    "followers": [0, 3]
+  },
+  "player": {
+    "admission": {"require_awakened_root": true, "min_realm": "mortal", "min_stage": 1, "join_standing": 20,
+                  "hostile_standing_below": -50,
+                  "selective": {"prestige_at_least": 60.0, "root_peak_at_least": 30, "or_min_realm": "qi_refining"}},
+    "leave": {"standing_penalty": -40, "rejoin_standing_at_least": 0, "rejoin_years": 3, "standing_recovery_per_year": 10},
+    "promotion": {"inner": {"realm": "qi_refining", "stage": 4, "contribution": 0},
+                  "elder": {"realm": "foundation_establishment", "stage": 0, "contribution": 0}},
+    "scripture_hall": {
+      "public_techniques": ["jianqi_jue"],
+      "borrow_cost_by_grade": {"1": 0, "2": 12, "3": 30, "4": 60}},
+    "steward": {"interact_range": 6.0},
+    "gates": {"realize_radius": 160, "clips_per_tick": 2, "inhabited_ticks_max": 3600, "player_block_entities_max": 0}
+  },
+  "sect_progression": {
+    "entry_states": 2,
+    "regional_hubs": 2,
+    "levels": {
+      "branch": {
+        "name": "分宗",
+        "outer": {
+          "realm": "qi_refining",
+          "stage": 0
+        },
+        "masters": [
+          {
+            "realm": "foundation_establishment",
+            "minimum_stage": 2,
+            "maximum_stage": 2,
+            "weight": 99
+          },
+          {
+            "realm": "golden_core",
+            "minimum_stage": 1,
+            "maximum_stage": 1,
+            "weight": 1
+          }
+        ],
+        "stone": "low",
+        "monthly": {
+          "outer": 5,
+          "inner": 10,
+          "elder": 40,
+          "sect_master": 100
+        }
+      },
+      "headquarters": {
+        "name": "总舵",
+        "outer": {
+          "realm": "foundation_establishment",
+          "stage": 0
+        },
+        "masters": [
+          {
+            "realm": "golden_core",
+            "minimum_stage": 2,
+            "maximum_stage": 2,
+            "weight": 4
+          },
+          {
+            "realm": "nascent_soul",
+            "minimum_stage": 0,
+            "maximum_stage": 0,
+            "weight": 1
+          }
+        ],
+        "stone": "middle",
+        "monthly": {
+          "outer": 1,
+          "inner": 2,
+          "elder": 10,
+          "sect_master": 40
+        },
+        "promotion": {
+          "inner": {
+            "realm": "foundation_establishment",
+            "stage": 2,
+            "contribution": 0
+          },
+          "elder": {
+            "realm": "golden_core",
+            "stage": 0,
+            "contribution": 0
+          }
+        }
+      },
+      "main": {
+        "name": "主宗",
+        "outer": {
+          "realm": "golden_core",
+          "stage": 0
+        },
+        "masters": [
+          {
+            "realm": "nascent_soul",
+            "minimum_stage": 0,
+            "maximum_stage": 2,
+            "weight": 4
+          },
+          {
+            "realm": "spirit_transformation",
+            "minimum_stage": 0,
+            "maximum_stage": 2,
+            "weight": 1
+          }
+        ],
+        "stone": "high",
+        "monthly": {
+          "outer": 1,
+          "inner": 2,
+          "elder": 10,
+          "sect_master": 50
+        },
+        "promotion": {
+          "inner": {
+            "realm": "golden_core",
+            "stage": 2,
+            "contribution": 0
+          },
+          "elder": {
+            "realm": "nascent_soul",
+            "stage": 0,
+            "contribution": 0
+          }
+        }
+      }
+    },
+    "elder_trial": {
+      "entity": "yuanxian:demon_wolf",
+      "realm": "qi_refining",
+      "stage": 8,
+      "duration_ticks": 12000,
+      "radius": 48,
+      "spawn_radius": 6
+    }
+  }
+}

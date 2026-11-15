@@ -12,7 +12,7 @@ Owned files:
 - Other Java runtime files only when a task contract assigns them.
 
 Rules:
-- Work from the existing NeoForge DeferredRegister and myvillage namespace model.
+- Work from the existing NeoForge DeferredRegister and yuanxian namespace model.
 - Keep item registration, block-item exposure, and creative-tab entries aligned.
 - Do not edit client/data resources unless the task explicitly assigns them.
 - Do not edit generated NBT resources, version/changelog files, or build outputs.

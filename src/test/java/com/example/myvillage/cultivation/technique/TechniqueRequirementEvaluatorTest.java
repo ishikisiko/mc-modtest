@@ -146,7 +146,7 @@ class TechniqueRequirementEvaluatorTest {
 
     static TechniqueDefinition basicBreathing() {
         return new TechniqueDefinition(
-                "cultivation.technique.myvillage.basic_breathing",
+                "cultivation.technique.yuanxian.basic_breathing",
                 TechniqueCategory.CORE,
                 0,
                 List.of(),
@@ -208,6 +208,6 @@ class TechniqueRequirementEvaluatorTest {
     }
 
     static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 }

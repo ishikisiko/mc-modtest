@@ -662,13 +662,13 @@ def run_stage2_commands(args: argparse.Namespace, report: dict[str, Any], rcon: 
     write_report(report)
 
     command_cases = [
-        ("yuanxian list", "Loaded myvillage structures"),
-        ("yuanxian placeat small_house_001 0 80 192", "Placed myvillage:small_house_001"),
-        ("yuanxian placeat chinese_mansion_001 128 180 192", "Placed myvillage:chinese_mansion_001"),
-        ("yuanxian galleryat cultivation 256 80 192", "Placed myvillage cultivation gallery"),
-        (f"yuanxian townat {args.myvillage_seed} 1024 80 192", "Generated living town"),
-        (f"yuanxian sectat {args.myvillage_seed} -1024 80 192", "Generated sect compound"),
-        (f"yuanxian sectat worldgen {args.myvillage_seed} none -1024 80 768", "Generated sect compound"),
+        ("yuanxian list", "Loaded yuanxian structures"),
+        ("yuanxian placeat small_house_001 0 80 192", "Placed yuanxian:small_house_001"),
+        ("yuanxian placeat chinese_mansion_001 128 180 192", "Placed yuanxian:chinese_mansion_001"),
+        ("yuanxian galleryat cultivation 256 80 192", "Placed yuanxian cultivation gallery"),
+        (f"yuanxian townat {args.yuanxian_seed} 1024 80 192", "Generated living town"),
+        (f"yuanxian sectat {args.yuanxian_seed} -1024 80 192", "Generated sect compound"),
+        (f"yuanxian sectat worldgen {args.yuanxian_seed} none -1024 80 768", "Generated sect compound"),
     ]
 
     try:
@@ -721,9 +721,9 @@ def run_stage3_commands(args: argparse.Namespace, report: dict[str, Any], rcon: 
         raise RuntimeError(stage["error"])
 
     command_cases = [
-        ("yuanxian galleryat cultivation 1536 80 192", "Placed myvillage cultivation gallery"),
-        (f"yuanxian townat {args.myvillage_seed} 2304 80 192", "Generated living town"),
-        (f"yuanxian sectat worldgen {args.myvillage_seed} none 2304 80 768", "Generated sect compound"),
+        ("yuanxian galleryat cultivation 1536 80 192", "Placed yuanxian cultivation gallery"),
+        (f"yuanxian townat {args.yuanxian_seed} 2304 80 192", "Generated living town"),
+        (f"yuanxian sectat worldgen {args.yuanxian_seed} none 2304 80 768", "Generated sect compound"),
     ]
 
     try:
@@ -768,7 +768,7 @@ def run_stage4_commands(args: argparse.Namespace, report: dict[str, Any], rcon: 
     write_report(report)
 
     try:
-        locate_command = "locate structure myvillage:sect"
+        locate_command = "locate structure yuanxian:sect"
         locate_response = send_command(stage, rcon, locate_command)
         if command_response_failed(locate_response):
             raise RuntimeError(f"Locate command failed: {locate_response}")
@@ -939,7 +939,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--clean", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--world-name", default="chunky_stage1_world")
     parser.add_argument("--world-seed", default="20260630")
-    parser.add_argument("--myvillage-seed", type=int, default=20260618)
+    parser.add_argument("--yuanxian-seed", type=int, default=20260618)
     parser.add_argument("--chunky-world", default="minecraft:overworld", help="Chunky world/dimension selector.")
     parser.add_argument("--chunky-radius", type=int, default=64, help="Square radius in blocks.")
     parser.add_argument("--sect-worldgen-radius", type=int, default=96, help="Stage 4 square radius in blocks.")
@@ -965,9 +965,9 @@ def main(argv: list[str]) -> int:
             "fallback": "standalone NeoForge server profile is deferred until external-jar loading requires it",
             "game_directory": str(PROFILE_DIR.relative_to(ROOT)),
         },
-        "myvillage_artifact": {
+        "yuanxian_artifact": {
             "mode": "ModDevGradle source-set run",
-            "mod_id": "myvillage",
+            "mod_id": "yuanxian",
         },
         "stages": [],
         "downstream_stages": [],

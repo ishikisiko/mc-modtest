@@ -25,7 +25,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 只在专用 fixture 中加载，不进入交付 jar；命令准备与客户端映射输入分别记录。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class NpcCultivationEvidence {
     private static final Path OUT=Path.of(System.getenv().getOrDefault("MYVILLAGE_NPC_CULTIVATION_OUT","../reports/npc-native"));
     private static final List<Map<String,Object>> CHECKS=new ArrayList<>();
@@ -42,7 +42,7 @@ public final class NpcCultivationEvidence {
         Files.writeString(OUT.resolve(phase+".json"),new GsonBuilder().setPrettyPrinting().create().toJson(r));
     }
     @SubscribeEvent public static void commands(RegisterCommandsEvent e){
-        e.getDispatcher().register(Commands.literal("myvillage_npc_evidence").requires(s->s.hasPermission(2))
+        e.getDispatcher().register(Commands.literal("yuanxian_npc_evidence").requires(s->s.hasPermission(2))
             .then(Commands.literal("begin").executes(c->run(c.getSource().getServer(),false)))
             .then(Commands.literal("restart").executes(c->run(c.getSource().getServer(),true))));
     }
@@ -54,8 +54,8 @@ public final class NpcCultivationEvidence {
         NpcEntity npc=ModEntities.CULTIVATOR.get().create(l);if(npc==null)throw new IllegalStateException("NPC factory");
         npc.cultivationInitialized=true;npc.setProdigy(prodigy);npc.foundationQuality=fq;npc.goldenCoreQuality=gq;npc.spiritualPower=17;
         // 数值回归 fixture 固定不改变生命、攻防和灵力容量的词条；随机出生另由 NPC 天赋探针覆盖。
-        var ids=prodigy?List.of("myvillage:school_insight","myvillage:dragon_sight","myvillage:fire_affinity")
-                :List.of("myvillage:bright","myvillage:herbal_lore","myvillage:lightfoot");
+        var ids=prodigy?List.of("yuanxian:school_insight","yuanxian:dragon_sight","yuanxian:fire_affinity")
+                :List.of("yuanxian:bright","yuanxian:herbal_lore","yuanxian:lightfoot");
         var definitions=com.example.myvillage.cultivation.fate.FateService.definitions(l.registryAccess());
         npc.fates=new com.example.myvillage.sim.fate.NpcFateRoll(ids,9,ids.stream().map(definitions::get)
                 .mapToInt(com.example.myvillage.cultivation.fate.FateDefinition::cost).sum());
@@ -97,14 +97,14 @@ public final class NpcCultivationEvidence {
                 &&(p.prodigy()?probe.innateFates().spent()==9:probe.innateFates().spent()<9),probe.innateFates());
         }
         check("ledger_projection_sample",projected>20,projected);
-        actor(l,"沈清岚",true,2,0,"myvillage:foundation_establishment",0,8.5,11.5);
-        actor(l,"林知远",false,1,0,"myvillage:foundation_establishment",0,12.5,11.5);
-        actor(l,"筑基上品",true,3,0,"myvillage:foundation_establishment",0,20.5,11.5);
-        actor(l,"金丹中品",true,2,2,"myvillage:golden_core",2,24.5,11.5);
-        actor(l,"金丹上品",true,3,3,"myvillage:golden_core",2,28.5,11.5);
-        actor(l,"元婴初期",false,1,1,"myvillage:nascent_soul",0,32.5,11.5);
-        actor(l,"元婴中期",false,1,1,"myvillage:nascent_soul",1,36.5,11.5);
-        actor(l,"元婴后期",false,1,1,"myvillage:nascent_soul",2,40.5,11.5);
+        actor(l,"沈清岚",true,2,0,"yuanxian:foundation_establishment",0,8.5,11.5);
+        actor(l,"林知远",false,1,0,"yuanxian:foundation_establishment",0,12.5,11.5);
+        actor(l,"筑基上品",true,3,0,"yuanxian:foundation_establishment",0,20.5,11.5);
+        actor(l,"金丹中品",true,2,2,"yuanxian:golden_core",2,24.5,11.5);
+        actor(l,"金丹上品",true,3,3,"yuanxian:golden_core",2,28.5,11.5);
+        actor(l,"元婴初期",false,1,1,"yuanxian:nascent_soul",0,32.5,11.5);
+        actor(l,"元婴中期",false,1,1,"yuanxian:nascent_soul",1,36.5,11.5);
+        actor(l,"元婴后期",false,1,1,"yuanxian:nascent_soul",2,40.5,11.5);
         for(var e:ACTORS.entrySet()){
             var n=e.getValue();check(e.getKey()+"_atomic_refusal",!SpiritualPowerRuntime.spend(n,18)&&NpcCultivationRuntime.current(n)==17,StatsRuntime.info(n));
             check(e.getKey()+"_shared_spend",SpiritualPowerRuntime.spend(n,7)&&NpcCultivationRuntime.current(n)==10,StatsRuntime.info(n));

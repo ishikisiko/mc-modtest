@@ -7,13 +7,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NpcFatePoolTest {
     @Test void playerOpeningTalentsCannotEnterNpcBirthRolls(){
-        var pool=NpcFatePool.bundled();var ids=Set.of("myvillage:alchemy_prodigy","myvillage:forging_prodigy","myvillage:clod");
+        var pool=NpcFatePool.bundled();var ids=Set.of("yuanxian:alchemy_prodigy","yuanxian:forging_prodigy","yuanxian:clod");
         assertEquals(3,pool.entries().stream().filter(e->ids.contains(e.id())&&!e.enabled()).count());
         for(int i=0;i<100;i++)assertTrue(Collections.disjoint(ids,pool.roll(new int[5],false,random(i)).selected()));
     }
     private static SimRng random(int id) { return SimRng.at(42, 0, id, 114); }
     private static NpcFatePool.Entry entry(String id, int cost, String group) {
-        return new NpcFatePool.Entry("myvillage:" + id, cost, group, true, "", 0, 5);
+        return new NpcFatePool.Entry("yuanxian:" + id, cost, group, true, "", 0, 5);
     }
     @Test void ordinaryTotalsStayBelowBudgetAndOnlyProdigiesUseAllNinePoints() {
         var pool = NpcFatePool.bundled();
@@ -43,15 +43,15 @@ class NpcFatePoolTest {
         for (int id = 0; id < 2000; id++) {
             var roll = pool.roll(new int[5], false, random(id));
             assertEquals(roll, reversed.roll(new int[5], false, random(id)));
-            appeared |= roll.selected().contains("myvillage:future_fate");
+            appeared |= roll.selected().contains("yuanxian:future_fate");
         }
         assertTrue(appeared);
     }
     @Test void disabledEntriesRootGatesAndExclusiveGroupsAlwaysApply() {
         var entries = new ArrayList<>(List.of(entry("a",1,"a"), entry("b",1,"b"), entry("c",1,"c"),
                 entry("d",3,"body"), entry("e",5,"body")));
-        entries.add(new NpcFatePool.Entry("myvillage:disabled",1,"disabled",false,"",0,5));
-        entries.add(new NpcFatePool.Entry("myvillage:root_gate",3,"root",true,"myvillage:fire",250,1));
+        entries.add(new NpcFatePool.Entry("yuanxian:disabled",1,"disabled",false,"",0,5));
+        entries.add(new NpcFatePool.Entry("yuanxian:root_gate",3,"root",true,"yuanxian:fire",250,1));
         var pool = new NpcFatePool(9, entries);
         var blocked = pool.entries().stream().filter(e -> e.id().endsWith("root_gate")).findFirst().orElseThrow();
         assertFalse(blocked.eligible(new int[]{0,0,0,249,0}));
@@ -59,9 +59,9 @@ class NpcFatePoolTest {
         assertTrue(blocked.eligible(new int[]{0,0,0,300,0}));
         for (int id=0;id<500;id++) {
             var roll=pool.roll(new int[5],false,random(id));
-            assertFalse(roll.selected().contains("myvillage:disabled"));
-            assertFalse(roll.selected().contains("myvillage:root_gate"));
-            assertFalse(roll.selected().containsAll(List.of("myvillage:d","myvillage:e")));
+            assertFalse(roll.selected().contains("yuanxian:disabled"));
+            assertFalse(roll.selected().contains("yuanxian:root_gate"));
+            assertFalse(roll.selected().containsAll(List.of("yuanxian:d","yuanxian:e")));
         }
     }
     @Test void unavailableExactBudgetFailsWithoutProducingAnUnderfundedProdigy() {
@@ -80,10 +80,10 @@ class NpcFatePoolTest {
         assertEquals(5,saved.budget());
     }
     @Test void savedRecordRejectsMissingOrCorruptFieldsAndDoesNotResolveUnknownIds() {
-        var roll=new NpcFateRoll(List.of("myvillage:future_a","myvillage:future_b","myvillage:future_c"),9,9);
+        var roll=new NpcFateRoll(List.of("yuanxian:future_a","yuanxian:future_b","yuanxian:future_c"),9,9);
         assertEquals(roll,NpcFateRoll.fromJson(roll.toJson(),true));
         assertThrows(IllegalArgumentException.class,()->roll.validateIdentity(false));
-        assertThrows(IllegalArgumentException.class,()->new NpcFateRoll(List.of("myvillage:a","myvillage:a","myvillage:b"),9,3));
+        assertThrows(IllegalArgumentException.class,()->new NpcFateRoll(List.of("yuanxian:a","yuanxian:a","yuanxian:b"),9,3));
         var invalid=roll.toJson();invalid.addProperty("spent",8.5);
         assertThrows(ArithmeticException.class,()->NpcFateRoll.fromJson(invalid,true));
         invalid.addProperty("spent","9");

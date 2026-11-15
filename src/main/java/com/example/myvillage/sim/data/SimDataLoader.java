@@ -70,7 +70,7 @@ public final class SimDataLoader {
         var commerceRules = com.example.myvillage.sim.commerce.CommerceRules.parse(commerceFile, read(opener, commerceFile));
         String professionFile = SimData.DIRECTORY + "herbal_profession_rules.json";
         var professionRules = com.example.myvillage.sim.profession.ProfessionRules.parse(professionFile,
-                read(opener, professionFile), read(opener, "data/myvillage/alchemy/rules.json"), commerceRules);
+                read(opener, professionFile), read(opener, "data/yuanxian/alchemy/rules.json"), commerceRules);
         String economyFile = SimData.DIRECTORY + "player_economy.json";
         var economy = com.example.myvillage.sim.economy.PlayerEconomyRules.parse(economyFile, read(opener, economyFile));
         for (String id : economy.sectRewards().keySet()) if (sectTasks.stream().noneMatch(t -> t.id().equals(id)))

@@ -18,7 +18,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 /** Shared buy/sell view. Only bounded quantity intentions leave the client. */
 public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> {
-    private static final String KEY="screen.myvillage.commerce.";
+    private static final String KEY="screen.yuanxian.commerce.";
     private static final int ROW_Y=60,ROWS=3;
     private final List<Button> actions=new ArrayList<>();
     private List<Integer> visibleOffers=List.of();
@@ -144,7 +144,7 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
                 g.renderTooltip(font,CommerceInventory.stack(o),mx,my);
         }
     }
-    @EventBusSubscriber(modid="myvillage",bus=EventBusSubscriber.Bus.MOD,value=Dist.CLIENT)
+    @EventBusSubscriber(modid="yuanxian",bus=EventBusSubscriber.Bus.MOD,value=Dist.CLIENT)
     public static final class Registration {
         private Registration() { }
         @SubscribeEvent public static void screens(RegisterMenuScreensEvent event){event.register(CommerceMenus.SHOP.get(),CommerceScreen::new);event.register(CommerceMenus.ECONOMY.get(),EconomyScreen::new);}

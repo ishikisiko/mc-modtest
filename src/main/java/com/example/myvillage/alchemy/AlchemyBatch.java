@@ -33,7 +33,7 @@ public record AlchemyBatch(UUID brewer,String recipe,int score,String tier,int d
         INVALID("invalid"),BUSY("busy"),UNAWAKENED("unawakened"),INGREDIENTS("ingredients"),FUEL("fuel"),OUTPUT("output");
         private final String suffix;
         Rejection(String suffix){this.suffix=suffix;}
-        public String messageKey(){return "message.myvillage.alchemy.start_"+suffix;}
+        public String messageKey(){return "message.yuanxian.alchemy.start_"+suffix;}
     }
     public static Rejection rejection(boolean actor,boolean active,boolean awakened,boolean ingredients,boolean fuel,boolean outputEmpty){
         if(!actor)return Rejection.INVALID;if(active)return Rejection.BUSY;if(!awakened)return Rejection.UNAWAKENED;

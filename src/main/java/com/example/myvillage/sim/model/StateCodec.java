@@ -20,7 +20,7 @@ import java.util.List;
 
 /** 当前开发版命簿的规范 UTF-8 JSON；固定顺序使相同状态得到相同字节，其他版本明确拒绝。 */
 public final class StateCodec {
-    public static final String FORMAT = "myvillage:world_sim";
+    public static final String FORMAT = "yuanxian:world_sim";
     /** 17：玩家贡献消费、冻结任务奖励、江湖声望与各城接取日期。 */
     public static final int VERSION = 17;
 

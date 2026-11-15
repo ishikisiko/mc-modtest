@@ -52,9 +52,9 @@ public final class CourtyardAssemblyItem extends BlockItem {
     }
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){
         int selected=variant(stack);var v=assembly.family().variant(selected);
-        lines.add(Component.translatable("variant.myvillage."+assembly.familyId()+"."+selected).withStyle(ChatFormatting.GOLD));
-        lines.add(Component.translatable("tooltip.myvillage.courtyard.size",v.width(),v.height(),v.depth()).withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("tooltip.myvillage.courtyard.select").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("variant.yuanxian."+assembly.familyId()+"."+selected).withStyle(ChatFormatting.GOLD));
+        lines.add(Component.translatable("tooltip.yuanxian.courtyard.size",v.width(),v.height(),v.depth()).withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("tooltip.yuanxian.courtyard.select").withStyle(ChatFormatting.GRAY));
     }
     @Override public InteractionResult place(BlockPlaceContext context){
         var level=context.getLevel();var player=context.getPlayer();var stack=context.getItemInHand();

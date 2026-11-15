@@ -31,7 +31,7 @@ function batches(sel=selection,ref=reference,body=$('body').checked,profile=$('p
  if(sel==='objects'){return DATA.objects.map((o,i)=>({mesh:objects[o.id],matrix:translate((i-1.5)*19,i===0?4:0,0),texture:textures.objects[0]}))}
  if(objects[sel])return [{mesh:objects[sel],matrix:identity,texture:textures.objects[0]}];
  const name=ref?'reference':'new',set=DATA[name],id=ref?sel.replace('xuangang_','xuantie_'):sel;
- return meshes[name][profile].filter(b=>b.item==='body'?body:(sel==='all'||b.item==='myvillage:'+id)).map(b=>({mesh:b,matrix:set.poses[pose][b.bone],texture:textures[name][b.texture]}));
+ return meshes[name][profile].filter(b=>b.item==='body'?body:(sel==='all'||b.item==='yuanxian:'+id)).map(b=>({mesh:b,matrix:set.poses[pose][b.bone],texture:textures[name][b.texture]}));
 }
 function camera(aspect,bs){const z=unit([Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch)]),x=unit(cross([0,1,0],z)),y=cross(z,x),lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity],points=[];
 for(const b of bs){const m=b.matrix;for(let i=0;i<b.mesh.vertices.length;i+=11){const v=b.mesh.vertices.slice(i,i+3),p=[0,1,2].map(r=>m[r]*v[0]+m[4+r]*v[1]+m[8+r]*v[2]+m[12+r]);points.push(p);for(let j=0;j<3;j++){lo[j]=Math.min(lo[j],p[j]);hi[j]=Math.max(hi[j],p[j])}}}

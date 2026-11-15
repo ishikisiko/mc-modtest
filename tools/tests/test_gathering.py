@@ -22,30 +22,30 @@ class GatheringTests(unittest.TestCase):
     def test_generated_resource_references_close_and_recipes_have_real_materials(self):
         generated=outputs()
         for bid in (prefix+'_'+kind for prefix in IDS.values() for kind in ('core','node')):
-            block=json.loads(generated[ROOT/f'src/main/resources/assets/myvillage/models/block/{bid}.json'])
+            block=json.loads(generated[ROOT/f'src/main/resources/assets/yuanxian/models/block/{bid}.json'])
             for texture in block['textures'].values():
-                relative=texture.removeprefix('myvillage:')
-                self.assertIn(ROOT/f'src/main/resources/assets/myvillage/textures/{relative}.png',generated)
-            recipe=json.loads(generated[ROOT/f'src/main/resources/data/myvillage/recipe/{bid}.json'])
+                relative=texture.removeprefix('yuanxian:')
+                self.assertIn(ROOT/f'src/main/resources/assets/yuanxian/textures/{relative}.png',generated)
+            recipe=json.loads(generated[ROOT/f'src/main/resources/data/yuanxian/recipe/{bid}.json'])
             used=set(''.join(recipe['pattern']))-{' '}
             self.assertEqual(used,set(recipe['key']))
-            self.assertEqual({'id':'myvillage:'+bid,'count':1},recipe['result'])
-            loot=json.loads(generated[ROOT/f'src/main/resources/data/myvillage/loot_table/blocks/{bid}.json'])
-            self.assertEqual('myvillage:'+bid,loot['pools'][0]['entries'][0]['name'])
+            self.assertEqual({'id':'yuanxian:'+bid,'count':1},recipe['result'])
+            loot=json.loads(generated[ROOT/f'src/main/resources/data/yuanxian/loot_table/blocks/{bid}.json'])
+            self.assertEqual('yuanxian:'+bid,loot['pools'][0]['entries'][0]['name'])
         for path,content in generated.items():self.assertEqual(path.read_bytes(),content,str(path))
 
     def test_tiers_have_distinct_geometry_and_runtime_appearance_from_same_source(self):
         generated=outputs()
         elements=[]
         for prefix in IDS.values():
-            model=json.loads(generated[ROOT/f'src/main/resources/assets/myvillage/models/block/{prefix}_node.json'])
+            model=json.loads(generated[ROOT/f'src/main/resources/assets/yuanxian/models/block/{prefix}_node.json'])
             elements.append(json.dumps(model['elements'],sort_keys=True))
             for element in model['elements']:
                 self.assertTrue(all(-16<=a<b<=32 for a,b in zip(element['from'],element['to'])))
                 if 'rotation' in element:self.assertIn(element['rotation']['angle'],(-45,-22.5,0,22.5,45))
         self.assertEqual(3,len(set(elements)))
         authored=json.loads((ROOT/'tools/gathering/visual.json').read_text())
-        appearance=json.loads(generated[ROOT/'src/main/resources/data/myvillage/gathering/appearance.json'])
+        appearance=json.loads(generated[ROOT/'src/main/resources/data/yuanxian/gathering/appearance.json'])
         for tier,row in {'low':authored,**authored['tiers']}.items():
             if tier!='low':row['node_boxes'],row['collision_boxes']=architecture.node(tier)
             self.assertEqual({**row['visual'],'collision_boxes':row['collision_boxes']},appearance[tier])
@@ -53,7 +53,7 @@ class GatheringTests(unittest.TestCase):
 
     def test_architecture_closes_items_and_keeps_the_approved_central_spaces(self):
         generated=outputs();parts=architecture.parts()
-        known={'myvillage:'+p for p in parts}|{'myvillage:'+p+'_node' for p in IDS.values()}|{'minecraft:air'}
+        known={'yuanxian:'+p for p in parts}|{'yuanxian:'+p+'_node' for p in IDS.values()}|{'minecraft:air'}
         for tier,radius in [('medium',4),('high',5)]:
             rows=architecture.construction(tier,radius);positions=[tuple(p['offset']) for p in rows]
             self.assertEqual(len(positions),len(set(positions)))
@@ -61,24 +61,24 @@ class GatheringTests(unittest.TestCase):
                 x,y,z=row['offset'];self.assertLessEqual(max(abs(x),abs(z)),radius)
                 self.assertGreater(max(abs(x),abs(z)),radius-2)
                 self.assertTrue(1<=y<=3);self.assertIn(row['block'],known)
-            counts={bid:sum(r['block']=='myvillage:'+bid for r in rows) for bid in parts}
+            counts={bid:sum(r['block']=='yuanxian:'+bid for r in rows) for bid in parts}
             if tier=='medium':self.assertEqual((12,8),(counts['jade_gathering_step'],counts['jade_gathering_wing']))
             else:self.assertEqual((32,24,16,4),(counts['golden_gathering_pillar'],counts['golden_gathering_beam'],counts['purple_gathering_plinth'],counts['purple_gathering_lamp']))
         for bid in parts:
-            for suffix in (f'assets/myvillage/models/item/{bid}.json',f'assets/myvillage/blockstates/{bid}.json',
-                           f'data/myvillage/recipe/{bid}.json',f'data/myvillage/loot_table/blocks/{bid}.json'):
+            for suffix in (f'assets/yuanxian/models/item/{bid}.json',f'assets/yuanxian/blockstates/{bid}.json',
+                           f'data/yuanxian/recipe/{bid}.json',f'data/yuanxian/loot_table/blocks/{bid}.json'):
                 self.assertIn(ROOT/'src/main/resources'/suffix,generated)
         self.assertEqual([],architecture.construction('low',3))
 
     def test_declared_tier_sizes_and_non_currency_fuel_lifetimes(self):
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/gathering/rules.json').read_text())
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/gathering/rules.json').read_text())
         self.assertEqual([7,9,11],[2*rules['tiers'][k]['radius']+1 for k in IDS])
         self.assertEqual([3,5,7],[2*rules['tiers'][k]['inner_radius']+1 for k in IDS])
         self.assertEqual({'low_grade':20,'medium_grade':200,'high_grade':2000},rules['fuel_charges'])
 
     def test_soft_emission_is_scoped_to_requested_jade_and_labpbr_alpha(self):
         from tools.gen_qingfeng_sword_model import decode_png_rgba
-        generated=outputs();assets=ROOT/'src/main/resources/assets/myvillage'
+        generated=outputs();assets=ROOT/'src/main/resources/assets/yuanxian'
         lights=json.loads((ROOT/'tools/gathering/visual.json').read_text())['lighting']
         for bid,light in lights.items():
             model=json.loads(generated[assets/f'models/block/{bid}.json'])
@@ -99,7 +99,7 @@ class GatheringTests(unittest.TestCase):
             model=json.loads(generated[assets/f'models/block/{bid}.json'])
             self.assertNotIn('soft_jade',model['textures']['jade'])
             self.assertNotIn('neoforge_data',json.dumps(model))
-        parts=json.loads(generated[ROOT/'src/main/resources/data/myvillage/gathering/construction.json'])['parts']
+        parts=json.loads(generated[ROOT/'src/main/resources/data/yuanxian/gathering/construction.json'])['parts']
         self.assertEqual(11,parts['purple_gathering_lamp']['light_level'])
         self.assertTrue(all(v['light_level']==0 for k,v in parts.items() if k!='purple_gathering_lamp'))
 

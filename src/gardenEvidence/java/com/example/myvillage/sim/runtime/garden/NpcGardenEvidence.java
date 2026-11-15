@@ -48,9 +48,9 @@ import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Opt-in dedicated-server fixture. Never package this subscriber in a release jar. */
-@EventBusSubscriber(modid = "myvillage")
+@EventBusSubscriber(modid = "yuanxian")
 public final class NpcGardenEvidence {
-    private static final String HERB = "myvillage:spirit_leaf";
+    private static final String HERB = "yuanxian:spirit_leaf";
     private static final String SITE = "native_garden_evidence";
     private static final String PLOT = "plot";
     private static final String[] INITIAL = {"fixture", "source_gather", "source_delivery", "native_plant", "native_tend", "save_boundary"};

@@ -10,7 +10,7 @@ class LegacyJarAuditTest(unittest.TestCase):
     def test_geometry_bytes_cannot_be_relabelled_as_provenance(self):
         with tempfile.TemporaryDirectory() as d:
             old,new=Path(d)/'old.jar',Path(d)/'new.jar'
-            name='data/myvillage/structure/province_capitals/v2/capital_lingyue/tile_0_0.nbt'
+            name='data/yuanxian/structure/province_capitals/v2/capital_lingyue/tile_0_0.nbt'
             for p,value in [(old,b'original'),(new,b'changed')]:
                 with zipfile.ZipFile(p,'w') as z:z.writestr(name,value)
             result=compare(old,new)
@@ -28,7 +28,7 @@ class LegacyJarAuditTest(unittest.TestCase):
     def test_missing_old_resources_are_failures(self):
         with tempfile.TemporaryDirectory() as d:
             old,new=Path(d)/'old.jar',Path(d)/'new.jar'
-            with zipfile.ZipFile(old,'w') as z:z.writestr('data/myvillage/worldplan/frozen_v9.json','{}')
+            with zipfile.ZipFile(old,'w') as z:z.writestr('data/yuanxian/worldplan/frozen_v9.json','{}')
             with zipfile.ZipFile(new,'w'):pass
             self.assertEqual('missing',compare(old,new)['failures'][0]['kind'])
 
@@ -36,18 +36,18 @@ class LegacyJarAuditTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             old,new=Path(d)/'old.jar',Path(d)/'new.jar'
             source='tools/buildgen/groups.py'
-            manifest_path='data/myvillage/capitals/v1/capital_zhongzhou/city.json'
-            terrain_path='data/myvillage/capitals/v1/capital_zhongzhou/terrain.bin.gz'
-            tile_path='data/myvillage/structure/province_capitals/v1/capital_zhongzhou/tile_0_0.nbt'
-            index_path='data/myvillage/capitals/v2/index.json'
+            manifest_path='data/yuanxian/capitals/v1/capital_zhongzhou/city.json'
+            terrain_path='data/yuanxian/capitals/v1/capital_zhongzhou/terrain.bin.gz'
+            tile_path='data/yuanxian/structure/province_capitals/v1/capital_zhongzhou/tile_0_0.nbt'
+            index_path='data/yuanxian/capitals/v2/index.json'
             manifest={'city_id':'capital_zhongzhou',
-                      'terrain':{'resource':'myvillage:capitals/v1/capital_zhongzhou/terrain.bin.gz'},
-                      'tiles':[{'template':'myvillage:province_capitals/v1/capital_zhongzhou/tile_0_0'}],
+                      'terrain':{'resource':'yuanxian:capitals/v1/capital_zhongzhou/terrain.bin.gz'},
+                      'tiles':[{'template':'yuanxian:province_capitals/v1/capital_zhongzhou/tile_0_0'}],
                       'source':{'hashes':{source:'old'}}}
             def write_jar(path,source_hash,extra_bytes=0,resource_version='v1'):
                 manifest['source']['hashes'][source]=source_hash
                 raw=json.dumps(manifest).encode();terrain=b'terrain';tile=b'tile'
-                row={'city_id':'capital_zhongzhou','resource':'myvillage:capitals/v1/capital_zhongzhou/city.json',
+                row={'city_id':'capital_zhongzhou','resource':'yuanxian:capitals/v1/capital_zhongzhou/city.json',
                      'resource_version':resource_version,'raw_city_json_sha256':digest(raw),
                      'bytes':len(raw)+len(terrain)+len(tile)+extra_bytes}
                 index={'cities':[row],'total_bytes':row['bytes']}

@@ -20,7 +20,7 @@ import java.util.function.Function;
 import javax.imageio.ImageIO;
 
 /**
- * The part maps {@code tools/portraitgen/export.py} writes under {@code assets/myvillage/portrait/}:
+ * The part maps {@code tools/portraitgen/export.py} writes under {@code assets/yuanxian/portrait/}:
  * per layer and variant, the roles one compose step paints and the mask it leaves for the hair
  * finish. Loaded once through a resource opener so the client can pass its resource manager and a
  * test its class loader; every file the manifest lists, and every file a {@link PortraitSpec} can

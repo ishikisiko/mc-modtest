@@ -56,7 +56,7 @@ class Journey(scripture.Run):
         self.setup() # existing entry fixture, no join/learn/manual grants
         u=self.s.username
         self.rc(f'clear {u}')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_1')
         # Reject previously learned state rather than silently using a cheat to repair it.
         learned=self.learned()
         if TECHNIQUE in learned:
@@ -66,22 +66,22 @@ class Journey(scripture.Run):
         self.rc(f'effect give {u} minecraft:instant_health 1 10 true')
 
     def inherit_basic(self):
-        if 'myvillage:basic_breathing' in self.learned(): return
+        if 'yuanxian:basic_breathing' in self.learned(): return
         u=self.s.username
         self.s.game.key('9') # empty slot in the isolated eligible-prospect fixture
         self.tp(.5,-60,.5,0,20.5,settle=1)
-        reply=self.rc('setblock 0 -60 3 myvillage:technique_inheritance_stele')
+        reply=self.rc('setblock 0 -60 3 yuanxian:technique_inheritance_stele')
         if 'not loaded' in reply:raise RuntimeError('stele fixture chunk not loaded')
         time.sleep(.5)
         self.right_click()
         time.sleep(1)
-        inherited='myvillage:basic_breathing' in self.learned()
+        inherited='yuanxian:basic_breathing' in self.learned()
         self.check('basic_breathing_via_stele',inherited,'mapped right click on inheritance stele; no learn command')
         self.shot('basic_breathing_inherited','Basic Breathing inherited by using the stele')
         if not inherited:raise RuntimeError('inheritance stele did not teach Basic Breathing')
 
     def learned(self):
-        return self.rc(f'data get entity {self.s.username} "neoforge:attachments"."myvillage:cultivation_profile".learned_techniques')
+        return self.rc(f'data get entity {self.s.username} "neoforge:attachments"."yuanxian:cultivation_profile".learned_techniques')
 
     def join_naturally(self):
         self.meet_steward()
@@ -111,7 +111,7 @@ class Journey(scripture.Run):
         item=next((e for e in entries if TECHNIQUE in e and 'manual_active_1' in e),None)
         if item is None:
             # Item grade names are registry-owned; component identity is the authority.
-            item=next((e for e in entries if TECHNIQUE in e and 'myvillage:manual_' in e),None)
+            item=next((e for e in entries if TECHNIQUE in e and 'yuanxian:manual_' in e),None)
         match=re.search(r'Slot:\s*(\d+)b',item or '')
         if not match or not 0 <= int(match.group(1)) <= 8: raise RuntimeError('borrowed manual is not in a selectable hotbar slot')
         self.s.game.key(str(int(match.group(1))+1))

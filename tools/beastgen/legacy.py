@@ -16,7 +16,7 @@ def build_model(name):
     if name=='stele_guardian':
         from tools.legacy_encounters.stone_models import guardian_skeleton
         return guardian_skeleton()
-    m=entry(name);b=Builder('myvillage:'+name,look={'bone':'head','max_yaw':20,'max_pitch':15},shadow_radius=m['physical']['shadow_radius'])
+    m=entry(name);b=Builder('yuanxian:'+name,look={'bone':'head','max_yaw':20,'max_pitch':15},shadow_radius=m['physical']['shadow_radius'])
     heights={'wandering_sword':30,'mirror_wraith':19,'ember_toad':12,'stele_guardian':35}
     b.bone('body','root',at=(0,-heights[name],0))
     if name=='wandering_sword':
@@ -149,8 +149,8 @@ def definition(name):
     m=entry(name)
     if name=='stele_guardian':
         from tools.legacy_encounters.stone_models import finalize_guardian,guardian_extra_outputs
-        return SimpleNamespace(NAME=name,ID='myvillage:'+name,HITBOX=(m['physical']['width'],m['physical']['height']),build_model=lambda:build_model(name),paint=painter(name),glow=glow(name),clips=lambda model,server:clips(name,model,server),finalize=finalize_guardian,extra_outputs=guardian_extra_outputs,SKIP_CREASE=tuple(c.name for _,c in build_model(name).cubes()))
-    return SimpleNamespace(NAME=name,ID='myvillage:'+name,HITBOX=(m['physical']['width'],m['physical']['height']),build_model=lambda:build_model(name),paint=painter(name),glow=glow(name),clips=lambda model,server:clips(name,model,server),authored_texture=lambda model,base:authored_texture(name,model,base),SKIP_CREASE=tuple(c.name for _,c in build_model(name).cubes()))
+        return SimpleNamespace(NAME=name,ID='yuanxian:'+name,HITBOX=(m['physical']['width'],m['physical']['height']),build_model=lambda:build_model(name),paint=painter(name),glow=glow(name),clips=lambda model,server:clips(name,model,server),finalize=finalize_guardian,extra_outputs=guardian_extra_outputs,SKIP_CREASE=tuple(c.name for _,c in build_model(name).cubes()))
+    return SimpleNamespace(NAME=name,ID='yuanxian:'+name,HITBOX=(m['physical']['width'],m['physical']['height']),build_model=lambda:build_model(name),paint=painter(name),glow=glow(name),clips=lambda model,server:clips(name,model,server),authored_texture=lambda model,base:authored_texture(name,model,base),SKIP_CREASE=tuple(c.name for _,c in build_model(name).cubes()))
 
 def authored_texture(name,model,base):
     path=ROOT/'art/entities'/name/'material_tones.png'

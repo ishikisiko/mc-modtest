@@ -15,7 +15,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 /** 仅采集真实客户端缓存与网络重连；操作输入仍由外部映射按键提供。 */
-@EventBusSubscriber(modid="myvillage",value=Dist.CLIENT)
+@EventBusSubscriber(modid="yuanxian",value=Dist.CLIENT)
 public final class SpiritBodiesClientEvidence {
     private static int tick,reconnectAt=-1,sequence=-1;
     private static final List<Map<String,Object>> HISTORY=new ArrayList<>();

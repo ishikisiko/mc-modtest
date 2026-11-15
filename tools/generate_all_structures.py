@@ -5,7 +5,7 @@ This is the canonical mod validation entrypoint. It writes the hand-authored
 JSON DSL smoke-test structure plus generated building, compound, and civic
 libraries into:
 
-    src/main/resources/data/myvillage/structure/
+    src/main/resources/data/yuanxian/structure/
 """
 
 from __future__ import annotations
@@ -19,9 +19,9 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
-DEFAULT_OUTPUT = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "structure"
-DEFAULT_FUNCTIONS = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "function"
-DEFAULT_SETTLEMENT_META = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "settlement_meta"
+DEFAULT_OUTPUT = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "structure"
+DEFAULT_FUNCTIONS = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "function"
+DEFAULT_SETTLEMENT_META = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "settlement_meta"
 
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))

@@ -18,7 +18,7 @@ public record BattleRules(String id, String mode, RuinRules.Pos cache, RuinRules
         static Map<String, BattleRules> load() {
             Map<String, BattleRules> result = new HashMap<>();
             for (String id : IDS) {
-                try (var in = BattleRules.class.getResourceAsStream("/data/myvillage/ruins/"+id+".json")) {
+                try (var in = BattleRules.class.getResourceAsStream("/data/yuanxian/ruins/"+id+".json")) {
                     if (in == null) throw new IllegalStateException("Missing battle rules " + id);
                     result.put(id, parse(JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject()));
                 } catch (IOException e) { throw new IllegalStateException(e); }
@@ -44,7 +44,7 @@ public record BattleRules(String id, String mode, RuinRules.Pos cache, RuinRules
             for (var gv:w.getAsJsonArray("guards")) {
                 var g=gv.getAsJsonObject(); String entity=g.get("entity").getAsString(), realm=g.get("realm").getAsString();
                 int stage=integer(g.get("stage"));
-                if (!Set.of("minecraft:zombie","minecraft:skeleton","minecraft:wither_skeleton","myvillage:demon_wolf").contains(entity)) throw new IllegalArgumentException("Unsupported guard");
+                if (!Set.of("minecraft:zombie","minecraft:skeleton","minecraft:wither_skeleton","yuanxian:demon_wolf").contains(entity)) throw new IllegalArgumentException("Unsupported guard");
                 StatsRules.bundled().realmKey(realm,stage);
                 guards.add(new Guard(entity,pos(g.get("pos")),realm,stage,g.get("weapon").getAsString(),g.get("elite").getAsBoolean()));
             }

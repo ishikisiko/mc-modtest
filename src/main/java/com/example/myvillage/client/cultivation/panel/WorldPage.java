@@ -55,20 +55,20 @@ public final class WorldPage extends PanelPage {
             ModCultivationRegistries.FIRE_ELEMENT_ID,
             ModCultivationRegistries.EARTH_ELEMENT_ID);
     private static final List<String> ELEMENT_KEYS = List.of(
-            "screen.myvillage.cultivation.world.element.metal",
-            "screen.myvillage.cultivation.world.element.wood",
-            "screen.myvillage.cultivation.world.element.water",
-            "screen.myvillage.cultivation.world.element.fire",
-            "screen.myvillage.cultivation.world.element.earth");
+            "screen.yuanxian.cultivation.world.element.metal",
+            "screen.yuanxian.cultivation.world.element.wood",
+            "screen.yuanxian.cultivation.world.element.water",
+            "screen.yuanxian.cultivation.world.element.fire",
+            "screen.yuanxian.cultivation.world.element.earth");
 
     /** The dock's sub-views. */
     private enum Section {
-        OVERVIEW("screen.myvillage.cultivation.world.view.overview"),
-        SECTS("screen.myvillage.cultivation.world.view.sects"),
-        PEOPLE("screen.myvillage.cultivation.world.view.people"),
-        CHRONICLE("screen.myvillage.cultivation.world.view.chronicle"),
-        HERE("screen.myvillage.cultivation.world.view.here"),
-        ATLAS("screen.myvillage.atlas.tab");
+        OVERVIEW("screen.yuanxian.cultivation.world.view.overview"),
+        SECTS("screen.yuanxian.cultivation.world.view.sects"),
+        PEOPLE("screen.yuanxian.cultivation.world.view.people"),
+        CHRONICLE("screen.yuanxian.cultivation.world.view.chronicle"),
+        HERE("screen.yuanxian.cultivation.world.view.here"),
+        ATLAS("screen.yuanxian.atlas.tab");
 
         private final String titleKey;
 
@@ -146,9 +146,9 @@ public final class WorldPage extends PanelPage {
                 searchY,
                 twoRows ? width : searchWidth,
                 BUTTON_HEIGHT,
-                Component.translatable("screen.myvillage.cultivation.world.search"));
+                Component.translatable("screen.yuanxian.cultivation.world.search"));
         search.setMaxLength(WorldSimQuery.MAX_TEXT);
-        search.setPanelHint(Component.translatable("screen.myvillage.cultivation.world.search_hint"));
+        search.setPanelHint(Component.translatable("screen.yuanxian.cultivation.world.search_hint"));
         search.setValue(searchText);
         search.setResponder(WorldPage::onSearch);
         widgets.accept(search);
@@ -291,8 +291,8 @@ public final class WorldPage extends PanelPage {
         WorldSimQuery query = currentQuery();
         if (query == null) {
             return cursor - y + message(c, x, cursor, width,
-                    tr("screen.myvillage.cultivation.world.card.people"),
-                    tr("screen.myvillage.cultivation.world.search_prompt"),
+                    tr("screen.yuanxian.cultivation.world.card.people"),
+                    tr("screen.yuanxian.cultivation.world.search_prompt"),
                     InkPanelTheme.MUTED);
         }
         Optional<WorldSimSnapshot> fresh = ClientWorldSimState.latest(query);
@@ -303,14 +303,14 @@ public final class WorldPage extends PanelPage {
         WorldSimSnapshot snapshot = fresh.orElse(searching ? lastSearch : null);
         if (snapshot == null) {
             return cursor - y + message(c, x, cursor, width,
-                    tr("screen.myvillage.cultivation.world.title"),
-                    tr("screen.myvillage.cultivation.world.loading"),
+                    tr("screen.yuanxian.cultivation.world.title"),
+                    tr("screen.yuanxian.cultivation.world.loading"),
                     InkPanelTheme.MUTED);
         }
         if (!snapshot.active()) {
             return cursor - y + message(c, x, cursor, width,
-                    tr("screen.myvillage.cultivation.world.inactive_title"),
-                    Component.translatable("commands.myvillage.world.inactive", snapshot.inactiveReason()),
+                    tr("screen.yuanxian.cultivation.world.inactive_title"),
+                    Component.translatable("commands.yuanxian.world.inactive", snapshot.inactiveReason()),
                     InkPanelTheme.AMBER);
         }
         int height = switch (snapshot.query().kind()) {
@@ -328,7 +328,7 @@ public final class WorldPage extends PanelPage {
 
     /** The 「← 返回」 hot zone above a detail. */
     private int backRow(WorldCanvas c, int x, int y, int width) {
-        String label = text("screen.myvillage.cultivation.world.back");
+        String label = text("screen.yuanxian.cultivation.world.back");
         int zone = Math.min(width, c.width(label) + 12);
         c.link(x, y, x + zone, y + BACK_HEIGHT - 2, WorldPage::back);
         c.text(label, x + 4, y + 2, zone - 4, InkPanelTheme.GOLD);
@@ -377,11 +377,11 @@ public final class WorldPage extends PanelPage {
     private int overview(WorldCanvas c, PanelContext context, WorldSimSnapshot s, int x, int y, int width) {
         WorldSimSnapshot.Overview o = s.overview();
         if (o == null) {
-            return message(c, x, y, width, tr("screen.myvillage.cultivation.world.card.ledger"),
-                    tr("screen.myvillage.cultivation.world.none"), InkPanelTheme.MUTED);
+            return message(c, x, y, width, tr("screen.yuanxian.cultivation.world.card.ledger"),
+                    tr("screen.yuanxian.cultivation.world.none"), InkPanelTheme.MUTED);
         }
-        Component ledgerTitle = tr("screen.myvillage.cultivation.world.card.ledger");
-        Component realmsTitle = tr("screen.myvillage.cultivation.world.card.realms");
+        Component ledgerTitle = tr("screen.yuanxian.cultivation.world.card.ledger");
+        Component realmsTitle = tr("screen.yuanxian.cultivation.world.card.realms");
         WorldCanvas.Body ledger = (bx, by, bw) -> ledgerBody(c, context, s, o, bx, by, bw);
         WorldCanvas.Body realms = (bx, by, bw) -> realmsBody(c, o, bx, by, bw);
         int top;
@@ -399,9 +399,9 @@ public final class WorldPage extends PanelPage {
             top += GAP + c.card(x, y + top + GAP, width, realmsTitle, realms);
         }
         int cursor = y + top + GAP;
-        cursor += c.card(x, cursor, width, tr("screen.myvillage.cultivation.world.card.mine"),
+        cursor += c.card(x, cursor, width, tr("screen.yuanxian.cultivation.world.card.mine"),
                 (bx, by, bw) -> mineBody(c, s, bx, by, bw)) + GAP;
-        cursor += c.card(x, cursor, width, tr("screen.myvillage.cultivation.world.card.foremost"),
+        cursor += c.card(x, cursor, width, tr("screen.yuanxian.cultivation.world.card.foremost"),
                 (bx, by, bw) -> personList(c, s.persons(), bx, by, bw));
         return cursor - y;
     }
@@ -412,40 +412,40 @@ public final class WorldPage extends PanelPage {
         int dayOfYear = WorldReadouts.dayOfYear(s.day(), s.prehistoryDays(), s.daysPerYear());
         // 配置重载时两份快照可能先后到达，年月尺度一致后再显示月内日期。
         String date = context.time() == null || s.daysPerYear() != context.time().daysPerYear()
-                ? text("screen.myvillage.cultivation.world.date_value", dateText(s, s.day()), dayOfYear)
-                : text("screen.myvillage.cultivation.world.date_month_value",
+                ? text("screen.yuanxian.cultivation.world.date_value", dateText(s, s.day()), dayOfYear)
+                : text("screen.yuanxian.cultivation.world.date_month_value",
                         dateText(s, s.day()),
                         PanelReadouts.monthOfYear(dayOfYear, context.time().daysPerMonth()),
                         PanelReadouts.dayOfMonth(dayOfYear, context.time().daysPerMonth()));
-        c.pair(text("screen.myvillage.cultivation.world.date"), date, x, cursor, width, InkPanelTheme.TEXT);
+        c.pair(text("screen.yuanxian.cultivation.world.date"), date, x, cursor, width, InkPanelTheme.TEXT);
         cursor += ROW + 2;
 
-        String label = text("screen.myvillage.cultivation.world.settlement");
+        String label = text("screen.yuanxian.cultivation.world.settlement");
         int labelWidth = c.text(label, x, cursor + 2, width / 3, InkPanelTheme.MUTED);
-        String state = text(o.paused() ? "commands.myvillage.world.paused" : "commands.myvillage.world.running");
+        String state = text(o.paused() ? "commands.yuanxian.world.paused" : "commands.yuanxian.world.running");
         int chipWidth = Math.min(c.chipWidth(state), width - labelWidth - 6);
         int chipX = x + width - chipWidth;
         c.chip(state, chipX, cursor, chipWidth, o.paused() ? InkPanelTheme.RED : InkPanelTheme.JADE);
         int pendingRight = chipX - 4;
-        c.textRight(text("screen.myvillage.cultivation.world.pending", o.pendingDays()),
+        c.textRight(text("screen.yuanxian.cultivation.world.pending", o.pendingDays()),
                 pendingRight, cursor + 2, pendingRight - (x + labelWidth + 6), InkPanelTheme.MUTED);
         cursor += InkPanelTheme.CHIP_HEIGHT + 2;
 
-        c.pair(text("screen.myvillage.cultivation.world.tier"),
-                text("commands.myvillage.world.tier." + o.tierId()), x, cursor, width, InkPanelTheme.TEXT);
+        c.pair(text("screen.yuanxian.cultivation.world.tier"),
+                text("commands.yuanxian.world.tier." + o.tierId()), x, cursor, width, InkPanelTheme.TEXT);
         cursor += ROW + 1;
-        c.pair(text("screen.myvillage.cultivation.world.population"),
+        c.pair(text("screen.yuanxian.cultivation.world.population"),
                 o.population() + " / " + o.targetPopulation(), x, cursor, width, InkPanelTheme.TEXT);
         cursor += ROW + 1;
-        c.pair(text("screen.myvillage.cultivation.world.dead"),
+        c.pair(text("screen.yuanxian.cultivation.world.dead"),
                 Integer.toString(o.deadCount()), x, cursor, width, InkPanelTheme.TEXT);
         cursor += ROW + 1;
-        c.pair(text("screen.myvillage.cultivation.world.sects"),
-                text("screen.myvillage.cultivation.world.sects_value", o.activeSects(), o.destroyedSects()),
+        c.pair(text("screen.yuanxian.cultivation.world.sects"),
+                text("screen.yuanxian.cultivation.world.sects_value", o.activeSects(), o.destroyedSects()),
                 x, cursor, width, InkPanelTheme.TEXT);
         cursor += ROW + 1;
-        c.pair(text("screen.myvillage.cultivation.world.events"),
-                text("screen.myvillage.cultivation.world.events_value", o.eventCount()),
+        c.pair(text("screen.yuanxian.cultivation.world.events"),
+                text("screen.yuanxian.cultivation.world.events_value", o.eventCount()),
                 x, cursor, width, InkPanelTheme.TEXT);
         cursor += ROW;
         return cursor - y;
@@ -455,25 +455,25 @@ public final class WorldPage extends PanelPage {
     private int mineBody(WorldCanvas c, WorldSimSnapshot s, int x, int y, int width) {
         WorldSimSnapshot.MySect mine = s.mine();
         if (mine == null) {
-            return c.wrapped(tr("screen.myvillage.cultivation.world.mine_none"), x, y + 1, width, InkPanelTheme.MUTED)
+            return c.wrapped(tr("screen.yuanxian.cultivation.world.mine_none"), x, y + 1, width, InkPanelTheme.MUTED)
                     + 2;
         }
         int cursor = y;
         String sectName = mine.sectActive()
                 ? mine.sectName()
                 : mine.sectName() + " · " + WorldSimText.sectState("destroyed").getString();
-        cursor += linkPair(c, "screen.myvillage.cultivation.world.sect", orNone(sectName),
+        cursor += linkPair(c, "screen.yuanxian.cultivation.world.sect", orNone(sectName),
                 toSect(mine.sectId()), x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.mine_rank",
+        cursor += pair(c, "screen.yuanxian.cultivation.world.mine_rank",
                 WorldSimText.rank(mine.rank()).getString(), x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.mine_joined", dateText(s, mine.joinedDay()),
+        cursor += pair(c, "screen.yuanxian.cultivation.world.mine_joined", dateText(s, mine.joinedDay()),
                 x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.mine_master", orNone(mine.masterName()),
+        cursor += pair(c, "screen.yuanxian.cultivation.world.mine_master", orNone(mine.masterName()),
                 x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.mine_contribution",
+        cursor += pair(c, "screen.yuanxian.cultivation.world.mine_contribution",
                 Integer.toString(mine.contribution()), x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.task", taskText(mine), x, cursor, width);
-        c.pair(text("screen.myvillage.cultivation.world.mine_standing"), signed(mine.standing()),
+        cursor += pair(c, "screen.yuanxian.cultivation.world.task", taskText(mine), x, cursor, width);
+        c.pair(text("screen.yuanxian.cultivation.world.mine_standing"), signed(mine.standing()),
                 x, cursor, width, mine.standing() < 0 ? InkPanelTheme.RED : InkPanelTheme.TEXT);
         cursor += ROW;
         return cursor - y;
@@ -482,16 +482,16 @@ public final class WorldPage extends PanelPage {
     /** The open sect task as its name and progress over target, or 无 without one. */
     private static String taskText(WorldSimSnapshot.MySect mine) {
         if (mine.taskName().isEmpty()) {
-            return text("screen.myvillage.cultivation.world.none");
+            return text("screen.yuanxian.cultivation.world.none");
         }
         return text("world_sim.task." + mine.taskName() + ".name")
-                + text("screen.myvillage.cultivation.world.task_value", mine.taskProgress(), mine.taskCount());
+                + text("screen.yuanxian.cultivation.world.task_value", mine.taskProgress(), mine.taskCount());
     }
 
     private int realmsBody(WorldCanvas c, WorldSimSnapshot.Overview o, int x, int y, int width) {
         List<WorldSimSnapshot.RealmCount> counts = o.livingByRealm();
         if (counts.isEmpty()) {
-            c.text(text("screen.myvillage.cultivation.world.none"), x, y, width, InkPanelTheme.MUTED);
+            c.text(text("screen.yuanxian.cultivation.world.none"), x, y, width, InkPanelTheme.MUTED);
             return ROW;
         }
         int largest = WorldReadouts.largestCount(counts);
@@ -521,7 +521,7 @@ public final class WorldPage extends PanelPage {
 
     private int personList(WorldCanvas c, List<WorldSimSnapshot.PersonSummary> persons, int x, int y, int width) {
         if (persons.isEmpty()) {
-            c.text(text("screen.myvillage.cultivation.world.none"), x, y, width, InkPanelTheme.MUTED);
+            c.text(text("screen.yuanxian.cultivation.world.none"), x, y, width, InkPanelTheme.MUTED);
             return ROW;
         }
         int cursor = y;
@@ -565,7 +565,7 @@ public final class WorldPage extends PanelPage {
     /** Name, Daoist title, and a 已故 chip for the dead; returns the width used. */
     private int nameLine(
             WorldCanvas c, WorldSimSnapshot.PersonSummary p, int x, int y, int width, int nameColor, int titleColor) {
-        String deadTag = text("screen.myvillage.cultivation.world.dead_tag");
+        String deadTag = text("screen.yuanxian.cultivation.world.dead_tag");
         int chipRoom = p.alive() ? 0 : c.chipWidth(deadTag) + 4;
         int nameWidth = c.text(p.name(), x, y, width - chipRoom, nameColor);
         int used = nameWidth;
@@ -584,17 +584,17 @@ public final class WorldPage extends PanelPage {
         if (sectId < 0 || sectName.isEmpty()) {
             return rankText.getString();
         }
-        return Component.translatable("commands.myvillage.world.person.of_sect", rankText, sectName).getString();
+        return Component.translatable("commands.yuanxian.world.person.of_sect", rankText, sectName).getString();
     }
 
     // --- 宗门 ---------------------------------------------------------------------------------
 
     private int sectList(WorldCanvas c, WorldSimSnapshot s, int x, int y, int width) {
         return c.card(x, y, width,
-                tr("screen.myvillage.cultivation.world.card.sects", s.sects().size()),
+                tr("screen.yuanxian.cultivation.world.card.sects", s.sects().size()),
                 (bx, by, bw) -> {
                     if (s.sects().isEmpty()) {
-                        c.text(text("screen.myvillage.cultivation.world.sects_empty"), bx, by, bw, InkPanelTheme.MUTED);
+                        c.text(text("screen.yuanxian.cultivation.world.sects_empty"), bx, by, bw, InkPanelTheme.MUTED);
                         return ROW;
                     }
                     return sectRows(c, s.sects(), false, bx, by, bw);
@@ -625,15 +625,15 @@ public final class WorldPage extends PanelPage {
         c.chip(chip, x + width - chipWidth, y, chipWidth, chipColor);
         c.text("#" + sect.id() + " " + sect.name() + " · " + sect.tierName(), x, top, width - chipWidth - 6,
                 sect.active() ? InkPanelTheme.GOLD_BRIGHT : InkPanelTheme.MUTED);
-        String master = sect.masterName().isEmpty() ? text("screen.myvillage.cultivation.world.none") : sect.masterName();
+        String master = sect.masterName().isEmpty() ? text("screen.yuanxian.cultivation.world.none") : sect.masterName();
         String line;
         if (withDistance && sect.distance() >= 0) {
-            line = text("screen.myvillage.cultivation.world.here_sect_line",
+            line = text("screen.yuanxian.cultivation.world.here_sect_line",
                     sect.distance(), bearingText(sect.bearing()), master, sect.memberCount());
         } else if (withDistance) {
-            line = text("screen.myvillage.cultivation.world.here_sect_line_plain", master, sect.memberCount());
+            line = text("screen.yuanxian.cultivation.world.here_sect_line_plain", master, sect.memberCount());
         } else {
-            line = text("screen.myvillage.cultivation.world.sect_line",
+            line = text("screen.yuanxian.cultivation.world.sect_line",
                     sect.regionName(), master, sect.memberCount(), realmText(sect.topRealmId()), sect.prestige());
         }
         c.text(line, x + 6, top + ROW + 1, width - 6, sect.active() ? InkPanelTheme.MUTED : InkPanelTheme.FAINT);
@@ -643,18 +643,18 @@ public final class WorldPage extends PanelPage {
     private int sectDetail(WorldCanvas c, WorldSimSnapshot s, int x, int y, int width) {
         WorldSimSnapshot.SectDetail d = s.sect();
         if (d == null) {
-            return message(c, x, y, width, tr("screen.myvillage.cultivation.world.card.sect"),
-                    Component.translatable("commands.myvillage.world.sect.not_found", "#" + s.query().id()),
+            return message(c, x, y, width, tr("screen.yuanxian.cultivation.world.card.sect"),
+                    Component.translatable("commands.yuanxian.world.sect.not_found", "#" + s.query().id()),
                     InkPanelTheme.MUTED);
         }
         WorldCanvas.Body info = (cx, cy, cw) -> c.card(cx, cy, cw,
-                tr("screen.myvillage.cultivation.world.card.sect"),
+                tr("screen.yuanxian.cultivation.world.card.sect"),
                 (bx, by, bw) -> sectInfo(c, s, d, bx, by, bw));
         WorldCanvas.Body relations = (cx, cy, cw) -> c.card(cx, cy, cw,
-                tr("screen.myvillage.cultivation.world.card.relations"),
+                tr("screen.yuanxian.cultivation.world.card.relations"),
                 (bx, by, bw) -> sectRelations(c, d, bx, by, bw));
         WorldCanvas.Body members = (cx, cy, cw) -> c.card(cx, cy, cw,
-                tr("screen.myvillage.cultivation.world.card.members"),
+                tr("screen.yuanxian.cultivation.world.card.members"),
                 (bx, by, bw) -> personList(c, s.persons(), bx, by, bw));
         return layout(c, x, y, width, List.of(info), List.of(relations, members), List.of(recent(c, s)));
     }
@@ -670,46 +670,46 @@ public final class WorldPage extends PanelPage {
                 sect.active() ? InkPanelTheme.GOLD_BRIGHT : InkPanelTheme.MUTED);
         cursor += InkPanelTheme.CHIP_HEIGHT + 2;
 
-        cursor += pair(c, "screen.myvillage.cultivation.world.region", sect.regionName() + " · " + sect.tierName(), x, cursor, width);
+        cursor += pair(c, "screen.yuanxian.cultivation.world.region", sect.regionName() + " · " + sect.tierName(), x, cursor, width);
         String founded = dateText(s, d.foundedDay())
                 + (d.founderName().isEmpty() ? "" : " · " + d.founderName());
-        cursor += linkPair(c, "screen.myvillage.cultivation.world.founded", founded,
+        cursor += linkPair(c, "screen.yuanxian.cultivation.world.founded", founded,
                 toPerson(d.founderId()), x, cursor, width);
         if (d.parentSectId() >= 0) {
-            cursor += linkPair(c, "screen.myvillage.cultivation.world.parent", d.parentSectName(),
+            cursor += linkPair(c, "screen.yuanxian.cultivation.world.parent", d.parentSectName(),
                     toSect(d.parentSectId()), x, cursor, width);
         }
         if (d.destroyedDay() >= 0) {
-            cursor += pair(c, "screen.myvillage.cultivation.world.destroyed", dateText(s, d.destroyedDay()),
+            cursor += pair(c, "screen.yuanxian.cultivation.world.destroyed", dateText(s, d.destroyedDay()),
                     x, cursor, width);
         }
-        cursor += linkPair(c, "screen.myvillage.cultivation.world.master", orNone(sect.masterName()),
+        cursor += linkPair(c, "screen.yuanxian.cultivation.world.master", orNone(sect.masterName()),
                 toPerson(d.masterId()), x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.members",
+        cursor += pair(c, "screen.yuanxian.cultivation.world.members",
                 Integer.toString(sect.memberCount()), x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.top_realm", realmText(sect.topRealmId()),
+        cursor += pair(c, "screen.yuanxian.cultivation.world.top_realm", realmText(sect.topRealmId()),
                 x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.resources", Integer.toString(d.resources()),
+        cursor += pair(c, "screen.yuanxian.cultivation.world.resources", Integer.toString(d.resources()),
                 x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.prestige", Integer.toString(sect.prestige()),
+        cursor += pair(c, "screen.yuanxian.cultivation.world.prestige", Integer.toString(sect.prestige()),
                 x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.sect_technique",
+        cursor += pair(c, "screen.yuanxian.cultivation.world.sect_technique",
                 orNone(d.signatureTechniqueName()), x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.sect_heritage",
+        cursor += pair(c, "screen.yuanxian.cultivation.world.sect_heritage",
                 orNone(d.heritageName()), x, cursor, width);
         // Coordinates as the value, and the same gate chip as the sect list at the right.
         String gateChip = gateChip(sect);
         int gateChipWidth = Math.min(c.chipWidth(gateChip), width / 3);
         c.chip(gateChip, x + width - gateChipWidth, cursor, gateChipWidth,
                 sect.gateRealized() ? InkPanelTheme.JADE : InkPanelTheme.MUTED);
-        c.pair(text("screen.myvillage.cultivation.world.gate"), sect.gateX() + ", " + sect.gateZ(),
+        c.pair(text("screen.yuanxian.cultivation.world.gate"), sect.gateX() + ", " + sect.gateZ(),
                 x, cursor + 2, width - gateChipWidth - 6, InkPanelTheme.TEXT);
         cursor += InkPanelTheme.CHIP_HEIGHT;
         WorldSimSnapshot.MySect mine = s.mine();
         if (mine != null && mine.sectId() == sect.id()) {
             cursor += 2;
-            c.pair(text("screen.myvillage.cultivation.world.mine_here"),
-                    text("screen.myvillage.cultivation.world.mine_rank_value",
+            c.pair(text("screen.yuanxian.cultivation.world.mine_here"),
+                    text("screen.yuanxian.cultivation.world.mine_rank_value",
                             WorldSimText.rank(mine.rank()), dateText(s, mine.joinedDay()), signed(mine.standing())),
                     x, cursor, width, InkPanelTheme.JADE);
             cursor += ROW;
@@ -732,20 +732,20 @@ public final class WorldPage extends PanelPage {
     /** 已立 / 未立 without the brackets the command keys carry. */
     private static String gateChip(WorldSimSnapshot.SectSummary sect) {
         return WorldReadouts.unbracket(text(sect.gateRealized()
-                ? "commands.myvillage.world.gate.realized"
-                : "commands.myvillage.world.gate.unrealized"));
+                ? "commands.yuanxian.world.gate.realized"
+                : "commands.yuanxian.world.gate.unrealized"));
     }
 
     private int sectRelations(WorldCanvas c, WorldSimSnapshot.SectDetail d, int x, int y, int width) {
         if (d.relations().isEmpty()) {
-            c.text(text("screen.myvillage.cultivation.world.none"), x, y, width, InkPanelTheme.MUTED);
+            c.text(text("screen.yuanxian.cultivation.world.none"), x, y, width, InkPanelTheme.MUTED);
             return ROW;
         }
         int cursor = y;
         for (WorldSimSnapshot.SectRelation relation : d.relations()) {
             int height = InkPanelTheme.CHIP_HEIGHT + 2;
             c.link(x - 2, cursor - 1, x + width + 2, cursor + height - 1, toSect(relation.otherSectId()));
-            String state = text("commands.myvillage.world.relation." + relation.state());
+            String state = text("commands.yuanxian.world.relation." + relation.state());
             int chipWidth = Math.min(c.chipWidth(state), width / 3);
             c.chip(state, x + width - chipWidth, cursor, chipWidth, WorldReadouts.relationColor(relation.state()));
             String value = (relation.value() > 0 ? "+" : "") + relation.value();
@@ -761,16 +761,16 @@ public final class WorldPage extends PanelPage {
 
     private int searchResults(WorldCanvas c, WorldSimSnapshot s, int x, int y, int width) {
         return c.card(x, y, width,
-                tr("screen.myvillage.cultivation.world.card.search", s.query().text()),
+                tr("screen.yuanxian.cultivation.world.card.search", s.query().text()),
                 (bx, by, bw) -> {
                     if (s.persons().isEmpty()) {
-                        c.text(text("screen.myvillage.cultivation.world.search_empty"), bx, by, bw, InkPanelTheme.MUTED);
+                        c.text(text("screen.yuanxian.cultivation.world.search_empty"), bx, by, bw, InkPanelTheme.MUTED);
                         return ROW;
                     }
                     int height = personList(c, s.persons(), bx, by, bw);
                     if (s.persons().size() >= WorldSimSnapshot.MAX_SEARCH) {
                         height += 3 + c.wrapped(
-                                Component.translatable("commands.myvillage.world.person.more",
+                                Component.translatable("commands.yuanxian.world.person.more",
                                         WorldSimSnapshot.MAX_SEARCH),
                                 bx, by + height + 3, bw, InkPanelTheme.FAINT);
                     }
@@ -782,15 +782,15 @@ public final class WorldPage extends PanelPage {
             WorldCanvas c, PanelContext context, WorldSimSnapshot s, int x, int y, int width) {
         WorldSimSnapshot.PersonDetail d = s.person();
         if (d == null) {
-            return message(c, x, y, width, tr("screen.myvillage.cultivation.world.card.person"),
-                    Component.translatable("commands.myvillage.world.person.not_found", "#" + s.query().id()),
+            return message(c, x, y, width, tr("screen.yuanxian.cultivation.world.card.person"),
+                    Component.translatable("commands.yuanxian.world.person.not_found", "#" + s.query().id()),
                     InkPanelTheme.MUTED);
         }
         WorldCanvas.Body info = (cx, cy, cw) -> c.card(cx, cy, cw,
-                tr("screen.myvillage.cultivation.world.card.person"),
+                tr("screen.yuanxian.cultivation.world.card.person"),
                 (bx, by, bw) -> personInfo(c, context, s, d, bx, by, bw));
         WorldCanvas.Body relations = (cx, cy, cw) -> c.card(cx, cy, cw,
-                tr("screen.myvillage.cultivation.world.card.bonds"),
+                tr("screen.yuanxian.cultivation.world.card.bonds"),
                 (bx, by, bw) -> personRelations(c, d, bx, by, bw));
         WorldCanvas.Body fates = (cx, cy, cw) -> {
             if (d.fates() == null) return 0;
@@ -833,12 +833,12 @@ public final class WorldPage extends PanelPage {
             c.bar(rx, cursor + ROW, x + width - rx, 5, progress, InkPanelTheme.JADE, InkPanelTheme.JADE_DARK);
             cursor += InkPanelTheme.METER_HEIGHT + 3;
         } else {
-            cursor += pair(c, "screen.myvillage.cultivation.world.realm", stage, rx, cursor, x + width - rx);
+            cursor += pair(c, "screen.yuanxian.cultivation.world.realm", stage, rx, cursor, x + width - rx);
         }
 
         if (!d.rootGrade().isEmpty()) {
             rx = beside(cursor, portraitEnd, x);
-            cursor += pair(c, "screen.myvillage.cultivation.world.root",
+            cursor += pair(c, "screen.yuanxian.cultivation.world.root",
                     WorldSimText.rootGrade(d.rootGrade()).getString(), rx, cursor, x + width - rx);
         }
         if (d.root().size() == ELEMENTS.size()) {
@@ -853,43 +853,43 @@ public final class WorldPage extends PanelPage {
                     Integer.toString(aptitude.getValue()), rx, cursor, x + width - rx);
         }
         rx = beside(cursor, portraitEnd, x);
-        cursor += pair(c, "screen.myvillage.cultivation.world.age",
-                text("screen.myvillage.cultivation.world.age_value",
+        cursor += pair(c, "screen.yuanxian.cultivation.world.age",
+                text("screen.yuanxian.cultivation.world.age_value",
                         WorldReadouts.age(p.alive(), d.birthDay(), d.deathDay(), s.day(), s.daysPerYear())),
                 rx, cursor, x + width - rx);
         rx = beside(cursor, portraitEnd, x);
-        cursor += linkPair(c, "screen.myvillage.cultivation.world.lineage", orNone(d.masterName()),
+        cursor += linkPair(c, "screen.yuanxian.cultivation.world.lineage", orNone(d.masterName()),
                 toPerson(d.masterId()), rx, cursor, x + width - rx);
         rx = beside(cursor, portraitEnd, x);
-        cursor += linkPair(c, "screen.myvillage.cultivation.world.sect",
+        cursor += linkPair(c, "screen.yuanxian.cultivation.world.sect",
                 standing(p.sectId(), p.sectName(), p.rank()), toSect(p.sectId()), rx, cursor, x + width - rx);
         if (p.alive()) {
-            String where = text("screen.myvillage.cultivation.world.whereabouts_value",
+            String where = text("screen.yuanxian.cultivation.world.whereabouts_value",
                     orNone(d.regionName()), WorldSimText.status(d.status()));
             rx = beside(cursor, portraitEnd, x);
-            cursor += pair(c, "screen.myvillage.cultivation.world.whereabouts", where, rx, cursor, x + width - rx);
+            cursor += pair(c, "screen.yuanxian.cultivation.world.whereabouts", where, rx, cursor, x + width - rx);
             rx = beside(cursor, portraitEnd, x);
-            cursor += pair(c, "screen.myvillage.cultivation.world.technique", orNone(d.techniqueName()),
+            cursor += pair(c, "screen.yuanxian.cultivation.world.technique", orNone(d.techniqueName()),
                     rx, cursor, x + width - rx);
             if (d.injury() > 0) {
                 rx = beside(cursor, portraitEnd, x);
-                c.pair(text("screen.myvillage.cultivation.world.injury"), Integer.toString(d.injury()),
+                c.pair(text("screen.yuanxian.cultivation.world.injury"), Integer.toString(d.injury()),
                         rx, cursor, x + width - rx, InkPanelTheme.RED);
                 cursor += ROW + 1;
             }
         } else {
             rx = beside(cursor, portraitEnd, x);
-            cursor += pair(c, "screen.myvillage.cultivation.world.died", dateText(s, d.deathDay()),
+            cursor += pair(c, "screen.yuanxian.cultivation.world.died", dateText(s, d.deathDay()),
                     rx, cursor, x + width - rx);
             rx = beside(cursor, portraitEnd, x);
-            c.pair(text("screen.myvillage.cultivation.world.death_cause"),
+            c.pair(text("screen.yuanxian.cultivation.world.death_cause"),
                     WorldSimText.cause(d.deathCause()).getString(), rx, cursor, x + width - rx, InkPanelTheme.RED);
             cursor += ROW + 1;
             if (d.killerId() >= 0 || !d.killerName().isEmpty()) {
                 rx = beside(cursor, portraitEnd, x);
-                if (d.killerId() >= 0) cursor += linkPair(c, "screen.myvillage.cultivation.world.killer", orNone(d.killerName()),
+                if (d.killerId() >= 0) cursor += linkPair(c, "screen.yuanxian.cultivation.world.killer", orNone(d.killerName()),
                         toPerson(d.killerId()), rx, cursor, x + width - rx);
-                else cursor += pair(c, "screen.myvillage.cultivation.world.killer", orNone(d.killerName()),
+                else cursor += pair(c, "screen.yuanxian.cultivation.world.killer", orNone(d.killerName()),
                         rx, cursor, x + width - rx);
             }
         }
@@ -968,7 +968,7 @@ public final class WorldPage extends PanelPage {
     private int personRelations(WorldCanvas c, WorldSimSnapshot.PersonDetail d, int x, int y, int width) {
         Map<String, List<WorldSimSnapshot.PersonRelation>> groups = WorldReadouts.groupRelations(d.relations());
         if (groups.isEmpty()) {
-            c.text(text("screen.myvillage.cultivation.world.none"), x, y, width, InkPanelTheme.MUTED);
+            c.text(text("screen.yuanxian.cultivation.world.none"), x, y, width, InkPanelTheme.MUTED);
             return ROW;
         }
         int labelWidth = 0;
@@ -1001,27 +1001,27 @@ public final class WorldPage extends PanelPage {
     }
 
     private static String kindText(String kind) {
-        return Component.translatableWithFallback("screen.myvillage.cultivation.world.kind." + kind, kind).getString();
+        return Component.translatableWithFallback("screen.yuanxian.cultivation.world.kind." + kind, kind).getString();
     }
 
     // --- 纪事 ---------------------------------------------------------------------------------
 
     private int chronicle(WorldCanvas c, WorldSimSnapshot s, int x, int y, int width) {
         return c.card(x, y, width,
-                tr("screen.myvillage.cultivation.world.card.chronicle", s.events().size()),
+                tr("screen.yuanxian.cultivation.world.card.chronicle", s.events().size()),
                 (bx, by, bw) -> eventList(c, s, bx, by, bw));
     }
 
     /** The 近事 card of a sect, person, or region. */
     private WorldCanvas.Body recent(WorldCanvas c, WorldSimSnapshot s) {
         return (cx, cy, cw) -> c.card(cx, cy, cw,
-                tr("screen.myvillage.cultivation.world.card.recent"),
+                tr("screen.yuanxian.cultivation.world.card.recent"),
                 (bx, by, bw) -> eventList(c, s, bx, by, bw));
     }
 
     private int eventList(WorldCanvas c, WorldSimSnapshot s, int x, int y, int width) {
         if (s.events().isEmpty()) {
-            c.text(text("screen.myvillage.cultivation.world.events_empty"), x, y, width, InkPanelTheme.MUTED);
+            c.text(text("screen.yuanxian.cultivation.world.events_empty"), x, y, width, InkPanelTheme.MUTED);
             return ROW;
         }
         int cursor = y;
@@ -1065,7 +1065,7 @@ public final class WorldPage extends PanelPage {
         WorldSimSnapshot.EventLine cause = s.causeOf(event);
         if (cause != null) {
             cursor += c.wrapped(
-                    Component.translatable("screen.myvillage.cultivation.world.cause", eventText(cause)),
+                    Component.translatable("screen.yuanxian.cultivation.world.cause", eventText(cause)),
                     x + marker, cursor, width - marker, InkPanelTheme.FAINT);
         }
         return cursor - y;
@@ -1086,23 +1086,23 @@ public final class WorldPage extends PanelPage {
     private int here(WorldCanvas c, WorldSimSnapshot s, int x, int y, int width) {
         WorldSimSnapshot.Region region = s.region();
         if (region == null) {
-            return message(c, x, y, width, tr("screen.myvillage.cultivation.world.card.region"),
-                    Component.translatable("commands.myvillage.world.here.outside"), InkPanelTheme.MUTED);
+            return message(c, x, y, width, tr("screen.yuanxian.cultivation.world.card.region"),
+                    Component.translatable("commands.yuanxian.world.here.outside"), InkPanelTheme.MUTED);
         }
         WorldCanvas.Body info = (cx, cy, cw) -> c.card(cx, cy, cw,
-                tr("screen.myvillage.cultivation.world.card.region"),
+                tr("screen.yuanxian.cultivation.world.card.region"),
                 (bx, by, bw) -> regionInfo(c, region, bx, by, bw));
         WorldCanvas.Body seated = (cx, cy, cw) -> c.card(cx, cy, cw,
-                tr("screen.myvillage.cultivation.world.card.seated"),
+                tr("screen.yuanxian.cultivation.world.card.seated"),
                 (bx, by, bw) -> {
                     if (s.sects().isEmpty()) {
-                        return c.wrapped(Component.translatable("commands.myvillage.world.here.no_sects"),
+                        return c.wrapped(Component.translatable("commands.yuanxian.world.here.no_sects"),
                                 bx, by, bw, InkPanelTheme.MUTED);
                     }
                     return sectRows(c, s.sects(), true, bx, by, bw);
                 });
         WorldCanvas.Body present = (cx, cy, cw) -> c.card(cx, cy, cw,
-                tr("screen.myvillage.cultivation.world.card.present"),
+                tr("screen.yuanxian.cultivation.world.card.present"),
                 (bx, by, bw) -> personList(c, s.persons(), bx, by, bw));
         return layout(c, x, y, width, List.of(info, seated), List.of(present), List.of(recent(c, s)));
     }
@@ -1110,21 +1110,21 @@ public final class WorldPage extends PanelPage {
     private int regionInfo(WorldCanvas c, WorldSimSnapshot.Region region, int x, int y, int width) {
         int cursor = y;
         String admits = text(region.admitsSects()
-                ? "screen.myvillage.cultivation.world.admits_sects"
-                : "screen.myvillage.cultivation.world.no_sects_allowed");
+                ? "screen.yuanxian.cultivation.world.admits_sects"
+                : "screen.yuanxian.cultivation.world.no_sects_allowed");
         int chipWidth = Math.min(c.chipWidth(admits), width / 2);
         c.chip(admits, x + width - chipWidth, cursor, chipWidth,
                 region.admitsSects() ? InkPanelTheme.JADE : InkPanelTheme.MUTED);
         c.text(region.displayName(), x, cursor + 2, width - chipWidth - 6, InkPanelTheme.GOLD_BRIGHT);
         cursor += InkPanelTheme.CHIP_HEIGHT + 2;
-        cursor += pair(c, "screen.myvillage.cultivation.world.region_tier", Integer.toString(region.tier()),
+        cursor += pair(c, "screen.yuanxian.cultivation.world.region_tier", Integer.toString(region.tier()),
                 x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.qi", region.qiLo() + " - " + region.qiHi(),
+        cursor += pair(c, "screen.yuanxian.cultivation.world.qi", region.qiLo() + " - " + region.qiHi(),
                 x, cursor, width);
-        cursor += pair(c, "screen.myvillage.cultivation.world.danger",
+        cursor += pair(c, "screen.yuanxian.cultivation.world.danger",
                 region.dangerLo() + " - " + region.dangerHi(), x, cursor, width);
-        c.pair(text("screen.myvillage.cultivation.world.cultivators"),
-                text("screen.myvillage.cultivation.world.count_value", region.livingCount()),
+        c.pair(text("screen.yuanxian.cultivation.world.cultivators"),
+                text("screen.yuanxian.cultivation.world.count_value", region.livingCount()),
                 x, cursor, width, InkPanelTheme.TEXT);
         cursor += ROW;
         return cursor - y;
@@ -1151,12 +1151,12 @@ public final class WorldPage extends PanelPage {
 
     private static String realmText(String realmId) {
         return realmId == null || realmId.isEmpty()
-                ? text("screen.myvillage.cultivation.world.none")
+                ? text("screen.yuanxian.cultivation.world.none")
                 : WorldSimText.realm(realmId).getString();
     }
 
     private static String orNone(String value) {
-        return value == null || value.isEmpty() ? text("screen.myvillage.cultivation.world.none") : value;
+        return value == null || value.isEmpty() ? text("screen.yuanxian.cultivation.world.none") : value;
     }
 
     private static Component tr(String key, Object... args) {

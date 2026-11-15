@@ -22,13 +22,13 @@ class TechniqueCatalogueDefinitionTest {
     void fullTechniqueShapeDecodesWithSchoolLineageAndCoreEffects() {
         TechniqueDefinition technique = decode(TechniqueDefinition.CODEC, """
                 {
-                  "translation_key": "cultivation.technique.myvillage.gengjin_yinqi_fa",
+                  "translation_key": "cultivation.technique.yuanxian.gengjin_yinqi_fa",
                   "category": "core",
                   "grade": 2,
-                  "elements": ["myvillage:metal"],
-                  "school": "myvillage:sword",
-                  "requirements": { "minimum_realm": "myvillage:qi_refining", "minimum_stage": "myvillage:qi_refining_3" },
-                  "lineage": { "previous": "myvillage:gengjin_tuna_shu" },
+                  "elements": ["yuanxian:metal"],
+                  "school": "yuanxian:sword",
+                  "requirements": { "minimum_realm": "yuanxian:qi_refining", "minimum_stage": "yuanxian:qi_refining_3" },
+                  "lineage": { "previous": "yuanxian:gengjin_tuna_shu" },
                   "effects": { "core": { "meditation_route": "xiaozhoutian" } }
                 }
                 """);
@@ -45,13 +45,13 @@ class TechniqueCatalogueDefinitionTest {
     @Test
     void legacyTechniqueFileStaysValidAndNullOptionalsReadAsAbsent() throws Exception {
         TechniqueDefinition shipped = decode(TechniqueDefinition.CODEC, Files.readString(Path.of(
-                "src/main/resources/data/myvillage/myvillage/technique/basic_breathing.json")));
+                "src/main/resources/data/yuanxian/yuanxian/technique/basic_breathing.json")));
         assertEquals(0, shipped.grade());
         assertTrue(shipped.isCore());
 
         TechniqueDefinition legacy = decode(TechniqueDefinition.CODEC, """
                 {
-                  "translation_key": "cultivation.technique.myvillage.legacy",
+                  "translation_key": "cultivation.technique.yuanxian.legacy",
                   "category": "core",
                   "grade": 0,
                   "elements": [],
@@ -64,7 +64,7 @@ class TechniqueCatalogueDefinitionTest {
 
         TechniqueDefinition nulls = decode(TechniqueDefinition.CODEC, """
                 {
-                  "translation_key": "cultivation.technique.myvillage.nulls",
+                  "translation_key": "cultivation.technique.yuanxian.nulls",
                   "category": "core",
                   "grade": 1,
                   "elements": [],
@@ -82,7 +82,7 @@ class TechniqueCatalogueDefinitionTest {
     @Test
     void secondPhaseEffectShapesDecodeOnTheirOwnCategory() {
         TechniqueDefinition active = decode(TechniqueDefinition.CODEC, technique("active",
-                "\"effects\": { \"active\": { \"skill\": \"myvillage:gengjin_jianjue\", \"qi_cost\": 12, \"slots\": 1 } }"));
+                "\"effects\": { \"active\": { \"skill\": \"yuanxian:gengjin_jianjue\", \"qi_cost\": 12, \"slots\": 1 } }"));
         assertEquals(new TechniqueEffects.Active(id("gengjin_jianjue"), 12, 1),
                 active.effects().orElseThrow().active().orElseThrow());
 
@@ -112,13 +112,13 @@ class TechniqueCatalogueDefinitionTest {
         assertError(TechniqueDefinition.CODEC, technique("core", "\"grade\": 5"));
         assertError(TechniqueDefinition.CODEC, technique("core", "\"grade\": -1"));
         assertError(TechniqueDefinition.CODEC, technique("core",
-                "\"effects\": { \"active\": { \"skill\": \"myvillage:x\", \"qi_cost\": 1, \"slots\": 1 } }"));
+                "\"effects\": { \"active\": { \"skill\": \"yuanxian:x\", \"qi_cost\": 1, \"slots\": 1 } }"));
         assertError(TechniqueDefinition.CODEC, technique("core",
                 "\"effects\": { \"core\": { \"meditation_route\": \"\" } }"));
         assertError(TechniqueDefinition.CODEC, technique("core", "\"effects\": { \"core\": {} }"));
         assertError(TechniqueDefinition.CODEC, technique("core", "\"lineage\": {}"));
         assertError(TechniqueDefinition.CODEC, technique("active",
-                "\"effects\": { \"active\": { \"skill\": \"myvillage:x\", \"qi_cost\": -1, \"slots\": 1 } }"));
+                "\"effects\": { \"active\": { \"skill\": \"yuanxian:x\", \"qi_cost\": -1, \"slots\": 1 } }"));
         assertError(TechniqueDefinition.CODEC, technique("movement",
                 "\"effects\": { \"movement\": { \"dash_distance\": 0, \"invulnerable_ticks\": 6, "
                         + "\"qi_cost\": 8, \"cooldown_ticks\": 20 } }"));
@@ -129,7 +129,7 @@ class TechniqueCatalogueDefinitionTest {
     void weaponAndSpecialSchoolsDecode() {
         SchoolDefinition sword = decode(SchoolDefinition.CODEC, """
                 {
-                  "translation_key": "cultivation.school.myvillage.sword",
+                  "translation_key": "cultivation.school.yuanxian.sword",
                   "kind": "weapon",
                   "weapon_family": "sword",
                   "runtime": null,
@@ -144,11 +144,11 @@ class TechniqueCatalogueDefinitionTest {
 
         SchoolDefinition flyingSword = decode(SchoolDefinition.CODEC, """
                 {
-                  "translation_key": "cultivation.school.myvillage.flying_sword",
+                  "translation_key": "cultivation.school.yuanxian.flying_sword",
                   "kind": "special",
                   "weapon_family": null,
                   "runtime": "flying_sword",
-                  "element_lean": ["myvillage:metal"]
+                  "element_lean": ["yuanxian:metal"]
                 }
                 """);
         assertEquals(SchoolKind.SPECIAL, flyingSword.kind());
@@ -183,9 +183,9 @@ class TechniqueCatalogueDefinitionTest {
     void heritageDecodesInOrderAndRejectsShortOrDuplicateChains() {
         HeritageDefinition heritage = decode(HeritageDefinition.CODEC, """
                 {
-                  "translation_key": "cultivation.heritage.myvillage.taibai_jianmai",
-                  "school": "myvillage:sword",
-                  "techniques": ["myvillage:gengjin_yinqi_fa", "myvillage:gengjin_jianjue", "myvillage:taibai_jianjing"],
+                  "translation_key": "cultivation.heritage.yuanxian.taibai_jianmai",
+                  "school": "yuanxian:sword",
+                  "techniques": ["yuanxian:gengjin_yinqi_fa", "yuanxian:gengjin_jianjue", "yuanxian:taibai_jianjing"],
                   "exclusive": true
                 }
                 """);
@@ -198,9 +198,9 @@ class TechniqueCatalogueDefinitionTest {
 
         HeritageDefinition schoolless = decode(HeritageDefinition.CODEC, """
                 {
-                  "translation_key": "cultivation.heritage.myvillage.qingdi_mumai",
+                  "translation_key": "cultivation.heritage.yuanxian.qingdi_mumai",
                   "school": null,
-                  "techniques": ["myvillage:a", "myvillage:b"],
+                  "techniques": ["yuanxian:a", "yuanxian:b"],
                   "exclusive": false
                 }
                 """);
@@ -208,19 +208,19 @@ class TechniqueCatalogueDefinitionTest {
         assertFalse(schoolless.exclusive());
 
         assertError(HeritageDefinition.CODEC, """
-                { "translation_key": "h", "techniques": ["myvillage:a"], "exclusive": false }
+                { "translation_key": "h", "techniques": ["yuanxian:a"], "exclusive": false }
                 """);
         assertError(HeritageDefinition.CODEC, """
-                { "translation_key": "h", "techniques": ["myvillage:a", "myvillage:a"], "exclusive": false }
+                { "translation_key": "h", "techniques": ["yuanxian:a", "yuanxian:a"], "exclusive": false }
                 """);
         assertError(HeritageDefinition.CODEC, """
-                { "translation_key": "", "techniques": ["myvillage:a", "myvillage:b"] }
+                { "translation_key": "", "techniques": ["yuanxian:a", "yuanxian:b"] }
                 """);
     }
 
     @Test
     void everyShippedTechniqueSchoolAndHeritageDecodesAndResolves() throws Exception {
-        Path root = Path.of("src/main/resources/data/myvillage/myvillage");
+        Path root = Path.of("src/main/resources/data/yuanxian/yuanxian");
         Map<ResourceLocation, TechniqueDefinition> techniques = decodeDirectory(
                 root.resolve("technique"), TechniqueDefinition.CODEC);
         Map<ResourceLocation, SchoolDefinition> schools = decodeDirectory(root.resolve("school"), SchoolDefinition.CODEC);
@@ -263,7 +263,7 @@ class TechniqueCatalogueDefinitionTest {
     private static String technique(String category, String extraField) {
         return """
                 {
-                  "translation_key": "cultivation.technique.myvillage.sample",
+                  "translation_key": "cultivation.technique.yuanxian.sample",
                   "category": "%s",
                   "grade": 1,
                   "elements": [],
@@ -288,6 +288,6 @@ class TechniqueCatalogueDefinitionTest {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 }

@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * Everything the world sim reads from {@code data/myvillage/world_sim/}: the core's rules, realms
+ * Everything the world sim reads from {@code data/yuanxian/world_sim/}: the core's rules, realms
  * and encounters plus the content tables (names, techniques, lore, heritages, sect tasks). Load it with
  * {@link WorldSim#loadData}; it is immutable.
  */
@@ -58,7 +58,7 @@ public record SimData(
                 com.example.myvillage.sim.commerce.CommerceRules.disabled());
     }
 
-    public static final String DIRECTORY = "data/myvillage/world_sim/";
+    public static final String DIRECTORY = "data/yuanxian/world_sim/";
 
     /** Opens one data path (relative, no leading slash); returns null when it does not exist. */
     @FunctionalInterface

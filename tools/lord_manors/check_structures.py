@@ -31,7 +31,7 @@ def required_cells(boxes):
 
 
 def audit(root=ROOT,runtime=None):
-    root=Path(root);data=root/'src/main/resources/data/myvillage';auth=root/'blueprints/lord_manors'
+    root=Path(root);data=root/'src/main/resources/data/yuanxian';auth=root/'blueprints/lord_manors'
     rules=json.loads((auth/'structure_rules.json').read_text());catalog=json.loads((data/'lord_manors/catalog.json').read_text())
     native_trees=load_native_trees(root)
     banks={b['id']:b for b in catalog['banks']};materials={m['id']:m for m in catalog['materials']}
@@ -82,7 +82,7 @@ def audit(root=ROOT,runtime=None):
         if runtime is not None:
             from province_capitals.regional.v2.common import rotated_state
             from province_capitals.blueprint_plan.manor_relayout import rotate_cell
-            runtime=Path(runtime);bundle=json.loads((runtime/f'data/myvillage/capitals/v4/capital_{city}/city.json').read_text())
+            runtime=Path(runtime);bundle=json.loads((runtime/f'data/yuanxian/capitals/v4/capital_{city}/city.json').read_text())
             placement=bundle['blueprint']['manor'];turn=placement['rotation_quarters'];w,_,d=manifest['size'];minimum=manifest['source_min'];origin=placement['origin']
             wanted={}
             for pos in positions:
@@ -102,7 +102,7 @@ def audit(root=ROOT,runtime=None):
             needed_tiles={(x//16*16,z//16*16) for x,y,z in wanted};actual={}
             for tile in bundle['tiles']:
                 if (tile['x'],tile['z']) not in needed_tiles:continue
-                path=runtime/'data/myvillage/structure'/(tile['template'].split(':',1)[1]+'.nbt')
+                path=runtime/'data/yuanxian/structure'/(tile['template'].split(':',1)[1]+'.nbt')
                 _,doc=read_gzipped_nbt(str(path));palette=[state_string(p) for p in doc['palette']]
                 for b in doc['blocks']:
                     p=(tile['x']+b['pos'][0],b['pos'][1],tile['z']+b['pos'][2])

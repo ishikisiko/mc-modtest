@@ -14,9 +14,9 @@ python3 tools/province_capitals/central/export_game.py --out build/generated/pro
 
 默认 `--out` 即上述目录。只覆盖 `capital_zhongzhou` 的资源，不清空共享 root。输出路径为：
 
-- `data/myvillage/capitals/v1/capital_zhongzhou/city.json`
+- `data/yuanxian/capitals/v1/capital_zhongzhou/city.json`
 - 同目录 `terrain.bin.gz`、`buildings.json`、`routes.json`、`waterworks.json`
-- `data/myvillage/structure/province_capitals/v1/capital_zhongzhou/tile_<x>_<z>.nbt`
+- `data/yuanxian/structure/province_capitals/v1/capital_zhongzhou/tile_<x>_<z>.nbt`
 
 `city.json` 使用 `capital_game_bundle schema=1`；`city_id=capital_zhongzhou`，`settlement_family=province_capital_zhongzhou`。后者由 regional 作者在 groups.py 注册，本作者没有抢写。`layout_family_id` 读取 shared catalog 的中州 `layout_id`，不拿预览布局 SHA 当游戏内容摘要。真正 terrain、tile 摘要逐文件写入描述符；包级冻结由父聚合器执行。来源和状态不冒充几何身份。
 

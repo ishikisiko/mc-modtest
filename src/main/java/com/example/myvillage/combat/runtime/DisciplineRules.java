@@ -12,7 +12,7 @@ public record DisciplineRules(Pool sword, Pool body, double spearMin, double spe
     private static class Holder { private static final DisciplineRules VALUE = load(); }
     public static DisciplineRules get() { return Holder.VALUE; }
     private static DisciplineRules load() {
-        try (var in = DisciplineRules.class.getResourceAsStream("/data/myvillage/combat/disciplines.json")) {
+        try (var in = DisciplineRules.class.getResourceAsStream("/data/yuanxian/combat/disciplines.json")) {
             if (in == null) throw new IllegalStateException("Missing disciplines.json");
             return parse(JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (java.io.IOException ex) { throw new IllegalStateException(ex); }

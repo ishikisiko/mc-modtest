@@ -79,7 +79,7 @@ class AlchemyArrayTest {
         ItemStack renamed=herb.copy();renamed.set(DataComponents.CUSTOM_NAME,Component.literal("替换"));assertFalse(AlchemyArrayTransactions.reservedPresent(List.of(renamed,fuel),required));
     }
     @Test void malformedSchemaDuplicateCoordinatesFractionalIntervalsAndUnknownFieldsReject()throws Exception{
-        String text;try(var stream=AlchemyArrayTest.class.getResourceAsStream("/data/myvillage/alchemy/array.json")){text=new String(Objects.requireNonNull(stream).readAllBytes(),StandardCharsets.UTF_8);}
+        String text;try(var stream=AlchemyArrayTest.class.getResourceAsStream("/data/yuanxian/alchemy/array.json")){text=new String(Objects.requireNonNull(stream).readAllBytes(),StandardCharsets.UTF_8);}
         assertEquals(27,AlchemyArrayRules.parse(new StringReader(text)).cells().size());
         JsonObject original=JsonParser.parseString(text).getAsJsonObject();
         for(String field:List.of("version","smoke_interval_ticks","light_level","assembly_ticks")){

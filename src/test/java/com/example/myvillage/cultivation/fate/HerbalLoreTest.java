@@ -22,7 +22,7 @@ class HerbalLoreTest {
         SharedConstants.tryDetectVersion();Bootstrap.bootStrap();
     }
     private static double chance() throws Exception {
-        try(var in=HerbalLoreTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/herbal_lore.json")) {
+        try(var in=HerbalLoreTest.class.getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/herbal_lore.json")) {
             assertNotNull(in);
             var d=FateDefinition.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8))).getOrThrow();
             assertEquals(0,d.tier());assertEquals(1,d.cost());assertTrue(d.enabled());
@@ -48,7 +48,7 @@ class HerbalLoreTest {
             assertFalse(HerbalLoreRuntime.plant(block.defaultBlockState()),block.toString());
     }
     @Test void botanicalTagEntriesResolveAndIncludeBothLargeDripleafParts() throws Exception {
-        try(var in=HerbalLoreTest.class.getResourceAsStream("/data/myvillage/tags/block/herbal_lore_plants.json")) {
+        try(var in=HerbalLoreTest.class.getResourceAsStream("/data/yuanxian/tags/block/herbal_lore_plants.json")) {
             assertNotNull(in);var values=JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("values");
             var ids=new HashSet<String>();
             for(var value:values) {
@@ -61,7 +61,7 @@ class HerbalLoreTest {
     @Test void materialPoolIncludesEveryDistinctFormulaIngredient() {
         var expected=new TreeSet<String>();AlchemyRules.get().recipes().forEach(r->expected.addAll(r.ingredients()));
         assertEquals(new ArrayList<>(expected),HerbalLoreRuntime.materials());
-        assertTrue(expected.containsAll(List.of("myvillage:ningyuan_fruit_high","myvillage:frost_plume","myvillage:thorn_bone")));
+        assertTrue(expected.containsAll(List.of("yuanxian:ningyuan_fruit_high","yuanxian:frost_plume","yuanxian:thorn_bone")));
         var seen=new HashSet<String>();var random=RandomSource.create(314159);
         for(int i=0;i<2000;i++)seen.add(HerbalLoreRuntime.roll(Blocks.SHORT_GRASS.defaultBlockState(),1,random).orElseThrow());
         assertEquals(expected,seen);

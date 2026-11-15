@@ -49,7 +49,7 @@ public final class ScriptureHall {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScriptureHall.class);
     /** Least server ticks between two handled borrows of one player. */
     static final int MIN_TICKS_BETWEEN = 4;
-    static final String MESSAGE = "message.myvillage.world.scripture.";
+    static final String MESSAGE = "message.yuanxian.world.scripture.";
     static final String UNOWNED_KEY = MESSAGE + "unowned";
     static final String BORROWED_KEY = MESSAGE + "borrowed";
     static final String REFUSED_PREFIX = MESSAGE + "refused.";
@@ -166,7 +166,7 @@ public final class ScriptureHall {
                 .orElse(Component.literal(techniqueId));
         player.containerMenu.broadcastChanges();
         player.sendSystemMessage(Component.translatable(BORROWED_KEY,
-                Component.translatable("item.myvillage.manual.named", techniqueName), hall.sect().name()));
+                Component.translatable("item.yuanxian.manual.named", techniqueName), hall.sect().name()));
         logBorrow(player, sectId, techniqueId, ScriptureHallList.OK);
         PacketDistributor.sendToPlayer(player, page(player, hall, pos));
     }
@@ -259,7 +259,7 @@ public final class ScriptureHall {
         // a ledger reason this hall has no line for reads as "not borrowable"; the log keeps it as is
         String line = ScriptureHallList.REFUSALS.contains(reason) ? reason : ScriptureHallList.NOT_BORROWABLE;
         if (java.util.Set.of("insufficient_contribution", "inventory_full", "inventory_changed").contains(reason))
-            player.sendSystemMessage(Component.translatable("screen.myvillage.economy.status." + (reason.equals("inventory_changed") ? "stale" : reason)));
+            player.sendSystemMessage(Component.translatable("screen.yuanxian.economy.status." + (reason.equals("inventory_changed") ? "stale" : reason)));
         else player.sendSystemMessage(Component.translatable(REFUSED_PREFIX + line));
         logBorrow(player, sectId, techniqueId, reason);
         hall.ifPresent(h -> PacketDistributor.sendToPlayer(player, page(player, h, pos)));

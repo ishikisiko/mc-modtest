@@ -58,7 +58,7 @@ class MeditationStatusPayloadTest {
 
     @Test
     void streamCodecRoundTripsStudyProgressWithAndWithoutANextGate() {
-        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_jianjue");
+        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("yuanxian", "gengjin_jianjue");
         for (StudyProgress progress : new StudyProgress[]{
                 new StudyProgress(technique, 5_995, 12_000, 6_000, 50),
                 new StudyProgress(technique, 0, 4_000, StudyProgress.NO_GATE, 0)}) {
@@ -103,7 +103,7 @@ class MeditationStatusPayloadTest {
 
     @Test
     void rejectsStudyProgressOutsideAStudyState() {
-        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_jianjue");
+        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("yuanxian", "gengjin_jianjue");
         assertThrows(IllegalArgumentException.class, () -> new MeditationStatusPayload(
                 MeditationState.MEDITATING_SPIRIT, 0, MeditationStopReason.NONE, Optional.empty(), 0, 0,
                 Optional.of(new StudyProgress(technique, 0, 4_000, -1, 0))));

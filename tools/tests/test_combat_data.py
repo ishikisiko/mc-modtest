@@ -10,16 +10,16 @@ from pathlib import Path
 
 from tools import combat_data
 
-DATA = "src/main/resources/data/myvillage/combat"
+DATA = "src/main/resources/data/yuanxian/combat"
 STYLE = f"{DATA}/style/basic_sword.json"
 WEAPON = f"{DATA}/weapon/qingfeng_sword.json"
 SPEAR_STYLE = f"{DATA}/style/basic_spear.json"
 SPEAR_MOVES = [
-    "myvillage:basic_spear_01_mid_thrust",
-    "myvillage:basic_spear_02_sweep",
-    "myvillage:basic_spear_03_rising_flick",
-    "myvillage:basic_spear_04_overhead_smash",
-    "myvillage:basic_spear_05_dragon_lunge",
+    "yuanxian:basic_spear_01_mid_thrust",
+    "yuanxian:basic_spear_02_sweep",
+    "yuanxian:basic_spear_03_rising_flick",
+    "yuanxian:basic_spear_04_overhead_smash",
+    "yuanxian:basic_spear_05_dragon_lunge",
 ]
 
 
@@ -88,7 +88,7 @@ class CombatDataTest(unittest.TestCase):
         path = f"{DATA}/skill/jianqi_jue.json"
         skill = self.read(path); skill.pop('reaction_move', None); self.write(path, skill)
         self.assertFalse(self.issues())
-        skill['reaction_move']='myvillage:missing'; self.write(path, skill)
+        skill['reaction_move']='yuanxian:missing'; self.write(path, skill)
         self.assertTrue(any(i.field == 'reaction_move' and i.code == 'REFERENCE' for i in self.issues()))
 
     def test_skill_bounds_and_reference_are_checked(self) -> None:
@@ -99,7 +99,7 @@ class CombatDataTest(unittest.TestCase):
         fields = {issue.field for issue in self.issues()}
         self.assertTrue({"speed", "charge_ticks", "maximum_targets"}.issubset(fields))
         skill = json.loads((combat_data.ROOT / path).read_text())
-        skill.update(feedback_move="myvillage:missing")
+        skill.update(feedback_move="yuanxian:missing")
         self.write(path, skill)
         self.assertTrue(any(i.field == "feedback_move" and i.code == "REFERENCE" for i in self.issues()))
 
@@ -143,24 +143,24 @@ class CombatDataTest(unittest.TestCase):
     def test_committed_data_is_valid(self) -> None:
         data = combat_data.load()
         self.assertEqual((), data.issues)
-        self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear", "myvillage:basic_fist"], list(data.styles))
-        self.assertEqual(["myvillage:qingfeng_sword", "myvillage:lingxiao_spear", "myvillage:xuantie_gauntlet", "myvillage:guiyan_sword", "myvillage:zhenyue_ruler"],
+        self.assertEqual(["yuanxian:basic_sword", "yuanxian:basic_spear", "yuanxian:basic_fist"], list(data.styles))
+        self.assertEqual(["yuanxian:qingfeng_sword", "yuanxian:lingxiao_spear", "yuanxian:xuantie_gauntlet", "yuanxian:guiyan_sword", "yuanxian:zhenyue_ruler"],
                          list(data.weapons))
         self.assertEqual(15, len(list(data.moves())))
         self.assertEqual(["sword", "spear", "fist", "sword", "sword"], [weapon.get("family") for weapon in data.weapons.values()])
         self.assertEqual([False, False, True, False, False], [weapon.get("paired", False) for weapon in data.weapons.values()])
-        self.assertEqual(combat_data.ROOT / STYLE, data.files["myvillage:basic_sword"])
-        self.assertEqual(combat_data.ROOT / SPEAR_STYLE, data.files["myvillage:basic_spear"])
+        self.assertEqual(combat_data.ROOT / STYLE, data.files["yuanxian:basic_sword"])
+        self.assertEqual(combat_data.ROOT / SPEAR_STYLE, data.files["yuanxian:basic_spear"])
 
     def test_spear_style_and_weapon(self) -> None:
         data = combat_data.load()
-        spear = data.styles["myvillage:basic_spear"]
+        spear = data.styles["yuanxian:basic_spear"]
         self.assertEqual(SPEAR_MOVES, [move["id"] for move in spear["moves"]])
-        self.assertEqual([f"combat.myvillage.move.{move_id.split(':')[1]}" for move_id in SPEAR_MOVES],
+        self.assertEqual([f"combat.yuanxian.move.{move_id.split(':')[1]}" for move_id in SPEAR_MOVES],
                          [move["display_key"] for move in spear["moves"]])
-        weapon = data.weapons["myvillage:lingxiao_spear"]
-        self.assertEqual("myvillage:lingxiao_spear", weapon["item"])
-        self.assertEqual("myvillage:basic_spear", weapon["style"])
+        weapon = data.weapons["yuanxian:lingxiao_spear"]
+        self.assertEqual("yuanxian:lingxiao_spear", weapon["item"])
+        self.assertEqual("yuanxian:basic_spear", weapon["style"])
         # The finisher cannot chain.
         self.assertEqual(spear["moves"][-1]["total_ticks"], spear["moves"][-1]["chain_tick"])
 
@@ -183,19 +183,19 @@ class CombatDataTest(unittest.TestCase):
 
     def test_spear_flick_connects_early_and_smash_late(self) -> None:
         moves = {move["id"]: move for _, move in combat_data.load().moves()}
-        flick = moves["myvillage:basic_spear_03_rising_flick"]
-        smash = moves["myvillage:basic_spear_04_overhead_smash"]
+        flick = moves["yuanxian:basic_spear_03_rising_flick"]
+        smash = moves["yuanxian:basic_spear_04_overhead_smash"]
         # The flick lifts what is in front on its first active tick; the smash pins at range as the
         # head comes down, after its first active tick.
         self.assertIn(flick["active_ticks"][0], standing_target_ticks(flick, 2.0))
         self.assertGreater(min(standing_target_ticks(smash, 3.0)), smash["active_ticks"][0])
 
     def test_ids_resolve_to_paths(self) -> None:
-        self.assertEqual(self.root / STYLE, combat_data.style_file(self.root, "myvillage:basic_sword"))
-        self.assertEqual(self.root / WEAPON, combat_data.weapon_file(self.root, "myvillage:qingfeng_sword"))
-        self.assertEqual(self.root / "src/main/resources/assets/myvillage/combat/rig.json",
-                         combat_data.asset_file(self.root, "myvillage:combat/rig.json"))
-        self.assertEqual(("myvillage", "a/b"), combat_data.split_id("myvillage:a/b"))
+        self.assertEqual(self.root / STYLE, combat_data.style_file(self.root, "yuanxian:basic_sword"))
+        self.assertEqual(self.root / WEAPON, combat_data.weapon_file(self.root, "yuanxian:qingfeng_sword"))
+        self.assertEqual(self.root / "src/main/resources/assets/yuanxian/combat/rig.json",
+                         combat_data.asset_file(self.root, "yuanxian:combat/rig.json"))
+        self.assertEqual(("yuanxian", "a/b"), combat_data.split_id("yuanxian:a/b"))
         with self.assertRaises(ValueError):
             combat_data.split_id("NoNamespace")
 
@@ -210,20 +210,20 @@ class CombatDataTest(unittest.TestCase):
         self.assertIn(STYLE, str(issue))
         self.assertIn("moves[0].chain_tik", str(issue))
         self.find("SCHEMA", "moves[0].chain_tick")  # and the real field is reported missing
-        self.assertNotIn("myvillage:basic_sword", combat_data.load(self.root).styles)
+        self.assertNotIn("yuanxian:basic_sword", combat_data.load(self.root).styles)
 
     def test_unlisted_style_file_is_reported(self) -> None:
         self.write(f"{DATA}/style/spear.json", self.read(STYLE))
         issue = self.find("INDEX")
         self.assertEqual(f"{DATA}/style/spear.json", issue.file)
-        self.assertIn("myvillage:spear", issue.message)
+        self.assertIn("yuanxian:spear", issue.message)
 
     def test_listed_but_missing_file_is_reported(self) -> None:
         index = self.read(f"{DATA}/index.json")
-        index["weapons"].append("myvillage:missing_blade")
+        index["weapons"].append("yuanxian:missing_blade")
         self.write(f"{DATA}/index.json", index)
         issue = self.find("INDEX", f"weapons[{len(index['weapons']) - 1}]")
-        self.assertIn("myvillage:missing_blade", issue.message)
+        self.assertIn("yuanxian:missing_blade", issue.message)
 
     def test_chain_tick_inside_active_window_is_rejected(self) -> None:
         self.edit_style(lambda style: style["moves"][1].update(chain_tick=6))
@@ -231,15 +231,15 @@ class CombatDataTest(unittest.TestCase):
 
     def test_duplicate_move_id_across_styles_names_both_styles(self) -> None:
         other = self.read(STYLE)
-        other["id"] = "myvillage:other_sword"
+        other["id"] = "yuanxian:other_sword"
         other["moves"] = [copy.deepcopy(other["moves"][0])]
         self.write(f"{DATA}/style/other_sword.json", other)
         index = self.read(f"{DATA}/index.json")
-        index["styles"].append("myvillage:other_sword")
+        index["styles"].append("yuanxian:other_sword")
         self.write(f"{DATA}/index.json", index)
         issue = self.find("DUPLICATE", "moves[0].id")
         self.assertEqual(f"{DATA}/style/other_sword.json", issue.file)
-        self.assertIn("myvillage:basic_sword", issue.message)
+        self.assertIn("yuanxian:basic_sword", issue.message)
 
     # --- invariants -----------------------------------------------------------------------
 
@@ -380,7 +380,7 @@ class CombatDataTest(unittest.TestCase):
         sword["moves"][index]["trail"] = {"samples": mirrored}
         self.write(STYLE, sword)
         self.assertEqual([], [str(i) for i in self.issues()])
-        move = combat_data.load(self.root).styles["myvillage:basic_sword"]["moves"][index]
+        move = combat_data.load(self.root).styles["yuanxian:basic_sword"]["moves"][index]
         self.assertEqual(mirrored, combat_data.expand_trail_samples(move))
         self.assertEqual(combat_data.expand_samples(before), combat_data.expand_samples(move))
         self.assertEqual(before, {key: value for key, value in move.items() if key != "trail"})
@@ -388,7 +388,7 @@ class CombatDataTest(unittest.TestCase):
         sword["moves"][index]["trail"] = {"samples": dict(before["hitbox"]["samples"], start_angle=50.0)}
         self.write(STYLE, sword)
         self.assertEqual([], [str(i) for i in self.issues()])
-        move = combat_data.load(self.root).styles["myvillage:basic_sword"]["moves"][index]
+        move = combat_data.load(self.root).styles["yuanxian:basic_sword"]["moves"][index]
         self.assertNotEqual(combat_data.expand_samples(move), combat_data.expand_trail_samples(move))
         self.assertEqual(combat_data.expand_samples(before), combat_data.expand_samples(move))
 
@@ -455,7 +455,7 @@ class CombatDataTest(unittest.TestCase):
         self.find("DUPLICATE", "moves[3].id")
 
     def test_style_id_must_match_the_index(self) -> None:
-        self.edit_style(lambda style: style.update(id="myvillage:renamed"))
+        self.edit_style(lambda style: style.update(id="yuanxian:renamed"))
         self.find("INDEX", "id")
 
     def test_weapon_unknown_field_and_style_reference(self) -> None:
@@ -463,7 +463,7 @@ class CombatDataTest(unittest.TestCase):
         weapon["styel"] = weapon.pop("style")
         self.write(WEAPON, weapon)
         self.find("UNKNOWN_FIELD", "styel")
-        weapon["style"] = "myvillage:unlisted"
+        weapon["style"] = "yuanxian:unlisted"
         del weapon["styel"]
         self.write(WEAPON, weapon)
         self.find("REFERENCE", "style")
@@ -487,11 +487,11 @@ class CombatDataTest(unittest.TestCase):
         self.assertEqual({"UNKNOWN_FIELD", "REFERENCE"}, {i.code for i in raised.exception.issues})
         expected = {(STYLE, "moves[1].unknown"), (WEAPON, "style")}
         for name in ("guiyan_sword", "zhenyue_ruler"):
-            expected.add((f"src/main/resources/data/myvillage/combat/weapon/{name}.json", "style"))
+            expected.add((f"src/main/resources/data/yuanxian/combat/weapon/{name}.json", "style"))
         # All three mainline sword-wave consumers must report both missing move references.
         for name in ("jianqi_jue", "sword_obsession_wave", "innate_sword_heart_wave"):
             for field in ("reaction_move", "feedback_move"):
-                expected.add((f"src/main/resources/data/myvillage/combat/skill/{name}.json", field))
+                expected.add((f"src/main/resources/data/yuanxian/combat/skill/{name}.json", field))
         self.assertEqual(expected, {(i.file, i.field) for i in raised.exception.issues})
         self.assertIn("moves[1].unknown", str(raised.exception))
         self.assertIn("feedback_move", str(raised.exception))

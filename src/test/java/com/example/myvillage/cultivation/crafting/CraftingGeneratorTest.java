@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CraftingGeneratorTest {
     private static final UUID PLAYER=UUID.fromString("12345678-1234-5678-9abc-def012345678");
     private static final CraftingOpeningRules.Selection CHOICE=new CraftingOpeningRules.Selection(
-            List.of("myvillage:robust","myvillage:lightfoot","myvillage:bright"),-1,-1);
+            List.of("yuanxian:robust","yuanxian:lightfoot","yuanxian:bright"),-1,-1);
     @Test void selectedFatesAndIdentityDetermineOpeningWhileTalismanKeepsItsDomain(){
         var expected=new CraftingAptitudes(1,true,35,40,83);
         assertEquals(expected,CraftingGenerator.ensure(CraftingAptitudes.EMPTY,true,987654321L,PLAYER,CraftingRules.get(),CHOICE));

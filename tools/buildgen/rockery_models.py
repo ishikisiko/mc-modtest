@@ -526,8 +526,8 @@ def voxels_to_model_json(solid: List[List[List[bool]]], variant_id: str) -> dict
 # Flat color swatches (色块) for the per-voxel hero material split (Decision 2).
 SWATCH_STONE_TINT: Tuple[int, int, int] = (124, 124, 130)  # taihu grey
 SWATCH_MOSSY_TINT: Tuple[int, int, int] = (96, 116, 72)    # mossy green
-SWATCH_STONE_TEX = "myvillage:block/rockery_block/swatch_stone"
-SWATCH_MOSSY_TEX = "myvillage:block/rockery_block/swatch_mossy"
+SWATCH_STONE_TEX = "yuanxian:block/rockery_block/swatch_stone"
+SWATCH_MOSSY_TEX = "yuanxian:block/rockery_block/swatch_mossy"
 
 
 def _elements_for(solid: List[List[List[bool]]], tex_ref: str,
@@ -740,13 +740,13 @@ def voxels_to_texture_png(solid: List[List[List[bool]]], variant_id: str,
 # ---------------------------------------------------------------------------
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-ASSET_ROOT = REPO_ROOT / "src" / "main" / "resources" / "assets" / "myvillage"
+ASSET_ROOT = REPO_ROOT / "src" / "main" / "resources" / "assets" / "yuanxian"
 BLOCKSTATE_PATH = ASSET_ROOT / "blockstates" / "rockery_block.json"
 MODEL_DIR = ASSET_ROOT / "models" / "block" / "rockery_block"
 TEXTURE_DIR = ASSET_ROOT / "textures" / "block" / "rockery_block"
 JAVA_SNIPPET_PATH = REPO_ROOT / "reports" / "rockery_voxelshape_java.txt"
 ROCKERY_BLOCK_JAVA = (REPO_ROOT / "src" / "main" / "java" / "com" /
-                      "example" / "myvillage" / "block" / "RockeryBlock.java")
+                      "example" / "yuanxian" / "block" / "RockeryBlock.java")
 
 FACING_ROTATION = {"north": 0, "east": 90, "south": 180, "west": 270}
 MOSS_LEVELS = ("none", "light", "heavy")
@@ -755,7 +755,7 @@ MOSS_LEVELS = ("none", "light", "heavy")
 def write_blockstate(variants: List[Variant]) -> int:
     entries: Dict[str, dict] = {}
     for v in variants:
-        model = f"myvillage:block/rockery_block/{v.variant_id}"
+        model = f"yuanxian:block/rockery_block/{v.variant_id}"
         for moss in MOSS_LEVELS:
             for facing, rot in FACING_ROTATION.items():
                 for wl in ("false", "true"):

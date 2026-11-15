@@ -66,7 +66,7 @@ class SectNewsTest {
     @ValueSource(strings = {"zh_cn", "en_us"})
     void theNewsLineTakesTheEventLine(String langId) throws IOException {
         JsonObject lang = JsonParser.parseString(Files.readString(
-                Path.of("src/main/resources/assets/myvillage/lang/" + langId + ".json"), StandardCharsets.UTF_8))
+                Path.of("src/main/resources/assets/yuanxian/lang/" + langId + ".json"), StandardCharsets.UTF_8))
                 .getAsJsonObject();
         assertTrue(lang.has(SectNews.NEWS_KEY), langId);
         String template = lang.get(SectNews.NEWS_KEY).getAsString();

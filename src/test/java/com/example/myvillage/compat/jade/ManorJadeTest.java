@@ -26,7 +26,7 @@ class ManorJadeTest {
     @Test void defaultHintShowsTheSemanticNameAndOnlyAnAvailableLocation() {
         var info=ManorPresentation.get().component("manor_lingyue_carved_7",21);
         var alone=ManorJadeProvider.hint(info,Optional.empty(),false,false,21);
-        assertEquals("manor_part.myvillage.window",((TranslatableContents)alone.title().getContents()).getKey());
+        assertEquals("manor_part.yuanxian.window",((TranslatableContents)alone.title().getContents()).getKey());
         assertTrue(alone.lines().isEmpty());
         var owned=ManorJadeProvider.hint(info,Optional.of(new ManorLocation.Name("灵岳·镇岳城主府",false)),false,false,21);
         assertEquals(List.of("灵岳·镇岳城主府"),owned.lines().stream().map(c->c.getString()).toList());
@@ -34,10 +34,10 @@ class ManorJadeTest {
     @Test void materialsAndStyleRequireDetailsAndShapeNumbersRequireDebug() {
         var info=ManorPresentation.get().component("manor_lingyue_carved_7",21);
         var detailed=ManorJadeProvider.hint(info,Optional.empty(),true,false,21);
-        assertEquals(List.of("tooltip.myvillage.manor_materials","tooltip.myvillage.manor_style"),
+        assertEquals(List.of("tooltip.yuanxian.manor_materials","tooltip.yuanxian.manor_style"),
                 detailed.lines().stream().map(c->((TranslatableContents)c.getContents()).getKey()).toList());
         var debug=ManorJadeProvider.hint(info,Optional.empty(),false,true,21);
-        assertEquals("tooltip.myvillage.manor_debug",((TranslatableContents)debug.lines().getFirst().getContents()).getKey());
+        assertEquals("tooltip.yuanxian.manor_debug",((TranslatableContents)debug.lines().getFirst().getContents()).getKey());
     }
     @Test void cachedServerLocationCannotLeakAcrossPositionsDimensionsOrBlockStates() {
         var pos=new BlockPos(12,63,-25);var dimension=ResourceLocation.withDefaultNamespace("overworld");

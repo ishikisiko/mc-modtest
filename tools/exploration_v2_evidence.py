@@ -42,7 +42,7 @@ class ExplorationV2Evidence(ExplorationEvidence):
             for directory in ('defaultconfigs', 'config'):
                 config_dir = cs.SERVER_DIR / directory
                 config_dir.mkdir(parents=True, exist_ok=True)
-                (config_dir / 'myvillage-exploration-server.toml').write_text(
+                (config_dir / 'yuanxian-exploration-server.toml').write_text(
                     '[portal_gates]\nenabled = false\n')
         super().start(reuse)
 
@@ -71,8 +71,8 @@ class ExplorationV2Evidence(ExplorationEvidence):
         u,g=self.s.username,self.s.game
         self.rc(f'deop {u}')
         self.rc(f'yuanxian cultivation awaken {u}');self.rc(f'yuanxian cultivation initiate {u}')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/exploration/rules.json').read_text())
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:golden_core yuanxian:golden_late')
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/exploration/rules.json').read_text())
         final={'dragon','islands','end_city','elytra'}
         for flag,advancement in rules['advancements'].items():
             self.rc(f'advancement {"revoke" if flag in final else "grant"} {u} only {advancement}')
@@ -82,8 +82,8 @@ class ExplorationV2Evidence(ExplorationEvidence):
             self.guide(expected)
         path=cs.CLIENT_DIR/'logs/latest.log';offset=path.stat().st_size
         g.type_chat('/exploration guide side')
-        translations=json.loads((ROOT/'src/main/resources/assets/myvillage/lang/zh_cn.json').read_text())
-        names=[translations['exploration.myvillage.side.'+route['id']] for route in rules['side_routes']]
+        translations=json.loads((ROOT/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_text())
+        names=[translations['exploration.yuanxian.side.'+route['id']] for route in rules['side_routes']]
         self.poll(lambda:path.read_bytes()[offset:].decode(errors='replace'),
                   lambda text:all(name in text for name in names),10,'three optional side-route messages')
         g.xdo('key','t');time.sleep(.3);self.gui_shot(g,'optional-boss-routes.png');g.xdo('key','Escape')
@@ -94,7 +94,7 @@ class ExplorationV2Evidence(ExplorationEvidence):
     def portal(self):
         u,g=self.s.username,self.s.game
         self.rc(f'gamemode creative {u}')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:foundation_establishment yuanxian:foundation_early')
         self.travel('minecraft:overworld',.5,-60,.5)
         self.rc('fill -3 -61 -3 3 -61 6 minecraft:smooth_stone')
         self.rc('fill -3 -60 -3 3 -57 6 minecraft:air')
@@ -130,7 +130,7 @@ class ExplorationV2Evidence(ExplorationEvidence):
         time.sleep(.5);g.require_ingame('mapped finite End-city root table chest');g.xdo('click','3')
         self.poll(g.pointer_grabbed,lambda value:not value,10,'End-city root chest opens')
         items=read_data(self.rc(f'execute in minecraft:the_end run data get block {pos} Items'))
-        mod=[row for row in items if row['id'].startswith('myvillage:')]
+        mod=[row for row in items if row['id'].startswith('yuanxian:')]
         self.check('end_city_keeps_vanilla_and_adds_cultivation',bool(mod) and any(row['id'].startswith('minecraft:') for row in items),items)
         self.gui_shot(g,'end-city-chest-before-take.png')
         row=mod[0];slot=row['Slot'];width,height=g.size
@@ -161,8 +161,8 @@ class ExplorationV2Evidence(ExplorationEvidence):
                    defaults <= {row['id'] for row in before['attributes']},before['attributes'])
         self.rc(f'yuanxian cultivation awaken {u}')
         self.rc(f'yuanxian cultivation initiate {u}')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/exploration/rules.json').read_text())
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:golden_core yuanxian:golden_late')
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/exploration/rules.json').read_text())
         for advancement in rules['advancements'].values():
             self.rc(f'advancement grant {u} only {advancement}')
         self.rc(f'deop {u}')

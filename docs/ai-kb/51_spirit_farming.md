@@ -2,7 +2,7 @@
 
 0.76.0 新增独立[凝元果树与完整木材家族](../features/ningyuan-tree.md)。灵土现在也接受凝元树苗；六味药材仍按下述三阶段规则工作。果树资源归 `tools/gen_ningyuan_tree.py`，不归原灵植生成器。
 
-`myvillage:spirit_soil` is directly plantable, permanently fertile soil. It has no
+`yuanxian:spirit_soil` is directly plantable, permanently fertile soil. It has no
 moisture property, drying random tick, water search or farmland trampling path.
 `SpiritSoilBlock.canSustainPlant` accepts `SpiritCropBlock` and, since 0.76.0, `NingyuanSaplingBlock` above it;
 spirit crops independently require spirit soil, excluding vanilla farmland.

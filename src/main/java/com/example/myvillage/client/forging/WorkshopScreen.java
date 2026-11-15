@@ -17,7 +17,7 @@ import java.util.function.BooleanSupplier;
 
 /** Physical anvil finishing and existing equipment training. Preparation, heating and assembly have dedicated stations. */
 public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> {
-    private static final Style BOOK=Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("myvillage","forge_detail"));
+    private static final Style BOOK=Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("yuanxian","forge_detail"));
     private static final int INK=0xFF353B32,MUTED=0xFF756A52,CINNABAR=0xFF8C4031,PAPER=0xFFE1D6B9;
     private final List<InkButton> directions=new ArrayList<>();
     private InkButton quench,grind,repair;
@@ -27,7 +27,7 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
     @Override protected void init(){
         super.init();directions.clear();quench=button(12,118,65,"淬火",WorkshopMenu.QUENCH);grind=button(83,118,65,"精磨",WorkshopMenu.GRIND);repair=button(154,118,65,"修补",WorkshopMenu.REPAIR);
         for(int i=1;i<=3;i++){final int d=i;directions.add(addRenderableWidget(new InkButton(leftPos+12+(i-1)*67,topPos+85,62,18,
-                Component.translatable("workshop.myvillage.path."+i).withStyle(BOOK),b->send(WorkshopMenu.PATH_BASE+d),()->menu.direction()==d)));}
+                Component.translatable("workshop.yuanxian.path."+i).withStyle(BOOK),b->send(WorkshopMenu.PATH_BASE+d),()->menu.direction()==d)));}
         update();
     }
     private void update(){
@@ -53,7 +53,7 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
             case 2->"器坯已淬火，请送回加热窑进行回火。";case 3->"回火已完成，可以精磨。";default->"精磨已完成，请送到组装台装配。";};
         var lines=font.split(Component.literal(detail),292);for(int i=0;i<Math.min(2,lines.size());i++)g.drawString(font,lines.get(i),12,44+i*10,INK);
         g.drawString(font,"火候 "+menu.heat(),236,85,CINNABAR,false);
-        g.drawString(font,Component.translatable("workshop.myvillage.status."+menu.status()),12,140,MUTED,false);
+        g.drawString(font,Component.translatable("workshop.yuanxian.status."+menu.status()),12,140,MUTED,false);
         if(!menu.input().isEmpty()){
             var craft=piece!=null?WorkshopRules.get().craft(piece.recipe()):WorkshopEquipment.craft(menu.input()).orElse(null);
             if(craft!=null){var record=FoundryEquipment.record(menu.input());g.drawString(font,"手工贡献",12,164,MUTED,false);g.drawString(font,WorkshopEquipment.amount(record.manualStrength(craft.forming_points())*100)+"%",12,178,INK,false);}

@@ -11,7 +11,7 @@ import java.util.function.IntUnaryOperator;
 
 /** npcgen 生成的外观目录。公共代码可读取；不依赖客户端或 Minecraft 注册表。 */
 public final class CultivatorVariants {
-    public static final String RESOURCE = "/assets/myvillage/npc/cultivator_variants.json";
+    public static final String RESOURCE = "/assets/yuanxian/npc/cultivator_variants.json";
     private static final Catalog CATALOG = load();
     private static final List<Variant> NOVICES = CATALOG.variants().stream().filter(v -> v.family().equals("female_novice")).toList();
     private static final List<Variant> MALES = CATALOG.variants().stream().filter(v -> v.family().equals("male")).toList();

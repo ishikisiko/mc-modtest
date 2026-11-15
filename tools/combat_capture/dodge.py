@@ -1,5 +1,5 @@
 """In-game evidence for the player's movement dodge (身法闪避, 0.40.0) against a
-beast (default myvillage:demon_wolf) in the capture session. Re-runnable with
+beast (default yuanxian:demon_wolf) in the capture session. Re-runnable with
 one command:
 
     python3 -m tools.combat_capture dodge            # starts and stops its own session
@@ -7,7 +7,7 @@ one command:
 Scene (as `beast dodge`): a survival player with no armour, no effects and
 naturalRegeneration off, holding the Qingfeng sword in cultivation combat
 mode, who has learned the movement technique (default
-myvillage:taxue_wuhen, through `/yuanxian cultivation learn`). The dodge key
+yuanxian:taxue_wuhen, through `/yuanxian cultivation learn`). The dodge key
 is the default Left Alt; a left dodge holds A first, no direction is the
 backstep.
 
@@ -47,10 +47,10 @@ from .data import load_weapon
 from .session import LOG_DIR, REPO, Session
 
 RESOURCES = REPO / "src/main/resources"
-DEFAULT_BEAST = "myvillage:demon_wolf"
-DEFAULT_TECHNIQUE = "myvillage:taxue_wuhen"
+DEFAULT_BEAST = "yuanxian:demon_wolf"
+DEFAULT_TECHNIQUE = "yuanxian:taxue_wuhen"
 DEFAULT_OUT = REPO / "out/preview/movement_dodge"
-SWORD = "myvillage:qingfeng_sword"
+SWORD = "yuanxian:qingfeng_sword"
 PITCH = 35.0
 TRIAL_RATE = 5  # /tick rate during a trial; a tick then lasts 0.2 s
 LEFT_LEAD_TICKS = 2  # A goes down this many move ticks before Alt, so the client samples it first
@@ -61,8 +61,8 @@ FALLBACK_COOLDOWN_TICKS = 30  # used for the waits when the technique file is no
 
 # move id -> beast distance ahead of the player, backstep move ticks, left dodge move tick
 DODGE_TRIALS = {
-    "myvillage:demon_wolf_bite": {"distance": 2.9, "back": (4, 7, 9, 10), "left": 9},
-    "myvillage:demon_wolf_pounce": {"distance": 6.0, "back": (14, 17, 18, 19), "left": 18},
+    "yuanxian:demon_wolf_bite": {"distance": 2.9, "back": (4, 7, 9, 10), "left": 9},
+    "yuanxian:demon_wolf_pounce": {"distance": 6.0, "back": (14, 17, 18, 19), "left": 18},
 }
 GAMETIME_REPLY = re.compile(r"The time is (-?\d+)")
 DODGE_FIELD = re.compile(r"(\w+)=(\S+)")
@@ -128,7 +128,7 @@ def trial_plan(moves: list[dict], sword_move) -> list[dict]:
 def technique_movement(resources: Path, technique: str) -> dict | None:
     """The `effects.movement` of a technique data file, or None if absent."""
     ns, path = technique.split(":", 1)
-    p = Path(resources) / f"data/{ns}/myvillage/technique/{path}.json"
+    p = Path(resources) / f"data/{ns}/yuanxian/technique/{path}.json"
     if not p.is_file():
         return None
     return json.loads(p.read_text(encoding="utf-8")).get("effects", {}).get("movement")

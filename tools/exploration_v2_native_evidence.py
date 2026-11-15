@@ -24,7 +24,7 @@ def command():
 
 
 def verify_release_jar(root):
-    jars = list((root / "build/libs").glob("myvillage-*.jar"))
+    jars = list((root / "build/libs").glob("yuanxian-*.jar"))
     if len(jars) != 1:
         raise RuntimeError(f"Expected exactly one release jar, found {len(jars)}")
     with zipfile.ZipFile(jars[0]) as jar:
@@ -57,7 +57,7 @@ def main():
     (run / "eula.txt").write_text("eula=true\n")
     defaults = run / "defaultconfigs"
     defaults.mkdir(exist_ok=True)
-    (defaults / "myvillage-exploration-server.toml").write_text("[portal_gates]\nenabled = true\n")
+    (defaults / "yuanxian-exploration-server.toml").write_text("[portal_gates]\nenabled = true\n")
     (run / "server.properties").write_text("\n".join([
         f"level-name={WORLD}", "level-seed=20261002", "level-type=minecraft:normal",
         "generate-structures=true", "online-mode=false", "server-ip=127.0.0.1",

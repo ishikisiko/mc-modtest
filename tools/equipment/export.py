@@ -109,21 +109,21 @@ def compile_armor(spec, materials):
             pieces.append({k:item[k] for k in ("id","name","slot")} | {"boxes": boxes})
         profiles[profile] = pieces
     model = {"version":1,"id":spec["id"],"texture_size":size,"texel_density":density,
-             "texture":f"myvillage:textures/equipment/{spec['id'].split(':')[1]}.png", "profiles":profiles}
+             "texture":f"yuanxian:textures/equipment/{spec['id'].split(':')[1]}.png", "profiles":profiles}
     return model, pixels
 
 
 def outputs(root: Path = ROOT):
     specs, materials = load(root)
     resources = root / "src/main/resources"
-    assets = resources / "assets/myvillage"
+    assets = resources / "assets/yuanxian"
     out, entries, names = {}, [], {}
     for spec in specs:
         if spec["kind"] != "armor_set" or not spec.get("enabled", True):
             continue
         model, pixels = compile_armor(spec, materials)
         name = spec["id"].split(":")[1]
-        model_ref = f"myvillage:equipment/{name}.json"
+        model_ref = f"yuanxian:equipment/{name}.json"
         out[assets / f"equipment/{name}.json"] = json_bytes(model)
         out[assets / f"textures/equipment/{name}.png"] = encode_png(pixels)
         # 四槽GUI统一使用原创像素图稿；其他物品视角继续使用实际穿戴几何。
@@ -133,7 +133,7 @@ def outputs(root: Path = ROOT):
             entries.append({k:item[k] for k in ("id","slot")} | {
                 "material":spec["material"],"durability_multiplier":spec["durability_multiplier"],
                 "model":model_ref,"texture":model["texture"]})
-            names[f"item.myvillage.{item_name}"] = item["name"]
+            names[f"item.yuanxian.{item_name}"] = item["name"]
             if item.get('gui_icon'):
                 from .armor_icons import icon
                 out[assets / f"textures/item/{item_name}.png"] = icon(item['gui_icon'], item['slot'], materials, root)
@@ -141,21 +141,21 @@ def outputs(root: Path = ROOT):
                 out[assets / f"textures/item/{item_name}.png"] = render_icon(model, pixels, item["id"])
             from . import mesh
             faces=mesh.armor_mesh(model,item['id'],root)
-            files,item_model=mesh.obj_assets(faces,f"myvillage:equipment/items/{item_name}",mesh.item_display(faces,armor=True,root=root,slot=item['slot']))
+            files,item_model=mesh.obj_assets(faces,f"yuanxian:equipment/items/{item_name}",mesh.item_display(faces,armor=True,root=root,slot=item['slot']))
             out.update({resources/path:data for path,data in files.items()})
-            item_model['textures']['particle']=f"myvillage:item/{item_name}"
+            item_model['textures']['particle']=f"yuanxian:item/{item_name}"
             if item.get('gui_icon'):
-                item_model=mesh.gui_icon_model(item_model,f"myvillage:item/{item_name}")
+                item_model=mesh.gui_icon_model(item_model,f"yuanxian:item/{item_name}")
             out[assets / f"models/item/{item_name}.json"] = json_bytes(item_model)
         for slot, tag in (("head","head_armor"),("chest","chest_armor"),("legs","leg_armor"),("feet","foot_armor")):
             path = resources / f"data/minecraft/tags/item/{tag}.json"
             current = json.loads(out.get(path, b'{"replace":false,"values":[]}'))
             current["values"] += [i["id"] for i in spec["items"] if i["slot"] == slot]
             out[path] = json_bytes(current)
-    out[resources / "data/myvillage/equipment/catalogue.json"] = json_bytes({"version":1,"items":entries})
+    out[resources / "data/yuanxian/equipment/catalogue.json"] = json_bytes({"version":1,"items":entries})
     # Both equipment families share vanilla slot tags. Read the generated identity
     # catalogue, never duplicate the new family's IDs or overwrite its membership.
-    immortal = resources / "data/myvillage/immortal_equipment/catalogue.json"
+    immortal = resources / "data/yuanxian/immortal_equipment/catalogue.json"
     extra = ([item for entry in json.loads(immortal.read_text())["sets"] for item in entry["armor"]]
              if immortal.exists() else [])
     for slot, tag in (("head","head_armor"),("chest","chest_armor"),("legs","leg_armor"),("feet","foot_armor")):
@@ -178,7 +178,7 @@ def outputs(root: Path = ROOT):
 
 def write_or_check(root=ROOT, check=False):
     rendered = outputs(root)
-    catalogue = root / "src/main/resources/data/myvillage/equipment/catalogue.json"
+    catalogue = root / "src/main/resources/data/yuanxian/equipment/catalogue.json"
     if catalogue.is_file():
         old_ids = {item['id'] for item in json.loads(catalogue.read_text())['items']}
         new_ids = {item['id'] for item in json.loads(rendered[catalogue])['items']}

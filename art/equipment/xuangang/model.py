@@ -84,9 +84,9 @@ for bone in ['right_leg','left_leg']:
   box(bone+'薄靴底',bone,[-2.36,12.12,-2.96],[4.72,.28,5.35],'xg_dark'),
  ]
  FEET+=shell(bone+'整面胫甲',bone,[[-1.65,7.5],[1.65,7.5],[1.93,10.95],[1.75,11.7],[-1.75,11.7],[-1.93,10.95]],-2.57,.24,'xg_dark',step=.25)
-ARMOR={'version':1,'kind':'armor_set','enabled':False,'id':'myvillage:xuangang_armor','name':'玄罡甲 · 完整模型草案',
+ARMOR={'version':1,'kind':'armor_set','enabled':False,'id':'yuanxian:xuangang_armor','name':'玄罡甲 · 完整模型草案',
  'material':'minecraft:iron','durability_multiplier':15,'texture_size':512,'texel_density':4,
- 'items':[dict(id='myvillage:xuangang_'+id,name=name,slot=slot,boxes=boxes) for id,name,slot,boxes in [
+ 'items':[dict(id='yuanxian:xuangang_'+id,name=name,slot=slot,boxes=boxes) for id,name,slot,boxes in [
  ('helmet','玄罡盔','head',HEAD),('chestplate','玄罡胸甲','chest',CHEST),('leggings','玄罡护腿','legs',LEGS),('boots','玄罡靴','feet',FEET)]]}
 TOOLS={
  'pickaxe':{'name':'玄罡镐','polygon':[[-9.0,17.2],[-7.8,20.7],[-4.4,22.6],[-1.8,23.2],[1.8,23.2],[4.4,22.6],[7.8,20.7],[9.0,17.2],[6.4,19.4],[3.2,20.8],[0,21.25],[-3.2,20.8],[-6.4,19.4]],'thickness':2.5,'motif':True},

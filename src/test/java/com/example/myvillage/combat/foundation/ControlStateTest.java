@@ -22,8 +22,8 @@ class ControlStateTest {
     @Test
     void sameEffectFromDifferentCastersExpiresIndependently() {
         ControlState state = new ControlState();
-        assertTrue(state.put(ROOT, FIRST, "myvillage:root", 100, 60, 1, 8));
-        assertTrue(state.put(ROOT, SECOND, "myvillage:root", 110, 20, 1, 8));
+        assertTrue(state.put(ROOT, FIRST, "yuanxian:root", 100, 60, 1, 8));
+        assertTrue(state.put(ROOT, SECOND, "yuanxian:root", 110, 20, 1, 8));
         assertEquals(2, state.snapshot(110).size());
         state.expire(130);
         assertEquals(1, state.size());
@@ -36,8 +36,8 @@ class ControlStateTest {
     @Test
     void strongestSlowDoesNotMultiplyAndShorterSourceDoesNotEraseLongerSource() {
         ControlState state = new ControlState();
-        state.put(SLOW, FIRST, "myvillage:ice", 0, 80, .3, 8);
-        state.put(SLOW, SECOND, "myvillage:wood", 0, 20, .6, 8);
+        state.put(SLOW, FIRST, "yuanxian:ice", 0, 80, .3, 8);
+        state.put(SLOW, SECOND, "yuanxian:wood", 0, 20, .6, 8);
         assertEquals(.6, state.strongestSlow(10));
         assertEquals(.3, state.strongestSlow(20));
         assertEquals(0, state.strongestSlow(80));
@@ -46,9 +46,9 @@ class ControlStateTest {
     @Test
     void cleanseKeepsPoiseAndRepeatHistory() {
         ControlState state = new ControlState();
-        state.put(ROOT, FIRST, "myvillage:root", 100, 60, 1, 8);
-        state.put(SLOW, SECOND, "myvillage:slow", 100, 80, .2, 8);
-        state.put(POISE, FIRST, "myvillage:poise", 100, 100, 0, 8);
+        state.put(ROOT, FIRST, "yuanxian:root", 100, 60, 1, 8);
+        state.put(SLOW, SECOND, "yuanxian:slow", 100, 80, .2, 8);
+        state.put(POISE, FIRST, "yuanxian:poise", 100, 100, 0, 8);
         state.recordRoot(100, 40);
         assertEquals(2, state.cleanse());
         assertFalse(state.has(ROOT, 100));
@@ -61,10 +61,10 @@ class ControlStateTest {
     @Test
     void sourceRevocationLeavesOtherEffectsAndCasters() {
         ControlState state = new ControlState();
-        state.put(ROOT, FIRST, "myvillage:root", 0, 60, 1, 8);
-        state.put(ROOT, SECOND, "myvillage:root", 0, 60, 1, 8);
-        state.put(SLOW, FIRST, "myvillage:slow", 0, 60, .3, 8);
-        assertEquals(1, state.revoke(FIRST, "myvillage:root"));
+        state.put(ROOT, FIRST, "yuanxian:root", 0, 60, 1, 8);
+        state.put(ROOT, SECOND, "yuanxian:root", 0, 60, 1, 8);
+        state.put(SLOW, FIRST, "yuanxian:slow", 0, 60, .3, 8);
+        assertEquals(1, state.revoke(FIRST, "yuanxian:root"));
         assertTrue(state.has(ROOT, 0));
         assertTrue(state.has(SLOW, 0));
         assertEquals(1, state.forgetCaster(FIRST));
@@ -75,9 +75,9 @@ class ControlStateTest {
     @Test
     void offlineOrNowFriendlyCastersArePrunedWithoutErasingPoise() {
         ControlState state = new ControlState();
-        state.put(ROOT, FIRST, "myvillage:root", 0, 60, 1, 8);
-        state.put(ROOT, SECOND, "myvillage:root", 0, 60, 1, 8);
-        state.put(POISE, FIRST, "myvillage:poise", 0, 60, 0, 8);
+        state.put(ROOT, FIRST, "yuanxian:root", 0, 60, 1, 8);
+        state.put(ROOT, SECOND, "yuanxian:root", 0, 60, 1, 8);
+        state.put(POISE, FIRST, "yuanxian:poise", 0, 60, 0, 8);
         state.pruneHostileSources(SECOND::equals);
         assertEquals(2, state.size());
         assertTrue(state.has(POISE, 0));
@@ -87,15 +87,15 @@ class ControlStateTest {
     @Test
     void capacityAndOverflowRejectWithoutDroppingExistingSources() {
         ControlState state = new ControlState();
-        assertTrue(state.put(ROOT, FIRST, "myvillage:root", 0, 10, 1, 1));
-        assertFalse(state.put(ROOT, SECOND, "myvillage:root", 0, 20, 1, 1));
-        assertTrue(state.put(ROOT, FIRST, "myvillage:root", 0, 20, 1, 1));
+        assertTrue(state.put(ROOT, FIRST, "yuanxian:root", 0, 10, 1, 1));
+        assertFalse(state.put(ROOT, SECOND, "yuanxian:root", 0, 20, 1, 1));
+        assertTrue(state.put(ROOT, FIRST, "yuanxian:root", 0, 20, 1, 1));
         assertEquals(1, state.size());
         assertEquals(20, state.remaining(ROOT, 0));
-        assertTrue(state.put(ROOT, SECOND, "myvillage:root", 20, 20, 1, 1), "过期来源应释放容量");
-        assertFalse(state.put(ROOT, FIRST, "myvillage:bad", 20, -1, 1, 2));
-        assertFalse(state.put(SLOW, FIRST, "myvillage:bad", 20, 20, Double.NaN, 2));
-        assertFalse(state.put(ROOT, FIRST, "myvillage:overflow", Long.MAX_VALUE - 2, 10, 1, 2));
+        assertTrue(state.put(ROOT, SECOND, "yuanxian:root", 20, 20, 1, 1), "过期来源应释放容量");
+        assertFalse(state.put(ROOT, FIRST, "yuanxian:bad", 20, -1, 1, 2));
+        assertFalse(state.put(SLOW, FIRST, "yuanxian:bad", 20, 20, Double.NaN, 2));
+        assertFalse(state.put(ROOT, FIRST, "yuanxian:overflow", Long.MAX_VALUE - 2, 10, 1, 2));
     }
 
     @Test
@@ -113,7 +113,7 @@ class ControlStateTest {
     @Test
     void readOnlySnapshotDoesNotExposeMutableStateOrRefreshDuration() {
         ControlState state = new ControlState();
-        state.put(ROOT, FIRST, "myvillage:root", 10, 60, 1, 8);
+        state.put(ROOT, FIRST, "yuanxian:root", 10, 60, 1, 8);
         var snapshot = state.snapshot(30);
         assertEquals(40, snapshot.getFirst().remainingTicks());
         assertThrows(UnsupportedOperationException.class, snapshot::clear);

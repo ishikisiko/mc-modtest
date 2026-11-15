@@ -14,7 +14,7 @@ import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Reads the bundled beast data (schema 1): {@code data/myvillage/beast/index.json}, which lists
+ * Reads the bundled beast data (schema 1): {@code data/yuanxian/beast/index.json}, which lists
  * beast entity ids, and one file per id at {@code data/<ns>/beast/<path>.json}. Pure functions over
  * JSON: the caller supplies how a path is opened, so the same code reads the mod jar at runtime and
  * the source tree in tests.
@@ -24,7 +24,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public final class BeastDataLoader {
     public static final int SCHEMA_VERSION = BeastJson.SCHEMA_VERSION;
-    public static final String INDEX_PATH = "data/myvillage/beast/index.json";
+    public static final String INDEX_PATH = "data/yuanxian/beast/index.json";
 
     private static final Set<String> INDEX_FIELDS = Set.of("schema", "beasts");
     private static final Set<String> BEAST_FIELDS = Set.of("schema", "entity", "attributes", "chase", "stagger", "moves");

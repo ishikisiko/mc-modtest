@@ -12,7 +12,7 @@ class NpcLifeCommandsTest {
         for (String name : new String[]{"gathering", "garden"}) {
             var herb = (ArgumentCommandNode<CommandSourceStack, ?>) root.getChild(name)
                     .getChild("site").getChild("place").getChild("herb");
-            assertEquals("myvillage:spirit_leaf", herb.getType().parse(new StringReader("myvillage:spirit_leaf")).toString());
+            assertEquals("yuanxian:spirit_leaf", herb.getType().parse(new StringReader("yuanxian:spirit_leaf")).toString());
             if (name.equals("gathering")) {
                 var quota = (ArgumentCommandNode<CommandSourceStack, ?>) herb.getChild("daily_quota");
                 assertEquals(1, quota.getType().parse(new StringReader("1")));

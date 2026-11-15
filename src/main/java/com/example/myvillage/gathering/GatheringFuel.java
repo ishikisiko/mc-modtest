@@ -19,7 +19,7 @@ public enum GatheringFuel {
         if (stack.isEmpty()) return null;
         GatheringFuel result = null;
         for (var fuel : values()) {
-            var tier = SpiritStoneDenominations.get().tier(ResourceLocation.fromNamespaceAndPath("myvillage", fuel.id));
+            var tier = SpiritStoneDenominations.get().tier(ResourceLocation.fromNamespaceAndPath("yuanxian", fuel.id));
             if (stack.is(tier.tag())) {
                 if (result != null) return null;
                 result = fuel;

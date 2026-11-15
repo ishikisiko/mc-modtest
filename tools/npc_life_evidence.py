@@ -86,8 +86,8 @@ class NpcLifeEvidence(Evidence):
         self.offset = [0, 0]
         self.ids = {}
         self.serial = 0
-        self.rules = json.loads((ROOT/'src/main/resources/data/myvillage/world_sim/life_rules.json').read_text())
-        layout = next(x for x in json.loads((ROOT/'src/main/resources/data/myvillage/npc_life/places.json').read_text())['layouts']
+        self.rules = json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/life_rules.json').read_text())
+        layout = next(x for x in json.loads((ROOT/'src/main/resources/data/yuanxian/npc_life/places.json').read_text())['layouts']
                       if x['id'] == 'yunshan_showcase_v2')
         self.places = {p['id']: p for p in layout['places']}
 
@@ -112,7 +112,7 @@ class NpcLifeEvidence(Evidence):
         if not reuse:
             # A standard supported population tier, fixed before genesis. The small
             # seed-20261002 fixture was retained separately as a demo shortage.
-            config = cs.SERVER_DIR/'config/myvillage-world_sim-server.toml'
+            config = cs.SERVER_DIR/'config/yuanxian-world_sim-server.toml'
             config.parent.mkdir(parents=True, exist_ok=True)
             config.write_text('[world_sim]\ntier = "large"\n')
         cs.merge_options(cs.CLIENT_DIR/'options.txt', {'key_key.use': 'key.mouse.right'})
@@ -126,7 +126,7 @@ class NpcLifeEvidence(Evidence):
     def ledger(self, label, flush=True):
         if flush:
             self.rc('save-all flush')
-        state = read_ledger(cs.SERVER_DIR/cs.LEVEL_NAME/'data/myvillage_world_sim.dat')
+        state = read_ledger(cs.SERVER_DIR/cs.LEVEL_NAME/'data/yuanxian_world_sim.dat')
         self.serial += 1
         (self.out/f'{self.serial:03d}-{label}-ledger.json').write_text(json.dumps(state, indent=2))
         return state
@@ -147,7 +147,7 @@ class NpcLifeEvidence(Evidence):
         self.rc(teleport_command(username or self.s.username, self.xyz([35.5, 1, 25.5])))
 
     def entity(self, person, limit=True):
-        return '@e[type=myvillage:cultivator,nbt={WorldSimPerson:'+str(person)+'}'+(',limit=1' if limit else '')+']'
+        return '@e[type=yuanxian:cultivator,nbt={WorldSimPerson:'+str(person)+'}'+(',limit=1' if limit else '')+']'
 
     def body(self, person):
         return read_data(self.rc(f'data get entity {self.entity(person)}'))
@@ -184,7 +184,7 @@ class NpcLifeEvidence(Evidence):
         manifest = ROOT/'blueprints/yunshan/functional_buildings_v2.json'
         spec = json.loads(manifest.read_text())
         pack = cs.SERVER_DIR/cs.LEVEL_NAME/'datapacks/npc_life_showcase'
-        target = pack/'data/myvillage/structure'
+        target = pack/'data/yuanxian/structure'
         target.mkdir(parents=True, exist_ok=True)
         (pack/'pack.mcmeta').write_text(json.dumps({'pack': {'pack_format': 48, 'description': 'NPC life isolated authored showcase'}}))
         buildings = [json.loads((manifest.parent/f).read_text()) for f in spec['buildings']]
@@ -424,9 +424,9 @@ class NpcLifeEvidence(Evidence):
     def avatar_cap(self):
         self.rc('yuanxian world pause')
         self.stop()
-        config = cs.SERVER_DIR/cs.LEVEL_NAME/'serverconfig/myvillage-world_sim-server.toml'
+        config = cs.SERVER_DIR/cs.LEVEL_NAME/'serverconfig/yuanxian-world_sim-server.toml'
         config_existed = config.exists()
-        original = (config if config_existed else cs.SERVER_DIR/'config/myvillage-world_sim-server.toml').read_text()
+        original = (config if config_existed else cs.SERVER_DIR/'config/yuanxian-world_sim-server.toml').read_text()
         config.parent.mkdir(parents=True, exist_ok=True)
         changed, n = re.subn(r'(?m)^(\s*max_avatars\s*=\s*)\d+', r'\g<1>1', original)
         self.check('avatar_cap_config_found', n == 1, {'path': str(config)})
@@ -581,7 +581,7 @@ class NpcLifeEvidence(Evidence):
         steward = next(pid for pid, b in bodies.items() if 'avatar.steward' in b.get('CustomName', ''))
         self.check('town_residents_excluded_from_gate_avatars', not set(bodies).intersection(self.ids.values()), {'steward': steward, 'gate_people': list(bodies)})
         self.rc(f'yuanxian cultivation setroot {u} 4000 1500 1500 1500 1500')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:mortal myvillage:mortal_qi_sensed')
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:mortal yuanxian:mortal_qi_sensed')
         options = self.sect_dialogue(steward, 'sect-join')
         self.choose_option(options, 'JOIN')
         joined = self.ledger('sect-joined')

@@ -1,4 +1,4 @@
-"""In-game evidence for a beast (default myvillage:demon_wolf) in the capture
+"""In-game evidence for a beast (default yuanxian:demon_wolf) in the capture
 session: idle beauty stills, a scale still beside the player, exact-tick move
 stills (plus landing stills for a leaping move), walk/run footage, a recorded
 fight against the Qingfeng sword with the server's stagger evidence, slowed
@@ -32,7 +32,7 @@ RESOURCES = REPO / "src/main/resources"
 EYE_HEIGHT = 1.62
 WOLF_POS = (0.5, scene.FLOOR_Y, 8.5)
 TAG = "capture_beast"
-SWORD = "myvillage:qingfeng_sword"
+SWORD = "yuanxian:qingfeng_sword"
 FIGHT_PITCH = 35.0
 
 # view -> (forward, left) unit offset of the camera from the beast, in the beast's frame

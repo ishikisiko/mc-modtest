@@ -21,9 +21,9 @@ Input may be either:
 
 Example:
   python3 tools/preview_structure.py \\
-      src/main/resources/data/myvillage/structure/small_house_001.nbt
+      src/main/resources/data/yuanxian/structure/small_house_001.nbt
   python3 tools/preview_structure.py --all \\
-      --src src/main/resources/data/myvillage/structure
+      --src src/main/resources/data/yuanxian/structure
 """
 
 from __future__ import annotations
@@ -60,10 +60,10 @@ Voxels = Dict[Tuple[int, int, int], str]
 Entities = List[dict]
 AIR_BASES = {"minecraft:air", "minecraft:cave_air", "minecraft:void_air"}
 PLAQUE_BLOCK_IDS = {
-    "myvillage:wall_plaque",
-    "myvillage:wall_plaque_vertical",
-    "myvillage:hanging_plaque",
-    "myvillage:hanging_plaque_vertical",
+    "yuanxian:wall_plaque",
+    "yuanxian:wall_plaque_vertical",
+    "yuanxian:hanging_plaque",
+    "yuanxian:hanging_plaque_vertical",
 }
 FACING_FROM_2D = {0: "south", 1: "west", 2: "north", 3: "east"}
 FACING_NORMAL = {
@@ -280,7 +280,7 @@ def _plaque_texture_for_state(state: str) -> tuple[str, list[float] | None] | No
         f"row={props.get('row', 'single')},"
         f"col={props.get('col', 'center')}"
     )
-    blockstate_path = os.path.join(REPO_ROOT, "src", "main", "resources", "assets", "myvillage", "blockstates", f"{block_name}.json")
+    blockstate_path = os.path.join(REPO_ROOT, "src", "main", "resources", "assets", "yuanxian", "blockstates", f"{block_name}.json")
     with open(blockstate_path, "r", encoding="utf-8") as f:
         blockstate = json.load(f)
     variant = blockstate.get("variants", {}).get(key)
@@ -388,7 +388,7 @@ def build_texture_overlays(voxels: Voxels, entities: Entities, out_dir: str) -> 
         if not isinstance(nbt, dict) or nbt.get("id") != "minecraft:painting":
             continue
         variant = str(nbt.get("variant", ""))
-        if not variant.startswith("myvillage:inscription/"):
+        if not variant.startswith("yuanxian:inscription/"):
             continue
         inscription_count += 1
         facing = FACING_FROM_2D.get(int(nbt.get("facing", 2)), "north")
@@ -1716,7 +1716,7 @@ def render_one(path: str, out_root: str, args: argparse.Namespace) -> RenderResu
 
 def iter_inputs(args: argparse.Namespace) -> List[str]:
     if args.all:
-        src = args.src or os.path.join(REPO_ROOT, "src", "main", "resources", "data", "myvillage", "structure")
+        src = args.src or os.path.join(REPO_ROOT, "src", "main", "resources", "data", "yuanxian", "structure")
         if not os.path.isdir(src):
             raise SystemExit(f"--src directory not found: {src}")
         files = sorted(os.path.join(src, f) for f in os.listdir(src) if f.endswith(".nbt"))

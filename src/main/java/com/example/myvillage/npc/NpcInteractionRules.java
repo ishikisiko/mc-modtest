@@ -17,7 +17,7 @@ public record NpcInteractionRules(int schema, double range, int sessionTicks, in
     }
     public static NpcInteractionRules get() { return INSTANCE; }
     private static NpcInteractionRules load() {
-        String path = "/data/myvillage/npc_interaction/rules.json";
+        String path = "/data/yuanxian/npc_interaction/rules.json";
         try (var input = NpcInteractionRules.class.getResourceAsStream(path)) {
             if (input == null) throw new IllegalStateException("Missing " + path);
             return new Gson().fromJson(new InputStreamReader(input, StandardCharsets.UTF_8), NpcInteractionRules.class);

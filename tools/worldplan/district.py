@@ -133,7 +133,7 @@ def compile_district(out: Path, root=ROOT):
                         if tx<=s['pos'][0]<tx+16 and tz<=s['pos'][2]<tz+16]
             attach_signs(tag,nbt.Compound({}),tile_signs)
             name=f'tile_{tx//16}_{tz//16}'
-            path=out/f'data/myvillage/structure/worldplan/yunshan_v4/{name}.nbt'
+            path=out/f'data/yuanxian/structure/worldplan/yunshan_v4/{name}.nbt'
             path.parent.mkdir(parents=True,exist_ok=True);nbt.write_gzipped_nbt(tag,str(path))
             _,decoded=read_gzipped_nbt(str(path))
             restored={tuple(b['pos']):canonical(state_string(decoded['palette'][b['state']])) for b in decoded['blocks']}
@@ -143,7 +143,7 @@ def compile_district(out: Path, root=ROOT):
                 b=next(b for b in decoded['blocks'] if b['pos']==s['pos'])
                 if [json.loads(t)['text'] for t in b['nbt']['front_text']['messages']]!=s['messages']:
                     raise ValueError('V4 sign roundtrip failed')
-            tiles.append({'template':'myvillage:worldplan/yunshan_v4/'+name,'x':tx,'z':tz,
+            tiles.append({'template':'yuanxian:worldplan/yunshan_v4/'+name,'x':tx,'z':tz,
                           'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
     compiled={'id':frame['id'],'name':frame['name'],'size':frame['size'],'layout_hash':frame['layout_hash'],
               'terraces':[{'last_z':d-1,'height':surfaces[0]-1}],

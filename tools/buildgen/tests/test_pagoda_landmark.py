@@ -133,7 +133,7 @@ def _java_pagoda_footprint(path: Path, structure_id: str) -> tuple[int, int]:
 
 def test_resource_footprints_fit_python_and_java_mirrors() -> None:
     root = _TOOLS_DIR.parent
-    structure_dir = root / "src/main/resources/data/myvillage/structure"
+    structure_dir = root / "src/main/resources/data/yuanxian/structure"
     java_files = (
         root / "src/main/java/com/example/myvillage/town/TownGenerator.java",
     )

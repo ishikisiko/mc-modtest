@@ -12,8 +12,8 @@ import net.minecraft.world.entity.player.Inventory;
 
 /** The same private infusion batch, presented as a page in the workshop. */
 public final class CopperInfusionScreen extends AbstractContainerScreen<CopperInfusionMenu> {
-    private static final String KEY="screen.myvillage.infusion.";
-    private static final Style BOOK=Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("myvillage","forge_detail"));
+    private static final String KEY="screen.yuanxian.infusion.";
+    private static final Style BOOK=Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("yuanxian","forge_detail"));
     private static final int INK=0xFF353B32;
     private Button start,pause;
     public CopperInfusionScreen(CopperInfusionMenu menu,Inventory inventory,Component title){
@@ -35,13 +35,13 @@ public final class CopperInfusionScreen extends AbstractContainerScreen<CopperIn
         int paid=Math.min(menu.paidQi(),InfusionRules.get().qiPerIngot());
         if(menu.count()>0){
             int stage=paid*6/InfusionRules.get().qiPerIngot();
-            var texture=ResourceLocation.fromNamespaceAndPath("myvillage","textures/gui/copper_infusion_"+stage+".png");
+            var texture=ResourceLocation.fromNamespaceAndPath("yuanxian","textures/gui/copper_infusion_"+stage+".png");
             g.blit(texture,x+136,y+43,0,0,32,32,32,32);
         }
         g.fill(x+88,y+82,x+216,y+85,0xFF928367);g.fill(x+88,y+82,x+88+128*paid/InfusionRules.get().qiPerIngot(),y+85,0xFFA65B3C);
     }
     @Override protected void renderLabels(GuiGraphics g,int mx,int my){
-        g.drawString(font,title.copy().withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("myvillage","boss_title"))),10,8,INK,false);
+        g.drawString(font,title.copy().withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("yuanxian","boss_title"))),10,8,INK,false);
         g.drawString(font,text("batch",InfusionRules.get().maxBatch()),16,31,INK,false);
         long power=ClientCultivationState.latest().map(p->p.currentSpiritualPower()).orElse(0L);
         g.drawString(font,text("power",power),16,47,INK,false);

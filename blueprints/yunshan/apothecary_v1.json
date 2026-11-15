@@ -1,5 +1,5 @@
 {
-  "id": "myvillage:yunshan_apothecary_v1",
+  "id": "yuanxian:yunshan_apothecary_v1",
   "author": "MyVillage",
   "mc_version": "1.21.1",
   "size": [
@@ -144,7 +144,7 @@
         1,
         6
       ],
-      "state": "myvillage:alchemy_furnace[facing=north,lit=false]",
+      "state": "yuanxian:alchemy_furnace[facing=north,lit=false]",
       "approach": "alchemy"
     }
   ],
@@ -231,7 +231,7 @@
     {"op":"set","pos":[4,2,6],"state":"minecraft:barrel[facing=north,open=false]"},
     {"op":"set","pos":[2,1,2],"state":"minecraft:white_bed[facing=west,part=head,occupied=false]"},
     {"op":"set","pos":[3,1,2],"state":"minecraft:white_bed[facing=west,part=foot,occupied=false]"},
-    {"op":"set","pos":[9,1,6],"state":"myvillage:alchemy_furnace[facing=north,lit=false]"},
+    {"op":"set","pos":[9,1,6],"state":"yuanxian:alchemy_furnace[facing=north,lit=false]"},
     {"op":"set","pos":[10,1,6],"state":"minecraft:water_cauldron[level=3]"},
     {"op":"set","pos":[2,1,9],"state":"minecraft:smooth_stone_slab[type=bottom,waterlogged=false]"},
     {"op":"set","pos":[2,2,9],"state":"minecraft:potted_fern"},

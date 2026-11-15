@@ -10,7 +10,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 
-@Mod(value="myvillage",dist=Dist.CLIENT)
+@Mod(value="yuanxian",dist=Dist.CLIENT)
 public final class MeditationClient {
     public MeditationClient(IEventBus bus) {
         ClientMeditationMotion.initialize();
@@ -27,7 +27,7 @@ public final class MeditationClient {
         // Camera-only eye easing. Player collision, interaction rays and server position stay vanilla.
         if(e.getCamera().isDetached() || !(e.getCamera().getEntity() instanceof net.minecraft.client.player.AbstractClientPlayer player))return;
         MeditationPose pose=ClientMeditationMotion.pose(player,(float)e.getPartialTick());
-        if(pose!=null)((com.example.myvillage.mixin.MeditationCameraAccess)e.getCamera()).myvillage$meditationPosition(
+        if(pose!=null)((com.example.myvillage.mixin.MeditationCameraAccess)e.getCamera()).yuanxian$meditationPosition(
                 e.getCamera().getPosition().add(0,-pose.drop()*.9375/16,0));
     }
     private static void hand(RenderHandEvent e) {

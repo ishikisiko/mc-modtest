@@ -302,7 +302,7 @@ final class FirstPersonSwingTest {
     @Test
     void invalidRigsAreRejected() throws IOException {
         JsonObject missingMove = rigJson();
-        missingMove.getAsJsonObject("moves").remove("myvillage:basic_sword_05_lunge_thrust");
+        missingMove.getAsJsonObject("moves").remove("yuanxian:basic_sword_05_lunge_thrust");
         assertThrows(IllegalArgumentException.class, () -> parse(missingMove));
 
         JsonObject lateStrike = rigJson();
@@ -557,7 +557,7 @@ final class FirstPersonSwingTest {
     }
 
     private static JsonObject firstMove(JsonObject rig) {
-        return rig.getAsJsonObject("moves").getAsJsonObject("myvillage:basic_sword_01_thrust");
+        return rig.getAsJsonObject("moves").getAsJsonObject("yuanxian:basic_sword_01_thrust");
     }
 
     private static JsonArray pair(float first, float second) {

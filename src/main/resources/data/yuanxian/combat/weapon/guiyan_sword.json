@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "item": "yuanxian:guiyan_sword",
+  "family": "sword",
+  "style": "yuanxian:basic_sword",
+  "first_person_rig": "yuanxian:combat/qingfeng_first_person.json",
+  "geometry": "yuanxian:combat/guiyan_sword_geometry.json"
+}

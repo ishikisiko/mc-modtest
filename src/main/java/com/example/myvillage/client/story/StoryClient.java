@@ -13,10 +13,10 @@ import org.lwjgl.glfw.GLFW;
 /** Independent, physical-client-only entry point; common bootstrap needs no client imports. */
 @Mod(value = MyVillageMod.MOD_ID, dist = Dist.CLIENT)
 public final class StoryClient {
-    public static final KeyMapping TRACKER = new KeyMapping("key.myvillage.story_tracker",
-            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Y, "key.categories.myvillage");
-    public static final KeyMapping JOURNAL = new KeyMapping("key.myvillage.story_journal",
-            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_O, "key.categories.myvillage");
+    public static final KeyMapping TRACKER = new KeyMapping("key.yuanxian.story_tracker",
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Y, "key.categories.yuanxian");
+    public static final KeyMapping JOURNAL = new KeyMapping("key.yuanxian.story_journal",
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_O, "key.categories.yuanxian");
 
     public StoryClient(IEventBus modBus) {
         ClientStory.install();

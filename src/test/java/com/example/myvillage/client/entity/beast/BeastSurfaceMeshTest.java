@@ -11,16 +11,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BeastSurfaceMeshTest {
     private static final String MODEL = """
-            {"schema":1,"id":"myvillage:test","texture":{"width":64,"height":64},
+            {"schema":1,"id":"yuanxian:test","texture":{"width":64,"height":64},
              "look":{"bone":"root","max_yaw":0,"max_pitch":0},"shadow_radius":1,
              "bones":[{"name":"root","parent":null,"pivot":[0,24,0],"rotation":[0,0,0],"cubes":[]}]}
             """;
     private BeastModelFile skeleton() {
-        return BeastModelFile.parse("fixture", ResourceLocation.parse("myvillage:test"), new StringReader(MODEL));
+        return BeastModelFile.parse("fixture", ResourceLocation.parse("yuanxian:test"), new StringReader(MODEL));
     }
     private BeastSurfaceMesh parse(String triangle, String bone) {
         return BeastSurfaceMesh.parse("mesh", skeleton(), new StringReader(
-                "{\"schema\":1,\"id\":\"myvillage:test\",\"parts\":[{\"bone\":\"" + bone
+                "{\"schema\":1,\"id\":\"yuanxian:test\",\"parts\":[{\"bone\":\"" + bone
                         + "\",\"triangles\":[" + triangle + "]}]}"));
     }
     @Test void computesTheActualSlopedFaceNormal() {
@@ -42,13 +42,13 @@ class BeastSurfaceMeshTest {
         assertNull(skeleton().surfaceMesh());
         var json = JsonParser.parseString(MODEL).getAsJsonObject();
         json.addProperty("surface_mesh", "other:beast/test.json");
-        assertThrows(BeastDataException.class, () -> BeastModelFile.parse("fixture", ResourceLocation.parse("myvillage:test"), json));
+        assertThrows(BeastDataException.class, () -> BeastModelFile.parse("fixture", ResourceLocation.parse("yuanxian:test"), json));
     }
     @Test void actualGuardianMeshBindsToItsAnimationSkeleton() throws Exception {
-        Path root = Path.of("src/main/resources/assets/myvillage/beast");
+        Path root = Path.of("src/main/resources/assets/yuanxian/beast");
         BeastModelFile model;
         try (var reader = Files.newBufferedReader(root.resolve("stele_guardian_model.json"))) {
-            model = BeastModelFile.parse("stele_guardian", ResourceLocation.parse("myvillage:stele_guardian"), reader);
+            model = BeastModelFile.parse("stele_guardian", ResourceLocation.parse("yuanxian:stele_guardian"), reader);
         }
         assertNotNull(model.surfaceMesh());
         try (var reader = Files.newBufferedReader(root.resolve("stele_guardian_surface.json"))) {

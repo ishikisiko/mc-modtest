@@ -27,7 +27,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 有界原生服务器夹具，复用 spiritBodiesEvidence 的禁止打包边界；不是玩家输入证据。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class EverlastingEvidence {
     private static final String PHASE=System.getenv("MYVILLAGE_EVERLASTING_PHASE");
     private static final Path OUT=Path.of(System.getenv().getOrDefault("MYVILLAGE_EVERLASTING_OUT","../reports/everlasting-native"));
@@ -39,7 +39,7 @@ public final class EverlastingEvidence {
     private static double beforeMaximum,beforeHealth;
     private static int start=-1,stopAt=-1;
     private static boolean done;
-    private static ResourceLocation id(String name){return ResourceLocation.parse("myvillage:"+name);}
+    private static ResourceLocation id(String name){return ResourceLocation.parse("yuanxian:"+name);}
     private static void check(String name,boolean pass,Object detail){
         CHECKS.add(Map.of("name",name,"pass",pass,"detail",String.valueOf(detail)));
         if(!pass)throw new IllegalStateException(name+": "+detail);
@@ -77,12 +77,12 @@ public final class EverlastingEvidence {
         instance.addTransientModifier(new AttributeModifier(key,value,AttributeModifier.Operation.ADD_VALUE));
     }
     private static void begin(MinecraftServer server)throws Exception {
-        server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"myvillage world pause");
+        server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"yuanxian world pause");
         owner=fresh(server,OWNER,"EverOwner");attach(server,owner);
         var root=new SpiritualRoot(Map.of(id("fire"),10000));
         var initialized=CultivationService.replaceProfile(owner,CultivationProfile.defaultProfile().withSpiritualRoot(root));
         check("root_fixture",initialized.success(),initialized.message());
-        var ids=List.of("myvillage:everlasting_embryo","myvillage:robust","myvillage:bright");
+        var ids=List.of("yuanxian:everlasting_embryo","yuanxian:robust","yuanxian:bright");
         CultivationService.replaceFates(owner,new FateState(1,1,ids,"",ids,true,0,0,0,0),true);
         check("confirmed_mortal_lifespan_120",CultivationTimeRuntime.statusFor(owner).maximumLifespanTicks()/CultivationTimeRuntime.statusFor(owner).ticksPerYear()==120,CultivationTimeRuntime.statusFor(owner));
         owner.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
@@ -99,7 +99,7 @@ public final class EverlastingEvidence {
         FateRuntime.refresh(owner);double max=owner.getMaxHealth(),attack=owner.getAttributeValue(Attributes.ATTACK_DAMAGE),defense=owner.getAttributeValue(ModStatsAttributes.BODY_DEFENSE);
         owner.setHealth((float)max-5);double health=owner.getHealth();
         ((MemoryConnection)observer.connection).snapshots.clear();
-        var grown=EverlastingState.EMPTY.advance(EverlastingRules.get().at("myvillage:qi_refining"),year,year);
+        var grown=EverlastingState.EMPTY.advance(EverlastingRules.get().at("yuanxian:qi_refining"),year,year);
         CultivationService.replaceEverlasting(owner,grown,true);
         check("health_is_independent_addition",near(owner.getMaxHealth(),max+4),List.of(max,owner.getMaxHealth()));
         check("attack_is_independent_addition",near(owner.getAttributeValue(Attributes.ATTACK_DAMAGE),attack+0.5),owner.getAttributeValue(Attributes.ATTACK_DAMAGE));
@@ -124,7 +124,7 @@ public final class EverlastingEvidence {
         owner.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);EverlastingRuntime.eligibleTick(owner);
         check("exhaustion_stops_new_growth",previous.equals(EverlastingRuntime.state(owner)),EverlastingRuntime.state(owner));
         CultivationService.replaceProfile(owner,normal);owner.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
-        expected=grown.advance(EverlastingRules.get().at("myvillage:qi_refining"),year,12345);
+        expected=grown.advance(EverlastingRules.get().at("yuanxian:qi_refining"),year,12345);
         CultivationService.replaceEverlasting(owner,expected,true);
         owner.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);owner.hurt(owner.damageSources().genericKill(),1000000);
         check("ordinary_death_occurs",!owner.isAlive(),owner.getHealth());
@@ -139,7 +139,7 @@ public final class EverlastingEvidence {
         check("rejoin_does_not_reset_or_add_offline_growth",expected.equals(EverlastingRuntime.state(owner)),EverlastingRuntime.state(owner));
         attach(server,owner);owner.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
         long year=CultivationTimeRuntime.statusFor(owner).ticksPerYear();
-        CultivationService.replaceEverlasting(owner,EverlastingState.EMPTY.advance(EverlastingRules.get().at("myvillage:qi_refining"),year,year/8-1),true);
+        CultivationService.replaceEverlasting(owner,EverlastingState.EMPTY.advance(EverlastingRules.get().at("yuanxian:qi_refining"),year,year/8-1),true);
         beforeMaximum=owner.getMaxHealth();owner.setHealth((float)beforeMaximum-3);beforeHealth=owner.getHealth();
         owner.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
     }
@@ -160,7 +160,7 @@ public final class EverlastingEvidence {
         check("restart_restores_single_health_modifier",owner.getAttribute(Attributes.MAX_HEALTH).getModifier(EverlastingRuntime.HEALTH)!=null,owner.getMaxHealth());
         long year=CultivationTimeRuntime.statusFor(owner).ticksPerYear();
         owner.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);EverlastingRuntime.eligibleTick(owner);owner.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
-        check("restart_continues_from_saved_fraction",expected.advance(EverlastingRules.get().at("myvillage:qi_refining"),year,1).equals(EverlastingRuntime.state(owner)),EverlastingRuntime.state(owner));
+        check("restart_continues_from_saved_fraction",expected.advance(EverlastingRules.get().at("yuanxian:qi_refining"),year,1).equals(EverlastingRuntime.state(owner)),EverlastingRuntime.state(owner));
         finish(server);
     }
     private static void save()throws Exception {

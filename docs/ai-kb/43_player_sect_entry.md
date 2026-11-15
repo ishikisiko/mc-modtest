@@ -46,7 +46,7 @@ avatar selection.
 
 | Fact | Source of truth |
 |---|---|
-| Thresholds, standings, promotion bars, steward range, realize radius and clips per tick | `player` section of `data/myvillage/world_sim/rules.json`, loaded as `sim/data/Rules.Player` |
+| Thresholds, standings, promotion bars, steward range, realize radius and clips per tick | `player` section of `data/yuanxian/world_sim/rules.json`, loaded as `sim/data/Rules.Player` |
 | The record | `sim/model/PlayerMember`, in `WorldState.playerMembers`; saved by `sim/model/StateCodec` (`player_members`) |
 | Admission order, join, leave, admin rank, yearly review, sect dissolved | `sim/engine/PlayerAffairs` |
 | Facade (the only mutation path) | `sim/WorldSim`: `playerMember`, `playerMembers`, `stewardOf`, `admission`, `joinSect`, `leaveSect`, `promotePlayer`, `updatePlayerQualification` |
@@ -168,7 +168,7 @@ param is the player's name, the second the sect name. Families:
   middle column of the site rectangle), then the least z (toward the gate
   opening), then the least x; falls back to `pickCell` when that terrace is
   full.
-- **Name tag.** `entity.myvillage.cultivator.avatar.steward`: the usual
+- **Name tag.** `entity.yuanxian.cultivator.avatar.steward`: the usual
   name · realm · sect plus a fixed fourth part 守山执事 (a name tag is one
   line). Elders' tags are unchanged.
 - **Role on the entity.** `NpcEntity.DATA_LEDGER_ROLE` (`none`, `steward`,
@@ -188,7 +188,7 @@ ledger avatar with a role and not removed; player and avatar in the
 overworld, the same level; distance at most `steward.interact_range`; the
 ledger active; the person alive and in an active sect; the person's role by
 the ledger (`stewardOf`, or rank elder / sect master) not `none`. A failed
-ledger check sends `message.myvillage.world.sect.unavailable`; a failed
+ledger check sends `message.yuanxian.world.sect.unavailable`; a failed
 distance or level check sends nothing. An intent is further dropped when it
 comes under 4 server ticks after the player's previous one, when the entity
 is gone, when its `sectId` is not the avatar's sect, and, for an option the
@@ -199,8 +199,8 @@ LEAVE go through `WorldSimPlayers.join(player, sect, false)` /
 
 | Payload | Direction | Fields and bounds |
 |---|---|---|
-| `SectDialoguePayload` `myvillage:sect_dialogue` | server → client | `entityId`, `sectId`, `sectName`, `role`, `avatarName`, `prestige` (int), `memberCount`, `masterName`, `regionName`, `myRank` ("" when not of this sect), `myStanding`, `admissible`, `reason`, `lines` (at most 8 translatable components, `ComponentSerialization.TRUSTED_STREAM_CODEC`), `options` (at most 4 ids, each 0..2). Names at most 64 chars, role and rank 16, reason 32; out of range is a `DecoderException` |
-| `SectIntentPayload` `myvillage:sect_intent` | client → server | `kind` (unsigned byte: 0 JOIN, 1 LEAVE, 2 FAREWELL; anything else rejected), `entityId`, `sectId`. No other field: the server decides everything |
+| `SectDialoguePayload` `yuanxian:sect_dialogue` | server → client | `entityId`, `sectId`, `sectName`, `role`, `avatarName`, `prestige` (int), `memberCount`, `masterName`, `regionName`, `myRank` ("" when not of this sect), `myStanding`, `admissible`, `reason`, `lines` (at most 8 translatable components, `ComponentSerialization.TRUSTED_STREAM_CODEC`), `options` (at most 4 ids, each 0..2). Names at most 64 chars, role and rank 16, reason 32; out of range is a `DecoderException` |
+| `SectIntentPayload` `yuanxian:sect_intent` | client → server | `kind` (unsigned byte: 0 JOIN, 1 LEAVE, 2 FAREWELL; anything else rejected), `entityId`, `sectId`. No other field: the server decides everything |
 
 `ModPayloads.PROTOCOL_VERSION` is `13` since 0.41.0 (was `12`).
 
@@ -239,7 +239,7 @@ SECT_DIALOGUE option=<JOIN|LEAVE|FAREWELL> x=<px> y=<px> w=<px> h=<px>   # clien
 SECT_ENTRY player=<name> intent=<JOIN|LEAVE> sect=<id> result=<ok|reason>   # server, every join/leave, dialogue or command
 ```
 
-`WorldSimPlayers` also sends the chat lines `message.myvillage.world.sect.joined`
+`WorldSimPlayers` also sends the chat lines `message.yuanxian.world.sect.joined`
 / `.left`, and after each settled day sends an online player every
 `player_*` event whose first param is their name (yearly promotion, sect
 gone).
@@ -259,7 +259,7 @@ gone).
   steward; a destroyed sect is marked), a 我在此宗 row on the own sect's page
   (rank · joining date · standing), and `相距%1$s格（%2$s）` on each 此地 sect
   row. Still read-only: joining happens only in the world.
-- Commands, permission 2, output `commands.myvillage.world.player.*`,
+- Commands, permission 2, output `commands.yuanxian.world.player.*`,
   `.sect_join.*`, `.sect_leave.*`, `.gates.*`:
 
 | Command | Does |
@@ -313,7 +313,7 @@ Slice 2: members borrow their sect's manuals by rank. Breakdown and defaults:
 /yuanxian world sects
 /yuanxian world sect <id> shelves
 /yuanxian world sect <id> shelves place
-/give @s myvillage:scripture_shelf
+/give @s yuanxian:scripture_shelf
 ```
 
 The survey reports lower-root coordinates. A hand-placed stand has no sect
@@ -348,7 +348,7 @@ hall when there is one):
    refuses an importance-1 event without a person subject, and a player is
    never one), closing the open day like a join.
 7. Save dirty, the manual into the inventory (dropped at the feet when full),
-   `message.myvillage.world.scripture.borrowed`, `SCRIPTURE_HALL ... result=ok`,
+   `message.yuanxian.world.scripture.borrowed`, `SCRIPTURE_HALL ... result=ok`,
    the refreshed hall.
 
 `ScriptureHall.open` makes the same shelf checks (failure: one chat line, no
@@ -364,8 +364,8 @@ SCRIPTURE_HALL_UI technique=<id> borrowed=<true|false> x=<px> y=<px> w=<px> h=<p
 
 | Payload | Direction | Fields and bounds |
 |---|---|---|
-| `ScriptureHallPayload` `myvillage:scripture_hall` | server → client | shelf `pos`, `sectId`, `sectName` (64), `myRank` (16), `member`, `reason` (32), at most 16 `Entry(techniqueId (64), name component, grade 0..4, category (16), borrowed, cost ≥ 0)` |
-| `ScriptureBorrowPayload` `myvillage:scripture_borrow` | client → server | shelf `pos`, `techniqueId` (64); nothing else |
+| `ScriptureHallPayload` `yuanxian:scripture_hall` | server → client | shelf `pos`, `sectId`, `sectName` (64), `myRank` (16), `member`, `reason` (32), at most 16 `Entry(techniqueId (64), name component, grade 0..4, category (16), borrowed, cost ≥ 0)` |
+| `ScriptureBorrowPayload` `yuanxian:scripture_borrow` | client → server | shelf `pos`, `techniqueId` (64); nothing else |
 
 `ModPayloads.PROTOCOL_VERSION` is `14` since 0.42.0. The screen refreshes in
 place when a new hall for the same shelf arrives and closes 10 blocks from
@@ -382,14 +382,14 @@ reader; `StudyStart` does not look at where a manual came from.
 **Commands.** `world sect <id> rank <player> <outer|inner|elder>` calls
 `WorldSim.promotePlayer` (target must be a member of that sect; a rise
 records `player_promotion` and tells the player; a lowered rank changes the
-record without an event; output `commands.myvillage.world.sect_rank.*`).
-`world sect <id> shelves [place]` as above (`commands.myvillage.world.shelves.*`).
+record without an event; output `commands.yuanxian.world.sect_rank.*`).
+`world sect <id> shelves [place]` as above (`commands.yuanxian.world.shelves.*`).
 
 **Evidence.** `python3 tools/world_sim_scripture_evidence.py [--sect ID]
 [--distance 140] [--realize-timeout 600] [--shelf-distance 3.0] [--ui-scale 1]`
 (holds the heavy-work lock itself): a heritage sect's gate built by walking
 near it (both shelves placed), admin join, the hall as an outer disciple, a
-borrow and the manual's `myvillage:technique` component in the inventory,
+borrow and the manual's `yuanxian:technique` component in the inventory,
 the button disabled on reopening, `rank inner` and the second entry, `leave`
 and `member=false`. Output `out/preview/world_sim/scripture/`. The
 2026-10-07 run (script `23d8ecb`, 0.42.0 tree) passed 19 of 19: 明心宗
@@ -423,7 +423,7 @@ speeds meditation. Breakdown and defaults: `docs/sect-entry-slice3-tasks.md`.
 
 | Fact | Source of truth |
 |---|---|
-| Task rows (id, kind, count, contribution) | `data/myvillage/world_sim/sect_tasks.json`, loaded as `sim/data/ContentTables.SectTask` (`SimData.sectTasks`, `sectTask`); checked by `tools/validate_world_sim.py` `check_sect_tasks` |
+| Task rows (id, kind, count, contribution) | `data/yuanxian/world_sim/sect_tasks.json`, loaded as `sim/data/ContentTables.SectTask` (`SimData.sectTasks`, `sectTask`); checked by `tools/validate_world_sim.py` `check_sect_tasks` |
 | Task names and briefs | `world_sim.task.<id>.name` / `.brief`, registered by `TextKeys.taskKeys` |
 | Guidance factor | `cultivation.master_guidance` in `rules.json` (the ledger's own mentoring value) |
 | Offer, accept, progress, turn-in, apprenticeship, master loss | `sim/engine/PlayerAffairs` (`offerTask`, `acceptTask`, `advanceTask`, `completeTask`, `apprentice`, `daily`); facade `WorldSim.task`, `offerTask`, `acceptTask`, `advanceTask`, `completeTask`, `apprentice`; view `sim/TaskView` |
@@ -466,7 +466,7 @@ there is no open task of that kind; capped at the count), pushed by
   `low_grade_spirit_stone`s in the inventory (`tribute_short` if too few),
   asks the ledger to complete, then takes them slot by slot on the same tick.
 
-Each patrol or courier step sends `message.myvillage.world.sect.task_progress`
+Each patrol or courier step sends `message.yuanxian.world.sect.task_progress`
 and logs `SECT_TASK player=<name> kind=<kind> progress=<p>/<n>`.
 
 **Turn-in** (`completeTask`): `not_member`, `no_task`, `not_ready` (a
@@ -581,7 +581,7 @@ rogue hears the destruction of the sect they just lost, but not its wars).
 Region plays no part, unlike rumors. `WorldSimPlayers.announce(server, sim,
 events)` walks the online players and the events in order, sends each
 `player_*` line to its player and each relevant event as
-`message.myvillage.world.sect.news` ("【宗门】%1$s" around the event line),
+`message.yuanxian.world.sect.news` ("【宗门】%1$s" around the event line),
 and logs `SECT_NEWS player=<name> event=<id> type=<type> sects=<[ids]>`. It
 runs for every settled day (from `onDaySettled`) and after each admin act,
 whose events a settled day never returns. Offline players are not told
@@ -615,7 +615,7 @@ action):
   (`PlayerAffairs.sectDissolved`), a held heritage goes to the lost pool,
   all caused by the destruction event.
 - Commands `world sect <a> war <b>` and `world sect <id> destroy`
-  (`commands.myvillage.world.sect_war.*`, `.sect_destroy.*`) mark the save
+  (`commands.yuanxian.world.sect_war.*`, `.sect_destroy.*`) mark the save
   dirty and call `WorldSimPlayers.announce` with the act's events (for a
   destruction, every kept event from the destruction on). A destroyed
   sect's avatars are withdrawn by the next avatar pass, which drops gates
@@ -682,7 +682,7 @@ gate standing from the start. What it would take:
   move to `ServerAboutToStartEvent`, using the seed from the world's
   generation options, or be written into SavedData when the world is
   created, before any chunk exists.
-- **The random `myvillage:sect` structure.** `worldgen/structure_set/sect.json`
+- **The random `yuanxian:sect` structure.** `worldgen/structure_set/sect.json`
   scatters anonymous, empty compounds by `random_spread`. With real P4 they
   would compete with ledger compounds for the same look. Suggested: turn the
   random ones into abandoned gates (废弃山门: ruined, no avatars, maybe loot),

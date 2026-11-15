@@ -101,19 +101,19 @@ def geometry(lit=False):
 def outputs(root=ROOT):
     cfg=config(root);base=root/'src/main/resources';files={}
     encoded=lambda v:(json.dumps(v,ensure_ascii=False,indent=2)+'\n').encode()
-    files[base/'assets/myvillage/textures/block/forging_ding.png']=texture(cfg)
+    files[base/'assets/yuanxian/textures/block/forging_ding.png']=texture(cfg)
     for lit in (False,True):
         elements,shape=geometry(lit);suffix='_lit' if lit else ''
-        files[base/f'assets/myvillage/models/block/forging_table{suffix}.json']=encoded({'ambientocclusion':True,'textures':{'atlas':'myvillage:block/forging_ding','particle':'myvillage:block/forging_ding'},'elements':elements})
-    files[base/'assets/myvillage/blockstates/forging_table.json']=encoded({'variants':{f'facing={d},lit={str(lit).lower()}':{'model':'myvillage:block/forging_table'+('_lit' if lit else ''),'y':angle} for lit in (False,True) for d,angle in [('north',0),('east',90),('south',180),('west',270)]}})
-    files[base/'assets/myvillage/models/item/forging_table.json']=encoded({'parent':'myvillage:block/forging_table','display':{
+        files[base/f'assets/yuanxian/models/block/forging_table{suffix}.json']=encoded({'ambientocclusion':True,'textures':{'atlas':'yuanxian:block/forging_ding','particle':'yuanxian:block/forging_ding'},'elements':elements})
+    files[base/'assets/yuanxian/blockstates/forging_table.json']=encoded({'variants':{f'facing={d},lit={str(lit).lower()}':{'model':'yuanxian:block/forging_table'+('_lit' if lit else ''),'y':angle} for lit in (False,True) for d,angle in [('north',0),('east',90),('south',180),('west',270)]}})
+    files[base/'assets/yuanxian/models/item/forging_table.json']=encoded({'parent':'yuanxian:block/forging_table','display':{
         'gui':{'rotation':[25,225,0],'translation':[0,-.5,0],'scale':[.78,.78,.78]},
         'ground':{'translation':[0,3,0],'scale':[.35,.35,.35]},
         'fixed':{'rotation':[0,180,0],'scale':[.6,.6,.6]},
         'firstperson_righthand':{'rotation':[0,135,0],'translation':[0,2,0],'scale':[.45,.45,.45]},
         'firstperson_lefthand':{'rotation':[0,45,0],'translation':[0,2,0],'scale':[.45,.45,.45]},
         'thirdperson_righthand':{'rotation':[75,45,0],'translation':[0,2.5,0],'scale':[.4,.4,.4]}}})
-    files[base/'data/myvillage/forging/ding.json']=encoded({'version':1,'collision':shape,'hearth':[8,13,8],'feedback':cfg['feedback']})
+    files[base/'data/yuanxian/forging/ding.json']=encoded({'version':1,'collision':shape,'hearth':[8,13,8],'feedback':cfg['feedback']})
     return files
 
 def preview(root=ROOT):
@@ -124,7 +124,7 @@ def preview(root=ROOT):
     out=root/'out/preview/forging_ding';out.mkdir(parents=True,exist_ok=True)
     assets=pim.Assets([root/'src/main/resources'],None)
     for lit in (False,True):
-        name='myvillage:block/forging_table'+('_lit' if lit else '')
+        name='yuanxian:block/forging_table'+('_lit' if lit else '')
         model=pim.resolve_model(assets,assets.model_json(name),name)
         if model.errors or model.warnings:raise ValueError(model.errors+model.warnings)
         quads=[((q.pos-np.array([8,0,8]))/16,q.uv,q.tex,None) for i,e in enumerate(model.elements) for q in pim.element_quads(assets,model,e,i)]

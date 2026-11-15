@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[2]
 class FixedRegionProgressionTests(unittest.TestCase):
     def setUp(self):
         self.policy=json.loads((ROOT/'blueprints/worldplan/rules_v11.json').read_text())['region_progression']
-        self.base={'profiles':[json.loads(p.read_text())for p in sorted((ROOT/'src/main/resources/data/myvillage/worldgen/region_profile').glob('*.json'))], 'tier_range':[1,20],'tier_step':[2,5]}
+        self.base={'profiles':[json.loads(p.read_text())for p in sorted((ROOT/'src/main/resources/data/yuanxian/worldgen/region_profile').glob('*.json'))], 'tier_range':[1,20],'tier_step':[2,5]}
     def test_six_levels_have_the_exact_requested_membership(self):
         self.assertEqual([['donghuang'],['lingyue'],['beiyuan'],['donghai','ximo'],['nanjiang','moyu'],['zhongzhou']],self.policy['levels'])
         frozen=copy.deepcopy(self.base);apply_region_progression(frozen,self.policy)

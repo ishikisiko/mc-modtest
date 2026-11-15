@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Generate the Xuantie gauntlet (玄铁拳套) 3D item model, its textures, icon and geometry contract.
 
-Outputs (all under src/main/resources/assets/myvillage/):
+Outputs (all under src/main/resources/assets/yuanxian/):
 
 * ``models/item/xuantie_gauntlet_3d.json``  element model of an articulated iron fist with every
   display transform except ``gui``.
@@ -69,16 +69,16 @@ except ImportError:  # run as a script: tools/ itself is on sys.path
     import gen_qingfeng_sword_model as qf
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ROOT / "src/main/resources/assets/myvillage"
+ASSETS = ROOT / "src/main/resources/assets/yuanxian"
 MODEL_PATH = ASSETS / "models/item/xuantie_gauntlet.json"
 MODEL_3D_PATH = ASSETS / "models/item/xuantie_gauntlet_3d.json"
 TEXTURE_PATH = ASSETS / "textures/item/xuantie_gauntlet_model.png"
 ICON_PATH = ASSETS / "textures/item/xuantie_gauntlet.png"
 GEOMETRY_PATH = ASSETS / "combat/xuantie_gauntlet_geometry.json"
 
-MODEL_3D_ID = "myvillage:item/xuantie_gauntlet_3d"
-TEXTURE_ID = "myvillage:item/xuantie_gauntlet_model"
-ICON_TEXTURE_ID = "myvillage:item/xuantie_gauntlet"
+MODEL_3D_ID = "yuanxian:item/xuantie_gauntlet_3d"
+TEXTURE_ID = "yuanxian:item/xuantie_gauntlet_model"
+ICON_TEXTURE_ID = "yuanxian:item/xuantie_gauntlet"
 TEXTURE_SIZE = 128
 TEXELS_PER_UV = TEXTURE_SIZE / 16.0
 ICON_SIZE = 64

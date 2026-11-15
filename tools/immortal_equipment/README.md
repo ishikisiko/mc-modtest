@@ -71,7 +71,7 @@ PNG 自身 alpha 为 255；穿戴材质 opacity 和物品 MTL `Kd r g b a` 各�
 `equipment/immortal/balance.json`，不另设数值、配方或玩法。
 
 **blocks 图集交接：**
-`assets/myvillage/immortal_equipment/atlas_sources.json` 是完整
+`assets/yuanxian/immortal_equipment/atlas_sources.json` 是完整
 `{"sources":[{"type":"minecraft:single","resource":"...","sprite":"..."}]}` 清单。
 父代理应让 blocks 图集的原生成器合并 sources；本工具绝不写共享 blocks.json。
 旧 `tools.equipment` 的槽位标签与 trimmable_armor 输出同样需要父代理接入本批目录，

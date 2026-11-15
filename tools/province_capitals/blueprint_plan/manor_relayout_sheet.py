@@ -8,8 +8,8 @@ from province_capitals.regional.v2.preview import SceneBuilder
 
 def svg(planner,data):
     w,_,d=data['dimensions'];pad=18
-    catalog=manor_catalog();banks={'myvillage:'+b['id']:b for b in catalog['banks']}
-    cubes={'myvillage:'+m['id']:m for m in catalog['materials']}
+    catalog=manor_catalog();banks={'yuanxian:'+b['id']:b for b in catalog['banks']}
+    cubes={'yuanxian:'+m['id']:m for m in catalog['materials']}
     palette=SceneBuilder(planner.model);colors=planner.manor_scene['materials'];top={}
     for key in sorted(planner.model.construction.by_tile):
         for (x,y,z),(state,tag,layer) in planner.model.construction.tile(*key).items():
@@ -21,7 +21,7 @@ def svg(planner,data):
             elif base in banks:
                 boxes=banks[base]['profiles'][int(properties(state)['shape'])]['boxes']
                 color=colors.get(max(boxes,key=lambda b:b[4])[-1],'#746662')
-            elif base=='myvillage:demon_pact_pillar':color='#65515e'
+            elif base=='yuanxian:demon_pact_pillar':color='#65515e'
             else:color=palette.palette[palette.material(state,layer)]
             top[x,z]=(y,color)
     rows=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{-pad} {-pad} {w+pad*2} {d+pad*2+22}" width="1400" role="img" aria-label="{escape(data["name"])}正式总平面">',

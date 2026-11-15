@@ -1,6 +1,6 @@
 """Offline preview of a Minecraft 1.21.1 JSON item model (numpy software rasteriser; light).
 
-    python3 -m tools.combat_preview model myvillage:item/qingfeng_sword \
+    python3 -m tools.combat_preview model yuanxian:item/qingfeng_sword \
         --out out/preview/combat_preview/qingfeng_sword.png
 
 The model is a resource id (namespace:path under assets/<ns>/models/) or a path to a
@@ -28,7 +28,7 @@ Views (--views, comma list): front (look at the flat, +X side), side (look at th
 +Z side), iso, hilt (close-up of collar/handle/butt), tip (close-up of the head tip),
 tp_right / tp_front / tp_iso (thirdperson_righthand on the schematic arm; the fist is
 the darker bottom 4 px of the arm), gui. With a geometry contract file (--geometry, or
-assets/myvillage/combat/qingfeng_sword_geometry.json found in the roots) the grip
+assets/yuanxian/combat/qingfeng_sword_geometry.json found in the roots) the grip
 centre, head base/tip and the handle/collar/butt ranges are marked, and the tp views
 report where the grip centre lands relative to the fist box.
 """
@@ -49,7 +49,7 @@ from . import sheets
 from .env import DEFAULT_ROOT, OUT_ROOT, note_missing_jar, vanilla_jar
 
 VANILLA_JAR = vanilla_jar()
-DEFAULT_GEOMETRY = "assets/myvillage/combat/qingfeng_sword_geometry.json"
+DEFAULT_GEOMETRY = "assets/yuanxian/combat/qingfeng_sword_geometry.json"
 DIRS = ("down", "up", "north", "south", "west", "east")
 ALLOWED_ANGLES = (0.0, 22.5, -22.5, 45.0, -45.0)
 
@@ -856,7 +856,7 @@ def build(args):
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3 -m tools.combat_preview model", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("model", help="resource id (myvillage:item/qingfeng_sword) or path to a model .json")
+    ap.add_argument("model", help="resource id (yuanxian:item/qingfeng_sword) or path to a model .json")
     ap.add_argument("--root", action="append", default=[],
                     help="resources root containing assets/, or a mod .jar (repeatable, first wins). "
                          "Default: src/main/resources of this repository")

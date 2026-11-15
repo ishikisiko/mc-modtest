@@ -7,9 +7,14 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.134.0
+
+- 模组及全部资源命名空间统一为 yuanxian，更新物品、方块、实体、注册表、网络、数据组件、翻译键、资源目录和配置路径。
+- 生成器、作者数据和打包入口采用同一命名空间；本版用于新世界，不提供旧 myvillage ID 别名或存档迁移。
+
 ## 0.133.1
 
-- 模组正式显示名改为“源仙”，同步简介、主创造栏和按键分类；资源命名空间继续使用 myvillage。
+- 模组正式显示名改为“源仙”，同步简介、主创造栏和按键分类；资源命名空间继续使用 yuanxian。
 - 主命令统一为 /yuanxian，新增 /yx 快捷入口和中文帮助；将管理员限制保留在模块子命令上，两个入口共用参数与权限。
 - 名称由 tools/branding.json 统一维护，当前说明和测试采集脚本使用新指令入口。
 
@@ -83,7 +88,7 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 - 中州西坡中段正式生成灰瓦庭院庄园，按已选分台地构造撤并31栋获准民居，保留外围公共巷道及其余建筑。
 - 庄园大门外新增管家，通过两步对话支付100枚上品灵石购买整座庄园；背包和灵石袋可共同支付，房契按玩家UUID保存在当前世界。
-- 未出售时所有玩家均不能进入私人院域；出售后仅房主可以进入。服务端检查步行、飞行、坐骑、物理推动、传送、登录和重生，范围覆盖该地块的整个竖直区域。新增 `/myvillage estate` 查询管家坐标。
+- 未出售时所有玩家均不能进入私人院域；出售后仅房主可以进入。服务端检查步行、飞行、坐骑、物理推动、传送、登录和重生，范围覆盖该地块的整个竖直区域。新增 `/yuanxian estate` 查询管家坐标。
 - 修复一阶资质培养配方引用已删除灵石ID的问题，作者配置改用当前下品灵石并重新生成配方。
 
 ## 0.127.0
@@ -275,7 +280,7 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 - 新建修仙大陆不再选择东海主城作为初始城，东海城体、入口和官道继续保留。
 - 初始城出城道路附近新增城郊矿场，包含可采伐橡树、可用工作台和熔炉、煤铁铜矿、台阶矿道及连通的不规则洞窟；空手玩家可以自行制作工具后进入探索，无须 NPC 或任务解锁。
-- 矿场在完整官道路网就绪后选择同州陆地，保存位置、旋转与完整支路；避让既有城镇、宗门和官道，只随当前区块首次生成，不恢复玩家已经采掉的方块。新增管理员只读查询 `/myvillage worldplan mine`。
+- 矿场在完整官道路网就绪后选择同州陆地，保存位置、旋转与完整支路；避让既有城镇、宗门和官道，只随当前区块首次生成，不恢复玩家已经采掉的方块。新增管理员只读查询 `/yuanxian worldplan mine`。
 
 ## 0.113.0-fix1
 
@@ -476,17 +481,17 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 - 七座新城主府以独立样板接入 MC，保留北原三进院、南疆吊脚、灵岳叠台、西漠灵宫、东海跨水、东荒重楼与魔域高差堡宫的完整实体造型。
 - 新增「七府营造」专用建筑材质与雕构模型，匾额/刻纹整幅跨格连续；魔契柱沿用独立注册构件。
-- `/myvillage manor visit <city>` 在专用空白维度构造并进入样板，未接城市地块、自然生成或 NPC。特效另做，静态水面不实现流体或潮汐机制。
+- `/yuanxian manor visit <city>` 在专用空白维度构造并进入样板，未接城市地块、自然生成或 NPC。特效另做，静态水面不实现流体或潮汐机制。
 
 ## 0.103.3
 
 - 新增独立建筑构件「魔契柱」：4×4 底座、9.25 格高，紫黑石身、旧铜柱冠与专用整幅毛笔题字贴图，实际多格碰撞。
-- 创造栏或 `/give @s myvillage:demon_pact_pillar` 获取；一次放置整根，检查全部占用与底座支撑，拆除任意部位只掉落一件。无发光、无特效，不自动接入城主府。
+- 创造栏或 `/give @s yuanxian:demon_pact_pillar` 获取；一次放置整根，检查全部占用与底座支撑，拆除任意部位只掉落一件。无发光、无特效，不自动接入城主府。
 
 ## 0.103.2
 
 - 新增可摆放的「剑意灵台」装饰样品：完整青白剑气、双道回旋气流、金色符光与软边光晕；无需光影包。
-- MyVillage 创造栏或 `/give @s myvillage:sword_qi_pedestal` 获取，空手右键开关；仅灵台有碰撞，无伤害、无消耗，不自动接入城主府。
+- MyVillage 创造栏或 `/give @s yuanxian:sword_qi_pedestal` 获取，空手右键开关；仅灵台有碰撞，无伤害、无消耗，不自动接入城主府。
 
 ## 0.103.1-fix1
 
@@ -706,13 +711,13 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 - 湾口台地聚落接入修仙大陆 V5 世界规划：种子决定地区内位置和整体朝向，城市、出生点、聚落与宗门共享空间避让。
 - 主线区块生成复用既有聚落实现器；各区块仅放置自身切片，已有 FULL 区块与玩家改建不回填。
-- 增加 `/myvillage worldplan settlements` 查询；冻结 V5 选址规则及布局身份，保留 V1–V4 的生成器、资源和旧档行为。
+- 增加 `/yuanxian worldplan settlements` 查询；冻结 V5 选址规则及布局身份，保留 V1–V4 的生成器、资源和旧档行为。
 - 完整云山城与既有商业服务沿用；聚落建筑接入不新增居民或剧情。
 
 ## 0.87.0
 
 - 新增自然聚落“湾口台地集”：14 栋建筑围绕公共场地与坡巷展开，配套局部山坡、水岸、地基和连续台阶。
-- 接入普通主世界的原生结构生成，种子决定位置与整体朝向；支持 `/locate structure myvillage:bay_terraces`，仅生成于符合条件的新区块。
+- 接入普通主世界的原生结构生成，种子决定位置与整体朝向；支持 `/locate structure yuanxian:bay_terraces`，仅生成于符合条件的新区块。
 - 建筑与道路使用共享标高，外缘渐变衔接原生地形；资源按区块切片，生成不强制加载邻区，保存后的结构身份与玩家修改保持。
 - 保留修仙大陆 V1–V4 的冻结算法与已有存档；新聚落暂未绑定居民、商店或剧情。
 
@@ -970,7 +975,7 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 - 新增月洞水院独立样板；创造栏和 JEI 收拢为十类建筑入口，Shift＋右键选择 30 个款式，包含完整 3×3 窗、5×5 月洞门。
 - 整体构件支持全部占位预检、一件消耗、任意部位拆除和根节点单次掉落；碰撞与可见几何同源，曲檐、圆门、格窗保留 1/16 格细节。协议 36 增加有界手持变体选择。
-- 打包 `myvillage:reference_courtyard` 模板，包含木桥、水池、门亭、主屋和回廊；独立导出，不接入自然生成或替换旧存档。
+- 打包 `yuanxian:reference_courtyard` 模板，包含木桥、水池、门亭、主屋和回廊；独立导出，不接入自然生成或替换旧存档。
 
 ## 0.67.0
 
@@ -1084,7 +1089,7 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 - NPC 半自主生活首期：独立玩家社会身份覆盖未入宗玩家，近距交谈保留熟悉关系与有限记忆，原宗门成员、借阅和任务记录继续沿用。
 - 命簿新增持久的城镇场所、住处、岗位与短期活动；散修和住镇宗门成员共用原人物 ID，可歇息、当值、采药、交货、修炼和小聚。
-- 云山规划城与大型展示街区使用 authored 场所适配；新增 `/myvillage life` 登记、四人示例、手工分配、解除与状态检查命令。
+- 云山规划城与大型展示街区使用 authored 场所适配；新增 `/yuanxian life` 登记、四人示例、手工分配、解除与状态检查命令。
 - 近处化身实际到站后才工作；远处按同一活动记录简化推进。执行租约、活动版本、场所观测和有限物资账户防止重复化身与收益，附近没有成功生成身体时等待。
 - 住镇人物不再被后台旅行或不可见战斗调走，寿元和实际修炼结果保留；保存格式 v4 接受旧版，重启恢复活动进度。
 - 新增纯核回归、场所生成检查和 `npc-life-build` Modal 局部编译入口。完整游戏运行、真实寻路、重启和多人验证留在 `docs/testing/2026-10-17-npc-life.md`；本期未接真实物品经济与 NPC 战斗。
@@ -1149,7 +1154,7 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 ## 0.57.1
 
-- 炼器台升级为玄铁赤铜炼器鼎：宽腹三足、双立耳、敞口火膛，独立像素贴图、物品模型、四向摆放和同源碰撞；沿用 `myvillage:forging_table`，旧方块默认朝北、暗炉。
+- 炼器台升级为玄铁赤铜炼器鼎：宽腹三足、双立耳、敞口火膛，独立像素贴图、物品模型、四向摆放和同源碰撞；沿用 `yuanxian:forging_table`，旧方块默认朝北、暗炉。
 - 成功炼制/维修后服务器触发短暂炉火、发光、火星与锻击声，随后自动熄灭；拒绝操作不点火，产物仍立即生成。外观反馈参数与模型碰撞由专用配置和生成器统一维护。
 - 新增方块状态，客户端/服务器兼容协议升为 24。
 
@@ -1201,7 +1206,7 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 ## 0.54.0
 
-- 新增主世界遗迹「丹霞旧观」：残院、荒芜药园、地下丹室、内库与可攀爬的塌洞，支持自然生成和 `/locate structure myvillage:danxia_ruin`。
+- 新增主世界遗迹「丹霞旧观」：残院、荒芜药园、地下丹室、内库与可攀爬的塌洞，支持自然生成和 `/locate structure yuanxian:danxia_ruin`。
 - 丹霞残阵在药园复苏和内库传承间提供全遗迹共享的一次性选择；空手重复交互确认，服务器校验目标并保存结果。原有方块可挖掘，残阵不掉落。
 - 配置驱动的两只妖狼守卫、外围补给，以及功法秘籍和凝神丹方的探索获取途径。新增局部 Modal 构建与遗迹验收工具。
 
@@ -1381,7 +1386,7 @@ The 3D cultivator avatars wear their portrait's hair and eye colours. The owner
 asked on 2026-10-07: "游戏建模虽然不和像素画对应，但是现在游戏建模人物头部不难，
 我想让建模的发色和瞳色与像素画的对应可行吗" → "做".
 
-- `tools/npcgen`: a role map per look, `assets/myvillage/npc/<name>_roles.png`
+- `tools/npcgen`: a role map per look, `assets/yuanxian/npc/<name>_roles.png`
   (hair texels with their half-step tone on a 7-step ramp, iris rows), derived
   by probing the painter with sentinel ramps (`roles.py`); `recolour.py` is the
   recolouring rule; `python3 -m tools.npcgen goldens` pins Java goldens
@@ -1418,7 +1423,7 @@ by subagents, and the owner said "接入完整".
   outline, hair/skin line, brows through the bangs, grey for the dead). The
   approved sample (`old/hand.py`, `old/sample.png`) is the regression anchor.
 - `export.py` writes every part variant as a role map
-  (`assets/myvillage/portrait/`, 172 maps + manifest) by journaling what each
+  (`assets/yuanxian/portrait/`, 172 maps + manifest) by journaling what each
   compose step writes; `replay.py` composes from the maps and is the executable
   spec of the Java compositor; `test_portraitgen_export` proves replay equals
   render pixel for pixel.
@@ -1496,7 +1501,7 @@ automated checks and a headless capture ran.
 
 - Sect news (宗门消息): after every settled day, and right after the admin
   acts below, each online player is told in chat
-  (`message.myvillage.world.sect.news`, "【宗门】" and the event's line)
+  (`message.yuanxian.world.sect.news`, "【宗门】" and the event's line)
   every event of importance 2 or more about their sect (`SimEvent.sects`
   holds it), wherever they stand; a player with no sect hears the `sect*`
   events of the sect they last left (so the day it is destroyed they hear
@@ -1516,10 +1521,10 @@ automated checks and a headless capture ran.
   (`Rules.PlayerAdmission.hostileStandingBelow`).
 - Admin acts (`sim/engine/AdminActs`, facade `WorldSim.declareWar` and
   `destroySect`), with commands (permission 2):
-  `/myvillage world sect <a> war <b>` declares war through the yearly
+  `/yuanxian world sect <a> war <b>` declares war through the yearly
   politics' own path (`SectPolitics.declare`, the `war` event and its line,
   both relations at war; refusals `no_sect`, `same_sect`, `sect_inactive`,
-  `already_at_war`), and `/myvillage world sect <id> destroy` records
+  `already_at_war`), and `/yuanxian world sect <id> destroy` records
   `sect_destroyed` with the ruin line and then dissolves the sect
   (`SectPolitics.dissolve`: members become rogues, players are released
   with `player_leave` / `sect_gone`, a held heritage is lost; refusals
@@ -1556,7 +1561,7 @@ After a review of slices 1 to 4:
   suspicious sand and gravel, sculk blocks and unopened loot containers not
   counted) skips the gate: `GATE_REALIZE ... state=skipped
   reason=inhabited|player_blocks chunk=<cx> <cz>`, the failed set
-  (`world gates retry` clears it), and `message.myvillage.world.gate.skipped`
+  (`world gates retry` clears it), and `message.yuanxian.world.gate.skipped`
   to nearby players. Both keys are new in `rules.json` `player.gates`;
   `GateRealizePlan.playerPresence` is the pure rule.
 - The automatic build's anchor y and natural surface come from the chunk
@@ -1606,7 +1611,7 @@ was not available; only automated checks and a headless capture ran.
 
 ### Added
 
-- Data file `data/myvillage/world_sim/sect_tasks.json` (schema 1): rows of
+- Data file `data/yuanxian/world_sim/sect_tasks.json` (schema 1): rows of
   `id`, `kind` (`patrol`, `tribute`, `courier`), `count`, `contribution`;
   three rows ship (`patrol_beasts`, `tribute_stones`, `courier_letter`).
   Loaded as `ContentTables.SectTask` (`SimData.sectTasks()`,
@@ -1644,10 +1649,10 @@ was not available; only automated checks and a headless capture ran.
   the destination sect's compound site (`SectCourtyard.footprint`); tribute
   keeps no progress: at turn-in the low-grade spirit stones are counted,
   the ledger completes the task, then the stones are taken, on the same
-  tick. Progress chat line `message.myvillage.world.sect.task_progress` and
+  tick. Progress chat line `message.yuanxian.world.sect.task_progress` and
   `SECT_TASK player=<name> kind=<patrol|courier> progress=<p>/<n>` at INFO.
 - Dialogue: options `APPRENTICE` (3), `TASK_ACCEPT` (4), `TASK_TURN_IN` (5)
-  (`screen.myvillage.sect_dialogue.option.*`). A member at the steward hears
+  (`screen.yuanxian.sect_dialogue.option.*`). A member at the steward hears
   about their task between the greeting and the leave line: an offer
   (领事务), progress, ready (交事务), or none left this year; an elder or
   the master at the sect offers apprenticeship (拜师) to an inner disciple
@@ -1706,10 +1711,10 @@ automated checks and a headless capture ran.
 
 ### Added
 
-- Block `myvillage:scripture_shelf` (经架 / Scripture Shelf):
+- Block `yuanxian:scripture_shelf` (经架 / Scripture Shelf):
   `ScriptureShelfBlock` (`Block implements EntityBlock`, a full cube with the
   vanilla bookshelf sides and dark oak top and bottom) and
-  `ScriptureShelfBlockEntity` (block entity type `myvillage:scripture_shelf`
+  `ScriptureShelfBlockEntity` (block entity type `yuanxian:scripture_shelf`
   in the new `block/ModBlockEntities`) holding the owning sect id, saved as
   `Sect` (-1 for none). Block item in the creative tab, blockstate, models,
   and a loot table that drops itself. Using it with an empty hand asks the
@@ -1756,11 +1761,11 @@ automated checks and a headless capture ran.
   3). `SCRIPTURE_HALL player=<name> intent=OPEN sect=<id> member=<bool> entries=<n>`
   and `SCRIPTURE_HALL player=<name> intent=BORROW sect=<id> technique=<id> result=ok|<reason>`
   at INFO.
-- Payloads `ScriptureHallPayload` (clientbound `myvillage:scripture_hall`:
+- Payloads `ScriptureHallPayload` (clientbound `yuanxian:scripture_hall`:
   shelf position, sect id and name, the player's rank, member flag, reason,
   at most 16 entries of technique id, name component, grade 0..4,
   category, borrowed flag, cost; bounded strings) and
-  `ScriptureBorrowPayload` (serverbound `myvillage:scripture_borrow`: the
+  `ScriptureBorrowPayload` (serverbound `yuanxian:scripture_borrow`: the
   shelf position and the technique id, nothing else).
   `ModPayloads.PROTOCOL_VERSION` `13` → `14`; client and server need the
   same jar.
@@ -1771,10 +1776,10 @@ automated checks and a headless capture ran.
   blocks from the shelf). Each layout logs
   `SCRIPTURE_HALL_UI technique=<id> borrowed=<bool> x= y= w= h=` per borrow
   button in screen pixels.
-- Commands (permission 2): `/myvillage world sect <id> rank <player> <outer|inner|elder>`
+- Commands (permission 2): `/yuanxian world sect <id> rank <player> <outer|inner|elder>`
   (`WorldSim.promotePlayer`; a rise records `player_promotion` and tells the
   player; a lowered rank changes the record without an event) and
-  `/myvillage world sect <id> shelves [place]` (the sites of a built gate
+  `/yuanxian world sect <id> shelves [place]` (the sites of a built gate
   and the shelf found at each with its sect id; `place` places them again,
   for compounds built before 0.42.0).
 - `tools/world_sim_scripture_evidence.py`: one headless session (auto gate
@@ -1867,7 +1872,7 @@ round, so only automated checks and headless captures ran.
   id. `AvatarPlanner.select` puts the steward first;
   `AvatarPlanner.stewardCell` stands it on the lowest terrace, on the free
   cell nearest the axis and then nearest the gate opening. Its name tag is
-  `entity.myvillage.cultivator.avatar.steward`, the usual three parts plus
+  `entity.yuanxian.cultivator.avatar.steward`, the usual three parts plus
   a fourth, 守山执事. A steward handover withdraws both avatars so they
   respawn on the right cells.
 - `NpcEntity.DATA_LEDGER_ROLE` (`none`, `steward`, `elder`; synced, never
@@ -1879,10 +1884,10 @@ round, so only automated checks and headless captures ran.
   level, `steward.interact_range`, an active ledger, a living person of an
   active sect, and that the person still has the role by the ledger, then
   builds the page from the ledger. `SectDialoguePayload` (clientbound
-  `myvillage:sect_dialogue`: entity, sect, names, role, prestige, members,
+  `yuanxian:sect_dialogue`: entity, sect, names, role, prestige, members,
   master, region, the player's rank and standing, the admission and its
   reason, at most 8 translatable lines and 4 option ids, bounded strings)
-  and `SectIntentPayload` (serverbound `myvillage:sect_intent`: kind byte
+  and `SectIntentPayload` (serverbound `yuanxian:sect_intent`: kind byte
   0 JOIN, 1 LEAVE, 2 FAREWELL, entity id, sect id; nothing else). An intent
   is also refused when its sect differs from the avatar's, when it was not
   an option of the current page, or when it comes under 4 ticks after the
@@ -1904,7 +1909,7 @@ round, so only automated checks and headless captures ran.
 - `sim/runtime/player/WorldSimPlayers`: the qualification from the
   cultivation profile (realm path, stage index, awakened, root peak); join
   and leave through the facade, saved data marked dirty, a chat line
-  (`message.myvillage.world.sect.joined` / `.left`) and
+  (`message.yuanxian.world.sect.joined` / `.left`) and
   `SECT_ENTRY player=<name> intent=JOIN|LEAVE sect=<id> result=ok|<reason>`
   at INFO. It refreshes snapshots on login and after each settled day, and
   sends an online player the day's `player_*` events that name them.
@@ -1914,13 +1919,13 @@ round, so only automated checks and headless captures ran.
   sect on 此地 shows the gate's eight-way bearing beside its distance
   (`world_sim.bearing.*`). Snapshot fields `WorldSimSnapshot.mine`
   (`MySect`) and `SectSummary.bearing`; `WorldSimSnapshots.bearing` is pure.
-- Commands (permission 2): `/myvillage world sect <id> join <player>`
+- Commands (permission 2): `/yuanxian world sect <id> join <player>`
   (forced: only an active sect the player is not in; a member elsewhere
   leaves that sect first without penalty or event),
-  `/myvillage world sect <id> leave <player>` (as if the player left),
-  `/myvillage world player <player>` (sect, rank, joining date, master,
+  `/yuanxian world sect <id> leave <player>` (as if the player left),
+  `/yuanxian world player <player>` (sect, rank, joining date, master,
   contribution, standings, the last sect left), and
-  `/myvillage world gates [retry]` (the realizer's state; `retry` clears the
+  `/yuanxian world gates [retry]` (the realizer's state; `retry` clears the
   gates given up this session).
 - P4-lite: `sim/runtime/avatar/GateRealizer` builds an unrealized gate when
   a player comes within `gates.realize_radius` (planar) of it, while the
@@ -1933,7 +1938,7 @@ round, so only automated checks and headless captures ran.
   slicing), with the same seed and variant as the build command. On
   completion the tickets go, the `GateRealizations` record is written, the
   gate is marked realized and the avatars are told. Players within the
-  radius get `message.myvillage.world.gate.forming`, `.formed` or
+  radius get `message.yuanxian.world.gate.forming`, `.formed` or
   `.failed`. `GATE_REALIZE sect=<id> state=queued|started|clip i/n|done|cancelled|failed`
   lines at INFO. A failure releases the tickets, rolls the gate back to
   unrealized, and is not retried this session (blocks already written
@@ -1957,8 +1962,8 @@ round, so only automated checks and headless captures ran.
   tags on reconcile.
 - `WorldSimSnapshots.build` takes the asking player's id (`playerId`) for
   `mine`; `WorldSimSnapshotCodec` carries the two new fields.
-- `/myvillage world sect <id> build` (`GateBuilder`) is refused while the
-  realizer is building that sect's gate (`commands.myvillage.world.gates.busy`).
+- `/yuanxian world sect <id> build` (`GateBuilder`) is refused while the
+  realizer is building that sect's gate (`commands.yuanxian.world.gates.busy`).
 - `SectGenerator` exposes `baseFor`, `worldgenBuildArea`, `prepare` and
   `FramedSite`; the synchronous `generateForcedAt` is unchanged.
 
@@ -1966,7 +1971,7 @@ round, so only automated checks and headless captures ran.
 
 - One entity, several looks. `NpcEntity.DATA_LOOK` (synced, default
   `default`), saved as `Look` only when not the default
-  (`/summon myvillage:cultivator ~ ~ ~ {Look:"f_novice"}`; an unknown name
+  (`/summon yuanxian:cultivator ~ ~ ~ {Look:"f_novice"}`; an unknown name
   is ignored); a spawn egg draws one of the type's looks at random, the
   default included. `CultivatorEntity.LOOKS` = `default`, `f_novice`,
   `f_adept`.
@@ -2034,7 +2039,7 @@ and are open to change.
 
 ### Added
 
-- Key `key.myvillage.dodge` (身法闪避 / Movement Dodge, default Left Alt,
+- Key `key.yuanxian.dodge` (身法闪避 / Movement Dodge, default Left Alt,
   rebindable). In cultivation combat mode, alive, with no screen open and not
   meditating, a press sends `CombatDodgeIntentPayload`: one byte, the eight-way
   `DodgeDirection` of the held movement input (`NONE` is a back step), at most
@@ -2063,9 +2068,9 @@ and are open to change.
   local player. Server side: 8 CLOUD particles at the feet and
   `combat.sword.thrust` at volume 0.6, pitch 0.75 (`CombatFeedbackService.dodge`).
 - `DODGE_DEBUG` INFO lines (`result=started`, `result=rejected reason=...`,
-  `cancelled_damage=... source=...`) and `/myvillage combat dodge status [player]`.
-- Techniques `myvillage:liuyun_bu` 流云步 (黄 1, water; 3.5 blocks, 5
-  invulnerable ticks, qi 6, cooldown 30) and `myvillage:taxue_wuhen` 踏雪无痕
+  `cancelled_damage=... source=...`) and `/yuanxian combat dodge status [player]`.
+- Techniques `yuanxian:liuyun_bu` 流云步 (黄 1, water; 3.5 blocks, 5
+  invulnerable ticks, qi 6, cooldown 30) and `yuanxian:taxue_wuhen` 踏雪无痕
   (玄 2, water, after 流云步; 4.5 blocks, 7 ticks, qi 10, cooldown 24), in the
   registry, the manuals and the world ledger's technique pool (129 → 131).
 - `tools/technique_catalogue`: a row's optional `effects` overrides the
@@ -2167,9 +2172,9 @@ work. Built along the new-weapon playbook (`docs/ai-kb/36_new_combat_weapon.md`,
 
 ### Added
 
-- Item `myvillage:xuantie_gauntlet`: `CombatWeaponItem` on `Tiers.DIAMOND`,
+- Item `yuanxian:xuantie_gauntlet`: `CombatWeaponItem` on `Tiers.DIAMOND`,
   `createAttributes(DIAMOND, 1, -1.8F)` (tooltip 5 damage, 2.2 speed), in
-  `myvillage:main` after the Lingxiao Spear and in `#minecraft:swords`; names
+  `yuanxian:main` after the Lingxiao Spear and in `#minecraft:swords`; names
   玄铁拳套 / Xuantie Gauntlet; item contract
   `genops/contracts/items/xuantie_gauntlet.json`.
 - `tools/gen_xuantie_gauntlet_model.py`: the 3D gauntlet (42 elements: flared
@@ -2181,7 +2186,7 @@ work. Built along the new-weapon playbook (`docs/ai-kb/36_new_combat_weapon.md`,
   third-person display puts the gauntlet on the fist, and the format 2
   contract (cuff = butt, hand = handle with the grip at the fist centre,
   knuckle bar = collar, studs = head, trail from the knuckle line).
-- Style `myvillage:basic_fist`: 冲拳 straight punch, 横掌 horizontal palm
+- Style `yuanxian:basic_fist`: 冲拳 straight punch, 横掌 horizontal palm
   (right to left), 上勾 uppercut, 劈掌 chopping palm, 踏步双撞 step-in double
   strike; 9 to 11 ticks, two-tick active windows, range 1.8 to 2.2, one or two
   targets, chain `6/7/7/8`, combo timeout 10, minimum intent interval 1; the
@@ -2238,24 +2243,24 @@ forward from the technique system's third phase. Brief:
 
 ### Added
 
-- 16 items `myvillage:manual_<core|active|movement|body>_<huang|xuan|di|tian>`
+- 16 items `yuanxian:manual_<core|active|movement|body>_<huang|xuan|di|tian>`
   (`TechniqueManualItem`, stack 1, rarity common/uncommon/rare/epic by grade,
-  天阶 foil) and two synced data components, `myvillage:technique` (the
-  technique taught) and `myvillage:comprehension` (points read). A manual is
+  天阶 foil) and two synced data components, `yuanxian:technique` (the
+  technique taught) and `yuanxian:comprehension` (points read). A manual is
   valid when its technique is registered and of the item's category and grade
   (`TechniqueManualItem.check`); without the component it is blank
   (`空白秘籍 · 绝技 · 玄阶`), any other mismatch makes a red `残损秘籍` that
   cannot be read. Valid manuals are named `《功法名》` (`Manual: …`). Tooltip:
   category · grade, school, elements, heritage position, requirement,
-  `参悟 n%`, `右键盘坐研读`. The `myvillage:main` tab lists the 16 blank
+  `参悟 n%`, `右键盘坐研读`. The `yuanxian:main` tab lists the 16 blank
   manuals, then one per technique of grade 1..4 (129).
 - Item art from the new `tools/gen_manual_textures.py` (standard library):
   a detail layer and a tint mask for each of the four categories (线装书,
   卷轴, 折页, 玉简), one shared model per category, tinted by grade in
   `MyVillageClient`; release-gate step `gen-manual-textures-check`.
-- `/myvillage cultivation|xiulian manual|miji <target> <technique_id>` gives
+- `/yuanxian cultivation|xiulian manual|miji <target> <technique_id>` gives
   the manual of a technique (grade 0 and unknown ids refused); the vanilla
-  form `/give @s myvillage:manual_active_xuan[myvillage:technique="myvillage:gengjin_jianjue"]`
+  form `/give @s yuanxian:manual_active_xuan[yuanxian:technique="yuanxian:gengjin_jianjue"]`
   works as well.
 - Optional technique field `study` (`TechniqueStudy`: `points`, `gates`,
   `gate_stability_cost`; default 4000/0/0), written for every generated
@@ -2277,7 +2282,7 @@ forward from the technique system's third phase. Brief:
   affinity 10 the grades take 3 min 20 s, 10, 30, and 80 minutes.
 - Stop reasons `STUDY_ACCEPTED`, `MANUAL_LOST`, `STUDY_GATE`,
   `STUDY_COMPLETE`, `STUDY_REQUIREMENTS`; chat lines
-  `message.myvillage.cultivation.study.*`.
+  `message.yuanxian.cultivation.study.*`.
 - `MeditationStatus.study()` (`StudyProgress`: technique, points, total,
   next gate or -1, gate cost), present only while a study session runs.
 - 修炼 page study card: `研读《功法名》` with the percent as its chip, a
@@ -2336,11 +2341,11 @@ works: `docs/ai-kb/41_technique_system.md`.
 - Technique catalogue: source tables `tools/technique_catalogue/`
   (`catalogue.json`, `schools.json`, `heritages.json`, `rules.json`) and the
   generator `tools/gen_technique_catalogue.py`, which owns
-  `data/myvillage/myvillage/technique/*.json` (all but the hand-written
+  `data/yuanxian/yuanxian/technique/*.json` (all but the hand-written
   `basic_breathing.json`), `school/*.json`, `heritage/*.json`,
   `world_sim/techniques.json`, the new `world_sim/heritages.json`, and the
   `cultivation.technique.`, `cultivation.school.`, and
-  `cultivation.heritage.myvillage.*` keys in both language files (Chinese
+  `cultivation.heritage.yuanxian.*` keys in both language files (Chinese
   names in both). It ships 129 techniques (core 116, body 10, active 3;
   grades 1..4 = 41/36/30/22), four schools (`sword`, `spear`, `fist` of kind
   `weapon`; `flying_sword` of kind `special`), and three four-technique
@@ -2348,8 +2353,8 @@ works: `docs/ai-kb/41_technique_system.md`.
   body chain). Requirements follow the grade (黄 Qi Refining I, 玄 Qi
   Refining IV, 地/天 Foundation early; an element technique of grade 2 or
   more also needs 1500 bp affinity in its element).
-- Registries `myvillage:school` (`SchoolDefinition`) and
-  `myvillage:heritage` (`HeritageDefinition`), synced like techniques, with
+- Registries `yuanxian:school` (`SchoolDefinition`) and
+  `yuanxian:heritage` (`HeritageDefinition`), synced like techniques, with
   reference checks at server start. `TechniqueDefinition` gains optional
   `school`, `lineage.previous`, and `effects` (one block matching the
   category: `core.meditation_route`; `active`, `movement`, and `body` are
@@ -2367,10 +2372,10 @@ works: `docs/ai-kb/41_technique_system.md`.
   `world_sim/rules.json`; progress only, rounded down. Grade 0, no running
   technique, or no ledger data give ×1.0, so Basic Breathing is unchanged;
   玄阶 with a match is ×1.45 (normal batch 10 → 14, spirit batch 50 → 72).
-- Serverbound `CoreTechniqueSwitchPayload` (`myvillage:core_technique_switch`,
+- Serverbound `CoreTechniqueSwitchPayload` (`yuanxian:core_technique_switch`,
   a technique id only); its handler calls only the service, a refusal gets
   no reply, a success pushes the snapshot.
-- Commands `/myvillage cultivation|xiulian core|xinfa <target>
+- Commands `/yuanxian cultivation|xiulian core|xinfa <target>
   <technique_id>`; `info` prints the running core technique.
 - 功法 page: 心法 / 绝技 / 身法 / 炼体 cards (plus 未知功法 for unknown ids)
   through the pure `TechniqueShelf`; chips for category, grade name
@@ -2461,11 +2466,11 @@ are 640 hours).
   (a positive varint after `daysPerYear`); payload protocol `9` (was `8`).
 - Panel dates read year, week and day: the H header and the 内视 calendar
   card show `1 年 第 1 周 第 1 日` / `Year 1, Week 1, Day 1`
-  (`screen.myvillage.cultivation.calendar_value` now has three parameters;
+  (`screen.yuanxian.cultivation.calendar_value` now has three parameters;
   the header drops its 宗历 label when the panel is too narrow, as English is
   at GUI 320), and the 天下 总览 date row shows `启元N年 第W周第D日` once the
   time snapshot has arrived (new key
-  `screen.myvillage.cultivation.world.date_week_value`), otherwise the old
+  `screen.yuanxian.cultivation.world.date_week_value`), otherwise the old
   form. `PanelReadouts.calendarWeek`/`calendarDayOfWeek` derive them.
 - World sim: `rules.json` `time.default_days_per_year` is `24`.
 - `validate_cultivation_lifespan.py` pins `24` days per year, the
@@ -2488,7 +2493,7 @@ factor of four.
 
 The world ledger (命簿) in game: the H panel gets a fourth page, 天下 (World),
 where every player can read the ledger that until now only
-`/myvillage world` (permission 2) and the offline report showed. The page is
+`/yuanxian world` (permission 2) and the offline report showed. The page is
 read-only; pause, resume, and advance stay admin commands.
 
 ### Added
@@ -2517,8 +2522,8 @@ read-only; pause, resume, and advance stay admin commands.
   `WorldCanvas` (cards measured by the code that draws them, hit boxes,
   hover tint) and `WorldReadouts` (ages, dates, relation grouping, root bar
   widths, colours; `WorldReadoutsTest`). 88 new keys in `zh_cn` and
-  `en_us`: `screen.myvillage.cultivation.tab.world` and 87 under
-  `screen.myvillage.cultivation.world.*`.
+  `en_us`: `screen.yuanxian.cultivation.tab.world` and 87 under
+  `screen.yuanxian.cultivation.world.*`.
 - A bounded read-only query and its answer (`sim/runtime/net/`):
   `WorldSimQuery` (kind, id, text up to 32 characters) goes serverbound in
   `WorldSimQueryPayload`; the server answers with a `WorldSimSnapshot` in
@@ -2549,7 +2554,7 @@ read-only; pause, resume, and advance stay admin commands.
 - Payload protocol is now `8` (`ModPayloads.PROTOCOL_VERSION`, was `7`), so
   the client and server need the same jar.
 - `WorldSimCommands` sorts people strongest first through the shared
-  `WorldSimSnapshots.strongestFirst`, so `/myvillage world` and the panel
+  `WorldSimSnapshots.strongestFirst`, so `/yuanxian world` and the panel
   list members in the same order.
 - While a text field in the panel has focus (the 人物 search), H types a
   letter instead of closing the panel; Escape still closes it.
@@ -2577,7 +2582,7 @@ read-only; pause, resume, and advance stay admin commands.
 ## 0.35.1
 
 The sect compound (山门) rework, after the owner walked the 0.35.0 compound
-built by `/myvillage world sect <id> build here` and rejected it. The two
+built by `/yuanxian world sect <id> build here` and rejected it. The two
 things the owner asked for come first.
 
 ### Fixed
@@ -2587,7 +2592,7 @@ things the owner asked for come first.
   every third block, are removed entirely, so no half-slab hangs in the air
   around the buildings and no fence stands on the axis. Every sect template
   placement now drops any template block that touches no other template block
-  on any face (a new `myvillage:drop_isolated_blocks` structure processor),
+  on any face (a new `yuanxian:drop_isolated_blocks` structure processor),
   as a safety net for lone eave stairs and trapdoors; the templates are fixed
   at the source separately.
 - The axis is connected front to back. A paved corridor (御道, 7 wide, polished
@@ -2681,15 +2686,15 @@ projections. It is the first real caller of the region query interface.
   state their cause and point at the event that caused them, tombstones for
   the dead, hash-derived randomness per (seed, day, subject, purpose), and a
   canonical, versioned save payload.
-- Data `src/main/resources/data/myvillage/world_sim/`: `rules.json` (every
+- Data `src/main/resources/data/yuanxian/world_sim/`: `rules.json` (every
   balance number, rates per year), `realms.json` (炼气, 筑基, 金丹, 元婴; the sim's
   own ladder, lifespans equal to the player realms where both exist),
   `encounters.json` (fortunes), `names.json`, `techniques.json` (功法),
   `lore.json` (artifacts, sites, beasts); strict loaders that name the file
-  and field on any error. `world_sim.*`, `commands.myvillage.world.*`, and
-  `message.myvillage.world.rumor` keys in `en_us` and `zh_cn`, the Chinese
+  and field on any error. `world_sim.*`, `commands.yuanxian.world.*`, and
+  `message.yuanxian.world.rumor` keys in `en_us` and `zh_cn`, the Chinese
   written as chronicle prose.
-- Runtime `sim/runtime/`: overworld SavedData `myvillage_world_sim` holding
+- Runtime `sim/runtime/`: overworld SavedData `yuanxian_world_sim` holding
   the core payload; genesis once per world after the region runtime (old
   worlds included), with the tier then fixed in the save; one settled sim day
   per tick while days are pending, capped by the smaller of the config's
@@ -2697,13 +2702,13 @@ projections. It is the first real caller of the region query interface.
   resume without catch-up; the ledger stays inactive and its save untouched
   when the region runtime or the data fails to load or the save cannot be
   read.
-- `/myvillage world [info]`, `sects [all]`, `sect <id|name>`,
+- `/yuanxian world [info]`, `sects [all]`, `sect <id|name>`,
   `person <name>`, `chronicle [1-50]`, `here`, `pause`, `resume`, and
   `advance <1-3650>` (permission 2).
 - Rumors (江湖传闻): major events reach every online player in chat, players in
   the event's region first; notable events reach only that region; at most
   `rumors_per_minute` per player, the rest in a capped queue.
-- Server config `myvillage-world_sim-server.toml`: `[world_sim]` `tier`
+- Server config `yuanxian-world_sim-server.toml`: `[world_sim]` `tier`
   (default `small`) and `catch_up_cap_days`; `[rumors]` `rumors_enabled`,
   `rumors_per_minute`, `rumor_queue_cap`; `[avatars]` `avatars_enabled`,
   `avatar_spawn_radius`, `max_avatars_per_sect`, `max_avatars`.
@@ -2720,22 +2725,22 @@ projections. It is the first real caller of the region query interface.
   save/load, scheduler, purity guard, realm lifespan agreement, text-key
   coverage, genesis, liveness, long-run health bands per tier, performance,
   and the runtime's driver, rumor board, save wrapper, config, and text.
-- `/myvillage world sect <id> build [here]`: builds the sect's compound (山门,
+- `/yuanxian world sect <id> build [here]`: builds the sect's compound (山门,
   the worldgen-style compound with its derived mountain) at the ledger gate,
   on the surface of the loaded gate chunk, or with `here` moves the ledger
   gate to the caller first and builds at the caller's feet; seed and spire
   variant are hashed from the world seed and the sect id; the build is
   synchronous and the reply warns that the server waits for it. It records
   the anchor, seed, variant, and sim day in overworld SavedData
-  `myvillage_world_sim_gates` and marks the gate realized.
+  `yuanxian_world_sim_gates` and marks the gate realized.
 - `sect/SectCourtyard`: the open courtyard ground of a compound from its plan
   (terrace floors + 1, lowest terrace first, minus edge rows, buildings with
   a margin, roofed galleries, the detached spire and its bridge) and the
   compound's site rectangle.
 - Ledger avatars (化身): while a player is within `avatar_spawn_radius` of a
   built compound's site, the sect's members at the sect stand on its
-  courtyard as `myvillage:cultivator` avatars named 姓名 · 境界 · 宗门
-  (`entity.myvillage.cultivator.avatar`, the realm through
+  courtyard as `yuanxian:cultivator` avatars named 姓名 · 境界 · 宗门
+  (`entity.yuanxian.cultivator.avatar`, the realm through
   `world_sim.realm.*`): master, then elders, then by realm, capped per sect
   and in total, one entity per person, two blocks apart; withdrawn beyond the
   radius plus 32 blocks, reconciled after every settled day, discarded when
@@ -2854,7 +2859,7 @@ body, clothes, hair back view, strands, and clips are as in 0.34.0.
 
 ## 0.34.0
 
-The first humanoid NPC, `myvillage:cultivator` (修仙者), and the framework it
+The first humanoid NPC, `yuanxian:cultivator` (修仙者), and the framework it
 runs on: an NPC is an `NpcEntity` subclass plus one generated art definition.
 The cultivator is a body without a disposition: it stands, strolls, and looks
 at players; friend or foe is decided later. No natural spawning and no drop;
@@ -2862,7 +2867,7 @@ at players; friend or foe is decided later. No natural spawning and no drop;
 
 ### Added
 
-- `myvillage:cultivator` (en_us Cultivator, zh_cn 修仙者): a 0.6 x 1.9 block
+- `yuanxian:cultivator` (en_us Cultivator, zh_cn 修仙者): a 0.6 x 1.9 block
   humanoid in mob category `misc` with its own model, not the player model or
   a skin. The look is built from layers: a crossed robe collar, a sleeveless
   indigo vest open down the front with border bands and sloped shoulder caps,
@@ -2871,7 +2876,7 @@ at players; friend or foe is decided later. No natural spawning and no drop;
   and a cut-out hair shell with a bun, crown, pin, ribbons, loose strands, and
   long back hair. It never attacks, does not despawn by distance, and cannot
   be leashed.
-- `myvillage:cultivator_spawn_egg` (修仙者刷怪蛋) in `myvillage:main`, after the
+- `yuanxian:cultivator_spawn_egg` (修仙者刷怪蛋) in `yuanxian:main`, after the
   demon wolf egg; an empty loot table.
 - `entity/npc/`: `NpcEntity` (float, stroll, look at players; no target,
   attack, trade, or dialogue) and `CultivatorEntity`.
@@ -2919,30 +2924,30 @@ at players; friend or foe is decided later. No natural spawning and no drop;
 
 ## 0.33.0
 
-The first hostile beast, `myvillage:demon_wolf` (妖狼), and the framework it
+The first hostile beast, `yuanxian:demon_wolf` (妖狼), and the framework it
 runs on: a beast is a `BeastEntity` subclass plus a data file of attack moves
 plus one generated art definition. The wolf has no natural spawning and no
 drop; `/summon` and its spawn egg only.
 
 ### Added
 
-- `myvillage:demon_wolf` (en_us Demon Wolf, zh_cn 妖狼): a monster with a
+- `yuanxian:demon_wolf` (en_us Demon Wolf, zh_cn 妖狼): a monster with a
   1.3 x 1.45 block hitbox, its own cuboid model, keyframe clips (idle, walk,
   run, bite, pounce, stagger), glowing eyes, mane edges, and tail tip, and
   vanilla wolf sounds at a lower pitch. It hunts the nearest visible player
   with two moves: a close bite (撕咬) whose recovery is the punish window, and
   a mid-range pounce (扑击) whose aim locks on where the target stood before it
   leaps. No GeckoLib or other new dependency.
-- `myvillage:demon_wolf_spawn_egg` (妖狼刷怪蛋) in `myvillage:main`, after the
+- `yuanxian:demon_wolf_spawn_egg` (妖狼刷怪蛋) in `yuanxian:main`, after the
   simple fox egg; an empty loot table.
 - `entity/beast/`: `BeastEntity` (server move runtime: selection by range,
   cooldown, gap, and weight; turn then aim lock; one lunge sized under vanilla
   drag to land on the aim point; an oriented hit box on the active ticks;
   per-move knockback), `BeastDataLoader` and `BeastDefinitions` (strict
-  schema-1 loading of `data/myvillage/beast/index.json` and one file per
+  schema-1 loading of `data/yuanxian/beast/index.json` and one file per
   beast, a startup error on bad data), `BeastMoveSelector`, `BeastGeometry`,
   `BeastMotion`, and `BeastCommands`. Attributes and every move number live
-  only in `data/myvillage/beast/demon_wolf.json`.
+  only in `data/yuanxian/beast/demon_wolf.json`.
 - `client/entity/beast/`: a generic `BeastRenderer` and `BeastModel` that read
   a beast's model and animation JSON into vanilla `ModelPart` and
   `AnimationDefinition`, with an emissive layer and walk/run rates that keep
@@ -2958,7 +2963,7 @@ drop; `/summon` and its spawn egg only.
   server's lunge physics, and holding planted paws at their world point while
   a ground lunge carries the body (`build`, `build --check`, `preview`; the
   previews move the beast along the server's path).
-- `/myvillage beast move <targets> <move_id>`, `status <targets>`, and
+- `/yuanxian beast move <targets> <move_id>`, `status <targets>`, and
   `debug on|off` (permission 2) for server checks and frozen-tick stills.
 - `python3 -m tools.combat_capture beast` with six parts (`idle`, `moves`,
   `locomotion`, `fight`, `dodge`, `slowmo`): headless stills, footage, a
@@ -3152,7 +3157,7 @@ changes; both weapons look and play as in 0.29.0-fix1.
 - `tools/release_gate.py`: all 42 steps passed, including 364 Java tests
   (0 failed, 0 skipped), 578 Python tool tests (13 skipped), the combat
   preview parity tests, `generated-resources-current` ("regenerating changed
-  nothing"), and `./gradlew build` producing `myvillage-0.30.0.jar`, which
+  nothing"), and `./gradlew build` producing `yuanxian-0.30.0.jar`, which
   the focused combat validator passed and all 42 README jar-listing patterns
   matched.
 - `tools/new_combat_weapon.py`, rehearsed on a scratch copy: a new-style
@@ -3183,7 +3188,7 @@ changes; both weapons look and play as in 0.29.0-fix1.
 
 - 355 Java tests (0 failed, 0 skipped), including the block's default, range,
   and that a thicker off arm keeps its shaft point and the main arm;
-  `./gradlew build` produced `myvillage-0.29.0-fix1.jar`; the focused combat
+  `./gradlew build` produced `yuanxian-0.29.0-fix1.jar`; the focused combat
   validator (which now checks the field) and the mod-item validator passed
   against it; strict OpenSpec validation of `add-lingxiao-spear` passed.
 - Headless capture `spear-fix1-offarm` (25 first-person stills, capture skin
@@ -3205,17 +3210,17 @@ animation are unchanged; the fixes below change how it behaves in live play.
 
 ### Added
 
-- `myvillage:lingxiao_spear` (凌霄枪): a two-handed spear on the diamond tier
+- `yuanxian:lingxiao_spear` (凌霄枪): a two-handed spear on the diamond tier
   (8 attack damage, 1.2 attack speed), in `#minecraft:swords` and in
-  `myvillage:main` after the swords, no recipe. Its 3D model (79 elements,
+  `yuanxian:main` after the swords, no recipe. Its 3D model (79 elements,
   fullbright head and inlays), 128x128 texture, 64x64 icon, wrapper model, and
   geometry contract come from the new `tools/gen_lingxiao_spear_model.py`.
-- Combat style `myvillage:basic_spear` with five moves: 中平扎 mid thrust, 横扫
+- Combat style `yuanxian:basic_spear` with five moves: 中平扎 mid thrust, 横扫
   sweep, 上挑 rising flick, 劈枪 overhead smash, 游龙突刺 dragon lunge. The
   thrusts use the `thrust` generator; the sweep (three per active tick), flick,
   and smash (four per active tick) use explicit samples that follow the posed
   spearhead. Weapon entry, index entries, translations, and the reused
-  `myvillage:combat.sword.*` sounds.
+  `yuanxian:combat.sword.*` sounds.
 - `player_animations/spear_combat.json`: two-handed third-person poses with a
   bladed guard; the leading hand stays on the shaft for the guard and the mid
   thrust and lets go for the sweep, flick, smash, and lunge.
@@ -3312,7 +3317,7 @@ the spear.
   payload protocol (still `7`). `BasicSpearStyleTest` drives a real
   `CombatSession` through the five spear moves.
 - Release gates on `26b99e9`: 354 Java tests (0 failed, 0 skipped);
-  `./gradlew build` produced `myvillage-0.29.0.jar`; the focused combat
+  `./gradlew build` produced `yuanxian-0.29.0.jar`; the focused combat
   validator passed against it; every README jar-listing line matched; the
   acceptance server and a standalone NeoForge 21.1.233 dedicated server on the
   packaged jar logged two styles, two weapons, ten moves, and protocol 7, and
@@ -3358,7 +3363,7 @@ unchanged.
 
 ### Added
 
-- Bundled combat data under `data/myvillage/combat/`: `style/basic_sword.json`
+- Bundled combat data under `data/yuanxian/combat/`: `style/basic_sword.json`
   (timing, damage, hit shapes, steps, reactions, sound ids, hit-stop, camera
   cues), `weapon/qingfeng_sword.json` (item, style, first-person rig, geometry
   contract), and `index.json`. The files load from the jar at startup on both
@@ -3366,7 +3371,7 @@ unchanged.
   startup errors that name the file and field. A datapack cannot override them.
 - `CombatStyles`, a registry that resolves the style by held item and a move by
   id. Rigs and geometry load per weapon on resource reload.
-- `/myvillage_pal_smoke third_person <move> <tick>` and `third_person release`:
+- `/yuanxian_pal_smoke third_person <move> <tick>` and `third_person release`:
   an exact full-body freeze probe. The smoke probes now use the style of the
   weapon in the main hand.
 - `tools/combat_data.py`, the shared reader for the data files.
@@ -3472,7 +3477,7 @@ unchanged.
 - `tools/gen_qingfeng_sword_model.py` (stdlib only, deterministic, with
   `--check` and `--report`). It writes the 3D model, its 64x64 texture
   `textures/item/qingfeng_sword_model.png`, the `qingfeng_sword.json` wrapper,
-  and the geometry contract `assets/myvillage/combat/qingfeng_sword_geometry.json`
+  and the geometry contract `assets/yuanxian/combat/qingfeng_sword_geometry.json`
   (grip centre, handle, guard, pommel, blade base and tip, axes, in model pixels).
 - `SwordGeometry` loads the contract with the swing rig on every resource
   reload (`F3+T`). A missing or invalid contract leaves Qingfeng on the vanilla
@@ -3514,7 +3519,7 @@ unchanged.
   `7/8/10/13/20`. Totals and active windows are unchanged. Without a held click a
   move still plays to its total. Move five cannot chain.
 - Attacks face the view yaw. Body and head snap to it at start, and each chained
-  move re-aims. A temporary `myvillage:combat_commit` speed modifier slows the
+  move re-aims. A temporary `yuanxian:combat_commit` speed modifier slows the
   attacker during the swing, and sprinting stops at start.
 - Steps: every move now steps (`0.30/0.25/0.30/0.45/1.40` blocks, bound
   `(0, 1.6]`). The step is a server-decided motion impulse executed by client
@@ -3539,7 +3544,7 @@ unchanged.
 - Server target reaction (`ReactionDefinition`, `CombatReactionService`):
   - mobs freeze for the hit-stop, then are staggered for `9-16` ticks;
   - repeat stuns fall off, and bosses are exempt;
-  - players are never frozen and get a 60% `myvillage:combat_stun` slow instead.
+  - players are never frozen and get a 60% `yuanxian:combat_stun` slow instead.
 - `CombatImpactPayload` (S2C to the attacker and trackers: struck ids and
   contact points, no damage or health) drives client-side target freeze and
   jitter and remote attacker hit-stop.
@@ -3549,7 +3554,7 @@ unchanged.
 - A complete first-person skin/sleeve arm on the pivot rig
   (`QingfengFirstPersonArmRenderer` with a two-bone IK). It never cancels the
   hand render event.
-- `myvillage:blade_cut` particle with an original procedurally generated sprite
+- `yuanxian:blade_cut` particle with an original procedurally generated sprite
   (`tools/gen_blade_cut_sprite.py`).
 - Sound event `combat.sword.impact_heavy` (heavy-hit layer) with bilingual
   subtitles, plus swing pitch variation. The swing sound now leads the active
@@ -3576,7 +3581,7 @@ unchanged.
 ### Changed
 
 - Replaced the Qingfeng first-person curves with a tick-authored shoulder-pivot
-  swing rig in `assets/myvillage/combat/qingfeng_first_person.json`. Each
+  swing rig in `assets/yuanxian/combat/qingfeng_first_person.json`. Each
   move's visible strike now covers the server active window, cuts show the
   blade's flat, and resource reload (`F3+T`) applies rig edits.
 - Hid the segmented first-person skin/sleeve arm at the owner's request; a
@@ -3590,7 +3595,7 @@ unchanged.
   aliased to vanilla attack sounds through `sounds.json`.
 - Post-damage hit sound plus crit and sweep particles, and an attacker-only hit
   confirmation that triggers a short client hit-stop ending on the server total.
-- `/myvillage_pal_smoke first_person <move> <tick>` and `release` to hold one
+- `/yuanxian_pal_smoke first_person <move> <tick>` and `release` to hold one
   first-person frame for review.
 
 ### Notes
@@ -3604,8 +3609,8 @@ unchanged.
 
 ### Added
 
-- Added the diamond-tier `myvillage:xuanyue_zhenshan_sword`,
-  `myvillage:chilian_lihuo_sword`, and `myvillage:qingxiao_liuyun_sword` with
+- Added the diamond-tier `yuanxian:xuanyue_zhenshan_sword`,
+  `yuanxian:chilian_lihuo_sword`, and `yuanxian:qingxiao_liuyun_sword` with
   independent 64x64 transparent textures derived from the supplied reference
   art, handheld models, bilingual names, creative-tab entries, and vanilla
   sword-tag membership.
@@ -3626,7 +3631,7 @@ unchanged.
 
 ### Added
 
-- Added the independent diamond-tier `myvillage:qingfeng_sword`, bilingual
+- Added the independent diamond-tier `yuanxian:qingfeng_sword`, bilingual
   resources, recipe, sword tag, creative-tab entry, original pixel texture,
   Item Contract, and focused resource validation.
 - Added persistent server-owned vanilla/cultivation combat preference with a
@@ -3703,10 +3708,10 @@ unchanged.
 
 ### Added
 
-- Added the data-driven `myvillage:cultivation` GuideME guide with three Chinese
+- Added the data-driven `yuanxian:cultivation` GuideME guide with three Chinese
   default pages, complete path-matched English translations, live configurable
   key displays, and indexes for the initiation steles and spirit-stone resources.
-- Added the one-stack `myvillage:cultivation_handbook` item, which opens the guide
+- Added the one-stack `yuanxian:cultivation_handbook` item, which opens the guide
   through GuideME's client API without adding a MyVillage network payload.
 - Added root-source `runGuide` live preview plus focused dependency, content,
   resource, documentation, release, and practical-jar validation.
@@ -3794,8 +3799,8 @@ unchanged.
   seed, player UUID, and the sorted current spiritual-element ids and
   `awakening_weight` values. The fixed generator selects one through five
   distinct elements and produces positive affinities totaling exactly `10000`.
-- Added separate `myvillage:spirit_testing_stele` and
-  `myvillage:technique_inheritance_stele` blocks and BlockItems. The first
+- Added separate `yuanxian:spirit_testing_stele` and
+  `yuanxian:technique_inheritance_stele` blocks and BlockItems. The first
   atomically installs the root plus `mortal_qi_sensed`; the second evaluates the
   current `basic_breathing` definition and learns it at mastery `0` without
   resetting existing mastery.
@@ -3820,7 +3825,7 @@ unchanged.
 
 ### Added
 
-- Added `/myvillage xiulian` and complete pinyin aliases for every cultivation
+- Added `/yuanxian xiulian` and complete pinyin aliases for every cultivation
   inspection and mutation command. Both cultivation roots accept both English
   and pinyin subcommands and share the same arguments, registry suggestions,
   handlers, permission boundary, atomic service mutations, and synchronization.
@@ -3865,7 +3870,7 @@ unchanged.
 
 ### Added
 
-- Added `myvillage:rideable_flying_sword` as a stack-size-one functional item
+- Added `yuanxian:rideable_flying_sword` as a stack-size-one functional item
   and transient one-player vehicle. Right-click toggles server-owned summon,
   mounting, and recall; W/S, A/D, Space, and Shift send only a six-bit input
   intent while the server computes bounded collision-aware flight, hover drag,
@@ -3879,7 +3884,7 @@ unchanged.
 
 ### Added
 
-- Added `myvillage:simple_fox` with vanilla fox model/AI inheritance, a spawn
+- Added `yuanxian:simple_fox` with vanilla fox model/AI inheritance, a spawn
   egg and translations, intentional empty loot, taiga natural spawning, and
   deterministic `48x32` UV provenance. Focused validators, the build, and
   dedicated-server startup pass, followed by accepted in-game client validation
@@ -3983,12 +3988,12 @@ unchanged.
 
 - **Chunky acceptance automation** (`add-chunky-acceptance-automation`):
   staged in-game acceptance now covers the isolated server + Chunky + RCON
-  lifecycle, coordinate-addressable `/myvillage ...at` command smoke, full
-  optional-mod server startup/cases, and natural `myvillage:sect` worldgen via
+  lifecycle, coordinate-addressable `/yuanxian ...at` command smoke, full
+  optional-mod server startup/cases, and natural `yuanxian:sect` worldgen via
   `/locate structure` plus bounded Chunky generation.
 - Added RCON/console-safe coordinate commands:
-  `/myvillage placeat`, `/myvillage galleryat`, `/myvillage townat`,
-  `/myvillage sectat`, and `/myvillage sectat worldgen`.
+  `/yuanxian placeat`, `/yuanxian galleryat`, `/yuanxian townat`,
+  `/yuanxian sectat`, and `/yuanxian sectat worldgen`.
 
 ### Changed
 
@@ -4148,8 +4153,8 @@ unchanged.
   `docs/rockery_compressed.json` 的 48³ 微体素雕塑切成 19 个可堆叠的
   `rockery_block` cell，形成一座 3×3×3 实体假山；石/苔材质按微体素分别
   烘焙，并增加真实水池、水浸山脚与峰顶出水口、无碰撞细瀑
-  `myvillage:rockery_cascade`、峰顶草木和可站立亭基。
-- 新增独立验收结构与命令 `/myvillage place hero_rockery`；六个
+  `yuanxian:rockery_cascade`、峰顶草木和可站立亭基。
+- 新增独立验收结构与命令 `/yuanxian place hero_rockery`；六个
   `chinese_mansion_001..006.nbt` 已重新生成并通过 3D voxel-walkability
   校验。
 
@@ -4189,7 +4194,7 @@ unchanged.
 - **服务器启动崩溃 → 所有指令不可用**：将 `SectStructures` 的 `StructureType` /
   `StructurePieceType` 注册从 `DeferredRegister`（依赖 `RegisterEvent` 时序）改为
   直接 `Registry.register()`（在 mod 构造函数执行期间、注册表解冻后立即写入
-  `BuiltInRegistries`），消除 `Unknown registry key: myvillage:sect` 崩溃。
+  `BuiltInRegistries`），消除 `Unknown registry key: yuanxian:sect` 崩溃。
 
 ## 0.16.0
 
@@ -4202,12 +4207,12 @@ unchanged.
   水池 + 亭 + 汀步). Variant axes: `courtyard_size ∈ {small, medium, large}`,
   `gate_form ∈ {recessed, flush, paifang}`, `garden_scale ∈ {small, large}`,
   `tower_count ∈ {1, 2}`, `main_bays ∈ {3, 5}`. In-game commands:
-  `/myvillage place chinese_mansion_001` … `_006` and
-  `/function myvillage:gallery/chinese_mansion`. New style profile
+  `/yuanxian place chinese_mansion_001` … `_006` and
+  `/function yuanxian:gallery/chinese_mansion`. New style profile
   `chinese_mansion.json` adds slots `FACADE_OPEN`, `GARDEN_PATH`,
   `ROCKERY_STONE`, `GARDEN_PAVEMENT`, `POND_STONE`.
 - **假山 (garden_rockery) + 水池 (garden_pond) parcel nodes.** 假山 uses
-  `myvillage:rockery_block` (new self-namespace block, registered in
+  `yuanxian:rockery_block` (new self-namespace block, registered in
   `ModBlocks.java` / `RockeryBlock.java`) with `variant`, `facing`, and
   `moss_level` blockstate properties and per-variant `VoxelShape` for partial
   climbability. 水池 uses freeform value-noise shoreline with
@@ -4257,7 +4262,7 @@ unchanged.
   `cultivation_town_NNN.nbt`. **Breaking (NBT regeneration):** the 6
   `chinese_courtyard_*` and 6 `cultivation_town_*` NBTs regenerate with new
   content (same filenames); `cultivation_sect_*` and `medieval_*` stay
-  byte-stable. No `/myvillage` command-surface change.
+  byte-stable. No `/yuanxian` command-surface change.
 - **Cross-platform build and report determinism.** `build.gradle` now selects
   the Python interpreter per OS (`python` on Windows, `python3` elsewhere),
   falling back to the `PYTHON` environment variable when set, so `gradlew build`
@@ -4316,12 +4321,12 @@ unchanged.
   region (sort key `(assigned_tier ASC, distance_from_anchor DESC,
   qi_midpoint ASC, id ASC)`) with a safe-surface spiral search; existing
   custom/admin spawns are preserved on first load (`SavedData`-gated), and
-  `/myvillage spawn recompute` (admin) forces an override. A server-side query
+  `/yuanxian spawn recompute` (admin) forces an override. A server-side query
   API exposes `region_at(x, z)`, `current_region`, `current_rung`, and
   `next_rung_regions`, where the rung ladder is the ascending distinct tiers
   among non-walled regions and `next_rung_regions` returns a **set** at tier
   ties (灵岳 + 西漠 both at 18) — a branch point the deferred 正道/魔道
-  alignment system will resolve. `/myvillage spawn info` (player) prints the
+  alignment system will resolve. `/yuanxian spawn info` (player) prints the
   spawn region/block and the caller's region/rung/next-rung set. The runtime is
   passive: it reads the world seed, caches the graph, answers queries, and calls
   `setDefaultSpawnPos` exactly once — it overrides no biome, hooks no chunk-gen,
@@ -4363,7 +4368,7 @@ unchanged.
 ### Changed
 
 - **Town shape vocabulary and seed-driven grid** (`town-shape-vocabulary`).
-  `/myvillage town [seed]` now selects independently from square, 天圆 circle,
+  `/yuanxian town [seed]` now selects independently from square, 天圆 circle,
   oval, 半月 D-shape, true octagon, and trapezoid wall families plus optional
   barbican/bastion modifiers. The spine, three cross-lanes, and outer district
   widths vary within bounded orthogonal ranges. Outer district cell sets clip
@@ -4377,7 +4382,7 @@ unchanged.
 ### Changed
 
 - **Town shape is no longer a hard square** (`town-shape-irregularity`). The
-  runtime cultivation town (`/myvillage town`) wall is now a deterministic,
+  runtime cultivation town (`/yuanxian town`) wall is now a deterministic,
   seed-derived variant (`square` / `chamfer` / `indent`) selected from a fixed
   set, with geometry a pure function of (site, shape id) so the Java realizer
   mirrors it from the id alone (no shared RNG). All deformation is inward-only,
@@ -4390,7 +4395,7 @@ unchanged.
   parcel-bearing and civic-core districts stay rectangular because the
   civic-precinct derivation is coupled to `core.bounds`). Python⇄Java parity
   gains perimeter-variant and fringe cell-count descriptors. No command-surface
-  change; `/myvillage town [seed]` behaves the same. See
+  change; `/yuanxian town [seed]` behaves the same. See
   `docs/ai-kb/11_town_shape_irregularity.md`.
 
 ### Fixed
@@ -4436,7 +4441,7 @@ unchanged.
   re-read per chunk, and per-volume placement RNG is derived from the stable
   sect site + volume origin (not the chunk) so a building straddling a chunk
   seam rolls the same variant/orientation in both halves. Siting, biome gating,
-  separation, `/locate`, the `/myvillage sect` command, and the derived-mountain
+  separation, `/locate`, the `/yuanxian sect` command, and the derived-mountain
   geometry are unchanged (Python/Java parity still validated).
 - **Worldgen sect terrain no longer floats above the compound.** Exposed once the
   stall fix let the worldgen path complete: the mountain/terrace passes placed via
@@ -4446,7 +4451,7 @@ unchanged.
   `realizeSlots` placed at the correct absolute Y — the terrain and the sect were
   "not unified." A `SectGenerator.at(base, localX, worldY, localZ)` helper now
   places all terrain passes at the absolute Y directly, so terrain and buildings
-  share one elevation frame. The on-the-spot `/myvillage sect` command shares the
+  share one elevation frame. The on-the-spot `/yuanxian sect` command shares the
   realizer and benefits from the same fix.
 
 ## 0.11.0
@@ -4454,13 +4459,13 @@ unchanged.
 ### Added
 
 - **Sect worldgen with derived mountain** (`add-sect-worldgen`). A custom
-  worldgen `myvillage:sect` `Structure` (`SectStructure` + `StructureType` +
+  worldgen `yuanxian:sect` `Structure` (`SectStructure` + `StructureType` +
   `SectStructurePiece`, registered through `SectStructures`) sites cultivation
   sects during chunk generation — rare, biome-gated to a high-relief biome tag
-  (`data/myvillage/tags/worldgen/biome/has_sect.json`), spaced as a regional
+  (`data/yuanxian/tags/worldgen/biome/has_sect.json`), spaced as a regional
   landmark (`worldgen/structure_set/sect.json`), world-seed reproducible, and
   baked into chunks with no force-load and no build pop-in. The structure is
-  locatable via `/locate structure myvillage:sect`. The "no worldgen is
+  locatable via `/locate structure yuanxian:sect`. The "no worldgen is
   registered" note is removed.
 - **反推山形 mountain derivation.** Rather than search for matching natural
   terrain, the generator derives the mountain from the compound's exported
@@ -4474,9 +4479,9 @@ unchanged.
   `tools/buildgen/sect_mountain.py`.
 - **Shared realizer + force-generate command.** The `SectGenerator` realizer is
   refactored onto a `SectSink` so the same plan + geometry serve both the
-  on-the-spot `/myvillage sect [seed]` command (unchanged, rests on the live
+  on-the-spot `/yuanxian sect [seed]` command (unchanged, rests on the live
   surface) and worldgen (rests on the derived mountain, clamped per chunk).
-  `/myvillage sect worldgen [seed] [variant]` force-generates a worldgen-style
+  `/yuanxian sect worldgen [seed] [variant]` force-generates a worldgen-style
   sect and can force one of the three detached-spire variants (or `none`).
 - **Validation + preview.** `validate_sect_generation.py` adds worldgen checks
   (biome gating, minimum separation, blend-skirt seam, terraces at planned
@@ -4503,7 +4508,7 @@ unchanged.
   paired pagodas, flanking bell/drum towers) mirror about the axis and are
   joined by covered galleries (廊) recorded as circulation links with both
   endpoints. Each terrace meets the next through a retaining face and an
-  on-axis stair flight. The new `/myvillage sect [seed]` command builds the
+  on-axis stair flight. The new `/yuanxian sect [seed]` command builds the
   compound against terrain, force-loading the footprint, carving and retaining
   each terrace so platforms step the slope with no floating or buried slabs,
   routing palette ids through the mod-fallback resolver, and reporting any
@@ -4531,7 +4536,7 @@ unchanged.
 ### Added
 
 - **Districted cultivation town plan** (`town-districts`). The runtime
-  `/myvillage town` realizer now produces a ~160×160 修仙坊市 partitioned into
+  `/yuanxian town` realizer now produces a ~160×160 修仙坊市 partitioned into
   named districts (gate/market/residential/civic_core/fringe), each carrying
   its own density, storey band, material register, and archetype roster from
   the `cultivation_town` group's `district_brief`. The ritual axis (plaza /
@@ -4706,7 +4711,7 @@ unchanged.
   survival path that could break inscriptions into dropped painting items.
 - Added distinct multipart plaque row/column states for 4w, 5w, and 4h plaques
   so every tile can display the correct slice of the calligraphy texture.
-- Updated generated-structure validation to reject `myvillage:inscription/...`
+- Updated generated-structure validation to reject `yuanxian:inscription/...`
   painting entities in shipped structures.
 
 ## 0.8.0-fix1
@@ -4715,7 +4720,7 @@ unchanged.
 
 - Fixed custom calligraphy paintings rendering as missing black-purple textures
   in game by shipping inscription PNGs under the painting atlas path
-  `assets/myvillage/textures/painting/inscription/`.
+  `assets/yuanxian/textures/painting/inscription/`.
 - Fixed even-height plaque painting anchors so 5w_2h and vertical inscriptions
   no longer shift upward, lose support, and drop as vanilla painting items.
 - Updated plaque blocks to provide a full hanging support shape without
@@ -4725,7 +4730,7 @@ unchanged.
 
 ### Added
 
-- Added four shipped `myvillage` plaque blocks: wall, vertical wall, hanging,
+- Added four shipped `yuanxian` plaque blocks: wall, vertical wall, hanging,
   and vertical hanging plaque variants.
 - Added an eight-preset plaque frame catalog with generated blockstates,
   models, frame textures, and artist-facing asset documentation.
@@ -4739,7 +4744,7 @@ unchanged.
 ### Changed
 
 - Extended generated-structure, style-policy, and fallback validators with a
-  `myvillage:` self-namespace carve-out while keeping external-mod validation
+  `yuanxian:` self-namespace carve-out while keeping external-mod validation
   strict.
 - Extended offline previews and acceptance prep to report missing inscription
   assets and validate plaque binding data.
@@ -4790,7 +4795,7 @@ unchanged.
 ### Added
 
 - Added generated runtime fallbacks for optional decor-mod block ids and routed
-  `/myvillage place` plus `/myvillage town` template loading through the
+  `/yuanxian place` plus `/yuanxian town` template loading through the
   fallback resolver so absent decor mods degrade to vanilla blocks instead of
   air.
 - Added optional NeoForge dependency declarations for Ars Nouveau, Farmer's
@@ -4802,7 +4807,7 @@ unchanged.
 
 ### Fixed
 
-- Fixed runtime `/myvillage town` site-fit placement so building templates use
+- Fixed runtime `/yuanxian town` site-fit placement so building templates use
   their `y=1` ground layer against the parcel surface and receive a continuous
   footprint support layer, preventing one-block hollow gaps under houses.
 - Extended the runtime town-plan validator to check the shipped templates'
@@ -4812,7 +4817,7 @@ unchanged.
 
 ### Fixed
 
-- Fixed runtime `/myvillage town` ground-detail placement so campfires,
+- Fixed runtime `/yuanxian town` ground-detail placement so campfires,
   lantern posts, and central street-room furniture are anchored to parcel
   ground, free side-yard cells, or actual street cells instead of roof
   heightmap hits after templates are placed.
@@ -4823,7 +4828,7 @@ unchanged.
 
 ### Fixed
 
-- Fixed the runtime `/myvillage town` plan geometry so all seed-selected lane
+- Fixed the runtime `/yuanxian town` plan geometry so all seed-selected lane
   offsets keep parcels, negative-space regions, and placed template footprints
   disjoint from streets.
 - Added a runtime town-plan regression validator for the Java layout variants.
@@ -4832,7 +4837,7 @@ unchanged.
 
 ### Added
 
-- Added `/myvillage town [seed]`, an on-demand runtime living-town generator
+- Added `/yuanxian town [seed]`, an on-demand runtime living-town generator
   with a closed wall, gates, main-street spine, dominant landmark, terrain
   plinths, active frontage, street furniture, smoke/light, wear, and daily-life
   props.
@@ -4840,8 +4845,8 @@ unchanged.
   and top-down PNG/HTML plan previews.
 - Added frontage metadata and optional importance-tier hooks to generated
   town building graphs.
-- Split `/myvillage gallery` into the full gallery plus
-  `/myvillage gallery original` and `/myvillage gallery cultivation`.
+- Split `/yuanxian gallery` into the full gallery plus
+  `/yuanxian gallery original` and `/yuanxian gallery cultivation`.
 
 ### Changed
 
@@ -4870,7 +4875,7 @@ unchanged.
 - Changed the `cultivation_town` settlement group from standalone structures to
   the `courtyard_street_block` layout strategy.
 - Updated command and acceptance documentation for
-  `/myvillage place cultivation_town_001` and the cultivation town gallery.
+  `/yuanxian place cultivation_town_001` and the cultivation town gallery.
 
 ### Removed
 

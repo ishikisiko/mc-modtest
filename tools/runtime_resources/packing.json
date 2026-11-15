@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "root": "myvillage_packed",
-  "namespace": "myvillage",
+  "root": "yuanxian_packed",
+  "namespace": "yuanxian",
   "catalogs": [
-    "data/myvillage/lord_manors/catalog.json",
-    "data/myvillage/qianji/components/catalog.json"
+    "data/yuanxian/lord_manors/catalog.json",
+    "data/yuanxian/qianji/components/catalog.json"
   ],
   "models_per_group": 32,
   "templates_per_group": 128,

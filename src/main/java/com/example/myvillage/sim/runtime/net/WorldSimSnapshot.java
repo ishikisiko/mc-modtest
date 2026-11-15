@@ -28,7 +28,7 @@ import java.util.Objects;
  *
  * @param query          the query answered; the client caches by it
  * @param active         false while the ledger is inactive; then only {@code inactiveReason} is meaningful
- * @param inactiveReason the server's reason (English, for {@code commands.myvillage.world.inactive}), "" when active
+ * @param inactiveReason the server's reason (English, for {@code commands.yuanxian.world.inactive}), "" when active
  * @param day            the ledger's current sim day (ages are {@code day - birthDay})
  * @param prehistoryDays sim days before 启元一年 (dates: {@code SimDate.of(day, prehistoryDays, daysPerYear)})
  * @param daysPerYear    the calendar's current days per year

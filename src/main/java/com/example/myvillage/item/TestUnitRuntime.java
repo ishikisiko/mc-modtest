@@ -50,15 +50,15 @@ import net.neoforged.neoforge.network.PacketDistributor;
 /** 取物器生成的测试身体独立保存，不注册命簿人物，也不写入其他玩家的测试配置。 */
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID)
 public final class TestUnitRuntime {
-    public static final String TAG = "myvillage:test_unit";
+    public static final String TAG = "yuanxian:test_unit";
     public static final int LIMIT = 64, RANGE = 64;
     private static final Map<UUID, Long> REQUESTS = new HashMap<>();
     private TestUnitRuntime() { }
 
     public static boolean allowedType(EntityType<?> type) {
         var id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
-        return id != null && (id.getNamespace().equals("myvillage") || id.getNamespace().equals("minecraft"))
-                && (id.toString().equals("myvillage:cultivator") || type.getCategory() == MobCategory.MONSTER);
+        return id != null && (id.getNamespace().equals("yuanxian") || id.getNamespace().equals("minecraft"))
+                && (id.toString().equals("yuanxian:cultivator") || type.getCategory() == MobCategory.MONSTER);
     }
 
     public static TestUnitRelations.Unit relations(Entity entity) {
@@ -219,7 +219,7 @@ public final class TestUnitRuntime {
                 var modifier = attribute.getModifier(key); if (modifier != null) realmAddition += modifier.amount();
             }
             attribute.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
-                    ResourceLocation.parse("myvillage:test_override"), entry.getValue() - attribute.getBaseValue() - realmAddition,
+                    ResourceLocation.parse("yuanxian:test_override"), entry.getValue() - attribute.getBaseValue() - realmAddition,
                     net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
         }
         if (mob instanceof NpcEntity npc) com.example.myvillage.cultivation.fate.FateRuntime.refresh(npc);

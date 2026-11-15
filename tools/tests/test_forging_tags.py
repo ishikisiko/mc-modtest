@@ -11,10 +11,10 @@ class ForgingTagsTest(unittest.TestCase):
         generated=acquisition.outputs();base=ROOT/'src/main/resources/data/c/tags'
         for kind in ('item','block'):
             self.assertEqual({'replace':False,'values':['#c:ores/xuantie','#c:ores/spirit_stone']},json.loads(generated[base/kind/'ores.json']))
-            self.assertEqual({'replace':False,'values':['myvillage:xuantie_ore']},json.loads(generated[base/kind/'ores/xuantie.json']))
+            self.assertEqual({'replace':False,'values':['yuanxian:xuantie_ore']},json.loads(generated[base/kind/'ores/xuantie.json']))
     def test_unsafe_or_duplicate_material_tag_paths_fail_before_writing(self):
         source=json.loads((ROOT/'tools/forging/materials.json').read_text())
-        for tag in ['myvillage:../../escape','myvillage:/absolute','myvillage:bad//segment',source['materials'][1]['tag']]:
+        for tag in ['yuanxian:../../escape','yuanxian:/absolute','yuanxian:bad//segment',source['materials'][1]['tag']]:
             data=json.loads(json.dumps(source));data['materials'][0]['tag']=tag
             with tempfile.TemporaryDirectory() as temp:
                 p=Path(temp)/'materials.json';p.write_text(json.dumps(data))

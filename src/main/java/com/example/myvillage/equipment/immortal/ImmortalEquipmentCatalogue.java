@@ -21,7 +21,7 @@ import net.minecraft.world.item.ArmorItem;
 
 /** 随 jar 固定的身份与服务器属性目录；资源包重载不能改变物品或数值。 */
 public final class ImmortalEquipmentCatalogue {
-    private static final String PATH = "/data/myvillage/immortal_equipment/catalogue.json";
+    private static final String PATH = "/data/yuanxian/immortal_equipment/catalogue.json";
     private static final int LEVELS = 5;
     private static final int SETS_PER_LEVEL = 3;
     private static final Map<String, ArmorItem.Type> SLOTS = Map.of(
@@ -174,12 +174,12 @@ public final class ImmortalEquipmentCatalogue {
 
     private static ResourceLocation location(JsonObject source, String key) {
         var result = ResourceLocation.parse(text(source, key));
-        if (!result.getNamespace().equals("myvillage")) throw invalid("资源必须使用 myvillage 命名空间：" + result);
+        if (!result.getNamespace().equals("yuanxian")) throw invalid("资源必须使用 yuanxian 命名空间：" + result);
         return result;
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 
     private static JsonElement required(JsonObject source, String key) {

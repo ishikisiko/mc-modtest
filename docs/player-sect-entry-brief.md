@@ -52,7 +52,7 @@ owner 2026-10-07："好，写一个方案看看"。这是设计方案，不是�
 
 ### 4.3 藏经阁
 
-- 新方块 `myvillage:scripture_shelf`（经架）。只在命簿落地的山门里出现：`GateBuilder` 建完后置一遍，在两个 `slot_scripture_flank_*` 槽位的殿内地面中央各放一个，方块实体存 `sectId`。随机 worldgen 的匿名山门不放（它们与命簿无关）。
+- 新方块 `yuanxian:scripture_shelf`（经架）。只在命簿落地的山门里出现：`GateBuilder` 建完后置一遍，在两个 `slot_scripture_flank_*` 槽位的殿内地面中央各放一个，方块实体存 `sectId`。随机 worldgen 的匿名山门不放（它们与命簿无关）。
 - 右键 → 服务端校验玩家是该宗成员、在山门范围（`SectCourtyard.footprint`）→ 发可借清单 → `ScriptureHallScreen`。清单规则镜像 `People.sectTechnique`：外门 = 宗门 `basicTechniqueId`（加凡阶 `basic_breathing`）；内门 = 传承链第二门（无传承的宗门 = 镇派功法）；长老 = 整条传承链。每门一本，取过记入 `borrowed`。
 - 取书 = `TechniqueManualItem.manualFor` 给一本秘籍，读书仍走 `ManualStudy` 的现有门槛（境界、五行、前置）。
 - `HeritageDefinition.exclusive` 从此生效：独占传承的秘籍只能来自藏经阁或遗迹池的奇遇，`StudyStart` 不改，改的是来源。
@@ -68,7 +68,7 @@ owner 2026-10-07："好，写一个方案看看"。这是设计方案，不是�
 
 - `WorldSimAvatars` 的 20 tick 巡检旁加 `GateRealizer`：活跃宗门、未落地、有玩家进入 `realize_radius`（160）→ 排队建造。建造分帧：先造山与台地（每 tick 若干列），再放模板（每 tick 一个槽位），最后通道与经架；全程强制加载山门所在区块；完成后写 `GateRealizations` 并 `markGateRealized`，和手动 `build` 一致。单服务器同时只建一座。
 - 建造中玩家可能看见半成品，用一条聊天提示"某宗山门正在显形"。建造失败回滚为未落地并记日志。
-- 真 P4（worldgen 阶段在宗门坐标落位，新档开荒即在）作为后续：需要在区块生成前把命簿坐标暴露给一个自定义 `StructurePlacement`，与现有随机 `myvillage:sect` 结构的关系也要定（建议随机结构改成废弃山门或撤掉）。
+- 真 P4（worldgen 阶段在宗门坐标落位，新档开荒即在）作为后续：需要在区块生成前把命簿坐标暴露给一个自定义 `StructurePlacement`，与现有随机 `yuanxian:sect` 结构的关系也要定（建议随机结构改成废弃山门或撤掉）。
 
 ### 4.6 面板与指路
 

@@ -2,12 +2,12 @@ modLoader="javafml"
 loaderVersion="[4,)"
 license="All Rights Reserved"
 [[mods]]
-modId="myvillage_drop_probe"
+modId="yuanxian_drop_probe"
 version="1"
 displayName="掉落原生检查探针"
 description="仅用于独立测试服务器，不进入主交付JAR。"
-[[dependencies.myvillage_drop_probe]]
-modId="myvillage"
+[[dependencies.yuanxian_drop_probe]]
+modId="yuanxian"
 type="required"
 versionRange="[0.133.0,)"
 ordering="AFTER"

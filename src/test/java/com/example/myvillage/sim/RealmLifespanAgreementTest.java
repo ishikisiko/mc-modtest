@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 /** Realms that exist both in the sim and in the player registry agree on lifespan (design §3.2). */
 class RealmLifespanAgreementTest {
-    private static final Path PLAYER_REALMS = Path.of("src/main/resources/data/myvillage/myvillage/realm");
+    private static final Path PLAYER_REALMS = Path.of("src/main/resources/data/yuanxian/yuanxian/realm");
 
     private static int playerLifespan(String id) throws IOException {
         JsonObject json = JsonParser.parseString(

@@ -23,12 +23,12 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.List;
 
 /**
- * Items registry for the myvillage mod. Exposes hand-placeable decor and the
- * simple fox spawn egg through the dedicated {@code myvillage:main} creative
+ * Items registry for the yuanxian mod. Exposes hand-placeable decor and the
+ * simple fox spawn egg through the dedicated {@code yuanxian:main} creative
  * tab.
  *
  * <p>The rockery has 56 sub-block variants but only ONE item id
- * ({@code myvillage:rockery_block}); the variant to place is rolled at placement
+ * ({@code yuanxian:rockery_block}); the variant to place is rolled at placement
  * time in {@link com.example.myvillage.block.RockeryBlock#getStateForPlacement},
  * so the inventory stays a single slot (mirrors vanilla behaviour for blocks
  * whose appearance varies per-placement, e.g. flower pots / mycelium).
@@ -40,7 +40,7 @@ public final class ModItems {
     public static final DeferredItem<QualityPickerItem> QUALITY_PICKER =
             ITEMS.registerItem("quality_picker", QualityPickerItem::new);
 
-    /** DeferredRegister for the {@code myvillage:main} creative tab. */
+    /** DeferredRegister for the {@code yuanxian:main} creative tab. */
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MyVillageMod.MOD_ID);
 
@@ -373,12 +373,12 @@ public final class ModItems {
             MANUAL_BODY_TIAN);
 
     /**
-     * The {@code myvillage:main} creative tab. Icon + content is the rockery
-     * item; the tab groups all hand-placeable myvillage blocks together.
+     * The {@code yuanxian:main} creative tab. Icon + content is the rockery
+     * item; the tab groups all hand-placeable yuanxian blocks together.
      */
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB =
             CREATIVE_TABS.register("main", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.myvillage.main"))
+                    .title(Component.translatable("itemGroup.yuanxian.main"))
                     .icon(() -> new ItemStack(ROCKERY_BLOCK_ITEM.get()))
                     .displayItems((params, output) -> {
                         output.accept(QUALITY_PICKER.get());

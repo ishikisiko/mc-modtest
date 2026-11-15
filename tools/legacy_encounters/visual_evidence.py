@@ -16,24 +16,24 @@ class VisualEvidence(LegacyEvidence):
         self.clean();self.ready(240)
         for index,m in enumerate(self.source['mobs']):
             x=8+index*6
-            self.rc(f'summon myvillage:{m["id"]} {x} -60 8 {{NoAI:1b,Tags:["legacy_beast"],PersistenceRequired:1b}}')
+            self.rc(f'summon yuanxian:{m["id"]} {x} -60 8 {{NoAI:1b,Tags:["legacy_beast"],PersistenceRequired:1b}}')
         self.step(3);rows=self.status()['nearby_beasts']
         for m in self.source['mobs']:
-            row=next(v for v in rows if v['type']=='myvillage:'+m['id'])
+            row=next(v for v in rows if v['type']=='yuanxian:'+m['id'])
             self.check(m['id']+'_actual_dimensions',all(abs(row[k]-m['physical'][k])<.0001 for k in ('width','height','eye_height')),row)
             self.check(m['id']+'_grounded',abs(row['y']+60)<.02,row)
         self.clean();self.step(25)
         for kind,mob,x in [('sword','wandering_sword',12),('mountain','stele_guardian',32)]:
-            self.rc(f'place template myvillage:legacy_{kind}_ruin {x-7} -61 10')
+            self.rc(f'place template yuanxian:legacy_{kind}_ruin {x-7} -61 10')
             self.rc(f'tp {self.s.username} {x+.5} -60 14.5 0 22');self.equip('minecraft:paper');self.use();self.step(2)
-            rows=[b for b in self.status()['nearby_beasts'] if b['type']=='myvillage:'+mob]
+            rows=[b for b in self.status()['nearby_beasts'] if b['type']=='yuanxian:'+mob]
             self.check(kind+'_enlarged_guardian_fits_existing_trial',bool(rows),self.status())
-            self.rc(f'kill @e[type=myvillage:{mob}]');self.step(25)
+            self.rc(f'kill @e[type=yuanxian:{mob}]');self.step(25)
         self.report['geometry_fixture']='试炼仅验证真实石碑交互能够生成放大后的守护者；这里的管理员清理不作为战斗完成证据。'
         self.rc('fill 4 -60 10 40 -54 24 minecraft:air');self.clean()
 
     def clearance(self):
-        self.clean();self.fixture_bind();self.ready(240);self.equip('myvillage:zhenyue_ruler')
+        self.clean();self.fixture_bind();self.ready(240);self.equip('yuanxian:zhenyue_ruler')
         u=self.s.username;self.rc(f'tp {u} .5 -60 .5 0 30')
         self.rc('fill -3 -57 1 3 -57 8 minecraft:stone');self.step(15)
         before=self.power();mark=self.offset();self.key(self.assigned[self.ids[3]]);time.sleep(.4)
@@ -41,7 +41,7 @@ class VisualEvidence(LegacyEvidence):
         self.rc('fill -3 -57 1 3 -57 8 minecraft:air');self.step(14);self.cast(self.ids[3])
         self.check('large_ruler_accepts_open_space',any(a['mode']=='ruler' for a in self.status()['active']),self.status())
         self.cast(self.ids[3],expected_cost=0);self.clean();self.ready(200)
-        self.equip('myvillage:zhaoshui_mirror');self.use();self.step(2)
+        self.equip('yuanxian:zhaoshui_mirror');self.use();self.step(2)
         self.check('mirror_visual_exists_in_active_window',any(v['kind']==11 for v in self.status()['visuals']),self.status())
         self.equip('minecraft:air');self.step(2)
         self.check('mirror_visual_clears_on_slot_change',not any(v['kind']==11 for v in self.status()['visuals']),self.status())
@@ -56,7 +56,7 @@ class VisualEvidence(LegacyEvidence):
 
     def real_cast(self,ident):
         mark=self.offset();self.key(self.assigned[ident])
-        self.poll(lambda:self.log(mark),lambda log:f'result=start art=myvillage:{ident}' in log,timeout=8,label='real-time mapped '+ident)
+        self.poll(lambda:self.log(mark),lambda log:f'result=start art=yuanxian:{ident}' in log,timeout=8,label='real-time mapped '+ident)
 
     def record(self,name,guest,action,seconds=7):
         path=self.out/(name+'.mp4');log=(self.out/(name+'-ffmpeg.log')).open('w')
@@ -83,7 +83,7 @@ class VisualEvidence(LegacyEvidence):
             for m in self.source['mobs']:
                 for heat in ([0,3] if m['id']=='ember_toad' else [0]):
                     self.clean();self.ready(220);self.rc(f'tp {u} -1.7 -60 1 180 0')
-                    self.rc(f'summon myvillage:{m["id"]} 1.3 -60 1 {{NoAI:1b,PersistenceRequired:1b,Rotation:[180f,0f],LegacyHeat:{heat},Tags:["legacy_beast"]}}')
+                    self.rc(f'summon yuanxian:{m["id"]} 1.3 -60 1 {{NoAI:1b,PersistenceRequired:1b,Rotation:[180f,0f],LegacyHeat:{heat},Tags:["legacy_beast"]}}')
                     self.camera(guest,(5,-57.5,-7),(0,-58.3,1));self.step(3)
                     self.capture('scale-'+m['id']+('-heated' if heat else ''),guest.game)
                     self.rc('kill @e[tag=legacy_beast]');self.step(25)
@@ -91,7 +91,7 @@ class VisualEvidence(LegacyEvidence):
             for idx,name in enumerate(('sword','shadow','fire','ruler')):
                 self.clean();self.ready(260);self.camera(guest,(9,-54,5),(0,-58.7,5));self.step(3)
                 if idx==0:
-                    self.equip('myvillage:guiyan_sword');self.dummy_at(.5,8)
+                    self.equip('yuanxian:guiyan_sword');self.dummy_at(.5,8)
                     def action():
                         self.real_cast(self.ids[0])
                         # 顺序读回；并行 RCON 会复用控制台输出，可能混杂两条回复。
@@ -117,12 +117,12 @@ class VisualEvidence(LegacyEvidence):
                         time.sleep(.8)
                     self.record(name,guest,action)
                 else:
-                    self.equip('myvillage:zhenyue_ruler');self.rc(f'tp {u} .5 -60 .5 0 25')
+                    self.equip('yuanxian:zhenyue_ruler');self.rc(f'tp {u} .5 -60 .5 0 25')
                     def action():
                         self.real_cast(self.ids[3]);time.sleep(3);self.real_cast(self.ids[3]);time.sleep(.5)
                     self.record(name,guest,action,8)
                 self.check(name+'_cleared_after_real_time_action',not self.status()['weapon_away'],self.status())
-            self.clean();self.ready(220);self.equip('myvillage:zhaoshui_mirror');self.camera(guest,(5,-58,4),(.5,-58.7,3));self.step(3)
+            self.clean();self.ready(220);self.equip('yuanxian:zhaoshui_mirror');self.camera(guest,(5,-58,4),(.5,-58.7,3));self.step(3)
             def mirror_action():
                 self.use();self.rc('summon minecraft:arrow .5 -58.5 5 {Motion:[0d,0d,-0.7d],Tags:["legacy_target"]}')
                 self.poll(self.status,lambda s:s['charge']==1,timeout=5,label='normal-time mirror capture');time.sleep(3.3);self.use()

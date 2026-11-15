@@ -24,8 +24,8 @@ else:
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REGISTRY_ROOT = Path("src/main/resources/data/myvillage/myvillage")
-LANG_ROOT = Path("src/main/resources/assets/myvillage/lang")
+REGISTRY_ROOT = Path("src/main/resources/data/yuanxian/yuanxian")
+LANG_ROOT = Path("src/main/resources/assets/yuanxian/lang")
 
 RESOURCE_LOCATION_PATTERN = re.compile(
     r"[a-z0-9_.-]+:[a-z0-9/._-]+", re.ASCII
@@ -34,16 +34,16 @@ TECHNIQUE_CATEGORIES = frozenset({"core", "active", "movement", "body"})
 
 REQUIRED_ELEMENTS = frozenset(
     {
-        "myvillage:metal",
-        "myvillage:wood",
-        "myvillage:water",
-        "myvillage:fire",
-        "myvillage:earth",
+        "yuanxian:metal",
+        "yuanxian:wood",
+        "yuanxian:water",
+        "yuanxian:fire",
+        "yuanxian:earth",
     }
 )
 REQUIRED_REALMS = frozenset(REALM_LIFESPANS)
 REQUIRED_STAGE_OWNERS = STAGE_OWNERS
-REQUIRED_TECHNIQUE = "myvillage:basic_breathing"
+REQUIRED_TECHNIQUE = "yuanxian:basic_breathing"
 MAX_AWAKENING_WEIGHT = 1_000_000
 REQUIRED_REALM_LIFESPANS = REALM_LIFESPANS
 
@@ -148,7 +148,7 @@ class CultivationValidator:
         seen: dict[str, Path] = {}
         for path in paths:
             entry_path = path.relative_to(directory).with_suffix("").as_posix()
-            identifier = f"myvillage:{entry_path}"
+            identifier = f"yuanxian:{entry_path}"
             if not is_resource_location(identifier):
                 self.error(
                     self.path_label(path),
@@ -678,7 +678,7 @@ class CultivationValidator:
                     )
 
     def validate_qi_rules(self) -> None:
-        path = self.root / "src/main/resources/data/myvillage/qi/rules.json"
+        path = self.root / "src/main/resources/data/yuanxian/qi/rules.json"
         rules = self.load_object(path)
         if rules is None:
             return

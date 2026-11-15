@@ -82,7 +82,7 @@ public final class ModStatsAttributes {
     }
 
     static RangedAttribute penetrationAttribute(String id) {
-        RangedAttribute attribute = new RangedAttribute("attribute.myvillage." + id, 0, 0, LIMITS.maxPenetration());
+        RangedAttribute attribute = new RangedAttribute("attribute.yuanxian." + id, 0, 0, LIMITS.maxPenetration());
         attribute.setSyncable(true);
         return attribute;
     }
@@ -90,6 +90,6 @@ public final class ModStatsAttributes {
     private static DeferredHolder<Attribute, Attribute> attribute(
             String id, double defaultValue, double min, double max) {
         return REGISTRY.register(id, () -> new RangedAttribute(
-                "attribute.myvillage." + id, defaultValue, min, max).setSyncable(true));
+                "attribute.yuanxian." + id, defaultValue, min, max).setSyncable(true));
     }
 }

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 class SpiritBodyAttributesTest {
     @BeforeAll static void bootstrap(){if(LoadingModList.get()==null)LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());SharedConstants.tryDetectVersion();Bootstrap.bootStrap();}
-    private ResourceLocation id(String n){return ResourceLocation.parse("myvillage:"+n);}
+    private ResourceLocation id(String n){return ResourceLocation.parse("yuanxian:"+n);}
     @Test void independentContributionDoesNotMagnifyGearOrReceiveOtherMultipliers() {
         var attribute=new AttributeInstance(Holder.direct(new RangedAttribute("test",20,1,1024)),ignored->{});
         attribute.setBaseValue(20);

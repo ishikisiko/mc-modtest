@@ -11,7 +11,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 新建独立世界的生成读回；没有修改玩家世界或替代映射行走。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class RoadHubWorldgenEvidence {
     private static boolean done;
     private static void check(boolean value,String message){if(!value)throw new IllegalStateException(message);}
@@ -53,7 +53,7 @@ public final class RoadHubWorldgenEvidence {
             }
             completed.add("generated_junctions");
             var city=world.capitalOf("donghuang").orElseThrow();
-            JsonObject manifest;try(var stream=RoadHubWorldgenEvidence.class.getResourceAsStream("/data/myvillage/capitals/v4/capital_donghuang/city.json")) {
+            JsonObject manifest;try(var stream=RoadHubWorldgenEvidence.class.getResourceAsStream("/data/yuanxian/capitals/v4/capital_donghuang/city.json")) {
                 manifest=JsonParser.parseString(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
             }
             JsonObject approach=null;for(var row:manifest.getAsJsonArray("access_paths"))if(row.getAsJsonObject().get("building_id").getAsString().equals("lord_manor"))approach=row.getAsJsonObject();

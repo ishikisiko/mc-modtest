@@ -19,9 +19,9 @@ public record EverlastingRules(double lifespanBonus, double creditStep, Map<Stri
         if (!Double.isFinite(lifespanBonus) || lifespanBonus < 0 || lifespanBonus > 1
                 || creditStep != 0.5) throw new IllegalArgumentException("非法长生配置");
         yearly = Map.copyOf(yearly);
-        if (!yearly.keySet().equals(Set.of("myvillage:mortal", "myvillage:qi_refining",
-                "myvillage:foundation_establishment", "myvillage:golden_core"))
-                || !yearly.get("myvillage:mortal").empty())
+        if (!yearly.keySet().equals(Set.of("yuanxian:mortal", "yuanxian:qi_refining",
+                "yuanxian:foundation_establishment", "yuanxian:golden_core"))
+                || !yearly.get("yuanxian:mortal").empty())
             throw new IllegalArgumentException("长生数表须覆盖当前四境，凡人不得成长");
     }
     private static final class Holder { private static final EverlastingRules VALUE = load(); }
@@ -33,7 +33,7 @@ public record EverlastingRules(double lifespanBonus, double creditStep, Map<Stri
         return active ? Math.toIntExact((long) Math.floor(realmYears * (1 + lifespanBonus))) : realmYears;
     }
     private static EverlastingRules load() {
-        try (var input = EverlastingRules.class.getResourceAsStream("/data/myvillage/fates/everlasting.json")) {
+        try (var input = EverlastingRules.class.getResourceAsStream("/data/yuanxian/fates/everlasting.json")) {
             if (input == null) throw new IllegalStateException("缺少长生道胎配置");
             return parse(JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (java.io.IOException e) { throw new IllegalStateException("无法读取长生道胎配置", e); }

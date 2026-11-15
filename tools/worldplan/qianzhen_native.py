@@ -34,7 +34,7 @@ def audit(world,site,manifest):
     expected={};per_site={};errors=[];counts=Counter();derived=Counter();signs=0
     source_root=support.ROOT/'build/generated/qianzhen/resources'
     for building in manifest['sites']:
-        path=source_root/('data/myvillage/structure/'+building['template'].split(':',1)[1]+'.nbt')
+        path=source_root/('data/yuanxian/structure/'+building['template'].split(':',1)[1]+'.nbt')
         if hashlib.sha256(path.read_bytes()).hexdigest()!=building['sha256']:raise ValueError('Actual Chapter 1 source identity differs')
         _,tag=read_gzipped_nbt(str(path));palette=[rotated_state(state_string(p),site['rotation']) for p in tag['palette']]
         failed=0
@@ -89,7 +89,7 @@ def main():
         report['jar']=support.check_jar()
         with zipfile.ZipFile(support.ROOT/'build/libs'/report['jar']['file']) as jar:
             check('jar_region_identity',json.loads(jar.read(RESOURCE))==manifest)
-            check('six_original_sources',all(hashlib.sha256(jar.read('data/myvillage/structure/'+b['template'].split(':')[1]+'.nbt')).hexdigest()==b['sha256'] for b in manifest['sites']))
+            check('six_original_sources',all(hashlib.sha256(jar.read('data/yuanxian/structure/'+b['template'].split(':')[1]+'.nbt')).hexdigest()==b['sha256'] for b in manifest['sites']))
         report['completed'].append('jar_and_six_sources')
         with support.Server(name,'initial') as server:
             info=server.query('qianzhen');site=info.get('qianzhen')
@@ -127,7 +127,7 @@ def main():
         stop_check('restart')
         _,saved_tickets=read_gzipped_nbt(str(world/'data/chunks.dat'));check('saved_tickets_empty',saved_tickets['data']['Forced']==[])
         report['completed'].append('tickets_released')
-        deployment=world/'data/myvillage_qianzhen_scene.dat'
+        deployment=world/'data/yuanxian_qianzhen_scene.dat'
         phase=read_gzipped_nbt(str(deployment))[1]['data']['phase'] if deployment.exists() else 'EMPTY'
         check('story_remains_unbound',phase=='EMPTY',{'saved_phase':phase});report['completed'].append('story_remains_unbound')
         comparison=audit(world,site,manifest);support.write(out/'saved-world-comparison.json',comparison)

@@ -27,7 +27,7 @@
       },
       "moves": [
         {
-          "id": "myvillage:wandering_sword_thrust",
+          "id": "yuanxian:wandering_sword_thrust",
           "animation": "thrust",
           "name": "侧身突刺",
           "mode": "melee",
@@ -73,7 +73,7 @@
           "windup_ticks": 20
         },
         {
-          "id": "myvillage:wandering_sword_sweep",
+          "id": "yuanxian:wandering_sword_sweep",
           "animation": "sweep",
           "name": "横剑回旋",
           "mode": "melee",
@@ -154,7 +154,7 @@
       },
       "moves": [
         {
-          "id": "myvillage:mirror_wraith_echo",
+          "id": "yuanxian:mirror_wraith_echo",
           "animation": "echo",
           "name": "照影回击",
           "mode": "echo",
@@ -200,7 +200,7 @@
           }
         },
         {
-          "id": "myvillage:mirror_wraith_swipe",
+          "id": "yuanxian:mirror_wraith_swipe",
           "animation": "swipe",
           "name": "拂袖",
           "mode": "melee",
@@ -285,7 +285,7 @@
       },
       "moves": [
         {
-          "id": "myvillage:ember_toad_spit",
+          "id": "yuanxian:ember_toad_spit",
           "animation": "spit",
           "name": "吐出余焰",
           "mode": "fire",
@@ -331,7 +331,7 @@
           }
         },
         {
-          "id": "myvillage:ember_toad_hop",
+          "id": "yuanxian:ember_toad_hop",
           "animation": "hop",
           "name": "扑压",
           "mode": "melee",
@@ -420,7 +420,7 @@
       },
       "moves": [
         {
-          "id": "myvillage:stele_guardian_quake",
+          "id": "yuanxian:stele_guardian_quake",
           "animation": "quake",
           "name": "镇地震纹",
           "mode": "quake",
@@ -466,7 +466,7 @@
           }
         },
         {
-          "id": "myvillage:stele_guardian_slam",
+          "id": "yuanxian:stele_guardian_slam",
           "animation": "slam",
           "name": "落掌",
           "mode": "melee",

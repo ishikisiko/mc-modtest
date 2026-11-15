@@ -45,7 +45,7 @@ def run(out,request):
                 role='pharmacist';station=e.scene['positions'][role];at=e.point(station['approach']);initial=e.point(station['pos'])
                 e.fixture(client,at,[initial[0]+.5,initial[1]+1.3,initial[2]+.5])
                 person=state['npc'][role]['personId'];dim=realm['dimension']
-                query=f'execute in {dim} as @e[type=myvillage:cultivator,nbt={{WorldSimPerson:{person}}}] run data get entity @s Pos'
+                query=f'execute in {dim} as @e[type=yuanxian:cultivator,nbt={{WorldSimPerson:{person}}}] run data get entity @s Pos'
                 bodies=wait(lambda:[read_data(line) for line in e.rc(query).splitlines() if 'data: ' in line],lambda v:len(v)==1,20,'pharmacist body')
                 e.fixture(client,at,[bodies[0][0],bodies[0][1]+1.3,bodies[0][2]])
                 e.rc('gamemode survival '+client.name)

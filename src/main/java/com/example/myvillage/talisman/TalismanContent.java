@@ -20,13 +20,13 @@ import net.neoforged.neoforge.common.NeoForge;
 public final class TalismanContent {
     public static final int FORMULA_COUNT = 5;
     private static final String[] FORMULA_IDS = {"lightning", "snare", "ward", "home", "recall"};
-    private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("myvillage");
-    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("myvillage");
-    private static final DeferredRegister<BlockEntityType<?>> ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, "myvillage");
-    private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, "myvillage");
-    private static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, "myvillage");
+    private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yuanxian");
+    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("yuanxian");
+    private static final DeferredRegister<BlockEntityType<?>> ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, "yuanxian");
+    private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, "yuanxian");
+    private static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, "yuanxian");
     private static final DeferredRegister<net.neoforged.neoforge.attachment.AttachmentType<?>> ATTACHMENTS =
-            DeferredRegister.create(net.neoforged.neoforge.registries.NeoForgeRegistries.Keys.ATTACHMENT_TYPES, "myvillage");
+            DeferredRegister.create(net.neoforged.neoforge.registries.NeoForgeRegistries.Keys.ATTACHMENT_TYPES, "yuanxian");
     public static final Supplier<TalismanDeskBlock> DESK = BLOCKS.registerBlock("talisman_desk", TalismanDeskBlock::new,
             BlockBehaviour.Properties.of().strength(2.5F).noOcclusion().sound(SoundType.WOOD).pushReaction(PushReaction.BLOCK));
     public static final Supplier<BlockItem> DESK_ITEM = ITEMS.registerItem("talisman_desk", p -> new BlockItem(DESK.get(), p.stacksTo(1)));

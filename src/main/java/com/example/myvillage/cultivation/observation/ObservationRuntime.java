@@ -27,7 +27,7 @@ import net.minecraft.world.phys.HitResult;
 
 /** A bound intent supplies no target or realm; the server aims, checks and publishes the reading. */
 public final class ObservationRuntime {
-    private static final String REALM = "myvillage:stats_realm";
+    private static final String REALM = "yuanxian:stats_realm";
     private static final Map<UUID, Long> READY_AT = new HashMap<>(), LAST_REQUEST = new HashMap<>();
     private ObservationRuntime() { }
     public static boolean available(ServerPlayer player) { return ObservationRules.bundled().unlocked(CultivationService.getProfile(player)); }
@@ -83,7 +83,7 @@ public final class ObservationRuntime {
     }
     static Optional<RealmKey> storedRealm(CompoundTag data) {
         var stats = StatsRules.bundled();
-        if (!data.contains(REALM)) return Optional.of(stats.realmKey("myvillage:mortal", 0));
+        if (!data.contains(REALM)) return Optional.of(stats.realmKey("yuanxian:mortal", 0));
         if (!data.contains(REALM, Tag.TAG_COMPOUND)) return Optional.empty();
         var realm = data.getCompound(REALM);
         if (!realm.contains("realm", Tag.TAG_STRING) || !realm.contains("stage", Tag.TAG_INT)) return Optional.empty();

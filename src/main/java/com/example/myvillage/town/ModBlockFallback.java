@@ -79,7 +79,7 @@ public final class ModBlockFallback {
         fallbackStates = loadFallbackStates(server.getResourceManager(), blockLookup);
         templateCache.clear();
         loaded = true;
-        LOGGER.info("Loaded {} myvillage optional-mod block fallbacks", fallbackStates.size());
+        LOGGER.info("Loaded {} yuanxian optional-mod block fallbacks", fallbackStates.size());
     }
 
     public static Optional<LoadedTemplate> loadTemplate(ServerLevel level, ResourceLocation id) {
@@ -237,7 +237,7 @@ public final class ModBlockFallback {
         if (!paintingFallbackLogged) {
             paintingFallbackLogged = true;
             LOGGER.warn(
-                    "Missing painting variant {} in a myvillage structure; applying painting fallback/removal",
+                    "Missing painting variant {} in a yuanxian structure; applying painting fallback/removal",
                     variant == null ? "<invalid>" : variant);
         }
     }

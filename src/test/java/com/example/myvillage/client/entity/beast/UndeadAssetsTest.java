@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 final class UndeadAssetsTest {
     @Test void everyRegionalModelBakesAndMatchesItsServerMoves() throws Exception {
         for(var v:UndeadRules.get().variants()) {
-            var id=ResourceLocation.fromNamespaceAndPath("myvillage",v.id());
-            String prefix="src/main/resources/assets/myvillage/beast/"+v.id();
+            var id=ResourceLocation.fromNamespaceAndPath("yuanxian",v.id());
+            String prefix="src/main/resources/assets/yuanxian/beast/"+v.id();
             try(var mr=Files.newBufferedReader(Path.of(prefix+"_model.json"));var ar=Files.newBufferedReader(Path.of(prefix+"_animations.json"))) {
                 var model=BeastModelFile.parse(prefix+"_model.json",id,mr);
                 var animations=BeastAnimationFile.parse(prefix+"_animations.json",id,ar);

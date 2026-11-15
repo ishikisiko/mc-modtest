@@ -53,7 +53,7 @@ class CommerceInventoryTest {
         var rest=new CommerceRules.Offer("inn_rest","innkeeper","rest","minecraft:air",0,5,"service",0,0,1,0,0,0,0);
         var bag=List.of(new ItemStack(Items.EMERALD,9));var plan=CommerceInventory.plan(bag,"minecraft:emerald",rest);
         assertTrue(plan.ready());assertEquals(4,plan.items().get(0).getCount());assertEquals(9,bag.get(0).getCount());
-        assertThrows(IllegalArgumentException.class,()->CommerceInventory.item("myvillage:unknown_test_item"));
+        assertThrows(IllegalArgumentException.class,()->CommerceInventory.item("yuanxian:unknown_test_item"));
         assertThrows(IllegalArgumentException.class,()->CommerceInventory.item("minecraft:air"));
     }
     @Test void bulkPurchaseAndSaleSpanStacksWithoutMutatingInputs() {

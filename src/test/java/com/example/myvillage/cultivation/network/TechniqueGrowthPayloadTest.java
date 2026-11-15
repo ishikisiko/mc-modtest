@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TechniqueGrowthPayloadTest {
     private static RegistryFriendlyByteBuf buffer() { return new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE); }
-    private static final ResourceLocation ID = ResourceLocation.parse("myvillage:basic_breathing");
+    private static final ResourceLocation ID = ResourceLocation.parse("yuanxian:basic_breathing");
     @Test void boundedIntentRoundTripsAndRejectsClientInventedActions() {
         for (int action = 0; action < 3; action++) {
             var expected = new TechniqueGrowthIntentPayload(ID, action, 123);

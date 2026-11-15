@@ -22,7 +22,7 @@ SLOTS=('helmet','chestplate','leggings','boots')
 class ArmorForgingEvidence(EquipmentEvidence):
     def __init__(self,out,cases):
         super().__init__(out,cases)
-        self.config=json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())
+        self.config=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())
         self.report.update(kind='armor_forging',method=__doc__,mapped_input=[],owner_feel='not_verified',owner_sound='not_verified',owner_fps='not_verified')
         self.saved={}
     def verify_source(self):
@@ -45,13 +45,13 @@ class ArmorForgingEvidence(EquipmentEvidence):
         self.poll(self.inspect,lambda d:d['open'],label='mapped workshop open')
         self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='workshop cursor')
     def material_fixture(self):
-        for item,n in [('myvillage:xuantie_ingot',48),('minecraft:leather',12),('minecraft:coal',32),('minecraft:flint',8),
-                       ('minecraft:iron_nugget',16),('minecraft:iron_ingot',8),('myvillage:low_grade_spirit_stone',24)]:self.give(item,n)
+        for item,n in [('yuanxian:xuantie_ingot',48),('minecraft:leather',12),('minecraft:coal',32),('minecraft:flint',8),
+                       ('minecraft:iron_nugget',16),('minecraft:iron_ingot',8),('yuanxian:low_grade_spirit_stone',24)]:self.give(item,n)
     def hammer(self):
         self.guard(menu=True)
         WorkshopEvidence.hold(self,2.6)
     def stages(self):
-        self.rc(f'setblock {POS} myvillage:forging_anvil[facing=north]')
+        self.rc(f'setblock {POS} yuanxian:forging_anvil[facing=north]')
         # Locked armor pattern cannot spend materials or create a blank.
         self.material_fixture();self.open();self.click(45,135);self.click(45,48)
         self.poll(self.inspect,lambda d:d['recipe']=='xuantie_helmet',label='armor page selected')
@@ -60,18 +60,18 @@ class ArmorForgingEvidence(EquipmentEvidence):
         self.rc(f'clear {self.username}')
         # Read books while facing empty space; right-clicking the anvil opens its menu first.
         self.rc(f'tp {self.username} .5 -60 .5 180 0');time.sleep(.5)
-        for i,slot in enumerate(SLOTS):self.rc(f'item replace entity {self.username} hotbar.{i} with myvillage:pattern_xuantie_{slot}')
+        for i,slot in enumerate(SLOTS):self.rc(f'item replace entity {self.username} hotbar.{i} with yuanxian:pattern_xuantie_{slot}')
         for i in range(4):self.key(str(i+1));self.right()
-        self.check('four_patterns_consumed_by_use',all(self.count('myvillage:pattern_xuantie_'+s)==0 for s in SLOTS),self.inventory())
+        self.check('four_patterns_consumed_by_use',all(self.count('yuanxian:pattern_xuantie_'+s)==0 for s in SLOTS),self.inventory())
         self.material_fixture();self.start_video('armor-workshop')
         costs={'helmet':(5,1),'chestplate':(8,2),'leggings':(7,2),'boots':(4,1)}
         for index,slot in enumerate(SLOTS):
-            self.rc(f'setblock {TROUGH} myvillage:quenching_trough[facing=north,filled=true]')
+            self.rc(f'setblock {TROUGH} yuanxian:quenching_trough[facing=north,filled=true]')
             self.open();self.click(45,135);self.click(45,48+index*14)
             self.poll(self.inspect,lambda d:d['recipe']=='xuantie_'+slot,label='select '+slot)
-            before=(self.count('myvillage:xuantie_ingot'),self.count('minecraft:leather'),self.count('myvillage:low_grade_spirit_stone'))
+            before=(self.count('yuanxian:xuantie_ingot'),self.count('minecraft:leather'),self.count('yuanxian:low_grade_spirit_stone'))
             self.operate('start')
-            after=(self.count('myvillage:xuantie_ingot'),self.count('minecraft:leather'),self.count('myvillage:low_grade_spirit_stone'))
+            after=(self.count('yuanxian:xuantie_ingot'),self.count('minecraft:leather'),self.count('yuanxian:low_grade_spirit_stone'))
             self.check(slot+'_blank_costs',tuple(a-b for a,b in zip(before,after))==(*costs[slot],0),{'before':before,'after':after})
             for _ in range(8):
                 d=self.inspect()
@@ -88,35 +88,35 @@ class ArmorForgingEvidence(EquipmentEvidence):
                 item=self.inspect()['input']['id'];self.close_menu();self.open();self.insert(item)
                 self.check('interrupted_piece_resumes',self.inspect()['input']['piece']['stage']==4,self.inspect())
             self.operate('assemble');result=self.inspect()['output']
-            self.check(slot+'_finished_armor',result['id']=='myvillage:xuantie_'+slot and result['temper']['treatment']==2 and 'mark' not in result,result)
+            self.check(slot+'_finished_armor',result['id']=='yuanxian:xuantie_'+slot and result['temper']['treatment']==2 and 'mark' not in result,result)
             self.capture(slot+'-finished');self.click(196,112,True);self.close_menu()
         self.stop_video()
     def infusion(self):
         u=self.username
         self.rc(f'yuanxian cultivation awaken {u}');self.rc(f'yuanxian cultivation crafting set {u} forging 0')
-        self.rc(f'setblock {POS} myvillage:forging_table[facing=north]')
+        self.rc(f'setblock {POS} yuanxian:forging_table[facing=north]')
         for slot in SLOTS:
-            self.open();self.insert('myvillage:xuantie_'+slot)
-            before=self.inspect()['input'];materials=(self.count('myvillage:xuantie_ingot'),self.count('myvillage:low_grade_spirit_stone'))
+            self.open();self.insert('yuanxian:xuantie_'+slot)
+            before=self.inspect()['input'];materials=(self.count('yuanxian:xuantie_ingot'),self.count('yuanxian:low_grade_spirit_stone'))
             self.click(285,36);self.operate('infuse');after=self.inspect()['output']
             self.check(slot+'_infusion_preserves_temper',after.get('mark')=={'trait':'tough','quality':1} and after['temper']==before['temper'],after)
-            self.check(slot+'_infusion_costs',(materials[0]-self.count('myvillage:xuantie_ingot'),materials[1]-self.count('myvillage:low_grade_spirit_stone'))==(1,2),self.inventory())
+            self.check(slot+'_infusion_costs',(materials[0]-self.count('yuanxian:xuantie_ingot'),materials[1]-self.count('yuanxian:low_grade_spirit_stone'))==(1,2),self.inventory())
             self.click(196,112,True);self.close_menu()
-        self.open();self.insert('myvillage:xuantie_helmet');before=self.inspect()['input'];self.click(285,36);self.click(*POINTS['infuse']);time.sleep(.5)
+        self.open();self.insert('yuanxian:xuantie_helmet');before=self.inspect()['input'];self.click(285,36);self.click(*POINTS['infuse']);time.sleep(.5)
         self.check('second_infusion_does_not_reroll',self.inspect()['input']==before and self.inspect()['output']['count']==0,self.inspect());self.close_menu()
     def xp(self):
-        return {s:v.get('components',{}).get('myvillage:temper',{}).get('experience',0) for s,v in self.inventory().items() if v['id'].startswith('myvillage:xuantie_')}
+        return {s:v.get('components',{}).get('yuanxian:temper',{}).get('experience',0) for s,v in self.inventory().items() if v['id'].startswith('yuanxian:xuantie_')}
     def experience(self):
         # Equip the actual four forged results by shift clicking from their inventory slots.
         self.key('e');self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='inventory opened')
         for number,row in list(self.inventory().items()):
-            if row['id'] not in {'myvillage:xuantie_'+s for s in SLOTS}:continue
+            if row['id'] not in {'yuanxian:xuantie_'+s for s in SLOTS}:continue
             x=16+18*(number%9);y=150 if number<9 else 92+18*((number-9)//9)
             self.inventory_shift_click(x,y)
         self.close_menu();self.check('forged_set_equipped',len(self.armor_rows())==4,self.armor_rows())
         armor=self.rc(f'attribute {self.username} minecraft:generic.armor get')
         self.check('vanilla_armor_remains_15','15.0' in armor or armor.rstrip().endswith('15'),armor)
-        self.give('myvillage:xuantie_helmet')
+        self.give('yuanxian:xuantie_helmet')
         self.rc(f'item replace entity {self.username} hotbar.0 with minecraft:diamond_sword');self.key('1')
         self.rc('time set midnight');self.rc('difficulty normal');self.rc(f'tp {self.username} 7.5 -60 .5 0 0');time.sleep(.6)
         self.start_video('armor-combat-experience')
@@ -138,33 +138,33 @@ class ArmorForgingEvidence(EquipmentEvidence):
         self.key('e');self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='inventory opened')
         self.inventory_shift_click(16,16);self.close_menu()
     def training_repair(self):
-        self.open();slot=next(s for s,v in self.inventory().items() if s<36 and v['id']=='myvillage:xuantie_helmet' and v.get('components',{}).get('myvillage:temper',{}).get('experience',0)>=6)
-        self.move_slot(slot);self.poll(self.inspect,lambda d:d['input']['id']=='myvillage:xuantie_helmet',label='trained armor inserted');before=self.inspect()['input']
+        self.open();slot=next(s for s,v in self.inventory().items() if s<36 and v['id']=='yuanxian:xuantie_helmet' and v.get('components',{}).get('yuanxian:temper',{}).get('experience',0)>=6)
+        self.move_slot(slot);self.poll(self.inspect,lambda d:d['input']['id']=='yuanxian:xuantie_helmet',label='trained armor inserted');before=self.inspect()['input']
         self.operate('heat');self.operate('strike');after=self.inspect()['input']
         self.check('armor_training_only_endurance',after['temper']['endurance']==1 and after['temper']['edge']==0 and after['temper']['channeling']==0 and after['temper']['experience']==before['temper']['experience']-self.config['training_bands'][0]['experience'] and after['mark']==before['mark'] and after['max_damage']>before['max_damage'],{'before':before,'after':after})
         self.capture('armor-endurance-training');self.close_menu()
-        row=next(v for v in self.inventory().values() if v['id']=='myvillage:xuantie_helmet' and v.get('components',{}).get('myvillage:temper',{}).get('endurance')==1)
+        row=next(v for v in self.inventory().values() if v['id']=='yuanxian:xuantie_helmet' and v.get('components',{}).get('yuanxian:temper',{}).get('endurance')==1)
         row['components']['minecraft:damage']=100
         row['components']['minecraft:custom_name']='{"text":"旧甲"}'
         row['components']['minecraft:enchantments']={'levels':{'minecraft:protection':2}}
         # Damage/name/enchantment fixture; the repair itself is a real menu action.
-        self.rc(f'clear {self.username} myvillage:xuantie_helmet');self.give(stack_spec(row))
+        self.rc(f'clear {self.username} yuanxian:xuantie_helmet');self.give(stack_spec(row))
         # Compare the server's canonical pre-repair components, including its JSON name encoding.
-        row=next(v for v in self.inventory().values() if v['id']=='myvillage:xuantie_helmet')
-        self.open();self.insert('myvillage:xuantie_helmet');self.operate('repair');self.capture('armor-repaired');self.close_menu()
-        repaired=next(v for v in self.inventory().values() if v['id']=='myvillage:xuantie_helmet')
+        row=next(v for v in self.inventory().values() if v['id']=='yuanxian:xuantie_helmet')
+        self.open();self.insert('yuanxian:xuantie_helmet');self.operate('repair');self.capture('armor-repaired');self.close_menu()
+        repaired=next(v for v in self.inventory().values() if v['id']=='yuanxian:xuantie_helmet')
         self.check('repair_preserves_all_non_damage_components',repaired['components'].get('minecraft:damage',0)<100 and {k:v for k,v in repaired['components'].items() if k!='minecraft:damage'}=={k:v for k,v in row['components'].items() if k!='minecraft:damage'},{'before':row,'after':repaired})
     def array(self):
         from tools.forging_array_evidence import world_pos,position,aim_candidates,menu_point as array_point,inventory_point,POINTS as ap
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/array.json').read_text())
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/array.json').read_text())
         origin=(0,-59,8)
         for cell in rules['cells']:
             pos=position(world_pos(origin,'north',cell))
-            self.rc(f"setblock {pos} "+('minecraft:air' if cell['role']=='air' else 'myvillage:forging_array_'+cell['role']+'[facing=north]'))
-        self.give('myvillage:xuantie_boots');self.give('myvillage:xuantie_ingot');self.give('myvillage:low_grade_spirit_stone',2)
+            self.rc(f"setblock {pos} "+('minecraft:air' if cell['role']=='air' else 'yuanxian:forging_array_'+cell['role']+'[facing=north]'))
+        self.give('yuanxian:xuantie_boots');self.give('yuanxian:xuantie_ingot');self.give('yuanxian:low_grade_spirit_stone',2)
         self.rc('fill -7 -61 1 7 -61 15 minecraft:smooth_stone')
         self.poll(lambda:status_json(self.rc('yuanxian forgingarray inspect 0 -59 8'),'FORGING_ARRAY '),lambda d:d.get('formed') is True,label='array formed')
-        mesh=json.loads((ROOT/'src/main/resources/assets/myvillage/forging_array/formed_mesh.json').read_text())
+        mesh=json.loads((ROOT/'src/main/resources/assets/yuanxian/forging_array/formed_mesh.json').read_text())
         cell=next(c for c in rules['cells'] if c['role']=='controller')
         attempted=set()
         for ray in aim_candidates(rules,mesh,origin,'north',cell,formed=True):
@@ -183,15 +183,15 @@ class ArmorForgingEvidence(EquipmentEvidence):
             finally:
                 if shift:game.xdo('keyup','Shift_L')
             self.action('mapped_array_click',x=x,y=y,shift=shift);time.sleep(.4)
-        n=next(s for s,v in self.inventory().items() if s<36 and v['id']=='myvillage:xuantie_boots')
+        n=next(s for s,v in self.inventory().items() if s<36 and v['id']=='yuanxian:xuantie_boots')
         click(*inventory_point(n),True);click(*ap['tough']);click(*ap['start'])
         from tools.alchemy_quality_evidence import read_data
         def state():return read_data(self.rc('data get block '+position(origin)))
         self.poll(state,lambda d:'Frozen' in d,label='array active')
         self.poll(state,lambda d:'Frozen' not in d,timeout=60,label='array finished')
         self.capture('array-armor-infusion');click(*ap['output'],True);self.close_menu()
-        result=next(v for s,v in self.inventory().items() if s<36 and v['id']=='myvillage:xuantie_boots')
-        self.check('array_infuses_finished_armor',result.get('components',{}).get('myvillage:forge_mark')=={'trait':'tough','quality':1},result)
+        result=next(v for s,v in self.inventory().items() if s<36 and v['id']=='yuanxian:xuantie_boots')
+        self.check('array_infuses_finished_armor',result.get('components',{}).get('yuanxian:forge_mark')=={'trait':'tough','quality':1},result)
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);args=parser.parse_args()

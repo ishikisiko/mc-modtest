@@ -25,8 +25,8 @@ else:
 
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = Path("src/main/java/com/example/myvillage")
-REALMS = Path("src/main/resources/data/myvillage/myvillage/realm")
-LANG = Path("src/main/resources/assets/myvillage/lang")
+REALMS = Path("src/main/resources/data/yuanxian/yuanxian/realm")
+LANG = Path("src/main/resources/assets/yuanxian/lang")
 
 
 
@@ -196,7 +196,7 @@ class CultivationAdvancementValidator:
             except (OSError, UnicodeError, json.JSONDecodeError) as exc:
                 self.error(path, f"invalid language JSON: {exc}")
                 continue
-            key = "screen.myvillage.cultivation.button.advancement"
+            key = "screen.yuanxian.cultivation.button.advancement"
             if not isinstance(language.get(key), str) or not language[key].strip():
                 self.error(path, f"missing non-empty advancement UI key {key}")
 

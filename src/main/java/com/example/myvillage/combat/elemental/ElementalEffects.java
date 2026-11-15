@@ -23,7 +23,7 @@ import java.util.*;
 
 /** Server-owned, bounded combat-only state; no saved player profile fields and no client authority. */
 public final class ElementalEffects {
-    private static final ResourceLocation SPEED=ResourceLocation.parse("myvillage:elemental_flow");
+    private static final ResourceLocation SPEED=ResourceLocation.parse("yuanxian:elemental_flow");
     private record DotKey(UUID caster,UUID target,DamageType element) {}
     private static final class Dot {
         final LivingEntity caster;final Entity target;final DamageType element;final double damage;final long until;long next;
@@ -50,7 +50,7 @@ public final class ElementalEffects {
         var meter=map.computeIfAbsent(type,t->new ElementalCharge());
         int max=ElementalRules.integer("charge_maximum",1,6);
         int value=meter.gain(clock(p),max,ElementalRules.integer("charge_lifetime_ticks",20,1200));
-        CombatCaster.message(p,Component.translatable("combat.myvillage.elemental."+type.id(),value,max),true);
+        CombatCaster.message(p,Component.translatable("combat.yuanxian.elemental."+type.id(),value,max),true);
         LoggerFactory.getLogger(ElementalEffects.class).info("ELEMENTAL player={} result=charge element={} value={}",CombatCaster.name(p),type.id(),value);
     }
     public static int consume(LivingEntity p,DamageType type) {
@@ -59,7 +59,7 @@ public final class ElementalEffects {
     /** A fresh coefficient independent of held melee damage, enchantments and melee-only buffs. */
     public static double base(LivingEntity p,DamageType type) {
         var profile=CombatCaster.profile(p);
-        int affinity=profile.spiritualRoot().map(root->root.points().getOrDefault(ResourceLocation.parse("myvillage:"+type.id()),0)).orElse(0);
+        int affinity=profile.spiritualRoot().map(root->root.points().getOrDefault(ResourceLocation.parse("yuanxian:"+type.id()),0)).orElse(0);
         var numerical = com.example.myvillage.stats.CultivationStatsRules.bundled();
         double attackAddition = com.example.myvillage.cultivation.fate.FateActors.body(p).orElseThrow().attack() - numerical.reference().attack();
         return (ElementalRules.number("base_damage",.1,100) + attackAddition)

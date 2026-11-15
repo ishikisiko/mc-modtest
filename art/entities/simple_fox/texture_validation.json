@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "texture": "src/main/resources/assets/myvillage/textures/entity/simple_fox/simple_fox.png",
+  "texture": "src/main/resources/assets/yuanxian/textures/entity/simple_fox/simple_fox.png",
   "original_mode": "RGBA",
   "size": [
     48,

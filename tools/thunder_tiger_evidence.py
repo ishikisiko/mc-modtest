@@ -35,7 +35,7 @@ from tools.realm_stats_evidence import Evidence
 from tools.yunshan.game_evidence import aim, teleport_command
 from tools.buildgen.nbtread import _read_utf, _read_payload, TAG_COMPOUND
 
-ENTITY = 'myvillage:thunder_tiger'
+ENTITY = 'yuanxian:thunder_tiger'
 PARENT_TAG = 'thunder_tiger_lair_boss'
 CASES = ('entry', 'visuals', 'combat', 'phase2', 'horn', 'observers', 'restart', 'death')
 NUMBER = r'-?\d+(?:\.\d+)?'
@@ -218,7 +218,7 @@ class TigerEvidence(Evidence):
             raise RuntimeError('Actual game job is restricted to the Modal disposable /workspace/repo checkout')
         started = time.monotonic()
         bindings={'key_key.forward':'key.keyboard.w','key_key.left':'key.keyboard.a',
-                  'key_key.use':'key.mouse.right','key_key.myvillage.dodge':'key.keyboard.left.alt'}
+                  'key_key.use':'key.mouse.right','key_key.yuanxian.dodge':'key.keyboard.left.alt'}
         cs.merge_options(cs.CLIENT_DIR/'options.txt',bindings)
         state = cs.start(cs.SessionConfig(session_id=secrets.token_hex(6), reuse_world=reuse,
             natural_terrain=True, natural_monsters=True, world_seed=self.seed, language='zh_cn',
@@ -237,7 +237,7 @@ class TigerEvidence(Evidence):
         self.report['mod_version']=next(line.split('=',1)[1] for line in (ROOT/'gradle.properties').read_text().splitlines()
                                         if line.startswith('mod_version='))
         if not reuse:
-            sounds=json.loads((ROOT/'src/main/resources/assets/myvillage/sounds.json').read_text())
+            sounds=json.loads((ROOT/'src/main/resources/assets/yuanxian/sounds.json').read_text())
             self.report['audio_resources']={key:value for key,value in sounds.items() if key.startswith('thunder_tiger.')}
             self.report['audio_resources_scope']='registered cue aliases and subtitles; no captured audio or owner sound acceptance'
         self.save()
@@ -315,7 +315,7 @@ class TigerEvidence(Evidence):
         for command in (*scene.world_rules(), f'gamemode spectator {user}', 'gamerule naturalRegeneration false',
                         'gamerule doMobLoot true', 'yuanxian world pause'):
             self.rc(command)
-        reply = self.rc('execute positioned 0 100 0 run locate structure myvillage:thunder_tiger_lair')
+        reply = self.rc('execute positioned 0 100 0 run locate structure yuanxian:thunder_tiger_lair')
         locate_reply = reply
         found = re.search(r'\[(-?\d+), (?:~|-?\d+), (-?\d+)\]', reply)
         self.must('normal_world_natural_locate', bool(found), reply)
@@ -332,14 +332,14 @@ class TigerEvidence(Evidence):
                                             'socket_timeout_seconds':60})
             self.save()
             anchors = saved_cores(cs.SERVER_DIR/cs.LEVEL_NAME/'region', (x,z), radius=5,
-                                  block_entity_id='myvillage:thunder_tiger_lair_anchor')
+                                  block_entity_id='yuanxian:thunder_tiger_lair_anchor')
             return min(anchors, key=lambda p:(p['x']-x)**2+(p['z']-z)**2) if anchors else None
         be = self.poll(find, bool, 90, 'natural anchor in bounded saved chunks')
         self.anchor = [be['x'],be['y'],be['z']]
-        rules = json.loads((ROOT/'src/main/resources/data/myvillage/boss/thunder_tiger_lair.json').read_text())
+        rules = json.loads((ROOT/'src/main/resources/data/yuanxian/boss/thunder_tiger_lair.json').read_text())
         turn = None
         for index, face in enumerate(('north','east','south','west')):
-            reply = self.rc(f'execute if block {self.coords(self.anchor)} myvillage:thunder_tiger_lair_anchor[facing={face}] run data get block {self.coords(self.anchor)}')
+            reply = self.rc(f'execute if block {self.coords(self.anchor)} yuanxian:thunder_tiger_lair_anchor[facing={face}] run data get block {self.coords(self.anchor)}')
             if 'LairState' in reply:
                 turn = index; break
         self.must('natural_lair_has_native_orientation',turn is not None,be)
@@ -425,7 +425,7 @@ class TigerEvidence(Evidence):
             self.must('guide_available_without_operator',bool(line),line)
         finally:
             self.rc(f'op {user}');self.rc(f'gamemode creative {user}')
-        self.rc(f'item replace entity {user} weapon.mainhand with myvillage:thunder_tiger_spawn_egg')
+        self.rc(f'item replace entity {user} weapon.mainhand with yuanxian:thunder_tiger_spawn_egg')
         self.mapped('spawn_egg', 'click', '3')
         roots=self.poll(lambda:self.roots([x,y,z],12),lambda rows:len(rows)==1,10,'one actual egg root excluding multipart colliders')
         egg=roots[0]['uuid']
@@ -533,8 +533,8 @@ class TigerEvidence(Evidence):
                         f'attribute {user} minecraft:generic.max_health base set 1000',
                         f'effect give {user} minecraft:instant_health 1 20 true',
                         f'effect give {user} minecraft:saturation infinite 0 true',
-                        f'item replace entity {user} hotbar.0 with myvillage:qingfeng_sword',
-                        f'yuanxian cultivation learn {user} myvillage:taxue_wuhen', 'tick rate 5'):
+                        f'item replace entity {user} hotbar.0 with yuanxian:qingfeng_sword',
+                        f'yuanxian cultivation learn {user} yuanxian:taxue_wuhen', 'tick rate 5'):
             self.rc(command)
         self.s.game.key('1')
         self.report['combat_mode'] = scene.ensure_cultivation(self.s)
@@ -543,7 +543,7 @@ class TigerEvidence(Evidence):
         options = ROOT/'run-combat-capture/client/options.txt'
         values = dict(line.split(':',1) for line in options.read_text().splitlines() if ':' in line)
         self.must('physical_attack_binding', values.get('key_key.attack') == 'key.mouse.left', values.get('key_key.attack'))
-        self.must('physical_dodge_binding', values.get('key_key.myvillage.dodge') == 'key.keyboard.left.alt',
+        self.must('physical_dodge_binding', values.get('key_key.yuanxian.dodge') == 'key.keyboard.left.alt',
                   {k:v for k,v in values.items() if 'dodge' in k})
         self.report['fixture_preparation'] = '1000 player max health and healing; no resistance/invulnerability; learned dodge; tick rate 5'
 
@@ -635,7 +635,7 @@ class TigerEvidence(Evidence):
         raise TimeoutError('mapped approach did not reach head')
 
     def approach_body(self,move,distance=2.2,timeout=4):
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger_boss.json').read_text())['horn']
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/beast/thunder_tiger_boss.json').read_text())['horn']
         deadline=time.monotonic()+timeout
         self.mapped('approach_body','keydown','w')
         try:
@@ -655,7 +655,7 @@ class TigerEvidence(Evidence):
 
     def place_at_body_flank(self):
         state=self.status()
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger_boss.json').read_text())['horn']
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/beast/thunder_tiger_boss.json').read_text())['horn']
         yaw=math.radians(float(state['yaw']))
         radius=rules['body_width']/2+1.8
         p=state['pos'];player=[p[0]+math.cos(yaw)*radius,p[1],p[2]+math.sin(yaw)*radius]
@@ -666,7 +666,7 @@ class TigerEvidence(Evidence):
 
     def combat(self):
         self.prepare_fighter()
-        data = json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger.json').read_text())
+        data = json.loads((ROOT/'src/main/resources/data/yuanxian/beast/thunder_tiger.json').read_text())
         for move in data['moves']:
             self.position_for_move(move)
             def fight(move=move):
@@ -708,7 +708,7 @@ class TigerEvidence(Evidence):
     def phase2(self):
         # Above-threshold preparation uses a load/merge fixture. Only the real
         # subsequent player hit may produce the live phase transition.
-        tuning = json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger_boss.json').read_text())
+        tuning = json.loads((ROOT/'src/main/resources/data/yuanxian/beast/thunder_tiger_boss.json').read_text())
         self.prepare_fighter()
         state = self.status()
         health = state['max']*tuning['phase_health_fraction']+.25
@@ -721,7 +721,7 @@ class TigerEvidence(Evidence):
         self.must('mapped_hit_crosses_phase_threshold',self.body()['Health']<state['max']*tuning['phase_health_fraction']
             and any(e['uuid']==self.uuid and e['event']=='phase_change' for e in self.events()[event_start:]),result)
         self.report['phase_two_trigger'] = 'administrator above-threshold health fixture; actual mapped sword crosses threshold; no natural full-fight claim'
-        move=next(m for m in json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger.json').read_text())['moves']
+        move=next(m for m in json.loads((ROOT/'src/main/resources/data/yuanxian/beast/thunder_tiger.json').read_text())['moves']
                   if m['animation']=='roar')
         self.position_for_move(move)
         def aftershock():
@@ -738,7 +738,7 @@ class TigerEvidence(Evidence):
         # A second ordinary AI trial covers the distinct landing-triggered
         # aftershock. Its initial placement uses the authored clear entrance
         # lane, away from the three pillars; neither move nor landing is forced.
-        pounce=next(m for m in json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger.json').read_text())['moves']
+        pounce=next(m for m in json.loads((ROOT/'src/main/resources/data/yuanxian/beast/thunder_tiger.json').read_text())['moves']
                     if m['animation']=='pounce')
         self.rc(f'gamemode creative {self.s.username}')
         self.poll(self.status,lambda row:row['move']=='none',18,'roar recovery before separate pounce fixture')
@@ -782,7 +782,7 @@ class TigerEvidence(Evidence):
 
     def horn(self):
         self.prepare_fighter()
-        move = next(m for m in json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger.json').read_text())['moves']
+        move = next(m for m in json.loads((ROOT/'src/main/resources/data/yuanxian/beast/thunder_tiger.json').read_text())['moves']
                     if m['animation']=='pounce')
         pillars = [self.unpack_pos(p) for p in self.body()['thunder_tiger']['pillars']]
         self.must('authored_pillars_bound',len(pillars)>0,pillars)
@@ -830,12 +830,12 @@ class TigerEvidence(Evidence):
             for _ in range(100):
                 row=self.status()
                 self.must('broken_horn_disables_thunder_'+str(distance),
-                          row['move'] not in ('myvillage:thunder_tiger_thunder_stomp','myvillage:thunder_tiger_roar'),row)
+                          row['move'] not in ('yuanxian:thunder_tiger_thunder_stomp','yuanxian:thunder_tiger_roar'),row)
                 time.sleep(.1)
 
     def observers(self):
         self.rc('tick rate 5')
-        self.position_for_move({'id':'myvillage:thunder_tiger_claw','use_range':[0,5.8]})
+        self.position_for_move({'id':'yuanxian:thunder_tiger_claw','use_range':[0,5.8]})
         self.poll(self.status,lambda s:s['move']!='none',20,'ongoing boss action before late observer')
         self.rc('tick freeze')
         before=self.status()

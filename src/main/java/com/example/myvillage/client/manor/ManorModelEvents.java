@@ -12,15 +12,15 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 @EventBusSubscriber(modid=MyVillageMod.MOD_ID,value=Dist.CLIENT,bus=EventBusSubscriber.Bus.MOD)
 public final class ManorModelEvents {
     @SubscribeEvent public static void loaders(ModelEvent.RegisterGeometryLoaders event){
-        event.register(ResourceLocation.fromNamespaceAndPath("myvillage","procedural_books"),com.example.myvillage.client.qianji.ProceduralBooksModel.Loader.INSTANCE);
+        event.register(ResourceLocation.fromNamespaceAndPath("yuanxian","procedural_books"),com.example.myvillage.client.qianji.ProceduralBooksModel.Loader.INSTANCE);
     }
     @SubscribeEvent public static void models(ModelEvent.ModifyBakingResult event){
         var ids=new HashSet<ResourceLocation>();var catalog=ManorCatalog.get();
-        for(var material:catalog.materials)if(!material.opaque())ids.add(ResourceLocation.fromNamespaceAndPath("myvillage",material.id()));
-        for(var bank:catalog.banks)if(bank.profiles().stream().anyMatch(p->!p.translucentMaterials().isEmpty()))ids.add(ResourceLocation.fromNamespaceAndPath("myvillage",bank.id()));
+        for(var material:catalog.materials)if(!material.opaque())ids.add(ResourceLocation.fromNamespaceAndPath("yuanxian",material.id()));
+        for(var bank:catalog.banks)if(bank.profiles().stream().anyMatch(p->!p.translucentMaterials().isEmpty()))ids.add(ResourceLocation.fromNamespaceAndPath("yuanxian",bank.id()));
         var qianji=com.example.myvillage.qianji.QianjiCatalog.get();
-        for(var material:qianji.materials)if(!material.opaque())ids.add(ResourceLocation.fromNamespaceAndPath("myvillage",material.id()));
-        for(var bank:qianji.banks)if(bank.profiles().stream().anyMatch(p->!p.translucentMaterials().isEmpty()))ids.add(ResourceLocation.fromNamespaceAndPath("myvillage",bank.id()));
+        for(var material:qianji.materials)if(!material.opaque())ids.add(ResourceLocation.fromNamespaceAndPath("yuanxian",material.id()));
+        for(var bank:qianji.banks)if(bank.profiles().stream().anyMatch(p->!p.translucentMaterials().isEmpty()))ids.add(ResourceLocation.fromNamespaceAndPath("yuanxian",bank.id()));
         event.getModels().replaceAll((key,model)->ids.contains(key.id())&&!key.variant().equals("inventory")?new ManorGlassModel(model):model);
     }
     private ManorModelEvents(){ }

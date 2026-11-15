@@ -19,7 +19,7 @@ from buildgen.nbtread import read_gzipped_nbt,state_string
 import json_to_nbt as nbt
 import voxel_dump_to_structures as exports
 
-ASSETS=ROOT/'src/main/resources/assets/myvillage';DATA=ROOT/'src/main/resources/data/myvillage'
+ASSETS=ROOT/'src/main/resources/assets/yuanxian';DATA=ROOT/'src/main/resources/data/yuanxian'
 JAVA=ROOT/'src/main/java/com/example/myvillage/courtyard';OUT=ROOT/'out/preview/reference-courtyard-mc'
 
 
@@ -59,41 +59,41 @@ def generate():
             for pi,local in enumerate(split):
                 solid=merge({p:'solid' for p in local});boxes=[[*b['from'],*b['to']] for b in solid];max_boxes=max(max_boxes,len(boxes))
                 part_specs.append({'boxes':boxes,'full':len(local)==4096})
-                visual={'parent':'minecraft:block/block','textures':{'particle':f'myvillage:block/courtyard/{v["material"]}',**{m:'myvillage:block/courtyard/'+m for m in sorted(set(local.values()))}},'elements':model_elements(merge(local))}
+                visual={'parent':'minecraft:block/block','textures':{'particle':f'yuanxian:block/courtyard/{v["material"]}',**{m:'yuanxian:block/courtyard/'+m for m in sorted(set(local.values()))}},'elements':model_elements(merge(local))}
                 j(ASSETS/f'models/block/courtyard/{identity}/{vi}_{pi}.json',visual)
             for pi in range(max_parts):
                 for turn,facing in enumerate(['north','east','south','west']):
                     key=f'facing={facing},variant={vi}'+(f',part={pi}' if max_parts>1 else '')
-                    states[key]={'model':f'myvillage:block/courtyard/{identity}/{vi}_{pi}' if pi<len(split) else 'myvillage:block/courtyard/empty','y':90*turn}
+                    states[key]={'model':f'yuanxian:block/courtyard/{identity}/{vi}_{pi}' if pi<len(split) else 'yuanxian:block/courtyard/empty','y':90*turn}
             variants.append({'key':v['key'],'size':v['size'],'parts':part_specs})
             # The inventory icon represents the entire assembly, not one cell.
             boxes=merge(cells);scale=1/max(v['size']);ox=(16-v['size'][0]*16*scale)/2;oz=(16-v['size'][2]*16*scale)/2
             for b in boxes:
                 for endpoint in ['from','to']:
                     x,y,z=b[endpoint];b[endpoint]=[round(x*scale+ox,5),round(y*scale,5),round(z*scale+oz,5)]
-            j(ASSETS/f'models/item/courtyard/{identity}_{vi}.json',{'parent':'minecraft:block/block','textures':{'particle':'myvillage:block/courtyard/'+v['material'],**{m:'myvillage:block/courtyard/'+m for m in sorted(set(cells.values()))}},'elements':model_elements(boxes),
+            j(ASSETS/f'models/item/courtyard/{identity}_{vi}.json',{'parent':'minecraft:block/block','textures':{'particle':'yuanxian:block/courtyard/'+v['material'],**{m:'yuanxian:block/courtyard/'+m for m in sorted(set(cells.values()))}},'elements':model_elements(boxes),
                 'display':{'gui':{'rotation':[30,225,0],'translation':[0,0,0],'scale':[.85,.85,.85]}}})
-            overrides.append({'predicate':{'custom_model_data':vi+1},'model':f'myvillage:item/courtyard/{identity}_{vi}'})
+            overrides.append({'predicate':{'custom_model_data':vi+1},'model':f'yuanxian:item/courtyard/{identity}_{vi}'})
             properties={'variant':str(vi),**({'part':'0'} if max_parts>1 else {})}
-            loot.append({'rolls':1,'conditions':[{'condition':'minecraft:block_state_property','block':'myvillage:'+identity,'properties':properties},{'condition':'minecraft:survives_explosion'}],
-                         'entries':[{'type':'minecraft:item','name':'myvillage:'+identity,'functions':[{'function':'minecraft:set_components','components':{'minecraft:block_state':{'variant':str(vi)},'minecraft:custom_model_data':vi+1}}]}]})
-            for lang,key in [('zh_cn','zh'),('en_us','en')]:langs[lang][f'variant.myvillage.{identity}.{vi}']=v[key]
+            loot.append({'rolls':1,'conditions':[{'condition':'minecraft:block_state_property','block':'yuanxian:'+identity,'properties':properties},{'condition':'minecraft:survives_explosion'}],
+                         'entries':[{'type':'minecraft:item','name':'yuanxian:'+identity,'functions':[{'function':'minecraft:set_components','components':{'minecraft:block_state':{'variant':str(vi)},'minecraft:custom_model_data':vi+1}}]}]})
+            for lang,key in [('zh_cn','zh'),('en_us','en')]:langs[lang][f'variant.yuanxian.{identity}.{vi}']=v[key]
         j(ASSETS/f'blockstates/{identity}.json',{'variants':states})
-        j(ASSETS/f'models/item/{identity}.json',{'parent':f'myvillage:item/courtyard/{identity}_0','overrides':overrides})
+        j(ASSETS/f'models/item/{identity}.json',{'parent':f'yuanxian:item/courtyard/{identity}_0','overrides':overrides})
         j(DATA/f'loot_table/blocks/{identity}.json',{'type':'minecraft:block','pools':loot})
         catalog.append({k:f[k] for k in ['id','sound','strength']}|{'light':f.get('light',0),'variants':variants})
-        for lang,key in [('zh_cn','zh'),('en_us','en')]:langs[lang]['block.myvillage.'+identity]=f[key]
-    j(ASSETS/'models/block/courtyard/empty.json',{'textures':{'particle':'myvillage:block/courtyard/plaster'},'elements':[]})
+        for lang,key in [('zh_cn','zh'),('en_us','en')]:langs[lang]['block.yuanxian.'+identity]=f[key]
+    j(ASSETS/'models/block/courtyard/empty.json',{'textures':{'particle':'yuanxian:block/courtyard/plaster'},'elements':[]})
     j(DATA/'courtyard/assemblies.json',{'format':1,'families':catalog})
     outputs[JAVA/'CourtyardBlocks.java']=generated_blocks(config).encode()
     for material,spec in materials['materials'].items():outputs[ASSETS/f'textures/block/courtyard/{material}.png']=png_texture(material,spec,materials)
     messages={
-        'zh_cn':{'itemGroup.myvillage.courtyard':'月洞水院 · 建筑构件','tooltip.myvillage.courtyard.select':'Shift＋右键：选择款式','tooltip.myvillage.courtyard.size':'整体尺寸：%s × %s × %s 格','screen.myvillage.courtyard.title':'选择构件款式','screen.myvillage.courtyard.hint':'每次整体放置消耗 1 个物品'},
-        'en_us':{'itemGroup.myvillage.courtyard':'Moon Gate Courtyard · Building Kit','tooltip.myvillage.courtyard.select':'Shift + Right-click: choose a variant','tooltip.myvillage.courtyard.size':'Whole size: %s × %s × %s blocks','screen.myvillage.courtyard.title':'Choose a Building Variant','screen.myvillage.courtyard.hint':'Each complete placement consumes one item'}}
+        'zh_cn':{'itemGroup.yuanxian.courtyard':'月洞水院 · 建筑构件','tooltip.yuanxian.courtyard.select':'Shift＋右键：选择款式','tooltip.yuanxian.courtyard.size':'整体尺寸：%s × %s × %s 格','screen.yuanxian.courtyard.title':'选择构件款式','screen.yuanxian.courtyard.hint':'每次整体放置消耗 1 个物品'},
+        'en_us':{'itemGroup.yuanxian.courtyard':'Moon Gate Courtyard · Building Kit','tooltip.yuanxian.courtyard.select':'Shift + Right-click: choose a variant','tooltip.yuanxian.courtyard.size':'Whole size: %s × %s × %s blocks','screen.yuanxian.courtyard.title':'Choose a Building Variant','screen.yuanxian.courtyard.hint':'Each complete placement consumes one item'}}
     for lang,entries in langs.items():
-        path=ASSETS/f'lang/{lang}.json';original=load_language(path.read_text());old={k:v for k,v in original.items() if not k.startswith(('block.myvillage.courtyard_','variant.myvillage.courtyard_','tooltip.myvillage.courtyard.','screen.myvillage.courtyard.'))}
+        path=ASSETS/f'lang/{lang}.json';original=load_language(path.read_text());old={k:v for k,v in original.items() if not k.startswith(('block.yuanxian.courtyard_','variant.yuanxian.courtyard_','tooltip.yuanxian.courtyard.','screen.yuanxian.courtyard.'))}
         old.update(entries);old.update(messages[lang]);outputs[path]=language_text(original,old).encode()
-    for tool,sounds in [('axe',{'wood'}),('pickaxe',{'stone','metal'})]:j(DATA/f'tags/block/courtyard_{tool}.json',{'replace':False,'values':['myvillage:'+f['id'] for f in catalog if f['sound'] in sounds]})
+    for tool,sounds in [('axe',{'wood'}),('pickaxe',{'stone','metal'})]:j(DATA/f'tags/block/courtyard_{tool}.json',{'replace':False,'values':['yuanxian:'+f['id'] for f in catalog if f['sound'] in sounds]})
     site=build_scene(config);blocks=dict(site.blocks)
     W,H,L=config['size']
     for x in range(W):
@@ -111,7 +111,7 @@ def generate():
             a,ap=nbt.parse_block_state(state);b,bp=nbt.parse_block_state(restored[pos])
             assert a==b and dict(ap)==dict(bp),pos
         sp=Path(temp)/'courtyard.schem';schem,_=exports.build_schem(structure,exports.DEFAULT_DATA_VERSION);exports.write_gzipped_nbt_ext(schem,sp,'Schematic');outputs[OUT/'reference_courtyard.schem']=sp.read_bytes()
-    d={'id':'myvillage:'+config['template'],'size':config['size'],'fill_air':True,'blocks':[{'pos':list(p),'state':state} for p,state in blocks.items() if state!='minecraft:air'],
+    d={'id':'yuanxian:'+config['template'],'size':config['size'],'fill_air':True,'blocks':[{'pos':list(p),'state':state} for p,state in blocks.items() if state!='minecraft:air'],
        'site':{'world_min':config['origin']},'presentation':{'role':'courtyard','name':'月洞水院 · 整体构件样板'}}
     j(OUT/'reference_courtyard.structure.json',d)
     runtime={'template':d['id'],'size':config['size'],'origin':config['origin'],'family_count':len(catalog),'variant_count':sum(len(f['variants']) for f in catalog),

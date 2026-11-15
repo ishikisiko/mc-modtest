@@ -20,8 +20,8 @@ class SceneDeploymentDataTest {
         assertEquals("minecraft:overworld", loaded.dimension()); assertEquals("1-test", loaded.version()); assertTrue(loaded.regulated());
     }
     @Test void privateDimensionsKeepRegulationIndependentAfterSave() {
-        var a=record("COMPLETE");a.putString("dimension","myvillage:qianzhen/00000000-0000-0000-0000-000000000001");
-        var b=record("COMPLETE");b.putString("dimension","myvillage:qianzhen/00000000-0000-0000-0000-000000000002");
+        var a=record("COMPLETE");a.putString("dimension","yuanxian:qianzhen/00000000-0000-0000-0000-000000000001");
+        var b=record("COMPLETE");b.putString("dimension","yuanxian:qianzhen/00000000-0000-0000-0000-000000000002");
         var first=SceneDeploymentData.load(a,null);var second=SceneDeploymentData.load(b,null);
         first.markRegulated();
         assertTrue(SceneDeploymentData.load(first.save(new CompoundTag(),null),null).regulated());

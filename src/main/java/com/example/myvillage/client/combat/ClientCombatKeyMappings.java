@@ -12,26 +12,26 @@ import org.lwjgl.glfw.GLFW;
 @Mod(value = MyVillageMod.MOD_ID, dist = Dist.CLIENT)
 public final class ClientCombatKeyMappings {
     public static final KeyMapping TOGGLE_COMBAT_MODE = new KeyMapping(
-            "key.myvillage.toggle_combat_mode",
+            "key.yuanxian.toggle_combat_mode",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_R,
-            "key.categories.myvillage");
+            "key.categories.yuanxian");
     /** 身法闪避: the direction comes from the movement keys held when it is pressed. */
     public static final KeyMapping DODGE = new KeyMapping(
-            "key.myvillage.dodge",
+            "key.yuanxian.dodge",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_LEFT_ALT,
-            "key.categories.myvillage");
+            "key.categories.yuanxian");
 
     public static final KeyMapping ART_PRIMARY = new KeyMapping(
-            "key.myvillage.art_primary", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Z, "key.categories.myvillage");
+            "key.yuanxian.art_primary", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Z, "key.categories.yuanxian");
     public static final KeyMapping ART_SECONDARY = new KeyMapping(
-            "key.myvillage.art_secondary", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, "key.categories.myvillage");
+            "key.yuanxian.art_secondary", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, "key.categories.yuanxian");
 
-    public static final KeyMapping SKILL_I=new KeyMapping("key.myvillage.skill_i",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_I,"key.categories.myvillage");
-    public static final KeyMapping SKILL_J=new KeyMapping("key.myvillage.skill_j",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_J,"key.categories.myvillage");
-    public static final KeyMapping SKILL_K=new KeyMapping("key.myvillage.skill_k",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_K,"key.categories.myvillage");
-    public static final KeyMapping SKILL_M=new KeyMapping("key.myvillage.skill_m",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_M,"key.categories.myvillage");
+    public static final KeyMapping SKILL_I=new KeyMapping("key.yuanxian.skill_i",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_I,"key.categories.yuanxian");
+    public static final KeyMapping SKILL_J=new KeyMapping("key.yuanxian.skill_j",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_J,"key.categories.yuanxian");
+    public static final KeyMapping SKILL_K=new KeyMapping("key.yuanxian.skill_k",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_K,"key.categories.yuanxian");
+    public static final KeyMapping SKILL_M=new KeyMapping("key.yuanxian.skill_m",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_M,"key.categories.yuanxian");
     public static final java.util.List<KeyMapping> SKILL_KEYS=java.util.List.of(ART_PRIMARY,ART_SECONDARY,SKILL_I,SKILL_J,SKILL_K,SKILL_M);
 
     public ClientCombatKeyMappings(IEventBus modEventBus) {

@@ -33,7 +33,7 @@ public final class FormulaItem extends Item {
         if (player instanceof ServerPlayer server) {
             boolean learned = AlchemyKnowledge.learn(server, recipeId);
             if (learned && !player.getAbilities().instabuild) stack.shrink(1);
-            player.displayClientMessage(Component.translatable("message.myvillage.alchemy." +
+            player.displayClientMessage(Component.translatable("message.yuanxian.alchemy." +
                     (learned ? "formula_learned" : "formula_known"), getDescription()), true);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
@@ -43,7 +43,7 @@ public final class FormulaItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         super.appendHoverText(stack, context, lines, flag);
         AlchemyRules.get().recipe(recipeId).ifPresent(recipe -> {
-            lines.add(Component.translatable("tooltip.myvillage.alchemy.formula_learn").withStyle(ChatFormatting.GRAY));
+            lines.add(Component.translatable("tooltip.yuanxian.alchemy.formula_learn").withStyle(ChatFormatting.GRAY));
             for (int i=0;i<recipe.ingredients().size();i++) {
                 lines.add(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe.ingredients().get(i))).getDescription().copy()
                     .append(" ×"+recipe.count(i)).withStyle(ChatFormatting.DARK_GREEN));

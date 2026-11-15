@@ -1,5 +1,5 @@
 {
-  "item_id": "myvillage:rideable_flying_sword",
+  "item_id": "yuanxian:rideable_flying_sword",
   "kind": "functional_item",
   "display_name": {
     "en_us": "Rideable Flying Sword",
@@ -8,7 +8,7 @@
   "owner_facing_goal": "右键切换一把归当前玩家唯一拥有、由服务端权威驾驶的基础飞剑载具。",
   "creative_tab": {
     "visibility": "visible",
-    "tab_id": "myvillage:main",
+    "tab_id": "yuanxian:main",
     "ordering": "append"
   },
   "java_registration": {
@@ -17,10 +17,10 @@
     "properties": "new Item.Properties().stacksTo(1)"
   },
   "client_assets": {
-    "lang_key": "item.myvillage.rideable_flying_sword",
-    "model": "src/main/resources/assets/myvillage/models/item/rideable_flying_sword.json",
+    "lang_key": "item.yuanxian.rideable_flying_sword",
+    "model": "src/main/resources/assets/yuanxian/models/item/rideable_flying_sword.json",
     "textures": [
-      "src/main/resources/assets/myvillage/textures/item/rideable_flying_sword.png"
+      "src/main/resources/assets/yuanxian/textures/item/rideable_flying_sword.png"
     ],
     "visual_verdict": "pending"
   },
@@ -45,7 +45,7 @@
   },
   "acceptance": {
     "commands": [
-      "/give @s myvillage:rideable_flying_sword",
+      "/give @s yuanxian:rideable_flying_sword",
       "right-click to summon and mount; right-click again to recall",
       "verify W/S, A/D, Space, and Shift while riding"
     ],
@@ -56,8 +56,8 @@
       "./gradlew runAcceptanceServer"
     ],
     "jar_checks": [
-      "assets/myvillage/models/item/rideable_flying_sword.json",
-      "assets/myvillage/textures/item/rideable_flying_sword.png",
+      "assets/yuanxian/models/item/rideable_flying_sword.json",
+      "assets/yuanxian/textures/item/rideable_flying_sword.png",
       "English and Chinese item translation keys"
     ],
     "human_verdict": "pending"

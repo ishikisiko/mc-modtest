@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.yuanxian.open_meridians",
+  "description_key": "fate.yuanxian.open_meridians.description",
+  "tier": 3,
+  "cost": 4,
+  "group": "spirit_body",
+  "effects": {
+    "power_cap_bonus": 0.4,
+    "skill_refund_fraction": 0.25
+  }
+}

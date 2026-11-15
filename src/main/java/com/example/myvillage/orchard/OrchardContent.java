@@ -29,10 +29,10 @@ public final class OrchardContent {
     private static final DeferredRegister<Feature<?>> FEATURES=DeferredRegister.create(Registries.FEATURE,MyVillageMod.MOD_ID);
     private static final DeferredRegister<CreativeModeTab> TABS=DeferredRegister.create(Registries.CREATIVE_MODE_TAB,MyVillageMod.MOD_ID);
     private static final List<Supplier<? extends Item>> DISPLAY=new ArrayList<>();
-    public static final BlockSetType SET=BlockSetType.register(new BlockSetType("myvillage:ningyuan"));
-    public static final WoodType WOOD_TYPE=WoodType.register(new WoodType("myvillage:ningyuan",SET));
+    public static final BlockSetType SET=BlockSetType.register(new BlockSetType("yuanxian:ningyuan"));
+    public static final WoodType WOOD_TYPE=WoodType.register(new WoodType("yuanxian:ningyuan",SET));
     public static final ResourceKey<ConfiguredFeature<?,?>> TREE=ResourceKey.create(Registries.CONFIGURED_FEATURE,ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID,"ningyuan_tree"));
-    public static final TreeGrower TREE_GROWER=new TreeGrower("myvillage:ningyuan",Optional.empty(),Optional.of(TREE),Optional.empty());
+    public static final TreeGrower TREE_GROWER=new TreeGrower("yuanxian:ningyuan",Optional.empty(),Optional.of(TREE),Optional.empty());
     private static BlockBehaviour.Properties wood() { return BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(2,3).sound(SoundType.WOOD).ignitedByLava(); }
     private static <B extends Block> DeferredBlock<B> block(String name,Supplier<B> factory) {
         var block=BLOCKS.register(name,factory);DISPLAY.add(ITEMS.registerItem(name,p->new OrchardItems.PlantBlockItem(block.get(),p)));return block;

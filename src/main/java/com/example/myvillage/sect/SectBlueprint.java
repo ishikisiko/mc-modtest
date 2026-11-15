@@ -14,7 +14,7 @@ import com.example.myvillage.worldplan.SectTerrain;
 
 /** 当前编译蓝图的只读空间清单；不重新推导台地、经架或站位。 */
 public final class SectBlueprint {
-    private static final String CATALOG = "data/myvillage/sect_blueprints/catalog.json";
+    private static final String CATALOG = "data/yuanxian/sect_blueprints/catalog.json";
     public record Tile(int x, int z, ResourceLocation template, String sha256) { }
     public record Shelf(BlockPos position, BlockPos reader, Direction facing) { }
     public final ResourceLocation id;
@@ -36,7 +36,7 @@ public final class SectBlueprint {
         if (integer(o,"schema") != 1) throw new IllegalArgumentException("宗门蓝图schema不支持");
         this.fingerprint = hash(fingerprint);
         id = ResourceLocation.parse(o.get("id").getAsString());
-        if (!id.getNamespace().equals("myvillage") || !id.getPath().matches("[a-z0-9_]+"))
+        if (!id.getNamespace().equals("yuanxian") || !id.getPath().matches("[a-z0-9_]+"))
             throw new IllegalArgumentException("宗门蓝图身份无效");
         name = o.get("name").getAsString();
         JsonArray size = o.getAsJsonArray("size");

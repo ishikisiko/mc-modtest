@@ -40,8 +40,8 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             # Cultivation Initiation Ritual
 
             See `cultivation-initiation-ritual`. The two independent facilities are
-            `myvillage:spirit_testing_stele` and
-            `myvillage:technique_inheritance_stele`.
+            `yuanxian:spirit_testing_stele` and
+            `yuanxian:technique_inheritance_stele`.
             """,
         )
         self.write(
@@ -51,23 +51,23 @@ class CultivationInitiationValidationTest(unittest.TestCase):
 
         for index, element in enumerate(("metal", "wood", "water", "fire", "earth")):
             self.write_json(
-                f"src/main/resources/data/myvillage/myvillage/spiritual_element/{element}.json",
+                f"src/main/resources/data/yuanxian/yuanxian/spiritual_element/{element}.json",
                 {
-                    "translation_key": f"cultivation.element.myvillage.{element}",
+                    "translation_key": f"cultivation.element.yuanxian.{element}",
                     "sort_order": index,
                     "awakening_weight": 1,
                 },
             )
         self.write_json(
-            "src/main/resources/data/myvillage/myvillage/technique/basic_breathing.json",
+            "src/main/resources/data/yuanxian/yuanxian/technique/basic_breathing.json",
             {
-                "translation_key": "cultivation.technique.myvillage.basic_breathing",
+                "translation_key": "cultivation.technique.yuanxian.basic_breathing",
                 "category": "core",
                 "grade": 0,
                 "elements": [],
                 "requirements": {
-                    "minimum_realm": "myvillage:mortal",
-                    "minimum_stage": "myvillage:mortal_qi_sensed",
+                    "minimum_realm": "yuanxian:mortal",
+                    "minimum_stage": "yuanxian:mortal_qi_sensed",
                 },
             },
         )
@@ -92,7 +92,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             package com.example.myvillage.block;
             import java.util.List;
             public final class ModBlocks {
-                public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("myvillage");
+                public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks("yuanxian");
                 public static final DeferredBlock<SpiritTestingSteleBlock> SPIRIT_TESTING_STELE =
                         BLOCKS.registerBlock("spirit_testing_stele", SpiritTestingSteleBlock::new, properties());
                 public static final DeferredBlock<TechniqueInheritanceSteleBlock> TECHNIQUE_INHERITANCE_STELE =
@@ -188,7 +188,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
                     var root = SpiritualRootGenerator.generate(seed, player.getUUID(), candidates(player));
                     return CultivationService.replaceProfile(player, profile.withSpiritualRoot(root));
                 }
-                static final String SUCCESS = "message.myvillage.cultivation.awakening.success";
+                static final String SUCCESS = "message.yuanxian.cultivation.awakening.success";
             }
             """,
         )
@@ -218,7 +218,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
                     }
                     return CultivationService.replaceProfile(player, profile.learnTechnique(BASIC_BREATHING));
                 }
-                static final String SUCCESS = "message.myvillage.cultivation.inheritance.success";
+                static final String SUCCESS = "message.yuanxian.cultivation.inheritance.success";
             }
             """,
         )
@@ -396,15 +396,15 @@ class CultivationInitiationValidationTest(unittest.TestCase):
                 private View view = View.PROFILE;
                 protected void init() {
                     addRenderableWidget(Button.builder(
-                            Component.translatable("screen.myvillage.cultivation.tab.profile"),
+                            Component.translatable("screen.yuanxian.cultivation.tab.profile"),
                             button -> setView(View.PROFILE)).build());
                     addRenderableWidget(Button.builder(
-                            Component.translatable("screen.myvillage.cultivation.tab.meditation"),
+                            Component.translatable("screen.yuanxian.cultivation.tab.meditation"),
                             button -> setView(View.MEDITATION)).build());
-                    actionButton("screen.myvillage.cultivation.button.normal", START_NORMAL);
-                    actionButton("screen.myvillage.cultivation.button.spirit", START_SPIRIT);
-                    actionButton("screen.myvillage.cultivation.button.stop", STOP);
-                    actionButton("screen.myvillage.cultivation.button.advancement", START_BREAKTHROUGH);
+                    actionButton("screen.yuanxian.cultivation.button.normal", START_NORMAL);
+                    actionButton("screen.yuanxian.cultivation.button.spirit", START_SPIRIT);
+                    actionButton("screen.yuanxian.cultivation.button.stop", STOP);
+                    actionButton("screen.yuanxian.cultivation.button.advancement", START_BREAKTHROUGH);
                 }
                 private void setView(View newView) { view = newView; }
                 private void actionButton(String key, MeditationIntentAction action) {
@@ -413,52 +413,52 @@ class CultivationInitiationValidationTest(unittest.TestCase):
                 }
                 public void render(GuiGraphics graphics, int x, int y, float tick) {
                     ClientCultivationState.latest();
-                    Component.translatable("screen.myvillage.cultivation.spiritual_affinity");
+                    Component.translatable("screen.yuanxian.cultivation.spiritual_affinity");
                 }
             }
             """,
         )
 
         languages = {
-            "block.myvillage.spirit_testing_stele": "Spirit Testing Stele",
-            "block.myvillage.technique_inheritance_stele": "Technique Inheritance Stele",
-            "message.myvillage.cultivation.awakening.success": "Awakened",
-            "message.myvillage.cultivation.inheritance.success": "Inherited",
-            "screen.myvillage.cultivation.tab.profile": "Profile",
-            "screen.myvillage.cultivation.tab.meditation": "Meditation",
-            "screen.myvillage.cultivation.button.normal": "Normal",
-            "screen.myvillage.cultivation.button.spirit": "Spirit",
-            "screen.myvillage.cultivation.button.stop": "Stop",
-            "screen.myvillage.cultivation.button.advancement": "Advance",
-            "screen.myvillage.cultivation.spiritual_affinity": "Spiritual Affinity",
+            "block.yuanxian.spirit_testing_stele": "Spirit Testing Stele",
+            "block.yuanxian.technique_inheritance_stele": "Technique Inheritance Stele",
+            "message.yuanxian.cultivation.awakening.success": "Awakened",
+            "message.yuanxian.cultivation.inheritance.success": "Inherited",
+            "screen.yuanxian.cultivation.tab.profile": "Profile",
+            "screen.yuanxian.cultivation.tab.meditation": "Meditation",
+            "screen.yuanxian.cultivation.button.normal": "Normal",
+            "screen.yuanxian.cultivation.button.spirit": "Spirit",
+            "screen.yuanxian.cultivation.button.stop": "Stop",
+            "screen.yuanxian.cultivation.button.advancement": "Advance",
+            "screen.yuanxian.cultivation.spiritual_affinity": "Spiritual Affinity",
         }
         for locale in ("en_us", "zh_cn"):
-            self.write_json(f"src/main/resources/assets/myvillage/lang/{locale}.json", languages)
+            self.write_json(f"src/main/resources/assets/yuanxian/lang/{locale}.json", languages)
         for identifier in ("spirit_testing_stele", "technique_inheritance_stele"):
             self.write_json(
-                f"src/main/resources/assets/myvillage/blockstates/{identifier}.json",
-                {"variants": {"": {"model": f"myvillage:block/{identifier}"}}},
+                f"src/main/resources/assets/yuanxian/blockstates/{identifier}.json",
+                {"variants": {"": {"model": f"yuanxian:block/{identifier}"}}},
             )
             self.write_json(
-                f"src/main/resources/assets/myvillage/models/block/{identifier}.json",
+                f"src/main/resources/assets/yuanxian/models/block/{identifier}.json",
                 {
                     "parent": "minecraft:block/cube_all",
                     "textures": {"all": "minecraft:block/deepslate_tiles"},
                 },
             )
             self.write_json(
-                f"src/main/resources/assets/myvillage/models/item/{identifier}.json",
-                {"parent": f"myvillage:block/{identifier}"},
+                f"src/main/resources/assets/yuanxian/models/item/{identifier}.json",
+                {"parent": f"yuanxian:block/{identifier}"},
             )
             self.write_json(
-                f"src/main/resources/data/myvillage/loot_table/blocks/{identifier}.json",
+                f"src/main/resources/data/yuanxian/loot_table/blocks/{identifier}.json",
                 {
                     "type": "minecraft:block",
                     "pools": [
                         {
                             "rolls": 1,
                             "entries": [
-                                {"type": "minecraft:item", "name": f"myvillage:{identifier}"}
+                                {"type": "minecraft:item", "name": f"yuanxian:{identifier}"}
                             ],
                         }
                     ],
@@ -469,8 +469,8 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             {
                 "replace": False,
                 "values": [
-                    "myvillage:spirit_testing_stele",
-                    "myvillage:technique_inheritance_stele",
+                    "yuanxian:spirit_testing_stele",
+                    "yuanxian:technique_inheritance_stele",
                 ],
             },
         )
@@ -479,7 +479,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
         self.write(
             "src/main/resources/META-INF/neoforge.mods.toml",
             f'''[[mods]]
-            modId = "myvillage"
+            modId = "yuanxian"
             version = "{VERSION}"''',
         )
         self.write(
@@ -487,11 +487,11 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             f"""
             # MyVillage
 
-            Use `myvillage:spirit_testing_stele` to `awaken` into
-            `mortal_qi_sensed`, then use `myvillage:technique_inheritance_stele`
+            Use `yuanxian:spirit_testing_stele` to `awaken` into
+            `mortal_qi_sensed`, then use `yuanxian:technique_inheritance_stele`
             to `initiate`. H provides Profile and Meditation tabs. Run
             `python3 tools/validate_cultivation_initiation.py`.
-            Expected jar: `build/libs/myvillage-{VERSION}.jar`.
+            Expected jar: `build/libs/yuanxian-{VERSION}.jar`.
             """,
         )
         self.write(
@@ -501,8 +501,8 @@ class CultivationInitiationValidationTest(unittest.TestCase):
 
             ## {VERSION}
 
-            Added `myvillage:spirit_testing_stele` and
-            `myvillage:technique_inheritance_stele`.
+            Added `yuanxian:spirit_testing_stele` and
+            `yuanxian:technique_inheritance_stele`.
             """,
         )
 
@@ -537,14 +537,14 @@ class CultivationInitiationValidationTest(unittest.TestCase):
         self.assert_error_contains(self.validate(), "client cultivation cache must remain read-only")
 
     def test_missing_block_resource_is_rejected(self) -> None:
-        (self.root / "src/main/resources/assets/myvillage/models/item/spirit_testing_stele.json").unlink()
+        (self.root / "src/main/resources/assets/yuanxian/models/item/spirit_testing_stele.json").unlink()
 
         result = self.validate()
 
         self.assert_error_contains(result, "missing stele item model")
 
     def test_invalid_shipped_awakening_weight_is_rejected(self) -> None:
-        path = self.root / "src/main/resources/data/myvillage/myvillage/spiritual_element/fire.json"
+        path = self.root / "src/main/resources/data/yuanxian/yuanxian/spiritual_element/fire.json"
         value = json.loads(path.read_text(encoding="utf-8"))
         value["awakening_weight"] = -1
         path.write_text(json.dumps(value), encoding="utf-8")
@@ -563,7 +563,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
 
     def test_generator_hardcoded_element_is_rejected(self) -> None:
         path = self.root / "src/main/java/com/example/myvillage/cultivation/root/SpiritualRootGenerator.java"
-        path.write_text(path.read_text(encoding="utf-8") + 'String bad = "myvillage:fire";\n', encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8") + 'String bad = "yuanxian:fire";\n', encoding="utf-8")
 
         result = self.validate()
 
@@ -690,27 +690,27 @@ class CultivationInitiationValidationTest(unittest.TestCase):
         self.assert_error_contains(result, "spiritual affinity must reject negative values")
 
     def test_missing_meditation_button_translation_is_rejected(self) -> None:
-        path = self.root / "src/main/resources/assets/myvillage/lang/zh_cn.json"
+        path = self.root / "src/main/resources/assets/yuanxian/lang/zh_cn.json"
         language = json.loads(path.read_text(encoding="utf-8"))
-        del language["screen.myvillage.cultivation.button.spirit"]
+        del language["screen.yuanxian.cultivation.button.spirit"]
         path.write_text(json.dumps(language, indent=2), encoding="utf-8")
 
         result = self.validate()
 
         self.assert_error_contains(
             result,
-            "missing non-empty H-screen translation screen.myvillage.cultivation.button.spirit",
+            "missing non-empty H-screen translation screen.yuanxian.cultivation.button.spirit",
         )
 
     def test_basic_breathing_requirement_drift_is_rejected(self) -> None:
-        path = self.root / "src/main/resources/data/myvillage/myvillage/technique/basic_breathing.json"
+        path = self.root / "src/main/resources/data/yuanxian/yuanxian/technique/basic_breathing.json"
         value = json.loads(path.read_text(encoding="utf-8"))
-        value["requirements"]["minimum_stage"] = "myvillage:qi_refining_1"
+        value["requirements"]["minimum_stage"] = "yuanxian:qi_refining_1"
         path.write_text(json.dumps(value), encoding="utf-8")
 
         result = self.validate()
 
-        self.assert_error_contains(result, "minimum_stage must be myvillage:mortal_qi_sensed")
+        self.assert_error_contains(result, "minimum_stage must be yuanxian:mortal_qi_sensed")
 
     def test_readme_jar_version_drift_is_rejected(self) -> None:
         path = self.root / "README.md"

@@ -20,7 +20,7 @@ from tools.danxia_ruin_evidence import RuinEvidence, saved_cores
 from tools.alchemy_quality_evidence import read_data, SecondClient
 from tools.combat_capture import scene, session as cs
 
-RULES={name:json.loads((ROOT/f'src/main/resources/data/myvillage/ruins/{name}.json').read_text()) for name in ('duange_ruin','fuyao_ruin')}
+RULES={name:json.loads((ROOT/f'src/main/resources/data/yuanxian/ruins/{name}.json').read_text()) for name in ('duange_ruin','fuyao_ruin')}
 
 def entity_uuid(values):
     return str(uuid.UUID(int=sum((v & 0xffffffff) << (32*(3-i)) for i,v in enumerate(values))))
@@ -54,19 +54,19 @@ class BattleEvidence(RuinEvidence):
         self.rc(f'item replace entity {user} hotbar.0 with minecraft:netherite_sword');self.s.game.key('1')
     def locate(self,kind):
         self.rc(f'gamemode spectator {self.s.username}')
-        reply=self.rc(f'locate structure myvillage:{kind}')
+        reply=self.rc(f'locate structure yuanxian:{kind}')
         match=re.search(r'\[(-?\d+),\s*(?:~|-?\d+),\s*(-?\d+)\]',reply)
         self.must(kind+'_natural_locate',bool(match),reply);x,z=map(int,match.groups())
         bounds=(x-64,z-64,x+64,z+64);self.rc('forceload add '+' '.join(map(str,bounds)))
         self.rc(f'tp {self.s.username} {x} 120 {z}')
         def find():
             self.rc('save-all flush')
-            rows=saved_cores(cs.SERVER_DIR/cs.LEVEL_NAME/'region',(x,z),6,'myvillage:battle_cache')
+            rows=saved_cores(cs.SERVER_DIR/cs.LEVEL_NAME/'region',(x,z),6,'yuanxian:battle_cache')
             rows=[row for row in rows if row.get('Kind')==kind]
             return min(rows,key=lambda b:(b['x']-x)**2+(b['z']-z)**2) if rows else None
         be=self.poll(kind+' natural cache',find,90);core=(be['x'],be['y'],be['z']);turn=None
         for i,face in enumerate(['north','east','south','west']):
-            reply=self.rc(f'execute if block {self.coords(core)} myvillage:battle_cache[facing={face}] run data get block {self.coords(core)} BattleState')
+            reply=self.rc(f'execute if block {self.coords(core)} yuanxian:battle_cache[facing={face}] run data get block {self.coords(core)} BattleState')
             if 'READY' in reply:turn=i;break
         self.must(kind+'_natural_saved_ready',turn is not None,be)
         site={'core':core,'turn':turn,'kind':kind,'bounds':bounds};self.sites[kind]=site;self.report['sites']=self.sites;self.save()
@@ -153,8 +153,8 @@ class BattleEvidence(RuinEvidence):
     def loot(self,site):
         self.poll('reward committed',lambda:self.state(site)=='REWARDED')
         items=self.data(site)['Items'];manual=RULES[site['kind']]['manual']
-        self.must(site['kind']+'_reward_manual',sum(i.get('components',{}).get('myvillage:technique')==manual for i in items)==1,items)
-        c=site['core'];self.must(site['kind']+'_unlocked_light','passed' in self.rc(f'execute if block {self.coords(c)} myvillage:battle_cache[lit=true]'),str(c))
+        self.must(site['kind']+'_reward_manual',sum(i.get('components',{}).get('yuanxian:technique')==manual for i in items)==1,items)
+        c=site['core'];self.must(site['kind']+'_unlocked_light','passed' in self.rc(f'execute if block {self.coords(c)} yuanxian:battle_cache[lit=true]'),str(c))
         self.approach_cache(site);self.click();self.poll('actual cache menu',lambda:self.s.game.pointer_grabbed() is False,8)
         self.s.game.save_png(self.s.game.grab_raw(),self.out/(site['kind']+'-cache.png'))
         self.s.game.xdo('mousemove','336','156');self.s.game.xdo('keydown','Shift_L')
@@ -162,7 +162,7 @@ class BattleEvidence(RuinEvidence):
         finally:self.s.game.xdo('keyup','Shift_L')
         time.sleep(.4);self.s.game.xdo('key','Escape');self.s.game.require_ingame('cache closed')
         inv=read_data(self.rc(f'data get entity {self.s.username} Inventory'))
-        self.must(site['kind']+'_mapped_manual_pickup',any(i.get('components',{}).get('myvillage:technique')==manual for i in inv),inv)
+        self.must(site['kind']+'_mapped_manual_pickup',any(i.get('components',{}).get('yuanxian:technique')==manual for i in inv),inv)
     def arena(self,temple):
         self.locked(temple) # first mapped use activates, still cannot open or extract
         self.must('arena_started_by_mapped_use',self.state(temple)=='ACTIVE',self.state(temple))
@@ -181,7 +181,7 @@ class BattleEvidence(RuinEvidence):
             self.attack(replacement[1]);self.poll('arena first wave clear',lambda:self.data(temple)['Wave']==1)
             self.wave(temple,1);self.wave(temple,2);self.loot(temple)
             self.approach_cache(temple,guest.game,guest.username);self.click(game=guest.game);self.poll('guest shared menu',lambda:guest.game.pointer_grabbed() is False,8)
-            self.must('guest_sees_already_looted_shared_inventory',not any(i.get('components',{}).get('myvillage:technique')==RULES[temple['kind']]['manual'] for i in self.data(temple)['Items']),self.data(temple)['Items'])
+            self.must('guest_sees_already_looted_shared_inventory',not any(i.get('components',{}).get('yuanxian:technique')==RULES[temple['kind']]['manual'] for i in self.data(temple)['Items']),self.data(temple)['Items'])
             guest.game.xdo('key','Escape');guest.game.require_ingame('guest cache closed')
         self.report['completed']+=['arena','two_client_authority'];self.save()
     def final_restart(self):
@@ -193,11 +193,11 @@ class BattleEvidence(RuinEvidence):
             self.s.game.xdo('key','Escape');self.s.game.require_ingame('saved cache closed')
             self.must(name+'_reopen_does_not_refill',self.data(site)['Items']==expected[name],self.data(site)['Items'])
         inv=read_data(self.rc(f'data get entity {self.s.username} Inventory'))
-        for r in RULES.values():self.must(r['id']+'_looted_manual_saved',sum(i.get('components',{}).get('myvillage:technique')==r['manual'] for i in inv)==1,inv)
+        for r in RULES.values():self.must(r['id']+'_looted_manual_saved',sum(i.get('components',{}).get('yuanxian:technique')==r['manual'] for i in inv)==1,inv)
         self.report['completed'].append('looted_restart');self.save()
     def rotated(self):
         self.rc('forceload add 208 -16 304 64');self.rc(f'gamemode spectator {self.s.username}');self.rc(f'tp {self.s.username} 256 140 20')
-        self.rc('place template myvillage:fuyao_ruin 256 100 0 clockwise_90 none')
+        self.rc('place template yuanxian:fuyao_ruin 256 100 0 clockwise_90 none')
         r=RULES['fuyao_ruin'];x,y,z=r['cache'];site={'kind':'fuyao_ruin','core':(256-z,100+y,x),'turn':1}
         self.poll('rotated template ready',lambda:self.state(site)=='READY');self.setup_player();self.approach_cache(site);self.click();self.trigger(site,0);ids=self.wait_guards(site,0)
         for i,entity in enumerate(ids):

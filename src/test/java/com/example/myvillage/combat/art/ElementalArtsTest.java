@@ -23,15 +23,15 @@ class ElementalArtsTest {
             assertEquals(Set.of("basic","ward","burst","field"),kit.stream().map(a->a.elemental().get().role()).collect(java.util.stream.Collectors.toSet()));
             for(var art:kit) {
                 assertEquals(-1,art.slot());assertTrue(art.lock().isEmpty());assertEquals("elemental",art.family());
-                var path=Path.of("src/main/resources/data/myvillage/myvillage/technique/"+art.id().getPath()+".json");
+                var path=Path.of("src/main/resources/data/yuanxian/yuanxian/technique/"+art.id().getPath()+".json");
                 var technique=TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseString(Files.readString(path))).getOrThrow();
                 assertTrue(technique.requirements().minimumElementAptitude().isEmpty(),"Random roots must not lock a basic school");
                 assertEquals(SkillBindingRules.Kind.ART,SkillBindingRules.kind(art.id(),technique));
                 assertEquals(art.qiCost(),technique.effects().orElseThrow().active().orElseThrow().qiCost());
                 assertEquals(Optional.of(art.school()),technique.school());
-                var school=SchoolDefinition.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/myvillage/school/"+art.school().getPath()+".json")))).getOrThrow();
+                var school=SchoolDefinition.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/yuanxian/school/"+art.school().getPath()+".json")))).getOrThrow();
                 assertEquals(Optional.of(SchoolRuntime.SPELL),school.runtime());assertTrue(school.weaponFamily().isEmpty());
-                assertEquals(List.of(ResourceLocation.parse("myvillage:"+element.id())),school.elementLean());
+                assertEquals(List.of(ResourceLocation.parse("yuanxian:"+element.id())),school.elementLean());
             }
         }
     }

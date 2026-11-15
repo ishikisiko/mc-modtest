@@ -30,7 +30,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
         self.write(
             "gradle.properties",
             """
-            mod_id=myvillage
+            mod_id=yuanxian
             mod_version=0.25.1-fix1
             guideme_version=21.1.17
             """,
@@ -49,16 +49,16 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
                 runs {
                     guide {
                         client()
-                        systemProperty 'guideme.myvillage.cultivation.sources', file('guidebook').absolutePath
-                        systemProperty 'guideme.myvillage.cultivation.sourcesNamespace', 'myvillage'
-                        systemProperty 'guideme.showOnStartup', 'myvillage:cultivation'
-                        systemProperty 'guideme.validateAtStartup', 'myvillage:cultivation'
+                        systemProperty 'guideme.yuanxian.cultivation.sources', file('guidebook').absolutePath
+                        systemProperty 'guideme.yuanxian.cultivation.sourcesNamespace', 'yuanxian'
+                        systemProperty 'guideme.showOnStartup', 'yuanxian:cultivation'
+                        systemProperty 'guideme.validateAtStartup', 'yuanxian:cultivation'
                     }
                 }
             }
             tasks.named('processResources') {
                 from('guidebook') {
-                    into 'assets/myvillage/guides/myvillage/cultivation'
+                    into 'assets/yuanxian/guides/yuanxian/cultivation'
                 }
             }
             """,
@@ -69,10 +69,10 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             modLoader = "javafml"
             loaderVersion = "[4,)"
             [[mods]]
-            modId = "myvillage"
+            modId = "yuanxian"
             version = "0.25.1-fix1"
 
-            [[dependencies.myvillage]]
+            [[dependencies.yuanxian]]
             modId = "guideme"
             type = "required"
             versionRange = "[21.1.17,22)"
@@ -81,45 +81,45 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             """,
         )
         self.write_json(
-            "src/main/resources/assets/myvillage/guideme_guides/cultivation.json",
+            "src/main/resources/assets/yuanxian/guideme_guides/cultivation.json",
             {
                 "default_language": "zh_cn",
                 "item_settings": {
                     "display_name": {
                         "type": "translatable",
-                        "translate": "item.myvillage.cultivation_handbook",
+                        "translate": "item.yuanxian.cultivation_handbook",
                     },
                     "tooltip_lines": [
                         {
                             "type": "translatable",
-                            "translate": "item.myvillage.cultivation_handbook.tooltip",
+                            "translate": "item.yuanxian.cultivation_handbook.tooltip",
                         }
                     ],
-                    "model": "myvillage:item/cultivation_handbook",
+                    "model": "yuanxian:item/cultivation_handbook",
                 },
             },
         )
         self.write_json(
-            "src/main/resources/assets/myvillage/models/item/cultivation_handbook.json",
+            "src/main/resources/assets/yuanxian/models/item/cultivation_handbook.json",
             {"parent": "guideme:item/guide_base"},
         )
         keys = {
-            "key.myvillage.open_cultivation_profile": "Profile",
-            "key.myvillage.start_normal_meditation": "Normal",
-            "key.myvillage.start_spirit_meditation": "Spirit",
-            "key.myvillage.stop_meditation": "Stop",
-            "key.myvillage.start_advancement": "Advance",
+            "key.yuanxian.open_cultivation_profile": "Profile",
+            "key.yuanxian.start_normal_meditation": "Normal",
+            "key.yuanxian.start_spirit_meditation": "Spirit",
+            "key.yuanxian.stop_meditation": "Stop",
+            "key.yuanxian.start_advancement": "Advance",
         }
         for locale, name, tooltip in (
             ("en_us", "Cultivation Primer", "Open the cultivation guide"),
             ("zh_cn", "修行入门录", "打开修行指南"),
         ):
             self.write_json(
-                f"src/main/resources/assets/myvillage/lang/{locale}.json",
+                f"src/main/resources/assets/yuanxian/lang/{locale}.json",
                 {
                     **keys,
-                    "item.myvillage.cultivation_handbook": name,
-                    "item.myvillage.cultivation_handbook.tooltip": tooltip,
+                    "item.yuanxian.cultivation_handbook": name,
+                    "item.yuanxian.cultivation_handbook.tooltip": tooltip,
                 },
             )
 
@@ -178,7 +178,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
                 void appendHoverText(ItemStack stack, TooltipContext context,
                         List<Component> tooltip, TooltipFlag flag) {
                     tooltip.add(Component.translatable(
-                        "item.myvillage.cultivation_handbook.tooltip"));
+                        "item.yuanxian.cultivation_handbook.tooltip"));
                 }
             }
             """,
@@ -192,9 +192,9 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             ---
             navigation:
               title: 修行入门录
-              icon: myvillage:cultivation_handbook
+              icon: yuanxian:cultivation_handbook
             item_ids:
-              - myvillage:cultivation_handbook
+              - yuanxian:cultivation_handbook
             ---
             # 修行入门录
             先测灵唤醒灵根，再传承吐纳诀。之后依次积累进度、巩固稳定度并确定性冲关。
@@ -207,9 +207,9 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             ---
             navigation:
               title: Cultivation Primer
-              icon: myvillage:cultivation_handbook
+              icon: yuanxian:cultivation_handbook
             item_ids:
-              - myvillage:cultivation_handbook
+              - yuanxian:cultivation_handbook
             ---
             # Cultivation Primer
             Awaken a spiritual root, inherit Basic Breathing, fill progress, consolidate stability,
@@ -226,13 +226,13 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
               parent: index.md
               position: 10
             item_ids:
-              - myvillage:spirit_testing_stele
-              - myvillage:technique_inheritance_stele
+              - yuanxian:spirit_testing_stele
+              - yuanxian:technique_inheritance_stele
             ---
             # 入门仪式
             分别右键测灵碑和传承碑。重复测灵不会重抽灵根，重复传承不会重置吐纳诀熟练度。
-            <Row><BlockImage id="myvillage:spirit_testing_stele" />
-            <ItemLink id="myvillage:technique_inheritance_stele" /></Row>
+            <Row><BlockImage id="yuanxian:spirit_testing_stele" />
+            <ItemLink id="yuanxian:technique_inheritance_stele" /></Row>
         """
         initiation_en = """
             ---
@@ -241,14 +241,14 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
               parent: index.md
               position: 10
             item_ids:
-              - myvillage:spirit_testing_stele
-              - myvillage:technique_inheritance_stele
+              - yuanxian:spirit_testing_stele
+              - yuanxian:technique_inheritance_stele
             ---
             # Initiation
             Right-click the testing stele and inheritance stele separately. Repeating testing does not
             reroll the root, and repeating inheritance does not reset Basic Breathing mastery.
-            <Row><BlockImage id="myvillage:spirit_testing_stele" />
-            <ItemLink id="myvillage:technique_inheritance_stele" /></Row>
+            <Row><BlockImage id="yuanxian:spirit_testing_stele" />
+            <ItemLink id="yuanxian:technique_inheritance_stele" /></Row>
         """
         key_tags = " ".join(f'<KeyBind id="{key}" />' for key in keys)
         loop_zh = f"""
@@ -258,9 +258,9 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
               parent: index.md
               position: 20
             item_ids:
-              - myvillage:low_grade_spirit_stone
-              - myvillage:spirit_stone_ore
-              - myvillage:deepslate_spirit_stone_ore
+              - yuanxian:low_grade_spirit_stone
+              - yuanxian:spirit_stone_ore
+              - yuanxian:deepslate_spirit_stone_ore
             ---
             # 打坐与冲关
             控制：{key_tags}
@@ -269,9 +269,9 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             上限依次为 1000/500、1100/550、1200/600、1300/650；冲关时长 100/100/120/200。
             成功后稳定度整数除以 2；最后一次中断损失 5。凡人寿元 80，炼气寿元 120。
             移动、跳跃、受伤或互动会中断。寿元耗尽会阻止开始。金丹后期是当前上限。
-            <ItemLink id="myvillage:low_grade_spirit_stone" />
-            <Row><BlockImage id="myvillage:spirit_stone_ore" />
-            <BlockImage id="myvillage:deepslate_spirit_stone_ore" /></Row>
+            <ItemLink id="yuanxian:low_grade_spirit_stone" />
+            <Row><BlockImage id="yuanxian:spirit_stone_ore" />
+            <BlockImage id="yuanxian:deepslate_spirit_stone_ore" /></Row>
         """
         loop_en = f"""
             ---
@@ -280,9 +280,9 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
               parent: index.md
               position: 20
             item_ids:
-              - myvillage:low_grade_spirit_stone
-              - myvillage:spirit_stone_ore
-              - myvillage:deepslate_spirit_stone_ore
+              - yuanxian:low_grade_spirit_stone
+              - yuanxian:spirit_stone_ore
+              - yuanxian:deepslate_spirit_stone_ore
             ---
             # Cultivation Loop
             Controls: {key_tags}
@@ -292,9 +292,9 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             and 1300/650; durations are 100/100/120/200. Success retains integer-floor half stability.
             The last interruption costs 5. Mortal lifespan is 80 and Qi Refining lifespan is 120.
             Movement, jumping, damage, or interaction interrupts the session. Golden Core late is the ceiling.
-            <ItemLink id="myvillage:low_grade_spirit_stone" />
-            <Row><BlockImage id="myvillage:spirit_stone_ore" />
-            <BlockImage id="myvillage:deepslate_spirit_stone_ore" /></Row>
+            <ItemLink id="yuanxian:low_grade_spirit_stone" />
+            <Row><BlockImage id="yuanxian:spirit_stone_ore" />
+            <BlockImage id="yuanxian:deepslate_spirit_stone_ore" /></Row>
         """
         for relative, content in (
             ("guidebook/index.md", index_zh),
@@ -310,11 +310,11 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             "README.md",
             """
             GuideME is required on the client and required on the server.
-            Use `/give @s myvillage:cultivation_handbook` or
-            `/guidemec myvillage:cultivation open`. Authors run `./gradlew runGuide`.
+            Use `/give @s yuanxian:cultivation_handbook` or
+            `/guidemec yuanxian:cultivation open`. Authors run `./gradlew runGuide`.
             Run `python3 tools/validate_guideme_cultivation_guide.py`.
             Manual rendering and interaction remain `not_verified`.
-            Artifact: `build/libs/myvillage-0.25.1-fix1.jar`.
+            Artifact: `build/libs/yuanxian-0.25.1-fix1.jar`.
             """,
         )
         self.write(
@@ -322,15 +322,15 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             """
             # Changelog
             ## 0.25.1-fix1
-            Added GuideME integration and `myvillage:cultivation_handbook`.
+            Added GuideME integration and `yuanxian:cultivation_handbook`.
             """,
         )
         self.write(
             "docs/ai-kb/31_guideme_cultivation_guide.md",
             """
             # GuideME Cultivation Guide
-            Root `guidebook/` is the source for `myvillage:cultivation`.
-            Preview with `/guidemec myvillage:cultivation open`.
+            Root `guidebook/` is the source for `yuanxian:cultivation`.
+            Preview with `/guidemec yuanxian:cultivation open`.
             Validate with `tools/validate_guideme_cultivation_guide.py`.
             """,
         )
@@ -360,14 +360,14 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
         source_entries = {
             "META-INF/neoforge.mods.toml":
                 "src/main/resources/META-INF/neoforge.mods.toml",
-            "assets/myvillage/guideme_guides/cultivation.json":
-                "src/main/resources/assets/myvillage/guideme_guides/cultivation.json",
-            "assets/myvillage/models/item/cultivation_handbook.json":
-                "src/main/resources/assets/myvillage/models/item/cultivation_handbook.json",
-            "assets/myvillage/lang/en_us.json":
-                "src/main/resources/assets/myvillage/lang/en_us.json",
-            "assets/myvillage/lang/zh_cn.json":
-                "src/main/resources/assets/myvillage/lang/zh_cn.json",
+            "assets/yuanxian/guideme_guides/cultivation.json":
+                "src/main/resources/assets/yuanxian/guideme_guides/cultivation.json",
+            "assets/yuanxian/models/item/cultivation_handbook.json":
+                "src/main/resources/assets/yuanxian/models/item/cultivation_handbook.json",
+            "assets/yuanxian/lang/en_us.json":
+                "src/main/resources/assets/yuanxian/lang/en_us.json",
+            "assets/yuanxian/lang/zh_cn.json":
+                "src/main/resources/assets/yuanxian/lang/zh_cn.json",
         }
         with zipfile.ZipFile(jar, "w") as archive:
             for entry, relative in source_entries.items():
@@ -457,7 +457,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
               title: 炼器
               parent: index.md
               position: 55
-              icon: myvillage:cultivation_handbook
+              icon: yuanxian:cultivation_handbook
             ---
             # 炼器
             {body}
@@ -470,13 +470,13 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
         self.assertEqual((), self.validate().errors)
 
     def test_new_page_broken_link_and_unknown_item_are_rejected(self) -> None:
-        self.add_chinese_page('[缺页](./missing.md) <ItemLink id="myvillage:missing_item" />')
+        self.add_chinese_page('[缺页](./missing.md) <ItemLink id="yuanxian:missing_item" />')
         result = self.validate()
         self.assert_error_contains(result, "internal page link does not resolve")
         self.assert_error_contains(result, "ItemLink references unknown registered item")
 
     def test_missing_embedded_recipe_is_rejected(self) -> None:
-        self.add_chinese_page('<Recipe id="myvillage:missing_recipe" />')
+        self.add_chinese_page('<Recipe id="yuanxian:missing_recipe" />')
         self.assert_error_contains(self.validate(), "Recipe references missing recipe")
 
     def test_html_comment_cannot_hide_a_guide_page_parse_failure(self) -> None:
@@ -511,7 +511,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
         path = self.root / "guidebook/getting_started/cultivation_loop.md"
         path.write_text(
             path.read_text(encoding="utf-8").replace(
-                'id="myvillage:low_grade_spirit_stone"', 'id="myvillage:missing_stone"', 1
+                'id="yuanxian:low_grade_spirit_stone"', 'id="yuanxian:missing_stone"', 1
             ),
             encoding="utf-8",
         )
@@ -519,7 +519,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
 
     def test_model_parent_drift_is_rejected(self) -> None:
         self.write_json(
-            "src/main/resources/assets/myvillage/models/item/cultivation_handbook.json",
+            "src/main/resources/assets/yuanxian/models/item/cultivation_handbook.json",
             {"parent": "minecraft:item/generated"},
         )
         self.assert_error_contains(self.validate(), "parent guideme:item/guide_base")
@@ -528,16 +528,16 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
         build = self.root / "build.gradle"
         build.write_text(
             build.read_text(encoding="utf-8").replace(
-                "'guideme.showOnStartup', 'myvillage:cultivation'",
-                "'guideme.showOnStartup', 'myvillage:cultivation!index.md'",
+                "'guideme.showOnStartup', 'yuanxian:cultivation'",
+                "'guideme.showOnStartup', 'yuanxian:cultivation!index.md'",
             ),
             encoding="utf-8",
         )
         readme = self.root / "README.md"
         readme.write_text(
             readme.read_text(encoding="utf-8").replace(
-                "/guidemec myvillage:cultivation open",
-                "/guidemec open myvillage:cultivation",
+                "/guidemec yuanxian:cultivation open",
+                "/guidemec open yuanxian:cultivation",
             ),
             encoding="utf-8",
         )

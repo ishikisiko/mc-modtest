@@ -39,13 +39,13 @@ class BattleProgressTest {
         }
     }
     private JsonObject json(String id)throws Exception{
-        try(var in=getClass().getResourceAsStream("/data/myvillage/ruins/"+id+".json")){
+        try(var in=getClass().getResourceAsStream("/data/yuanxian/ruins/"+id+".json")){
             return JsonParser.parseReader(new InputStreamReader(Objects.requireNonNull(in),StandardCharsets.UTF_8)).getAsJsonObject();
         }
     }
     @Test void bothBundledEncountersAndBounds()throws Exception{
         assertEquals("route",BattleRules.parse(json("duange_ruin")).mode());
-        var temple=BattleRules.parse(json("fuyao_ruin"));assertEquals(3,temple.waves().size());assertEquals("myvillage:liuyun_bu",temple.manual());
+        var temple=BattleRules.parse(json("fuyao_ruin"));assertEquals(3,temple.waves().size());assertEquals("yuanxian:liuyun_bu",temple.manual());
         var broken=json("fuyao_ruin");broken.addProperty("tick_interval",0);assertThrows(IllegalArgumentException.class,()->BattleRules.parse(broken));
         var fractional=json("duange_ruin");fractional.addProperty("wave_delay_ticks",1.5);assertThrows(ArithmeticException.class,()->BattleRules.parse(fractional));
     }

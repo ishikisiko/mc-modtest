@@ -29,7 +29,7 @@ class MinecraftTests(unittest.TestCase):
     def test_native_rack_uses_all_four_registered_parts(self):
         world=TinyWorld()
         fixture(world,{'id':'rack','kind':'drying_rack','position':[10,20,30],'size':[2,2,1]},
-                {'drying_rack':'myvillage:drying_rack'},'north')
+                {'drying_rack':'yuanxian:drying_rack'},'north')
         self.assertEqual({(10,20,30),(11,20,30),(10,21,30),(11,21,30)},set(world.cells))
         for part,state in enumerate(world.cells.values()):self.assertIn(f'part={part}',state)
 

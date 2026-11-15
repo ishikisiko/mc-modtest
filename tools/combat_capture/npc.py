@@ -1,4 +1,4 @@
-"""In-game evidence for a humanoid NPC (``myvillage:cultivator``): stills and walk footage.
+"""In-game evidence for a humanoid NPC (``yuanxian:cultivator``): stills and walk footage.
 
 Reuses the beast capture's session steps (spectator camera, frozen world, stills,
 ffmpeg) for an entity that has no moves and no server data file.

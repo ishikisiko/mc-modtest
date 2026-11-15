@@ -64,7 +64,7 @@ def fixture() -> dict:
         "config": {"seed": 7, "tier": "small", "years": 10, "days_per_year": 6, "prehistory_years": 10,
                    "prehistory_days": 60, "final_day": 120, "future_field": {"ignored": True}},
         "final_state": {
-            "format": "myvillage:world_sim", "version": 1, "seed": 7, "tier": "small", "day": 120,
+            "format": "yuanxian:world_sim", "version": 1, "seed": 7, "tier": "small", "day": 120,
             "prehistory_days": 60,
             "sects": [{"id": 1, "name": "青云宗", "region": "zhongzhou", "founder": 1, "founded_day": -300,
                        "master": 4, "signature_technique": "tj", "state": "active", "destroyed_day": -1}],

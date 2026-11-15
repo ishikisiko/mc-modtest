@@ -80,7 +80,7 @@ public final class ManorCatalog {
         return List.copyOf(result);
     }
     private static ManorCatalog load() {
-        String resource="/data/myvillage/lord_manors/catalog.json";
+        String resource="/data/yuanxian/lord_manors/catalog.json";
         try(var stream=ManorCatalog.class.getResourceAsStream(resource)) {
             if(stream==null)throw new IllegalStateException("Missing "+resource);
             var root=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();

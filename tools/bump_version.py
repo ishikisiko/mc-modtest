@@ -10,7 +10,7 @@ examples, and ``CHANGELOG.md`` together. This tool applies that mechanically:
 
 It refuses a malformed version, a version that is not newer than the current
 one, and a tree whose four places disagree before the bump. In README it
-rewrites only ``myvillage-<old>.jar`` jar names, so prose such as "since
+rewrites only ``yuanxian-<old>.jar`` jar names, so prose such as "since
 0.29.0" stays. In CHANGELOG it inserts an empty ``## <new>`` heading above the
 newest entry; the body is left for a human (the release gate fails while it is
 empty). Standard library only.
@@ -35,8 +35,8 @@ VERSION_PATTERN = r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-fix[1-9]\d
 VERSION_RE = re.compile(rf"^{VERSION_PATTERN}$")
 GRADLE_VERSION_RE = re.compile(r"^mod_version\s*=\s*(\S+)\s*$", re.MULTILINE)
 TOML_VERSION_RE = re.compile(r'^(\s*version\s*=\s*")([^"]*)("\s*)$')
-# A jar name in README: myvillage-<version>.jar (the version starts with a digit).
-README_JAR_RE = re.compile(r"\bmyvillage-(\d[0-9A-Za-z.\-]*?)\.jar\b")
+# A jar name in README: yuanxian-<version>.jar (the version starts with a digit).
+README_JAR_RE = re.compile(r"\byuanxian-(\d[0-9A-Za-z.\-]*?)\.jar\b")
 CHANGELOG_HEADING_RE = re.compile(r"^## (\S+)[ \t]*$")
 
 
@@ -111,7 +111,7 @@ class VersionSources:
         if self.toml is None:
             found.append(f"{MODS_TOML}: no version in the [[mods]] table")
         if not self.readme:
-            found.append(f"{README}: no myvillage-<version>.jar name")
+            found.append(f"{README}: no yuanxian-<version>.jar name")
         elif len(self.readme) > 1:
             found.append(f"{README}: jar names use several versions: {', '.join(self.readme)}")
         if self.changelog is None:
@@ -184,10 +184,10 @@ def plan_bump(root: Path, new: str) -> tuple[str, list[FileEdit]]:
     edits.append(FileEdit(MODS_TOML, toml_before, "".join(toml_lines), f"[[mods]] version {old} -> {new}"))
 
     readme_before = read_text(root / README)
-    old_jar = re.compile(rf"\bmyvillage-{re.escape(old)}\.jar\b")
-    readme_after, count = old_jar.subn(f"myvillage-{new}.jar", readme_before)
+    old_jar = re.compile(rf"\byuanxian-{re.escape(old)}\.jar\b")
+    readme_after, count = old_jar.subn(f"yuanxian-{new}.jar", readme_before)
     edits.append(FileEdit(README, readme_before, readme_after,
-                          f"{count} jar names myvillage-{old}.jar -> myvillage-{new}.jar"))
+                          f"{count} jar names yuanxian-{old}.jar -> yuanxian-{new}.jar"))
 
     changelog_before = read_text(root / CHANGELOG)
     if f"## {new}" in (line.rstrip() for line in changelog_before.splitlines()):

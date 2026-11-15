@@ -8,7 +8,7 @@ navigation:
 
 # 舆图、宗门与居民交易
 
-打开修仙面板：<KeyBind id="key.myvillage.open_cultivation_profile" />。「天下」查看地区、宗门、人物与纪事；「行迹」查看个人阡镇进度。它们是不同入口，城池传送不会替你接受学徒工作。
+打开修仙面板：<KeyBind id="key.yuanxian.open_cultivation_profile" />。「天下」查看地区、宗门、人物与纪事；「行迹」查看个人阡镇进度。它们是不同入口，城池传送不会替你接受学徒工作。
 
 ## 舆图怎样使用
 

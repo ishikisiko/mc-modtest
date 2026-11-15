@@ -3,7 +3,7 @@ navigation:
   title: 五行法修
   parent: index.md
   position: 36
-  icon: myvillage:manual_active_huang
+  icon: yuanxian:manual_active_huang
 ---
 # 五行法修
 
@@ -25,7 +25,7 @@ navigation:
 
 灵力 1；冷却 1 秒。射程 48 格。
 
-<Recipe id="myvillage:manual_jinmang_shu" />
+<Recipe id="yuanxian:manual_jinmang_shu" />
 
 ## 金法 · 金罡障
 
@@ -33,7 +33,7 @@ navigation:
 
 灵力 6；冷却 10 秒。自身护体。
 
-<Recipe id="myvillage:manual_jingang_zhang" />
+<Recipe id="yuanxian:manual_jingang_zhang" />
 
 ## 金法 · 破阵金轮
 
@@ -41,7 +41,7 @@ navigation:
 
 灵力 8；冷却 5 秒。射程 48 格。
 
-<Recipe id="myvillage:manual_pozhen_jinlun" />
+<Recipe id="yuanxian:manual_pozhen_jinlun" />
 
 ## 金法 · 万刃界
 
@@ -49,7 +49,7 @@ navigation:
 
 灵力 18；冷却 15 秒。落点距离 48 格；作用半径 8 格。
 
-<Recipe id="myvillage:manual_wanren_jie" />
+<Recipe id="yuanxian:manual_wanren_jie" />
 
 ## 木法 · 灵种术
 
@@ -57,7 +57,7 @@ navigation:
 
 灵力 1；冷却 1 秒。射程 40 格。
 
-<Recipe id="myvillage:manual_lingzhong_shu" />
+<Recipe id="yuanxian:manual_lingzhong_shu" />
 
 ## 木法 · 青木衣
 
@@ -65,7 +65,7 @@ navigation:
 
 灵力 6；冷却 10 秒。自身护体。
 
-<Recipe id="myvillage:manual_qingmu_yi" />
+<Recipe id="yuanxian:manual_qingmu_yi" />
 
 ## 木法 · 枯荣引
 
@@ -73,7 +73,7 @@ navigation:
 
 灵力 8；冷却 5 秒。落点距离 40 格；作用半径 7 格。
 
-<Recipe id="myvillage:manual_kurong_yin" />
+<Recipe id="yuanxian:manual_kurong_yin" />
 
 ## 木法 · 青藤界
 
@@ -81,7 +81,7 @@ navigation:
 
 灵力 18；冷却 15 秒。落点距离 40 格；作用半径 8 格。
 
-<Recipe id="myvillage:manual_qingteng_jie" />
+<Recipe id="yuanxian:manual_qingteng_jie" />
 
 ## 水法 · 水刃术
 
@@ -89,7 +89,7 @@ navigation:
 
 灵力 1；冷却 1 秒。射程 40 格。
 
-<Recipe id="myvillage:manual_shuiren_shu" />
+<Recipe id="yuanxian:manual_shuiren_shu" />
 
 ## 水法 · 流水障
 
@@ -97,7 +97,7 @@ navigation:
 
 灵力 6；冷却 10 秒。自身护体。
 
-<Recipe id="myvillage:manual_liushui_zhang" />
+<Recipe id="yuanxian:manual_liushui_zhang" />
 
 ## 水法 · 沧浪冲
 
@@ -105,7 +105,7 @@ navigation:
 
 灵力 8；冷却 5 秒。自身前方 14 格扇形。
 
-<Recipe id="myvillage:manual_canglang_chong" />
+<Recipe id="yuanxian:manual_canglang_chong" />
 
 ## 水法 · 寒潮界
 
@@ -113,7 +113,7 @@ navigation:
 
 灵力 18；冷却 15 秒。落点距离 40 格；作用半径 8 格。
 
-<Recipe id="myvillage:manual_hanchao_jie" />
+<Recipe id="yuanxian:manual_hanchao_jie" />
 
 ## 火法 · 灵火术
 
@@ -121,7 +121,7 @@ navigation:
 
 灵力 1；冷却 1 秒。射程 40 格。
 
-<Recipe id="myvillage:manual_linghuo_shu" />
+<Recipe id="yuanxian:manual_linghuo_shu" />
 
 ## 火法 · 回焰障
 
@@ -129,7 +129,7 @@ navigation:
 
 灵力 6；冷却 10 秒。自身护体；推退半径 6 格。
 
-<Recipe id="myvillage:manual_huiyan_zhang" />
+<Recipe id="yuanxian:manual_huiyan_zhang" />
 
 ## 火法 · 爆焰术
 
@@ -137,7 +137,7 @@ navigation:
 
 灵力 8；冷却 5 秒。落点距离 40 格；作用半径 7 格。
 
-<Recipe id="myvillage:manual_baoyan_shu" />
+<Recipe id="yuanxian:manual_baoyan_shu" />
 
 ## 火法 · 赤焰界
 
@@ -145,7 +145,7 @@ navigation:
 
 灵力 18；冷却 15 秒。落点距离 40 格；作用半径 8 格。
 
-<Recipe id="myvillage:manual_chiyan_jie" />
+<Recipe id="yuanxian:manual_chiyan_jie" />
 
 ## 土法 · 岩弹术
 
@@ -153,7 +153,7 @@ navigation:
 
 灵力 1；冷却 1 秒。射程 40 格。
 
-<Recipe id="myvillage:manual_yandan_shu" />
+<Recipe id="yuanxian:manual_yandan_shu" />
 
 ## 土法 · 厚土障
 
@@ -161,7 +161,7 @@ navigation:
 
 灵力 6；冷却 10 秒。自身护体。
 
-<Recipe id="myvillage:manual_houshi_zhang" />
+<Recipe id="yuanxian:manual_houshi_zhang" />
 
 ## 土法 · 镇岳印
 
@@ -169,7 +169,7 @@ navigation:
 
 灵力 8；冷却 5 秒。落点距离 40 格；作用半径 7 格。
 
-<Recipe id="myvillage:manual_zhenyue_yin" />
+<Recipe id="yuanxian:manual_zhenyue_yin" />
 
 ## 土法 · 流砂界
 
@@ -177,5 +177,5 @@ navigation:
 
 灵力 18；冷却 15 秒。落点距离 40 格；作用半径 8 格。
 
-<Recipe id="myvillage:manual_liusha_jie" />
+<Recipe id="yuanxian:manual_liusha_jie" />
 

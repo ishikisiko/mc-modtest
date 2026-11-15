@@ -39,7 +39,7 @@ def read_bounded(path: Path, maximum: int) -> bytes:
 
 
 def definitions(spec: dict, regions: set[str]) -> list[dict]:
-    if (spec.get('schema'), spec.get('algorithm'), spec.get('base')) != (1, 'myvillage:worldplan_v9', 'frozen_v8.json'):
+    if (spec.get('schema'), spec.get('algorithm'), spec.get('base')) != (1, 'yuanxian:worldplan_v9', 'frozen_v8.json'):
         raise ValueError('V9 必须继承独立 frozen_v8，不能改写旧聚合规则')
     assets = spec['assets']
     versions = assets['accepted_versions']
@@ -62,7 +62,7 @@ def inspect_city(source: Path, definition: dict, limit: int) -> tuple[dict, dict
     city_id, region, version = (definition[key] for key in ('city_id', 'region_id', 'resource_version'))
     if version not in SUPPORTED_VERSIONS or city_id != 'capital_' + region or not re.fullmatch(r'[a-z0-9_]+', region):
         raise ValueError('主城身份或资源版本不合法')
-    manifest = f'myvillage:capitals/{version}/{city_id}/city.json'
+    manifest = f'yuanxian:capitals/{version}/{city_id}/city.json'
     path = resource_file(source, manifest)
     if not path.is_file():
         raise FileNotFoundError(f'正式主城尚未齐备，拒绝聚合不完整 V9：{path}')
@@ -91,8 +91,8 @@ def inspect_city(source: Path, definition: dict, limit: int) -> tuple[dict, dict
     if region == 'zhongzhou' and (version, placement['vertical_mode'], placement['anchor_y']) != ('v1', 'absolute', 0):
         raise ValueError('中州必须保持 v1 和 absolute originY=0')
     terrain = city['terrain']
-    prefix = f'myvillage:capitals/{version}/{city_id}/'
-    if not terrain['resource'].startswith(prefix) or not re.fullmatch(r'myvillage:[a-z0-9_/.-]+', terrain['resource']) or '..' in terrain['resource']:
+    prefix = f'yuanxian:capitals/{version}/{city_id}/'
+    if not terrain['resource'].startswith(prefix) or not re.fullmatch(r'yuanxian:[a-z0-9_/.-]+', terrain['resource']) or '..' in terrain['resource']:
         raise ValueError(f'{city_id} 地形必须与 manifest 的城 ID 和资源版本一致')
     if (terrain['encoding'], terrain['width'], terrain['depth']) != ('i16le_z_major_top_solid', width, depth):
         raise ValueError(f'{city_id} heightfield 必须记录同尺寸的 top-solid')
@@ -123,10 +123,10 @@ def inspect_city(source: Path, definition: dict, limit: int) -> tuple[dict, dict
         if type(tx) is not int or type(tz) is not int or tx % 16 or tz % 16 or not (0 <= tx < width and 0 <= tz < depth) or (tx, tz) in positions:
             raise ValueError(f'{city_id} 稀疏 tile 重叠或越界')
         positions.add((tx, tz))
-        if not re.fullmatch(f'myvillage:province_capitals/{version}/{city_id}/[a-z0-9_]+', tile['template']):
+        if not re.fullmatch(f'yuanxian:province_capitals/{version}/{city_id}/[a-z0-9_]+', tile['template']):
             raise ValueError(f'{city_id} tile 必须与 manifest 的城 ID 和资源版本一致')
         data = read_bounded(resource_file(source, tile['template'], template=True), 8 * 1024 * 1024)
-        file_id = 'myvillage:structure/' + tile['template'].split(':', 1)[1] + '.nbt'
+        file_id = 'yuanxian:structure/' + tile['template'].split(':', 1)[1] + '.nbt'
         resources[file_id] = sha(data); total_bytes += len(data)
         if resources[file_id] != tile['sha256']:
             raise ValueError(f'{city_id} NBT 声明摘要不符：{file_id}')
@@ -146,12 +146,12 @@ def aggregate(out: Path, legacy_out: Path, rules_path: Path = RULES) -> dict:
     if out.resolve() == legacy_out.resolve():
         raise ValueError('V9 输出必须与旧 V8 输出分开，不能覆盖旧 cultivation.json')
     spec = json.loads(rules_path.read_text(encoding='utf-8'))
-    base_path = legacy_out / 'data/myvillage/worldplan/frozen_v8.json'
+    base_path = legacy_out / 'data/yuanxian/worldplan/frozen_v8.json'
     if not base_path.is_file():
         raise FileNotFoundError(f'缺少 owning V8 聚合产物：{base_path}；先正常运行旧 compile.py')
     base_bytes = read_bounded(base_path, 4 * 1024 * 1024)
     base = json.loads(base_bytes)
-    if base.get('algorithm') != 'myvillage:worldplan_v8':
+    if base.get('algorithm') != 'yuanxian:worldplan_v8':
         raise ValueError('V9 仅从独立 frozen_v8 继承统一选址、出生与地形规则')
     v8_spec = json.loads((ROOT / 'blueprints/worldplan/rules_v8.json').read_text(encoding='utf-8'))
     if any(base.get(key) != value for key, value in v8_spec['world'].items()) or any(base['capitals'].get(key) != value for key, value in v8_spec['planning'].items()):
@@ -175,12 +175,12 @@ def aggregate(out: Path, legacy_out: Path, rules_path: Path = RULES) -> dict:
     transport = 'gzip:' + base64.b64encode(gzip.compress(raw, mtime=0)).decode('ascii')
     if len(raw) > 4 * 1024 * 1024 or len(transport) > 65000:
         raise ValueError('V9 冻结规则超出既有内存或 NBT 字符串边界')
-    preset_path = legacy_out / 'data/myvillage/worldgen/world_preset/cultivation.json'
+    preset_path = legacy_out / 'data/yuanxian/worldgen/world_preset/cultivation.json'
     preset = json.loads(preset_path.read_text(encoding='utf-8'))
     generator = preset['dimensions']['minecraft:overworld']['generator']
-    if generator['type'] != 'myvillage:planned_v8':
+    if generator['type'] != 'yuanxian:planned_v8':
         raise ValueError('V9 默认预设必须继承 owning V8 预设')
-    generator.update(type='myvillage:planned_v9', rules=transport)
+    generator.update(type='yuanxian:planned_v9', rules=transport)
     generator.pop('plan_hash', None)
     report = {'schema': 1, 'format': 'capital_game_index', 'algorithm': spec['algorithm'], 'cities': summaries,
               'total_tiles': sum(c['tiles'] for c in summaries), 'total_bytes': sum(c['bytes'] for c in summaries),
@@ -188,9 +188,9 @@ def aggregate(out: Path, legacy_out: Path, rules_path: Path = RULES) -> dict:
               'legacy_v8_rules_sha256': sha(canonical(base)), 'legacy_v8_file_sha256': sha(base_bytes),
               'status': {'tests': 'not_run', 'compile': 'not_run', 'minecraft': 'not_run', 'owner_appearance': 'not_verified'}}
     # 全部输入通过消费者边界后才写本版本产物；旧输出目录从不写入。
-    write(out / 'data/myvillage/worldplan/frozen_v9.json', frozen)
-    write(out / 'data/myvillage/worldgen/world_preset/cultivation.json', preset)
-    write(out / 'data/myvillage/capitals/v2/index.json', report)
+    write(out / 'data/yuanxian/worldplan/frozen_v9.json', frozen)
+    write(out / 'data/yuanxian/worldgen/world_preset/cultivation.json', preset)
+    write(out / 'data/yuanxian/capitals/v2/index.json', report)
     return report
 
 
@@ -205,7 +205,7 @@ def audit_legacy(legacy_out: Path, baseline: Path, *, catalogue_sha256: str | No
     legacy_out = legacy_out.resolve()
     original_json = baseline.parent / 'legacy-json-before'
     changed, unchanged = [], 0
-    protected = [legacy_out / f'data/myvillage/{relative}' for relative in (
+    protected = [legacy_out / f'data/yuanxian/{relative}' for relative in (
         'worldplan', 'capitals/v1', 'structure/province_capitals/v1')]
     known = {(ROOT / key).resolve(): digest for key, digest in records.items()}
     current = {p.resolve() for directory in protected for p in directory.rglob('*') if p.is_file()}
@@ -254,13 +254,13 @@ def audit_legacy(legacy_out: Path, baseline: Path, *, catalogue_sha256: str | No
                 if not file.is_file() or sha(file.read_bytes()) != new_hashes[source]:
                     raise ValueError(f'旧主城诊断摘要与实际源不符：{path} / {source}')
                 fields.append({'field': 'source.hashes[' + source + ']', 'before': old_hashes.get(source), 'after': new_hashes[source]})
-        elif relative.as_posix() == 'data/myvillage/capitals/v1/index.json':
+        elif relative.as_posix() == 'data/yuanxian/capitals/v1/index.json':
             before, after = json.loads(snapshot.read_text(encoding='utf-8')), json.loads(data)
             restored = copy.deepcopy(after)
             if len(before['cities']) != len(after['cities']):
                 raise ValueError('旧 index 城市数量变化')
             for i, (old, new) in enumerate(zip(before['cities'], after['cities'])):
-                city_path = legacy_out / 'data/myvillage/capitals/v1' / old['city_id'] / 'city.json'
+                city_path = legacy_out / 'data/yuanxian/capitals/v1' / old['city_id'] / 'city.json'
                 prior_path = original_json / city_path.relative_to(legacy_out)
                 prior_bytes, current_bytes = prior_path.read_bytes(), city_path.read_bytes()
                 if (city_path not in known or sha(prior_bytes) != known[city_path]

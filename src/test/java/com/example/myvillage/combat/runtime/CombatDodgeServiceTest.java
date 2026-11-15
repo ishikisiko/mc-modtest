@@ -123,7 +123,7 @@ class CombatDodgeServiceTest {
     @Test
     void logLinesFollowTheCaptureFormat() {
         assertEquals(
-                "DODGE_DEBUG player=Dev t=1234 result=started technique=myvillage:taxue_wuhen dir=LEFT "
+                "DODGE_DEBUG player=Dev t=1234 result=started technique=yuanxian:taxue_wuhen dir=LEFT "
                         + "yaw=-90.00 distance=4.50 invuln=7 cooldown=24",
                 CombatDodgeService.startedLine(
                         "Dev", 1234L, id("taxue_wuhen"), DodgeDirection.LEFT, -90.0F, 4.5, 7, 24));
@@ -167,6 +167,6 @@ class CombatDodgeServiceTest {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 }

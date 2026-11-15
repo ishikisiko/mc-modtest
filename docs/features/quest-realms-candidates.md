@@ -27,8 +27,8 @@
 
 当前源代码与配置包含以下两处主世界遗迹：
 
-- **断戈营垒**：三段清剿路线，按区域推进并击败绑定守敌后开放奖励。配置见[duange_ruin.json](../../src/main/resources/data/myvillage/ruins/duange_ruin.json)。
-- **伏妖残殿**：交互后开始三波妖狼试炼，全部守敌击败后开放奖励。配置见[fuyao_ruin.json](../../src/main/resources/data/myvillage/ruins/fuyao_ruin.json)。
+- **断戈营垒**：三段清剿路线，按区域推进并击败绑定守敌后开放奖励。配置见[duange_ruin.json](../../src/main/resources/data/yuanxian/ruins/duange_ruin.json)。
+- **伏妖残殿**：交互后开始三波妖狼试炼，全部守敌击败后开放奖励。配置见[fuyao_ruin.json](../../src/main/resources/data/yuanxian/ruins/fuyao_ruin.json)。
 
 两者的状态、敌人身份和奖励已有[战斗遗迹实现](../ai-kb/53_combat_ruins.md)；场景属于主世界自然结构，奖励按结构共享并只生成一次。它们尚未成为新的临时委托实例，新远征仍需接入成员、生命周期与个人回执。
 

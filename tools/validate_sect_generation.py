@@ -15,7 +15,7 @@ def main():
     try:
         with tempfile.TemporaryDirectory(prefix='sect-blueprint-check-') as folder:
             target=Path(folder);export_catalog(target)
-            catalog=json.loads((target/'data/myvillage/sect_blueprints/catalog.json').read_text())
+            catalog=json.loads((target/'data/yuanxian/sect_blueprints/catalog.json').read_text())
             layouts=[]
             for row in catalog['layouts']:
                 manifest=json.loads((target/('data/'+row['resource'].replace(':','/',1))).read_text())

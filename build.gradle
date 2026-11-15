@@ -80,7 +80,7 @@ tasks.named('test') {
     useJUnitPlatform()
     // -PupdatePreviewParity: FirstPersonPreviewParityTest rewrites its golden fixture instead of checking it.
     if (providers.gradleProperty('updatePreviewParity').isPresent()) {
-        systemProperty 'myvillage.updatePreviewParity', 'true'
+        systemProperty 'yuanxian.updatePreviewParity', 'true'
     }
 }
 
@@ -95,7 +95,7 @@ if (providers.gradleProperty('dropProbe').isPresent()) {
     tasks.register('dropProbeJar', Jar) {
         dependsOn 'dropProbeClasses'
         from sourceSets.dropProbe.output
-        archiveBaseName = 'myvillage-drop-probe'
+        archiveBaseName = 'yuanxian-drop-probe'
         archiveVersion = '1'
     }
 }
@@ -141,10 +141,10 @@ neoForge {
         }
         guide {
             client()
-            systemProperty 'guideme.myvillage.cultivation.sources', file('guidebook').absolutePath
-            systemProperty 'guideme.myvillage.cultivation.sourcesNamespace', 'myvillage'
-            systemProperty 'guideme.showOnStartup', 'myvillage:cultivation'
-            systemProperty 'guideme.validateAtStartup', 'myvillage:cultivation'
+            systemProperty 'guideme.yuanxian.cultivation.sources', file('guidebook').absolutePath
+            systemProperty 'guideme.yuanxian.cultivation.sourcesNamespace', 'yuanxian'
+            systemProperty 'guideme.showOnStartup', 'yuanxian:cultivation'
+            systemProperty 'guideme.validateAtStartup', 'yuanxian:cultivation'
         }
         server {
             server()
@@ -299,7 +299,7 @@ tasks.register('generateAllStructures', Exec) {
     executable = pythonExecutable.get()
     args 'tools/generate_all_structures.py',
             '--mc-version', '1.21.1',
-            '--output', 'src/main/resources/data/myvillage/structure'
+            '--output', 'src/main/resources/data/yuanxian/structure'
 }
 
 tasks.register('generateRoadPorts', Exec) {
@@ -313,7 +313,7 @@ tasks.named('processResources') { dependsOn 'generateRoadPorts' }
 tasks.named('processResources') {
     dependsOn 'generateAllStructures'
     from('guidebook') {
-        into 'assets/myvillage/guides/myvillage/cultivation'
+        into 'assets/yuanxian/guides/yuanxian/cultivation'
     }
     // Generation may change outputs between runs.
     outputs.upToDateWhen { false }
@@ -339,10 +339,10 @@ tasks.register('generateLordManorAssets', Exec) {
     args 'tools/lord_manors/generate.py'
     inputs.files(fileTree('blueprints/lord_manors'), fileTree('tools/lord_manors'))
     inputs.files('tools/json_to_nbt.py', 'tools/gen_alchemy_assets.py',
-            'src/main/resources/data/myvillage/decoration/demon_pact_pillar.json')
-    outputs.dir('src/main/resources/data/myvillage/structure/lord_manors')
-    outputs.dir('src/main/resources/data/myvillage/lord_manors')
-    outputs.dir('src/main/resources/assets/myvillage/textures/block/lord_manors')
+            'src/main/resources/data/yuanxian/decoration/demon_pact_pillar.json')
+    outputs.dir('src/main/resources/data/yuanxian/structure/lord_manors')
+    outputs.dir('src/main/resources/data/yuanxian/lord_manors')
+    outputs.dir('src/main/resources/assets/yuanxian/textures/block/lord_manors')
     mustRunAfter 'generateAllStructures'
 }
 tasks.register('verifyLordManorAssets', Exec) {
@@ -363,9 +363,9 @@ tasks.register('generateQianjiAssets', Exec) {
             fileTree('tools/province_capitals/blueprint_plan/central'),
             files('tools/player_estates/zhongzhou_plan.py','tools/player_estates/build_terraces.py'),
             'tools/lord_manors/geometry.py','tools/lord_manors/generate.py','tools/lord_manors/surfaces.py',
-            'src/main/resources/assets/myvillage/font/brush.ttf')
-    outputs.dir('src/main/resources/data/myvillage/qianji/components')
-    outputs.dir('src/main/resources/assets/myvillage/textures/block/qianji')
+            'src/main/resources/assets/yuanxian/font/brush.ttf')
+    outputs.dir('src/main/resources/data/yuanxian/qianji/components')
+    outputs.dir('src/main/resources/assets/yuanxian/textures/block/qianji')
     outputs.file('build/generated/qianji/model.json.gz')
     mustRunAfter 'generateLordManorAssets'
 }
@@ -382,10 +382,10 @@ tasks.register('generateQianjiAtmosphere', Exec) {
     executable = pythonExecutable.get()
     args 'tools/qianji/generate_atmosphere.py'
     inputs.files('blueprints/qianji/atmosphere.json','tools/qianji/generate_atmosphere.py',
-            'src/main/resources/assets/myvillage/font/brush.ttf')
-    outputs.files('src/main/resources/data/myvillage/qianji/atmosphere.json',
-            'src/main/resources/data/myvillage/qianji/atmosphere_mesh.json')
-    outputs.dir('src/main/resources/assets/myvillage/textures/effect/qianji')
+            'src/main/resources/assets/yuanxian/font/brush.ttf')
+    outputs.files('src/main/resources/data/yuanxian/qianji/atmosphere.json',
+            'src/main/resources/data/yuanxian/qianji/atmosphere_mesh.json')
+    outputs.dir('src/main/resources/assets/yuanxian/textures/effect/qianji')
 }
 tasks.named('processResources') { dependsOn 'generateQianjiAtmosphere' }
 
@@ -408,7 +408,7 @@ tasks.register('prepareManorNativeTreeSites', Exec) {
 tasks.register('generateManorNativeTrees', JavaExec) {
     dependsOn 'prepareManorNativeTreeSites', 'manorTreegenClasses'
     classpath = sourceSets.manorTreegen.runtimeClasspath
-    mainClass = 'myvillage.tools.NativeTreeCapture'
+    mainClass = 'yuanxian.tools.NativeTreeCapture'
     maxHeapSize = '3g'
     args 'build/generated/lord_manor_tree_sites/sites.json', 'tools/lord_manors/generated/native_trees.json',
             new File(gradle.gradleUserHomeDir, "caches/neoformruntime/artifacts/minecraft_${minecraft_version}_client.jar").absolutePath
@@ -424,7 +424,7 @@ tasks.register('generateWorldPlanAssets', Exec) {
     executable = pythonExecutable.get()
     args 'tools/worldplan/generate_assets.py'
     inputs.files(fileTree('blueprints/worldplan'), fileTree('blueprints/yunshan'),
-            fileTree('src/main/resources/data/myvillage/worldgen/region_profile'),
+            fileTree('src/main/resources/data/yuanxian/worldgen/region_profile'),
             fileTree('tools/worldplan') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
             fileTree('tools/yunshan') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
             fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
@@ -488,11 +488,11 @@ tasks.register('generateStreetFurnitureAssets', Exec) {
     executable = pythonExecutable.get()
     args 'tools/street_furniture/generate.py'
     inputs.files(fileTree('blueprints/street_furniture'),
-            files('src/main/resources/assets/myvillage/font/brush.ttf'),
+            files('src/main/resources/assets/yuanxian/font/brush.ttf'),
             fileTree('tools/street_furniture') { exclude '**/__pycache__/**', '**/*.pyc' })
-    outputs.files(fileTree('src/main/resources/assets/myvillage/models/block/street_furniture'),
-            fileTree('src/main/resources/assets/myvillage/textures/block/street_furniture'),
-            files('src/main/resources/data/myvillage/street_furniture/catalog.json'))
+    outputs.files(fileTree('src/main/resources/assets/yuanxian/models/block/street_furniture'),
+            fileTree('src/main/resources/assets/yuanxian/textures/block/street_furniture'),
+            files('src/main/resources/data/yuanxian/street_furniture/catalog.json'))
 }
 tasks.register('generateStarterMineAssets', Exec) {
     workingDir projectDir
@@ -511,15 +511,15 @@ tasks.register('generateProvinceCapitalV11Assets', Exec) {
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
     inputs.files(files('tools/player_economy_sites.py','blueprints/economy/town_boards.json'))
-    inputs.files(fileTree('blueprints/wilderness'),fileTree('tools/wilderness_habitats'),fileTree('src/main/resources/data/myvillage/worldgen/region_profile'))
+    inputs.files(fileTree('blueprints/wilderness'),fileTree('tools/wilderness_habitats'),fileTree('src/main/resources/data/yuanxian/worldgen/region_profile'))
     inputs.files(fileTree('blueprints/qianji'), fileTree('tools/qianji') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('blueprints/player_estates'), fileTree('tools/player_estates') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('build/generated/sect_blueprints/resources'), fileTree('build/generated/starter_mine/resources'), files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
             fileTree('blueprints/province_capitals/blueprint_plan'), fileTree('blueprints/lord_manors'),
             fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' },
-            fileTree('src/main/resources/data/myvillage/lord_manors'),
-            fileTree('src/main/resources/data/myvillage/structure/lord_manors'),
-            files('exmod/mod_block_catalog.json', 'src/main/resources/data/myvillage/decoration/demon_pact_pillar.json'),
+            fileTree('src/main/resources/data/yuanxian/lord_manors'),
+            fileTree('src/main/resources/data/yuanxian/structure/lord_manors'),
+            files('exmod/mod_block_catalog.json', 'src/main/resources/data/yuanxian/decoration/demon_pact_pillar.json'),
             fileTree('tools/street_furniture') { exclude '**/__pycache__/**', '**/*.pyc' },
             fileTree('tools/province_capitals') { exclude '**/__pycache__/**', '**/*.pyc' },
             fileTree('build/generated/province_capitals_v10/resources'),
@@ -548,10 +548,10 @@ tasks.named('processResources') {
     // Development builds ship only the current worldplan and capital resource set.
     // Remove earlier Copy-task outputs before copying current resources on an incremental build.
     doFirst {
-        delete(new File(destinationDir, 'data/myvillage/capitals'),
-                new File(destinationDir, 'data/myvillage/structure/province_capitals'),
-                new File(destinationDir, 'data/myvillage/worldplan'),
-                new File(destinationDir, 'data/myvillage/structure/worldplan'))
+        delete(new File(destinationDir, 'data/yuanxian/capitals'),
+                new File(destinationDir, 'data/yuanxian/structure/province_capitals'),
+                new File(destinationDir, 'data/yuanxian/worldplan'),
+                new File(destinationDir, 'data/yuanxian/structure/worldplan'))
     }
 }
 
@@ -562,7 +562,7 @@ tasks.register('generateSectBlueprintAssets', Exec) {
     commandLine 'python3', 'tools/sect_blueprints/runtime.py'
     inputs.files(fileTree('blueprints/sects'), fileTree('tools/sect_blueprints') { exclude '**/__pycache__/**', '**/*.pyc' },
             fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' },
-            fileTree('src/main/resources/data/myvillage/structure') { include 'sect_*.nbt','scripture_pavilion_*.nbt','disciple_quarters_*.nbt','alchemy_room_*.nbt','bell_drum_tower_*.nbt' },
+            fileTree('src/main/resources/data/yuanxian/structure') { include 'sect_*.nbt','scripture_pavilion_*.nbt','disciple_quarters_*.nbt','alchemy_room_*.nbt','bell_drum_tower_*.nbt' },
             files('tools/province_capitals/regional/v2/common.py','tools/province_capitals/blueprint_plan/nbt_entities.py',
                     'tools/buildgen/styles/cultivation_sect.json','exmod/mod_block_catalog.json'))
     outputs.dir(layout.buildDirectory.dir('generated/sect_blueprints/resources'))
@@ -570,11 +570,11 @@ tasks.register('generateSectBlueprintAssets', Exec) {
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/sect_blueprints/resources'))
 tasks.named('processResources') {
     dependsOn 'generateSectBlueprintAssets'
-    exclude 'data/myvillage/structure/cultivation_sect_*.nbt', 'data/myvillage/settlement_meta/cultivation_sect_*.json',
-            'data/myvillage/function/place/cultivation_sect_*.mcfunction'
+    exclude 'data/yuanxian/structure/cultivation_sect_*.nbt', 'data/yuanxian/settlement_meta/cultivation_sect_*.json',
+            'data/yuanxian/function/place/cultivation_sect_*.mcfunction'
     doFirst {
-        delete(new File(destinationDir,'data/myvillage/sect_blueprints'),new File(destinationDir,'data/myvillage/structure/sect_blueprints'))
-        delete(fileTree(destinationDir) { include 'data/myvillage/structure/cultivation_sect_*.nbt', 'data/myvillage/settlement_meta/cultivation_sect_*.json', 'data/myvillage/function/place/cultivation_sect_*.mcfunction' })
+        delete(new File(destinationDir,'data/yuanxian/sect_blueprints'),new File(destinationDir,'data/yuanxian/structure/sect_blueprints'))
+        delete(fileTree(destinationDir) { include 'data/yuanxian/structure/cultivation_sect_*.nbt', 'data/yuanxian/settlement_meta/cultivation_sect_*.json', 'data/yuanxian/function/place/cultivation_sect_*.mcfunction' })
     }
 }
 
@@ -648,7 +648,7 @@ tasks.register('generateNpcLifePlaces', Exec) {
     inputs.files(fileTree('blueprints/npc_life'), fileTree('blueprints/yunshan'), fileTree('blueprints/worldplan'),
             fileTree('tools/yunshan'), fileTree('tools/worldplan'), fileTree('tools/buildgen'),
             files('tools/gen_npc_life_places.py', 'tools/json_to_nbt.py', 'tools/voxel_dump_to_structures.py'))
-    outputs.file('src/main/resources/data/myvillage/npc_life/places.json')
+    outputs.file('src/main/resources/data/yuanxian/npc_life/places.json')
 }
 tasks.named('processResources') { dependsOn 'generateNpcLifePlaces' }
 
@@ -656,9 +656,9 @@ tasks.register('generateExplorationGuide', Exec) {
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/gen_exploration_guide.py'
-    inputs.files('tools/gen_exploration_guide.py', 'src/main/resources/data/myvillage/exploration/rules.json',
-            'src/main/resources/data/myvillage/exploration/bosses.json',
-            'src/main/resources/assets/myvillage/lang/zh_cn.json', 'src/main/resources/assets/myvillage/lang/en_us.json')
+    inputs.files('tools/gen_exploration_guide.py', 'src/main/resources/data/yuanxian/exploration/rules.json',
+            'src/main/resources/data/yuanxian/exploration/bosses.json',
+            'src/main/resources/assets/yuanxian/lang/zh_cn.json', 'src/main/resources/assets/yuanxian/lang/en_us.json')
     outputs.files('guidebook/getting_started/exploration.md', 'guidebook/_en_us/getting_started/exploration.md')
     mustRunAfter 'generateAllStructures'
 }
@@ -670,7 +670,7 @@ tasks.register('generateTechniqueGrowth', Exec) {
     executable = pythonExecutable.get()
     args 'tools/gen_technique_growth.py'
     inputs.files('tools/gen_technique_growth.py', 'tools/technique_growth/sample.json')
-    outputs.file('src/main/resources/data/myvillage/cultivation/technique_growth.json')
+    outputs.file('src/main/resources/data/yuanxian/cultivation/technique_growth.json')
     outputs.upToDateWhen { false }
 }
 tasks.named('processResources') { dependsOn 'generateTechniqueGrowth' }
@@ -705,8 +705,8 @@ tasks.register('generateModBranding', Exec) {
     inputs.files('tools/branding.json', 'tools/gen_branding.py', 'tools/language_assets.py')
     outputs.files('src/main/java/com/example/myvillage/ModBrand.java',
             'src/main/resources/META-INF/neoforge.mods.toml',
-            'src/main/resources/assets/myvillage/lang/zh_cn.json',
-            'src/main/resources/assets/myvillage/lang/en_us.json',
+            'src/main/resources/assets/yuanxian/lang/zh_cn.json',
+            'src/main/resources/assets/yuanxian/lang/en_us.json',
             'src/main/resources/pack.mcmeta')
 }
 tasks.named('compileJava') { dependsOn 'generateModBranding' }
@@ -750,14 +750,14 @@ tasks.register('packNpcResources', Exec) {
     executable = pythonExecutable.get()
     args '-m', 'tools.npcgen.pack', '--output', packedNpcResources.get().asFile.absolutePath
     inputs.files('tools/npcgen/pack.py', 'tools/npcgen/packing.json',
-            fileTree('src/main/resources/assets/myvillage/npc') {
+            fileTree('src/main/resources/assets/yuanxian/npc') {
                 include '*_model.json', '*_animations.json'
             })
     outputs.dir(packedNpcResources)
 }
 tasks.named('processResources') {
     dependsOn 'packNpcResources'
-    def authoredNpc = file('src/main/resources/assets/myvillage/npc').absolutePath + File.separator
+    def authoredNpc = file('src/main/resources/assets/yuanxian/npc').absolutePath + File.separator
     exclude { detail -> detail.file.absolutePath.startsWith(authoredNpc) &&
             (detail.name.endsWith('_model.json') || detail.name.endsWith('_animations.json')) }
     from(packedNpcResources)

@@ -68,7 +68,7 @@ def model(profile,definitions,city):
     from tools.lord_manors.generate import model as static_model
     static,rows=split_profile(profile)
     if not rows:return static_model(profile,definitions,city)
-    refs={role:'myvillage:block/qianji/qianji_'+role for role in RULES['book_roles']}
+    refs={role:'yuanxian:block/qianji/qianji_'+role for role in RULES['book_roles']}
     base=static_model(static,definitions,city)if static else dict(parent='minecraft:block/block',ambientocclusion=True,render_type='minecraft:solid',textures={'particle':refs[RULES['book_roles'][0]]},elements=[])
-    return dict(parent='minecraft:block/block',ambientocclusion=True,loader='myvillage:procedural_books',
+    return dict(parent='minecraft:block/block',ambientocclusion=True,loader='yuanxian:procedural_books',
                 textures={**base['textures'],**refs},base_model=base,book_regions=rows)

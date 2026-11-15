@@ -12,12 +12,12 @@ class SizeEvidence(RosterEvidence):
         try:
             for m in self.roster['mobs']:
                 if m['kind']=='人形':continue
-                target='@e[type=myvillage:'+m['id']+',tag=roster_gallery,limit=1]'
+                target='@e[type=yuanxian:'+m['id']+',tag=roster_gallery,limit=1]'
                 pos=read_data(self.rc('data get entity '+target+' Pos'));x,y,z=pos;s=m['body_scale'];w=m['dimensions']['width']*s;h=m['dimensions']['height']*s
                 for axis,base in [('width',x+w/2),('height',y+h)]:
                     for delta,expected in [(-.015,True),(.015,False)]:
                         px,py=(base+delta,y+.1) if axis=='width' else (x,base+delta)
-                        reply=self.rc(f'execute positioned {px} {py} {z} if entity @e[type=myvillage:'+m['id']+',tag=roster_gallery,dx=0,dy=0,dz=0]')
+                        reply=self.rc(f'execute positioned {px} {py} {z} if entity @e[type=yuanxian:'+m['id']+',tag=roster_gallery,dx=0,dy=0,dz=0]')
                         self.check(f'saved_{m["id"]}_{axis}_{delta}',('Test passed' in reply)==expected,{'reply':reply,'expected_width':w,'expected_height':h})
         finally:self.rc('tick unfreeze')
         self.done('saved_dimensions');self.setup()

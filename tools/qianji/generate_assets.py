@@ -11,11 +11,11 @@ from tools.language_assets import language_text,load_language
 from tools.qianji import bookcases
 from PIL import Image,ImageDraw,ImageFont
 
-ASSET=Path('src/main/resources/assets/myvillage');DATA=Path('src/main/resources/data/myvillage')
+ASSET=Path('src/main/resources/assets/yuanxian');DATA=Path('src/main/resources/data/yuanxian')
 
 def encoded(v):return (json.dumps(v,ensure_ascii=False,separators=(',',':'))+'\n').encode()
 def retarget(v):
-    if isinstance(v,str):return v.replace('myvillage:block/lord_manors/qianji_','myvillage:block/qianji/qianji_')
+    if isinstance(v,str):return v.replace('yuanxian:block/lord_manors/qianji_','yuanxian:block/qianji/qianji_')
     if isinstance(v,list):return [retarget(x) for x in v]
     if isinstance(v,dict):return {k:retarget(x) for k,x in v.items()}
     return v
@@ -86,18 +86,18 @@ def definitions(d):
 def export(check=False):
     d=compile_components();cfg=d['config'];defs=definitions(d);writer=Writer(check);names=load_language((ROOT/ASSET/'lang/zh_cn.json').read_text());before=dict(names)
     for key in list(names):
-        if key.startswith('block.myvillage.qianji_') or key=='itemGroup.myvillage.qianji':del names[key]
+        if key.startswith('block.yuanxian.qianji_') or key=='itemGroup.yuanxian.qianji':del names[key]
     materials=[]
     for role,m in defs.items():
         if role==bookcases.ROLE:continue
         writer.put(ASSET/f'textures/block/qianji/{m["id"]}.png',texture(role,cfg['palette'],cfg,d['special']))
         if role in d['special'] or role in bookcases.RULES['book_roles']:continue
-        materials.append(m);ref='myvillage:block/qianji/'+m['id'];render='minecraft:solid' if m['opaque'] else 'minecraft:translucent'
+        materials.append(m);ref='yuanxian:block/qianji/'+m['id'];render='minecraft:solid' if m['opaque'] else 'minecraft:translucent'
         writer.json(ASSET/f'models/block/{m["id"]}.json',{'parent':'minecraft:block/cube_all','render_type':render,'textures':{'all':ref}})
-        writer.json(ASSET/f'blockstates/{m["id"]}.json',{'variants':{'':{'model':'myvillage:block/'+m['id']}}})
-        writer.json(ASSET/f'models/item/{m["id"]}.json',{'parent':'myvillage:block/'+m['id']})
-        writer.json(DATA/f'loot_table/blocks/{m["id"]}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+m['id']}]}]})
-        names['block.myvillage.'+m['id']]=m['name']
+        writer.json(ASSET/f'blockstates/{m["id"]}.json',{'variants':{'':{'model':'yuanxian:block/'+m['id']}}})
+        writer.json(ASSET/f'models/item/{m["id"]}.json',{'parent':'yuanxian:block/'+m['id']})
+        writer.json(DATA/f'loot_table/blocks/{m["id"]}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:'+m['id']}]}]})
+        names['block.yuanxian.'+m['id']]=m['name']
     banks=[]
     for off in range(0,len(d['profiles']),cfg['bank_size']):
         rows=d['profiles'][off:off+32];rows+=rows[:1]*(32-len(rows));bank={'id':f'qianji_carved_{off//32}','name':'千机阁建筑构件','profiles':[list(map(list,p)) for p in rows]}
@@ -111,10 +111,10 @@ def export(check=False):
     layout=dict(size=[access['size'][0],max(p[1] for p in d['blocks'])+1,access['size'][1]],entry=access['paths'][0],anchor=access['atmosphere_anchor'],targets=targets)
     writer.json(DATA/'qianji/components/catalog.json',dict(schema=1,materials=materials,banks=banks,layout=layout,strength=cfg['strength'],explosion_resistance=cfg['explosion_resistance']))
     writer.json(DATA/'qianji/components/bookcases.json',bookcases.RULES)
-    writer.json(ASSET/'models/block/qianji_atmosphere_anchor.json',{'parent':'minecraft:block/cube_all','textures':{'all':'myvillage:block/qianji/qianji_paving'}})
-    writer.json(ASSET/'blockstates/qianji_atmosphere_anchor.json',{'variants':{f'facing={f}':{'model':'myvillage:block/qianji_atmosphere_anchor','y':i*90} for i,f in enumerate(FACINGS)}})
+    writer.json(ASSET/'models/block/qianji_atmosphere_anchor.json',{'parent':'minecraft:block/cube_all','textures':{'all':'yuanxian:block/qianji/qianji_paving'}})
+    writer.json(ASSET/'blockstates/qianji_atmosphere_anchor.json',{'variants':{f'facing={f}':{'model':'yuanxian:block/qianji_atmosphere_anchor','y':i*90} for i,f in enumerate(FACINGS)}})
     writer.json(DATA/'loot_table/blocks/qianji_atmosphere_anchor.json',{'type':'minecraft:block','pools':[]})
-    names.update({'block.myvillage.qianji_atmosphere_anchor':'千机阁阵枢','itemGroup.myvillage.qianji':'千机阁建筑'})
+    names.update({'block.yuanxian.qianji_atmosphere_anchor':'千机阁阵枢','itemGroup.yuanxian.qianji':'千机阁建筑'})
     writer.put(ASSET/'lang/zh_cn.json',language_text(before,names).encode())
     writer.finish()
     manifest=dict(identity=d['identity'],size=layout['size'],blocks=[[*p,s] for p,s in sorted(d['blocks'].items())],parts=d['scene']['parts'],levels=d['scene']['levels'],lamps=d['scene']['lamps'],tree_sites=d['scene']['tree_sites'],terrain=d['terrain'],routes=d['routes'],construction_checks=d['construction_checks'])

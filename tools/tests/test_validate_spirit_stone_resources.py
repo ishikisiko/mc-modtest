@@ -22,8 +22,8 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
         copies = (
             "src/main/java/com/example/myvillage/item/ModItems.java",
             "src/main/java/com/example/myvillage/block/ModBlocks.java",
-            "src/main/resources/assets/myvillage",
-            "src/main/resources/data/myvillage",
+            "src/main/resources/assets/yuanxian",
+            "src/main/resources/data/yuanxian",
             "src/main/resources/data/c/tags",
             "src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json",
             "src/main/resources/data/minecraft/tags/block/needs_iron_tool.json",
@@ -64,15 +64,15 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
     def test_higher_grade_cannot_be_added_to_low_grade_payment_tag(self):
         path = 'src/main/resources/data/c/tags/item/spirit_stones/low_grade.json'
         tag = self.load_json(path)
-        tag['values'].append('myvillage:high_grade_spirit_stone')
+        tag['values'].append('yuanxian:high_grade_spirit_stone')
         self.write_json(path, tag)
         self.assert_error_contains(self.validate(), 'higher grades must never enter')
 
     def test_grade_identity_and_nonintegral_ratio_are_rejected(self):
-        path = 'src/main/resources/data/myvillage/spirit_stones/denominations.json'
+        path = 'src/main/resources/data/yuanxian/spirit_stones/denominations.json'
         data = self.load_json(path)
         data['tiers'][2]['units'] = '10001'
-        data['tiers'][1]['item'] = 'myvillage:low_grade_spirit_stone'
+        data['tiers'][1]['item'] = 'yuanxian:low_grade_spirit_stone'
         self.write_json(path, data)
         result = self.validate()
         self.assert_error_contains(result, 'denomination identity/tag mismatch')
@@ -90,9 +90,9 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
     def test_nine_approved_alchemy_recipes_consume_existing_stone_in_either_input_order(self):
         self.assertEqual(9, len(ALCHEMY_STONE_CONSUMERS))
         for item in ALCHEMY_STONE_CONSUMERS:
-            relative = f"src/main/resources/data/myvillage/recipe/{item}.json"
+            relative = f"src/main/resources/data/yuanxian/recipe/{item}.json"
             recipe = self.load_json(relative)
-            self.assertEqual(f"myvillage:{item}", recipe["result"]["id"])
+            self.assertEqual(f"yuanxian:{item}", recipe["result"]["id"])
             self.assertEqual(1, sum(i == {"tag": "c:spirit_stones/low_grade"}
                                     for i in recipe["ingredients"]))
             recipe["ingredients"].reverse()
@@ -100,24 +100,24 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
         self.assertEqual([], self.processing_errors())
 
     def test_approved_name_cannot_create_stones_or_new_grades(self):
-        relative = "src/main/resources/data/myvillage/recipe/formula_huiling.json"
+        relative = "src/main/resources/data/yuanxian/recipe/formula_huiling.json"
         original = self.load_json(relative)
         for output in ("low_grade_spirit_stone", "spirit_stone_ore", "medium_grade_spirit_stone"):
             with self.subTest(output=output):
                 recipe = copy.deepcopy(original)
-                recipe["result"]["id"] = f"myvillage:{output}"
+                recipe["result"]["id"] = f"yuanxian:{output}"
                 self.write_json(relative, recipe)
                 self.assert_processing_forbidden()
 
     def test_approved_name_cannot_hide_smelting_or_altered_schema(self):
-        relative = "src/main/resources/data/myvillage/recipe/spirit_leaf.json"
+        relative = "src/main/resources/data/yuanxian/recipe/spirit_leaf.json"
         original = self.load_json(relative)
         mutations = (
             lambda d: d.update(type="minecraft:smelting"),
             lambda d: d["result"].update(count=2),
             lambda d: d["result"].update(count=True),
-            lambda d: d["ingredients"].append({"item": "myvillage:low_grade_spirit_stone"}),
-            lambda d: d["ingredients"][0].update(item="myvillage:spirit_stone_ore"),
+            lambda d: d["ingredients"].append({"item": "yuanxian:low_grade_spirit_stone"}),
+            lambda d: d["ingredients"][0].update(item="yuanxian:spirit_stone_ore"),
             lambda d: d["ingredients"][0].update(item="minecraft:diamond"),
             lambda d: d["ingredients"][0].update(tag="minecraft:flowers"),
             lambda d: d.update(conditions=[]),
@@ -129,22 +129,22 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
             self.assert_processing_forbidden()
 
     def test_unapproved_path_does_not_gain_consumption_permission(self):
-        source = self.load_json("src/main/resources/data/myvillage/recipe/spirit_leaf.json")
+        source = self.load_json("src/main/resources/data/yuanxian/recipe/spirit_leaf.json")
         for suffix in ("recipe/unapproved.json", "recipe/nested/spirit_leaf.json", "recipes/spirit_leaf.json"):
-            path = self.fixture_root / "src/main/resources/data/myvillage" / suffix
+            path = self.fixture_root / "src/main/resources/data/yuanxian" / suffix
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(source))
             self.assert_processing_forbidden()
             path.unlink()
 
     def test_ore_smelting_and_escaped_stone_creation_remain_forbidden(self):
-        relative = "src/main/resources/data/myvillage/recipe/processing.json"
-        recipe = {"type": "minecraft:smelting", "ingredient": {"item": "myvillage:spirit_stone_ore"},
-                  "result": {"id": "myvillage:low_grade_spirit_stone"}, "experience": 0.7, "cookingtime": 200}
+        relative = "src/main/resources/data/yuanxian/recipe/processing.json"
+        recipe = {"type": "minecraft:smelting", "ingredient": {"item": "yuanxian:spirit_stone_ore"},
+                  "result": {"id": "yuanxian:low_grade_spirit_stone"}, "experience": 0.7, "cookingtime": 200}
         self.write_json(relative, recipe)
         self.assert_processing_forbidden()
         recipe = {"type": "minecraft:crafting_shapeless", "ingredients": [{"item": "minecraft:dirt"}],
-                  "result": {"id": "myvillage:low_grade_spirit_stone", "count": 1}}
+                  "result": {"id": "yuanxian:low_grade_spirit_stone", "count": 1}}
         raw = json.dumps(recipe).replace("low_grade_spirit_stone", "\\u006cow_grade_spirit_stone")
         (self.fixture_root / relative).write_text(raw)
         self.assertNotIn("low_grade_spirit_stone", raw)
@@ -158,7 +158,7 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
         self.assert_error_contains(self.validate(), "common tag must append required spirit-stone members")
 
     def test_generic_classification_cannot_pay_low_grade_recipe_cost(self):
-        relative = "src/main/resources/data/myvillage/recipe/spirit_leaf.json"
+        relative = "src/main/resources/data/yuanxian/recipe/spirit_leaf.json"
         recipe = self.load_json(relative)
         for ingredient in recipe["ingredients"]:
             if "tag" in ingredient:
@@ -169,7 +169,7 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
 
     def test_missing_fortune_redstone_bonus_is_rejected(self) -> None:
         relative = (
-            "src/main/resources/data/myvillage/loot_table/blocks/"
+            "src/main/resources/data/yuanxian/loot_table/blocks/"
             "spirit_stone_ore.json"
         )
         loot = self.load_json(relative)
@@ -188,19 +188,19 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
     def test_missing_iron_tool_tag_entry_is_rejected(self) -> None:
         relative = "src/main/resources/data/minecraft/tags/block/needs_iron_tool.json"
         tag = self.load_json(relative)
-        tag["values"].remove("myvillage:deepslate_spirit_stone_ore")
+        tag["values"].remove("yuanxian:deepslate_spirit_stone_ore")
         self.write_json(relative, tag)
 
         result = self.validate()
 
         self.assert_error_contains(
             result,
-            "tool tag omits myvillage:deepslate_spirit_stone_ore",
+            "tool tag omits yuanxian:deepslate_spirit_stone_ore",
         )
 
     def test_placed_feature_count_drift_is_rejected(self) -> None:
         relative = (
-            "src/main/resources/data/myvillage/worldgen/placed_feature/"
+            "src/main/resources/data/yuanxian/worldgen/placed_feature/"
             "spirit_stone_ore_upper.json"
         )
         placed = self.load_json(relative)
@@ -213,7 +213,7 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
 
     def test_configured_feature_target_drift_is_rejected(self) -> None:
         relative = (
-            "src/main/resources/data/myvillage/worldgen/configured_feature/"
+            "src/main/resources/data/yuanxian/worldgen/configured_feature/"
             "spirit_stone_ore_small.json"
         )
         configured = self.load_json(relative)

@@ -18,7 +18,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 /** 每个世界分别保存玩家的领取记录；重连和死亡均不刷新初始物资。 */
 public final class StarterSupplies {
     private static final DeferredRegister<AttachmentType<?>> TYPES =
-            DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, "myvillage");
+            DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, "yuanxian");
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> RECEIVED =
             TYPES.register("starter_supplies_received", () -> AttachmentType.builder(() -> false)
                     .serialize(Codec.BOOL).copyOnDeath().build());
@@ -36,7 +36,7 @@ public final class StarterSupplies {
 
     public static void register(IEventBus bus, ModContainer container) {
         TYPES.register(bus);
-        container.registerConfig(ModConfig.Type.SERVER, SPEC, "myvillage-starter-supplies-server.toml");
+        container.registerConfig(ModConfig.Type.SERVER, SPEC, "yuanxian-starter-supplies-server.toml");
         NeoForge.EVENT_BUS.addListener(StarterSupplies::login);
     }
 

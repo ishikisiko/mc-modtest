@@ -13,12 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class RealmInkMotionTest {
     @Test
     void cosmeticSelectionUsesExactIdsAndNeverGuessesProgression() {
-        assertEquals(RealmInkStyle.QI, RealmInkStyle.forRealm("myvillage:qi_refining"));
-        assertEquals(RealmInkStyle.FOUNDATION, RealmInkStyle.forRealm("myvillage:foundation_establishment"));
-        assertEquals(RealmInkStyle.CORE, RealmInkStyle.forRealm("myvillage:golden_core"));
-        assertEquals(RealmInkStyle.SOUL, RealmInkStyle.forRealm("myvillage:nascent_soul"));
+        assertEquals(RealmInkStyle.QI, RealmInkStyle.forRealm("yuanxian:qi_refining"));
+        assertEquals(RealmInkStyle.FOUNDATION, RealmInkStyle.forRealm("yuanxian:foundation_establishment"));
+        assertEquals(RealmInkStyle.CORE, RealmInkStyle.forRealm("yuanxian:golden_core"));
+        assertEquals(RealmInkStyle.SOUL, RealmInkStyle.forRealm("yuanxian:nascent_soul"));
         assertEquals(RealmInkStyle.UNKNOWN, RealmInkStyle.forRealm("other:golden_core"));
-        assertEquals(RealmInkStyle.UNKNOWN, RealmInkStyle.forRealm("myvillage:golden_core_new"));
+        assertEquals(RealmInkStyle.UNKNOWN, RealmInkStyle.forRealm("yuanxian:golden_core_new"));
         assertEquals(RealmInkStyle.UNKNOWN, RealmInkStyle.forRealm(null));
     }
 
@@ -93,7 +93,7 @@ class RealmInkMotionTest {
         long total = 0;
         for (String name : new String[] {"qi", "foundation", "core", "soul"}) {
             Path source = Path.of("tools/cultivation_ink/source", name + ".png");
-            Path packed = Path.of("src/main/resources/assets/myvillage/textures/gui/cultivation/ink", name + ".png");
+            Path packed = Path.of("src/main/resources/assets/yuanxian/textures/gui/cultivation/ink", name + ".png");
             String hash = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(source)));
             assertEquals(config.getAsJsonObject("source_sha256").get(name).getAsString(), hash);
             var image = ImageIO.read(packed.toFile());

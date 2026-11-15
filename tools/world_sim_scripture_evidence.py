@@ -20,7 +20,7 @@ mortal_qi_sensed so the player can be admitted.
    ``SCRIPTURE_HALL_UI technique=<id> borrowed=<bool> x= y= w= h=`` per entry button (screen pixels). An outer
    disciple sees one.
 5. A click on the first button: ``intent=BORROW ... technique=<id> result=ok``; Escape;
-   ``data get entity <player> Inventory`` holds a ``myvillage:manual_*`` whose ``myvillage:technique`` component
+   ``data get entity <player> Inventory`` holds a ``yuanxian:manual_*`` whose ``yuanxian:technique`` component
    is that technique; ``world player <player>`` is recorded.
 6. Right click again: the borrowed book's UI line says ``borrowed=true`` (a disabled button; it is not clicked);
    the inventory still holds exactly one copy.
@@ -59,7 +59,7 @@ from tools.world_sim_avatar_evidence import (  # noqa: E402
 from tools.world_sim_entry_evidence import GATE, button_center, is_member, scrub  # noqa: E402
 
 OUT = REPO / "out" / "preview" / "world_sim" / "scripture"
-NS = "myvillage:"
+NS = "yuanxian:"
 
 # ---------------------------------------------------------------- log lines (packages S-B and S-C)
 NUM = r"-?\d+(?:\.\d+)?"
@@ -72,8 +72,8 @@ REFUSALS = ("not_member", "member_elsewhere")
 
 HERITAGE = re.compile(r"Heritage: (.*?)\s*(?:\n|Mountain gate at|$)")
 SHELF_REPLY = re.compile(r"shelf at (-?\d+) (-?\d+) (-?\d+), owned by sect (-?\d+)")
-MANUAL = re.compile(r"\"?myvillage:(manual_\w+)\"?")
-TECH_COMPONENT = re.compile(r"\"?myvillage:technique\"?\s*:\s*\"([^\"]+)\"")
+MANUAL = re.compile(r"\"?yuanxian:(manual_\w+)\"?")
+TECH_COMPONENT = re.compile(r"\"?yuanxian:technique\"?\s*:\s*\"([^\"]+)\"")
 ENTITY_DATA = "has the following entity data: "
 LOG_KEEP = ("GATE_REALIZE", "SECT_ENTRY", "SCRIPTURE_SHELF", "SCRIPTURE_HALL", "ScriptureHall", "ScriptureShel",
             "World sim", "WorldSimPlayers", "GateRealizer")
@@ -131,7 +131,7 @@ def parse_hall_ui(line: str) -> dict[str, Any] | None:
 
 
 def tech_path(tid: str) -> str:
-    """'myvillage:azure_breath' and 'azure_breath' -> 'azure_breath'."""
+    """'yuanxian:azure_breath' and 'azure_breath' -> 'azure_breath'."""
     return tid[len(NS):] if tid.startswith(NS) else tid
 
 

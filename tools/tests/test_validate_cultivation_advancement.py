@@ -22,8 +22,8 @@ class CultivationAdvancementValidationTest(unittest.TestCase):
         paths = (
             "src/main/java/com/example/myvillage/cultivation",
             "src/main/java/com/example/myvillage/client/cultivation",
-            "src/main/resources/data/myvillage/myvillage/realm",
-            "src/main/resources/assets/myvillage/lang",
+            "src/main/resources/data/yuanxian/yuanxian/realm",
+            "src/main/resources/assets/yuanxian/lang",
         )
         for relative in paths:
             source = ROOT / relative
@@ -46,7 +46,7 @@ class CultivationAdvancementValidationTest(unittest.TestCase):
     def test_bottleneck_duration_drift_is_rejected(self) -> None:
         path = (
             self.fixture_root
-            / "src/main/resources/data/myvillage/myvillage/realm/qi_refining.json"
+            / "src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json"
         )
         realm = json.loads(path.read_text(encoding="utf-8"))
         realm["stages"][2]["advancement"]["duration_ticks"] = 199
@@ -54,12 +54,12 @@ class CultivationAdvancementValidationTest(unittest.TestCase):
 
         result = self.validate()
 
-        self.assert_error_contains(result, "myvillage:qi_refining_3 advancement must be")
+        self.assert_error_contains(result, "yuanxian:qi_refining_3 advancement must be")
 
     def test_revised_cap_drift_is_rejected(self) -> None:
         path = (
             self.fixture_root
-            / "src/main/resources/data/myvillage/myvillage/realm/qi_refining.json"
+            / "src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json"
         )
         realm = json.loads(path.read_text(encoding="utf-8"))
         realm["stages"][0]["cultivation_cap"] = 1099
@@ -69,13 +69,13 @@ class CultivationAdvancementValidationTest(unittest.TestCase):
 
         self.assert_error_contains(
             result,
-            "myvillage:qi_refining_1 cultivation_cap must be integer 1100",
+            "yuanxian:qi_refining_1 cultivation_cap must be integer 1100",
         )
 
     def test_bottleneck_penalty_drift_is_rejected(self) -> None:
         path = (
             self.fixture_root
-            / "src/main/resources/data/myvillage/myvillage/realm/qi_refining.json"
+            / "src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json"
         )
         realm = json.loads(path.read_text(encoding="utf-8"))
         realm["stages"][2]["advancement"]["interruption_stability_loss"] = 4
@@ -83,12 +83,12 @@ class CultivationAdvancementValidationTest(unittest.TestCase):
 
         result = self.validate()
 
-        self.assert_error_contains(result, "myvillage:qi_refining_3 advancement must be")
+        self.assert_error_contains(result, "yuanxian:qi_refining_3 advancement must be")
 
     def test_dynamic_stability_requirement_drift_is_rejected(self) -> None:
         path = (
             self.fixture_root
-            / "src/main/resources/data/myvillage/myvillage/realm/qi_refining.json"
+            / "src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json"
         )
         realm = json.loads(path.read_text(encoding="utf-8"))
         realm["stages"][0]["advancement"]["required_stability"] = 549

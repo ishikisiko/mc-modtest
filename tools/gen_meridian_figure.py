@@ -9,7 +9,7 @@ Meridians, acupoints, and the dantian are not in the texture: the panel draws th
 from the data model in MeridianChart.java, whose normalised coordinates share this
 texture's square (0,0 top-left, 1,1 bottom-right).
 
-Writes src/main/resources/assets/myvillage/textures/gui/cultivation/meridian_figure.png with
+Writes src/main/resources/assets/yuanxian/textures/gui/cultivation/meridian_figure.png with
 the standard library only (zlib + struct). The neighbouring .png.mcmeta asks for linear
 filtering, because the panel draws the 512 px texture at about 150 GUI pixels.
 
@@ -33,7 +33,7 @@ from pathlib import Path
 SIZE = 512
 SUPERSAMPLE_ROWS = 4
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_OUTPUT = ROOT / "src/main/resources/assets/myvillage/textures/gui/cultivation/meridian_figure.png"
+DEFAULT_OUTPUT = ROOT / "src/main/resources/assets/yuanxian/textures/gui/cultivation/meridian_figure.png"
 CHART_SOURCE = ROOT / "src/main/java/com/example/myvillage/client/cultivation/panel/MeridianChart.java"
 STAGE_COLOR = (14, 20, 22)
 

@@ -45,7 +45,7 @@ import org.junit.jupiter.api.Test;
  */
 final class FirstPersonPreviewParityTest {
     static final Path GOLDEN = Path.of("src/test/resources/first_person_preview_parity.json");
-    private static final String UPDATE_PROPERTY = "myvillage.updatePreviewParity";
+    private static final String UPDATE_PROPERTY = "yuanxian.updatePreviewParity";
     private static final String UPDATE_COMMAND = "./gradlew test --tests "
             + FirstPersonPreviewParityTest.class.getName() + " -PupdatePreviewParity";
     /**

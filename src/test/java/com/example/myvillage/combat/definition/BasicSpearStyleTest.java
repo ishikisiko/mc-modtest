@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 /**
- * The bundled {@code myvillage:basic_spear} style (the Lingxiao Spear's moves). Only the fixed ids
+ * The bundled {@code yuanxian:basic_spear} style (the Lingxiao Spear's moves). Only the fixed ids
  * and structure from the add-lingxiao-spear design are checked here; the spear's numbers are still
  * initial values and are deliberately not pinned.
  */
@@ -33,7 +33,7 @@ class BasicSpearStyleTest {
         for (int index = 0; index < MOVE_PATHS.size(); index++) {
             AttackMoveDefinition move = STYLE.move(index);
             assertEquals(id(MOVE_PATHS.get(index)), move.id());
-            assertEquals("combat.myvillage.move." + MOVE_PATHS.get(index), move.displayKey());
+            assertEquals("combat.yuanxian.move." + MOVE_PATHS.get(index), move.displayKey());
             assertEquals(new AnimationDefinition(move.id(), move.totalTicks()), move.animation());
             // Move ids resolve to the spear style at their combo position.
             CombatStyles.MoveRef ref = STYLES.move(move.id()).orElseThrow();
@@ -87,6 +87,6 @@ class BasicSpearStyleTest {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 }

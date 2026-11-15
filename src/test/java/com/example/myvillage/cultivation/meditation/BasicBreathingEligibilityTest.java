@@ -41,7 +41,7 @@ class BasicBreathingEligibilityTest {
 
     private static TechniqueDefinition basicBreathing() {
         return new TechniqueDefinition(
-                "cultivation.technique.myvillage.basic_breathing",
+                "cultivation.technique.yuanxian.basic_breathing",
                 TechniqueCategory.CORE,
                 0,
                 List.of(),

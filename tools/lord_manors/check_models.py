@@ -74,13 +74,13 @@ def audit_model(model,profile,opaque_roles,expected_layers=None):
 
 
 def audit(root=ROOT):
-    root=Path(root);catalog=json.loads((root/'src/main/resources/data/myvillage/lord_manors/catalog.json').read_text())
+    root=Path(root);catalog=json.loads((root/'src/main/resources/data/yuanxian/lord_manors/catalog.json').read_text())
     opaque_by_city={};layers_by_city={};materials_by_city={};city_counts=Counter();bad=[];base_bad=[];profiles=0;old_faces=0;new_faces=0;max_quads=0
     for material in catalog['materials']:
         city=material['id'].split('_')[1]
         materials_by_city.setdefault(city,{})[material['role']]=material
         if material['opaque']:opaque_by_city.setdefault(city,set()).add(material['role'])
-        base=json.loads((root/f'src/main/resources/assets/myvillage/models/block/{material["id"]}.json').read_text())
+        base=json.loads((root/f'src/main/resources/assets/yuanxian/models/block/{material["id"]}.json').read_text())
         layers_by_city.setdefault(city,{})[material['role']]=base['render_type']
         if base['render_type']=='minecraft:translucent':
             if not base.get('elements') or base.get('ambientocclusion') is not False or 'particle' not in base['textures'] or any('cullface' in f for e in base['elements'] for f in e['faces'].values()):
@@ -88,7 +88,7 @@ def audit(root=ROOT):
     for bank in catalog['banks']:
         city=bank['id'].split('_')[1]
         for shape,p in enumerate(bank['profiles']):
-            path=root/f'src/main/resources/assets/myvillage/models/block/{bank["id"]}/shape_{shape}.json'
+            path=root/f'src/main/resources/assets/yuanxian/models/block/{bank["id"]}/shape_{shape}.json'
             model=json.loads(path.read_text());opaque=opaque_by_city[city]|{b[6] for b in p['boxes'] if b[6].startswith('plaque_')}
             layers={**layers_by_city[city],**{b[6]:'minecraft:solid' for b in p['boxes'] if b[6].startswith('plaque_')}}
             result=audit_model(model,p['boxes'],opaque,layers);profiles+=1;old_faces+=6*len(p['boxes']);new_faces+=result['quads'];max_quads=max(max_quads,result['quads'])

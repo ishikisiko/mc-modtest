@@ -38,12 +38,12 @@ class QianjiTests(unittest.TestCase):
         from province_capitals.blueprint_plan.nbt_entities import write_tile,block_entities
         from buildgen.nbtread import _read_payload,TAG_COMPOUND
         payload=atmosphere_payload();decoded=_read_payload(io.BytesIO(payload),TAG_COMPOUND)
-        self.assertEqual('myvillage:qianji_atmosphere_anchor',decoded['id'])
+        self.assertEqual('yuanxian:qianji_atmosphere_anchor',decoded['id'])
         self.assertEqual(0,decoded.get('CycleOffset',0))
-        entities={(3,4,5):{'block':'myvillage:qianji_atmosphere_anchor','payload':payload}}
+        entities={(3,4,5):{'block':'yuanxian:qianji_atmosphere_anchor','payload':payload}}
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'tile.nbt'
-            write_tile(path,{(3,4,5):('myvillage:qianji_atmosphere_anchor[facing=south]','qianji','organization')},16,entities)
+            write_tile(path,{(3,4,5):('yuanxian:qianji_atmosphere_anchor[facing=south]','qianji','organization')},16,entities)
             self.assertEqual(entities,block_entities(path))
 
     def test_every_function_floor_and_gallery_is_connected_in_all_seven_models(self):
@@ -53,10 +53,10 @@ class QianjiTests(unittest.TestCase):
                 self.assertGreaterEqual(checks['reachable_targets'],sum(len(r['levels']) for r in m.spec['rooms'])+2)
                 self.assertEqual(len(m.spec['rooms']),len(m.compound.building_slots))
                 self.assertEqual(sum(len(r['levels']) for r in m.spec['rooms']),sum(len(s.graph.volumes()) for s in m.compound.building_slots))
-                x,y,z=m.spec['board'];self.assertNotEqual(AIR,m.blocks[x,y-1,z]);self.assertTrue(m.blocks[x,y,z].startswith('myvillage:jianghu_board['))
+                x,y,z=m.spec['board'];self.assertNotEqual(AIR,m.blocks[x,y-1,z]);self.assertTrue(m.blocks[x,y,z].startswith('yuanxian:jianghu_board['))
                 rx,ry,rz=m.spec['reader']
                 for dy in (0,1,2):self.assertEqual(AIR,m.blocks.get((rx,ry+dy,rz),AIR),(name,dy))
-                if name=='zhongzhou_headquarters':self.assertEqual('myvillage:qianji_floor',m.blocks[rx,ry-1,rz])
+                if name=='zhongzhou_headquarters':self.assertEqual('yuanxian:qianji_floor',m.blocks[rx,ry-1,rz])
     def test_compact_footprints_stay_at_one_third_of_the_retained_large_versions(self):
         for small,large in [('folded_library','town_courts'),('island_octagon','town_water'),('terraced_gallery','town_frontier')]:
             a,_=authored(small);b,_=authored(large);self.assertTrue(.32<a.w*a.d/(b.w*b.d)<.35)
@@ -76,7 +76,7 @@ class QianjiTests(unittest.TestCase):
         x,y,z=translate([84,4,82],'hall');self.assertIn(y+.0625,collision.levels(round(x*4),round(z*4)))
         self.assertNotIn(translate([84,10.25,82],'hall')[1],collision.levels(round(x*4),round(z*4)))
         self.assertIn('hall_east_mezzanine',[t['id'] for t in m.targets])
-        anchors=[p for p,s in m.blocks.items() if s.startswith('myvillage:qianji_atmosphere_anchor[')]
+        anchors=[p for p,s in m.blocks.items() if s.startswith('yuanxian:qianji_atmosphere_anchor[')]
         self.assertEqual([tuple(m.spec['atmosphere_anchor'])],anchors)
     def test_blocking_a_real_stairwell_fails_the_connectivity_gate(self):
         m,_=build('folded_library');r=m.spec['rooms'][-1];x,z,w,d=r['box']

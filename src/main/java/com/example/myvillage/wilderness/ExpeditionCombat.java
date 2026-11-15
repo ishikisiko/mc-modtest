@@ -29,10 +29,10 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 /** Expedition effects: transient benefits, persistent online cooldowns, exact direct-hit receipts. */
 @EventBusSubscriber(modid=MyVillageMod.MOD_ID)
 public final class ExpeditionCombat {
-    private static final String TAG="myvillage_expedition_cooldowns";
+    private static final String TAG="yuanxian_expedition_cooldowns";
     private static final Map<UUID,State> STATES=new HashMap<>();
     private static final ThreadLocal<ServerPlayer> DIRECT=new ThreadLocal<>();
-    private static final ResourceLocation MED=ResourceLocation.parse("myvillage:expedition_medicine"),WARD=ResourceLocation.parse("myvillage:expedition_ward");
+    private static final ResourceLocation MED=ResourceLocation.parse("yuanxian:expedition_medicine"),WARD=ResourceLocation.parse("yuanxian:expedition_ward");
     private static final class State {
         ItemStack held;int slot;ResourceLocation dimension;long revision=-1,lastGain=-1;int ready,ward,quiet;
         double activePierce,activeBoost;String trait="";

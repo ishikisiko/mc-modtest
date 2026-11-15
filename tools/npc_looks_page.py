@@ -19,7 +19,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 PREVIEW = REPO / "out/preview"
-NPC = "cultivator"  # the entity's preview folder (myvillage:cultivator)
+NPC = "cultivator"  # the entity's preview folder (yuanxian:cultivator)
 MISSING = "未采集"
 
 # look, npcgen definition (offline preview folder), column title
@@ -94,7 +94,7 @@ def _cell(kind: str, items: list[dict]) -> str:
     return f'<td><div class="items{many}">{"".join(_item(kind, i) for i in items)}</div></td>'
 
 
-INTRO = """<p>同一实体 <code>myvillage:cultivator</code> 的三套外观（存档标签 <code>Look</code>）：
+INTRO = """<p>同一实体 <code>yuanxian:cultivator</code> 的三套外观（存档标签 <code>Look</code>）：
 <b>default</b> 男修；<b>f_novice</b> 女修入门（低马尾 + 发带）；<b>f_adept</b> 女修小成（配色 A：绛紫外衫 + 月白裙 + 金饰，披帛淡金/杏色）。
 上四行是离线渲染（<code>python3 -m tools.npcgen preview &lt;定义名&gt;</code>，游戏的两盏固定实体光，不是游戏内截图）；
 下三行是服务器无头采集（<code>python3 -m tools.combat_capture npc --look &lt;look&gt;</code>，960x540 软件 GL）。

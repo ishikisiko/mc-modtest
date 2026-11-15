@@ -12,9 +12,9 @@ sys.path.insert(0, str(ROOT))
 from tools.forging_evidence import ForgingEvidence
 from tools.combat_capture import scene
 
-STONES = ['myvillage:'+grade+'_grade_spirit_stone' for grade in ('low', 'medium', 'high')]
-BAG = 'myvillage:spirit_stone_bag'
-LEDGER = 'myvillage:spirit_stone_balance'
+STONES = ['yuanxian:'+grade+'_grade_spirit_stone' for grade in ('low', 'medium', 'high')]
+BAG = 'yuanxian:spirit_stone_bag'
+LEDGER = 'yuanxian:spirit_stone_balance'
 
 
 class GradeEvidence(ForgingEvidence):
@@ -101,7 +101,7 @@ class GradeEvidence(ForgingEvidence):
         for i, item in enumerate(STONES):
             self.rc(f'item replace entity {user} hotbar.{i} with {item} 32')
         entries = ','.join('{item:{id:"'+item+'",count:1},quantity:"'+str(n)+'"}' for item, n in zip(STONES, [12345, 123, 12]))
-        self.rc(f'item replace entity {user} hotbar.3 with '+BAG+'['+LEDGER+'=['+entries+'],minecraft:custom_data={"myvillage:spirit_bag_auto_collect":false}]')
+        self.rc(f'item replace entity {user} hotbar.3 with '+BAG+'['+LEDGER+'=['+entries+'],minecraft:custom_data={"yuanxian:spirit_bag_auto_collect":false}]')
         self.rc('gamerule sendCommandFeedback true')
         # Clear previous failure-fixture chat through the actual client debug shortcut.
         self.s.game.xdo('keydown', 'F3'); self.s.game.xdo('key', 'd'); self.s.game.xdo('keyup', 'F3'); time.sleep(.4)

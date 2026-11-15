@@ -7,7 +7,7 @@ import java.util.*;
 
 /** One validated source for ordinary encounters and their production effects. */
 public final class ExpeditionRules {
-    public static final String RESOURCE="/data/myvillage/wilderness/roster.json";
+    public static final String RESOURCE="/data/yuanxian/wilderness/roster.json";
     public record Medicine(int duration,double strength,double secondary,boolean qualityDuration) {
         public int durationTicks(int quality){double factor=com.example.myvillage.alchemy.AlchemyRules.get().qualityMultiplier(quality);return (int)Math.round(duration*(qualityDuration?factor:1));}
         public double strengthForQuality(int quality){double factor=com.example.myvillage.alchemy.AlchemyRules.get().qualityMultiplier(quality);return strength*(qualityDuration?1:factor);}
@@ -56,7 +56,7 @@ public final class ExpeditionRules {
     public Medicine medicine(String id){return medicines.get(id);}
     public Trait trait(String id){return traits.get(id);}
     public Set<String> traitIds(){return traits.keySet();}
-    public boolean isMaterial(String id){return mobs.values().stream().anyMatch(m->("myvillage:"+m.get("material_id").getAsString()).equals(id));}
+    public boolean isMaterial(String id){return mobs.values().stream().anyMatch(m->("yuanxian:"+m.get("material_id").getAsString()).equals(id));}
     public double number(String key){return root.get(key).getAsDouble();}
     public int ticks(String key){return root.get(key).getAsInt();}
     public String mode(String entity,String animation){for(var v:mobs.get(entity).getAsJsonArray("moves")){var m=v.getAsJsonObject();if(m.get("animation").getAsString().equals(animation))return m.get("_mode").getAsString();}return "melee";}

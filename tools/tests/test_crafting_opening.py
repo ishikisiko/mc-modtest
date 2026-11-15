@@ -9,7 +9,7 @@ class CraftingOpeningTest(unittest.TestCase):
     def setUp(self):
         self.rules = opening.load()
         self.player = '00112233-4455-6677-8899-aabbccddeeff'
-        self.fates = ['myvillage:robust', 'myvillage:lightfoot', 'myvillage:bright']
+        self.fates = ['yuanxian:robust', 'yuanxian:lightfoot', 'yuanxian:bright']
 
     def test_reference_vectors_and_selection_order(self):
         self.assertEqual([5,0,-5], [opening.delta(self.rules,self.player,'alchemy',f) for f in self.fates])
@@ -22,7 +22,7 @@ class CraftingOpeningTest(unittest.TestCase):
     def test_weights_and_only_replaced_fate_contribution_changes(self):
         self.assertEqual([(-5,15),(5,15),(-10,5),(10,5),(0,60)],
                          [(r['value'],r['weight']) for r in self.rules['weighted_deltas']])
-        changed = self.fates[:2] + ['myvillage:clod']
+        changed = self.fates[:2] + ['yuanxian:clod']
         for profession in ('alchemy','forging'):
             before = opening.score(self.rules,self.player,profession,self.fates)
             expected = before - opening.delta(self.rules,self.player,profession,self.fates[2]) + opening.delta(self.rules,self.player,profession,changed[2])

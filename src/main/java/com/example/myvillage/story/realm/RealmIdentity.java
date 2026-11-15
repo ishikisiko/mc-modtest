@@ -5,8 +5,8 @@ import java.util.UUID;
 
 /** Canonical save identities; no world, registry or client dependency. */
 public final class RealmIdentity {
-    public static final String TEMPLATE = "myvillage:qianzhen_template";
-    private static final String PREFIX = "myvillage:qianzhen/";
+    public static final String TEMPLATE = "yuanxian:qianzhen_template";
+    private static final String PREFIX = "yuanxian:qianzhen/";
     private RealmIdentity() {}
     public static String dimension(UUID owner) { return PREFIX + owner; }
     public static String cast(UUID owner) { return "qianzhen_ch1_" + owner; }

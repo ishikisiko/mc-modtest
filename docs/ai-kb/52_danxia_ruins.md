@@ -1,13 +1,13 @@
 # Danxia ruins (0.54.0)
 
 丹霞旧观是主世界原生 jigsaw 单模板结构，不是独立维度或自动刷新的副本。
-`/locate structure myvillage:danxia_ruin` 可定位新生成区块中的遗迹；旧区块不会回填。
+`/locate structure yuanxian:danxia_ruin` 可定位新生成区块中的遗迹；旧区块不会回填。
 地表有残门、荒芜药园、侧院和破损主殿；铜渠引向地下丹室，后殿塌洞可攀藤进入。
 墙体、地形和残阵均可挖掘；挖掘不会凭空获得尚未复原的内库奖励。
 
 ## Sources and generation
 
-- `data/myvillage/ruins/danxia.json` owns geometry anchors, plant targets, reward ids/counts,
+- `data/yuanxian/ruins/danxia.json` owns geometry anchors, plant targets, reward ids/counts,
   confirmation range/time, guardian realms, biomes and structure spacing.
 - `tools/gen_danxia_ruin.py` owns the template, pool, structure/set, biome tag, outer loot,
   core block models/blockstate and its bilingual messages. It uses the `danxia_ruin`

@@ -81,5 +81,5 @@ def construction(tier,radius):
                         add(x,2,z,'purple_gathering_lamp' if dx==1 and dz==1 else 'minecraft:air',
                             {(-1,-1):'south',(1,-1):'west',(1,1):'north',(-1,1):'east'}[(sx,sz)])
     for row in cells.values():
-        if ':' not in row['block']:row['block']='myvillage:'+row['block']
+        if ':' not in row['block']:row['block']='yuanxian:'+row['block']
     return list(cells.values())

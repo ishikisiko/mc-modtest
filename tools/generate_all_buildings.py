@@ -170,7 +170,7 @@ def build_small_house_01(rng):
         _fill([9, 6, 3], [9, 6, 6], "gable"),
     ]
     metadata = _metadata(
-        "myvillage:small_house_01", "building", size,
+        "yuanxian:small_house_01", "building", size,
         [{"pos": [5, 1, 0], "facing": "north"}], [],
         10, ["house", "medieval", "oak", "cobblestone"],
     )
@@ -238,7 +238,7 @@ def build_small_house_02(rng):
         _fill([7, 7, 3], [7, 7, 5], "gable"),
     ]
     metadata = _metadata(
-        "myvillage:small_house_02", "building", size,
+        "yuanxian:small_house_02", "building", size,
         [{"pos": [4, 1, 8], "facing": "south"}], [],
         10, ["house", "medieval", "spruce", "stone_bricks", "two_story"],
     )
@@ -311,7 +311,7 @@ def build_workshop_01(rng):
         _fill([1, 6, 3], [1, 6, 7], "gable"),
     ]
     metadata = _metadata(
-        "myvillage:workshop_01", "building", size,
+        "yuanxian:workshop_01", "building", size,
         [{"pos": [4, 1, 0], "facing": "north"}, {"pos": [12, 1, 5], "facing": "east"}], [],
         6, ["workshop", "smithy", "medieval", "oak", "cobblestone"],
     )
@@ -378,7 +378,7 @@ def build_storage_01(rng):
         _fill([7, 5, 3], [7, 5, 5], "gable"),
     ]
     metadata = _metadata(
-        "myvillage:storage_01", "building", size,
+        "yuanxian:storage_01", "building", size,
         [{"pos": [3, 1, 0], "facing": "north"}, {"pos": [4, 1, 0], "facing": "north"}], [],
         6, ["storage", "barn", "medieval", "spruce", "cobblestone"],
     )
@@ -419,7 +419,7 @@ def build_well_01(rng):
         _set([2, 5, 2], "roof_top"),
     ]
     metadata = _metadata(
-        "myvillage:well_01", "prop", size, [], [],
+        "yuanxian:well_01", "prop", size, [], [],
         4, ["well", "medieval", "stone_bricks", "water"],
     )
     return _dsl("well_01", size, palette, ops, metadata)
@@ -441,7 +441,7 @@ def build_lamp_post_01(rng):
         _set([1, 4, 0], "lamp"),
     ]
     metadata = _metadata(
-        "myvillage:lamp_post_01", "prop", size, [], [],
+        "yuanxian:lamp_post_01", "prop", size, [], [],
         8, ["lamp", "light", "medieval", "fence", "lantern"],
     )
     return _dsl("lamp_post_01", size, palette, ops, metadata, fill_air=False)
@@ -477,7 +477,7 @@ def build_market_stall_01(rng):
     for z in range(5):
         ops.append(_fill([0, 3, z], [4, 3, z], "canopy_white" if z % 2 == 0 else "canopy_red"))
     metadata = _metadata(
-        "myvillage:market_stall_01", "prop", size, [], [],
+        "yuanxian:market_stall_01", "prop", size, [], [],
         5, ["market", "stall", "medieval", "wool", "barrel"],
     )
     return _dsl("market_stall_01", size, palette, ops, metadata, fill_air=False)
@@ -512,7 +512,7 @@ def build_path_straight_01(rng):
     cells = [(x, z) for x in range(5) for z in range(7) if x != 2]
     _scatter_accents(rng, ops, cells, 6)
     metadata = _metadata(
-        "myvillage:path_straight_01", "road", size, [],
+        "yuanxian:path_straight_01", "road", size, [],
         [{"pos": [2, 0, 0], "facing": "north"}, {"pos": [2, 0, 6], "facing": "south"}],
         10, ["road", "path", "straight"],
     )
@@ -536,7 +536,7 @@ def build_path_corner_01(rng):
     cells = [(x, z) for (x, z) in arm_cells if not (x == 3 and z <= 3) and not (z == 3 and x >= 3)]
     _scatter_accents(rng, ops, cells, 6)
     metadata = _metadata(
-        "myvillage:path_corner_01", "road", size, [],
+        "yuanxian:path_corner_01", "road", size, [],
         [{"pos": [3, 0, 0], "facing": "north"}, {"pos": [6, 0, 3], "facing": "east"}],
         8, ["road", "path", "corner"],
     )

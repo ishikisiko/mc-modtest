@@ -84,7 +84,7 @@ public record RuinRules(Pos size, Pos core, Pos vault, int confirmationTicks,
     private static final class Holder {
         static final RuinRules RULES = load();
         private static RuinRules load() {
-            try (InputStream in = RuinRules.class.getResourceAsStream("/data/myvillage/ruins/danxia.json")) {
+            try (InputStream in = RuinRules.class.getResourceAsStream("/data/yuanxian/ruins/danxia.json")) {
                 if (in == null) throw new IllegalStateException("Missing danxia rules");
                 return parse(new InputStreamReader(in, StandardCharsets.UTF_8));
             } catch (IOException e) { throw new IllegalStateException(e); }

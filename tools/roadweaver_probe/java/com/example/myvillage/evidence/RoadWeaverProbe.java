@@ -33,7 +33,7 @@ import java.nio.file.*;
 import java.util.*;
 
 /** Developer experiment only. It requests roads and reads blocks; it never edits city/road blocks. */
-@EventBusSubscriber(modid = "myvillage")
+@EventBusSubscriber(modid = "yuanxian")
 public final class RoadWeaverProbe {
     private static final boolean ENABLED = "1".equals(System.getenv("MYVILLAGE_ROAD_PROBE"));
     private static final Gson JSON = new GsonBuilder().setPrettyPrinting().create();
@@ -162,8 +162,8 @@ public final class RoadWeaverProbe {
     }
     private static void generate(ServerLevel level) {
         if(!phase.equals("prepared"))throw new IllegalStateException("generate requires prepared endpoints");
-        RoadNetworkApi.registerStructureEndpoint(level,selected.a.pos,"myvillage:"+selected.a.city.cityId(),false);
-        RoadNetworkApi.registerStructureEndpoint(level,selected.b.pos,"myvillage:"+selected.b.city.cityId(),false);
+        RoadNetworkApi.registerStructureEndpoint(level,selected.a.pos,"yuanxian:"+selected.a.city.cityId(),false);
+        RoadNetworkApi.registerStructureEndpoint(level,selected.b.pos,"yuanxian:"+selected.b.city.cityId(),false);
         RoadNetworkApi.ensureConnection(level,selected.a.pos,selected.b.pos,false);
         started=System.nanoTime();phase="generating";checkpoint();
     }

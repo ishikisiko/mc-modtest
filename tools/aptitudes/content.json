@@ -3,11 +3,11 @@
     "metal": "minecraft:iron_ingot", "wood": "minecraft:oak_sapling",
     "water": "minecraft:snowball", "fire": "minecraft:charcoal", "earth": "minecraft:clay_ball",
     "sword": "minecraft:iron_sword", "spear": "minecraft:stick", "fist": "minecraft:leather",
-    "alchemy": "myvillage:spirit_leaf", "forging": "myvillage:xuantie_ingot", "talisman": "minecraft:ink_sac"
+    "alchemy": "yuanxian:spirit_leaf", "forging": "yuanxian:xuantie_ingot", "talisman": "minecraft:ink_sac"
   },
-  "tier_ingredients": ["myvillage:low_grade_spirit_stone", "minecraft:quartz", "minecraft:diamond", "minecraft:nether_star"],
+  "tier_ingredients": ["yuanxian:low_grade_spirit_stone", "minecraft:quartz", "minecraft:diamond", "minecraft:nether_star"],
   "models": {
-    "aptitude_fruit": "myvillage:item/ningyuan_fruit_low",
+    "aptitude_fruit": "yuanxian:item/ningyuan_fruit_low",
     "aptitude_treatise": "minecraft:item/book",
     "combat_memory": "minecraft:item/enchanted_book",
     "research_notes": "minecraft:item/writable_book"

@@ -3,7 +3,7 @@ version: 1
 
 current_golden:
   candidate_id: "cultivation_sect_001"
-  source: "src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt"
+  source: "src/main/resources/data/yuanxian/structure/cultivation_sect_001.nbt"
   accepted_in_run: "manual-or-agent-run-id"
   human_reason: "主殿和中轴可读，飞桥/云海提供宗门气质，chunk worldgen 不变量通过。"
 

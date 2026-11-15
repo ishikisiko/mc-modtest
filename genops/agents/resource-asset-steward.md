@@ -4,9 +4,9 @@ Own scoped client and data resource edits for MyVillage.
 
 ## Scope
 
-- `assets/myvillage/models/item/**`.
-- `assets/myvillage/textures/item/**`.
-- `assets/myvillage/lang/en_us.json`.
+- `assets/yuanxian/models/item/**`.
+- `assets/yuanxian/textures/item/**`.
+- `assets/yuanxian/lang/en_us.json`.
 - Item recipes and item tags under `data/**`.
 - Jar resource packaging checks when assigned.
 

@@ -42,7 +42,7 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Native fixture calls and actual NBT save/restart; never player-input or gameplay acceptance. */
-@EventBusSubscriber(modid = "myvillage")
+@EventBusSubscriber(modid = "yuanxian")
 public final class ExplorationV2Evidence {
   private static final boolean ENABLED =
       "1".equals(System.getenv("MYVILLAGE_EXPLORATION_V2_EVIDENCE"));
@@ -761,7 +761,7 @@ public final class ExplorationV2Evidence {
     dragon.setHealth(1);
     var attacker = player(level, "V2DragonDeathReceipt");
     attacker.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(100);
-    var weaponId = ResourceLocation.parse("myvillage:qingfeng_sword");
+    var weaponId = ResourceLocation.parse("yuanxian:qingfeng_sword");
     attacker.setItemSlot(
         EquipmentSlot.MAINHAND,
         new net.minecraft.world.item.ItemStack(BuiltInRegistries.ITEM.get(weaponId)));
@@ -1047,8 +1047,8 @@ public final class ExplorationV2Evidence {
           player.portalProcess);
       com.example.myvillage.cultivation.CultivationService.setRealmAndStage(
           player,
-          ResourceLocation.parse("myvillage:golden_core"),
-          ResourceLocation.parse("myvillage:golden_late"));
+          ResourceLocation.parse("yuanxian:golden_core"),
+          ResourceLocation.parse("yuanxian:golden_late"));
       player.portalProcess = new PortalProcessor((Portal) block, BlockPos.ZERO);
       check(
           "gate_qualified_player_allowed_" + block,
@@ -1100,7 +1100,7 @@ public final class ExplorationV2Evidence {
       if (stack.isEmpty()) continue;
       if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("minecraft"))
         vanilla++;
-      else if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("myvillage"))
+      else if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("yuanxian"))
         mod++;
     }
     check(

@@ -34,7 +34,7 @@ import zlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TEXTURE_DIR = ROOT / "src" / "main" / "resources" / "assets" / "myvillage" / "textures" / "item"
+TEXTURE_DIR = ROOT / "src" / "main" / "resources" / "assets" / "yuanxian" / "textures" / "item"
 DEFAULT_PREVIEW_DIR = ROOT / "out" / "preview" / "technique_manuals"
 SIZE = 16
 CATEGORIES = ("core", "active", "movement", "body")

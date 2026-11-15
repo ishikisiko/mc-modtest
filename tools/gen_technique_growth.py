@@ -12,21 +12,21 @@ SOURCE = Path("tools/technique_growth/sample.json")
 def outputs(root: Path = ROOT) -> dict[Path, str]:
     source = json.loads((root / SOURCE).read_text())
     rules = source["rules"]
-    result = {Path("src/main/resources/data/myvillage/cultivation/technique_growth.json"): rules}
+    result = {Path("src/main/resources/data/yuanxian/cultivation/technique_growth.json"): rules}
     for manual in source["manuals"]:
-        key = "myvillage:" + manual["technique"]
+        key = "yuanxian:" + manual["technique"]
         if key not in rules["techniques"]:
             raise ValueError("manual outside growth sample: " + key)
-        path = Path("src/main/resources/data/myvillage/recipe/manual_" + manual["technique"] + ".json")
+        path = Path("src/main/resources/data/yuanxian/recipe/manual_" + manual["technique"] + ".json")
         if path in result:
             raise ValueError("duplicate manual: " + key)
         result[path] = {
             "type": "minecraft:crafting_shapeless", "category": "misc",
             "ingredients": [{"tag": i[1:]} if i.startswith("#") else {"item": i} for i in manual["ingredients"]],
-            "result": {"id": "myvillage:" + manual["item"], "count": 1, "components": {"myvillage:technique": key}},
+            "result": {"id": "yuanxian:" + manual["item"], "count": 1, "components": {"yuanxian:technique": key}},
         }
-        recipe_id = "myvillage:manual_" + manual["technique"]
-        result[Path("src/main/resources/data/myvillage/advancement/recipes/manual_" + manual["technique"] + ".json")] = {
+        recipe_id = "yuanxian:manual_" + manual["technique"]
+        result[Path("src/main/resources/data/yuanxian/advancement/recipes/manual_" + manual["technique"] + ".json")] = {
             "parent": "minecraft:recipes/root",
             "criteria": {
                 "has_book": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "minecraft:book"}]}},
@@ -37,7 +37,7 @@ def outputs(root: Path = ROOT) -> dict[Path, str]:
         }
     # New content is Chinese in either locale; existing compatibility translations are untouched.
     for locale in ("zh_cn", "en_us"):
-        path = Path(f"src/main/resources/assets/myvillage/lang/{locale}.json")
+        path = Path(f"src/main/resources/assets/yuanxian/lang/{locale}.json")
         language = json.loads((root / path).read_text())
         language.update(source["messages"])
         result[path] = language

@@ -36,7 +36,7 @@ def main():
         for tool in ['Xvfb','xdotool','import','convert']:
             if not shutil.which(tool):raise RuntimeError('缺少真实客户端工具：'+tool)
         stage=result['selected'][1];server.start();query('export');plan=json.loads((server.data/'worldplan.json').read_text());city=next(c for c in plan['cities'] if c['region_id']=='zhongzhou')
-        data=json.loads((ROOT/'build/resources/main/data/myvillage/capitals/v4/capital_zhongzhou/city.json').read_text());office=data['qianji'];x0,z0,x1,z1=office['bounds'];base=city['origin_y']+office['base_y'];width=x1-x0;depth=z1-z0
+        data=json.loads((ROOT/'build/resources/main/data/yuanxian/capitals/v4/capital_zhongzhou/city.json').read_text());office=data['qianji'];x0,z0,x1,z1=office['bounds'];base=city['origin_y']+office['base_y'];width=x1-x0;depth=z1-z0
         server.command('gamerule spectatorsGenerateChunks true');server.command('gamerule mobGriefing false')
         wx0,wz0,wx1,wz1=city['x']+x0,city['z']+z0,city['x']+x1-1,city['z']+z1-1
         chunks={(cx*16+8,cz*16+8) for cx in range(wx0//16,wx1//16+1) for cz in range(wz0//16,wz1//16+1)}

@@ -77,8 +77,8 @@ class Server:
             (self.game / 'config/waystones-common.toml').write_bytes((ROOT / 'config-examples/waystones-common.toml').read_bytes())
             server_config = self.game / 'world/serverconfig'
             server_config.mkdir(parents=True)
-            (server_config / 'myvillage-waystones-server.toml').write_bytes(
-                (ROOT / 'config-examples/myvillage-waystones-server.toml').read_bytes())
+            (server_config / 'yuanxian-waystones-server.toml').write_bytes(
+                (ROOT / 'config-examples/yuanxian-waystones-server.toml').read_bytes())
         self.log = (self.out / 'server.log').open('w')
         args = ['./gradlew', '-I', 'tools/waystones_smoke/runtime.init.gradle', 'runAcceptanceServer',
                 '-x', 'processResources', '--no-daemon', '--console=plain', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx3g']
@@ -181,7 +181,7 @@ def client_checks(server, failures_only=False):
             if 'WAYSTONES_MENU_PRICE ' in line:
                 menu_prices.append(json.loads(line.split('WAYSTONES_MENU_PRICE ', 1)[1]))
         assert any(price['fee_count'] == 15 and price['can_afford'] is True and price['active'] is True
-                   and price['realm'] == 'myvillage:foundation_establishment' for price in menu_prices), menu_prices
+                   and price['realm'] == 'yuanxian:foundation_establishment' for price in menu_prices), menu_prices
         result['native_menu_prices'] = menu_prices
         result['clicks'] = []
         for y in [216, 264, 312]:

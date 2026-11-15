@@ -22,16 +22,16 @@ def main():
         raise RuntimeError('Use a fresh Modal archive; refusing to overwrite prior evidence/world')
     (run / 'eula.txt').write_text('eula=true\n')
     (run / 'server.properties').write_text('\n'.join([
-        'level-name=vanilla-realm-world', 'level-seed=42', ('level-type=myvillage:cultivation' if args.exploration else 'level-type=minecraft:flat'),
+        'level-name=vanilla-realm-world', 'level-seed=42', ('level-type=yuanxian:cultivation' if args.exploration else 'level-type=minecraft:flat'),
         'generator-settings={"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains","structures":{"structures":{}}}',
         ('generate-structures=true' if args.exploration else 'generate-structures=false'), 'online-mode=false', 'server-ip=127.0.0.1', 'server-port=25579',
         'view-distance=2', 'simulation-distance=2', 'difficulty=normal', 'max-tick-time=180000',
         'spawn-protection=0', 'sync-chunk-writes=true', 'enable-command-block=false', '']) )
     if args.exploration:
-        config=run/'config/myvillage-world_sim-server.toml';config.parent.mkdir(exist_ok=True)
+        config=run/'config/yuanxian-world_sim-server.toml';config.parent.mkdir(exist_ok=True)
         config.write_text('[world_sim]\ntier = \"large\"\n')
     # The release jar must exist already, and must not contain the opt-in evidence subscriber.
-    jars=list((ROOT/'build/libs').glob('myvillage-*.jar'))
+    jars=list((ROOT/'build/libs').glob('yuanxian-*.jar'))
     assert len(jars)==1, jars
     with zipfile.ZipFile(jars[0]) as jar:
         assert not any('VanillaRealmEvidence' in name for name in jar.namelist())

@@ -20,10 +20,10 @@ Outputs (the beast schema-1 formats, read by `NpcRenderer`):
 
 | File | Content |
 |---|---|
-| `assets/myvillage/npc/<NAME>_model.json` | bones (parents first), cubes, and `scale` |
-| `assets/myvillage/npc/<NAME>_animations.json` | looping `idle` and `walk` clips |
-| `assets/myvillage/textures/entity/<ENTITY>/<NAME>.png` | the painted atlas; zero alpha is a hole |
-| `assets/myvillage/npc/<NAME>_roles.png` | the role map: which texels are hair or iris (see below) |
+| `assets/yuanxian/npc/<NAME>_model.json` | bones (parents first), cubes, and `scale` |
+| `assets/yuanxian/npc/<NAME>_animations.json` | looping `idle` and `walk` clips |
+| `assets/yuanxian/textures/entity/<ENTITY>/<NAME>.png` | the painted atlas; zero alpha is a hole |
+| `assets/yuanxian/npc/<NAME>_roles.png` | the role map: which texels are hair or iris (see below) |
 
 `ENTITY` and `NAME` are the definition's: the default cultivator is `cultivator`/`cultivator`, a
 second look of it `cultivator`/`cultivator_<look>`.

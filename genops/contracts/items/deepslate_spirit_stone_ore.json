@@ -1,5 +1,5 @@
 {
-  "item_id": "myvillage:deepslate_spirit_stone_ore",
+  "item_id": "yuanxian:deepslate_spirit_stone_ore",
   "kind": "block_item",
   "display_name": {
     "en_us": "Deepslate Spirit Stone Ore",
@@ -8,7 +8,7 @@
   "owner_facing_goal": "提供生成于深板岩层的深层灵石原矿，与普通灵石原矿共享铁镐门槛、精准采集和时运掉落规则。",
   "creative_tab": {
     "visibility": "visible",
-    "tab_id": "myvillage:main",
+    "tab_id": "yuanxian:main",
     "ordering": "append"
   },
   "java_registration": {
@@ -16,16 +16,16 @@
     "block_owner_file": "src/main/java/com/example/myvillage/block/ModBlocks.java",
     "deferred_holder": "ModItems.DEEPSLATE_SPIRIT_STONE_ORE_ITEM",
     "properties": "new BlockItem(ModBlocks.DEEPSLATE_SPIRIT_STONE_ORE.get(), new Item.Properties())",
-    "block_item_for": "myvillage:deepslate_spirit_stone_ore"
+    "block_item_for": "yuanxian:deepslate_spirit_stone_ore"
   },
   "client_assets": {
-    "lang_key": "block.myvillage.deepslate_spirit_stone_ore",
-    "model": "src/main/resources/assets/myvillage/models/item/deepslate_spirit_stone_ore.json",
+    "lang_key": "block.yuanxian.deepslate_spirit_stone_ore",
+    "model": "src/main/resources/assets/yuanxian/models/item/deepslate_spirit_stone_ore.json",
     "textures": [
-      "src/main/resources/assets/myvillage/textures/block/deepslate_spirit_stone_ore.png"
+      "src/main/resources/assets/yuanxian/textures/block/deepslate_spirit_stone_ore.png"
     ],
-    "blockstate": "src/main/resources/assets/myvillage/blockstates/deepslate_spirit_stone_ore.json",
-    "block_model": "src/main/resources/assets/myvillage/models/block/deepslate_spirit_stone_ore.json",
+    "blockstate": "src/main/resources/assets/yuanxian/blockstates/deepslate_spirit_stone_ore.json",
+    "block_model": "src/main/resources/assets/yuanxian/models/block/deepslate_spirit_stone_ore.json",
     "visual_verdict": "accept"
   },
   "data_resources": {
@@ -35,17 +35,17 @@
       "src/main/resources/data/minecraft/tags/block/needs_iron_tool.json"
     ],
     "loot_or_advancement_hooks": [
-      "src/main/resources/data/myvillage/loot_table/blocks/deepslate_spirit_stone_ore.json"
+      "src/main/resources/data/yuanxian/loot_table/blocks/deepslate_spirit_stone_ore.json"
     ]
   },
   "behavior": {
     "type": "functional",
     "server_client_boundary": "Block mining eligibility and loot resolution are server-authoritative; the BlockItem only places the registered block and carries no client-authored state.",
-    "interaction": "Requires an iron-tier or better pickaxe. Silk Touch drops myvillage:deepslate_spirit_stone_ore; otherwise it drops myvillage:low_grade_spirit_stone with the vanilla Fortune ore-drops bonus.",
+    "interaction": "Requires an iron-tier or better pickaxe. Silk Touch drops yuanxian:deepslate_spirit_stone_ore; otherwise it drops yuanxian:low_grade_spirit_stone with the vanilla Fortune ore-drops bonus.",
     "cooldown_or_durability": "No item cooldown, durability, custom rarity, or custom data components.",
     "data_components": [],
     "tests": [
-      "registered block and matching BlockItem are exposed in myvillage:main",
+      "registered block and matching BlockItem are exposed in yuanxian:main",
       "mineable/pickaxe and needs_iron_tool tags contain the block id",
       "Silk Touch returns the deepslate ore block itself",
       "non-Silk-Touch mining returns low-grade spirit stone",
@@ -55,8 +55,8 @@
   },
   "acceptance": {
     "commands": [
-      "/give @s myvillage:deepslate_spirit_stone_ore",
-      "/setblock ~ ~ ~ myvillage:deepslate_spirit_stone_ore",
+      "/give @s yuanxian:deepslate_spirit_stone_ore",
+      "/setblock ~ ~ ~ yuanxian:deepslate_spirit_stone_ore",
       "in Survival, verify stone-tier tools do not harvest it, iron-tier tools do, Silk Touch preserves it, and Fortune raises low-grade spirit-stone drops"
     ],
     "gates": [
@@ -68,9 +68,9 @@
     ],
     "jar_checks": [
       "complete blockstate, block model, item model, block texture, bilingual name, loot table, and tool tags",
-      "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json",
+      "data/yuanxian/worldgen/configured_feature/spirit_stone_ore.json",
       "three resource-owned placed features for upper, middle, and deep generation",
-      "data/myvillage/neoforge/biome_modifier/add_spirit_stone_ores.json"
+      "data/yuanxian/neoforge/biome_modifier/add_spirit_stone_ores.json"
     ],
     "human_verdict": "accept"
   },

@@ -25,7 +25,7 @@ def source_boxes(scene, overlay_roles):
 
 
 def key(part):
-    return 'manor_part.myvillage.' + part
+    return 'manor_part.yuanxian.' + part
 
 
 def source_part(box, rules):
@@ -73,4 +73,4 @@ def choose(parts, rules):
 def profile_info(profile, parts, rules):
     roles = sorted({box[6] for box in profile})
     return {'name': key(choose(parts, rules)),
-            'materials': ['manor_material.myvillage.' + ('plaque' if role.startswith('plaque_') else role) for role in roles]}
+            'materials': ['manor_material.yuanxian.' + ('plaque' if role.startswith('plaque_') else role) for role in roles]}

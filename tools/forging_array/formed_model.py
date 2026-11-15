@@ -224,5 +224,5 @@ def build():
 
     bounds = [[min(p[i] for f in m.faces for p in f["p"]) for i in range(3)],
               [max(p[i] for f in m.faces for p in f["p"]) for i in range(3)]]
-    return {"version": 1, "texture": "myvillage:textures/block/forging_array_formed.png",
+    return {"version": 1, "texture": "yuanxian:textures/block/forging_array_formed.png",
             "bounds": bounds, "collision_boxes": m.collision_boxes, "faces": m.faces}

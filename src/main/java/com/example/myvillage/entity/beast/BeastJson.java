@@ -247,7 +247,7 @@ public final class BeastJson {
             int separator = value.indexOf(':');
             ResourceLocation id = ResourceLocation.tryParse(value);
             if (separator <= 0 || separator == value.length() - 1 || id == null) {
-                throw error(key, "must be a namespaced id like myvillage:name, got \"" + value + "\"");
+                throw error(key, "must be a namespaced id like yuanxian:name, got \"" + value + "\"");
             }
             return id;
         }

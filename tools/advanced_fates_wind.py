@@ -23,7 +23,7 @@ def run(e):
     """Run on an already started/awakened PurpleEvidence-compatible instance."""
     u, game = e.s.username, e.s.game
     root = Path(__file__).resolve().parents[1]
-    movement = json.loads((root / 'src/main/resources/data/myvillage/myvillage/technique/'
+    movement = json.loads((root / 'src/main/resources/data/yuanxian/yuanxian/technique/'
                           'taxue_wuhen.json').read_text())['effects']['movement']
     cost, cooldown = movement['qi_cost'], movement['cooldown_ticks']
     log = cs.LOG_DIR / 'server.log'
@@ -110,7 +110,7 @@ def run(e):
 
     try:
         e.choose_focus('wind_step')
-        e.equip('myvillage:qingfeng_sword')
+        e.equip('yuanxian:qingfeng_sword')
         scene.ensure_cultivation(e.s)
         e.rc(f'gamemode survival {u}')
         e.rc(f'tp {u} {X} {Y} {Z} 180 0')
@@ -128,7 +128,7 @@ def run(e):
         decision, _ = press('ground_free')
         after = snapshot()
         outcome('ground_free', decision, 'started', before, after)
-        bonus = e.definitions['myvillage:wind_step']['effects']['dodge_speed_bonus']
+        bonus = e.definitions['yuanxian:wind_step']['effects']['dodge_speed_bonus']
         enhanced_speed = e.number(f'attribute {u} minecraft:generic.movement_speed get')
         e.check('wind_ground_remains_free_and_has_speed_bonus',
                 after['power']['current'] == before['power']['current']

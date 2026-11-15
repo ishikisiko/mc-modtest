@@ -24,7 +24,7 @@ class WorldSimAlchemySourceTest {
                     throw new UnsupportedOperationException(method.getName());
                 });
         var opener = WorldSimRuntime.opener(resources);
-        try (var stream = opener.open("data/myvillage/alchemy/rules.json")) {
+        try (var stream = opener.open("data/yuanxian/alchemy/rules.json")) {
             assertNotNull(stream);
             var raw = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
             for (var recipe : AlchemyRules.get().recipes()) {
@@ -36,7 +36,7 @@ class WorldSimAlchemySourceTest {
             }
         }
         assertEquals(0, calls.get(), "a datapack cannot fork only the NPC half of a shared recipe");
-        assertNull(opener.open("data/myvillage/world_sim/life_rules.json"));
+        assertNull(opener.open("data/yuanxian/world_sim/life_rules.json"));
         assertEquals(1, calls.get(), "world-sim rules retain their existing datapack path");
     }
 }

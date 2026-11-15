@@ -38,7 +38,7 @@ class CraftingEvidence(Evidence):
         self.report['phases'].append({'phase':'restart_setup' if reuse else 'initial_setup','language':language,
                                      'wall_s':round(time.monotonic()-begin,3),'capture_timings':state.get('timings',{})})
         options=dict(line.split(':',1) for line in (ROOT/'run-combat-capture/client/options.txt').read_text().splitlines() if ':' in line)
-        if options.get('key_key.myvillage.open_cultivation_profile')!='key.keyboard.h':
+        if options.get('key_key.yuanxian.open_cultivation_profile')!='key.keyboard.h':
             raise RuntimeError('H capture binding differs; no binding changed')
         self.save()
 
@@ -97,7 +97,7 @@ class CraftingEvidence(Evidence):
         self.panel();self.capture('zh_cn_pending.png');self.close_panel()
         self.rc(f'yuanxian cultivation crafting set {user} alchemy 100')
         self.check('uninitialized_admin_set_rejected',self.state()==empty,self.state())
-        for cmd in ('setblock 0 -60 2 minecraft:stone','setblock 0 -59 2 myvillage:spirit_testing_stele',
+        for cmd in ('setblock 0 -60 2 minecraft:stone','setblock 0 -59 2 yuanxian:spirit_testing_stele',
                     f'tp {user} .5 -60 .5 0 3.4'):
             self.rc(cmd)
         time.sleep(.5);self.s.game.xdo('click','3')
@@ -107,7 +107,7 @@ class CraftingEvidence(Evidence):
         self.capture('zh_cn_mapped_awakening.png');self.close_panel()
         self.report['natural_initial_scores']=initialized
         # Every threshold on both professions; explicit fixtures, not natural rolls.
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/crafting/rules.json').read_text())
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/crafting/rules.json').read_text())
         points=sorted({0,100,*[r['minimum'] for r in rules['quality_thresholds']],
                        *[r['minimum']-1 for r in rules['quality_thresholds'] if r['minimum']>0]})
         for profession in ('alchemy','forging'):

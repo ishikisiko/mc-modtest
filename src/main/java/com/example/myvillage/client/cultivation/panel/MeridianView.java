@@ -178,13 +178,13 @@ final class MeridianView {
         if (status != null && status.state().advancing()) {
             // the server repeats advancement status at its feedback interval, so this stays live
             lines.add(context.text(
-                    "screen.myvillage.cultivation.advancement_runtime_value",
+                    "screen.yuanxian.cultivation.advancement_runtime_value",
                     status.advancementTicksRemaining(),
                     status.advancementDurationTicks()));
         } else if (look.phase() == MeridianLook.Phase.DORMANT) {
             lines.add(context.text(context.profile().awakened()
-                    ? "message.myvillage.cultivation.session.basic_breathing_required"
-                    : "message.myvillage.cultivation.session.not_awakened"));
+                    ? "message.yuanxian.cultivation.session.basic_breathing_required"
+                    : "message.yuanxian.cultivation.session.not_awakened"));
         }
         return lines;
     }

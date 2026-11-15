@@ -33,8 +33,8 @@ import java.util.UUID;
 
 /** 服务器控制状态；根缠不取消实体 tick，也不禁用受伤、视角、攻击或全部 AI。 */
 public final class ControlService {
-    private static final ResourceLocation ROOT_SPEED = ResourceLocation.parse("myvillage:foundation_root_speed");
-    private static final ResourceLocation SLOW_SPEED = ResourceLocation.parse("myvillage:foundation_slow_speed");
+    private static final ResourceLocation ROOT_SPEED = ResourceLocation.parse("yuanxian:foundation_root_speed");
+    private static final ResourceLocation SLOW_SPEED = ResourceLocation.parse("yuanxian:foundation_slow_speed");
     private static final Map<UUID, Tracked> TARGETS = new HashMap<>();
     private static boolean registered;
 

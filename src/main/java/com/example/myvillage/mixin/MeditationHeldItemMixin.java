@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandLayer.class)
 public abstract class MeditationHeldItemMixin {
     @Inject(method="render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",at=@At("HEAD"),cancellable=true)
-    private void myvillage$hide(PoseStack poses,MultiBufferSource buffers,int light,LivingEntity entity,
+    private void yuanxian$hide(PoseStack poses,MultiBufferSource buffers,int light,LivingEntity entity,
             float swing,float amount,float partial,float age,float yaw,float pitch,CallbackInfo ci) {
         if(entity instanceof AbstractClientPlayer player&&ClientMeditationMotion.displaying(player))ci.cancel();
     }

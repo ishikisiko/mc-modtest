@@ -87,28 +87,28 @@ class EquipmentEvidence(DemoEvidence):
         u=self.username
         self.check(u+'_starts_without_armor',not self.armor_rows(),self.inventory())
         for index,(suffix,slot) in enumerate(ARMOR):
-            self.rc(f'item replace entity {u} hotbar.{index} with myvillage:xuantie_{suffix}')
+            self.rc(f'item replace entity {u} hotbar.{index} with yuanxian:xuantie_{suffix}')
         self.start_video(u+'-equip-and-poses')
         self.key('e');self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='inventory opened')
         self.capture(u+'-inventory-icons');self.close_menu()
         for index,(suffix,slot) in enumerate(ARMOR):
             self.key(str(index+1));self.right()
-            expected='myvillage:xuantie_'+suffix
+            expected='yuanxian:xuantie_'+suffix
             rows=self.poll(self.armor_rows,lambda rows:rows.get(slot)==expected,label='mapped equip '+suffix)
             self.check(u+'_equip_'+suffix,rows.get(slot)==expected,rows)
         rows=self.inventory()
-        self.check(u+'_four_unique_items',all(sum(r['count'] for r in rows.values() if r['id']=='myvillage:xuantie_'+s)==1 for s,_ in ARMOR),rows)
+        self.check(u+'_four_unique_items',all(sum(r['count'] for r in rows.values() if r['id']=='yuanxian:xuantie_'+s)==1 for s,_ in ARMOR),rows)
         armor=self.rc(f'attribute {u} minecraft:generic.armor get')
         self.check(u+'_vanilla_armor_total','15.0' in armor or armor.rstrip().endswith('15'),armor)
         self.key('e');self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='worn inventory')
         self.capture(u+'-inventory-worn')
         self.inventory_shift_click(16,16)
         self.poll(self.armor_rows,lambda rows:103 not in rows,label='mapped helmet removal')
-        rows=self.inventory();slot=next(k for k,v in rows.items() if v['id']=='myvillage:xuantie_helmet')
-        self.check(u+'_helmet_returns_once',0<=slot<=35 and sum(v['count'] for v in rows.values() if v['id']=='myvillage:xuantie_helmet')==1,rows)
+        rows=self.inventory();slot=next(k for k,v in rows.items() if v['id']=='yuanxian:xuantie_helmet')
+        self.check(u+'_helmet_returns_once',0<=slot<=35 and sum(v['count'] for v in rows.values() if v['id']=='yuanxian:xuantie_helmet')==1,rows)
         if slot<9:self.inventory_shift_click(16+18*slot,150)
         else:self.inventory_shift_click(16+18*((slot-9)%9),92+18*((slot-9)//9))
-        self.poll(self.armor_rows,lambda rows:rows.get(103)=='myvillage:xuantie_helmet',label='mapped helmet re-equip')
+        self.poll(self.armor_rows,lambda rows:rows.get(103)=='yuanxian:xuantie_helmet',label='mapped helmet re-equip')
         self.close_menu()
 
     def poses(self):
@@ -120,7 +120,7 @@ class EquipmentEvidence(DemoEvidence):
         self.hold(['w'],.8,sample=lambda:self.capture(u+'-walk'))
         after=self.pos()
         self.check(u+'_mapped_walk_moves',sum((a-b)**2 for a,b in zip(after,before))>.15,{'before':before,'after':after})
-        self.rc(f'item replace entity {u} hotbar.4 with myvillage:qingfeng_sword')
+        self.rc(f'item replace entity {u} hotbar.4 with yuanxian:qingfeng_sword')
         self.key('5');self.capture(u+'-holding-sword')
         self.hold([], .3, mouse=1, sample=lambda:self.capture(u+'-swing'))
         self.key('F1');self.key('F5')

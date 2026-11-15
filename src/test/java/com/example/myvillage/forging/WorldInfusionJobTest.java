@@ -15,12 +15,12 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldInfusionJobTest {
-    private static final TagKey<Item> MATERIAL=TagKey.create(Registries.ITEM,ResourceLocation.parse("myvillage:forging_materials/xuantie"));
+    private static final TagKey<Item> MATERIAL=TagKey.create(Registries.ITEM,ResourceLocation.parse("yuanxian:forging_materials/xuantie"));
     @BeforeAll static void bootstrap(){EquipmentInfusionTest.bootstrap();}
     @BeforeEach void tags(){BuiltInRegistries.ITEM.bindTags(Map.of(MATERIAL,List.of(Items.IRON_INGOT.builtInRegistryHolder()),SpiritStoneTags.LOW_GRADE_SPIRIT_STONE,List.of(Items.EMERALD.builtInRegistryHolder())));}
     @AfterEach void clearTags(){BuiltInRegistries.ITEM.bindTags(Map.of(MATERIAL,List.of(),SpiritStoneTags.LOW_GRADE_SPIRIT_STONE,List.of()));}
     private ItemStack input(){
-        var item=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("myvillage:forged_pickaxe")));
+        var item=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("yuanxian:forged_pickaxe")));
         ForgingCompletion.stamp(item,2);
         item.set(DataComponents.CUSTOM_NAME,Component.literal("旧器·留名"));item.setDamageValue(3);
         item.set(ModDataComponents.TEMPER.get(),new TemperRecord(14,0,2,0,2));return item;

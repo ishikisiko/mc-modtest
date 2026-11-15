@@ -327,7 +327,7 @@ class Stills:
     def shoot(self, view: str, move, key: str, tick: float):
         probe = VIEWS[view]["probe"]
         n = move.index
-        m, line = self.g.chat(f"/myvillage_pal_smoke {probe} {n} {fmt_tick(tick)}",
+        m, line = self.g.chat(f"/yuanxian_pal_smoke {probe} {n} {fmt_tick(tick)}",
                               confirm=rf"PAL_SMOKE {probe} move={n} tick=([-\d.Ee]+)",
                               reject=probe_reject_pattern(probe))
         self.active_probe = probe
@@ -351,7 +351,7 @@ class Stills:
     def release(self):
         if self.active_probe:
             probe, self.active_probe = self.active_probe, None
-            self.g.chat(f"/myvillage_pal_smoke {probe} release")
+            self.g.chat(f"/yuanxian_pal_smoke {probe} release")
             time.sleep(0.4)
 
     def run(self, views: list[str], moves: list[int]):
@@ -691,7 +691,7 @@ def run_motion(session, weapon: Weapon, out_dir: Path, manifest: dict, views: li
     quarter views): per view one video of, optionally, the mode-enter
     animation through the real toggle key (R to vanilla, R back) and `idle`
     seconds of the ready idle, then each move's PAL animation played on the
-    client at game speed with `/myvillage_pal_smoke move <n>` (typed in chat,
+    client at game speed with `/yuanxian_pal_smoke move <n>` (typed in chat,
     so the chat line shows briefly). No server action: no hits, no lunge,
     no world trail, and the body does not turn, so the camera keeps its angle."""
     from .xgame import LogTail
@@ -732,7 +732,7 @@ def run_motion(session, weapon: Weapon, out_dir: Path, manifest: dict, views: li
                 for mv in weapon.moves:
                     if mv.index not in moves:
                         continue
-                    m, _ = g.chat(f"/myvillage_pal_smoke move {mv.index}", confirm=r"PAL_SMOKE play .*animation=(\S+)",
+                    m, _ = g.chat(f"/yuanxian_pal_smoke move {mv.index}", confirm=r"PAL_SMOKE play .*animation=(\S+)",
                                   reject=probe_reject_pattern("move"))
                     events.append({"event": f"move {mv.index} {mv.short}", "animation": m.group(1),
                                    "s": round(time.time() - t0, 2)})

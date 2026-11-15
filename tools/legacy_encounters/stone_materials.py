@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from .stone_models import ROOT, guardian_surface, ruler_surface
 
-FONT = ROOT / 'src/main/resources/assets/myvillage/font/brush.ttf'
+FONT = ROOT / 'src/main/resources/assets/yuanxian/font/brush.ttf'
 
 
 def art_root(name):

@@ -15,7 +15,7 @@ public record WorkshopRules(int version, int shape_percent, int strike_ticks,
         double armor_melee_damage_per_experience, double armor_received_damage_per_experience,
         double armor_received_budget_health_multiplier, int damage_receipt_limit,
         double treatment_attack, double treatment_speed, double treatment_durability, int experience_limit, float sound_volume, float sound_pitch_jitter, List<Craft> crafts) {
-    public static final String RESOURCE="/data/myvillage/forging/workshop.json";
+    public static final String RESOURCE="/data/yuanxian/forging/workshop.json";
     public static final List<String> KINDS=List.of("sword","spear","pickaxe","axe","shovel","hoe","helmet","chestplate","leggings","boots");
     public record Band(int through,int experience) {}
     public record Craft(String recipe,String kind,boolean requires_pattern,int max_strikes,int work_experience,int forming_points,int grade) {

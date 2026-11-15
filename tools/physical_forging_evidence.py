@@ -29,12 +29,12 @@ POS='0 -60 3';TROUGH='1 -60 3'
 def blank(recipe,stage=0,blows=0):
  name=['rough','shaped','quenched','tempered','ground'][stage]
  treatment=2 if recipe.startswith('xuantie_') else 0
- return f'myvillage:workpiece_{recipe}_{name}[myvillage:workpiece={{recipe:"{recipe}",stage:{stage},blows:{blows},treatment:{treatment}}},minecraft:custom_name=\'{{"text":"留台试作"}}\']'
+ return f'yuanxian:workpiece_{recipe}_{name}[yuanxian:workpiece={{recipe:"{recipe}",stage:{stage},blows:{blows},treatment:{treatment}}},minecraft:custom_name=\'{{"text":"留台试作"}}\']'
 
 
 def physical_readback(command):
  return bool(re.fullmatch(r'yuanxian workshop (?:anvil -?\d+ -?\d+ -?\d+|inspect [A-Za-z0-9_]+)',command)
-             or re.fullmatch(r'execute as @e\[type=minecraft:item,nbt=\{Item:\{id:"myvillage:[a-z0-9_]+"\}\}\] run data get entity @s Item',command))
+             or re.fullmatch(r'execute as @e\[type=minecraft:item,nbt=\{Item:\{id:"yuanxian:[a-z0-9_]+"\}\}\] run data get entity @s Item',command))
 
 
 class PhysicalForgingEvidence(ArmorForgingEvidence):
@@ -92,12 +92,12 @@ class PhysicalForgingEvidence(ArmorForgingEvidence):
   previous=self.anvil()
   if previous['present']:
    assert previous['input']['count']==0 and previous['output']['count']==0,previous
-  self.rc('setblock '+POS+' myvillage:forging_anvil[facing=north]')
-  self.rc('setblock '+TROUGH+' myvillage:quenching_trough[facing=north,filled=true]')
+  self.rc('setblock '+POS+' yuanxian:forging_anvil[facing=north]')
+  self.rc('setblock '+TROUGH+' yuanxian:quenching_trough[facing=north,filled=true]')
   self.rc(f'gamemode survival {self.username}');self.rc(f'clear {self.username}');self.aim()
  def kit(self,item):
   self.rc(f'item replace entity {self.username} hotbar.0 with {item}')
-  self.rc(f'item replace entity {self.username} hotbar.1 with myvillage:forging_hammer')
+  self.rc(f'item replace entity {self.username} hotbar.1 with yuanxian:forging_hammer')
   for slot,(name,count) in enumerate([('coal',32),('flint',16),('iron_nugget',16),('iron_ingot',32),('stick',16)],2):
    self.rc(f'item replace entity {self.username} hotbar.{slot} with minecraft:{name} {count}')
  def put(self,slot='1'):
@@ -117,8 +117,8 @@ class PhysicalForgingEvidence(ArmorForgingEvidence):
   return before,after
  def physical_loop(self):
   self.clean();self.kit(blank('lingxiao_spear'));self.open();self.click(45,76);self.operate('start');self.close_menu()
-  self.check('panel_preparation_creates_one_real_table_piece',self.anvil()['input']['id']=='myvillage:workpiece_forged_pickaxe_rough' and self.count('myvillage:workpiece_forged_pickaxe_rough')==0,self.anvil())
-  self.take('myvillage:workpiece_forged_pickaxe_rough')
+  self.check('panel_preparation_creates_one_real_table_piece',self.anvil()['input']['id']=='yuanxian:workpiece_forged_pickaxe_rough' and self.count('yuanxian:workpiece_forged_pickaxe_rough')==0,self.anvil())
+  self.take('yuanxian:workpiece_forged_pickaxe_rough')
   self.clean();self.kit(blank('lingxiao_spear'));self.put();initial=self.stored()
   self.key('2');self.right();time.sleep(.3)
   self.check('cold_blank_does_not_advance_or_wear_hammer',self.anvil()['input']['piece']['blows']==0 and self.inspect()['held']['damage']==0,self.anvil())
@@ -136,25 +136,25 @@ class PhysicalForgingEvidence(ArmorForgingEvidence):
   self.right();time.sleep(.3)
   self.check('extra_hit_after_forming_is_rejected',self.anvil()['input']==data['input'] and self.inspect()['held']['damage']==damage,self.anvil())
   self.capture('formed-on-anvil-no-menu')
-  self.take('myvillage:workpiece_lingxiao_spear_shaped');self.put('9')
+  self.take('yuanxian:workpiece_lingxiao_spear_shaped');self.put('9')
   self.open();self.operate('heat');self.operate('quench');self.operate('temper');self.operate('grind');self.operate('assemble')
   result=self.inspect()['output'];self.close_menu()
-  self.check('other_operations_still_finish_and_leave_output_on_table',result['id']=='myvillage:lingxiao_spear' and self.anvil()['output']==result and self.count(result['id'])==0,self.anvil())
+  self.check('other_operations_still_finish_and_leave_output_on_table',result['id']=='yuanxian:lingxiao_spear' and self.anvil()['output']==result and self.count(result['id'])==0,self.anvil())
   self.capture('finished-on-anvil-no-menu');self.take(result['id'])
  def training(self):
   for rid in ['forged_pickaxe','xuantie_chestplate']:
    self.clean()
-   self.kit('myvillage:'+rid+'[myvillage:temper={experience:6,edge:0,endurance:0,channeling:0,treatment:2},myvillage:forge_mark={trait:"tough",quality:2},minecraft:custom_name=\'{"text":"旧器保留"}\',minecraft:damage=3]')
+   self.kit('yuanxian:'+rid+'[yuanxian:temper={experience:6,edge:0,endurance:0,channeling:0,treatment:2},yuanxian:forge_mark={trait:"tough",quality:2},minecraft:custom_name=\'{"text":"旧器保留"}\',minecraft:damage=3]')
    self.put();self.open()
    if rid=='forged_pickaxe':self.click(262,75)  # endurance row in the existing panel
    self.operate('heat');self.close_menu();self.key('2')
    before=self.stored()[0]['components'];nuggets=self.count('minecraft:iron_nugget');_,after=self.strike()
    record=after['input']['temper'];raw=self.stored()[0]['components']
    self.check(rid+'_physical_training_spends_exact_cost',record=={'experience':0,'edge':0,'endurance':1,'channeling':0,'treatment':2} and self.count('minecraft:iron_nugget')==nuggets-1,after)
-   self.check(rid+'_training_preserves_old_components',all(raw[k]==v for k,v in before.items() if k not in ('myvillage:temper','minecraft:max_damage','minecraft:attribute_modifiers')),raw)
+   self.check(rid+'_training_preserves_old_components',all(raw[k]==v for k,v in before.items() if k not in ('yuanxian:temper','minecraft:max_damage','minecraft:attribute_modifiers')),raw)
    self.right();time.sleep(.25)
    self.check(rid+'_no_experience_no_extra_hit_or_wear',self.anvil()['input']==after['input'] and self.inspect()['held']['damage']==1 and self.count('minecraft:iron_nugget')==nuggets-1,self.anvil())
-   self.take('myvillage:'+rid)
+   self.take('yuanxian:'+rid)
  def lifecycle(self):
   self.clean();self.kit(blank('lingxiao_spear',0,2));self.put();self.key('2');self.strike()
   before=self.stored();inventory=self.inventory();heat=self.anvil()['heat']
@@ -162,7 +162,7 @@ class PhysicalForgingEvidence(ArmorForgingEvidence):
   self.check('anvil_and_inventory_survive_restart_without_duplication',self.stored()==before and self.inventory()==inventory,{'anvil':self.stored(),'inventory':self.inventory()})
   self.check('restart_does_not_reheat_or_replay_a_swing',0<=self.anvil()['heat']<=heat and not self.anvil()['swinging'] and self.anvil()['hits']==0,self.anvil())
   self.capture('persistent-workpiece-after-restart')
-  rid='myvillage:workpiece_lingxiao_spear_rough';self.take(rid)
+  rid='yuanxian:workpiece_lingxiao_spear_rough';self.take(rid)
   returned=dict(self.inventory()[8]);returned.pop('Slot');saved=dict(before[0]);saved.pop('Slot')
   self.check('pickup_keeps_complete_saved_stack',returned==saved,returned);self.put('9')
   self.rc(f'gamemode creative {self.username}');self.hold([], .12,mouse=1)
@@ -177,7 +177,7 @@ class PhysicalForgingEvidence(ArmorForgingEvidence):
    self.guest=guest;self.attach_window(guest.game);u=guest.username
    self.poll(lambda:status_json(self.rc('yuanxian qianzhen realm_status '+u),'QIANZHEN_REALM_STATUS '),lambda d:not d['building'] and not d['waiting'],150,'guest opening ready')
    for command in (f'op {u}',f'gamemode survival {u}',f'execute in minecraft:overworld run tp {u} 2.5 -60 .5 33.69 20.5',f'clear {u}',
-       f'effect give {u} minecraft:saturation infinite 255 true',f'item replace entity {u} hotbar.1 with myvillage:forging_hammer'):
+       f'effect give {u} minecraft:saturation infinite 255 true',f'item replace entity {u} hotbar.1 with yuanxian:forging_hammer'):
     self.rc(command)
    time.sleep(1);self.poll(guest.game.pointer_grabbed,lambda v:v is True,60,'guest native input ready')
    self.open();self.key('9',guest.game);self.right(guest.game)

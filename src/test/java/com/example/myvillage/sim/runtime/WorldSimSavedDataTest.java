@@ -33,7 +33,7 @@ class WorldSimSavedDataTest {
     @Test
     void anAttachedLedgerRoundTripsWithItsTierAndPausedMirror() {
         WorldSimSavedData data = new WorldSimSavedData();
-        byte[] payload = bytes("{\"format\":\"myvillage:world_sim\",\"version\":1}");
+        byte[] payload = bytes("{\"format\":\"yuanxian:world_sim\",\"version\":1}");
         data.attach(() -> new WorldSimSavedData.Snapshot("small", true, payload));
         assertTrue(data.isDirty());
         CompoundTag tag = data.save(new CompoundTag(), null);

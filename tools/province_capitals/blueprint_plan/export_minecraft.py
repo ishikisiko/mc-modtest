@@ -37,7 +37,7 @@ def base_manifest_path(spec, root):
     if backend not in ('regional', 'central'):
         raise ValueError('未知蓝图生成器：'+str(backend))
     version = 'v1' if backend == 'central' else 'v2'
-    return root/f'data/myvillage/capitals/{version}/{spec["city_id"]}/city.json'
+    return root/f'data/yuanxian/capitals/{version}/{spec["city_id"]}/city.json'
 
 
 def baseline(spec,root):
@@ -322,7 +322,7 @@ def export(spec_path,base,out,*,preview_out=None):
             cells.update({p:(s,'','') for p,s in world.tile((tx,tz)).items()})
             for p in list(cells):
                 if (tx*16+p[0],p[1],tz*16+p[2]) in atomic_positions:del cells[p]
-            path=pack/f'data/myvillage/structure/blueprint_trial/{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
+            path=pack/f'data/yuanxian/structure/blueprint_trial/{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
             source=world.refs.get((tx,tz))
             original_nbt=(block_entities(resource_file(base,source['template'],template=True))
                           if (tx,tz) in world.nbt_tiles and source else {})
@@ -332,7 +332,7 @@ def export(spec_path,base,out,*,preview_out=None):
             decoded={tuple(b['pos']):states[b['state']] for b in raw['blocks']}
             if decoded!={p:s[0] for p,s in cells.items()}:raise ValueError('NBT 回读不同于施工结果：'+str(path))
             palette.update(states)
-            tiles.append({'x':tx*16,'y':0,'z':tz*16,'size':[16,world.height,16],'phase':'tiles','template':f'myvillage:blueprint_trial/{region}/tile_{tx}_{tz}',
+            tiles.append({'x':tx*16,'y':0,'z':tz*16,'size':[16,world.height,16],'phase':'tiles','template':f'yuanxian:blueprint_trial/{region}/tile_{tx}_{tz}',
                           'bytes':path.stat().st_size,'sha256':sha(path.read_bytes()),'blocks':count,'block_entities':preserved_nbt})
     for group in groups:
         x0,y0,z0=group['origin'];cells={};entities={}
@@ -342,7 +342,7 @@ def export(spec_path,base,out,*,preview_out=None):
             if source and (x//16,z//16) in world.nbt_tiles:
                 raw=block_entities(resource_file(base,source['template'],template=True)).get((x%16,y,z%16))
                 if raw is not None:entities[pos]=raw
-        path=pack/f'data/myvillage/structure/blueprint_trial/{region}/{group["id"]}.nbt'
+        path=pack/f'data/yuanxian/structure/blueprint_trial/{region}/{group["id"]}.nbt'
         count,_,preserved_nbt=write_tile(path,cells,group['size'][1],entities,size=group['size'])
         entity_checks.extend(audit_entries(cells,entities,(x0,y0,z0)))
         _,raw=read_gzipped_nbt(str(path));states=[state_string(s) for s in raw['palette']]
@@ -350,26 +350,26 @@ def export(spec_path,base,out,*,preview_out=None):
             raise ValueError('原子组件 NBT 回读不一致：'+group['id'])
         palette.update(states);block_count+=count;entity_count+=preserved_nbt
         tiles.append({'x':x0,'y':y0,'z':z0,'size':group['size'],'phase':'atomic_groups',
-                      'template':f'myvillage:blueprint_trial/{region}/{group["id"]}',
+                      'template':f'yuanxian:blueprint_trial/{region}/{group["id"]}',
                       'bytes':path.stat().st_size,'sha256':sha(path.read_bytes()),'blocks':count,'block_entities':preserved_nbt})
     if entity_count!=len(entity_checks) or len({tuple(row['position']) for row in entity_checks})!=entity_count:
         raise ValueError('原生方块实体审计清单遗漏或重复')
     data['block_entity_checks']=sorted(entity_checks,key=lambda row:row['position'])
     errors=load_modset('vanilla').palette_block_errors(sorted(palette))
     if errors:raise ValueError('; '.join(errors))
-    functions=pack/f'data/myvillage/function/blueprint_trial/{region}';functions.mkdir(parents=True)
+    functions=pack/f'data/yuanxian/function/blueprint_trial/{region}';functions.mkdir(parents=True)
     batches=[]
     for start in range(0,world.depth//16,spec['minecraft']['batch_rows']):
         rows=[t for t in tiles if t['phase']=='tiles' and start*16<=t['z']<(start+spec['minecraft']['batch_rows'])*16]
         name=f'batch_{start:02}'
         commands=[f"place template {t['template']} {origin[0]+t['x']} {origin[1]} {origin[2]+t['z']}" for t in rows]
         (functions/(name+'.mcfunction')).write_text('\n'.join(commands)+'\n')
-        batches.append({'function':f'myvillage:blueprint_trial/{region}/'+name,'phase':'tiles','templates':[t['template'] for t in rows],'tiles':len(rows),
+        batches.append({'function':f'yuanxian:blueprint_trial/{region}/'+name,'phase':'tiles','templates':[t['template'] for t in rows],'tiles':len(rows),
                         'bounds':[origin[0],origin[2]+start*16,origin[0]+world.width-1,origin[2]+max(t['z'] for t in rows)+15]})
     for t in (t for t in tiles if t['phase']=='atomic_groups'):
         name=t['template'].rsplit('/',1)[1]
         (functions/(name+'.mcfunction')).write_text(f"place template {t['template']} {origin[0]+t['x']} {origin[1]+t['y']} {origin[2]+t['z']}\n")
-        batches.append({'function':f'myvillage:blueprint_trial/{region}/'+name,'phase':'atomic_groups','templates':[t['template']],'tiles':1,
+        batches.append({'function':f'yuanxian:blueprint_trial/{region}/'+name,'phase':'atomic_groups','templates':[t['template']],'tiles':1,
                         'bounds':[origin[0]+t['x'],origin[2]+t['z'],origin[0]+t['x']+t['size'][0]-1,origin[2]+t['z']+t['size'][2]-1]})
     checks={}
     for g in data['gardens']:

@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 /**
- * The bundled {@code myvillage:basic_fist} style (the Xuantie gauntlet's moves). The accepted
+ * The bundled {@code yuanxian:basic_fist} style (the Xuantie gauntlet's moves). The accepted
  * values are pinned here as literals, as {@link BasicSwordStyleTest} pins Qingfeng's; a deliberate
  * retune updates this test and {@code tools/tests/test_combat_style_baseline.py} together.
  */
@@ -35,7 +35,7 @@ class BasicFistStyleTest {
         for (int index = 0; index < MOVE_PATHS.size(); index++) {
             AttackMoveDefinition move = STYLE.move(index);
             assertEquals(id(MOVE_PATHS.get(index)), move.id());
-            assertEquals("combat.myvillage.move." + MOVE_PATHS.get(index), move.displayKey());
+            assertEquals("combat.yuanxian.move." + MOVE_PATHS.get(index), move.displayKey());
             assertEquals(new AnimationDefinition(move.id(), move.totalTicks()), move.animation());
             CombatStyles.MoveRef ref = STYLES.move(move.id()).orElseThrow();
             assertSame(STYLE, ref.style());
@@ -130,8 +130,8 @@ class BasicFistStyleTest {
     @Test
     void weaponFamilyIsOptionalAndLowerSnakeCase() {
         JsonObject weapon = JsonParser.parseString("""
-                {"schema": 1, "item": "myvillage:probe", "style": "myvillage:basic_fist",
-                 "first_person_rig": "myvillage:combat/r.json", "geometry": "myvillage:combat/g.json"}
+                {"schema": 1, "item": "yuanxian:probe", "style": "yuanxian:basic_fist",
+                 "first_person_rig": "yuanxian:combat/r.json", "geometry": "yuanxian:combat/g.json"}
                 """).getAsJsonObject();
         assertEquals(Optional.empty(), CombatDataLoader.parseWeapon("probe.json", weapon).family());
         weapon.addProperty("family", "fist");
@@ -143,6 +143,6 @@ class BasicFistStyleTest {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 }

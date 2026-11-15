@@ -15,7 +15,7 @@ public record TribulationStatusPayload(String attempt, String phase, int kindId,
         double x, double y, double z, double radius, double cloudHeight, int points, int particleInterval,
         List<Mark> marks) implements CustomPacketPayload {
     public record Mark(double x, double y, double z, double radius, boolean main, boolean impact) { }
-    public static final Type<TribulationStatusPayload> TYPE = new Type<>(ResourceLocation.parse("myvillage:tribulation_status"));
+    public static final Type<TribulationStatusPayload> TYPE = new Type<>(ResourceLocation.parse("yuanxian:tribulation_status"));
     private static Consumer<TribulationStatusPayload> receiver = ignored -> { };
     public static void installReceiver(Consumer<TribulationStatusPayload> sink) { receiver = Objects.requireNonNull(sink); }
     public static void receive(TribulationStatusPayload payload) { receiver.accept(payload); }

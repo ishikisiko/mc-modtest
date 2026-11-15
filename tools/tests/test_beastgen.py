@@ -55,7 +55,7 @@ class BeastgenTest(unittest.TestCase):
     def test_model_matches_schema(self):
         d = self.model_doc
         self.assertEqual(1, d["schema"])
-        self.assertEqual("myvillage:demon_wolf", d["id"])
+        self.assertEqual("yuanxian:demon_wolf", d["id"])
         self.assertEqual({"width", "height"}, set(d["texture"]))
         self.assertEqual({"bone", "max_yaw", "max_pitch"}, set(d["look"]))
         self.assertIsInstance(d["shadow_radius"], float)
@@ -72,7 +72,7 @@ class BeastgenTest(unittest.TestCase):
     def test_animations_match_schema(self):
         d = self.anim_doc
         self.assertEqual(1, d["schema"])
-        self.assertEqual("myvillage:demon_wolf", d["id"])
+        self.assertEqual("yuanxian:demon_wolf", d["id"])
         self.assertEqual(set(REQUIRED), set(d["clips"]))
         for name, c in d["clips"].items():
             self.assertEqual({"length", "loop", "channels"}, set(c))

@@ -58,7 +58,7 @@ class NpcgenTest(unittest.TestCase):
     def test_model_matches_schema(self):
         d = self.model_doc
         self.assertEqual(1, d["schema"])
-        self.assertEqual("myvillage:cultivator", d["id"])
+        self.assertEqual("yuanxian:cultivator", d["id"])
         self.assertEqual(0.5, d["scale"])
         self.assertEqual("head", d["look"]["bone"])
         names = [b["name"] for b in d["bones"]]
@@ -360,7 +360,7 @@ class NpcgenTest(unittest.TestCase):
             self.assertEqual(0, build.run(NAME, check=True), out.getvalue())
 
     def test_unscaled_models_omit_scale(self):
-        model = cuboid.Model("myvillage:x", [cuboid.Bone("root", None, (0, 24, 0), cubes=[cuboid.Cube("c", (0, 0, 0), (1, 1, 1))])],
+        model = cuboid.Model("yuanxian:x", [cuboid.Bone("root", None, (0, 24, 0), cubes=[cuboid.Cube("c", (0, 0, 0), (1, 1, 1))])],
                              {"bone": "root", "max_yaw": 0.0, "max_pitch": 0.0}, 0.5)
         cuboid.pack(model)
         self.assertNotIn("scale", cuboid.model_json(model))

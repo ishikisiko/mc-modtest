@@ -49,7 +49,7 @@ public final class AlchemyArrayRules {
     private static class Holder { static final AlchemyArrayRules INSTANCE=load(); }
     public static AlchemyArrayRules get(){return Holder.INSTANCE;}
     private static AlchemyArrayRules load() {
-        try(InputStream stream=AlchemyArrayRules.class.getResourceAsStream("/data/myvillage/alchemy/array.json")) {
+        try(InputStream stream=AlchemyArrayRules.class.getResourceAsStream("/data/yuanxian/alchemy/array.json")) {
             if(stream==null) throw new IllegalStateException("Missing alchemy array rules");
             return parse(new InputStreamReader(stream,StandardCharsets.UTF_8));
         } catch(IOException e){throw new IllegalStateException(e);}

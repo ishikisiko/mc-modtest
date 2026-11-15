@@ -20,8 +20,8 @@ else:
 
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = Path("src/main/java/com/example/myvillage")
-REALMS = Path("src/main/resources/data/myvillage/myvillage/realm")
-LANG = Path("src/main/resources/assets/myvillage/lang")
+REALMS = Path("src/main/resources/data/yuanxian/yuanxian/realm")
+LANG = Path("src/main/resources/assets/yuanxian/lang")
 
 
 class DuplicateJsonKey(ValueError):
@@ -367,7 +367,7 @@ class CultivationLifespanValidator:
             self.require(screen_path, screen, fragment, message)
         if screen is not None and (
             "meditationQiReserve" in screen
-            or "screen.myvillage.cultivation.reserve" in screen
+            or "screen.yuanxian.cultivation.reserve" in screen
         ):
             self.error(screen_path, "H screen must not present the inert legacy meditation reserve")
 
@@ -377,11 +377,11 @@ class CultivationLifespanValidator:
             if language is None:
                 continue
             for key in (
-                "screen.myvillage.cultivation.spiritual_affinity",
-                "screen.myvillage.cultivation.calendar",
-                "screen.myvillage.cultivation.lifespan_consumed",
-                "screen.myvillage.cultivation.lifespan_remaining",
-                "screen.myvillage.cultivation.lifespan_exhausted",
+                "screen.yuanxian.cultivation.spiritual_affinity",
+                "screen.yuanxian.cultivation.calendar",
+                "screen.yuanxian.cultivation.lifespan_consumed",
+                "screen.yuanxian.cultivation.lifespan_remaining",
+                "screen.yuanxian.cultivation.lifespan_exhausted",
             ):
                 if not isinstance(language.get(key), str) or not language[key].strip():
                     self.error(language_path, f"missing non-empty bilingual UI key {key}")

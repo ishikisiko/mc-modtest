@@ -21,7 +21,7 @@ if str(SCRIPT_DIR) not in sys.path:
 import plaque_bindings  # noqa: E402
 
 DEFAULT_MANIFEST = SCRIPT_DIR / "plaque_frames.json"
-ASSET_ROOT = REPO_ROOT / "src" / "main" / "resources" / "assets" / "myvillage"
+ASSET_ROOT = REPO_ROOT / "src" / "main" / "resources" / "assets" / "yuanxian"
 DEFAULT_ASSET_LIST = REPO_ROOT / "reports" / "plaque_frame_assets.json"
 DEFAULT_CHECKLIST = REPO_ROOT / "docs" / "ai-kb" / "plaque-frame-asset-checklist.txt"
 
@@ -585,7 +585,7 @@ def generate(manifest: dict, write_pngs: bool = True) -> list[dict]:
             inscription = inscriptions.get((pid, mount, "horizontal"))
             full_part = "horizontal_full"
             full_texture_path = ASSET_ROOT / "textures" / "block" / "plaque" / mount / pid / f"{full_part}.png"
-            full_texture_ref = f"myvillage:block/plaque/{mount}/{pid}/{full_part}"
+            full_texture_ref = f"yuanxian:block/plaque/{mount}/{pid}/{full_part}"
             if write_pngs:
                 full_texture_path.parent.mkdir(parents=True, exist_ok=True)
                 full_texture_path.write_bytes(draw_full_texture(
@@ -604,8 +604,8 @@ def generate(manifest: dict, write_pngs: bool = True) -> list[dict]:
                     part = horizontal_part(row, col)
                     texture_path = ASSET_ROOT / "textures" / "block" / "plaque" / mount / pid / f"{part}.png"
                     model_path = ASSET_ROOT / "models" / "block" / "plaque" / mount / pid / f"{part}.json"
-                    edge_texture_ref = f"myvillage:block/plaque/{mount}/{pid}/{part}"
-                    model_ref = f"myvillage:block/plaque/{mount}/{pid}/{part}"
+                    edge_texture_ref = f"yuanxian:block/plaque/{mount}/{pid}/{part}"
+                    model_ref = f"yuanxian:block/plaque/{mount}/{pid}/{part}"
                     if write_pngs:
                         texture_path.parent.mkdir(parents=True, exist_ok=True)
                         texture_path.write_bytes(draw_texture(
@@ -630,7 +630,7 @@ def generate(manifest: dict, write_pngs: bool = True) -> list[dict]:
                 if width == 4:
                     # Backward-compatible model for old generated structures
                     # that used the repeated center state for both inner tiles.
-                    alias_model = f"myvillage:block/plaque/{mount}/{pid}/{horizontal_part(row, 'inner_left')}"
+                    alias_model = f"yuanxian:block/plaque/{mount}/{pid}/{horizontal_part(row, 'inner_left')}"
                     for facing in FACING_ROTATION:
                         key = f"facing={facing},frame={pid},row={row},col=center"
                         blockstate_variants[block][key] = variant_entry(alias_model, facing)
@@ -643,7 +643,7 @@ def generate(manifest: dict, write_pngs: bool = True) -> list[dict]:
                 inscription = inscriptions.get((pid, mount, "vertical"))
                 full_part = "vertical_full"
                 full_texture_path = ASSET_ROOT / "textures" / "block" / "plaque" / mount / pid / f"{full_part}.png"
-                full_texture_ref = f"myvillage:block/plaque/{mount}/{pid}/{full_part}"
+                full_texture_ref = f"yuanxian:block/plaque/{mount}/{pid}/{full_part}"
                 if write_pngs:
                     full_texture_path.parent.mkdir(parents=True, exist_ok=True)
                     full_texture_path.write_bytes(draw_full_texture(
@@ -661,8 +661,8 @@ def generate(manifest: dict, write_pngs: bool = True) -> list[dict]:
                     part = vertical_part(row)
                     texture_path = ASSET_ROOT / "textures" / "block" / "plaque" / mount / pid / f"{part}.png"
                     model_path = ASSET_ROOT / "models" / "block" / "plaque" / mount / pid / f"{part}.json"
-                    edge_texture_ref = f"myvillage:block/plaque/{mount}/{pid}/{part}"
-                    model_ref = f"myvillage:block/plaque/{mount}/{pid}/{part}"
+                    edge_texture_ref = f"yuanxian:block/plaque/{mount}/{pid}/{part}"
+                    model_ref = f"yuanxian:block/plaque/{mount}/{pid}/{part}"
                     if write_pngs:
                         texture_path.parent.mkdir(parents=True, exist_ok=True)
                         texture_path.write_bytes(draw_texture(
@@ -685,7 +685,7 @@ def generate(manifest: dict, write_pngs: bool = True) -> list[dict]:
                         key = f"facing={facing},frame={pid},row={row},col=single"
                         blockstate_variants[block][key] = variant_entry(model_ref, facing)
                 if vheight == 4:
-                    alias_model = f"myvillage:block/plaque/{mount}/{pid}/lower_middle"
+                    alias_model = f"yuanxian:block/plaque/{mount}/{pid}/lower_middle"
                     for facing in FACING_ROTATION:
                         key = f"facing={facing},frame={pid},row=middle,col=single"
                         blockstate_variants[block][key] = variant_entry(alias_model, facing)

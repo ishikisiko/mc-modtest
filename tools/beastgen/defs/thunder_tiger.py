@@ -14,7 +14,7 @@ from .. import anim, cuboid, quadruped as quad
 from ..builder import Builder
 from ..paint import hex_rgb, pick, ramp, value_noise
 
-ID = "myvillage:thunder_tiger"
+ID = "yuanxian:thunder_tiger"
 NAME = "thunder_tiger"
 HITBOX = (2.8, 3.0)
 SCALE = 2.0
@@ -200,7 +200,7 @@ def extra_outputs(built):
     from ...gen_qingfeng_sword_model import encode_png
     from ..build import RESOURCES
     rows=painter.image(built.model,phase2_glow,built.texels)
-    path=RESOURCES/"assets/myvillage/textures/entity/thunder_tiger/thunder_tiger_phase2.png"
+    path=RESOURCES/"assets/yuanxian/textures/entity/thunder_tiger/thunder_tiger_phase2.png"
     return {path:encode_png(rows), ART/"source_texture.png":encode_png(built.texture)}
 
 
@@ -368,7 +368,7 @@ def _grounded_clip(model, clip, move=None):
 
 
 def clips(model,server):
-    boss_path=Path(__file__).resolve().parents[3]/"src/main/resources/data/myvillage/beast/thunder_tiger_boss.json"
+    boss_path=Path(__file__).resolve().parents[3]/"src/main/resources/data/yuanxian/beast/thunder_tiger_boss.json"
     boss=json.loads(boss_path.read_text()) if boss_path.exists() else {}
     pr=boss.get("presentation",{})
     out=[_idle(),_gait(model,"walk",WALK),_gait(model,"run",RUN)]

@@ -23,7 +23,7 @@ def validate(root: Path = ROOT, jar: Path | None = None, baseline: Path | None =
         if jar is not None:
             archive = zipfile.ZipFile(jar)
         for locale in LANGUAGES:
-            name = f'assets/myvillage/lang/{locale}.json'
+            name = f'assets/yuanxian/lang/{locale}.json'
             path = root / 'src/main/resources' / name
             try:
                 raw = path.read_bytes()
@@ -62,7 +62,7 @@ def main() -> int:
     if args.snapshot is not None:
         files = {}
         for locale in LANGUAGES:
-            name = f'assets/myvillage/lang/{locale}.json'
+            name = f'assets/yuanxian/lang/{locale}.json'
             files[name] = (ROOT / 'src/main/resources' / name).read_text()
         args.snapshot.parent.mkdir(parents=True, exist_ok=True)
         args.snapshot.write_text(json.dumps({'version': 1, 'files': files}, ensure_ascii=False, indent=2) + '\n')

@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-ID = re.compile(r"myvillage:[a-z][a-z0-9_]*$")
+ID = re.compile(r"yuanxian:[a-z][a-z0-9_]*$")
 SLOTS = {"head": {"head"}, "chest": {"body", "right_arm", "left_arm"},
          "legs": {"body", "right_leg", "left_leg"}, "feet": {"right_leg", "left_leg"}}
 PROFILES = ("standard", "slim")

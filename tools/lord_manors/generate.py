@@ -26,8 +26,8 @@ from tools import json_to_nbt as nbt
 from tools.language_assets import language_text, load_language
 
 INPUT=Path('blueprints/lord_manors')
-ASSET=Path('src/main/resources/assets/myvillage')
-DATA=Path('src/main/resources/data/myvillage')
+ASSET=Path('src/main/resources/assets/yuanxian')
+DATA=Path('src/main/resources/data/yuanxian')
 FACINGS=('north','east','south','west')
 
 
@@ -135,7 +135,7 @@ def render_type(profile,definitions):
 def model(profile,definitions,city):
     refs={};elements=[]
     for index,b in enumerate(profile):
-        role=b[6];ref=definitions[role]['id'];refs[role]='myvillage:block/lord_manors/'+ref
+        role=b[6];ref=definitions[role]['id'];refs[role]='yuanxian:block/lord_manors/'+ref
         lo=b[:3];hi=b[3:6];faces={};patches=[]
         for face_index,surface in enumerate(FACES):
             face,axis,positive,u,_,v,_=surface
@@ -189,7 +189,7 @@ def write_nbt(writer,path,states,size):
 
 
 def base_resources(writer,m,cfg,names):
-    ident=m['id'];ref='myvillage:block/lord_manors/'+ident
+    ident=m['id'];ref='yuanxian:block/lord_manors/'+ident
     if m['role'].startswith('plaque_'):return
     writer.put(ASSET/f'textures/block/lord_manors/{ident}.png',
                town_materials.texture(m,cfg['material_resolution']) if 'pattern' in m else texture(m,cfg))
@@ -200,11 +200,11 @@ def base_resources(writer,m,cfg,names):
                     textures={'all':ref,'particle':ref},
                     elements=[{'from':[0,0,0],'to':[16,16,16],'faces':{face[0]:{'texture':'#all','uv':[0,0,16,16]} for face in FACES}}])
     writer.json(ASSET/f'models/block/{ident}.json',base)
-    variants={f'facing={face}':{'model':'myvillage:block/'+ident,'y':turn*90} for turn,face in enumerate(FACINGS)} if m.get('directional') else {'':{'model':'myvillage:block/'+ident}}
+    variants={f'facing={face}':{'model':'yuanxian:block/'+ident,'y':turn*90} for turn,face in enumerate(FACINGS)} if m.get('directional') else {'':{'model':'yuanxian:block/'+ident}}
     writer.json(ASSET/f'blockstates/{ident}.json',{'variants':variants})
-    writer.json(ASSET/f'models/item/{ident}.json',{'parent':'myvillage:block/'+ident})
-    writer.json(DATA/f'loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+ident}]}]})
-    names['block.myvillage.'+ident]=m['name']
+    writer.json(ASSET/f'models/item/{ident}.json',{'parent':'yuanxian:block/'+ident})
+    writer.json(DATA/f'loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:'+ident}]}]})
+    names['block.yuanxian.'+ident]=m['name']
 
 
 def bank_resources(writer,bank,definitions,city,names,model_factory=model):
@@ -212,15 +212,15 @@ def bank_resources(writer,bank,definitions,city,names,model_factory=model):
     for i,profile in enumerate(bank['profiles']):
         part=f'{ident}/shape_{i}'
         writer.json(ASSET/f'models/block/{part}.json',model_factory(profile,definitions,city))
-        for turn,facing in enumerate(FACINGS):states[f'facing={facing},shape={i}']={'model':'myvillage:block/'+part,'y':turn*90}
-        overrides.append({'predicate':{'custom_model_data':i+1},'model':'myvillage:block/'+part})
-        children.append({'type':'minecraft:item','name':'myvillage:'+ident,
-            'conditions':[{'condition':'minecraft:block_state_property','block':'myvillage:'+ident,'properties':{'shape':str(i)}}],
+        for turn,facing in enumerate(FACINGS):states[f'facing={facing},shape={i}']={'model':'yuanxian:block/'+part,'y':turn*90}
+        overrides.append({'predicate':{'custom_model_data':i+1},'model':'yuanxian:block/'+part})
+        children.append({'type':'minecraft:item','name':'yuanxian:'+ident,
+            'conditions':[{'condition':'minecraft:block_state_property','block':'yuanxian:'+ident,'properties':{'shape':str(i)}}],
             'functions':[{'function':'minecraft:set_components','components':{'minecraft:block_state':{'shape':str(i)},'minecraft:custom_model_data':i+1}}]})
     writer.json(ASSET/f'blockstates/{ident}.json',{'variants':states})
-    writer.json(ASSET/f'models/item/{ident}.json',{'parent':f'myvillage:block/{ident}/shape_0','overrides':overrides})
+    writer.json(ASSET/f'models/item/{ident}.json',{'parent':f'yuanxian:block/{ident}/shape_0','overrides':overrides})
     writer.json(DATA/f'loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:alternatives','children':children}]}]})
-    names['block.myvillage.'+ident]=bank['name']
+    names['block.yuanxian.'+ident]=bank['name']
 
 
 def construct_city(city,cfg,writer,names,display_rules,display):
@@ -255,21 +255,21 @@ def construct_city(city,cfg,writer,names,display_rules,display):
         display['banks'][bank['id']]={'city':city,'profiles':[presentation.profile_info(p,uses[tuple(map(tuple,p))],display_rules) for p in part]}
         bank_resources(writer,bank,definitions,city,names);banks.append(bank)
     for m in materials:
-        display['materials'][m['id']]={'city':city,'name':'block.myvillage.'+m['id'],
-                                       'materials':['manor_material.myvillage.'+m['role']]}
+        display['materials'][m['id']]={'city':city,'name':'block.yuanxian.'+m['id'],
+                                       'materials':['manor_material.yuanxian.'+m['role']]}
     blocks={}
     for position,(p,turn) in converted.items():
-        if len(p)==1 and p[0][:6]==FULL and len(p[0])==7:state='myvillage:'+definitions[p[0][6]]['id']
+        if len(p)==1 and p[0][:6]==FULL and len(p[0])==7:state='yuanxian:'+definitions[p[0][6]]['id']
         else:
-            index=lookup[p];ident=banks[index//count]['id'];state=f'myvillage:{ident}[facing={FACINGS[turn]},shape={index%count}]'
+            index=lookup[p];ident=banks[index//count]['id'];state=f'yuanxian:{ident}[facing={FACINGS[turn]},shape={index%count}]'
         blocks[position]=state
     if scene.get('edict_roots'):
         pillar=read(DATA/'decoration/demon_pact_pillar.json')
         for root in scene['edict_roots']:
             for index,part in enumerate(pillar['parts']):
-                p=tuple(a+b for a,b in zip(root,part['offset']));blocks[p]=f'myvillage:demon_pact_pillar[facing=north,part={index}]'
+                p=tuple(a+b for a,b in zip(root,part['offset']));blocks[p]=f'yuanxian:demon_pact_pillar[facing=north,part={index}]'
     place_trees(blocks,scene)
-    known={'myvillage:'+m['id'] for m in materials}|{'myvillage:'+b['id'] for b in banks}|{'myvillage:demon_pact_pillar'}
+    known={'yuanxian:'+m['id'] for m in materials}|{'yuanxian:'+b['id'] for b in banks}|{'yuanxian:demon_pact_pillar'}
     known.update(state.split('[',1)[0] for state in scene['native_tree_cells'].values())
     if {state.split('[',1)[0] for state in blocks.values()}-known:raise ValueError('七府原生调色板出现未注册构件')
     low,high=scene['native_tree_bounds'];size=[b-a for a,b in zip(low,high)]
@@ -285,7 +285,7 @@ def construct_city(city,cfg,writer,names,display_rules,display):
                               'blocks':len(scene['native_tree_cells']),'kind':'minecraft_configured_features','checks':'pass'}
     for (x,z),states in sorted(tiles.items()):
         template=f'lord_manors/{city}/tile_{x}_{z}';path=DATA/f'structure/{template}.nbt'
-        digest=write_nbt(writer,path,states,[16,size[1],16]);manifest['tiles'].append({'template':'myvillage:'+template,'offset':[x*16,0,z*16],'blocks':len(states),'sha256':digest})
+        digest=write_nbt(writer,path,states,[16,size[1],16]);manifest['tiles'].append({'template':'yuanxian:'+template,'offset':[x*16,0,z*16],'blocks':len(states),'sha256':digest})
     # Only the generated shape/collision source goes in the runtime catalogue.
     for bank in banks:
         bank['profiles']=[{'boxes':list(profile),
@@ -304,7 +304,7 @@ def main():
     cfg=read(INPUT/'config.json');assert cfg['grid']==16 and cfg['bank_size']==32 and len(cfg['cities'])==7
     display_rules=read(INPUT/'presentation.json');assert display_rules['schema']==1
     display={'schema':1,'banks':{},'materials':{},'city_names':cfg['city_names']}
-    owned_names=('block.myvillage.manor_','manor_part.myvillage.','manor_material.myvillage.','tooltip.myvillage.manor_','config.jade.plugin_myvillage.manor_')
+    owned_names=('block.yuanxian.manor_','manor_part.yuanxian.','manor_material.yuanxian.','tooltip.yuanxian.manor_','config.jade.plugin_yuanxian.manor_')
     original_names=load_language((ROOT/ASSET/'lang/zh_cn.json').read_text())
     writer=Writer(args.check);names={k:v for k,v in original_names.items() if not k.startswith(owned_names)};materials=[];banks=[];manors=[]
     for city in cfg['cities']:
@@ -318,23 +318,23 @@ def main():
     writer.json(DATA/'lord_manors/catalog.json',catalog)
     writer.json(DATA/'lord_manors/presentation.json',display)
     names.update({presentation.key(part):value['name'] for part,value in display_rules['parts'].items()})
-    names.update({'manor_material.myvillage.'+role:display_rules['material_names'].get(role,name) for role,name in cfg['role_names'].items()})
-    names['manor_material.myvillage.plaque']='题匾'
+    names.update({'manor_material.yuanxian.'+role:display_rules['material_names'].get(role,name) for role,name in cfg['role_names'].items()})
+    names['manor_material.yuanxian.plaque']='题匾'
     names.update({
-        'tooltip.myvillage.manor_materials':'材质：%s',
-        'tooltip.myvillage.manor_style':'%s式营造',
-        'tooltip.myvillage.manor_details':'按住 Shift 查看材质',
-        'tooltip.myvillage.manor_debug':'造型状态：%s',
-        'tooltip.myvillage.manor_gallery':'%s · 独立样板',
-        'config.jade.plugin_myvillage.manor_names':'建筑部件名称',
-        'config.jade.plugin_myvillage.manor_location':'建筑归属'
+        'tooltip.yuanxian.manor_materials':'材质：%s',
+        'tooltip.yuanxian.manor_style':'%s式营造',
+        'tooltip.yuanxian.manor_details':'按住 Shift 查看材质',
+        'tooltip.yuanxian.manor_debug':'造型状态：%s',
+        'tooltip.yuanxian.manor_gallery':'%s · 独立样板',
+        'config.jade.plugin_yuanxian.manor_names':'建筑部件名称',
+        'config.jade.plugin_yuanxian.manor_location':'建筑归属'
     })
-    names['itemGroup.myvillage.lord_manors']='七府营造';names['tooltip.myvillage.manor_component']='中键取样保留造型；放置时随面向旋转'
+    names['itemGroup.yuanxian.lord_manors']='七府营造';names['tooltip.yuanxian.manor_component']='中键取样保留造型；放置时随面向旋转'
     writer.put(ASSET/'lang/zh_cn.json',language_text(original_names,names).encode())
     writer.json(DATA/'dimension_type/manor_gallery.json',{'fixed_time':6000,'has_skylight':True,'has_ceiling':False,'ultrawarm':False,'natural':False,
         'coordinate_scale':1.0,'bed_works':False,'respawn_anchor_works':False,'piglin_safe':True,'has_raids':False,'min_y':-64,'height':384,'logical_height':384,
         'infiniburn':'#minecraft:infiniburn_overworld','effects':'minecraft:overworld','ambient_light':0.0,'monster_spawn_light_level':0,'monster_spawn_block_light_limit':0})
-    writer.json(DATA/'dimension/manor_gallery.json',{'type':'myvillage:manor_gallery','generator':{'type':'minecraft:flat','settings':{
+    writer.json(DATA/'dimension/manor_gallery.json',{'type':'yuanxian:manor_gallery','generator':{'type':'minecraft:flat','settings':{
         'biome':'minecraft:the_void','lakes':False,'features':False,'layers':[{'height':1,'block':'minecraft:air'}],'structure_overrides':[]}}})
     writer.finish()
     if writer.bad:raise SystemExit('七府生成资源漂移：\n'+'\n'.join(writer.bad[:40]))

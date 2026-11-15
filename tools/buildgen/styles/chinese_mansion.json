@@ -147,7 +147,7 @@
       "minecraft:stone_bricks"
     ],
     "ROCKERY_STONE": [
-      "myvillage:rockery_block",
+      "yuanxian:rockery_block",
       "minecraft:stone",
       "minecraft:andesite"
     ],
@@ -157,7 +157,7 @@
       "minecraft:mossy_stone_bricks"
     ],
     "POND_STONE": [
-      "myvillage:rockery_block",
+      "yuanxian:rockery_block",
       "minecraft:mossy_stone_bricks",
       "minecraft:stone"
     ],

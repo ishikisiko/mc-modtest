@@ -68,9 +68,9 @@ python3 tools/province_capitals/regional/export_game.py --out build/generated/pr
 
 ```text
 build/generated/province_capitals/resources/
-  data/myvillage/capitals/v1/capital_<region>/city.json
-  data/myvillage/capitals/v1/capital_<region>/terrain.bin.gz
-  data/myvillage/structure/province_capitals/v1/capital_<region>/tile_<chunkX>_<chunkZ>.nbt
+  data/yuanxian/capitals/v1/capital_<region>/city.json
+  data/yuanxian/capitals/v1/capital_<region>/terrain.bin.gz
+  data/yuanxian/structure/province_capitals/v1/capital_<region>/tile_<chunkX>_<chunkZ>.nbt
 ```
 
 `city.json` 仍为父契约 `format=capital_game_bundle, schema=1`，没有另造格式。扩展字段包括建筑/道路说明、完整 palette 状态、fixture、生成数量、材质解析来源和未完成事项。`layout_family_id` 原样读取共享 catalog 的 `layout_id`。未自行伪造包级 `layout_sha256`；父聚合器负责稳定汇总冻结身份。

@@ -272,7 +272,7 @@ public final class HealingRuntime {
         if (!event.getLevel().isClientSide() && event.getEntity() instanceof LivingEntity living) clear(living);
     }
     private static void stopping(ServerStoppingEvent event) { clear(); }
-    private static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("myvillage", path); }
+    private static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("yuanxian", path); }
 
     /**
      * 单次同步 hurt 的吸血回执。身份比较不使用 equals，也不读取 hurt 返回后的生命或最后 trace。

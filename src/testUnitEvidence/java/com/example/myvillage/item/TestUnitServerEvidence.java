@@ -23,7 +23,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 独立平坦世界的开发者探针，编译开关禁止其进入正式 JAR。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class TestUnitServerEvidence {
     private static int ticks, stage, waited;
     private static NpcEntity saved, a, b;
@@ -38,10 +38,10 @@ public final class TestUnitServerEvidence {
     private static void check(boolean value,String description) { if(!value)throw new IllegalStateException(description); }
     private static void expectFailure(Runnable action) { try{action.run();}catch(IllegalArgumentException expected){return;}throw new IllegalStateException("错误配置被接受"); }
     private static TestUnitConfig config(ServerPlayer player,String type,String name,int team,int enemies,boolean monsters,boolean hostilePlayer,boolean pause) {
-        boolean npc=type.equals("myvillage:cultivator");
-        return new TestUnitConfig(type,name,"myvillage:qi_refining",0,4,3,npc?fates:List.of(),
+        boolean npc=type.equals("yuanxian:cultivator");
+        return new TestUnitConfig(type,name,"yuanxian:qi_refining",0,4,3,npc?fates:List.of(),
                 npc?Map.of("fire",1234,"sword",567):Map.of(),Map.of("minecraft:generic.max_health",400.0,
-                "minecraft:generic.attack_damage",8.0,"myvillage:body_defense",0.0),npc?3456:-1,npc?9000:-1,pause,
+                "minecraft:generic.attack_damage",8.0,"yuanxian:body_defense",0.0),npc?3456:-1,npc?9000:-1,pause,
                 new TestUnitRelations.Unit(player.getUUID(),team,enemies,hostilePlayer,monsters,Map.of()),com.example.myvillage.entity.npc.NpcSkillLoadout.EMPTY);
     }
     private static JsonObject unit(Mob mob) {var data=new JsonObject();data.addProperty("unit",mob.getUUID().toString());return data;}
@@ -66,7 +66,7 @@ public final class TestUnitServerEvidence {
                 check(AptitudeRuntime.score(npc,"fire")==1234&&AptitudeRuntime.score(npc,"sword")==567,"重启后资质变化");
                 check(TestUnitRuntime.relations(npc)!=null&&npc.isNoAi(),"重启后关系或暂停状态丢失");
                 check(Math.abs(npc.getHealth()-old.get("saved_health").getAsFloat())<0.001,"重启补满或丢失生命");
-                check(Math.abs(npc.getAttribute(Attributes.ATTACK_DAMAGE).getModifier(net.minecraft.resources.ResourceLocation.parse("myvillage:test_override")).amount())>0,"重启属性覆盖丢失");
+                check(Math.abs(npc.getAttribute(Attributes.ATTACK_DAMAGE).getModifier(net.minecraft.resources.ResourceLocation.parse("yuanxian:test_override")).amount())>0,"重启属性覆盖丢失");
                 passed.add("真实世界保存与重启保留普通修士配置和生命");save("restart-result.json");stage=99;
                 server.halt(false);return;
             }
@@ -81,14 +81,14 @@ public final class TestUnitServerEvidence {
                         .filter(e->e.getValue().effects().keySet().stream().noneMatch(k->k.equals("phoenix")||k.equals("everlasting")||k.contains("health")||k.contains("recovery")||k.contains("speed")))
                         .map(Map.Entry::getKey).limit(3).toList();check(fates.size()==3,"探针词条不足");
                 player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,ItemStack.EMPTY);
-                expectFailure(()->TestUnitRuntime.spawn(player,config(player,"myvillage:cultivator","无道具",0,0,false,false,true)));
+                expectFailure(()->TestUnitRuntime.spawn(player,config(player,"yuanxian:cultivator","无道具",0,0,false,false,true)));
                 player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,new ItemStack(ModItems.QUALITY_PICKER.get()));
                 stage=1;return;
             }
             if(stage==1){
                 if(++waited<40)return;waited=0;
-                var c=config(player,"myvillage:cultivator","保存检查修士",0,0,false,false,true);
-                c=new TestUnitConfig(c.entity(),c.name(),"myvillage:golden_core",1,4,3,c.fates(),c.aptitudes(),c.attributes(),3456,9000,true,c.relations(),com.example.myvillage.entity.npc.NpcSkillLoadout.EMPTY);
+                var c=config(player,"yuanxian:cultivator","保存检查修士",0,0,false,false,true);
+                c=new TestUnitConfig(c.entity(),c.name(),"yuanxian:golden_core",1,4,3,c.fates(),c.aptitudes(),c.attributes(),3456,9000,true,c.relations(),com.example.myvillage.entity.npc.NpcSkillLoadout.EMPTY);
                 saved=(NpcEntity)TestUnitRuntime.spawn(player,c);saved.moveTo(26,-60,8,0,0);saved.setHealth(211);
                 check(!saved.isLedgerAvatar()&&saved.shouldBeSaved(),"测试修士被登记成化身");
                 check(saved.foundationQuality()==4&&saved.goldenCoreQuality()==3,"品质配置无效");
@@ -99,8 +99,8 @@ public final class TestUnitServerEvidence {
                 check(TestUnitRuntime.relations(copy).equals(TestUnitRuntime.relations(saved)),"关系往返变化");
                 check(!CombatActors.mayHarm(saved,player),"中立单位可以伤害玩家");
                 passed.add("手持权限、指定境界品质天赋资质灵力、实体 NBT 和中立保护");
-                a=(NpcEntity)TestUnitRuntime.spawn(player,config(player,"myvillage:cultivator","甲方测试修士",0,2,false,false,false));a.moveTo(12,-60,8,0,0);
-                b=(NpcEntity)TestUnitRuntime.spawn(player,config(player,"myvillage:cultivator","乙方测试修士",1,0,false,false,false));b.moveTo(15,-60,8,0,0);
+                a=(NpcEntity)TestUnitRuntime.spawn(player,config(player,"yuanxian:cultivator","甲方测试修士",0,2,false,false,false));a.moveTo(12,-60,8,0,0);
+                b=(NpcEntity)TestUnitRuntime.spawn(player,config(player,"yuanxian:cultivator","乙方测试修士",1,0,false,false,false));b.moveTo(15,-60,8,0,0);
                 ah=a.getHealth();bh=b.getHealth();stage=2;return;
             }
             if(stage==2){
@@ -117,8 +117,8 @@ public final class TestUnitServerEvidence {
                 var before=b.getHealth();check(!b.hurt(a.damageSources().mobAttack(a),10)&&b.getHealth()==before,"友好伤害未拦截");
                 passed.add("指定中立双向覆盖及伤害事件保护");
                 a.discard();b.discard();
-                a=(NpcEntity)TestUnitRuntime.spawn(player,config(player,"myvillage:cultivator","打怪测试修士",0,0,true,false,false));a.moveTo(12,-60,8,0,0);
-                beast=TestUnitRuntime.spawn(player,config(player,"myvillage:demon_wolf","打怪测试妖狼",0,0,false,false,false));beast.moveTo(15,-60,8,0,0);
+                a=(NpcEntity)TestUnitRuntime.spawn(player,config(player,"yuanxian:cultivator","打怪测试修士",0,0,true,false,false));a.moveTo(12,-60,8,0,0);
+                beast=TestUnitRuntime.spawn(player,config(player,"yuanxian:demon_wolf","打怪测试妖狼",0,0,false,false,false));beast.moveTo(15,-60,8,0,0);
                 ah=a.getHealth();bh=beast.getHealth();aTarget=bTarget=aAction=false;stage=4;return;
             }
             if(stage==4){
@@ -127,7 +127,7 @@ public final class TestUnitServerEvidence {
                 check(aTarget&&bTarget&&aAction&&a.getHealth()<ah&&beast.getHealth()<bh,"NPC 打怪缺少选敌或实际伤害");
                 passed.add("NPC 与妖狼主动互相选敌并造成双向伤害");
                 a.discard();beast.discard();player.setGameMode(GameType.SURVIVAL);
-                a=(NpcEntity)TestUnitRuntime.spawn(player,config(player,"myvillage:cultivator","玩家对战修士",0,0,false,true,false));a.moveTo(12,-60,8,0,0);stage=5;return;
+                a=(NpcEntity)TestUnitRuntime.spawn(player,config(player,"yuanxian:cultivator","玩家对战修士",0,0,false,true,false));a.moveTo(12,-60,8,0,0);stage=5;return;
             }
             if(stage==5){
                 if(a.getTarget()!=player&&++waited<100)return;

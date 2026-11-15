@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TechniqueScrollTest {
-    private static final String BASIC = "myvillage:basic_breathing";
+    private static final String BASIC = "yuanxian:basic_breathing";
 
     @Test void openingAnExistingArchiveDoesNotInventAGainOrInsight() {
         var t = new TechniqueScrollMotion.Tracker();
@@ -54,7 +54,7 @@ class TechniqueScrollTest {
         assertEquals(0, t.flow()); assertEquals(0, t.gained()); assertTrue(t.stageAge() > 2);
         t.observe(90000, BASIC, 100, 3, "steady", 1, true, false);
         assertEquals(.05, t.flow(), 1e-9);
-        t.observe(90020, "myvillage:qingmu_changchun_gong", 360, 4, "flow", 8, false, false);
+        t.observe(90020, "yuanxian:qingmu_changchun_gong", 360, 4, "flow", 8, false, false);
         assertEquals(0, t.gained()); assertTrue(t.insightAge() > 2);
     }
 
@@ -68,7 +68,7 @@ class TechniqueScrollTest {
     @Test void exactMappingsAndAllMotionStayInsideTheirArtwork() {
         assertEquals(TechniqueScrollStyle.BREATHING, TechniqueScrollStyle.forTechnique(BASIC));
         assertEquals(TechniqueScrollStyle.UNKNOWN, TechniqueScrollStyle.forTechnique("other:basic_breathing"));
-        assertEquals(TechniqueScrollStyle.UNKNOWN, TechniqueScrollStyle.forTechnique("myvillage:basic_breathing_extra"));
+        assertEquals(TechniqueScrollStyle.UNKNOWN, TechniqueScrollStyle.forTechnique("yuanxian:basic_breathing_extra"));
         assertEquals(TechniqueScrollStyle.UNKNOWN, TechniqueScrollStyle.forTechnique(null));
         for (var style : TechniqueScrollStyle.values()) for (int side = 0; side < 2; side++) {
             for (int i = 0; i <= 200; i++) {
@@ -101,7 +101,7 @@ class TechniqueScrollTest {
         var cfg = JsonParser.parseString(Files.readString(Path.of("tools/technique_scroll/style.json"))).getAsJsonObject();
         int width = cfg.getAsJsonArray("size").get(0).getAsInt(), height = cfg.getAsJsonArray("size").get(1).getAsInt();
         long total = 0;
-        var base = Path.of("src/main/resources/assets/myvillage/textures/gui/cultivation/technique_scroll");
+        var base = Path.of("src/main/resources/assets/yuanxian/textures/gui/cultivation/technique_scroll");
         for (var entry : cfg.getAsJsonObject("techniques").entrySet()) {
             var style = TechniqueScrollStyle.forTechnique(entry.getKey());
             assertNotEquals(TechniqueScrollStyle.UNKNOWN, style);

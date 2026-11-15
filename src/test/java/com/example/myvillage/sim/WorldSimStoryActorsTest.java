@@ -23,7 +23,7 @@ class WorldSimStoryActorsTest {
 
     private QianzhenActorDefinitions defs() throws Exception {
         return QianzhenActorDefinitions.read(JsonParser.parseString(Files.readString(Path.of(
-                "src/main/resources/data/myvillage/story/qianzhen_actors.json"))).getAsJsonObject());
+                "src/main/resources/data/yuanxian/story/qianzhen_actors.json"))).getAsJsonObject());
     }
     private WorldSim fresh() {
         WorldState state = new WorldState();
@@ -247,7 +247,7 @@ class WorldSimStoryActorsTest {
     }
 
     @Test void authoredDefinitionRejectsUnknownPolicyIllegalRealmAndNonIntegralAge() throws Exception {
-        var path = Path.of("src/main/resources/data/myvillage/story/qianzhen_actors.json");
+        var path = Path.of("src/main/resources/data/yuanxian/story/qianzhen_actors.json");
         for (String key : new String[]{"realm","policy","age_years"}) {
             var input = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
             var actor = input.getAsJsonArray("actors").get(0).getAsJsonObject();
@@ -259,7 +259,7 @@ class WorldSimStoryActorsTest {
         assertThrows(SimDataException.class, () -> QianzhenActorDefinitions.read(
                 new java.io.StringReader("{\"schema\":1,\"schema\":1}")));
         var input = JsonParser.parseString(Files.readString(Path.of(
-                "src/main/resources/data/myvillage/story/qianzhen_actors.json"))).getAsJsonObject();
+                "src/main/resources/data/yuanxian/story/qianzhen_actors.json"))).getAsJsonObject();
         input.addProperty("unexpected", 1);
         assertThrows(IllegalArgumentException.class, () -> QianzhenActorDefinitions.read(input));
         input.remove("unexpected");

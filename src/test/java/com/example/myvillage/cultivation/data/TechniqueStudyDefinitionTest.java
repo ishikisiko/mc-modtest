@@ -74,12 +74,12 @@ class TechniqueStudyDefinitionTest {
 
     @Test
     void everyShippedManualTechniqueCarriesTheStudyBlockOfItsGrade() throws Exception {
-        Path directory = Path.of("src/main/resources/data/myvillage/myvillage/technique");
+        Path directory = Path.of("src/main/resources/data/yuanxian/yuanxian/technique");
         int checked = 0;
         var authored = new java.util.HashMap<String, TechniqueStudy>();
         for(var row:JsonParser.parseString(Files.readString(Path.of("tools/advanced_arts/arts.json"))).getAsJsonObject().getAsJsonArray("arts")) {
             var a=row.getAsJsonObject();var study=a.getAsJsonObject("study");
-            authored.put(a.get("id").getAsString().substring("myvillage:".length()),new TechniqueStudy(study.get("points").getAsInt(),study.get("gates").getAsInt(),study.get("gate_stability_cost").getAsInt()));
+            authored.put(a.get("id").getAsString().substring("yuanxian:".length()),new TechniqueStudy(study.get("points").getAsInt(),study.get("gates").getAsInt(),study.get("gate_stability_cost").getAsInt()));
         }
         for(var row:JsonParser.parseString(Files.readString(Path.of("tools/elemental_arts/arts.json"))).getAsJsonObject().getAsJsonArray("arts")) {
             var a=row.getAsJsonObject();authored.put(a.get("id").getAsString(),new TechniqueStudy(a.get("study_points").getAsInt(),0,0));
@@ -107,7 +107,7 @@ class TechniqueStudyDefinitionTest {
     private static String technique(String extra) {
         return """
                 {
-                  "translation_key": "cultivation.technique.myvillage.sample",
+                  "translation_key": "cultivation.technique.yuanxian.sample",
                   "category": "active",
                   "grade": 2,
                   "elements": [],

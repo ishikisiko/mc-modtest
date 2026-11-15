@@ -37,7 +37,7 @@
 
 ## 唯一调参来源
 
-`src/main/resources/data/myvillage/worldplan/atlas_city_travel.json` 是本功能唯一调参文件。
+`src/main/resources/data/yuanxian/worldplan/atlas_city_travel.json` 是本功能唯一调参文件。
 服务器在 `ServerStartedEvent` 从当前 resource manager 读取；缺失或非法时关闭传送并记录原始错误，不静默使用另一组默认值。
 服务器数据包覆盖在下次启动生效，不在在途请求中切换规则。客户端点击阈值读取 jar 内同一文件，不从客户端决定服务器预算。
 
@@ -70,8 +70,8 @@ Java 只保留协议格式和资源/计算的硬安全上界，不维护第二�
 - `src/main/java/com/example/myvillage/worldplan/travel/AtlasCityTravelLimiter.java`
 - `src/main/java/com/example/myvillage/worldplan/travel/AtlasCityTravelService.java`
 - `src/main/java/com/example/myvillage/worldplan/travel/AtlasCityTravelLifecycle.java`
-- `src/main/resources/assets/myvillage/lang/zh_cn.json`（仅自有 `*.atlas.travel.*` 键）
-- `src/main/resources/data/myvillage/worldplan/atlas_city_travel.json`
+- `src/main/resources/assets/yuanxian/lang/zh_cn.json`（仅自有 `*.atlas.travel.*` 键）
+- `src/main/resources/data/yuanxian/worldplan/atlas_city_travel.json`
 
 测试源：
 

@@ -41,7 +41,7 @@ public record MeditationMotion(int exitTicks, int breathTicks, float breathPixel
         return v.normalize();
     }
     public static MeditationMotion bundled() {
-        try(var input=MeditationMotion.class.getResourceAsStream("/assets/myvillage/cultivation/meditation_motion.json")) {
+        try(var input=MeditationMotion.class.getResourceAsStream("/assets/yuanxian/cultivation/meditation_motion.json")) {
             if(input==null)throw new IllegalStateException("Missing meditation motion resource");
             return parse(new InputStreamReader(input,StandardCharsets.UTF_8));
         } catch(java.io.IOException e) {throw new IllegalStateException(e);}

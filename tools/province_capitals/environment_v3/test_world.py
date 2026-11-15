@@ -19,9 +19,9 @@ class ConstructionTest(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         root=Path(self.tmp.name);self.root=root
-        p=root/'data/myvillage/capitals/v3/fixture/terrain.bin.gz';p.parent.mkdir(parents=True)
+        p=root/'data/yuanxian/capitals/v3/fixture/terrain.bin.gz';p.parent.mkdir(parents=True)
         p.write_bytes(gzip.compress(struct.pack('<'+'h'*1024,*([3]*1024)),mtime=0))
-        manifest={'size':[32,40,32],'terrain':{'resource':'myvillage:capitals/v3/fixture/terrain.bin.gz','top_block':'minecraft:stone','fill_block':'minecraft:stone'},'tiles':[],
+        manifest={'size':[32,40,32],'terrain':{'resource':'yuanxian:capitals/v3/fixture/terrain.bin.gz','top_block':'minecraft:stone','fill_block':'minecraft:stone'},'tiles':[],
                   'buildings':[],'entries':[],'life':{'places':[]}}
         self.world=World(root,manifest,json.loads((INPUT/'materials.json').read_text()))
 
@@ -67,10 +67,10 @@ class ConstructionTest(unittest.TestCase):
         catalog=json.loads((INPUT.parent/'environment_design/catalog.json').read_text())
         config=json.loads((INPUT/'materials.json').read_text())
         width,depth=256,320
-        terrain=self.root/'data/myvillage/capitals/v3/moyu/terrain.bin.gz'
+        terrain=self.root/'data/yuanxian/capitals/v3/moyu/terrain.bin.gz'
         terrain.parent.mkdir(parents=True)
         terrain.write_bytes(gzip.compress(struct.pack('<'+'h'*(width*depth),*([26]*(width*depth))),mtime=0))
-        manifest={'size':[width,96,depth],'terrain':{'resource':'myvillage:capitals/v3/moyu/terrain.bin.gz',
+        manifest={'size':[width,96,depth],'terrain':{'resource':'yuanxian:capitals/v3/moyu/terrain.bin.gz',
                   'top_block':'minecraft:stone','fill_block':'minecraft:stone'},'tiles':[],
                   'buildings':[],'entries':[],'life':{'places':[]}}
         world=World(self.root,manifest,config)

@@ -47,7 +47,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--resources',type=Path,required=True);p.add_argument('--out',type=Path,required=True);args=p.parse_args()
     reports=[]
     for name in read('runtime')['maps']:
-        model=json.loads(gzip.decompress((args.resources/f'data/myvillage/expedition/{name}.json.gz').read_bytes()))
+        model=json.loads(gzip.decompress((args.resources/f'data/yuanxian/expedition/{name}.json.gz').read_bytes()))
         reports.append(audit(model))
     args.out.parent.mkdir(parents=True,exist_ok=True);args.out.write_text(json.dumps(reports,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps([dict(id=r['id'],passed=r['passed'],checks=r['checks'],failures=len(r['failures'])) for r in reports],ensure_ascii=False))

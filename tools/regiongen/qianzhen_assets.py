@@ -21,7 +21,7 @@ from qianzhen import story_assets
 
 RECIPE=ROOT/'blueprints/regiongen/qianzhen_region_v1.json'
 DEFAULT_OUT=ROOT/'build/generated/qianzhen_region/resources'
-RESOURCE='data/myvillage/regiongen/qianzhen_region_v1.json'
+RESOURCE='data/yuanxian/regiongen/qianzhen_region_v1.json'
 
 
 def sha(data):return hashlib.sha256(data).hexdigest()
@@ -35,7 +35,7 @@ def compile_resources(out):
     if recipe['id']!='qianzhen_region_v1' or recipe['schema']!=1:raise ValueError('Unsupported authored settlement')
     with tempfile.TemporaryDirectory(prefix='qianzhen-region-source-') as folder:
         source=Path(folder);scene_report=story_assets.generate(source,ROOT/recipe['source'])
-        scene=json.loads((source/'data/myvillage/story/qianzhen_scene.json').read_text())
+        scene=json.loads((source/'data/yuanxian/story/qianzhen_scene.json').read_text())
         if set(group.archetype_roster)!={s['id'] for s in scene['sites']}:raise ValueError('Chapter sites differ from registered settlement family')
         lo,hi=scene['bounds']['min'],scene['bounds']['max'];padding=recipe['padding']
         size=(max(hi[0]-lo[0]+1,hi[2]-lo[2]+1)+2*padding+15)//16*16
@@ -44,7 +44,7 @@ def compile_resources(out):
         cells={};entities={};sites=[];tiles=[];sources={}
         def point(pos):return [pos[i]+shift[i] for i in range(3)]
         for site in scene['sites']:
-            path=source/('data/myvillage/structure/'+site['template'].split(':',1)[1]+'.nbt')
+            path=source/('data/yuanxian/structure/'+site['template'].split(':',1)[1]+'.nbt')
             if sha(path.read_bytes())!=site['sha256']:raise ValueError('Source template drift')
             sources[site['id']]=site['sha256'];_,tag=read_gzipped_nbt(str(path));origin=point(site['origin'])
             for block in tag['blocks']:
@@ -71,16 +71,16 @@ def compile_resources(out):
                 local=tuple(v.value for v in block.value['pos'].value);global_pos=(tx*16+local[0],local[1],tz*16+local[2])
                 if global_pos in entities:block.value['nbt']=nbt._nbt_value_to_tag('nbt',entities[global_pos])
             template=f'regiongen/qianzhen_region_v1/tile_{tx}_{tz}'
-            path=out/('data/myvillage/structure/'+template+'.nbt');path.parent.mkdir(parents=True,exist_ok=True)
+            path=out/('data/yuanxian/structure/'+template+'.nbt');path.parent.mkdir(parents=True,exist_ok=True)
             nbt.write_gzipped_nbt(tag,str(path));_,restored=read_gzipped_nbt(str(path))
             actual={tuple(b['pos']):story_assets.canonical(state_string(restored['palette'][b['state']])) for b in restored['blocks']}
             if actual!={p:story_assets.canonical(s) for p,s in owned.items()}:raise ValueError('Chapter tile roundtrip differs')
             for block in restored['blocks']:
                 x,y,z=block['pos'];expected=entities.get((tx*16+x,y,tz*16+z))
                 if block.get('nbt')!=expected:raise ValueError('Chapter block entity roundtrip differs')
-            tiles.append({'x':tx*16,'z':tz*16,'template':'myvillage:'+template,'sha256':sha(path.read_bytes()),'cells':len(owned)})
+            tiles.append({'x':tx*16,'z':tz*16,'template':'yuanxian:'+template,'sha256':sha(path.read_bytes()),'cells':len(owned)})
         result={'schema':1,'id':recipe['id'],'size':size,'height':height,'terrain':recipe['terrain'],'siting':recipe['siting'],
-                'scene_version':scene['version'],'scene_sha256':sha((source/'data/myvillage/story/qianzhen_scene.json').read_bytes()),
+                'scene_version':scene['version'],'scene_sha256':sha((source/'data/yuanxian/story/qianzhen_scene.json').read_bytes()),
                 'source_templates':sources,'sites':sites,'tiles':tiles,'source_shift':shift,
                 'entry':point(scene['positions']['spawn']['pos']),
                 'positions':{key:{k:point(p) for k,p in value.items()} for key,value in scene['positions'].items()},

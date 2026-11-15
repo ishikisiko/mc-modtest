@@ -30,7 +30,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-STRUCTURES = ROOT / "src/main/resources/data/myvillage/structure"
+STRUCTURES = ROOT / "src/main/resources/data/yuanxian/structure"
 MEDIEVAL_ARCHETYPES = (
     "small_house", "medium_house", "blacksmith", "small_shop",
     "medium_shop", "big_house",

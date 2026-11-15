@@ -15,7 +15,7 @@ public abstract class CombatRulesMixin {
             method = "getDamageAfterAbsorb(Lnet/minecraft/world/entity/LivingEntity;FLnet/minecraft/world/damagesource/DamageSource;FF)F",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;clamp(FFF)F", ordinal = 0, remap = false),
             require = 1, allow = 1, remap = false)
-    private static void myvillage$normalizeArmorPressure(
+    private static void yuanxian$normalizeArmorPressure(
             Args arguments, LivingEntity defender, float damage, DamageSource source, float armor, float toughness) {
         float original = arguments.get(0);
         arguments.set(0, RealmArmorRuntime.normalizeUnclamped(

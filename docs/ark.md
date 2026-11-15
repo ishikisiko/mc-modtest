@@ -536,7 +536,7 @@ constraints:
 
 protected_invariants:
   - id: resource-path
-    rule: "NBT structures stay under src/main/resources/data/myvillage/structure/"
+    rule: "NBT structures stay under src/main/resources/data/yuanxian/structure/"
   - id: seed-determinism
     rule: "same world seed + same site yields same sect"
   - id: chunk-sliced-worldgen
@@ -570,7 +570,7 @@ tasks:
     forbidden_files:
       - "gradle.properties"
       - "CHANGELOG.md"
-      - "src/main/resources/data/myvillage/structure/*.nbt"
+      - "src/main/resources/data/yuanxian/structure/*.nbt"
     outputs:
       - patch.diff
       - task_result.json
@@ -632,8 +632,8 @@ tasks:
     agent: regression-steward
     depends_on: [docs-sync]
     gates:
-      - "python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure"
-      - "python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure"
+      - "python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/yuanxian/structure"
+      - "python3 tools/validate_generated_structures.py src/main/resources/data/yuanxian/structure"
       - "python3 tools/validate_mod_block_fallbacks.py"
       - "python3 tools/validate_plaque_bindings.py"
       - "python3 tools/validate_compound_library.py --count 6"
@@ -683,7 +683,7 @@ reports/agent_runs/<run_id>/tasks/<task_id>/task_contract.json
   "forbidden_files": [
     "gradle.properties",
     "CHANGELOG.md",
-    "src/main/resources/data/myvillage/structure/*.nbt"
+    "src/main/resources/data/yuanxian/structure/*.nbt"
   ],
   "inputs": [
     "context/code_map.md",
@@ -769,7 +769,7 @@ changed_files ∩ forbidden_files = ∅
 禁止手改：
 
 ```text
-src/main/resources/data/myvillage/structure/*.nbt
+src/main/resources/data/yuanxian/structure/*.nbt
 reports/*.json
 out/preview/*
 build/libs/*
@@ -1138,7 +1138,7 @@ version: 1
 
 current_golden:
   candidate_id: "cultivation_sect_001"
-  source: "src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt"
+  source: "src/main/resources/data/yuanxian/structure/cultivation_sect_001.nbt"
   accepted_in_run: "manual-or-agent-run-id"
   human_reason: "主殿和中轴可读，飞桥/云海提供宗门气质，chunk worldgen 不变量通过。"
 
@@ -1389,12 +1389,12 @@ sect-visual-agent
     "weak_silhouette"
   ],
   "open_risks": [
-    "custom myvillage block appearance still requires Minecraft client review when present"
+    "custom yuanxian block appearance still requires Minecraft client review when present"
   ]
 }
 ```
 
-Chunky Renderer 当前已知限制必须记录：普通方块可用于离线布局/取景检查，但自定义 `myvillage:` block 外观不能直接用 Chunky 作为最终视觉证据；文档里已经记录 `myvillage:rockery_block` 会渲染成 unknown-block placeholder。
+Chunky Renderer 当前已知限制必须记录：普通方块可用于离线布局/取景检查，但自定义 `yuanxian:` block 外观不能直接用 Chunky 作为最终视觉证据；文档里已经记录 `yuanxian:rockery_block` 会渲染成 unknown-block placeholder。
 
 ---
 

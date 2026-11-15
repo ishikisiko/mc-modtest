@@ -14,7 +14,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 public final class BattleReceipts extends SavedData {
     private final Map<UUID,String> receipts=new HashMap<>();
     public static BattleReceipts get(ServerLevel level){return level.getServer().overworld().getDataStorage().computeIfAbsent(
-        new Factory<>(BattleReceipts::new,BattleReceipts::load),"myvillage_battle_receipts");}
+        new Factory<>(BattleReceipts::new,BattleReceipts::load),"yuanxian_battle_receipts");}
     private static BattleReceipts load(CompoundTag tag,HolderLookup.Provider registries){
         var data=new BattleReceipts();
         for(var t:tag.getList("Guards",Tag.TAG_COMPOUND)) { var v=(CompoundTag)t;

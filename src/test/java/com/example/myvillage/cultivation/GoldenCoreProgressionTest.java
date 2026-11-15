@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 
 /** Actual authored data and numerical transitions; live service/input evidence remains separate. */
 class GoldenCoreProgressionTest {
-    private static final Path DEFINITIONS = Path.of("src/main/resources/data/myvillage/myvillage");
+    private static final Path DEFINITIONS = Path.of("src/main/resources/data/yuanxian/yuanxian");
 
     @BeforeAll
     static void bootstrap() {
@@ -231,6 +231,6 @@ class GoldenCoreProgressionTest {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 }

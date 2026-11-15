@@ -69,11 +69,11 @@ class BlockEntityTests(unittest.TestCase):
         from .test_native_rules import World
         state='minecraft:spruce_wall_sign[facing=west,waterlogged=false]';p=(15,3,8)
         with tempfile.TemporaryDirectory() as folder:
-            base=Path(folder);source=base/'data/myvillage/structure/source.nbt';source.parent.mkdir(parents=True)
+            base=Path(folder);source=base/'data/yuanxian/structure/source.nbt';source.parent.mkdir(parents=True)
             self.source(source,state=state,pos=p);before=block_entities(source)
             world=World({p:state,(16,3,8):'minecraft:glass_pane'})
             world.width=32;world.depth=16;world.height=8;world.nbt_tiles={(0,0)}
-            world.refs={(0,0):{'template':'myvillage:source'}}
+            world.refs={(0,0):{'template':'yuanxian:source'}}
             world.dirty={(0,0),(1,0)};world.ground=lambda x,z:0
             world.manifest={'terrain':{'top_block':'minecraft:stone','fill_block':'minecraft:stone'}}
             data={'gardens':[],'doors':[],'fixtures':[],'minecraft_checks':{},'dimensions':[32,8,16]}
@@ -89,7 +89,7 @@ class BlockEntityTests(unittest.TestCase):
             self.assertEqual(audit_entries({p:(state,'','')},before),entries)
             records={}
             for tile in result['tiles']:
-                path=base/'output/datapack/data/myvillage/structure'/ (tile['template'].split(':')[1]+'.nbt')
+                path=base/'output/datapack/data/yuanxian/structure'/ (tile['template'].split(':')[1]+'.nbt')
                 raw=read_gzipped_nbt(str(path))[1]
                 for block in raw['blocks']:
                     at=tuple(block['pos'][i]+tile[axis] for i,axis in enumerate(('x','y','z')))
@@ -97,8 +97,8 @@ class BlockEntityTests(unittest.TestCase):
             tile,block=records[p];self.assertEqual('atomic_groups',tile['phase'])
             self.assertEqual((15,3,8),(tile['x'],tile['y'],tile['z']))
             self.assertEqual([1,1,1],tile['size']);self.assertEqual('tiles',records[16,3,8][0]['phase'])
-            self.assertEqual(before[p],block_entities(base/'output/datapack/data/myvillage/structure'/ (tile['template'].split(':')[1]+'.nbt'))[0,0,0])
-            function=base/'output/datapack/data/myvillage/function/blueprint_trial/zhongzhou'
+            self.assertEqual(before[p],block_entities(base/'output/datapack/data/yuanxian/structure'/ (tile['template'].split(':')[1]+'.nbt'))[0,0,0])
+            function=base/'output/datapack/data/yuanxian/function/blueprint_trial/zhongzhou'
             self.assertIn('115 67 208',(function/'compound_0000.mcfunction').read_text())
             self.assertIn('115 67 208 '+state,(function/'audit.mcfunction').read_text())
 

@@ -25,5 +25,5 @@ public final class QianjiAtmosphereRules {
     public static double smooth(double v){v=Math.clamp(v,0,1);return v*v*(3-2*v);}
     private static final class Holder {static final QianjiAtmosphereRules INSTANCE=read();}
     public static QianjiAtmosphereRules get(){return Holder.INSTANCE;}
-    private static QianjiAtmosphereRules read(){try(var in=QianjiAtmosphereRules.class.getResourceAsStream("/data/myvillage/qianji/atmosphere.json")){if(in==null)throw new IllegalStateException("缺少千机阁动效配置");return new QianjiAtmosphereRules(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());}catch(java.io.IOException e){throw new IllegalStateException(e);}}
+    private static QianjiAtmosphereRules read(){try(var in=QianjiAtmosphereRules.class.getResourceAsStream("/data/yuanxian/qianji/atmosphere.json")){if(in==null)throw new IllegalStateException("缺少千机阁动效配置");return new QianjiAtmosphereRules(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());}catch(java.io.IOException e){throw new IllegalStateException(e);}}
 }

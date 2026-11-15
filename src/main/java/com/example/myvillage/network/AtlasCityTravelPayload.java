@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 /** Bounded intent only: a frozen city ID and map fingerprint. No XYZ, player ID or permission flags. */
 public record AtlasCityTravelPayload(String cityId, String atlasFingerprint) implements CustomPacketPayload {
     public static final Type<AtlasCityTravelPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath("myvillage","atlas_city_travel"));
+            ResourceLocation.fromNamespaceAndPath("yuanxian","atlas_city_travel"));
     public static final StreamCodec<FriendlyByteBuf,AtlasCityTravelPayload> STREAM_CODEC = new StreamCodec<>() {
         @Override public AtlasCityTravelPayload decode(FriendlyByteBuf buffer) {
             return new AtlasCityTravelPayload(buffer.readUtf(AtlasCityTravelTarget.MAX_CITY_ID),

@@ -3,7 +3,7 @@ navigation:
   title: 遗迹传承
   parent: index.md
   position: 44
-  icon: myvillage:guiyan_sword
+  icon: yuanxian:guiyan_sword
 ---
 # 四组遗迹传承
 
@@ -45,10 +45,10 @@ navigation:
 
 四种器物的工作台配方如下。
 
-<Recipe id="myvillage:guiyan_sword" />
+<Recipe id="yuanxian:guiyan_sword" />
 
-<Recipe id="myvillage:zhaoshui_mirror" />
+<Recipe id="yuanxian:zhaoshui_mirror" />
 
-<Recipe id="myvillage:chiyu_gourd" />
+<Recipe id="yuanxian:chiyu_gourd" />
 
-<Recipe id="myvillage:zhenyue_ruler" />
+<Recipe id="yuanxian:zhenyue_ruler" />

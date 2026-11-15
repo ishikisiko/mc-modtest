@@ -212,7 +212,7 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
         };
     }
     private static ItemStack roleItem(AlchemyArrayRules.Role role) {
-        return item("myvillage:alchemy_array_" + switch (role) {
+        return item("yuanxian:alchemy_array_" + switch (role) {
             case CONTROLLER -> "controller"; case CASING -> "casing"; case INPUT -> "input";
             case OUTPUT -> "output"; case FUEL -> "fuel"; case VENT -> "vent"; case AIR -> "casing";
         });

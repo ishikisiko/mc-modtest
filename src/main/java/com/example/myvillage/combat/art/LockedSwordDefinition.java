@@ -70,7 +70,7 @@ public record LockedSwordDefinition(String mode, double range, double acquireArc
         }
     }
     private static class Holder {
-        static final JsonObject DOCUMENT=read("/data/myvillage/combat/locked_sword_arts.json");
+        static final JsonObject DOCUMENT=read("/data/yuanxian/combat/locked_sword_arts.json");
         static final Defence DEFENCE=defence(DOCUMENT.getAsJsonObject("defense"));
         static Defence defence(JsonObject d) { return new Defence(i(d,"tail_ticks"),n(d,"tail_damage_fraction")); }
     }
@@ -80,7 +80,7 @@ public record LockedSwordDefinition(String mode, double range, double acquireArc
     }
     public static Defence defence() { return Holder.DEFENCE; }
     static int techniqueCost(ResourceLocation id) {
-        JsonObject active=read("/data/"+id.getNamespace()+"/myvillage/technique/"+id.getPath()+".json")
+        JsonObject active=read("/data/"+id.getNamespace()+"/yuanxian/technique/"+id.getPath()+".json")
                 .getAsJsonObject("effects").getAsJsonObject("active");
         int cost=i(active,"qi_cost");
         if(cost<1 || cost>1000 || !active.get("skill").getAsString().equals(id.toString()))

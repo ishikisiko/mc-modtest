@@ -73,9 +73,9 @@ class ArmorEvidence(Evidence):
         self.rc(f'attribute {TARGET} minecraft:generic.armor base set {armor}')
         self.rc(f'attribute {TARGET} minecraft:generic.armor_toughness base set {toughness}')
         if assignment is None and realm is not None:
-            assignment = '{realm:"myvillage:' + realm + '",stage:' + str(stage) + '}'
+            assignment = '{realm:"yuanxian:' + realm + '",stage:' + str(stage) + '}'
         if assignment is not None:
-            self.rc(f'data merge entity {TARGET} {{NeoForgeData:{{"myvillage:stats_realm":{assignment}}}}}')
+            self.rc(f'data merge entity {TARGET} {{NeoForgeData:{{"yuanxian:stats_realm":{assignment}}}}}')
         values = {key: self.number(f'attribute {TARGET} minecraft:generic.{key} get')
                   for key in ('max_health','armor','armor_toughness')}
         if not all(close(values[k],v) for k,v in [('max_health',1000),('armor',armor),('armor_toughness',toughness)]):
@@ -112,10 +112,10 @@ class ArmorEvidence(Evidence):
     def player_fixture(self, protection=False):
         user = self.s.username
         self.rc(f'effect clear {user}')
-        self.rc(f'yuanxian cultivation setrealm {user} myvillage:golden_core myvillage:golden_late')
+        self.rc(f'yuanxian cultivation setrealm {user} yuanxian:golden_core yuanxian:golden_late')
         self.rc(f'attribute {user} minecraft:generic.armor base set 10')
         self.rc(f'attribute {user} minecraft:generic.armor_toughness base set 0')
-        self.rc(f'attribute {user} myvillage:physical_resistance base set 0')
+        self.rc(f'attribute {user} yuanxian:physical_resistance base set 0')
         for slot, item in [('head','helmet'), ('chest','chestplate'), ('legs','leggings'), ('feet','boots')]:
             suffix = '[minecraft:enchantments={levels:{"minecraft:protection":4}}]' if protection else ''
             self.rc(f'item replace entity {user} armor.{slot} with minecraft:netherite_{item}{suffix}')
@@ -129,7 +129,7 @@ class ArmorEvidence(Evidence):
 
     def initial(self):
         started = time.monotonic(); user = self.s.username
-        for cmd in (*scene.world_rules(), *scene.player_setup(user, 'myvillage:qingfeng_sword'),
+        for cmd in (*scene.world_rules(), *scene.player_setup(user, 'yuanxian:qingfeng_sword'),
                     'gamerule naturalRegeneration false', 'yuanxian world pause',
                     'forceload add -16 -16 32 32', f'yuanxian cultivation awaken {user}',
                     f'yuanxian cultivation initiate {user}',
@@ -139,10 +139,10 @@ class ArmorEvidence(Evidence):
                                      ('foundation_establishment',0,3),('golden_core',2,6.6)]:
             self.probe('same_realm_'+realm, 10*scale, realm=realm, stage=stage, scale=scale)
         self.probe('unassigned_vanilla', 60, realm=None, scale=1, armor=30, toughness=12)
-        for name, assignment in [('unknown_realm','{realm:"myvillage:no_such_realm",stage:0}'),
-                                 ('missing_stage','{realm:"myvillage:golden_core"}'),
-                                 ('wrong_stage_type','{realm:"myvillage:golden_core",stage:"2"}'),
-                                 ('out_of_range','{realm:"myvillage:golden_core",stage:999}')]:
+        for name, assignment in [('unknown_realm','{realm:"yuanxian:no_such_realm",stage:0}'),
+                                 ('missing_stage','{realm:"yuanxian:golden_core"}'),
+                                 ('wrong_stage_type','{realm:"yuanxian:golden_core",stage:"2"}'),
+                                 ('out_of_range','{realm:"yuanxian:golden_core",stage:999}')]:
             self.probe('fallback_'+name, 60, assignment=assignment, scale=1, armor=30, toughness=12)
         self.probe('high_attacker_low_defender', 66, realm='qi_refining', stage=0, scale=1.5)
         self.probe('low_attacker_high_defender', 15, armor=30, toughness=12)
@@ -183,7 +183,7 @@ class ArmorEvidence(Evidence):
         before = self.player_fixture(protection=True)
         self.rc(f'effect give {user} minecraft:resistance 60 0 true')
         self.rc(f'effect give {user} minecraft:absorption 60 0 true')
-        self.rc(f'attribute {user} myvillage:physical_resistance base set .5')
+        self.rc(f'attribute {user} yuanxian:physical_resistance base set .5')
         self.rc(f'damage {user} 198 minecraft:mob_attack by {ATTACKER}')
         trace, after = self.trace(user), self.hp(user)
         post = armor_damage(198,30,12,6.6)*.8*.36
@@ -211,14 +211,14 @@ class ArmorEvidence(Evidence):
                    {'before':before,'after':after,'shield_wear':shield_wear,'inventory_wear':damages})
 
         self.rc(f'effect clear {user}')
-        self.rc(f'attribute {user} myvillage:physical_resistance base set 0')
-        self.rc(f'item replace entity {user} hotbar.0 with myvillage:qingfeng_sword')
+        self.rc(f'attribute {user} yuanxian:physical_resistance base set 0')
+        self.rc(f'item replace entity {user} hotbar.0 with yuanxian:qingfeng_sword')
         self.rc(f'tp {ATTACKER} 8 -60 8')
         self.rc(f'tp {user} .5 -60 .5 0 0')
         self.s.game.key('1'); scene.ensure_cultivation(self.s)
         before = self.fixture(30,12)
         base = self.number(f'attribute {user} minecraft:generic.attack_damage get')
-        style = json.loads((ROOT/'src/main/resources/data/myvillage/combat/style/basic_sword.json').read_text())
+        style = json.loads((ROOT/'src/main/resources/data/yuanxian/combat/style/basic_sword.json').read_text())
         requested = base * style['moves'][0]['damage_multiplier']
         self.s.game.require_ingame('normalized armor mapped melee'); self.s.game.click(.06)
         time.sleep(2)
@@ -230,7 +230,7 @@ class ArmorEvidence(Evidence):
 
         before = self.fixture(30,12,z=6.5)
         self.rc(f'tp {user} .5 -60 .5 0 0')
-        self.rc(f'yuanxian cultivation learn {user} myvillage:jianqi_jue')
+        self.rc(f'yuanxian cultivation learn {user} yuanxian:jianqi_jue')
         self.rc(f'yuanxian cultivation qi fill {user}')
         self.s.game.require_ingame('normalized armor mapped sword qi')
         self.s.game.xdo('mousedown','3')

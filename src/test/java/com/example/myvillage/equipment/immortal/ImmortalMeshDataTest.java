@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 /** Pure data checks; no client initialization or simulated player acceptance. */
 final class ImmortalMeshDataTest {
     private static JsonObject bundled(String id) {
-        var stream = ImmortalMeshDataTest.class.getResourceAsStream("/assets/myvillage/immortal_equipment/" + id + ".json");
+        var stream = ImmortalMeshDataTest.class.getResourceAsStream("/assets/yuanxian/immortal_equipment/" + id + ".json");
         assertNotNull(stream, "缺正式网格 " + id);
         try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return JsonParser.parseReader(reader).getAsJsonObject();
@@ -58,7 +58,7 @@ final class ImmortalMeshDataTest {
     @Test void unknownMaterialAndTextureTraversalFailClosed() {
         rejects(d -> firstPart(d, "standard").addProperty("material", "missing"));
         rejects(d -> d.getAsJsonObject("materials").entrySet().iterator().next().getValue().getAsJsonObject()
-                .addProperty("texture", "myvillage:textures/../private.png"));
+                .addProperty("texture", "yuanxian:textures/../private.png"));
     }
 
     @Test void invalidIndexUvAndNormalFailClosed() {

@@ -11,14 +11,14 @@ def validate_resources(root: Path=ROOT):
     errors=[]
     specs,_=load(root)
     resources=root/"src/main/resources"
-    path=resources/"data/myvillage/equipment/catalogue.json"
+    path=resources/"data/yuanxian/equipment/catalogue.json"
     if not path.is_file():return ["缺少生成的装备 catalogue"]
     generated=json.loads(path.read_text())
     expected={i['id']:i for s in specs if s['kind']=='armor_set' and s.get('enabled',True) for i in s['items']}
     entries=generated.get('items',[])
     actual={i['id']:i for i in entries}
     if len(actual)!=len(entries) or set(actual)!=set(expected):errors.append("装备目录身份不一致或重复")
-    names=json.loads((resources/"assets/myvillage/lang/zh_cn.json").read_text())
+    names=json.loads((resources/"assets/yuanxian/lang/zh_cn.json").read_text())
     for item_id,item in actual.items():
         ns,name=item_id.split(':')
         for ref in (item['model'],item['texture']):

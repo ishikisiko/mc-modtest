@@ -14,16 +14,16 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
-ASSET_ROOT = ROOT / "src" / "main" / "resources" / "assets" / "myvillage"
-MOD_ITEMS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "item" / "ModItems.java"
-MOD_BLOCKS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "block" / "ModBlocks.java"
-ROCKERY_BLOCK = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "block" / "RockeryBlock.java"
-COMBAT_WEAPON_ITEM = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "item" / "CombatWeaponItem.java"
-COMBAT_WEAPON_DATA = ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "combat" / "weapon"
+ASSET_ROOT = ROOT / "src" / "main" / "resources" / "assets" / "yuanxian"
+MOD_ITEMS = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian" / "item" / "ModItems.java"
+MOD_BLOCKS = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian" / "block" / "ModBlocks.java"
+ROCKERY_BLOCK = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian" / "block" / "RockeryBlock.java"
+COMBAT_WEAPON_ITEM = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian" / "item" / "CombatWeaponItem.java"
+COMBAT_WEAPON_DATA = ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "combat" / "weapon"
 LANG = ASSET_ROOT / "lang" / "en_us.json"
 ZH_LANG = ASSET_ROOT / "lang" / "zh_cn.json"
 
-# An item with a combat weapon entry (data/myvillage/combat/weapon/*.json) must be registered as a
+# An item with a combat weapon entry (data/yuanxian/combat/weapon/*.json) must be registered as a
 # CombatWeaponItem: a landed combat hit costs durability, and on a plain SwordItem that data-only change
 # replays the vanilla equip animation, which drops the first-person weapon after every hit.
 COMBAT_WEAPON_CLASS = "CombatWeaponItem"
@@ -116,9 +116,9 @@ GENERATED_PARENTS = {"minecraft:item/generated", "item/generated", "minecraft:it
 # The Lingxiao spear's model comes from tools/gen_lingxiao_spear_model.py and the Xuantie
 # gauntlet's from tools/gen_xuantie_gauntlet_model.py.
 SWORD_3D_MODELS = {
-    "qingfeng_sword": "myvillage:item/qingfeng_sword_3d",
-    "lingxiao_spear": "myvillage:item/lingxiao_spear_3d",
-    "xuantie_gauntlet": "myvillage:item/xuantie_gauntlet_3d",
+    "qingfeng_sword": "yuanxian:item/qingfeng_sword_3d",
+    "lingxiao_spear": "yuanxian:item/lingxiao_spear_3d",
+    "xuantie_gauntlet": "yuanxian:item/xuantie_gauntlet_3d",
 }
 
 
@@ -240,7 +240,7 @@ def registered_items() -> set[str]:
 
 
 def road_items() -> set[str]:
-    rules = load_json(ROOT / "src/main/resources/data/myvillage/roads/prototype.json")
+    rules = load_json(ROOT / "src/main/resources/data/yuanxian/roads/prototype.json")
     content = (ROOT / "src/main/java/com/example/myvillage/worldplan/roads/RoadContent.java").read_text()
     wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
     creative = (ROOT / "src/main/java/com/example/myvillage/manor/ManorContent.java").read_text()
@@ -254,7 +254,7 @@ def road_items() -> set[str]:
 
 
 def manor_items() -> set[str]:
-    catalog = load_json(ROOT / "src/main/resources/data/myvillage/lord_manors/catalog.json")
+    catalog = load_json(ROOT / "src/main/resources/data/yuanxian/lord_manors/catalog.json")
     content = (ROOT / "src/main/java/com/example/myvillage/manor/ManorContent.java").read_text()
     wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
     if ("ManorContent.register(modEventBus)" not in wiring
@@ -288,7 +288,7 @@ def sword_qi_decoration_items() -> set[str]:
 
 def immortal_equipment_items() -> set[str]:
     """Fifteen sets register their armor and ingots from one generated catalogue."""
-    path = ROOT / "src/main/resources/data/myvillage/immortal_equipment/catalogue.json"
+    path = ROOT / "src/main/resources/data/yuanxian/immortal_equipment/catalogue.json"
     if not path.exists():
         return set()
     wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
@@ -300,14 +300,14 @@ def immortal_equipment_items() -> set[str]:
             or "ITEMS.registerItem(definition.id().getPath()" not in content):
         raise ValueError("Immortal equipment catalogue is not wired into registration/creative tab")
     ids = [item["id"] for entry in load_json(path)["sets"] for item in [entry["ingot"], *entry["armor"]]]
-    if len(set(ids)) != len(ids) or any(not re.fullmatch(r"myvillage:[a-z][a-z0-9_]*", value) for value in ids):
+    if len(set(ids)) != len(ids) or any(not re.fullmatch(r"yuanxian:[a-z][a-z0-9_]*", value) for value in ids):
         raise ValueError("Invalid or duplicate immortal equipment item identity")
     return {value.split(":")[1] for value in ids}
 
 
 def equipment_items() -> set[str]:
     """Armor item identities come from the generated catalogue, not a second hand-maintained list."""
-    path = ROOT / "src/main/resources/data/myvillage/equipment/catalogue.json"
+    path = ROOT / "src/main/resources/data/yuanxian/equipment/catalogue.json"
     if not path.exists():
         return set()
     wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
@@ -318,14 +318,14 @@ def equipment_items() -> set[str]:
         raise ValueError("Equipment catalogue is not wired into item registration/creative tab")
     entries = load_json(path)["items"]
     ids = [entry["id"] for entry in entries]
-    if len(set(ids)) != len(ids) or any(not re.fullmatch(r"myvillage:[a-z][a-z0-9_]*", value) for value in ids):
+    if len(set(ids)) != len(ids) or any(not re.fullmatch(r"yuanxian:[a-z][a-z0-9_]*", value) for value in ids):
         raise ValueError("Invalid or duplicate equipment item identity")
     return {value.split(":")[1] for value in ids}
 
 
 def courtyard_items() -> set[str]:
     """The courtyard registers the generated immutable catalogue as block items."""
-    path = ROOT / "src/main/resources/data/myvillage/courtyard/assemblies.json"
+    path = ROOT / "src/main/resources/data/yuanxian/courtyard/assemblies.json"
     if not path.exists():
         return set()
     wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
@@ -362,7 +362,7 @@ def texture_path(ref: str) -> Path | None:
     namespace, _, path = ref.partition(":")
     if not path:
         return None
-    if namespace == "myvillage":
+    if namespace == "yuanxian":
         return ASSET_ROOT / "textures" / f"{path}.png"
     return None
 
@@ -371,7 +371,7 @@ def model_path(ref: str) -> Path | None:
     namespace, _, path = ref.partition(":")
     if not path:
         return None
-    if namespace == "myvillage":
+    if namespace == "yuanxian":
         return ASSET_ROOT / "models" / f"{path}.json"
     return None
 
@@ -396,7 +396,7 @@ def validate_obj_model(model: dict, path: Path, errors: list[str]) -> None:
     from tools.equipment.mesh import read_obj
     import math
     def resource(ref, suffix):
-        if not isinstance(ref,str) or not ref.startswith("myvillage:") or not ref.endswith(suffix):
+        if not isinstance(ref,str) or not ref.startswith("yuanxian:") or not ref.endswith(suffix):
             raise ValueError("invalid resource " + str(ref))
         candidate=(ASSET_ROOT/ref.split(":",1)[1]).resolve()
         if not candidate.is_relative_to(ASSET_ROOT.resolve()):raise ValueError("resource traversal")
@@ -414,7 +414,7 @@ def validate_obj_model(model: dict, path: Path, errors: list[str]) -> None:
         stitched={s['resource'] for s in atlas.get('sources',[]) if s.get('type')=='minecraft:single'}
         # The approved atlas exporter emits actual triangles; the legacy box
         # generator retains its four-vertex contract. Do not relax that contract.
-        face_size = 3 if model["model"].startswith("myvillage:models/immortal_equipment/") else 4
+        face_size = 3 if model["model"].startswith("yuanxian:models/immortal_equipment/") else 4
         for face in faces:
             if len(face['points']) != face_size:
                 raise ValueError(f"equipment mesh requires {face_size} vertices per face")
@@ -541,7 +541,7 @@ def validate_element_model(model: Any, error_key: str, errors: list[str]) -> Non
 
 
 def validate_sword_model(item_id: str, model: Any, error_key: str, errors: list[str]) -> None:
-    icon = f"myvillage:item/{item_id}"
+    icon = f"yuanxian:item/{item_id}"
 
     def is_icon(candidate: Any) -> bool:
         return (isinstance(candidate, dict) and candidate.get("parent") == "minecraft:item/handheld"
@@ -581,12 +581,12 @@ def validate_sword_model(item_id: str, model: Any, error_key: str, errors: list[
     for key, ref in (textures.items() if isinstance(textures, dict) else ()):
         if key == "particle":
             continue
-        if not isinstance(ref, str) or not ref.startswith(f"myvillage:item/{item_id}_"):
+        if not isinstance(ref, str) or not ref.startswith(f"yuanxian:item/{item_id}_"):
             errors.append(f"{error_key}_model_3d_contract:texture_{key}")
 
 
 def combat_weapon_items() -> set[str]:
-    """Item ids (myvillage namespace, path only) that have a combat weapon entry."""
+    """Item ids (yuanxian namespace, path only) that have a combat weapon entry."""
     found: set[str] = set()
     if not COMBAT_WEAPON_DATA.is_dir():
         return found
@@ -595,7 +595,7 @@ def combat_weapon_items() -> set[str]:
             item = load_json(path).get("item")
         except (ValueError, AttributeError):
             continue
-        if isinstance(item, str) and item.startswith("myvillage:"):
+        if isinstance(item, str) and item.startswith("yuanxian:"):
             found.add(item.split(":", 1)[1])
     return found
 
@@ -680,7 +680,7 @@ def validate_swords(items_text: str, lang: dict[str, Any], zh_lang: dict[str, An
         item_class = COMBAT_WEAPON_CLASS if item_id in combat_items else "SwordItem"
         validate_sword_registration(items_text, item_id, holder, error_key, attributes, errors, item_class)
 
-        lang_key = f"item.myvillage.{item_id}"
+        lang_key = f"item.yuanxian.{item_id}"
         if lang.get(lang_key) != en_name:
             errors.append(f"{error_key}_en_us_name")
         if zh_lang.get(lang_key) != zh_name:
@@ -742,12 +742,12 @@ def validate_swords(items_text: str, lang: dict[str, Any], zh_lang: dict[str, An
                 errors.append("qingfeng_sword_tag_contract")
                 values = []
             for item_id, _, _, _, error_key, _, _ in SWORD_CONTRACTS:
-                if f"myvillage:{item_id}" not in values:
+                if f"yuanxian:{item_id}" not in values:
                     errors.append(f"{error_key}_sword_tag_contract")
 
 
 def validate_qingfeng_recipe(errors: list[str]) -> None:
-    recipe_path = ROOT / "src/main/resources/data/myvillage/recipe/qingfeng_sword.json"
+    recipe_path = ROOT / "src/main/resources/data/yuanxian/recipe/qingfeng_sword.json"
     if not recipe_path.is_file():
         errors.append("qingfeng_recipe_missing")
         return
@@ -762,7 +762,7 @@ def validate_qingfeng_recipe(errors: list[str]) -> None:
             or recipe.get("pattern") != expected_pattern
             or recipe.get("key", {}).get("D", {}).get("item") != "minecraft:diamond"
             or recipe.get("key", {}).get("S", {}).get("item") != "minecraft:stick"
-            or recipe.get("result", {}).get("id") != "myvillage:qingfeng_sword"):
+            or recipe.get("result", {}).get("id") != "yuanxian:qingfeng_sword"):
         errors.append("qingfeng_recipe_contract")
 
 
@@ -786,8 +786,8 @@ def validate() -> list[str]:
         else:
             validate_model(item_model, errors)
 
-        item_key = f"item.myvillage.{item_id}"
-        block_key = f"block.myvillage.{item_id}"
+        item_key = f"item.yuanxian.{item_id}"
+        block_key = f"block.yuanxian.{item_id}"
         # 新内容以中文为准；兼容少量历史英文调试物品，武器专属合同另行检查。
         if item_key not in zh_lang and block_key not in zh_lang and item_key not in lang and block_key not in lang:
             errors.append(f"missing_lang:{item_key}|{block_key}")
@@ -810,7 +810,7 @@ def validate() -> list[str]:
 
     if "rockery_block" in block_items:
         if "getCloneItemStack(" not in rockery_text or "ROCKERY_BLOCK_ITEM.get()" not in rockery_text:
-            errors.append("missing_pick_block_clone:myvillage:rockery_block")
+            errors.append("missing_pick_block_clone:yuanxian:rockery_block")
 
     validate_swords(items_text, lang, zh_lang, errors)
     validate_qingfeng_recipe(errors)

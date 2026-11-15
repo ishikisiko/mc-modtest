@@ -8,7 +8,7 @@ class SwordQiWaveShapeTest {
     @Test void allChargeLevelsHaveFiniteVerticesInsideReceivedWidthAndHeight() {
         for (int level : new int[]{0, 1, 127, 255}) {
             var skill = com.example.myvillage.combat.definition.CombatTestData.styles().skill(
-                    net.minecraft.resources.ResourceLocation.parse("myvillage:jianqi_jue")).orElseThrow();
+                    net.minecraft.resources.ResourceLocation.parse("yuanxian:jianqi_jue")).orElseThrow();
             double scale = skill.scale(level), width = skill.halfWidth() * scale, height = skill.halfHeight() * scale;
             vertices(width, height).forEach(v -> {
                 assertTrue(Double.isFinite(v.x()) && Double.isFinite(v.y()) && Double.isFinite(v.z()));

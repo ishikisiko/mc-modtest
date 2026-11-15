@@ -19,18 +19,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ModelPart.class)
 public abstract class MeditationModelPartMixin implements MeditationPart {
     @Shadow @Final private List<ModelPart.Cube> cubes;
-    @Unique private MeditationWarp myvillage$warp;
-    @Override public MeditationWarp myvillage$meditationWarp(){return myvillage$warp;}
-    @Override public void myvillage$meditationWarp(MeditationWarp value){myvillage$warp=value;}
+    @Unique private MeditationWarp yuanxian$warp;
+    @Override public MeditationWarp yuanxian$meditationWarp(){return yuanxian$warp;}
+    @Override public void yuanxian$meditationWarp(MeditationWarp value){yuanxian$warp=value;}
     @Inject(method="copyFrom",at=@At("TAIL"))
-    private void myvillage$copy(ModelPart other,CallbackInfo ci) {
-        myvillage$warp=((MeditationPart)(Object)other).myvillage$meditationWarp();
+    private void yuanxian$copy(ModelPart other,CallbackInfo ci) {
+        yuanxian$warp=((MeditationPart)(Object)other).yuanxian$meditationWarp();
     }
     @Inject(method="resetPose",at=@At("HEAD"))
-    private void myvillage$reset(CallbackInfo ci){myvillage$warp=null;}
+    private void yuanxian$reset(CallbackInfo ci){yuanxian$warp=null;}
     @Inject(method="compile",at=@At("HEAD"),cancellable=true)
-    private void myvillage$compile(PoseStack.Pose pose,VertexConsumer out,int light,int overlay,int color,CallbackInfo ci) {
-        if(myvillage$warp==null)return;
-        MeditationSurface.cubes(cubes,pose,out,myvillage$warp,light,overlay,color);ci.cancel();
+    private void yuanxian$compile(PoseStack.Pose pose,VertexConsumer out,int light,int overlay,int color,CallbackInfo ci) {
+        if(yuanxian$warp==null)return;
+        MeditationSurface.cubes(cubes,pose,out,yuanxian$warp,light,overlay,color);ci.cancel();
     }
 }

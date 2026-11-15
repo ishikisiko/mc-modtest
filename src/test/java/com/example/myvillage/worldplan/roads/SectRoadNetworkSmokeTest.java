@@ -22,7 +22,7 @@ class SectRoadNetworkSmokeTest {
     }
     private void assertNetwork(long seed)throws Exception{
         System.out.println("ROAD_NETWORK_BEGIN seed="+seed);
-        var raw=getClass().getResourceAsStream("/data/myvillage/worldplan/frozen_v11.json").readAllBytes();
+        var raw=getClass().getResourceAsStream("/data/yuanxian/worldplan/frozen_v11.json").readAllBytes();
         var world=new WorldPlan(seed,new WorldPlanRules(new String(raw,java.nio.charset.StandardCharsets.UTF_8)));var rules=RoadRules.load();
         RoadNetworkPlanner.Result network;
         try{network=RoadNetworkPlanner.plan(world,rules,List.of(),List.of());}

@@ -17,10 +17,10 @@ public final class FatesPage extends PanelPage {
         hovered=List.of();
         if(!c.fates().confirmed()){
             PanelAssets.draw(g,PanelAssets.navigation("fates"),x+(width-48)/2,y+10,48);
-            CultivationInkTheme.centered(g,c.font(),c.text("awakening.myvillage.visit_stele"),x,y+68,width,false,InkPanelTheme.MUTED);
+            CultivationInkTheme.centered(g,c.font(),c.text("awakening.yuanxian.visit_stele"),x,y+68,width,false,InkPanelTheme.MUTED);
             return 90;
         }
-        CultivationInkTheme.text(g,c.font(),c.text("fate.myvillage.fixed"),x+3,y+2,width-6,InkPanelTheme.MUTED);
+        CultivationInkTheme.text(g,c.font(),c.text("fate.yuanxian.fixed"),x+3,y+2,width-6,InkPanelTheme.MUTED);
         List<String> selected=new ArrayList<>(c.fates().selected());
         int columns=width>=330?3:1,gap=7,cardWidth=(width-(columns-1)*gap)/columns,cardHeight=126;
         for(int i=0;i<selected.size();i++){
@@ -46,12 +46,12 @@ public final class FatesPage extends PanelPage {
         if(!school.isEmpty()) {
             var def=com.example.myvillage.cultivation.data.ModCultivationRegistries.school(c.registries(),ResourceLocation.parse(school));
             Component name=def.map(d -> Component.translatable(d.translationKey())).orElse(Component.literal(school));
-            for(var row:c.font().split(Component.translatable("fate.myvillage.school_selected",name),width-6)) {
+            for(var row:c.font().split(Component.translatable("fate.yuanxian.school_selected",name),width-6)) {
                 g.drawString(c.font(),row,x+3,y+end,InkPanelTheme.TEXT,false);end+=11;
             }
             end+=3;
         }
-        if (c.fates().confirmed() && c.fates().selected().contains("myvillage:everlasting_embryo")) {
+        if (c.fates().confirmed() && c.fates().selected().contains("yuanxian:everlasting_embryo")) {
             var value = com.example.myvillage.client.cultivation.ClientCultivationState.snapshot().orElseThrow().everlasting();
             var rules = com.example.myvillage.cultivation.fate.EverlastingRules.get();
             var annual = c.profile() == null ? com.example.myvillage.cultivation.fate.EverlastingRules.Annual.ZERO

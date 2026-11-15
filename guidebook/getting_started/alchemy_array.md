@@ -3,30 +3,30 @@ navigation:
   title: 青铜丹炉阵
   parent: index.md
   position: 35
-  icon: myvillage:alchemy_array_controller
+  icon: yuanxian:alchemy_array_controller
 item_ids:
-  - myvillage:alchemy_array_controller
-  - myvillage:alchemy_array_casing
-  - myvillage:alchemy_array_input
-  - myvillage:alchemy_array_output
-  - myvillage:alchemy_array_fuel
-  - myvillage:alchemy_array_vent
+  - yuanxian:alchemy_array_controller
+  - yuanxian:alchemy_array_casing
+  - yuanxian:alchemy_array_input
+  - yuanxian:alchemy_array_output
+  - yuanxian:alchemy_array_fuel
+  - yuanxian:alchemy_array_vent
 ---
 
 # 青铜丹炉阵
 
-青铜丹炉阵是手动搭建的三乘三乘三炼丹设施。原来的 <ItemLink id="myvillage:alchemy_furnace" /> 仍可逐次手动炼丹；新炉阵适合由漏斗补料并连续开炉。它们共用已学丹方、药材、下品灵石和丹药品质规则。
+青铜丹炉阵是手动搭建的三乘三乘三炼丹设施。原来的 <ItemLink id="yuanxian:alchemy_furnace" /> 仍可逐次手动炼丹；新炉阵适合由漏斗补料并连续开炉。它们共用已学丹方、药材、下品灵石和丹药品质规则。
 
 新增的[筑基丹与补基丹](./foundation_pills.md)也在此炉炼制，使用凝元果与两味辅料。进药口可以补入第三味药材，已学丹方列表支持翻页。
 
 ## 先做齐组件
 
-需要二十一块 <ItemLink id="myvillage:alchemy_array_casing" />，以及各一块炉心、进药口、出丹口、灵石口、排气盖。炉壁用铜锭和砖块制作，炉心以原青铜丹炉为核心；两个物料口用漏斗，灵石口用下品灵石，排气盖用铁栏杆。均可通过生存合成取得。
+需要二十一块 <ItemLink id="yuanxian:alchemy_array_casing" />，以及各一块炉心、进药口、出丹口、灵石口、排气盖。炉壁用铜锭和砖块制作，炉心以原青铜丹炉为核心；两个物料口用漏斗，灵石口用下品灵石，排气盖用铁栏杆。均可通过生存合成取得。
 
 <Row>
-  <BlockImage id="myvillage:alchemy_array_controller" scale="1.2" />
-  <BlockImage id="myvillage:alchemy_array_input" scale="1.2" />
-  <BlockImage id="myvillage:alchemy_array_output" scale="1.2" />
+  <BlockImage id="yuanxian:alchemy_array_controller" scale="1.2" />
+  <BlockImage id="yuanxian:alchemy_array_input" scale="1.2" />
+  <BlockImage id="yuanxian:alchemy_array_output" scale="1.2" />
 </Row>
 
 炉心带有火窗与状态灯，进药口有青绿药叶标志，出丹口是浅色承丹嘴；背面菱形灵石印是灵石口，铜绿阶式炉盖放在顶部。

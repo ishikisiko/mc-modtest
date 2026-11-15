@@ -117,8 +117,8 @@ public final class AlchemyArrayCommands {
                     JsonObject probe = new JsonObject();
                     probe.addProperty("slot", slot);
                     probe.add("visible", stack(handler.getStackInSlot(slot)));
-                    for (String id : new String[]{"minecraft:cobblestone", "myvillage:spirit_leaf",
-                            "myvillage:dew_blossom", "myvillage:low_grade_spirit_stone"}) {
+                    for (String id : new String[]{"minecraft:cobblestone", "yuanxian:spirit_leaf",
+                            "yuanxian:dew_blossom", "yuanxian:low_grade_spirit_stone"}) {
                         ItemStack input = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(id)), 16);
                         ItemStack original = input.copy();
                         ItemStack remainder = handler.insertItem(slot, input, true);

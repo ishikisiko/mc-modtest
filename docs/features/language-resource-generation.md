@@ -17,7 +17,7 @@
 
 ```bash
 python3 tools/validate_language_assets.py
-python3 tools/validate_language_assets.py --jar build/libs/myvillage-0.122.1.jar
+python3 tools/validate_language_assets.py --jar build/libs/yuanxian-0.122.1.jar
 python3 -m unittest tools.tests.test_language_assets
 ```
 

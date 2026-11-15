@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ManorLocationTest {
     private static WorldPlanRules rules() {
-        return new WorldPlanRules(new String(CapitalGameBundle.readResource("myvillage:worldplan/frozen_v11.json",8*1024*1024),StandardCharsets.UTF_8));
+        return new WorldPlanRules(new String(CapitalGameBundle.readResource("yuanxian:worldplan/frozen_v11.json",8*1024*1024),StandardCharsets.UTF_8));
     }
     @Test void allSevenManorsUseTheActualRotatedAndVerticallyClippedConstructionBounds() {
         int total=0;

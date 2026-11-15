@@ -48,7 +48,7 @@ class LanguageAssetsTest(unittest.TestCase):
     def test_jar_check_keeps_exact_assertion_for_order_only_mismatch(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            names = ['assets/myvillage/lang/zh_cn.json', 'assets/myvillage/lang/en_us.json']
+            names = ['assets/yuanxian/lang/zh_cn.json', 'assets/yuanxian/lang/en_us.json']
             text = language_text({'a': '甲', 'b': '乙'}, {'a': '甲', 'b': '乙'})
             for name in names:
                 p = root/'src/main/resources'/name
@@ -71,7 +71,7 @@ class LanguageAssetsTest(unittest.TestCase):
             root = Path(tmp)
             texts = {}
             for locale in ['zh_cn', 'en_us']:
-                name = f'assets/myvillage/lang/{locale}.json'
+                name = f'assets/yuanxian/lang/{locale}.json'
                 text = language_text({'a': '甲', 'b': '乙'}, {'a': '甲', 'b': '乙'})
                 path = root/'src/main/resources'/name
                 path.parent.mkdir(parents=True, exist_ok=True)
@@ -80,7 +80,7 @@ class LanguageAssetsTest(unittest.TestCase):
             baseline = root/'snapshot.json'
             baseline.write_text(json.dumps({'version': 1, 'files': texts}))
             self.assertEqual([], validate(root, baseline=baseline))
-            path = root/'src/main/resources/assets/myvillage/lang/zh_cn.json'
+            path = root/'src/main/resources/assets/yuanxian/lang/zh_cn.json'
             path.write_text(language_text({'b': '乙', 'a': '甲'}, {'b': '乙', 'a': '甲'}))
             self.assertTrue(any('key_order' in e for e in validate(root, baseline=baseline)))
             path.write_text(language_text({'a': '甲', 'b': '乙'}, {'a': '变更', 'b': '乙'}))

@@ -17,7 +17,7 @@ public final class WorldAtlasCache {
     public static WorldAtlas read(WorldPlan plan) {
         if (owner!=plan) {
             clear(); owner=plan;
-            executor=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"myvillage-atlas-sampler");t.setDaemon(true);return t;});
+            executor=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"yuanxian-atlas-sampler");t.setDaemon(true);return t;});
             future=CompletableFuture.supplyAsync(()->WorldAtlasSampler.capture(plan),executor).exceptionally(error->{
                 LoggerFactory.getLogger(WorldAtlasCache.class).error("World atlas sampling failed",error);
                 return WorldAtlas.state(WorldAtlas.Status.FAILED);

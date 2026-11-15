@@ -29,7 +29,7 @@ tasks:
       - "tools/generate_compound_library.py"
       - "tools/preview_structure.py"
     forbidden_files:
-      - "src/main/resources/data/myvillage/structure/*.nbt"
+      - "src/main/resources/data/yuanxian/structure/*.nbt"
       - "gradle.properties"
       - "CHANGELOG.md"
     outputs:
@@ -56,7 +56,7 @@ tasks:
     depends_on: [patch-validators]
     generated_outputs_allowed: true
     gates:
-      - "python3 tools/preview_structure.py src/main/resources/data/myvillage/structure/chinese_mansion_001.nbt"
+      - "python3 tools/preview_structure.py src/main/resources/data/yuanxian/structure/chinese_mansion_001.nbt"
       - "python3 tools/write_visual_acceptance_report.py"
     outputs:
       - "reports/visual_acceptance_report.json"

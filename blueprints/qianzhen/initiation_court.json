@@ -1,5 +1,5 @@
 {
-  "id": "myvillage:qianzhen_initiation_court_v1",
+  "id": "yuanxian:qianzhen_initiation_court_v1",
   "author": "MyVillage · gpt-6.1-sol / high · 问灵小院独立作者",
   "mc_version": "1.21.1",
   "size": [
@@ -191,7 +191,7 @@
         4,
         22
       ],
-      "state": "myvillage:spirit_testing_stele",
+      "state": "yuanxian:spirit_testing_stele",
       "name": "测灵碑",
       "approach": "testing"
     },
@@ -201,7 +201,7 @@
         5,
         37
       ],
-      "state": "myvillage:technique_inheritance_stele",
+      "state": "yuanxian:technique_inheritance_stele",
       "name": "传功碑",
       "approach": "inheritance"
     }
@@ -252,7 +252,7 @@
     "前低后高：入口地坪y0、仪式主院与经册房地坪y2、传承堂地坪y3、观星台地坪y8；所有高度均有连续朝向正确的楼梯。",
     "西测灵亭为八角攒尖瓦壳，北传承堂为横向低四坡屋面，东北小阁收分错置，避免客栈高山墙或药铺长盒子轮廓。",
     "主入口五格宽且净高四格；院心主路五格宽，西侧覆顶廊净宽三格，北侧折廊衔接七格宽台阶与传承堂檐廊，登观星台楼梯净宽三格。",
-    "两块真实设施已核对ModBlocks.java注册与assets/myvillage/blockstates及models/block资源；仅几何摆位，未声称任务或NPC已接入。",
+    "两块真实设施已核对ModBlocks.java注册与assets/yuanxian/blockstates及models/block资源；仅几何摆位，未声称任务或NPC已接入。",
     "测灵碑前x7..11,z18..20与传功碑前x10..16,z33..35保留宽敞站位；书柜、器具与柱列避开主交互轴。",
     "观星台东半部、院心、前庭以及静坐廊架的条木间隙为刻意露天；无坍塌、破屋或未封闭居室。",
     "前庭小水盆底y0、四周岸y1封闭；无悬空水、流动水或默认生成水源。",
@@ -3003,7 +3003,7 @@
         4,
         22
       ],
-      "state": "myvillage:spirit_testing_stele"
+      "state": "yuanxian:spirit_testing_stele"
     },
     {
       "op": "set",
@@ -4069,7 +4069,7 @@
         5,
         37
       ],
-      "state": "myvillage:technique_inheritance_stele"
+      "state": "yuanxian:technique_inheritance_stele"
     },
     {
       "op": "set",

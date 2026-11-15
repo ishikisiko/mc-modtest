@@ -102,7 +102,7 @@ def material_tiles():
 
 def uvrect(tile):
  x,y,xx,yy=tile;return [(x/256,y/256),(xx/256,y/256),(xx/256,yy/256),(x/256,yy/256)]
-def face(points,part,mat='xg_steel',uv=None):return dict(points=[list(p) for p in points],part=part,material=mat,texture='myvillage:equipment/xuangang_objects',uv=uv)
+def face(points,part,mat='xg_steel',uv=None):return dict(points=[list(p) for p in points],part=part,material=mat,texture='yuanxian:equipment/xuangang_objects',uv=uv)
 
 def block(lo,hi,part,mat):
  out=[]
@@ -259,22 +259,22 @@ def compile_study_armor():
 
 
 def build(out):
- out.mkdir(parents=True,exist_ok=True);catalogue.validate(ARMOR,MATERIALS);model,charts=compile_study_armor();atlas=armor_texture(model,charts);pixels=np.array(atlas).tolist();atlaspath=out/'assets/myvillage/textures/equipment/xuangang_armor.png';atlaspath.parent.mkdir(parents=True,exist_ok=True);atlas.save(atlaspath)
- jwrite(out/'authored/equipment.json',ARMOR);jwrite(out/'authored/materials.json',MATERIALS);jwrite(out/'assets/myvillage/equipment/xuangang_armor.json',model)
+ out.mkdir(parents=True,exist_ok=True);catalogue.validate(ARMOR,MATERIALS);model,charts=compile_study_armor();atlas=armor_texture(model,charts);pixels=np.array(atlas).tolist();atlaspath=out/'assets/yuanxian/textures/equipment/xuangang_armor.png';atlaspath.parent.mkdir(parents=True,exist_ok=True);atlas.save(atlaspath)
+ jwrite(out/'authored/equipment.json',ARMOR);jwrite(out/'authored/materials.json',MATERIALS);jwrite(out/'assets/yuanxian/equipment/xuangang_armor.json',model)
  # Export the exact compiled armor meshes through the existing OBJ owner.
  allmeshes={};roundtrip=[]
  for item in ARMOR['items']:
-  id=item['id'].split(':')[1];faces=mesh.armor_mesh(model,item['id'],ROOT);files,itemmodel=mesh.obj_assets(faces,'myvillage:equipment/items/'+id,mesh.item_display(faces,armor=True,root=ROOT))
+  id=item['id'].split(':')[1];faces=mesh.armor_mesh(model,item['id'],ROOT);files,itemmodel=mesh.obj_assets(faces,'yuanxian:equipment/items/'+id,mesh.item_display(faces,armor=True,root=ROOT))
   for rel,data in files.items():p=out/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
-  jwrite(out/f'assets/myvillage/models/item/{id}.json',itemmodel)
-  readback=mesh.read_obj(files[f'assets/myvillage/models/equipment/items/{id}.obj'],files[f'assets/myvillage/models/equipment/items/{id}.mtl'])
+  jwrite(out/f'assets/yuanxian/models/item/{id}.json',itemmodel)
+  readback=mesh.read_obj(files[f'assets/yuanxian/models/equipment/items/{id}.obj'],files[f'assets/yuanxian/models/equipment/items/{id}.mtl'])
   assert np.allclose([f['points'] for f in faces],[f['points'] for f in readback],atol=1e-6);roundtrip.append(id);allmeshes[id]=faces
- texture,tiles=material_tiles();texture.save(out/'assets/myvillage/textures/equipment/xuangang_objects.png');objects=[]
+ texture,tiles=material_tiles();texture.save(out/'assets/yuanxian/textures/equipment/xuangang_objects.png');objects=[]
  for kind in ['ingot','hoe','pickaxe','axe']:
-  id='xuangang_'+kind;faces=map_uv(object_mesh(kind),tiles);files,itemmodel=mesh.obj_assets(faces,'myvillage:equipment/items/'+id,mesh.item_display(faces,root=ROOT));allmeshes[id]=faces
+  id='xuangang_'+kind;faces=map_uv(object_mesh(kind),tiles);files,itemmodel=mesh.obj_assets(faces,'yuanxian:equipment/items/'+id,mesh.item_display(faces,root=ROOT));allmeshes[id]=faces
   for rel,data in files.items():p=out/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
-  jwrite(out/f'assets/myvillage/models/item/{id}.json',itemmodel)
-  readback=mesh.read_obj(files[f'assets/myvillage/models/equipment/items/{id}.obj'],files[f'assets/myvillage/models/equipment/items/{id}.mtl']);assert np.allclose([f['points'] for f in faces],[f['points'] for f in readback],atol=1e-6);roundtrip.append(id)
+  jwrite(out/f'assets/yuanxian/models/item/{id}.json',itemmodel)
+  readback=mesh.read_obj(files[f'assets/yuanxian/models/equipment/items/{id}.obj'],files[f'assets/yuanxian/models/equipment/items/{id}.mtl']);assert np.allclose([f['points'] for f in faces],[f['points'] for f in readback],atol=1e-6);roundtrip.append(id)
   objects.append({'id':id,'name':'玄罡锭' if kind=='ingot' else TOOLS[kind]['name'],'vertices':web.triangles(quads_of(faces))})
  # Existing armor is loaded as an explicit comparison under the SAME camera and lighting.
  refspec=json.loads((ROOT/'equipment/xuantie_armor/equipment.json').read_text());refmats=json.loads((ROOT/'equipment/materials.json').read_text())['materials'];refmodel,refpixels=export.compile_armor(refspec,refmats)

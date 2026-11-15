@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 @JeiPlugin
 public final class ForgingJeiPlugin implements IModPlugin {
     @Override public ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", "forging");
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", "forging");
     }
     @Override public void registerCategories(IRecipeCategoryRegistration registration) {
         registration.addRecipeCategories(new ForgingJeiCategory(registration.getJeiHelpers().getGuiHelper()));

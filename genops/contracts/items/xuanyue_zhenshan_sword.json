@@ -1,5 +1,5 @@
 {
-  "item_id": "myvillage:xuanyue_zhenshan_sword",
+  "item_id": "yuanxian:xuanyue_zhenshan_sword",
   "kind": "functional_item",
   "display_name": {
     "en_us": "Xuanyue Zhenshan Sword",
@@ -8,8 +8,8 @@
   "owner_facing_goal": "Turn the Google Drive mc/pic/玄岳镇山剑.png reference into an independently registered, visually distinct MyVillage sword with ordinary vanilla diamond-sword behavior.",
   "creative_tab": {
     "visibility": "visible",
-    "tab_id": "myvillage:main",
-    "ordering": "Immediately after myvillage:qingfeng_sword and before myvillage:chilian_lihuo_sword."
+    "tab_id": "yuanxian:main",
+    "ordering": "Immediately after yuanxian:qingfeng_sword and before yuanxian:chilian_lihuo_sword."
   },
   "java_registration": {
     "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
@@ -17,10 +17,10 @@
     "properties": "SwordItem(Tiers.DIAMOND, properties.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)))"
   },
   "client_assets": {
-    "lang_key": "item.myvillage.xuanyue_zhenshan_sword",
-    "model": "src/main/resources/assets/myvillage/models/item/xuanyue_zhenshan_sword.json",
+    "lang_key": "item.yuanxian.xuanyue_zhenshan_sword",
+    "model": "src/main/resources/assets/yuanxian/models/item/xuanyue_zhenshan_sword.json",
     "textures": [
-      "src/main/resources/assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+      "src/main/resources/assets/yuanxian/textures/item/xuanyue_zhenshan_sword.png"
     ],
     "visual_verdict": "pending"
   },
@@ -43,7 +43,7 @@
     ],
     "tests": [
       "Registration and creative-tab ordering match this contract",
-      "The item model uses minecraft:item/handheld with layer0 myvillage:item/xuanyue_zhenshan_sword",
+      "The item model uses minecraft:item/handheld with layer0 yuanxian:item/xuanyue_zhenshan_sword",
       "The output texture is a 64x64 RGBA PNG whose alpha values are only 0 or 255, and both en_us and zh_cn contain the declared lang key",
       "Diamond-tier durability, attack damage, attack speed, enchantment value, repair ingredient, and vanilla swords-tag membership match the mapped vanilla diamond sword",
       "The item is absent from BasicSwordStyle supported weapon ids and all Qingfeng-only PAL, input interception, payload, combat-session, and first-person renderer guards"
@@ -51,7 +51,7 @@
   },
   "acceptance": {
     "commands": [
-      "/give @s myvillage:xuanyue_zhenshan_sword",
+      "/give @s yuanxian:xuanyue_zhenshan_sword",
       "In a real client, inspect inventory, first-person, and third-person appearance and exercise ordinary melee, durability, enchantment, repair, and block interaction; leave unobserved surfaces not_verified"
     ],
     "gates": [
@@ -62,10 +62,10 @@
       "./gradlew build"
     ],
     "jar_checks": [
-      "assets/myvillage/models/item/xuanyue_zhenshan_sword.json",
-      "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png is a 64x64 RGBA PNG with binary alpha",
-      "item.myvillage.xuanyue_zhenshan_sword is present in assets/myvillage/lang/en_us.json and assets/myvillage/lang/zh_cn.json",
-      "data/minecraft/tags/item/swords.json contains myvillage:xuanyue_zhenshan_sword"
+      "assets/yuanxian/models/item/xuanyue_zhenshan_sword.json",
+      "assets/yuanxian/textures/item/xuanyue_zhenshan_sword.png is a 64x64 RGBA PNG with binary alpha",
+      "item.yuanxian.xuanyue_zhenshan_sword is present in assets/yuanxian/lang/en_us.json and assets/yuanxian/lang/zh_cn.json",
+      "data/minecraft/tags/item/swords.json contains yuanxian:xuanyue_zhenshan_sword"
     ],
     "human_verdict": "pending"
   },
@@ -79,6 +79,6 @@
     "Skill, special ability, right-click use, projectile, area attack, or cultivation resource cost",
     "PAL-specific animation, Qingfeng first-person transform, five-move cultivation combo support, combat session, or custom network payload",
     "Client-authored hit, damage, timing, target, position, velocity, durability, or cooldown state",
-    "Rideable flying-sword behavior or changes to myvillage:qingfeng_sword"
+    "Rideable flying-sword behavior or changes to yuanxian:qingfeng_sword"
   ]
 }

@@ -30,8 +30,8 @@ if str(ROOT) not in sys.path:
 from tools.gen_alchemy_assets import Canvas
 from tools.ingot_shape import FLAT_FRONT, FLAT_SIDE, FLAT_TOP
 
-TEXTURE = ROOT / "src/main/resources/assets/myvillage/textures/item/blood_spirit_ingot.png"
-MODEL = ROOT / "src/main/resources/assets/myvillage/models/item/blood_spirit_ingot.json"
+TEXTURE = ROOT / "src/main/resources/assets/yuanxian/textures/item/blood_spirit_ingot.png"
+MODEL = ROOT / "src/main/resources/assets/yuanxian/models/item/blood_spirit_ingot.json"
 DEFAULT_PREVIEW_DIR = ROOT / "out/preview/blood_spirit_ingot"
 SIZE = 32
 
@@ -147,7 +147,7 @@ def icon() -> list[list[tuple[int, int, int, int]]]:
 
 def model() -> bytes:
     return (json.dumps({"parent": "minecraft:item/generated",
-                        "textures": {"layer0": "myvillage:item/blood_spirit_ingot"}},
+                        "textures": {"layer0": "yuanxian:item/blood_spirit_ingot"}},
                        ensure_ascii=False, indent=2) + "\n").encode()
 
 

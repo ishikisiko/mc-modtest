@@ -39,8 +39,8 @@ class DefaultManorRuntimeTests(unittest.TestCase):
         self.assertEqual('capital_game_bundle',b['format']);self.assertEqual('province_capitals/beiyuan_manor',b['layout_family_id'])
         self.assertEqual([76,20,129],b['blueprint']['manor']['size'])
         self.assertEqual(23927,b['blueprint']['manor']['native_architectural_cells'])
-        self.assertGreater(sum(s.startswith('myvillage:') for s in self.states.values()),20000)
-        self.assertTrue(all(t['template'].startswith('myvillage:province_capitals/v4/capital_beiyuan/') for t in b['tiles']))
+        self.assertGreater(sum(s.startswith('yuanxian:') for s in self.states.values()),20000)
+        self.assertTrue(all(t['template'].startswith('yuanxian:province_capitals/v4/capital_beiyuan/') for t in b['tiles']))
         self.assertEqual(55,b['coverage']['houses']);self.assertEqual(8,b['coverage']['retained_services']);self.assertEqual(1,b['coverage']['manors'])
 
     def test_actual_service_fixtures_follow_the_exported_life_positions(self):

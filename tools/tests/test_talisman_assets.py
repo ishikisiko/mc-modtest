@@ -23,7 +23,7 @@ class TalismanAssetsTest(unittest.TestCase):
             self.assertIn('"'+item+'"',content)
             self.assertTrue((ROOT/gen.ASSETS/f'models/item/{item}.json').is_file())
             if item!='talisman_desk': self.assertTrue((ROOT/gen.ASSETS/f'textures/item/{item}.png').is_file())
-            self.assertEqual(name,lang[('block' if item=='talisman_desk' else 'item')+'.myvillage.'+item])
+            self.assertEqual(name,lang[('block' if item=='talisman_desk' else 'item')+'.yuanxian.'+item])
         rules=json.loads((ROOT/gen.DATA/'talisman/rules.json').read_text())
         self.assertNotIn('names',rules)
         self.assertEqual(4,len(rules['lightning']['damage']))

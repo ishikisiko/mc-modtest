@@ -34,7 +34,7 @@ public final class ForgePatternItem extends Item {
         if (player instanceof ServerPlayer server) {
             boolean learned = ForgingKnowledge.learn(server, recipeId);
             if (learned && !player.getAbilities().instabuild) stack.shrink(1);
-            player.displayClientMessage(Component.translatable("message.myvillage.forging." +
+            player.displayClientMessage(Component.translatable("message.yuanxian.forging." +
                     (learned ? "formula_learned" : "formula_known"), getDescription()), true);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
@@ -44,7 +44,7 @@ public final class ForgePatternItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         super.appendHoverText(stack, context, lines, flag);
         ForgingRules.get().recipe(recipeId).ifPresent(recipe -> {
-            lines.add(Component.translatable("tooltip.myvillage.forging.pattern_learn").withStyle(ChatFormatting.GRAY));
+            lines.add(Component.translatable("tooltip.yuanxian.forging.pattern_learn").withStyle(ChatFormatting.GRAY));
             lines.addAll(costHints(recipeId));
         });
     }
@@ -53,7 +53,7 @@ public final class ForgePatternItem extends Item {
     public static List<Component> costHints(String recipeId) {
         List<Component> lines = new ArrayList<>();
         ForgingRules.get().recipe(recipeId).ifPresent(recipe -> recipe.costs().keySet().forEach(ingredient ->
-                lines.add(Component.translatable("tooltip.myvillage.alchemy.ingredient",
+                lines.add(Component.translatable("tooltip.yuanxian.alchemy.ingredient",
                         com.example.myvillage.forging.ForgingIngredients.description(ingredient))
                         .withStyle(ChatFormatting.DARK_GREEN))));
         return List.copyOf(lines);

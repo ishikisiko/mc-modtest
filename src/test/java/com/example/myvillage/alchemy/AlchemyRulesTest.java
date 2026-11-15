@@ -45,7 +45,7 @@ class AlchemyRulesTest {
         rejects(j -> j.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("duration_ticks", 32768));
         rejects(j -> j.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("output_count", 17));
         rejects(j -> j.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("fuel_count", -1));
-        rejects(j -> j.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("formula", "myvillage:formula_yangyuan"));
+        rejects(j -> j.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("formula", "yuanxian:formula_yangyuan"));
         rejects(j -> j.getAsJsonArray("recipes").get(0).getAsJsonObject().getAsJsonArray("ingredients").set(0, new JsonPrimitive("minecraft:dirt")));
         rejects(j -> j.getAsJsonObject("effects").getAsJsonObject("huiling").addProperty("power_fraction", 1.1));
         rejects(j -> j.getAsJsonObject("effects").getAsJsonObject("ningshen").addProperty("stability_multiplier", 1));
@@ -63,7 +63,7 @@ class AlchemyRulesTest {
 
     @Test void rejectsUnknownTiersDifficultyBoundsAndUnsafeMultipliers() throws IOException {
         rejects(j->j.addProperty("version",2));
-        rejects(j->j.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("quality_tier","myvillage:missing"));
+        rejects(j->j.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("quality_tier","yuanxian:missing"));
         for(JsonElement invalid:new JsonElement[]{new JsonPrimitive(-1),new JsonPrimitive(4),new JsonPrimitive(1.5),new JsonPrimitive("1"),new JsonPrimitive(true),JsonNull.INSTANCE})
             rejects(j->j.getAsJsonArray("recipes").get(0).getAsJsonObject().add("difficulty",invalid));
         rejects(j->j.getAsJsonObject("quality").add("weights_by_cap",new JsonArray()));

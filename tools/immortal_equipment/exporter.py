@@ -169,7 +169,7 @@ def png(material):
 
 
 def texture_id(design, material):
-    return f"myvillage:immortal_equipment/{design}/{material}"
+    return f"yuanxian:immortal_equipment/{design}/{material}"
 
 
 def item_assets(spec, meshes, suffix, root):
@@ -178,7 +178,7 @@ def item_assets(spec, meshes, suffix, root):
     item_id = spec["id"] + "_" + suffix
     base = f"immortal_equipment/{item_id}"
     materials = list(dict.fromkeys(m["material"] for m in meshes))
-    lines = ["# 原作者三角面；生成文件，禁止手改。", f"mtllib myvillage:models/{base}.mtl"]
+    lines = ["# 原作者三角面；生成文件，禁止手改。", f"mtllib yuanxian:models/{base}.mtl"]
     count = 0
     for mesh in meshes:
         lines.extend(["o " + mesh["id"], "usemtl " + mesh["material"]])
@@ -210,7 +210,7 @@ def item_assets(spec, meshes, suffix, root):
         # 使用原作者锭的真实投影点与共形取景，不以包围框的两点代替轮廓。
         display["gui"] = item_display([{"points": [[c*16 for c in v] for v in points]}],
             armor=True, root=root, gui_rotation=spec["ingot"]["gui_rotation"])["gui"]
-    model = {"loader": "neoforge:obj", "model": f"myvillage:models/{base}.obj",
+    model = {"loader": "neoforge:obj", "model": f"yuanxian:models/{base}.obj",
              "automatic_culling": False, "shade_quads": False, "flip_v": False,
              "emissive_ambient": False, "gui_light": "side",
              "render_type": "minecraft:translucent" if any(spec["materials"][k].get("opacity", 1) < 1 for k in materials) else "minecraft:cutout",
@@ -222,7 +222,7 @@ def item_assets(spec, meshes, suffix, root):
         from tools.equipment.armor_icons import icon
         slot = next(key for key, value in SLOTS.items() if value == suffix)
         files[f"textures/item/{item_id}.png"] = icon(spec['id'], slot, spec['materials'], root)
-        model = gui_icon_model(model, f"myvillage:item/{item_id}")
+        model = gui_icon_model(model, f"yuanxian:item/{item_id}")
     files[f"models/item/{item_id}.json"] = json_bytes(model)
     return files
 
@@ -264,7 +264,7 @@ def outputs(root=ROOT):
         raise RuntimeError("原作者网格提取失败：\n" + run.stderr)
     extracted = {d["id"]: d for d in json.loads(run.stdout)}
     resources = root / "src/main/resources"
-    assets = resources / "assets/myvillage"
+    assets = resources / "assets/yuanxian"
     out, sets, names, atlas_sources = {}, [], {}, []
     for spec in specs:
         design = spec["id"]
@@ -278,26 +278,26 @@ def outputs(root=ROOT):
             path = f"textures/immortal_equipment/{design}/{key}.png"
             out[assets / path] = png(material)
             out[assets / (path + ".mcmeta")] = json_bytes({"texture": {"blur": False, "clamp": True}})
-            materials[key] = {"texture": "myvillage:" + path, "opacity": material.get("opacity", 1)}
+            materials[key] = {"texture": "yuanxian:" + path, "opacity": material.get("opacity", 1)}
             atlas_sources.append({"type": "minecraft:single", "resource": texture_id(design, key), "sprite": texture_id(design, key)})
         model = {"version": 1, "set_id": design, "materials": materials,
                  "profiles": compile_profiles(armor, rig_set, rig, bones),
                  "effects": source["effects"], "effect_bindings": rig_set["effect_bindings"]}
         out[assets / f"immortal_equipment/{design}.json"] = json_bytes(model, compact=True)
         entry = {"id": design, "name": spec["name"], "level": spec["level"],
-                 "model": f"myvillage:immortal_equipment/{design}.json",
+                 "model": f"yuanxian:immortal_equipment/{design}.json",
                  "texture": next(iter(materials.values()))["texture"],
-                 "ingot": {"id": f"myvillage:{design}_ingot", "name": spec["ingot"]["name"]}, "armor": []}
+                 "ingot": {"id": f"yuanxian:{design}_ingot", "name": spec["ingot"]["name"]}, "armor": []}
         for slot, suffix in SLOTS.items():
             role = "boots" if slot == "feet" else slot
-            item = {"id": f"myvillage:{design}_{suffix}", "slot": slot, "name": spec["parts"][role]["name"]}
+            item = {"id": f"yuanxian:{design}_{suffix}", "slot": slot, "name": spec["parts"][role]["name"]}
             entry["armor"].append(item)
             out.update({assets / path: data for path, data in item_assets(spec, [m for m in armor if m["slot"] == slot], suffix, root).items()})
-            names["item.myvillage." + design + "_" + suffix] = item["name"]
+            names["item.yuanxian." + design + "_" + suffix] = item["name"]
         out.update({assets / path: data for path, data in item_assets(spec, ingot, "ingot", root).items()})
-        names["item.myvillage." + design + "_ingot"] = spec["ingot"]["name"]
+        names["item.yuanxian." + design + "_ingot"] = spec["ingot"]["name"]
         sets.append(entry)
-    out[resources / "data/myvillage/immortal_equipment/catalogue.json"] = json_bytes({"version": 1, "tiers": balance["tiers"], "sets": sets})
+    out[resources / "data/yuanxian/immortal_equipment/catalogue.json"] = json_bytes({"version": 1, "tiers": balance["tiers"], "sets": sets})
     # 此清单供 blocks 图集原拥有者合并，绝不直接写共享 blocks.json。
     out[assets / "immortal_equipment/atlas_sources.json"] = json_bytes({"sources": atlas_sources})
     for slot, tag in (("head", "head_armor"), ("chest", "chest_armor"), ("legs", "leg_armor"), ("feet", "foot_armor")):
@@ -338,7 +338,7 @@ def outputs(root=ROOT):
 def write_or_check(root=ROOT, *, check=False):
     root = Path(root)
     rendered = outputs(root)
-    catalogue = root / "src/main/resources/data/myvillage/immortal_equipment/catalogue.json"
+    catalogue = root / "src/main/resources/data/yuanxian/immortal_equipment/catalogue.json"
     if catalogue.exists():
         old_ids = {a["id"] for s in read(catalogue)["sets"] for a in [*s["armor"], s["ingot"]]}
         new_ids = {a["id"] for s in json.loads(rendered[catalogue])["sets"] for a in [*s["armor"], s["ingot"]]}

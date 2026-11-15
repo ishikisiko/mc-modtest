@@ -13,7 +13,7 @@ import net.neoforged.neoforge.common.damagesource.DamageContainer;
 
 /** Reads the defender assignment, never changes incoming damage or equipment. */
 public final class RealmArmorRuntime {
-    private static final String REALM_TAG = "myvillage:stats_realm";
+    private static final String REALM_TAG = "yuanxian:stats_realm";
     // DamageContainer uses object identity. Values contain no entity/container references.
     private static final Map<DamageContainer, ArmorTrace> ARMOR = new WeakHashMap<>();
 
@@ -73,12 +73,12 @@ public final class RealmArmorRuntime {
         if (!(defender instanceof LivingDamageContainerAccess access)) {
             return null; // A plain unit-test JVM has no FML transformation.
         }
-        var stack = access.myvillage$damageContainers();
+        var stack = access.yuanxian$damageContainers();
         return stack.empty() ? null : stack.peek();
     }
 
     public static int containerDepth(LivingEntity defender) {
-        return defender instanceof LivingDamageContainerAccess access ? access.myvillage$damageContainers().size() : 0;
+        return defender instanceof LivingDamageContainerAccess access ? access.yuanxian$damageContainers().size() : 0;
     }
 
     static void record(DamageContainer container, ArmorTrace trace) {

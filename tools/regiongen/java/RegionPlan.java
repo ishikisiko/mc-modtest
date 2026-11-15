@@ -6,7 +6,7 @@ import java.util.*;
 
 /** Pure bounded offline prototype. No Minecraft dependency or world reads. */
 public final class RegionPlan {
-    public static final String ALGORITHM = "myvillage:river_region_sample_v1";
+    public static final String ALGORITHM = "yuanxian:river_region_sample_v1";
     public record Point(int x, int y, int z) {}
     public record Cell(int x, int z, int height, String facing, boolean bridge) {}
     public record Route(String id, List<Point> points, int width) {}

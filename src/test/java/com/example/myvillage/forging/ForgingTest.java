@@ -29,12 +29,12 @@ class ForgingTest {
     private String source() throws Exception{
         try(var input=ForgingRules.class.getResourceAsStream(ForgingRules.RESOURCE)){return new String(input.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);}
     }
-    private ForgingRules vanillaRules() throws Exception{return ForgingRules.parse(new StringReader(source().replace("myvillage:qingfeng_sword","minecraft:diamond_sword")));}
+    private ForgingRules vanillaRules() throws Exception{return ForgingRules.parse(new StringReader(source().replace("yuanxian:qingfeng_sword","minecraft:diamond_sword")));}
     private DataComponentType<ForgeMark> type(){return DataComponentType.<ForgeMark>builder().persistent(ForgeMark.CODEC).networkSynchronized(ForgeMark.STREAM_CODEC).build();}
     @Test void everyForgingRecipeUsesAnExplicitConfiguredQualityTier(){
         var rules=ForgingRules.get();var quality=com.example.myvillage.cultivation.crafting.CraftingQualityRules.get();
         for(var recipe:rules.recipes()){
-            assertEquals("myvillage:qi_refining",recipe.qualityTier());assertNotNull(quality.tier(recipe.qualityTier()));
+            assertEquals("yuanxian:qi_refining",recipe.qualityTier());assertNotNull(quality.tier(recipe.qualityTier()));
             assertEquals(0,quality.roll(0,recipe.qualityTier(),0,()->-1).quality());
             assertEquals(4,quality.roll(60,recipe.qualityTier(),0,()->3).quality());
         }
@@ -44,7 +44,7 @@ class ForgingTest {
                 source().replace("\"minecraft:diamond\": 2","\"minecraft:diamond\": 0"),
                 source().replace("\"minecraft:diamond\": 2","\"minecraft:diamond\": 1.5"),source()+" {}"))
             assertThrows(IllegalArgumentException.class,()->ForgingRules.parse(new StringReader(malformed)));
-        var json=JsonParser.parseString(source()).getAsJsonObject();json.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("quality_tier","myvillage:missing");
+        var json=JsonParser.parseString(source()).getAsJsonObject();json.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("quality_tier","yuanxian:missing");
         assertThrows(IllegalArgumentException.class,()->ForgingRules.parse(new StringReader(json.toString())));
         assertThrows(IllegalArgumentException.class,()->ForgingRules.get().costs(ForgingRules.get().recipe("lingxiao_spear").orElseThrow(),"channeling"));
     }

@@ -21,7 +21,7 @@ class FateAbilityCooldownsTest {
         assertEquals(0,restored.remaining(PLAYER,first,260));
     }
     private static final UUID PLAYER = UUID.fromString("3b3f335d-11b4-4cba-88fe-a7b1657a6ed4");
-    private static final ResourceLocation ABILITY = ResourceLocation.parse("myvillage:wood_root");
+    private static final ResourceLocation ABILITY = ResourceLocation.parse("yuanxian:wood_root");
 
     @Test void oldWorldWithoutAbilityDataStartsEmpty() {
         var data = FateAbilityCooldowns.load(new CompoundTag(), null);
@@ -39,7 +39,7 @@ class FateAbilityCooldownsTest {
         assertEquals(1, restored.remaining(PLAYER, ABILITY, 1399));
         assertEquals(0, restored.remaining(PLAYER, ABILITY, 1400));
         assertEquals(0, restored.remaining(UUID.randomUUID(), ABILITY, 1000));
-        assertEquals(0, restored.remaining(PLAYER, ResourceLocation.parse("myvillage:other"), 1000));
+        assertEquals(0, restored.remaining(PLAYER, ResourceLocation.parse("yuanxian:other"), 1000));
     }
 
     @Test void repeatedWritesCannotRefreshAndUnknownValidIdsRoundTrip() {
@@ -72,8 +72,8 @@ class FateAbilityCooldownsTest {
         var abilities = new CompoundTag();
         abilities.putLong(ABILITY.toString(), 500);
         abilities.putLong("bad ability", 500);
-        abilities.putLong("myvillage:negative", -1);
-        abilities.putString("myvillage:string", "500");
+        abilities.putLong("yuanxian:negative", -1);
+        abilities.putString("yuanxian:string", "500");
         var players = new CompoundTag();
         players.put(PLAYER.toString(), abilities);
         players.put("not-a-uuid", abilities.copy());

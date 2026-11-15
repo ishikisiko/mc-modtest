@@ -113,7 +113,7 @@ public final class ExplorationEvidence {
         int modCount=0,vanillaCount=0;
         for(int i=0;i<chest.getContainerSize();i++){
             var stack=chest.getItem(i);if(stack.isEmpty())continue;
-            if(BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("myvillage"))modCount++;else vanillaCount++;
+            if(BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("yuanxian"))modCount++;else vanillaCount++;
         }
         check("native_container_keeps_vanilla_and_adds_cultivation",modCount>0&&vanillaCount>0,chestContents);
         chest.unpackLootTable(null);check("native_container_no_second_reward",chestContents.equals(chest.saveWithoutMetadata(level.registryAccess()).toString()),chestContents);
@@ -123,7 +123,7 @@ public final class ExplorationEvidence {
             var lootTable=server.reloadableRegistries().getLootTable(key);
             check("loot_table_exists_"+table,lootTable!=LootTable.EMPTY,table);
             var loot=lootTable.getRandomItems(new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN,Vec3.atCenterOf(chestPos)).create(LootContextParamSets.CHEST),3294L);
-            check("loot_appended_"+table,loot.stream().anyMatch(s->BuiltInRegistries.ITEM.getKey(s.getItem()).getNamespace().equals("myvillage")),loot);
+            check("loot_appended_"+table,loot.stream().anyMatch(s->BuiltInRegistries.ITEM.getKey(s.getItem()).getNamespace().equals("yuanxian")),loot);
             for(var stack:loot)if(stack.getItem() instanceof com.example.myvillage.item.TechniqueManualItem)
                 check("loot_manual_readable",com.example.myvillage.item.TechniqueManualItem.technique(stack,level.registryAccess()).isPresent(),stack);
         }

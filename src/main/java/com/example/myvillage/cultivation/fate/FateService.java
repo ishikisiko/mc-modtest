@@ -69,7 +69,7 @@ public final class FateService {
                     FateRules.bundled(), random(player, current));
             if (replacement != current) CultivationService.replaceFates(player, replacement, true);
         } catch (IllegalArgumentException | ArithmeticException e) {
-            player.displayClientMessage(Component.translatable("fate.myvillage.error.unavailable"), false);
+            player.displayClientMessage(Component.translatable("fate.yuanxian.error.unavailable"), false);
         }
     }
 
@@ -121,7 +121,7 @@ public final class FateService {
             error = Set.of("school", "confirmed", "stale", "count", "budget", "exclusive", "intent", "locked", "unavailable")
                     .contains(String.valueOf(e.getMessage())) ? e.getMessage() : "unavailable";
         }
-        player.displayClientMessage(Component.translatable("fate.myvillage.error." + error), false);
+        player.displayClientMessage(Component.translatable("fate.yuanxian.error." + error), false);
         CultivationService.syncToClient(player);
         return false;
     }

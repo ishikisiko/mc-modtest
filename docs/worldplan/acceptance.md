@@ -9,7 +9,7 @@
 
 V3 延续 `clear_spawn_canopy`，保护出生安全平台上方整列，防止邻树树冠跨入；首次建世界时将 `spawnRadius` 限制在平台半径以内。仅影响新世界创建和生成，不清理玩家建造，也不覆盖旧世界的游戏规则。
 
-本功能是可选世界预设 `myvillage:cultivation`。它不是把一张图片贴到原版地图上，也不是玩家接近后由命令整城重建。世界种子和冻结规则先生成可查询的宏观规划，实际新区块再读取同一份规划。
+本功能是可选世界预设 `yuanxian:cultivation`。它不是把一张图片贴到原版地图上，也不是玩家接近后由命令整城重建。世界种子和冻结规则先生成可查询的宏观规划，实际新区块再读取同一份规划。
 
 ## 1. 如何创建并查看
 
@@ -20,7 +20,7 @@ V3 延续 `clear_spawn_canopy`，保护出生安全平台上方整列，防止�
 专用服务器必须在首次创建该世界前设置：
 
 ```properties
-level-type=myvillage\:cultivation
+level-type=yuanxian\:cultivation
 level-seed=20261017
 generate-structures=true
 ```
@@ -28,7 +28,7 @@ generate-structures=true
 新世界启动后自动生成：
 
 ```text
-<世界目录>/data/myvillage/worldplan/
+<世界目录>/data/yuanxian/worldplan/
     worldplan.json     完整种子、冻结规则、州域图、边界、城市与出生点
     atlas.html         可直接用浏览器打开的交互蓝图，无外部 CDN
     atlas.svg          可缩放的宏观地图
@@ -97,7 +97,7 @@ python3 tools/worldplan/preview.py --seed 20261017 --gson /path/to/gson-2.10.1.j
 调用链：
 
 ```text
-新世界选择 myvillage:cultivation
+新世界选择 yuanxian:cultivation
   → PlannedChunkGenerator.createState(seed)
   → WorldPlan(seed, frozen_rules)
   → 区域形状 / 边界 / 地形与灵气场 / 城市保留区

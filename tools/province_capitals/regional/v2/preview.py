@@ -26,7 +26,7 @@ class SceneBuilder:
         self.meshes = []
         self.labels = []
         self.palette = {**COLORS, **model.city.get("palette", {})}
-        self.town_materials={'myvillage:'+m['id']:m for m in town_materials()}
+        self.town_materials={'yuanxian:'+m['id']:m for m in town_materials()}
         self.palette.update({key:'#'+m['color'] for key,m in self.town_materials.items()})
         self.terrain_surface()
 

@@ -5,7 +5,7 @@ captured in the context of the base person with that variant substituted: R = ro
 where either is set. `replay.py` composes from these maps and must reproduce `render.render`
 pixel for pixel (tools/tests/test_portraitgen_export.py).
 
-  /usr/bin/python3 -m tools.portraitgen.export [--out src/main/resources/assets/myvillage/portrait]
+  /usr/bin/python3 -m tools.portraitgen.export [--out src/main/resources/assets/yuanxian/portrait]
 """
 from __future__ import annotations
 
@@ -146,7 +146,7 @@ def goldens(out_dir: str, cases: list) -> None:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default="src/main/resources/assets/myvillage/portrait")
+    ap.add_argument("--out", default="src/main/resources/assets/yuanxian/portrait")
     ap.add_argument("--goldens", default="src/test/resources/portrait_goldens")
     a = ap.parse_args(argv)
     m = export(a.out)

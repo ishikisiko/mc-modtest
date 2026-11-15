@@ -17,7 +17,7 @@ import java.util.zip.GZIPInputStream;
 final class SceneGeometryArchive {
     private static final Map<String,String> LEGACY=manifest();
     private static Map<String,String> manifest() {
-        String path="/data/myvillage/story/entrance_legacy/provenance.json";
+        String path="/data/yuanxian/story/entrance_legacy/provenance.json";
         try(var in=SceneGeometryArchive.class.getResourceAsStream(path)) {
             if(in==null)throw new IllegalStateException("缺少阡镇旧布局清单");
             byte[] raw=in.readNBytes(16_385);if(raw.length>16_384)throw new IllegalStateException("阡镇旧布局清单超限");
@@ -46,7 +46,7 @@ final class SceneGeometryArchive {
     static SceneLayout legacy(String version) {
         if(!LEGACY.containsKey(version))throw new IllegalStateException("未知阡镇旧布局版本："+version+"；请保留存档并恢复匹配 jar，未重放模板。");
         return ARCHIVE.computeIfAbsent(version,key->{
-            String name="/data/myvillage/story/entrance_legacy/"+key+".json.gz";
+            String name="/data/yuanxian/story/entrance_legacy/"+key+".json.gz";
             try(var resource=SceneGeometryArchive.class.getResourceAsStream(name)) {
                 if(resource==null)throw new IllegalStateException("缺少阡镇旧布局快照："+key);
                 try(var gzip=new GZIPInputStream(resource)) {

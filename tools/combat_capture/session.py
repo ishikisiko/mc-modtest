@@ -120,7 +120,7 @@ def server_properties(server_port: int, rcon_port: int, password: str, *, natura
     if natural_terrain:
         properties.update({"level-type": "minecraft\\:normal", "generator-settings": "{}", "generate-structures": "true"})
     if world_preset:
-        if world_preset not in ("minecraft:flat","minecraft:normal","myvillage:cultivation"):
+        if world_preset not in ("minecraft:flat","minecraft:normal","yuanxian:cultivation"):
             raise ValueError("Capture world_preset is not supported")
         properties.update({"level-type":world_preset.replace(":",r"\:"),"generator-settings":"{}","generate-structures":"true"})
     return properties
@@ -152,7 +152,7 @@ def gradle_argv(task: str, jvmargs: str, extra=(), *, prebuilt_resources=False) 
 def require_prebuilt_resources(repo: Path) -> None:
     """局部采集必须先完成相同固定源的构建；缺少产物时不退回全量资源生成。"""
     required = ('build/resources/main/META-INF/neoforge.mods.toml',
-                'build/resources/main/data/myvillage/story/qianzhen_scene.json',
+                'build/resources/main/data/yuanxian/story/qianzhen_scene.json',
                 'build/classes/java/main/com/example/myvillage/MyVillageMod.class')
     missing = [name for name in required if not (repo / name).is_file()]
     if missing:

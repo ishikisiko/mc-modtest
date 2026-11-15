@@ -24,8 +24,8 @@ from buildgen.modset import load_modset
 from buildgen.ops import roof_handler
 from buildgen.style import load_style
 
-DATA = ROOT / 'src/main/resources/data/myvillage'
-ASSETS = ROOT / 'src/main/resources/assets/myvillage'
+DATA = ROOT / 'src/main/resources/data/yuanxian'
+ASSETS = ROOT / 'src/main/resources/assets/yuanxian'
 RULES = DATA / 'ruins/danxia.json'
 
 
@@ -126,7 +126,7 @@ def blueprint():
         x,y,z = plant['pos']; put(x,y-1,z,'minecraft:coarse_dirt'); put(x,y,z,'minecraft:dead_bush')
     # A few living perimeter herbs are free to collect without spending the array.
     for x,z,crop in [(7,15,'spirit_leaf'),(12,15,'dew_blossom')]:
-        put(x,sy,z,'myvillage:spirit_soil'); put(x,sy+1,z,f'myvillage:{crop}_crop[age=2]')
+        put(x,sy,z,'yuanxian:spirit_soil'); put(x,sy+1,z,f'yuanxian:{crop}_crop[age=2]')
     # Underground chamber shell and vault. Floor is y=2, headroom y=3..6.
     box((17,1,25),(33,7,39),p['stone'])
     box((18,3,26),(32,6,38),'minecraft:air')
@@ -151,20 +151,20 @@ def blueprint():
         put(x,y,z,'minecraft:wall_torch[facing=east]')
         put(x-1,y,z,p['stone'])
     # Ritual source, archive storage, and a working furnace above the old chamber.
-    cx,cy,cz=r['core']; put(cx,cy,cz,'myvillage:ruin_core[facing=north,lit=true]')
-    bes[(cx,cy,cz)]={'id':'myvillage:ruin_core','Choice':'CHARGED'}
+    cx,cy,cz=r['core']; put(cx,cy,cz,'yuanxian:ruin_core[facing=north,lit=true]')
+    bes[(cx,cy,cz)]={'id':'yuanxian:ruin_core','Choice':'CHARGED'}
     vx,vy,vz=r['vault']; put(vx,vy,vz,'minecraft:barrel[facing=up,open=false]')
     bes[(vx,vy,vz)]={'id':'minecraft:barrel'}
-    put(24,10,36,'myvillage:alchemy_furnace[facing=north,lit=false]')
+    put(24,10,36,'yuanxian:alchemy_furnace[facing=north,lit=false]')
     # A working old furnace and a broken vat give the underground room its alchemy identity.
-    put(19,3,35,'myvillage:alchemy_furnace[facing=north,lit=false]')
+    put(19,3,35,'yuanxian:alchemy_furnace[facing=north,lit=false]')
     put(23,3,35,'minecraft:cauldron')
     for x in (18,20,22,24): put(x,3,36,p['cracked'])
     for x,z in [(18,27),(22,27),(18,31),(22,31)]: put(x,2,z,'minecraft:oxidized_cut_copper')
     for x in (30,31):
         put(x,3,37,'minecraft:bookshelf'); put(x,4,37,'minecraft:bookshelf')
     put(31,10,18,'minecraft:barrel[facing=up,open=false]')
-    bes[(31,10,18)]={'id':'minecraft:barrel','LootTable':'myvillage:chests/danxia_outer'}
+    bes[(31,10,18)]={'id':'minecraft:barrel','LootTable':'yuanxian:chests/danxia_outer'}
     def sign(pos, lines):
         x,y,z=pos
         put(x,y,z,'minecraft:oak_sign[rotation=8,waterlogged=false]')
@@ -173,7 +173,7 @@ def blueprint():
     sign((18,10,11),['丹霞旧观','荒园尚存余根','地下妖狼盘踞','循铜渠下行'])
     sign((22,3,28),['残泉仅余一用','空手右击：药园','潜行右击：内库','再次同击确认'])
     language=json.loads((ASSETS/'lang/zh_cn.json').read_text())
-    technique=json.loads((DATA/'myvillage/technique'/f'{r["manual"].split(":")[1]}.json').read_text())
+    technique=json.loads((DATA/'yuanxian/technique'/f'{r["manual"].split(":")[1]}.json').read_text())
     sign((28,3,35),['内库墨迹已散','引残泉可复原',language[technique['translation_key']],'功法与丹方'])
     # Deterministic low-frequency decay only after architectural collapse.
     protected = set(bes) | {tuple(e['pos']) for e in r['garden']}
@@ -188,8 +188,8 @@ def blueprint():
     for index, guardian in enumerate(r['guardians']):
         pos=guardian['pos']
         entities.append({'pos':pos,'blockPos':[int(c) for c in pos],
-                         'nbt':{'id':'myvillage:demon_wolf','PersistenceRequired':True,
-                                'Tags':['danxia_guardian'], 'NeoForgeData':{'myvillage:ruin_guardian':{'index':index,'pending':True}}}})
+                         'nbt':{'id':'yuanxian:demon_wolf','PersistenceRequired':True,
+                                'Tags':['danxia_guardian'], 'NeoForgeData':{'yuanxian:ruin_guardian':{'index':index,'pending':True}}}})
     errors=load_modset('vanilla').palette_block_errors(list({c.state for _,c in g.iter_cells()}))
     if errors: raise ValueError(errors)
     blocks=[{'pos':list(pos),'state':cell.state} for pos,cell in sorted(g.iter_cells())]
@@ -211,28 +211,28 @@ def template_bytes(data, bes, entities):
 
 MESSAGES={
  'zh_cn': {
-  'block.myvillage.ruin_core':'丹霞残阵',
-  'message.myvillage.ruin.confirm_garden':'残泉仅余一次：复苏药园，得到%s株成熟灵植与灵土。空手再次右击确认；潜行右击可改选内库。',
-  'message.myvillage.ruin.confirm_vault':'残泉仅余一次：复原内库中的功法秘籍、丹方与灵石。保持潜行，空手再次右击确认；松开潜行可改选药园。',
-  'message.myvillage.ruin.spent':'残阵灵气已尽，无法再次激活。',
-  'message.myvillage.ruin.unloaded':'灵路远端尚未加载。请先走近药园与内库，再返回残阵。',
-  'message.myvillage.ruin.garden_changed':'药园阵位已被改动：请恢复枯株下的砂土，并清空株位。残泉尚未消耗。',
-  'message.myvillage.ruin.vault_changed':'内库木桶已被移走或占用。请恢复原位的空木桶。残泉尚未消耗。',
-  'message.myvillage.ruin.invalid':'传承数据不可用，残泉尚未消耗。',
-  'message.myvillage.ruin.garden':'残泉流向地表，旧药园重新萌发。内库传承随余烬散去。',
-  'message.myvillage.ruin.vault':'墨迹在内库木桶中重新凝聚。药园的余根归于沉寂。'
+  'block.yuanxian.ruin_core':'丹霞残阵',
+  'message.yuanxian.ruin.confirm_garden':'残泉仅余一次：复苏药园，得到%s株成熟灵植与灵土。空手再次右击确认；潜行右击可改选内库。',
+  'message.yuanxian.ruin.confirm_vault':'残泉仅余一次：复原内库中的功法秘籍、丹方与灵石。保持潜行，空手再次右击确认；松开潜行可改选药园。',
+  'message.yuanxian.ruin.spent':'残阵灵气已尽，无法再次激活。',
+  'message.yuanxian.ruin.unloaded':'灵路远端尚未加载。请先走近药园与内库，再返回残阵。',
+  'message.yuanxian.ruin.garden_changed':'药园阵位已被改动：请恢复枯株下的砂土，并清空株位。残泉尚未消耗。',
+  'message.yuanxian.ruin.vault_changed':'内库木桶已被移走或占用。请恢复原位的空木桶。残泉尚未消耗。',
+  'message.yuanxian.ruin.invalid':'传承数据不可用，残泉尚未消耗。',
+  'message.yuanxian.ruin.garden':'残泉流向地表，旧药园重新萌发。内库传承随余烬散去。',
+  'message.yuanxian.ruin.vault':'墨迹在内库木桶中重新凝聚。药园的余根归于沉寂。'
  },
  'en_us': {
-  'block.myvillage.ruin_core':'Danxia Residual Array',
-  'message.myvillage.ruin.confirm_garden':'One charge remains: restore %s mature spirit plants and their soil. Right-click again with an empty hand to confirm; sneak-right-click to choose the archive instead.',
-  'message.myvillage.ruin.confirm_vault':'One charge remains: restore a technique manual, a formula and spirit stones in the archive. Sneak-right-click again with an empty hand to confirm.',
-  'message.myvillage.ruin.spent':'The array is exhausted. It cannot be activated again.',
-  'message.myvillage.ruin.unloaded':'The far end is not loaded. Visit the garden and archive before returning.',
-  'message.myvillage.ruin.garden_changed':'Garden sites were altered. Restore the coarse dirt beneath the withered plants and clear their spaces. No charge spent.',
-  'message.myvillage.ruin.vault_changed':'Restore an empty barrel at the original archive position. No charge spent.',
-  'message.myvillage.ruin.invalid':'The heritage data is unavailable. No charge spent.',
-  'message.myvillage.ruin.garden':'The old garden blooms again. The archive has lost its remaining power.',
-  'message.myvillage.ruin.vault':'The archive barrel holds the restored writings. The old garden falls dormant.'
+  'block.yuanxian.ruin_core':'Danxia Residual Array',
+  'message.yuanxian.ruin.confirm_garden':'One charge remains: restore %s mature spirit plants and their soil. Right-click again with an empty hand to confirm; sneak-right-click to choose the archive instead.',
+  'message.yuanxian.ruin.confirm_vault':'One charge remains: restore a technique manual, a formula and spirit stones in the archive. Sneak-right-click again with an empty hand to confirm.',
+  'message.yuanxian.ruin.spent':'The array is exhausted. It cannot be activated again.',
+  'message.yuanxian.ruin.unloaded':'The far end is not loaded. Visit the garden and archive before returning.',
+  'message.yuanxian.ruin.garden_changed':'Garden sites were altered. Restore the coarse dirt beneath the withered plants and clear their spaces. No charge spent.',
+  'message.yuanxian.ruin.vault_changed':'Restore an empty barrel at the original archive position. No charge spent.',
+  'message.yuanxian.ruin.invalid':'The heritage data is unavailable. No charge spent.',
+  'message.yuanxian.ruin.garden':'The old garden blooms again. The archive has lost its remaining power.',
+  'message.yuanxian.ruin.vault':'The archive barrel holds the restored writings. The old garden falls dormant.'
  }
 }
 
@@ -242,16 +242,16 @@ def outputs():
     files={DATA/'structure/danxia_ruin.nbt':template_bytes(data,bes,entities)}
     def emit(path,value): files[path]=(json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode()
     emit(DATA/'worldgen/structure/danxia_ruin.json',{
-        'type':'minecraft:jigsaw','biomes':'#myvillage:has_danxia_ruin','step':'surface_structures',
-        'terrain_adaptation':'beard_thin','spawn_overrides':{},'start_pool':'myvillage:danxia_ruin',
+        'type':'minecraft:jigsaw','biomes':'#yuanxian:has_danxia_ruin','step':'surface_structures',
+        'terrain_adaptation':'beard_thin','spawn_overrides':{},'start_pool':'yuanxian:danxia_ruin',
         'size':1,'start_height':{'absolute':-r['surface_y']},'project_start_to_heightmap':'WORLD_SURFACE_WG',
         'max_distance_from_center':64,'use_expansion_hack':False})
     emit(DATA/'worldgen/template_pool/danxia_ruin.json',{
-        'name':'myvillage:danxia_ruin','fallback':'minecraft:empty','elements':[{'weight':1,'element':{
-            'element_type':'minecraft:single_pool_element','location':'myvillage:danxia_ruin',
+        'name':'yuanxian:danxia_ruin','fallback':'minecraft:empty','elements':[{'weight':1,'element':{
+            'element_type':'minecraft:single_pool_element','location':'yuanxian:danxia_ruin',
             'processors':'minecraft:empty','projection':'rigid'}}]})
     emit(DATA/'worldgen/structure_set/danxia_ruin.json',{
-        'structures':[{'structure':'myvillage:danxia_ruin','weight':1}],
+        'structures':[{'structure':'yuanxian:danxia_ruin','weight':1}],
         'placement':{'type':'minecraft:random_spread',**r['placement']}})
     emit(DATA/'tags/worldgen/biome/has_danxia_ruin.json',{'replace':False,'values':r['biomes']})
     emit(DATA/'loot_table/chests/danxia_outer.json',{'type':'minecraft:chest','pools':[{'rolls':r['outer_loot_rolls'],'entries':[
@@ -267,7 +267,7 @@ def outputs():
             'core':'minecraft:block/sea_lantern' if lit else 'minecraft:block/deepslate_tiles',
             'particle':'minecraft:block/chiseled_stone_bricks'},'elements':elements})
     emit(ASSETS/'blockstates/ruin_core.json',{'variants':{
-        f'facing={face},lit={str(lit).lower()}':{'model':f'myvillage:block/ruin_core_{str(lit).lower()}','y':turn}
+        f'facing={face},lit={str(lit).lower()}':{'model':f'yuanxian:block/ruin_core_{str(lit).lower()}','y':turn}
         for face,turn in [('north',0),('east',90),('south',180),('west',270)] for lit in (False,True)}})
     for lang,entries in MESSAGES.items():
         path=ASSETS/f'lang/{lang}.json'; existing=json.loads(path.read_text()); existing.update(entries); emit(path,existing)

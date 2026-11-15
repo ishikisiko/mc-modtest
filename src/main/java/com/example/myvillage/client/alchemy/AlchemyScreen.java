@@ -19,7 +19,7 @@ import java.util.List;
 
 /** Per-viewer learned recipes and server-owned transfers, carried by vanilla menu button intents. */
 public final class AlchemyScreen extends AbstractContainerScreen<AlchemyMenu> {
-    private static final String KEY = "screen.myvillage.alchemy.";
+    private static final String KEY = "screen.yuanxian.alchemy.";
     private Button startButton, previousPage, nextPage;
     private int page;
     private final List<Button> recipes = new ArrayList<>();

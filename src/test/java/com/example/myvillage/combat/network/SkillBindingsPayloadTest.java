@@ -8,7 +8,7 @@ import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 class SkillBindingsPayloadTest {
-    private static ResourceLocation id(String s){return ResourceLocation.parse("myvillage:"+s);}
+    private static ResourceLocation id(String s){return ResourceLocation.parse("yuanxian:"+s);}
     private static RegistryFriendlyByteBuf buffer(){return new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);}
     @Test void boundedAssignmentSnapshotAndInputRoundTrip() {
         var b=buffer();try {
@@ -24,7 +24,7 @@ class SkillBindingsPayloadTest {
     @Test void rejectsMalformedWireSlotsIdsAndDirections() {
         var b=buffer();try {
             b.writeByte(7);b.writeResourceLocation(id("jianqi_jue"));assertThrows(IllegalArgumentException.class,()->SkillBindingPayload.STREAM_CODEC.decode(b));b.clear();
-            b.writeByte(1);b.writeUtf("myvillage:"+"a".repeat(129));assertThrows(Exception.class,()->SkillBindingPayload.STREAM_CODEC.decode(b));b.clear();
+            b.writeByte(1);b.writeUtf("yuanxian:"+"a".repeat(129));assertThrows(Exception.class,()->SkillBindingPayload.STREAM_CODEC.decode(b));b.clear();
             b.writeByte(6);b.writeByte(0);assertThrows(IllegalArgumentException.class,()->BoundSkillIntentPayload.STREAM_CODEC.decode(b));b.clear();
             b.writeByte(1);b.writeByte(127);assertThrows(IllegalArgumentException.class,()->BoundSkillIntentPayload.STREAM_CODEC.decode(b));
         }finally{b.release();}

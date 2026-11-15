@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SectRoadPlannerTest {
-    private WorldPlan world()throws Exception{return new WorldPlan(20261103,new WorldPlanRules(new String(getClass().getResourceAsStream("/data/myvillage/worldplan/frozen_v11.json").readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)));}
+    private WorldPlan world()throws Exception{return new WorldPlan(20261103,new WorldPlanRules(new String(getClass().getResourceAsStream("/data/yuanxian/worldplan/frozen_v11.json").readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)));}
     @Test void eachRegionContainsThreeFormsAndTwoActualScales()throws Exception{
         var world=world();
         for(var region:world.regions())if(!world.rules().profile(region.profile().id()).role().equals("walled")){

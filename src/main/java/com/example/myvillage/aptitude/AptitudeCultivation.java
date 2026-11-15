@@ -31,7 +31,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 六类培养的正式服务器入口。每次奖励校验玩家、实际行为与当前课程。 */
 public final class AptitudeCultivation {
-    private static final String OWNER = "myvillage_memory_owner", COURSE = "myvillage_memory_course";
+    private static final String OWNER = "yuanxian_memory_owner", COURSE = "yuanxian_memory_course";
     private AptitudeCultivation() { }
     public static void register() {
         NeoForge.EVENT_BUS.addListener(AptitudeCultivation::tick);
@@ -153,7 +153,7 @@ public final class AptitudeCultivation {
         if (!target.startsWith("craft")) {
             ItemStack artifact = p.getOffhandItem();
             var data = artifact.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-            data.putString("myvillage_research", target); artifact.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
+            data.putString("yuanxian_research", target); artifact.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
         }
         install(p, training(p, "research", id, target, 1, r.growth("research_gain"), -1, r.growth("memory_duration_ticks"), limit));
         message(p, target.startsWith("craft") ? "课题已开始，请亲自完成一件达到研究品质要求的对应成品。" : "修复课题已开始，请在锻台修复副手标记的兵器。");
@@ -164,7 +164,7 @@ public final class AptitudeCultivation {
         if (course == null || !valid(p, course) || !course.kind().equals("research") || !course.aptitude().equals(id)) return;
         boolean repair = !course.target().startsWith("craft");
         boolean accepted = repair ? result.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag()
-                .getString("myvillage_research").equals(course.target()) && recipe.equals("repair") && !result.isDamaged()
+                .getString("yuanxian_research").equals(course.target()) && recipe.equals("repair") && !result.isDamaged()
                 : !recipe.equals("repair") && quality >= AptitudeRules.get().growth("research_quality");
         if (accepted) finish(p, course);
     }
@@ -265,14 +265,14 @@ public final class AptitudeCultivation {
     }
     private static void repairAtAnvil(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getEntity() instanceof ServerPlayer p) || !eligible(p) || !p.isShiftKeyDown()
-                || !net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(event.getLevel().getBlockState(event.getPos()).getBlock()).toString().equals("myvillage:forging_anvil")) return;
+                || !net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(event.getLevel().getBlockState(event.getPos()).getBlock()).toString().equals("yuanxian:forging_anvil")) return;
         if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof com.example.myvillage.block.entity.ForgingAnvilBlockEntity anvil)
                 || !anvil.available()) return;
         var course = CultivationService.aptitudes(p).training().orElse(null);
         ItemStack original = event.getItemStack();
         if (course == null || !valid(p, course) || !course.kind().equals("research") || !course.aptitude().equals("forging")
                 || course.target().startsWith("craft") || !original.isDamaged()
-                || !original.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getString("myvillage_research").equals(course.target())) return;
+                || !original.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getString("yuanxian_research").equals(course.target())) return;
         ItemStack result = original.copy();
         result.setDamageValue(Math.max(0,result.getDamageValue()-com.example.myvillage.forging.ForgedEquipment.repairAmount(result)));
         var source = com.example.myvillage.spiritstone.SpiritStoneSources.open(p);

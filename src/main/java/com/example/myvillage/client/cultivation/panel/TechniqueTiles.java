@@ -30,7 +30,7 @@ final class TechniqueTiles {
         return c.technique(id).map(d -> c.text(d.translationKey())).orElse(id.toString());
     }
     static String category(PanelContext c, TechniqueDefinition d) {
-        return d == null ? "未知" : c.text("screen.myvillage.cultivation.category."+d.category().serializedName());
+        return d == null ? "未知" : c.text("screen.yuanxian.cultivation.category."+d.category().serializedName());
     }
     static String grade(PanelContext c, TechniqueDefinition d) {
         return d == null ? "未知" : c.text(TechniqueShelf.gradeNameKey(d.grade()));
@@ -97,7 +97,7 @@ final class TechniqueTiles {
         if(d==null){lines.add(c.unavailable(id));return lines;}
         lines.add(Component.literal(grade(c,d)+" · "+category(c,d)));
         var progress=c.profile().learnedTechniques().get(id);
-        if(progress!=null)lines.add(Component.translatable("screen.myvillage.cultivation.mastery",progress.masteryPoints()));
+        if(progress!=null)lines.add(Component.translatable("screen.yuanxian.cultivation.mastery",progress.masteryPoints()));
         if(progress!=null)com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled().find(id).ifPresent(growth->{
             lines.add(Component.literal("修习阶段："+com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled().stageNames().get(growth.stage(progress.masteryPoints()))));
             lines.add(Component.literal("成长收益："+TechniqueGrowthPage.currentEffects(c,id)));

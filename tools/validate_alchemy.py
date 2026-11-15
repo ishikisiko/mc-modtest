@@ -16,8 +16,8 @@ from tools import crafting_quality
 
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = Path('src/main/resources')
-ASSETS = RESOURCES / 'assets/myvillage'
-DATA = RESOURCES / 'data/myvillage'
+ASSETS = RESOURCES / 'assets/yuanxian'
+DATA = RESOURCES / 'data/yuanxian'
 RULES = DATA / 'alchemy/rules.json'
 JAVA = Path('src/main/java/com/example/myvillage')
 SOURCE_FILES = tuple(JAVA / f'{name}.java' for name in (
@@ -119,12 +119,12 @@ def check_rules(data, quality_rules=None) -> list[str]:
             continue
         seen.add(kind)
         ingredients = recipe['ingredients']
-        expected_herbs = ({'myvillage:ningyuan_fruit_'+('high' if kind.endswith('high') else 'low'),'myvillage:spirit_leaf','myvillage:calm_lotus'}
-                          if foundation else {'myvillage:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'myvillage:{h}' for h in PAIRS[kind]})
+        expected_herbs = ({'yuanxian:ningyuan_fruit_'+('high' if kind.endswith('high') else 'low'),'yuanxian:spirit_leaf','yuanxian:calm_lotus'}
+                          if foundation else {'yuanxian:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'yuanxian:{h}' for h in PAIRS[kind]})
         if (not isinstance(ingredients,list) or len(ingredients)!=len(expected_herbs) or any(not isinstance(i,str) for i in ingredients) or set(ingredients)!=expected_herbs):
             error('ALCHEMY_REFERENCE',f'{where}: unexpected ingredients')
         output_kind=kind.split('_')[0] if foundation else kind
-        if recipe['formula']!=f'myvillage:formula_{kind}' or recipe['output']!=f'myvillage:pill_{output_kind}':
+        if recipe['formula']!=f'yuanxian:formula_{kind}' or recipe['output']!=f'yuanxian:pill_{output_kind}':
             error('ALCHEMY_REFERENCE',f'{where}: formula/pill identity mismatch')
         if foundation or expedition:
             number(recipe,'minimum_aptitude',0,crafting_quality.MAX_SCORE,where,True)
@@ -238,10 +238,10 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     for item in ITEMS:
         model = read(ASSETS / f'models/item/{item}.json')
         if item == 'alchemy_furnace':
-            if model.get('parent') != 'myvillage:block/alchemy_furnace':
+            if model.get('parent') != 'yuanxian:block/alchemy_furnace':
                 error('ALCHEMY_ITEM_MODEL', 'furnace item must use its placed 3D model')
             continue
-        texture = f'myvillage:item/{item}'
+        texture = f'yuanxian:item/{item}'
         if model.get('parent') != 'minecraft:item/generated' or model.get('textures') != {'layer0': texture}:
             error('ALCHEMY_ITEM_MODEL', f'{item}: requires its dedicated generated item texture')
         path = ASSETS / f'textures/item/{item}.png'
@@ -269,7 +269,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             error('ALCHEMY_TEXTURE', 'furnace model requires texture mappings')
             textures = {}
         for texture in textures.values():
-            if not isinstance(texture, str) or not texture.startswith('myvillage:block/alchemy_furnace'):
+            if not isinstance(texture, str) or not texture.startswith('yuanxian:block/alchemy_furnace'):
                 error('ALCHEMY_TEXTURE', f'invalid dedicated furnace texture {texture!r}')
             else:
                 path = ASSETS / 'textures' / (texture.split(':')[1] + '.png')
@@ -300,7 +300,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             error('ALCHEMY_FURNACE_MODEL', 'furnace must have distinct modeled parts without a full cube')
     states = read(ASSETS / 'blockstates/alchemy_furnace.json')
     variants = states.get('variants', {})
-    expected = {f'facing={d},lit={lit}': {'model': f'myvillage:block/alchemy_furnace{"_lit" if lit == "true" else ""}', 'y': rotation}
+    expected = {f'facing={d},lit={lit}': {'model': f'yuanxian:block/alchemy_furnace{"_lit" if lit == "true" else ""}', 'y': rotation}
                 for d, rotation in (('north', 0), ('east', 90), ('south', 180), ('west', 270)) for lit in ('false', 'true')}
     if variants != expected or 'multipart' in states:
         error('ALCHEMY_BLOCKSTATE', 'all eight facing/lit variants must select matching geometry and rotation')
@@ -308,13 +308,13 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
         lang = read(ASSETS / f'lang/{language}.json')
         for item in ITEMS:
             if language=='en_us' and item in NEW_ITEMS:continue
-            key = f'{"block" if item == "alchemy_furnace" else "item"}.myvillage.{item}'
+            key = f'{"block" if item == "alchemy_furnace" else "item"}.yuanxian.{item}'
             if not isinstance(lang.get(key), str) or not lang[key].strip():
                 error('ALCHEMY_LANG', f'{language}: missing {key}')
         if language == 'zh_cn':
             for recipe in rules.get('recipes', []):
                 formula=recipe.get('formula','').split(':')[-1]
-                name=lang.get(f'item.myvillage.{formula}','')
+                name=lang.get(f'item.yuanxian.{formula}','')
                 if not name.endswith(f"（难度{recipe.get('difficulty')}）"):
                     error('ALCHEMY_DIFFICULTY_NAME',f'{formula}: name must show its configured difficulty')
     commerce = read(DATA / 'world_sim/commerce_rules.json')
@@ -322,14 +322,14 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
         if (root / DATA / f'recipe/{item}.json').exists():
             error('ALCHEMY_ACQUISITION', f'{item}: removed acquisition recipe is still present')
     for herb in HERBS:
-        offers = [o for o in commerce.get('offers', []) if o.get('kind') == 'buy' and o.get('item') == f'myvillage:{herb}']
-        target = commerce.get('herb_restock', {}).get('stock', {}).get(f'myvillage:{herb}', 0)
+        offers = [o for o in commerce.get('offers', []) if o.get('kind') == 'buy' and o.get('item') == f'yuanxian:{herb}']
+        target = commerce.get('herb_restock', {}).get('stock', {}).get(f'yuanxian:{herb}', 0)
         if len(offers) != 1 or offers[0].get('role') != 'herbalist' or offers[0].get('quantity') != 1 or type(target) is not int or target <= 0:
             error('ALCHEMY_ACQUISITION', f'{herb}: missing finite shop supply and recurring restock')
     for item in ('alchemy_furnace', *(f'formula_{k}' for k in KINDS)):
         recipe = read(DATA / f'recipe/{item}.json')
         result = recipe.get('result', {})
-        if result != {'id': f'myvillage:{item}', 'count': 1}:
+        if result != {'id': f'yuanxian:{item}', 'count': 1}:
             error('ALCHEMY_ACQUISITION', f'{item}: survival recipe must yield exactly one expected item')
         if item == 'alchemy_furnace':
             if recipe.get('type') != 'minecraft:crafting_shaped':
@@ -347,7 +347,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             if recipe.get('type') != 'minecraft:crafting_shapeless':
                 error('ALCHEMY_ACQUISITION', f'{item}: expected shapeless recipe')
             ingredients = recipe.get('ingredients', [])
-            required = {FUEL, 'minecraft:paper', *(f'myvillage:{h}' for h in PAIRS[item.removeprefix('formula_')])}
+            required = {FUEL, 'minecraft:paper', *(f'yuanxian:{h}' for h in PAIRS[item.removeprefix('formula_')])}
         actual = {i['item'] if set(i) == {'item'} and isinstance(i['item'], str) else
                   '#' + i['tag'] if set(i) == {'tag'} and isinstance(i['tag'], str) else None
                   for i in ingredients if isinstance(i, dict)} if isinstance(ingredients, list) else set()
@@ -357,20 +357,20 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     pools = loot.get('pools', [])
     if (loot.get('type') != 'minecraft:block' or not isinstance(pools, list) or len(pools) != 1
             or not isinstance(pools[0], dict) or pools[0].get('rolls') != 1 or pools[0].get('bonus_rolls', 0) != 0
-            or pools[0].get('entries') != [{'type': 'minecraft:item', 'name': 'myvillage:alchemy_furnace'}]
+            or pools[0].get('entries') != [{'type': 'minecraft:item', 'name': 'yuanxian:alchemy_furnace'}]
             or pools[0].get('conditions', []) not in ([], [{'condition': 'minecraft:survives_explosion'}])
             or pools[0].get('functions') or loot.get('functions')):
         error('ALCHEMY_LOOT', 'furnace block must drop exactly one furnace item without count modifiers')
     tag = read(RESOURCES / 'data/minecraft/tags/block/mineable/pickaxe.json')
     values = tag.get('values', [])
-    if (not isinstance(values, list) or values.count('myvillage:alchemy_furnace') != 1
+    if (not isinstance(values, list) or values.count('yuanxian:alchemy_furnace') != 1
             or tag.get('replace', False) is not False):
         error('ALCHEMY_TAG', 'pickaxe tag must include furnace exactly once')
     if jar is not None:
         try:
             with zipfile.ZipFile(jar) as archive:
                 for item in REMOVED_RECIPES:
-                    name=f'data/myvillage/recipe/{item}.json'
+                    name=f'data/yuanxian/recipe/{item}.json'
                     if name in archive.namelist():error('ALCHEMY_JAR', f'{name}: removed acquisition recipe packaged')
                 for name in JAR_CLASSES:
                     if name not in archive.namelist():

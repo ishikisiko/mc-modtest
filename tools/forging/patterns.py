@@ -31,7 +31,7 @@ class PatternArt:
         self.emblems = {}
         self.generated_textures = dict(self.catalogue.material_outputs)
         for name, palette in self.catalogue.authored['palette'].items():
-            self.generated_textures[f'assets/myvillage/textures/equipment/forging/{name}.png'] = palette_texture(name, palette)
+            self.generated_textures[f'assets/yuanxian/textures/equipment/forging/{name}.png'] = palette_texture(name, palette)
 
     def texture(self, ref):
         if ref not in self.textures:
@@ -51,7 +51,7 @@ class PatternArt:
                 # Arrange the two existing leg/foot parts as a readable paired emblem.
                 # Only this paper illustration moves them; worn/item geometry stays untouched.
                 spec = json.loads((self.root / 'equipment' / self.catalogue.config['armor']['set'] / 'equipment.json').read_text())
-                item = next(i for i in spec['items'] if i['id'] == 'myvillage:' + recipe)
+                item = next(i for i in spec['items'] if i['id'] == 'yuanxian:' + recipe)
                 bones = {b['name']: b['bone'] for b in item['boxes']}
                 faces = copy.deepcopy(faces)
                 groups = {bone: [f for f in faces if bones[f['part']] == bone] for bone in ('left_leg','right_leg')}
@@ -83,17 +83,17 @@ class PatternArt:
 
 def outputs(root=ROOT, catalogue=None):
     art = PatternArt(root, catalogue)
-    base = Path(root) / 'src/main/resources/assets/myvillage'
-    rules = json.loads((Path(root) / 'src/main/resources/data/myvillage/forging/rules.json').read_text())
+    base = Path(root) / 'src/main/resources/assets/yuanxian'
+    rules = json.loads((Path(root) / 'src/main/resources/data/yuanxian/forging/rules.json').read_text())
     result = {}
     for recipe in rules['recipes']:
         namespace, item = recipe['pattern'].split(':', 1)
-        if namespace != 'myvillage':
+        if namespace != 'yuanxian':
             raise ValueError('器谱 namespace 不匹配')
         image = art.icon(recipe['id'])
         out = io.BytesIO(); image.save(out, format='PNG')
         result[base / f'textures/item/{item}.png'] = out.getvalue()
         result[base / f'models/item/{item}.json'] = (json.dumps({
-            'parent': 'minecraft:item/generated', 'textures': {'layer0': f'myvillage:item/{item}'}
+            'parent': 'minecraft:item/generated', 'textures': {'layer0': f'yuanxian:item/{item}'}
         }, ensure_ascii=False, indent=2) + '\n').encode()
     return result

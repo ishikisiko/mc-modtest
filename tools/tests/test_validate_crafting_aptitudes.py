@@ -224,7 +224,7 @@ class CraftingAuthorityValidationTest(unittest.TestCase):
     def test_missing_product_quality_label_is_rejected(self):
         path = self.root / validator.LANGS[1]
         values = json.loads(path.read_text())
-        values.pop('crafting.myvillage.quality.perfect')
+        values.pop('crafting.yuanxian.quality.perfect')
         path.write_text(json.dumps(values))
         self.assert_code('CRAFTING_LANG')
 

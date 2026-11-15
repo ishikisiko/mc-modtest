@@ -67,7 +67,7 @@ public final class SpiritStoneDenominations {
     private static final class Holder { private static final SpiritStoneDenominations INSTANCE = load(); }
     public static SpiritStoneDenominations get() { return Holder.INSTANCE; }
     private static SpiritStoneDenominations load() {
-        try (var stream = SpiritStoneDenominations.class.getResourceAsStream("/data/myvillage/spirit_stones/denominations.json")) {
+        try (var stream = SpiritStoneDenominations.class.getResourceAsStream("/data/yuanxian/spirit_stones/denominations.json")) {
             if (stream == null) throw new IllegalStateException("Missing spirit stone denominations");
             var data = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
             if (!data.keySet().equals(Set.of("tiers"))) throw new IllegalArgumentException("Unknown denomination configuration");

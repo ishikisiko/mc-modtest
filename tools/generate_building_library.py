@@ -10,9 +10,9 @@ Pipeline per building (see tools/buildgen/):
     NBT + mcfunction resources
 
 Outputs (resource_export_pass):
-    src/main/resources/data/myvillage/structure/<archetype>_NNN.nbt
-    src/main/resources/data/myvillage/function/gallery/<style>.mcfunction
-    src/main/resources/data/myvillage/function/place/<name>.mcfunction
+    src/main/resources/data/yuanxian/structure/<archetype>_NNN.nbt
+    src/main/resources/data/yuanxian/function/gallery/<style>.mcfunction
+    src/main/resources/data/yuanxian/function/place/<name>.mcfunction
     reports/building_library_report.json
 """
 
@@ -36,7 +36,7 @@ from buildgen.style import load_style, modset_namespaces
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPORT_PATH = os.path.join(PROJECT_ROOT, "reports", "building_library_report.json")
 STRUCTURE_DIR = os.path.join(
-    PROJECT_ROOT, "src", "main", "resources", "data", "myvillage", "structure")
+    PROJECT_ROOT, "src", "main", "resources", "data", "yuanxian", "structure")
 MAX_ATTEMPTS = 8
 
 

@@ -16,7 +16,7 @@ from tools import gen_sword_pal_anims as gen
 
 
 PAL_JAR = gen.ROOT / "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar"
-PIKE = "myvillage:test_pike"
+PIKE = "yuanxian:test_pike"
 
 
 def style() -> dict:
@@ -40,7 +40,7 @@ def synthetic_weapon(root: Path, name: str = "test_pike", scale: float = 0.85, g
     translation = [round(sword_display["translation"][i] + 16 * delta[i] + (grip_shift_px if i == 1 else 0.0), 6)
                    for i in range(3)]
     geometry = {
-        "format": 2, "units": "model_pixels", "model": f"myvillage:item/{name}_3d",
+        "format": 2, "units": "model_pixels", "model": f"yuanxian:item/{name}_3d",
         "axes": {"length": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
         "grip_center": [8.0, grip_y, 8.0],
         "handle": {"y": [-14.5, 22.0], "half_width": 0.7, "half_thickness": 0.7},
@@ -50,8 +50,8 @@ def synthetic_weapon(root: Path, name: str = "test_pike", scale: float = 0.85, g
     }
     if off_hand_y is not None:
         geometry["off_hand_grip_center"] = [8.0, off_hand_y, 8.0]
-    geometry_path = root / f"assets/myvillage/combat/{name}_geometry.json"
-    model_path = root / f"assets/myvillage/models/item/{name}_3d.json"
+    geometry_path = root / f"assets/yuanxian/combat/{name}_geometry.json"
+    model_path = root / f"assets/yuanxian/models/item/{name}_3d.json"
     geometry_path.parent.mkdir(parents=True, exist_ok=True)
     model_path.parent.mkdir(parents=True, exist_ok=True)
     geometry_path.write_text(json.dumps(geometry), encoding="utf-8")
@@ -64,7 +64,7 @@ def pike_style() -> dict:
     """The sword style renamed to a synthetic second style (same timing)."""
     data = style()
     data["id"] = PIKE
-    data["animations"] = {"ready_idle": "myvillage:pike_ready_idle", "mode_enter": "myvillage:pike_mode_enter"}
+    data["animations"] = {"ready_idle": "yuanxian:pike_ready_idle", "mode_enter": "yuanxian:pike_mode_enter"}
     for entry in data["moves"]:
         entry["id"] = entry["id"].replace("basic_sword", "test_pike")
     return data
@@ -74,7 +74,7 @@ def pike_table(root: Path, weapon: tuple[Path, Path] | None = None, **changes) -
     """A second, one-handed table: the sword poses on the synthetic long weapon."""
     geometry, model = synthetic_weapon(root) if weapon is None else weapon
     table = dataclasses.replace(
-        gen.BASIC_SWORD, style_id=PIKE, output=root / "assets/myvillage/player_animations/pike_combat.json",
+        gen.BASIC_SWORD, style_id=PIKE, output=root / "assets/yuanxian/player_animations/pike_combat.json",
         moves={move_id.replace("basic_sword", "test_pike"): poses for move_id, poses in gen.BASIC_SWORD_MOVES.items()},
         geometry=geometry, item_model=model)
     return dataclasses.replace(table, **changes)
@@ -195,11 +195,11 @@ class PoseTableDisagreementTest(unittest.TestCase):
     def test_style_move_without_poses_names_the_move(self) -> None:
         data = style()
         extra = copy.deepcopy(data["moves"][0])
-        extra["id"] = "myvillage:basic_sword_06_extra"
+        extra["id"] = "yuanxian:basic_sword_06_extra"
         data["moves"].append(extra)
         with self.assertRaises(gen.PoseTableError) as raised:
             gen.bind(gen.BASIC_SWORD, data)
-        self.assertIn("myvillage:basic_sword_06_extra", str(raised.exception))
+        self.assertIn("yuanxian:basic_sword_06_extra", str(raised.exception))
 
     def test_posed_move_missing_from_the_style_names_the_move(self) -> None:
         data = style()
@@ -211,20 +211,20 @@ class PoseTableDisagreementTest(unittest.TestCase):
     def test_generator_exits_with_an_error_naming_the_move(self) -> None:
         data = style()
         extra = copy.deepcopy(data["moves"][0])
-        extra["id"] = "myvillage:basic_sword_06_extra"
+        extra["id"] = "yuanxian:basic_sword_06_extra"
         data["moves"].append(extra)
         stderr = io.StringIO()
         with mock.patch.object(gen, "combat_styles", return_value={gen.BASIC_SWORD.style_id: data}), \
                 mock.patch.object(gen, "POSE_TABLES", (gen.BASIC_SWORD,)), redirect_stderr(stderr):
             self.assertEqual(1, gen.main(["--check"]))
         self.assertIn("POSE_TABLE", stderr.getvalue())
-        self.assertIn("myvillage:basic_sword_06_extra", stderr.getvalue())
+        self.assertIn("yuanxian:basic_sword_06_extra", stderr.getvalue())
 
     def test_style_without_a_pose_table_is_rejected(self) -> None:
-        styles = {gen.BASIC_SWORD.style_id: style(), "myvillage:spear": style()}
+        styles = {gen.BASIC_SWORD.style_id: style(), "yuanxian:spear": style()}
         with self.assertRaises(gen.PoseTableError) as raised:
             gen.check_tables(styles)
-        self.assertIn("myvillage:spear", str(raised.exception))
+        self.assertIn("yuanxian:spear", str(raised.exception))
 
     def test_check_passes_on_the_committed_data(self) -> None:
         with mock.patch("sys.stdout", new_callable=io.StringIO):
@@ -441,7 +441,7 @@ class PerTableRigTest(TempDirTest):
 
 class MultiTableTest(TempDirTest):
     def tables(self):
-        sword = dataclasses.replace(gen.BASIC_SWORD, output=self.root / "assets/myvillage/player_animations/sword_combat.json")
+        sword = dataclasses.replace(gen.BASIC_SWORD, output=self.root / "assets/yuanxian/player_animations/sword_combat.json")
         sword.output.parent.mkdir(parents=True, exist_ok=True)
         return sword, pike_table(self.root)
 
@@ -640,7 +640,7 @@ def spear_probe(**changes) -> tuple[gen.Key, ...]:
 
 
 class SpearTableTest(unittest.TestCase):
-    """The committed Lingxiao spear table (myvillage:basic_spear)."""
+    """The committed Lingxiao spear table (yuanxian:basic_spear)."""
 
     def test_table_binds_to_the_spear_style(self) -> None:
         self.assertIn(SPEAR, gen.POSE_TABLES)
@@ -1084,7 +1084,7 @@ FIST = gen.BASIC_FIST
 
 
 class FistTableTest(unittest.TestCase):
-    """The committed Xuantie gauntlet table (myvillage:basic_fist): a worn weapon, both hands free."""
+    """The committed Xuantie gauntlet table (yuanxian:basic_fist): a worn weapon, both hands free."""
 
     def test_table_binds_to_the_fist_style(self) -> None:
         self.assertIn(FIST, gen.POSE_TABLES)

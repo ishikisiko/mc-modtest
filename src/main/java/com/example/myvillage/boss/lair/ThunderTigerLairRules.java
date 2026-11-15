@@ -36,7 +36,7 @@ public record ThunderTigerLairRules(Pos size, Pos anchor, Pos spawn, Pos entry, 
     public static ThunderTigerLairRules parse(Reader reader) {
         var r = JsonParser.parseReader(reader).getAsJsonObject();
         if (integer(r.get("version")) != 1 || !r.get("id").getAsString().equals("thunder_tiger_lair")
-                || !r.get("entity").getAsString().equals("myvillage:thunder_tiger")
+                || !r.get("entity").getAsString().equals("yuanxian:thunder_tiger")
                 || integer(r.get("pillar_radius")) != 1 || integer(r.get("pillar_height")) != 5)
             throw new IllegalArgumentException("Unsupported lair contract");
         var pillars = new ArrayList<Pos>();
@@ -48,7 +48,7 @@ public record ThunderTigerLairRules(Pos size, Pos anchor, Pos spawn, Pos entry, 
     private static final class Bundled {
         static final ThunderTigerLairRules RULES = load();
         static ThunderTigerLairRules load() {
-            try (var in = ThunderTigerLairRules.class.getResourceAsStream("/data/myvillage/boss/thunder_tiger_lair.json")) {
+            try (var in = ThunderTigerLairRules.class.getResourceAsStream("/data/yuanxian/boss/thunder_tiger_lair.json")) {
                 if (in == null) throw new IllegalStateException("Missing thunder tiger lair rules");
                 return parse(new InputStreamReader(in, StandardCharsets.UTF_8));
             } catch (IOException e) { throw new IllegalStateException(e); }

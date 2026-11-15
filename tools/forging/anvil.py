@@ -14,8 +14,8 @@ COLORS = {
 
 def model(parts):
     return {'ambientocclusion': True,
-            'textures': {**{k: f'myvillage:block/workshop_{k}' for k in COLORS},
-                         'particle': 'myvillage:block/workshop_stone'},
+            'textures': {**{k: f'yuanxian:block/workshop_{k}' for k in COLORS},
+                         'particle': 'yuanxian:block/workshop_stone'},
             'elements': parts}
 
 
@@ -78,13 +78,13 @@ def outputs(base):
                 if name == 'stone': shade += -10 if y % 6 == 0 else 0
                 row.append(tuple(max(0, min(255, c+shade)) for c in color)+(255,))
             rows.append(row)
-        out[base/f'assets/myvillage/textures/block/workshop_{name}.png'] = png(rows)
+        out[base/f'assets/yuanxian/textures/block/workshop_{name}.png'] = png(rows)
     for lit in (False, True):
-        add('assets/myvillage/models/block/forging_anvil'+('_lit' if lit else '')+'.json', station(lit))
-    add('assets/myvillage/blockstates/forging_anvil.json', {'variants': {
-        f'facing={d},lit={str(lit).lower()}': {'model': 'myvillage:block/forging_anvil'+('_lit' if lit else ''), 'y': angle}
+        add('assets/yuanxian/models/block/forging_anvil'+('_lit' if lit else '')+'.json', station(lit))
+    add('assets/yuanxian/blockstates/forging_anvil.json', {'variants': {
+        f'facing={d},lit={str(lit).lower()}': {'model': 'yuanxian:block/forging_anvil'+('_lit' if lit else ''), 'y': angle}
         for lit in (False, True) for d, angle in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
-    add('assets/myvillage/models/block/workshop/hammer.json', hammer())
+    add('assets/yuanxian/models/block/workshop/hammer.json', hammer())
     from tools.equipment import mesh
     root=base.parents[2]
     authored=json.loads((root/'equipment/workshop/hammer.json').read_text())
@@ -94,6 +94,6 @@ def outputs(base):
     for context in ('firstperson_righthand','firstperson_lefthand'):
         held['display'][context]['translation']=[v+offset for v,offset in zip(held['display'][context]['translation'],authored['first_person_offset'])]
     held['gui_light']='side'
-    add('assets/myvillage/models/item/forging_hammer.json',held)
-    add('data/myvillage/recipe/forging_hammer.json',authored['recipe'])
+    add('assets/yuanxian/models/item/forging_hammer.json',held)
+    add('data/yuanxian/recipe/forging_hammer.json',authored['recipe'])
     return out

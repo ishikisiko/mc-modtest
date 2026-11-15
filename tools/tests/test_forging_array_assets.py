@@ -19,7 +19,7 @@ class ForgingArrayAssetsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mesh = build()
-        cls.assets = ROOT/"src/main/resources/assets/myvillage"
+        cls.assets = ROOT/"src/main/resources/assets/yuanxian"
         cls.files = gen.outputs()
 
     def test_generated_assets_are_current(self):
@@ -64,7 +64,7 @@ class ForgingArrayAssetsTest(unittest.TestCase):
         atlas = self.files[self.assets/"textures/block/forging_array_formed.png"]
         self.assertEqual(b"\x89PNG\r\n\x1a\n",atlas[:8])
         self.assertEqual((64,64),struct.unpack(">II",atlas[16:24]))
-        self.assertEqual("myvillage:textures/block/forging_array_formed.png",self.mesh["texture"])
+        self.assertEqual("yuanxian:textures/block/forging_array_formed.png",self.mesh["texture"])
         for kind in gen.KINDS:
             bid = gen.block_id(kind)
             block = json.loads(self.files[self.assets/f"models/block/{bid}.json"])
@@ -73,7 +73,7 @@ class ForgingArrayAssetsTest(unittest.TestCase):
                 for f in el["faces"].values():
                     self.assertTrue(all(0 <= x <= 16 for x in f["uv"]))
             item = json.loads(self.files[self.assets/f"models/item/{bid}.json"])
-            self.assertEqual(f"myvillage:block/{bid}",item["parent"])
+            self.assertEqual(f"yuanxian:block/{bid}",item["parent"])
             state = json.loads(self.files[self.assets/f"blockstates/{bid}.json"])
             for facing,_ in gen.DIRECTIONS:
                 for lit in ("false","true"):
@@ -82,19 +82,19 @@ class ForgingArrayAssetsTest(unittest.TestCase):
                     self.assertEqual(1,len(matches))
                     model_id = matches[0]["apply"]["model"].split(":")[1]
                     self.assertIn(self.assets/f"models/{model_id}.json",self.files)
-            data = ROOT/"src/main/resources/data/myvillage"
+            data = ROOT/"src/main/resources/data/yuanxian"
             loot = json.loads(self.files[data/f"loot_table/blocks/{bid}.json"])
-            self.assertEqual(f"myvillage:{bid}",loot["pools"][0]["entries"][0]["name"])
+            self.assertEqual(f"yuanxian:{bid}",loot["pools"][0]["entries"][0]["name"])
             recipe = json.loads(self.files[data/f"recipe/{bid}.json"])
-            self.assertEqual(f"myvillage:{bid}",recipe["result"]["id"])
+            self.assertEqual(f"yuanxian:{bid}",recipe["result"]["id"])
 
     def test_recipe_inputs_resolve_existing_registry_not_imaginary_black_iron(self):
         registry = (ROOT/"src/main/java/com/example/myvillage/item/ModItems.java").read_text()
-        allowed = {"minecraft:iron_ingot","minecraft:stone_bricks","minecraft:copper_ingot","minecraft:redstone","myvillage:xuantie_ingot"}
+        allowed = {"minecraft:iron_ingot","minecraft:stone_bricks","minecraft:copper_ingot","minecraft:redstone","yuanxian:xuantie_ingot"}
         for recipe in gen.config()["recipes"].values():
             for value in recipe["key"].values():
                 self.assertIn(value,allowed)
-                if value.startswith("myvillage:"):
+                if value.startswith("yuanxian:"):
                     self.assertIn('registerItem("'+value.split(":")[1]+'"',registry)
 
     def test_shared_merges_preserve_parallel_edits_and_check_never_writes(self):
@@ -103,25 +103,25 @@ class ForgingArrayAssetsTest(unittest.TestCase):
             authored = root/"tools/forging_array"
             authored.mkdir(parents=True)
             shutil.copy(ROOT/"tools/forging_array/visual.json",authored/"visual.json")
-            lang = root/"src/main/resources/assets/myvillage/lang/zh_cn.json"
+            lang = root/"src/main/resources/assets/yuanxian/lang/zh_cn.json"
             lang.parent.mkdir(parents=True)
-            lang.write_text(json.dumps({"foreign.key":"并行新增","block.myvillage.forging_ding":"旧炼器鼎"}))
+            lang.write_text(json.dumps({"foreign.key":"并行新增","block.yuanxian.forging_ding":"旧炼器鼎"}))
             tag = root/"src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json"
             tag.parent.mkdir(parents=True)
-            tag.write_text(json.dumps({"replace":False,"values":["myvillage:old_block",{"id":"optional:block","required":False}]}))
+            tag.write_text(json.dumps({"replace":False,"values":["yuanxian:old_block",{"id":"optional:block","required":False}]}))
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(0,gen.generate(root))
             obj = json.loads(lang.read_text())
             self.assertEqual("并行新增",obj["foreign.key"])
-            self.assertEqual("旧炼器鼎",obj["block.myvillage.forging_ding"])
+            self.assertEqual("旧炼器鼎",obj["block.yuanxian.forging_ding"])
             obj["another.parallel.key"] = "保留"
             lang.write_text(json.dumps(obj))
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(0,gen.generate(root))
             self.assertEqual("保留",json.loads(lang.read_text())["another.parallel.key"])
-            self.assertEqual(["myvillage:old_block",{"id":"optional:block","required":False}],json.loads(tag.read_text())["values"][:2])
+            self.assertEqual(["yuanxian:old_block",{"id":"optional:block","required":False}],json.loads(tag.read_text())["values"][:2])
             before = {p:p.read_bytes() for p in root.rglob("*") if p.is_file()}
-            owned = root/"src/main/resources/assets/myvillage/forging_array/formed_mesh.json"
+            owned = root/"src/main/resources/assets/yuanxian/forging_array/formed_mesh.json"
             owned.write_text("{}")
             before[owned] = b"{}"
             with contextlib.redirect_stdout(io.StringIO()):

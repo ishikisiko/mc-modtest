@@ -14,7 +14,7 @@ import java.util.Objects;
 
 /**
  * Data-driven first-person weapon rig, loaded from the {@code first_person_rig} asset a weapon entry
- * names (for Qingfeng {@code assets/myvillage/combat/qingfeng_first_person.json}) and checked
+ * names (for Qingfeng {@code assets/yuanxian/combat/qingfeng_first_person.json}) and checked
  * against that weapon's style.
  *
  * <p>The weapon swings around a fixed shoulder pivot in camera space: {@code plane} tilts the

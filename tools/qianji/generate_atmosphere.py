@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont,ImageFilter
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT));sys.path.insert(0,str(ROOT/'tools'))
 from tools.qianji.generate_assets import encoded
-SOURCE=ROOT/'blueprints/qianji/atmosphere.json';ASSET=ROOT/'src/main/resources/assets/myvillage/textures/effect/qianji';DATA=ROOT/'src/main/resources/data/myvillage/qianji'
+SOURCE=ROOT/'blueprints/qianji/atmosphere.json';ASSET=ROOT/'src/main/resources/assets/yuanxian/textures/effect/qianji';DATA=ROOT/'src/main/resources/data/yuanxian/qianji'
 
 def rng(seed):
     while True:

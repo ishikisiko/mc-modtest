@@ -123,7 +123,7 @@ public final class TemperedBonesRuntime {
         if (!next.equals(previous)) {
             CultivationService.replaceFates(player, latest.withTemperedBones(next), false);
             if (next.ready() && !previous.ready())
-                FateActors.message(player,Component.translatable("fate.myvillage.tempered_bones.ready"));
+                FateActors.message(player,Component.translatable("fate.yuanxian.tempered_bones.ready"));
         }
     }
 
@@ -133,7 +133,7 @@ public final class TemperedBonesRuntime {
         TemperedBonesState next = TemperedBonesEffects.consume(latest.temperedBones(), true);
         if (next.equals(latest.temperedBones())) return;
         CultivationService.replaceFates(player, latest.withTemperedBones(next), false);
-        FateActors.message(player,Component.translatable("fate.myvillage.tempered_bones.trigger"));
+        FateActors.message(player,Component.translatable("fate.yuanxian.tempered_bones.trigger"));
         double radius = FateService.effect(player, "bones_knockback_radius");
         double strength = FateService.effect(player, "bones_knockback_strength");
         if (radius > 0 && strength > 0)

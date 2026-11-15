@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate the cultivation sword-combat contract: data, cross-file resources, and boundaries.
 
-The move facts live in the bundled combat data (``data/myvillage/combat/``), read through
+The move facts live in the bundled combat data (``data/yuanxian/combat/``), read through
 ``tools/combat_data.py``.  This validator checks that data against the schema and the move
 invariants, then cross-checks it against the resources that depend on it: the PAL player
 animations, translations, sound events, and, for every weapon in the index, its item model,
@@ -73,16 +73,16 @@ EXTERNAL_NAMESPACES = ("minecraft",)
 SEPARATE_TRANSFORMS = "neoforge:separate_transforms"
 # Combat UI strings that are not move data (mode toggle and debug command feedback).
 COMBAT_UI_TRANSLATIONS = (
-    "key.myvillage.toggle_combat_mode",
-    "message.myvillage.combat.mode.cultivation",
-    "message.myvillage.combat.mode.vanilla",
-    "commands.myvillage.combat.debug.on",
-    "commands.myvillage.combat.debug.off",
-    "commands.myvillage.combat.debug.player_only",
+    "key.yuanxian.toggle_combat_mode",
+    "message.yuanxian.combat.mode.cultivation",
+    "message.yuanxian.combat.mode.vanilla",
+    "commands.yuanxian.combat.debug.on",
+    "commands.yuanxian.combat.debug.off",
+    "commands.yuanxian.combat.debug.player_only",
 )
 FEEDBACK_SOUND_FIELDS = ("swing_sound", "hit_sound", "heavy_layer_sound")
-BLADE_CUT_PARTICLE = f"{RESOURCES}/assets/myvillage/particles/blade_cut.json"
-BLADE_CUT_TEXTURE = f"{RESOURCES}/assets/myvillage/textures/particle/blade_cut.png"
+BLADE_CUT_PARTICLE = f"{RESOURCES}/assets/yuanxian/particles/blade_cut.json"
+BLADE_CUT_TEXTURE = f"{RESOURCES}/assets/yuanxian/textures/particle/blade_cut.png"
 WEAPON_MODEL_GENERATOR_DRIFT = "COMBAT_WEAPON_MODEL_GENERATOR_DRIFT"
 # Generators that always run.  The Qingfeng model generator is pinned here as well as named by its
 # geometry contract, so the accepted Qingfeng model stays checked even if its contract loses the
@@ -94,12 +94,12 @@ GENERATOR_CHECKS = (
     ("tools/gen_qingfeng_sword_model.py", WEAPON_MODEL_GENERATOR_DRIFT),
 )
 GENERATOR_TIMEOUT_SECONDS = 120
-QINGFENG_ITEM = "myvillage:qingfeng_sword"
-QINGFENG_MODEL = f"{RESOURCES}/assets/myvillage/models/item/qingfeng_sword.json"
-QINGFENG_TEXTURE = f"{RESOURCES}/assets/myvillage/textures/item/qingfeng_sword.png"
-QINGFENG_MODEL_3D = f"{RESOURCES}/assets/myvillage/models/item/qingfeng_sword_3d.json"
-QINGFENG_MODEL_TEXTURE = f"{RESOURCES}/assets/myvillage/textures/item/qingfeng_sword_model.png"
-QINGFENG_RECIPE = f"{RESOURCES}/data/myvillage/recipe/qingfeng_sword.json"
+QINGFENG_ITEM = "yuanxian:qingfeng_sword"
+QINGFENG_MODEL = f"{RESOURCES}/assets/yuanxian/models/item/qingfeng_sword.json"
+QINGFENG_TEXTURE = f"{RESOURCES}/assets/yuanxian/textures/item/qingfeng_sword.png"
+QINGFENG_MODEL_3D = f"{RESOURCES}/assets/yuanxian/models/item/qingfeng_sword_3d.json"
+QINGFENG_MODEL_TEXTURE = f"{RESOURCES}/assets/yuanxian/textures/item/qingfeng_sword_model.png"
+QINGFENG_RECIPE = f"{RESOURCES}/data/yuanxian/recipe/qingfeng_sword.json"
 SWORD_TAG = f"{RESOURCES}/data/minecraft/tags/item/swords.json"
 # Fields a payload sent to clients must never carry: the server alone decides damage.
 CLIENTBOUND_FORBIDDEN_FIELDS = ("damage", "health")
@@ -111,7 +111,7 @@ VANILLA_ATTACK_PATTERNS = (
 )
 DOC_REQUIREMENTS = {
     "README.md": (
-        "validate_sword_combat_foundation.py", "gen_sword_pal_anims.py --check", "myvillage_pal_smoke",
+        "validate_sword_combat_foundation.py", "gen_sword_pal_anims.py --check", "yuanxian_pal_smoke",
         "combat_smoke_server", "not_verified"),
     "docs/ai-kb/32_pal_combat_integration.md": (
         PAL_JAR_NAME, "gen_sword_pal_anims.py --check"),
@@ -239,7 +239,7 @@ def validate_no_shaded_pal(root: Path, findings: list[Finding]) -> None:
     build_libs = root / "build/libs"
     if not build_libs.is_dir():
         return
-    for jar in build_libs.glob("myvillage-*.jar"):
+    for jar in build_libs.glob("yuanxian-*.jar"):
         try:
             with zipfile.ZipFile(jar) as archive:
                 shaded = next(
@@ -398,7 +398,7 @@ def validate_translations_and_sounds(root: Path, data: combat_data.CombatData, f
             required_keys.setdefault(sound_namespace, set()).add(entry["subtitle"])
 
     if data.styles:
-        required_keys.setdefault("myvillage", set()).update(COMBAT_UI_TRANSLATIONS)
+        required_keys.setdefault("yuanxian", set()).update(COMBAT_UI_TRANSLATIONS)
     for namespace, keys in sorted(required_keys.items()):
         lang_dir = root / RESOURCES / "assets" / namespace / "lang"
         lang_files = sorted(lang_dir.glob("*.json")) if lang_dir.is_dir() else []
@@ -585,11 +585,11 @@ def weapon_resource_files(root: Path, data: combat_data.CombatData) -> list[Path
     return files
 
 
-SCHOOL_DIR = "src/main/resources/data/myvillage/myvillage/school"
+SCHOOL_DIR = "src/main/resources/data/yuanxian/yuanxian/school"
 
 
 def school_weapon_families(root: Path, findings: list[Finding]) -> set[str]:
-    """The ``weapon_family`` of every weapon school (``data/myvillage/myvillage/school/*.json``)."""
+    """The ``weapon_family`` of every weapon school (``data/yuanxian/yuanxian/school/*.json``)."""
     families: set[str] = set()
     for path in sorted((root / SCHOOL_DIR).glob("*.json")):
         school = read_json(path, root, "COMBAT_WEAPON_FAMILY", findings)
@@ -1288,8 +1288,8 @@ def validate_qingfeng_item(root: Path, findings: list[Finding]) -> None:
     texture_path = root / QINGFENG_TEXTURE
     recipe_path = root / QINGFENG_RECIPE
     tag_path = root / SWORD_TAG
-    en_path = root / RESOURCES / "assets/myvillage/lang/en_us.json"
-    zh_path = root / RESOURCES / "assets/myvillage/lang/zh_cn.json"
+    en_path = root / RESOURCES / "assets/yuanxian/lang/en_us.json"
+    zh_path = root / RESOURCES / "assets/yuanxian/lang/zh_cn.json"
     for path, code in (
             (model_path, "QINGFENG_MODEL"),
             (texture_path, "QINGFENG_TEXTURE"),
@@ -1323,16 +1323,16 @@ def validate_qingfeng_item(root: Path, findings: list[Finding]) -> None:
     for path, item_name, code in (
             (en_path, "Qingfeng Sword", "QINGFENG_EN_NAME"),
             (zh_path, "青锋剑", "QINGFENG_ZH_NAME")):
-        if path.is_file() and json.loads(text(path)).get("item.myvillage.qingfeng_sword") != item_name:
+        if path.is_file() and json.loads(text(path)).get("item.yuanxian.qingfeng_sword") != item_name:
             findings.append(Finding(code, item_name))
 
 
 def validate_qingfeng_model(root: Path, model: dict, findings: list[Finding]) -> None:
     """All item views use the same jian geometry; only the GUI framing differs."""
-    icon = {"parent": "myvillage:item/qingfeng_sword_3d"}
+    icon = {"parent": "yuanxian:item/qingfeng_sword_3d"}
     perspectives = model.get("perspectives") if isinstance(model, dict) else None
     if (not isinstance(model, dict) or model.get("loader") != "neoforge:separate_transforms"
-            or model.get("base") != {"parent": "myvillage:item/qingfeng_sword_3d"}
+            or model.get("base") != {"parent": "yuanxian:item/qingfeng_sword_3d"}
             or not isinstance(perspectives, dict) or perspectives.get("gui") != icon):
         findings.append(Finding("QINGFENG_MODEL_CONTRACT", "separate_transforms: shared 3D base and GUI"))
     model_3d_path = root / QINGFENG_MODEL_3D
@@ -1345,7 +1345,7 @@ def validate_qingfeng_model(root: Path, model: dict, findings: list[Finding]) ->
             display = model_3d.get("display", {}) if isinstance(model_3d, dict) else {}
             if (not isinstance(model_3d, dict) or "parent" in model_3d
                     or not model_3d.get("elements")
-                    or model_3d.get("textures", {}).get("sword") != "myvillage:item/qingfeng_sword_model"
+                    or model_3d.get("textures", {}).get("sword") != "yuanxian:item/qingfeng_sword_model"
                     or not all(context in display for context in (
                         "thirdperson_righthand", "thirdperson_lefthand",
                         "firstperson_righthand", "firstperson_lefthand"))
@@ -1366,7 +1366,7 @@ def validate_blade_cut_assets(root: Path, findings: list[Finding]) -> None:
         except (json.JSONDecodeError, AttributeError) as exc:
             findings.append(Finding("COMBAT_BLADE_CUT_PARTICLE_JSON", str(exc)))
         else:
-            if textures != ["myvillage:blade_cut"]:
+            if textures != ["yuanxian:blade_cut"]:
                 findings.append(Finding("COMBAT_BLADE_CUT_PARTICLE_JSON", str(textures)))
     particle_texture = root / BLADE_CUT_TEXTURE
     if require_file(particle_texture, root, "COMBAT_BLADE_CUT_TEXTURE", findings):
@@ -1484,15 +1484,15 @@ def stale_jar_sources(root: Path, jar: Path, archive: zipfile.ZipFile, names: se
 def validate_jar_resources(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
     """The newest mod jar, when present and current, packages the combat data, assets, and classes."""
     build_libs = root / "build/libs"
-    jars = list(build_libs.glob("myvillage-*.jar")) if build_libs.is_dir() else []
+    jars = list(build_libs.glob("yuanxian-*.jar")) if build_libs.is_dir() else []
     if not jars:
         return
     jar = max(jars, key=lambda path: path.stat().st_mtime)
     properties = root / "gradle.properties"
     version = re.search(r"^mod_version=(\S+)$", text(properties), re.MULTILINE) if properties.is_file() else None
-    if version is not None and jar.name != f"myvillage-{version.group(1)}.jar":
+    if version is not None and jar.name != f"yuanxian-{version.group(1)}.jar":
         # The newest jar predates the current release version; rebuild before inspecting it.
-        findings.append(Finding("COMBAT_JAR_STALE", f"{jar.name}:expected myvillage-{version.group(1)}.jar"))
+        findings.append(Finding("COMBAT_JAR_STALE", f"{jar.name}:expected yuanxian-{version.group(1)}.jar"))
         return
     resources = sorted(packaged_resources(root, data))
     classes = sorted(path.relative_to(root / JAVA_ROOT).with_suffix(".class").as_posix()

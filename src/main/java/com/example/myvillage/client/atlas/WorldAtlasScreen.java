@@ -23,7 +23,7 @@ public final class WorldAtlasScreen extends Screen {
     private boolean mapDrawn;
     private Component notice;
     public WorldAtlasScreen(Screen parent){super(tr("title"));this.parent=parent;}
-    private static Component tr(String key){return Component.translatable("screen.myvillage.atlas."+key);}
+    private static Component tr(String key){return Component.translatable("screen.yuanxian.atlas."+key);}
     @Override protected void init(){
         gesture.cancel();mapDrawn=false;
         scale=Math.min((width-8f)/AtlasInkPainter.WIDTH,(height-8f)/AtlasInkPainter.HEIGHT);
@@ -111,14 +111,14 @@ public final class WorldAtlasScreen extends Screen {
         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
         super.render(g,mx,my,tick);
         if(notice!=null)g.drawCenteredString(font,notice,width/2,Math.round(top+990*scale),0xff626c5b);
-        if(hoveredCity!=null)g.renderTooltip(font,Component.translatable("screen.myvillage.atlas.travel.marker",
+        if(hoveredCity!=null)g.renderTooltip(font,Component.translatable("screen.yuanxian.atlas.travel.marker",
                 (hoveredCity instanceof WorldAtlas.Sect?"宗门 · ":"")+hoveredCity.name(),regionName(hoveredCity),hoveredCity.x(),hoveredCity.y(),hoveredCity.z()),mx,my);
     }
     private AtlasCityInteraction.MapArea mapArea(){return new AtlasCityInteraction.MapArea(Math.round(left+AtlasInkPainter.MAP_X*scale),Math.round(top+AtlasInkPainter.MAP_Y*scale),Math.max(1,Math.round(AtlasInkPainter.MAP_SIZE*scale)));}
     private boolean inMap(double x,double y){return mapArea().contains(x,y);}
     private WorldAtlas.Marker cityAt(double x,double y){return !ready()||!mapDrawn?null:AtlasCityInteraction.hit(markers,viewport,atlas.radius(),mapArea(),x,y,travelRules.markerHitRadiusPixels()).orElse(null);}
     private String regionName(WorldAtlas.Marker city){return atlas.regions().stream().filter(r->r.id().equals(city.regionId())).map(WorldAtlas.Region::name).findFirst().orElse(city.regionId());}
-    void travelCancelled(WorldAtlas.Marker city){notice=Component.translatable("screen.myvillage.atlas.travel.cancelled",city.name());report("travel_cancel");}
+    void travelCancelled(WorldAtlas.Marker city){notice=Component.translatable("screen.yuanxian.atlas.travel.cancelled",city.name());report("travel_cancel");}
     @Override public boolean mouseClicked(double x,double y,int button){
         if(button==0&&inMap(x,y)&&ready()&&mapDrawn){var city=cityAt(x,y);gesture.press(x,y,city==null?null:city.id());return true;}
         return super.mouseClicked(x,y,button);

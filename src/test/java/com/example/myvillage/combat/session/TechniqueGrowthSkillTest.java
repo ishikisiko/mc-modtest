@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TechniqueGrowthSkillTest {
     @Test void masteryReceiptIsOnePerPaidCastAndCannotBeRearmedByReleaseOrWaveTicks() {
-        var skill = CombatTestData.styles().skill(ResourceLocation.parse("myvillage:jianqi_jue")).orElseThrow();
+        var skill = CombatTestData.styles().skill(ResourceLocation.parse("yuanxian:jianqi_jue")).orElseThrow();
         var cast = new CombatSkillSession(skill, skill.id(), 8, 100, 1);
         assertFalse(cast.claimMastery(), "charging cannot earn skill experience");
         cast.release(100, Vec3.ZERO, new Vec3(0, 0, 1), 8, 0);
@@ -18,7 +18,7 @@ class TechniqueGrowthSkillTest {
         assertFalse(cast.claimMastery());
     }
     @Test void chargeCostAndDamageUseFrozenGrowthWhileLegacyCastsKeepTheirNumbers() {
-        var skill = CombatTestData.styles().skill(ResourceLocation.parse("myvillage:jianqi_jue")).orElseThrow();
+        var skill = CombatTestData.styles().skill(ResourceLocation.parse("yuanxian:jianqi_jue")).orElseThrow();
         var normal = new CombatSkillSession(skill, skill.id(), 8, 100, 1);
         var edge = new CombatSkillSession(skill, skill.id(), 8, 100, 1, 11500, 13500);
         var reserve = new CombatSkillSession(skill, skill.id(), 8, 100, 1, 8000, 12000);

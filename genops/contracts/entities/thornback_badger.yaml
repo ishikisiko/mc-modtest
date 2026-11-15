@@ -1,19 +1,19 @@
 schema_version: 1
 project:
-  mod_id: myvillage
+  mod_id: yuanxian
   java_package: com.example.myvillage
   minecraft_version: 1.21.1
   neoforge_version: 21.1.233
   java_version: 21
 data_sources:
-  server_index: data/myvillage/beast/index.json
-  server_data: data/myvillage/beast/thornback_badger.json
-  model: assets/myvillage/beast/thornback_badger_model.json
-  animations: assets/myvillage/beast/thornback_badger_animations.json
+  server_index: data/yuanxian/beast/index.json
+  server_data: data/yuanxian/beast/thornback_badger.json
+  model: assets/yuanxian/beast/thornback_badger_model.json
+  animations: assets/yuanxian/beast/thornback_badger_animations.json
   art_generator: tools/beastgen/defs/thornback_badger.py
 entity:
   id: thornback_badger
-  resource_location: myvillage:thornback_badger
+  resource_location: yuanxian:thornback_badger
   display_name:
     zh_cn: 荆背獾
     en_us: 荆背獾
@@ -32,12 +32,12 @@ entity:
       - vanilla wolf sounds at a lower pitch and a wind-up growl
       - experience reward
 physical:
-  runtime_scale_source: data/myvillage/wilderness/roster.json#mobs.body_scale
+  runtime_scale_source: data/yuanxian/wilderness/roster.json#mobs.body_scale
   dimensions_policy: registered dimensions are the base; runtime dimensions and eye height apply body_scale
   width: 1.05
   height: 0.95
   eye_height: 0.64
-  shadow_radius_source: assets/myvillage/beast/thornback_badger_model.json#shadow_radius
+  shadow_radius_source: assets/yuanxian/beast/thornback_badger_model.json#shadow_radius
   fire_immune: false
   summonable: true
   saveable: true
@@ -46,7 +46,7 @@ physical:
   despawn_policy: natural births use normal Monster distance despawn; command, egg
     and diagnostic births remain persistent
 attributes:
-  source: data/myvillage/beast/thornback_badger.json#attributes
+  source: data/yuanxian/beast/thornback_badger.json#attributes
   base: Monster.createMonsterAttributes()
   registered:
     - max_health
@@ -57,7 +57,7 @@ attributes:
     - knockback_resistance
     - step_height
   transient_modifiers:
-    - id: myvillage:beast_poise
+    - id: yuanxian:beast_poise
       attribute: knockback_resistance
       operation: add_value
       amount: 1.0
@@ -92,7 +92,7 @@ behavior:
   combat:
     mode: data_driven_moves
     server_authoritative: true
-    tuning_source: data/myvillage/beast/thornback_badger.json
+    tuning_source: data/yuanxian/beast/thornback_badger.json
     move_runtime: 'BeastEntity runs one move tick per server AI step (a hit-stop freeze
       pauses it): stop navigation, turn toward the target before turn_lock_tick, lock
       yaw and aim point at turn_lock_tick, one lunge impulse at lunge.tick, test the
@@ -106,10 +106,10 @@ behavior:
     victims: the current target, any attackable player, and any mob targeting the
       beast
     moves:
-      - id: myvillage:thornback_badger_swipe
+      - id: yuanxian:thornback_badger_swipe
         animation: swipe
         intent: 刨地蓄势后锁定方向冲撞，撞空进入明显收招；近身有短拍击。
-      - id: myvillage:thornback_badger_charge
+      - id: yuanxian:thornback_badger_charge
         animation: charge
         intent: 刨地蓄势后锁定方向冲撞，撞空进入明显收招；近身有短拍击。
     stagger:
@@ -146,7 +146,7 @@ state:
       type: vanilla saved attributes
       purpose: permanent realm modifiers restore derived maximum health before Health
         is read
-    - name: myvillage:stats_realm
+    - name: yuanxian:stats_realm
       type: compound in persistent entity data
       purpose: diagnostic realm identity used by the shared statistics runtime
   transient:
@@ -166,25 +166,25 @@ rendering:
   geckolib: false
   model_class: com.example.myvillage.client.entity.beast.BeastModel
   renderer_class: com.example.myvillage.client.entity.beast.BeastRenderer
-  model_layer: myvillage:thornback_badger#main
-  geo: myvillage:beast/thornback_badger_model.json
-  animation: myvillage:beast/thornback_badger_animations.json
-  base_texture: myvillage:textures/entity/thornback_badger/thornback_badger.png
-  glow_texture: myvillage:textures/entity/thornback_badger/thornback_badger_eyes.png
+  model_layer: yuanxian:thornback_badger#main
+  geo: yuanxian:beast/thornback_badger_model.json
+  animation: yuanxian:beast/thornback_badger_animations.json
+  base_texture: yuanxian:textures/entity/thornback_badger/thornback_badger.png
+  glow_texture: yuanxian:textures/entity/thornback_badger/thornback_badger_eyes.png
   glow_render_type: eyes
   move_presentation: While a move is shown, BeastEntity.lerpTo applies each position
     packet in one step and the move clip trails the newest synced move tick by MOVE_CLIP_DELAY_TICKS,
     so the pose matches the drawn position; under /tick freeze the clip shows the
     server's move tick exactly. Vanilla three-step smoothing applies outside moves.
   final_texture_size:
-    source: assets/myvillage/beast/thornback_badger_model.json#texture
+    source: assets/yuanxian/beast/thornback_badger_model.json#texture
   generator:
     owner: tools/beastgen
     definition: tools/beastgen/defs/thornback_badger.py
     check: python3 -m tools.beastgen build thornback_badger --check
     hand_edits: forbidden
   bones:
-    source: assets/myvillage/beast/thornback_badger_model.json#bones
+    source: assets/yuanxian/beast/thornback_badger_model.json#bones
     look_bone: head
   animations:
     - id: idle
@@ -220,7 +220,7 @@ items:
     id: thornback_badger_spawn_egg
     primary_color: '#514232'
     secondary_color: '#8A9260'
-    creative_tab: myvillage:main
+    creative_tab: yuanxian:main
 sound:
   strategy: direct_vanilla_reuse
   custom_sound_resources: false
@@ -233,23 +233,23 @@ sound:
     step: minecraft:entity.wolf.step
   subtitles: inherit_vanilla
 loot:
-  table: data/myvillage/loot_table/entities/thornback_badger.json
+  table: data/yuanxian/loot_table/entities/thornback_badger.json
   material: thorn_bone
   source: tools/wilderness_roster/catalogue.json
 spawn:
   natural: true
   authority: ordinary_entity
-  biome_modifier: myvillage:add_thornback_badger_spawns
-  spawn_biome_tag: myvillage:has_thornback_badger
+  biome_modifier: yuanxian:add_thornback_badger_spawns
+  spawn_biome_tag: yuanxian:has_thornback_badger
   spawn_placement: ON_GROUND
   heightmap: MOTION_BLOCKING_NO_LEAVES
   spawn_predicate: WildernessRosterRuntime::checkSpawn
 debug_commands:
   permission: 2
   commands:
-    - /myvillage beast move <targets> <move_id>
-    - /myvillage beast status <targets>
-    - /myvillage beast debug on|off
+    - /yuanxian beast move <targets> <move_id>
+    - /yuanxian beast status <targets>
+    - /yuanxian beast debug on|off
 acceptance:
   build: true
   dedicated_server_start: true
@@ -299,7 +299,7 @@ out_of_scope:
   - visual_variants
 schema_limitations:
   - attributes 只列出属性名并指向数据文件，不写数值；schema 要求的 max_health/movement_speed/follow_range
-    数值以 data/myvillage/beast/thornback_badger.json 为唯一来源，避免契约与调参漂移。
+    数值以 data/yuanxian/beast/thornback_badger.json 为唯一来源，避免契约与调参漂移。
   - rendering.final_texture_size、bones、shadow_radius 指向 tools/beastgen 生成的模型文件，图集尺寸由打包器决定，不在契约里重复。
   - schema 不校验招式数据、动画片段时长、刷怪蛋、声音或空 loot table；这些由 tools/validate_custom_entities.py、Java
     加载器与单元测试、构建和游戏内验收覆盖。

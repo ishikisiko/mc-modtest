@@ -38,10 +38,10 @@
   },
   "recipes": {
     "casing": {"pattern": ["CCC", "CBC", "CCC"], "key": {"C": "minecraft:copper_ingot", "B": "minecraft:bricks"}, "count": 8},
-    "controller": {"pattern": [" C ", "CFC", " C "], "key": {"C": "myvillage:alchemy_array_casing", "F": "myvillage:alchemy_furnace"}, "count": 1},
-    "input": {"pattern": [" C ", "CHC", " C "], "key": {"C": "myvillage:alchemy_array_casing", "H": "minecraft:hopper"}, "count": 1},
-    "output": {"pattern": [" C ", "CHC", " B "], "key": {"C": "myvillage:alchemy_array_casing", "H": "minecraft:hopper", "B": "minecraft:bowl"}, "count": 1},
-    "fuel": {"pattern": [" C ", "CSC", " C "], "key": {"C": "myvillage:alchemy_array_casing", "S": "#c:spirit_stones/low_grade"}, "count": 1},
-    "vent": {"pattern": [" T ", "ICI", " C "], "key": {"C": "myvillage:alchemy_array_casing", "I": "minecraft:iron_bars", "T": "minecraft:copper_ingot"}, "count": 1}
+    "controller": {"pattern": [" C ", "CFC", " C "], "key": {"C": "yuanxian:alchemy_array_casing", "F": "yuanxian:alchemy_furnace"}, "count": 1},
+    "input": {"pattern": [" C ", "CHC", " C "], "key": {"C": "yuanxian:alchemy_array_casing", "H": "minecraft:hopper"}, "count": 1},
+    "output": {"pattern": [" C ", "CHC", " B "], "key": {"C": "yuanxian:alchemy_array_casing", "H": "minecraft:hopper", "B": "minecraft:bowl"}, "count": 1},
+    "fuel": {"pattern": [" C ", "CSC", " C "], "key": {"C": "yuanxian:alchemy_array_casing", "S": "#c:spirit_stones/low_grade"}, "count": 1},
+    "vent": {"pattern": [" T ", "ICI", " C "], "key": {"C": "yuanxian:alchemy_array_casing", "I": "minecraft:iron_bars", "T": "minecraft:copper_ingot"}, "count": 1}
   }
 }

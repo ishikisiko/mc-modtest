@@ -57,7 +57,7 @@ public final class EconomyScreen extends AbstractContainerScreen<EconomyMenu> {
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
         g.drawString(font, font.plainSubstrByWidth(title.getString(), 320), 10, 9, 0xFFE2D3A8, false);
         g.drawString(font, "宗门贡献：" + menu.contribution() + "    江湖声望：" + menu.reputation(), 10, 27, 0xFFCCDEBF, false);
-        g.drawString(font, Component.translatable("screen.myvillage.economy.status." + menu.status()), 10, 183, 0xFFE2D3A8, false);
+        g.drawString(font, Component.translatable("screen.yuanxian.economy.status." + menu.status()), 10, 183, 0xFFE2D3A8, false);
         g.drawString(font, (page + 1) + "/" + Math.max(1, (menu.rows.size() + ROWS - 1) / ROWS), 237, 197, 0xFFCCDEBF, false);
         g.drawString(font, menu.linlang ? "本宗弟子可用贡献兑换，部分商品要求内门身份。" : "日常事务每日一项；远征另行接取，通关后回榜领奖。", 10, 216, 0xFFA5B59C, false);
     }

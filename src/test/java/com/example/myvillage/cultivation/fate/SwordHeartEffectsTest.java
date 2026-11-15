@@ -122,7 +122,7 @@ class SwordHeartEffectsTest {
     }
 
     @Test void authoredFateAndPiercingWaveOwnTheirNumbersAndWaveHasNoQiRefund() throws Exception {
-        try (var stream = getClass().getResourceAsStream("/data/myvillage/myvillage/innate_fate/innate_sword_heart.json")) {
+        try (var stream = getClass().getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/innate_sword_heart.json")) {
             assertNotNull(stream);
             var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,
                     JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8))).getOrThrow();
@@ -130,10 +130,10 @@ class SwordHeartEffectsTest {
             assertEquals(60, definition.effect("heart_opening_ticks"));
             assertEquals(160, definition.effect("heart_cooldown"));
             assertEquals(.5, definition.effect("heart_critical_bonus"));
-            assertEquals("myvillage:innate_sword_heart_wave", definition.derivedSkill().orElseThrow().toString());
+            assertEquals("yuanxian:innate_sword_heart_wave", definition.derivedSkill().orElseThrow().toString());
         }
         var styles = CombatTestData.styles();
-        var skill = styles.skill(ResourceLocation.fromNamespaceAndPath("myvillage", "innate_sword_heart_wave")).orElseThrow();
+        var skill = styles.skill(ResourceLocation.fromNamespaceAndPath("yuanxian", "innate_sword_heart_wave")).orElseThrow();
         assertEquals(1.5, skill.damageMultiplier());
         assertTrue(skill.maximumTargets() > 1);
         var flight = new CombatSkillSession(skill, skill.id(), 0, 100, 42);

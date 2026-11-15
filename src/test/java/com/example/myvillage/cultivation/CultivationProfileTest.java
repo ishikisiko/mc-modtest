@@ -23,8 +23,8 @@ class CultivationProfileTest {
         CultivationProfile profile = CultivationProfile.defaultProfile();
 
         assertEquals(5, profile.schemaVersion());
-        assertEquals(id("myvillage", "mortal"), profile.realmId());
-        assertEquals(id("myvillage", "mortal_unawakened"), profile.stageId());
+        assertEquals(id("yuanxian", "mortal"), profile.realmId());
+        assertEquals(id("yuanxian", "mortal_unawakened"), profile.stageId());
         assertEquals(0L, profile.cultivationProgress());
         assertEquals(0, profile.stability());
         assertEquals(0L, profile.currentSpiritualPower());
@@ -40,7 +40,7 @@ class CultivationProfileTest {
     @Test
     void profileCodecRoundTripsEveryField() {
         SpiritualRoot root = new SpiritualRoot(Map.of(
-                id("myvillage", "fire"), 6_250,
+                id("yuanxian", "fire"), 6_250,
                 id("addon", "lightning"), 3_750));
         CultivationProfile profile = new CultivationProfile(
                 5,
@@ -54,9 +54,9 @@ class CultivationProfileTest {
                 999L,
                 Optional.of(root),
                 Map.of(
-                        id("myvillage", "basic_breathing"), new TechniqueProgress(41),
+                        id("yuanxian", "basic_breathing"), new TechniqueProgress(41),
                         id("addon", "forgotten_art"), new TechniqueProgress(99)),
-                Optional.of(id("myvillage", "basic_breathing")));
+                Optional.of(id("yuanxian", "basic_breathing")));
 
         assertEquals(profile, roundTrip(CultivationProfile.CODEC, profile));
     }
@@ -75,10 +75,10 @@ class CultivationProfileTest {
 
     @Test
     void spiritualRootAcceptsIndependentPointTotalsInConstructorAndCodec() {
-        var root = new SpiritualRoot(Map.of(id("myvillage", "fire"), 300, id("myvillage", "water"), 200));
+        var root = new SpiritualRoot(Map.of(id("yuanxian", "fire"), 300, id("yuanxian", "water"), 200));
         assertEquals(500, root.points().values().stream().mapToInt(Integer::intValue).sum());
         assertEquals(root, SpiritualRoot.CODEC.parse(JsonOps.INSTANCE,
-                JsonParser.parseString("{\"element_points\":{\"myvillage:fire\":300,\"myvillage:water\":200}}" )).getOrThrow());
+                JsonParser.parseString("{\"element_points\":{\"yuanxian:fire\":300,\"yuanxian:water\":200}}" )).getOrThrow());
     }
 
     @Test
@@ -86,20 +86,20 @@ class CultivationProfileTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new SpiritualRoot(Map.of(
-                        id("myvillage", "fire"), -1,
-                        id("myvillage", "water"), 10_001)));
+                        id("yuanxian", "fire"), -1,
+                        id("yuanxian", "water"), 10_001)));
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new SpiritualRoot(Map.of(
-                        id("myvillage", "fire"), 10_001,
-                        id("myvillage", "water"), -1)));
+                        id("yuanxian", "fire"), 10_001,
+                        id("yuanxian", "water"), -1)));
         assertTrue(SpiritualRoot.CODEC.parse(
                         JsonOps.INSTANCE,
                         JsonParser.parseString("""
                                 {
                                   "element_points": {
-                                    "myvillage:fire": 10001,
-                                    "myvillage:water": -1
+                                    "yuanxian:fire": 10001,
+                                    "yuanxian:water": -1
                                   }
                                 }
                                 """))
@@ -169,8 +169,8 @@ class CultivationProfileTest {
 
     @Test
     void profileAndRootDefensivelyCopyInputMaps() {
-        ResourceLocation fire = id("myvillage", "fire");
-        ResourceLocation technique = id("myvillage", "basic_breathing");
+        ResourceLocation fire = id("yuanxian", "fire");
+        ResourceLocation technique = id("yuanxian", "basic_breathing");
         Map<ResourceLocation, Integer> affinities = new LinkedHashMap<>();
         affinities.put(fire, 10_000);
         SpiritualRoot root = new SpiritualRoot(affinities);
@@ -205,7 +205,7 @@ class CultivationProfileTest {
 
     @Test
     void learnMasteryAndForgetTransitionsPreserveOldProfiles() {
-        ResourceLocation technique = id("myvillage", "basic_breathing");
+        ResourceLocation technique = id("yuanxian", "basic_breathing");
         CultivationProfile initial = CultivationProfile.defaultProfile();
         CultivationProfile learned = initial.learnTechnique(technique);
         CultivationProfile mastered = learned.withTechniqueMastery(technique, 42);
@@ -221,7 +221,7 @@ class CultivationProfileTest {
 
     @Test
     void masteryDoesNotImplicitlyLearnTechnique() {
-        ResourceLocation technique = id("myvillage", "basic_breathing");
+        ResourceLocation technique = id("yuanxian", "basic_breathing");
         CultivationProfile initial = CultivationProfile.defaultProfile();
 
         assertThrows(
@@ -300,8 +300,8 @@ class CultivationProfileTest {
         String profileJson = """
                 {
                   "schema_version": %d,
-                  "realm_id": "myvillage:mortal",
-                  "stage_id": "myvillage:mortal_unawakened",
+                  "realm_id": "yuanxian:mortal",
+                  "stage_id": "yuanxian:mortal_unawakened",
                   "cultivation_progress": %d,
                   "stability": %d,
                   "current_spiritual_power": %d,
@@ -341,29 +341,29 @@ class CultivationProfileTest {
         String v4 = """
                 {
                   "schema_version": 5,
-                  "realm_id": "myvillage:mortal",
-                  "stage_id": "myvillage:mortal_qi_sensed",
+                  "realm_id": "yuanxian:mortal",
+                  "stage_id": "yuanxian:mortal_qi_sensed",
                   "cultivation_progress": 0,
                   "stability": 0,
                   "current_spiritual_power": 0,
                   "spiritual_affinity": 10,
                   "lifespan_consumed_ticks": 0,
                   "meditation_qi_reserve": 0,
-                  "learned_techniques": { "myvillage:basic_breathing": { "mastery_points": 0 },
-                                          "myvillage:gengjin_yinqi_fa": { "mastery_points": 0 } },
+                  "learned_techniques": { "yuanxian:basic_breathing": { "mastery_points": 0 },
+                                          "yuanxian:gengjin_yinqi_fa": { "mastery_points": 0 } },
                   "active_core_technique": "%s"
                 }
                 """;
-        assertEquals(Optional.of(id("myvillage", "gengjin_yinqi_fa")),
-                decode(v4.formatted("myvillage:gengjin_yinqi_fa")).activeCoreTechnique());
-        assertTrue(decode(v4.formatted("myvillage:forgotten")).activeCoreTechnique().isEmpty());
+        assertEquals(Optional.of(id("yuanxian", "gengjin_yinqi_fa")),
+                decode(v4.formatted("yuanxian:gengjin_yinqi_fa")).activeCoreTechnique());
+        assertTrue(decode(v4.formatted("yuanxian:forgotten")).activeCoreTechnique().isEmpty());
     }
 
     @Test
     void runningCoreTechniqueFollowsLearnForgetAndMastery() {
-        ResourceLocation breathing = id("myvillage", "basic_breathing");
-        ResourceLocation other = id("myvillage", "gengjin_yinqi_fa");
-        ResourceLocation sword = id("myvillage", "gengjin_jianjue");
+        ResourceLocation breathing = id("yuanxian", "basic_breathing");
+        ResourceLocation other = id("yuanxian", "gengjin_yinqi_fa");
+        ResourceLocation sword = id("yuanxian", "gengjin_jianjue");
         CultivationProfile initial = CultivationProfile.defaultProfile();
 
         CultivationProfile first = initial.learnTechnique(breathing, TechniqueCategory.CORE);

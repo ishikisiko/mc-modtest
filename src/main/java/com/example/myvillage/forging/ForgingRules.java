@@ -10,7 +10,7 @@ import java.util.*;
 
 /** Bundled production costs and effects, validated once on both sides. */
 public final class ForgingRules {
-    public static final String RESOURCE = "/data/myvillage/forging/rules.json";
+    public static final String RESOURCE = "/data/yuanxian/forging/rules.json";
     public record Recipe(String id, String pattern, String output, Map<String,Integer> costs, List<String> traits, String qualityTier) {
         public Recipe { costs = Map.copyOf(costs); traits = List.copyOf(traits); }
     }

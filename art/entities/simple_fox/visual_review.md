@@ -9,7 +9,7 @@ Status: `accepted`
 - `references/concept_builtin.png`: adopted Codex built-in imagegen direction sheet.
 - `texture_faces.json`: cuboid `part.face` map used to review directional details.
 - `texture_patches.json`: face-local native coordinates for the paired eyes and nose; the validator confirms the runtime pixels exactly.
-- Runtime target: `assets/myvillage/textures/entity/simple_fox/simple_fox.png`.
+- Runtime target: `assets/yuanxian/textures/entity/simple_fox/simple_fox.png`.
 
 ## Critical Self-Review
 
@@ -34,6 +34,6 @@ Automated texture checks alone do not resolve these aesthetic risks. The owner c
 
 - `./gradlew test` and `./gradlew build` passed for version `0.21.0`; the jar contains the runtime/client classes and every declared entity resource.
 - `runAcceptanceServer` reached `Done` with `MyVillage 0.21.0`, loaded recipes/data packs, and did not resolve client classes on the server.
-- RCON summoned a named `myvillage:simple_fox`; the server selector found exactly one entity and read inherited `Type: "red"` data.
+- RCON summoned a named `yuanxian:simple_fox`; the server selector found exactly one entity and read inherited `Type: "red"` data.
 - After `save-all flush`, a clean server stop, and a second startup, the same UUID and inherited fox type were present. The test entity and temporary force-load ticket were then removed and the server stopped cleanly.
 - The owner reported the Minecraft client validation passed, closing spawn-egg, natural-frequency, multiplayer, and rendered model/pose acceptance.

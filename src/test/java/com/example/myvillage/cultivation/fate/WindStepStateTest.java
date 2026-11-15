@@ -45,7 +45,7 @@ class WindStepStateTest {
     }
 
     @Test void fullFateCodecPreservesAirStateAcrossUnrelatedUpdatesAndDeathClearsOnlyCharge() {
-        var ids = List.of("myvillage:wind_step", "myvillage:robust", "myvillage:bright");
+        var ids = List.of("yuanxian:wind_step", "yuanxian:robust", "yuanxian:bright");
         var state = new FateState(4, 3, ids, "", ids, true, 1000, 30, .2, 2000)
                 .withWindStep(new WindStepState(false, 3000));
         var encoded = FateState.CODEC.encodeStart(JsonOps.INSTANCE, state).getOrThrow().getAsJsonObject();

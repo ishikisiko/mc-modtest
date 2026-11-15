@@ -137,8 +137,8 @@ def geometry(kind, lit=False):
 def outputs(root=ROOT):
     root = Path(root)
     cfg = config(root)
-    assets = root/"src/main/resources/assets/myvillage"
-    data = root/"src/main/resources/data/myvillage"
+    assets = root/"src/main/resources/assets/yuanxian"
+    data = root/"src/main/resources/data/yuanxian"
     files = {
         assets/"textures/block/forging_array_formed.png": texture(cfg),
         assets/"forging_array/formed_mesh.json": (json.dumps(build(),separators=(",",":"))+"\n").encode(),
@@ -149,7 +149,7 @@ def outputs(root=ROOT):
             suffix = "_lit" if lit else ""
             files[assets/f"models/block/{bid}{suffix}.json"] = encode({
                 "ambientocclusion":True,
-                "textures":{"atlas":"myvillage:block/forging_array_formed","particle":"myvillage:block/forging_array_formed"},
+                "textures":{"atlas":"yuanxian:block/forging_array_formed","particle":"yuanxian:block/forging_array_formed"},
                 "elements":geometry(kind,lit)})
         # Current Java state is FACING/LIT only. Runtime must suppress these baked
         # parts when formed before the controller BER draws the shared mesh.
@@ -159,24 +159,24 @@ def outputs(root=ROOT):
             if kind == "hearth":
                 for lit in (False,True):
                     parts.append({"when":{"facing":facing,"lit":str(lit).lower()},
-                                  "apply":{"model":f"myvillage:block/{bid}"+("_lit" if lit else ""),"y":angle}})
+                                  "apply":{"model":f"yuanxian:block/{bid}"+("_lit" if lit else ""),"y":angle}})
             else:
                 parts.append({"when":{"facing":facing},
-                              "apply":{"model":f"myvillage:block/{bid}","y":angle}})
+                              "apply":{"model":f"yuanxian:block/{bid}","y":angle}})
         files[assets/f"blockstates/{bid}.json"] = encode({"multipart":parts})
-        files[assets/f"models/item/{bid}.json"] = encode({"parent":f"myvillage:block/{bid}","display":{
+        files[assets/f"models/item/{bid}.json"] = encode({"parent":f"yuanxian:block/{bid}","display":{
             "gui":{"rotation":[25,225,0],"scale":[.6,.6,.6]},
             "ground":{"translation":[0,3,0],"scale":[.3,.3,.3]},
             "fixed":{"rotation":[0,180,0],"scale":[.5,.5,.5]},
             "firstperson_righthand":{"rotation":[0,135,0],"scale":[.4,.4,.4]},
             "thirdperson_righthand":{"rotation":[75,45,0],"scale":[.35,.35,.35]}}})
         files[data/f"loot_table/blocks/{bid}.json"] = encode({"type":"minecraft:block","pools":[{
-            "rolls":1,"entries":[{"type":"minecraft:item","name":f"myvillage:{bid}"}],
-            "conditions":[{"condition":"minecraft:survives_explosion"}]}],"random_sequence":f"myvillage:blocks/{bid}"})
+            "rolls":1,"entries":[{"type":"minecraft:item","name":f"yuanxian:{bid}"}],
+            "conditions":[{"condition":"minecraft:survives_explosion"}]}],"random_sequence":f"yuanxian:blocks/{bid}"})
         recipe = cfg["recipes"][kind]
         files[data/f"recipe/{bid}.json"] = encode({"type":"minecraft:crafting_shaped","category":"misc",
             "pattern":recipe["pattern"],"key":{k:{"tag" if v.startswith("#") else "item":v.removeprefix("#")}
-            for k,v in recipe["key"].items()},"result":{"id":f"myvillage:{bid}","count":recipe["count"]}})
+            for k,v in recipe["key"].items()},"result":{"id":f"yuanxian:{bid}","count":recipe["count"]}})
     return files
 
 
@@ -184,11 +184,11 @@ def shared_patches(root=ROOT):
     """Return only owned entries; never keep a stale snapshot of a shared document."""
     root = Path(root)
     cfg = config(root)
-    yield root/"src/main/resources/assets/myvillage/lang/zh_cn.json", {
-        f"{prefix}.myvillage.{block_id(k)}":name
+    yield root/"src/main/resources/assets/yuanxian/lang/zh_cn.json", {
+        f"{prefix}.yuanxian.{block_id(k)}":name
         for k,name in cfg["names"].items() for prefix in ("block","item")}
     for tag in ("mineable/pickaxe","needs_stone_tool"):
-        yield root/f"src/main/resources/data/minecraft/tags/block/{tag}.json", [f"myvillage:{block_id(k)}" for k in KINDS]
+        yield root/f"src/main/resources/data/minecraft/tags/block/{tag}.json", [f"yuanxian:{block_id(k)}" for k in KINDS]
 
 
 def merge_shared(path, patch):

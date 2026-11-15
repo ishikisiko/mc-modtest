@@ -1,0 +1,14 @@
+{
+  "translation_key": "fate.yuanxian.innate_sword_heart",
+  "description_key": "fate.yuanxian.innate_sword_heart.description",
+  "tier": 4,
+  "cost": 5,
+  "group": "sword_dao",
+  "effects": {
+    "heart_window_ticks": 4,
+    "heart_opening_ticks": 60,
+    "heart_cooldown": 160,
+    "heart_critical_bonus": 0.5
+  },
+  "derived_skill": "yuanxian:innate_sword_heart_wave"
+}

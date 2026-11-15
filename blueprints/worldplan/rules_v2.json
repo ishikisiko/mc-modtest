@@ -1,6 +1,6 @@
 {
   "base": "rules_v1.json",
-  "algorithm": "myvillage:worldplan_v2",
+  "algorithm": "yuanxian:worldplan_v2",
   "ecology": {
     "clear_spawn_canopy": true,
     "blend": 720,

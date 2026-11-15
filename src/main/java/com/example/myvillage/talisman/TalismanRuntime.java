@@ -29,9 +29,9 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 符的使用是独立服务器事务，不占普通静坐会话。展示实体不持有可拾取物。 */
 public final class TalismanRuntime {
-    public static final ResourceLocation SHIELD_SOURCE = ResourceLocation.parse("myvillage:talisman_ward");
-    private static final ResourceLocation SNARE_SOURCE = ResourceLocation.parse("myvillage:talisman_snare");
-    private static final String MARKER_TAG = "myvillage_talisman_marker";
+    public static final ResourceLocation SHIELD_SOURCE = ResourceLocation.parse("yuanxian:talisman_ward");
+    private static final ResourceLocation SNARE_SOURCE = ResourceLocation.parse("yuanxian:talisman_snare");
+    private static final String MARKER_TAG = "yuanxian_talisman_marker";
     private static final Map<MinecraftServer, LinkedHashMap<UUID, Seal>> STATES = new WeakHashMap<>();
     private record Seal(UUID id, UUID owner, ServerLevel level, Vec3 center, int kind, ItemStack stack, long expires, Display.ItemDisplay marker) { }
     private TalismanRuntime() { }

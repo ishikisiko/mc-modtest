@@ -19,13 +19,13 @@ from tools.combat_capture import scene, session as cs
 from tools.golden_core_evidence import parse_profile
 
 CASES=['structure','matrix','switch','legacy_restart','two_players','visual']
-FUELS={grade:'myvillage:'+grade+'_spirit_stone' for grade in ('low_grade','medium_grade','high_grade')}
+FUELS={grade:'yuanxian:'+grade+'_spirit_stone' for grade in ('low_grade','medium_grade','high_grade')}
 
 
 class TierEvidence(GatheringEvidence):
     def __init__(self,out,cases):
         super().__init__(out,cases)
-        self.all_rules=json.loads((ROOT/'src/main/resources/data/myvillage/gathering/rules.json').read_text())
+        self.all_rules=json.loads((ROOT/'src/main/resources/data/yuanxian/gathering/rules.json').read_text())
         self.tier='low'
         self.report.update(kind='graded_gathering_arrays',selected=cases,completed=[],unrun=list(cases),
                            source_method='Mapped menus, actual V/B/X and physical block placement; RCON fixtures/readback; observer camera for visuals')
@@ -41,13 +41,13 @@ class TierEvidence(GatheringEvidence):
     def place(self,core=CORE,missing=False,tier=None):
         tier=tier or self.tier;x,y,z=core;r=self.all_rules['tiers'][tier]['radius']
         self.rc(f'fill {x-r} {y} {z-r} {x+r} {y} {z+r} minecraft:stone_bricks')
-        self.rc('setblock '+pos(core)+' myvillage:'+IDS[tier]+'_core')
+        self.rc('setblock '+pos(core)+' yuanxian:'+IDS[tier]+'_core')
         for i,(dx,dz) in enumerate(((0,-r),(r,0),(0,r),(-r,0))):
-            self.rc(f'setblock {x+dx} {y+1} {z+dz} '+('minecraft:air' if missing and i==0 else 'myvillage:'+IDS[tier]+'_node'))
+            self.rc(f'setblock {x+dx} {y+1} {z+dz} '+('minecraft:air' if missing and i==0 else 'yuanxian:'+IDS[tier]+'_node'))
         self.build_parts(core,tier,missing)
 
     def build_parts(self,core,tier,missing=False):
-        path=ROOT/'src/main/resources/data/myvillage/gathering/construction.json'
+        path=ROOT/'src/main/resources/data/yuanxian/gathering/construction.json'
         if not path.exists():return
         r=self.all_rules['tiers'][tier]['radius']
         for part in json.loads(path.read_text())['tiers'][tier]:
@@ -84,16 +84,16 @@ class TierEvidence(GatheringEvidence):
     def structure(self):
         for tier,rule in self.all_rules['tiers'].items():
             self.fixture(tier,missing=True);r=rule['radius'];inner=rule['inner_radius'];u=self.s.username
-            self.rc(f'item replace entity {u} hotbar.0 with myvillage:{IDS[tier]}_node')
+            self.rc(f'item replace entity {u} hotbar.0 with yuanxian:{IDS[tier]}_node')
             self.rc(f'tp {u} .5 -60 {3-r-1.5} 0 39');self.key('1');time.sleep(.4)
             self.s.game.xdo('click','3');self.report['mapped_input'].append({'place_final_node':tier})
             self.poll(self.inspect,lambda d:d['formed'],8,'mapped '+tier+' final node')
             self.check('mapped_placement_forms_'+tier,self.inspect()['tier']==tier,self.inspect())
             if tier!='low':
-                self.rc(f'setblock 0 -60 {3-r} myvillage:spirit_gathering_node')
+                self.rc(f'setblock 0 -60 {3-r} yuanxian:spirit_gathering_node')
                 bad=self.poll(self.inspect,lambda d:not d['formed'],5,'wrong-tier node rejected')
                 self.check('reject_mixed_nodes_'+tier,bad['issue']==1,bad)
-                self.rc(f'setblock 0 -60 {3-r} myvillage:{IDS[tier]}_node')
+                self.rc(f'setblock 0 -60 {3-r} yuanxian:{IDS[tier]}_node')
             self.rc(f'setblock {r} -61 {3+r} minecraft:air')
             bad=self.poll(self.inspect,lambda d:d['issue']==5,5,'outer floor checked')
             self.check('outer_floor_required_'+tier,not bad['formed'],bad)
@@ -212,16 +212,16 @@ class TierEvidence(GatheringEvidence):
         self.key('F1',guest.game,guest.username)
         self.rc('setworldspawn -7 -60 -3 0');self.rc(f'tp {self.s.username} -7 -60 -3 0 15')
         self.rc('setblock -7 -60 -5 minecraft:chest')
-        self.rc('setblock -7 -60 -1 myvillage:spirit_testing_stele')
-        self.rc('setblock -7 -60 1 myvillage:technique_inheritance_stele')
+        self.rc('setblock -7 -60 -1 yuanxian:spirit_testing_stele')
+        self.rc('setblock -7 -60 1 yuanxian:technique_inheritance_stele')
         entry_reply = self.rc(
-            'execute if block -7 -60 -1 myvillage:spirit_testing_stele '
-            'if block -7 -60 1 myvillage:technique_inheritance_stele')
+            'execute if block -7 -60 -1 yuanxian:spirit_testing_stele '
+            'if block -7 -60 1 yuanxian:technique_inheritance_stele')
         self.check('preview_has_player_entry', 'test passed' in entry_reply.lower(), entry_reply)
-        supplies=[('myvillage:'+prefix+'_'+kind,1 if kind=='core' else 4) for prefix in IDS.values() for kind in ('core','node')]
+        supplies=[('yuanxian:'+prefix+'_'+kind,1 if kind=='core' else 4) for prefix in IDS.values() for kind in ('core','node')]
         supplies += [(item,32) for item in FUELS.values()]+[('minecraft:stone_bricks',64),('minecraft:iron_pickaxe',1)]
         from tools.gathering.architecture import parts
-        supplies += [('myvillage:'+bid,64) for bid in parts()]
+        supplies += [('yuanxian:'+bid,64) for bid in parts()]
         for i,(item,count) in enumerate(supplies):self.rc(f'item replace block -7 -60 -5 container.{i} with {item} {count}')
         self.rc('save-all flush')
 
@@ -297,11 +297,11 @@ def finalize_preview(out):
             def command(text):
                 reply=rc.cmd(text);state['commands'].append({'command':text,'reply':reply});return reply
             for tier,x in (('low',-16),('medium',0),('high',18)):
-                reply=command(f'execute if block {x} -61 3 myvillage:{IDS[tier]}_core')
+                reply=command(f'execute if block {x} -61 3 yuanxian:{IDS[tier]}_core')
                 assert 'test passed' in reply.lower(),reply
-            reply=command('execute if block -7 -60 -1 myvillage:spirit_testing_stele if block -7 -60 1 myvillage:technique_inheritance_stele')
+            reply=command('execute if block -7 -60 -1 yuanxian:spirit_testing_stele if block -7 -60 1 yuanxian:technique_inheritance_stele')
             assert 'test passed' in reply.lower(),reply
-            supplies=[('myvillage:'+prefix+'_'+kind,1 if kind=='core' else 4) for prefix in IDS.values() for kind in ('core','node')]
+            supplies=[('yuanxian:'+prefix+'_'+kind,1 if kind=='core' else 4) for prefix in IDS.values() for kind in ('core','node')]
             supplies += [(item,32) for item in FUELS.values()]+[('minecraft:stone_bricks',64),('minecraft:iron_pickaxe',1)]
             for i,(item,count) in enumerate(supplies):command(f'item replace block -7 -60 -5 container.{i} with {item} {count}')
             actual=quality_stacks(command('data get block -7 -60 -5 Items'))

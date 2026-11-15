@@ -69,7 +69,7 @@ Review in game with the unchanged commands:
 /yuanxian place pagoda_001
 /yuanxian place pagoda_002
 /yuanxian place pagoda_003
-/function myvillage:gallery/cultivation_town
+/function yuanxian:gallery/cultivation_town
 ```
 
 Automated validation confirms geometry and integration, not final appearance.

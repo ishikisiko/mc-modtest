@@ -25,7 +25,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 默认真实时序的服务器 fixture；不代表玩家映射输入或自然生存平衡。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class TribulationEvidence {
     private static final boolean ENABLED="1".equals(System.getenv("MYVILLAGE_TRIBULATION_EVIDENCE"));
     private static final boolean RESTART="restart".equals(System.getenv("MYVILLAGE_TRIBULATION_PHASE"));
@@ -54,7 +54,7 @@ public final class TribulationEvidence {
         var p=new HurtPlayer(l,name);p.setGameMode(GameType.SURVIVAL);
         var grace=ServerPlayer.class.getDeclaredField("spawnInvulnerableTime");grace.setAccessible(true);grace.setInt(p,0);
         p.setPos(8.5,l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,8,8),8.5);p.setOnGround(true);
-        var profile=CultivationProfile.DEFAULT.withSpiritualRoot(new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:fire"),10000)))
+        var profile=CultivationProfile.DEFAULT.withSpiritualRoot(new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:fire"),10000)))
                 .learnTechnique(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
                 .withRealmAndStage(ResourceLocation.parse(kind.sourceRealm()),ResourceLocation.parse(kind.sourceStage())).withFoundationQuality(kind==TribulationKind.HEAVEN?0:1).withCurrentSpiritualPower(17);
         var realm=l.registryAccess().registryOrThrow(ModCultivationRegistries.REALMS).get(profile.realmId());

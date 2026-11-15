@@ -65,7 +65,7 @@ def read_obj(assets, model):
         if bits[0] == "newmtl":
             current = bits[1]
         elif bits[0] == "map_Kd":
-            materials[current] = texture(assets, "myvillage:textures/" + bits[1].split(":", 1)[1] + ".png")
+            materials[current] = texture(assets, "yuanxian:textures/" + bits[1].split(":", 1)[1] + ".png")
     vertices, uv, quads = [], [], []
     for line in obj.read_text().splitlines():
         bits = line.split()
@@ -156,7 +156,7 @@ def gui_comparisons(before, after, out, root=ROOT):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--assets", type=Path, default=ROOT/"src/main/resources/assets/myvillage")
+    parser.add_argument("--assets", type=Path, default=ROOT/"src/main/resources/assets/yuanxian")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--views", default="front,three-quarter,side,back")
     parser.add_argument("--gui-before", type=Path, help="仅生成四槽GUI对照，指定旧资源目录")

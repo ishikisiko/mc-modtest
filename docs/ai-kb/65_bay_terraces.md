@@ -1,7 +1,7 @@
 # 湾口台地集：普通世界与修仙大陆聚落（0.88.0）
 
 在普通主世界开启“生成结构”后，新的合适区块会出现湾口台地集。
-使用 `/locate structure myvillage:bay_terraces` 查找；该 ID 是真实注册的原生结构。
+使用 `/locate structure yuanxian:bay_terraces` 查找；该 ID 是真实注册的原生结构。
 世界种子决定候选位置与四向整体旋转，内部布局使用已确认的围场、坡巷与上台民居方案。
 这不是任意聚落自动设计器，也不要求切换到修仙大陆世界类型。
 
@@ -67,7 +67,7 @@ python -m tools.regiongen.bay_assets --check
 
 聚落完整占地及缓冲进入 `RegionGeometry`，由既有 `GatePlacement` 避让；`PlannedChunkGenerator.createStructures` 同时拒绝碰撞的原生结构。V5 禁止独立随机湾口结构再生成一份。`PlannedSettlement` 在与主城相同的 FEATURES 阶段调用原 `BayTerracesPiece` 实现器，每次只写当前区块；`WorldPlanGuard` 保护核心空间和矿石直接写入路径。地下及外围衔接继续由既有聚落实现器处理，不改变全局地形算法。
 
-`/yuanxian worldplan settlements` 输出冻结站点，`worldplan.json` 包含同一清单。它与主城一样是规划切片，不是原生 StructureStart；普通世界继续使用 `/locate structure myvillage:bay_terraces`。舆图的地形采样仍是装饰前地形，不承诺展示聚落局部地表或新增聚落图标。
+`/yuanxian worldplan settlements` 输出冻结站点，`worldplan.json` 包含同一清单。它与主城一样是规划切片，不是原生 StructureStart；普通世界继续使用 `/locate structure yuanxian:bay_terraces`。舆图的地形采样仍是装饰前地形，不承诺展示聚落局部地表或新增聚落图标。
 
 V1–V4 的 codec、冻结 JSON 和资源继续保留，V4 的 239 个资源另以已交付 jar 的字节哈希锁定。完整云山与生活布局保持原样。旧档不会切换成 V5；本次不自动安装或重开玩家正在游玩的世界，也不新增聚落人物、商业或剧情绑定。
 

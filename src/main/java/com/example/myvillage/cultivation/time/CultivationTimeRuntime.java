@@ -323,7 +323,7 @@ public final class CultivationTimeRuntime {
         if (threshold == EXHAUSTED_WARNING_MARKER) {
             if (delivered.add(EXHAUSTED_WARNING_MARKER)) {
                 player.sendSystemMessage(Component.translatable(
-                        "message.myvillage.cultivation.lifespan_exhausted"));
+                        "message.yuanxian.cultivation.lifespan_exhausted"));
             }
             return;
         }
@@ -339,7 +339,7 @@ public final class CultivationTimeRuntime {
             }
         }
         player.sendSystemMessage(Component.translatable(
-                "message.myvillage.cultivation.lifespan_warning", threshold));
+                "message.yuanxian.cultivation.lifespan_warning", threshold));
     }
 
     static int warningMarker(CultivationTimeStatus status) {

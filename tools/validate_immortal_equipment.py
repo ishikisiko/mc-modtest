@@ -82,7 +82,7 @@ def validate_png(image, material):
 
 
 def resource(root, identity, kind='assets'):
-    require(isinstance(identity, str) and re.fullmatch(r'myvillage:[a-z0-9_/.-]+', identity) is not None
+    require(isinstance(identity, str) and re.fullmatch(r'yuanxian:[a-z0-9_/.-]+', identity) is not None
             and not identity.split(':')[1].startswith('/') and '..' not in identity.split(':')[1].split('/'), '非法资源引用：' + str(identity))
     namespace, name = identity.split(':')
     return root / 'src/main/resources' / kind / namespace / name
@@ -283,23 +283,23 @@ def validate_bindings(root, identity, mesh):
 
 
 def validate_gui_icon(root, identity):
-    model = read_json(resource(root, f'myvillage:models/item/{identity}.json'))
+    model = read_json(resource(root, f'yuanxian:models/item/{identity}.json'))
     require(model.get('loader') == 'neoforge:separate_transforms', identity + '：缺少独立GUI分支')
     require(model.get('base', {}).get('loader') == 'neoforge:obj', identity + '：非GUI视角必须保留OBJ')
     perspectives = model.get('perspectives', {})
     require(set(perspectives) == {'gui'}, identity + '：GUI图标覆盖了其他物品视角')
-    gui = perspectives['gui'];texture = f'myvillage:item/{identity}'
+    gui = perspectives['gui'];texture = f'yuanxian:item/{identity}'
     require(gui.get('parent') == 'minecraft:item/generated' and gui.get('textures') == {'layer0': texture},
             identity + '：GUI图标引用与物品身份不符')
     require(model.get('gui_light') == gui.get('gui_light') == 'front', identity + '：GUI光照必须为front')
     require(not gui.get('display'), identity + '：GUI图标不得叠加三维显示变换')
-    rows = decode_png(resource(root, f'myvillage:textures/item/{identity}.png').read_bytes(), (16, 16))
+    rows = decode_png(resource(root, f'yuanxian:textures/item/{identity}.png').read_bytes(), (16, 16))
     alpha = {value for row in rows for value in row[3::4]}
     require(alpha == {0, 255}, identity + '：GUI图标需要透明背景和不抗锯齿的实体像素')
 
 
 def validate_item(root, identity, components):
-    assets = root / 'src/main/resources/assets/myvillage'
+    assets = root / 'src/main/resources/assets/yuanxian'
     model = read_json(assets / ('models/item/' + identity + '.json'))
     if model.get('loader') == 'neoforge:separate_transforms': model = model['base']
     require(model.get('loader') == 'neoforge:obj', identity + '：物品不是原三维OBJ')
@@ -341,20 +341,20 @@ def validate_item(root, identity, components):
 
 def validate(root=ROOT, provenance=True):
     designs = source_designs(root)
-    manifest_path = root / 'src/main/resources/assets/myvillage/immortal_equipment/provenance.json'
+    manifest_path = root / 'src/main/resources/assets/yuanxian/immortal_equipment/provenance.json'
     manifest = read_json(manifest_path)
     require(manifest.get('set_count') == 15 and manifest.get('item_count') == 75 and manifest.get('inputs'), '导出来源清单缺身份')
     for name, expected in manifest['inputs'].items():
         require(not Path(name).is_absolute() and '..' not in Path(name).parts, '导出来源清单路径越界')
         require(hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, '导出来源漂移：' + name)
-    catalogue = read_json(root / 'src/main/resources/data/myvillage/immortal_equipment/catalogue.json')
+    catalogue = read_json(root / 'src/main/resources/data/yuanxian/immortal_equipment/catalogue.json')
     require(catalogue.get('version') == 1, '目录版本错误')
     require(catalogue.get('tiers') == read_json(root / 'equipment/immortal/balance.json')['tiers'], '数值不是balance输入原值')
     sets = catalogue.get('sets', [])
     require(len(sets) == 15 and {s['id'] for s in sets} == set(designs), '目录十五套身份错误')
     ids, meshes = [], {}
     effects = authored_effects(root)
-    lang = read_json(root / 'src/main/resources/assets/myvillage/lang/zh_cn.json')
+    lang = read_json(root / 'src/main/resources/assets/yuanxian/lang/zh_cn.json')
     for row in sets:
         identity, spec = row['id'], designs[row['id']]
         require(row['level'] == spec['level'] and row['name'] == spec['name'], identity + '：套装名/境界改变')
@@ -362,9 +362,9 @@ def validate(root=ROOT, provenance=True):
         require(len(armor) == 4 and {a['slot'] for a in armor} == set(SLOTS), identity + '：四件目录不完整')
         for item in [*armor, row['ingot']]:
             expected = identity + '_' + (SLOTS[item['slot']] if 'slot' in item else 'ingot')
-            require(item['id'] == 'myvillage:' + expected, '物品ID不符：' + item['id'])
+            require(item['id'] == 'yuanxian:' + expected, '物品ID不符：' + item['id'])
             ids.append(item['id'])
-            require(item.get('name') and lang.get('item.myvillage.' + expected) == item['name'], expected + '：中文名未接入')
+            require(item.get('name') and lang.get('item.yuanxian.' + expected) == item['name'], expected + '：中文名未接入')
             require(re.search('[\u4e00-\u9fff]', item['name']), expected + '：名称不是中文')
             components = spec['ingot']['components'] if 'slot' not in item else [c for c in spec['components'] if c['role'] == ('boots' if item['slot'] == 'feet' else item['slot'])]
             validate_item(root, expected, components)

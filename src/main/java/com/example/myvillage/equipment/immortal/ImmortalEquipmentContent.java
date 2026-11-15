@@ -17,8 +17,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 /** 十五套独立材质、六十件护甲与十五种锭；不替换旧玄铁或武器注册。 */
 public final class ImmortalEquipmentContent {
     private static final DeferredRegister<ArmorMaterial> MATERIALS =
-            DeferredRegister.create(Registries.ARMOR_MATERIAL, "myvillage");
-    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("myvillage");
+            DeferredRegister.create(Registries.ARMOR_MATERIAL, "yuanxian");
+    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("yuanxian");
     private static final Map<ResourceLocation, DeferredItem<ImmortalArmorItem>> ARMOR = new LinkedHashMap<>();
     private static final Map<ResourceLocation, DeferredItem<Item>> INGOTS = new LinkedHashMap<>();
 
@@ -27,7 +27,7 @@ public final class ImmortalEquipmentContent {
             var ingot = ITEMS.registerSimpleItem(set.ingot().id().getPath());
             INGOTS.put(set.ingot().id(), ingot);
             var tier = ImmortalEquipmentCatalogue.tiers().get(set.level());
-            var materialId = ResourceLocation.fromNamespaceAndPath("myvillage", set.id());
+            var materialId = ResourceLocation.fromNamespaceAndPath("yuanxian", set.id());
             var material = MATERIALS.register(set.id(), () -> new ArmorMaterial(
                     tier.defense(), tier.enchantability(), SoundEvents.ARMOR_EQUIP_IRON,
                     // 本次仅接入外观，沿用铁甲基础修复材料，不新增灵材玩法。

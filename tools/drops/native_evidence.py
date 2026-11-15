@@ -30,8 +30,8 @@ class Evidence:
                 shutil.copytree(world_fixture,self.game/'world')
         shutil.copyfile(probe,self.game/'mods'/probe.name)
         self.server=Server(out,self.game,seed);self.server.startup_timeout=1800
-        self.path=self.game/'config/myvillage/monster_drops.json'
-        self.defaults=json.loads((ROOT/'src/main/resources/data/myvillage/drops/monster_drops.json').read_text())
+        self.path=self.game/'config/yuanxian/monster_drops.json'
+        self.defaults=json.loads((ROOT/'src/main/resources/data/yuanxian/drops/monster_drops.json').read_text())
         self.selected=CASES.copy() if only is None else [v for v in CASES if v=='candidate_identity' or v in only]
         self.report=dict(kind='dynamic_drops_native',status='running',selected=self.selected,completed=[],failed=[],unrun=self.selected.copy(),checks=[],commands=[],world=str(self.game),seed=seed,evidence='accepted_death_callback_fixture_and_native_item_entities',mapped_combat='not_verified',owner_feel='not_verified',owner_visual='not_verified',owner_fps='not_verified',collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
         self.current=CASES[0];self.save()
@@ -54,10 +54,10 @@ class Evidence:
         self.path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
         answer=self.rc('yuanxian drops reload');self.check('reload_accepted','掉落配置已生效' in answer,answer)
     def entity_policy(self,mode,drops=None):
-        data=copy.deepcopy(self.defaults);data['entities']['myvillage:stele_guardian']={'mode':mode,'drops':drops or []};return data
+        data=copy.deepcopy(self.defaults);data['entities']['yuanxian:stele_guardian']={'mode':mode,'drops':drops or []};return data
     @staticmethod
     def entry(item='minecraft:diamond',count=2,chance=1,**kw):return dict(item=item,min=count,max=count,chance=chance,**kw)
-    def spawn(self,entity='myvillage:stele_guardian',scene='normal',stage=8):
+    def spawn(self,entity='yuanxian:stele_guardian',scene='normal',stage=8):
         self.value(f'drop_probe spawn {entity} {scene} {stage}','DROP_PROBE ')
         deadline=time.monotonic()+30
         while time.monotonic()<deadline:
@@ -70,7 +70,7 @@ class Evidence:
         value=self.value('drop_probe read','DROP_PROBE ')
         self.check('real_event_and_item_entities',value.get('event_items')==value.get('world_items') and 'event_items' in value,value)
         return value
-    def kill(self,entity='myvillage:stele_guardian',scene='normal',stage=8,looting=0,captured=False):self.spawn(entity,scene,stage);return self.finish(looting,captured)
+    def kill(self,entity='yuanxian:stele_guardian',scene='normal',stage=8,looting=0,captured=False):self.spawn(entity,scene,stage);return self.finish(looting,captured)
     def items(self,want,**kw):
         value=self.kill(**kw);self.check('expected_items',value['world_items']==want,value);return value
     def run(self):
@@ -80,8 +80,8 @@ class Evidence:
             self.rc('kill @e[type=minecraft:item]')
             self.case('fresh_config_and_export',self.initial)
             self.case('query_and_inspect',self.query)
-            self.case('inherit',lambda:self.items({'myvillage:stele_stone_heart':1}))
-            self.case('append',lambda:self.mode('append',{'myvillage:stele_stone_heart':1,'minecraft:diamond':2}))
+            self.case('inherit',lambda:self.items({'yuanxian:stele_stone_heart':1}))
+            self.case('append',lambda:self.mode('append',{'yuanxian:stele_stone_heart':1,'minecraft:diamond':2}))
             self.case('replace',lambda:self.mode('replace',{'minecraft:diamond':2}))
             self.case('disabled',lambda:self.mode('disabled',{}))
             self.case('live_existing_entity',self.live)
@@ -120,13 +120,13 @@ class Evidence:
         self.check('export_all_scenes',len(result['rows'])>=71*6 and len({r['context']['scene'] for r in result['rows']})==6)
         self.check('csv_bom',self.path.with_name('monster_drops_effective.csv').read_bytes().startswith(b'\xef\xbb\xbf'))
         with self.path.with_name('monster_drops_effective.csv').open(encoding='utf-8-sig',newline='') as stream:csv_rows=list(csv.DictReader(stream))
-        inherited=next(row for row in csv_rows if row['实体ID']=='myvillage:stele_guardian' and row['场景']=='normal')
-        self.check('csv_includes_native_drop_expression','myvillage:stele_stone_heart' in inherited['继承战利品表'],inherited)
+        inherited=next(row for row in csv_rows if row['实体ID']=='yuanxian:stele_guardian' and row['场景']=='normal')
+        self.check('csv_includes_native_drop_expression','yuanxian:stele_stone_heart' in inherited['继承战利品表'],inherited)
         for suffix in ['json','csv']:shutil.copyfile(self.path.with_name('monster_drops_effective.'+suffix),self.out/f'{label}-effective.{suffix}')
     def query(self):
         born=self.spawn();v=self.value('yuanxian drops inspect '+born['uuid'],'DROPS ')
-        self.check('inspect_live_realm',v['context']['realmRank'] is not None and v['effective']['origin']=='entities.myvillage:stele_guardian',v)
-        v=self.value('yuanxian drops show myvillage:stele_guardian habitat donghuang','DROPS ')
+        self.check('inspect_live_realm',v['context']['realmRank'] is not None and v['effective']['origin']=='entities.yuanxian:stele_guardian',v)
+        v=self.value('yuanxian drops show yuanxian:stele_guardian habitat donghuang','DROPS ')
         self.check('show_scene',v['effective']['origin']=='overrides.donghuang_habitat',v)
         self.finish()
     def mode(self,mode,want):
@@ -148,30 +148,30 @@ class Evidence:
     def conditions(self):
         data=self.entity_policy('disabled');born=self.spawn();region=born['spawn_context']['region'];self.finish()
         self.check('real_donghuang_context',region=='donghuang',born)
-        data['overrides'].insert(0,dict(id='qi9_in_donghuang',when=dict(entities=['myvillage:stele_guardian'],scenes=['normal'],regions=[region],min_realm=dict(realm='myvillage:qi_refining',stage=8),max_realm=dict(realm='myvillage:qi_refining',stage=8)),mode='replace',drops=[self.entry()]))
+        data['overrides'].insert(0,dict(id='qi9_in_donghuang',when=dict(entities=['yuanxian:stele_guardian'],scenes=['normal'],regions=[region],min_realm=dict(realm='yuanxian:qi_refining',stage=8),max_realm=dict(realm='yuanxian:qi_refining',stage=8)),mode='replace',drops=[self.entry()]))
         self.config(data);self.items({'minecraft:diamond':2},stage=8);self.items({},stage=7)
-        v=self.value('yuanxian drops show myvillage:stele_guardian normal beiyuan myvillage:qi_refining 8','DROPS ')
-        self.check('other_region_not_matched',v['effective']['origin']=='entities.myvillage:stele_guardian',v)
+        v=self.value('yuanxian drops show yuanxian:stele_guardian normal beiyuan yuanxian:qi_refining 8','DROPS ')
+        self.check('other_region_not_matched',v['effective']['origin']=='entities.yuanxian:stele_guardian',v)
     def looting(self):
         entries=[self.entry(count=2,looting=dict(min_per_level=1,max_per_level=1,limit=4)),self.entry('minecraft:emerald',64,0)]
         self.config(self.entity_policy('replace',entries));self.items({'minecraft:diamond':4},looting=3)
     def fire(self):
         data=copy.deepcopy(self.defaults);data['entities']['minecraft:blaze']={'mode':'replace','drops':[]};data['additions'][0]['drops'][0]['chance']=1
-        self.config(data);value=self.items({'myvillage:beast_fire_seed':1},entity='minecraft:blaze')
-        detail=value['world_item_details'][0]['components'];fire=detail.get('components',{}).get('myvillage:fire_seed',{})
+        self.config(data);value=self.items({'yuanxian:beast_fire_seed':1},entity='minecraft:blaze')
+        detail=value['world_item_details'][0]['components'];fire=detail.get('components',{}).get('yuanxian:fire_seed',{})
         self.check('formal_fire_components',fire.get('kind')=='beast' and fire.get('maturity')==0 and fire.get('dimension')=='minecraft:overworld' and isinstance(fire.get('origin'),int),detail)
     def stale(self):
         data=copy.deepcopy(self.defaults);data['overrides']=[dict(id='any_habitat',when=dict(scenes=['habitat']),mode='replace',drops=[self.entry()])];self.config(data);self.items({},scene='stale_habitat')
     def habitat(self):
-        self.config(self.defaults);v=self.kill('myvillage:demon_wolf','habitat');items=v['world_items']
-        self.check('real_habitat_receipt_and_default',v['death_context']['scene']=='HABITAT' and set(items)=={'myvillage:low_grade_spirit_stone'} and 1<=items['myvillage:low_grade_spirit_stone']<=3,v)
+        self.config(self.defaults);v=self.kill('yuanxian:demon_wolf','habitat');items=v['world_items']
+        self.check('real_habitat_receipt_and_default',v['death_context']['scene']=='HABITAT' and set(items)=={'yuanxian:low_grade_spirit_stone'} and 1<=items['yuanxian:low_grade_spirit_stone']<=3,v)
     def habitat_change(self):
-        self.spawn('myvillage:demon_wolf','habitat');data=copy.deepcopy(self.defaults);data['overrides'][3]['drops']=[self.entry('myvillage:low_grade_spirit_stone',7)];self.config(data)
-        v=self.finish();self.check('valid_habitat_new_loot',v['world_items']=={'myvillage:low_grade_spirit_stone':7},v)
+        self.spawn('yuanxian:demon_wolf','habitat');data=copy.deepcopy(self.defaults);data['overrides'][3]['drops']=[self.entry('yuanxian:low_grade_spirit_stone',7)];self.config(data)
+        v=self.finish();self.check('valid_habitat_new_loot',v['world_items']=={'yuanxian:low_grade_spirit_stone':7},v)
     def restart(self):
         raw=self.path.read_bytes();sha=self.status()['sha256'];self.server.stop();self.server.start()
         self.check('restart_keeps_external_file',self.path.read_bytes()==raw and self.status()['sha256']==sha)
-        v=self.value('yuanxian drops show myvillage:demon_wolf habitat donghuang','DROPS ')
+        v=self.value('yuanxian drops show yuanxian:demon_wolf habitat donghuang','DROPS ')
         self.check('restart_custom_rule_live',v['effective']['policy']['drops'][0]['min']==7,v)
     def restore(self):self.config(self.defaults);self.export('restored-defaults');self.check('restored_configuration',json.loads(self.path.read_text())==self.defaults)
 

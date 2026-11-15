@@ -114,18 +114,18 @@ class EntryEvidence(Evidence):
             for kind in ('item', 'experience_orb'):
                 self.rc('kill @e[type=minecraft:' + kind + ',x=-7,y=219,z=-7,dx=14,dy=8,dz=14]')
             for i, variant in enumerate(variants):
-                self.rc('execute in minecraft:overworld run summon myvillage:' + variant['id']
+                self.rc('execute in minecraft:overworld run summon yuanxian:' + variant['id']
                         + f' {-1.25 if i == 0 else 1.25} 220.0 0.0 '
                         + '{NoAI:1b,Silent:1b,Invulnerable:1b,PersistenceRequired:1b,'
                         + 'Tags:["undead_review_fixture"],Rotation:[180.0f,0.0f]}')
             for variant in variants:
-                wait(lambda v=variant: self.rc('execute if entity @e[type=myvillage:' + v['id'] + ',tag=undead_review_fixture]'),
+                wait(lambda v=variant: self.rc('execute if entity @e[type=yuanxian:' + v['id'] + ',tag=undead_review_fixture]'),
                      lambda reply: 'Test passed' in reply, 20, 'review entity is active: ' + variant['id'])
             for label, angle in [('front', 180), ('side', 90), ('other_side', 270), ('back', 0)]:
                 self.rc('execute as @e[tag=undead_review_fixture] at @s run tp @s ~ ~ ~ ' + str(angle) + ' 0')
                 time.sleep(1.2)
                 for variant in variants:
-                    reply = self.rc('execute if entity @e[type=myvillage:' + variant['id'] + ',tag=undead_review_fixture]')
+                    reply = self.rc('execute if entity @e[type=yuanxian:' + variant['id'] + ',tag=undead_review_fixture]')
                     self.check('fixture_visible_' + variant['id'] + '_' + label, 'Test passed' in reply, reply)
                 client.capture('undead-' + region + '-' + label)
             self.report['rendered_variants'].extend(v['id'] for v in variants); self.save()
@@ -134,7 +134,7 @@ class EntryEvidence(Evidence):
         text = client.game.client_log.read_text(errors='replace')
         errors = [line for line in text.splitlines() if any(s in line for s in
                   ['Exception rendering entity', 'Missing texture', 'Failed to load texture', 'Using missing texture'])
-                  and ('myvillage' in line or 'Exception rendering entity' in line)]
+                  and ('yuanxian' in line or 'Exception rendering entity' in line)]
         self.check('all_18_rendered_without_missing_resources', len(set(self.report['rendered_variants'])) == 18
                    and not errors, {'variants': self.report['rendered_variants'], 'render_errors': errors})
         self.complete('undead_client_render')

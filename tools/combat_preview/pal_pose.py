@@ -1,9 +1,9 @@
 """Offline preview of a PAL (Player Animation Library 1.1.4) player pose holding an item model.
 
     python3 -m tools.combat_preview pose \
-        --animations src/main/resources/assets/myvillage/player_animations/sword_combat.json \
+        --animations src/main/resources/assets/yuanxian/player_animations/sword_combat.json \
         --animation basic_sword_02_horizontal_cut --ticks 0,3,4,4.9,6,9 \
-        --item myvillage:item/qingfeng_sword --views back,front,side,top --out out/preview/combat_preview/pose.png
+        --item yuanxian:item/qingfeng_sword --views back,front,side,top --out out/preview/combat_preview/pose.png
 
 Renders a sheet (rows = views, columns = ticks) of a vanilla-proportioned wide-arm player box
 figure posed by the animation at each tick, with the item in the right hand.  Light work: numpy
@@ -829,7 +829,7 @@ def main(argv=None):
     ap.add_argument("--animation", required=True, help="animation key (namespace optional)")
     ap.add_argument("--ticks", default="0", help="comma list, fractional allowed (e.g. 0,3,4.9)")
     ap.add_argument("--all-keys", action="store_true", help="use every keyframe time of the animation")
-    ap.add_argument("--item", default="myvillage:item/qingfeng_sword", help="item model id or .json path; 'none'")
+    ap.add_argument("--item", default="yuanxian:item/qingfeng_sword", help="item model id or .json path; 'none'")
     ap.add_argument("--root", action="append", default=[],
                     help="resources root (repeatable, first wins; default src/main/resources of this repository)")
     ap.add_argument("--vanilla-jar", default=str(pim.VANILLA_JAR))

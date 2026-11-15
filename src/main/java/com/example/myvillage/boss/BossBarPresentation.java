@@ -6,11 +6,11 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 
 /** Structured presentation carried by vanilla boss-name packets; no entity/name guessing. */
 public record BossBarPresentation(Component title, Component realm, Component phase, Component horn) {
-    public static final String KEY = "entity.myvillage.thunder_tiger.bossbar";
-    public static final String PHASE_ONE = "hud.myvillage.boss.phase_one";
-    public static final String PHASE_TWO = "hud.myvillage.boss.phase_two";
-    public static final String HORN_INTACT = "hud.myvillage.boss.horn_intact";
-    public static final String HORN_BROKEN = "hud.myvillage.boss.horn_broken";
+    public static final String KEY = "entity.yuanxian.thunder_tiger.bossbar";
+    public static final String PHASE_ONE = "hud.yuanxian.boss.phase_one";
+    public static final String PHASE_TWO = "hud.yuanxian.boss.phase_two";
+    public static final String HORN_INTACT = "hud.yuanxian.boss.horn_intact";
+    public static final String HORN_BROKEN = "hud.yuanxian.boss.horn_broken";
 
     public static Component name(Component title, Component realm, boolean enraged, boolean broken) {
         return Component.translatable(KEY, title, realm,

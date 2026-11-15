@@ -18,11 +18,11 @@ Outputs (schema 1, see the beast contract):
 
 | File | Content |
 |---|---|
-| `assets/myvillage/beast/<beast>_model.json` | bones (parents first) and cubes, vanilla `ModelPart` semantics |
-| `assets/myvillage/beast/<beast>_animations.json` | clips as vanilla `AnimationDefinition` keyframes |
-| `assets/myvillage/beast/<beast>_surface.json`（可选） | 骨骼局部三角形表面，模型的 `surface_mesh` 声明后替代盒体绘制 |
-| `assets/myvillage/textures/entity/<beast>/<beast>.png` | the painted atlas |
-| `assets/myvillage/textures/entity/<beast>/<beast>_eyes.png` | glow layer, transparent except emissive texels (the wolf: eyes, mane blade top edges, tail tip) |
+| `assets/yuanxian/beast/<beast>_model.json` | bones (parents first) and cubes, vanilla `ModelPart` semantics |
+| `assets/yuanxian/beast/<beast>_animations.json` | clips as vanilla `AnimationDefinition` keyframes |
+| `assets/yuanxian/beast/<beast>_surface.json`（可选） | 骨骼局部三角形表面，模型的 `surface_mesh` 声明后替代盒体绘制 |
+| `assets/yuanxian/textures/entity/<beast>/<beast>.png` | the painted atlas |
+| `assets/yuanxian/textures/entity/<beast>/<beast>_eyes.png` | glow layer, transparent except emissive texels (the wolf: eyes, mane blade top edges, tail tip) |
 
 Never hand-edit them; change the definition and rebuild. A model may set `model.scale` (written as
 the optional `scale` field, omitted at 1): the renderer scales the whole model by it, which is how
@@ -49,7 +49,7 @@ colours texels from where they sit in 3D, so markings continue across cube seams
 nose, teeth, claws) are pinned by bone-local coordinates plus face. Mirrored twins (`uv_from`) share
 the source island and get `mirror: true`, which vanilla turns into the mirror image.
 
-Move clips read their ticks from `data/myvillage/beast/<beast>.json` at build time; every key pose of
+Move clips read their ticks from `data/yuanxian/beast/<beast>.json` at build time; every key pose of
 a move sits on a server tick (`turn_lock_tick`, `lunge.tick`, `active_ticks`, `total_ticks`, and for a
 lunge with `up` > 0 the landing tick `move_flight` computes: 28 for the pounce, apex 1.057), and the
 clip length is `total_ticks / 20`. A retune of those ticks or of `lunge.up` needs only a rebuild. Move

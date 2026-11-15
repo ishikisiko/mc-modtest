@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandLayer.class)
 public abstract class LegacyHeldItemMixin {
     @Inject(method="renderArmWithItem",at=@At("HEAD"),cancellable=true)
-    private void myvillage$deployed(LivingEntity entity,ItemStack stack,ItemDisplayContext context,HumanoidArm arm,
+    private void yuanxian$deployed(LivingEntity entity,ItemStack stack,ItemDisplayContext context,HumanoidArm arm,
             PoseStack poses,MultiBufferSource buffers,int light,CallbackInfo ci){
         if(arm==entity.getMainArm()&&LegacyVisuals.deployed(entity))ci.cancel();
     }

@@ -115,13 +115,13 @@ class PillAegisEffectsTest {
 
     @Test void fateAttachmentCodecRetainsShieldAndLegacySelectedIdNeedsNoMigration() {
         var legacy = JsonParser.parseString("""
-                {"revision":3,"rolls":1,"candidates":["myvillage:pill_aegis","myvillage:robust","myvillage:bright"],
-                 "selected":["myvillage:pill_aegis","myvillage:robust","myvillage:bright"],"confirmed":true}
+                {"revision":3,"rolls":1,"candidates":["yuanxian:pill_aegis","yuanxian:robust","yuanxian:bright"],
+                 "selected":["yuanxian:pill_aegis","yuanxian:robust","yuanxian:bright"],"confirmed":true}
                 """);
         var current = FateState.CODEC.parse(JsonOps.INSTANCE, legacy).getOrThrow();
         assertEquals(PillAegisState.EMPTY, current.pillAegis());
         assertTrue(current.confirmed());
-        assertTrue(current.selected().contains("myvillage:pill_aegis"));
+        assertTrue(current.selected().contains("yuanxian:pill_aegis"));
         var armed = current.withPillAegis(grant(current.pillAegis(), 100));
         var serialized = FateState.CODEC.encodeStart(JsonOps.INSTANCE, armed).getOrThrow();
         assertEquals(armed, FateState.CODEC.parse(JsonOps.INSTANCE, serialized).getOrThrow());
@@ -144,7 +144,7 @@ class PillAegisEffectsTest {
     }
 
     @Test void shippedExistingIdIsImplementedWithItsAuthoredValues() throws Exception {
-        try (var in = getClass().getResourceAsStream("/data/myvillage/myvillage/innate_fate/pill_aegis.json")) {
+        try (var in = getClass().getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/pill_aegis.json")) {
             assertNotNull(in);
             var json = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
             assertFalse(json.has("placeholder") && json.get("placeholder").getAsBoolean());

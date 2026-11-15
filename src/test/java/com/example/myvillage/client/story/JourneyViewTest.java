@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyViewTest {
     private static final UUID OWNER=UUID.fromString("12345678-1234-1234-1234-123456789abc");
-    private static final String REALM="myvillage:qianzhen/"+OWNER;
+    private static final String REALM="yuanxian:qianzhen/"+OWNER;
     private static StorySnapshotPayload snapshot(boolean accepted,boolean completed,String dimension,List<String> journal) {
         return new StorySnapshotPayload(1,true,accepted,completed,"qianzhen_chapter_1","药庐学徒","当前目标","提示",
                 dimension,BlockPos.ZERO,journal);

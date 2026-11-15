@@ -9,7 +9,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "tools/cultivation_ink/source"
-DESTINATION = ROOT / "src/main/resources/assets/myvillage/textures/gui/cultivation/ink"
+DESTINATION = ROOT / "src/main/resources/assets/yuanxian/textures/gui/cultivation/ink"
 NAMES = ("qi", "foundation", "core", "soul")
 METADATA = b'{\n  "texture": {\n    "blur": true,\n    "clamp": true\n  }\n}\n'
 

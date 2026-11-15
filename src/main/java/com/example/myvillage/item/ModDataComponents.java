@@ -13,7 +13,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 /** Persistent synchronized metadata for manuals and quality-bearing medicines. */
 public final class ModDataComponents {
     public static final DeferredRegister.DataComponents DATA_COMPONENTS =
-            DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, "myvillage");
+            DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, "yuanxian");
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.forging.ForgeCraft>> FORGE_CRAFT =
             DATA_COMPONENTS.registerComponentType("forge_craft", builder -> builder

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Validate the MyVillage custom entities and their pack resources.
 
-Two routes: the vanilla-model `myvillage:simple_fox`, checked against its pinned contract and UV
-evidence, and every beast listed in `data/myvillage/beast/index.json` (BeastEntity subclasses with
+Two routes: the vanilla-model `yuanxian:simple_fox`, checked against its pinned contract and UV
+evidence, and every beast listed in `data/yuanxian/beast/index.json` (BeastEntity subclasses with
 data-driven moves and generated model/animation/texture files), checked generically: server data
 invariants, client asset files and their cross-file rules, the Entity Contract against the data
 file and Java registration, resources, side safety, and the combat package staying beast-neutral.
@@ -27,7 +27,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 JAVA_ROOT = "src/main/java/com/example/myvillage"
 RESOURCE_ROOT = "src/main/resources"
-BEAST_INDEX = "data/myvillage/beast/index.json"
+BEAST_INDEX = "data/yuanxian/beast/index.json"
 TICKS_PER_SECOND = 20
 CLIP_LENGTH_TOLERANCE = 1.0e-4
 RESERVED_CLIPS = ("idle", "walk", "run")
@@ -195,7 +195,7 @@ def require_json(path: Path, errors: list[str]) -> Any:
 
 
 def validate_texture(root: Path, errors: list[str]) -> dict[str, Any]:
-    texture_path = root / "src/main/resources/assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+    texture_path = root / "src/main/resources/assets/yuanxian/textures/entity/simple_fox/simple_fox.png"
     mask_path = root / "art/entities/simple_fox/uv_islands_mask.png"
     result: dict[str, Any] = {"texture": str(texture_path.relative_to(root))}
     if not texture_path.is_file() or not mask_path.is_file():
@@ -267,15 +267,15 @@ def validate_simple_fox(root: Path, errors: list[str]) -> dict[str, Any]:
     """The vanilla-route fox: pinned contract, registration, resources, spawning, UV evidence."""
     java_root = root / "src/main/java/com/example/myvillage"
     resource_root = root / "src/main/resources"
-    asset_root = resource_root / "assets/myvillage"
-    data_root = resource_root / "data/myvillage"
+    asset_root = resource_root / "assets/yuanxian"
+    data_root = resource_root / "data/yuanxian"
 
     contract = require_text(
         root / "genops/contracts/entities/simple_fox.yaml",
         [
-            "resource_location: myvillage:simple_fox",
+            "resource_location: yuanxian:simple_fox",
             "route: vanilla",
-            "base_texture: myvillage:textures/entity/simple_fox/simple_fox.png",
+            "base_texture: yuanxian:textures/entity/simple_fox/simple_fox.png",
             "final_texture_size:",
             "width: 48",
             "height: 32",
@@ -344,9 +344,9 @@ def validate_simple_fox(root: Path, errors: list[str]) -> dict[str, Any]:
         ("zh_cn", ("简易狐狸", "简易狐狸生成蛋")),
     ):
         lang = require_json(asset_root / f"lang/{locale}.json", errors)
-        if lang.get("entity.myvillage.simple_fox") != expected[0]:
+        if lang.get("entity.yuanxian.simple_fox") != expected[0]:
             errors.append(f"invalid_entity_translation:{locale}")
-        if lang.get("item.myvillage.simple_fox_spawn_egg") != expected[1]:
+        if lang.get("item.yuanxian.simple_fox_spawn_egg") != expected[1]:
             errors.append(f"invalid_spawn_egg_translation:{locale}")
 
     loot = require_json(data_root / "loot_table/entities/simple_fox.json", errors)
@@ -361,10 +361,10 @@ def validate_simple_fox(root: Path, errors: list[str]) -> dict[str, Any]:
     spawner = modifier.get("spawners", {}) if isinstance(modifier, dict) else {}
     if modifier.get("type") != "neoforge:add_spawns":
         errors.append("invalid_simple_fox_biome_modifier_type")
-    if modifier.get("biomes") != "#myvillage:has_simple_fox":
+    if modifier.get("biomes") != "#yuanxian:has_simple_fox":
         errors.append("invalid_simple_fox_biome_modifier_tag")
     if not isinstance(spawner, dict) or spawner != {
-        "type": "myvillage:simple_fox",
+        "type": "yuanxian:simple_fox",
         "weight": 8,
         "minCount": 1,
         "maxCount": 2,
@@ -470,7 +470,7 @@ def _rule(value: Any, rule: str) -> bool:
 
 
 def check_beast_index(index: Any) -> tuple[list[str], list[str]]:
-    """(errors, listed beast ids) for ``data/myvillage/beast/index.json``."""
+    """(errors, listed beast ids) for ``data/yuanxian/beast/index.json``."""
     errors: list[str] = []
     if not _fields(index, "", {"schema", "beasts"}, errors):
         return errors, []
@@ -1219,7 +1219,7 @@ def npc_definitions(root: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
             if not factory.is_file():
                 errors.append(f"missing_file:{factory}")
             else:
-                groups.setdefault("myvillage:cultivator", {})[variants[name]["look"]] = name
+                groups.setdefault("yuanxian:cultivator", {})[variants[name]["look"]] = name
             continue
         path = root / NPCGEN_DEFS / f"{name}.py"
         if not path.is_file():
@@ -1231,7 +1231,7 @@ def npc_definitions(root: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
         if not entity or not look:
             errors.append(f"npc_definition_without_entity_or_look:{name}")
             continue
-        looks = groups.setdefault(f"myvillage:{entity.group(1)}", {})
+        looks = groups.setdefault(f"yuanxian:{entity.group(1)}", {})
         if look.group(1) in looks:
             errors.append(f"npc_definition_duplicate_look:{entity.group(1)}:{look.group(1)}:{looks[look.group(1)]},{name}")
             continue
@@ -1485,7 +1485,7 @@ def validate_npc(root: Path, entity_id: str, errors: list[str],
     declared_looks = java_looks(sources.get(java_class, ""), root)
     if "LOOKS = CultivatorVariants.looks();" in sources.get(java_class, ""):
         require_text(java_root / "entity/npc/CultivatorVariants.java",
-                     ['"/assets/myvillage/npc/cultivator_variants.json"', "getResourceAsStream(RESOURCE)"], found)
+                     ['"/assets/yuanxian/npc/cultivator_variants.json"', "getResourceAsStream(RESOURCE)"], found)
     to_check = sorted(looks, key=lambda look: look != NPC_LOOK_DEFAULT)
     if contract:
         found.extend(f"npc_contract:{problem}" for problem in check_npc_contract(contract, entity_id, lang))
@@ -1544,7 +1544,7 @@ def validate(root: Path = ROOT) -> dict[str, Any]:
     npc_reports = {entity_id: validate_npc(root, entity_id, errors, looks) for entity_id, looks in npc_groups.items()}
     return {
         "schema_version": 1,
-        "entities": ["myvillage:simple_fox", *beasts, *npcs],
+        "entities": ["yuanxian:simple_fox", *beasts, *npcs],
         "texture": texture,
         "beasts": beast_reports,
         "npcs": npc_reports,

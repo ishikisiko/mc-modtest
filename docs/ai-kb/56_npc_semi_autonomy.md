@@ -10,7 +10,7 @@
 
 命簿人物实际交谈通过 `WorldSim` 保存原有熟悉度和有界记忆，仍按模拟日防重放。临时散修不创建人物、宗门或熟悉关系；只将 `RogueWanderAnchor` / `RogueWanderDimension` 保存为普通实体数据，以出生点为中心闲逛。已有无锚点普通实体在第一次服务器 tick 以当前位置初始化；重启保留锚点，跨维度后重新锚定。路径的全部节点均检查活动范围，被推离或战斗离开后尝试步行返回；地形无法通过时等待，不传送、不强载区块。短暂交谈暂停不写入实体存档。
 
-范围、会话期限、暂停时长、冷却、内存上限与闲逛半径唯一来源为 `data/myvillage/npc_interaction/rules.json`。本次基础逻辑验证与未观察范围见 [验证记录](../testing/2026-10-26-npc-interactions.md)。下文是历史版本说明。
+范围、会话期限、暂停时长、冷却、内存上限与闲逛半径唯一来源为 `data/yuanxian/npc_interaction/rules.json`。本次基础逻辑验证与未观察范围见 [验证记录](../testing/2026-10-26-npc-interactions.md)。下文是历史版本说明。
 
 > 0.64.0 更新：[完整云山 V4 与商业服务](58_yunshan_living_city.md)。本页保留所述历史版本的范围；新世界默认 V4，当前命簿 payload 6、协议 33。
 
@@ -90,7 +90,7 @@ NPC 不申请区块票。现场寻路仅在已经加载且能进行实体处理�
 
 ## 5. 云山场所与管理命令
 
-场所源适配位于 `blueprints/npc_life/`，由 `tools/gen_npc_life_places.py` 读取现有 authored 建筑源生成 `data/myvillage/npc_life/places.json`。Gradle `generateNpcLifePlaces` 在 `processResources` 前运行；生成器只输出生活元数据，不修改既有冻结 worldplan 模板和哈希。
+场所源适配位于 `blueprints/npc_life/`，由 `tools/gen_npc_life_places.py` 读取现有 authored 建筑源生成 `data/yuanxian/npc_life/places.json`。Gradle `generateNpcLifePlaces` 在 `processResources` 前运行；生成器只输出生活元数据，不修改既有冻结 worldplan 模板和哈希。
 
 两套布局为 `yunshan_planned_v1` 和 `yunshan_showcase_v2`。规划大陆中的云山可自动登记场所，也可用 `/yuanxian life yunshan` 登记；只登记空间，人物需明确分配。展示街区使用 `/yuanxian life bind <site> yunshan_showcase_v2 <origin>`，原点必须与真实建筑一致，命令不会生成建筑。
 

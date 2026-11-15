@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /** 唯一正式突破雷劫执行器。管理员入口只替代起始输入，资格、伤害、代价与晋升完全相同。 */
 public final class TribulationManager {
-    private static final String SAVE_KEY = "myvillage:tribulation";
+    private static final String SAVE_KEY = "yuanxian:tribulation";
     private static final Logger LOGGER = LoggerFactory.getLogger(TribulationManager.class);
     private static final ThreadLocal<DamageOwner> DAMAGE = new ThreadLocal<>();
     private record DamageOwner(UUID owner, UUID attempt, DamageSource source) { }
@@ -65,8 +65,8 @@ public final class TribulationManager {
     }
     public static boolean source(CultivationProfile profile) {
         // 正式范围固定；数据包可调数值，不能借修改源阶段让其它旧突破经过此执行器。
-        return profile.realmId().equals(ResourceLocation.parse("myvillage:foundation_establishment"))
-                && profile.stageId().equals(ResourceLocation.parse("myvillage:foundation_late"));
+        return profile.realmId().equals(ResourceLocation.parse("yuanxian:foundation_establishment"))
+                && profile.stageId().equals(ResourceLocation.parse("yuanxian:foundation_late"));
     }
     public static TribulationAttempt load(ServerPlayer player) {
         String json = player.getPersistentData().getString(SAVE_KEY);
@@ -109,7 +109,7 @@ public final class TribulationManager {
         if (profile.cultivationProgress() < cap || profile.stability() < advancement.requiredStability())
             return reject(player, "引劫要求：修为 " + cap + "，稳定度 " + advancement.requiredStability() + "。");
         TribulationRules rules;
-        try (var reader = player.getServer().getResourceManager().openAsReader(ResourceLocation.parse("myvillage:tribulation/" + kind.id() + ".json"))) {
+        try (var reader = player.getServer().getResourceManager().openAsReader(ResourceLocation.parse("yuanxian:tribulation/" + kind.id() + ".json"))) {
             rules = TribulationRules.read(reader);
         } catch (Exception exception) {
             LOGGER.error("雷劫规则读取失败", exception);
@@ -239,7 +239,7 @@ public final class TribulationManager {
         var mark = rule.main() ? new TribulationAttempt.Mark(player.getX(), player.getY(), player.getZ()) : a.plan().get(index);
         player.serverLevel().playSound(null, mark.x(), mark.y(), mark.z(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.WEATHER, 1.0f, rule.main() ? 1.1f : 1.4f);
         if (!a.canHit(player.getUUID(), index, player.getX(), player.getY(), player.getZ())) return;
-        var key = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse(rule.main() ? "myvillage:tribulation_main" : "myvillage:tribulation_echo"));
+        var key = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse(rule.main() ? "yuanxian:tribulation_main" : "yuanxian:tribulation_echo"));
         DamageSource source = new DamageSource(player.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key));
         DAMAGE.set(new DamageOwner(player.getUUID(), a.id(), source));
         boolean accepted;

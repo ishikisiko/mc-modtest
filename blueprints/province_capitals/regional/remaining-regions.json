@@ -24,7 +24,7 @@
       ],
       "game_source": "blueprints/province_capitals/regional/game-cities.json",
       "city_id": "capital_ximo",
-      "game_resource": "myvillage:capitals/v1/capital_ximo/city.json"
+      "game_resource": "yuanxian:capitals/v1/capital_ximo/city.json"
     },
     {
       "region_id": "nanjiang",
@@ -47,7 +47,7 @@
       ],
       "game_source": "blueprints/province_capitals/regional/game-cities.json",
       "city_id": "capital_nanjiang",
-      "game_resource": "myvillage:capitals/v1/capital_nanjiang/city.json"
+      "game_resource": "yuanxian:capitals/v1/capital_nanjiang/city.json"
     },
     {
       "region_id": "beiyuan",
@@ -70,7 +70,7 @@
       ],
       "game_source": "blueprints/province_capitals/regional/game-cities.json",
       "city_id": "capital_beiyuan",
-      "game_resource": "myvillage:capitals/v1/capital_beiyuan/city.json"
+      "game_resource": "yuanxian:capitals/v1/capital_beiyuan/city.json"
     },
     {
       "region_id": "donghuang",
@@ -93,7 +93,7 @@
       ],
       "game_source": "blueprints/province_capitals/regional/game-cities.json",
       "city_id": "capital_donghuang",
-      "game_resource": "myvillage:capitals/v1/capital_donghuang/city.json"
+      "game_resource": "yuanxian:capitals/v1/capital_donghuang/city.json"
     },
     {
       "region_id": "moyu",
@@ -118,7 +118,7 @@
       ],
       "game_source": "blueprints/province_capitals/regional/game-cities.json",
       "city_id": "capital_moyu",
-      "game_resource": "myvillage:capitals/v1/capital_moyu/city.json"
+      "game_resource": "yuanxian:capitals/v1/capital_moyu/city.json"
     }
   ],
   "tests": "not_run",

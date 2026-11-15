@@ -47,7 +47,7 @@ public record QuestMap(String id,String name,int[] size,int[] origin,int[] entry
     }
     private static QuestMap load(String id){
         if(!QuestRules.get().maps().contains(id))throw new IllegalArgumentException("未知远征地图");
-        try(var in=QuestMap.class.getResourceAsStream("/data/myvillage/expedition/"+id+".json.gz")){
+        try(var in=QuestMap.class.getResourceAsStream("/data/yuanxian/expedition/"+id+".json.gz")){
             if(in==null)throw new IllegalArgumentException("远征地图资源缺失");
             byte[] bytes=in.readAllBytes();
             if(!HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)).equals(QuestRules.get().hash(id)))throw new IllegalArgumentException("远征地图资源摘要不符");

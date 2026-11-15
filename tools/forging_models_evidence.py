@@ -19,8 +19,8 @@ ARMOR=['xuantie_helmet','xuantie_chestplate','xuantie_leggings','xuantie_boots']
 STAGES=['rough','shaped','quenched','tempered','ground']
 
 def spec(rid,stage):
- if stage==5:return 'myvillage:'+rid
- return f'myvillage:workpiece_{rid}_{STAGES[stage]}[myvillage:workpiece={{recipe:"{rid}",stage:{stage},blows:{0 if stage==0 else 12},treatment:{2 if rid in ARMOR else 0}}}]'
+ if stage==5:return 'yuanxian:'+rid
+ return f'yuanxian:workpiece_{rid}_{STAGES[stage]}[yuanxian:workpiece={{recipe:"{rid}",stage:{stage},blows:{0 if stage==0 else 12},treatment:{2 if rid in ARMOR else 0}}}]'
 
 def fixture_slot(slot):return 'hotbar.'+str(slot) if slot<9 else 'inventory.'+str(slot-9)
 
@@ -49,20 +49,20 @@ class ForgingModelsEvidence(ArmorForgingEvidence):
    time.sleep(1);self.capture(page+'-inventory');self.close_menu()
  def held_models(self):
   self.rc(f'clear {self.username}');self.rc(f'tp {self.username} .5 -60 .5 0 0')
-  for i,rid in enumerate(TOOLS):self.rc(f'item replace entity {self.username} hotbar.{i} with myvillage:{rid}')
+  for i,rid in enumerate(TOOLS):self.rc(f'item replace entity {self.username} hotbar.{i} with yuanxian:{rid}')
   self.start_video('held-models')
   for i,rid in enumerate(TOOLS):
    self.key(str(i+1));time.sleep(.5)
-   self.check('mapped_selection_'+rid,self.inspect()['held']['id']=='myvillage:'+rid,self.inspect()['held'])
+   self.check('mapped_selection_'+rid,self.inspect()['held']['id']=='yuanxian:'+rid,self.inspect()['held'])
    self.capture(rid+'-first');self.key('F5');self.key('F5');time.sleep(.4);self.capture(rid+'-third');self.key('F5')
    self.hold([], .2, mouse=1)
   self.stop_video()
  def workshop_models(self):
-  self.rc('setblock 0 -60 3 myvillage:forging_anvil[facing=north]')
+  self.rc('setblock 0 -60 3 yuanxian:forging_anvil[facing=north]')
   for rid,stage in [('lingxiao_spear',1),('forged_pickaxe',4),('xuantie_chestplate',1)]:
    self.rc(f'clear {self.username}');self.rc(f'item replace entity {self.username} hotbar.0 with {spec(rid,stage)}');self.give('minecraft:coal',4)
    self.open();self.move_slot(0)
-   expected='myvillage:workpiece_'+rid+'_'+STAGES[stage]
+   expected='yuanxian:workpiece_'+rid+'_'+STAGES[stage]
    data=self.poll(self.inspect,lambda d:d['input']['id']==expected,label='mapped workpiece insertion')
    self.check('workshop_model_'+rid,data['recipe']==rid and data['input']['piece']['stage']==stage,data)
    time.sleep(.5);self.capture(rid+'-workshop')

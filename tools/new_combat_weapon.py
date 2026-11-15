@@ -4,10 +4,10 @@
 The procedure is docs/ai-kb/36_new_combat_weapon.md.  Its numbered steps carry the ids in
 ``STEPS``; both modes speak in those ids, in that order.
 
-    python3 tools/new_combat_weapon.py scaffold --from myvillage:qingfeng_sword --id myvillage:jade_sword --dry-run
-    python3 tools/new_combat_weapon.py scaffold --from myvillage:lingxiao_spear --id myvillage:iron_halberd \\
-        --style myvillage:basic_halberd [--moves thrust,sweep,hook,chop,lunge] [--dry-run]
-    python3 tools/new_combat_weapon.py progress myvillage:iron_halberd [--fast] [--json]
+    python3 tools/new_combat_weapon.py scaffold --from yuanxian:qingfeng_sword --id yuanxian:jade_sword --dry-run
+    python3 tools/new_combat_weapon.py scaffold --from yuanxian:lingxiao_spear --id yuanxian:iron_halberd \\
+        --style yuanxian:basic_halberd [--moves thrust,sweep,hook,chop,lunge] [--dry-run]
+    python3 tools/new_combat_weapon.py progress yuanxian:iron_halberd [--fast] [--json]
 
 ``scaffold`` derives, from the template weapon (``--from``), only what is a mechanical renaming:
 the weapon file, the index entries, a copy of the template's first-person rig, with ``--style``
@@ -53,7 +53,7 @@ RESOURCES = combat_data.RESOURCES
 PLAYBOOK = "docs/ai-kb/36_new_combat_weapon.md"
 # Every value the scaffold copies that a person must replace starts with this.
 PLACEHOLDER = "TODO(new_combat_weapon)"
-NAMESPACE = "myvillage"
+NAMESPACE = "yuanxian"
 ITEM_PATH = re.compile(r"^[a-z0-9_]+$")
 JAVA_ROOT = "src/main/java"
 MOD_ITEMS = f"{JAVA_ROOT}/com/example/myvillage/item/ModItems.java"
@@ -523,8 +523,8 @@ def manual_steps(root: Path, plan: Plan, names: Names, template: dict, template_
     out.append(("model-and-contract",
                 f"Write {generator} (start from {template_generator}), the only writer of "
                 f"{RESOURCES}/assets/{namespace}/models/item/{item_path}.json (a neoforge:separate_transforms "
-                f"wrapper: the 3D model as base, the 2D icon myvillage:item/{item_path} in gui), the 3D model "
-                f"myvillage:item/{item_path}_3d, textures/item/{item_path}.png (64x64 with alpha), its model "
+                f"wrapper: the 3D model as base, the 2D icon yuanxian:item/{item_path} in gui), the 3D model "
+                f"yuanxian:item/{item_path}_3d, textures/item/{item_path}.png (64x64 with alpha), its model "
                 f"texture (textures/item/{item_path}_*.png), and {geometry_rel} (format 2: units, generator "
                 f"\"{generator}\", model, axes, grip_center, handle, collar, butt, head, head_base, head_tip, "
                 f"edge_axis, flat_axis, overall_y"
@@ -568,7 +568,7 @@ def manual_steps(root: Path, plan: Plan, names: Names, template: dict, template_
                     f"No new pose table: {plan.style_id}'s table was solved for {template['item']}. Make this "
                     f"weapon's grip land where that weapon's does after its thirdperson_righthand display "
                     f"(progress checks it), and look at the poses with python3 -m tools.combat_preview pose "
-                    f"--item myvillage:item/{item_path}."))
+                    f"--item yuanxian:item/{item_path}."))
 
     out.append(("first-person-rig",
                 f"Author {rig_rel} (a copy of {template['first_person_rig']}): rig.weapon_scale, rig.shoulder, "
@@ -586,7 +586,7 @@ def manual_steps(root: Path, plan: Plan, names: Names, template: dict, template_
                 f"In tools/validate_mod_items.py add (\"{item_path}\", \"{holder}\", <en_us name>, <zh_cn name>, "
                 f"\"{item_path}\", <binary-alpha icon?>, <(attack bonus, \"speed F\")>) to SWORD_CONTRACTS, "
                 f"\"{holder}\" to CREATIVE_SWORD_ORDER in its tab place, and \"{item_path}\": "
-                f"\"myvillage:item/{item_path}_3d\" to SWORD_3D_MODELS."))
+                f"\"yuanxian:item/{item_path}_3d\" to SWORD_3D_MODELS."))
 
     out.append(("tests",
                 f"Add tools/tests/test_gen_{item_path}_model.py for {generator}; add the new ids to the pinned "
@@ -1158,10 +1158,10 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "examples:\n"
-            "  python3 tools/new_combat_weapon.py scaffold --from myvillage:qingfeng_sword --id myvillage:jade_sword --dry-run\n"
-            "  python3 tools/new_combat_weapon.py scaffold --from myvillage:lingxiao_spear --id myvillage:iron_halberd \\\n"
-            "      --style myvillage:basic_halberd --moves thrust,sweep,hook,chop,lunge\n"
-            "  python3 tools/new_combat_weapon.py progress myvillage:iron_halberd\n"))
+            "  python3 tools/new_combat_weapon.py scaffold --from yuanxian:qingfeng_sword --id yuanxian:jade_sword --dry-run\n"
+            "  python3 tools/new_combat_weapon.py scaffold --from yuanxian:lingxiao_spear --id yuanxian:iron_halberd \\\n"
+            "      --style yuanxian:basic_halberd --moves thrust,sweep,hook,chop,lunge\n"
+            "  python3 tools/new_combat_weapon.py progress yuanxian:iron_halberd\n"))
     parser.add_argument("--root", type=Path, default=ROOT, help="repository root to work on (default: this one)")
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -1171,11 +1171,11 @@ def build_parser() -> argparse.ArgumentParser:
                     "copy, translation placeholders, and with --style a re-identified copy of the template's "
                     "style. Prints every remaining manual step. Refuses taken ids and existing files.")
     scaffold.add_argument("--from", dest="template", required=True, metavar="WEAPON_ID",
-                          help="the template weapon (a weapon id in data/myvillage/combat/index.json)")
+                          help="the template weapon (a weapon id in data/yuanxian/combat/index.json)")
     scaffold.add_argument("--id", dest="weapon_id", required=True, metavar="ITEM_ID",
-                          help="the new weapon's id, which is also its item id (myvillage:<name>)")
+                          help="the new weapon's id, which is also its item id (yuanxian:<name>)")
     scaffold.add_argument("--style", metavar="STYLE_ID",
-                          help="a new style id (myvillage:<name>) copied from the template's style; omit to "
+                          help="a new style id (yuanxian:<name>) copied from the template's style; omit to "
                                "share the template's style")
     scaffold.add_argument("--moves", metavar="A,B,...",
                           help="with --style: one name per template move; move ids become <style>_NN_<name>")

@@ -16,8 +16,8 @@ class CraftingTalentsTest {
     @BeforeAll static void setup()throws Exception{
         if(net.neoforged.fml.loading.LoadingModList.get()==null)net.neoforged.fml.loading.LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
         SharedConstants.tryDetectVersion();Bootstrap.bootStrap();var values=new TreeMap<String,FateDefinition>();
-        for(String id:List.of("alchemy_prodigy","forging_prodigy","clod"))try(var in=CraftingTalentsTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/"+id+".json")){
-            assertNotNull(in);values.put("myvillage:"+id,FateDefinition.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseReader(new InputStreamReader(in))).getOrThrow());
+        for(String id:List.of("alchemy_prodigy","forging_prodigy","clod"))try(var in=CraftingTalentsTest.class.getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/"+id+".json")){
+            assertNotNull(in);values.put("yuanxian:"+id,FateDefinition.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseReader(new InputStreamReader(in))).getOrThrow());
         }definitions=Map.copyOf(values);
     }
     private static List<Map<String,Double>> effects(){return definitions.values().stream().map(FateDefinition::effects).toList();}
@@ -39,7 +39,7 @@ class CraftingTalentsTest {
             assertEquals(79,rules.roll(aptitude,tier.id(),0,modifier,()->1).score());
             assertEquals(31,rules.roll(aptitude,tier.id(),0,modifier,()->-1).score());
         }
-        var p=rules.probabilities(60,"myvillage:qi_refining",0,modifier);
+        var p=rules.probabilities(60,"yuanxian:qi_refining",0,modifier);
         double[] expected={.072374341,.193611190,.468028938,.193611190,.072374341};
         for(int i=0;i<5;i++)assertEquals(expected[i],p.get(i),2e-7);
         assertEquals(CraftingQualityRules.Modifier.NORMAL,CraftingTalents.modifier(List.of()));

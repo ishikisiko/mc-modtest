@@ -1,18 +1,18 @@
 schema_version: 1
 project:
-  mod_id: myvillage
+  mod_id: yuanxian
   java_package: com.example.myvillage
   minecraft_version: 1.21.1
   neoforge_version: 21.1.233
   java_version: 21
 data_sources:
-  model: assets/myvillage/npc/ridge_reaver_model.json
-  animations: assets/myvillage/npc/ridge_reaver_animations.json
-  texture: assets/myvillage/textures/entity/ridge_reaver/ridge_reaver.png
+  model: assets/yuanxian/npc/ridge_reaver_model.json
+  animations: assets/yuanxian/npc/ridge_reaver_animations.json
+  texture: assets/yuanxian/textures/entity/ridge_reaver/ridge_reaver.png
   art_generator: tools/npcgen/defs/ridge_reaver.py
 entity:
   id: ridge_reaver
-  resource_location: myvillage:ridge_reaver
+  resource_location: yuanxian:ridge_reaver
   display_name:
     zh_cn: 荒岭劫修
     en_us: 荒岭劫修
@@ -34,7 +34,7 @@ physical:
   width: 0.6
   height: 1.9
   eye_height: 1.67
-  shadow_radius_source: assets/myvillage/npc/ridge_reaver_model.json#shadow_radius
+  shadow_radius_source: assets/yuanxian/npc/ridge_reaver_model.json#shadow_radius
   fire_immune: false
   summonable: true
   saveable: true
@@ -52,7 +52,7 @@ attributes:
     - attack_damage
     - attack_knockback
     - follow_range
-  note: gameplay values come from data/myvillage/npc_combat/rules.json; realm modifiers
+  note: gameplay values come from data/yuanxian/npc_combat/rules.json; realm modifiers
     use StatsRuntime
 behavior:
   goals:
@@ -83,7 +83,7 @@ behavior:
     statement: Server AI submits basic sword intents to the shared player combat executor.
       Neutral ridge_reavers defend themselves, retreat when wounded, and resume life
       only after disengaging.
-    rules: data/myvillage/npc_combat/rules.json
+    rules: data/yuanxian/npc_combat/rules.json
     lifecycle: Current managed avatar lease is required before a ledger NPC can take
       damage. Health, equipment wear, recovery and attribution are checkpointed through
       WorldSim; real death is committed once, withdrawal is not death.
@@ -150,7 +150,7 @@ state:
       type: int
       source: com.example.myvillage.entity.npc.NpcEntity#COLOURS_TAG
       written: only when colours are set (the packed int); on load a value that names
-        no colours clears them, so /summon myvillage:ridge_reaver ~ ~ ~ {Colours:n}
+        no colours clears them, so /summon yuanxian:ridge_reaver ~ ~ ~ {Colours:n}
         wears the colours n
   custom_state:
     statement: A summoned ridge_reaver saves vanilla Mob state plus Look when its
@@ -194,11 +194,11 @@ world_sim_avatar:
   interaction: the steward (守山执事) and elder avatars open the sect dialogue on right
     click (mobInteract consumes; the server checks range, dimension, ledger role and
     sect, then sends SectDialoguePayload); every other avatar passes without effect
-  name_tag: name · realm · sect (entity.myvillage.ridge_reaver.avatar; the realm through
+  name_tag: name · realm · sect (entity.yuanxian.ridge_reaver.avatar; the realm through
     world_sim.realm.<id>), always visible
-  config: myvillage-world_sim-server.toml [avatars] (avatars_enabled, avatar_spawn_radius,
+  config: yuanxian-world_sim-server.toml [avatars] (avatars_enabled, avatar_spawn_radius,
     max_avatars_per_sect, max_avatars)
-  wilderness_rules: data/myvillage/wilderness/rules.json (region ranges, local/global
+  wilderness_rules: data/yuanxian/wilderness/rules.json (region ranges, local/global
     caps, bounded attempts and loaded-chunk probes); no independent natural spawn
     route
 rendering:
@@ -208,23 +208,23 @@ rendering:
   geckolib: false
   model_class: com.example.myvillage.client.entity.npc.NpcModel
   renderer_class: com.example.myvillage.client.entity.npc.NpcRenderer
-  model_layer: myvillage:ridge_reaver#main
+  model_layer: yuanxian:ridge_reaver#main
   looks: see looks (the files below are the default look's; NpcRenderer draws the
     synced look's set and falls back to default for a name it does not know)
-  geo: myvillage:npc/ridge_reaver_model.json
-  animation: myvillage:npc/ridge_reaver_animations.json
-  base_texture: myvillage:textures/entity/ridge_reaver/ridge_reaver.png
+  geo: yuanxian:npc/ridge_reaver_model.json
+  animation: yuanxian:npc/ridge_reaver_animations.json
+  base_texture: yuanxian:textures/entity/ridge_reaver/ridge_reaver.png
   render_type: entity cut-out (a texel with zero alpha is a hole)
   texel_density: native model units; scale owned by generated model
   final_texture_size:
-    source: assets/myvillage/npc/ridge_reaver_model.json#texture
+    source: assets/yuanxian/npc/ridge_reaver_model.json#texture
   generator:
     owner: tools/npcgen
     definition: tools/npcgen/defs/ridge_reaver.py
     check: python3 -m tools.npcgen build ridge_reaver --check
     hand_edits: forbidden
   bones:
-    source: assets/myvillage/npc/ridge_reaver_model.json#bones
+    source: assets/yuanxian/npc/ridge_reaver_model.json#bones
     look_bone: head
   layers:
     - crossed robe collar bands lying on the chest, the left lapel over the right
@@ -272,11 +272,11 @@ rendering:
       source: vanilla_living_entity_render_state
 looks:
   - id: default
-    model: assets/myvillage/npc/ridge_reaver_model.json
-    animations: assets/myvillage/npc/ridge_reaver_animations.json
-    texture: assets/myvillage/textures/entity/ridge_reaver/ridge_reaver.png
+    model: assets/yuanxian/npc/ridge_reaver_model.json
+    animations: assets/yuanxian/npc/ridge_reaver_animations.json
+    texture: assets/yuanxian/textures/entity/ridge_reaver/ridge_reaver.png
     definition: tools/npcgen/defs/ridge_reaver.py
-    model_layer: myvillage:ridge_reaver#main
+    model_layer: yuanxian:ridge_reaver#main
 texture_art_direction:
   silhouette: 墨蓝短袍、锈红腰带、单肩蓑片与低持长剑。
   palette:
@@ -290,7 +290,7 @@ items:
     id: ridge_reaver_spawn_egg
     primary_color: '#26354B'
     secondary_color: '#A34F37'
-    creative_tab: myvillage:main
+    creative_tab: yuanxian:main
 sound:
   strategy: vanilla_defaults
   custom_sound_resources: false
@@ -299,14 +299,14 @@ sound:
     hurt: minecraft:entity.generic.hurt
     death: minecraft:entity.generic.death
 loot:
-  table: data/myvillage/loot_table/entities/ridge_reaver.json
+  table: data/yuanxian/loot_table/entities/ridge_reaver.json
   material: reaver_grit
   source: tools/wilderness_roster/catalogue.json
 spawn:
   natural: true
   authority: ordinary_entity
-  biome_modifier: myvillage:add_ridge_reaver_spawns
-  spawn_biome_tag: myvillage:has_ridge_reaver
+  biome_modifier: yuanxian:add_ridge_reaver_spawns
+  spawn_biome_tag: yuanxian:has_ridge_reaver
   spawn_placement: ON_GROUND
   heightmap: MOTION_BLOCKING_NO_LEAVES
   spawn_predicate: WildernessRosterRuntime::checkSpawn

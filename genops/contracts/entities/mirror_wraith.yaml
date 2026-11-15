@@ -1,12 +1,12 @@
 schema_version: 1
 project:
-  mod_id: myvillage
+  mod_id: yuanxian
   java_package: com.example.myvillage
   minecraft_version: 1.21.1
   neoforge_version: 21.1.233
 entity:
   id: mirror_wraith
-  resource_location: myvillage:mirror_wraith
+  resource_location: yuanxian:mirror_wraith
   display_name:
     zh_cn: 照影妖
     en_us: 照影妖
@@ -67,9 +67,9 @@ state:
   - active shockwaves
 rendering:
   route: vanilla
-  geo: myvillage:beast/mirror_wraith_model.json
-  animation: myvillage:beast/mirror_wraith_animations.json
-  base_texture: myvillage:textures/entity/mirror_wraith/mirror_wraith.png
+  geo: yuanxian:beast/mirror_wraith_model.json
+  animation: yuanxian:beast/mirror_wraith_animations.json
+  base_texture: yuanxian:textures/entity/mirror_wraith/mirror_wraith.png
   final_texture_size:
     width: 128
     height: 64

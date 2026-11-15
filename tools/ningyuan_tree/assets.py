@@ -12,7 +12,7 @@ from tools.gen_spirit_crops import BLOCK_ITEM_DISPLAY
 
 ROOT=Path(__file__).resolve().parents[2]
 RES=Path('src/main/resources')
-ASSET=RES/'assets/myvillage'
+ASSET=RES/'assets/yuanxian'
 DATA=RES/'data'
 NAMES={
  'ningyuan_log':'凝元原木','ningyuan_wood':'凝元木','stripped_ningyuan_log':'去皮凝元原木',
@@ -145,7 +145,7 @@ def box(a,b,texture,uv=None):
     return {'from':list(a),'to':list(b),'faces':{side:{'texture':'#'+texture,'uv':uv or [0,0,16,16]} for side in ('up','down','north','south','east','west')}}
 def model(elements,textures=None):
     return {'parent':'minecraft:block/block','render_type':'minecraft:cutout','ambientocclusion':True,
-            'textures':textures or {k:f'myvillage:block/ningyuan_{k}' for k in ('bark','leaves','leaf_blade','fruit_low','fruit_high','bud','bronze','jade','soil')},
+            'textures':textures or {k:f'yuanxian:block/ningyuan_{k}' for k in ('bark','leaves','leaf_blade','fruit_low','fruit_high','bud','bronze','jade','soil')},
             'elements':elements}
 def fruit_model(age,enriched):
     elements=[box((7.6,11,7.6),(8.4,16,8.4),'bark'),
@@ -158,7 +158,7 @@ def fruit_model(age,enriched):
         elements += [box((8-w,bottom+1,8-w),(8+w,top-1,8+w),tex),
                      box((9-w,bottom,9-w),(7+w,top,7+w),tex),
                      box((7,top,7),(9,top+.3,9),'leaves')]
-    result=model(elements);result['textures']['particle']='myvillage:block/ningyuan_leaves'
+    result=model(elements);result['textures']['particle']='yuanxian:block/ningyuan_leaves'
     return result
 def sapling_model():
     elements=[box((7.65,0,7.65),(8.35,10.5,8.35),'bark')]
@@ -169,7 +169,7 @@ def sapling_model():
                 a=(8+lo,y,8-width/2) if axis=='x' else (8-width/2,y,8+lo)
                 b=(8+hi,y+.35,8+width/2) if axis=='x' else (8+width/2,y+.35,8+hi)
                 e=box(a,b,'leaf_blade');e['rotation']={'origin':[8,y,8],'axis':'z' if axis=='x' else 'x','angle':sign*(22.5 if axis=='x' else -22.5),'rescale':False};elements.append(e)
-    result=model(elements);result['textures']['particle']='myvillage:block/ningyuan_leaves';return result
+    result=model(elements);result['textures']['particle']='yuanxian:block/ningyuan_leaves';return result
 def potted_model():
     pot=json.loads((Path(__file__).parent/'flower_pot_template.json').read_text());elements=pot['elements']
     for e in sapling_model()['elements']:
@@ -190,16 +190,16 @@ def lantern_model(hanging=False):
             elements.append(box(a,b,'bronze'))
     if hanging:elements.extend([box((7.4,12.5,7.4),(8.6,16,8.6),'bronze')])
     else:elements.extend([box((6.8,12.5,7.5),(7.5,15,8.5),'bronze'),box((8.5,12.5,7.5),(9.2,15,8.5),'bronze'),box((6.8,14.5,7.5),(9.2,15.2,8.5),'bronze')])
-    result=model(elements);result['textures']['particle']='myvillage:block/ningyuan_bronze';return result
+    result=model(elements);result['textures']['particle']='yuanxian:block/ningyuan_bronze';return result
 
 def outputs():
-    rules=json.loads((ROOT/RES/'data/myvillage/orchard/rules.json').read_text());out={}
+    rules=json.loads((ROOT/RES/'data/yuanxian/orchard/rules.json').read_text());out={}
     def put(path,value):out[path]=encoded(value)
     def rename(s):
-        return s.replace('minecraft:block/stripped_oak','myvillage:block/stripped_ningyuan').replace('minecraft:block/potted_oak','myvillage:block/potted_ningyuan').replace('minecraft:block/oak','myvillage:block/ningyuan').replace('minecraft:block/iron_bars','myvillage:block/ningyuan_lattice').replace('"block/iron_bars"','"myvillage:block/ningyuan_lattice"')
+        return s.replace('minecraft:block/stripped_oak','yuanxian:block/stripped_ningyuan').replace('minecraft:block/potted_oak','yuanxian:block/potted_ningyuan').replace('minecraft:block/oak','yuanxian:block/ningyuan').replace('minecraft:block/iron_bars','yuanxian:block/ningyuan_lattice').replace('"block/iron_bars"','"yuanxian:block/ningyuan_lattice"')
     templates=json.loads((Path(__file__).parent/'vanilla_templates.json').read_text())
     for path,obj in templates.items():
-        target=path.replace('assets/minecraft/','assets/myvillage/').replace('oak','ningyuan').replace('iron_bars','ningyuan_lattice')
+        target=path.replace('assets/minecraft/','assets/yuanxian/').replace('oak','ningyuan').replace('iron_bars','ningyuan_lattice')
         obj=json.loads(rename(json.dumps(obj)))
         if '/models/' in path:
             obj['render_type']='minecraft:cutout' if any(k in path for k in ('door','sapling','leaves','iron_bars')) else 'minecraft:solid'
@@ -210,9 +210,9 @@ def outputs():
     textures.update({f'ningyuan_{k}':k for k in ('bark','leaf_blade','fruit_low','fruit_high','bud','bronze','jade','jade_side','soil')})
     for name,kind in textures.items():out[ASSET/f'textures/block/{name}.png']=png(material(kind))
     # Untinted, cutout leaves preserve the agreed palette in every biome.
-    put(ASSET/'models/block/ningyuan_leaves.json',{'parent':'minecraft:block/cube_all','render_type':'minecraft:cutout_mipped','textures':{'all':'myvillage:block/ningyuan_leaves'}})
+    put(ASSET/'models/block/ningyuan_leaves.json',{'parent':'minecraft:block/cube_all','render_type':'minecraft:cutout_mipped','textures':{'all':'yuanxian:block/ningyuan_leaves'}})
     put(ASSET/'models/block/ningyuan_sapling.json',sapling_model());put(ASSET/'models/block/potted_ningyuan_sapling.json',potted_model())
-    lattice_textures={'wood':'myvillage:block/ningyuan_planks','jade':'myvillage:block/ningyuan_jade','pattern':'myvillage:block/ningyuan_lattice','particle':'myvillage:block/ningyuan_planks'}
+    lattice_textures={'wood':'yuanxian:block/ningyuan_planks','jade':'yuanxian:block/ningyuan_jade','pattern':'yuanxian:block/ningyuan_lattice','particle':'yuanxian:block/ningyuan_planks'}
     put(ASSET/'models/block/ningyuan_lattice_post.json',model([box((7,0,7),(9,16,9),'wood'),box((6.9,0,6.9),(9.1,1,9.1),'jade'),box((6.9,15,6.9),(9.1,16,9.1),'jade')],lattice_textures))
     put(ASSET/'models/block/ningyuan_lattice_inventory.json',model([box((0,0,7),(16,16,9),'pattern')],lattice_textures))
     variants={};bounds=[]
@@ -220,22 +220,22 @@ def outputs():
         for enriched in (False,True):
             suffix=f'{age}_{"high" if enriched else "low"}';m=fruit_model(age,enriched)
             put(ASSET/f'models/block/ningyuan_fruit_{suffix}.json',m)
-            variants[f'age={age},enriched={str(enriched).lower()}']={'model':f'myvillage:block/ningyuan_fruit_{suffix}'}
+            variants[f'age={age},enriched={str(enriched).lower()}']={'model':f'yuanxian:block/ningyuan_fruit_{suffix}'}
         bounds.append([min(e['from'][i] for e in m['elements']) for i in range(3)]+[max(e['to'][i] for e in m['elements']) for i in range(3)])
     put(ASSET/'blockstates/ningyuan_fruit_cluster.json',{'variants':variants})
     for hanging in (False,True):
         put(ASSET/f'models/block/ningyuan_fruit_lantern{"_hanging" if hanging else ""}.json',lantern_model(hanging))
-    put(ASSET/'blockstates/ningyuan_fruit_lantern.json',{'variants':{f'hanging={str(h).lower()}':{'model':'myvillage:block/ningyuan_fruit_lantern'+('_hanging' if h else '')} for h in (False,True)}})
+    put(ASSET/'blockstates/ningyuan_fruit_lantern.json',{'variants':{f'hanging={str(h).lower()}':{'model':'yuanxian:block/ningyuan_fruit_lantern'+('_hanging' if h else '')} for h in (False,True)}})
     for name,parent in [('jade_tree_pool_border','slab'),('jade_tree_pool_border_top','slab_top'),('jade_tree_pool_border_double','cube_bottom_top')]:
-        put(ASSET/f'models/block/{name}.json',{'parent':'minecraft:block/'+parent,'textures':{'bottom':'myvillage:block/ningyuan_jade_side','top':'myvillage:block/ningyuan_jade','side':'myvillage:block/ningyuan_jade_side'}})
-    put(ASSET/'blockstates/jade_tree_pool_border.json',{'variants':{f'type={k}':{'model':'myvillage:block/jade_tree_pool_border'+suffix} for k,suffix in [('bottom',''),('top','_top'),('double','_double')]}})
+        put(ASSET/f'models/block/{name}.json',{'parent':'minecraft:block/'+parent,'textures':{'bottom':'yuanxian:block/ningyuan_jade_side','top':'yuanxian:block/ningyuan_jade','side':'yuanxian:block/ningyuan_jade_side'}})
+    put(ASSET/'blockstates/jade_tree_pool_border.json',{'variants':{f'type={k}':{'model':'yuanxian:block/jade_tree_pool_border'+suffix} for k,suffix in [('bottom',''),('top','_top'),('double','_double')]}})
     # Item models use the same meshes as the world, plus standard block display transforms.
     special={'ningyuan_fence':'ningyuan_fence_inventory','ningyuan_button':'ningyuan_button_inventory','ningyuan_trapdoor':'ningyuan_trapdoor_bottom','ningyuan_door':None,
              'ningyuan_fruit_cluster':'ningyuan_fruit_2_low','ningyuan_lattice':'ningyuan_lattice_inventory',
              'ningyuan_sign':None,'ningyuan_hanging_sign':None,'ningyuan_boat':None,'ningyuan_chest_boat':None,'ningyuan_fertilizer':None}
     for name in NAMES.keys()-NO_ITEM:
         if name in special and special[name] is None:
-            texture=f'myvillage:item/{name}'
+            texture=f'yuanxian:item/{name}'
             if name=='ningyuan_door':
                 # A single readable door sprite; the placed door remains a two-block lattice model.
                 top=material('door_top');bottom=material('door_bottom');rows=[]
@@ -245,37 +245,37 @@ def outputs():
             out[ASSET/f'textures/item/{name}.png']=png(rows)
             put(ASSET/f'models/item/{name}.json',{'parent':'minecraft:item/generated','textures':{'layer0':texture}})
         else:
-            put(ASSET/f'models/item/{name}.json',{'parent':'myvillage:block/'+special.get(name,name),'display':BLOCK_ITEM_DISPLAY})
+            put(ASSET/f'models/item/{name}.json',{'parent':'yuanxian:block/'+special.get(name,name),'display':BLOCK_ITEM_DISPLAY})
     for kind,w,h in [('signs',64,32),('signs/hanging',64,32),('boat',128,64),('chest_boat',128,128)]:
         out[ASSET/f'textures/entity/{kind}/ningyuan.png']=png(entity_texture(w,h,hanging='hanging' in kind,boat='boat' in kind))
-    put(DATA/'myvillage/orchard/geometry.json',{'fruit_bounds':bounds,'lantern_shapes':{str(h).lower():[e['from']+e['to'] for e in lantern_model(h)['elements']] for h in (False,True)}})
-    put(DATA/'myvillage/orchard/catalogue.json',{'blocks':sorted(NAMES.keys()-NON_BLOCK),'items':sorted(NAMES.keys()-NO_ITEM),'no_item_blocks':sorted(NO_ITEM),'owner':'tools/gen_ningyuan_tree.py'})
+    put(DATA/'yuanxian/orchard/geometry.json',{'fruit_bounds':bounds,'lantern_shapes':{str(h).lower():[e['from']+e['to'] for e in lantern_model(h)['elements']] for h in (False,True)}})
+    put(DATA/'yuanxian/orchard/catalogue.json',{'blocks':sorted(NAMES.keys()-NON_BLOCK),'items':sorted(NAMES.keys()-NO_ITEM),'no_item_blocks':sorted(NO_ITEM),'owner':'tools/gen_ningyuan_tree.py'})
     loot_and_recipes(put,rules)
     tags(put)
-    put(DATA/'myvillage/worldgen/configured_feature/ningyuan_tree.json',{'type':'myvillage:ningyuan_tree','config':{}})
-    put(DATA/'myvillage/worldgen/placed_feature/ningyuan_tree.json',{'feature':'myvillage:ningyuan_tree','placement':[
+    put(DATA/'yuanxian/worldgen/configured_feature/ningyuan_tree.json',{'type':'yuanxian:ningyuan_tree','config':{}})
+    put(DATA/'yuanxian/worldgen/placed_feature/ningyuan_tree.json',{'feature':'yuanxian:ningyuan_tree','placement':[
         {'type':'minecraft:rarity_filter','chance':rules['worldgen']['rarity']},{'type':'minecraft:in_square'},
         {'type':'minecraft:surface_water_depth_filter','max_water_depth':0},{'type':'minecraft:heightmap','heightmap':'OCEAN_FLOOR'},
         {'type':'minecraft:biome'}]})
-    put(DATA/'myvillage/neoforge/biome_modifier/ningyuan_tree.json',{'type':'neoforge:add_features','biomes':rules['worldgen']['biomes'],'features':'myvillage:ningyuan_tree','step':'vegetal_decoration'})
+    put(DATA/'yuanxian/neoforge/biome_modifier/ningyuan_tree.json',{'type':'neoforge:add_features','biomes':rules['worldgen']['biomes'],'features':'yuanxian:ningyuan_tree','step':'vegetal_decoration'})
     zhpath=ASSET/'lang/zh_cn.json';zh=json.loads((ROOT/zhpath).read_text())
-    for name,label in NAMES.items():zh[('item' if name in NON_BLOCK else 'block')+'.myvillage.'+name]=label
-    zh.update({'tooltip.myvillage.ningyuan_sapling':'泥土上可生长，灵土加快自然长成；需要树冠净空。',
-               'tooltip.myvillage.ningyuan_fruit_cluster':'放在连接原木的凝元树叶下；成熟后右键采摘，枝条保留。',
-               'tooltip.myvillage.ningyuan_fertilizer':'右键未施肥的花芽，本轮结上品果；采完后恢复普通花芽。'})
+    for name,label in NAMES.items():zh[('item' if name in NON_BLOCK else 'block')+'.yuanxian.'+name]=label
+    zh.update({'tooltip.yuanxian.ningyuan_sapling':'泥土上可生长，灵土加快自然长成；需要树冠净空。',
+               'tooltip.yuanxian.ningyuan_fruit_cluster':'放在连接原木的凝元树叶下；成熟后右键采摘，枝条保留。',
+               'tooltip.yuanxian.ningyuan_fertilizer':'右键未施肥的花芽，本轮结上品果；采完后恢复普通花芽。'})
     put(zhpath,zh)
     return out
 
 def loot_and_recipes(put,rules):
-    def item(name):return {'item':name if ':' in name else 'myvillage:'+name}
+    def item(name):return {'item':name if ':' in name else 'yuanxian:'+name}
     def entry(name,conditions=None,functions=None):
-        row={'type':'minecraft:item','name':name if ':' in name else 'myvillage:'+name}
+        row={'type':'minecraft:item','name':name if ':' in name else 'yuanxian:'+name}
         if conditions:row['conditions']=conditions
         if functions:row['functions']=functions
         return row
-    def loot(name,pools):put(DATA/f'myvillage/loot_table/blocks/{name}.json',{'type':'minecraft:block','pools':pools})
+    def loot(name,pools):put(DATA/f'yuanxian/loot_table/blocks/{name}.json',{'type':'minecraft:block','pools':pools})
     def pool(entries,conditions=None):return {'rolls':1,'entries':entries,'conditions':conditions or [{'condition':'minecraft:survives_explosion'}]}
-    def state(name,properties):return {'condition':'minecraft:block_state_property','block':'myvillage:'+name,'properties':properties}
+    def state(name,properties):return {'condition':'minecraft:block_state_property','block':'yuanxian:'+name,'properties':properties}
     def count(n,conditions=None):
         obj={'function':'minecraft:set_count','count':n}
         if conditions:obj['conditions']=conditions
@@ -293,14 +293,14 @@ def loot_and_recipes(put,rules):
         entry('ningyuan_leaves',[keep]),entry('ningyuan_sapling',[{'condition':'minecraft:table_bonus','enchantment':'minecraft:fortune','chances':[.05,.0625,.083333336,.1]}])]}]),
         pool([entry('minecraft:stick',[{'condition':'minecraft:inverted','term':keep},{'condition':'minecraft:table_bonus','enchantment':'minecraft:fortune','chances':[.02,.022222223,.025,.033333335,.1]}],[count({'type':'minecraft:uniform','min':1,'max':2})])])])
     loot('ningyuan_fruit_cluster',[pool([entry(rules['harvest'][key],[state('ningyuan_fruit_cluster',{'age':'2','enriched':str(enriched).lower()})],[count(rules['harvest']['count'])])]) for enriched,key in [(False,'low_item'),(True,'high_item')]])
-    def recipe(name,body,unlock='myvillage:ningyuan_sapling'):
-        put(DATA/f'myvillage/recipe/{name}.json',body)
-        put(DATA/f'myvillage/advancement/recipes/ningyuan/{name}.json',{'parent':'minecraft:recipes/root',
-            'criteria':{'has_ingredient':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':unlock}]}},'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'myvillage:'+name}}},
-            'requirements':[['has_ingredient','has_the_recipe']],'rewards':{'recipes':['myvillage:'+name]}})
-    def shaped(name,pattern,key,n=1,result=None):recipe(name,{'type':'minecraft:crafting_shaped','category':'building','pattern':pattern,'key':{k:(v if isinstance(v,dict) else item(v)) for k,v in key.items()},'result':{'id':'myvillage:'+(result or name),'count':n}})
-    def shapeless(name,ingredients,n=1,result=None,unlock='myvillage:ningyuan_sapling'):recipe(name,{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[i if isinstance(i,dict) else item(i) for i in ingredients],'result':{'id':'myvillage:'+(result or name),'count':n}},unlock)
-    shapeless('ningyuan_planks',[{'tag':'myvillage:ningyuan_logs'}],4)
+    def recipe(name,body,unlock='yuanxian:ningyuan_sapling'):
+        put(DATA/f'yuanxian/recipe/{name}.json',body)
+        put(DATA/f'yuanxian/advancement/recipes/ningyuan/{name}.json',{'parent':'minecraft:recipes/root',
+            'criteria':{'has_ingredient':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':unlock}]}},'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'yuanxian:'+name}}},
+            'requirements':[['has_ingredient','has_the_recipe']],'rewards':{'recipes':['yuanxian:'+name]}})
+    def shaped(name,pattern,key,n=1,result=None):recipe(name,{'type':'minecraft:crafting_shaped','category':'building','pattern':pattern,'key':{k:(v if isinstance(v,dict) else item(v)) for k,v in key.items()},'result':{'id':'yuanxian:'+(result or name),'count':n}})
+    def shapeless(name,ingredients,n=1,result=None,unlock='yuanxian:ningyuan_sapling'):recipe(name,{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[i if isinstance(i,dict) else item(i) for i in ingredients],'result':{'id':'yuanxian:'+(result or name),'count':n}},unlock)
+    shapeless('ningyuan_planks',[{'tag':'yuanxian:ningyuan_logs'}],4)
     shaped('ningyuan_wood',['LL','LL'],{'L':'ningyuan_log'},3)
     shaped('stripped_ningyuan_wood',['LL','LL'],{'L':'stripped_ningyuan_log'},3)
     p='ningyuan_planks';s='minecraft:stick'
@@ -312,7 +312,7 @@ def loot_and_recipes(put,rules):
     shaped('ningyuan_hanging_sign',['C C','PPP','PPP'],{'P':'stripped_ningyuan_log','C':'minecraft:chain'},6)
     shaped('ningyuan_boat',['P P','PPP'],{'P':p});shapeless('ningyuan_chest_boat',['ningyuan_boat','minecraft:chest'])
     shaped('ningyuan_fruit_cluster',['SS',' F'],{'S':s,'F':'ningyuan_fruit_low'})
-    shapeless('ningyuan_fertilizer',rules['fertilizer']['ingredients'],rules['fertilizer']['count'],unlock='myvillage:ningyuan_fruit_low')
+    shapeless('ningyuan_fertilizer',rules['fertilizer']['ingredients'],rules['fertilizer']['count'],unlock='yuanxian:ningyuan_fruit_low')
     shaped('ningyuan_lattice',['SPS','PLP','SPS'],{'S':s,'P':p,'L':{'tag':'c:spirit_stones/low_grade'}},8)
     shaped('jade_tree_pool_border',['SSS','CLC'],{'S':'minecraft:stone_bricks','C':'minecraft:copper_ingot','L':{'tag':'c:spirit_stones/low_grade'}},6)
     shaped('ningyuan_fruit_lantern',[' C ','FLF',' C '],{'C':'minecraft:copper_ingot','F':p,'L':{'tag':'c:spirit_stones/low_grade'}})
@@ -321,8 +321,8 @@ def loot_and_recipes(put,rules):
 
 def tags(put):
     values={
-      'myvillage:ningyuan_logs':LOGS,
-      'minecraft:logs_that_burn':['#myvillage:ningyuan_logs'], 'minecraft:logs':['#myvillage:ningyuan_logs'],
+      'yuanxian:ningyuan_logs':LOGS,
+      'minecraft:logs_that_burn':['#yuanxian:ningyuan_logs'], 'minecraft:logs':['#yuanxian:ningyuan_logs'],
       'minecraft:planks':['ningyuan_planks'],'minecraft:wooden_stairs':['ningyuan_stairs'],'minecraft:wooden_slabs':['ningyuan_slab'],
       'minecraft:wooden_fences':['ningyuan_fence'],'minecraft:fence_gates':['ningyuan_fence_gate'],
       'minecraft:wooden_doors':['ningyuan_door'],'minecraft:wooden_trapdoors':['ningyuan_trapdoor'],
@@ -344,5 +344,5 @@ def tags(put):
         for key,ids in entries.items():
             namespace,path=key.split(':');target=DATA/f'{namespace}/tags/{kind}/{path}.json'
             previous=json.loads((ROOT/target).read_text()) if (ROOT/target).exists() else {'replace':False,'values':[]}
-            additions=[s if ':' in s or s.startswith('#') else 'myvillage:'+s for s in ids]
+            additions=[s if ':' in s or s.startswith('#') else 'yuanxian:'+s for s in ids]
             previous['values']=list(dict.fromkeys(previous['values']+additions));put(target,previous)

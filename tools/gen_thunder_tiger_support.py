@@ -32,40 +32,40 @@ GUIDE = {
 
 def outputs():
     result = {
-        RES / "assets/myvillage/models/item/thunder_tiger_spawn_egg.json": {
+        RES / "assets/yuanxian/models/item/thunder_tiger_spawn_egg.json": {
             "parent": "minecraft:item/template_spawn_egg"},
-        RES / "data/myvillage/loot_table/entities/thunder_tiger.json": {
+        RES / "data/yuanxian/loot_table/entities/thunder_tiger.json": {
             "type": "minecraft:entity", "pools": []},
     }
     for lang, name, egg in (
         ("zh_cn", "雷角山君", "雷角山君刷怪蛋"),
         ("en_us", "Thunderhorn Tiger", "Thunderhorn Tiger Spawn Egg"),
     ):
-        path = RES / f"assets/myvillage/lang/{lang}.json"
+        path = RES / f"assets/yuanxian/lang/{lang}.json"
         doc = json.loads(path.read_text(encoding="utf-8"))
-        doc["entity.myvillage.thunder_tiger"] = name
-        doc["entity.myvillage.thunder_tiger.bossbar"] = "%1$s · %2$s · %3$s · %4$s"
+        doc["entity.yuanxian.thunder_tiger"] = name
+        doc["entity.yuanxian.thunder_tiger.bossbar"] = "%1$s · %2$s · %3$s · %4$s"
         for key, zh, en in (
             ("phase_one", "一阶段", "Phase I"), ("phase_two", "二阶段·狂怒", "Phase II"),
             ("horn_intact", "雷角完整", "Horn intact"), ("horn_broken", "雷角已断", "Horn broken"),
             ("seal", "煞", "!")
         ):
-            doc["hud.myvillage.boss." + key] = zh if lang == "zh_cn" else en
-        doc["item.myvillage.thunder_tiger_spawn_egg"] = egg
-        doc["block.myvillage.thunder_tiger_lair_anchor"] = (
+            doc["hud.yuanxian.boss." + key] = zh if lang == "zh_cn" else en
+        doc["item.yuanxian.thunder_tiger_spawn_egg"] = egg
+        doc["block.yuanxian.thunder_tiger_lair_anchor"] = (
             "山君巢穴基石" if lang == "zh_cn" else "Thunderhorn Lair Anchor")
-        doc["structure.myvillage.thunder_tiger_lair"] = (
+        doc["structure.yuanxian.thunder_tiger_lair"] = (
             "雷角山君洞府" if lang == "zh_cn" else "Thunderhorn Tiger Lair")
         for cue, (_, zh, en) in CUES.items():
-            doc[f"subtitles.myvillage.thunder_tiger.{cue}"] = zh if lang == "zh_cn" else en
+            doc[f"subtitles.yuanxian.thunder_tiger.{cue}"] = zh if lang == "zh_cn" else en
         for topic, (zh, en) in GUIDE.items():
-            doc[f"exploration.myvillage.tiger.{topic}"] = zh if lang == "zh_cn" else en
+            doc[f"exploration.yuanxian.tiger.{topic}"] = zh if lang == "zh_cn" else en
         result[path] = doc
-    path = RES / "assets/myvillage/sounds.json"
+    path = RES / "assets/yuanxian/sounds.json"
     sounds = json.loads(path.read_text(encoding="utf-8"))
     for cue, (event, _, _) in CUES.items():
         sounds[f"thunder_tiger.{cue}"] = {
-            "subtitle": f"subtitles.myvillage.thunder_tiger.{cue}",
+            "subtitle": f"subtitles.yuanxian.thunder_tiger.{cue}",
             "sounds": [{"name": f"minecraft:{event}", "type": "event"}],
         }
     result[path] = sounds

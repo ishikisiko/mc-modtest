@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 class SkillBindingsTest {
-    private static ResourceLocation id(String s){return ResourceLocation.parse("myvillage:"+s);}
+    private static ResourceLocation id(String s){return ResourceLocation.parse("yuanxian:"+s);}
     @Test void oldSaveUsesAutomaticArtsAndEmptyExtraSlots() {
         var old=CombatPreference.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseString("{\"combat_mode\":\"cultivation\"}")).getOrThrow();
         assertEquals(SkillBindings.defaults(),old.skillBindings());

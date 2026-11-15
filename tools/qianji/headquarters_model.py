@@ -18,14 +18,14 @@ class Collision:
         for (x,y,z),s in d['blocks'].items():self.columns[x,z].append((y,s))
     def shape(self,s):
         if s in self.shape_cache:return self.shape_cache[s]
-        if s.startswith('myvillage:qianji_carved_'):
+        if s.startswith('yuanxian:qianji_carved_'):
             bank=int(s.split('_carved_',1)[1].split('[',1)[0]);props=dict(p.split('=') for p in s.split('[',1)[1][:-1].split(','));index=bank*32+int(props['shape']);turn=FACINGS.index(props['facing']);raw=self.d['profiles'][min(index,len(self.d['profiles'])-1)];boxes=[]
             for b in raw:
                 if b[6] in self.noncollision:continue
                 a=list(b[:6])
                 for _ in range(turn):a=[16-a[5],a[1],a[0],16-a[2],a[4],a[3]]
                 boxes.append(tuple(v/16 for v in a))
-        elif s.startswith(('minecraft:water','minecraft:air')) or s.removeprefix('myvillage:qianji_') in self.noncollision:boxes=[]
+        elif s.startswith(('minecraft:water','minecraft:air')) or s.removeprefix('yuanxian:qianji_') in self.noncollision:boxes=[]
         elif s.startswith('minecraft:stone_brick_stairs['):
             face=s.split('facing=',1)[1].split(',',1)[0]
             upper={'north':(0,.5,0,1,1,.5),'south':(0,.5,.5,1,1,1),'east':(.5,.5,0,1,1,1),'west':(0,.5,0,.5,1,1)}[face]
@@ -99,8 +99,8 @@ def build(model_class,spec,validate=True):
     from .infill import lighting_checks
     m.lighting['checks'][spec['id']]=lighting_checks()
     for pos,state in m.blocks.items():
-        if state=='myvillage:qianji_lamp':m.lights.append(pos)
-        elif state.startswith('myvillage:qianji_carved_'):
+        if state=='yuanxian:qianji_lamp':m.lights.append(pos)
+        elif state.startswith('yuanxian:qianji_carved_'):
             bank=int(state.split('_carved_',1)[1].split('[',1)[0]);shape=int(state.split('shape=',1)[1].split(']',1)[0]);index=bank*32+shape
             if any(b[6]=='lamp' for b in d['profiles'][index]):m.lights.append(pos)
     from tools.buildgen.modset import load_modset

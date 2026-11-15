@@ -13,7 +13,7 @@ def entry(name):
 def box(b,bone,name,lo,size):return b.box_local(bone,name,lo,size)
 
 def build_model(name):
-    m=entry(name);b=Builder('myvillage:'+name,look={'bone':'head','max_yaw':28.,'max_pitch':22.},shadow_radius=m['dimensions']['shadow_radius'])
+    m=entry(name);b=Builder('yuanxian:'+name,look={'bone':'head','max_yaw':28.,'max_pitch':22.},shadow_radius=m['dimensions']['shadow_radius'])
     if name in ('thornback_badger','redplate_lizard'):
         badger=name=='thornback_badger';hip=10 if badger else 8
         b.bone('body','root',at=(0,-hip,0));box(b,'body','body',(-6,-5,-8),(12,9,18))

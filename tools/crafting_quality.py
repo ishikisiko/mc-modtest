@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-RESOURCE = Path('src/main/resources/data/myvillage/crafting/quality.json')
+RESOURCE = Path('src/main/resources/data/yuanxian/crafting/quality.json')
 MAX_SCORE = 2_147_483_647
 
 

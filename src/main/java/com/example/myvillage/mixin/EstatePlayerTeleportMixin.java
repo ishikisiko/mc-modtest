@@ -16,15 +16,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value=ServerPlayer.class,remap=false)
 public abstract class EstatePlayerTeleportMixin {
     @Inject(method="teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FF)Z",at=@At("HEAD"),cancellable=true)
-    private void myvillage$estateTeleport(ServerLevel level,double x,double y,double z,Set<RelativeMovement> moves,float yaw,float pitch,CallbackInfoReturnable<Boolean> ci) {
+    private void yuanxian$estateTeleport(ServerLevel level,double x,double y,double z,Set<RelativeMovement> moves,float yaw,float pitch,CallbackInfoReturnable<Boolean> ci) {
         if(EstateRuntime.blocked((ServerPlayer)(Object)this,level,x,z))ci.setReturnValue(false);
     }
     @Inject(method="teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDFF)V",at=@At("HEAD"),cancellable=true)
-    private void myvillage$estateTransfer(ServerLevel level,double x,double y,double z,float yaw,float pitch,CallbackInfo ci) {
+    private void yuanxian$estateTransfer(ServerLevel level,double x,double y,double z,float yaw,float pitch,CallbackInfo ci) {
         if(EstateRuntime.blocked((ServerPlayer)(Object)this,level,x,z))ci.cancel();
     }
     @Inject(method="changeDimension",at=@At("HEAD"),cancellable=true)
-    private void myvillage$estateDimension(DimensionTransition transition,CallbackInfoReturnable<Entity> ci) {
+    private void yuanxian$estateDimension(DimensionTransition transition,CallbackInfoReturnable<Entity> ci) {
         if(EstateRuntime.blocked((ServerPlayer)(Object)this,transition.newLevel(),transition.pos().x,transition.pos().z))ci.setReturnValue(null);
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * The topology rules — all tunables live here, not in code. Java mirror of
  * {@code Ruleset} in {@code tools/buildgen/region_topology.py}. Parsed from the
- * shipped {@code data/myvillage/worldgen/region_topology.json}.
+ * shipped {@code data/yuanxian/worldgen/region_topology.json}.
  *
  * @param id                       ruleset id
  * @param regionCount              per-seed region-count range
@@ -83,6 +83,6 @@ public record Ruleset(
                         ? walledRule.get("pass_label").getAsString() : RegionContract.PASS_GUANAI,
                 data.has("catalog")
                         ? data.get("catalog").getAsString()
-                        : "data/myvillage/worldgen/region_profile");
+                        : "data/yuanxian/worldgen/region_profile");
     }
 }

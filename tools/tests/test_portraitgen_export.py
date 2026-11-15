@@ -11,7 +11,7 @@ try:
 except ImportError:  # pragma: no cover
     HAVE_PIL = False
 
-MAPS = "src/main/resources/assets/myvillage/portrait"
+MAPS = "src/main/resources/assets/yuanxian/portrait"
 GOLDENS = "src/test/resources/portrait_goldens"
 
 

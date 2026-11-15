@@ -4,7 +4,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 /** Per-world server opt-in; realm thresholds remain owned by exploration/rules.json. */
 public final class ExplorationServerConfig {
-    public static final String FILE_NAME = "myvillage-exploration-server.toml";
+    public static final String FILE_NAME = "yuanxian-exploration-server.toml";
     public static final ModConfigSpec SPEC;
     private static final ModConfigSpec.BooleanValue PORTAL_GATES_ENABLED;
     static {

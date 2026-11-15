@@ -11,7 +11,7 @@ public record RealmKey(String realmId, int stage) {
 
     public static String normalizeId(String id) {
         Objects.requireNonNull(id, "realm.id");
-        if (!id.contains(":")) id = "myvillage:" + id;
+        if (!id.contains(":")) id = "yuanxian:" + id;
         if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+"))
             throw new IllegalArgumentException("Invalid realm.id: " + id);
         return id;

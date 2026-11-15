@@ -10,7 +10,7 @@ public final class RuinGuardians {
     private RuinGuardians() {}
     public static void onJoin(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide() || !(event.getEntity() instanceof BeastEntity beast)) return;
-        CompoundTag marker = beast.getPersistentData().getCompound("myvillage:ruin_guardian");
+        CompoundTag marker = beast.getPersistentData().getCompound("yuanxian:ruin_guardian");
         if (!marker.getBoolean("pending")) return;
         int index = marker.getInt("index");
         var guardians = RuinRules.get().guardians();

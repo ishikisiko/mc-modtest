@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class ScriptureHallScreen extends Screen {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScriptureHallScreen.class);
-    private static final String KEY = "screen.myvillage.scripture_hall.";
+    private static final String KEY = "screen.yuanxian.scripture_hall.";
     static final int MAX_PANEL_WIDTH = 340;
     static final int PADDING = 10;
     static final int BORROW_WIDTH = 96;
@@ -141,11 +141,11 @@ public final class ScriptureHallScreen extends Screen {
     }
 
     private static Component grade(int grade) {
-        return Component.translatable("screen.myvillage.cultivation.grade_name." + grade);
+        return Component.translatable("screen.yuanxian.cultivation.grade_name." + grade);
     }
 
     private static Component category(String category) {
-        return Component.translatableWithFallback("screen.myvillage.cultivation.category." + category, category);
+        return Component.translatableWithFallback("screen.yuanxian.cultivation.category." + category, category);
     }
 
     private void borrow(String techniqueId) {

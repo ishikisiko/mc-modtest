@@ -27,14 +27,14 @@ def outputs():
         assert type(count) is int and 1<=count<=32 and 0<fraction<=1
         values={k:v for k,v in common.items() if k not in ('strike_interval_ticks','warning_ticks')}
         values.update(schema_version=2,kind=kind,required_hits=count,duration_ticks=count*interval+1)
-        values.update(dict(zip(('source_realm','source_stage','target_realm','target_stage'),('myvillage:'+v for v in kinds[kind]))))
+        values.update(dict(zip(('source_realm','source_stage','target_realm','target_stage'),('yuanxian:'+v for v in kinds[kind]))))
         values['strikes']=[{'tick':interval*(i+1),'warning_ticks':warning,'main':True,'damage_fraction':fraction} for i in range(count)]
-        result[data/f'myvillage/tribulation/{kind}.json']=values
+        result[data/f'yuanxian/tribulation/{kind}.json']=values
     result.update({
-        data / 'myvillage/damage_type/tribulation_main.json': {'message_id': 'myvillage.tribulation', 'scaling': 'never', 'exhaustion': 0.1},
-        data / 'minecraft/tags/damage_type/bypasses_cooldown.json': {'replace': False, 'values': ['myvillage:tribulation_main']},
-        data / 'myvillage/tags/damage_type/tribulation.json': {'replace': False, 'values': ['myvillage:tribulation_main']},
-        data / 'myvillage/tags/damage_type/tribulation_unavoidable.json': {'replace': False, 'values': ['myvillage:tribulation_main']},
+        data / 'yuanxian/damage_type/tribulation_main.json': {'message_id': 'yuanxian.tribulation', 'scaling': 'never', 'exhaustion': 0.1},
+        data / 'minecraft/tags/damage_type/bypasses_cooldown.json': {'replace': False, 'values': ['yuanxian:tribulation_main']},
+        data / 'yuanxian/tags/damage_type/tribulation.json': {'replace': False, 'values': ['yuanxian:tribulation_main']},
+        data / 'yuanxian/tags/damage_type/tribulation_unavoidable.json': {'replace': False, 'values': ['yuanxian:tribulation_main']},
     })
     return result
 
@@ -45,7 +45,7 @@ def main():
     parser.add_argument('--jar',type=Path)
     args = parser.parse_args()
     failed = []
-    for relative in ['myvillage/tribulation/golden_core.json','myvillage/damage_type/tribulation_echo.json']:
+    for relative in ['yuanxian/tribulation/golden_core.json','yuanxian/damage_type/tribulation_echo.json']:
         obsolete=ROOT/'src/main/resources/data'/relative
         if obsolete.exists():
             if args.check:failed.append('已退役资源：'+relative)
@@ -65,7 +65,7 @@ def main():
                 name=path.relative_to(ROOT/'src/main/resources').as_posix()
                 expected=json.dumps(value,ensure_ascii=False,indent=2)+'\n'
                 if names.count(name)!=1 or jar.read(name).decode()!=expected:failed.append('jar:'+name)
-            for retired in ['data/myvillage/tribulation/golden_core.json','data/myvillage/damage_type/tribulation_echo.json']:
+            for retired in ['data/yuanxian/tribulation/golden_core.json','data/yuanxian/damage_type/tribulation_echo.json']:
                 if retired in names:failed.append('jar包含退役资源：'+retired)
             if any('MockBreakthroughs' in name or 'TribulationEvidence' in name for name in names):failed.append('jar包含旧领奖入口或测试探针')
     if failed:

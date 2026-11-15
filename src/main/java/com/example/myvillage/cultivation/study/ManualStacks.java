@@ -19,7 +19,7 @@ public final class ManualStacks {
 
     /**
      * The technique a stack teaches when it is a readable manual (brief §1): a {@link TechniqueManualItem}
-     * whose {@code myvillage:technique} names a registered technique of the item's category and grade.
+     * whose {@code yuanxian:technique} names a registered technique of the item's category and grade.
      */
     public static Optional<ResourceLocation> technique(
             ItemStack stack, Function<ResourceLocation, TechniqueDefinition> techniques) {

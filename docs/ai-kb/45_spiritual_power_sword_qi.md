@@ -9,10 +9,10 @@ bleed, additional skills, spell projectiles, or flying-sword control.
 
 | Fact | Owner |
 |---|---|
-| Stage capacity | `data/myvillage/myvillage/realm/*.json`, stage `spiritual_power_cap` |
-| Recovery schedule and factors | `data/myvillage/qi/rules.json` |
+| Stage capacity | `data/yuanxian/yuanxian/realm/*.json`, stage `spiritual_power_cap` |
+| Recovery schedule and factors | `data/yuanxian/qi/rules.json` |
 | Technique, learning requirements, base cost | `tools/technique_catalogue/catalogue.json`, generated `technique/jianqi_jue.json` |
-| Charge, travel, geometry, damage and feedback | `data/myvillage/combat/skill/jianqi_jue.json`, indexed by `combat/index.json` |
+| Charge, travel, geometry, damage and feedback | `data/yuanxian/combat/skill/jianqi_jue.json`, indexed by `combat/index.json` |
 | Starter scripture availability | `world_sim/rules.json` `player.scripture_hall.public_techniques`, consumed by the existing scripture offering rules |
 | Persistent balance | Existing profile v4 `currentSpiritualPower`; mutations only through `CultivationService` |
 
@@ -89,7 +89,7 @@ Charge uses enchant particles and the HUD; release originally reused the diagona
 authored blade crosses forward. Optional `reaction_move` retains the previous
 hitstun/slide/lift independently from the animation; older skill files fall back
 to `feedback_move`. Java and Python data validation cover both references.
-The presentation-only profile `assets/myvillage/combat/sword_qi_wave.json` owns
+The presentation-only profile `assets/yuanxian/combat/sword_qi_wave.json` owns
 rim colors, thin cross-section, curve and three separated fading wisps. It replaces
 the swollen wedge while preserving fix1's authoritative width/height. RELEASED
 seeds the first visual segment from the server launch point; WAVE packets alone
@@ -108,7 +108,7 @@ All four cultivation/xiulian and qi/lingli route combinations are equivalent:
 /yuanxian cultivation qi fill <target>
 /yuanxian xiulian lingli shezhi <target> <amount>
 /yuanxian xiulian lingli buman <target>
-/yuanxian cultivation manual @s myvillage:jianqi_jue
+/yuanxian cultivation manual @s yuanxian:jianqi_jue
 ```
 
 The manual command is an administrator fixture. Normal play borrows the public

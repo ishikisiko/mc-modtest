@@ -27,11 +27,11 @@ public final class CraftingReadouts {
 
     private static Readout readout(String profession, boolean initialized, int score, int cap) {
         if (initialized && (cap < 1 || cap > 4)) throw new IllegalArgumentException("Invalid server quality ceiling");
-        return new Readout("screen.myvillage.crafting." + profession, initialized, initialized ? score : 0, initialized ? cap : 0);
+        return new Readout("screen.yuanxian.crafting." + profession, initialized, initialized ? score : 0, initialized ? cap : 0);
     }
 
     public static String qualityKey(int cap) {
-        return "crafting.myvillage.quality." + switch (cap) {
+        return "crafting.yuanxian.quality." + switch (cap) {
             case 0 -> "pending";
             case 1 -> "lower";
             case 2 -> "middle";

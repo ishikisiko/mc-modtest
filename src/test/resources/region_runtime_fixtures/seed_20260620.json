@@ -223,7 +223,7 @@
         "tier": 20
       }
     ],
-    "ruleset": "myvillage:region_topology",
+    "ruleset": "yuanxian:region_topology",
     "seed": 20260620,
     "tier_range": [
       1,

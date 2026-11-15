@@ -19,7 +19,7 @@ public final class SectPlanningRules {
         public final SectTerrain terrain;
         Layout(JsonObject r){
             id=text(r,"id");hash=text(r,"blueprint_sha256");archetype=text(r,"archetype");scale=text(r,"scale");
-            if(!id.matches("myvillage:[a-z0-9_]+")||!hash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("宗门蓝图身份无效");
+            if(!id.matches("yuanxian:[a-z0-9_]+")||!hash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("宗门蓝图身份无效");
             width=integer(r,"width",16,512);height=integer(r,"height",16,256);depth=integer(r,"depth",16,512);
             margin=integer(r,"blend_margin",1,128);maxBlockY=integer(r,"max_y",1,height-1);
             entryX=integer(r,"entry_x",0,width-1);entryY=integer(r,"entry_y",0,height-1);entryZ=integer(r,"entry_z",0,depth-1);

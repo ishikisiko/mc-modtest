@@ -152,7 +152,7 @@ class StoryPresentationTest {
         assertEquals("final_guide",p.stage());assertEquals(List.of(StoryEngine.RECEIPT),p.receipts());assertFalse(p.completed());
         assertTrue(StoryTestData.act(d,p,"recognize_contract").progress().completed());
     }
-    private JsonObject source() throws Exception {return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/story/qianzhen_chapter_1.json"))).getAsJsonObject();}
+    private JsonObject source() throws Exception {return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json"))).getAsJsonObject();}
     private static JsonObject stage(JsonObject root,String id) {return find(root,"stages",id);}
     private static JsonObject action(JsonObject root,String id) {return find(root,"actions",id);}
     private static JsonObject find(JsonObject root,String key,String id) {

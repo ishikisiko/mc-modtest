@@ -1,7 +1,7 @@
 # 演算系统（命簿）游戏内 UI 任务书 — 2026-10-06
 
 统筹：Fable 会话。实施：Opus 5.5 子代理，分 A（服务端协议）、B（面板页面）两路并行，C（文档与版本）收尾。
-背景：世界模拟 0.35.0 只有 `/myvillage world …` 命令和网页编年史，玩家在游戏里看不到命簿。owner 要求"把演算系统的 UI 做了"。
+背景：世界模拟 0.35.0 只有 `/yuanxian world …` 命令和网页编年史，玩家在游戏里看不到命簿。owner 要求"把演算系统的 UI 做了"。
 按 owner 2026-10-05 的方向，新系统一律作为 H 修仙面板的一页出现（`docs/ai-kb/37_cultivation_panel.md`）。
 
 ## 1. 目标
@@ -45,12 +45,12 @@ H 面板新增一页 **天下**（en: World），玩家在游戏里翻阅命簿�
 
 ## 4. B 路：面板页面（Opus）
 
-拥有：`client/cultivation/panel/WorldPage.java`（可再加 `panel/World*.java` 助手）、`client/cultivation/panel/PanelPage.java`、`client/cultivation/CultivationProfileScreen.java`、`client/cultivation/ClientCultivationEvents.java`、`assets/myvillage/lang/en_us.json` 与 `zh_cn.json`（只加键）、`src/test/java/com/example/myvillage/client/cultivation/panel/World*Test.java`。不碰 `sim/**`、`network/**`、`cultivation/**`、文档。
+拥有：`client/cultivation/panel/WorldPage.java`（可再加 `panel/World*.java` 助手）、`client/cultivation/panel/PanelPage.java`、`client/cultivation/CultivationProfileScreen.java`、`client/cultivation/ClientCultivationEvents.java`、`assets/yuanxian/lang/en_us.json` 与 `zh_cn.json`（只加键）、`src/test/java/com/example/myvillage/client/cultivation/panel/World*Test.java`。不碰 `sim/**`、`network/**`、`cultivation/**`、文档。
 
 ### 4.1 面板枢纽的两个通用钩子（不是系统逻辑，允许改枢纽）
 
 - `PanelPage` 加：`public void pointer(int mouseX, int mouseY)`（默认空；屏幕坐标，鼠标不在正文视口内时传 -1,-1）、`public boolean mouseClicked(double mouseX, double mouseY, int button)`（默认 false；屏幕坐标）、`public boolean takeScrollToTop()`（默认 false；返回 true 一次则枢纽把该页滚动归零）。
-- `CultivationProfileScreen`：每帧 `drawPage` 前调 `pointer`；`mouseClicked` 覆写：落点在正文视口内且当前页消费则返回 true，否则 `super`；`drawPage` 里先问 `takeScrollToTop`。`View` 加 `WORLD("screen.myvillage.cultivation.tab.world")` 排在 TECHNIQUES 之后并注册页面。`setView` 方法体不得出现 `sendToServer`/`IntentSender.send`（校验器扫）。
+- `CultivationProfileScreen`：每帧 `drawPage` 前调 `pointer`；`mouseClicked` 覆写：落点在正文视口内且当前页消费则返回 true，否则 `super`；`drawPage` 里先问 `takeScrollToTop`。`View` 加 `WORLD("screen.yuanxian.cultivation.tab.world")` 排在 TECHNIQUES 之后并注册页面。`setView` 方法体不得出现 `sendToServer`/`IntentSender.send`（校验器扫）。
 - `ClientCultivationEvents.onLoggingOut` 里加 `ClientWorldSimState.clear()`（保留原来那行）。
 
 ### 4.2 页面结构
@@ -60,21 +60,21 @@ H 面板新增一页 **天下**（en: World），玩家在游戏里翻阅命簿�
 - **底部 dock 一行**（高 18 + 4）：五个 `PanelButton` 子视图按钮 总览/宗门/人物/纪事/此地（当前项 `setSelected`），右侧一个 `EditBox`（只在"人物"显示，`setResponder` 实时搜索，空文本不查）。正文宽度 < 300 时 dock 两行（按钮一行、搜索框一行），`init` 返回相应高度。
 - **状态**：静态记住子视图、选中的宗门/人物、返回栈（屏幕尺寸变化会重建页面）。子视图或选中项改变时 `takeScrollToTop` 返回 true 一次。
 - **刷新**：`refresh(context, visible)` 可见时每帧对当前子视图的查询调 `request`（缓存已限 2.5 s 一次），所以总览/纪事/此地会自动跟着命簿走。
-- **三种空态**：未收到答案 → 一张卡"正在翻阅命簿…"（`…world.loading`）；`active=false` → 一张卡，标题 命簿未启，正文用现有键 `commands.myvillage.world.inactive` 带 reason；列表为空 → 对应的"无"文案。
+- **三种空态**：未收到答案 → 一张卡"正在翻阅命簿…"（`…world.loading`）；`active=false` → 一张卡，标题 命簿未启，正文用现有键 `commands.yuanxian.world.inactive` 带 reason；列表为空 → 对应的"无"文案。
 
 ### 4.3 五个子视图（内容照命令输出，布局照内视页的卡片）
 
-1. **总览**：左卡「命簿」：启元日期（`WorldSimText.date(SimDate.of(day, prehistoryDays, dpy))` + 第几日）、演算状态 chip（运转中=JADE / 已停止=RED，后随"待结算 N 日"）、档位（现有键 `commands.myvillage.world.tier.<id>`）、在世/目标、已故、宗门 存续/覆灭、纪事累计。右卡「境界」：每个境界一行 名字 + 人数 + 相对最大值的 bar。下方整宽卡「当世翘楚」：五行可点（→ 人物）。宽 < 300 时单列。
-2. **宗门**：列表卡，每行 `#id 名`（GOLD_BRIGHT）、掌门、门人 N、最高境界、声望、山门 chip（已立 JADE / 未立 MUTED）；已灭行整体 MUTED 并带"已灭"chip；行可点 → 宗门详情。详情：顶部「← 返回」热区；卡「宗门」：名（状态）、坐镇域、开创（日期 + 创派人，创派人可点）、自某宗分出（可点）、覆灭日期（若已灭）、掌门（可点）、门人、最高境界、资财、声望、镇派功法、山门 x,z + 已立/未立；卡「交际」：每个对方宗门一行 名（可点）+ 数值 + 状态 chip（war=RED、feud=AMBER、none=MUTED，键 `commands.myvillage.world.relation.<state>`）；卡「在山门者」：行 = 名 道号 · 境界层次 · 身份，可点 → 人物；卡「近事」：纪事行（见 4.4）。
-3. **人物**：搜索结果列表（行 = 名 道号、境界层次、宗门+身份；已故行 MUTED 带"已故"chip）→ 人物详情：「← 返回」；卡「人物」：名 + 道号（+ 已故）、境界层次 + 修为 bar（在世者 `progress`，0..1）、灵根品级 + 五行五条细 bar（`root` 万分比，金木水火土，颜色用 `PanelContext.elementColor` 若能解析到元素 id，否则 FALLBACK_ELEMENT）、年岁（`floorDiv(day - birthDay, dpy)`，已故用 `deathDay`）、师承（可点）、宗门 + 身份（宗门可点）、身在 域 + 状态（键 `commands.myvillage.world.status.<status>`）、功法、伤势（injury > 0 才显示）；已故者改显示 身故日期、死因（`commands.myvillage.world.cause.<cause>`）、死于某人之手（可点）；卡「人缘」：按 kind 分组（弟子/好友/仇家/其他 kind 原样 fallback），名字可点；卡「近事」。
+1. **总览**：左卡「命簿」：启元日期（`WorldSimText.date(SimDate.of(day, prehistoryDays, dpy))` + 第几日）、演算状态 chip（运转中=JADE / 已停止=RED，后随"待结算 N 日"）、档位（现有键 `commands.yuanxian.world.tier.<id>`）、在世/目标、已故、宗门 存续/覆灭、纪事累计。右卡「境界」：每个境界一行 名字 + 人数 + 相对最大值的 bar。下方整宽卡「当世翘楚」：五行可点（→ 人物）。宽 < 300 时单列。
+2. **宗门**：列表卡，每行 `#id 名`（GOLD_BRIGHT）、掌门、门人 N、最高境界、声望、山门 chip（已立 JADE / 未立 MUTED）；已灭行整体 MUTED 并带"已灭"chip；行可点 → 宗门详情。详情：顶部「← 返回」热区；卡「宗门」：名（状态）、坐镇域、开创（日期 + 创派人，创派人可点）、自某宗分出（可点）、覆灭日期（若已灭）、掌门（可点）、门人、最高境界、资财、声望、镇派功法、山门 x,z + 已立/未立；卡「交际」：每个对方宗门一行 名（可点）+ 数值 + 状态 chip（war=RED、feud=AMBER、none=MUTED，键 `commands.yuanxian.world.relation.<state>`）；卡「在山门者」：行 = 名 道号 · 境界层次 · 身份，可点 → 人物；卡「近事」：纪事行（见 4.4）。
+3. **人物**：搜索结果列表（行 = 名 道号、境界层次、宗门+身份；已故行 MUTED 带"已故"chip）→ 人物详情：「← 返回」；卡「人物」：名 + 道号（+ 已故）、境界层次 + 修为 bar（在世者 `progress`，0..1）、灵根品级 + 五行五条细 bar（`root` 万分比，金木水火土，颜色用 `PanelContext.elementColor` 若能解析到元素 id，否则 FALLBACK_ELEMENT）、年岁（`floorDiv(day - birthDay, dpy)`，已故用 `deathDay`）、师承（可点）、宗门 + 身份（宗门可点）、身在 域 + 状态（键 `commands.yuanxian.world.status.<status>`）、功法、伤势（injury > 0 才显示）；已故者改显示 身故日期、死因（`commands.yuanxian.world.cause.<cause>`）、死于某人之手（可点）；卡「人缘」：按 kind 分组（弟子/好友/仇家/其他 kind 原样 fallback），名字可点；卡「近事」。
 4. **纪事**：最新在前（与命令相反，面板上先看最新）。行 = `[启元N年]`（MUTED）+ 事件文（importance 3：行首金色菱形 + GOLD_BRIGHT；2：TEXT）；有因则下一行 FAINT「因：<cause 文>」；行可点 → `subjectId` 的人物（-1 不可点）。
-5. **此地**：卡「此域」：名、阶、灵气 lo-hi、凶险 lo-hi、修士 N 人、可否立宗；卡「坐镇宗门」：行 = 名、掌门、门人、山门 x,z、相距 N 格、已立/未立，可点；无则"此域无宗门坐镇"；卡「在此的人物」：可点；卡「近事」。`region == null` 时整页一张卡"你身在诸域之外"（现有键 `commands.myvillage.world.here.outside`）。
+5. **此地**：卡「此域」：名、阶、灵气 lo-hi、凶险 lo-hi、修士 N 人、可否立宗；卡「坐镇宗门」：行 = 名、掌门、门人、山门 x,z、相距 N 格、已立/未立，可点；无则"此域无宗门坐镇"；卡「在此的人物」：可点；卡「近事」。`region == null` 时整页一张卡"你身在诸域之外"（现有键 `commands.yuanxian.world.here.outside`）。
 
 ### 4.4 文案与渲染规则
 
 - 事件文：`Component.translatable(textKey, args)`，参数以 `@` 开头的转 `Component.translatable(去掉@)`，其余 `Component.literal`（照 `WorldSimText.params`；A 路会加公开重载，但不要依赖它，自己写三行）。多行事件文用 `font.split(component, width)` 折行。
 - 境界层次 `WorldSimText.stage(realmId, stage)`、境界 `WorldSimText.realm`、身份 `WorldSimText.rank`、状态 `WorldSimText.status`、死因 `WorldSimText.cause`（都在 `sim.runtime.WorldSimText`，只依赖 `Component`，客户端可用）。
-- 新键一律 `screen.myvillage.cultivation.world.<…>`，两种语言都加（校验器要求面板源码里出现的每个 `screen.myvillage.cultivation.*` 字面量在两个语言文件里非空）；拼接出来的键（以 `.` 结尾的字面量）不受此限。中文为主、英文可读即可。标签页键 `screen.myvillage.cultivation.tab.world` = 天下 / World。
+- 新键一律 `screen.yuanxian.cultivation.world.<…>`，两种语言都加（校验器要求面板源码里出现的每个 `screen.yuanxian.cultivation.*` 字面量在两个语言文件里非空）；拼接出来的键（以 `.` 结尾的字面量）不受此限。中文为主、英文可读即可。标签页键 `screen.yuanxian.cultivation.tab.world` = 天下 / World。
 - 可点行：渲染时记下屏幕坐标热区；`pointer` 落在热区上时行底加一层 `withAlpha(GOLD, 0x18)`；`mouseClicked` 左键命中则切换并返回 true。文字一律 `PanelTheme.fit` 截断，不得溢出卡片。
 - 纯算术（年岁、日期、分组、五行万分比→宽度）放进一个无 Minecraft 渲染依赖的助手（如 `WorldReadouts`）并写 JUnit 测试，照 `PanelReadoutsTest`。
 

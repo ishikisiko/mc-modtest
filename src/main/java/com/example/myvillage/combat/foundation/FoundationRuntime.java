@@ -15,7 +15,7 @@ public final class FoundationRuntime {
         HealingRuntime.register();
         FieldRuntime.register();
         FateAbilityRuntime.register();
-        FateAbilityRuntime.registerExecutor(ResourceLocation.parse("myvillage:wood_root"), (player, definition) -> {
+        FateAbilityRuntime.registerExecutor(ResourceLocation.parse("yuanxian:wood_root"), (player, definition) -> {
             var field = FieldRuntime.woodRoot(definition.radius()).at(player.getBoundingBox().getCenter());
             if (!FieldRuntime.canSpawn(player, field)) return Optional.empty();
             return Optional.of(() -> {

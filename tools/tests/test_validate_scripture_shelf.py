@@ -107,7 +107,7 @@ class ScriptureShelfResourceContractTest(unittest.TestCase):
 
     def test_duplicate_json_key_is_reported(self):
         (self.root / validator.ASSETS / "models/item/scripture_shelf.json").write_text(
-            '{"parent": "myvillage:block/scripture_shelf", "parent": "minecraft:block/bookshelf"}')
+            '{"parent": "yuanxian:block/scripture_shelf", "parent": "minecraft:block/bookshelf"}')
         self.assert_defect("SCRIPTURE_RESOURCE")
 
 

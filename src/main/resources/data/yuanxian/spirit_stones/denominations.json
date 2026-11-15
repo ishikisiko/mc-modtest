@@ -1,0 +1,22 @@
+{
+  "tiers": [
+    {
+      "id": "yuanxian:low_grade",
+      "item": "yuanxian:low_grade_spirit_stone",
+      "tag": "c:spirit_stones/low_grade",
+      "units": "1"
+    },
+    {
+      "id": "yuanxian:medium_grade",
+      "item": "yuanxian:medium_grade_spirit_stone",
+      "tag": "c:spirit_stones/medium_grade",
+      "units": "100"
+    },
+    {
+      "id": "yuanxian:high_grade",
+      "item": "yuanxian:high_grade_spirit_stone",
+      "tag": "c:spirit_stones/high_grade",
+      "units": "10000"
+    }
+  ]
+}

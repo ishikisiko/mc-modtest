@@ -57,7 +57,7 @@ class LingxiaoSpearModelTest(unittest.TestCase):
             self.assertIn(context, model_3d["display"])
         for key, ref in model_3d["textures"].items():
             if key != "particle":
-                self.assertTrue(ref.startswith("myvillage:item/lingxiao_spear_"), ref)
+                self.assertTrue(ref.startswith("yuanxian:item/lingxiao_spear_"), ref)
 
     def test_model_stays_within_vanilla_element_limits(self) -> None:
         elements = gen.build_elements()
@@ -267,7 +267,7 @@ class LingxiaoSpearModelTest(unittest.TestCase):
         contract.pop("trail")
         self.assertEqual({
             "format": 2, "units": "model_pixels", "generator": "tools/gen_lingxiao_spear_model.py",
-            "model": "myvillage:item/lingxiao_spear_3d",
+            "model": "yuanxian:item/lingxiao_spear_3d",
             "axes": {"length": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
             "grip_center": [8.0, -2.0, 8.0], "off_hand_grip_center": [8.0, 11.0, 8.0],
             "handle": {"y": [-13.4, 16.0], "half_width": 0.5, "half_thickness": 0.5},

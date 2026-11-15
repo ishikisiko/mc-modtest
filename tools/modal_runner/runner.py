@@ -18,8 +18,8 @@ import uuid
 from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, select_fate_purple_cases, select_advanced_fate_cases, select_npc_combat_cases, select_exploration_v2_cases, select_thunder_tiger_cases, select_workshop_cases, select_array_cases, select_gathering_cases, select_qianzhen_sites, safe_extract, sha256
 
 REPO = Path(__file__).resolve().parents[2]
-APP = "myvillage-tests"
-SANDBOX_NAME = "myvillage-test-runner"
+APP = "yuanxian-tests"
+SANDBOX_NAME = "yuanxian-test-runner"
 SDK_VERSION = "1.6.1"
 IMAGE = "eclipse-temurin:21-jdk-noble"
 
@@ -126,7 +126,7 @@ def execute(modal, request: dict, out: Path, repo: Path) -> int:
     code = 1
     try:
         app = modal.App.lookup(APP, create_if_missing=True)
-        volume = modal.Volume.from_name("myvillage-gradle-cache-v1", create_if_missing=True)
+        volume = modal.Volume.from_name("yuanxian-gradle-cache-v1", create_if_missing=True)
         container_image = image(modal, audio=request["preset"] in ("workshop-runtime", "workshop-play"))
         with modal.enable_output():
             sb = modal.Sandbox.create("sleep", "infinity", app=app, name=SANDBOX_NAME,

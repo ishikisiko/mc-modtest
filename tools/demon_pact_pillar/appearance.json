@@ -5,7 +5,7 @@
   "explosion_resistance": 12,
   "size": [4, 10, 4],
   "inscription": "魔契",
-  "font": "src/main/resources/assets/myvillage/font/brush.ttf",
+  "font": "src/main/resources/assets/yuanxian/font/brush.ttf",
   "colors": {"stone": "39313f", "bronze": "997647", "ink": "c4a46b", "shadow": "18151f"},
   "forms": [
     {"from": [0, 0, 0], "to": [4, 1, 4], "material": "base"},

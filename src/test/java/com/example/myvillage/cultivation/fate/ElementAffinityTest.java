@@ -15,7 +15,7 @@ class ElementAffinityTest {
     private static final Map<String,FateDefinition> DEFS=new TreeMap<>();
     @BeforeAll static void load() throws Exception {
         for(String element:List.of("metal","wood","water","earth","fire")) {
-            try(var in=ElementAffinityTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/"+element+"_affinity.json")) {
+            try(var in=ElementAffinityTest.class.getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/"+element+"_affinity.json")) {
                 assertNotNull(in);
                 DEFS.put(element,FateDefinition.CODEC.parse(JsonOps.INSTANCE,
                         JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8))).getOrThrow());

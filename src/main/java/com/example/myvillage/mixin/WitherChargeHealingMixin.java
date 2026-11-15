@@ -14,7 +14,7 @@ public abstract class WitherChargeHealingMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/boss/wither/WitherBoss;heal(F)V",
                     ordinal = 0, remap = false),
             index = 0, require = 1, allow = 1, remap = false)
-    private float myvillage$preserveChargeHealingFraction(float amount) {
+    private float yuanxian$preserveChargeHealingFraction(float amount) {
         // The final charge step has already changed Invul to zero before reaching this call.
         // Its exact bytecode call site, rather than Invul/amount guesses, identifies the source.
         return BossRuntime.witherChargeHealing((WitherBoss) (Object) this, amount);

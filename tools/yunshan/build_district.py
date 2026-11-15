@@ -431,9 +431,9 @@ def export_tiles(volume,signs,out,tile_size):
                     'entities':nbt.ListTag(nbt.TAG_COMPOUND,[])})
                 name=f't_{x0}_{y0}_{z0}';relative=f'tiles/{name}.nbt';path=out/relative
                 path.parent.mkdir(parents=True,exist_ok=True);nbt.write_gzipped_nbt(root,str(path))
-                dest=datapack/f'data/myvillage/structure/yunshan_d1_v2/{name}.nbt'
+                dest=datapack/f'data/yuanxian/structure/yunshan_d1_v2/{name}.nbt'
                 dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(path.read_bytes())
-                tiles.append({'id':f'myvillage:yunshan_d1_v2/{name}','nbt':relative,'world_min':minimum,'size':size,'probe':probe,
+                tiles.append({'id':f'yuanxian:yunshan_d1_v2/{name}','nbt':relative,'world_min':minimum,'size':size,'probe':probe,
                               'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
     return tiles
 
@@ -492,7 +492,7 @@ def build(config_path,out):
     tiles=export_tiles(volume,signs,out,cfg['tile_size'])
     if sum(math.prod(t['size']) for t in tiles)!=len(volume.cells):raise AssertionError('tile partition lost cells')
     ox,oy,oz=site['world_offset'];spawn=cfg['recommended_spawn_artwork']
-    manifest={'schema_version':1,'id':'myvillage:yunshan_d1_v2','source_plan':cfg['plan'],
+    manifest={'schema_version':1,'id':'yuanxian:yunshan_d1_v2','source_plan':cfg['plan'],
         'preview_translation':cfg.get('preview_translation',[0,0,0]),
         'world_offset':site['world_offset'],'world_min':volume.minimum,'world_max':volume.maximum,'size':volume.size,
         'schem':'yunshan_d1_v2.schem','clipboard_offset':[0,0,0],

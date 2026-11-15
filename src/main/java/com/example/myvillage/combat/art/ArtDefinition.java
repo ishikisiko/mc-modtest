@@ -53,7 +53,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
         return all().stream().filter(a -> slot >= 0 && a.slot == slot && a.family.equals(family)).findFirst();
     }
     private static List<ArtDefinition> load() {
-        String path = "/data/myvillage/combat/advanced_arts.json";
+        String path = "/data/yuanxian/combat/advanced_arts.json";
         try (var stream = ArtDefinition.class.getResourceAsStream(path)) {
             if (stream == null) throw new IllegalArgumentException("Missing " + path);
             var root = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();

@@ -89,7 +89,7 @@ def generate(out:Path)->dict:
             root=export.build_structure_nbt(export.Structure(cells),export.DEFAULT_DATA_VERSION,'MyVillage seeded Yunshan V1 tile')
             tile_signs=[{**s,'pos':[s['pos'][0]-tx,s['pos'][1],s['pos'][2]-tz]} for s in signs if tx<=s['pos'][0]<tx+16 and tz<=s['pos'][2]<tz+16]
             attach_signs(root,nbt.Compound({}),tile_signs)
-            name=f'tile_{tx//16}_{tz//16}';path=out/f'data/myvillage/structure/worldplan/yunshan_v1/{name}.nbt'
+            name=f'tile_{tx//16}_{tz//16}';path=out/f'data/yuanxian/structure/worldplan/yunshan_v1/{name}.nbt'
             path.parent.mkdir(parents=True,exist_ok=True);nbt.write_gzipped_nbt(root,str(path))
             _,decoded=read_gzipped_nbt(str(path))
             restored={tuple(b['pos']):canonical(state_string(decoded['palette'][b['state']])) for b in decoded['blocks']}
@@ -97,7 +97,7 @@ def generate(out:Path)->dict:
             for s in tile_signs:
                 sign=next(b['nbt'] for b in decoded['blocks'] if b['pos']==s['pos'])
                 assert [json.loads(x)['text'] for x in sign['front_text']['messages']]==s['messages']
-            tiles.append({'template':'myvillage:worldplan/yunshan_v1/'+name,'x':tx,'z':tz,'sha256':digest(path.read_bytes())})
+            tiles.append({'template':'yuanxian:worldplan/yunshan_v1/'+name,'x':tx,'z':tz,'sha256':digest(path.read_bytes())})
     assert len(tiles)==width*depth//256
     report['layout_source_sha256']=digest(layout_path.read_bytes())
     layout_hash=digest(json.dumps({'layout':layout,'sources':report['source_hashes']},sort_keys=True,ensure_ascii=False).encode())
@@ -106,10 +106,10 @@ def generate(out:Path)->dict:
     for name,terrain in sorted(terrains.items()):
         profile=json.loads((catalog/(name+'.json')).read_text());profile.pop('admitted_subjects',None);profiles.append({**profile,**terrain})
     authored['profiles']=profiles;authored['city']['layout']=compiled_layout
-    write_json(out/'data/myvillage/worldplan/frozen_v1.json',authored)
-    write_json(out/'data/myvillage/worldplan/yunshan_v1.json',{'schema':1,**compiled_layout,**report,'scope':'four original source buildings; new placement streets/walls; not the unavailable complete D1 city'})
+    write_json(out/'data/yuanxian/worldplan/frozen_v1.json',authored)
+    write_json(out/'data/yuanxian/worldplan/yunshan_v1.json',{'schema':1,**compiled_layout,**report,'scope':'four original source buildings; new placement streets/walls; not the unavailable complete D1 city'})
     source={'type':'minecraft:multi_noise','preset':'minecraft:overworld'}
-    generator={'type':'myvillage:planned_v1','biome_source':source,'settings':'minecraft:overworld','rules':json.dumps(authored,ensure_ascii=False,sort_keys=True,separators=(',',':'))}
+    generator={'type':'yuanxian:planned_v1','biome_source':source,'settings':'minecraft:overworld','rules':json.dumps(authored,ensure_ascii=False,sort_keys=True,separators=(',',':'))}
     preset={'dimensions':{
         'minecraft:overworld':{'type':'minecraft:overworld','generator':generator},
         'minecraft:the_nether':{'type':'minecraft:the_nether','generator':{'type':'minecraft:noise','settings':'minecraft:nether','biome_source':{'type':'minecraft:multi_noise','preset':'minecraft:nether'}}},
@@ -117,28 +117,28 @@ def generate(out:Path)->dict:
     }}
     # Intermediate compilation steps feed the current development worldplan.
     v2=json.loads((AUTHORED.parent/'rules_v2.json').read_text())
-    assert v2['base']==AUTHORED.name and v2['algorithm']=='myvillage:worldplan_v2'
+    assert v2['base']==AUTHORED.name and v2['algorithm']=='yuanxian:worldplan_v2'
     current=copy.deepcopy(authored)
     current['algorithm']=v2['algorithm'];current['ecology']=v2['ecology']
-    write_json(out/'data/myvillage/worldplan/frozen_v2.json',current)
+    write_json(out/'data/yuanxian/worldplan/frozen_v2.json',current)
     v3=json.loads((AUTHORED.parent/'rules_v3.json').read_text())
-    assert v3['base']==AUTHORED.name and v3['algorithm']=='myvillage:worldplan_v3'
+    assert v3['base']==AUTHORED.name and v3['algorithm']=='yuanxian:worldplan_v3'
     current=copy.deepcopy(authored)
     current['algorithm']=v3['algorithm'];current['ecotone']=v3['ecotone']
-    write_json(out/'data/myvillage/worldplan/frozen_v3.json',current)
+    write_json(out/'data/yuanxian/worldplan/frozen_v3.json',current)
     # Earlier stage outputs are build inputs, not packaged compatibility resources.
     from worldplan.district import compile_district, encode_rules
     v4, district, district_report = compile_district(out)
     current=copy.deepcopy(current)
     current['algorithm']=v4['algorithm']
     current['city']={**v4['city'],'layout':district}
-    write_json(out/'data/myvillage/worldplan/frozen_v4.json',current)
-    write_json(out/'data/myvillage/worldplan/yunshan_v4.json',district_report)
+    write_json(out/'data/yuanxian/worldplan/frozen_v4.json',current)
+    write_json(out/'data/yuanxian/worldplan/yunshan_v4.json',district_report)
     v5=json.loads((AUTHORED.parent/'rules_v5.json').read_text())
-    assert v5['base']=='rules_v4.json' and v5['algorithm']=='myvillage:worldplan_v5'
+    assert v5['base']=='rules_v4.json' and v5['algorithm']=='yuanxian:worldplan_v5'
     # The dedicated generator owns these resources. Never duplicate its geometry here.
     bay_root=ROOT/'build/generated/regiongen/resources'
-    relative='data/myvillage/regiongen/bay_terraces_v1.json'
+    relative='data/yuanxian/regiongen/bay_terraces_v1.json'
     pinned=json.loads((ROOT/'blueprints/regiongen/bay_terraces_v1_hashes.json').read_text())
     bay_path=bay_root/relative
     if not bay_path.is_file():
@@ -149,10 +149,10 @@ def generate(out:Path)->dict:
     current['algorithm']=v5['algorithm']
     current['settlements']=copy.deepcopy(v5['settlements'])
     current['settlements']['asset']={key:bay[key] for key in ('id','layout_hash','size','base_y','height','worldgen')}
-    write_json(out/'data/myvillage/worldplan/frozen_v5.json',current)
+    write_json(out/'data/yuanxian/worldplan/frozen_v5.json',current)
     v6=json.loads((AUTHORED.parent/'rules_v6.json').read_text())
-    assert v6['base']=='rules_v5.json' and v6['algorithm']=='myvillage:worldplan_v6'
-    chapter_path=ROOT/'build/generated/qianzhen_region/resources/data/myvillage/regiongen/qianzhen_region_v1.json'
+    assert v6['base']=='rules_v5.json' and v6['algorithm']=='yuanxian:worldplan_v6'
+    chapter_path=ROOT/'build/generated/qianzhen_region/resources/data/yuanxian/regiongen/qianzhen_region_v1.json'
     if not chapter_path.is_file():
         subprocess.run([sys.executable,'-m','tools.regiongen.qianzhen_assets'],cwd=ROOT,check=True)
     chapter=json.loads(chapter_path.read_text())
@@ -161,20 +161,20 @@ def generate(out:Path)->dict:
     current['algorithm']=v6['algorithm']
     current['qianzhen_region']={key:chapter[key] for key in ('id','layout_hash','scene_version','size','height','entry','siting','sites')}
     current['qianzhen_region'].update(resource_sha256=digest(chapter_path.read_bytes()),margin=chapter['terrain']['margin'])
-    write_json(out/'data/myvillage/worldplan/frozen_v6.json',current)
+    write_json(out/'data/yuanxian/worldplan/frozen_v6.json',current)
     v7=json.loads((AUTHORED.parent/'rules_v7.json').read_text())
     assert v7['base']=='rules_v5.json' and v7['chapter_1']=='private_realm'
     current=copy.deepcopy(current)
     current['algorithm']=v7['algorithm']
     del current['qianzhen_region']
-    write_json(out/'data/myvillage/worldplan/frozen_v7.json',current)
-    generator['type']='myvillage:planned_v7'
+    write_json(out/'data/yuanxian/worldplan/frozen_v7.json',current)
+    generator['type']='yuanxian:planned_v7'
     generator['rules']=encode_rules(current)
-    write_json(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
-    write_json(out/'data/minecraft/tags/worldgen/world_preset/normal.json',{'replace':False,'values':['myvillage:cultivation']})
+    write_json(out/'data/yuanxian/worldgen/world_preset/cultivation.json',preset)
+    write_json(out/'data/minecraft/tags/worldgen/world_preset/normal.json',{'replace':False,'values':['yuanxian:cultivation']})
     # Language entries aggregate across asset namespaces without replacing the existing mod file.
-    write_json(out/'assets/myvillage_worldplan/lang/zh_cn.json',{'generator.myvillage.cultivation':'修仙大陆（种子蓝图）'})
-    write_json(out/'assets/myvillage_worldplan/lang/en_us.json',{'generator.myvillage.cultivation':'Cultivation Continents (Seeded)'})
+    write_json(out/'assets/yuanxian_worldplan/lang/zh_cn.json',{'generator.yuanxian.cultivation':'修仙大陆（种子蓝图）'})
+    write_json(out/'assets/yuanxian_worldplan/lang/en_us.json',{'generator.yuanxian.cultivation':'Cultivation Continents (Seeded)'})
     report.update({'tiles':len(tiles),'size':layout['size'],'layout_hash':layout_hash,'nbt_roundtrip':True,'actual_game_generation':'not_verified_by_this_offline_generator'})
     report['v4']=district_report
     return report

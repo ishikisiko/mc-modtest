@@ -34,7 +34,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 独立新世界的服务器交互与实际物品回执；没有映射客户端输入，不进入交付包。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class PlayerEconomyEvidence {
     private static final String PHASE = System.getenv("MYVILLAGE_ECONOMY_PHASE");
     private static final Path OUT = Path.of(System.getenv().getOrDefault("MYVILLAGE_ECONOMY_OUT", "../reports/economy-native"));
@@ -89,10 +89,10 @@ public final class PlayerEconomyEvidence {
         return new BlockPos(city.x()+p.get(0).getAsInt(),city.originY()+p.get(1).getAsInt(),city.z()+p.get(2).getAsInt());
     }
     private static BigInteger low(ServerPlayer p) {
-        var type = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("myvillage:low_grade_spirit_stone")));
+        var type = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("yuanxian:low_grade_spirit_stone")));
         return SpiritStoneSources.open(p).copies().stream().map(s->SpiritStoneStorage.count(s,SpiritStoneStorage.ordinary(type))).reduce(BigInteger.ZERO,BigInteger::add);
     }
-    private static int pills(ServerPlayer p) { return p.getInventory().items.stream().filter(s->s.is(BuiltInRegistries.ITEM.get(ResourceLocation.parse("myvillage:pill_huiling")))).mapToInt(ItemStack::getCount).sum(); }
+    private static int pills(ServerPlayer p) { return p.getInventory().items.stream().filter(s->s.is(BuiltInRegistries.ITEM.get(ResourceLocation.parse("yuanxian:pill_huiling")))).mapToInt(ItemStack::getCount).sum(); }
     private static int count(ServerPlayer p, net.minecraft.world.item.Item item) { return p.getInventory().items.stream().filter(s->s.is(item)).mapToInt(ItemStack::getCount).sum(); }
     private static EconomyMenu open(ServerPlayer p, BlockPos at) {
         EconomyRuntime.open(p,at); check("opens_real_counter_"+checks.size(),p.containerMenu instanceof EconomyMenu,p.containerMenu.getClass().getName()); return (EconomyMenu)p.containerMenu;
@@ -100,7 +100,7 @@ public final class PlayerEconomyEvidence {
     private static int row(EconomyMenu menu, String key) { for(int i=0;i<menu.rows.size();i++)if(menu.rows.get(i).id().equals(key))return i;throw new IllegalArgumentException(key); }
     private static void act(ServerPlayer p, EconomyMenu menu, String key) { menu.act(p,new EconomyIntentPayload(menu.containerId,menu.token,menu.sequence(),row(menu,key))); }
     private static void kill(ServerPlayer p) {
-        var mob = (Mob)BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse("myvillage:demon_wolf")).create(p.serverLevel());
+        var mob = (Mob)BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse("yuanxian:demon_wolf")).create(p.serverLevel());
         mob.moveTo(p.getX()+2,p.getY(),p.getZ()+2,0,0); mob.setNoAi(true); p.serverLevel().addFreshEntity(mob); mob.setHealth(1); mob.invulnerableTime=0;
         check("actual_beast_death_"+checks.size(),mob.hurt(p.damageSources().playerAttack(p),1000000)&&!mob.isAlive(),mob.getHealth());
     }
@@ -178,7 +178,7 @@ public final class PlayerEconomyEvidence {
         int attempts=0;while(sim().offerTask(id()).isEmpty()&&attempts++<=WorldSimRuntime.daysPerYear()+1)sim().step(WorldSimRuntime.daysPerYear());
         sim().acceptTask(id(),"EconomyOwner");var task=sim().task(id()).orElseThrow();questReward=sim().sectTaskReward(id());
         beforeContribution=sim().playerMember(id()).orElseThrow().contribution();
-        if(task.kind().equals("tribute"))owner.getInventory().add(new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("myvillage:low_grade_spirit_stone")),task.count()));
+        if(task.kind().equals("tribute"))owner.getInventory().add(new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("yuanxian:low_grade_spirit_stone")),task.count()));
         if(task.kind().equals("patrol")) {
             var s=sim().sect(sect).orElseThrow();var plot=WorldPlanRuntime.generator(server.overworld()).orElseThrow().plan().sectAtGate(s.gateX(),s.gateZ()).orElseThrow();visit(owner,new BlockPos(plot.gateX(),plot.gateY(),plot.gateZ()));
             for(int i=0;i<task.count();i++)kill(owner);

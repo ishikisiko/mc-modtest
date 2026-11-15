@@ -2,12 +2,12 @@
 """Generate Chinese courtyard compounds and review sub-buildings.
 
 Outputs:
-  src/main/resources/data/myvillage/structure/main_hall_review.nbt
-  src/main/resources/data/myvillage/structure/side_wing_review.nbt
-  src/main/resources/data/myvillage/structure/front_row_review.nbt
-  src/main/resources/data/myvillage/structure/chinese_courtyard_001.nbt ...
-  src/main/resources/data/myvillage/function/place/*.mcfunction
-  src/main/resources/data/myvillage/function/gallery/chinese_courtyard.mcfunction
+  src/main/resources/data/yuanxian/structure/main_hall_review.nbt
+  src/main/resources/data/yuanxian/structure/side_wing_review.nbt
+  src/main/resources/data/yuanxian/structure/front_row_review.nbt
+  src/main/resources/data/yuanxian/structure/chinese_courtyard_001.nbt ...
+  src/main/resources/data/yuanxian/function/place/*.mcfunction
+  src/main/resources/data/yuanxian/function/gallery/chinese_courtyard.mcfunction
   reports/compound_library_report.json
 """
 
@@ -409,7 +409,7 @@ def main() -> int:
                                                  spacing_x=56, spacing_z=60)
     structure_names = [entry["name"] for entry in entries]
     structure_dir = os.path.join(PROJECT_ROOT, "src", "main", "resources",
-                                 "data", "myvillage", "structure")
+                                 "data", "yuanxian", "structure")
     library_report = validate_compound_library(
         compounds, min_distinct=args.count, structure_dir=structure_dir,
         structure_names=structure_names)

@@ -6,7 +6,7 @@
 |---|---:|---:|---:|---:|---:|
 | 权重 | 15 | 15 | 5 | 5 | 60 |
 
-唯一开局配置为 `data/myvillage/crafting/opening.json`。每项贡献分别按玩家UUID、职业和词条ID计算SHA-256，以固定哈希域区分用途；字段采用UTF-8和4字节大端长度前缀，UUID采用16字节大端表示。附加4字节大端计数器，取摘要前4字节无符号整数，通过拒绝取样映射到权重桶，避免取模偏差。Java实现为 `CraftingOpeningRules`，独立Python参考为 `tools/crafting_opening.py`。
+唯一开局配置为 `data/yuanxian/crafting/opening.json`。每项贡献分别按玩家UUID、职业和词条ID计算SHA-256，以固定哈希域区分用途；字段采用UTF-8和4字节大端长度前缀，UUID采用16字节大端表示。附加4字节大端计数器，取摘要前4字节无符号整数，通过拒绝取样映射到权重桶，避免取模偏差。Java实现为 `CraftingOpeningRules`，独立Python参考为 `tools/crafting_opening.py`。
 
 同一玩家和同一词条组合必然得到相同的两项资质。选择顺序和世界种子不参与这两项结果；更换一个词条只改变该词条的贡献。普通结果为0～60且为5的倍数，此范围只约束新角色开局，后续培养继续增加。
 

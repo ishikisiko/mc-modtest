@@ -44,7 +44,7 @@ import java.util.*;
 /** 东荒限定、有限名单、按自然历法月份刷新；实体与地形的所有权分别保存。 */
 @EventBusSubscriber(modid=MyVillageMod.MOD_ID)
 public final class HabitatRuntime {
-    private static final String TAG="myvillage_habitat";
+    private static final String TAG="yuanxian_habitat";
     private static final Set<Mob> INSTALLED=Collections.newSetFromMap(new WeakHashMap<>());
     private static final Map<UUID,String> NEAR=new HashMap<>();
     public record Context(ServerLevel level,HabitatRules rules,HabitatLayout.Site site,HabitatRules.Kind kind,HabitatState.Round round,HabitatState.Member member) {}
@@ -112,7 +112,7 @@ public final class HabitatRuntime {
         }
     }
     private static boolean spawn(ServerLevel level,HabitatLayout layout,HabitatLayout.Site site,HabitatState.Round round,HabitatState.Member member){
-        var key=ResourceLocation.fromNamespaceAndPath("myvillage",member.entity);var raw=BuiltInRegistries.ENTITY_TYPE.get(key).create(level);if(!(raw instanceof Mob mob))throw new IllegalStateException("生态成员不是生物："+key);
+        var key=ResourceLocation.fromNamespaceAndPath("yuanxian",member.entity);var raw=BuiltInRegistries.ENTITY_TYPE.get(key).create(level);if(!(raw instanceof Mob mob))throw new IllegalStateException("生态成员不是生物："+key);
         BlockPos point=null;int radius=layout.rules().integer(round.occupied()?"relocation_radius":"site_radius");
         for(int attempt=0;attempt<layout.rules().integer("spawn_attempts");attempt++){
             long hash=WildernessRules.mix(member.id.getLeastSignificantBits()+attempt);int x=site.x()+Math.floorMod(hash,2*radius+1)-radius,z=site.z()+Math.floorMod(WildernessRules.mix(hash),2*radius+1)-radius;
@@ -140,8 +140,8 @@ public final class HabitatRuntime {
     }
     private static void alarm(Mob mob,LivingEntity target){
         var c=member(mob);if(c==null||target==mob||mob.isAlliedTo(target))return;
-        long now=c.level().getGameTime(),last=mob.getPersistentData().getLong("myvillage_habitat_alarm");if(now-last<c.rules().integer("alarm_interval_ticks"))return;
-        mob.getPersistentData().putLong("myvillage_habitat_alarm",now);c.round().alarms++;HabitatSavedData.get(c.level()).setDirty();
+        long now=c.level().getGameTime(),last=mob.getPersistentData().getLong("yuanxian_habitat_alarm");if(now-last<c.rules().integer("alarm_interval_ticks"))return;
+        mob.getPersistentData().putLong("yuanxian_habitat_alarm",now);c.round().alarms++;HabitatSavedData.get(c.level()).setDirty();
         for(var friend:c.round().members){var entity=c.level().getEntity(friend.id);if(entity instanceof Mob ally&&ally!=mob&&ally.distanceToSqr(mob)<=c.rules().integer("alarm_radius")*c.rules().integer("alarm_radius")&&ally.getHealth()>=ally.getMaxHealth()*c.rules().number("retreat_health_fraction"))ally.setTarget(target);}
         if(c.site().kind().equals("wolf_den"))c.level().playSound(null,mob.blockPosition(),SoundEvents.WOLF_HOWL,SoundSource.HOSTILE,(float)c.rules().number("howl_volume"),(float)c.rules().number("howl_pitch"));
     }

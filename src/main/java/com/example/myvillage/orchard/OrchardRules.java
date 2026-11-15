@@ -13,7 +13,7 @@ public record OrchardRules(int trunkMin, int trunkExtra, int branchLength, int c
     private static class Holder { private static final OrchardRules VALUE = load(); }
     public static OrchardRules get() { return Holder.VALUE; }
     private static OrchardRules load() {
-        try (var stream = OrchardRules.class.getResourceAsStream("/data/myvillage/orchard/rules.json")) {
+        try (var stream = OrchardRules.class.getResourceAsStream("/data/yuanxian/orchard/rules.json")) {
             if (stream == null) throw new IllegalStateException("Missing orchard rules");
             return parse(JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (java.io.IOException e) { throw new IllegalStateException(e); }

@@ -24,12 +24,12 @@ def load(path=None):
     return materials
 
 def lang():
-    strings={'tooltip.myvillage.forging_material.use':('Use as a forging additive.','在炼器鼎中用作辅材。')}
+    strings={'tooltip.yuanxian.forging_material.use':('Use as a forging additive.','在炼器鼎中用作辅材。')}
     for m in load():
-        strings['item.myvillage.'+m['id']]=m['name']
+        strings['item.yuanxian.'+m['id']]=m['name']
         strings['tag.item.'+m['tag'].replace(':','.').replace('/','.')]=m['name']
-        strings['tooltip.myvillage.forging_material.'+m['id']]=m['description']
-        strings['tooltip.myvillage.forging_material.source.'+m['id']]=m['acquisition']
+        strings['tooltip.yuanxian.forging_material.'+m['id']]=m['description']
+        strings['tooltip.yuanxian.forging_material.source.'+m['id']]=m['acquisition']
     return strings
 
 def icon(item):
@@ -68,14 +68,14 @@ def outputs(root=ROOT):
     encode=lambda v:(json.dumps(v,ensure_ascii=False,indent=2)+'\n').encode()
     for m in load(root/'tools/forging/materials.json'):
         name=m['id'];namespace,tag=m['tag'].split(':')
-        result[base/f'data/{namespace}/tags/item/{tag}.json']=encode({'replace':False,'values':['myvillage:'+name]})
-        result[base/f'assets/myvillage/textures/item/{name}.png']=png(icon(name))
-        result[base/f'assets/myvillage/models/item/{name}.json']=encode({'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+name}})
+        result[base/f'data/{namespace}/tags/item/{tag}.json']=encode({'replace':False,'values':['yuanxian:'+name]})
+        result[base/f'assets/yuanxian/textures/item/{name}.png']=png(icon(name))
+        result[base/f'assets/yuanxian/models/item/{name}.json']=encode({'parent':'minecraft:item/generated','textures':{'layer0':'yuanxian:item/'+name}})
     return result
 
 def retired_paths(root=ROOT):
     """Only the six acquisition outputs owned by this generator in 0.57.2."""
-    base=root/'src/main/resources/data/myvillage'
+    base=root/'src/main/resources/data/yuanxian'
     return [base/f'{folder}/{name}.json'
             for name in ('xuantie_ingot','chitong_ingot','edge_tempering_sand')
             for folder in ('recipe','advancement/recipes/misc')]
@@ -88,7 +88,7 @@ def preview(root=ROOT):
     small=ImageFont.truetype('/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc',17)
     for i,m in enumerate(load()):
         x=i*300;d.rounded_rectangle((x+8,8,x+291,380),12,fill=(36,47,47),outline=(71,88,84))
-        im=Image.open(root/f'src/main/resources/assets/myvillage/textures/item/{m["id"]}.png').convert('RGBA').resize((224,224),Image.Resampling.NEAREST)
+        im=Image.open(root/f'src/main/resources/assets/yuanxian/textures/item/{m["id"]}.png').convert('RGBA').resize((224,224),Image.Resampling.NEAREST)
         sheet.paste(im,(x+38,24),im);d.text((x+150,280),m['name'][1],font=font,fill=(237,219,183),anchor='mm')
         label={'sharp':'锋锐 · 提高攻击','channeling':'导灵 · 降低耗灵','tough':'坚韧 · 耐久与维修'}[m['trait']]
         d.text((x+150,318),label,font=small,fill=(163,190,181),anchor='mm')

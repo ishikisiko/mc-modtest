@@ -303,7 +303,7 @@ def build(ident,validate=True):
                     m.put(tx+dx,fy+dy,tz+dz,f'minecraft:oak_leaves[distance={max(1,distance)},persistent=false,waterlogged=false]','nature')
     for x,y,z in spec.get('monuments',[]):
         m.box(x-2,y-1,z-2,5,4,5,'base','detail');m.box(x-1,y+3,z-1,3,17,3,'metal','detail');m.box(x,y+20,z,1,4,1,'gold','detail')
-    bx,by,bz=spec['board'];m.put(bx,by,bz,'myvillage:jianghu_board[facing=north]','furniture')
+    bx,by,bz=spec['board'];m.put(bx,by,bz,'yuanxian:jianghu_board[facing=north]','furniture')
     rx,ry,rz=spec['reader'];m.floor(rx,ry,rz,1,1,'floor');m.clear(rx,ry,rz,1,3,1);m.target('jianghu_board',spec['reader'])
     m.illuminate()
     legality=load_modset('full').palette_block_errors(sorted(set(m.blocks.values())))

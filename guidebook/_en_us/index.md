@@ -2,9 +2,9 @@
 navigation:
   title: Cultivation Primer
   position: 0
-  icon: myvillage:cultivation_handbook
+  icon: yuanxian:cultivation_handbook
 item_ids:
-  - myvillage:cultivation_handbook
+  - yuanxian:cultivation_handbook
 ---
 
 # Cultivation Primer

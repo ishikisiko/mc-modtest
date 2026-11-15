@@ -131,7 +131,7 @@ class PanelReadoutsTest {
         assertEquals(-1, PanelReadouts.stageIndex(List.of(), ModCultivationRegistries.QI_REFINING_1_STAGE_ID));
     }
 
-    private static final ResourceLocation STUDIED = ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_jianjue");
+    private static final ResourceLocation STUDIED = ResourceLocation.fromNamespaceAndPath("yuanxian", "gengjin_jianjue");
 
     @Test
     void studyPercentRoundsDownLikeTheManualTooltip() {
@@ -150,9 +150,9 @@ class PanelReadoutsTest {
         StudyProgress passed = new StudyProgress(STUDIED, 6_010, 12_000, StudyProgress.NO_GATE, 50);
         StudyProgress gateless = new StudyProgress(STUDIED, 100, 4_000, StudyProgress.NO_GATE, 0);
 
-        assertEquals("screen.myvillage.cultivation.study.gate", PanelReadouts.studyGateKey(gated));
-        assertEquals("screen.myvillage.cultivation.study.no_gate", PanelReadouts.studyGateKey(passed));
-        assertEquals("screen.myvillage.cultivation.study.no_gate", PanelReadouts.studyGateKey(gateless));
+        assertEquals("screen.yuanxian.cultivation.study.gate", PanelReadouts.studyGateKey(gated));
+        assertEquals("screen.yuanxian.cultivation.study.no_gate", PanelReadouts.studyGateKey(passed));
+        assertEquals("screen.yuanxian.cultivation.study.no_gate", PanelReadouts.studyGateKey(gateless));
         assertTrue(PanelReadouts.studyGateShort(gated, 49));
         assertFalse(PanelReadouts.studyGateShort(gated, 50));
         assertFalse(PanelReadouts.studyGateShort(passed, 0));
@@ -163,16 +163,16 @@ class PanelReadoutsTest {
     void sessionTextReadsStudyWhileAManualIsRead() {
         StudyProgress progress = new StudyProgress(STUDIED, 0, 12_000, 6_000, 50);
 
-        assertEquals("screen.myvillage.cultivation.time_waiting", PanelReadouts.sessionKey(null));
-        assertEquals("screen.myvillage.cultivation.study.preparing", PanelReadouts.sessionKey(MeditationStatus.study(
+        assertEquals("screen.yuanxian.cultivation.time_waiting", PanelReadouts.sessionKey(null));
+        assertEquals("screen.yuanxian.cultivation.study.preparing", PanelReadouts.sessionKey(MeditationStatus.study(
                 MeditationState.PREPARING_NORMAL, 40, MeditationStopReason.STUDY_ACCEPTED, progress)));
-        assertEquals("screen.myvillage.cultivation.study.reading", PanelReadouts.sessionKey(MeditationStatus.study(
+        assertEquals("screen.yuanxian.cultivation.study.reading", PanelReadouts.sessionKey(MeditationStatus.study(
                 MeditationState.MEDITATING_NORMAL, 0, MeditationStopReason.NONE, progress)));
-        assertEquals("screen.myvillage.cultivation.session.preparing_normal", PanelReadouts.sessionKey(
+        assertEquals("screen.yuanxian.cultivation.session.preparing_normal", PanelReadouts.sessionKey(
                 new MeditationStatus(MeditationState.PREPARING_NORMAL, 40, MeditationStopReason.START_ACCEPTED)));
-        assertEquals("screen.myvillage.cultivation.session.meditating_normal", PanelReadouts.sessionKey(
+        assertEquals("screen.yuanxian.cultivation.session.meditating_normal", PanelReadouts.sessionKey(
                 new MeditationStatus(MeditationState.MEDITATING_NORMAL, 0, MeditationStopReason.NONE)));
-        assertEquals("screen.myvillage.cultivation.session.idle", PanelReadouts.sessionKey(
+        assertEquals("screen.yuanxian.cultivation.session.idle", PanelReadouts.sessionKey(
                 MeditationStatus.idle(MeditationStopReason.STUDY_COMPLETE)));
     }
 }

@@ -15,7 +15,7 @@ public abstract class ShulkerReproductionMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z",
                     ordinal = 0, remap = false),
             index = 0, require = 1, allow = 1, remap = false)
-    private Entity myvillage$inheritReproducedBirth(Entity child) {
+    private Entity yuanxian$inheritReproducedBirth(Entity child) {
         VanillaMonsterRealms.inheritShulkerReproduction((Shulker) (Object) this, child);
         return child;
     }

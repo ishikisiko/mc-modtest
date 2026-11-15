@@ -16,8 +16,8 @@ from buildgen.massing import Node
 from buildgen.modset import load_modset
 from buildgen.ops import roof_handler
 from buildgen.style import load_style
-DATA=ROOT/'src/main/resources/data/myvillage'
-ASSETS=ROOT/'src/main/resources/assets/myvillage'
+DATA=ROOT/'src/main/resources/data/yuanxian'
+ASSETS=ROOT/'src/main/resources/assets/yuanxian'
 IDS=('duange_ruin','fuyao_ruin')
 
 
@@ -127,8 +127,8 @@ def blueprint(identity):
         for x,z in [(35,25),(36,28),(34,40),(9,39)]:put(x,5,z,p['worn'])
         sign((17,12,4),[r['name'],r['recommended'],'下殿右击封印宝箱','连续三波·击败解封'])
         sign((18,5,24),['镇妖残阵','右击后稍候开战','可撤退·进度保留','末波有精英妖狼'])
-    cx,cy,cz=r['cache'];put(cx,cy,cz,'myvillage:battle_cache[facing=north,lit=false]')
-    bes[(cx,cy,cz)]={'id':'myvillage:battle_cache','Kind':identity,'BattleState':'READY','Wave':0}
+    cx,cy,cz=r['cache'];put(cx,cy,cz,'yuanxian:battle_cache[facing=north,lit=false]')
+    bes[(cx,cy,cz)]={'id':'yuanxian:battle_cache','Kind':identity,'BattleState':'READY','Wave':0}
     # Small-scale wear only decorates the already distinct collapsed architectural masses.
     for pos,cell in list(g.iter_cells()):
         x,y,z=pos
@@ -140,26 +140,26 @@ def blueprint(identity):
 
 MESSAGES={
 'zh_cn':{
- 'block.myvillage.battle_cache':'遗迹封印宝箱','structure.myvillage.duange_ruin':'断戈营垒','structure.myvillage.fuyao_ruin':'伏妖残殿',
- 'entity.myvillage.battle.guard':'%s守卫','entity.myvillage.battle.elite':'%s·精英',
- 'message.myvillage.battle.dormant':'这只宝箱没有可用的遗迹封印。',
- 'message.myvillage.battle.peaceful':'和平难度下试炼暂停。恢复难度后可继续，消失的守卫不计为击败。',
- 'message.myvillage.battle.start':'镇妖阵已启动！稍后妖兽将现身，击败全部三波即可开启宝箱。',
- 'message.myvillage.battle.locked':'宝箱仍有封印：请完成第%s/%s处战斗。',
- 'message.myvillage.battle.next':'此阵已破。准备迎战第%s波，营垒守军需向前推进。',
- 'message.myvillage.battle.clear':'守卫尽灭，遗迹宝箱已经解封！',
- 'message.myvillage.battle.progress':'%s · 第%s/%s阵 · 剩余%s名守卫'
+ 'block.yuanxian.battle_cache':'遗迹封印宝箱','structure.yuanxian.duange_ruin':'断戈营垒','structure.yuanxian.fuyao_ruin':'伏妖残殿',
+ 'entity.yuanxian.battle.guard':'%s守卫','entity.yuanxian.battle.elite':'%s·精英',
+ 'message.yuanxian.battle.dormant':'这只宝箱没有可用的遗迹封印。',
+ 'message.yuanxian.battle.peaceful':'和平难度下试炼暂停。恢复难度后可继续，消失的守卫不计为击败。',
+ 'message.yuanxian.battle.start':'镇妖阵已启动！稍后妖兽将现身，击败全部三波即可开启宝箱。',
+ 'message.yuanxian.battle.locked':'宝箱仍有封印：请完成第%s/%s处战斗。',
+ 'message.yuanxian.battle.next':'此阵已破。准备迎战第%s波，营垒守军需向前推进。',
+ 'message.yuanxian.battle.clear':'守卫尽灭，遗迹宝箱已经解封！',
+ 'message.yuanxian.battle.progress':'%s · 第%s/%s阵 · 剩余%s名守卫'
 },
 'en_us':{
- 'block.myvillage.battle_cache':'Sealed Ruin Cache','structure.myvillage.duange_ruin':'Duange Garrison','structure.myvillage.fuyao_ruin':'Fuyao Sanctuary',
- 'entity.myvillage.battle.guard':'%s Guardian','entity.myvillage.battle.elite':'%s Elite',
- 'message.myvillage.battle.dormant':'This cache has no active ruin seal.',
- 'message.myvillage.battle.peaceful':'Trials pause in Peaceful. Removed guardians are not defeats; change difficulty to resume.',
- 'message.myvillage.battle.start':'The trial has begun! Defeat all three waves to unlock the cache.',
- 'message.myvillage.battle.locked':'Sealed: complete encounter %s/%s.',
- 'message.myvillage.battle.next':'Encounter cleared. Prepare for wave %s; advance through the garrison to meet its defenders.',
- 'message.myvillage.battle.clear':'All guardians defeated. The ruin cache is unlocked!',
- 'message.myvillage.battle.progress':'%s · Encounter %s/%s · %s guardians remain'
+ 'block.yuanxian.battle_cache':'Sealed Ruin Cache','structure.yuanxian.duange_ruin':'Duange Garrison','structure.yuanxian.fuyao_ruin':'Fuyao Sanctuary',
+ 'entity.yuanxian.battle.guard':'%s Guardian','entity.yuanxian.battle.elite':'%s Elite',
+ 'message.yuanxian.battle.dormant':'This cache has no active ruin seal.',
+ 'message.yuanxian.battle.peaceful':'Trials pause in Peaceful. Removed guardians are not defeats; change difficulty to resume.',
+ 'message.yuanxian.battle.start':'The trial has begun! Defeat all three waves to unlock the cache.',
+ 'message.yuanxian.battle.locked':'Sealed: complete encounter %s/%s.',
+ 'message.yuanxian.battle.next':'Encounter cleared. Prepare for wave %s; advance through the garrison to meet its defenders.',
+ 'message.yuanxian.battle.clear':'All guardians defeated. The ruin cache is unlocked!',
+ 'message.yuanxian.battle.progress':'%s · Encounter %s/%s · %s guardians remain'
 }}
 
 
@@ -169,9 +169,9 @@ def outputs():
     for identity in IDS:
         r,data,bes,entities=blueprint(identity)
         files[DATA/f'structure/{identity}.nbt']=template_bytes(data,bes,entities)
-        emit(DATA/f'worldgen/structure/{identity}.json',dict(type='minecraft:jigsaw',biomes=f'#myvillage:has_{identity}',step='surface_structures',terrain_adaptation='beard_thin',spawn_overrides={},start_pool=f'myvillage:{identity}',size=1,start_height={'absolute':-r['surface_y']},project_start_to_heightmap='WORLD_SURFACE_WG',max_distance_from_center=80,use_expansion_hack=False))
-        emit(DATA/f'worldgen/template_pool/{identity}.json',{'name':f'myvillage:{identity}','fallback':'minecraft:empty','elements':[{'weight':1,'element':{'element_type':'minecraft:single_pool_element','location':f'myvillage:{identity}','processors':'minecraft:empty','projection':'rigid','override_liquid_settings':r['liquid_settings']}}]})
-        emit(DATA/f'worldgen/structure_set/{identity}.json',{'structures':[{'structure':f'myvillage:{identity}','weight':1}],'placement':{'type':'minecraft:random_spread',**r['placement']}})
+        emit(DATA/f'worldgen/structure/{identity}.json',dict(type='minecraft:jigsaw',biomes=f'#yuanxian:has_{identity}',step='surface_structures',terrain_adaptation='beard_thin',spawn_overrides={},start_pool=f'yuanxian:{identity}',size=1,start_height={'absolute':-r['surface_y']},project_start_to_heightmap='WORLD_SURFACE_WG',max_distance_from_center=80,use_expansion_hack=False))
+        emit(DATA/f'worldgen/template_pool/{identity}.json',{'name':f'yuanxian:{identity}','fallback':'minecraft:empty','elements':[{'weight':1,'element':{'element_type':'minecraft:single_pool_element','location':f'yuanxian:{identity}','processors':'minecraft:empty','projection':'rigid','override_liquid_settings':r['liquid_settings']}}]})
+        emit(DATA/f'worldgen/structure_set/{identity}.json',{'structures':[{'structure':f'yuanxian:{identity}','weight':1}],'placement':{'type':'minecraft:random_spread',**r['placement']}})
         emit(DATA/f'tags/worldgen/biome/has_{identity}.json',{'replace':False,'values':r['biomes']})
     for lit in (False,True):
         elements=[]
@@ -181,7 +181,7 @@ def outputs():
                          ([3,2,0],[5,13,16],'metal'),([11,2,0],[13,13,16],'metal'),([6,7,0],[10,11,1],'seal')]:
             elements.append({'from':a,'to':b,'faces':{face:{'texture':'#'+tex} for face in ['up','down','north','south','east','west']}})
         emit(ASSETS/f'models/block/battle_cache_{str(lit).lower()}.json',{'textures':{'wood':'minecraft:block/dark_oak_planks','metal':'minecraft:block/oxidized_cut_copper','seal':'minecraft:block/sea_lantern' if lit else 'minecraft:block/redstone_block','particle':'minecraft:block/dark_oak_planks'},'elements':elements})
-    emit(ASSETS/'blockstates/battle_cache.json',{'variants':{f'facing={face},lit={str(lit).lower()}':{'model':f'myvillage:block/battle_cache_{str(lit).lower()}','y':turn} for face,turn in [('north',0),('east',90),('south',180),('west',270)] for lit in (False,True)}})
+    emit(ASSETS/'blockstates/battle_cache.json',{'variants':{f'facing={face},lit={str(lit).lower()}':{'model':f'yuanxian:block/battle_cache_{str(lit).lower()}','y':turn} for face,turn in [('north',0),('east',90),('south',180),('west',270)] for lit in (False,True)}})
     for lang,entries in MESSAGES.items():
         path=ASSETS/f'lang/{lang}.json';existing=json.loads(path.read_text());existing.update(entries);emit(path,existing)
     return files

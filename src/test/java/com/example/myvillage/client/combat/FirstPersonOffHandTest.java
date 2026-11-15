@@ -585,7 +585,7 @@ final class FirstPersonOffHandTest {
     }
 
     private static JsonObject firstMove(JsonObject rig) {
-        return rig.getAsJsonObject("moves").getAsJsonObject("myvillage:basic_sword_01_thrust");
+        return rig.getAsJsonObject("moves").getAsJsonObject("yuanxian:basic_sword_01_thrust");
     }
 
     private static JsonArray vector(float x, float y, float z) {

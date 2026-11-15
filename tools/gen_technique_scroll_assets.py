@@ -8,7 +8,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "tools/technique_scroll"
-TARGET = ROOT / "src/main/resources/assets/myvillage/textures/gui/cultivation/technique_scroll"
+TARGET = ROOT / "src/main/resources/assets/yuanxian/textures/gui/cultivation/technique_scroll"
 
 
 def outputs():
@@ -20,7 +20,7 @@ def outputs():
         raise ValueError("Invalid indexed palette size")
     result = {}
     for ident, name in style["techniques"].items():
-        if not ident.startswith("myvillage:") or not name.isidentifier():
+        if not ident.startswith("yuanxian:") or not name.isidentifier():
             raise ValueError("Invalid exact technique mapping")
         with Image.open(SOURCE / "source" / f"{name}.png") as original:
             if original.size != (1536, 1024):

@@ -88,7 +88,7 @@ class FemaleNoviceTest(unittest.TestCase):
     def test_model_matches_schema(self):
         d = self.model_doc
         self.assertEqual(1, d["schema"])
-        self.assertEqual("myvillage:cultivator", d["id"])
+        self.assertEqual("yuanxian:cultivator", d["id"])
         self.assertEqual(0.5, d["scale"])
         self.assertEqual({"bone": "head", "max_yaw": 60.0, "max_pitch": 35.0}, d["look"])
         names = [b["name"] for b in d["bones"]]
@@ -522,8 +522,8 @@ class FemaleNoviceTest(unittest.TestCase):
 
     def test_files_sit_beside_the_default_look(self):
         p = build.paths(NAME)
-        self.assertTrue(str(p["model"]).endswith("assets/myvillage/npc/cultivator_f_novice_model.json"))
-        self.assertTrue(str(p["animations"]).endswith("assets/myvillage/npc/cultivator_f_novice_animations.json"))
+        self.assertTrue(str(p["model"]).endswith("assets/yuanxian/npc/cultivator_f_novice_model.json"))
+        self.assertTrue(str(p["animations"]).endswith("assets/yuanxian/npc/cultivator_f_novice_animations.json"))
         self.assertTrue(str(p["texture"]).endswith("textures/entity/cultivator/cultivator_f_novice.png"))
 
 

@@ -13,8 +13,8 @@ sys.path.insert(0, str(ROOT))
 from tools.gen_alchemy_assets import png
 
 SOURCE = Path('tools/demon_pact_pillar')
-ASSETS = Path('src/main/resources/assets/myvillage')
-DATA = Path('src/main/resources/data/myvillage')
+ASSETS = Path('src/main/resources/assets/yuanxian')
+DATA = Path('src/main/resources/data/yuanxian')
 IDENTITY = 'demon_pact_pillar'
 
 
@@ -148,7 +148,7 @@ def faces(form, low, high):
 
 def generate():
     a=appearance(); cells=parts(a); output={}
-    refs={name:'myvillage:block/demon_pact_pillar/'+name for name in ('front','back','side','stone','base','bronze','crown')}
+    refs={name:'yuanxian:block/demon_pact_pillar/'+name for name in ('front','back','side','stone','base','bronze','crown')}
     refs['particle']=refs['stone']
     variants={}
     for i,part in enumerate(cells):
@@ -160,7 +160,7 @@ def generate():
             if visible: elements.append({'from':b['from'],'to':b['to'],'faces':visible})
         output[ASSETS/f'models/block/{IDENTITY}/part_{i}.json']=encoded({'textures':refs,'ambientocclusion':False,'elements':elements})
         for facing,angle in [('north',0),('east',90),('south',180),('west',270)]:
-            variants[f'facing={facing},part={i}']={'model':f'myvillage:block/{IDENTITY}/part_{i}','y':angle}
+            variants[f'facing={facing},part={i}']={'model':f'yuanxian:block/{IDENTITY}/part_{i}','y':angle}
     output[ASSETS/f'blockstates/{IDENTITY}.json']=encoded({'variants':variants})
     output[DATA/f'decoration/{IDENTITY}.json']=encoded({'size':a['size'],'strength':a['strength'],'explosion_resistance':a['explosion_resistance'],'parts':cells})
     # A proper 3D held/GUI miniature shares the placed block's complete material atlas.
@@ -173,10 +173,10 @@ def generate():
     output[ASSETS/f'models/block/{IDENTITY}.json']=encoded({'parent':'minecraft:block/block','textures':refs,'elements':elements,
         'display':{'gui':{'rotation':[20,200,0],'translation':[0,0,0],'scale':[.9,.9,.9]},
                    'fixed':{'rotation':[0,180,0],'scale':[1,1,1]},'ground':{'scale':[.6,.6,.6]}}})
-    output[ASSETS/f'models/item/{IDENTITY}.json']=encoded({'parent':f'myvillage:block/{IDENTITY}'})
+    output[ASSETS/f'models/item/{IDENTITY}.json']=encoded({'parent':f'yuanxian:block/{IDENTITY}'})
     output[DATA/f'loot_table/blocks/{IDENTITY}.json']=encoded({'type':'minecraft:block','pools':[{'rolls':1,
-        'conditions':[{'condition':'minecraft:block_state_property','block':f'myvillage:{IDENTITY}','properties':{'part':'0'}}],
-        'entries':[{'type':'minecraft:item','name':f'myvillage:{IDENTITY}'}]}]})
+        'conditions':[{'condition':'minecraft:block_state_property','block':f'yuanxian:{IDENTITY}','properties':{'part':'0'}}],
+        'entries':[{'type':'minecraft:item','name':f'yuanxian:{IDENTITY}'}]}]})
     for key,value in textures(a).items(): output[ASSETS/f'textures/block/{IDENTITY}/{key}.png']=value
     return output
 
@@ -191,9 +191,9 @@ def main():
         else: path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(value)
     # Chinese shared catalogue edits preserve all other names.
     a=appearance()
-    translations={'block.myvillage.demon_pact_pillar':a['name'],
-                  'tooltip.myvillage.demon_pact_pillar':f"整根放置 · 底座 {a['size'][0]}×{a['size'][2]} 格 · 高 {max(f['to'][1] for f in a['forms']):g} 格",
-                  'tooltip.myvillage.demon_pact_pillar.anchor':'点击底座角点的地面；刻字面朝向放置者'}
+    translations={'block.yuanxian.demon_pact_pillar':a['name'],
+                  'tooltip.yuanxian.demon_pact_pillar':f"整根放置 · 底座 {a['size'][0]}×{a['size'][2]} 格 · 高 {max(f['to'][1] for f in a['forms']):g} 格",
+                  'tooltip.yuanxian.demon_pact_pillar.anchor':'点击底座角点的地面；刻字面朝向放置者'}
     path=ROOT/ASSETS/'lang/zh_cn.json';lang=json.loads(path.read_text())
     if args.check:
         bad.extend(k for k,v in translations.items() if lang.get(k)!=v)

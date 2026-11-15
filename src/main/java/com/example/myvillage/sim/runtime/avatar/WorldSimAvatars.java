@@ -87,9 +87,9 @@ import org.slf4j.LoggerFactory;
 public final class WorldSimAvatars {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldSimAvatars.class);
     static final int PASS_TICKS = 20;
-    static final String NAME_KEY = "entity.myvillage.cultivator.avatar";
+    static final String NAME_KEY = "entity.yuanxian.cultivator.avatar";
     /** The steward's name tag: the same three params, with a fixed fourth part "守山执事" in the language file. */
-    static final String STEWARD_NAME_KEY = "entity.myvillage.cultivator.avatar.steward";
+    static final String STEWARD_NAME_KEY = "entity.yuanxian.cultivator.avatar.steward";
 
     /** {@code role} is the dialogue role last set on the entity ({@link NpcEntity#ledgerRole()}). */
     private record Avatar(int personId, int sectId, CultivatorEntity entity, BlockPos cell, String role,
@@ -402,7 +402,7 @@ public final class WorldSimAvatars {
             return false;
         }
         entity.becomeLedgerAvatar(p.id());
-        if (wildRegion != null) entity.addTag("myvillage:wild_avatar"); // diagnostic only; AVATARS owns identity and caps
+        if (wildRegion != null) entity.addTag("yuanxian:wild_avatar"); // diagnostic only; AVATARS owns identity and caps
         float yaw = AvatarPlanner.yaw(p.id());
         entity.moveTo(cell.getX() + 0.5, cell.getY(), cell.getZ() + 0.5, yaw, 0.0F);
         entity.setYHeadRot(yaw);
@@ -426,7 +426,7 @@ public final class WorldSimAvatars {
         }
         if (lifeSite != null) {
             entity.enableLedgerLife(lifeEpoch);
-            entity.addTag("myvillage:life_avatar"); // diagnostic only; the shared map still owns identity
+            entity.addTag("yuanxian:life_avatar"); // diagnostic only; the shared map still owns identity
         }
         Avatar avatar = new Avatar(p.id(), sectId, entity, cell, role, wildRegion, lifeSite, lifeEpoch);
         AVATARS.put(p.id(), avatar); // before adding, so the join check knows it
@@ -692,7 +692,7 @@ public final class WorldSimAvatars {
     private static void refreshLifePresentation(CultivatorEntity entity, PersonView person, LifeResidentView life,
                                                 String role, Selection presentation) {
         Component name = name(person, role).copy().append(" · ").append(life.role().equals("guide")
-                ? Component.translatable("exploration.myvillage.guide.label") : NpcLifeInteraction.stateText(life));
+                ? Component.translatable("exploration.yuanxian.guide.label") : NpcLifeInteraction.stateText(life));
         if (!Objects.equals(entity.getCustomName(), name)) {
             entity.setCustomName(name);
             LOGGER.info("NPC_LIFE_AVATAR action=state person={} activity={} phase={} revision={} reason={}",

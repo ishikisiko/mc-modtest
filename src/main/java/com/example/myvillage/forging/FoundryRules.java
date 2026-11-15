@@ -90,7 +90,7 @@ public record FoundryRules(int version, Heat heat, Skill skill, Bonus manual, Bo
     }
     private static class Holder {static final FoundryRules VALUE=load();}
     public static FoundryRules get(){return Holder.VALUE;}
-    private static FoundryRules load(){try(var in=FoundryRules.class.getResourceAsStream("/data/myvillage/forging/foundry.json")){
+    private static FoundryRules load(){try(var in=FoundryRules.class.getResourceAsStream("/data/yuanxian/forging/foundry.json")){
         if(in==null)throw new IllegalStateException("Missing foundry rules");return parse(new InputStreamReader(in,StandardCharsets.UTF_8));
     }catch(IOException e){throw new IllegalStateException(e);}}
     public Hammer hammer(String id){return hammers.stream().filter(h->h.id().equals(id)).findFirst().orElseThrow();}

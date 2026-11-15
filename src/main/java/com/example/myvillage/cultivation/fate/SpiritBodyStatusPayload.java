@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public record SpiritBodyStatusPayload(int mode,List<Double> adaptation,double bodyDefense,double defensePerPoint,
         double adaptationCapacity,double reserve,double reserveCapacity,double rebirthThreshold,
         double emberHealth,double emberMaximum,int remaining,int duration) implements CustomPacketPayload {
-    public static final Type<SpiritBodyStatusPayload> TYPE=new Type<>(ResourceLocation.parse("myvillage:spirit_body_status"));
+    public static final Type<SpiritBodyStatusPayload> TYPE=new Type<>(ResourceLocation.parse("yuanxian:spirit_body_status"));
     private static Consumer<SpiritBodyStatusPayload> receiver=p->{};
     public static void installReceiver(Consumer<SpiritBodyStatusPayload> consumer){receiver=java.util.Objects.requireNonNull(consumer);}
     public static void receive(SpiritBodyStatusPayload payload){receiver.accept(payload);}

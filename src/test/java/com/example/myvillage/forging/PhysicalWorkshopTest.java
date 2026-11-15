@@ -37,15 +37,15 @@ class PhysicalWorkshopTest {
             items.unfreeze();
             try {
                 for(var craft:WorkshopRules.get().crafts())for(int stage=0;stage<WorkshopItems.STAGES.size();stage++) {
-                    var id=ResourceLocation.fromNamespaceAndPath("myvillage","workpiece_"+craft.recipe()+"_"+WorkshopItems.STAGES.get(stage));
+                    var id=ResourceLocation.fromNamespaceAndPath("yuanxian","workpiece_"+craft.recipe()+"_"+WorkshopItems.STAGES.get(stage));
                     if(!items.containsKey(id))Registry.register(items,id,new WorkpieceItem(new Item.Properties(),craft.recipe(),stage));
                 }
                 for(var h:FoundryRules.get().handles()){
-                    var id=ResourceLocation.fromNamespaceAndPath("myvillage",h.id()+"_handle");
+                    var id=ResourceLocation.fromNamespaceAndPath("yuanxian",h.id()+"_handle");
                     if(!items.containsKey(id))Registry.register(items,id,new FoundryMaterialItem(new Item.Properties(),h.id(),false));
                 }
                 for(var f:FoundryRules.get().fires()){
-                    var id=ResourceLocation.fromNamespaceAndPath("myvillage",f.id()+"_fire_seed");
+                    var id=ResourceLocation.fromNamespaceAndPath("yuanxian",f.id()+"_fire_seed");
                     if(!items.containsKey(id))Registry.register(items,id,new FoundryMaterialItem(new Item.Properties(),f.id(),true));
                 }
                 if(!items.containsKey(ModItems.FORGING_HAMMER.getId()))Registry.register(items,ModItems.FORGING_HAMMER.getId(),new ForgingHammerItem(new Item.Properties()));

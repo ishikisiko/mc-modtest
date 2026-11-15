@@ -26,7 +26,7 @@ public final class UndeadRules {
     private static final class Holder { static final UndeadRules INSTANCE = loadBundled(); }
     public static UndeadRules get() { return Holder.INSTANCE; }
     private static UndeadRules loadBundled() {
-        try (var stream = UndeadRules.class.getResourceAsStream("/data/myvillage/wilderness/undead.json")) {
+        try (var stream = UndeadRules.class.getResourceAsStream("/data/yuanxian/wilderness/undead.json")) {
             if (stream == null) throw new IllegalStateException("Missing wilderness/undead.json");
             return parse(new InputStreamReader(stream, StandardCharsets.UTF_8));
         } catch (IOException e) { throw new UncheckedIOException(e); }

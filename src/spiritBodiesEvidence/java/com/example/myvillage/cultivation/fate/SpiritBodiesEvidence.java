@@ -39,7 +39,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 原生服务器逻辑探针；无真实网络或映射输入，明确不替代客户端验收，且禁止打包。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class SpiritBodiesEvidence {
     private static final Path OUT=Path.of(System.getenv().getOrDefault("MYVILLAGE_SPIRIT_OUT","../reports/spirit-native"));
     private static final String PHASE=System.getenv().getOrDefault("MYVILLAGE_SPIRIT_PHASE","initial");
@@ -57,7 +57,7 @@ public final class SpiritBodiesEvidence {
         try{Files.createDirectories(OUT);Files.writeString(OUT.resolve(PHASE+"_partial.json"),new GsonBuilder().setPrettyPrinting().create().toJson(Map.of("checks",CHECKS,"failed",FAILED)));}catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
     }
     private static boolean near(double a,double b){return Math.abs(a-b)<.004;}
-    private static ResourceLocation id(String n){return ResourceLocation.parse(n.contains(":")?n:"myvillage:"+n);}
+    private static ResourceLocation id(String n){return ResourceLocation.parse(n.contains(":")?n:"yuanxian:"+n);}
     private static final class NoOpConnection extends ServerGamePacketListenerImpl {
         final List<SpiritBodyStatusPayload> statuses=new ArrayList<>();
         final List<String> messages=new ArrayList<>();
@@ -72,11 +72,11 @@ public final class SpiritBodiesEvidence {
     }
     private static ServerPlayer actor(MinecraftServer server,String name,String fate,double x)throws Exception {
         var level=server.overworld();var p=new ServerPlayer(server,level,new GameProfile(UUID.nameUUIDFromBytes(("spirit-evidence:"+name).getBytes(StandardCharsets.UTF_8)),name),ClientInformation.createDefault());
-        p.connection=new NoOpConnection(server,p);((com.example.myvillage.mixin.PhoenixServerPlayerAccess)p).myvillage$setEmberSpawnProtection(0);p.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);p.getFoodData().setFoodLevel(10);p.getFoodData().setSaturation(0);p.moveTo(x,-59,20000.5,0,0);attach(server,p);FIXTURES.add(p);
+        p.connection=new NoOpConnection(server,p);((com.example.myvillage.mixin.PhoenixServerPlayerAccess)p).yuanxian$setEmberSpawnProtection(0);p.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);p.getFoodData().setFoodLevel(10);p.getFoodData().setSaturation(0);p.moveTo(x,-59,20000.5,0,0);attach(server,p);FIXTURES.add(p);
         var profile=CultivationProfile.defaultProfile().withSpiritualRoot(new SpiritualRoot(Map.of(id("fire"),10000)))
                 .withRealmAndStage(id("qi_refining"),id("qi_refining_1")).learnTechnique(id("basic_breathing"));
         var result=CultivationService.replaceProfile(p,profile);if(!result.success())throw new IllegalStateException(result.message());
-        var ids=List.of("myvillage:"+fate,"myvillage:bright","myvillage:lightfoot");
+        var ids=List.of("yuanxian:"+fate,"yuanxian:bright","yuanxian:lightfoot");
         CultivationService.replaceFates(p,new FateState(1,1,ids,"",ids,true,0,0,0,0),false);FateRuntime.refresh(p);StatsRuntime.refreshPlayer(p);p.setHealth(p.getMaxHealth());
         if(fate.equals("phoenix_body"))CultivationService.replaceFates(p,FateService.state(p).withPhoenix(new PhoenixState(true,100)),false);
         return p;
@@ -211,7 +211,7 @@ public final class SpiritBodiesEvidence {
             var clock=PhoenixRuntime.clock(restarting);Files.createDirectories(OUT);
             var manifest=Map.of("owner",restarting.getUUID().toString(),"remaining",clock.remaining(),"health",clock.durability(),"maximum",clock.maximumDurability(),"pvp_owner",pvp.getUUID().toString(),"killer",killer.getUUID().toString());
             Files.writeString(OUT.resolve("restart.json"),new Gson().toJson(manifest));
-            ((PhoenixPlayerListAccess)server.getPlayerList()).myvillage$savePhoenixPlayer(restarting);
+            ((PhoenixPlayerListAccess)server.getPlayerList()).yuanxian$savePhoenixPlayer(restarting);
             check("restart_saves_partial_condensation",clock.remaining()==60&&clock.durability()>0,clock);
             complete=true;save("initial",FAILED.isEmpty());server.halt(false);
         }

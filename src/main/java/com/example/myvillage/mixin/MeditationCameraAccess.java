@@ -7,5 +7,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Camera.class)
 public interface MeditationCameraAccess {
-    @Invoker("setPosition") void myvillage$meditationPosition(Vec3 position);
+    @Invoker("setPosition") void yuanxian$meditationPosition(Vec3 position);
 }

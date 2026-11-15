@@ -11,7 +11,7 @@ from pathlib import Path
 
 from tools import gen_manual_textures as gen
 
-MODEL_DIR = gen.ROOT / "src" / "main" / "resources" / "assets" / "myvillage" / "models" / "item"
+MODEL_DIR = gen.ROOT / "src" / "main" / "resources" / "assets" / "yuanxian" / "models" / "item"
 GRADES = ("huang", "xuan", "di", "tian")
 
 
@@ -120,11 +120,11 @@ class ManualTexturesTest(unittest.TestCase):
         for category in gen.CATEGORIES:
             model = json.loads((MODEL_DIR / f"manual_{category}.json").read_text(encoding="utf-8"))
             self.assertEqual(model["parent"], "minecraft:item/generated")
-            self.assertEqual(model["textures"], {"layer0": f"myvillage:item/manual_{category}",
-                                                 "layer1": f"myvillage:item/manual_{category}_tint"})
+            self.assertEqual(model["textures"], {"layer0": f"yuanxian:item/manual_{category}",
+                                                 "layer1": f"yuanxian:item/manual_{category}_tint"})
             for grade in GRADES:
                 item = json.loads((MODEL_DIR / f"manual_{category}_{grade}.json").read_text(encoding="utf-8"))
-                self.assertEqual(item, {"parent": f"myvillage:item/manual_{category}"})
+                self.assertEqual(item, {"parent": f"yuanxian:item/manual_{category}"})
 
 
 if __name__ == "__main__":

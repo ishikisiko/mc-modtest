@@ -163,9 +163,9 @@ class Evidence:
             'selected':CASES,'completed':[],'unrun':CASES.copy(),'checks':[],'status':'running','cleanup':[],
             'screenshots':[],'commands':[],'actions':[],'states':[],
             'method':__doc__,'owner_appearance':'not_verified','owner_fps':'not_verified','continuous_walk':'not_selected'}
-        self.scene=json.loads((ROOT/'build/generated/qianzhen/resources/data/myvillage/story/qianzhen_scene.json').read_text())
-        self.origin=json.loads((ROOT/'src/main/resources/data/myvillage/story/qianzhen_realm.json').read_text())['origin']
-        self.chapter=json.loads((ROOT/'src/main/resources/data/myvillage/story/qianzhen_chapter_1.json').read_text())
+        self.scene=json.loads((ROOT/'build/generated/qianzhen/resources/data/yuanxian/story/qianzhen_scene.json').read_text())
+        self.origin=json.loads((ROOT/'src/main/resources/data/yuanxian/story/qianzhen_realm.json').read_text())['origin']
+        self.chapter=json.loads((ROOT/'src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json').read_text())
         self.actions={a['id']:a for a in self.chapter['actions']};self.expected={row['action']['id']:row for row in compile_route(self.chapter,MEDICAL)};self.save()
 
     def save(self):support.write(self.out/'report.json',self.report)
@@ -197,7 +197,7 @@ class Evidence:
         else:
             initial=self.point(station['pos']);self.fixture(client,at,[initial[0]+.5,initial[1]+1.3,initial[2]+.5])
             person=before['npc'][role]['personId'];dim=self.realm(client.name)['dimension']
-            query=f'execute in {dim} as @e[type=myvillage:cultivator,nbt={{WorldSimPerson:{person}}}] run data get entity @s Pos'
+            query=f'execute in {dim} as @e[type=yuanxian:cultivator,nbt={{WorldSimPerson:{person}}}] run data get entity @s Pos'
             bodies=wait(lambda:[read_data(line) for line in self.rc(query).splitlines() if 'data: ' in line],lambda v:len(v)==1,20,'unique private NPC')
             self.fixture(client,at,[bodies[0][0],bodies[0][1]+1.3,bodies[0][2]])
             offset=client.game.client_log.stat().st_size;client.right()
@@ -214,7 +214,7 @@ class Evidence:
     def bed_check(self,client,spawn_record):
         site=next(site for site in self.scene['sites'] if site['id']=='relay_inn')
         authored=json.loads((ROOT/'blueprints/qianzhen/relay_inn.json').read_text())
-        path=ROOT/('build/generated/qianzhen/resources/data/myvillage/structure/'+site['template'].split(':')[1]+'.nbt')
+        path=ROOT/('build/generated/qianzhen/resources/data/yuanxian/structure/'+site['template'].split(':')[1]+'.nbt')
         _,tag=read_gzipped_nbt(str(path))
         bed=next(cell for cell in tag['blocks'] if tag['palette'][cell['state']]['Name'].endswith('_bed')
                  and tag['palette'][cell['state']].get('Properties',{}).get('part')=='foot')
@@ -232,9 +232,9 @@ class Evidence:
         client.capture('private-bed-refusal');self.complete('bed_no_reset')
 
     def audit(self,world,owner):
-        saved=SavedWorld(world/'dimensions/myvillage/qianzhen'/owner);errors=[];count=0;signs=0;per_site={};cache={}
+        saved=SavedWorld(world/'dimensions/yuanxian/qianzhen'/owner);errors=[];count=0;signs=0;per_site={};cache={}
         for site in self.scene['sites']:
-            path=ROOT/('build/generated/qianzhen/resources/data/myvillage/structure/'+site['template'].split(':')[1]+'.nbt')
+            path=ROOT/('build/generated/qianzhen/resources/data/yuanxian/structure/'+site['template'].split(':')[1]+'.nbt')
             if hashlib.sha256(path.read_bytes()).hexdigest()!=site['sha256']:raise AssertionError('Original template identity changed')
             _,tag=read_gzipped_nbt(str(path));palette=[state_string(p) for p in tag['palette']];failed=0
             for cell in tag['blocks']:
@@ -270,7 +270,7 @@ class Evidence:
         try:
             with support.Server(name,'first',planned=True,view_distance=3) as server:
                 self.server=server
-                info=server.query('info');self.check('v7_has_no_public_chapter',info['algorithm']=='myvillage:worldplan_v7' and not info.get('qianzhen'),info)
+                info=server.query('info');self.check('v7_has_no_public_chapter',info['algorithm']=='yuanxian:worldplan_v7' and not info.get('qianzhen'),info)
                 with ExitStack() as stack:
                     a=stack.enter_context(Client(self,server,'RealmAlice','first'));b=stack.enter_context(Client(self,server,'RealmBob','first'))
                     for client in (a,b):self.rc('gamemode creative '+client.name)
@@ -285,7 +285,7 @@ class Evidence:
                     self.complete('two_private_realms');a.capture('alice-private-entry');b.capture('bob-private-entry')
                     self.rc(f'execute in {ra["dimension"]} run tp {b.name} 20.5 64.0 114.5')
                     self.check('cross_owner_teleport_refused',self.realm(b.name)['current_dimension']==rb['dimension'],self.realm(b.name))
-                    self.rc(f'execute in myvillage:qianzhen_template run tp {a.name} 0.5 64.0 0.5')
+                    self.rc(f'execute in yuanxian:qianzhen_template run tp {a.name} 0.5 64.0 0.5')
                     self.check('template_teleport_refused',self.realm(a.name)['current_dimension']==ra['dimension'],self.realm(a.name))
                     self.rc('gamemode spectator '+b.name);self.rc('spectate '+a.name+' '+b.name)
                     camera=self.realm(b.name)

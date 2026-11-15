@@ -67,33 +67,33 @@ public final class NpcLifeInteraction {
         }
 
         player.sendSystemMessage(Component.translatable(context.metBefore()
-                ? "message.myvillage.life.greeting.known" : "message.myvillage.life.greeting.first",
+                ? "message.yuanxian.life.greeting.known" : "message.yuanxian.life.greeting.first",
                 name, context.familiarity()));
-        player.sendSystemMessage(Component.translatable("message.myvillage.life.status", name,
+        player.sendSystemMessage(Component.translatable("message.yuanxian.life.status", name,
                 activityText(life.activity()), phaseText(life)));
         if (!life.reason().isEmpty() && !"none".equals(life.reason())) {
             String reason = REASONS.contains(life.reason()) ? life.reason() : "unknown";
-            player.sendSystemMessage(Component.translatable("message.myvillage.life.reason." + reason));
+            player.sendSystemMessage(Component.translatable("message.yuanxian.life.reason." + reason));
         }
         return true;
     }
 
     public static Component activityText(String activity) {
-        return Component.translatable("message.myvillage.life.activity."
+        return Component.translatable("message.yuanxian.life.activity."
                 + (ACTIVITIES.contains(activity) ? activity : "rest"));
     }
 
     public static Component reasonText(String reason) {
-        return Component.translatable("message.myvillage.life.reason." + (REASONS.contains(reason) ? reason : "unknown"));
+        return Component.translatable("message.yuanxian.life.reason." + (REASONS.contains(reason) ? reason : "unknown"));
     }
 
     public static Component phaseText(LifeResidentView life) {
         String phase = life.pauseTicks() > 0 ? "talking" : PHASES.contains(life.phase()) ? life.phase() : "waiting";
-        return Component.translatable("message.myvillage.life.phase." + phase);
+        return Component.translatable("message.yuanxian.life.phase." + phase);
     }
 
     public static Component stateText(LifeResidentView life) {
-        return Component.translatable("message.myvillage.life.state", activityText(life.activity()), phaseText(life));
+        return Component.translatable("message.yuanxian.life.state", activityText(life.activity()), phaseText(life));
     }
 
     public static void clear() {

@@ -35,7 +35,7 @@
 
 | 内容 | 唯一配置或实现入口 |
 |---|---|
-| 宗务基础贡献、任务要求、年度资格 | `src/main/resources/data/myvillage/world_sim/sect_tasks.json`、`rules.json` |
+| 宗务基础贡献、任务要求、年度资格 | `src/main/resources/data/yuanxian/world_sim/sect_tasks.json`、`rules.json` |
 | 宗务额外贡献范围与灵石范围 | `world_sim/player_economy.json` 的 `sect_task_rewards`；`contribution_bonus` 加到原任务基础贡献上 |
 | 经书品阶费用 | `world_sim/rules.json` 的 `player.scripture_hall.borrow_cost_by_grade` |
 | 单本经书费用与免费覆盖 | `world_sim/player_economy.json` 的 `manual_overrides` |

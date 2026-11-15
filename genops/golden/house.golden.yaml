@@ -3,7 +3,7 @@ version: 1
 
 current_golden:
   candidate_id: "small_house_001"
-  source: "src/main/resources/data/myvillage/structure/small_house_001.nbt"
+  source: "src/main/resources/data/yuanxian/structure/small_house_001.nbt"
   accepted_in_run: "manual-or-agent-run-id"
   human_reason: "早期建筑库基本体量、屋顶闭合、入口和功能块验证基线。"
 

@@ -14,7 +14,7 @@ class DefaultManorCapitalTest {
     private static JsonObject json(String resource) {
         return JsonParser.parseString(new String(CapitalGameBundle.readResource(resource,8*1024*1024),StandardCharsets.UTF_8)).getAsJsonObject();
     }
-    private static WorldPlanRules rules() { return new WorldPlanRules(json("myvillage:worldplan/frozen_v11.json").toString()); }
+    private static WorldPlanRules rules() { return new WorldPlanRules(json("yuanxian:worldplan/frozen_v11.json").toString()); }
 
     @Test void landCityAnchorsDoNotFollowTheSeabedBelowTheWaterSurface() {
         var rules=rules();
@@ -51,10 +51,10 @@ class DefaultManorCapitalTest {
     }
 
     @Test void theDefaultPresetAndAllRuntimeResourcesHaveTheSameFrozenIdentity() throws Exception {
-        assertEquals(1,Collections.list(getClass().getClassLoader().getResources("data/myvillage/worldgen/world_preset/cultivation.json")).size());
-        var preset=json("myvillage:worldgen/world_preset/cultivation.json").getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
-        assertEquals("myvillage:planned_v11",preset.get("type").getAsString());
-        assertEquals(json("myvillage:worldplan/frozen_v11.json"),JsonParser.parseString(FrozenRulesEncoding.decode(preset.get("rules").getAsString())));
+        assertEquals(1,Collections.list(getClass().getClassLoader().getResources("data/yuanxian/worldgen/world_preset/cultivation.json")).size());
+        var preset=json("yuanxian:worldgen/world_preset/cultivation.json").getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
+        assertEquals("yuanxian:planned_v11",preset.get("type").getAsString());
+        assertEquals(json("yuanxian:worldplan/frozen_v11.json"),JsonParser.parseString(FrozenRulesEncoding.decode(preset.get("rules").getAsString())));
         for(var bundle:rules().capitals.bundles) {
             CapitalGameBundle.requireHash(CapitalGameBundle.readResource(bundle.terrainResource,16*1024*1024),bundle.terrainHash,bundle.terrainResource);
             for(var tile:bundle.tiles)CapitalGameBundle.requireHash(CapitalGameBundle.readResource(CapitalGameBundle.templateFile(tile.template()),8*1024*1024),tile.sha256(),tile.template());

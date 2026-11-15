@@ -8,7 +8,7 @@ import java.util.*;
 
 /** Non-stacking transient armour reduction, cleared on expiry and lifecycle removal. */
 public final class SwordArmorBreak {
-    public static final ResourceLocation ID=ResourceLocation.parse("myvillage:sword_armor_break");
+    public static final ResourceLocation ID=ResourceLocation.parse("yuanxian:sword_armor_break");
     private record Entry(LivingEntity entity,StrongestTimedEffect effects) {}
     private static final Map<UUID,Entry> ACTIVE=new HashMap<>();
     private SwordArmorBreak() {}

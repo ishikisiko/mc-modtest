@@ -175,4 +175,4 @@ def build():
     m.box((-.115,2.31,-.115),(.115,2.43,.115),JADE)
     bounds=[[min(p[i] for f in m.faces for p in f['p']) for i in range(3)],
             [max(p[i] for f in m.faces for p in f['p']) for i in range(3)]]
-    return {'version':1,'texture':'myvillage:textures/block/alchemy_array_formed.png','bounds':bounds,'faces':m.faces}
+    return {'version':1,'texture':'yuanxian:textures/block/alchemy_array_formed.png','bounds':bounds,'faces':m.faces}

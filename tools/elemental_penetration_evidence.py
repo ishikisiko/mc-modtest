@@ -19,7 +19,7 @@ from tools.realm_stats_evidence import close
 from tools.realm_armor_evidence import ArmorEvidence,TARGET
 
 CHANNELS=('physical','metal','wood','water','fire','earth')
-IDS={channel:'myvillage:'+('resistance_penetration' if channel=='physical' else channel+'_resistance_penetration') for channel in CHANNELS}
+IDS={channel:'yuanxian:'+('resistance_penetration' if channel=='physical' else channel+'_resistance_penetration') for channel in CHANNELS}
 
 
 class PenetrationEvidence(ArmorEvidence):
@@ -46,7 +46,7 @@ class PenetrationEvidence(ArmorEvidence):
 
     def target(self,channel='physical',resistance=.5,armor=0,z=3):
         before=self.fixture(armor,8 if armor else 0,realm=None,z=z)
-        self.rc(f'attribute {TARGET} myvillage:{channel}_resistance base set {resistance}')
+        self.rc(f'attribute {TARGET} yuanxian:{channel}_resistance base set {resistance}')
         return before
 
     def probe(self,name,channel,penetration,*,attacker=True,source=None,armor=0):
@@ -67,10 +67,10 @@ class PenetrationEvidence(ArmorEvidence):
         user=self.s.username
         before=self.target(z=6.5 if qi else 3)
         self.rc(f'tp {user} .5 -60 .5 0 0')
-        self.rc(f'item replace entity {user} hotbar.0 with myvillage:qingfeng_sword')
+        self.rc(f'item replace entity {user} hotbar.0 with yuanxian:qingfeng_sword')
         self.s.game.key('1');scene.ensure_cultivation(self.s)
         if qi:
-            self.rc(f'yuanxian cultivation learn {user} myvillage:jianqi_jue')
+            self.rc(f'yuanxian cultivation learn {user} yuanxian:jianqi_jue')
             self.rc(f'yuanxian cultivation qi fill {user}')
         self.s.game.require_ingame('typed penetration mapped attack')
         if qi:
@@ -89,11 +89,11 @@ class PenetrationEvidence(ArmorEvidence):
 
     def initial(self):
         started=time.monotonic();user=self.s.username
-        for command in (*scene.world_rules(),*scene.player_setup(user,'myvillage:qingfeng_sword'),
+        for command in (*scene.world_rules(),*scene.player_setup(user,'yuanxian:qingfeng_sword'),
                         'gamerule naturalRegeneration false','yuanxian world pause',
                         'forceload add -16 -16 32 32',f'yuanxian cultivation awaken {user}',
                         f'yuanxian cultivation initiate {user}',
-                        f'yuanxian cultivation setrealm {user} myvillage:golden_core myvillage:golden_late'):
+                        f'yuanxian cultivation setrealm {user} yuanxian:golden_core yuanxian:golden_late'):
             self.rc(command)
         info,values=self.values()
         self.check('fresh_six_channel_defaults',all(close(v,0) for v in values.values()),values)
@@ -118,7 +118,7 @@ class PenetrationEvidence(ArmorEvidence):
             trace,after=self.trace(),self.hp()
             self.check(name+'_source_remains_untouched',trace.get('type')=='untouched'
                        and trace.get('mitigation') is None and close(before-after,10),trace)
-        maximum=json.loads((ROOT/'src/main/resources/data/myvillage/stats/rules.json').read_text())['limits']['max_penetration']
+        maximum=json.loads((ROOT/'src/main/resources/data/yuanxian/stats/rules.json').read_text())['limits']['max_penetration']
         self.set_pen('fire',maximum+.1)
         _,values=self.values();self.check('configured_upper_bound',close(values['fire'],maximum),values)
         self.set_pen('fire',-.1)
@@ -129,7 +129,7 @@ class PenetrationEvidence(ArmorEvidence):
         # Distinct bases and permanent modifiers must survive native attribute persistence.
         for index,channel in enumerate(CHANNELS,1):
             self.set_pen(channel,index*.1)
-            self.rc(f'attribute {user} {IDS[channel]} modifier add myvillage:penetration_fixture_{channel} .01 add_value')
+            self.rc(f'attribute {user} {IDS[channel]} modifier add yuanxian:penetration_fixture_{channel} .01 add_value')
         info,values=self.values()
         expected={channel:(index+1)*.1+.01 for index,channel in enumerate(CHANNELS)}
         self.check('six_independent_base_and_modifier_values',all(close(values[c],expected[c]) for c in CHANNELS),

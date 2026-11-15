@@ -5,7 +5,7 @@ from tools.wilderness_habitats.generate import generate,ROOT
 
 class HabitatAssetsTest(unittest.TestCase):
     def test_export_matches_authority(self):
-        self.assertEqual(generate(),json.loads((ROOT/'src/main/resources/data/myvillage/wilderness/habitats.json').read_text()))
+        self.assertEqual(generate(),json.loads((ROOT/'src/main/resources/data/yuanxian/wilderness/habitats.json').read_text()))
     def test_templates_cover_spawn_space_have_readable_landmarks_and_stay_in_bounds(self):
         cfg=generate();self.assertEqual('donghuang',cfg['region']);self.assertEqual(1,cfg['refresh_months'])
         self.assertEqual({'wolf_den','lizard_shelf','spore_grove','bandit_camp'},set(cfg['templates']))
@@ -18,6 +18,6 @@ class HabitatAssetsTest(unittest.TestCase):
         camp=[b['block']for b in cfg['templates']['bandit_camp']]
         self.assertTrue(any('campfire' in b for b in camp));self.assertTrue(any('barrel' in b for b in camp))
     def test_peer_levels_use_identical_encounter_ranges(self):
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/wilderness/rules.json').read_text())['regions']
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/wilderness/rules.json').read_text())['regions']
         for group in json.loads((ROOT/'blueprints/worldplan/rules_v11.json').read_text())['region_progression']['levels']:
             self.assertTrue(all(rules[region]==rules[group[0]]for region in group))

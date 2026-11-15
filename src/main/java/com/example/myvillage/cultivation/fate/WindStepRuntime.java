@@ -15,7 +15,7 @@ import net.minecraft.world.phys.AABB;
 
 /** Server-owned landing observations and the transient post-dodge movement bonus. */
 public final class WindStepRuntime {
-    private static final ResourceLocation SPEED = ResourceLocation.fromNamespaceAndPath("myvillage", "wind_step_speed");
+    private static final ResourceLocation SPEED = ResourceLocation.fromNamespaceAndPath("yuanxian", "wind_step_speed");
     private static final Map<UUID, Landing> LANDINGS = new HashMap<>();
     private static final Map<UUID, Long> SPEED_UNTIL = new HashMap<>();
     // Geometry tolerances, not gameplay tuning. The foot probe cannot mistake a side wall for a floor.

@@ -28,7 +28,7 @@ public final class RuinCoreBlockEntity extends BlockEntity {
         return worldPosition.offset(d.x(),d.y(),d.z());
     }
     private void message(ServerPlayer player, String key, Object... arguments) {
-        player.displayClientMessage(Component.translatable("message.myvillage.ruin."+key,arguments), false);
+        player.displayClientMessage(Component.translatable("message.yuanxian.ruin."+key,arguments), false);
     }
     public void use(ServerPlayer player) {
         if (!(level instanceof ServerLevel server) || player.level() != level || player.isSpectator()

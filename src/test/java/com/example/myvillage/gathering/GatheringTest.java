@@ -155,7 +155,7 @@ class GatheringTest {
         }
     }
     @Test void configRejectsFreeOrUnboundedEnergyAndUnexpectedFields() throws Exception {
-        try(var stream=getClass().getResourceAsStream("/data/myvillage/gathering/rules.json")) {
+        try(var stream=getClass().getResourceAsStream("/data/yuanxian/gathering/rules.json")) {
             var root=JsonParser.parseString(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
             assertEquals(20,GatheringRules.parse(root).chargesPerStone());
             var zero=root.deepCopy();zero.getAsJsonObject("fuel_charges").addProperty("low_grade",0);

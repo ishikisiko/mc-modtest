@@ -41,8 +41,8 @@ public final class SectDialogue {
     static final double DEFAULT_RANGE = 6.0;
     /** Least server ticks between two handled intents of one player. */
     static final int MIN_TICKS_BETWEEN = 4;
-    static final String UNAVAILABLE_KEY = "message.myvillage.world.sect.unavailable";
-    static final String NONE_KEY = "screen.myvillage.sect_dialogue.none";
+    static final String UNAVAILABLE_KEY = "message.yuanxian.world.sect.unavailable";
+    static final String NONE_KEY = "screen.yuanxian.sect_dialogue.none";
     private static final int MAX_TRACKED_PLAYERS = 256;
     /** {@code SectView.Relation.state} of two sects at war. */
     static final String WAR = "war";

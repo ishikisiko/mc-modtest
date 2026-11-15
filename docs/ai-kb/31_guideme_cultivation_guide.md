@@ -1,10 +1,10 @@
 # 游戏内指南与炼器 JEI
 
-游戏内《修行入门录》使用 GuideME，指南 ID 为 `myvillage:cultivation`。默认中文，说明应与当前服务器实际行为一致。共享约束见[资源契约](../contracts/assets.md)，检查范围见[工作流程](../WORKFLOW.md)。
+游戏内《修行入门录》使用 GuideME，指南 ID 为 `yuanxian:cultivation`。默认中文，说明应与当前服务器实际行为一致。共享约束见[资源契约](../contracts/assets.md)，检查范围见[工作流程](../WORKFLOW.md)。
 
 ## 指南来源与打包
 
-根目录 `guidebook/` 是唯一 Markdown 来源。`processResources` 将整棵目录复制到 `assets/myvillage/guides/myvillage/cultivation/`，不得在 `src/main/resources` 再维护一份镜像。
+根目录 `guidebook/` 是唯一 Markdown 来源。`processResources` 将整棵目录复制到 `assets/yuanxian/guides/yuanxian/cultivation/`，不得在 `src/main/resources` 再维护一份镜像。
 
 - `guidebook/index.md` 按玩家需要组织入口；各章使用 `navigation.title/parent/position/icon` 加入目录。
 - 已有 `_en_us/` 兼容翻译保留并修正过时事实；新章节只编写中文，不要求新增英文镜像。
@@ -12,24 +12,24 @@
 - 探索页由 `tools/gen_exploration_guide.py` 生成；五行法修、野外战利品和亡灵页分别归其专用生成器。先改拥有者，再重新导出，不能手改这些生成页。
 - 操作键使用 `KeyBind` 组件显示当前映射。不要把默认字母写成不可变的操作条件。GuideME 的默认 G 保持不被本模组占用，收功默认 X，不自动迁移玩家键位。
 
-指南定义位于 `src/main/resources/assets/myvillage/guideme_guides/cultivation.json`。GuideME 通过 Maven 依赖，客户端和服务器均需要 `[21.1.17,22)`；模组不内嵌 GuideME JAR。21.1.17 的定义不使用 `custom_colors`。
+指南定义位于 `src/main/resources/assets/yuanxian/guideme_guides/cultivation.json`。GuideME 通过 Maven 依赖，客户端和服务器均需要 `[21.1.17,22)`；模组不内嵌 GuideME JAR。21.1.17 的定义不使用 `custom_colors`。
 
 ## 开书与预览
 
-`myvillage:cultivation_handbook` 在模组创造栏提供；玩家使用它时仅客户端调用 `GuidesCommon.openGuide`，没有新增开书网络协议。模型继承 `guideme:item/guide_base`。
+`yuanxian:cultivation_handbook` 在模组创造栏提供；玩家使用它时仅客户端调用 `GuidesCommon.openGuide`，没有新增开书网络协议。模型继承 `guideme:item/guide_base`。
 
 ```mcfunction
-/give @s myvillage:cultivation_handbook
-/guidemec myvillage:cultivation open
-/guideme open @s myvillage:cultivation
-/guideme give @s myvillage:cultivation
+/give @s yuanxian:cultivation_handbook
+/guidemec yuanxian:cultivation open
+/guideme open @s yuanxian:cultivation
+/guideme give @s yuanxian:cultivation
 ```
 
 作者预览可用 `./gradlew runGuide`，监听根 `guidebook/`，启动时校验并打开本指南。游戏和 Gradle 运行位置按当前工作流程选择。
 
 ## 炼器 JEI
 
-可选客户端插件位于 `client/forging/jei/`，分类 ID 为 `myvillage:forging`。安装 JEI 后可从成品配方、材料用途或锻器台／炼器鼎入口进入。
+可选客户端插件位于 `client/forging/jei/`，分类 ID 为 `yuanxian:forging`。安装 JEI 后可从成品配方、材料用途或锻器台／炼器鼎入口进入。
 
 `ForgingJeiRecipe` 枚举 `WorkshopRules.crafts()`，通过对应 `ForgingRules.Recipe` 获取成品，并调用服务器同用的 `WorkshopRules.blankCosts()` 取得起坯主材。不能复制十种器物的成本表，也不能把炼灵灵石、专长辅材算入起坯成本。材料标签按客户端实际标签成员循环显示并保留数量。
 

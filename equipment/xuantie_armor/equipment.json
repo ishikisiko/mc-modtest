@@ -1,7 +1,7 @@
 {
   "version": 1,
   "kind": "armor_set",
-  "id": "myvillage:xuantie_armor",
+  "id": "yuanxian:xuantie_armor",
   "name": "玄铁甲",
   "material": "minecraft:iron",
   "durability_multiplier": 15,
@@ -9,7 +9,7 @@
   "texel_density": 2,
   "items": [
     {
-      "id": "myvillage:xuantie_helmet",
+      "id": "yuanxian:xuantie_helmet",
       "name": "玄铁盔",
       "slot": "head",
       "boxes": [
@@ -332,7 +332,7 @@
       "gui_icon": "xuantie"
     },
     {
-      "id": "myvillage:xuantie_chestplate",
+      "id": "yuanxian:xuantie_chestplate",
       "name": "玄铁胸甲",
       "slot": "chest",
       "boxes": [
@@ -901,7 +901,7 @@
       "gui_icon": "xuantie"
     },
     {
-      "id": "myvillage:xuantie_leggings",
+      "id": "yuanxian:xuantie_leggings",
       "name": "玄铁护腿",
       "slot": "legs",
       "boxes": [
@@ -1209,7 +1209,7 @@
       "gui_icon": "xuantie"
     },
     {
-      "id": "myvillage:xuantie_boots",
+      "id": "yuanxian:xuantie_boots",
       "name": "玄铁靴",
       "slot": "feet",
       "boxes": [

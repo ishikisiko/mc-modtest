@@ -140,7 +140,7 @@ class WorldDeliveryTests(unittest.TestCase):
                 evidence.manifest = root/'manifest.json'
                 evidence.s = SimpleNamespace(username='CloudCapture')
                 evidence.spec = {'world_min': [2850, 62, 110], 'world_max': [2881, 93, 141],
-                    'tiles': [{'id': 'myvillage:yunshan_d1_v2/fixture', 'nbt': 'tile.nbt',
+                    'tiles': [{'id': 'yuanxian:yunshan_d1_v2/fixture', 'nbt': 'tile.nbt',
                                'world_min': [2850, 62, 110], 'size': [32, 32, 32],
                                'probe': {'pos': [2850, 62, 110], 'state': 'minecraft:air'}}]}
                 commands = []
@@ -172,9 +172,9 @@ class WorldDeliveryTests(unittest.TestCase):
             })})
             write_typed(world/'level.dat', '', level)
             expected = {
-                'dimensions/myvillage/fixture/region/r.0.0.mca': b'dimension',
+                'dimensions/yuanxian/fixture/region/r.0.0.mca': b'dimension',
                 'playerdata/fixture.dat': b'player', 'stats/fixture.json': b'stats',
-                'advancements/fixture.json': b'advancements', 'data/myvillage_world.dat': b'mod ledger',
+                'advancements/fixture.json': b'advancements', 'data/yuanxian_world.dat': b'mod ledger',
                 'region/r.178.6.mca': b'city', 'datapacks/yunshan_d1_v2/pack.mcmeta': b'pack',
             }
             for relative, data in expected.items():

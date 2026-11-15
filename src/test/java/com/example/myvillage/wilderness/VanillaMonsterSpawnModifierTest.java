@@ -37,8 +37,8 @@ class VanillaMonsterSpawnModifierTest {
         var registry = (MappedRegistry<EntityType<?>>) BuiltInRegistries.ENTITY_TYPE;
         registry.unfreeze();
         try {
-            modMonster = Registry.register(registry, ResourceLocation.parse("myvillage:spawn_weight_test"),
-                    EntityType.Builder.<Zombie>of(Zombie::new, MobCategory.MONSTER).build("myvillage:spawn_weight_test"));
+            modMonster = Registry.register(registry, ResourceLocation.parse("yuanxian:spawn_weight_test"),
+                    EntityType.Builder.<Zombie>of(Zombie::new, MobCategory.MONSTER).build("yuanxian:spawn_weight_test"));
             otherMonster = Registry.register(registry, ResourceLocation.parse("another_mod:spawn_weight_test"),
                     EntityType.Builder.<Zombie>of(Zombie::new, MobCategory.MONSTER).build("another_mod:spawn_weight_test"));
         } finally { registry.freeze(); }
@@ -46,8 +46,8 @@ class VanillaMonsterSpawnModifierTest {
 
     private static VanillaMonsterSpawnModifier configured() throws Exception {
         var json = JsonParser.parseString(Files.readString(Path.of(
-                "src/main/resources/data/myvillage/neoforge/biome_modifier/scale_vanilla_monsters.json")));
-        assertEquals("myvillage:scale_vanilla_monsters", json.getAsJsonObject().get("type").getAsString());
+                "src/main/resources/data/yuanxian/neoforge/biome_modifier/scale_vanilla_monsters.json")));
+        assertEquals("yuanxian:scale_vanilla_monsters", json.getAsJsonObject().get("type").getAsString());
         return VanillaMonsterSpawnModifier.CODEC.codec().parse(JsonOps.INSTANCE, json).getOrThrow();
     }
 

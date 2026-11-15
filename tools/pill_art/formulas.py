@@ -10,8 +10,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def recipe(kind, root=ROOT):
-    rules = json.loads((Path(root) / 'src/main/resources/data/myvillage/alchemy/rules.json').read_text())
-    matches = [r for r in rules['recipes'] if r['formula'] == 'myvillage:formula_' + kind]
+    rules = json.loads((Path(root) / 'src/main/resources/data/yuanxian/alchemy/rules.json').read_text())
+    matches = [r for r in rules['recipes'] if r['formula'] == 'yuanxian:formula_' + kind]
     if len(matches) != 1:
         raise ValueError('丹方必须唯一对应实际配方: ' + kind)
     return matches[0]
@@ -19,9 +19,9 @@ def recipe(kind, root=ROOT):
 
 def icon(kind, root=ROOT):
     entry = recipe(kind, root)
-    if not entry['output'].startswith('myvillage:pill_'):
+    if not entry['output'].startswith('yuanxian:pill_'):
         raise ValueError('丹方产物不是已定义的丹药')
-    rows = pill_icon(entry['output'].removeprefix('myvillage:pill_'))
+    rows = pill_icon(entry['output'].removeprefix('yuanxian:pill_'))
     body = Image.new('RGBA', (len(rows[0]),len(rows)))
     body.putdata([pixel for row in rows for pixel in row])
     config = scroll_art.load(root)

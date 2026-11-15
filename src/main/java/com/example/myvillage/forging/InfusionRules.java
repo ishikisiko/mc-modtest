@@ -10,7 +10,7 @@ import java.util.Optional;
 
 /** Shared bounded batch rules; the bundled acquisition source also owns worldgen parameters. */
 public record InfusionRules(int maxBatch,int qiPerIngot,int qiPerPulse,int pulseTicks) {
-    public static final String RESOURCE="/data/myvillage/forging/acquisition.json";
+    public static final String RESOURCE="/data/yuanxian/forging/acquisition.json";
     public static final Codec<InfusionRules> CODEC=RecordCodecBuilder.create(i->i.group(
             Codec.intRange(1,64).fieldOf("max_batch").forGetter(InfusionRules::maxBatch),
             Codec.intRange(1,10000).fieldOf("qi_per_ingot").forGetter(InfusionRules::qiPerIngot),

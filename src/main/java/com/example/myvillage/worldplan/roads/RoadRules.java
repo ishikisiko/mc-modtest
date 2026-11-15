@@ -26,7 +26,7 @@ public final class RoadRules {
     public record SlabSpec(String id,String name,String full,String texture) {}
     public record OfficialStyle(String id,String name,int curbWidth,int gradeWidth,int curbRise2,int carriageLift2,String edgeSurface,String edgeSlab,String curbSurface,String curbSlab,String gradeFoundation,Map<String,String> gradeSurfaces,float strength,float resistance,List<SlabSpec> slabs) {}
     public final Map<String,Port> ports;
-    private static final String RESOURCE="/data/myvillage/roads/prototype.json";
+    private static final String RESOURCE="/data/yuanxian/roads/prototype.json";
     public static RoadRules load() {
         try(var input=RoadRules.class.getResourceAsStream(RESOURCE)) {
             if(input==null)throw new IllegalStateException("缺少正式驿道配置");

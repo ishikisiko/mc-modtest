@@ -95,8 +95,8 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
     }
     public boolean place(ServerPlayer player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND || !playerValid(player) || player.containerMenu != player.inventoryMenu) return false;
-        if (!available()) return refuse(player, "workshop.myvillage.occupied");
-        if (!input().isEmpty() || !output().isEmpty()) return refuse(player, "workshop.myvillage.manual.take_first");
+        if (!available()) return refuse(player, "workshop.yuanxian.occupied");
+        if (!input().isEmpty() || !output().isEmpty()) return refuse(player, "workshop.yuanxian.manual.take_first");
         var held = player.getItemInHand(hand);
         // Inspect one item, then transfer it. Creative follows inventory movement, not block placement copying.
         var single = held.copyWithCount(1);
@@ -109,14 +109,14 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
         storage.selection(index, storage.trait(), direction, craft.armor() ? 2 : storage.treatment());
         contents().setItem(0, held.split(1));
         player.getInventory().setChanged();
-        player.displayClientMessage(Component.translatable("workshop.myvillage.manual.placed"), true);
+        player.displayClientMessage(Component.translatable("workshop.yuanxian.manual.placed"), true);
         return true;
     }
     public boolean take(ServerPlayer player) {
         if (!playerValid(player) || player.containerMenu != player.inventoryMenu || !player.getMainHandItem().isEmpty()) return false;
-        if (!available()) return refuse(player, "workshop.myvillage.occupied");
+        if (!available()) return refuse(player, "workshop.yuanxian.occupied");
         int slot = !output().isEmpty() ? 1 : 0;
-        if (contents().getItem(slot).isEmpty()) return refuse(player, "workshop.myvillage.manual.empty");
+        if (contents().getItem(slot).isEmpty()) return refuse(player, "workshop.yuanxian.manual.empty");
         var result = contents().removeItemNoUpdate(slot);
         setHeat(0); contents().setChanged();
         player.setItemInHand(InteractionHand.MAIN_HAND, result);
@@ -126,17 +126,17 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
     public boolean strike(ServerPlayer player) {
         if (!playerValid(player) || player.containerMenu != player.inventoryMenu || !(player.getMainHandItem().getItem() instanceof com.example.myvillage.item.ForgingHammerItem)) return false;
         if (swing.active()) return false;
-        if (!available()) return refuse(player, "workshop.myvillage.occupied");
+        if (!available()) return refuse(player, "workshop.yuanxian.occupied");
         if(input().isEmpty()&&output().isEmpty()){
             for(var d:net.minecraft.core.Direction.Plane.HORIZONTAL){var pos=worldPosition.relative(d);
                 if(level.hasChunkAt(pos)&&level.getBlockEntity(pos) instanceof HeatingKilnBlockEntity kiln&&kiln.transferTo(this))return true;
             }
         }
         int reason = strikeReason();
-        if (reason != 0) return refuse(player, "workshop.myvillage.status." + reason);
+        if (reason != 0) return refuse(player, "workshop.yuanxian.status." + reason);
         var costs = WorkshopStriking.costs(input());
         if (!costs.isEmpty() && ForgingCosts.plan(SpiritStoneSources.open(player).copies(), costs).isEmpty())
-            return refuse(player, "workshop.myvillage.status.4");
+            return refuse(player, "workshop.yuanxian.status.4");
         if (!swing.begin(level.getGameTime())) return false;
         smith = player; scheduled = input().copy(); hammer = player.getMainHandItem();
         refreshDisplay();
@@ -144,14 +144,14 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
     }
     private boolean contact() {
         int reason = strikeReason();
-        if (reason != 0) return refuse(smith, "workshop.myvillage.status." + reason);
+        if (reason != 0) return refuse(smith, "workshop.yuanxian.status." + reason);
         var definition=((com.example.myvillage.item.ForgingHammerItem)hammer.getItem()).definition();
         var strike=WorkshopStriking.result(input(),storage.direction(),definition,ForgingSkill.level(smith),heat());
         var result=strike.stack();
         var costs = WorkshopStriking.costs(input());
         if (!costs.isEmpty()) {
             var source = SpiritStoneSources.open(smith); var plan = ForgingCosts.plan(source.copies(), costs);
-            if (plan.isEmpty() || !source.commit(plan.get())) return refuse(smith, "workshop.myvillage.status.4");
+            if (plan.isEmpty() || !source.commit(plan.get())) return refuse(smith, "workshop.yuanxian.status.4");
         }
         ForgeHeat.set(result,Math.max(0,heat()-FoundryRules.get().heat().cost_per_strike()),level.getGameTime());
         contents().setItem(0, result); scheduled = result.copy(); hits++;
@@ -166,8 +166,8 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
                 worldPosition.getX() + .5, worldPosition.getY() + 1.05, worldPosition.getZ() + .5,
                 feedback.sparkCount(), feedback.sparkSpread(), feedback.sparkSpread(), feedback.sparkSpread(), feedback.sparkSpeed());
         var piece = result.get(ModDataComponents.WORKPIECE.get());
-        smith.displayClientMessage(piece != null ? Component.translatable("workshop.myvillage.formed", piece.points(), rules.formingPoints(piece.recipe()))
-                : Component.translatable("workshop.myvillage.status.13"), true);
+        smith.displayClientMessage(piece != null ? Component.translatable("workshop.yuanxian.formed", piece.points(), rules.formingPoints(piece.recipe()))
+                : Component.translatable("workshop.yuanxian.status.13"), true);
         return true;
     }
     private void cancelSwing() { swing.cancel(); smith = null; scheduled = ItemStack.EMPTY; hammer = ItemStack.EMPTY; }

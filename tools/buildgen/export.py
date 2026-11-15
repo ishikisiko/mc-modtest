@@ -22,7 +22,7 @@ from .grid import BlockGrid  # noqa: E402
 from .groups import get_group  # noqa: E402
 
 PROJECT_ROOT = os.path.dirname(_TOOLS_DIR)
-MOD_ID = "myvillage"
+MOD_ID = "yuanxian"
 RESOURCES = os.path.join(PROJECT_ROOT, "src", "main", "resources", "data", MOD_ID)
 
 

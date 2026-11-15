@@ -22,7 +22,7 @@ from .style import (
     modset_namespaces,
 )
 
-SELF_NAMESPACE = "myvillage"
+SELF_NAMESPACE = "yuanxian"
 
 
 def modset_block_ids(profile: str, catalog_path: Optional[str] = None) -> Set[str]:

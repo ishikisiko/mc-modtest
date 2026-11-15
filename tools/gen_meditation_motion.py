@@ -6,7 +6,7 @@ import math
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'tools/meditation_motion/pose.json'
-OUTPUT = ROOT / 'src/main/resources/assets/myvillage/cultivation/meditation_motion.json'
+OUTPUT = ROOT / 'src/main/resources/assets/yuanxian/cultivation/meditation_motion.json'
 
 def generate():
     data = json.loads(SOURCE.read_text())

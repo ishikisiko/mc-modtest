@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AlchemyBatchTest {
     private static final UUID BREWER=UUID.fromString("619a2fa3-76e3-45c1-b1fa-5136ef930224");
-    private static AlchemyBatch mixed(){return new AlchemyBatch(BREWER,"huiling",60,"myvillage:qi_refining",0,
+    private static AlchemyBatch mixed(){return new AlchemyBatch(BREWER,"huiling",60,"yuanxian:qi_refining",0,
         List.of(new CraftingQualityRules.Roll(10,0),new CraftingQualityRules.Roll(100,4)));}
     @Test void startRequiresEveryAuthorityAndMaterialGateBeforeDrawing(){
         assertNull(AlchemyBatch.rejection(true,false,true,true,true,true));
@@ -19,7 +19,7 @@ class AlchemyBatchTest {
         assertEquals(AlchemyBatch.Rejection.INGREDIENTS,AlchemyBatch.rejection(true,false,true,false,true,true));
         assertEquals(AlchemyBatch.Rejection.FUEL,AlchemyBatch.rejection(true,false,true,true,false,true));
         assertEquals(AlchemyBatch.Rejection.OUTPUT,AlchemyBatch.rejection(true,false,true,true,true,false));
-        assertEquals("message.myvillage.alchemy.start_output",AlchemyBatch.rejection(true,false,true,true,true,false).messageKey());
+        assertEquals("message.yuanxian.alchemy.start_output",AlchemyBatch.rejection(true,false,true,true,true,false).messageKey());
     }
     @Test void everyPillDrawsIndependentlyAndFailuresAreRetained(){
         var calls=new AtomicInteger();var r=AlchemyRules.get().recipe("huiling").orElseThrow();

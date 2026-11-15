@@ -1,9 +1,9 @@
 # 魔契柱
 
-独立可摆放的魔域建筑构件，ID 为 `myvillage:demon_pact_pillar`。从 MyVillage 创造栏获取，或使用：
+独立可摆放的魔域建筑构件，ID 为 `yuanxian:demon_pact_pillar`。从 MyVillage 创造栏获取，或使用：
 
 ```mcfunction
-/give @s myvillage:demon_pact_pillar
+/give @s yuanxian:demon_pact_pillar
 ```
 
 底座 4×4 格，实际高 9.25 格；上方需留出 10 格高度。手持物品右键坚实地面的顶面，点击位置是底座的一个角点，刻字面朝向放置者。整根柱子一次放置，消耗一件物品；四种水平朝向可通过站位选择。所有底座格都必须有坚实支撑，所有占用格都需可替换、无液体、无方块实体且在可交互与已加载范围内。

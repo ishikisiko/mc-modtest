@@ -5,7 +5,7 @@ package com.example.myvillage.portrait;
  * Minecraft classes, so the Python side can pin goldens for it.
  *
  * <p><b>Role map.</b> {@code tools/npcgen} writes, next to each look's texture, a role map
- * {@code assets/myvillage/npc/<name>_roles.png} of the same size. A role-map pixel with alpha 0 says
+ * {@code assets/yuanxian/npc/<name>_roles.png} of the same size. A role-map pixel with alpha 0 says
  * the texel keeps its baked colour. A pixel with alpha 255 names a material in its red channel and
  * an index in its green channel:
  * <ul>

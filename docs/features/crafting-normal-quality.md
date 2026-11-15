@@ -4,7 +4,7 @@
 
 ## 公式与品阶
 
-唯一数值来源为 `src/main/resources/data/myvillage/crafting/quality.json`。将资质记作 A、配方品阶起点记作 B、该品阶跨度记作 W：
+唯一数值来源为 `src/main/resources/data/yuanxian/crafting/quality.json`。将资质记作 A、配方品阶起点记作 B、该品阶跨度记作 W：
 
 ```text
 平均分 = 100 × (A − B) ÷ W

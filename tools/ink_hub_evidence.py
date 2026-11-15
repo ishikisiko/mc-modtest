@@ -67,8 +67,8 @@ class HubEvidence(InkEvidence):
                            owner_appearance='not_verified',owner_fps='not_verified',
                            fixture='Administrator learning/fate/realm preparation, real mouse/key actions, disposable flat world')
         self.learned=[]
-        self.lang=json.loads((ROOT/'src/main/resources/assets/myvillage/lang/zh_cn.json').read_text())
-        self.defs={p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/myvillage/technique').glob('*.json')}
+        self.lang=json.loads((ROOT/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_text())
+        self.defs={p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/yuanxian/yuanxian/technique').glob('*.json')}
 
     def start(self):
         if ROOT!=Path('/workspace/repo'):raise RuntimeError('Minecraft runs only in Modal')
@@ -85,7 +85,7 @@ class HubEvidence(InkEvidence):
             self.rc(cmd)
         self.poll(lambda:self.rc('execute if loaded 0 -61 0 run time query gametime'),lambda r:'The time is ' in r,30,'fixture loaded')
         self.rc('fill -4 -61 -4 4 -61 4 minecraft:stone');self.rc(f'tp {u} .5 -60 .5 0 0')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:golden_core yuanxian:golden_late')
         self.rc(f'yuanxian cultivation setroot {u} 4000 1500 1500 1500 1500')
         self.rc(f'yuanxian cultivation crafting set {u} alchemy 76')
         self.rc(f'yuanxian cultivation crafting set {u} forging 68')
@@ -95,13 +95,13 @@ class HubEvidence(InkEvidence):
         for grade in (2,3,4):
             self.learned.append(next(k for k,v in sorted(self.defs.items()) if v['category']=='core' and v['grade']==grade))
         for ident in self.learned:
-            if ident!='basic_breathing':self.rc(f'yuanxian cultivation learn {u} myvillage:{ident}')
+            if ident!='basic_breathing':self.rc(f'yuanxian cultivation learn {u} yuanxian:{ident}')
         profile=self.profile()
-        self.must('fixture_techniques_learned',all('myvillage:'+i in profile['learned'] for i in self.learned),profile['learned'])
+        self.must('fixture_techniques_learned',all('yuanxian:'+i in profile['learned'] for i in self.learned),profile['learned'])
         self.rc(f'yuanxian cultivation fate roll {u}')
         state=self.fates()
-        definitions={'myvillage:'+p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/myvillage/innate_fate').glob('*.json')}
-        request_ticks=json.loads((ROOT/'src/main/resources/data/myvillage/fates/rules.json').read_text())['request_ticks']
+        definitions={'yuanxian:'+p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/yuanxian/yuanxian/innate_fate').glob('*.json')}
+        request_ticks=json.loads((ROOT/'src/main/resources/data/yuanxian/fates/rules.json').read_text())['request_ticks']
         self.poll(self.fates,lambda value:value['now']>=state['now']+request_ticks,5,'fate request interval elapsed')
         self.rc(f'yuanxian cultivation fate confirm {u} {choose_mask(state,definitions)}')
         confirmed=self.poll(self.fates,lambda value:value['confirmed'],5,'fate fixture confirmed')
@@ -135,7 +135,7 @@ class HubEvidence(InkEvidence):
 
     def ordered(self,category):
         return sorted([i for i in self.learned if self.defs[i]['category']==category],
-                      key=lambda i:(-self.defs[i]['grade'],self.lang[self.defs[i]['translation_key']],'myvillage:'+i))
+                      key=lambda i:(-self.defs[i]['grade'],self.lang[self.defs[i]['translation_key']],'yuanxian:'+i))
 
     def category(self,index):
         b=bounds(self.s.game.size);self.gui_click(b['x']+(2*index+1)*b['width']/10,b['y']+9,'category filter '+str(index))
@@ -161,8 +161,8 @@ class HubEvidence(InkEvidence):
         self.show_page(2);self.category(1);self.capture('core_categories_and_grades')
         self.pick(self.ordered('core').index('tuna_xinfa'))
         b=bounds(self.s.game.size);self.gui_click(b['x']+b['width']-43,b['y']+b['height']-17,'set running core')
-        self.poll(self.profile,lambda p:'myvillage:tuna_xinfa' in p['core'],5,'mapped core switch')
-        self.must('core_switch_server_confirmed','myvillage:tuna_xinfa' in self.profile()['core'],self.profile()['core'])
+        self.poll(self.profile,lambda p:'yuanxian:tuna_xinfa' in p['core'],5,'mapped core switch')
+        self.must('core_switch_server_confirmed','yuanxian:tuna_xinfa' in self.profile()['core'],self.profile()['core'])
         self.capture('core_switched')
         self.category(2);self.capture('six_illustrated_arts')
         index=self.ordered('active').index('canglong_chushui');self.pick(index)
@@ -175,17 +175,17 @@ class HubEvidence(InkEvidence):
         dock=b['y']+b['height']-(15+rows*24+22)
         self.gui_click(b['x']+(3%columns+.5)*b['width']/columns,dock+14+(3//columns)*24+11,'select J slot')
         self.gui_click(b['x']+max(66,b['width']//4)//2,dock+15+rows*24+9,'assign selected art to J')
-        self.poll(self.bindings,lambda r:'myvillage:canglong_chushui' in r,5,'binding saved by server')
-        self.must('binding_server_confirmed','myvillage:canglong_chushui' in self.bindings(),self.bindings())
+        self.poll(self.bindings,lambda r:'yuanxian:canglong_chushui' in r,5,'binding saved by server')
+        self.must('binding_server_confirmed','yuanxian:canglong_chushui' in self.bindings(),self.bindings())
         self.capture('assigned_art_and_grade')
         # Clear the same slot through its actual control.
         aw=max(66,b['width']//4);cw=(b['width']-aw-4-9)//4
         self.gui_click(b['x']+aw+4+cw//2,dock+15+rows*24+9,'clear J slot')
-        self.poll(self.bindings,lambda r:'myvillage:canglong_chushui' not in r,5,'binding cleared')
-        self.must('clear_server_confirmed','myvillage:canglong_chushui' not in self.bindings(),self.bindings())
+        self.poll(self.bindings,lambda r:'yuanxian:canglong_chushui' not in r,5,'binding cleared')
+        self.must('clear_server_confirmed','yuanxian:canglong_chushui' not in self.bindings(),self.bindings())
         self.report['completed'].append('bindings')
 
-        self.close_panel();self.rc(f'yuanxian cultivation setrealm {self.s.username} myvillage:qi_refining myvillage:qi_refining_6')
+        self.close_panel();self.rc(f'yuanxian cultivation setrealm {self.s.username} yuanxian:qi_refining yuanxian:qi_refining_6')
         self.rc(f'yuanxian cultivation setprogress {self.s.username} 400')
         self.show_page(1);before=self.profile()['progress']
         b=bounds(self.s.game.size);cell=(b['width']-12)//4;action_y=b['y']+b['height']-22+4+9

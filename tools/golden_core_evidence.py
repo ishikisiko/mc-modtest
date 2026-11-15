@@ -51,22 +51,22 @@ def parse_profile(reply: str) -> dict:
 
 def shipped_chain(root: Path = ROOT) -> list[dict]:
     """Follow authored targets, refusing a cycle or an incomplete evidence path."""
-    directory = root / 'src/main/resources/data/myvillage/myvillage/realm'
+    directory = root / 'src/main/resources/data/yuanxian/yuanxian/realm'
     stages = {}
     for path in directory.glob('*.json'):
         realm = json.loads(path.read_text())
         for row in realm['stages']:
             if row['id'] in stages:
                 raise ValueError(f'Duplicate stage: {row["id"]}')
-            stages[row['id']] = {**row, 'realm': f'myvillage:{path.stem}',
+            stages[row['id']] = {**row, 'realm': f'yuanxian:{path.stem}',
                                  'lifespan': realm['maximum_lifespan_years']}
-    chain, seen, current = [], set(), 'myvillage:mortal_qi_sensed'
+    chain, seen, current = [], set(), 'yuanxian:mortal_qi_sensed'
     while current not in seen:
         seen.add(current)
         row = stages[current]
         chain.append(row)
         if 'advancement' not in row:
-            if current != 'myvillage:golden_late':
+            if current != 'yuanxian:golden_late':
                 raise ValueError(f'Premature terminal: {current}')
             if len(chain) != 16:
                 raise ValueError(f'Expected sixteen reachable stages, got {len(chain)}')
@@ -100,7 +100,7 @@ class GoldenEvidence(Evidence):
         bindings = {'start_normal_meditation': 'v', 'start_spirit_meditation': 'b',
                     'stop_meditation': 'x', 'start_advancement': 'n', 'open_cultivation_profile': 'h'}
         for action, key in bindings.items():
-            if saved.get('key_key.myvillage.'+action) != 'key.keyboard.'+key:
+            if saved.get('key_key.yuanxian.'+action) != 'key.keyboard.'+key:
                 raise RuntimeError(f'Capture binding differs for {action}; no binding is rewritten')
         self.report['verified_bindings'] = bindings
         self.sessions += 1
@@ -126,7 +126,7 @@ class GoldenEvidence(Evidence):
         time.sleep(.15)
 
     def stone_count(self):
-        reply = self.rc(f'clear {self.s.username} myvillage:low_grade_spirit_stone 0')
+        reply = self.rc(f'clear {self.s.username} yuanxian:low_grade_spirit_stone 0')
         match = re.search(r'Found (\d+)', reply)
         if match:
             return int(match.group(1))
@@ -139,9 +139,9 @@ class GoldenEvidence(Evidence):
         self.stop_input()
         self.rc(f'yuanxian cultivation setprogress {user} {source["cultivation_cap"] - 1}')
         self.rc(f'yuanxian cultivation setstability {user} 0')
-        self.rc(f'clear {user} myvillage:low_grade_spirit_stone')
+        self.rc(f'clear {user} yuanxian:low_grade_spirit_stone')
         if mode == 'b':
-            self.rc(f'give {user} myvillage:low_grade_spirit_stone {source["spirit_stone_cost"]}')
+            self.rc(f'give {user} yuanxian:low_grade_spirit_stone {source["spirit_stone_cost"]}')
         self.s.game.key(mode)
         self.wait_profile(lambda p: p['progress'] == source['cultivation_cap'], 12,
                           f'{source["id"]} {mode} gain to cap')
@@ -163,12 +163,12 @@ class GoldenEvidence(Evidence):
                         f'yuanxian cultivation initiate {user}', f'tick rate {self.tick_rate}'):
             self.rc(command)
         # Existing acquisition is a separate acceptance surface; these are explicit setup fixtures.
-        self.rc(f'yuanxian cultivation setrealm {user} myvillage:mortal myvillage:mortal_qi_sensed')
+        self.rc(f'yuanxian cultivation setrealm {user} yuanxian:mortal yuanxian:mortal_qi_sensed')
         self.rc(f'damage {user} 3 minecraft:generic')
         time.sleep(max(.5, 110 / self.tick_rate))
         self.report['wounded_health'] = self.number(f'data get entity {user} Health')
         chain = shipped_chain()
-        rules = json.loads((ROOT/'src/main/resources/data/myvillage/stats/rules.json').read_text())
+        rules = json.loads((ROOT/'src/main/resources/data/yuanxian/stats/rules.json').read_text())
         for source, target in zip(chain, chain[1:]):
             row = self.profile()
             if (row['realm'], row['stage']) != (source['realm'], source['id']):
@@ -229,13 +229,13 @@ class GoldenEvidence(Evidence):
                 raise RuntimeError('Unexpected advancement target; refusing to repair the chain with setrealm')
         self.stop_input()
         baseline = self.profile()
-        self.rc(f'give {user} myvillage:low_grade_spirit_stone 64')
+        self.rc(f'give {user} yuanxian:low_grade_spirit_stone 64')
         stones = self.stone_count()
         for key in ('v', 'b', 'n'):
             self.s.game.key(key); time.sleep(.8)
             terminal = self.profile()
             self.check(f'golden_late_{key}_refused',
-                       terminal['stage'] == 'myvillage:golden_late'
+                       terminal['stage'] == 'yuanxian:golden_late'
                        and terminal['progress'] == baseline['progress']
                        and terminal['stability'] == baseline['stability']
                        and self.stone_count() == stones, terminal)

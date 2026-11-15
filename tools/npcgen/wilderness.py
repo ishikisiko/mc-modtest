@@ -6,7 +6,7 @@ import math
 
 def build_model(name):
     caster=name=='ash_talismanist';m=entry(name)
-    b=Builder('myvillage:'+name,look={'bone':'head','max_yaw':45.,'max_pitch':30.},shadow_radius=.38)
+    b=Builder('yuanxian:'+name,look={'bone':'head','max_yaw':45.,'max_pitch':30.},shadow_radius=.38)
     b.bone('body','root',at=(0,-12,0));b.box_local('body','robe_torso',(-4,-11,-2.2),(8,11,5))
     b.box_local('body','belt',(-4.5,-1,-2.7),(9,2,6));b.box_local('body','buckle',(-1,0,-3.3),(2,2,1))
     for side,s in [('right',-1),('left',1)]:

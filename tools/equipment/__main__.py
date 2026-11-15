@@ -24,7 +24,7 @@ def interpreter():
 
 
 def find(specs, value):
-    value = value if ":" in value else "myvillage:" + value
+    value = value if ":" in value else "yuanxian:" + value
     for spec in specs:
         if spec["id"] == value:
             return spec
@@ -38,14 +38,14 @@ def scaffold(root, specs, source, item_id, name):
     if template["kind"] != "armor_set":
         raise ValueError("new-armor 必须从防具模板开始")
     destination = root / "equipment" / item_id
-    if destination.exists() or any(s["id"] == "myvillage:"+item_id for s in specs):
+    if destination.exists() or any(s["id"] == "yuanxian:"+item_id for s in specs):
         raise ValueError("目标已存在，不覆盖")
     spec = copy.deepcopy(template)
-    spec.update(id="myvillage:"+item_id,name=name,enabled=False)
+    spec.update(id="yuanxian:"+item_id,name=name,enabled=False)
     suffixes={"head":("helmet","盔"),"chest":("chestplate","胸甲"),"legs":("leggings","护腿"),"feet":("boots","靴")}
     for item in spec["items"]:
         suffix,zh=suffixes[item["slot"]]
-        item.update(id=f"myvillage:{item_id}_{suffix}",name=name+zh)
+        item.update(id=f"yuanxian:{item_id}_{suffix}",name=name+zh)
     destination.mkdir()
     (destination/"equipment.json").write_text(json.dumps(spec,ensure_ascii=False,indent=2)+'\n')
     return destination

@@ -61,15 +61,15 @@ class ResumeSourceTests(unittest.TestCase):
             client = root/resume.CLIENT
             client.write_bytes(b'public TRACKER = GLFW.GLFW_KEY_P; // same runtime')
             lang = root/resume.LANG
-            lang.write_text(json.dumps({'key.myvillage.story_tracker': '切换任务追踪（默认 P）',
+            lang.write_text(json.dumps({'key.yuanxian.story_tracker': '切换任务追踪（默认 P）',
                                         'other': '原文'}, ensure_ascii=False))
             hashes = {p: resume.normalized_source_hash(root/p, p) for p in tracked}
             client.write_bytes(client.read_bytes().replace(b'GLFW_KEY_P', b'GLFW_KEY_Y'))
-            lang.write_text('{"other":"原文","key.myvillage.story_tracker":"切换任务追踪（默认 Y）"}')
+            lang.write_text('{"other":"原文","key.yuanxian.story_tracker":"切换任务追踪（默认 Y）"}')
             resume.validate_sources(root, hashes, tracked)
             for name in ('blueprints/qianzhen/story_scene.json',
                          'tools/qianzhen/story_assets.py',
-                         'src/main/resources/data/myvillage/story/qianzhen_chapter_1.json',
+                         'src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json',
                          'src/main/java/com/example/myvillage/story/StoryRuntime.java',
                          'src/main/resources/scene.nbt'):
                 path = root/name

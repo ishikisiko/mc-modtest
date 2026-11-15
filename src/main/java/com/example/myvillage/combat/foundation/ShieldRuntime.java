@@ -29,7 +29,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class ShieldRuntime {
     private static final Map<LivingEntity, ShieldLedger> LEDGERS = new IdentityHashMap<>();
     private static final TagKey<DamageType> BYPASSES_SHIELDS = TagKey.create(Registries.DAMAGE_TYPE,
-            ResourceLocation.fromNamespaceAndPath("myvillage", "bypasses_shields"));
+            ResourceLocation.fromNamespaceAndPath("yuanxian", "bypasses_shields"));
     private static boolean registered;
 
     private ShieldRuntime() { }

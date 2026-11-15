@@ -16,9 +16,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class OpenMeridiansForgingRefundTest {
     @Test void actualChannelingCalculationIsThePaidReceiptForEachQualityAndCharge() throws Exception {
-        var skill = CombatTestData.styles().skill(ResourceLocation.parse("myvillage:jianqi_jue")).orElseThrow();
+        var skill = CombatTestData.styles().skill(ResourceLocation.parse("yuanxian:jianqi_jue")).orElseThrow();
         var fate = FateDefinition.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(Files.readString(Path.of(
-                "src/main/resources/data/myvillage/myvillage/innate_fate/open_meridians.json")))).getOrThrow();
+                "src/main/resources/data/yuanxian/yuanxian/innate_fate/open_meridians.json")))).getOrThrow();
         var rules = ForgingRules.get();
         for (int quality = 1; quality <= 4; quality++) for (int elapsed : new int[]{0, 10, 20}) {
             var cast = new CombatSkillSession(skill, skill.id(), 8, 100, quality);

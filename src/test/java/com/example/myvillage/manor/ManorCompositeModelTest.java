@@ -33,10 +33,10 @@ class ManorCompositeModelTest {
             }
         };
         int loaded=0;
-        for(var entry:resource("/data/myvillage/lord_manors/catalog.json").getAsJsonArray("banks")) {
+        for(var entry:resource("/data/yuanxian/lord_manors/catalog.json").getAsJsonArray("banks")) {
             var bank=entry.getAsJsonObject();String id=bank.get("id").getAsString();
             for(int shape=0;shape<bank.getAsJsonArray("profiles").size();shape++) {
-                var json=resource("/assets/myvillage/models/block/"+id+"/shape_"+shape+".json");
+                var json=resource("/assets/yuanxian/models/block/"+id+"/shape_"+shape+".json");
                 if(!json.has("loader"))continue;
                 assertEquals("neoforge:composite",json.get("loader").getAsString());
                 var actual=CompositeModel.Loader.INSTANCE.read(json,context);

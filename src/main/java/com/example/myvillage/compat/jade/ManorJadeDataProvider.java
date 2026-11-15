@@ -12,7 +12,7 @@ import snownee.jade.api.*;
 
 /** 已有 Jade 请求仅同步一条位置说明，不新增逐格实体或专用网络协议。 */
 public final class ManorJadeDataProvider implements IServerDataProvider<BlockAccessor> {
-    static final String DATA="myvillage_manor_location";
+    static final String DATA="yuanxian_manor_location";
     @Override public ResourceLocation getUid() { return ManorJadePlugin.NAMES; }
     @Override public boolean shouldRequestData(BlockAccessor accessor) {
         return ManorPresentation.get().describe(accessor.getBlockState()).isPresent();

@@ -11,55 +11,55 @@ ARMOR_NAMES={'xuantie_helmet':'玄铁盔','xuantie_chestplate':'玄铁甲','xuan
 ARMOR_EARNED_HINT='穿戴此甲承受敌对生物伤害可积累历练，主动近战收益较少；环境伤害和背包携带不增加历练。'
 STAGE_NAMES=[('Rough billet','粗坯'),('Shaped blank','成形坯'),('Quenched blank','淬火坯'),('Tempered blank','回火坯'),('Ground blank','精磨坯')]
 LANG={
- 'workshop.myvillage.status.15':('Take the implement to a forging ding for spirit infusion.','炼灵须移步炼器鼎，器物可随身带走。'),
- 'workshop.myvillage.strike_gain.attack':('This strike: +%s attack','此锤收益：攻击 +%s'),
- 'workshop.myvillage.strike_gain.speed':('This strike: +%s%% work speed','此锤收益：效率 +%s%%'),
- 'workshop.myvillage.strike_gain.durability':('This strike: +%s%% durability','此锤收益：耐久 +%s%%'),
- 'workshop.myvillage.strike_gain.qi':('This strike: %s%% less Qi','此锤收益：节灵 %s%%'),
- 'block.myvillage.forging_anvil':('Smithing hearth','锻器台'),
- 'tag.item.myvillage.forging_fuels':('Coal or charcoal','煤炭或木炭'),
- 'workshop.myvillage.title':('Forge','锻器'),
- 'workshop.myvillage.seal':('工','工'),
- 'workshop.myvillage.patterns':('Patterns','器谱'),
- 'workshop.myvillage.resume':('Keep this piece; continue at a smithing hearth or forging ding.','器坯可取走保存，放回锻器台继续。'),
- 'workshop.myvillage.formed':('Shaping %s / %s','成形 %s / %s'),
- 'workshop.myvillage.experience':('Experience %s · %s strikes ready','历练 %s · 可锻 %s 次'),
- 'workshop.myvillage.tempering':('Tempering %s / %s','再锻 %s / %s'),
- 'workshop.myvillage.bonus.attack':('Tempered attack +%s','再锻攻击 +%s'),
- 'workshop.myvillage.bonus.speed':('Tempered work speed +%s%%','再锻效率 +%s%%'),
- 'workshop.myvillage.bonus.durability':('Tempered durability +%s%%','再锻耐久 +%s%%'),
- 'workshop.myvillage.bonus.qi':('Tempered Qi saving %s%%','再锻节灵 %s%%'),
- 'workshop.myvillage.heat.cold':('Cold · reheat','已冷 · 须回炉'),
- 'workshop.myvillage.heat.hot':('Ready for the hammer','火候正好'),
- 'workshop.myvillage.heat.none':('Prepare a billet','备料起坯'),
- 'workshop.myvillage.directions':('Tempering direction','再锻所向'),
- 'workshop.myvillage.traits':('Spirit affinity','炼灵专长'),
- 'workshop.myvillage.path.1':('Edge / work','精工'),
- 'workshop.myvillage.path.2':('Endurance','耐用'),
- 'workshop.myvillage.path.3':('Qi flow','导灵'),
- 'workshop.myvillage.path_hint.1':('Each strike improves attack for weapons, work speed for tools.','每锤提高兵器攻击，或工具采掘效率。'),
- 'workshop.myvillage.path_hint.2':('Each strike permanently increases maximum durability.','每锤永久提高最大耐久。'),
- 'workshop.myvillage.path_hint.3':('Each strike reduces Qi costs. Requires an infused compatible weapon.','每锤降低耗灵；须为可导灵且已经炼灵的兵器。'),
- 'workshop.myvillage.treatment':('Heat treatment','热处理取向'),
- 'workshop.myvillage.treatment.0':('Balanced','中和'),
- 'workshop.myvillage.treatment.1':('Edge','保刃'),
- 'workshop.myvillage.treatment.2':('Tough','韧性'),
- 'workshop.myvillage.treatment_hint.0':('Half edge/work and half durability benefit. Fixed on quenching.','兼顾刃口与耐用，淬火时定下取向。'),
- 'workshop.myvillage.treatment_hint.1':('More attack or work speed. Fixed on quenching.','侧重攻击或采掘效率，淬火时定下取向。'),
- 'workshop.myvillage.treatment_hint.2':('More durability. Fixed on quenching.','侧重耐久，淬火时定下取向。'),
- 'workshop.myvillage.per_strike':('Next: %s exp + materials','每锤：%s 历练及辅材'),
- 'workshop.myvillage.hold':('Hold to hammer; release to stop.','按住连续锻打，松开停止。'),
- 'workshop.myvillage.mode.training':('Train','再锻'),
- 'workshop.myvillage.cap':('Spirit quality: %s','炼灵上限：%s'),
- 'workshop.myvillage.cap_locked':('Awaken to infuse','觉醒后可炼灵'),
- 'workshop.myvillage.costs':('Consumes:','消耗：'),
- 'workshop.myvillage.no_cost':('No extra materials','无额外耗材'),
- 'workshop.myvillage.input':('In','器物'),
- 'workshop.myvillage.output':('Out','成器'),
- 'workshop.myvillage.take':('Take the finished item','请取走成器'),
- 'workshop.myvillage.inventory':('Belongings','行囊'),
- 'workshop.myvillage.earned_hint':('Use the item to earn more experience. Placed/reworked blocks do not count.','使用器物积累历练；人工放置或重复采集不计入。'),
- 'workshop.myvillage.stage.5':('Finished implement','器身已成'),
+ 'workshop.yuanxian.status.15':('Take the implement to a forging ding for spirit infusion.','炼灵须移步炼器鼎，器物可随身带走。'),
+ 'workshop.yuanxian.strike_gain.attack':('This strike: +%s attack','此锤收益：攻击 +%s'),
+ 'workshop.yuanxian.strike_gain.speed':('This strike: +%s%% work speed','此锤收益：效率 +%s%%'),
+ 'workshop.yuanxian.strike_gain.durability':('This strike: +%s%% durability','此锤收益：耐久 +%s%%'),
+ 'workshop.yuanxian.strike_gain.qi':('This strike: %s%% less Qi','此锤收益：节灵 %s%%'),
+ 'block.yuanxian.forging_anvil':('Smithing hearth','锻器台'),
+ 'tag.item.yuanxian.forging_fuels':('Coal or charcoal','煤炭或木炭'),
+ 'workshop.yuanxian.title':('Forge','锻器'),
+ 'workshop.yuanxian.seal':('工','工'),
+ 'workshop.yuanxian.patterns':('Patterns','器谱'),
+ 'workshop.yuanxian.resume':('Keep this piece; continue at a smithing hearth or forging ding.','器坯可取走保存，放回锻器台继续。'),
+ 'workshop.yuanxian.formed':('Shaping %s / %s','成形 %s / %s'),
+ 'workshop.yuanxian.experience':('Experience %s · %s strikes ready','历练 %s · 可锻 %s 次'),
+ 'workshop.yuanxian.tempering':('Tempering %s / %s','再锻 %s / %s'),
+ 'workshop.yuanxian.bonus.attack':('Tempered attack +%s','再锻攻击 +%s'),
+ 'workshop.yuanxian.bonus.speed':('Tempered work speed +%s%%','再锻效率 +%s%%'),
+ 'workshop.yuanxian.bonus.durability':('Tempered durability +%s%%','再锻耐久 +%s%%'),
+ 'workshop.yuanxian.bonus.qi':('Tempered Qi saving %s%%','再锻节灵 %s%%'),
+ 'workshop.yuanxian.heat.cold':('Cold · reheat','已冷 · 须回炉'),
+ 'workshop.yuanxian.heat.hot':('Ready for the hammer','火候正好'),
+ 'workshop.yuanxian.heat.none':('Prepare a billet','备料起坯'),
+ 'workshop.yuanxian.directions':('Tempering direction','再锻所向'),
+ 'workshop.yuanxian.traits':('Spirit affinity','炼灵专长'),
+ 'workshop.yuanxian.path.1':('Edge / work','精工'),
+ 'workshop.yuanxian.path.2':('Endurance','耐用'),
+ 'workshop.yuanxian.path.3':('Qi flow','导灵'),
+ 'workshop.yuanxian.path_hint.1':('Each strike improves attack for weapons, work speed for tools.','每锤提高兵器攻击，或工具采掘效率。'),
+ 'workshop.yuanxian.path_hint.2':('Each strike permanently increases maximum durability.','每锤永久提高最大耐久。'),
+ 'workshop.yuanxian.path_hint.3':('Each strike reduces Qi costs. Requires an infused compatible weapon.','每锤降低耗灵；须为可导灵且已经炼灵的兵器。'),
+ 'workshop.yuanxian.treatment':('Heat treatment','热处理取向'),
+ 'workshop.yuanxian.treatment.0':('Balanced','中和'),
+ 'workshop.yuanxian.treatment.1':('Edge','保刃'),
+ 'workshop.yuanxian.treatment.2':('Tough','韧性'),
+ 'workshop.yuanxian.treatment_hint.0':('Half edge/work and half durability benefit. Fixed on quenching.','兼顾刃口与耐用，淬火时定下取向。'),
+ 'workshop.yuanxian.treatment_hint.1':('More attack or work speed. Fixed on quenching.','侧重攻击或采掘效率，淬火时定下取向。'),
+ 'workshop.yuanxian.treatment_hint.2':('More durability. Fixed on quenching.','侧重耐久，淬火时定下取向。'),
+ 'workshop.yuanxian.per_strike':('Next: %s exp + materials','每锤：%s 历练及辅材'),
+ 'workshop.yuanxian.hold':('Hold to hammer; release to stop.','按住连续锻打，松开停止。'),
+ 'workshop.yuanxian.mode.training':('Train','再锻'),
+ 'workshop.yuanxian.cap':('Spirit quality: %s','炼灵上限：%s'),
+ 'workshop.yuanxian.cap_locked':('Awaken to infuse','觉醒后可炼灵'),
+ 'workshop.yuanxian.costs':('Consumes:','消耗：'),
+ 'workshop.yuanxian.no_cost':('No extra materials','无额外耗材'),
+ 'workshop.yuanxian.input':('In','器物'),
+ 'workshop.yuanxian.output':('Out','成器'),
+ 'workshop.yuanxian.take':('Take the finished item','请取走成器'),
+ 'workshop.yuanxian.inventory':('Belongings','行囊'),
+ 'workshop.yuanxian.earned_hint':('Use the item to earn more experience. Placed/reworked blocks do not count.','使用器物积累历练；人工放置或重复采集不计入。'),
+ 'workshop.yuanxian.stage.5':('Finished implement','器身已成'),
 }
 # New UI text is Chinese; compatibility language files retain their existing entries.
 for key,value in {
@@ -72,11 +72,11 @@ for key,value in {
  'status.20':'须先锻造成器并确定品质，再进行炼灵。',
  'world.running':'灵气正在入器，稍候取回。', 'world.owned':'这是其他人的器物。',
  'world.taken':'已取回鼎中器物。',
-}.items():LANG['workshop.myvillage.'+key]=(value,value)
-for i,names in enumerate(STAGE_NAMES):LANG[f'workshop.myvillage.stage.{i}']=names
+}.items():LANG['workshop.yuanxian.'+key]=(value,value)
+for i,names in enumerate(STAGE_NAMES):LANG[f'workshop.yuanxian.stage.{i}']=names
 for k,v in {'start':('Prepare billet','起坯'),'heat':('Reheat','入火'),'strike':('Hammer','锻打'),'quench':('Quench','淬火'),
             'temper':('Temper','回火'),'grind':('Grind','精磨'),'assemble':('Fit handle','装柄'),'infuse':('Infuse','炼灵'),
-            'repair':('Repair','修补'),'idle':('At rest','待作'),'copper':('Spirit copper','赤铜灌灵')}.items():LANG['workshop.myvillage.action.'+k]=v
+            'repair':('Repair','修补'),'idle':('At rest','待作'),'copper':('Spirit copper','赤铜灌灵')}.items():LANG['workshop.yuanxian.action.'+k]=v
 STATUSES=[('Prepare a billet, or insert an unfinished piece or implement.','可起新坯，也可放入器坯或成品续作。'),
 ('Take the finished item first.','先取走成器。'),('This operation does not match the current stage.','此工序不适用于当前阶段。'),
 ('The piece is cold. Reheat before striking or quenching.','器物已冷，请先入火再锻打或淬火。'),('Materials are missing; nothing was spent.','材料不足，本次未扣除。'),
@@ -85,13 +85,13 @@ STATUSES=[('Prepare a billet, or insert an unfinished piece or implement.','可�
 ('Insert a piece, or empty the work slot before preparing a new one.','请放入器物；起新坯前须清空器物槽。'),('The current motion is finishing.','当前工序尚未结束。'),
 ('This direction or affinity is not available on this implement.','此器不支持该方向或专长。'),('Complete shaping first.','先完成锻打成形。'),
 ('Strike committed.','此锤已成。'),('Operation complete. Continue, or take the piece away.','此序已毕，可续作或取走保存。')]
-for i,v in enumerate(STATUSES):LANG[f'workshop.myvillage.status.{i}']=v
+for i,v in enumerate(STATUSES):LANG[f'workshop.yuanxian.status.{i}']=v
 for recipe,names in NAMES.items():
  if recipe.startswith('forged_'):
-  LANG['item.myvillage.'+recipe]=names
-  LANG['item.myvillage.pattern_'+recipe]=('Pattern: '+names[0],names[1]+'器谱')
+  LANG['item.yuanxian.'+recipe]=names
+  LANG['item.yuanxian.pattern_'+recipe]=('Pattern: '+names[0],names[1]+'器谱')
  for stage,stage_names in zip(STAGES,STAGE_NAMES):
-  LANG[f'item.myvillage.workpiece_{recipe}_{stage}']=(names[0]+' · '+stage_names[0],names[1]+'·'+stage_names[1])
+  LANG[f'item.yuanxian.workpiece_{recipe}_{stage}']=(names[0]+' · '+stage_names[0],names[1]+'·'+stage_names[1])
 
 
 def panel(infusion=False):
@@ -122,26 +122,26 @@ def hammer_sprite():
 
 def retired_paths(root=ROOT):
     # Armor patterns are sold by the pill merchant; remove their former workbench recipes.
-    return [root/f'src/main/resources/data/myvillage/recipe/pattern_{recipe}.json'
+    return [root/f'src/main/resources/data/yuanxian/recipe/pattern_{recipe}.json'
             for recipe in ARMOR_NAMES]
 
 
 def outputs(root=ROOT):
     base=root/'src/main/resources';out={};encode=lambda o:(json.dumps(o,ensure_ascii=False,indent=2)+'\n').encode()
     def add(path,obj):out[base/path]=encode(obj)
-    add('assets/myvillage/font/forge_detail.json',{'providers':[
-        {'type':'ttf','file':'myvillage:book.ttf','size':10.0,'oversample':4.0,'shift':[0.0,0.0],'skip':'回'},
-        {'type':'ttf','file':'myvillage:panel_body.ttf','size':10.0,'oversample':4.0,'shift':[0.0,0.0]},
+    add('assets/yuanxian/font/forge_detail.json',{'providers':[
+        {'type':'ttf','file':'yuanxian:book.ttf','size':10.0,'oversample':4.0,'shift':[0.0,0.0],'skip':'回'},
+        {'type':'ttf','file':'yuanxian:panel_body.ttf','size':10.0,'oversample':4.0,'shift':[0.0,0.0]},
         {'type':'reference','id':'minecraft:default'}]})
-    out[base/'assets/myvillage/textures/gui/equipment_infusion_panel.png']=png(panel(infusion=True))
-    config=json.loads((base/'data/myvillage/forging/workshop.json').read_text())
+    out[base/'assets/yuanxian/textures/gui/equipment_infusion_panel.png']=png(panel(infusion=True))
+    config=json.loads((base/'data/yuanxian/forging/workshop.json').read_text())
     for craft in config['crafts']:
         recipe=craft['recipe']
         if recipe.startswith('forged_'):
             pattern='pattern_'+recipe
-            add(f'data/myvillage/recipe/{pattern}.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:book'},{'item':'minecraft:iron_ingot'}],'result':{'id':'myvillage:'+pattern}})
-    for name,rows in [('panel',panel()),('anvil',anvil_sprite()),('hammer',hammer_sprite())]:out[base/f'assets/myvillage/textures/gui/workshop_{name}.png']=png(rows)
-    add('data/myvillage/tags/item/forging_fuels.json',{'replace':False,'values':['minecraft:coal','minecraft:charcoal']})
+            add(f'data/yuanxian/recipe/{pattern}.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:book'},{'item':'minecraft:iron_ingot'}],'result':{'id':'yuanxian:'+pattern}})
+    for name,rows in [('panel',panel()),('anvil',anvil_sprite()),('hammer',hammer_sprite())]:out[base/f'assets/yuanxian/textures/gui/workshop_{name}.png']=png(rows)
+    add('data/yuanxian/tags/item/forging_fuels.json',{'replace':False,'values':['minecraft:coal','minecraft:charcoal']})
     from tools.forging import anvil
     out.update(anvil.outputs(base))
     from tools.forging.models import Catalogue
@@ -151,50 +151,50 @@ def outputs(root=ROOT):
     out.update(patterns.outputs(root,catalogue))
     from tools.forging import trough
     out.update(trough.outputs(base))
-    add('assets/myvillage/models/item/forging_anvil.json',{'parent':'myvillage:block/forging_anvil','display':{'gui':{'rotation':[25,225,0],'scale':[.65,.65,.65]}}})
-    add('data/myvillage/loot_table/blocks/forging_anvil.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:forging_anvil'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
-    add('data/myvillage/recipe/forging_anvil.json',{'type':'minecraft:crafting_shaped','pattern':['III','WWW','SSS'],'key':{'I':{'item':'minecraft:iron_ingot'},'W':{'tag':'minecraft:logs'},'S':{'item':'minecraft:cobblestone'}},'result':{'id':'myvillage:forging_anvil'}})
-    tagpath=base/'data/minecraft/tags/block/mineable/pickaxe.json';tag=json.loads(tagpath.read_text());tag['values']=sorted(set(tag['values'])|{'myvillage:forging_anvil','myvillage:forging_table','myvillage:quenching_trough'});out[tagpath]=encode(tag)
-    sounds_path=base/'assets/myvillage/sounds.json';sounds=json.loads(sounds_path.read_text())
+    add('assets/yuanxian/models/item/forging_anvil.json',{'parent':'yuanxian:block/forging_anvil','display':{'gui':{'rotation':[25,225,0],'scale':[.65,.65,.65]}}})
+    add('data/yuanxian/loot_table/blocks/forging_anvil.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:forging_anvil'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
+    add('data/yuanxian/recipe/forging_anvil.json',{'type':'minecraft:crafting_shaped','pattern':['III','WWW','SSS'],'key':{'I':{'item':'minecraft:iron_ingot'},'W':{'tag':'minecraft:logs'},'S':{'item':'minecraft:cobblestone'}},'result':{'id':'yuanxian:forging_anvil'}})
+    tagpath=base/'data/minecraft/tags/block/mineable/pickaxe.json';tag=json.loads(tagpath.read_text());tag['values']=sorted(set(tag['values'])|{'yuanxian:forging_anvil','yuanxian:forging_table','yuanxian:quenching_trough'});out[tagpath]=encode(tag)
+    sounds_path=base/'assets/yuanxian/sounds.json';sounds=json.loads(sounds_path.read_text())
     events={'strike':[('block.anvil.use',1.55,.65),('block.anvil.use',1.7,.58),('block.anvil.use',1.4,.7)],
             'heat':[('item.firecharge.use',.65,.45)],'quench':[('block.fire.extinguish',.75,.7)],
             'temper':[('block.fire.ambient',.9,.7)],'grind':[('block.grindstone.use',.85,.65)],
             'assemble':[('block.smithing_table.use',.85,.6)],'infuse':[('block.amethyst_block.chime',.75,.6)],'repair':[('block.anvil.use',1.2,.55)]}
     for name,variants in events.items():
-        key='forging.'+name;sounds[key]={'subtitle':'subtitles.myvillage.'+key,'sounds':[{'name':'minecraft:'+e,'type':'event','pitch':p,'volume':v} for e,p,v in variants]}
+        key='forging.'+name;sounds[key]={'subtitle':'subtitles.yuanxian.'+key,'sounds':[{'name':'minecraft:'+e,'type':'event','pitch':p,'volume':v} for e,p,v in variants]}
     out[sounds_path]=encode(sounds)
     for lang,i in [('en_us',0),('zh_cn',1)]:
-        path=base/f'assets/myvillage/lang/{lang}.json';data=json.loads(path.read_text());data.update({k:v[i] for k,v in LANG.items()})
-        for name in events:data['subtitles.myvillage.forging.'+name]=LANG['workshop.myvillage.action.'+name][i]
+        path=base/f'assets/yuanxian/lang/{lang}.json';data=json.loads(path.read_text());data.update({k:v[i] for k,v in LANG.items()})
+        for name in events:data['subtitles.yuanxian.forging.'+name]=LANG['workshop.yuanxian.action.'+name][i]
         out[path]=encode(data)
-    path=base/'assets/myvillage/lang/zh_cn.json'
-    data=json.loads(out[path]);data['workshop.myvillage.occupied']='此台正有人锻器，请稍候或使用另一座锻器台。';out[path]=encode(data)
+    path=base/'assets/yuanxian/lang/zh_cn.json'
+    data=json.loads(out[path]);data['workshop.yuanxian.occupied']='此台正有人锻器，请稍候或使用另一座锻器台。';out[path]=encode(data)
     for recipe,name in ARMOR_NAMES.items():
-        data['item.myvillage.pattern_'+recipe]=name+'器谱'
-        for stage,names in zip(STAGES,STAGE_NAMES):data[f'item.myvillage.workpiece_{recipe}_{stage}']=name+'·'+names[1]
-    data.update({'workshop.myvillage.recipe_page':'器谱 %s/%s ›',
-        'workshop.myvillage.action.armor.assemble':'铆合衬垫','workshop.myvillage.action.armor.grind':'修整甲片',
-        'workshop.myvillage.armor_earned_hint':ARMOR_EARNED_HINT})
+        data['item.yuanxian.pattern_'+recipe]=name+'器谱'
+        for stage,names in zip(STAGES,STAGE_NAMES):data[f'item.yuanxian.workpiece_{recipe}_{stage}']=name+'·'+names[1]
+    data.update({'workshop.yuanxian.recipe_page':'器谱 %s/%s ›',
+        'workshop.yuanxian.action.armor.assemble':'铆合衬垫','workshop.yuanxian.action.armor.grind':'修整甲片',
+        'workshop.yuanxian.armor_earned_hint':ARMOR_EARNED_HINT})
     data.update({
-        'item.myvillage.forging_hammer':json.loads((root/'equipment/workshop/hammer.json').read_text())['name'],
-        'workshop.myvillage.manual.hammer_hint':'手持右键敲击台上热坯；潜行右键打开其余工序面板。',
-        'workshop.myvillage.manual.placed':'器物已放上锻台。潜行右键入火，关闭面板后持锻锤右键敲击。',
-        'workshop.myvillage.manual.take_first':'台上已有器物，请先空手右键取回。',
-        'workshop.myvillage.manual.empty':'手持器坯右键放置；潜行右键可起坯、入火和进行后续工序。',
-        'workshop.myvillage.manual.panel_hint':'手持锻锤',
-        'workshop.myvillage.status.17':'锻打须关闭面板，手持锻锤右键台上器物。',
-        'workshop.myvillage.status.0':'可在此起坯或处理热工序；锻打请关闭面板后手持锻锤右键。',
-        'workshop.myvillage.resume':'器坯可取走保存，手持右键放回锻器台。潜行右键打开其余工序面板。',
-        'workshop.myvillage.hold':'手持锻锤右键敲击；连按仍受每锤节奏限制。',
-        'workshop.myvillage.occupied':'此台正在操作，请稍候或使用另一座锻器台。',
+        'item.yuanxian.forging_hammer':json.loads((root/'equipment/workshop/hammer.json').read_text())['name'],
+        'workshop.yuanxian.manual.hammer_hint':'手持右键敲击台上热坯；潜行右键打开其余工序面板。',
+        'workshop.yuanxian.manual.placed':'器物已放上锻台。潜行右键入火，关闭面板后持锻锤右键敲击。',
+        'workshop.yuanxian.manual.take_first':'台上已有器物，请先空手右键取回。',
+        'workshop.yuanxian.manual.empty':'手持器坯右键放置；潜行右键可起坯、入火和进行后续工序。',
+        'workshop.yuanxian.manual.panel_hint':'手持锻锤',
+        'workshop.yuanxian.status.17':'锻打须关闭面板，手持锻锤右键台上器物。',
+        'workshop.yuanxian.status.0':'可在此起坯或处理热工序；锻打请关闭面板后手持锻锤右键。',
+        'workshop.yuanxian.resume':'器坯可取走保存，手持右键放回锻器台。潜行右键打开其余工序面板。',
+        'workshop.yuanxian.hold':'手持锻锤右键敲击；连按仍受每锤节奏限制。',
+        'workshop.yuanxian.occupied':'此台正在操作，请稍候或使用另一座锻器台。',
     })
     data.update({
-        'block.myvillage.quenching_trough': '淬火水槽',
-        'workshop.myvillage.status.16': '须在锻台同层紧邻处摆放有水且空闲的淬火水槽。',
-        'workshop.myvillage.trough.empty': '空槽：用水桶注水，随后可在相邻锻器台淬火。',
-        'workshop.myvillage.trough.ready': '水已备好，可在相邻锻器台淬火；空桶可取回水。',
-        'workshop.myvillage.trough.busy': '正在淬火，请待器坯出水。',
-        'workshop.myvillage.trough.cost': '消耗相邻水槽内一桶水；水桶注水时已返还空桶。',
+        'block.yuanxian.quenching_trough': '淬火水槽',
+        'workshop.yuanxian.status.16': '须在锻台同层紧邻处摆放有水且空闲的淬火水槽。',
+        'workshop.yuanxian.trough.empty': '空槽：用水桶注水，随后可在相邻锻器台淬火。',
+        'workshop.yuanxian.trough.ready': '水已备好，可在相邻锻器台淬火；空桶可取回水。',
+        'workshop.yuanxian.trough.busy': '正在淬火，请待器坯出水。',
+        'workshop.yuanxian.trough.cost': '消耗相邻水槽内一桶水；水桶注水时已返还空桶。',
     })
     out[path]=encode(data)
     return out

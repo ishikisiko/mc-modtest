@@ -8,11 +8,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def outputs(root=ROOT):
-    data = json.loads((root/'src/main/resources/data/myvillage/exploration/rules.json').read_text())
-    bosses = {p['entity']: p for p in json.loads((root/'src/main/resources/data/myvillage/exploration/bosses.json').read_text())['profiles']}
+    data = json.loads((root/'src/main/resources/data/yuanxian/exploration/rules.json').read_text())
+    bosses = {p['entity']: p for p in json.loads((root/'src/main/resources/data/yuanxian/exploration/bosses.json').read_text())['profiles']}
     files = {}
     for lang, prefix in [('zh_cn', ''), ('en_us', '_en_us/')]:
-        words = json.loads((root/f'src/main/resources/assets/myvillage/lang/{lang}.json').read_text())
+        words = json.loads((root/f'src/main/resources/assets/yuanxian/lang/{lang}.json').read_text())
         zh = lang == 'zh_cn'
         title = '探索、境界与城镇向导' if zh else 'Exploration, Realms and the Town Guide'
         lines = ['---', 'navigation:', f'  title: {title}', '  parent: index.md', '  position: 40',
@@ -30,22 +30,22 @@ def outputs(root=ROOT):
                   if zh else 'The role remains vacant if local candidates or observed facilities are unavailable; no new person is fabricated.'), '']
         def realm(k):
             rid, stage = k['realm'], k['stage']
-            if rid == 'myvillage:mortal': return words['exploration.myvillage.mortal']
-            if rid == 'myvillage:qi_refining': return words['exploration.myvillage.qi'] % (stage+1)
-            return words['exploration.myvillage.realm_stage'] % (words['cultivation.realm.'+rid.replace(':','.')], words['exploration.myvillage.stage.'+str(stage)])
+            if rid == 'yuanxian:mortal': return words['exploration.yuanxian.mortal']
+            if rid == 'yuanxian:qi_refining': return words['exploration.yuanxian.qi'] % (stage+1)
+            return words['exploration.yuanxian.realm_stage'] % (words['cultivation.realm.'+rid.replace(':','.')], words['exploration.yuanxian.stage.'+str(stage)])
         lines.extend(['## '+('主线路线' if zh else 'Main Route'), ''])
         for stage in data['milestones']:
-            lines.append('- **'+words['exploration.myvillage.guide.'+stage['id']]+'** ('+realm(stage['minimum'])+')')
+            lines.append('- **'+words['exploration.yuanxian.guide.'+stage['id']]+'** ('+realm(stage['minimum'])+')')
             for tip in stage['tips']:
-                lines.append('  - '+words['exploration.myvillage.tip.'+tip])
+                lines.append('  - '+words['exploration.yuanxian.tip.'+tip])
         lines.extend(['', '## '+('可选首领支线' if zh else 'Optional Boss Branches'), '',
             ('以下支线不进入主线完成条件。监守者的正面击杀永远不是末地主线前置；古城可以潜行取物后撤离。'
              if zh else 'These branches do not gate the main route. Killing a warden is never required for End progress; ancient cities can be looted stealthily with a planned retreat.'), ''])
         for route in data['side_routes']:
             boss = bosses[route['entity']]
-            lines.append('- **'+words['exploration.myvillage.side.'+route['id']]+'** — '+realm(boss))
+            lines.append('- **'+words['exploration.yuanxian.side.'+route['id']]+'** — '+realm(boss))
             for tip in route['tips']:
-                lines.append('  - '+words['exploration.myvillage.tip.'+tip])
+                lines.append('  - '+words['exploration.yuanxian.tip.'+tip])
         lines.extend(['', '## '+('可选传送门门槛' if zh else 'Optional Portal Gates'), '',
             ('规则默认关闭门槛，仅给建议。若管理员启用，仅通过原生维度门前往下界／末地时检查境界；返回主世界、同维度移动、管理员传送命令和非玩家实体保持原有行为。'
              if zh else 'Gates are disabled by default. When enabled, realm checks apply only to players entering the Nether or End through native dimension portals. Returning to the Overworld, same-dimension travel, administrator teleport commands and non-player entities keep their original behavior.'), ''])
@@ -54,8 +54,8 @@ def outputs(root=ROOT):
         lines.append('')
         lines.append('- '+('下界：' if zh else 'Nether: ')+realm(gates['nether_minimum']))
         lines.append('- '+('末地：' if zh else 'End: ')+realm(gates['end_minimum']))
-        lines.extend(['', ('服主可在实例目录的 `config/myvillage-exploration-server.toml` 中设置 `[portal_gates] enabled = true`。若 `<世界目录>/serverconfig/` 中已有同名文件，该世界优先读取该覆盖文件；可手动创建以按世界设置。`defaultconfigs/` 的同名文件仅用于缺失基础配置时的初始化，不会为每个新世界自动创建覆盖文件。境界阈值仍以规则 JSON 为唯一来源。'
-                           if zh else 'Server owners can set `[portal_gates] enabled = true` in the instance’s `config/myvillage-exploration-server.toml`. An existing file of the same name in `<world>/serverconfig/` takes precedence for that world; create it manually for a world-specific override. A matching `defaultconfigs/` file initializes a missing base configuration; it does not automatically create an override for each new world. Realm thresholds remain owned by the rules JSON.'), ''])
+        lines.extend(['', ('服主可在实例目录的 `config/yuanxian-exploration-server.toml` 中设置 `[portal_gates] enabled = true`。若 `<世界目录>/serverconfig/` 中已有同名文件，该世界优先读取该覆盖文件；可手动创建以按世界设置。`defaultconfigs/` 的同名文件仅用于缺失基础配置时的初始化，不会为每个新世界自动创建覆盖文件。境界阈值仍以规则 JSON 为唯一来源。'
+                           if zh else 'Server owners can set `[portal_gates] enabled = true` in the instance’s `config/yuanxian-exploration-server.toml`. An existing file of the same name in `<world>/serverconfig/` takes precedence for that world; create it manually for a world-specific override. A matching `defaultconfigs/` file initializes a missing base configuration; it does not automatically create an override for each new world. Realm thresholds remain owned by the rules JSON.'), ''])
         for dimension, name in [('minecraft:overworld', '主世界' if zh else 'Overworld'),
                                 ('minecraft:the_nether', '下界' if zh else 'Nether'),
                                 ('minecraft:the_end', '末地' if zh else 'End')]:
@@ -63,8 +63,8 @@ def outputs(root=ROOT):
             for l in data['locations']:
                 if l['dimension'] != dimension: continue
                 bounds = l['recommended']; a, b = realm(bounds['min']), realm(bounds['max'])
-                band = a if a == b else words['exploration.myvillage.range'] % (a,b)
-                lines.append('- **'+words['exploration.myvillage.location.'+l['id']]+'：'+band+'** — '+words['exploration.myvillage.prepare.'+l['id']])
+                band = a if a == b else words['exploration.yuanxian.range'] % (a,b)
+                lines.append('- **'+words['exploration.yuanxian.location.'+l['id']]+'：'+band+'** — '+words['exploration.yuanxian.prepare.'+l['id']])
             lines.append('')
         lines.extend(['## '+('探索收益' if zh else 'Exploration Rewards'), '',
             ('指定原版箱子和普通/不祥试炼宝库会在原版战利品之外追加有限修炼物资，随所在地点的实际危险提高档次。刷怪掉落、可重复刷怪笼结算和村民交易不追加此奖励；开过的原版箱子不会补发。'

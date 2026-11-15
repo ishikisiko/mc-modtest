@@ -49,7 +49,7 @@ class FoundryMathTest {
         assertEquals(0,FormingMath.level(0,rules));
     }
     @Test void configurationRejectsFractionalCostsUnknownFieldsAndZeroEffectIntervals() throws Exception {
-        String source;try(var in=getClass().getResourceAsStream("/data/myvillage/forging/foundry.json")){source=new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);}
+        String source;try(var in=getClass().getResourceAsStream("/data/yuanxian/forging/foundry.json")){source=new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);}
         for(String field:new String[]{"fuel_ticks","capacity","temper_ticks"}){
             var json=JsonParser.parseString(source).getAsJsonObject();json.getAsJsonObject("heat").addProperty(field,0);
             assertThrows(RuntimeException.class,()->FoundryRules.parse(new StringReader(json.toString())));

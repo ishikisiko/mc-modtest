@@ -35,7 +35,7 @@ class RangeEvidence(ElementalEvidence):
     def finish_spell(self,ident,mark,start):
         a=self.arts[ident];total=a['windup_ticks']+(a['pulses']-1)*a['pulse_interval_ticks']+1+a['recovery_ticks']
         self.step(max(0,start+total+2-self.now()));log=self.log(mark)
-        self.check(ident+'_completed','result=stop art=myvillage:'+ident+' reason=COMPLETED' in log,log)
+        self.check(ident+'_completed','result=stop art=yuanxian:'+ident+' reason=COMPLETED' in log,log)
         return log
     def five_school_ranges(self):
         for element,kit in self.kits.items():
@@ -99,7 +99,7 @@ class RangeEvidence(ElementalEvidence):
             with (self.out/'video.log').open('w') as log:
                 rec=subprocess.Popen(ffmpeg_record_argv(guest.game.display,file,5,fps=20,size=(960,540)),stdout=log,stderr=subprocess.STDOUT)
                 time.sleep(.5);self.rc('tick rate 20');self.rc('tick unfreeze');mark=self.offset();self.key(self.assigned[a['id']]);rec.wait(timeout=30);self.freeze()
-            self.check('normal_time_cone_video',rec.returncode==0 and file.stat().st_size>10000 and 'result=start art=myvillage:'+a['id'] in self.log(mark),self.log(mark))
+            self.check('normal_time_cone_video',rec.returncode==0 and file.stat().st_size>10000 and 'result=start art=yuanxian:'+a['id'] in self.log(mark),self.log(mark))
             self.report['videos'].append({'file':file.name,'seconds':5,'server_tick_rate':20});self.report['multiplayer']='two actual clients: enlarged cone PvP hit and all five field cues visible to observer'
             self.check('two_clients_connected',self.s.username in self.rc('list') and guest.username in self.rc('list'),self.rc('list'))
             self.rc('tick unfreeze');self.guest=None

@@ -14,7 +14,7 @@ class CoreTechniqueSwitchPayloadTest {
     @Test
     void codecRoundTripsOnlyTheTechniqueId() {
         CoreTechniqueSwitchPayload payload = new CoreTechniqueSwitchPayload(
-                ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_yinqi_fa"));
+                ResourceLocation.fromNamespaceAndPath("yuanxian", "gengjin_yinqi_fa"));
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
                 Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
         try {
@@ -32,7 +32,7 @@ class CoreTechniqueSwitchPayloadTest {
         } finally {
             buffer.release();
         }
-        assertEquals("myvillage:core_technique_switch", CoreTechniqueSwitchPayload.TYPE.id().toString());
+        assertEquals("yuanxian:core_technique_switch", CoreTechniqueSwitchPayload.TYPE.id().toString());
     }
 
     @Test

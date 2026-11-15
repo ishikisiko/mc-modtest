@@ -51,7 +51,7 @@ public final class FoundryMenu extends AbstractContainerMenu {
         if(slot>=2||active())return false;
         if(container instanceof FoundryBlockEntity block&&!block.canPlaceItem(slot,stack))return false;
         if(slot==0)return kind!=Kind.KILN?WorkshopItems.valid(stack)||kind==Kind.ASSEMBLY&&WorkshopEquipment.craft(stack).isPresent():WorkshopItems.valid(stack)||WorkshopEquipment.craft(stack).isPresent();
-        return switch(kind){case PREPARATION->false;case KILN->stack.is(net.minecraft.tags.ItemTags.COALS)||ForgingIngredients.matches("#myvillage:forging_fuels",stack);
+        return switch(kind){case PREPARATION->false;case KILN->stack.is(net.minecraft.tags.ItemTags.COALS)||ForgingIngredients.matches("#yuanxian:forging_fuels",stack);
             case ASSEMBLY->stack.getItem() instanceof FoundryMaterialItem h&&!h.flame()||stack.is(net.minecraft.world.item.Items.LEATHER);};
     }
     @Override public boolean stillValid(Player player){return player==inventory.player&&player.isAlive()&&!player.isSpectator()&&container.stillValid(player);}

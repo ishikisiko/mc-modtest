@@ -59,8 +59,8 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     from player_economy_sites import place_capital_boards
     place_capital_boards(out)
     if out.resolve()==source.resolve() and not refresh_current:raise ValueError('V11 不能覆盖 V10 资源')
-    spec=json.loads(RULES.read_text());path=source/('data/myvillage/worldplan/frozen_v11.json' if refresh_current else 'data/myvillage/worldplan/frozen_v10.json');original=old.read_bounded(path,4*1024*1024);base=json.loads(original)
-    if (spec.get('schema'),spec.get('algorithm'),spec.get('base'),base['algorithm'])!=(1,'myvillage:worldplan_v11','frozen_v10.json','myvillage:worldplan_v11' if refresh_current else 'myvillage:worldplan_v10'):raise ValueError('V11 必须继承完整 V10')
+    spec=json.loads(RULES.read_text());path=source/('data/yuanxian/worldplan/frozen_v11.json' if refresh_current else 'data/yuanxian/worldplan/frozen_v10.json');original=old.read_bounded(path,4*1024*1024);base=json.loads(original)
+    if (spec.get('schema'),spec.get('algorithm'),spec.get('base'),base['algorithm'])!=(1,'yuanxian:worldplan_v11','frozen_v10.json','yuanxian:worldplan_v11' if refresh_current else 'yuanxian:worldplan_v10'):raise ValueError('V11 必须继承完整 V10')
     definitions=spec['assets']['cities'];regions={p['id'] for p in base['profiles']}
     if spec['assets']['accepted_versions']!=['v4'] or len(definitions)!=8 or {d['region_id'] for d in definitions}!=regions or len({d['city_id'] for d in definitions})!=8:raise ValueError('V11 必须八城齐全并只使用 v4')
     refs=[];summaries=[]
@@ -68,7 +68,7 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
         ref,summary=old.inspect_city(out,definition,base['capitals']['life_places_limit'],accepted_versions=frozenset(('v4',)))
         refs.append(ref);summaries.append(summary)
     frozen=copy.deepcopy(base);frozen['algorithm']=spec['algorithm'];frozen['capitals']['assets']=spec['assets'];frozen['capitals']['bundles']=refs
-    profiles={p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/worldgen/region_profile').glob('*.json')}
+    profiles={p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/yuanxian/worldgen/region_profile').glob('*.json')}
     for profile in frozen['profiles']:
         for key in ('tier','qi','danger'):profile[key]=profiles[profile['id']][key]
     from wilderness_habitats.generate import generate as habitat_rules
@@ -81,7 +81,7 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     apply_region_progression(frozen,spec.get('region_progression'))
     apply_spawn_policy(frozen,spec.get('spawn'))
     sect_root=ROOT/'build/generated/sect_blueprints/resources'
-    catalog=json.loads((sect_root/'data/myvillage/sect_blueprints/catalog.json').read_text())
+    catalog=json.loads((sect_root/'data/yuanxian/sect_blueprints/catalog.json').read_text())
     layouts=[];policy=None
     for sect_ref in catalog['layouts']:
         sect_file=sect_root/('data/'+sect_ref['resource'].replace(':','/',1))
@@ -98,40 +98,40 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
                         'blueprint_sha256':sect_ref['sha256'],'terrain_gzip':base64.b64encode(terrain.read_bytes()).decode()})
     frozen['sects']={**policy,'layouts':layouts}
     mine_root=ROOT/'build/generated/starter_mine/resources'
-    mine_path=mine_root/'data/myvillage/starter_mine/layout.json'
+    mine_path=mine_root/'data/yuanxian/starter_mine/layout.json'
     mine_bytes=old.read_bounded(mine_path,2*1024*1024)
-    frozen['starter_mine']={'resource':'myvillage:starter_mine/layout.json','sha256':sha(mine_bytes)}
+    frozen['starter_mine']={'resource':'yuanxian:starter_mine/layout.json','sha256':sha(mine_bytes)}
     raw=canonical(frozen);transport='gzip:'+base64.b64encode(gzip.compress(raw,mtime=0)).decode()
     if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError(f'V11 冻结规则超出既有边界：raw={len(raw)}，transport={len(transport)}')
-    preset=json.loads((source/'data/myvillage/worldgen/world_preset/cultivation.json').read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
-    if generator['type']!=('myvillage:planned_v11' if refresh_current else 'myvillage:planned_v10'):raise ValueError('前置默认预设不是 V10')
-    generator.update(type='myvillage:planned_v11',rules=transport);generator.pop('plan_hash',None)
-    write(out/'data/myvillage/worldplan/frozen_v11.json',frozen);write(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
+    preset=json.loads((source/'data/yuanxian/worldgen/world_preset/cultivation.json').read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
+    if generator['type']!=('yuanxian:planned_v11' if refresh_current else 'yuanxian:planned_v10'):raise ValueError('前置默认预设不是 V10')
+    generator.update(type='yuanxian:planned_v11',rules=transport);generator.pop('plan_hash',None)
+    write(out/'data/yuanxian/worldplan/frozen_v11.json',frozen);write(out/'data/yuanxian/worldgen/world_preset/cultivation.json',preset)
     report={'schema':1,'format':'capital_game_index','algorithm':spec['algorithm'],'cities':summaries,'total_tiles':sum(v['tiles'] for v in summaries),
             'total_bytes':sum(v['bytes'] for v in summaries),'frozen_rules_sha256':sha(raw),'source_rules_sha256':sha(original),
             'status':{'generation':'completed','native':'not_run','owner_appearance':'not_verified'}}
-    write(out/'data/myvillage/capitals/v4/index.json',report)
+    write(out/'data/yuanxian/capitals/v4/index.json',report)
     return report
 
 
 def refresh_habitat_reference(out:Path):
     """仅重生成冻结生态资源引用；供未改城市与宗门资源的局部构建复用。"""
     from wilderness_habitats.generate import generate
-    path=out/'data/myvillage/worldplan/frozen_v11.json'
+    path=out/'data/yuanxian/worldplan/frozen_v11.json'
     original=old.read_bounded(path,4*1024*1024);frozen=json.loads(original)
-    if frozen['algorithm']!='myvillage:worldplan_v11':raise ValueError('生态引用刷新需要当前V11冻结规则')
+    if frozen['algorithm']!='yuanxian:worldplan_v11':raise ValueError('生态引用刷新需要当前V11冻结规则')
     resource=(json.dumps(generate(),ensure_ascii=False,indent=2)+'\n').encode()
-    authored=ROOT/'src/main/resources/data/myvillage/wilderness/habitats.json'
+    authored=ROOT/'src/main/resources/data/yuanxian/wilderness/habitats.json'
     if authored.read_bytes()!=resource:raise ValueError('生态资源未由当前作者输入生成')
     before=copy.deepcopy(frozen);frozen['habitats']={'resource_sha256':sha(resource)}
     raw=canonical(frozen);transport='gzip:'+base64.b64encode(gzip.compress(raw,mtime=0)).decode()
     if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError('冻结规则超出既有容量')
-    preset_path=out/'data/myvillage/worldgen/world_preset/cultivation.json'
+    preset_path=out/'data/yuanxian/worldgen/world_preset/cultivation.json'
     preset=json.loads(preset_path.read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
-    if generator['type']!='myvillage:planned_v11':raise ValueError('需要当前V11预设')
+    if generator['type']!='yuanxian:planned_v11':raise ValueError('需要当前V11预设')
     generator['rules']=transport;generator.pop('plan_hash',None)
     write(path,frozen);write(preset_path,preset)
-    index_path=out/'data/myvillage/capitals/v4/index.json'
+    index_path=out/'data/yuanxian/capitals/v4/index.json'
     if index_path.exists():
         index=json.loads(index_path.read_text());index['frozen_rules_sha256']=sha(raw);write(index_path,index)
     return {'operation':'refresh_habitat_reference','before':sha(original),'after':sha(raw),

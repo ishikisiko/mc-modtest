@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 class NpcFateSyncTest {
     @Test void preservesBirthOrderBudgetAndUnknownDefinitionWithoutRegistryLookup() {
-        var value = new NpcFateRoll(List.of("myvillage:new_trait", "myvillage:bright", "myvillage:robust"), 9, 8);
+        var value = new NpcFateRoll(List.of("yuanxian:new_trait", "yuanxian:bright", "yuanxian:robust"), 9, 8);
         var buf = new FriendlyByteBuf(Unpooled.buffer());
         try {
             NpcFateSync.write(buf, value);
@@ -27,7 +27,7 @@ class NpcFateSyncTest {
             var buf = new FriendlyByteBuf(Unpooled.buffer());
             try {
                 buf.writeBoolean(true); buf.writeByte(values[0]); buf.writeByte(values[1]);
-                for (int i=0;i<3;i++) buf.writeUtf("myvillage:id_"+i);
+                for (int i=0;i<3;i++) buf.writeUtf("yuanxian:id_"+i);
                 assertThrows(IllegalArgumentException.class, () -> NpcFateSync.read(buf));
             } finally { buf.release(); }
         }
@@ -36,14 +36,14 @@ class NpcFateSyncTest {
         var buf = new FriendlyByteBuf(Unpooled.buffer());
         try {
             buf.writeBoolean(true); buf.writeByte(9); buf.writeByte(7);
-            for (int i=0;i<3;i++) buf.writeUtf("myvillage:duplicate");
+            for (int i=0;i<3;i++) buf.writeUtf("yuanxian:duplicate");
             assertThrows(IllegalArgumentException.class, () -> NpcFateSync.read(buf));
         } finally { buf.release(); }
     }
     @Test void boundsIdLengthBeforeAllocatingUnboundedText() {
         var buf = new FriendlyByteBuf(Unpooled.buffer());
         try {
-            buf.writeBoolean(true); buf.writeByte(9); buf.writeByte(7); buf.writeUtf("myvillage:"+"x".repeat(257));
+            buf.writeBoolean(true); buf.writeByte(9); buf.writeByte(7); buf.writeUtf("yuanxian:"+"x".repeat(257));
             assertThrows(DecoderException.class, () -> NpcFateSync.read(buf));
         } finally { buf.release(); }
     }

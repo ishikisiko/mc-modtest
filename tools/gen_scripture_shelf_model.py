@@ -17,7 +17,7 @@ import struct
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ROOT / "src/main/resources/assets/myvillage"
+ASSETS = ROOT / "src/main/resources/assets/yuanxian"
 PREVIEW = ROOT / "out/preview/cultivation_polish/shelf"
 SIZE = 128
 FACES = ("down", "up", "north", "south", "west", "east")
@@ -192,12 +192,12 @@ def encode(obj):
 
 def outputs(assets=ASSETS):
     full = elements()
-    texture = {"atlas": "myvillage:block/scripture_shelf", "particle": "myvillage:block/scripture_shelf"}
+    texture = {"atlas": "yuanxian:block/scripture_shelf", "particle": "yuanxian:block/scripture_shelf"}
     result = {assets / "textures/block/scripture_shelf.png": png(texture_rows())}
     for suffix, data in (("", full), ("_lower", split_elements(full, "lower")), ("_upper", split_elements(full, "upper"))):
         result[assets / f"models/block/scripture_shelf{suffix}.json"] = encode({"ambientocclusion": True,
             "textures": texture, "elements": data})
-    result[assets / "models/item/scripture_shelf.json"] = encode({"parent": "myvillage:block/scripture_shelf", "display": {
+    result[assets / "models/item/scripture_shelf.json"] = encode({"parent": "yuanxian:block/scripture_shelf", "display": {
         "gui": {"rotation": [25, 225, 0], "translation": [0, -2.5, 0], "scale": [.48, .48, .48]},
         "ground": {"translation": [0, 1.4, 0], "scale": [.26, .26, .26]},
         "fixed": {"translation": [0, -2, 0], "scale": [.40, .40, .40]},
@@ -206,7 +206,7 @@ def outputs(assets=ASSETS):
         "thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 1.7, 0], "scale": [.32, .32, .32]},
         "thirdperson_lefthand": {"rotation": [75, 45, 0], "translation": [0, 1.7, 0], "scale": [.32, .32, .32]}}})
     result[assets / "blockstates/scripture_shelf.json"] = encode({"variants": {
-        f"facing={direction},half={half}": {"model": f"myvillage:block/scripture_shelf_{half}", "y": rotation}
+        f"facing={direction},half={half}": {"model": f"yuanxian:block/scripture_shelf_{half}", "y": rotation}
         for half in ("lower", "upper") for direction, rotation in (("north", 0), ("east", 90), ("south", 180), ("west", 270))}})
     return result
 
@@ -223,7 +223,7 @@ def preview(directory=PREVIEW):
     assets = pim.Assets([ROOT / "src/main/resources"], None)
     models = []
     for half in ("lower", "upper"):
-        ref = f"myvillage:block/scripture_shelf_{half}"
+        ref = f"yuanxian:block/scripture_shelf_{half}"
         resolved = pim.resolve_model(assets, assets.model_json(ref), ref)
         for idx, el in enumerate(resolved.elements):
             for q in pim.element_quads(assets, resolved, el, idx):

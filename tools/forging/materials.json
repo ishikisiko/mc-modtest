@@ -16,7 +16,7 @@
         "Smelt raw dark iron in a furnace or blast furnace.",
         "由粗玄铁在熔炉或高炉中熔炼而成。"
       ],
-      "tag": "myvillage:forging_materials/xuantie"
+      "tag": "yuanxian:forging_materials/xuantie"
     },
     {
       "id": "chitong_ingot",
@@ -33,7 +33,7 @@
         "Infuse copper at a forging ding, or craft copper + blaze powder + low-grade spirit stone; accepts common copper tags.",
         "在炼器鼎给铜锭灌灵；也可用铜锭、烈焰粉、下品灵石合成，兼容通用铜锭标签。"
       ],
-      "tag": "myvillage:forging_materials/chitong"
+      "tag": "yuanxian:forging_materials/chitong"
     },
     {
       "id": "edge_tempering_sand",
@@ -50,7 +50,7 @@
         "Dig visible deposits on riverbanks and in shallows with a shovel.",
         "用铲采集河滩和浅水处可见的淬锋砂层。"
       ],
-      "tag": "myvillage:forging_materials/edge_tempering_sand"
+      "tag": "yuanxian:forging_materials/edge_tempering_sand"
     }
   ]
 }

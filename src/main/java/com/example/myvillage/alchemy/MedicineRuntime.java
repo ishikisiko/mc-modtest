@@ -21,8 +21,8 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 /** Logical-server medication lifecycle. Persistent remaining counters deliberately exclude offline time. */
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID)
 public final class MedicineRuntime {
-    private static final String TAG = "myvillage_medicine";
-    private static final String MESSAGE = "message.myvillage.alchemy.";
+    private static final String TAG = "yuanxian_medicine";
+    private static final String MESSAGE = "message.yuanxian.alchemy.";
 
     private MedicineRuntime() { }
 

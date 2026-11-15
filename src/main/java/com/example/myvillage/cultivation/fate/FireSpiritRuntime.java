@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /** Attributed fire damage with bounded transient work and independently saved burst cooldowns. */
 public final class FireSpiritRuntime {
     public static final ResourceKey<DamageType> DAMAGE_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE,
-            ResourceLocation.fromNamespaceAndPath("myvillage", "fire_spirit"));
+            ResourceLocation.fromNamespaceAndPath("yuanxian", "fire_spirit"));
     private static final int MAX_TRACKED_PAIRS = 4096;
     private static final Logger LOGGER = LoggerFactory.getLogger(FireSpiritRuntime.class);
     private static final Map<Pair, Tracked> TARGETS = new HashMap<>();

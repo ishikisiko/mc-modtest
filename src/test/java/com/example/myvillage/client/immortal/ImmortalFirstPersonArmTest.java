@@ -85,7 +85,7 @@ public final class ImmortalFirstPersonArmTest {
 
     @Test public void allFifteenMeshesAndOriginalRenderSink()throws Exception {
         var fixtures=fixtures();int sets=0;long vertices=0,triangles=0;
-        try(var paths=Files.list(Path.of("src/main/resources/assets/myvillage/immortal_equipment"))) {
+        try(var paths=Files.list(Path.of("src/main/resources/assets/yuanxian/immortal_equipment"))) {
             for(Path path:paths.filter(p->p.toString().endsWith(".json")).sorted().toList()) {
                 if(!json(path).has("profiles"))continue;
                 ImmortalMeshData data;try(var reader=Files.newBufferedReader(path)){data=ImmortalMeshData.parse(reader);}
@@ -137,7 +137,7 @@ public final class ImmortalFirstPersonArmTest {
 
     @Test public void tessellationPreservesOriginalSurfacesAndUv()throws Exception {
         long originals=0,subdivisions=0;
-        try(var paths=Files.list(Path.of("src/main/resources/assets/myvillage/immortal_equipment"))) {
+        try(var paths=Files.list(Path.of("src/main/resources/assets/yuanxian/immortal_equipment"))) {
             for(Path path:paths.filter(p->p.toString().endsWith(".json")).toList()) {
                 if(!json(path).has("profiles"))continue;
                 ImmortalMeshData data;try(var r=Files.newBufferedReader(path)){data=ImmortalMeshData.parse(r);}

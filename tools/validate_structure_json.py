@@ -102,7 +102,7 @@ def validate_metadata(data: Mapping[str, Any]) -> Dict[str, Any] | None:
     meta_id = metadata.get("id")
     if not isinstance(meta_id, str) or not METADATA_ID_RE.match(meta_id):
         raise ValidationError(
-            f"metadata.id is required and must look like 'myvillage:small_house_01', got {meta_id!r}"
+            f"metadata.id is required and must look like 'yuanxian:small_house_01', got {meta_id!r}"
         )
 
     category = metadata.get("category")

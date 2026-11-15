@@ -12,8 +12,8 @@ public record ProfessionRules(int maxExperience, int experiencePerLevel, int gat
         int growthTicks, int plantTicks, int tendTicks, int harvestTicks, double physicalReach,
         Map<String,Herb> herbRules, List<Recipe> recipes) {
     public static final int MAX_GROWTH_TICKS = 2_400_000;
-    public static final Set<String> HERBS = Set.of("myvillage:spirit_leaf", "myvillage:dew_blossom", "myvillage:sunroot",
-            "myvillage:blood_berry", "myvillage:cloud_fungus", "myvillage:calm_lotus");
+    public static final Set<String> HERBS = Set.of("yuanxian:spirit_leaf", "yuanxian:dew_blossom", "yuanxian:sunroot",
+            "yuanxian:blood_berry", "yuanxian:cloud_fungus", "yuanxian:calm_lotus");
     public record Herb(int gatheringLevel, int plantingLevel) { }
     public record Recipe(String id, String output, int outputCount, int durationTicks, int minimumLevel,
             Map<String,Integer> ingredients) {

@@ -8,7 +8,7 @@ from pathlib import Path
 from tools import crafting_quality
 
 ROOT=Path(__file__).resolve().parents[1]
-RESOURCE=Path('src/main/resources/data/myvillage/crafting/opening.json')
+RESOURCE=Path('src/main/resources/data/yuanxian/crafting/opening.json')
 
 
 def parse(data):

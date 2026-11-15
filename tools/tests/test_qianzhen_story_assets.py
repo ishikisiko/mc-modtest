@@ -20,7 +20,7 @@ class QianzhenStoryAssetsTest(unittest.TestCase):
         cls.folder = tempfile.TemporaryDirectory(prefix='qianzhen-story-test-')
         cls.out = Path(cls.folder.name)/'resources'
         cls.report = assets.generate(cls.out)
-        cls.layout = json.loads((cls.out/'data/myvillage/story/qianzhen_scene.json').read_text())
+        cls.layout = json.loads((cls.out/'data/yuanxian/story/qianzhen_scene.json').read_text())
 
     @classmethod
     def tearDownClass(cls):
@@ -28,11 +28,11 @@ class QianzhenStoryAssetsTest(unittest.TestCase):
 
     def test_production_is_six_templates_and_scene_only(self):
         files = {p.relative_to(self.out).as_posix() for p in self.out.rglob('*') if p.is_file()}
-        expected = {'data/myvillage/structure/qianzhen/'+s['id']+'.nbt' for s in self.layout['sites']}
-        expected.add('data/myvillage/story/qianzhen_scene.json')
+        expected = {'data/yuanxian/structure/qianzhen/'+s['id']+'.nbt' for s in self.layout['sites']}
+        expected.add('data/yuanxian/story/qianzhen_scene.json')
         self.assertEqual(files, expected)
         for site in self.layout['sites']:
-            self.assertEqual(site['sha256'], assets.sha(self.out/'data/myvillage/structure/qianzhen'/(site['id']+'.nbt')))
+            self.assertEqual(site['sha256'], assets.sha(self.out/'data/yuanxian/structure/qianzhen'/(site['id']+'.nbt')))
 
     def test_all_routes_and_actor_approaches_connected(self):
         self.assertGreater(self.report['connected_stations'], 140)
@@ -58,7 +58,7 @@ class QianzhenStoryAssetsTest(unittest.TestCase):
         self.assertEqual(targets['sample_examination']['approach'], [98, 1, 78])
         for target in targets.values():
             site = next(s for s in self.layout['sites'] if all(s['origin'][i] <= target['pos'][i] < s['origin'][i]+s['size'][i] for i in range(3)))
-            _, root = read_gzipped_nbt(str(self.out/'data/myvillage/structure/qianzhen'/(site['id']+'.nbt')))
+            _, root = read_gzipped_nbt(str(self.out/'data/yuanxian/structure/qianzhen'/(site['id']+'.nbt')))
             local = [target['pos'][i]-site['origin'][i] for i in range(3)]
             cell = next(b for b in root['blocks'] if b['pos'] == local)
             self.assertEqual(assets.canonical(state_string(root['palette'][cell['state']])), assets.canonical(target['state']))
@@ -68,7 +68,7 @@ class QianzhenStoryAssetsTest(unittest.TestCase):
     def test_all_nine_target_rays_have_only_air_before_destination(self):
         blocks = {tuple(row['pos']):row['state'] for row in self.layout['roads']}
         for site in self.layout['sites']:
-            _, root = read_gzipped_nbt(str(self.out/'data/myvillage/structure/qianzhen'/(site['id']+'.nbt')))
+            _, root = read_gzipped_nbt(str(self.out/'data/yuanxian/structure/qianzhen'/(site['id']+'.nbt')))
             blocks.update({assets.add(site['origin'], row['pos']):state_string(root['palette'][row['state']])
                            for row in root['blocks']})
         self.assertEqual(set(self.report['target_sightlines']), assets.TARGETS)
@@ -133,8 +133,8 @@ class QianzhenStoryAssetsTest(unittest.TestCase):
         result = subprocess.run(command, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual({p:p.read_bytes() for p in before}, before)
-        scene = self.out/'data/myvillage/story/qianzhen_scene.json'
-        extra = self.out/'data/myvillage/structure/qianzhen/unexpected.nbt'
+        scene = self.out/'data/yuanxian/story/qianzhen_scene.json'
+        extra = self.out/'data/yuanxian/structure/qianzhen/unexpected.nbt'
         scene.write_text('{}\n'); extra.write_bytes(b'foreign')
         try:
             result = subprocess.run(command, capture_output=True, text=True)

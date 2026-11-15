@@ -914,7 +914,7 @@ class CentralPlanner(Planner):
             plot['source_lot_pad_ids']=[r['id'] for r in self.source_lot_pads if r['owner']==plot['id']]
         data['shared_foundations']=shared
         data['source_geometry']={'generator':'tools/province_capitals/central/export_game.py','hashes':self.geometry.hashes,
-                                 'manifest_sha256':_sha(resource_file(self.block_world.root,'myvillage:capitals/v1/capital_zhongzhou/city.json'))}
+                                 'manifest_sha256':_sha(resource_file(self.block_world.root,'yuanxian:capitals/v1/capital_zhongzhou/city.json'))}
         data['retained_courtyards']=data['courtyards']
         data['source_lot_pads']=self.source_lot_pads
         data['entry_doors']=copy.deepcopy(self.entry_doors)

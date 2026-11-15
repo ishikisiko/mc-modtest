@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CraftingQualityRulesTest {
     private final CraftingQualityRules rules=CraftingQualityRules.get();
-    private static final String QI="myvillage:qi_refining",FOUNDATION="myvillage:foundation_establishment";
+    private static final String QI="yuanxian:qi_refining",FOUNDATION="yuanxian:foundation_establishment";
     private String source()throws Exception{try(var in=getClass().getResourceAsStream(CraftingQualityRules.RESOURCE)){return new String(in.readAllBytes(),StandardCharsets.UTF_8);}}
     @Test void approvedThresholdsAndEveryDifficultyBoundaryAreExact(){
         assertEquals(List.of(20.0,40.0,70.0,90.0),rules.thresholds(QI,0));
@@ -63,7 +63,7 @@ class CraftingQualityRulesTest {
         assertThrows(IllegalArgumentException.class,()->rules.roll(-1,QI,0,()->0));
         assertThrows(IllegalArgumentException.class,()->rules.roll(1,QI,0,()->Double.NaN));
         assertThrows(IllegalArgumentException.class,()->rules.roll(1,QI,0,()->Double.POSITIVE_INFINITY));
-        assertThrows(IllegalArgumentException.class,()->rules.tier("myvillage:missing"));
+        assertThrows(IllegalArgumentException.class,()->rules.tier("yuanxian:missing"));
     }
     @Test void schemaRejectsUnknownDuplicateFractionalAndUnsafeParameters()throws Exception{
         for(String field:List.of("version","tiers","standard_deviation")){

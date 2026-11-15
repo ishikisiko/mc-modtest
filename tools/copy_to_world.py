@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Copy exported 1.21.1 structure NBT files into a Minecraft world save.
 
-Targets <world>/generated/myvillage/structures/ so structures can be loaded
-in-game with: /place template myvillage:<structure_name>
+Targets <world>/generated/yuanxian/structures/ so structures can be loaded
+in-game with: /place template yuanxian:<structure_name>
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ REPO_ROOT = os.path.dirname(SCRIPT_DIR)
 
 SUPPORTED_MC_VERSION = "1.21.1"
 SOURCE_DIR = os.path.join(REPO_ROOT, "out", "1_21_1")
-NAMESPACE = "myvillage"
+NAMESPACE = "yuanxian"
 
 
 def main() -> int:

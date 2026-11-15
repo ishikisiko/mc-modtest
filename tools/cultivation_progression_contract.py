@@ -9,32 +9,32 @@ import json
 from pathlib import Path
 from typing import Any
 
-REALMS = Path('src/main/resources/data/myvillage/myvillage/realm')
-STATS = Path('src/main/resources/data/myvillage/stats/rules.json')
-SIM_REALMS = Path('src/main/resources/data/myvillage/world_sim/realms.json')
+REALMS = Path('src/main/resources/data/yuanxian/yuanxian/realm')
+STATS = Path('src/main/resources/data/yuanxian/stats/rules.json')
+SIM_REALMS = Path('src/main/resources/data/yuanxian/world_sim/realms.json')
 MAX_INT = 2 ** 31 - 1
 MAX_LONG = 2 ** 63 - 1
-REALM_LIFESPANS = {'myvillage:mortal': 80, 'myvillage:qi_refining': 120,
-                   'myvillage:foundation_establishment': 240, 'myvillage:golden_core': 500}
+REALM_LIFESPANS = {'yuanxian:mortal': 80, 'yuanxian:qi_refining': 120,
+                   'yuanxian:foundation_establishment': 240, 'yuanxian:golden_core': 500}
 REALM_STAGE_IDS = {
-    'myvillage:mortal': ('myvillage:mortal_unawakened', 'myvillage:mortal_qi_sensed'),
-    'myvillage:qi_refining': tuple(f'myvillage:qi_refining_{i}' for i in range(1, 10)),
-    'myvillage:foundation_establishment': ('myvillage:foundation_early', 'myvillage:foundation_middle', 'myvillage:foundation_late'),
-    'myvillage:golden_core': ('myvillage:golden_early', 'myvillage:golden_middle', 'myvillage:golden_late'),
+    'yuanxian:mortal': ('yuanxian:mortal_unawakened', 'yuanxian:mortal_qi_sensed'),
+    'yuanxian:qi_refining': tuple(f'yuanxian:qi_refining_{i}' for i in range(1, 10)),
+    'yuanxian:foundation_establishment': ('yuanxian:foundation_early', 'yuanxian:foundation_middle', 'yuanxian:foundation_late'),
+    'yuanxian:golden_core': ('yuanxian:golden_early', 'yuanxian:golden_middle', 'yuanxian:golden_late'),
 }
 STAGE_OWNERS = {stage: realm for realm, stages in REALM_STAGE_IDS.items() for stage in stages}
-UNAWAKENED = 'myvillage:mortal_unawakened'
+UNAWAKENED = 'yuanxian:mortal_unawakened'
 PLAYABLE_CHAIN = tuple(stage for stage in STAGE_OWNERS if stage != UNAWAKENED)
 TERMINAL = PLAYABLE_CHAIN[-1]
 TARGETS = dict(zip(PLAYABLE_CHAIN, PLAYABLE_CHAIN[1:]))
-BOTTLENECKS = frozenset({'myvillage:qi_refining_3', 'myvillage:qi_refining_6',
-                         'myvillage:qi_refining_9', 'myvillage:foundation_late'})
+BOTTLENECKS = frozenset({'yuanxian:qi_refining_3', 'yuanxian:qi_refining_6',
+                         'yuanxian:qi_refining_9', 'yuanxian:foundation_late'})
 # Accepted legacy tuning only. New stage tuning is read from authored realm JSON.
 BASELINE_ROWS = (
-    ('myvillage:mortal_qi_sensed', 1000, 1, 'ordinary', 100, 0),
-    ('myvillage:qi_refining_1', 1100, 1, 'ordinary', 100, 0),
-    ('myvillage:qi_refining_2', 1200, 2, 'ordinary', 120, 0),
-    ('myvillage:qi_refining_3', 1300, 3, 'bottleneck', 200, 5),
+    ('yuanxian:mortal_qi_sensed', 1000, 1, 'ordinary', 100, 0),
+    ('yuanxian:qi_refining_1', 1100, 1, 'ordinary', 100, 0),
+    ('yuanxian:qi_refining_2', 1200, 2, 'ordinary', 120, 0),
+    ('yuanxian:qi_refining_3', 1300, 3, 'bottleneck', 200, 5),
 )
 BASELINE_CAPS = {row[0]: row[1] for row in BASELINE_ROWS}
 BASELINE_COSTS = {row[0]: row[2] for row in BASELINE_ROWS}
@@ -44,9 +44,9 @@ BASELINE_ADVANCEMENTS = {
             'stability_cost': cap // 2 - (cap // 2) // 2, 'interruption_stability_loss': loss}
     for stage, cap, _cost, kind, duration, loss in BASELINE_ROWS
 }
-BASELINE_POWER_CAPS = {UNAWAKENED: 0, 'myvillage:mortal_qi_sensed': 20,
-                       **{f'myvillage:qi_refining_{i}': 20 + 10 * i for i in range(1, 10)},
-                       'myvillage:foundation_early': 200}
+BASELINE_POWER_CAPS = {UNAWAKENED: 0, 'yuanxian:mortal_qi_sensed': 20,
+                       **{f'yuanxian:qi_refining_{i}': 20 + 10 * i for i in range(1, 10)},
+                       'yuanxian:foundation_early': 200}
 ADVANCEMENT_FIELDS = frozenset(next(iter(BASELINE_ADVANCEMENTS.values())))
 
 

@@ -14,7 +14,7 @@ final class CombatRenderTypes {
      * blending clipped to a white slab over the sky.
      */
     static final RenderType WEAPON_TRAIL_TRANSLUCENT = RenderType.create(
-            "myvillage_weapon_trail_translucent",
+            "yuanxian_weapon_trail_translucent",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.QUADS,
             4096,

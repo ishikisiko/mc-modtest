@@ -15,7 +15,7 @@ from ...beastgen.paint import ramp
 from ..humanoid import (HumanoidPaint, _box, _clamp, _form, _fret, _hash, _leg_angle, _loop, _mix, _pair,
                         _rgb, _rx, _sole_low, _tone, _weave, _xhz)
 
-ID = "myvillage:cultivator"
+ID = "yuanxian:cultivator"
 ENTITY = "cultivator"            # the entity's texture directory
 NAME = "cultivator_f_adept"      # file name prefix of the three generated files
 LOOK = "f_adept"                 # NpcEntity's look id this definition draws

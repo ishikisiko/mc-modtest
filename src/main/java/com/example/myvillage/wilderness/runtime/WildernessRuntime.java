@@ -61,7 +61,7 @@ public final class WildernessRuntime {
         NeoForge.EVENT_BUS.addListener(WildernessRuntime::onServerStarted);
     }
     private static void onServerStarted(ServerStartedEvent event) {
-        Set<String> catalog = RegionCatalogLoader.loadFromResourceManager(event.getServer().getResourceManager(), "myvillage")
+        Set<String> catalog = RegionCatalogLoader.loadFromResourceManager(event.getServer().getResourceManager(), "yuanxian")
                 .catalog().stream().map(p -> p.id()).collect(Collectors.toSet());
         if (!catalog.equals(WildernessRules.bundled().regions().keySet())) {
             throw new IllegalStateException("Wilderness ranges must cover exactly the loaded region catalog");

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "yuanxian:xuantie_helmet",
+      "slot": "head",
+      "material": "minecraft:iron",
+      "durability_multiplier": 15,
+      "model": "yuanxian:equipment/xuantie_armor.json",
+      "texture": "yuanxian:textures/equipment/xuantie_armor.png"
+    },
+    {
+      "id": "yuanxian:xuantie_chestplate",
+      "slot": "chest",
+      "material": "minecraft:iron",
+      "durability_multiplier": 15,
+      "model": "yuanxian:equipment/xuantie_armor.json",
+      "texture": "yuanxian:textures/equipment/xuantie_armor.png"
+    },
+    {
+      "id": "yuanxian:xuantie_leggings",
+      "slot": "legs",
+      "material": "minecraft:iron",
+      "durability_multiplier": 15,
+      "model": "yuanxian:equipment/xuantie_armor.json",
+      "texture": "yuanxian:textures/equipment/xuantie_armor.png"
+    },
+    {
+      "id": "yuanxian:xuantie_boots",
+      "slot": "feet",
+      "material": "minecraft:iron",
+      "durability_multiplier": 15,
+      "model": "yuanxian:equipment/xuantie_armor.json",
+      "texture": "yuanxian:textures/equipment/xuantie_armor.png"
+    }
+  ]
+}

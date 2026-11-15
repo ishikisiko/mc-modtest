@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RuinRulesTest {
     private JsonObject json() throws IOException {
-        try (var in = getClass().getResourceAsStream("/data/myvillage/ruins/danxia.json")) {
+        try (var in = getClass().getResourceAsStream("/data/yuanxian/ruins/danxia.json")) {
             return JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject();
         }
     }
@@ -17,7 +17,7 @@ class RuinRulesTest {
     @Test void shippedRulesAndAllFourRotationsPreserveOffsets() {
         var r=RuinRules.get();
         assertEquals(12,r.garden().size());
-        assertEquals("myvillage:qingmu_changchun_gong",r.manual());
+        assertEquals("yuanxian:qingmu_changchun_gong",r.manual());
         var d=r.vault().subtract(r.core());
         assertEquals(new RuinRules.Pos(9,0,5),d);
         assertEquals(new RuinRules.Pos(-5,0,9),d.rotate(1));

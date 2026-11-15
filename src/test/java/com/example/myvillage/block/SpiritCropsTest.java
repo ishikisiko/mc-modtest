@@ -28,15 +28,15 @@ class SpiritCropsTest {
         synchronized (blocks) {
             blocks.unfreeze();
             try {
-                soil = Registry.register(blocks, ResourceLocation.parse("myvillage_test:spirit_soil"), new SpiritSoilBlock(BlockBehaviour.Properties.of()));
-                crop = Registry.register(blocks, ResourceLocation.parse("myvillage_test:spirit_crop"), new SpiritCropBlock(BlockBehaviour.Properties.of().noCollission().randomTicks()));
+                soil = Registry.register(blocks, ResourceLocation.parse("yuanxian_test:spirit_soil"), new SpiritSoilBlock(BlockBehaviour.Properties.of()));
+                crop = Registry.register(blocks, ResourceLocation.parse("yuanxian_test:spirit_crop"), new SpiritCropBlock(BlockBehaviour.Properties.of().noCollission().randomTicks()));
             } finally { blocks.freeze(); }
         }
         var items = (MappedRegistry<Item>) BuiltInRegistries.ITEM;
         synchronized (items) {
             items.unfreeze();
             try {
-                herb = Registry.register(items, ResourceLocation.parse("myvillage_test:spirit_herb"), new ItemNameBlockItem(crop, new Item.Properties()));
+                herb = Registry.register(items, ResourceLocation.parse("yuanxian_test:spirit_herb"), new ItemNameBlockItem(crop, new Item.Properties()));
                 herb.registerBlocks(Item.BY_BLOCK, herb);
             } finally { items.freeze(); }
         }

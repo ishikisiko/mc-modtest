@@ -45,12 +45,12 @@ class CombatRuinsTest(unittest.TestCase):
                 for guard in wave['guards']:
                     x,y,z=guard['pos']
                     # Wolf bodies are wider than one block; the surrounding floor must be free.
-                    if guard['entity']=='myvillage:demon_wolf':
+                    if guard['entity']=='yuanxian:demon_wolf':
                         for dx,dz in [(0,0),(1,0),(-1,0),(0,1),(0,-1)]:self.assertTrue(empty((x+dx,y,z+dz)),(name,guard['pos']))
     def test_authored_rewards_resolve_and_generated_closure_hook_exists(self):
         lang=json.loads((gen.ASSETS/'lang/zh_cn.json').read_text())
         for r,_,_,_ in self.sites.values():
-            self.assertIn('structure.myvillage.'+r['id'],lang)
-            self.assertTrue((gen.DATA/'myvillage/technique'/f'{r["manual"].split(":")[1]}.json').exists())
+            self.assertIn('structure.yuanxian.'+r['id'],lang)
+            self.assertTrue((gen.DATA/'yuanxian/technique'/f'{r["manual"].split(":")[1]}.json').exists())
         self.assertIn('gen_combat_ruins.py',(gen.ROOT/'tools/generate_all_structures.py').read_text())
 if __name__=='__main__':unittest.main()

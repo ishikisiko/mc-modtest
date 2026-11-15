@@ -30,7 +30,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 新世界、真实服务端对话、物品与重启探针；没有映射输入，不进入交付包。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class EstateEvidence {
     private static final String PHASE=System.getenv("MYVILLAGE_ESTATE_PHASE");
     private static final Path OUT=Path.of(System.getenv().getOrDefault("MYVILLAGE_ESTATE_OUT","../reports/estate-native"));
@@ -81,7 +81,7 @@ public final class EstateEvidence {
     private static void begin(MinecraftServer server)throws Exception {
         WorldSimRuntime.setPaused(true);
         var sites=EstateRuntime.sites(server.overworld());check("one_estate",sites.size()==1,sites);
-        site=sites.getFirst();check("generated_price",site.definition().price()==100&&site.definition().currency().toString().equals("myvillage:high_grade_spirit_stone"),site.definition());
+        site=sites.getFirst();check("generated_price",site.definition().price()==100&&site.definition().currency().toString().equals("yuanxian:high_grade_spirit_stone"),site.definition());
         load(server.overworld(),site.world(site.definition().steward()));
         load(server.overworld(),inside());
         owner=actor(server,OWNER,"EstateOwner",PHASE.equals("restart"));other=actor(server,OTHER,"EstateOther",PHASE.equals("restart"));

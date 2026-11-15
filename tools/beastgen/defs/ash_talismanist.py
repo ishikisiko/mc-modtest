@@ -1,7 +1,7 @@
 """ash_talismanist owned model, material and animation adapter."""
 from .. import roster
 from ...npcgen import wilderness as humanoid
-ID = "myvillage:ash_talismanist"
+ID = "yuanxian:ash_talismanist"
 NAME = "ash_talismanist"
 HITBOX = tuple(roster.entry(NAME)["dimensions"][k] for k in ("width","height"))
 def build_model(): return humanoid.build_model(NAME)

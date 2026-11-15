@@ -82,7 +82,7 @@ class ExpandedLayoutTests(unittest.TestCase):
 
 class ActualSaveExportTests(unittest.TestCase):
     def fixture(self):
-        data={'size':[2,2,2],'fill_air':True,'id':'myvillage:typed_fixture','site':{},'blocks':[{'pos':[0,0,0],'state':'minecraft:campfire[facing=north,lit=true,signal_fire=false,waterlogged=false]'}]}
+        data={'size':[2,2,2],'fill_air':True,'id':'yuanxian:typed_fixture','site':{},'blocks':[{'pos':[0,0,0],'state':'minecraft:campfire[facing=north,lit=true,signal_fire=false,waterlogged=false]'}]}
         root=nbt.structure_json_to_root_nbt(data)
         root.value['blocks'].value[0].value['nbt']=nbt.Compound({
             'id':nbt.String('minecraft:campfire'),'byte':nbt.Byte(1),'short':nbt.Tag(2,123),

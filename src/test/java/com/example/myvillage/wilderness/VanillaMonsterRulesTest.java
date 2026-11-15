@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 class VanillaMonsterRulesTest {
     @Test void vanillaLargeBaseSaturatesWithoutChangingAuthoredBeastLimits() {
         var rules = com.example.myvillage.stats.StatsRules.bundled();
-        var realm = rules.realmKey("myvillage:nascent_soul", 2);
+        var realm = rules.realmKey("yuanxian:nascent_soul", 2);
         var derived = com.example.myvillage.stats.RealmStats.vanillaDerived(rules, realm, 100, 30);
         var additions = com.example.myvillage.stats.CultivationStatsRules.bundled();
         var body = additions.at(realm, 0, 0);
@@ -33,7 +33,7 @@ class VanillaMonsterRulesTest {
         for (String id : new String[]{"wither", "ender_dragon", "warden", "elder_guardian"})
             assertFalse(rules.includes("minecraft:" + id, true));
         assertFalse(rules.includes("minecraft:cow", false));
-        assertFalse(rules.includes("myvillage:demon_wolf", true));
+        assertFalse(rules.includes("yuanxian:demon_wolf", true));
     }
     @Test void explicitSpawnAndDamagePoliciesDoNotDoubleScaleMeleeOrConvertByLocation() {
         var rules = VanillaMonsterRules.bundled();
@@ -50,7 +50,7 @@ class VanillaMonsterRulesTest {
         assertThrows(IllegalArgumentException.class, () -> VanillaMonsterRules.parse("{}"));
         assertThrows(IllegalArgumentException.class, () -> VanillaMonsterRules.parse("""
                 {"schema":1,"excluded_entities":["minecraft:wither","minecraft:wither"],
-                 "minimum_realm":{"realm":"myvillage:mortal","stage":0},
+                 "minimum_realm":{"realm":"yuanxian:mortal","stage":0},
                  "spawn_reasons":["NATURAL"],"non_attribute_damage_types":["minecraft:arrow"]}
                 """));
     }
@@ -88,11 +88,11 @@ class VanillaMonsterRulesTest {
     }
 
     @Test void unknownFractionalAndExtraMinimumFieldsAreRejected() throws Exception {
-        String input = Files.readString(Path.of("src/main/resources/data/myvillage/wilderness/vanilla_monsters.json"));
+        String input = Files.readString(Path.of("src/main/resources/data/yuanxian/wilderness/vanilla_monsters.json"));
         for (String field : new String[]{"unknown", "fractional", "extra"}) {
             var root = JsonParser.parseString(input).getAsJsonObject(); var minimum = root.getAsJsonObject("minimum_realm");
             switch (field) {
-                case "unknown" -> minimum.addProperty("realm", "myvillage:missing");
+                case "unknown" -> minimum.addProperty("realm", "yuanxian:missing");
                 case "fractional" -> minimum.addProperty("stage", .5);
                 default -> minimum.addProperty("chance", .5);
             }

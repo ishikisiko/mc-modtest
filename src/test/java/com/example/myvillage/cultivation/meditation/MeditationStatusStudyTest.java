@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MeditationStatusStudyTest {
-    private static final ResourceLocation TECHNIQUE = ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_jianjue");
+    private static final ResourceLocation TECHNIQUE = ResourceLocation.fromNamespaceAndPath("yuanxian", "gengjin_jianjue");
     private static final StudyProgress PROGRESS = new StudyProgress(TECHNIQUE, 6_000, 12_000, 6_000, 50);
 
     @Test

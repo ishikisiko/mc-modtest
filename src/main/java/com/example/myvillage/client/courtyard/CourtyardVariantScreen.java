@@ -24,14 +24,14 @@ public final class CourtyardVariantScreen extends Screen {
     private final CourtyardAssemblyItem item;private final InteractionHand hand;private final List<ItemStack> previews=new ArrayList<>();
     private static final int PAGE_SIZE=9;
     private int left,top,page;
-    public CourtyardVariantScreen(CourtyardAssemblyItem item,InteractionHand hand){super(Component.translatable("screen.myvillage.courtyard.title"));this.item=item;this.hand=hand;}
+    public CourtyardVariantScreen(CourtyardAssemblyItem item,InteractionHand hand){super(Component.translatable("screen.yuanxian.courtyard.title"));this.item=item;this.hand=hand;}
     @Override protected void init(){
         int total=item.assembly().family().variants().size();int count=Math.min(PAGE_SIZE,total-page*PAGE_SIZE);int rows=(count+2)/3;
         left=(width-306)/2;top=(height-(50+rows*61))/2;previews.clear();
         for(int i=0;i<count;i++){
             final int variant=page*PAGE_SIZE+i;previews.add(CourtyardAssemblyItem.stack(item,variant));
             int x=left+5+(i%3)*100,y=top+31+(i/3)*61;
-            addRenderableWidget(Button.builder(Component.translatable("variant.myvillage."+item.assembly().familyId()+"."+variant),b->{
+            addRenderableWidget(Button.builder(Component.translatable("variant.yuanxian."+item.assembly().familyId()+"."+variant),b->{
                 PacketDistributor.sendToServer(new CourtyardVariantPayload(BuiltInRegistries.ITEM.getKey(item),hand==InteractionHand.OFF_HAND,variant));onClose();
             }).bounds(x,y+32,96,20).build());
         }
@@ -51,7 +51,7 @@ public final class CourtyardVariantScreen extends Screen {
             g.fill(x,y,x+96,y+31,0xff3c443c);g.renderItem(previews.get(i),x+8,y+7);
             g.drawString(font,v.width()+"×"+v.height()+"×"+v.depth(),x+34,y+12,0xdfddcd,false);
         }
-        g.drawCenteredString(font,Component.translatable("screen.myvillage.courtyard.hint"),width/2,top+30+rows*61,0xbac6bc);
+        g.drawCenteredString(font,Component.translatable("screen.yuanxian.courtyard.hint"),width/2,top+30+rows*61,0xbac6bc);
         super.render(g,mouseX,mouseY,delta);
     }
     @Override public boolean isPauseScreen(){return false;}
@@ -64,7 +64,7 @@ public final class CourtyardVariantScreen extends Screen {
             if(stack.getItem() instanceof CourtyardAssemblyItem item){event.setCanceled(true);event.setSwingHand(false);mc.setScreen(new CourtyardVariantScreen(item,hand));}
         }
         @SubscribeEvent public static void inventory(net.neoforged.neoforge.client.event.ScreenEvent.Init.Post event){
-            if(Boolean.getBoolean("myvillage.courtyard.evidence")&&event.getScreen() instanceof net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen){
+            if(Boolean.getBoolean("yuanxian.courtyard.evidence")&&event.getScreen() instanceof net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen){
                 var tab=com.example.myvillage.courtyard.CourtyardContent.TAB.get();
                 org.slf4j.LoggerFactory.getLogger(CourtyardVariantScreen.class).info("COURTYARD_CREATIVE display={} search={}",tab.getDisplayItems().size(),tab.getSearchTabDisplayItems().size());
             }

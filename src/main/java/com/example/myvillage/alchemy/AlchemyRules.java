@@ -10,14 +10,14 @@ import java.util.*;
 
 /** Validated, immutable bundled alchemy data. No client input determines brewing or medicine. */
 public final class AlchemyRules {
-    public static final String RESOURCE = "/data/myvillage/alchemy/rules.json";
+    public static final String RESOURCE = "/data/yuanxian/alchemy/rules.json";
     public static final String FUEL = com.example.myvillage.item.SpiritStoneTags.LOW_GRADE_REFERENCE;
     public record Recipe(String id, String formula, List<String> ingredients, int fuelCount,
                          int durationTicks, String output, int outputCount, List<Integer> ingredientCounts,
                          int minimumAptitude, String qualityTier, int difficulty) {
         public Recipe { ingredients = List.copyOf(ingredients); ingredientCounts = List.copyOf(ingredientCounts); }
         public Recipe(String id,String formula,List<String> ingredients,int fuelCount,int durationTicks,String output,int outputCount) {
-            this(id,formula,ingredients,fuelCount,durationTicks,output,outputCount,Collections.nCopies(ingredients.size(),1),0,"myvillage:qi_refining",0);
+            this(id,formula,ingredients,fuelCount,durationTicks,output,outputCount,Collections.nCopies(ingredients.size(),1),0,"yuanxian:qi_refining",0);
         }
         public boolean matches(String formulaId, String first, String second) {
             return ingredients.size()==2 && formula.equals(formulaId) && ((ingredients.get(0).equals(first) && ingredients.get(1).equals(second))
@@ -100,12 +100,12 @@ public final class AlchemyRules {
         if (!ids.containsAll(Set.of("huiling","yangyuan","ningshen"))) throw invalid("recipes","missing legacy recipes");
         Set<String> herbs=Set.of("spirit_leaf","dew_blossom","sunroot","blood_berry","cloud_fungus","calm_lotus","ningyuan_fruit_low","ningyuan_fruit_high");
         for (Recipe r:result) {
-            if (!r.formula().equals("myvillage:formula_"+r.id())) throw invalid("formula","must match recipe id");
-            for(String herb:r.ingredients())if(!herb.startsWith("myvillage:")||(!herbs.contains(herb.substring(10)) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMaterial(herb)))throw invalid("ingredients","unknown herb");
-            if(com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("myvillage:pill_"+r.id()) || r.ingredients().size()!=3))throw invalid("recipe","invalid expedition formula");
-            boolean foundation=r.output().equals("myvillage:pill_zhuji")||r.output().equals("myvillage:pill_buji");
+            if (!r.formula().equals("yuanxian:formula_"+r.id())) throw invalid("formula","must match recipe id");
+            for(String herb:r.ingredients())if(!herb.startsWith("yuanxian:")||(!herbs.contains(herb.substring(10)) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMaterial(herb)))throw invalid("ingredients","unknown herb");
+            if(com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("yuanxian:pill_"+r.id()) || r.ingredients().size()!=3))throw invalid("recipe","invalid expedition formula");
+            boolean foundation=r.output().equals("yuanxian:pill_zhuji")||r.output().equals("yuanxian:pill_buji");
             if(foundation && r.ingredients().size()!=3)throw invalid("recipe","foundation recipe needs three herbs");
-            if(!foundation && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("myvillage:pill_"+r.id()) || r.ingredients().size()!=2 || r.ingredientCounts().stream().anyMatch(n->n!=1)))throw invalid("recipe","legacy medicine shape changed");
+            if(!foundation && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("yuanxian:pill_"+r.id()) || r.ingredients().size()!=2 || r.ingredientCounts().stream().anyMatch(n->n!=1)))throw invalid("recipe","legacy medicine shape changed");
         }
         recipes = List.copyOf(result);
         JsonObject e = object(root.get("effects"), "effects");

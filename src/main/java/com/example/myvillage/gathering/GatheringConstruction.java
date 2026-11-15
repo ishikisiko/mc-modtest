@@ -30,7 +30,7 @@ public final class GatheringConstruction {
         return shape;
     }
     private static Data load() {
-        try(var stream=GatheringConstruction.class.getResourceAsStream("/data/myvillage/gathering/construction.json")) {
+        try(var stream=GatheringConstruction.class.getResourceAsStream("/data/yuanxian/gathering/construction.json")) {
             if(stream==null)throw new IllegalStateException("Missing gathering construction");
             var root=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
             Map<String,VoxelShape[]> shapes=new HashMap<>();

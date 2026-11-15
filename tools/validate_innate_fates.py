@@ -14,7 +14,7 @@ from tools.validate_cultivation_initiation import _strip_java_comments, _method_
 
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = 'src/main/java/com/example/myvillage/'
-DATA = 'src/main/resources/data/myvillage/myvillage/innate_fate'
+DATA = 'src/main/resources/data/yuanxian/yuanxian/innate_fate'
 EFFECTS = {'alchemy_initial_aptitude','forging_initial_aptitude','crafting_mean_shift','crafting_variance_multiplier','school_study','school_mastery','herbal_find_chance','metal_bonus','wood_bonus','water_bonus','earth_bonus','metal_armor_break_fraction','metal_armor_break_ticks','water_slow_fraction','water_slow_ticks','water_slow_cooldown','ground_knockback','everlasting','body_health_bonus','body_defense_bonus','healing_bonus','jingang_adaptation','phoenix','health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
            'recovery_threshold','recovery_fraction','recovery_ticks','recovery_cooldown','hunter_bonus',
            'hunter_recovery','hunter_cooldown','low_threshold','low_reduction','low_knockback','damage_bonus',
@@ -34,8 +34,8 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
         except OSError:errors.append('Missing '+str(path));return ''
     try:
         definitions={p.stem:json.loads(p.read_text()) for p in sorted((root/DATA).glob('*.json'))}
-        rules=json.loads(read('src/main/resources/data/myvillage/fates/rules.json'))
-        langs=[json.loads(read('src/main/resources/assets/myvillage/lang/'+l+'.json')) for l in ('en_us','zh_cn')]
+        rules=json.loads(read('src/main/resources/data/yuanxian/fates/rules.json'))
+        langs=[json.loads(read('src/main/resources/assets/yuanxian/lang/'+l+'.json')) for l in ('en_us','zh_cn')]
     except (ValueError,TypeError) as e:return ['Fate JSON: '+str(e)]
     need(len(definitions)>=6,'FATE_POOL: at least six selectable definitions required')
     ordinary=[]
@@ -66,7 +66,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
             elif k=='bones_knockback_radius':valid=valid and 0<v<=16
             else:valid=valid and (-.9 if k=='health' else 0)<=v<=1
             need(valid,'FATE_EFFECT_VALUE: '+name+' '+k)
-            need(all('fate.myvillage.effect.'+k in lang for lang in langs),'FATE_EFFECT_LANG: '+k)
+            need(all('fate.yuanxian.effect.'+k in lang for lang in langs),'FATE_EFFECT_LANG: '+k)
         need(('crafting_mean_shift' in effects)==('crafting_variance_multiplier' in effects),'FATE_CRAFTING_MODIFIER: '+name)
         if effects.get('metal_armor_break_fraction',0)>0:need(effects.get('metal_armor_break_ticks',0)>0,'FATE_METAL_AFFINITY: '+name)
         if effects.get('water_slow_fraction',0)>0:need(all(effects.get(k,0)>0 for k in ('water_slow_ticks','water_slow_cooldown')),'FATE_WATER_AFFINITY: '+name)
@@ -98,11 +98,11 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
                 need(target.is_file(),'FATE_DERIVED_SKILL: missing '+skill)
         need(type(d.get('minimum_aptitude',0)) is int and d.get('minimum_aptitude',0)>=0 and 1<=d.get('maximum_roots',5)<=5,'FATE_ROOT: '+name)
     if definitions.get('everlasting_embryo',{}).get('effects',{}).get('everlasting',0)>0:
-        growth=json.loads(read('src/main/resources/data/myvillage/fates/everlasting.json'))
+        growth=json.loads(read('src/main/resources/data/yuanxian/fates/everlasting.json'))
         need(growth.get('lifespan_bonus')==.5 and growth.get('credit_step')==.5,'FATE_EVERLASTING_PRECISION')
         need(growth.get('yearly')=={
-            'myvillage:mortal':[0,0,0], 'myvillage:qi_refining':[4,.5,.5],
-            'myvillage:foundation_establishment':[6,1,.5], 'myvillage:golden_core':[8,1.5,1]},'FATE_EVERLASTING_RATES')
+            'yuanxian:mortal':[0,0,0], 'yuanxian:qi_refining':[4,.5,.5],
+            'yuanxian:foundation_establishment':[6,1,.5], 'yuanxian:golden_core':[8,1.5,1]},'FATE_EVERLASTING_RATES')
         need('EverlastingState.CODEC).copyOnDeath()' in read(JAVA+'cultivation/CultivationAttachments.java'),'FATE_EVERLASTING_PERSISTENCE')
         need('player.setData(CultivationAttachments.EVERLASTING.get(), replacement)' in read(JAVA+'cultivation/CultivationService.java'),'FATE_EVERLASTING_WRITER')
         for p in (root/(JAVA+'cultivation')).rglob('*.java'):
@@ -158,11 +158,11 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
     network=_strip_java_comments(read(JAVA+'cultivation/network/CultivationPayloads.java'))
     need('diagnosticIntent' not in network, 'FATE_DIAGNOSTIC_NETWORK: network cannot call fixture bypass')
     for p in (root/(JAVA+'cultivation')).rglob('*.java'):
-        need(not re.search(r'import\s+(?:net\.minecraft\.client|com\.example\.myvillage\.client)\.', _strip_java_comments(p.read_text())), 'FATE_CLIENT_IMPORT: '+p.name)
+        need(not re.search(r'import\s+(?:net\.minecraft\.client|com\.example\.yuanxian\.client)\.', _strip_java_comments(p.read_text())), 'FATE_CLIENT_IMPORT: '+p.name)
     if jar:
         try:
             with zipfile.ZipFile(jar) as z:
-                files=[*sorted((root/DATA).glob('*.json')),root/'src/main/resources/data/myvillage/fates/rules.json']
+                files=[*sorted((root/DATA).glob('*.json')),root/'src/main/resources/data/yuanxian/fates/rules.json']
                 for p in files:need(z.read(p.relative_to(root/'src/main/resources').as_posix())==p.read_bytes(),'FATE_JAR_RESOURCE: '+p.name)
                 for name in ('FateState','FateService','FateRuntime','FateSelection','SteleAwakeningSessions'):
                     need(f'com/example/myvillage/cultivation/fate/{name}.class' in z.namelist(),'FATE_JAR_CLASS: '+name)

@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Test;
 
 class EstateManifestTest {
     private JsonObject city() throws Exception {
-        try(var input=getClass().getResourceAsStream("/data/myvillage/capitals/v4/capital_zhongzhou/city.json")) {
+        try(var input=getClass().getResourceAsStream("/data/yuanxian/capitals/v4/capital_zhongzhou/city.json")) {
             assertNotNull(input);return JsonParser.parseReader(new InputStreamReader(input,StandardCharsets.UTF_8)).getAsJsonObject();
         }
     }
     @Test void actualExportSharesOnePriceAndKeepsStewardOutsideEntirePrivateColumn()throws Exception {
         var root=city();var definition=EstateDefinition.read(root.getAsJsonArray("player_estates").get(0).getAsJsonObject(),1200,320,1440);
-        assertEquals(100,definition.price());assertEquals("myvillage:high_grade_spirit_stone",definition.currency().toString());
+        assertEquals(100,definition.price());assertEquals("yuanxian:high_grade_spirit_stone",definition.currency().toString());
         assertEquals("open_after_purchase",root.getAsJsonArray("player_estates").get(0).getAsJsonObject().get("access").getAsString());
         assertEquals(new EstateBounds(349,713,460,811),definition.bounds());
         assertFalse(definition.bounds().overlaps(definition.steward().getX()+.5,definition.steward().getZ()+.5,.3));

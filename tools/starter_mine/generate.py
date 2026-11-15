@@ -153,19 +153,19 @@ def build(source=SOURCE):
 
 
 def export(out=OUT,source=SOURCE):
-    model=build(source);r=model.rules;out=Path(out);root=out/'data/myvillage/starter_mine';root.mkdir(parents=True,exist_ok=True)
+    model=build(source);r=model.rules;out=Path(out);root=out/'data/yuanxian/starter_mine';root.mkdir(parents=True,exist_ok=True)
     palette=sorted(set(model.cells.values()));lookup={s:i for i,s in enumerate(palette)}
     cells=[[x,y,z,lookup[state]] for (x,y,z),state in sorted(model.cells.items(),key=lambda row:(row[0][2],row[0][0],row[0][1]))]
     body={'schema':1,'palette':palette,'cells':cells,'block_entities':[{'pos':list(pos),'nbt':nbt} for pos,nbt in sorted(model.bodies.items())]}
     voxel=gzip.compress(canonical(body),mtime=0);(root/'blocks.json.gz').write_bytes(voxel)
     terrain=b''.join(struct.pack('>hB',height,weight) for height,weight in zip(model.terrain,model.weights))
     definition={'schema':1,'id':r['id'],'display_name':r['display_name'],'size':r['size'],'ground_y':r['ground_y'],'entry':r['entry'],'road_port':r['road_port'],
-                'source_sha256':digest(Path(source).read_bytes()),'blocks_resource':'myvillage:starter_mine/blocks.json.gz','blocks_sha256':digest(voxel),
+                'source_sha256':digest(Path(source).read_bytes()),'blocks_resource':'yuanxian:starter_mine/blocks.json.gz','blocks_sha256':digest(voxel),
                 'terrain_gzip':base64.b64encode(gzip.compress(terrain,mtime=0)).decode(),'terrain':{k:r['terrain'][k] for k in ('soil_depth','clearance','foundation_depth')},
                 'surface_materials':{k:r['palette'][k] for k in ('stone','dirt','grass','path')},'placement':r['placement'],
                 'landmarks':r['landmarks'],'trees':model.trees,'underground':r['underground'],'regional_entries':r['regional_entries'],'checks':model.checks}
     raw=canonical(definition);(root/'layout.json').write_bytes(raw)
-    return {'resource':'myvillage:starter_mine/layout.json','sha256':digest(raw)},model
+    return {'resource':'yuanxian:starter_mine/layout.json','sha256':digest(raw)},model
 
 
 def main():

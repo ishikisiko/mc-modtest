@@ -26,7 +26,7 @@ def compact(path):
             item = copy.copy(info)
             item.extra = b''
             method = info.compress_type
-            if name.startswith('myvillage_packed/') and name.endswith('.gz'):
+            if name.startswith('yuanxian_packed/') and name.endswith('.gz'):
                 compressor = zlib.compressobj(level, zlib.DEFLATED, -15)
                 compressed = compressor.compress(blob) + compressor.flush()
                 method = zipfile.ZIP_DEFLATED if len(compressed) < len(blob) else zipfile.ZIP_STORED

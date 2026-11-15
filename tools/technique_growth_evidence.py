@@ -34,10 +34,10 @@ class GrowthEvidence(LockedEvidence):
                                          'owner_appearance', 'owner_feel', 'owner_balance', 'fps', 'multiplayer'])
 
     def profile(self):
-        return read_data(self.rc(f'data get entity {self.s.username} "neoforge:attachments"."myvillage:cultivation_profile"'))
+        return read_data(self.rc(f'data get entity {self.s.username} "neoforge:attachments"."yuanxian:cultivation_profile"'))
 
     def progress(self, ident):
-        value = self.profile()['learned_techniques'].get('myvillage:' + ident)
+        value = self.profile()['learned_techniques'].get('yuanxian:' + ident)
         if value is None:
             return None
         return {'mastery_points': value['mastery_points'], 'insight': value.get('insight', ''),
@@ -47,7 +47,7 @@ class GrowthEvidence(LockedEvidence):
         return read_data(self.rc(f'data get entity {self.s.username} Inventory'))
 
     def stones(self):
-        return sum(row['count'] for row in self.inventory() if row.get('id') == 'myvillage:low_grade_spirit_stone')
+        return sum(row['count'] for row in self.inventory() if row.get('id') == 'yuanxian:low_grade_spirit_stone')
 
     def start(self, reuse=False):
         if os.environ.get('MYVILLAGE_CLOUD_PROVIDER') != 'Colab' or not str(ROOT).startswith('/content/'):
@@ -73,9 +73,9 @@ class GrowthEvidence(LockedEvidence):
         self.configure(u)
         self.rc(f'yuanxian cultivation setroot {u} 4000 6000 0 0 0')
         self.rc(f'clear {u}')
-        self.rc(f'item replace entity {u} hotbar.8 with myvillage:low_grade_spirit_stone 64')
+        self.rc(f'item replace entity {u} hotbar.8 with yuanxian:low_grade_spirit_stone 64')
         for ident in (QING, YI, SWORD):
-            self.rc(f'yuanxian cultivation forget {u} myvillage:{ident}')
+            self.rc(f'yuanxian cultivation forget {u} yuanxian:{ident}')
         self.rc(f'tp {u} .5 -60 .5 0 -10')
         time.sleep(.5)
 
@@ -119,7 +119,7 @@ class GrowthEvidence(LockedEvidence):
 
     def practice_case(self):
         u = self.s.username
-        self.rc(f'yuanxian cultivation setmastery {u} myvillage:{BASIC} 40')
+        self.rc(f'yuanxian cultivation setmastery {u} yuanxian:{BASIC} 40')
         self.open_growth(BASIC)
         self.capture('01_growth_entry')
         before = self.stones()
@@ -147,7 +147,7 @@ class GrowthEvidence(LockedEvidence):
                    {'progress': self.progress(BASIC), 'stones': self.stones()})
         self.capture('03_exclusive_insight')
         self.close_h()
-        self.rc(f'yuanxian cultivation setmastery {self.s.username} myvillage:{BASIC} 170')
+        self.rc(f'yuanxian cultivation setmastery {self.s.username} yuanxian:{BASIC} 170')
         self.open_growth(BASIC)
         before = self.stones()
         self.growth_action(0, '完成最后一个修习批次')
@@ -162,10 +162,10 @@ class GrowthEvidence(LockedEvidence):
     def book(self, ident, item, points=0):
         self.close_h()
         self.key('1')
-        components = f'myvillage:technique="myvillage:{ident}"'
+        components = f'yuanxian:technique="yuanxian:{ident}"'
         if points:
-            components += f',myvillage:comprehension={points}'
-        reply = self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:{item}[{components}]')
+            components += f',yuanxian:comprehension={points}'
+        reply = self.rc(f'item replace entity {self.s.username} hotbar.0 with yuanxian:{item}[{components}]')
         self.check('book_fixture_' + ident, 'Replaced a slot' in reply, reply)
         time.sleep(.3)
         self.s.game.xdo('click', '3')
@@ -175,8 +175,8 @@ class GrowthEvidence(LockedEvidence):
     def learning_case(self):
         self.book(QING, 'manual_core_huang')
         self.poll(lambda: self.progress(QING), lambda p: p is not None, timeout=30, label='unread Qingmu book learned')
-        self.check('manual_consumed_after_learning', not any(row.get('Slot') == 0 and row.get('id') == 'myvillage:manual_core_huang' for row in self.inventory()), self.inventory())
-        self.rc(f'yuanxian cultivation setmastery {self.s.username} myvillage:{QING} 100')
+        self.check('manual_consumed_after_learning', not any(row.get('Slot') == 0 and row.get('id') == 'yuanxian:manual_core_huang' for row in self.inventory()), self.inventory())
+        self.rc(f'yuanxian cultivation setmastery {self.s.username} yuanxian:{QING} 100')
         self.open_growth(QING)
         self.growth_action(1, '触类旁通后的首次参悟')
         self.poll(lambda: self.progress(QING), lambda p: p['insight'] == 'flow', label='related insight')
@@ -189,7 +189,7 @@ class GrowthEvidence(LockedEvidence):
         self.book(YI, 'manual_core_xuan', points=11990)
         time.sleep(3)
         self.check('unmastered_predecessor_refuses_learning', self.progress(YI) is None and any(row.get('Slot') == 0 for row in self.inventory()), self.inventory())
-        self.rc(f'yuanxian cultivation setmastery {self.s.username} myvillage:{QING} 360')
+        self.rc(f'yuanxian cultivation setmastery {self.s.username} yuanxian:{QING} 360')
         self.rc(f'yuanxian cultivation setstability {self.s.username} 100')
         self.s.game.xdo('click', '3')
         self.report['inputs'].append({'method': 'mapped right mouse', 'label': '前篇圆满后继续研读乙木'})
@@ -205,13 +205,13 @@ class GrowthEvidence(LockedEvidence):
     def sword_case(self):
         self.book(SWORD, 'manual_active_huang')
         self.poll(lambda: self.progress(SWORD), lambda p: p is not None, timeout=30, label='unread sword book learned')
-        self.rc(f'yuanxian cultivation setmastery {self.s.username} myvillage:{SWORD} 80')
+        self.rc(f'yuanxian cultivation setmastery {self.s.username} yuanxian:{SWORD} 80')
         self.open_growth(SWORD)
         self.growth_action(2, '剑气参悟敛气')
         self.poll(lambda: self.progress(SWORD), lambda p: p['insight'] == 'reserve', label='sword insight')
         self.capture('07_sword_growth')
         self.close_h()
-        self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:qingfeng_sword')
+        self.rc(f'item replace entity {self.s.username} hotbar.0 with yuanxian:qingfeng_sword')
         scene.ensure_cultivation(self.s)
         self.rc(f'tp {self.s.username} .5 -60 .5 0 0')
         self.rc(f'yuanxian cultivation qi fill {self.s.username}')
@@ -221,7 +221,7 @@ class GrowthEvidence(LockedEvidence):
             mark = self.offset()
             self.s.game.xdo('mousedown', '3'); time.sleep(.12); self.s.game.xdo('mouseup', '3')
             self.report['inputs'].append({'method': 'mapped right mouse hold/release', 'label': label, 'seconds': .12})
-            self.poll(lambda: self.log(mark), lambda text: 'result=released skill=myvillage:jianqi_jue' in text, label='real sword release')
+            self.poll(lambda: self.log(mark), lambda text: 'result=released skill=yuanxian:jianqi_jue' in text, label='real sword release')
             time.sleep(3)
             self.report.setdefault('cast_logs', []).append(self.log(mark))
             return self.log(mark)

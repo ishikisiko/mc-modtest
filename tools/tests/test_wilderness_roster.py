@@ -22,13 +22,13 @@ class WildernessRosterTests(unittest.TestCase):
                 self.assertEqual(model.scale,m['body_scale'])
                 self.assertAlmostEqual(model.shadow_radius,m['dimensions']['shadow_radius']*m['body_scale'])
     def test_every_material_has_two_real_consumers(self):
-        c=catalogue();res=ROOT/'src/main/resources';ar=json.loads((res/'data/myvillage/alchemy/rules.json').read_text());fr=json.loads((res/'data/myvillage/forging/rules.json').read_text())
+        c=catalogue();res=ROOT/'src/main/resources';ar=json.loads((res/'data/yuanxian/alchemy/rules.json').read_text());fr=json.loads((res/'data/yuanxian/forging/rules.json').read_text())
         for mob in c['mobs']:
-            material='myvillage:'+mob['material_id']
+            material='yuanxian:'+mob['material_id']
             self.assertTrue(any(material in r['ingredients'] and r['id']==mob['pill_id'] for r in ar['recipes']))
             self.assertIn(material,fr['traits'][mob['trait_id']]['costs'])
     def test_unknown_material_cannot_enter_existing_furnace(self):
-        data=json.loads((ROOT/'src/main/resources/data/myvillage/alchemy/rules.json').read_text());self.assertFalse(check_rules(data))
+        data=json.loads((ROOT/'src/main/resources/data/yuanxian/alchemy/rules.json').read_text());self.assertFalse(check_rules(data))
         changed=copy.deepcopy(data);changed['recipes'][-1]['ingredients'][0]='minecraft:dirt';self.assertTrue(check_rules(changed))
     def test_casts_have_dodge_window_and_recovery(self):
         for m in catalogue()['mobs']:

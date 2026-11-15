@@ -28,7 +28,7 @@ public final class SharedResourcePack extends AbstractPackResources {
     @SubscribeEvent public static void find(AddPackFindersEvent event){
         PackType type=event.getPackType();
         event.addRepositorySource(consumer->{
-            var location=new PackLocationInfo("myvillage/shared_resources",Component.literal("修仙大陆共享构件资源"),PackSource.BUILT_IN,Optional.empty());
+            var location=new PackLocationInfo("yuanxian/shared_resources",Component.literal("修仙大陆共享构件资源"),PackSource.BUILT_IN,Optional.empty());
             Pack pack=Pack.readMetaAndCreate(location,new Pack.ResourcesSupplier(){
                 @Override public PackResources openPrimary(PackLocationInfo info){return create(info,type);}
                 @Override public PackResources openFull(PackLocationInfo info,Pack.Metadata metadata){return create(info,type);}
@@ -54,7 +54,7 @@ public final class SharedResourcePack extends AbstractPackResources {
             var id=ResourceLocation.fromNamespaceAndPath(namespace,path.substring(root.length()));output.accept(id,()->store.open(path));
         }
     }
-    @Override public Set<String> getNamespaces(PackType requested){return requested==type?Set.of("myvillage"):Set.of();}
+    @Override public Set<String> getNamespaces(PackType requested){return requested==type?Set.of("yuanxian"):Set.of();}
     @Override public boolean isHidden(){return true;}
     @Override public void close(){store.close();}
 }

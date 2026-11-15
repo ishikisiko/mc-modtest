@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const C = window.ForgeCore, D = C.config;
-  const KEY = 'myvillage.forging-design.v1';
+  const KEY = 'yuanxian.forging-design.v1';
   const app = document.getElementById('app'), modal = document.getElementById('modal');
   let state = C.initial(), saved = true, timer;
   const ui = { tab: 'workshop', selected: 'item-1', op: 'refine', commission: false,

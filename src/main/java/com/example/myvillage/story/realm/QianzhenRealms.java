@@ -118,7 +118,7 @@ public final class QianzhenRealms {
         var template=server.registryAccess().registryOrThrow(Registries.LEVEL_STEM).get(ResourceLocation.parse(RealmIdentity.TEMPLATE));
         if(template==null||!(template.generator() instanceof FlatLevelSource flat))throw new IllegalStateException("阡镇秘境模板缺失或生成器不符");
         var stem=new LevelStem(template.type(),new FlatLevelSource(flat.settings()));
-        var level=new ServerLevel(server,Util.backgroundExecutor(),((RealmServerAccess)server).myvillage$storage(),
+        var level=new ServerLevel(server,Util.backgroundExecutor(),((RealmServerAccess)server).yuanxian$storage(),
                 new DerivedLevelData(server.getWorldData(),server.getWorldData().overworldData()),key,stem,NO_PROGRESS,false,
                 server.overworld().getSeed(),List.of(),false,null);
         var bounds=QianzhenScene.layout(level).bounds();

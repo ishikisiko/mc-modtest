@@ -24,7 +24,7 @@ python3 tools/province_capitals/regional/v2/export_game.py \
   --regions donghai ximo beiyuan lingyue nanjiang donghuang moyu
 ```
 
-默认根为 `build/generated/province_capitals_v9/resources`，仅生成 `data/myvillage/capitals/v2/capital_<region>/{city.json,terrain.bin.gz}` 和 `data/myvillage/structure/province_capitals/v2/capital_<region>/tile_*.nbt`。不写共享 index 或 frozen，不向新根复制中州。V9 owning 聚合器分别读取新根七城与旧根 `build/generated/province_capitals/resources` 的中州 v1。
+默认根为 `build/generated/province_capitals_v9/resources`，仅生成 `data/yuanxian/capitals/v2/capital_<region>/{city.json,terrain.bin.gz}` 和 `data/yuanxian/structure/province_capitals/v2/capital_<region>/tile_*.nbt`。不写共享 index 或 frozen，不向新根复制中州。V9 owning 聚合器分别读取新根七城与旧根 `build/generated/province_capitals/resources` 的中州 v1。
 
 ## 输入与精确锚点
 

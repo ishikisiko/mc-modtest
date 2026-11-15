@@ -11,6 +11,6 @@ public final class QualityPickerItem extends Item {
     public QualityPickerItem(Properties properties) { super(properties.stacksTo(1)); }
 
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
-        lines.add(Component.translatable("tooltip.myvillage.quality_picker").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("tooltip.yuanxian.quality_picker").withStyle(ChatFormatting.GRAY));
     }
 }

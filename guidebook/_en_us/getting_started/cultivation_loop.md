@@ -3,22 +3,22 @@ navigation:
   title: Cultivation Loop
   parent: index.md
   position: 20
-  icon: myvillage:low_grade_spirit_stone
+  icon: yuanxian:low_grade_spirit_stone
 item_ids:
-  - myvillage:low_grade_spirit_stone
-  - myvillage:spirit_stone_ore
-  - myvillage:deepslate_spirit_stone_ore
+  - yuanxian:low_grade_spirit_stone
+  - yuanxian:spirit_stone_ore
+  - yuanxian:deepslate_spirit_stone_ore
 ---
 
 # Cultivation Loop
 
 The controls below display your current configured bindings. Do not treat their default letters as fixed controls:
 
-- Open the Profile / Meditation / Techniques panel: <KeyBind id="key.myvillage.open_cultivation_profile" />
-- Start normal meditation: <KeyBind id="key.myvillage.start_normal_meditation" />
-- Start spirit-stone meditation: <KeyBind id="key.myvillage.start_spirit_meditation" />
-- Stop the current cultivation session: <KeyBind id="key.myvillage.stop_meditation" />
-- Start advancement after both caps are full: <KeyBind id="key.myvillage.start_advancement" />
+- Open the Profile / Meditation / Techniques panel: <KeyBind id="key.yuanxian.open_cultivation_profile" />
+- Start normal meditation: <KeyBind id="key.yuanxian.start_normal_meditation" />
+- Start spirit-stone meditation: <KeyBind id="key.yuanxian.start_spirit_meditation" />
+- Stop the current cultivation session: <KeyBind id="key.yuanxian.stop_meditation" />
+- Start advancement after both caps are full: <KeyBind id="key.yuanxian.start_advancement" />
 
 ## Starting And Interruptions
 
@@ -31,7 +31,7 @@ Movement beyond `0.01` block on any axis, jumping, damage, attacking or swinging
 After preparation, one batch settles every `10` continuously eligible ticks:
 
 - **Normal meditation** adds progress equal to the current spiritual affinity. New profiles default to `10`, but the server profile is authoritative.
-- **Spirit-stone meditation** adds a fixed `50` progress and directly consumes the current stage's cost in <ItemLink id="myvillage:low_grade_spirit_stone" /> from ordinary inventory.
+- **Spirit-stone meditation** adds a fixed `50` progress and directly consumes the current stage's cost in <ItemLink id="yuanxian:low_grade_spirit_stone" /> from ordinary inventory.
 
 | Current stage | Stones per batch | Progress per batch |
 |---|---:|---:|
@@ -78,11 +78,11 @@ Only progress grows while progress is below its cap; **the batch that first fill
 ## Finding Spirit Stones
 
 <Row>
-  <BlockImage id="myvillage:spirit_stone_ore" scale="1.5" />
-  <BlockImage id="myvillage:deepslate_spirit_stone_ore" scale="1.5" />
+  <BlockImage id="yuanxian:spirit_stone_ore" scale="1.5" />
+  <BlockImage id="yuanxian:deepslate_spirit_stone_ore" scale="1.5" />
 </Row>
 
-<ItemLink id="myvillage:spirit_stone_ore" /> and <ItemLink id="myvillage:deepslate_spirit_stone_ore" /> generate in newly generated Overworld chunks; existing chunks are not retrofitted. Mine them with an iron-tier or better pickaxe. Silk Touch drops the matching ore, while ordinary mining uses vanilla ore and Fortune rules to drop low-grade spirit stones.
+<ItemLink id="yuanxian:spirit_stone_ore" /> and <ItemLink id="yuanxian:deepslate_spirit_stone_ore" /> generate in newly generated Overworld chunks; existing chunks are not retrofitted. Mine them with an iron-tier or better pickaxe. Silk Touch drops the matching ore, while ordinary mining uses vanilla ore and Fortune rules to drop low-grade spirit stones.
 
 ## Lifespan Gate
 

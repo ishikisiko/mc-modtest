@@ -8,11 +8,11 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 class DropRulesTest {
-    static String defaults()throws Exception{return Files.readString(Path.of("src/main/resources/data/myvillage/drops/monster_drops.json"));}
+    static String defaults()throws Exception{return Files.readString(Path.of("src/main/resources/data/yuanxian/drops/monster_drops.json"));}
     static JsonObject json()throws Exception{return JsonParser.parseString(defaults()).getAsJsonObject();}
     static DropRules.Catalog catalog()throws Exception{
         var entities=new HashSet<>(json().getAsJsonObject("entities").keySet());
-        return new DropRules.Catalog(Set.of("myvillage:low_grade_spirit_stone","myvillage:beast_fire_seed","myvillage:redplate_scale","minecraft:diamond")::contains,
+        return new DropRules.Catalog(Set.of("yuanxian:low_grade_spirit_stone","yuanxian:beast_fire_seed","yuanxian:redplate_scale","minecraft:diamond")::contains,
             entities::contains,Set.of("donghuang","lingyue","beiyuan","donghai","ximo","nanjiang","moyu","zhongzhou")::contains,
             key->{var s=StatsRules.bundled();s.definition(key);return s.definition(key).order()*16+key.stage();});
     }
@@ -21,10 +21,10 @@ class DropRulesTest {
     @Test void defaultsPreserveNativeTablesAndExplicitSceneOverrides()throws Exception{
         var r=DropRules.parse(defaults(),catalog());assertEquals(71,r.entities().size());
         for(var entity:r.entities())assertEquals(DropRules.Mode.INHERIT,r.resolve(context(entity,DropRules.Scene.NORMAL)).policy().mode());
-        var habitat=r.resolve(context("myvillage:redplate_lizard",DropRules.Scene.HABITAT));
+        var habitat=r.resolve(context("yuanxian:redplate_lizard",DropRules.Scene.HABITAT));
         assertEquals("overrides.donghuang_habitat",habitat.origin());assertEquals(DropRules.Mode.REPLACE,habitat.policy().mode());
-        assertEquals("myvillage:low_grade_spirit_stone",habitat.policy().drops().getFirst().item());assertEquals(1,habitat.policy().drops().getFirst().min());assertEquals(3,habitat.policy().drops().getFirst().max());
-        for(var scene:List.of(DropRules.Scene.APTITUDE_TRIAL,DropRules.Scene.SECT_TRIAL,DropRules.Scene.QUEST_REALM))assertEquals(DropRules.Mode.DISABLED,r.resolve(context("myvillage:demon_wolf",scene)).policy().mode());
+        assertEquals("yuanxian:low_grade_spirit_stone",habitat.policy().drops().getFirst().item());assertEquals(1,habitat.policy().drops().getFirst().min());assertEquals(3,habitat.policy().drops().getFirst().max());
+        for(var scene:List.of(DropRules.Scene.APTITUDE_TRIAL,DropRules.Scene.SECT_TRIAL,DropRules.Scene.QUEST_REALM))assertEquals(DropRules.Mode.DISABLED,r.resolve(context("yuanxian:demon_wolf",scene)).policy().mode());
     }
     @Test void inheritedFireHasExactConditionsAndNoRewardInDisabledScenes()throws Exception{
         var r=DropRules.parse(defaults(),catalog());var ordinary=r.resolve(context("minecraft:blaze",DropRules.Scene.NORMAL));assertEquals(1,ordinary.additions().size());
@@ -35,32 +35,32 @@ class DropRulesTest {
     }
     @Test void entityReplacementAppendAndDisableHaveUnambiguousModes()throws Exception{
         for(String mode:List.of("replace","append")){
-            var j=json();j.getAsJsonObject("entities").add("myvillage:demon_wolf",diamond(mode));var r=DropRules.parse(j.toString(),catalog());
-            var result=r.resolve(context("myvillage:demon_wolf",DropRules.Scene.NORMAL));assertEquals(DropRules.Mode.valueOf(mode.toUpperCase()),result.policy().mode());assertEquals(1,DropRules.roll(result,0,new Random(1)).size());
-            assertEquals(DropRules.Mode.DISABLED,r.resolve(context("myvillage:demon_wolf",DropRules.Scene.SECT_TRIAL)).policy().mode());
+            var j=json();j.getAsJsonObject("entities").add("yuanxian:demon_wolf",diamond(mode));var r=DropRules.parse(j.toString(),catalog());
+            var result=r.resolve(context("yuanxian:demon_wolf",DropRules.Scene.NORMAL));assertEquals(DropRules.Mode.valueOf(mode.toUpperCase()),result.policy().mode());assertEquals(1,DropRules.roll(result,0,new Random(1)).size());
+            assertEquals(DropRules.Mode.DISABLED,r.resolve(context("yuanxian:demon_wolf",DropRules.Scene.SECT_TRIAL)).policy().mode());
         }
         var j=json();j.getAsJsonObject("entities").add("minecraft:blaze",JsonParser.parseString("{\"mode\":\"disabled\",\"drops\":[]}"));
         assertTrue(DropRules.roll(DropRules.parse(j.toString(),catalog()).resolve(context("minecraft:blaze",DropRules.Scene.NORMAL)),255,new Random(2)).isEmpty());
     }
     @Test void orderedConditionsUseEntitySceneRegionAndInclusiveRealmBounds()throws Exception{
         var j=json();var override=diamond("replace");override.addProperty("id","regional");
-        override.add("when",JsonParser.parseString("{\"entities\":[\"myvillage:redplate_lizard\"],\"scenes\":[\"normal\"],\"regions\":[\"donghuang\"],\"min_realm\":{\"realm\":\"myvillage:qi_refining\",\"stage\":2},\"max_realm\":{\"realm\":\"myvillage:qi_refining\",\"stage\":8}}"));
+        override.add("when",JsonParser.parseString("{\"entities\":[\"yuanxian:redplate_lizard\"],\"scenes\":[\"normal\"],\"regions\":[\"donghuang\"],\"min_realm\":{\"realm\":\"yuanxian:qi_refining\",\"stage\":2},\"max_realm\":{\"realm\":\"yuanxian:qi_refining\",\"stage\":8}}"));
         j.getAsJsonArray("overrides").add(override);var r=DropRules.parse(j.toString(),catalog());
         for(int stage=0;stage<9;stage++){
             int rank=catalog().realmRank().applyAsInt(new RealmKey("qi_refining",stage));
-            assertEquals(stage>=2?DropRules.Mode.REPLACE:DropRules.Mode.INHERIT,r.resolve(new DropRules.Context("myvillage:redplate_lizard",DropRules.Scene.NORMAL,"donghuang",rank,true,false)).policy().mode());
+            assertEquals(stage>=2?DropRules.Mode.REPLACE:DropRules.Mode.INHERIT,r.resolve(new DropRules.Context("yuanxian:redplate_lizard",DropRules.Scene.NORMAL,"donghuang",rank,true,false)).policy().mode());
         }
-        assertEquals(DropRules.Mode.INHERIT,r.resolve(context("myvillage:redplate_lizard",DropRules.Scene.NORMAL)).policy().mode());
-        assertEquals(DropRules.Mode.INHERIT,r.resolve(new DropRules.Context("myvillage:redplate_lizard",DropRules.Scene.NORMAL,"lingyue",500,true,false)).policy().mode());
+        assertEquals(DropRules.Mode.INHERIT,r.resolve(context("yuanxian:redplate_lizard",DropRules.Scene.NORMAL)).policy().mode());
+        assertEquals(DropRules.Mode.INHERIT,r.resolve(new DropRules.Context("yuanxian:redplate_lizard",DropRules.Scene.NORMAL,"lingyue",500,true,false)).policy().mode());
     }
     @Test void rollHandlesChanceEndpointsLootingCapsAndBothQuantityEndpoints()throws Exception{
         var j=json();var policy=diamond("replace");var e=policy.getAsJsonArray("drops").get(0).getAsJsonObject();e.addProperty("min",1);e.addProperty("max",2);
-        e.add("looting",JsonParser.parseString("{\"min_per_level\":0,\"max_per_level\":1,\"limit\":4}"));j.getAsJsonObject("entities").add("myvillage:demon_wolf",policy);
-        var result=DropRules.parse(j.toString(),catalog()).resolve(context("myvillage:demon_wolf",DropRules.Scene.NORMAL));
+        e.add("looting",JsonParser.parseString("{\"min_per_level\":0,\"max_per_level\":1,\"limit\":4}"));j.getAsJsonObject("entities").add("yuanxian:demon_wolf",policy);
+        var result=DropRules.parse(j.toString(),catalog()).resolve(context("yuanxian:demon_wolf",DropRules.Scene.NORMAL));
         Random maximum=new Random(){public int nextInt(int bound){return bound-1;}public double nextDouble(){return Math.nextDown(1d);}};
         assertEquals(2,DropRules.roll(result,0,maximum).getFirst().count());assertEquals(4,DropRules.roll(result,3,maximum).getFirst().count());
         Random minimum=new Random(){public int nextInt(int bound){return 0;}public double nextDouble(){return 0;}};assertEquals(1,DropRules.roll(result,3,minimum).getFirst().count());
-        e.addProperty("chance",0);j.getAsJsonObject("entities").add("myvillage:demon_wolf",policy);assertTrue(DropRules.roll(DropRules.parse(j.toString(),catalog()).resolve(context("myvillage:demon_wolf",DropRules.Scene.NORMAL)),3,minimum).isEmpty());
+        e.addProperty("chance",0);j.getAsJsonObject("entities").add("yuanxian:demon_wolf",policy);assertTrue(DropRules.roll(DropRules.parse(j.toString(),catalog()).resolve(context("yuanxian:demon_wolf",DropRules.Scene.NORMAL)),3,minimum).isEmpty());
         var fire=DropRules.parse(defaults(),catalog()).resolve(context("minecraft:blaze",DropRules.Scene.NORMAL));
         assertEquals(1,DropRules.roll(fire,0,minimum).size());Random boundary=new Random(){public double nextDouble(){return .035;}};assertTrue(DropRules.roll(fire,0,boundary).isEmpty());
     }
@@ -74,15 +74,15 @@ class DropRulesTest {
         var c=catalog();
         for(String field:List.of("item","min","max","chance","factory")){
             var j=json();var p=diamond("replace");var e=p.getAsJsonArray("drops").get(0).getAsJsonObject();
-            switch(field){case "item"->e.addProperty(field,"myvillage:missing");case "min"->e.addProperty(field,1.5);case "max"->e.addProperty(field,65);case "chance"->e.addProperty(field,1.01);case "factory"->e.addProperty(field,"beast_fire");}
-            j.getAsJsonObject("entities").add("myvillage:demon_wolf",p);var error=assertThrows(IllegalArgumentException.class,()->DropRules.parse(j.toString(),c));assertTrue(error.getMessage().contains(".drops[0]."+field));
+            switch(field){case "item"->e.addProperty(field,"yuanxian:missing");case "min"->e.addProperty(field,1.5);case "max"->e.addProperty(field,65);case "chance"->e.addProperty(field,1.01);case "factory"->e.addProperty(field,"beast_fire");}
+            j.getAsJsonObject("entities").add("yuanxian:demon_wolf",p);var error=assertThrows(IllegalArgumentException.class,()->DropRules.parse(j.toString(),c));assertTrue(error.getMessage().contains(".drops[0]."+field));
         }
-        var j=json();j.getAsJsonObject("entities").add("myvillage:missing",diamond("replace"));assertThrows(IllegalArgumentException.class,()->DropRules.parse(j.toString(),c));
+        var j=json();j.getAsJsonObject("entities").add("yuanxian:missing",diamond("replace"));assertThrows(IllegalArgumentException.class,()->DropRules.parse(j.toString(),c));
         var unknown=json();unknown.getAsJsonArray("overrides").get(3).getAsJsonObject().getAsJsonObject("when").add("regions",JsonParser.parseString("[\"nowhere\"]"));assertThrows(IllegalArgumentException.class,()->DropRules.parse(unknown.toString(),c));
-        var badRealm=json();badRealm.getAsJsonArray("overrides").get(3).getAsJsonObject().getAsJsonObject("when").add("min_realm",JsonParser.parseString("{\"realm\":\"myvillage:qi_refining\",\"stage\":9}"));assertThrows(IllegalArgumentException.class,()->DropRules.parse(badRealm.toString(),c));
+        var badRealm=json();badRealm.getAsJsonArray("overrides").get(3).getAsJsonObject().getAsJsonObject("when").add("min_realm",JsonParser.parseString("{\"realm\":\"yuanxian:qi_refining\",\"stage\":9}"));assertThrows(IllegalArgumentException.class,()->DropRules.parse(badRealm.toString(),c));
     }
     @Test void immutableRulesAreNotChangedThroughExposedJsonOrCollections()throws Exception{
-        var r=DropRules.parse(defaults(),catalog());r.json().getAsJsonObject("entities").remove("myvillage:demon_wolf");assertTrue(r.entities().contains("myvillage:demon_wolf"));
-        var h=r.resolve(context("myvillage:demon_wolf",DropRules.Scene.HABITAT));assertThrows(UnsupportedOperationException.class,()->h.policy().drops().clear());assertThrows(UnsupportedOperationException.class,()->r.entities().clear());
+        var r=DropRules.parse(defaults(),catalog());r.json().getAsJsonObject("entities").remove("yuanxian:demon_wolf");assertTrue(r.entities().contains("yuanxian:demon_wolf"));
+        var h=r.resolve(context("yuanxian:demon_wolf",DropRules.Scene.HABITAT));assertThrows(UnsupportedOperationException.class,()->h.policy().drops().clear());assertThrows(UnsupportedOperationException.class,()->r.entities().clear());
     }
 }

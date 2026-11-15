@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 class WoodSpiritDefinitionTest {
     @Test void formerPlaceholderNowDecodesWithBoundedRecovery() throws Exception {
-        try (var stream = getClass().getResourceAsStream("/data/myvillage/myvillage/innate_fate/wood_spirit_body.json")) {
+        try (var stream = getClass().getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/wood_spirit_body.json")) {
             assertNotNull(stream);
             var json = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();

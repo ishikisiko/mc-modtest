@@ -1,7 +1,7 @@
 # 修炼属性加值与肉身防御
 
 当前玩家数值覆盖凡人、炼气九层、筑基初中后、金丹初中后。唯一数表为
-`data/myvillage/stats/progression.json`，四元组依次为生命上限、角色自身攻击、肉身防御、灵力上限。
+`data/yuanxian/stats/progression.json`，四元组依次为生命上限、角色自身攻击、肉身防御、灵力上限。
 realm JSON 继续维护修为、稳定度和突破条件，不再另外维护灵力容量。
 
 ## 属性来源
@@ -31,7 +31,7 @@ NPC 容量使用同一加法数表；扣费、恢复和溢出处理与玩家共�
 
 ## 肉身防御
 
-`myvillage:body_defense` 是独立的同步属性，`myvillage:defense_penetration` 只削减肉身防御。
+`yuanxian:body_defense` 是独立的同步属性，`yuanxian:defense_penetration` 只削减肉身防御。
 设攻击为 A，穿防后的防御为 D，转折比例为 t、保底比例为 p，这两个比例只取数表：
 
 ```text

@@ -165,7 +165,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
         if(!WorkshopStationAccess.allows(infusion,button,known.size()))return reject(18);
         if(button==STRIKE)return reject(17);
         if(busy())return reject(10);
-        if(button==COPPER){if(!ding())return reject(15);server.openMenu(new SimpleMenuProvider((id,inv,p)->new CopperInfusionMenu(id,inv,access),Component.translatable("screen.myvillage.infusion.title")));return true;}
+        if(button==COPPER){if(!ding())return reject(15);server.openMenu(new SimpleMenuProvider((id,inv,p)->new CopperInfusionMenu(id,inv,access),Component.translatable("screen.yuanxian.infusion.title")));return true;}
         if(button>=RECIPE_BASE&&button<RECIPE_BASE+known.size()){
             if(!input().isEmpty())return reject(9);data.set(0,button-RECIPE_BASE);normalizeSelection();data.set(8,0);return true;
         }

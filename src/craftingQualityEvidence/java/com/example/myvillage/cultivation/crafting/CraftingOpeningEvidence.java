@@ -32,13 +32,13 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 真实玩家附件与设备存盘探针；直接调用服务器意图，不作为映射输入验收。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class CraftingOpeningEvidence {
     private static final String PHASE=System.getenv("MYVILLAGE_OPENING_PHASE");
     private static final Path OUT=Path.of(System.getenv().getOrDefault("MYVILLAGE_OPENING_OUT","../reports/opening-native"));
     private static final UUID ID=UUID.fromString("b84712b1-dc01-4ced-8b74-e8a12be9a001");
     private static final BlockPos FURNACE=new BlockPos(0,80,0),ARRAY=new BlockPos(10,80,0);
-    private static final List<String> TALENTS=List.of("myvillage:alchemy_prodigy","myvillage:forging_prodigy","myvillage:clod");
+    private static final List<String> TALENTS=List.of("yuanxian:alchemy_prodigy","yuanxian:forging_prodigy","yuanxian:clod");
     private static final List<Map<String,Object>> CHECKS=new ArrayList<>();
     private static final List<String> DONE=new ArrayList<>(),FAILURES=new ArrayList<>();
     private static boolean finished;
@@ -75,10 +75,10 @@ public final class CraftingOpeningEvidence {
     private static void prepare(MinecraftServer server)throws Exception{
         WorldSimRuntime.setPaused(true);var level=server.overworld();
         for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){level.setChunkForced(x,z,true);level.getChunk(x,z);}
-        var p=actor(server,false);CultivationService.setSpiritualRoot(p,new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:metal"),100)));
+        var p=actor(server,false);CultivationService.setSpiritualRoot(p,new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:metal"),100)));
         CultivationService.initializeCraftingAptitudes(p);check("awakened_before_fate_confirmation_stays_pending",!CultivationService.craftingAptitudes(p).initialized(),CultivationService.craftingAptitudes(p));
         check("pending_fates_do_not_apply_clod",CraftingTalents.modifier(p).equals(CraftingQualityRules.Modifier.NORMAL),CraftingTalents.modifier(p));
-        var candidates=new ArrayList<>(TALENTS);candidates.addAll(List.of("myvillage:robust","myvillage:lightfoot","myvillage:bright"));
+        var candidates=new ArrayList<>(TALENTS);candidates.addAll(List.of("yuanxian:robust","yuanxian:lightfoot","yuanxian:bright"));
         CultivationService.replaceFates(p,FateState.empty().choice(candidates,"",List.of(),false,1),false);
         var stele=new BlockPos(1,80,0);level.setBlockAndUpdate(stele,ModBlocks.SPIRIT_TESTING_STELE.get().defaultBlockState());
         var token=SteleAwakeningSessions.open(p,stele);
@@ -96,8 +96,8 @@ public final class CraftingOpeningEvidence {
         for(int i=4;i<8;i++)f.setItem(i,new ItemStack(Items.STONE,64));
         int changed=0;for(int i=0;i<100;i++){
             long s=5000+i;var random=RandomSource.create(s);double z=random.nextGaussian();
-            int target=CraftingQualityRules.get().roll(60,"myvillage:qi_refining",0,new CraftingQualityRules.Modifier(-5,4),()->z).quality();
-            if(target!=CraftingQualityRules.get().roll(60,"myvillage:qi_refining",0,()->z).quality())changed++;
+            int target=CraftingQualityRules.get().roll(60,"yuanxian:qi_refining",0,new CraftingQualityRules.Modifier(-5,4),()->z).quality();
+            if(target!=CraftingQualityRules.get().roll(60,"yuanxian:qi_refining",0,()->z).quality())changed++;
             p.getRandom().setSeed(s);check("forging_clod_draw_"+i,ForgingCompletion.roll(p,"forged_pickaxe")==target,target);
         }check("forging_fixture_detects_missing_modifier",changed>0,changed);DONE.add("furnace_and_forging_production_draws");
         var ar=array(level);for(int i=0;i<recipe.ingredients().size();i++)ar.setItem(i==2?7:i,item(recipe.ingredients().get(i),recipe.count(i)*2));ar.setItem(2,fuel(recipe.fuelCount()*2));
@@ -107,7 +107,7 @@ public final class CraftingOpeningEvidence {
         for(int i=3;i<7;i++)ar.setItem(i,new ItemStack(Items.STONE,64));arrayTick(ar,3);
         check("array_captures_modifier",tag(ar).getInt("Version")==3&&tag(ar).getDouble("MeanShift")==-5&&tag(ar).getDouble("VarianceMultiplier")==4&&tag(ar).getInt("Score")==60,tag(ar));
         check("growth_accepted",CultivationService.setCraftingAptitude(p,CraftingAptitudes.Profession.ALCHEMY,71).success()&&CultivationService.setCraftingAptitude(p,CraftingAptitudes.Profession.FORGING,67).success(),CultivationService.craftingAptitudes(p));
-        CultivationService.initializeCraftingAptitudes(p);CultivationService.setSpiritualRoot(p,new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:wood"),70)));
+        CultivationService.initializeCraftingAptitudes(p);CultivationService.setSpiritualRoot(p,new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:wood"),70)));
         check("genius_does_not_reset_growth",CultivationService.craftingAptitudes(p).alchemy()==71&&CultivationService.craftingAptitudes(p).forging()==67,CultivationService.craftingAptitudes(p));
         p.setPos(100,80,100);p.containerMenu=p.inventoryMenu;
         Files.createDirectories(OUT);Files.writeString(OUT.resolve("frozen.json"),new Gson().toJson(Map.of("furnace",tag(f).getCompound("Batch").toString(),"array",tag(ar).getCompound("Batch").toString(),"talisman",apt.talisman())));

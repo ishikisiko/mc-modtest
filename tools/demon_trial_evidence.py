@@ -12,7 +12,7 @@ sys.path.insert(0,str(ROOT))
 from tools.combat_ruins_evidence import BattleEvidence, RULES
 from tools.alchemy_quality_evidence import read_data, SecondClient
 from tools.combat_capture import scene, session as cs, procs
-RULES['demon_trial']=json.loads((ROOT/'src/main/resources/data/myvillage/ruins/demon_trial.json').read_text())
+RULES['demon_trial']=json.loads((ROOT/'src/main/resources/data/yuanxian/ruins/demon_trial.json').read_text())
 
 class DemonTrialEvidence(BattleEvidence):
     def __init__(self,out):
@@ -31,7 +31,7 @@ class DemonTrialEvidence(BattleEvidence):
         self.look((x+.5,101,-2.5),(x+.5,100.99,.5),game=game,user=user)
     def trigger(self,site,wave):self.approach_cache(site)
     def run(self):
-        self.start();user=self.s.username;pearl='myvillage:demon_lure_pearl'
+        self.start();user=self.s.username;pearl='yuanxian:demon_lure_pearl'
         for c in scene.world_rules():self.rc(c)
         for c in ['difficulty normal','gamerule doMobSpawning false','forceload add -48 -48 48 48',
                   'fill -40 100 -40 40 100 40 minecraft:stone','fill -16 101 -16 16 110 16 minecraft:air',f'op {user}',f'clear {user}',f'item replace entity {user} hotbar.0 with {pearl} 4']:

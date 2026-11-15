@@ -15,7 +15,7 @@ class SwordEvidence(PurpleEvidence):
     def __init__(self, out):
         super().__init__(out)
         self.report.update(kind='sword_obsession', selected=['sword_obsession'], completed=[], unrun=['sword_obsession'])
-        self.style=json.loads((ROOT/'src/main/resources/data/myvillage/combat/style/basic_sword.json').read_text())
+        self.style=json.loads((ROOT/'src/main/resources/data/yuanxian/combat/style/basic_sword.json').read_text())
 
     def logs(self, offset=0):
         with (cs.LOG_DIR/'server.log').open('rb') as stream:
@@ -39,7 +39,7 @@ class SwordEvidence(PurpleEvidence):
 
     def run(self):
         self.start();self.setup();u=self.s.username
-        self.equip('myvillage:qingfeng_sword');scene.ensure_cultivation(self.s)
+        self.equip('yuanxian:qingfeng_sword');scene.ensure_cultivation(self.s)
         near=self.dummy('sword_near',(.5,-60,2.5))
         baseline,_=self.combo(near)
         self.report['baseline_damage']=baseline
@@ -47,14 +47,14 @@ class SwordEvidence(PurpleEvidence):
         self.poll(lambda:self.rc('execute if entity @e[tag=sword_near]'),
                   lambda reply:'passed' not in reply,timeout=4,label='stele sightline cleared')
         self.choose_focus('sword_obsession')
-        self.equip('myvillage:qingfeng_sword');scene.ensure_cultivation(self.s)
+        self.equip('yuanxian:qingfeng_sword');scene.ensure_cultivation(self.s)
         far=self.dummy('sword_far',(.5,-60,8))
         near=self.dummy('sword_near',(.5,-60,2.5))
         start=self.offset();far_before=self.hp(far);qi_before=self.power()['current']
         enhanced,stacks=self.combo(near)
         log=self.logs(start);self.report['combo_log']=log
         self.check('mapped_five_move_streak',stacks==[1,2,3,4,5],stacks)
-        bonus=self.definitions['myvillage:sword_obsession']['effects']['sword_stack_bonus']
+        bonus=self.definitions['yuanxian:sword_obsession']['effects']['sword_stack_bonus']
         expected=[baseline[i]*(1+i*bonus) for i in range(4)]
         self.check('damage_uses_prior_stacks_once',all(abs(enhanced[i]-expected[i])<.1 for i in range(4)),
                    {'baseline':baseline,'enhanced':enhanced,'expected_first_four':expected})

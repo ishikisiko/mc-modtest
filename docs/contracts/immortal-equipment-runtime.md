@@ -8,14 +8,14 @@
 
 ## 身份与资源
 
-- 保留十五个设计ID；每套注册 `<design>_helmet`、`_chestplate`、`_leggings`、`_boots` 和 `_ingot`，namespace为myvillage。旧玄铁甲、武器与其ID不变。
+- 保留十五个设计ID；每套注册 `<design>_helmet`、`_chestplate`、`_leggings`、`_boots` 和 `_ingot`，namespace为yuanxian。旧玄铁甲、武器与其ID不变。
 - 美术唯一来源仍为 `art/immortal-armor-atlas/authors/` 经minecraft.py生成的levels和effects/catalogue.js；不能用近似立方体、二维图标或预览人台替换真实三角面。
 - 新导出器为 `tools/immortal_equipment/`，入口 `python3 -m tools.immortal_equipment build|check`。骨骼绑定输入为 `equipment/immortal/rig.json`；数值输入为 `equipment/immortal/balance.json`。
-- 生成穿戴数据：`assets/myvillage/immortal_equipment/<design>.json`；PNG：`assets/myvillage/textures/immortal_equipment/<design>/<material>.png`；物品OBJ/MTL与JSON位于相应models子目录，均由导出器生成。
-- 公共注册目录为 `data/myvillage/immortal_equipment/catalogue.json`，版本1。结构见下。中文名与槽位标签由导出器维护；现有语言文件只按本批75个ID合并，保留其他所有键。不得手改现有blocks图集，父代理负责接入其原生成器。
+- 生成穿戴数据：`assets/yuanxian/immortal_equipment/<design>.json`；PNG：`assets/yuanxian/textures/immortal_equipment/<design>/<material>.png`；物品OBJ/MTL与JSON位于相应models子目录，均由导出器生成。
+- 公共注册目录为 `data/yuanxian/immortal_equipment/catalogue.json`，版本1。结构见下。中文名与槽位标签由导出器维护；现有语言文件只按本批75个ID合并，保留其他所有键。不得手改现有blocks图集，父代理负责接入其原生成器。
 
 ```json
-{"version":1,"tiers":{"1":{"defense":{"head":2,"chest":6,"legs":5,"feet":2},"durability_multiplier":15,"enchantability":9,"toughness":0,"knockback_resistance":0}},"sets":[{"id":"qi_moqing","name":"墨青巡霄","level":1,"model":"myvillage:immortal_equipment/qi_moqing.json","texture":"myvillage:textures/immortal_equipment/qi_moqing/silk.png","ingot":{"id":"myvillage:qi_moqing_ingot","name":"以作者数据为准"},"armor":[{"id":"myvillage:qi_moqing_helmet","slot":"head","name":"以作者数据为准"}]}]}
+{"version":1,"tiers":{"1":{"defense":{"head":2,"chest":6,"legs":5,"feet":2},"durability_multiplier":15,"enchantability":9,"toughness":0,"knockback_resistance":0}},"sets":[{"id":"qi_moqing","name":"墨青巡霄","level":1,"model":"yuanxian:immortal_equipment/qi_moqing.json","texture":"yuanxian:textures/immortal_equipment/qi_moqing/silk.png","ingot":{"id":"yuanxian:qi_moqing_ingot","name":"以作者数据为准"},"armor":[{"id":"yuanxian:qi_moqing_helmet","slot":"head","name":"以作者数据为准"}]}]}
 ```
 
 示例仅展示结构，实际包含五份相同的铁甲基础数值、十五套、每套四件和一个锭。`texture`引用该套实际存在的一张材质PNG，供ArmorItem纹理入口兼容；穿戴渲染按每个材质引用选择纹理与透明类型。
@@ -23,7 +23,7 @@
 ## 穿戴网格版本1
 
 ```json
-{"version":1,"set_id":"qi_moqing","materials":{"silk":{"texture":"myvillage:textures/immortal_equipment/qi_moqing/silk.png","opacity":1}},"profiles":{"standard":{"bone_origins":{"head":[0,0,0],"body":[0,0,0],"right_arm":[-5,2,0],"left_arm":[5,2,0],"right_leg":[-1.9,12,0],"left_leg":[1.9,12,0]},"parts":[{"id":"body","slot":"chest","bone":"body","material":"silk","vertices":[[0,0,0,0,0,0,1,0]],"indices":[0,1,2]}]},"slim":{"bone_origins":{},"parts":[]}},"effects":{"level":1,"title":"墨行微息","description":"...","flows":[],"motions":[],"glows":[],"arcs":[]},"effect_bindings":{"flows":["body"],"arcs":[]}}
+{"version":1,"set_id":"qi_moqing","materials":{"silk":{"texture":"yuanxian:textures/immortal_equipment/qi_moqing/silk.png","opacity":1}},"profiles":{"standard":{"bone_origins":{"head":[0,0,0],"body":[0,0,0],"right_arm":[-5,2,0],"left_arm":[5,2,0],"right_leg":[-1.9,12,0],"left_leg":[1.9,12,0]},"parts":[{"id":"body","slot":"chest","bone":"body","material":"silk","vertices":[[0,0,0,0,0,0,1,0]],"indices":[0,1,2]}]},"slim":{"bone_origins":{},"parts":[]}},"effects":{"level":1,"title":"墨行微息","description":"...","flows":[],"motions":[],"glows":[],"arcs":[]},"effect_bindings":{"flows":["body"],"arcs":[]}}
 ```
 
 - `vertices`每点为`x,y,z,u,v,nx,ny,nz`，坐标为MC骨骼局部模型像素，UV为Minecraft贴图方向，法线单位化；索引必须为有效三角形。示例不是可用几何。

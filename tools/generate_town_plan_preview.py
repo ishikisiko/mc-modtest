@@ -184,7 +184,7 @@ def write_index(out_root: Path) -> Path:
     # the shared renderer is unavailable or declines (<= 1 viewer).
     try:
         from preview_structure import RenderResult, render_preview_index
-        structure_dir = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "structure"
+        structure_dir = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "structure"
         results = []
         for v in viewers:
             stem = v.parent.name

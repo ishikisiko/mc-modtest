@@ -56,9 +56,9 @@ public class TechniqueManualItem extends Item {
     private static final List<String> GRADE_IDS = List.of("huang", "xuan", "di", "tian");
     private static final List<Rarity> GRADE_RARITIES = List.of(Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE, Rarity.EPIC);
 
-    private static final String GRADE_NAME_KEY = "screen.myvillage.cultivation.grade_name.";
-    private static final String CATEGORY_KEY = "screen.myvillage.cultivation.category.";
-    private static final String TOOLTIP_KEY = "tooltip.myvillage.manual.";
+    private static final String GRADE_NAME_KEY = "screen.yuanxian.cultivation.grade_name.";
+    private static final String CATEGORY_KEY = "screen.yuanxian.cultivation.category.";
+    private static final String TOOLTIP_KEY = "tooltip.yuanxian.manual.";
 
     /** Why a stack is not a readable manual. */
     public enum Mismatch {
@@ -169,17 +169,17 @@ public class TechniqueManualItem extends Item {
             @Nullable ResourceLocation techniqueId,
             @Nullable Function<ResourceLocation, Optional<TechniqueDefinition>> techniques) {
         if (techniqueId == null) {
-            return Component.translatable("item.myvillage.manual.blank", categoryName(category), gradeName(grade));
+            return Component.translatable("item.yuanxian.manual.blank", categoryName(category), gradeName(grade));
         }
         if (techniques == null) {
-            return Component.translatable("item.myvillage.manual.named",
+            return Component.translatable("item.yuanxian.manual.named",
                     Component.translatable(conventionalTranslationKey(techniqueId)));
         }
         Optional<Mismatch> mismatch = check(category, grade, techniqueId, techniques);
         if (mismatch.isPresent()) {
-            return Component.translatable("item.myvillage.manual.damaged").withStyle(ChatFormatting.RED);
+            return Component.translatable("item.yuanxian.manual.damaged").withStyle(ChatFormatting.RED);
         }
-        return Component.translatable("item.myvillage.manual.named",
+        return Component.translatable("item.yuanxian.manual.named",
                 Component.translatable(techniques.apply(techniqueId).orElseThrow().translationKey()));
     }
 
@@ -297,7 +297,7 @@ public class TechniqueManualItem extends Item {
         for (Map.Entry<ResourceLocation, HeritageDefinition> heritage : catalog.heritagesContaining(techniqueId)) {
             HeritageDefinition chain = heritage.getValue();
             tooltip.add(Component.translatable(TOOLTIP_KEY + "heritage", Component.translatable(
-                    "screen.myvillage.cultivation.heritage_position",
+                    "screen.yuanxian.cultivation.heritage_position",
                     Component.translatable(chain.translationKey()),
                     (chain.indexOf(techniqueId) + 1) + "/" + chain.techniques().size()))
                     .withStyle(ChatFormatting.LIGHT_PURPLE));
@@ -343,7 +343,7 @@ public class TechniqueManualItem extends Item {
 
     private static Component elementList(List<ResourceLocation> elements, Catalog catalog) {
         if (elements.isEmpty()) {
-            return Component.translatable("screen.myvillage.cultivation.technique_no_element");
+            return Component.translatable("screen.yuanxian.cultivation.technique_no_element");
         }
         MutableComponent list = Component.empty();
         for (int index = 0; index < elements.size(); index++) {
@@ -385,7 +385,7 @@ public class TechniqueManualItem extends Item {
                 elementName(elementId, catalog)
                         .append(String.format(Locale.ROOT, " ≥ %.1f%%", basisPoints / 100.0D))));
         if (parts.isEmpty()) {
-            return Component.translatable("screen.myvillage.cultivation.none");
+            return Component.translatable("screen.yuanxian.cultivation.none");
         }
         MutableComponent text = Component.empty();
         for (int index = 0; index < parts.size(); index++) {

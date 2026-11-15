@@ -22,7 +22,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * Off with {@code rumors_enabled = false}.
  */
 public final class WorldSimRumors {
-    public static final String RUMOR_KEY = "message.myvillage.world.rumor";
+    public static final String RUMOR_KEY = "message.yuanxian.world.rumor";
     private static final int DRAIN_INTERVAL_TICKS = 20;
     private static final RumorBoard<UUID, Component> BOARD = new RumorBoard<>();
 

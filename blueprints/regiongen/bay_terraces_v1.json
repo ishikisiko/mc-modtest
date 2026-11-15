@@ -478,7 +478,7 @@
       "minecraft:flower_forest",
       "minecraft:meadow"
     ],
-    "exclusion_structure_set": "myvillage:sect",
+    "exclusion_structure_set": "yuanxian:sect",
     "exclusion_chunks": 12
   }
 }

@@ -14,13 +14,13 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 /**
  * Where each sect's compound (山门) was actually built, on the overworld
- * ({@code data/myvillage_world_sim_gates.dat}). The ledger only knows a gate's x/z and a
+ * ({@code data/yuanxian_world_sim_gates.dat}). The ledger only knows a gate's x/z and a
  * {@code gateRealized} flag; the build command records here what it built: the anchor with its y,
  * the build seed, blueprint identity and fingerprint, and the sim day. Avatars stand on the courtyards of a record
  * only while the ledger agrees with it (sect active, gate realized, same x/z).
  */
 public final class GateRealizations extends SavedData {
-    public static final String DATA_NAME = "myvillage_world_sim_gates";
+    public static final String DATA_NAME = "yuanxian_world_sim_gates";
     public static final int FORMAT = 2;
     static final String FORMAT_TAG = "format";
     static final String GATES_TAG = "gates";
@@ -30,7 +30,7 @@ public final class GateRealizations extends SavedData {
     /** One built compound. {@code variant} is the compiled blueprint resource id. */
     public record Gate(int sectId, BlockPos anchor, long seed, String variant, long day, String blueprintHash) {
         public Gate {
-            if (sectId<0 || !variant.matches("myvillage:[a-z0-9_]+") || !blueprintHash.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("宗门蓝图收据无效");
+            if (sectId<0 || !variant.matches("yuanxian:[a-z0-9_]+") || !blueprintHash.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("宗门蓝图收据无效");
             anchor=anchor.immutable();
         }
         public boolean matchesCurrentBlueprint() {

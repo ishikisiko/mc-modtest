@@ -30,7 +30,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 /** Scene adapter only. WorldSim owns per-scene identities, rescue state and execution epochs. */
 public final class QianzhenActors {
-    private static final ResourceLocation RESOURCE = ResourceLocation.fromNamespaceAndPath("myvillage", "story/qianzhen_actors.json");
+    private static final ResourceLocation RESOURCE = ResourceLocation.fromNamespaceAndPath("yuanxian", "story/qianzhen_actors.json");
     private static MinecraftServer configuredServer;
     private static QianzhenActorDefinitions definitions;
     private static boolean registered;

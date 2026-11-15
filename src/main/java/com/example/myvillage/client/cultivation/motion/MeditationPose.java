@@ -22,7 +22,7 @@ public record MeditationPose(float weight,float drop,float breath,Map<String,Med
     }
     public static void clear(PlayerModel<?> m) {
         for(ModelPart p:new ModelPart[]{m.head,m.hat,m.body,m.jacket,m.rightArm,m.leftArm,m.rightSleeve,m.leftSleeve,
-                m.rightLeg,m.leftLeg,m.rightPants,m.leftPants})((MeditationPart)(Object)p).myvillage$meditationWarp(null);
+                m.rightLeg,m.leftLeg,m.rightPants,m.leftPants})((MeditationPart)(Object)p).yuanxian$meditationWarp(null);
     }
     public void apply(PlayerModel<?> m,MeditationMotion motion) {
         for(ModelPart p:new ModelPart[]{m.head,m.body,m.rightArm,m.leftArm,m.rightLeg,m.leftLeg})p.resetPose();
@@ -34,6 +34,6 @@ public record MeditationPose(float weight,float drop,float breath,Map<String,Med
         m.rightPants.copyFrom(m.rightLeg);m.leftPants.copyFrom(m.leftLeg);
     }
     private void set(ModelPart p,String name,float shift) {
-        p.y+=shift;((MeditationPart)(Object)p).myvillage$meditationWarp(limbs.get(name));
+        p.y+=shift;((MeditationPart)(Object)p).yuanxian$meditationWarp(limbs.get(name));
     }
 }

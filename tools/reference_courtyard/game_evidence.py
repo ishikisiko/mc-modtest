@@ -86,7 +86,7 @@ class CourtyardEvidence(BuildingEvidence):
         identity='courtyard_window'
         self.rc('fill 54 -60 6 60 -59 13 minecraft:smooth_stone')
         self.rc('fill 54 -58 6 60 -54 13 minecraft:air')
-        self.rc(f'clear {u}');self.rc(f'item replace entity {u} hotbar.0 with myvillage:{identity} 3')
+        self.rc(f'clear {u}');self.rc(f'item replace entity {u} hotbar.0 with yuanxian:{identity} 3')
         pos=[57.5,-58,11.2];target=[57.5,-58.01,8.5]
         yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
         self.s.game.xdo('key','1');self.s.game.require_ingame('variant selector')
@@ -112,11 +112,11 @@ class CourtyardEvidence(BuildingEvidence):
                 checks.append('passed' in self.rc(f'execute if block {x} {y} 8 {state}'))
         self.check('blocked_whole_window_no_partial_or_cost',count==3 and all(checks),{'remaining':count,'footprint_unchanged':all(checks)})
         self.rc('setblock 56 -57 8 minecraft:air');time.sleep(.3);self.s.game.xdo('click','3')
-        reply=self.poll(lambda:self.rc(f'execute if block 57 -58 8 myvillage:{identity}[variant=1,part=0,facing=south]'),lambda s:'passed' in s,8,'whole window placed')
+        reply=self.poll(lambda:self.rc(f'execute if block 57 -58 8 yuanxian:{identity}[variant=1,part=0,facing=south]'),lambda s:'passed' in s,8,'whole window placed')
         count=read_data(self.rc(f'data get entity {u} Inventory[{{Slot:0b}}].count'))
         for i in range(9):
             x,y=57-i%3,-58+i//3
-            checks.append('passed' in self.rc(f'execute if block {x} {y} 8 myvillage:{identity}[part={i},variant=1,facing=south]'))
+            checks.append('passed' in self.rc(f'execute if block {x} {y} 8 yuanxian:{identity}[part={i},variant=1,facing=south]'))
         self.check('one_item_places_nine_cells',count==2 and all(checks),{'remaining':count,'parts':9,'root':reply})
         self.s.game.shot(self.out/'courtyard'/'whole-window-placed.png',max_wait=3,settle=.6)
         # Break an upper, non-root cell with a real attack key. Root-only loot must total one.
@@ -131,7 +131,7 @@ class CourtyardEvidence(BuildingEvidence):
         gone=[]
         for y in range(-58,-55):
             for x in range(55,58):gone.append('passed' in self.rc(f'execute if block {x} {y} 8 minecraft:air'))
-        selector='@e[type=minecraft:item,x=53,y=-61,z=5,dx=10,dy=10,dz=10,nbt={Item:{id:"myvillage:courtyard_window"}}]'
+        selector='@e[type=minecraft:item,x=53,y=-61,z=5,dx=10,dy=10,dz=10,nbt={Item:{id:"yuanxian:courtyard_window"}}]'
         self.rc('scoreboard objectives add courtyard_probe dummy');self.rc('scoreboard players set drops courtyard_probe 0')
         self.rc(f'execute as {selector} run scoreboard players add drops courtyard_probe 1')
         score=self.rc('scoreboard players get drops courtyard_probe');match=re.search(r'has (\d+) ',score)
@@ -141,7 +141,7 @@ class CourtyardEvidence(BuildingEvidence):
         self.rc('kill @e[type=minecraft:item,x=53,y=-61,z=5,dx=10,dy=10,dz=10]')
         self.rc(f'gamemode creative {u}');self.s.game.xdo('key','1');self.teleport(pos,yaw,pitch)
         self.s.game.shot(self.out/'courtyard'/'creative-window-before.png',max_wait=2,settle=.5);self.s.game.xdo('click','3')
-        self.poll(lambda:self.rc('execute if block 57 -58 8 myvillage:courtyard_window[variant=1]'),lambda s:'passed' in s,8,'creative whole window')
+        self.poll(lambda:self.rc('execute if block 57 -58 8 yuanxian:courtyard_window[variant=1]'),lambda s:'passed' in s,8,'creative whole window')
         self.teleport(break_pos,by,bp);self.s.game.shot(self.out/'courtyard'/'creative-window-break.png',max_wait=2,settle=.5);self.s.game.xdo('click','1')
         self.poll(lambda:self.rc('execute if block 57 -58 8 minecraft:air'),lambda s:'passed' in s,8,'creative upper part removes whole')
         self.rc('scoreboard players set drops courtyard_probe 0');self.rc(f'execute as {selector} run scoreboard players add drops courtyard_probe 1')
@@ -154,10 +154,10 @@ class CourtyardEvidence(BuildingEvidence):
         u=self.s.username;self.set_hud(False);self.rc(f'gamemode creative {u}')
         self.rc('fill 54 -60 6 60 -59 13 minecraft:smooth_stone');self.rc('fill 54 -58 6 60 -53 13 minecraft:air')
         self.rc('setblock 57 -59 8 minecraft:water[level=0]')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:courtyard_column 3');self.s.game.xdo('key','1')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:courtyard_column 3');self.s.game.xdo('key','1')
         pos=[57.5,-58,9.7];target=[57.5,-59.01,8.5];yaw,pitch=aim(pos,target)
         self.teleport(pos,yaw,pitch);self.s.game.shot(self.out/'courtyard'/'wet-column-before.png',max_wait=2,settle=.6);self.s.game.xdo('click','3')
-        self.poll(lambda:self.rc('execute if block 57 -59 8 myvillage:courtyard_column[waterlogged=true,part=0]'),lambda s:'passed' in s,8,'waterlogged whole column placement')
+        self.poll(lambda:self.rc('execute if block 57 -59 8 yuanxian:courtyard_column[waterlogged=true,part=0]'),lambda s:'passed' in s,8,'waterlogged whole column placement')
         target=[57.5,-55.5,8.5];yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
         self.s.game.shot(self.out/'courtyard'/'wet-column-placed.png',max_wait=2,settle=.6);self.s.game.xdo('click','1')
         reply=self.poll(lambda:self.rc('execute if block 57 -59 8 minecraft:water[level=0]'),lambda s:'passed' in s,8,'water restored after upper-cell removal')
@@ -188,7 +188,7 @@ class CourtyardEvidence(BuildingEvidence):
         u=self.s.username;self.set_hud(False);self.rc(f'gamemode survival {u}')
         self.rc('fill 54 -60 3 83 -59 13 minecraft:smooth_stone')
         self.rc('fill 54 -58 3 83 -51 13 minecraft:air')
-        self.rc(f'clear {u}');self.rc(f'item replace entity {u} hotbar.0 with myvillage:courtyard_roof 3')
+        self.rc(f'clear {u}');self.rc(f'item replace entity {u} hotbar.0 with yuanxian:courtyard_roof 3')
         pos=[56.5,-58,5.2];target=[56.5,-58.01,8.5]
         yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
         self.s.game.xdo('key','1');self.s.game.require_ingame('roof selector')
@@ -218,7 +218,7 @@ class CourtyardEvidence(BuildingEvidence):
         actual=[]
         for i in range(125):
             x,y=56+i%25,-58+i//25
-            actual.append('passed' in self.rc(f'execute if block {x} {y} 8 myvillage:courtyard_roof[variant=13,part={i},facing=north]'))
+            actual.append('passed' in self.rc(f'execute if block {x} {y} 8 yuanxian:courtyard_roof[variant=13,part={i},facing=north]'))
         count=read_data(self.rc(f'data get entity {u} Inventory[{{Slot:0b}}].count'))
         self.check('one_roof_item_places_all_125_parts',count==2 and all(actual),{'remaining':count,'parts':125})
         self.s.game.shot(self.out/'courtyard'/'whole-roof-placed.png',max_wait=3,settle=.5)
@@ -232,7 +232,7 @@ class CourtyardEvidence(BuildingEvidence):
         for i in range(125):removed.append('passed' in self.rc(f'execute if block {56+i%25} {-58+i//25} 8 minecraft:air'))
         # Drop spawns at the root. Read it before approaching it for pickup.
         time.sleep(.3)
-        selector='@e[type=minecraft:item,x=54,y=-60,z=3,dx=30,dy=8,dz=11,nbt={Item:{id:"myvillage:courtyard_roof"}}]'
+        selector='@e[type=minecraft:item,x=54,y=-60,z=3,dx=30,dy=8,dz=11,nbt={Item:{id:"yuanxian:courtyard_roof"}}]'
         self.rc('scoreboard objectives add courtyard_probe dummy');self.rc('scoreboard players set drops courtyard_probe 0')
         self.rc(f'execute as {selector} run scoreboard players add drops courtyard_probe 1')
         score=self.rc('scoreboard players get drops courtyard_probe');match=re.search(r'has (\d+) ',score)
@@ -246,7 +246,7 @@ class CourtyardEvidence(BuildingEvidence):
         u=self.s.username;self.set_hud(False);self.rc(f'gamemode survival {u}')
         self.rc('fill 54 -60 3 83 -59 13 minecraft:smooth_stone')
         self.rc('fill 54 -58 3 83 -51 13 minecraft:air')
-        self.rc(f'clear {u}');self.rc(f'item replace entity {u} hotbar.0 with myvillage:courtyard_beam 3')
+        self.rc(f'clear {u}');self.rc(f'item replace entity {u} hotbar.0 with yuanxian:courtyard_beam 3')
         pos=[56.5,-58,5.2];target=[56.5,-58.01,8.5]
         yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
         self.s.game.xdo('key','1');self.s.game.require_ingame('beam selector')
@@ -274,7 +274,7 @@ class CourtyardEvidence(BuildingEvidence):
         actual=[]
         for i in range(5):
             x,y=56+i%5,-58+i//5
-            actual.append('passed' in self.rc(f'execute if block {x} {y} 8 myvillage:courtyard_beam[variant=3,part={i},facing=north]'))
+            actual.append('passed' in self.rc(f'execute if block {x} {y} 8 yuanxian:courtyard_beam[variant=3,part={i},facing=north]'))
         count=read_data(self.rc(f'data get entity {u} Inventory[{{Slot:0b}}].count'))
         self.check('one_beam_item_places_all_5_parts',count==2 and all(actual),{'remaining':count,'parts':5})
         self.s.game.shot(self.out/'courtyard'/'whole-beam-placed.png',max_wait=3,settle=.5)
@@ -288,7 +288,7 @@ class CourtyardEvidence(BuildingEvidence):
         for i in range(5):removed.append('passed' in self.rc(f'execute if block {56+i%5} {-58+i//5} 8 minecraft:air'))
         # Drop spawns at the root. Read it before approaching it for pickup.
         time.sleep(.3)
-        selector='@e[type=minecraft:item,x=54,y=-60,z=3,dx=30,dy=8,dz=11,nbt={Item:{id:"myvillage:courtyard_beam"}}]'
+        selector='@e[type=minecraft:item,x=54,y=-60,z=3,dx=30,dy=8,dz=11,nbt={Item:{id:"yuanxian:courtyard_beam"}}]'
         self.rc('scoreboard objectives add courtyard_probe dummy');self.rc('scoreboard players set drops courtyard_probe 0')
         self.rc(f'execute as {selector} run scoreboard players add drops courtyard_probe 1')
         score=self.rc('scoreboard players get drops courtyard_probe');match=re.search(r'has (\d+) ',score)
@@ -367,7 +367,7 @@ class CourtyardEvidence(BuildingEvidence):
             self.report['scope']='structural bearing contacts, centered windows, raised pavilion roof and long-beam interaction; no restart, roof/window transaction or JEI rerun'
         (self.out/'courtyard').mkdir(exist_ok=True)
         os.environ['ORG_GRADLE_PROJECT_courtyard_jei_test']='true'
-        os.environ['JAVA_TOOL_OPTIONS']=(os.environ.get('JAVA_TOOL_OPTIONS','')+' -Dmyvillage.courtyard.evidence=true').strip()
+        os.environ['JAVA_TOOL_OPTIONS']=(os.environ.get('JAVA_TOOL_OPTIONS','')+' -Dyuanxian.courtyard.evidence=true').strip()
         cs.merge_options(cs.CLIENT_DIR/'options.txt',{'key_key.sneak':'key.keyboard.left.shift','key_key.inventory':'key.keyboard.e'})
         self.start();self.setup();self.screenshots()
         if joints_only:

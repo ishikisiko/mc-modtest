@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StoryVersionTest {
     private StoryDefinition upgraded() throws Exception {
         var json = JsonParser.parseString(Files.readString(Path.of(
-                "src/main/resources/data/myvillage/story/qianzhen_chapter_1.json"))).getAsJsonObject();
+                "src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json"))).getAsJsonObject();
         json.addProperty("version", 2);
         return StoryDefinition.parse(new StringReader(json.toString()));
     }

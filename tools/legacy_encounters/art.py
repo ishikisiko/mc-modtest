@@ -82,7 +82,7 @@ def import_material(name,path):
 def preview():
     from tools.beastgen.preview import Mesh,rows_to_array,fit_frame,render
     OUT.mkdir(parents=True,exist_ok=True)
-    font=ImageFont.truetype(str(ROOT/'src/main/resources/assets/myvillage/font/panel_body.ttf'),21)
+    font=ImageFont.truetype(str(ROOT/'src/main/resources/assets/yuanxian/font/panel_body.ttf'),21)
     cards=[]
     for m in catalogue()['mobs']:
         b=Built(m['id']);mesh=Mesh(b.model,rows_to_array(b.texture),rows_to_array(b.glow),scale=b.model.scale)

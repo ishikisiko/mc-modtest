@@ -19,7 +19,7 @@
 
 ## 输入和导出
 
-- 当前命名空间是 `myvillage`；历史 `minecraft_town_mod` 不代表另一套运行时资源。
+- 当前命名空间是 `yuanxian`；历史 `minecraft_town_mod` 不代表另一套运行时资源。
 - Blueprint v1 与 Structure JSON 是两种输入。前者包含版本、namespaced id、正尺寸、局部 palette、整数坐标和字符串 state；占位 `export_nbt.py`/`export_schem.py` 不能冒充已实现导出器。
 - Structure JSON 面向 Minecraft 1.21.1：有界正尺寸，确定性解析 palette/blockstate，支持 set、fill、轴对齐 line 和旧 blocks；只有显式 `fill_air` 才补空气。元数据尺寸须匹配；道路需至少两个连接锚点。
 - 实际 NBT 导出为 gzip Java structure template，包含 DataVersion、author、size、palette、blocks、entities；生成网格先归一化到最小坐标零。模板导出不应被描述为通用实体、战利品或任意复杂 BlockEntity 导出器；模组已有独立世界生成与实体系统。
@@ -31,7 +31,7 @@
 ## 调色板、模组与朝向
 
 - `tools/buildgen/modset.py` 和 `exmod/mod_block_catalog.json` 决定模组合法性；禁止另写 namespace 白名单。区分未启用 namespace 与启用 namespace 中未知 block id。
-- 外部模组槽按可用 namespace 过滤，必需槽保留末尾原版 fallback；缺少可选槽就省略对应装饰。`myvillage:` 自有资源在 vanilla/full 模式均合法。
+- 外部模组槽按可用 namespace 过滤，必需槽保留末尾原版 fallback；缺少可选槽就省略对应装饰。`yuanxian:` 自有资源在 vanilla/full 模式均合法。
 - 运行时先查真实 registry：已注册方块及属性原样保留；缺失外部方块使用确定性、非空气的原版替代。回退表由槽数据生成，冲突使用稳定优先级，不在 Java 复制表格。
 - 朝向由注册的方块族语法解释；未知族明确失败，不能猜测原版楼梯属性。屋顶和 motif 经注册表与风格 allow-list 分派。
 
@@ -59,7 +59,7 @@
 ## 灵石公共标签
 
 - `c:ores/spirit_stone` 同时提供 block/item 标签，包含普通与深层原矿，并挂入 `c:ores`。`c:gems/spirit_stone`、`c:gems` 和 `c:spirit_stones` 仅作分类。
-- `c:spirit_stones/low_grade` 是明确的一枚抵一枚下品灵石入口，默认只含 `myvillage:low_grade_spirit_stone`。数据包可追加同级外部物品；不根据名称、namespace 或宽泛 gems 标签推断等价性，不自动接入未知模组。
+- `c:spirit_stones/low_grade` 是明确的一枚抵一枚下品灵石入口，默认只含 `yuanxian:low_grade_spirit_stone`。数据包可追加同级外部物品；不根据名称、namespace 或宽泛 gems 标签推断等价性，不自动接入未知模组。
 - 修炼、宗门供奉、丹炉燃料/补料、炼器/维修和灵石合成原料消费此分级标签；产物/掉落仍是原 registry ID。修炼面板采用相同标签；混合库存扣料失败须恢复原堆叠及组件。
 - 丹炉保留单燃料槽，不合并不同物品/组件的堆叠；补料受实际堆叠上限限制。交易货币仍由 commerce rules 的具体物品决定，不开放标签兑换。
 - 新公共标签为 authored JSON；已有 `c:ores` 汇总由 `tools/forging/acquisition.py` 生成。配方仍由各自生成器维护，不手改生成结果。
@@ -75,7 +75,7 @@
 
 ## 灵石袋
 
-- 灵石袋持久余额归原物品 `myvillage:spirit_stone_balance` 组件，按精确物品/组件身份聚合并用 BigInteger 记数，无固定容量上限；不额外复制死亡数据。旧 container 幂等迁移，不丢弃失去标签资格的物品。袋子不嵌套，缺款/满背包失败不丢失或重复物品。
+- 灵石袋持久余额归原物品 `yuanxian:spirit_stone_balance` 组件，按精确物品/组件身份聚合并用 BigInteger 记数，无固定容量上限；不额外复制死亡数据。旧 container 幂等迁移，不丢弃失去标签资格的物品。袋子不嵌套，缺款/满背包失败不丢失或重复物品。
 - 袋和散装灵石由 `SpiritStoneSources` / `SpiritStoneStorage` 统一暴露。修炼、供奉、炼器、丹炉补料和交易使用其原有服务器事务；交易继续核对具体普通货币，不能按宽泛标签兑换。
 - 自动入袋仅服务器执行；额外装备/饰品来源必须提供稳定、去重且可原子替换的槽位，普通产物不能插入这些位置。未接入饰品模组时只承诺物品栏/副手。
 - 扫描间隔以 `spirit_stones/bag.json`、品级整数量级以 `spirit_stones/denominations.json` 为唯一来源；已配置下品、中品和上品，不自动兑换。主动兑换经 `/灵石`，仅接受配置的普通物品且完整事务提交；资源归 `tools/gen_spirit_stone_bag.py` 和 `tools/gen_spirit_stone_grades.py`；用法和扩展接口见 [KB59](../ai-kb/59_spirit_stone_bag.md)。

@@ -9,7 +9,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 /** 只观察实际客户端物品、界面和输入状态，不触发操作。 */
-@EventBusSubscriber(modid = "myvillage", value = Dist.CLIENT)
+@EventBusSubscriber(modid = "yuanxian", value = Dist.CLIENT)
 public final class TravelTalismanClientProbe {
     private static String previous = "";
     @SubscribeEvent static void tick(ClientTickEvent.Post e) {

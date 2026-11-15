@@ -21,7 +21,7 @@ public final class NpcDialogueText {
         return String.format(Locale.ROOT, CHINESE.get(text.getKey()).getAsString(), args);
     }
     private static JsonObject load() {
-        String path = "/assets/myvillage/lang/zh_cn.json";
+        String path = "/assets/yuanxian/lang/zh_cn.json";
         try (var input = NpcDialogueText.class.getResourceAsStream(path)) {
             if (input == null) throw new IllegalStateException("Missing " + path);
             return JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();

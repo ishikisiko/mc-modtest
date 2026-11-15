@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StoryDefinitionTest {
-    private String source()throws Exception{return Files.readString(Path.of("src/main/resources/data/myvillage/story/qianzhen_chapter_1.json"));}
+    private String source()throws Exception{return Files.readString(Path.of("src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json"));}
     @Test void bundledDefinitionHasFourActorsAndBothRoutes(){var d=StoryTestData.definition();assertEquals(4,d.roles().size());assertTrue(d.actions().containsKey("examine_sample"));assertTrue(d.actions().containsKey("inspect_chest"));}
     @Test void strictJsonRejectsDuplicateKeysUnknownFieldsAndUnsupportedSchema()throws Exception {
         String s=source();

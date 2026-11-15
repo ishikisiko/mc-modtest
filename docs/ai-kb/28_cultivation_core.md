@@ -37,8 +37,8 @@ The historical v1 value graph, retained as the migration input, is:
 ```text
 CultivationProfile
   schemaVersion: int = 1
-  realmId: ResourceLocation = myvillage:mortal
-  stageId: ResourceLocation = myvillage:mortal_unawakened
+  realmId: ResourceLocation = yuanxian:mortal
+  stageId: ResourceLocation = yuanxian:mortal_unawakened
   cultivationProgress: long = 0, minimum 0
   stability: int = 0, range 0..100
   currentSpiritualPower: long = 0, minimum 0
@@ -67,7 +67,7 @@ unknown realm/stage/root element or technique. `reset` is the explicit recovery
 route. The current codec retains explicit v1, v2, and v3 shapes. It preserves every
 v1 field, initializes lifespan consumption and meditation reserve to zero,
 migrates v1 or v2 to v3 with spiritual affinity `10`, then v3 to v4 (0.37.0),
-which adds the optional `active_core_technique`: `myvillage:basic_breathing`
+which adds the optional `active_core_technique`: `yuanxian:basic_breathing`
 when that is learned, otherwise empty. It writes only v4; a v4 running id that
 is no longer learned reads as empty. Any
 other schema version is a controlled codec error, not an
@@ -85,23 +85,23 @@ and network codecs (school and heritage since 0.37.0):
 
 | Definition | Registry key | Shipped resource root |
 |---|---|---|
-| Realm | `myvillage:realm` | `src/main/resources/data/myvillage/myvillage/realm/` |
-| Spiritual element | `myvillage:spiritual_element` | `src/main/resources/data/myvillage/myvillage/spiritual_element/` |
-| Technique | `myvillage:technique` | `src/main/resources/data/myvillage/myvillage/technique/` |
-| School (流派) | `myvillage:school` | `src/main/resources/data/myvillage/myvillage/school/` |
-| Heritage (传承) | `myvillage:heritage` | `src/main/resources/data/myvillage/myvillage/heritage/` |
+| Realm | `yuanxian:realm` | `src/main/resources/data/yuanxian/yuanxian/realm/` |
+| Spiritual element | `yuanxian:spiritual_element` | `src/main/resources/data/yuanxian/yuanxian/spiritual_element/` |
+| Technique | `yuanxian:technique` | `src/main/resources/data/yuanxian/yuanxian/technique/` |
+| School (流派) | `yuanxian:school` | `src/main/resources/data/yuanxian/yuanxian/school/` |
+| Heritage (传承) | `yuanxian:heritage` | `src/main/resources/data/yuanxian/yuanxian/heritage/` |
 
 The doubled namespace is intentional. Minecraft 1.21.1 resolves custom registry
 entries as `data/<entry_namespace>/<registry_namespace>/<registry_path>/`; an
-entry `<pack_namespace>:example` in `myvillage:technique` therefore lives at
-`data/<pack_namespace>/myvillage/technique/example.json`.
+entry `<pack_namespace>:example` in `yuanxian:technique` therefore lives at
+`data/<pack_namespace>/yuanxian/technique/example.json`.
 
 The shipped realm and element data includes metal, wood, water, fire and earth;
 the mortal, qi-refining, foundation-establishment and golden-core player realms;
 mortal-unawakened, mortal-qi-sensed, qi-refining stages 1 through 9, and
 early/middle/late stages in Foundation and Golden Core (17 stages total).
 Techniques are the hand-written grade-0
-`myvillage:basic_breathing` with its initiation realm/stage requirements plus,
+`yuanxian:basic_breathing` with its initiation realm/stage requirements plus,
 since 0.37.0, 129 catalogue techniques, four schools, and three heritages
 written by `tools/gen_technique_catalogue.py` (never edited by hand).
 
@@ -125,14 +125,14 @@ tables or id-prefix inference.
 
 ## Persistence And Synchronization
 
-The codec-backed attachment id is `myvillage:cultivation_profile`. Its
+The codec-backed attachment id is `yuanxian:cultivation_profile`. Its
 `copyOnDeath()` configuration is the sole copy owner. There is no cultivation
 copy in `PlayerEvent.Clone`: true death preserves the complete profile without a
 penalty, and normal NeoForge End-return replacement preserves it without a second
 copy, merge, or reset. Login, respawn, and dimension-change listeners only read
 the authoritative attachment and synchronize it.
 
-`myvillage:cultivation_snapshot` is play-to-client only and is sent to the owning
+`yuanxian:cultivation_snapshot` is play-to-client only and is sent to the owning
 player on login, respawn (death or End return), dimension change, every successful
 administrator mutation, and reset. It is not sent every tick and does not repeat
 definition records, which arrive through registry synchronization. The handler
@@ -141,7 +141,7 @@ clears it on disconnect. The playable loop adds only bounded action-intent C2S
 payloads for meditation and advancement, shared by keys and H buttons; no
 profile field, coordinate, velocity, affinity, rate, cost, target stage, or
 success value is client-authored. Since 0.37.0 the one other cultivation
-C2S payload is `myvillage:core_technique_switch`, whose only data is a
+C2S payload is `yuanxian:core_technique_switch`, whose only data is a
 technique id; its handler calls only `CultivationService.switchCoreTechnique`.
 Common/server registration does
 not classload client-only types.
@@ -219,7 +219,7 @@ core technique through `CultivationService.switchCoreTechnique` (learned and
 `core` only; outside one heritage chain it costs `techniques.switch_progress_loss`
 of the progress, see note 41); its suggestions are the registered core techniques.
 `manual` / `miji` (0.38.0) gives the target the technique manual of that
-technique's category and grade, carrying it in the `myvillage:technique`
+technique's category and grade, carrying it in the `yuanxian:technique`
 component (into the inventory, dropped at the target when full); it changes
 no profile, and a grade-0 or unregistered technique is refused. `awaken`/`juexing`
 calls the ordinary deterministic awakening service, while `initiate`/`rumen`
@@ -260,7 +260,7 @@ in a real client/server session and recorded as pass or fail:
 | 3 | A root total other than 10000 is rejected and the profile is unchanged. | `not_verified` |
 | 4 | A valid registered realm-stage pair succeeds. | `not_verified` |
 | 5 | A stage outside the selected realm is rejected. | `not_verified` |
-| 6 | Learning registered `myvillage:basic_breathing` succeeds. | `not_verified` |
+| 6 | Learning registered `yuanxian:basic_breathing` succeeds. | `not_verified` |
 | 7 | Learning an unregistered technique is rejected. | `not_verified` |
 | 8 | A non-default profile survives save and server restart. | `not_verified` |
 | 9 | A non-default profile survives true death without loss. | `not_verified` |

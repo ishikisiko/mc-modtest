@@ -44,15 +44,15 @@ class FurnitureResourcesTest(unittest.TestCase):
         files=outputs(self.catalog)
         for family in self.catalog['families']:
             ident=family['id'];count=math.prod(family['size'])
-            states=json.loads(files[f'assets/myvillage/blockstates/{ident}.json'])['variants']
+            states=json.loads(files[f'assets/yuanxian/blockstates/{ident}.json'])['variants']
             self.assertEqual(count*8,len(states))
             for state,ref in states.items():
-                path='assets/myvillage/models/'+ref['model'].split(':',1)[1]+'.json'
+                path='assets/yuanxian/models/'+ref['model'].split(':',1)[1]+'.json'
                 self.assertIn(path,files)
-            pools=json.loads(files[f'data/myvillage/loot_table/blocks/{ident}.json'])['pools']
+            pools=json.loads(files[f'data/yuanxian/loot_table/blocks/{ident}.json'])['pools']
             self.assertEqual(1,len(pools))
-            self.assertIn({'condition':'minecraft:block_state_property','block':'myvillage:'+ident,'properties':{'part':'0'}},pools[0]['conditions'])
-            self.assertEqual('myvillage:'+ident,json.loads(files[f'data/myvillage/recipe/{ident}.json'])['result']['id'])
+            self.assertIn({'condition':'minecraft:block_state_property','block':'yuanxian:'+ident,'properties':{'part':'0'}},pools[0]['conditions'])
+            self.assertEqual('yuanxian:'+ident,json.loads(files[f'data/yuanxian/recipe/{ident}.json'])['result']['id'])
 
     def test_out_of_footprint_geometry_and_missing_family_are_rejected(self):
         invalid=copy.deepcopy(self.catalog);invalid['families'][0]['elements'][0]['to'][0]=17

@@ -28,7 +28,7 @@
 
 - 沿用 `tools/json_to_nbt.py` 的 JSON DSL，`ops` 只用已支持的 set / fill / line。
   authored JSON 是几何和材质的唯一输入；导出物只在忽略目录生成。
-- 每个文件包含 `id=myvillage:qianzhen_<slug>_v1`、`author`、`mc_version`、
+- 每个文件包含 `id=yuanxian:qianzhen_<slug>_v1`、`author`、`mc_version`、
   `size`、`fill_air=true`、`palette`、`ops`、`walk_targets`、`signs`、
   `presentation`、`site`、`story_anchors` 与 `design_notes`。
 - `walk_targets.entry` 是实际可站立的入口脚部坐标，其他目标必须能从入口

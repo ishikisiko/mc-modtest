@@ -216,9 +216,9 @@ def compile_components():
     profiles=sorted(unique,key=repr);lookup={p:i for i,p in enumerate(profiles)};blocks={};roles=set()
     for pos,(p,turn) in converted.items():
         roles.update(b[6] for b in p)
-        if len(p)==1 and p[0][:6]==FULL and len(p[0])==7:state='myvillage:qianji_'+p[0][6]
+        if len(p)==1 and p[0][:6]==FULL and len(p[0])==7:state='yuanxian:qianji_'+p[0][6]
         else:
-            i=lookup[p];state=f'myvillage:qianji_carved_{i//32}[facing={FACINGS[turn]},shape={i%32}]'
+            i=lookup[p];state=f'yuanxian:qianji_carved_{i//32}[facing={FACINGS[turn]},shape={i%32}]'
         blocks[pos]=state
     if scene.get('bookcases'):roles.update(bookcases.RULES['book_roles'])
     for b in water:
@@ -252,8 +252,8 @@ def compile_components():
                 if not thin_planting_surface and existing-{'grass','moss','soil','stone','stone_dark','paving'}:raise ValueError(f'原版树侵入总舵构件 {site} {p} {existing}')
             blocks[p]=state
     # 委托榜保留真实交互，锚点控制同一座总舵的客户端动效。
-    blocks[tuple(access['board'])]='myvillage:jianghu_board[facing=north]'
-    blocks[tuple(access['atmosphere_anchor'])]='myvillage:qianji_atmosphere_anchor[facing=north]'
+    blocks[tuple(access['board'])]='yuanxian:jianghu_board[facing=north]'
+    blocks[tuple(access['atmosphere_anchor'])]='yuanxian:qianji_atmosphere_anchor[facing=north]'
     return finish_blocks(dict(scene=scene,config=cfg,blocks=blocks,converted=converted,profiles=profiles,roles=sorted(roles),special=special,identity=identity()))
 
 if __name__=='__main__':

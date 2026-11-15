@@ -11,9 +11,9 @@ def model_payload(blocks):
     models = {}
     for state in set(blocks.values()):
         name = state.split('[')[0]
-        if not name.startswith('myvillage:'):
+        if not name.startswith('yuanxian:'):
             continue
-        model_file = ROOT/'src/main/resources/assets/myvillage/models/block'/f'{name.split(":")[1]}.json'
+        model_file = ROOT/'src/main/resources/assets/yuanxian/models/block'/f'{name.split(":")[1]}.json'
         model = json.loads(model_file.read_text())
         assert model.get('elements'), f'no model elements: {model_file}'
         models[name] = {'elements': model['elements'], 'textures': model.get('textures',{})}

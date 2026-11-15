@@ -26,11 +26,11 @@ BASE_COMMIT = '2bc57445283bedf3dc620d21c3d9789a20b6f57f'
 BASE_RUN = '20261023T155335Z-0cb1b9e3'
 LIMIT = 512 * 1024 * 1024
 CLIENT = 'src/main/java/com/example/myvillage/client/story/StoryClient.java'
-LANG = 'src/main/resources/assets/myvillage/lang/zh_cn.json'
+LANG = 'src/main/resources/assets/yuanxian/lang/zh_cn.json'
 MANDATORY = {
     CLIENT, LANG, 'src/main/java/com/example/myvillage/story/StoryRuntime.java',
-    'src/main/resources/data/myvillage/story/qianzhen_chapter_1.json',
-    'src/main/resources/data/myvillage/story/qianzhen_actors.json',
+    'src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json',
+    'src/main/resources/data/yuanxian/story/qianzhen_actors.json',
     'blueprints/qianzhen/story_scene.json', 'tools/qianzhen/story_assets.py',
 }
 REUSED = {'production_deploy', 'fresh_entry_world', 'rescue_restart'}
@@ -57,7 +57,7 @@ def normalized_source_hash(path, relative):
         data = data.replace(b'GLFW.GLFW_KEY_Y', b'GLFW.GLFW_KEY_P')
     elif relative == LANG:
         value = json.loads(data)
-        value['key.myvillage.story_tracker'] = value['key.myvillage.story_tracker'].replace('默认 Y', '默认 P')
+        value['key.yuanxian.story_tracker'] = value['key.yuanxian.story_tracker'].replace('默认 Y', '默认 P')
         data = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')
     return hashlib.sha256(data).hexdigest()
 
@@ -288,7 +288,7 @@ def prepare(root, out, manifest_path, route, origin):
         prior = json.loads((prior_dir/'evidence.json').read_text())
         if prior['scene']['origin'] != list(origin):
             raise ValueError('Resume origin differs from preserved scene')
-        chapter = Path(root)/'src/main/resources/data/myvillage/story/qianzhen_chapter_1.json'
+        chapter = Path(root)/'src/main/resources/data/yuanxian/story/qianzhen_chapter_1.json'
         if sha256(prior_dir/'chapter-used.json') != sha256(chapter):
             raise ValueError('Prior chapter-used differs from current production chapter')
         for name in [*prior['videos'], *(r['path'] for r in prior['screenshots'])]:

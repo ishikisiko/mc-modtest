@@ -4,7 +4,7 @@
 
 ## 已落实的行为
 
-新世界使用独立的 `myvillage:planned_v9`、`myvillage:planned_source_v9`、`myvillage:worldplan_v9`。V9 的七州主城来自 v2 owning exporter；中州直接从旧输出根读取同一份 v1 资源，不复制到新根。八城 `city_id` 保留，七个新布局族和生活身份由 [rules_v9.json](../blueprints/worldplan/rules_v9.json) 显式映射，不修改旧设计目录来冒充 v2。
+新世界使用独立的 `yuanxian:planned_v9`、`yuanxian:planned_source_v9`、`yuanxian:worldplan_v9`。V9 的七州主城来自 v2 owning exporter；中州直接从旧输出根读取同一份 v1 资源，不复制到新根。八城 `city_id` 保留，七个新布局族和生活身份由 [rules_v9.json](../blueprints/worldplan/rules_v9.json) 显式映射，不修改旧设计目录来冒充 v2。
 
 V9 完整继承正式 `frozen_v8.json`；只替换 `algorithm`、`capitals.bundles` 并增加 `capitals.assets`。世界、统一选址、融合、出生、聚落/宗门避让、候选耗尽和 life 预算均继承原字段。生活位置仍限 192，原结构上限和 LifeRules/LifeCodec 断言未改。中州继续 `absolute originY=0`。
 
@@ -55,10 +55,10 @@ Gradle 的新增依赖为 `generateProvinceCapitalV9Assets → generateProvinceC
 开发阶段缺少正常 `frozen_v7` 时，可先核验已批准的缓存，再使用旧聚合器的现有 `--base-rules`，不得改写旧聚合器或生产默认参数：
 
 ```bash
-sha256sum build/province_capitals/base-0.100.2/data/myvillage/worldplan/frozen_v7.json
+sha256sum build/province_capitals/base-0.100.2/data/yuanxian/worldplan/frozen_v7.json
 python3 tools/province_capitals/game/compile.py \
   --out build/generated/province_capitals/resources \
-  --base-rules build/province_capitals/base-0.100.2/data/myvillage/worldplan/frozen_v7.json \
+  --base-rules build/province_capitals/base-0.100.2/data/yuanxian/worldplan/frozen_v7.json \
   --aggregate-only
 ```
 
@@ -101,7 +101,7 @@ python3 tools/province_capitals/game/compile_v9.py \
 已执行的轻量检查：
 
 - 新 Python 聚合器可解析；focused Python 回归最终 6 项通过。范围为独立输出、七 v2/一 v1、旧字节保护、诊断字段不改变运行时身份、跨城/跨版本拒绝、缺城拒绝、精确解压长度与 192 life 上限、逐字段诊断审阅和二进制漂移拒绝。小 fixture 的切片字节仅用于摘要测试，不是 NBT 格式或游戏证据。
-- 一次真实 `--aggregate-only` 尝试退出 1：缺少 `build/generated/province_capitals_v9/resources/data/myvillage/capitals/v2/capital_beiyuan/city.json`。到该失败点前，全部旧 V8 资源身份已核对。原始完整失败保存在 `build/province_capitals/v9-integration/aggregate-attempt-01.log`，没有覆盖或写成通过。
+- 一次真实 `--aggregate-only` 尝试退出 1：缺少 `build/generated/province_capitals_v9/resources/data/yuanxian/capitals/v2/capital_beiyuan/city.json`。到该失败点前，全部旧 V8 资源身份已核对。原始完整失败保存在 `build/province_capitals/v9-integration/aggregate-attempt-01.log`，没有覆盖或写成通过。
 - 旧资源只读比较 6179 文件一致；改动 diff 未发现空白错误。
 
 轻量回归命令：

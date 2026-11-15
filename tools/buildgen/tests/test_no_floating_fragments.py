@@ -38,7 +38,7 @@ from buildgen.massing import Node  # noqa: E402
 from buildgen.nbtread import read_gzipped_nbt, state_string  # noqa: E402
 from buildgen.style import load_style  # noqa: E402
 
-STRUCTURE_DIR = _TOOLS_DIR.parent / "src/main/resources/data/myvillage/structure"
+STRUCTURE_DIR = _TOOLS_DIR.parent / "src/main/resources/data/yuanxian/structure"
 SECT_FAMILY = (
     "sect_gate", "sect_main_hall", "scripture_pavilion", "alchemy_room",
     "disciple_quarters", "bell_drum_tower", "pagoda", "pavilion",

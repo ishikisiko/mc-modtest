@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ThunderTigerLairRulesTest {
     private JsonObject json() throws Exception {
-        try (var in = getClass().getResourceAsStream("/data/myvillage/boss/thunder_tiger_lair.json")) {
+        try (var in = getClass().getResourceAsStream("/data/yuanxian/boss/thunder_tiger_lair.json")) {
             return JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
         }
     }

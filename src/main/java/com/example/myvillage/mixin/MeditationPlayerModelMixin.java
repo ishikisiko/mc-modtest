@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value=PlayerModel.class,priority=900)
 public abstract class MeditationPlayerModelMixin {
     @Inject(method="setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V",at=@At("TAIL"))
-    private void myvillage$pose(LivingEntity entity,float swing,float amount,float age,float yaw,float pitch,CallbackInfo ci) {
+    private void yuanxian$pose(LivingEntity entity,float swing,float amount,float age,float yaw,float pitch,CallbackInfo ci) {
         PlayerModel<?> model=(PlayerModel<?>)(Object)this;
         MeditationPose.clear(model);
         if(entity instanceof AbstractClientPlayer player) {

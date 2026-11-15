@@ -188,7 +188,7 @@ def package(current, priors, out, facility=None, review=None):
             'evidence':'facility-recheck/evidence.json','visual_review':'facility-recheck/visual-review.json',
             'superseded_checks':sorted(replaced),
             'reason':'原炼丹截图早于菜单绘制；原记录不改写，补验用延迟双帧、交互录像和人工图片审阅替代设施结论'}
-    jar = current['path']/'artifacts/build/libs'/('myvillage-'+e['mod_version']+'.jar')
+    jar = current['path']/'artifacts/build/libs'/('yuanxian-'+e['mod_version']+'.jar')
     if jar.is_file():
         shutil.copy2(jar,out/jar.name)
         result['runtime_jar'] = {'file':jar.name,'sha256':sha(jar),'source_commit':e['source_commit']}

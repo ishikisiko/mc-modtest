@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /** One assignment. Slot SIZE with AUTO is the explicit reset-to-default request. */
 public record SkillBindingPayload(int slot,ResourceLocation technique) implements CustomPacketPayload {
-    public static final Type<SkillBindingPayload> TYPE=new Type<>(ResourceLocation.parse("myvillage:skill_binding"));
+    public static final Type<SkillBindingPayload> TYPE=new Type<>(ResourceLocation.parse("yuanxian:skill_binding"));
     public SkillBindingPayload {
         if(slot<0 || slot>SkillBindings.SIZE || technique==null || technique.toString().length()>128
                 || (slot==SkillBindings.SIZE && !technique.equals(SkillBindings.AUTO))

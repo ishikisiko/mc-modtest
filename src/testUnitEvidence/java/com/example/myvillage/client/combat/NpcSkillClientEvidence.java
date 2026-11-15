@@ -18,7 +18,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /** 真实客户端的数据包、配置页面和保存回执；界面由开发者直接准备。 */
-@EventBusSubscriber(modid="myvillage",value=Dist.CLIENT)
+@EventBusSubscriber(modid="yuanxian",value=Dist.CLIENT)
 public final class NpcSkillClientEvidence {
     private static int stage,ticks;
     private static TestUnitScreen screen;
@@ -66,18 +66,18 @@ public final class NpcSkillClientEvidence {
             }
             if(stage==2){
                 if(get(TestUnitScreen.class,screen,"skillUnit")==null)return;
-                var rows=(Map<String,Object>)get(TestUnitScreen.class,screen,"skillDrafts");var wave=rows.get("myvillage:jianqi_jue");
+                var rows=(Map<String,Object>)get(TestUnitScreen.class,screen,"skillDrafts");var wave=rows.get("yuanxian:jianqi_jue");
                 check(wave!=null&&get(wave.getClass(),wave,"mastery").equals("1200"),"服务器技能读取未正确同步");
-                set(TestUnitScreen.class,screen,"selectedSkill","myvillage:jianqi_jue");invoke("rebuild");pending="npc-skills-loaded";stage=3;return;
+                set(TestUnitScreen.class,screen,"selectedSkill","yuanxian:jianqi_jue");invoke("rebuild");pending="npc-skills-loaded";stage=3;return;
             }
             if(stage==3){
-                var rows=(Map<String,Object>)get(TestUnitScreen.class,screen,"skillDrafts");var wave=rows.get("myvillage:jianqi_jue");
+                var rows=(Map<String,Object>)get(TestUnitScreen.class,screen,"skillDrafts");var wave=rows.get("yuanxian:jianqi_jue");
                 set(wave.getClass(),wave,"mastery","1400");set(wave.getClass(),wave,"priority","7");set(wave.getClass(),wave,"automatic",false);
                 invoke("applySkills");stage=4;return;
             }
             if(stage==4){
                 if(!((String)get(TestUnitScreen.class,screen,"message")).startsWith("已应用"))return;
-                var rows=(Map<String,Object>)get(TestUnitScreen.class,screen,"skillDrafts");var wave=rows.get("myvillage:jianqi_jue");
+                var rows=(Map<String,Object>)get(TestUnitScreen.class,screen,"skillDrafts");var wave=rows.get("yuanxian:jianqi_jue");
                 check(get(wave.getClass(),wave,"mastery").equals("1400")&&get(wave.getClass(),wave,"priority").equals("7")
                         &&Boolean.FALSE.equals(get(wave.getClass(),wave,"automatic")),"技能修改没有按服务器回执落定");
                 pending="npc-skills-applied";stage=5;return;
@@ -85,18 +85,18 @@ public final class NpcSkillClientEvidence {
             if(stage==5){
                 var rows=(Map<String,Object>)get(TestUnitScreen.class,screen,"skillDrafts");
                 Class<?> type=Class.forName(TestUnitScreen.class.getName()+"$SkillDraft");var ctor=type.getDeclaredConstructor(boolean.class);ctor.setAccessible(true);
-                var core=ctor.newInstance(false);set(type,core,"mastery","1800");rows.put("myvillage:qingmu_changchun_gong",core);
-                set(TestUnitScreen.class,screen,"runningCore","myvillage:qingmu_changchun_gong");set(TestUnitScreen.class,screen,"selectedSkill","myvillage:qingmu_changchun_gong");
+                var core=ctor.newInstance(false);set(type,core,"mastery","1800");rows.put("yuanxian:qingmu_changchun_gong",core);
+                set(TestUnitScreen.class,screen,"runningCore","yuanxian:qingmu_changchun_gong");set(TestUnitScreen.class,screen,"selectedSkill","yuanxian:qingmu_changchun_gong");
                 invoke("applySkills");stage=6;return;
             }
             if(stage==6){
                 if(!((String)get(TestUnitScreen.class,screen,"message")).startsWith("已应用"))return;
-                check(get(TestUnitScreen.class,screen,"runningCore").equals("myvillage:qingmu_changchun_gong"),"运行心法没有正确回执");
+                check(get(TestUnitScreen.class,screen,"runningCore").equals("yuanxian:qingmu_changchun_gong"),"运行心法没有正确回执");
                 invoke("rebuild");pending="npc-skills-core";stage=7;return;
             }
             if(stage==7){org.lwjgl.glfw.GLFW.glfwSetWindowSize(mc.getWindow().getWindow(),960,720);mc.options.guiScale().set(3);mc.resizeDisplay();stage=8;return;}
             if(stage==8){mc.options.guiScale().set(3);mc.resizeDisplay();invoke("rebuild");pending="npc-skills-core-narrow";stage=9;return;}
-            if(stage==9){set(TestUnitScreen.class,screen,"selectedSkill","myvillage:jianqi_jue");invoke("rebuild");pending="npc-skills-narrow";stage=10;return;}
+            if(stage==9){set(TestUnitScreen.class,screen,"selectedSkill","yuanxian:jianqi_jue");invoke("rebuild");pending="npc-skills-narrow";stage=10;return;}
             if(stage==10){
                 if(System.getenv("MYVILLAGE_NPC_SKILLS_UI_ONLY")==null)check(artReceived&&waveReceived,"未观察到 NPC 武技和剑气的正式表现数据包");
                 check(Files.exists(out.resolve("applied-result.json")),"服务器没有确认已写入技能配置");

@@ -8,7 +8,7 @@ from tools.validate_innate_fates import ROOT, JAVA, DATA, validate
 class FateValidatorTest(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
-        for rel in [DATA,'src/main/resources/data/myvillage/combat','src/main/resources/data/myvillage/fates','src/main/resources/assets/myvillage/lang',JAVA+'cultivation/fate']:
+        for rel in [DATA,'src/main/resources/data/yuanxian/combat','src/main/resources/data/yuanxian/fates','src/main/resources/assets/yuanxian/lang',JAVA+'cultivation/fate']:
             shutil.copytree(ROOT/rel,self.root/rel)
         for rel in [JAVA+'cultivation/CultivationService.java',JAVA+'cultivation/CultivationAttachments.java',JAVA+'cultivation/network/FateIntentPayload.java',JAVA+'client/cultivation/panel/FatesPage.java',JAVA+'client/cultivation/AwakeningScreen.java',JAVA+'cultivation/network/CultivationPayloads.java',JAVA+'cultivation/network/AwakeningOpenPayload.java',JAVA+'cultivation/network/AwakeningClosePayload.java',JAVA+'block/SpiritTestingSteleBlock.java']:
             p=self.root/rel;p.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/rel,p)
@@ -34,11 +34,11 @@ class FateValidatorTest(unittest.TestCase):
         self.edit('water_affinity',lambda d:d['effects'].pop('water_slow_cooldown'))
         self.assertTrue(any('FATE_WATER_AFFINITY' in x for x in validate(self.root)))
     def test_everlasting_mortal_growth_is_rejected(self):
-        p=self.root/'src/main/resources/data/myvillage/fates/everlasting.json';d=json.loads(p.read_text())
-        d['yearly']['myvillage:mortal']=[.5,0,0];p.write_text(json.dumps(d))
+        p=self.root/'src/main/resources/data/yuanxian/fates/everlasting.json';d=json.loads(p.read_text())
+        d['yearly']['yuanxian:mortal']=[.5,0,0];p.write_text(json.dumps(d))
         self.assertTrue(any('EVERLASTING_RATES' in x for x in validate(self.root)))
     def test_everlasting_quarter_point_credit_is_rejected(self):
-        p=self.root/'src/main/resources/data/myvillage/fates/everlasting.json';d=json.loads(p.read_text())
+        p=self.root/'src/main/resources/data/yuanxian/fates/everlasting.json';d=json.loads(p.read_text())
         d['credit_step']=.25;p.write_text(json.dumps(d))
         self.assertTrue(any('EVERLASTING_PRECISION' in x for x in validate(self.root)))
     def test_everlasting_requires_copy_on_death(self):
@@ -50,11 +50,11 @@ class FateValidatorTest(unittest.TestCase):
         self.edit('earth_spirit_body',lambda d:d['effects'].update(health=.2))
         self.assertTrue(any('PLACEHOLDER_EFFECTS' in x for x in validate(self.root)))
     def test_placeholder_must_disclose_absent_effects(self):
-        self.edit('earth_spirit_body',lambda d:d.update(description_key='fate.myvillage.robust.description'))
+        self.edit('earth_spirit_body',lambda d:d.update(description_key='fate.yuanxian.robust.description'))
         self.assertTrue(any('PLACEHOLDER_LABEL' in x for x in validate(self.root)))
     def test_implemented_spirit_cannot_retain_placeholder_name(self):
-        p=self.root/'src/main/resources/assets/myvillage/lang/zh_cn.json';d=json.loads(p.read_text())
-        d['fate.myvillage.phoenix_body']='凤凰灵体（占位）';p.write_text(json.dumps(d))
+        p=self.root/'src/main/resources/assets/yuanxian/lang/zh_cn.json';d=json.loads(p.read_text())
+        d['fate.yuanxian.phoenix_body']='凤凰灵体（占位）';p.write_text(json.dumps(d))
         self.assertTrue(any('FATE_SPIRIT_LABEL' in x for x in validate(self.root)))
     def test_phoenix_requires_its_complete_base_effects(self):
         self.edit('phoenix_body',lambda d:d['effects'].pop('healing_bonus'))
@@ -84,7 +84,7 @@ class FateValidatorTest(unittest.TestCase):
         self.edit('sword_obsession',lambda d:d['effects'].pop('sword_timeout_ticks'))
         self.assertTrue(any('FATE_SWORD' in x for x in validate(self.root)))
     def test_sword_requires_loaded_wave(self):
-        self.edit('sword_obsession',lambda d:d.update(derived_skill='myvillage:missing'))
+        self.edit('sword_obsession',lambda d:d.update(derived_skill='yuanxian:missing'))
         self.assertTrue(any('FATE_DERIVED_SKILL' in x for x in validate(self.root)))
     def test_sword_stacks_are_bounded_integers(self):
         self.edit('sword_obsession',lambda d:d['effects'].update(sword_max_stacks=5.5))
@@ -93,7 +93,7 @@ class FateValidatorTest(unittest.TestCase):
         self.edit('innate_sword_heart',lambda d:d['effects'].pop('heart_window_ticks'))
         self.assertTrue(any('FATE_HEART' in x for x in validate(self.root)))
     def test_heart_requires_registered_wave(self):
-        self.edit('innate_sword_heart',lambda d:d.update(derived_skill='myvillage:missing'))
+        self.edit('innate_sword_heart',lambda d:d.update(derived_skill='yuanxian:missing'))
         self.assertTrue(any('FATE_DERIVED_SKILL' in x for x in validate(self.root)))
     def test_wind_requires_speed_duration(self):
         self.edit('wind_step',lambda d:d['effects'].pop('dodge_speed_ticks'))
@@ -221,7 +221,7 @@ class AwakeningControlReadbackTest(unittest.TestCase):
 
     def test_omitted_fate_fields_decode_to_codec_defaults(self):
         from tools.innate_fates_evidence import FateEvidence
-        omitted={'revision':5,'candidates':['myvillage:robust'],'awakening_session':12}
+        omitted={'revision':5,'candidates':['yuanxian:robust'],'awakening_session':12}
         explicit={**omitted,'rolls':0,'locked':'','selected':[],'confirmed':False,
                   'recovery_ready_at':0,'healing_ticks':0,'healing_per_tick':0.0,'hunter_ready_at':0}
         decoded=FateEvidence.decoded_state(omitted)

@@ -16,7 +16,7 @@ class ThunderTigerArtTest(unittest.TestCase):
         cls.built = build.Built('thunder_tiger')
         cls.model = cls.built.model
         cls.clips = {c.name: c for c in cls.built.clips}
-        cls.boss = json.loads((build.RESOURCES / 'data/myvillage/beast/thunder_tiger_boss.json').read_text())
+        cls.boss = json.loads((build.RESOURCES / 'data/yuanxian/beast/thunder_tiger_boss.json').read_text())
 
     def test_owned_native_source_and_runtime_pixel_parity(self):
         p = thunder_tiger.ART / 'source_texture.png'

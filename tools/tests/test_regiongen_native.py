@@ -37,11 +37,11 @@ class RegionNativeTests(unittest.TestCase):
         with self.assertRaises(ValueError):decode_grid({'block_states':{'palette':[{'Name':'minecraft:air'},{'Name':'minecraft:stone'}]}})
 
     def test_vanilla_template_reply_requires_exact_id_and_origin(self):
-        reply='Loaded template "myvillage:river_valley_sample/t_0_0_0" at 0, 48, 0\n'
-        self.assertTrue(placement_confirmed(reply,'myvillage:river_valley_sample/t_0_0_0',[0,48,0]))
-        self.assertFalse(placement_confirmed(reply,'myvillage:river_valley_sample/other',[0,48,0]))
-        self.assertFalse(placement_confirmed(reply,'myvillage:river_valley_sample/t_0_0_0',[0,64,0]))
-        self.assertFalse(placement_confirmed('Failed to place template','myvillage:river_valley_sample/t_0_0_0',[0,48,0]))
+        reply='Loaded template "yuanxian:river_valley_sample/t_0_0_0" at 0, 48, 0\n'
+        self.assertTrue(placement_confirmed(reply,'yuanxian:river_valley_sample/t_0_0_0',[0,48,0]))
+        self.assertFalse(placement_confirmed(reply,'yuanxian:river_valley_sample/other',[0,48,0]))
+        self.assertFalse(placement_confirmed(reply,'yuanxian:river_valley_sample/t_0_0_0',[0,64,0]))
+        self.assertFalse(placement_confirmed('Failed to place template','yuanxian:river_valley_sample/t_0_0_0',[0,48,0]))
 
     def test_delayed_mouse_receipt_does_not_duplicate_delta(self):
         moves=[];reads=[0];yaw=[0];pending=[None]

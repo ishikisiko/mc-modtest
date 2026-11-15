@@ -140,26 +140,26 @@ class EquipmentAuthoringTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)
             shutil.copytree(catalogue.ROOT/'equipment',root/'equipment')
-            lang=root/'src/main/resources/assets/myvillage/lang/zh_cn.json'
+            lang=root/'src/main/resources/assets/yuanxian/lang/zh_cn.json'
             lang.parent.mkdir(parents=True);lang.write_text('{}')
             dest=scaffold(root,self.specs,self.armor['id'],'jade_trial','青玉')
             spec=json.loads((dest/'equipment.json').read_text())
             self.assertFalse(spec['enabled'])
             before=export.outputs(root)
-            path=root/'src/main/resources/data/myvillage/equipment/catalogue.json'
+            path=root/'src/main/resources/data/yuanxian/equipment/catalogue.json'
             self.assertEqual(len(json.loads(before[path])['items']),4)
             spec['enabled']=True
             (dest/'equipment.json').write_text(json.dumps(spec))
             after=export.outputs(root)
             self.assertEqual(len(json.loads(after[path])['items']),8)
-            self.assertIn(root/'src/main/resources/assets/myvillage/models/item/jade_trial_helmet.json',after)
+            self.assertIn(root/'src/main/resources/assets/yuanxian/models/item/jade_trial_helmet.json',after)
             with self.assertRaisesRegex(ValueError,'目标已存在'):scaffold(root,self.specs,self.armor['id'],'jade_trial','青玉')
 
     def test_disabling_a_registered_set_cannot_remove_saved_item_ids(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)
             shutil.copytree(catalogue.ROOT/'equipment',root/'equipment')
-            lang=root/'src/main/resources/assets/myvillage/lang/zh_cn.json'
+            lang=root/'src/main/resources/assets/yuanxian/lang/zh_cn.json'
             lang.parent.mkdir(parents=True);lang.write_text('{}')
             export.write_or_check(root)
             path=root/'equipment/xuantie_armor/equipment.json'
@@ -171,7 +171,7 @@ class EquipmentAuthoringTest(unittest.TestCase):
         tag=json.loads(outputs[catalogue.ROOT/'src/main/resources/data/minecraft/tags/item/trimmable_armor.json'])
         self.assertFalse(tag['replace']);self.assertEqual(tag['values'],[])
         expected={i['id'] for i in self.armor['items']}
-        immortal=catalogue.ROOT/'src/main/resources/data/myvillage/immortal_equipment/catalogue.json'
+        immortal=catalogue.ROOT/'src/main/resources/data/yuanxian/immortal_equipment/catalogue.json'
         if immortal.exists():
             expected.update(i['id'] for s in json.loads(immortal.read_text())['sets'] for i in s['armor'])
         self.assertEqual(set(tag['remove']),expected)
@@ -179,7 +179,7 @@ class EquipmentAuthoringTest(unittest.TestCase):
     def test_shared_slot_tags_keep_both_equipment_catalogues(self):
         outputs=export.outputs()
         resource=catalogue.ROOT/'src/main/resources'
-        immortal=resource/'data/myvillage/immortal_equipment/catalogue.json'
+        immortal=resource/'data/yuanxian/immortal_equipment/catalogue.json'
         extra=[i for s in json.loads(immortal.read_text())['sets'] for i in s['armor']] if immortal.exists() else []
         for slot,tag in (('head','head_armor'),('chest','chest_armor'),('legs','leg_armor'),('feet','foot_armor')):
             values=json.loads(outputs[resource/f'data/minecraft/tags/item/{tag}.json'])['values']

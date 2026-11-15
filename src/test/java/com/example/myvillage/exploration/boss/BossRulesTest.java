@@ -27,7 +27,7 @@ class BossRulesTest {
                 rules.profiles().stream().map(BossRules.Profile::entity).collect(java.util.stream.Collectors.toSet()));
         for (var profile : rules.profiles()) {
             assertTrue(profile.health() > 0 && profile.health() <= StatsRules.bundled().limits().maxHealth());
-            assertNotEquals("myvillage:mortal", profile.realm().realmId());
+            assertNotEquals("yuanxian:mortal", profile.realm().realmId());
             assertSame(profile, rules.profile(profile.id()).orElseThrow());
             assertThrows(UnsupportedOperationException.class, () -> profile.damage().clear());
         }

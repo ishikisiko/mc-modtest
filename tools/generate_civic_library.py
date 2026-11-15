@@ -2,10 +2,10 @@
 """Generate tavern and lord manor civic structures as mod resources.
 
 Outputs:
-  src/main/resources/data/myvillage/structure/tavern_001.nbt ... tavern_005.nbt
-  src/main/resources/data/myvillage/structure/lord_manor_001.nbt ... lord_manor_003.nbt
-  src/main/resources/data/myvillage/function/place/<name>.mcfunction
-  src/main/resources/data/myvillage/function/gallery/civic.mcfunction
+  src/main/resources/data/yuanxian/structure/tavern_001.nbt ... tavern_005.nbt
+  src/main/resources/data/yuanxian/structure/lord_manor_001.nbt ... lord_manor_003.nbt
+  src/main/resources/data/yuanxian/function/place/<name>.mcfunction
+  src/main/resources/data/yuanxian/function/gallery/civic.mcfunction
   reports/civic_library_report.json
 """
 

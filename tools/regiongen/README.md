@@ -97,6 +97,6 @@ python -m tools.regiongen.bay_assets --check
 python -m unittest tools.tests.test_bay_terraces
 ```
 
-普通主世界开启结构生成后可用 `/locate structure myvillage:bay_terraces` 查找。
+普通主世界开启结构生成后可用 `/locate structure yuanxian:bay_terraces` 查找。
 世界种子控制自然位置和整体旋转，内部布局仍来自已确认配方；旧区块不会回填。
 打包、存档和实际证据边界见 [KB65](../../docs/ai-kb/65_bay_terraces.md)。

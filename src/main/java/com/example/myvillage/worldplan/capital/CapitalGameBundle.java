@@ -175,19 +175,19 @@ public final class CapitalGameBundle {
     static String manifestVersion(String cityId, String manifest) {
         requireCityId(cityId);
         for (String version : List.of("v4")) {
-            if (manifest.equals("myvillage:capitals/" + version + "/" + cityId + "/city.json")) return version;
+            if (manifest.equals("yuanxian:capitals/" + version + "/" + cityId + "/city.json")) return version;
         }
         throw new IllegalArgumentException("主城清单仅允许同城的显式资源版本路径");
     }
     static void requireTerrainPath(String cityId, String version, String terrain) {
         requireCityId(cityId); requireVersion(version);
-        if (!terrain.startsWith("myvillage:capitals/" + version + "/" + cityId + "/")
-                || !terrain.matches("myvillage:[a-z0-9_/.-]+") || terrain.contains(".."))
+        if (!terrain.startsWith("yuanxian:capitals/" + version + "/" + cityId + "/")
+                || !terrain.matches("yuanxian:[a-z0-9_/.-]+") || terrain.contains(".."))
             throw new IllegalArgumentException("主城地形必须与清单的城 ID 和资源版本一致");
     }
     static void requireTilePath(String cityId, String version, String template) {
         requireCityId(cityId); requireVersion(version);
-        if (!template.matches("myvillage:province_capitals/" + version + "/" + cityId + "/[a-z0-9_]+"))
+        if (!template.matches("yuanxian:province_capitals/" + version + "/" + cityId + "/[a-z0-9_]+"))
             throw new IllegalArgumentException("主城切片必须与清单的城 ID 和资源版本一致");
     }
     private static void requireCityId(String cityId) {
@@ -229,7 +229,7 @@ public final class CapitalGameBundle {
     public int topSolid(int x, int z) { return topSolid[Math.clamp(z, 0, depth - 1) * width + Math.clamp(x, 0, width - 1)]; }
     public Optional<WorldPlanRules.Tile> tile(int x, int z) { return Optional.ofNullable(tileIndex.get(key(x, z))); }
     public Entry entrance() { return entries.stream().filter(e -> e.id().equals("main_gate")).findFirst().orElse(entries.getFirst()); }
-    public static String templateFile(String template) { return "myvillage:structure/" + template.substring("myvillage:".length()) + ".nbt"; }
+    public static String templateFile(String template) { return "yuanxian:structure/" + template.substring("yuanxian:".length()) + ".nbt"; }
     private int[] localPoint(JsonArray data) {
         int[] p = point(data);
         if (p[0] < 0 || p[0] >= width || p[2] < 0 || p[2] >= depth || p[1] < 1 || p[1] + 1 >= height)
@@ -249,8 +249,8 @@ public final class CapitalGameBundle {
     }
     private static long key(int x, int z) { return ((long)x << 32) ^ (z & 0xffffffffL); }
     public static byte[] readResource(String id, int maximum) {
-        if (!id.matches("myvillage:[a-z0-9_/.-]+") || id.contains("..")) throw new IllegalArgumentException("Capital resource path");
-        try (var stream = com.example.myvillage.resources.BuiltinResources.open("data/myvillage/" + id.substring("myvillage:".length()))) {
+        if (!id.matches("yuanxian:[a-z0-9_/.-]+") || id.contains("..")) throw new IllegalArgumentException("Capital resource path");
+        try (var stream = com.example.myvillage.resources.BuiltinResources.open("data/yuanxian/" + id.substring("yuanxian:".length()))) {
             if (stream == null) throw new IllegalStateException("Missing frozen capital resource " + id);
             byte[] bytes = stream.readNBytes(maximum + 1);
             if (bytes.length > maximum) throw new IllegalArgumentException("Capital resource too large " + id);

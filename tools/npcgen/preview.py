@@ -248,7 +248,7 @@ def held_weapon_quads(npc, clip, seconds):
     rig = sword.weapon_rig(sword.BASIC_SWORD)
     assets = item_model.Assets([REPO / "src/main/resources"], None)
     document = json.loads(sword.SWORD_MODEL_3D.read_text())
-    resolved = item_model.resolve_model(assets, document, "myvillage:item/qingfeng_sword_3d")
+    resolved = item_model.resolve_model(assets, document, "yuanxian:item/qingfeng_sword_3d")
     offsets = {}
     if clip:
         length, loop, channels = npc.clips[clip]

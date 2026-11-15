@@ -30,27 +30,27 @@ import org.junit.jupiter.params.provider.ValueSource;
  * orphaned, and the screen, name-tag and chat keys of the dialogue exist with their slots.
  */
 class SectDialogueKeysTest {
-    private static final Path LANG = Path.of("src/main/resources/assets/myvillage/lang");
+    private static final Path LANG = Path.of("src/main/resources/assets/yuanxian/lang");
     private static final Pattern SLOT = Pattern.compile("%(\\d+)\\$s");
     private static final Pattern ANY_FORMAT = Pattern.compile("%(?!\\d+\\$s)");
 
     /** The other keys of the dialogue and their param counts. */
     private static final Map<String, Integer> OTHER_KEYS = Map.ofEntries(
-            Map.entry("entity.myvillage.cultivator.avatar.steward", 2),
-            Map.entry("screen.myvillage.sect_dialogue.title", 3),
-            Map.entry("screen.myvillage.sect_dialogue.option.join", 0),
-            Map.entry("screen.myvillage.sect_dialogue.option.leave", 0),
-            Map.entry("screen.myvillage.sect_dialogue.option.farewell", 0),
-            Map.entry("screen.myvillage.sect_dialogue.option.apprentice", 0),
-            Map.entry("screen.myvillage.sect_dialogue.option.task_accept", 0),
-            Map.entry("screen.myvillage.sect_dialogue.option.task_turn_in", 0),
-            Map.entry("screen.myvillage.sect_dialogue.role.steward", 0),
-            Map.entry("screen.myvillage.sect_dialogue.role.elder", 0),
-            Map.entry("screen.myvillage.sect_dialogue.none", 0),
-            Map.entry("screen.myvillage.sect_dialogue.standing", 1),
-            Map.entry("message.myvillage.world.sect.joined", 1),
-            Map.entry("message.myvillage.world.sect.left", 1),
-            Map.entry("message.myvillage.world.sect.unavailable", 0));
+            Map.entry("entity.yuanxian.cultivator.avatar.steward", 2),
+            Map.entry("screen.yuanxian.sect_dialogue.title", 3),
+            Map.entry("screen.yuanxian.sect_dialogue.option.join", 0),
+            Map.entry("screen.yuanxian.sect_dialogue.option.leave", 0),
+            Map.entry("screen.yuanxian.sect_dialogue.option.farewell", 0),
+            Map.entry("screen.yuanxian.sect_dialogue.option.apprentice", 0),
+            Map.entry("screen.yuanxian.sect_dialogue.option.task_accept", 0),
+            Map.entry("screen.yuanxian.sect_dialogue.option.task_turn_in", 0),
+            Map.entry("screen.yuanxian.sect_dialogue.role.steward", 0),
+            Map.entry("screen.yuanxian.sect_dialogue.role.elder", 0),
+            Map.entry("screen.yuanxian.sect_dialogue.none", 0),
+            Map.entry("screen.yuanxian.sect_dialogue.standing", 1),
+            Map.entry("message.yuanxian.world.sect.joined", 1),
+            Map.entry("message.yuanxian.world.sect.left", 1),
+            Map.entry("message.yuanxian.world.sect.unavailable", 0));
 
     private static Map<String, String> lang(String id) throws IOException {
         JsonObject json = JsonParser.parseString(

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "algorithm": "myvillage:worldplan_v11",
+  "algorithm": "yuanxian:worldplan_v11",
   "base": "frozen_v10.json",
   "region_progression": {
     "levels": [["donghuang"], ["lingyue"], ["beiyuan"], ["donghai", "ximo"], ["nanjiang", "moyu"], ["zhongzhou"]]

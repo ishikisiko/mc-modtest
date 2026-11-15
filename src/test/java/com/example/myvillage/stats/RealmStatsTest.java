@@ -9,7 +9,7 @@ class RealmStatsTest {
 
     @Test void mortalStagesStayAtBaseline() {
         assertEquals(1, rules.growth(rules.playerKey("mortal", "mortal_unawakened")));
-        assertEquals(1, rules.growth(rules.playerKey("myvillage:mortal", "myvillage:mortal_qi_sensed")));
+        assertEquals(1, rules.growth(rules.playerKey("yuanxian:mortal", "yuanxian:mortal_qi_sensed")));
     }
 
     @Test void minorStagesAreLinearAndMajorEntriesExponential() {

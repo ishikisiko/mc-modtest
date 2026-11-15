@@ -13,7 +13,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
 /** 原生页面绘制证据；直接准备页面，不计作玩家映射输入。 */
-@EventBusSubscriber(modid="myvillage",value=Dist.CLIENT)
+@EventBusSubscriber(modid="yuanxian",value=Dist.CLIENT)
 public final class TestUnitClientEvidence {
     private static int ticks,stage;
     private static String pending;

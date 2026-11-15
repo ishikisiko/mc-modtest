@@ -20,7 +20,7 @@ def encode(value):
 
 
 def tier_outputs(root, tier, cfg):
-    assets = root/'src/main/resources/assets/myvillage'
+    assets = root/'src/main/resources/assets/yuanxian'
     data = root/'src/main/resources/data'
     prefix = 'gathering' if tier == 'low' else 'gathering_'+tier
     result = {}
@@ -50,8 +50,8 @@ def tier_outputs(root, tier, cfg):
                 if tier == 'high' and 2 < dx < 4 and 9 < dy < 12: color = cfg['palette']['copper']
             top.put(x, y, tuple(min(255, max(0, c+(x*7+y*3)%5-2)) for c in color))
     result[assets/f'textures/block/{prefix}_core_top.png'] = png(top.rows)
-    textures = {key: f'myvillage:block/{prefix}_{key}' for key in cfg['palette']}
-    textures['particle'] = textures['stone']; textures['top'] = 'myvillage:block/'+prefix+'_core_top'
+    textures = {key: f'yuanxian:block/{prefix}_{key}' for key in cfg['palette']}
+    textures['particle'] = textures['stone']; textures['top'] = 'yuanxian:block/'+prefix+'_core_top'
     for kind in ('core', 'node'):
         bid = IDS[tier]+'_'+kind
         boxes = cfg['node_boxes'] if kind == 'node' else [{'from':[0,0,0], 'to':[16,16,16], 'texture':'stone'}]
@@ -65,24 +65,24 @@ def tier_outputs(root, tier, cfg):
             if 'rotation' in box: element['rotation'] = box['rotation']
             elements.append(element)
         result[assets/f'models/block/{bid}.json'] = encode({'parent':'minecraft:block/block', 'textures':textures, 'elements':elements})
-        result[assets/f'models/item/{bid}.json'] = encode({'parent':f'myvillage:block/{bid}'})
-        variants = {'':{'model':f'myvillage:block/{bid}'}}
+        result[assets/f'models/item/{bid}.json'] = encode({'parent':f'yuanxian:block/{bid}'})
+        variants = {'':{'model':f'yuanxian:block/{bid}'}}
         if tier != 'low' and kind == 'node':
-            variants = {f'facing={f}':{'model':f'myvillage:block/{bid}','y':y} for f,y in [('south',0),('west',90),('north',180),('east',270)]}
+            variants = {f'facing={f}':{'model':f'yuanxian:block/{bid}','y':y} for f,y in [('south',0),('west',90),('north',180),('east',270)]}
         result[assets/f'blockstates/{bid}.json'] = encode({'variants':variants})
-        result[data/f'myvillage/loot_table/blocks/{bid}.json'] = encode({'type':'minecraft:block','pools':[{'rolls':1,
-            'entries':[{'type':'minecraft:item','name':f'myvillage:{bid}'}],
+        result[data/f'yuanxian/loot_table/blocks/{bid}.json'] = encode({'type':'minecraft:block','pools':[{'rolls':1,
+            'entries':[{'type':'minecraft:item','name':f'yuanxian:{bid}'}],
             'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
         recipe = cfg['recipes'][kind]
-        result[data/f'myvillage/recipe/{bid}.json'] = encode({'type':'minecraft:crafting_shaped','category':'misc',
+        result[data/f'yuanxian/recipe/{bid}.json'] = encode({'type':'minecraft:crafting_shaped','category':'misc',
             'pattern':recipe['pattern'], 'key':{key:{'tag' if value.startswith('#') else 'item':value.removeprefix('#')}
-            for key,value in recipe['key'].items()}, 'result':{'id':f'myvillage:{bid}','count':1}})
+            for key,value in recipe['key'].items()}, 'result':{'id':f'yuanxian:{bid}','count':1}})
         if tier != 'low':
-            result[data/f'myvillage/advancement/recipes/misc/{bid}.json'] = encode({
+            result[data/f'yuanxian/advancement/recipes/misc/{bid}.json'] = encode({
                 'parent':'minecraft:recipes/root',
                 'criteria':{'has_prior':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':[recipe['key']['A']]}]}},
-                            'has_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'myvillage:'+bid}}},
-                'requirements':[['has_prior','has_recipe']], 'rewards':{'recipes':['myvillage:'+bid]}})
+                            'has_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'yuanxian:'+bid}}},
+                'requirements':[['has_prior','has_recipe']], 'rewards':{'recipes':['yuanxian:'+bid]}})
     return result
 
 
@@ -93,32 +93,32 @@ def outputs(root=ROOT):
         tiers[tier]['node_boxes'], tiers[tier]['collision_boxes'] = architecture.node(tier)
     result = {}
     for tier, data in tiers.items(): result.update(tier_outputs(root, tier, data))
-    assets = root/'src/main/resources/assets/myvillage'
+    assets = root/'src/main/resources/assets/yuanxian'
     data = root/'src/main/resources/data'
     parts = architecture.parts()
-    rules = json.loads((root/'src/main/resources/data/myvillage/gathering/rules.json').read_text())
+    rules = json.loads((root/'src/main/resources/data/yuanxian/gathering/rules.json').read_text())
     construction = {'parts':{bid:{'collision_boxes':row['collision_boxes']} for bid,row in parts.items()},
                     'tiers':{tier:architecture.construction(tier,rules['tiers'][tier]['radius']) for tier in tiers}}
     for bid, row in construction['parts'].items():
         row['light_level'] = cfg['lighting'].get(bid, {}).get('block_light', 0)
-    result[data/'myvillage/gathering/construction.json'] = encode(construction)
+    result[data/'yuanxian/gathering/construction.json'] = encode(construction)
     for bid,row in parts.items():
-        textures = {k:f'myvillage:block/gathering_{row["tier"]}_{k}' for k in ('stone','dark','copper','jade')}
+        textures = {k:f'yuanxian:block/gathering_{row["tier"]}_{k}' for k in ('stone','dark','copper','jade')}
         textures['particle']=textures['stone']
         elements=[{'from':b['from'],'to':b['to'],'faces':{side:{'texture':'#'+b['texture'],'uv':[0,0,16,16]}
                   for side in ('up','down','north','south','east','west')}} for b in row['boxes']]
         result[assets/f'models/block/{bid}.json']=encode({'parent':'minecraft:block/block','textures':textures,'elements':elements})
-        result[assets/f'models/item/{bid}.json']=encode({'parent':f'myvillage:block/{bid}'})
-        result[assets/f'blockstates/{bid}.json']=encode({'variants':{f'facing={f}':{'model':f'myvillage:block/{bid}','y':y}
+        result[assets/f'models/item/{bid}.json']=encode({'parent':f'yuanxian:block/{bid}'})
+        result[assets/f'blockstates/{bid}.json']=encode({'variants':{f'facing={f}':{'model':f'yuanxian:block/{bid}','y':y}
               for f,y in [('south',0),('west',90),('north',180),('east',270)]}})
-        result[data/f'myvillage/loot_table/blocks/{bid}.json']=encode({'type':'minecraft:block','pools':[{'rolls':1,
-              'entries':[{'type':'minecraft:item','name':'myvillage:'+bid}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
+        result[data/f'yuanxian/loot_table/blocks/{bid}.json']=encode({'type':'minecraft:block','pools':[{'rolls':1,
+              'entries':[{'type':'minecraft:item','name':'yuanxian:'+bid}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
         recipe=row['recipe']
-        result[data/f'myvillage/recipe/{bid}.json']=encode({'type':'minecraft:crafting_shaped','category':'building',
-              'pattern':recipe['pattern'],'key':{k:{'item':v} for k,v in recipe['key'].items()},'result':{'id':'myvillage:'+bid,'count':recipe['count']}})
-        result[data/f'myvillage/advancement/recipes/building_blocks/{bid}.json']=encode({'parent':'minecraft:recipes/root',
+        result[data/f'yuanxian/recipe/{bid}.json']=encode({'type':'minecraft:crafting_shaped','category':'building',
+              'pattern':recipe['pattern'],'key':{k:{'item':v} for k,v in recipe['key'].items()},'result':{'id':'yuanxian:'+bid,'count':recipe['count']}})
+        result[data/f'yuanxian/advancement/recipes/building_blocks/{bid}.json']=encode({'parent':'minecraft:recipes/root',
               'criteria':{'has_material':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':[recipe['key']['M']]}]}}},
-              'requirements':[['has_material']],'rewards':{'recipes':['myvillage:'+bid]}})
+              'requirements':[['has_material']],'rewards':{'recipes':['yuanxian:'+bid]}})
     # Separate jade texture per luminous component: ordinary jade in pillars/cores stays unchanged.
     for bid, light in cfg['lighting'].items():
         model_path = assets/f'models/block/{bid}.json'
@@ -130,7 +130,7 @@ def outputs(root=ROOT):
         assert 0 <= material['emission'] <= 254
         pixel = tuple(material[k] for k in ('smoothness','f0','porosity','emission'))
         result[assets/f'textures/{texture}_s.png'] = png([[pixel]*32 for _ in range(32)])
-        model['textures']['jade'] = 'myvillage:'+texture
+        model['textures']['jade'] = 'yuanxian:'+texture
         for element in model['elements']:
             for face in element['faces'].values():
                 if face['texture'] == '#jade':
@@ -138,20 +138,20 @@ def outputs(root=ROOT):
                                              'ambient_occlusion':False}
         result[model_path] = encode(model)
     result[assets/'textures/block/gathering_glow.png'] = png([[(255,255,255,255)]])
-    result[data/'myvillage/gathering/appearance.json'] = encode({tier:{**row['visual'], 'collision_boxes':row['collision_boxes']} for tier,row in tiers.items()})
+    result[data/'yuanxian/gathering/appearance.json'] = encode({tier:{**row['visual'], 'collision_boxes':row['collision_boxes']} for tier,row in tiers.items()})
     lang = assets/'lang/zh_cn.json';translated = json.loads(lang.read_text())
     for tier, row in tiers.items():
-        translated.update({f'block.myvillage.{IDS[tier]}_{kind}':name for kind,name in row['names'].items()})
-    translated.update({'block.myvillage.'+bid:row['name'] for bid,row in parts.items()})
+        translated.update({f'block.yuanxian.{IDS[tier]}_{kind}':name for kind,name in row['names'].items()})
+    translated.update({'block.yuanxian.'+bid:row['name'] for bid,row in parts.items()})
     result[lang] = encode(translated)
     for name in ('mineable/pickaxe', 'needs_stone_tool'):
         path = data/f'minecraft/tags/block/{name}.json';content = json.loads(path.read_text())
         for prefix in IDS.values():
             for kind in ('core','node'):
-                bid = 'myvillage:'+prefix+'_'+kind
+                bid = 'yuanxian:'+prefix+'_'+kind
                 if bid not in content['values']: content['values'].append(bid)
         for bid in parts:
-            if 'myvillage:'+bid not in content['values']:content['values'].append('myvillage:'+bid)
+            if 'yuanxian:'+bid not in content['values']:content['values'].append('yuanxian:'+bid)
         result[path] = encode(content)
     return result
 

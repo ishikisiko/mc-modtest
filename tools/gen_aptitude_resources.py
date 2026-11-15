@@ -9,38 +9,38 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def plan(root=ROOT):
     source = json.loads((root / 'tools/aptitudes/content.json').read_text())
-    rules = json.loads((root / 'src/main/resources/data/myvillage/aptitudes/rules.json').read_text())
+    rules = json.loads((root / 'src/main/resources/data/yuanxian/aptitudes/rules.json').read_text())
     assert set(source['topics']) == set(rules['elements'] + rules['weapons'] + rules['crafts'])
     result = {}
     for item, parent in source['models'].items():
-        result[Path(f'src/main/resources/assets/myvillage/models/item/{item}.json')] = {'parent': parent}
+        result[Path(f'src/main/resources/assets/yuanxian/models/item/{item}.json')] = {'parent': parent}
     for topic, ingredient in source['topics'].items():
         item = 'aptitude_fruit' if topic in rules['elements'] else 'aptitude_treatise'
         for tier, catalyst in enumerate(source['tier_ingredients'], 1):
-            out = {'id': 'myvillage:' + item, 'count': 1,
-                   'components': {'minecraft:custom_data': {'myvillage_aptitude': {'aptitude': topic, 'tier': tier}}}}
+            out = {'id': 'yuanxian:' + item, 'count': 1,
+                   'components': {'minecraft:custom_data': {'yuanxian_aptitude': {'aptitude': topic, 'tier': tier}}}}
             recipe = {'type': 'minecraft:crafting_shapeless', 'ingredients': [
-                {'item': 'myvillage:ningyuan_fruit_low' if item == 'aptitude_fruit' else 'minecraft:book'},
+                {'item': 'yuanxian:ningyuan_fruit_low' if item == 'aptitude_fruit' else 'minecraft:book'},
                 {'item': ingredient}, {'item': catalyst}], 'result': out}
-            result[Path(f'src/main/resources/data/myvillage/recipe/aptitude_{topic}_{tier}.json')] = recipe
+            result[Path(f'src/main/resources/data/yuanxian/recipe/aptitude_{topic}_{tier}.json')] = recipe
         kinds = ['combat_memory'] if topic in rules['weapons'] else ['research_notes'] if topic in rules['crafts'] else []
         for kind in kinds:
             for tier, catalyst in enumerate(source['tier_ingredients'], 1):
-                result[Path(f'src/main/resources/data/myvillage/recipe/{kind}_{topic}_{tier}.json')] = {
+                result[Path(f'src/main/resources/data/yuanxian/recipe/{kind}_{topic}_{tier}.json')] = {
                     'type': 'minecraft:crafting_shapeless',
                     'ingredients': [{'item': 'minecraft:writable_book'}, {'item': ingredient}, {'item': catalyst}],
-                    'result': {'id': 'myvillage:' + kind, 'count': 1,
-                               'components': {'minecraft:custom_data': {'myvillage_aptitude': {'aptitude': topic, 'tier': tier}}}}}
+                    'result': {'id': 'yuanxian:' + kind, 'count': 1,
+                               'components': {'minecraft:custom_data': {'yuanxian_aptitude': {'aptitude': topic, 'tier': tier}}}}}
     for locale in ['zh_cn', 'en_us']:
-        path = Path(f'src/main/resources/assets/myvillage/lang/{locale}.json')
+        path = Path(f'src/main/resources/assets/yuanxian/lang/{locale}.json')
         lang = json.loads((root / path).read_text())
         for item, name in source['names'].items():
-            lang['item.myvillage.' + item] = name
+            lang['item.yuanxian.' + item] = name
         if locale == 'zh_cn':
-            lang['screen.myvillage.cultivation.tab.crafting'] = '资质'
-            lang['screen.myvillage.crafting.aptitude'] = '资质点数'
-            lang['screen.myvillage.crafting.meaning'] = '五行、兵器与技艺资质可独立培养；学习条件和效果按对应点数计算。'
-            lang['screen.myvillage.crafting.awaken'] = '前往测灵碑觉醒后查看各项资质。'
+            lang['screen.yuanxian.cultivation.tab.crafting'] = '资质'
+            lang['screen.yuanxian.crafting.aptitude'] = '资质点数'
+            lang['screen.yuanxian.crafting.meaning'] = '五行、兵器与技艺资质可独立培养；学习条件和效果按对应点数计算。'
+            lang['screen.yuanxian.crafting.awaken'] = '前往测灵碑觉醒后查看各项资质。'
         result[path] = lang
     return {path: json.dumps(doc, ensure_ascii=False, indent=2) + '\n' for path, doc in result.items()}
 

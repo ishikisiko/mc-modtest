@@ -22,7 +22,7 @@ public record ShieldRules(int maxSources, float maxPerSource, float maxTotal,
     public static ShieldRules get() { return Holder.VALUE; }
 
     private static ShieldRules load() {
-        try (var in = ShieldRules.class.getResourceAsStream("/data/myvillage/combat/foundation/shields.json")) {
+        try (var in = ShieldRules.class.getResourceAsStream("/data/yuanxian/combat/foundation/shields.json")) {
             if (in == null) throw new IllegalStateException("缺少护盾配置 shields.json");
             return parse(JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (IOException ex) {

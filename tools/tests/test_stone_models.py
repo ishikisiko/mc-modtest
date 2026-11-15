@@ -30,7 +30,7 @@ class StoneModelTest(unittest.TestCase):
 
     def test_runtime_mesh_coordinates_match_authored_bone_local_vertices(self):
         b=Built('stele_guardian');expected=model.guardian_document(b.model)
-        actual=json.loads((model.RES/'assets/myvillage/beast/stele_guardian_surface.json').read_text())
+        actual=json.loads((model.RES/'assets/yuanxian/beast/stele_guardian_surface.json').read_text())
         self.assertEqual(expected,actual)
         for p in actual['parts']:
             self.assertIn(p['bone'],{b.name for b in b.model.bones})
@@ -39,7 +39,7 @@ class StoneModelTest(unittest.TestCase):
                 self.assertTrue(all(0<=tri[i]<=1 for i in (3,4,8,9,13,14)))
 
     def test_ruler_obj_round_trip_keeps_every_authored_face(self):
-        outputs=model.ruler_outputs();base=model.RES/'assets/myvillage/models/item'
+        outputs=model.ruler_outputs();base=model.RES/'assets/yuanxian/models/item'
         faces=read_obj(outputs[base/'zhenyue_ruler.obj'],outputs[base/'zhenyue_ruler.mtl'])
         self.assertEqual(len(model.ruler_surface().faces),len(faces))
         for actual,authored in zip(faces,model.ruler_surface().faces):
@@ -48,11 +48,11 @@ class StoneModelTest(unittest.TestCase):
             self.assertEqual(4,len(actual['points']))
             for p,q in zip(actual['points'],expected):
                 for a,b in zip(p,q):self.assertAlmostEqual(a,b,places=5)
-            self.assertEqual('myvillage:item/zhenyue_ruler',actual['texture'])
+            self.assertEqual('yuanxian:item/zhenyue_ruler',actual['texture'])
 
     def test_item_preview_reads_the_actual_obj(self):
         from tools.combat_preview.item_model import Assets,ItemModel
-        asset=ItemModel(Assets([model.RES],None),'myvillage:item/zhenyue_ruler')
+        asset=ItemModel(Assets([model.RES],None),'yuanxian:item/zhenyue_ruler')
         self.assertEqual([],asset.base.res.errors)
         self.assertEqual(len(model.ruler_surface().faces),len(asset.base.quads))
         points=[p for q in asset.base.quads for p in q.pos]

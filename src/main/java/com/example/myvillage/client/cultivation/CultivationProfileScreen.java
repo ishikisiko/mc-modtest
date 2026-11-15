@@ -66,13 +66,13 @@ public final class CultivationProfileScreen extends Screen {
     private boolean pageShown;
 
     private enum View {
-        PROFILE("screen.myvillage.cultivation.tab.profile"),
-        MEDITATION("screen.myvillage.cultivation.tab.meditation"),
-        TECHNIQUES("screen.myvillage.cultivation.tab.techniques"),
-        SKILLS("screen.myvillage.cultivation.tab.skills"),
-        WORLD("screen.myvillage.cultivation.tab.world"),
-        FATES("screen.myvillage.cultivation.tab.fates"),
-        CRAFTING("screen.myvillage.cultivation.tab.crafting"),
+        PROFILE("screen.yuanxian.cultivation.tab.profile"),
+        MEDITATION("screen.yuanxian.cultivation.tab.meditation"),
+        TECHNIQUES("screen.yuanxian.cultivation.tab.techniques"),
+        SKILLS("screen.yuanxian.cultivation.tab.skills"),
+        WORLD("screen.yuanxian.cultivation.tab.world"),
+        FATES("screen.yuanxian.cultivation.tab.fates"),
+        CRAFTING("screen.yuanxian.cultivation.tab.crafting"),
         JOURNEY("");
 
         Component title() { return this == JOURNEY ? Component.literal("行迹") : Component.translatable(titleKey); }
@@ -85,7 +85,7 @@ public final class CultivationProfileScreen extends Screen {
     }
 
     public CultivationProfileScreen() {
-        super(Component.translatable("screen.myvillage.cultivation.title"));
+        super(Component.translatable("screen.yuanxian.cultivation.title"));
     }
 
     /** O opens the same H hub directly on the journey page. */
@@ -206,7 +206,7 @@ public final class CultivationProfileScreen extends Screen {
         if (!pageShown) {
             graphics.drawCenteredString(
                     font,
-                    Component.translatable("screen.myvillage.cultivation.no_snapshot"),
+                    Component.translatable("screen.yuanxian.cultivation.no_snapshot"),
                     bodyX + bodyWidth / 2,
                     bodyY + bodyHeight / 2 - 4,
                     InkPanelTheme.MUTED);
@@ -281,12 +281,12 @@ public final class CultivationProfileScreen extends Screen {
         String standing = c.profile() == null ? "" : c.stageName(c.profile().realmId(), c.profile().stageId()).getString();
         CultivationInkTheme.pair(g, font, name, standing, textX, panelTop + 6, textWidth, CultivationInkTheme.INK);
         CultivationInkTheme.pair(g, font, c.calendarValue(),
-                c.text("screen.myvillage.cultivation.card.lifespan") + " " + c.remainingLifespanValue(),
+                c.text("screen.yuanxian.cultivation.card.lifespan") + " " + c.remainingLifespanValue(),
                 textX, panelTop + 19, textWidth, CultivationInkTheme.MUTED);
     }
 
     private void drawFooter(GuiGraphics g, PanelContext c, int right, int footerTop) {
-        String hint = Component.translatable("screen.myvillage.cultivation.close_hint",
+        String hint = Component.translatable("screen.yuanxian.cultivation.close_hint",
                 ClientCultivationKeyMappings.OPEN_PROFILE.getTranslatedKeyMessage()).getString();
         CultivationInkTheme.pair(g, font, c.profile() == null ? c.unavailableText() : c.sessionText(),
                 hint, panelLeft + 8, footerTop + 3, panelWidth - 16, CultivationInkTheme.MUTED);

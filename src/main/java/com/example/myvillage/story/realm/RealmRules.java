@@ -10,7 +10,7 @@ import net.minecraft.server.MinecraftServer;
 
 public record RealmRules(BlockPos origin, int borderPadding, int roadsPerTick, int returnRadius) {
     public static RealmRules load(MinecraftServer server) {
-        try (var in = server.getResourceManager().open(ResourceLocation.parse("myvillage:story/qianzhen_realm.json"));
+        try (var in = server.getResourceManager().open(ResourceLocation.parse("yuanxian:story/qianzhen_realm.json"));
              var reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
             return parse(JsonParser.parseReader(reader).getAsJsonObject());
         } catch (java.io.IOException error) { throw new IllegalStateException("缺少阡镇秘境规则", error); }

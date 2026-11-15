@@ -23,7 +23,7 @@ import java.util.UUID;
 /** Server-only timers. Current qi remains exclusively in the existing persisted profile. */
 public final class SpiritualPowerRuntime {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpiritualPowerRuntime.class);
-    private static final ResourceLocation RULES = ResourceLocation.fromNamespaceAndPath("myvillage", "qi/rules.json");
+    private static final ResourceLocation RULES = ResourceLocation.fromNamespaceAndPath("yuanxian", "qi/rules.json");
     private static final Map<UUID, QiRegeneration> TIMERS = new HashMap<>();
     private static final Map<UUID, Integer> RESET_TICKS = new HashMap<>();
     private static final QiRulesStore RULE_STORE = new QiRulesStore();

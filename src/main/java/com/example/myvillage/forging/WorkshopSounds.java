@@ -13,7 +13,7 @@ public final class WorkshopSounds {
     private static final DeferredRegister<SoundEvent> EVENTS=DeferredRegister.create(Registries.SOUND_EVENT,MyVillageMod.MOD_ID);
     private static final Map<String,DeferredHolder<SoundEvent,SoundEvent>> SOUNDS=new HashMap<>();
     static{for(String name:List.of("strike","heat","quench","temper","grind","assemble","infuse","repair"))
-        SOUNDS.put(name,EVENTS.register("forging."+name,()->SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath("myvillage","forging."+name))));}
+        SOUNDS.put(name,EVENTS.register("forging."+name,()->SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath("yuanxian","forging."+name))));}
     private WorkshopSounds(){}
     public static SoundEvent get(String name){return SOUNDS.get(name).get();}
     public static void register(IEventBus bus){EVENTS.register(bus);}

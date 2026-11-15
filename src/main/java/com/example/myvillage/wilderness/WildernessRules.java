@@ -26,7 +26,7 @@ import java.util.Set;
 
 /** Strict bundled rules. Unknown regions have no encounters; stages are zero-based. */
 public final class WildernessRules {
-    public static final String PATH = "data/myvillage/wilderness/rules.json";
+    public static final String PATH = "data/yuanxian/wilderness/rules.json";
     public record RealmRange(RealmKey min, RealmKey max, List<RealmKey> values) {
         public RealmRange {
             values = List.copyOf(values);

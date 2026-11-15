@@ -87,7 +87,7 @@ def main():
             extra = npc.look_nbt(look) + ',NoAI:1b,Invulnerable:1b'
             if fixture_colours(i) >= 0:
                 extra += f',Colours:{fixture_colours(i)}'
-            command = npc.summon('myvillage:cultivator', (x, scene.FLOOR_Y, z), 0,
+            command = npc.summon('yuanxian:cultivator', (x, scene.FLOOR_Y, z), 0,
                                  tag=f'npc_variant_{i}', extra=extra)
             s.run(command)
         time.sleep(1)
@@ -107,7 +107,7 @@ def main():
         for label, look, colours in APPEARANCES:
             dest = OUT / label
             dest.mkdir(exist_ok=True)
-            evidence = npc.run_npc(s, 'myvillage:cultivator', dest, ['idle', 'walk'], look=look,
+            evidence = npc.run_npc(s, 'yuanxian:cultivator', dest, ['idle', 'walk'], look=look,
                                    colours=None if colours < 0 else colours)
             passed = len(evidence['stills']) == 13 and len(evidence['videos']) == 2
             report['checks'].append({'name': 'appearance_' + label, 'pass': passed, 'look': look, 'colours': colours,

@@ -14,7 +14,7 @@ python3 tools/province_capitals/game/compile.py --out build/generated/province_c
 
 依次调用 `regional/export_game.py` 与 `central/export_game.py`，只由对应作者写各城 `city.json`、heightfield、NBT；聚合器只写 `capitals/v1/index.json`、`worldplan/frozen_v8.json` 和新建世界 preset。`--aggregate-only` 用于作者已经正常导出后的聚合，不是检查模式。
 
-基准输入为原有 `generateWorldPlanAssets` 任务正常生成的 `build/generated/worldplan/resources/data/myvillage/worldplan/frozen_v7.json`（可显式传 `--base-rules`）。聚合器只读该产物，不调用旧 validator/check/test。Gradle 新增 `generateProvinceCapitalAssets`，依赖原资源任务，新增独立资源源集。打包时仅排除旧输出目录里的新建世界 `cultivation.json`，让 V8 preset 生效；不改写旧 V1–V7 frozen JSON、结构或旧生成器源码。
+基准输入为原有 `generateWorldPlanAssets` 任务正常生成的 `build/generated/worldplan/resources/data/yuanxian/worldplan/frozen_v7.json`（可显式传 `--base-rules`）。聚合器只读该产物，不调用旧 validator/check/test。Gradle 新增 `generateProvinceCapitalAssets`，依赖原资源任务，新增独立资源源集。打包时仅排除旧输出目录里的新建世界 `cultivation.json`，让 V8 preset 生效；不改写旧 V1–V7 frozen JSON、结构或旧生成器源码。
 
 每城必须为 `capital_game_bundle` schema 1，身份为 `capital_<region>`。`layout_family_id` 必须等于公共 catalog 的布局族；具体 `layout_id` 使用 `life.layout_id`，`layout_sha256` 是聚合后的真实资源内容身份，两者不能混用。缺城、重复州域、尺寸/路径/摘要错误直接失败，不输出七城世界。
 
@@ -48,7 +48,7 @@ V8 初始出生采用最低阶非魔域主城真实入口，不另造平地出�
 
 ## 命令与舆图
 
-`/myvillage worldplan city [region]` 默认八城列表；可用州 ID、cityId 或中文州名过滤。每行城名、所属州、入口 XYZ，附可站立/受阻/未加载等只读观察。不申请城市区块。旧版世界仍给单城入口。详细规则、摘要与生活状态留在 info/export。
+`/yuanxian worldplan city [region]` 默认八城列表；可用州 ID、cityId 或中文州名过滤。每行城名、所属州、入口 XYZ，附可站立/受阻/未加载等只读观察。不申请城市区块。旧版世界仍给单城入口。详细规则、摘要与生活状态留在 info/export。
 
 舆图沿用现有节流查询和 256² raster，新增最多八个主城入口标记，悬停显示中文城名和坐标。公共记录只带有界文字与坐标，不导入 client-only 类型、不传世界 seed/资源/命簿。快照 codec 双向同步，现有协议版本机制升为 54，旧客户端应由协议协商拒绝混连；不承诺 53 与 54 可混用。
 
@@ -118,7 +118,7 @@ Java 路径前缀为 `src/main/java/com/example/myvillage/`：
 python3 tools/province_capitals/game/compile.py --out build/generated/province_capitals/resources --aggregate-only
 ```
 
-退出码 **1**，在读取前置旧资源 `build/generated/worldplan/resources/data/myvillage/worldplan/frozen_v7.json` 时出现 FileNotFoundError。原始日志为 `build/province_capitals/runtime/aggregate-attempt.log`；没有重跑旧生成器、旧检查套件或任何测试。本实现者直接执行 owning exporter 次数为 0；本次聚合未输出 V8 index/frozen/preset，不能给出实际冻结八城 SHA。
+退出码 **1**，在读取前置旧资源 `build/generated/worldplan/resources/data/yuanxian/worldplan/frozen_v7.json` 时出现 FileNotFoundError。原始日志为 `build/province_capitals/runtime/aggregate-attempt.log`；没有重跑旧生成器、旧检查套件或任何测试。本实现者直接执行 owning exporter 次数为 0；本次聚合未输出 V8 index/frozen/preset，不能给出实际冻结八城 SHA。
 
 交接时只读文件清点写在 `build/province_capitals/runtime/resource-inventory.json`。这属于共享作者当时正在正常生成/修订的产物快照，不是固定候选、资源验证或游戏证据：
 

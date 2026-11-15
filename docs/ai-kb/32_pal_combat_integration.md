@@ -14,7 +14,7 @@ See also:
 - The second weapon (two-handed spear, 0.29.0) and the validation findings: [Lingxiao Spear](35_lingxiao_spear.md)
 
 Since 0.28.0 the move values quoted below live in
-`data/myvillage/combat/style/basic_sword.json`, not in Java constants, and the
+`data/yuanxian/combat/style/basic_sword.json`, not in Java constants, and the
 runtime picks the style by held item. The values themselves did not change.
 Since 0.29.0 a second weapon, the Lingxiao Spear, uses the same runtime; the
 hit-stop, re-equip, and trail rules below changed with it and apply to
@@ -189,7 +189,7 @@ server active windows (about `0.27-0.53`), so targets flinched before the blade
 arrived; a smoothstep on every segment stopped the blade at each key; and the
 flat sprite was edge-on at screen center.
 
-`FirstPersonSwing` now loads `assets/myvillage/combat/qingfeng_first_person.json`
+`FirstPersonSwing` now loads `assets/yuanxian/combat/qingfeng_first_person.json`
 through `FirstPersonSwingResources`, a client reload listener, so `F3+T`
 applies edits. The rig swings the sword from one camera-space shoulder pivot:
 
@@ -216,7 +216,7 @@ returns over 3.5-4 ticks. A chained move cross-fades from the pose on screen ove
 `FirstPersonSwingTest` also checks grip depth, strike speed against recovery,
 and hand mirroring.
 
-`/myvillage_pal_smoke first_person <move> <tick>` holds one frame and
+`/yuanxian_pal_smoke first_person <move> <tick>` holds one frame and
 `first_person release` clears it; combined with `F3+T` this is the tuning loop.
 
 ### Feedback
@@ -230,7 +230,7 @@ pitch, a hit sound, an optional heavy layer sound, a heavy-hit flag (moves 4 and
 attacker's `FirstPersonWeaponAnimator.clientTick` plays the same cue locally
 about one tick ahead of the visible strike. After successful damage only, the
 service plays the hit sound (plus the `combat.sword.impact_heavy` layer on
-heavy moves), spawns one `myvillage:blade_cut` particle at the true contact
+heavy moves), spawns one `yuanxian:blade_cut` particle at the true contact
 point (x velocity carries the roll in radians, y > 0.5 marks heavy), sends 3
 crit sparks (6 on heavy), sends the attacker a `CombatHitConfirmPayload`
 (attacker id, revision, hit count), and broadcasts `CombatImpactPayload` to
@@ -300,7 +300,7 @@ rising cut pitches up, a diagonal pitches down and rolls, and the lunge gets a
 FOV punch plus a FOV surge at its step. Angles scale with
 `options.screenEffectScale` and FOV changes with `options.fovEffectScale`; both
 are halved in third person. `onComputeFovModifier` removes the vanilla slowness
-zoom that the server's `myvillage:combat_commit` and `myvillage:combat_stun`
+zoom that the server's `yuanxian:combat_commit` and `yuanxian:combat_stun`
 movement modifiers would otherwise cause. Other speed changes still change FOV.
 
 `CombatImpactFx` reads `CombatImpactPayload` (attacker id, revision, move id,
@@ -494,7 +494,7 @@ notice.
 
 ## Current MyVillage Integration Map
 
-- Items and `myvillage:main`: `ModItems`.
+- Items and `yuanxian:main`: `ModItems`.
 - Client keys: `ClientCultivationKeyMappings` uses configurable `KeyMapping`
   registrations; combat follows the same pattern with default `R`.
 - Cancelable mapped attack input: NeoForge 21.1.233
@@ -551,7 +551,7 @@ the untouched vanilla path.
 
 ## Timing And Hitbox Tuning
 
-`data/myvillage/combat/style/basic_sword.json` is the only owner of the five
+`data/yuanxian/combat/style/basic_sword.json` is the only owner of the five
 move contracts. Totals are
 `11/13/15/17/20` ticks and active windows `3-4/4-6/5-7/6-8/7-9`, unchanged since
 0.26.0. Since 0.27.0 the one-slot buffer opens at the active start
@@ -571,7 +571,7 @@ START drops it within 2-8 ticks.
 The action faces the view yaw (`player.getYRot()`), not `yBodyRot`. Body and
 head snap to it at start, and each chained move takes the current view yaw, so
 the player can re-aim between hits. While a move runs, the temporary
-`myvillage:combat_commit` speed modifier holds the player to 25% speed until
+`yuanxian:combat_commit` speed modifier holds the player to 25% speed until
 the hit ends, then to 60% until the chain tick. It is removed on every stop path,
 and sprinting stops at start on the server and on the predicting client.
 
@@ -600,7 +600,7 @@ lateralBias)`, `CombatReactionService`):
   health take 30%. The Ender Dragon, Wither, and Warden are never frozen or
   stunned.
 - Players are never frozen. They get the slide at once plus a 60% slow
-  (`myvillage:combat_stun`).
+  (`yuanxian:combat_stun`).
 - All reaction state clears on death, unload, dimension change, and server
   start/stop.
 - Our hit clears the target's i-frames only for itself; afterwards the target
@@ -630,11 +630,11 @@ python3 tools/genops/validate_pipelines.py
 ./gradlew compileJava
 ./gradlew runAcceptanceServer
 ./gradlew runClient -Ppal_smoke_world=pal_gate_a
-/myvillage_pal_smoke move 1
-/myvillage_pal_smoke move 2
-/myvillage_pal_smoke move 3
-/myvillage_pal_smoke move 4
-/myvillage_pal_smoke move 5
+/yuanxian_pal_smoke move 1
+/yuanxian_pal_smoke move 2
+/yuanxian_pal_smoke move 3
+/yuanxian_pal_smoke move 4
+/yuanxian_pal_smoke move 5
 ```
 
 Gate A result: `pass`.
@@ -680,7 +680,7 @@ until owner review. PAL body arms/camera remain disabled with
 `FirstPersonMode.DISABLED`.
 
 The follow-up viewport capture used a real mapped `J` combo at `960x540`,
-`16:9`, FOV 70 rather than `/myvillage_pal_smoke`. Each independently calibrated
+`16:9`, FOV 70 rather than `/yuanxian_pal_smoke`. Each independently calibrated
 path visibly left the lower-right hold, entered the center/left region, and
 returned to neutral without changing the server timeline. The current active
 viewmodel eases to `0.45` uniform scale by normalized progress `0.12` around the

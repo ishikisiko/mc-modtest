@@ -20,7 +20,7 @@ def inspect_city(source: Path, definition: dict, limit: int, *, accepted_version
     city_id, region, version = (definition[key] for key in ('city_id', 'region_id', 'resource_version'))
     if version not in accepted_versions or city_id != 'capital_' + region or not re.fullmatch(r'[a-z0-9_]+', region):
         raise ValueError('主城身份或资源版本不合法')
-    manifest = f'myvillage:capitals/{version}/{city_id}/city.json'
+    manifest = f'yuanxian:capitals/{version}/{city_id}/city.json'
     path = resource_file(source, manifest)
     if not path.is_file():
         raise FileNotFoundError(f'正式主城尚未齐备，拒绝聚合不完整 V10：{path}')
@@ -49,8 +49,8 @@ def inspect_city(source: Path, definition: dict, limit: int, *, accepted_version
     if region == 'zhongzhou' and (placement['vertical_mode'], placement['anchor_y']) != ('absolute', 0):
         raise ValueError('中州 v3 必须保持 absolute originY=0')
     terrain = city['terrain']
-    prefix = f'myvillage:capitals/{version}/{city_id}/'
-    if not terrain['resource'].startswith(prefix) or not re.fullmatch(r'myvillage:[a-z0-9_/.-]+', terrain['resource']) or '..' in terrain['resource']:
+    prefix = f'yuanxian:capitals/{version}/{city_id}/'
+    if not terrain['resource'].startswith(prefix) or not re.fullmatch(r'yuanxian:[a-z0-9_/.-]+', terrain['resource']) or '..' in terrain['resource']:
         raise ValueError(f'{city_id} 地形必须与 manifest 的城 ID 和资源版本一致')
     if (terrain['encoding'], terrain['width'], terrain['depth']) != ('i16le_z_major_top_solid', width, depth):
         raise ValueError(f'{city_id} heightfield 必须记录同尺寸的 top-solid')
@@ -81,10 +81,10 @@ def inspect_city(source: Path, definition: dict, limit: int, *, accepted_version
         if type(tx) is not int or type(tz) is not int or tx % 16 or tz % 16 or not (0 <= tx < width and 0 <= tz < depth) or (tx, tz) in positions:
             raise ValueError(f'{city_id} 稀疏 tile 重叠或越界')
         positions.add((tx, tz))
-        if not re.fullmatch(f'myvillage:province_capitals/{version}/{city_id}/[a-z0-9_]+', tile['template']):
+        if not re.fullmatch(f'yuanxian:province_capitals/{version}/{city_id}/[a-z0-9_]+', tile['template']):
             raise ValueError(f'{city_id} tile 必须与 manifest 的城 ID 和资源版本一致')
         data = read_bounded(resource_file(source, tile['template'], template=True), 8 * 1024 * 1024)
-        file_id = 'myvillage:structure/' + tile['template'].split(':', 1)[1] + '.nbt'
+        file_id = 'yuanxian:structure/' + tile['template'].split(':', 1)[1] + '.nbt'
         resources[file_id] = sha(data); total_bytes += len(data)
         if resources[file_id] != tile['sha256']:
             raise ValueError(f'{city_id} NBT 声明摘要不符：{file_id}')
@@ -104,11 +104,11 @@ def aggregate(out:Path, v9_out:Path, legacy_out:Path, rules_path:Path=RULES):
     if out.resolve() in {v9_out.resolve(),legacy_out.resolve()}:
         raise ValueError('V10 输出必须独立')
     spec=json.loads(rules_path.read_text())
-    if (spec.get('schema'),spec.get('algorithm'),spec.get('base'))!=(1,'myvillage:worldplan_v10','frozen_v9.json'):
+    if (spec.get('schema'),spec.get('algorithm'),spec.get('base'))!=(1,'yuanxian:worldplan_v10','frozen_v9.json'):
         raise ValueError('V10 必须继承 frozen_v9')
-    base_path=v9_out/'data/myvillage/worldplan/frozen_v9.json'
+    base_path=v9_out/'data/yuanxian/worldplan/frozen_v9.json'
     original=read_bounded(base_path,4*1024*1024);base=json.loads(original)
-    if base['algorithm']!='myvillage:worldplan_v9':raise ValueError('前置资源不是 V9')
+    if base['algorithm']!='yuanxian:worldplan_v9':raise ValueError('前置资源不是 V9')
     definitions=spec['assets']['cities'];regions={p['id'] for p in base['profiles']}
     if spec['assets']['accepted_versions']!=['v3'] or len(definitions)!=8 or {c['region_id'] for c in definitions}!=regions or len({c['city_id'] for c in definitions})!=8:
         raise ValueError('V10 必须八州齐全且全部明确采用 v3')
@@ -119,17 +119,17 @@ def aggregate(out:Path, v9_out:Path, legacy_out:Path, rules_path:Path=RULES):
     frozen=copy.deepcopy(base);frozen['algorithm']=spec['algorithm'];frozen['capitals']['assets']=copy.deepcopy(spec['assets']);frozen['capitals']['bundles']=refs
     raw=canonical(frozen);transport='gzip:'+base64.b64encode(gzip.compress(raw,mtime=0)).decode()
     if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError('V10 冻结规则超出既有边界')
-    preset=json.loads((v9_out/'data/myvillage/worldgen/world_preset/cultivation.json').read_text())
+    preset=json.loads((v9_out/'data/yuanxian/worldgen/world_preset/cultivation.json').read_text())
     generator=preset['dimensions']['minecraft:overworld']['generator']
-    if generator['type']!='myvillage:planned_v9':raise ValueError('前置默认预设不是 V9')
-    generator.update(type='myvillage:planned_v10',rules=transport);generator.pop('plan_hash',None)
-    write(out/'data/myvillage/worldplan/frozen_v10.json',frozen)
-    write(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
+    if generator['type']!='yuanxian:planned_v9':raise ValueError('前置默认预设不是 V9')
+    generator.update(type='yuanxian:planned_v10',rules=transport);generator.pop('plan_hash',None)
+    write(out/'data/yuanxian/worldplan/frozen_v10.json',frozen)
+    write(out/'data/yuanxian/worldgen/world_preset/cultivation.json',preset)
     report={'schema':1,'format':'capital_game_index','algorithm':spec['algorithm'],'cities':summaries,
             'total_tiles':sum(v['tiles'] for v in summaries),'total_bytes':sum(v['bytes'] for v in summaries),
             'frozen_rules_sha256':sha(raw),'legacy_v9_file_sha256':sha(original),
             'status':{'generation':'completed','native':'not_run','owner_appearance':'not_verified'}}
-    write(out/'data/myvillage/capitals/v3/index.json',report)
+    write(out/'data/yuanxian/capitals/v3/index.json',report)
     return report
 
 

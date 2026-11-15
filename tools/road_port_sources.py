@@ -8,7 +8,7 @@ from runtime_resources.read import DirectoryResources
 EMPTY={'minecraft:air','minecraft:cave_air','minecraft:void_air','minecraft:vine','minecraft:short_grass','minecraft:tall_grass','minecraft:fern','minecraft:large_fern','minecraft:snow','minecraft:dead_bush','minecraft:poppy','minecraft:dandelion','minecraft:red_mushroom','minecraft:brown_mushroom'}
 class CitySource:
     def __init__(self,root,region):
-        self.root=Path(root);self.resources=DirectoryResources(self.root);self.path=self.root/f'data/myvillage/capitals/v4/capital_{region}/city.json'
+        self.root=Path(root);self.resources=DirectoryResources(self.root);self.path=self.root/f'data/yuanxian/capitals/v4/capital_{region}/city.json'
         self.raw=self.path.read_bytes();self.city=json.loads(self.raw);self.w,self.h,self.d=self.city['size'];t=self.city['terrain']
         path=self.resource(t['resource']);raw=gzip.decompress(path.read_bytes());self.terrain=struct.unpack('<'+'h'*(self.w*self.d),raw)
         assert hashlib.sha256(path.read_bytes()).hexdigest()==t['sha256'],'城市地形摘要不一致'

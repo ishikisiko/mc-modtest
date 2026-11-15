@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /** Exactly one bounded slot. Never accepts a skill id, damage, victim, aim or position. */
 public record CombatArtIntentPayload(int slot) implements CustomPacketPayload {
-    public static final Type<CombatArtIntentPayload> TYPE = new Type<>(ResourceLocation.parse("myvillage:art_intent"));
+    public static final Type<CombatArtIntentPayload> TYPE = new Type<>(ResourceLocation.parse("yuanxian:art_intent"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CombatArtIntentPayload> STREAM_CODEC =
             StreamCodec.of((buf,p) -> buf.writeByte(p.slot), buf -> new CombatArtIntentPayload(buf.readUnsignedByte()));
     public CombatArtIntentPayload {

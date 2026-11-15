@@ -9,7 +9,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 /** No optional API references: registering this server config is safe without Waystones. */
 public final class WaystonesPricingConfig {
-    public static final String FILE_NAME = "myvillage-waystones-server.toml";
+    public static final String FILE_NAME = "yuanxian-waystones-server.toml";
     public static final ModConfigSpec SPEC;
     private static final ModConfigSpec.IntValue BASE_COST, BLOCKS_PER_STEP, MINIMUM_COEFFICIENT,
             MAXIMUM_COEFFICIENT, INTERDIMENSIONAL_COEFFICIENT, UNKNOWN_REALM_MULTIPLIER;
@@ -33,8 +33,8 @@ public final class WaystonesPricingConfig {
         REALM_MULTIPLIERS = builder.comment("按大境界 ID 指定正整数倍率，小阶段不影响价格。",
                         "各倍率与基础费用、最大路程系数的乘积不得超过 16777216，以保持 Waystones 变量精确。")
                 .worldRestart().defineListAllowEmpty("realm_multipliers", List.of(
-                        "myvillage:mortal=1", "myvillage:qi_refining=1",
-                        "myvillage:foundation_establishment=3", "myvillage:golden_core=10"),
+                        "yuanxian:mortal=1", "yuanxian:qi_refining=1",
+                        "yuanxian:foundation_establishment=3", "yuanxian:golden_core=10"),
                         WaystonesPricingConfig::validRealmEntry);
         builder.pop();
         SPEC = builder.build();

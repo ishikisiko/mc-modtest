@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:fixture_beast",
+  "id": "yuanxian:fixture_beast",
   "clips": {
     "idle": {"length": 2.0, "loop": true, "channels": [
       {"bone": "body", "target": "scale", "keyframes": [

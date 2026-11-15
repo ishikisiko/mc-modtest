@@ -45,7 +45,7 @@ class PhoenixStateTest {
         assertTrue(restored.complete());assertEquals(40,restored.durability());
     }
     @Test void everyFateReplacementPreservesFireAndDeathClearsItWithoutAnotherInitialGrant() {
-        var ids=List.of("myvillage:phoenix_body","myvillage:bright","myvillage:lightfoot");
+        var ids=List.of("yuanxian:phoenix_body","yuanxian:bright","yuanxian:lightfoot");
         var state=new FateState(1,1,ids,"",ids,true,0,0,0,0).withPhoenix(new PhoenixState(true,83.5));
         var replaced=state.choice(ids,"",ids,true,state.rolls()).timers(1,2,.1,3).withFireSpirit(state.fireSpirit()).withWindStep(state.windStep())
                 .withSwordHeart(state.swordHeart()).withPillAegis(state.pillAegis()).withTemperedBones(state.temperedBones());

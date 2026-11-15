@@ -46,7 +46,7 @@ class ElementalPenetrationTest {
         var ids = new HashSet<ResourceLocation>();
         for (DamageType type : DamageType.values()) {
             ResourceLocation actual = id(StatsRuntime.penetration(type));
-            assertEquals(ResourceLocation.fromNamespaceAndPath("myvillage", expected.get(type)), actual);
+            assertEquals(ResourceLocation.fromNamespaceAndPath("yuanxian", expected.get(type)), actual);
             assertTrue(ids.add(actual), "Two channels share " + actual);
             assertEquals(1, ModStatsAttributes.ALL.stream().filter(holder -> holder.getId().equals(actual)).count());
         }

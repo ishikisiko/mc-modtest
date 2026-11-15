@@ -13,7 +13,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
  * geometry copy in Java: the same JSON is also used for offline model review. */
 final class AlchemyArrayMesh implements ResourceManagerReloadListener {
     static final AlchemyArrayMesh INSTANCE = new AlchemyArrayMesh();
-    static final ResourceLocation LOCATION = ResourceLocation.fromNamespaceAndPath("myvillage", "alchemy_array/formed_mesh.json");
+    static final ResourceLocation LOCATION = ResourceLocation.fromNamespaceAndPath("yuanxian", "alchemy_array/formed_mesh.json");
     record Face(float[][] points, float[] normal, int material, boolean lid, boolean glow) { }
     private volatile List<Face> faces = List.of();
     List<Face> faces() { return faces; }

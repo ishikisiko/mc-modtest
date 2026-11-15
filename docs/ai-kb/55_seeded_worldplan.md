@@ -29,11 +29,11 @@
 
 0.103.1 新建世界使用 V11，独立 v4 资源仅替换符灯和晒布架；V1–V10 保留，旧城不迁移。实现与获取方式见[符灯与晒布架](../features/street-furniture.md)。本轮游戏内查看由用户完成。
 
-> 0.102.0：新建世界使用独立 `planned_v9` / `planned_source_v9` / `myvillage:worldplan_v9`。七城改用 v2 authored 总图和建筑族，中州继续引用 v1；V1–V8 codec与资源保留。H → 天下 → 舆图点击城标可确认传送，由服务器验证冻结身份、加载预算和安全落点，取消保留视口。资源边界见[V9接入](../province-capitals-v9-integration.md)，网络与生命周期见[城标传送](../atlas-city-travel.md)。[基础验证](../testing/2026-10-29-province-capitals-v9.md)已覆盖正常构建、资源审计、32项Java及地图确认/取消原生场景；玩家外观、手感、FPS和多人仍未验收。
+> 0.102.0：新建世界使用独立 `planned_v9` / `planned_source_v9` / `yuanxian:worldplan_v9`。七城改用 v2 authored 总图和建筑族，中州继续引用 v1；V1–V8 codec与资源保留。H → 天下 → 舆图点击城标可确认传送，由服务器验证冻结身份、加载预算和安全落点，取消保留视口。资源边界见[V9接入](../province-capitals-v9-integration.md)，网络与生命周期见[城标传送](../atlas-city-travel.md)。[基础验证](../testing/2026-10-29-province-capitals-v9.md)已覆盖正常构建、资源审计、32项Java及地图确认/取消原生场景；玩家外观、手感、FPS和多人仍未验收。
 
-> 0.101.0 八州正式接入：全新 `myvillage:cultivation` 使用独立 `planned_v8`，八州各一主城（含魔域）。中州完整城域保留 absolute originY=0，地基 heightfield 与稀疏 NBT 按当前区块消费；规则、资源摘要、城址、出生、聚落/宗门避让和地图共享冻结计划。固定源 `37985bd5` 已完成正常构建、资源审计、八城登记与代表区块原生检查、受控 V7 旧档加载及舆图开启；完整城体步行、水流、FPS 和玩家外观仍未验收，详见[验证记录](../testing/2026-10-29-province-capitals.md)。[运行时说明](../province-capitals-game-runtime.md)中的 V1–V7 codec、旧 frozen 资源、存档和已有出生不迁移。
+> 0.101.0 八州正式接入：全新 `yuanxian:cultivation` 使用独立 `planned_v8`，八州各一主城（含魔域）。中州完整城域保留 absolute originY=0，地基 heightfield 与稀疏 NBT 按当前区块消费；规则、资源摘要、城址、出生、聚落/宗门避让和地图共享冻结计划。固定源 `37985bd5` 已完成正常构建、资源审计、八城登记与代表区块原生检查、受控 V7 旧档加载及舆图开启；完整城体步行、水流、FPS 和玩家外观仍未验收，详见[验证记录](../testing/2026-10-29-province-capitals.md)。[运行时说明](../province-capitals-game-runtime.md)中的 V1–V7 codec、旧 frozen 资源、存档和已有出生不迁移。
 
-> 0.100.2：全新建档默认选择 `myvillage:cultivation`；手动切换世界类型仍有效，“重建”保留来源设置。专用服务器仅在 `level-type` 缺省/空白时采用该默认值。已有 `level.dat`、显式 normal/flat/custom、冻结 V1–V7 世界计划均不迁移。以下 opt-in 描述为历史行为。
+> 0.100.2：全新建档默认选择 `yuanxian:cultivation`；手动切换世界类型仍有效，“重建”保留来源设置。专用服务器仅在 `level-type` 缺省/空白时采用该默认值。已有 `level.dat`、显式 normal/flat/custom、冻结 V1–V7 世界计划均不迁移。以下 opt-in 描述为历史行为。
 
 > 2026-10-29 设计阶段：[八州独立地标与两城环境样板](../province-capitals-environment-design.md)提供八种非房屋核心物、灵岳/东海庭园街景和城防三维稿。尚未接入正式世界资源、功能或新布局版本，等待玩家确认视觉方向；当前游戏仍使用上述 V9。
 
@@ -48,7 +48,7 @@
 > 0.64.0 更新：[完整云山 V4 与商业服务](58_yunshan_living_city.md)。本页保留所述历史版本的范围；该历史版本默认 V4；0.89.0 起新世界默认 V6，第一章建筑接入见 KB66。
 
 
-0.59.0 adds the opt-in `myvillage:cultivation` world preset. The existing normal world and the legacy region generator in [13](13_region_topology.md) remain available and are not migrated. This note supersedes legacy region-layer deferrals only for the new preset.
+0.59.0 adds the opt-in `yuanxian:cultivation` world preset. The existing normal world and the legacy region generator in [13](13_region_topology.md) remain available and are not migrated. This note supersedes legacy region-layer deferrals only for the new preset.
 
 The owner-facing rules, creation instructions, CLI, safety model, constraints and acceptance procedure are in [Worldplan acceptance](../worldplan/acceptance.md).
 

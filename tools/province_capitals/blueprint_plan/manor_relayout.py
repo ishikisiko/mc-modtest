@@ -31,7 +31,7 @@ def solid(state):
     return state not in (AIR,None) and not any(t in state for t in ('_door[','water[','minecraft:water','leaves[','_crop['))
 def passable(state):return state in (None,AIR) or '_door[' in state
 @lru_cache(maxsize=1)
-def manor_catalog():return read('src/main/resources/data/myvillage/lord_manors/catalog.json')
+def manor_catalog():return read('src/main/resources/data/yuanxian/lord_manors/catalog.json')
 
 class ManorPlanner:
     def __init__(self,spec,city,environment,catalog,**unused):
@@ -184,7 +184,7 @@ class ManorPlanner:
                 for zz in range(math.floor(z-.125),math.ceil(z+.125)):
                     for xx in range(math.floor(x-bw/2),math.ceil(x+bw/2)):mask.add((xx,yy,zz))
         if scene.get('edict_roots'):
-            pillar=read('src/main/resources/data/myvillage/decoration/demon_pact_pillar.json')
+            pillar=read('src/main/resources/data/yuanxian/decoration/demon_pact_pillar.json')
             for root in scene['edict_roots']:
                 mask.update(tuple(a+b for a,b in zip(root,part['offset'])) for part in pillar['parts'])
         front=minimum[2];source_y=round(ground.get((0,front),ground.get((0,front+1),0)))
@@ -193,7 +193,7 @@ class ManorPlanner:
         self.manor_offset=[sx,minimum[1]+delta,sz];self.manor_manifest=manifest;self.manor_ground_delta=delta
         transformed={};lowest={};contacts={}
         for tile in manifest['tiles']:
-            path=ROOT/'src/main/resources/data/myvillage/structure'/ (tile['template'].split(':',1)[1]+'.nbt')
+            path=ROOT/'src/main/resources/data/yuanxian/structure'/ (tile['template'].split(':',1)[1]+'.nbt')
             if hashlib.sha256(path.read_bytes()).hexdigest()!=tile['sha256']:raise ValueError('府邸切片摘要不符')
             _,nbt=read_gzipped_nbt(str(path));palette=[state_string(v) for v in nbt['palette']]
             for cell in nbt['blocks']:

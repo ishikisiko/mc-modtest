@@ -204,7 +204,7 @@ states are the normal ones (`PREPARING_NORMAL`, `MEDITATING_NORMAL`), and
 `MeditationStatus.study()` carries a `StudyProgress`. While that is present
 (`PanelContext.study()`), `MeditationPage` draws one more card:
 
-- title `研读《功法名》` (`screen.myvillage.cultivation.study.title`; the name
+- title `研读《功法名》` (`screen.yuanxian.cultivation.study.title`; the name
   from the synchronized technique registry, the raw id with the unavailable
   marker when it is missing), accented in the diagram's colour, with the
   whole percent comprehended (rounded down, as the manual's tooltip) as its
@@ -225,7 +225,7 @@ is shorter than in normal meditation, so the page still fits 480x270 and
 
 The session text in the footer, the 内视 session row, and the diagram's caption
 reads 准备研读 during the preparation and 研读中 afterwards
-(`screen.myvillage.cultivation.study.preparing|reading`, chosen by
+(`screen.yuanxian.cultivation.study.preparing|reading`, chosen by
 `PanelReadouts.sessionKey`); the colour stays amber while preparing and jade
 while reading. The diagram looks as in normal meditation. The buttons behave
 as in any session: stop enabled, the three starts disabled. Nothing new is
@@ -256,12 +256,12 @@ ledger and no ledger logic:
   lines, 10 recent events per sect, person, or region). Only the search says
   it may be cut ("only the first 10", shown when it returns exactly 10).
 - States: no answer yet (loading card), ledger inactive (a card with
-  `commands.myvillage.world.inactive` and the server's reason), outside every
+  `commands.yuanxian.world.inactive` and the server's reason), outside every
   region on 此地, and an empty list each get their own card or line.
 - Text: person, sect, technique, and region names arrive as literals (Chinese
   in both languages). Everything else is a language key: the page's own
-  `screen.myvillage.cultivation.world.*`, the command keys it reuses
-  (`commands.myvillage.world.*` for tier, relation and gate state, running or
+  `screen.yuanxian.cultivation.world.*`, the command keys it reuses
+  (`commands.yuanxian.world.*` for tier, relation and gate state, running or
   paused, inactive, outside, not found, no sects here), and the ledger's
   `world_sim.*` words through `WorldSimText` (realm, stage, rank, status,
   cause, and each event line, whose `@`-prefixed params are themselves keys).
@@ -282,7 +282,7 @@ Unchanged since 0.31.0, with the 天下 page's additions:
   study card adds no input). The meditation intent:
   each of the four actions is bound to exactly one button, in
   `MeditationPage`. The core-technique switch (0.37.0,
-  `myvillage:core_technique_switch`, a technique id and nothing else): sent
+  `yuanxian:core_technique_switch`, a technique id and nothing else): sent
   only from the 功法 page's 运转此心法 buttons through
   `ClientCultivationIntentSender.sendCoreSwitch`; the server checks it in
   `CultivationService.switchCoreTechnique`, answers a success with a new

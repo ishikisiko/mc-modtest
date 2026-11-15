@@ -1,7 +1,7 @@
 # Lingxiao Spear and the Combat Data Validation
 
-Factual note for 0.29.0. The Lingxiao Spear (凌霄枪, `myvillage:lingxiao_spear`,
-style `myvillage:basic_spear`) is the second combat weapon and the first one
+Factual note for 0.29.0. The Lingxiao Spear (凌霄枪, `yuanxian:lingxiao_spear`,
+style `yuanxian:basic_spear`) is the second combat weapon and the first one
 built on the 0.28.0 combat data infrastructure. It was built to test the claim
 that a new weapon or style needs no combat Java. This note records what the
 weapon is, where its facts live, and what the validation found.
@@ -34,7 +34,7 @@ See also:
 ## The weapon
 
 - Item: `CombatWeaponItem` on `Tiers.DIAMOND`, attack bonus 4, speed −2.8
-  (tooltip 8 damage, 1.2 speed), in `#minecraft:swords`, in `myvillage:main`
+  (tooltip 8 damage, 1.2 speed), in `#minecraft:swords`, in `yuanxian:main`
   after the four swords, no recipe. Item contract:
   `genops/contracts/items/lingxiao_spear.json`.
 - Model: 79 elements on the contract frame from `y = -16` (butt) to `y = 32`
@@ -44,7 +44,7 @@ See also:
   player renderer's 0.9375. The spearhead, cyan inlays, and gems are fullbright
   through NeoForge element light data. Pennant, `道` plaque, and tassels are
   static.
-- Moves (`data/myvillage/combat/style/basic_spear.json`):
+- Moves (`data/yuanxian/combat/style/basic_spear.json`):
 
 | # | Move | Kind | Total | Active | Chain | Damage × | Targets | Range | Hit shape |
 |---|---|---|---|---|---|---|---|---|---|
@@ -54,7 +54,7 @@ See also:
 | 4 | 劈枪 overhead smash | cut | 19 | 7–9 | 14 | 1.15 | 3 | 4.0 | 12 explicit samples (4 per tick), left-high to right-low |
 | 5 | 游龙突刺 dragon lunge | thrust | 22 | 8–10 | 22 (no chain) | 1.30 | 3 | 5.0 | `thrust` generator, 1.6-block step |
 
-Sounds reuse `myvillage:combat.sword.*`; moves 4 and 5 are heavy.
+Sounds reuse `yuanxian:combat.sword.*`; moves 4 and 5 are heavy.
 
 ## Where each fact lives
 
@@ -63,11 +63,11 @@ All paths under `src/main/resources` unless they start with `tools/`.
 | Fact | Single source |
 |---|---|
 | Item class, attributes, tab | `item/ModItems.java`, `item/CombatWeaponItem.java` |
-| Moves, timing, hit shapes, feedback | `data/myvillage/combat/style/basic_spear.json` |
-| Item → style, rig, contract | `data/myvillage/combat/weapon/lingxiao_spear.json` |
+| Moves, timing, hit shapes, feedback | `data/yuanxian/combat/style/basic_spear.json` |
+| Item → style, rig, contract | `data/yuanxian/combat/weapon/lingxiao_spear.json` |
 | Model, textures, icon, contract | `tools/gen_lingxiao_spear_model.py` (sole writer of `models/item/lingxiao_spear.json`, `lingxiao_spear_3d.json`, `textures/item/lingxiao_spear.png`, `lingxiao_spear_model.png`, `combat/lingxiao_spear_geometry.json`) |
 | Third-person poses | `BASIC_SPEAR` table in `tools/gen_sword_pal_anims.py` → `player_animations/spear_combat.json` |
-| First-person keys and off hand | `assets/myvillage/combat/lingxiao_spear_first_person.json` |
+| First-person keys and off hand | `assets/yuanxian/combat/lingxiao_spear_first_person.json` |
 | Item and move names | `lang/en_us.json`, `lang/zh_cn.json` |
 
 ## Two hands
@@ -224,8 +224,8 @@ python3 tools/gen_sword_pal_anims.py --report        # per key; two-handed table
 python3 tools/validate_sword_combat_foundation.py
 python3 tools/validate_mod_items.py
 python3 -m unittest tools.tests.test_gen_lingxiao_spear_model tools.tests.test_gen_sword_pal_anims tools.tests.test_combat_data
-python3 -m tools.combat_capture run --label <label> --weapon myvillage:lingxiao_spear
-python3 -m tools.combat_preview fp --weapon myvillage:lingxiao_spear --move all --key-ticks --out out/preview/combat_preview/spear_fp.png
+python3 -m tools.combat_capture run --label <label> --weapon yuanxian:lingxiao_spear
+python3 -m tools.combat_preview fp --weapon yuanxian:lingxiao_spear --move all --key-ticks --out out/preview/combat_preview/spear_fp.png
 .venv-preview/bin/python -m unittest tools.tests.test_combat_preview_parity
 ```
 

@@ -103,7 +103,7 @@ class ManorGlassModelTest {
             @Override public TextureAtlasSprite getParticleIcon(){return null;}
             @Override public ItemOverrides getOverrides(){return ItemOverrides.EMPTY;}
         };
-        var id=ResourceLocation.fromNamespaceAndPath("myvillage","manor_lingyue_carved_7");
+        var id=ResourceLocation.fromNamespaceAndPath("yuanxian","manor_lingyue_carved_7");
         var world=new ModelResourceLocation(id,"facing=north,shape=21");var item=new ModelResourceLocation(id,"inventory");
         var other=new ModelResourceLocation(ResourceLocation.withDefaultNamespace("stone"),"");
         Map<ModelResourceLocation,BakedModel> models=new HashMap<>(Map.of(world,original,item,original,other,original));

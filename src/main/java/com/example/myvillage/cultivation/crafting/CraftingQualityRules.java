@@ -11,7 +11,7 @@ import java.util.function.DoubleSupplier;
 
 /** Shared server-owned normal distribution. Outcome zero is a failed attempt, never an item quality. */
 public final class CraftingQualityRules {
-    public static final String RESOURCE = "/data/myvillage/crafting/quality.json";
+    public static final String RESOURCE = "/data/yuanxian/crafting/quality.json";
     public record Tier(String id, int baseline, double span, List<Double> thresholds) {
         public Tier { thresholds = List.copyOf(thresholds); }
         public double mean(int aptitude) {

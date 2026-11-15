@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "entity": "myvillage:thunder_tiger",
+  "entity": "yuanxian:thunder_tiger",
   "generator": "codex_builtin_imagegen",
   "mode": "built-in tool; no API SDK or CLI image generation",
   "owner_confirmed_direction": "grey-white coat, black tiger stripes, heavy shoulders/forepaws, broad short feline face, single horn, restrained cyan lightning",
@@ -71,11 +71,11 @@
     }
   },
   "runtime_outputs": {
-    "src/main/resources/assets/myvillage/beast/thunder_tiger_model.json": "c4fc9679deec0c58480902faaeb60cdd6af10f56ebea0a9270798e05ae6b4c24",
-    "src/main/resources/assets/myvillage/beast/thunder_tiger_animations.json": "4bbb82de72221a9202aea6c81fce1cf9069af72f7f22065d7c40fd55e49126b7",
-    "src/main/resources/assets/myvillage/textures/entity/thunder_tiger/thunder_tiger.png": "d50ea098fb6d4bd122ee10c13a804192152b281c769ae11f58a354abdff9b598",
-    "src/main/resources/assets/myvillage/textures/entity/thunder_tiger/thunder_tiger_eyes.png": "7ba3ba257f335659dc81410fe16835a45a7d0865f0d9d659a47202d97453d6a2",
-    "src/main/resources/assets/myvillage/textures/entity/thunder_tiger/thunder_tiger_phase2.png": "8528b66d1dd39216494944cab5f6e64567232c401689609aa1baad2920a53e41"
+    "src/main/resources/assets/yuanxian/beast/thunder_tiger_model.json": "c4fc9679deec0c58480902faaeb60cdd6af10f56ebea0a9270798e05ae6b4c24",
+    "src/main/resources/assets/yuanxian/beast/thunder_tiger_animations.json": "4bbb82de72221a9202aea6c81fce1cf9069af72f7f22065d7c40fd55e49126b7",
+    "src/main/resources/assets/yuanxian/textures/entity/thunder_tiger/thunder_tiger.png": "d50ea098fb6d4bd122ee10c13a804192152b281c769ae11f58a354abdff9b598",
+    "src/main/resources/assets/yuanxian/textures/entity/thunder_tiger/thunder_tiger_eyes.png": "7ba3ba257f335659dc81410fe16835a45a7d0865f0d9d659a47202d97453d6a2",
+    "src/main/resources/assets/yuanxian/textures/entity/thunder_tiger/thunder_tiger_phase2.png": "8528b66d1dd39216494944cab5f6e64567232c401689609aa1baad2920a53e41"
   },
   "model": {
     "scale": 2.0,

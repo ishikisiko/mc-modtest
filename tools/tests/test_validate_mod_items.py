@@ -26,14 +26,14 @@ class ModItemsValidatorTest(unittest.TestCase):
                 "src/main/java/com/example/myvillage/decoration/DemonPactPillarContent.java",
                 "src/main/java/com/example/myvillage/manor/ManorContent.java",
                 "src/main/java/com/example/myvillage/worldplan/roads/RoadContent.java",
-                "src/main/resources/data/myvillage/roads/prototype.json",
-                "src/main/resources/data/myvillage/lord_manors/catalog.json",
-                "src/main/resources/data/myvillage/combat/weapon",
+                "src/main/resources/data/yuanxian/roads/prototype.json",
+                "src/main/resources/data/yuanxian/lord_manors/catalog.json",
+                "src/main/resources/data/yuanxian/combat/weapon",
                 "src/main/java/com/example/myvillage/block/ModBlocks.java",
                 "src/main/java/com/example/myvillage/block/RockeryBlock.java",
-                "src/main/resources/assets/myvillage",
+                "src/main/resources/assets/yuanxian",
                 "src/main/resources/assets/minecraft/atlases/blocks.json",
-                "src/main/resources/data/myvillage/recipe/qingfeng_sword.json",
+                "src/main/resources/data/yuanxian/recipe/qingfeng_sword.json",
                 "src/main/resources/data/minecraft/tags/item/swords.json"):
             source = validator.ROOT / relative
             target = self.root / relative
@@ -47,14 +47,14 @@ class ModItemsValidatorTest(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def errors(self) -> set[str]:
-        assets = self.root / "src/main/resources/assets/myvillage"
+        assets = self.root / "src/main/resources/assets/yuanxian"
         with patch.multiple(
                 validator,
                 ROOT=self.root,
                 ASSET_ROOT=assets,
                 MOD_ITEMS=self.root / "src/main/java/com/example/myvillage/item/ModItems.java",
                 COMBAT_WEAPON_ITEM=self.root / "src/main/java/com/example/myvillage/item/CombatWeaponItem.java",
-                COMBAT_WEAPON_DATA=self.root / "src/main/resources/data/myvillage/combat/weapon",
+                COMBAT_WEAPON_DATA=self.root / "src/main/resources/data/yuanxian/combat/weapon",
                 MOD_BLOCKS=self.root / "src/main/java/com/example/myvillage/block/ModBlocks.java",
                 ROCKERY_BLOCK=self.root / "src/main/java/com/example/myvillage/block/RockeryBlock.java",
                 LANG=assets / "lang/en_us.json",
@@ -95,7 +95,7 @@ class ModItemsValidatorTest(unittest.TestCase):
         )
         path = (
             self.root
-            / f"src/main/resources/assets/myvillage/textures/item/{item_id}.png"
+            / f"src/main/resources/assets/yuanxian/textures/item/{item_id}.png"
         )
         path.write_bytes(png)
 
@@ -149,9 +149,9 @@ class ModItemsValidatorTest(unittest.TestCase):
         self.assertIn("xuanyue_zhenshan_registration_drift:new SwordItem", self.errors())
 
     def test_weapon_entry_for_a_plain_sword_item_is_named(self) -> None:
-        weapon = self.root / "src/main/resources/data/myvillage/combat/weapon/xuanyue_zhenshan_sword.json"
-        weapon.write_text(json.dumps({"schema": 1, "item": "myvillage:xuanyue_zhenshan_sword",
-                                      "style": "myvillage:basic_sword"}), encoding="utf-8")
+        weapon = self.root / "src/main/resources/data/yuanxian/combat/weapon/xuanyue_zhenshan_sword.json"
+        weapon.write_text(json.dumps({"schema": 1, "item": "yuanxian:xuanyue_zhenshan_sword",
+                                      "style": "yuanxian:basic_sword"}), encoding="utf-8")
         errors = self.errors()
         self.assertIn("combat_weapon_not_CombatWeaponItem:xuanyue_zhenshan_sword", errors)
         self.assertIn("xuanyue_zhenshan_registration_drift:new CombatWeaponItem", errors)
@@ -190,23 +190,23 @@ class ModItemsValidatorTest(unittest.TestCase):
     def test_missing_spear_tag_entry_and_names_are_named(self) -> None:
         tag_path = self.root / "src/main/resources/data/minecraft/tags/item/swords.json"
         tag = json.loads(tag_path.read_text(encoding="utf-8"))
-        tag["values"].remove("myvillage:lingxiao_spear")
+        tag["values"].remove("yuanxian:lingxiao_spear")
         tag_path.write_text(json.dumps(tag, indent=2) + "\n", encoding="utf-8")
         for name in ("en_us", "zh_cn"):
-            path = self.root / f"src/main/resources/assets/myvillage/lang/{name}.json"
+            path = self.root / f"src/main/resources/assets/yuanxian/lang/{name}.json"
             language = json.loads(path.read_text(encoding="utf-8"))
-            del language["item.myvillage.lingxiao_spear"]
+            del language["item.yuanxian.lingxiao_spear"]
             path.write_text(json.dumps(language, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         errors = self.errors()
         self.assertIn("lingxiao_spear_sword_tag_contract", errors)
         self.assertIn("lingxiao_spear_en_us_name", errors)
         self.assertIn("lingxiao_spear_zh_cn_name", errors)
-        self.assertIn("missing_lang:item.myvillage.lingxiao_spear|block.myvillage.lingxiao_spear", errors)
+        self.assertIn("missing_lang:item.yuanxian.lingxiao_spear|block.yuanxian.lingxiao_spear", errors)
 
     def test_spear_flat_handheld_model_is_named(self) -> None:
-        path = self.root / "src/main/resources/assets/myvillage/models/item/lingxiao_spear.json"
+        path = self.root / "src/main/resources/assets/yuanxian/models/item/lingxiao_spear.json"
         path.write_text(json.dumps({"parent": "minecraft:item/handheld",
-                                    "textures": {"layer0": "myvillage:item/lingxiao_spear"}}) + "\n",
+                                    "textures": {"layer0": "yuanxian:item/lingxiao_spear"}}) + "\n",
                         encoding="utf-8")
         self.assertIn("lingxiao_spear_model_contract", self.errors())
 
@@ -217,14 +217,14 @@ class ModItemsValidatorTest(unittest.TestCase):
     def test_missing_new_sword_tag_entry_is_named(self) -> None:
         path = self.root / "src/main/resources/data/minecraft/tags/item/swords.json"
         tag = json.loads(path.read_text(encoding="utf-8"))
-        tag["values"].remove("myvillage:chilian_lihuo_sword")
+        tag["values"].remove("yuanxian:chilian_lihuo_sword")
         path.write_text(json.dumps(tag, indent=2) + "\n", encoding="utf-8")
         self.assertIn("chilian_lihuo_sword_tag_contract", self.errors())
 
     def test_missing_new_sword_zh_name_is_named(self) -> None:
-        path = self.root / "src/main/resources/assets/myvillage/lang/zh_cn.json"
+        path = self.root / "src/main/resources/assets/yuanxian/lang/zh_cn.json"
         language = json.loads(path.read_text(encoding="utf-8"))
-        del language["item.myvillage.qingxiao_liuyun_sword"]
+        del language["item.yuanxian.qingxiao_liuyun_sword"]
         path.write_text(
             json.dumps(language, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8")
@@ -233,22 +233,22 @@ class ModItemsValidatorTest(unittest.TestCase):
     def test_new_sword_model_texture_reference_drift_is_named(self) -> None:
         path = (
             self.root
-            / "src/main/resources/assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+            / "src/main/resources/assets/yuanxian/models/item/xuanyue_zhenshan_sword.json"
         )
         model = json.loads(path.read_text(encoding="utf-8"))
-        model["textures"]["layer0"] = "myvillage:item/qingfeng_sword"
+        model["textures"]["layer0"] = "yuanxian:item/qingfeng_sword"
         path.write_text(json.dumps(model, indent=2) + "\n", encoding="utf-8")
         self.assertIn("xuanyue_zhenshan_model_contract", self.errors())
 
     def test_obj_material_library_missing_is_reported(self):
-        model=json.loads((self.root/'src/main/resources/assets/myvillage/models/item/forged_pickaxe.json').read_text())
-        obj=self.root/'src/main/resources/assets/myvillage'/model['model'].split(':')[1]
+        model=json.loads((self.root/'src/main/resources/assets/yuanxian/models/item/forged_pickaxe.json').read_text())
+        obj=self.root/'src/main/resources/assets/yuanxian'/model['model'].split(':')[1]
         obj.with_suffix('.mtl').unlink()
         self.assertTrue(any('invalid_obj:' in e and 'missing resource' in e for e in self.errors()))
 
     def test_obj_nonfinite_geometry_is_reported(self):
-        model=json.loads((self.root/'src/main/resources/assets/myvillage/models/item/forged_pickaxe.json').read_text())
-        obj=self.root/'src/main/resources/assets/myvillage'/model['model'].split(':')[1]
+        model=json.loads((self.root/'src/main/resources/assets/yuanxian/models/item/forged_pickaxe.json').read_text())
+        obj=self.root/'src/main/resources/assets/yuanxian'/model['model'].split(':')[1]
         content=obj.read_text();content=re.sub(r'^v \S+', 'v nan',content,count=1,flags=re.MULTILINE);obj.write_text(content)
         self.assertTrue(any('invalid_obj:' in e and 'nonfinite mesh' in e for e in self.errors()))
 
@@ -257,19 +257,19 @@ class ModItemsValidatorTest(unittest.TestCase):
         self.assertTrue(any('invalid_obj:' in e and 'texture absent from block atlas' in e for e in self.errors()))
 
     def qingfeng_model(self, name: str = "qingfeng_sword") -> tuple[Path, dict]:
-        path = self.root / f"src/main/resources/assets/myvillage/models/item/{name}.json"
+        path = self.root / f"src/main/resources/assets/yuanxian/models/item/{name}.json"
         return path, json.loads(path.read_text(encoding="utf-8"))
 
     def test_qingfeng_is_a_separate_transforms_3d_model(self) -> None:
         _, model = self.qingfeng_model()
         self.assertEqual("neoforge:separate_transforms", model["loader"])
-        self.assertEqual({"parent": "myvillage:item/qingfeng_sword_3d"}, model["base"])
-        self.assertEqual({"parent":"myvillage:item/qingfeng_sword_3d"},model["perspectives"]["gui"])
+        self.assertEqual({"parent": "yuanxian:item/qingfeng_sword_3d"}, model["base"])
+        self.assertEqual({"parent":"yuanxian:item/qingfeng_sword_3d"},model["perspectives"]["gui"])
 
     def test_qingfeng_reverted_to_flat_handheld_is_named(self) -> None:
         path, _ = self.qingfeng_model()
         path.write_text(json.dumps({"parent": "minecraft:item/handheld",
-                                    "textures": {"layer0": "myvillage:item/qingfeng_sword"}}) + "\n",
+                                    "textures": {"layer0": "yuanxian:item/qingfeng_sword"}}) + "\n",
                         encoding="utf-8")
         self.assertIn("qingfeng_model_contract", self.errors())
 
@@ -296,11 +296,11 @@ class ModItemsValidatorTest(unittest.TestCase):
 
     def test_qingfeng_3d_missing_model_and_texture_are_named(self) -> None:
         path, model = self.qingfeng_model("qingfeng_sword_3d")
-        model["textures"]["sword"] = "myvillage:item/iron_blade"
+        model["textures"]["sword"] = "yuanxian:item/iron_blade"
         path.write_text(json.dumps(model) + "\n", encoding="utf-8")
         errors = self.errors()
         self.assertIn("qingfeng_model_3d_contract:texture_sword", errors)
-        self.assertIn("missing_texture:src/main/resources/assets/myvillage/textures/item/iron_blade.png", errors)
+        self.assertIn("missing_texture:src/main/resources/assets/yuanxian/textures/item/iron_blade.png", errors)
         path.unlink()
         self.assertIn("qingfeng_model_3d_missing", self.errors())
 
@@ -313,18 +313,18 @@ class EquipmentObjFaceContractTest(unittest.TestCase):
     def validate_face(self, family: str, count: int) -> list[str]:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            assets = root / "src/main/resources/assets/myvillage"
+            assets = root / "src/main/resources/assets/yuanxian"
             obj = assets / f"models/{family}/sample.obj"
             obj.parent.mkdir(parents=True)
             obj.write_text(
-                f"mtllib myvillage:models/{family}/sample.mtl\n"
+                f"mtllib yuanxian:models/{family}/sample.mtl\n"
                 "v 0 0 0\nv 1 0 0\nv 1 1 0\nv 0 1 0\n"
                 "vt 0 0\nvt 1 0\nvt 1 1\nvt 0 1\nusemtl sample\n"
                 + "f " + " ".join(f"{i}/{i}" for i in range(1, count + 1)) + "\n")
             obj.with_suffix('.mtl').write_text("newmtl sample\nmap_Kd minecraft:block/white_wool\n")
             errors = []
             with patch.multiple(validator, ROOT=root, ASSET_ROOT=assets):
-                validator.validate_obj_model({"model": f"myvillage:models/{family}/sample.obj"},
+                validator.validate_obj_model({"model": f"yuanxian:models/{family}/sample.obj"},
                                              assets / "models/item/sample.json", errors)
             return errors
 

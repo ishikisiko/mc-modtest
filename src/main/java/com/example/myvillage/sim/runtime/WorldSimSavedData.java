@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 
 /**
- * The world ledger's save on the overworld ({@code data/myvillage_world_sim.dat}). The core's
+ * The world ledger's save on the overworld ({@code data/yuanxian_world_sim.dat}). The core's
  * {@code WorldSim.toBytes()} payload is stored verbatim as a byte array; the settlement scheduler
  * lives inside that payload. Outside it only a format version, the tier and a {@code paused}
  * mirror are kept, so a world whose payload cannot be restored still reports what it is.
@@ -18,7 +18,7 @@ import net.minecraft.world.level.saveddata.SavedData;
  * overwritten.
  */
 public final class WorldSimSavedData extends SavedData {
-    public static final String DATA_NAME = "myvillage_world_sim";
+    public static final String DATA_NAME = "yuanxian_world_sim";
     /** Version of this NBT wrapper (not of the core payload, which carries its own). */
     public static final int FORMAT = 1;
 

@@ -43,7 +43,7 @@ class SpiritualPowerTest {
     @Test
     void syncedStageCodecCarriesCapAndRejectsNegativeCap() {
         RealmStageDefinition stage = new RealmStageDefinition(
-                ResourceLocation.parse("myvillage:qi_refining_1"), "stage.test", 0,
+                ResourceLocation.parse("yuanxian:qi_refining_1"), "stage.test", 0,
                 Optional.empty(), Optional.empty(), Optional.empty(), 100);
         var encoded = RealmStageDefinition.CODEC.encodeStart(JsonOps.INSTANCE, stage).getOrThrow();
         assertEquals(100, encoded.getAsJsonObject().get("spiritual_power_cap").getAsLong());
@@ -55,7 +55,7 @@ class SpiritualPowerTest {
     @Test
     void absentCapInOlderDefinitionsIsZeroRatherThanUnlimited() {
         var json = JsonParser.parseString("""
-                {"id":"myvillage:old_stage","translation_key":"stage.old","sort_order":0}
+                {"id":"yuanxian:old_stage","translation_key":"stage.old","sort_order":0}
                 """);
         assertEquals(0, RealmStageDefinition.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow().spiritualPowerCap());
     }

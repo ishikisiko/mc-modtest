@@ -22,7 +22,7 @@ public final class FatePresentation {
         lines.add(Component.translatable(def.descriptionKey()));
         for (var e : new TreeMap<>(def.effects()).entrySet()) {
             if(e.getKey().equals("jingang_adaptation")||e.getKey().equals("phoenix")||e.getKey().equals("everlasting")) {
-                lines.add(Component.translatable("fate.myvillage.effect."+e.getKey()).append("：已启用"));continue;
+                lines.add(Component.translatable("fate.yuanxian.effect."+e.getKey()).append("：已启用"));continue;
             }
             boolean ticks = e.getKey().endsWith("ticks") || e.getKey().endsWith("cooldown");
             String number=java.math.BigDecimal.valueOf(e.getValue()).stripTrailingZeros().toPlainString();
@@ -34,7 +34,7 @@ public final class FatePresentation {
                     : e.getKey().endsWith("radius") ? String.format(Locale.ROOT, "%.1f", e.getValue())
                     : e.getKey().endsWith("strength") ? String.format(Locale.ROOT, "%.2f", e.getValue())
                     : String.format(Locale.ROOT, "%+.0f%%", e.getValue() * 100);
-            lines.add(Component.translatable("fate.myvillage.effect." + e.getKey()).append(": " + value));
+            lines.add(Component.translatable("fate.yuanxian.effect." + e.getKey()).append(": " + value));
         }
         return List.copyOf(lines);
     }

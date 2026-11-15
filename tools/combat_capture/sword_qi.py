@@ -17,8 +17,8 @@ from .capture import ffmpeg_record_argv, press_f5_to
 from .session import LOG_DIR, REPO
 
 DEFAULT_OUT = REPO / 'out/preview/sword_qi'
-TECHNIQUE = 'myvillage:jianqi_jue'
-WEAPON = 'myvillage:qingfeng_sword'
+TECHNIQUE = 'yuanxian:jianqi_jue'
+WEAPON = 'yuanxian:qingfeng_sword'
 TARGET = '@e[tag=sword_qi_target,limit=1]'
 FIELD = re.compile(r'(\w+)=([^\s]+)')
 RATE = 10
@@ -38,7 +38,7 @@ def parse_power(reply):
 
 
 def trial_plan():
-    skill = json.loads((REPO / 'src/main/resources/data/myvillage/combat/skill/jianqi_jue.json').read_text())
+    skill = json.loads((REPO / 'src/main/resources/data/yuanxian/combat/skill/jianqi_jue.json').read_text())
     base, full = skill['range'], skill['range'] * skill['charge_scale']
     check = {'base': base, 'scale': skill['charge_scale'], 'origin': [.5, -60 + skill['launch_height'], .5]}
     return [
@@ -114,7 +114,7 @@ class SwordQiCapture:
     def __init__(self, session, out, log=print):
         self.s, self.g, self.user, self.out, self.log = session, session.game, session.username, Path(out), log
         self.out.mkdir(parents=True, exist_ok=True)
-        skill = json.loads((REPO / 'src/main/resources/data/myvillage/combat/skill/jianqi_jue.json').read_text())
+        skill = json.loads((REPO / 'src/main/resources/data/yuanxian/combat/skill/jianqi_jue.json').read_text())
         self.manifest = {'kind': 'sword_qi', 'created_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
                          'method': 'mapped right mouse down/up; server RCON preparation and health; no DevBridge or pose probe',
                          'wave_dimensions': {k: skill[k] for k in ('range', 'speed', 'half_width', 'half_height', 'charge_scale')},
@@ -138,7 +138,7 @@ class SwordQiCapture:
         self.run(*scene.world_rules(), *scene.player_setup(self.user, WEAPON),
                  'gamerule naturalRegeneration false', 'gamerule doMobLoot false',
                  f'yuanxian cultivation awaken {self.user}', f'yuanxian cultivation initiate {self.user}',
-                 f'yuanxian cultivation learn {self.user} myvillage:taxue_wuhen')
+                 f'yuanxian cultivation learn {self.user} yuanxian:taxue_wuhen')
         self.g.key('1')
         scene.ensure_cultivation(self.s)
         press_f5_to(self.s, 'first')

@@ -31,10 +31,10 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Real server hurt pipeline using fake players; this is not mapped player input. */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class ArmorTrainingEvidence {
     private static final boolean ENABLED="1".equals(System.getenv("MYVILLAGE_ARMOR_TRAINING_EVIDENCE"));
-    private static final String IN="myvillage_workshop_armor_received_paid_damage", OUT="myvillage_workshop_paid_damage";
+    private static final String IN="yuanxian_workshop_armor_received_paid_damage", OUT="yuanxian_workshop_paid_damage";
     private static final List<String> SELECTED=List.of("direct_actual_and_all_slots","replay_post","absorption","different_attackers_no_remainder","shared_cap_and_nbt_reload","projectile_attribution","invalid_sources","melee_weapon_and_armor","tool_work","receipt_limit_and_cleanup");
     private static final List<String> DONE=new ArrayList<>(), FAILED=new ArrayList<>();
     private static final List<Map<String,Object>> CHECKS=new ArrayList<>();
@@ -46,7 +46,7 @@ public final class ArmorTrainingEvidence {
         if(!pass)FAILED.add(name+": "+detail);
     }
     private static boolean close(double a,double b){return Math.abs(a-b)<.0002;}
-    private static ItemStack item(String id){return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("myvillage:"+id)));}
+    private static ItemStack item(String id){return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("yuanxian:"+id)));}
     private static final class HurtEligiblePlayer extends FakePlayer {
         HurtEligiblePlayer(ServerLevel level,GameProfile profile){super(level,profile);}
         // FakePlayer normally rejects every hit; preserve creative immunity in this fixture.

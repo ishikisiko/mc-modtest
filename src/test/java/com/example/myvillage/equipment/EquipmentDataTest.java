@@ -9,15 +9,15 @@ import org.junit.jupiter.api.Test;
 
 final class EquipmentDataTest {
     private static final String ENTRY = """
-            {"id":"myvillage:sample_helmet","slot":"head","material":"minecraft:iron",
-             "durability_multiplier":15,"model":"myvillage:equipment/sample.json",
-             "texture":"myvillage:textures/equipment/sample.png"}
+            {"id":"yuanxian:sample_helmet","slot":"head","material":"minecraft:iron",
+             "durability_multiplier":15,"model":"yuanxian:equipment/sample.json",
+             "texture":"yuanxian:textures/equipment/sample.png"}
             """;
     private static String catalogue(String entries) { return "{\"version\":1,\"items\":[" + entries + "]}"; }
 
     @Test void arbitraryAuthoredItemIdentityDoesNotNeedJavaRegistrationChanges() {
         var items = EquipmentCatalogue.parse(new StringReader(catalogue(ENTRY)));
-        assertEquals("myvillage:sample_helmet",items.getFirst().id().toString());
+        assertEquals("yuanxian:sample_helmet",items.getFirst().id().toString());
         assertEquals("head",items.getFirst().type().getSlot().getName());
         assertEquals(165,items.getFirst().type().getDurability(items.getFirst().durabilityMultiplier()));
     }

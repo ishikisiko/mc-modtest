@@ -24,15 +24,15 @@ class AdvancedArtsDataTests(unittest.TestCase):
         for art in self.doc['arts']:
             rid=art['id'].split(':')[1]
             recipe=json.loads(output[gen.DATA/f'recipe/manual_{rid}.json'])
-            self.assertEqual('myvillage:manual_active_xuan',recipe['result']['id'])
-            self.assertEqual({'myvillage:technique':art['id']},recipe['result']['components'])
+            self.assertEqual('yuanxian:manual_active_xuan',recipe['result']['id'])
+            self.assertEqual({'yuanxian:technique':art['id']},recipe['result']['components'])
             self.assertEqual(1,recipe['result']['count'])
             self.assertIn({'tag':'c:spirit_stones/low_grade'},recipe['ingredients'])
             self.assertFalse(any('manual' in ingredient.get('item','') for ingredient in recipe['ingredients']))
             signature=json.dumps(sorted(json.dumps(i,sort_keys=True) for i in recipe['ingredients']))
             self.assertNotIn(signature,seen);seen.add(signature)
             advancement=json.loads(output[gen.DATA/f'advancement/recipes/manual_{rid}.json'])
-            self.assertEqual([f'myvillage:manual_{rid}'],advancement['rewards']['recipes'])
+            self.assertEqual([f'yuanxian:manual_{rid}'],advancement['rewards']['recipes'])
 
     def test_invalid_fields_are_rejected(self):
         mutations=[('qi_cost',-1),('slot',2),('slot',True),('cooldown_ticks',0),('guard_reduction',float('nan')),
@@ -51,7 +51,7 @@ class AdvancedArtsDataTests(unittest.TestCase):
         with self.assertRaises(ValueError):gen.validate(ROOT,bad)
 
     def test_move_family_and_shape_boundaries(self):
-        for key,value in [('move','myvillage:basic_spear_01_mid_thrust'),('step_distance',1.61),('reach',float('inf')),
+        for key,value in [('move','yuanxian:basic_spear_01_mid_thrust'),('step_distance',1.61),('reach',float('inf')),
                           ('maximum_targets',13),('shape','sphere'),('fx','infinite_particles')]:
             with self.subTest(key=key):
                 bad=copy.deepcopy(self.doc);bad['arts'][0]['phases'][0][key]=value
@@ -61,7 +61,7 @@ class AdvancedArtsDataTests(unittest.TestCase):
         output=gen.plan(ROOT)
         for art in self.doc['arts']:
             rid=art['id'].split(':')[1]
-            manual=json.loads(output[gen.DATA/f'myvillage/technique/{rid}.json'])
+            manual=json.loads(output[gen.DATA/f'yuanxian/technique/{rid}.json'])
             self.assertEqual(art['qi_cost'],manual['effects']['active']['qi_cost'])
             self.assertEqual(art['id'],manual['effects']['active']['skill'])
             self.assertEqual(art['minimum_stage'],manual['requirements']['minimum_stage'])
@@ -75,11 +75,11 @@ class AdvancedArtsDataTests(unittest.TestCase):
     def test_output_is_reproducible_and_check_never_repairs_drift(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)
-            for rel in [gen.DATA/'combat',gen.DATA/'myvillage/realm',gen.DATA/'myvillage/school',gen.ASSETS/'lang',Path('tools/technique_catalogue'),Path('tools/advanced_arts')]:
+            for rel in [gen.DATA/'combat',gen.DATA/'yuanxian/realm',gen.DATA/'yuanxian/school',gen.ASSETS/'lang',Path('tools/technique_catalogue'),Path('tools/advanced_arts')]:
                 shutil.copytree(ROOT/rel,root/rel,dirs_exist_ok=True)
             gen.generate(root)
             self.assertEqual([],gen.generate(root,check=True))
-            target=gen.DATA/'myvillage/technique/qinglian_jiange.json'
+            target=gen.DATA/'yuanxian/technique/qinglian_jiange.json'
             (root/target).write_text('{}\n')
             self.assertIn(target,gen.generate(root,check=True))
             self.assertEqual('{}\n',(root/target).read_text())
@@ -88,8 +88,8 @@ class AdvancedArtsDataTests(unittest.TestCase):
 
     def test_no_runtime_changes_to_baseline_index_or_skill(self):
         index=gen.read(ROOT/gen.DATA/'combat/index.json')
-        self.assertEqual(['myvillage:jianqi_jue', 'myvillage:sword_obsession_wave',
-                          'myvillage:innate_sword_heart_wave'],index['skills'])
+        self.assertEqual(['yuanxian:jianqi_jue', 'yuanxian:sword_obsession_wave',
+                          'yuanxian:innate_sword_heart_wave'],index['skills'])
         self.assertEqual({'schema','styles','weapons','skills'},set(index))
         self.assertEqual(3,len(index['styles']))
 

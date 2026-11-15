@@ -23,10 +23,10 @@ public final class ManorPresentation {
                 if (!names.getSiblings().isEmpty()) names.append("、");
                 names.append(Component.translatable(material));
             }
-            return Component.translatable("tooltip.myvillage.manor_materials", names);
+            return Component.translatable("tooltip.yuanxian.manor_materials", names);
         }
         public Component styleLine() {
-            return Component.translatable("tooltip.myvillage.manor_style", get().cityNames.get(city));
+            return Component.translatable("tooltip.yuanxian.manor_style", get().cityNames.get(city));
         }
     }
 
@@ -72,7 +72,7 @@ public final class ManorPresentation {
         return new Info(city, name, materials);
     }
     private static ManorPresentation load() {
-        String path = "/data/myvillage/lord_manors/presentation.json";
+        String path = "/data/yuanxian/lord_manors/presentation.json";
         try (var input = ManorPresentation.class.getResourceAsStream(path)) {
             if (input == null) throw new IllegalStateException("缺少建筑显示目录");
             var root = JsonParser.parseString(new String(input.readAllBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
@@ -92,7 +92,7 @@ public final class ManorPresentation {
             for (var entry : root.getAsJsonObject("materials").entrySet()) {
                 var data = entry.getValue().getAsJsonObject(); String city = data.get("city").getAsString();
                 if (!cities.containsKey(city)) throw new IllegalArgumentException("建筑材质含未知城");
-                materials.put(ResourceLocation.fromNamespaceAndPath("myvillage", entry.getKey()), info(city, data));
+                materials.put(ResourceLocation.fromNamespaceAndPath("yuanxian", entry.getKey()), info(city, data));
             }
             return new ManorPresentation(banks, materials, cities);
         } catch (IOException e) { throw new IllegalStateException("无法读取建筑显示目录", e); }

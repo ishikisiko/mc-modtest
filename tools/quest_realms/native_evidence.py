@@ -40,7 +40,7 @@ class Evidence:
         self.report['source_manifest_sha256']=hashlib.sha256(manifest.read_bytes()).hexdigest()
         self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
         self.report['client_heap']='4g'
-        jars=[p for p in (ROOT/'build/libs').glob('myvillage-*.jar') if not p.name.endswith('-sources.jar')]
+        jars=[p for p in (ROOT/'build/libs').glob('yuanxian-*.jar') if not p.name.endswith('-sources.jar')]
         if len(jars)!=1:raise RuntimeError('交付JAR不唯一：'+repr(jars))
         self.report['jar']={'name':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'bytes':jars[0].stat().st_size}
         self.bootstrap=None
@@ -59,7 +59,7 @@ class Evidence:
                         path.parent.mkdir(parents=True,exist_ok=True)
                         with archive.extractfile(member) as source,path.open('xb') as target:shutil.copyfileobj(source,target)
             from buildgen.nbtread import read_gzipped_nbt
-            ledger=destination/'data/myvillage_expeditions.dat'
+            ledger=destination/'data/yuanxian_expeditions.dat'
             if ledger.exists():
                 _,saved=read_gzipped_nbt(str(ledger));quests=json.loads(saved['data']['payload'])
                 if quests['instances'] or quests['members']:raise RuntimeError('启动归档已有远征记录，未清空')
@@ -69,7 +69,7 @@ class Evidence:
             if old.get('kind')!='combat_quest_native' or old.get('completed') or not re.fullmatch(r'quest_runtime_[a-f0-9]{8}',world) or old['jar']['sha256']!=self.report['jar']['sha256']:
                 raise RuntimeError('仅可复用相同JAR且尚未接取远征的失败启动世界')
             from buildgen.nbtread import read_gzipped_nbt
-            ledger=ROOT/'run-acceptance'/world/'data/myvillage_expeditions.dat'
+            ledger=ROOT/'run-acceptance'/world/'data/yuanxian_expeditions.dat'
             if ledger.exists():
                 _,saved=read_gzipped_nbt(str(ledger));quests=json.loads(saved['data']['payload'])
                 if quests['instances'] or quests['members']:raise RuntimeError('测试世界已有远征事实，未清空或重放')
@@ -90,7 +90,7 @@ class Evidence:
     def state(self,client):return one(self.rc('yuanxian quest status '+client.name),'QUEST_STATUS ')
     def map(self,client):
         name=self.state(client)['instance']['map']
-        return json.loads(gzip.decompress((ROOT/f'build/resources/main/data/myvillage/expedition/{name}.json.gz').read_bytes()))
+        return json.loads(gzip.decompress((ROOT/f'build/resources/main/data/yuanxian/expedition/{name}.json.gz').read_bytes()))
     def fixture(self,client,position,target):
         client.close_screen();yaw,pitch=aim(position,target);dim=self.state(client)['dimension']
         self.rc(f'execute in {dim} run tp {client.name} '+' '.join(f'{x:.6f}' for x in [*position,yaw,pitch]));time.sleep(.7)
@@ -119,7 +119,7 @@ class Evidence:
     def enter(self,client,menu=False):
         if menu:self.journal(client,'enter')
         else:client.chat('/expedition enter')
-        return wait(lambda:self.state(client),lambda s:s['dimension'].startswith('myvillage:expedition/') and s.get('instance',{}).get('state') in ('RUNNING','GOAL'),180,'实际入场 '+client.name)
+        return wait(lambda:self.state(client),lambda s:s['dimension'].startswith('yuanxian:expedition/') and s.get('instance',{}).get('state') in ('RUNNING','GOAL'),180,'实际入场 '+client.name)
     def leave(self,client,menu=False):
         self.rc('questfixture camp '+client.name)
         if menu:self.journal(client,'leave')
@@ -170,9 +170,9 @@ class Evidence:
         client.close_screen();result=wait(lambda:self.state(client),lambda s:s.get('receipt',{}).get('claimed') is True,15,'真实领奖');self.rc('questfixture park '+client.name);return result
     def prepare(self,client):
         self.rc('gamemode survival '+client.name)
-        self.rc('yuanxian cultivation setrealm '+client.name+' myvillage:golden_core myvillage:golden_late')
+        self.rc('yuanxian cultivation setrealm '+client.name+' yuanxian:golden_core yuanxian:golden_late')
         self.rc('effect give '+client.name+' minecraft:regeneration 99999 5 true')
-        self.rc('item replace entity '+client.name+' hotbar.0 with myvillage:qingfeng_sword');client.guard();client.game.xdo('key','1')
+        self.rc('item replace entity '+client.name+' hotbar.0 with yuanxian:qingfeng_sword');client.guard();client.game.xdo('key','1')
         mode=lambda:parse_combat_mode(self.rc('data get entity '+client.name+' "neoforge:attachments"'))
         if mode()!='cultivation':
             client.guard();client.game.xdo('key','r');self.action('mapped_combat_mode_key',player=client.name,key='r')
@@ -241,7 +241,7 @@ class Evidence:
                         inventory=self.rc('data get entity '+a.name+' Inventory');a.chat('/expedition claim');self.check('second_claim_does_not_pay_again',inventory==self.rc('data get entity '+a.name+' Inventory'),self.state(a));self.done('exit_reward_once')
                         wait(lambda:self.state(a),lambda s:'instance' not in s,30,'山寨实例回收');self.done('reclaim')
                         board=self.board(a,'donghai');self.accept_map(a,board,1);beast=self.enter(a)
-                        self.check('beast_uses_issuing_beast_range',beast['instance']['region']=='donghai' and all(s['realm']=='myvillage:qi_refining' and 2<=s['stage']<=8 for s in beast['instance']['slots']),beast)
+                        self.check('beast_uses_issuing_beast_range',beast['instance']['region']=='donghai' and all(s['realm']=='yuanxian:qi_refining' and 2<=s['stage']<=8 for s in beast['instance']['slots']),beast)
                         self.rc('execute in '+beast['dimension']+' run tp '+b.name+' 104.5 82 24.5')
                         self.check('foreign_player_remains_outside',self.state(b)['dimension']=='minecraft:overworld',self.state(b));self.done('foreign_refusal')
                         self.rc('kill '+a.name);rescued=wait(lambda:self.state(a),lambda s:s.get('receipt',{}).get('rescues')==1,20,'致命伤害救援')

@@ -13,7 +13,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /** Server-owned pool, deliberately separate from all absorption hearts and mob effects. */
 public final class PillAegisRuntime {
-    private static final String MESSAGE = "fate.myvillage.pill_aegis.";
+    private static final String MESSAGE = "fate.yuanxian.pill_aegis.";
     private PillAegisRuntime() { }
 
     /** Register immediately AFTER StatsRuntime, whose LOWEST pre hook applies typed resistance. */

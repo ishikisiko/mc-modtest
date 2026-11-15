@@ -2,9 +2,9 @@
 navigation:
   title: 修行入门录
   position: 0
-  icon: myvillage:cultivation_handbook
+  icon: yuanxian:cultivation_handbook
 item_ids:
-  - myvillage:cultivation_handbook
+  - yuanxian:cultivation_handbook
 ---
 
 # 修行入门录

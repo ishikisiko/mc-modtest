@@ -5,12 +5,12 @@ import com.example.myvillage.sim.SimEvent;
 
 /**
  * Which chronicle events a player hears as sect news (宗门消息, sect entry slice 4): told in chat on
- * the settled day wherever the player is ({@code message.myvillage.world.sect.news}). Pure, so it
+ * the settled day wherever the player is ({@code message.yuanxian.world.sect.news}). Pure, so it
  * is unit-tested; {@link WorldSimPlayers} sends the lines.
  */
 public final class SectNews {
     /** The chat line of one news event: "【宗门】" and the event's own line. */
-    public static final String NEWS_KEY = "message.myvillage.world.sect.news";
+    public static final String NEWS_KEY = "message.yuanxian.world.sect.news";
     /** Least importance of a news event (notable and major). */
     public static final int MIN_IMPORTANCE = 2;
     /** Event types about sects ({@code sect_destroyed}, {@code sect_split}, ...) start with this. */

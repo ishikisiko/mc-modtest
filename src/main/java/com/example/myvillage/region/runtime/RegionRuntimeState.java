@@ -19,7 +19,7 @@ import net.minecraft.world.level.saveddata.SavedData;
  */
 public final class RegionRuntimeState extends SavedData {
 
-    private static final String DATA_NAME = "myvillage_region_runtime";
+    private static final String DATA_NAME = "yuanxian_region_runtime";
 
     private boolean spawnBound;
     private String spawnRegionId;

@@ -7,27 +7,27 @@ import java.util.*;
 
 /** Validated, frozen generation inputs. Runtime code never rereads mutable configuration per chunk. */
 public final class WorldPlanRules {
-    public static final String LEGACY_ALGORITHM = "myvillage:worldplan_v1";
-    public static final String V2_ALGORITHM = "myvillage:worldplan_v2";
-    public static final String V3_ALGORITHM = "myvillage:worldplan_v3";
-    public static final String ALGORITHM = "myvillage:worldplan_v4";
-    public static final String V7_ALGORITHM = "myvillage:worldplan_v7";
-    public static final String V7_RESOURCE = "/data/myvillage/worldplan/frozen_v7.json";
-    public static final String V8_ALGORITHM = "myvillage:worldplan_v8";
-    public static final String V8_RESOURCE = "/data/myvillage/worldplan/frozen_v8.json";
-    public static final String V9_ALGORITHM = "myvillage:worldplan_v9";
-    public static final String V9_RESOURCE = "/data/myvillage/worldplan/frozen_v9.json";
-    public static final String V10_ALGORITHM = "myvillage:worldplan_v10";
-    public static final String V10_RESOURCE = "/data/myvillage/worldplan/frozen_v10.json";
-    public static final String V11_ALGORITHM = "myvillage:worldplan_v11";
-    public static final String V11_RESOURCE = "/data/myvillage/worldplan/frozen_v11.json";
-    public static final String V6_ALGORITHM = "myvillage:worldplan_v6";
-    public static final String V6_RESOURCE = "/data/myvillage/worldplan/frozen_v6.json";
-    public static final String V5_ALGORITHM = "myvillage:worldplan_v5";
-    public static final String V5_RESOURCE = "/data/myvillage/worldplan/frozen_v5.json";
-    public static final String LEGACY_RESOURCE = "/data/myvillage/worldplan/frozen_v1.json";
-    public static final String V2_RESOURCE = "/data/myvillage/worldplan/frozen_v2.json";
-    public static final String V3_RESOURCE = "/data/myvillage/worldplan/frozen_v3.json";
+    public static final String LEGACY_ALGORITHM = "yuanxian:worldplan_v1";
+    public static final String V2_ALGORITHM = "yuanxian:worldplan_v2";
+    public static final String V3_ALGORITHM = "yuanxian:worldplan_v3";
+    public static final String ALGORITHM = "yuanxian:worldplan_v4";
+    public static final String V7_ALGORITHM = "yuanxian:worldplan_v7";
+    public static final String V7_RESOURCE = "/data/yuanxian/worldplan/frozen_v7.json";
+    public static final String V8_ALGORITHM = "yuanxian:worldplan_v8";
+    public static final String V8_RESOURCE = "/data/yuanxian/worldplan/frozen_v8.json";
+    public static final String V9_ALGORITHM = "yuanxian:worldplan_v9";
+    public static final String V9_RESOURCE = "/data/yuanxian/worldplan/frozen_v9.json";
+    public static final String V10_ALGORITHM = "yuanxian:worldplan_v10";
+    public static final String V10_RESOURCE = "/data/yuanxian/worldplan/frozen_v10.json";
+    public static final String V11_ALGORITHM = "yuanxian:worldplan_v11";
+    public static final String V11_RESOURCE = "/data/yuanxian/worldplan/frozen_v11.json";
+    public static final String V6_ALGORITHM = "yuanxian:worldplan_v6";
+    public static final String V6_RESOURCE = "/data/yuanxian/worldplan/frozen_v6.json";
+    public static final String V5_ALGORITHM = "yuanxian:worldplan_v5";
+    public static final String V5_RESOURCE = "/data/yuanxian/worldplan/frozen_v5.json";
+    public static final String LEGACY_RESOURCE = "/data/yuanxian/worldplan/frozen_v1.json";
+    public static final String V2_RESOURCE = "/data/yuanxian/worldplan/frozen_v2.json";
+    public static final String V3_RESOURCE = "/data/yuanxian/worldplan/frozen_v3.json";
     public static final String RESOURCE = V11_RESOURCE;
     public static final Gson JSON = new GsonBuilder().disableHtmlEscaping().create();
     public record Profile(String id, String name, String role, int nominalTier, int qiMin, int qiMax,

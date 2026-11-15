@@ -11,7 +11,7 @@ final class SwordQiWaveShape {
     private record Wisp(double start, double end, double depth, double height, int alpha) { }
     private record Profile(int segments, double curvature, List<Band> bands, List<Wisp> wisps, double wispThickness) {
         static Profile load() {
-            try (var in = SwordQiWaveShape.class.getResourceAsStream("/assets/myvillage/combat/sword_qi_wave.json")) {
+            try (var in = SwordQiWaveShape.class.getResourceAsStream("/assets/yuanxian/combat/sword_qi_wave.json")) {
                 if (in == null) throw new IllegalStateException("Missing sword qi presentation profile");
                 var root = com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(in,
                         java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();

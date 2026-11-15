@@ -28,7 +28,7 @@ final class WeaponTrailShape {
             throw new IllegalArgumentException("Trail bands must be nested");
     }
     private static com.google.gson.JsonObject loadProfile() {
-        try(var in=WeaponTrailShape.class.getResourceAsStream("/assets/myvillage/combat/weapon_trail.json")) {
+        try(var in=WeaponTrailShape.class.getResourceAsStream("/assets/yuanxian/combat/weapon_trail.json")) {
             if(in==null)throw new IllegalStateException("Missing weapon trail profile");
             return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(in,
                     java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();

@@ -10,7 +10,7 @@ import java.util.*;
 
 /** Strict bundled balance rules for initial rolls and same-recipe product quality ceilings. */
 public final class CraftingRules {
-    public static final String RESOURCE = "/data/myvillage/crafting/rules.json";
+    public static final String RESOURCE = "/data/yuanxian/crafting/rules.json";
     public record Threshold(int quality, int minimum) { }
     private final int initialMin, initialMax;
     private final List<Threshold> thresholds;

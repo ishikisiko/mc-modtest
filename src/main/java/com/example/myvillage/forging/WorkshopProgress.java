@@ -46,8 +46,8 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 @EventBusSubscriber(modid=MyVillageMod.MOD_ID)
 public final class WorkshopProgress {
     private static final TagKey<Block> ORES=TagKey.create(Registries.BLOCK,ResourceLocation.fromNamespaceAndPath("c","ores"));
-    private static final String MELEE_PAID="myvillage_workshop_paid_damage";
-    private static final String RECEIVED_PAID="myvillage_workshop_armor_received_paid_damage";
+    private static final String MELEE_PAID="yuanxian_workshop_paid_damage";
+    private static final String RECEIVED_PAID="yuanxian_workshop_armor_received_paid_damage";
     // 精确容器身份区分嵌套命中；值不持有容器或实体。
     // Hold each identity until tick cleanup; GC must not reopen the per-tick quota.
     private static final Map<DamageContainer,DamageReceipt> DAMAGE=new IdentityHashMap<>();

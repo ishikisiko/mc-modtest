@@ -12,7 +12,7 @@ def write(p,value):p=Path(p);p.parent.mkdir(parents=True,exist_ok=True);p.write_
 
 def source_hashes(spec_path,spec):
     files={Path(spec_path).resolve(),*(ROOT/p for p in spec['sources'].values())}
-    files.add(ROOT/'src/main/resources/data/myvillage/lord_manors/catalog.json')
+    files.add(ROOT/'src/main/resources/data/yuanxian/lord_manors/catalog.json')
     files.add(ROOT/'blueprints/lord_manors/config.json')
     files.add(ROOT/'blueprints/lord_manors/town_materials.json')
     files.add(ROOT/'blueprints/province_capitals/blueprint_plan/road_surfaces.json')
@@ -21,12 +21,12 @@ def source_hashes(spec_path,spec):
     files.add(ROOT/'tools/lord_manors/generated/native_trees.json')
     files.add(ROOT/'tools/lord_manors/treegen/NativeTreeCapture.java')
     files.update(p for p in (ROOT/'tools/lord_manors').glob('*.py') if not p.name.startswith('test_'))
-    files.add(ROOT/'src/main/resources/data/myvillage/decoration/demon_pact_pillar.json')
+    files.add(ROOT/'src/main/resources/data/yuanxian/decoration/demon_pact_pillar.json')
     files.add(ROOT/'blueprints/province_capitals/regional/v2/building_families.json')
     files.add(ROOT/'blueprints/street_furniture/catalog.json')
     manifest=read(spec['sources']['manor_manifest'])
-    files.update(ROOT/'src/main/resources/data/myvillage/structure'/(t['template'].split(':',1)[1]+'.nbt') for t in manifest['tiles'])
-    files.update((ROOT/'src/main/resources/assets/myvillage/models/block/demon_pact_pillar').glob('part_*.json'))
+    files.update(ROOT/'src/main/resources/data/yuanxian/structure'/(t['template'].split(':',1)[1]+'.nbt') for t in manifest['tiles'])
+    files.update((ROOT/'src/main/resources/assets/yuanxian/models/block/demon_pact_pillar').glob('part_*.json'))
     for folder in ('tools/province_capitals/blueprint_plan','tools/province_capitals/regional/v2','tools/province_capitals/environment_design','tools/buildgen'):
         files.update(p for p in (ROOT/folder).rglob('*') if p.suffix in ('.py','.json','.js','.html') and not p.name.startswith('test_'))
     files.update((ROOT/'tools'/name) for name in ('json_to_nbt.py','web/three.min.js','web/OrbitControls.js'))
@@ -43,16 +43,16 @@ def check_tile(path,cells):
 def pillar_groups(planner):
     rows=[];scene=planner.manor_scene
     if not scene.get('edict_roots'):return rows
-    pillar=read('src/main/resources/data/myvillage/decoration/demon_pact_pillar.json');w,_,d=planner.manor_manifest['size'];minimum=planner.manor_manifest['source_min'];q=planner.layout['manor']['rotation_quarters'];sx,_,sz=planner.manor_offset
+    pillar=read('src/main/resources/data/yuanxian/decoration/demon_pact_pillar.json');w,_,d=planner.manor_manifest['size'];minimum=planner.manor_manifest['source_min'];q=planner.layout['manor']['rotation_quarters'];sx,_,sz=planner.manor_offset
     for root in scene['edict_roots']:
         cells={}
         for part in pillar['parts']:
             x,y,z=[a+b for a,b in zip(root,part['offset'])];xx,zz=rotate_cell(x-minimum[0],z-minimum[2],w,d,q)
             p=(sx+xx,y+planner.manor_ground_delta,sz+zz);state=planner.get(p)
-            if state.split('[',1)[0]!='myvillage:demon_pact_pillar':raise ValueError('正式府邸魔契柱组件不完整')
+            if state.split('[',1)[0]!='yuanxian:demon_pact_pillar':raise ValueError('正式府邸魔契柱组件不完整')
             cells[p]=state
         origin=[min(p[i] for p in cells) for i in range(3)];size=[max(p[i] for p in cells)-origin[i]+1 for i in range(3)]
-        rows.append({'id':'manor_pillar_'+str(len(rows)),'block':'myvillage:demon_pact_pillar','origin':origin,'size':size,'cells':cells})
+        rows.append({'id':'manor_pillar_'+str(len(rows)),'block':'yuanxian:demon_pact_pillar','origin':origin,'size':size,'cells':cells})
     return rows
 
 def export(spec_path,base,out,*,preview_out=None):
@@ -69,7 +69,7 @@ def export(spec_path,base,out,*,preview_out=None):
     atomic={p for group in groups for p in group['cells']}
     if len(atomic)!=sum(len(group['cells']) for group in groups):raise ValueError('完整组件组发生重叠')
     pack=out/'datapack';write(pack/'pack.mcmeta',{'pack':{'pack_format':spec['minecraft']['pack_format'],'description':spec['name']}})
-    target=pack/f'data/myvillage/structure/blueprint_trial/{region}';target.mkdir(parents=True)
+    target=pack/f'data/yuanxian/structure/blueprint_trial/{region}';target.mkdir(parents=True)
     tiles=[];palette=set();block_count=0
     for tz in range(planner.depth//16):
         for tx in range(planner.width//16):
@@ -83,17 +83,17 @@ def export(spec_path,base,out,*,preview_out=None):
                 if (tx*16+p[0],p[1],tz*16+p[2]) in atomic:del cells[p]
             path=target/f'tile_{tx}_{tz}.nbt';count,colors,entities=write_tile(path,cells,planner.height,{})
             check_tile(path,cells);palette.update(row[0] for row in cells.values());block_count+=count
-            tiles.append({'phase':'tiles','x':tx*16,'y':0,'z':tz*16,'size':[16,planner.height,16],'template':f'myvillage:blueprint_trial/{region}/'+path.stem,'sha256':sha(path),'blocks':count})
+            tiles.append({'phase':'tiles','x':tx*16,'y':0,'z':tz*16,'size':[16,planner.height,16],'template':f'yuanxian:blueprint_trial/{region}/'+path.stem,'sha256':sha(path),'blocks':count})
         print('正式结构',region,'行',tz+1,'/',planner.depth//16,flush=True)
     for group in groups:
         origin=group['origin'];cells={tuple(p[i]-origin[i] for i in range(3)):(state,'','') for p,state in group['cells'].items()}
         path=target/(group['id']+'.nbt');count,_,_=write_tile(path,cells,group['size'][1],{},size=group['size']);check_tile(path,cells)
         block_count+=count;palette.update(row[0] for row in cells.values())
-        tiles.append({'phase':'atomic_groups','x':origin[0],'y':origin[1],'z':origin[2],'size':group['size'],'template':f'myvillage:blueprint_trial/{region}/'+path.stem,'sha256':sha(path),'blocks':count})
+        tiles.append({'phase':'atomic_groups','x':origin[0],'y':origin[1],'z':origin[2],'size':group['size'],'template':f'yuanxian:blueprint_trial/{region}/'+path.stem,'sha256':sha(path),'blocks':count})
     errors=planner.model.modset.palette_block_errors(sorted(palette))
     if errors:raise ValueError('正式结构存在未注册方块：'+str(errors))
     if identity!=source_hashes(spec_path,spec):raise ValueError('正式生成期间 authored 输入变动')
-    functions=pack/f'data/myvillage/function/blueprint_trial/{region}';functions.mkdir(parents=True)
+    functions=pack/f'data/yuanxian/function/blueprint_trial/{region}';functions.mkdir(parents=True)
     origin=spec['minecraft']['origin'];batches=[];step=spec['minecraft']['batch_rows']
     for start in range(0,planner.depth//16,step):
         group=[t for t in tiles if t['phase']=='tiles' and start*16<=t['z']<(start+step)*16]
@@ -106,7 +106,7 @@ def export(spec_path,base,out,*,preview_out=None):
         commands += [f'place template {t["template"]} {origin[0]+t["x"]} {origin[1]+t["y"]} {origin[2]+t["z"]}' for t in group]
         commands += [f'forceload remove {lo[0]} {lo[2]} {hi[0]} {hi[2]}']
         (functions/(name+'.mcfunction')).write_text('\n'.join(commands)+'\n')
-        batch_records.append({'function':f'myvillage:blueprint_trial/{region}/'+name,'phase':group[0]['phase'],'templates':[t['template'] for t in group],'tiles':len(group),'bounds':[lo[0],lo[2],hi[0],hi[2]]})
+        batch_records.append({'function':f'yuanxian:blueprint_trial/{region}/'+name,'phase':group[0]['phase'],'templates':[t['template'] for t in group],'tiles':len(group),'bounds':[lo[0],lo[2],hi[0],hi[2]]})
     inventory={'schema':2,'city_id':spec['city_id'],'dimensions':planner.city['dimensions'],'origin':origin,'source_fingerprint':fingerprint,'source_hashes':identity,'tiles':tiles,'batches':batch_records,'blocks':block_count,'block_entities':0,'atomic_groups':len(groups),'runtime':'not_run','npc_binding':'not_performed','owner_acceptance':'not_verified'}
     write(out/'inventory.json',inventory);write(out/'plan.json',data)
     archive=out/f'{region}-blueprint-trial.zip'

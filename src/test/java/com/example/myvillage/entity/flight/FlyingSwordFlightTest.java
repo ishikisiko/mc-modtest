@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class FlyingSwordFlightTest {
     private FlyingSwordRules rules() throws Exception {
-        return new Gson().fromJson(Files.readString(Path.of("src/main/resources/data/myvillage/flying_sword/rules.json")), FlyingSwordRules.class);
+        return new Gson().fromJson(Files.readString(Path.of("src/main/resources/data/yuanxian/flying_sword/rules.json")), FlyingSwordRules.class);
     }
     @Test void diagonalNeverExceedsCruiseOrBoost() throws Exception {
         var r=rules();

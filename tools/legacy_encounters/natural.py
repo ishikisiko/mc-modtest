@@ -59,12 +59,12 @@ def audit(world,id,x,z):
     for c in chunks:
         if str(c.get('Status','')).split(':')[-1]!='full':continue
         for b in c.get('block_entities',[]):
-            if b.get('id')!='myvillage:legacy_stele':continue
+            if b.get('id')!='yuanxian:legacy_stele':continue
             if not any(bb[0]<=b['x']<=bb[3] and bb[1]<=b['y']<=bb[4] and bb[2]<=b['z']<=bb[5] for bb in boxes):continue
             if not b.get('Ready') or b.get('Cleared') or b.get('Claimed'):raise AssertionError(('Fresh stele state',b))
             section=next((s for s in c.get('sections',[]) if s['Y']==b['y']//16),{})
             block=section_state(decode_section(section),b['x']%16,b['y']%16,b['z']%16)
-            expected='myvillage:sword_inscription' if 'sword' in id else 'myvillage:mountain_stele'
+            expected='yuanxian:sword_inscription' if 'sword' in id else 'yuanxian:mountain_stele'
             if block!=expected:raise AssertionError((block,expected))
             steles.append({'position':[b['x'],b['y'],b['z']],'block':block,'nbt':b})
     if len(steles)!=1:raise AssertionError(('Expected one usable natural stele',steles))
@@ -81,7 +81,7 @@ def main():
     try:
         with NaturalServer(out,a.seed) as server:
             for name in selected:
-                id='myvillage:'+name
+                id='yuanxian:'+name
                 result=server.command('execute positioned 14000 90 14000 run locate structure '+id)
                 coords=re.search(r'\[(-?\d+),\s*(?:~|-?\d+),\s*(-?\d+)\]',result)
                 if not coords:raise AssertionError(result)

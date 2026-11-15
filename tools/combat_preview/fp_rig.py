@@ -1,6 +1,6 @@
 """Offline first-person preview of a combat weapon's first-person rig (numpy rasteriser; light).
 
-    python3 -m tools.combat_preview fp --weapon myvillage:qingfeng_sword [--rig <rig.json>] \
+    python3 -m tools.combat_preview fp --weapon yuanxian:qingfeng_sword [--rig <rig.json>] \
         --move 2 --key-ticks --out out/preview/combat_preview/fp.png
 
 Renders a sheet (rows = moves, columns = ticks) of 960x540-proportioned first-person frames: the
@@ -1649,7 +1649,7 @@ def parser():
                     help="resources root (repeatable, first wins; default src/main/resources of this repository)")
     ap.add_argument("--rig", help="first-person rig JSON overriding the weapon file's first_person_rig")
     ap.add_argument("--geometry", help="geometry contract JSON overriding the weapon file's")
-    ap.add_argument("--model", help="item model id/path overriding myvillage:item/<item>")
+    ap.add_argument("--model", help="item model id/path overriding yuanxian:item/<item>")
     ap.add_argument("--move", default="1", help="1-based move number(s), comma list, or 'all'")
     sel = ap.add_mutually_exclusive_group()
     sel.add_argument("--ticks", default="0", help="comma list of ticks (fractional allowed)")

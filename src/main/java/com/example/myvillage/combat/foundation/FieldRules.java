@@ -37,7 +37,7 @@ public final class FieldRules {
     public static FieldRules bundled() { return Bundled.VALUE; }
     public static FieldRules parse(JsonObject object) { return new FieldRules(object); }
     private static FieldRules read() {
-        try (var in = FieldRules.class.getResourceAsStream("/data/myvillage/combat/foundation/fields.json")) {
+        try (var in = FieldRules.class.getResourceAsStream("/data/yuanxian/combat/foundation/fields.json")) {
             if (in == null) throw new IllegalArgumentException("缺少领域配置");
             return parse(JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (Exception exception) { throw new IllegalStateException("领域配置读取失败", exception); }
@@ -52,7 +52,7 @@ public final class FieldRules {
 
     public FieldSpec woodRoot(double radius) {
         var root = document.getAsJsonObject("wood_root");
-        return new FieldSpec(ResourceLocation.parse("myvillage:wood_root"), ResourceLocation.parse("myvillage:wood_root"),
+        return new FieldSpec(ResourceLocation.parse("yuanxian:wood_root"), ResourceLocation.parse("yuanxian:wood_root"),
                 FieldSpec.Anchor.FOLLOW_SOURCE, null, radius,
                 integer(root, "lifetime_ticks", 1, maximumLifetime),
                 integer(root, "pulse_interval_ticks", minimumPulse, maximumLifetime),

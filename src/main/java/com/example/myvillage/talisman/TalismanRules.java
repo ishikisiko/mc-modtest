@@ -25,7 +25,7 @@ public final class TalismanRules {
     public static TalismanRules get() { return Bundled.VALUE; }
     public static TalismanRules parse(JsonObject object) { return new TalismanRules(object); }
     private static TalismanRules load() {
-        try (var in = TalismanRules.class.getResourceAsStream("/data/myvillage/talisman/rules.json")) {
+        try (var in = TalismanRules.class.getResourceAsStream("/data/yuanxian/talisman/rules.json")) {
             if (in == null) throw new IllegalStateException("缺少制符规则");
             return parse(JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (Exception e) { throw new IllegalStateException("制符规则读取失败", e); }

@@ -11,7 +11,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 class ExplorationRulesTest {
-    private static JsonObject json() throws Exception { return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/exploration/rules.json"))).getAsJsonObject(); }
+    private static JsonObject json() throws Exception { return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/exploration/rules.json"))).getAsJsonObject(); }
     @Test void regionalFloorNeverWeakensLocalMobsOrAddsGrowthTwice() {
         var r = ExplorationRules.get(); var mine = r.location("mineshaft");
         var low = WildernessRules.bundled().region("ximo").orElseThrow().beast();
@@ -93,7 +93,7 @@ class ExplorationRulesTest {
         var extra = json(); extra.addProperty("auto_scale_to_player",true);
         assertThrows(IllegalArgumentException.class,()->ExplorationRules.parse(extra.toString()));
         var reversed = json(); var range = reversed.getAsJsonArray("locations").get(0).getAsJsonObject().getAsJsonObject("recommended");
-        range.add("min",range.get("max").deepCopy()); range.getAsJsonObject("max").addProperty("realm","myvillage:mortal");
+        range.add("min",range.get("max").deepCopy()); range.getAsJsonObject("max").addProperty("realm","yuanxian:mortal");
         assertThrows(IllegalArgumentException.class,()->ExplorationRules.parse(reversed.toString()));
     }
 }

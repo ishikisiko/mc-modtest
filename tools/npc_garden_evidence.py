@@ -181,7 +181,7 @@ def main(argv: list[str] | None = None) -> int:
                 parser.error(f'phase report already exists; choose a new --out: {out / (phase + ".json")}')
         properties = run_dir / 'server.properties'
         eula = run_dir / 'eula.txt'
-        tier_config = run_dir / 'config' / 'myvillage-world_sim-server.toml'
+        tier_config = run_dir / 'config' / 'yuanxian-world_sim-server.toml'
         original_properties = properties.read_bytes() if properties.exists() else None
         original_eula = eula.read_bytes() if eula.exists() else None
         original_tier = tier_config.read_bytes() if tier_config.exists() else None

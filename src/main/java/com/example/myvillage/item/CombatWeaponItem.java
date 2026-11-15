@@ -48,13 +48,13 @@ public class CombatWeaponItem extends SwordItem {
         // Also covers anvil names, which bypass Item#getName. Do not mutate saved names.
         if (!lines.isEmpty()) lines.set(0, lines.getFirst().copy().withStyle(style -> style.withColor(color)));
         if (mark != null && mark.infused()) {
-            lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging.mark",
+            lines.add(net.minecraft.network.chat.Component.translatable("tooltip.yuanxian.forging.mark",
                     ForgingQualityDisplay.name(quality),
-                    net.minecraft.network.chat.Component.translatable("forging.myvillage.trait." + mark.trait()))
+                    net.minecraft.network.chat.Component.translatable("forging.yuanxian.trait." + mark.trait()))
                     .withStyle(style -> style.withColor(color)));
             double value = com.example.myvillage.forging.ForgingRules.get().trait(mark.trait()).value(mark.quality());
             String amount = java.math.BigDecimal.valueOf(mark.trait().equals("channeling") ? value * 100 : value).stripTrailingZeros().toPlainString();
-            lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging." + mark.trait(), amount)
+            lines.add(net.minecraft.network.chat.Component.translatable("tooltip.yuanxian.forging." + mark.trait(), amount)
                     .withStyle(net.minecraft.ChatFormatting.GRAY));
         } else {
             lines.add(ForgingQualityDisplay.name(quality));

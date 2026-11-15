@@ -55,49 +55,49 @@ def icon(kind, palette):
 def outputs(root=ROOT):
     c=catalogue();out={};res=root/'src/main/resources'
     def add(path,obj):out[res/path]=(json.dumps(obj,ensure_ascii=False,indent=2)+'\n').encode()
-    add('data/myvillage/wilderness/roster.json',c)
+    add('data/yuanxian/wilderness/roster.json',c)
     # Existing authored legacy rules remain intact; this generator owns only these new IDs.
-    ar=json.loads((res/'data/myvillage/alchemy/rules.json').read_text())
+    ar=json.loads((res/'data/yuanxian/alchemy/rules.json').read_text())
     ids={m['pill_id'] for m in c['mobs']};ar['recipes']=[r for r in ar['recipes'] if r['id'] not in ids]
-    fr=json.loads((res/'data/myvillage/forging/rules.json').read_text())
-    langs={loc:json.loads((res/f'assets/myvillage/lang/{loc}.json').read_text()) for loc in ('zh_cn','en_us')}
+    fr=json.loads((res/'data/yuanxian/forging/rules.json').read_text())
+    langs={loc:json.loads((res/f'assets/yuanxian/lang/{loc}.json').read_text()) for loc in ('zh_cn','en_us')}
     def name(key,value):
         for lang in langs.values():lang[key]=value
     for m in c['mobs']:
         mid,pill,trait=m['material_id'],m['pill_id'],m['trait_id'];id=m['id']
         if m['moves']:
             moves=scaled_moves(m)
-            add(f'data/myvillage/beast/{id}.json',{'schema':1,'entity':'myvillage:'+id,'attributes':m['attributes'],'chase':c['chase'],'stagger':{'animation':'stagger'},'moves':moves})
+            add(f'data/yuanxian/beast/{id}.json',{'schema':1,'entity':'yuanxian:'+id,'attributes':m['attributes'],'chase':c['chase'],'stagger':{'animation':'stagger'},'moves':moves})
         for item,label,kind in [(mid,m['material'],mid),('pill_'+pill,m['pill'],'pill'),('formula_'+pill,m['pill']+'方（难度'+str(m['alchemy_difficulty'])+'）','formula')]:
-            name('item.myvillage.'+item,label)
-            add('assets/myvillage/models/item/'+item+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+item}})
-            out[res/f'assets/myvillage/textures/item/{item}.png']=encode_png(pill_icon(pill)) if kind=='pill' else encode_png(formula_rows(pill,root)) if kind=='formula' else icon(kind,m['palette'])
-        name('entity.myvillage.'+id,m['name']);name('item.myvillage.'+id+'_spawn_egg',m['name']+'刷怪蛋')
-        name('tooltip.myvillage.alchemy.pill_'+pill,('立即清除中毒，并在 %2$s 秒内持续清毒。' if c['medicines'][pill].get('quality_duration',False) else m['pillEffect']+' 强度：%s；持续 %s 秒。'))
-        name('tooltip.myvillage.wilderness.'+mid,m['material']+'：可炼制'+m['pill']+'，或炼灵为「'+m['trait']+'」。')
-        name('forging.myvillage.trait.'+trait,m['trait'])
-        name('screen.myvillage.forging.trait.'+trait,m['traitEffect'])
-        name('tooltip.myvillage.forging.'+trait,m['traitEffect'])
-        add(f'assets/myvillage/models/item/{id}_spawn_egg.json',{'parent':'minecraft:item/template_spawn_egg'})
-        add(f'data/myvillage/loot_table/entities/{id}.json',{'type':'minecraft:entity','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+mid,'functions':[{'function':'minecraft:set_count','count':{'type':'minecraft:uniform','min':m['drop_count'][0],'max':m['drop_count'][1]}},{'function':'minecraft:enchanted_count_increase','enchantment':'minecraft:looting','count':{'type':'minecraft:uniform','min':0,'max':1},'limit':4}]}]}]})
-        add(f'data/myvillage/tags/worldgen/biome/has_{id}.json',{'replace':False,'values':m['biomes']})
-        add(f'data/myvillage/neoforge/biome_modifier/add_{id}_spawns.json',{'type':'neoforge:add_spawns','biomes':'#myvillage:has_'+id,'spawners':[{'type':'myvillage:'+id,'weight':m['spawn_weight'],'minCount':m['spawn_group'][0],'maxCount':m['spawn_group'][1]}]})
+            name('item.yuanxian.'+item,label)
+            add('assets/yuanxian/models/item/'+item+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':'yuanxian:item/'+item}})
+            out[res/f'assets/yuanxian/textures/item/{item}.png']=encode_png(pill_icon(pill)) if kind=='pill' else encode_png(formula_rows(pill,root)) if kind=='formula' else icon(kind,m['palette'])
+        name('entity.yuanxian.'+id,m['name']);name('item.yuanxian.'+id+'_spawn_egg',m['name']+'刷怪蛋')
+        name('tooltip.yuanxian.alchemy.pill_'+pill,('立即清除中毒，并在 %2$s 秒内持续清毒。' if c['medicines'][pill].get('quality_duration',False) else m['pillEffect']+' 强度：%s；持续 %s 秒。'))
+        name('tooltip.yuanxian.wilderness.'+mid,m['material']+'：可炼制'+m['pill']+'，或炼灵为「'+m['trait']+'」。')
+        name('forging.yuanxian.trait.'+trait,m['trait'])
+        name('screen.yuanxian.forging.trait.'+trait,m['traitEffect'])
+        name('tooltip.yuanxian.forging.'+trait,m['traitEffect'])
+        add(f'assets/yuanxian/models/item/{id}_spawn_egg.json',{'parent':'minecraft:item/template_spawn_egg'})
+        add(f'data/yuanxian/loot_table/entities/{id}.json',{'type':'minecraft:entity','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:'+mid,'functions':[{'function':'minecraft:set_count','count':{'type':'minecraft:uniform','min':m['drop_count'][0],'max':m['drop_count'][1]}},{'function':'minecraft:enchanted_count_increase','enchantment':'minecraft:looting','count':{'type':'minecraft:uniform','min':0,'max':1},'limit':4}]}]}]})
+        add(f'data/yuanxian/tags/worldgen/biome/has_{id}.json',{'replace':False,'values':m['biomes']})
+        add(f'data/yuanxian/neoforge/biome_modifier/add_{id}_spawns.json',{'type':'neoforge:add_spawns','biomes':'#yuanxian:has_'+id,'spawners':[{'type':'yuanxian:'+id,'weight':m['spawn_weight'],'minCount':m['spawn_group'][0],'maxCount':m['spawn_group'][1]}]})
         formula='formula_'+pill
-        add('data/myvillage/recipe/'+formula+'.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:paper'},{'item':'myvillage:'+mid},{'item':m['alchemy_herbs'][0]},{'tag':'c:spirit_stones/low_grade'}],'result':{'id':'myvillage:'+formula,'count':1}})
-        add('data/myvillage/advancement/recipes/misc/'+formula+'.json',{'parent':'minecraft:recipes/root','criteria':{'has_material':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':['myvillage:'+mid]}]}}},'requirements':[['has_material']],'rewards':{'recipes':['myvillage:'+formula]}})
-        ar['recipes'].append({'id':pill,'formula':'myvillage:'+formula,'ingredients':['myvillage:'+mid,*m['alchemy_herbs']],'fuel_count':m['fuel_count'],'duration_ticks':m['brew_ticks'],'output':'myvillage:pill_'+pill,'output_count':m['output_count'],'minimum_aptitude':m['minimum_aptitude'],'quality_tier':m['alchemy_tier'],'difficulty':m['alchemy_difficulty']})
-        fr['traits'][trait]={'costs':{'myvillage:'+mid:m['trait_cost']},'values':c['traits'][trait]['values']}
+        add('data/yuanxian/recipe/'+formula+'.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:paper'},{'item':'yuanxian:'+mid},{'item':m['alchemy_herbs'][0]},{'tag':'c:spirit_stones/low_grade'}],'result':{'id':'yuanxian:'+formula,'count':1}})
+        add('data/yuanxian/advancement/recipes/misc/'+formula+'.json',{'parent':'minecraft:recipes/root','criteria':{'has_material':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':['yuanxian:'+mid]}]}}},'requirements':[['has_material']],'rewards':{'recipes':['yuanxian:'+formula]}})
+        ar['recipes'].append({'id':pill,'formula':'yuanxian:'+formula,'ingredients':['yuanxian:'+mid,*m['alchemy_herbs']],'fuel_count':m['fuel_count'],'duration_ticks':m['brew_ticks'],'output':'yuanxian:pill_'+pill,'output_count':m['output_count'],'minimum_aptitude':m['minimum_aptitude'],'quality_tier':m['alchemy_tier'],'difficulty':m['alchemy_difficulty']})
+        fr['traits'][trait]={'costs':{'yuanxian:'+mid:m['trait_cost']},'values':c['traits'][trait]['values']}
         for recipe in fr['recipes']:
             if recipe['id'] in ('qingfeng_sword','lingxiao_spear') and trait not in recipe['traits']:recipe['traits'].append(trait)
-    add('data/myvillage/alchemy/rules.json',ar);add('data/myvillage/forging/rules.json',fr)
-    index=json.loads((res/'data/myvillage/beast/index.json').read_text())
+    add('data/yuanxian/alchemy/rules.json',ar);add('data/yuanxian/forging/rules.json',fr)
+    index=json.loads((res/'data/yuanxian/beast/index.json').read_text())
     # schema-1 index is a list wrapped under beasts.
     entries=index['beasts']
     for m in c['mobs']:
-        if m['moves'] and 'myvillage:'+m['id'] not in entries:entries.append('myvillage:'+m['id'])
-    add('data/myvillage/beast/index.json',index)
-    for loc,lang in langs.items():add(f'assets/myvillage/lang/{loc}.json',lang)
-    guide=['---','navigation:','  title: 野外历练与战利品','  parent: index.md','  position: 80','  icon: myvillage:qingfeng_sword','---','','# 野外历练与战利品','','六种普通敌对生物按群系自然出现。出生境界由当地地区确定，搬迁和重载不重抽。','','主材稳定掉落；每种既能炼丹，也能为青锋剑或凌霄枪选择一种专长。新旧专长互斥，已有炼灵器物不会自动重铸。','','丹方以纸、对应主材、该方第一味药材和下品灵石合成，右键学会；再去丹炉或丹炉阵炼制。战备丹药不能叠加，沿用共享服药间隔。','']
+        if m['moves'] and 'yuanxian:'+m['id'] not in entries:entries.append('yuanxian:'+m['id'])
+    add('data/yuanxian/beast/index.json',index)
+    for loc,lang in langs.items():add(f'assets/yuanxian/lang/{loc}.json',lang)
+    guide=['---','navigation:','  title: 野外历练与战利品','  parent: index.md','  position: 80','  icon: yuanxian:qingfeng_sword','---','','# 野外历练与战利品','','六种普通敌对生物按群系自然出现。出生境界由当地地区确定，搬迁和重载不重抽。','','主材稳定掉落；每种既能炼丹，也能为青锋剑或凌霄枪选择一种专长。新旧专长互斥，已有炼灵器物不会自动重铸。','','丹方以纸、对应主材、该方第一味药材和下品灵石合成，右键学会；再去丹炉或丹炉阵炼制。战备丹药不能叠加，沿用共享服药间隔。','']
     for m in c['mobs']:
         guide += ['## '+m['name'],'',m['habitat'], '',m['fight']+' 应对：'+m['counter'],'','- 主材：'+m['material'],'- 炼丹：'+m['pill']+'。'+m['pillEffect'],'- 炼器：'+m['trait']+'。'+m['traitEffect'],'']
     out[root/'guidebook/getting_started/wilderness_roster.md']=('\n'.join(guide)+'\n').encode()

@@ -26,7 +26,7 @@ public final class AptitudeRuntime {
         if (!AptitudeRules.get().valid(id)) return 0;
         if (entity instanceof ServerPlayer player) {
             if (AptitudeRules.get().elements().contains(id)) return CultivationService.getProfile(player).spiritualRoot()
-                    .map(root -> root.points().getOrDefault(ResourceLocation.fromNamespaceAndPath("myvillage", id), 0)).orElse(0);
+                    .map(root -> root.points().getOrDefault(ResourceLocation.fromNamespaceAndPath("yuanxian", id), 0)).orElse(0);
             if (AptitudeRules.get().crafts().contains(id)) return CultivationService.craftingAptitudes(player).score(profession(id));
             return CultivationService.aptitudes(player).scores().get(id);
         }
@@ -56,7 +56,7 @@ public final class AptitudeRuntime {
         if (AptitudeRules.get().elements().contains(id)) {
             var profile = CultivationService.getProfile(player);
             return CultivationService.replaceProfile(player, profile.withSpiritualRoot(profile.spiritualRoot().orElseThrow()
-                    .with(ResourceLocation.fromNamespaceAndPath("myvillage", id), value))).success();
+                    .with(ResourceLocation.fromNamespaceAndPath("yuanxian", id), value))).success();
         }
         if (AptitudeRules.get().crafts().contains(id)) return CultivationService.setCraftingAptitude(player, profession(id), value).success();
         var current = CultivationService.aptitudes(player);

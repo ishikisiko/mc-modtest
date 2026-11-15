@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class WorldAtlasTest {
     @Test void frozenVersionsMatchTheirOwnPlannerWithoutChangingThePlan() throws Exception {
         for(int version:new int[]{1,3,4}){
-            String path="/data/myvillage/worldplan/frozen_v"+version+".json";
+            String path="/data/yuanxian/worldplan/frozen_v"+version+".json";
             try(var in=getClass().getResourceAsStream(path)){
                 assertNotNull(in);var plan=new WorldPlan(20261017,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));
                 String before=plan.manifest().toString();var atlas=WorldAtlasSampler.capture(plan);byte[] cells=atlas.cells();

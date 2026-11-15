@@ -13,7 +13,7 @@ final class PortraitTestData {
     /** The maps through the class loader, the way the client reads them through its resource manager. */
     static synchronized PortraitMaps maps() {
         if (maps == null) {
-            maps = PortraitMaps.load(path -> PortraitMaps.class.getResourceAsStream("/assets/myvillage/portrait/" + path));
+            maps = PortraitMaps.load(path -> PortraitMaps.class.getResourceAsStream("/assets/yuanxian/portrait/" + path));
         }
         return maps;
     }

@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = Path("src/main/java/com/example/myvillage")
 MEDITATION = JAVA / "cultivation/meditation"
-LANG = Path("src/main/resources/assets/myvillage/lang")
+LANG = Path("src/main/resources/assets/yuanxian/lang")
 
 
 @dataclass(frozen=True)
@@ -366,21 +366,21 @@ class CultivationMeditationValidator:
                 screen,
             ):
                 self.error(screen_path, "H action buttons must reuse the bounded intent sender")
-            if "meditationQiReserve" in screen or "screen.myvillage.cultivation.reserve" in screen:
+            if "meditationQiReserve" in screen or "screen.yuanxian.cultivation.reserve" in screen:
                 self.error(screen_path, "H screen must not present the inert legacy meditation reserve")
             if re.search(r"\b(?:player\s*\.\s*)?setData\s*\(", screen):
                 self.error(screen_path, "H screen must not write profile data directly")
             for marker, message in (
                 (
-                    "screen.myvillage.cultivation.no_snapshot",
+                    "screen.yuanxian.cultivation.no_snapshot",
                     "H screen must render a missing-profile state",
                 ),
                 (
-                    "screen.myvillage.cultivation.time_waiting",
+                    "screen.yuanxian.cultivation.time_waiting",
                     "H screen must render a missing-time/status state",
                 ),
                 (
-                    "screen.myvillage.cultivation.unavailable",
+                    "screen.yuanxian.cultivation.unavailable",
                     "H screen must render unresolved definition values as unavailable",
                 ),
                 ("normalButton.active", "H screen must expose advisory normal-button state"),
@@ -405,12 +405,12 @@ class CultivationMeditationValidator:
                 self.error(screen_path, "switching H tabs must not send a meditation intent")
 
         required_keys = (
-            "screen.myvillage.cultivation.tab.profile",
-            "screen.myvillage.cultivation.tab.meditation",
-            "screen.myvillage.cultivation.button.normal",
-            "screen.myvillage.cultivation.button.spirit",
-            "screen.myvillage.cultivation.button.stop",
-            "screen.myvillage.cultivation.button.advancement",
+            "screen.yuanxian.cultivation.tab.profile",
+            "screen.yuanxian.cultivation.tab.meditation",
+            "screen.yuanxian.cultivation.button.normal",
+            "screen.yuanxian.cultivation.button.spirit",
+            "screen.yuanxian.cultivation.button.stop",
+            "screen.yuanxian.cultivation.button.advancement",
         )
         for locale in ("en_us", "zh_cn"):
             language_path = self.root / LANG / f"{locale}.json"

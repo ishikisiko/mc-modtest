@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-/** All recovery tuning comes from data/myvillage/qi/rules.json. */
+/** All recovery tuning comes from data/yuanxian/qi/rules.json. */
 public record QiRules(int regenIntervalTicks, long regenAmount, int meditationMultiplier, int spendDelayTicks) {
     public static final Codec<QiRules> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.intRange(1, Integer.MAX_VALUE).fieldOf("regen_interval_ticks").forGetter(QiRules::regenIntervalTicks),

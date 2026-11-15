@@ -10,5 +10,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = LivingEntity.class, remap = false)
 public interface LivingDamageContainerAccess {
     @Accessor(value = "damageContainers", remap = false)
-    Stack<DamageContainer> myvillage$damageContainers();
+    Stack<DamageContainer> yuanxian$damageContainers();
 }

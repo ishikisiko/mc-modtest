@@ -1,5 +1,5 @@
 {
-  "id": "myvillage:qianzhen_apothecary_v1",
+  "id": "yuanxian:qianzhen_apothecary_v1",
   "author": "MyVillage · 长明药庐独立作者 · gpt-6.1-sol/high",
   "mc_version": "1.21.1",
   "size": [
@@ -5269,7 +5269,7 @@
         1,
         35
       ],
-      "state": "myvillage:alchemy_furnace[facing=east,lit=false]"
+      "state": "yuanxian:alchemy_furnace[facing=east,lit=false]"
     },
     {
       "op": "fill",
@@ -6864,7 +6864,7 @@
         1,
         35
       ],
-      "state": "myvillage:alchemy_furnace[facing=east,lit=false]",
+      "state": "yuanxian:alchemy_furnace[facing=east,lit=false]",
       "name": "长明备料丹房炼丹炉",
       "approach": "alchemy"
     }

@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value=PlayerList.class,remap=false)
 public abstract class PhoenixPlayerListMixin {
     @Inject(method="remove",at=@At("TAIL"))
-    private void myvillage$retainDisconnectedEmber(ServerPlayer player,CallbackInfo ci){PhoenixRuntime.disconnected(player);}
+    private void yuanxian$retainDisconnectedEmber(ServerPlayer player,CallbackInfo ci){PhoenixRuntime.disconnected(player);}
     @Inject(method="load",at=@At("HEAD"))
-    private void myvillage$saveBeforeLogin(ServerPlayer player,CallbackInfoReturnable<Optional<CompoundTag>> ci){PhoenixRuntime.beforeLogin(player);}
+    private void yuanxian$saveBeforeLogin(ServerPlayer player,CallbackInfoReturnable<Optional<CompoundTag>> ci){PhoenixRuntime.beforeLogin(player);}
 }

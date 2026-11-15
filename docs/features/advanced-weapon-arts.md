@@ -30,18 +30,18 @@
 管理员以玩家身份执行以下命令获取**六本书**，不会直接学会、修改境界或重置档案：
 
 ```mcfunction
-/function myvillage:advanced_arts_books
+/function yuanxian:advanced_arts_books
 ```
 
 单本示例，沿用原有技能书系统：
 
 ```mcfunction
-/yuanxian cultivation manual @s myvillage:qinglian_jiange
-/yuanxian cultivation manual @s myvillage:huifeng_jianzhen
-/yuanxian cultivation manual @s myvillage:canglong_chushui
-/yuanxian cultivation manual @s myvillage:hengsao_qianjun
-/yuanxian cultivation manual @s myvillage:bengshan_jin
-/yuanxian cultivation manual @s myvillage:jingang_zhen
+/yuanxian cultivation manual @s yuanxian:qinglian_jiange
+/yuanxian cultivation manual @s yuanxian:huifeng_jianzhen
+/yuanxian cultivation manual @s yuanxian:canglong_chushui
+/yuanxian cultivation manual @s yuanxian:hengsao_qianjun
+/yuanxian cultivation manual @s yuanxian:bengshan_jin
+/yuanxian cultivation manual @s yuanxian:jingang_zhen
 ```
 
 自 0.77.0 起六本书有工作台生存配方；使用书、墨囊、下品灵石及各书专属材料，见游戏指南或配方书。材料唯一来源是 `tools/advanced_arts/acquisition.json`。制作得到绑定武技的空进度秘籍，仍需研读；未新增商店、掉落或宗门任务入口。
@@ -120,7 +120,7 @@ runtime 使用隔离存档与真实客户端映射输入，覆盖六本书从零
 - 枪修：按玩家到目标碰撞箱最近表面的距离判断枪锋区间。命中时显示“枪锋命中”，伤害和硬直略增；贴身没有奖励。沿用原有硬直递减、Boss 抗性与 PvP 权限。
 - 体修：金刚震第一段正面护体窗口内，匹配同一来源且造成实际伤害的接招获得蓄劲，每次施放最多一次；下一次崩山劲在扣费后消耗，全招固定增幅。环境伤害、背击、过期和重复受击不能刷蓄劲。
 
-参数唯一来源：`data/myvillage/combat/disciplines.json`。剑意／蓄劲会超时；精确主手堆叠或槽位变化、退出战斗模式、死亡、离线、切维度和服务器停止清空。新资源不写入存档；原武技冷却仍保留其既有规则。只读开发入口 `/yuanxian combat discipline [player]`。
+参数唯一来源：`data/yuanxian/combat/disciplines.json`。剑意／蓄劲会超时；精确主手堆叠或槽位变化、退出战斗模式、死亡、离线、切维度和服务器停止清空。新资源不写入存档；原武技冷却仍保留其既有规则。只读开发入口 `/yuanxian combat discipline [player]`。
 
 首版沿用原动作、护体特效和动作栏提示，没有另建流派面板。玩家手感与平衡仍需实际试用。
 
@@ -172,7 +172,7 @@ H → 技能：六个预留键 Z/C/I/J/K/M，可分配当前已学、已实现�
 
 高阶剑诀的锁定范围、阵半径、太白次级冲击比例，以及剑长、剑宽、预警和阵线厚度由 `combat/locked_sword_arts.json` 拥有。天罡七剑保持初始阵心；太白仍先锁定唯一主目标，在实际落剑位置查询周围敌人，主目标优先且按实体归属去重。主目标失效、失去视线或超距时整次落剑取消；冲击目标也要通过施法者与落点两条视线及友军/PvP 校验，身法逐目标生效。主目标伤害倍率沿用，冲击按独立配置缩放后进入统一减伤管线一次。
 
-特效主要边界使用同一攻击距离/阵半径，剑影高度仅为表现。基础拖尾配置为 `assets/myvillage/combat/weapon_trail.json`。每个施法者的重复有效帧只刷新同一光效，避免多层白光堆叠；粒子预算沿用有界限制。
+特效主要边界使用同一攻击距离/阵半径，剑影高度仅为表现。基础拖尾配置为 `assets/yuanxian/combat/weapon_trail.json`。每个施法者的重复有效帧只刷新同一光效，避免多层白光堆叠；粒子预算沿用有界限制。
 
 [0.82.0 范围、双客户端与视觉证据](../testing/2026-10-23-weapon-art-amplification.md)。
 

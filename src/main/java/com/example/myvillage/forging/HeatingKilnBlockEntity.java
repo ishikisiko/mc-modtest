@@ -21,7 +21,7 @@ public final class HeatingKilnBlockEntity extends FoundryBlockEntity {
     @Override public int fuel(){return burn;}
     @Override public boolean canPlaceItem(int slot,ItemStack stack){return slot==0&&(WorkshopItems.valid(stack)||WorkshopEquipment.craft(stack).isPresent())
             ||slot==1&&isFuel(stack);}
-    public static boolean isFuel(ItemStack stack){return ForgingIngredients.matches("#myvillage:forging_fuels",stack)||stack.is(net.minecraft.tags.ItemTags.COALS);}
+    public static boolean isFuel(ItemStack stack){return ForgingIngredients.matches("#yuanxian:forging_fuels",stack)||stack.is(net.minecraft.tags.ItemTags.COALS);}
     @Override public boolean action(ServerPlayer player,FoundryMenu menu,int button){return false;}
     public boolean transfer(ServerPlayer player,InteractionHand hand){
         if(hand!=InteractionHand.MAIN_HAND||!player.isAlive()||player.isSpectator()||player.containerMenu!=player.inventoryMenu

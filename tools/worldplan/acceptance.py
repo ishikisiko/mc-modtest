@@ -26,8 +26,8 @@ from buildgen.nbtread import read_gzipped_nbt
 OUT=ROOT/'reports/worldplan/runtime'
 GAME=ROOT/'run-acceptance'
 SEED=20261017
-DEFAULT_ALGORITHM="myvillage:worldplan_v7"
-DEFAULT_GENERATOR="myvillage:planned_v7"
+DEFAULT_ALGORITHM="yuanxian:worldplan_v7"
+DEFAULT_GENERATOR="yuanxian:planned_v7"
 
 def write(path,value):
     path.parent.mkdir(parents=True,exist_ok=True)
@@ -62,7 +62,7 @@ class Server:
         GAME.mkdir(exist_ok=True)
         values={'server-ip':'127.0.0.1','server-port':self.sport,'online-mode':'false','enforce-secure-profile':'false',
             'enable-rcon':'true','rcon.port':self.rport,'rcon.password':self.password,'broadcast-rcon-to-ops':'false','enable-query':'false',
-            'level-name':self.name,'level-seed':SEED,'level-type':'myvillage\\:cultivation' if self.planned else 'minecraft\\:normal',
+            'level-name':self.name,'level-seed':SEED,'level-type':'yuanxian\\:cultivation' if self.planned else 'minecraft\\:normal',
             'generate-structures':str(self.structures).lower(),'generator-settings':'{}','gamemode':'creative','difficulty':'peaceful',
             'spawn-protection':0,'spawn-monsters':'false','spawn-animals':'false','spawn-npcs':'false','allow-flight':'true',
             'view-distance':self.view_distance,'simulation-distance':3,'max-tick-time':180000,'max-players':2,'sync-chunk-writes':'true','pause-when-empty-seconds':-1}
@@ -80,7 +80,7 @@ class Server:
                 if self.proc.poll() is not None:raise RuntimeError(f'{self.label}: server exited with {self.proc.returncode}')
                 try:
                     if self.planned:
-                        info=self.query('info');atlas=self.world/'data/myvillage/worldplan/worldplan.json'
+                        info=self.query('info');atlas=self.world/'data/yuanxian/worldplan/worldplan.json'
                         if info.get('active') and atlas.exists():break
                     elif 'players online' in self.cmd('list'):break
                 except (OSError,RuntimeError,ValueError):pass
@@ -142,7 +142,7 @@ def test_tickets(server,x0,z0,x1=None,z1=None):
         server.cmd(f'forceload remove {x0} {z0} {x1} {z1}')
         server.cmd('forceload query')
 
-def decode_saved_rules(encoded, expected_algorithm="myvillage:worldplan_v4"):
+def decode_saved_rules(encoded, expected_algorithm="yuanxian:worldplan_v4"):
     """Decode V4's bounded NBT-string transport without unbounded inflation."""
     if not isinstance(encoded,str) or len(encoded)>65000 or not encoded.startswith('gzip:'):
         raise ValueError('Expected bounded V4 compressed rules')
@@ -165,19 +165,19 @@ def check_saved(world,expected):
 
 def check_jar():
     version=next(line.split('=',1)[1].strip() for line in (ROOT/'gradle.properties').read_text().splitlines() if line.startswith('mod_version='))
-    jars=list((ROOT/'build/libs').glob(f'myvillage-{version}.jar'));assert len(jars)==1,jars
+    jars=list((ROOT/'build/libs').glob(f'yuanxian-{version}.jar'));assert len(jars)==1,jars
     with zipfile.ZipFile(jars[0]) as z:
         names=set(z.namelist())
-        def tiles(family):return [n for n in names if n.startswith(f'data/myvillage/structure/worldplan/{family}/') and n.endswith('.nbt')]
+        def tiles(family):return [n for n in names if n.startswith(f'data/yuanxian/structure/worldplan/{family}/') and n.endswith('.nbt')]
         assert len(tiles('yunshan_v1'))==35
         assert len(tiles('yunshan_v4'))==238
-        for name in ['data/myvillage/worldgen/world_preset/cultivation.json',
-                *[f'data/myvillage/worldplan/frozen_v{v}.json' for v in (1,2,3,4,5,6)],
+        for name in ['data/yuanxian/worldgen/world_preset/cultivation.json',
+                *[f'data/yuanxian/worldplan/frozen_v{v}.json' for v in (1,2,3,4,5,6)],
                 'com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class',
                 'com/example/myvillage/sim/runtime/commerce/CommerceMenu.class',
-                'data/myvillage/world_sim/commerce_rules.json']:assert name in names,name
-        assert {'WorldPlanReservationMixin','WorldPlanOreMixin'}.issubset(json.loads(z.read('myvillage.mixins.json'))['mixins'])
-        preset=json.loads(z.read('data/myvillage/worldgen/world_preset/cultivation.json'))
+                'data/yuanxian/world_sim/commerce_rules.json']:assert name in names,name
+        assert {'WorldPlanReservationMixin','WorldPlanOreMixin'}.issubset(json.loads(z.read('yuanxian.mixins.json'))['mixins'])
+        preset=json.loads(z.read('data/yuanxian/worldgen/world_preset/cultivation.json'))
         generator=preset['dimensions']['minecraft:overworld']['generator']
         assert generator['type']==DEFAULT_GENERATOR
         decode_saved_rules(generator['rules'], DEFAULT_ALGORITHM)
@@ -193,7 +193,7 @@ def main():
         with Server(world_a,'a-create') as s:
             s.cmd('gamerule randomTickSpeed 0')  # Exact order hashes compare immutable generation, not elapsed grass decay.
             info=s.query('info');expected=info['plan_sha256'];city=info['city'];result['info']=info
-            atlas=json.loads((s.world/'data/myvillage/worldplan/worldplan.json').read_text())
+            atlas=json.loads((s.world/'data/yuanxian/worldplan/worldplan.json').read_text())
             assert atlas['plan_sha256']==expected and str(atlas['seed'])==str(SEED)
             assert s.query('at 100000 -100000')['regionId'].startswith('outer/')
             result['checks']['initial_atlas']=True;heights={}
@@ -229,11 +229,11 @@ def main():
             with test_tickets(s,city['x'],city['z'],city['x']+city['width']-1,city['z']+city['depth']-1):
                 clean_b=s.query('audit_city');assert clean_b['complete'],clean_b
                 assert clean_b['actual_sha256']==clean['actual_sha256'],(clean_b,clean)
-            result['checks']['city_b']=clean_b;shutil.copytree(s.world/'data/myvillage/worldplan',OUT/'actual-world-atlas',dirs_exist_ok=True)
+            result['checks']['city_b']=clean_b;shutil.copytree(s.world/'data/yuanxian/worldplan',OUT/'actual-world-atlas',dirs_exist_ok=True)
         result['checks']['saved_b']=check_saved(GAME/world_b,expected)
         ordinary='worldplan_ordinary_'+suffix
         with Server(ordinary,'ordinary-preset',planned=False) as s:
-            reply=s.cmd('yuanxian worldplan info');assert 'not using myvillage:cultivation' in reply,reply
+            reply=s.cmd('yuanxian worldplan info');assert 'not using yuanxian:cultivation' in reply,reply
         _,ordinary_data=read_gzipped_nbt(str(GAME/ordinary/'level.dat'))
         ordinary_generator=ordinary_data['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
         assert ordinary_generator['type']=='minecraft:noise' and 'plan_hash' not in ordinary_generator

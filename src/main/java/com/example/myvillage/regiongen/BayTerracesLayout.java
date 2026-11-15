@@ -9,7 +9,7 @@ import java.util.Map;
 
 /** Immutable, versioned inputs shared by structure siting and chunk realization. */
 public final class BayTerracesLayout {
-    public static final String RESOURCE = "/data/myvillage/regiongen/bay_terraces_v1.json";
+    public static final String RESOURCE = "/data/yuanxian/regiongen/bay_terraces_v1.json";
     public record Point(int x, int z) {}
     public record Tile(int x, int z, String template, String sha256) {}
 
@@ -75,7 +75,7 @@ public final class BayTerracesLayout {
             int x = integer(t, "x", 0, size - 16), z = integer(t, "z", 0, size - 16);
             String template = t.get("template").getAsString(), sha = t.get("sha256").getAsString();
             if (x % 16 != 0 || z % 16 != 0 || !sha.matches("[0-9a-f]{64}")
-                    || !template.equals("myvillage:regiongen/" + id + "/tile_" + x / 16 + "_" + z / 16))
+                    || !template.equals("yuanxian:regiongen/" + id + "/tile_" + x / 16 + "_" + z / 16))
                 throw new IllegalArgumentException("Invalid bay chunk tile");
             if (tileMap.put(key(x, z), new Tile(x, z, template, sha)) != null)
                 throw new IllegalArgumentException("Duplicate bay chunk tile");

@@ -24,7 +24,7 @@ class NativeEvidenceTests(unittest.TestCase):
             root = Path(directory)
             jars = root / "build/libs"
             jars.mkdir(parents=True)
-            jar = jars / "myvillage-test.jar"
+            jar = jars / "yuanxian-test.jar"
             with zipfile.ZipFile(jar, "w") as archive:
                 archive.writestr("com/example/MyVillage.class", b"release")
             self.assertEqual(list(evidence.verify_release_jar(root)), [jar.name])

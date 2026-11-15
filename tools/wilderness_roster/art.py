@@ -58,7 +58,7 @@ def import_material(path):
 
 def preview():
     from tools.beastgen.preview import Mesh,rows_to_array,fit_frame,render
-    font=ImageFont.truetype(str(ROOT/'src/main/resources/assets/myvillage/font/panel_body.ttf'),20)
+    font=ImageFont.truetype(str(ROOT/'src/main/resources/assets/yuanxian/font/panel_body.ttf'),20)
     cells=[]
     for m in catalogue()['mobs']:
         b=built(m['id']);mesh=Mesh(b.model,rows_to_array(b.texture),rows_to_array(b.glow) if hasattr(b,'glow') else None,scale=b.model.scale)

@@ -14,7 +14,7 @@
 /yx world sects
 ```
 
-现有子命令保持原名称。内部注册ID、物品、方块、网络和资源命名空间仍为 `myvillage`，例如 `/summon myvillage:cultivator`；服务器配置目录仍为 `config/myvillage/`。新版本不再注册旧的 `/myvillage` 根入口。旧版本验收记录保留当时使用的命令。
+现有子命令保持原名称。内部注册ID、物品、方块、网络和资源命名空间仍为 `yuanxian`，例如 `/summon yuanxian:cultivator`；服务器配置目录仍为 `config/yuanxian/`。新版本不再注册旧的 `/yuanxian` 根入口。旧版本验收记录保留当时使用的命令。
 
 命令注册使用 `ModCommands.root()` 或 `adminRoot()`。管理员入口将权限放在各模块的一级子命令上，原子命令更高的权限要求也会保留，避免共享根节点合并时丢失限制。快捷入口直接重定向到完整入口。帮助内容按当前执行者权限过滤；Brigadier服务器补全接口与Minecraft客户端命令树过滤分别处理。
 

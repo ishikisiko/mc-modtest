@@ -5,7 +5,7 @@ The sprite is a thin white slash on a transparent 32x32 canvas: a shallow cresce
 2 px thick at its middle, tapering to nothing at both ends, with a faint soft halo. The
 particle rolls this horizontal slash to each cut's angle at runtime.
 
-Writes src/main/resources/assets/myvillage/textures/particle/blade_cut.png using only the
+Writes src/main/resources/assets/yuanxian/textures/particle/blade_cut.png using only the
 standard library (zlib + struct), so no imaging package is needed.
 
 Usage: python3 tools/gen_blade_cut_sprite.py [--output PATH] [--check]
@@ -32,7 +32,7 @@ HALO_HALF_THICKNESS = 2.6
 HALO_ALPHA = 0.22
 
 DEFAULT_OUTPUT = (Path(__file__).resolve().parent.parent
-                  / "src/main/resources/assets/myvillage/textures/particle/blade_cut.png")
+                  / "src/main/resources/assets/yuanxian/textures/particle/blade_cut.png")
 
 
 def taper(u: float) -> float:

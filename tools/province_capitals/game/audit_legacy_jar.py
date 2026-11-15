@@ -39,16 +39,16 @@ def index_diagnostics(before,after,old_jar,new_jar,version):
         for row,jar in ((old,old_jar),(new,new_jar)):
             # V9's v2 index intentionally refers to Zhongzhou's v1 bundle.
             # Resolve the row's explicit resource instead of assuming the index version.
-            match=re.fullmatch(r'myvillage:capitals/(v[12])/(capital_[a-z0-9_]+)/city\.json',row.get('resource',''))
+            match=re.fullmatch(r'yuanxian:capitals/(v[12])/(capital_[a-z0-9_]+)/city\.json',row.get('resource',''))
             if not match or match.group(2)!=row['city_id'] or (version=='v1' and match.group(1)!='v1'):
                 return False,[]
             if row.get('resource_version',match.group(1))!=match.group(1):return False,[]
-            manifest_name='data/myvillage/'+row['resource'].split(':',1)[1]
+            manifest_name='data/yuanxian/'+row['resource'].split(':',1)[1]
             try:
                 raw=jar.read(manifest_name);manifest=json.loads(raw)
                 if row.get('raw_city_json_sha256')!=digest(raw):return False,[]
-                resources=['data/myvillage/'+manifest['terrain']['resource'].split(':',1)[1]]
-                resources += ['data/myvillage/structure/'+t['template'].split(':',1)[1]+'.nbt' for t in manifest['tiles']]
+                resources=['data/yuanxian/'+manifest['terrain']['resource'].split(':',1)[1]]
+                resources += ['data/yuanxian/structure/'+t['template'].split(':',1)[1]+'.nbt' for t in manifest['tiles']]
                 size=len(raw)+sum(len(jar.read(name)) for name in resources)
             except (KeyError,IndexError,ValueError):return False,[]
             if row['bytes']!=size:return False,[]
@@ -67,16 +67,16 @@ def compare(old_path,new_path):
     with zipfile.ZipFile(old_path) as old,zipfile.ZipFile(new_path) as new:
         names=new.namelist()
         if len(names)!=len(set(names)):result['failures'].append({'kind':'duplicate_jar_entries'})
-        selected=[n for n in old.namelist() if n.startswith(('data/myvillage/capitals/','data/myvillage/structure/province_capitals/')) or (n.startswith('data/myvillage/worldplan/') and n.endswith('.json'))]
+        selected=[n for n in old.namelist() if n.startswith(('data/yuanxian/capitals/','data/yuanxian/structure/province_capitals/')) or (n.startswith('data/yuanxian/worldplan/') and n.endswith('.json'))]
         for name in selected:
             result['selected_files']+=1
             if name not in names:result['failures'].append({'path':name,'kind':'missing'});continue
             a,b=old.read(name),new.read(name)
             if a==b:result['byte_identical']+=1;continue
             ok=False;changes=[]
-            if re.fullmatch(r'data/myvillage/capitals/v[12]/capital_[a-z_]+/city.json',name):
+            if re.fullmatch(r'data/yuanxian/capitals/v[12]/capital_[a-z_]+/city.json',name):
                 ok,changes=city_diagnostics(json.loads(a),json.loads(b))
-            elif re.fullmatch(r'data/myvillage/capitals/v[12]/index.json',name):
+            elif re.fullmatch(r'data/yuanxian/capitals/v[12]/index.json',name):
                 ok,changes=index_diagnostics(json.loads(a),json.loads(b),old,new,name.split('/')[3])
             if ok:result['diagnostic_changes'].append({'path':name,'changes':changes})
             else:result['failures'].append({'path':name,'kind':'byte_change','before':digest(a),'after':digest(b)})

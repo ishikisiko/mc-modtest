@@ -36,7 +36,7 @@ class GatheringEvidence(AlchemyEvidence):
     def __init__(self,out,cases):
         super().__init__(out,'zh_cn')
         self.cases=cases
-        rules=json.loads((ROOT/'src/main/resources/data/myvillage/gathering/rules.json').read_text())
+        rules=json.loads((ROOT/'src/main/resources/data/yuanxian/gathering/rules.json').read_text())
         low=rules['tiers']['low']
         self.cfg={**low,'charges_per_stone':rules['fuel_charges']['low_grade'],'bonus_basis_points':low['bonuses']['low_grade']}
         self.report.update(kind='spirit_gathering',selected=cases,completed=[],unrun=list(cases),mapped_input=[],
@@ -82,15 +82,15 @@ class GatheringEvidence(AlchemyEvidence):
 
     def place(self,core=CORE,missing=False):
         x,y,z=core;r=self.cfg['radius']
-        self.rc(f'setblock {x} {y} {z} myvillage:spirit_gathering_core')
+        self.rc(f'setblock {x} {y} {z} yuanxian:spirit_gathering_core')
         for i,(dx,dz) in enumerate(((0,-r),(r,0),(0,r),(-r,0))):
-            self.rc(f'setblock {x+dx} {y+1} {z+dz} '+('minecraft:air' if missing and i==0 else 'myvillage:spirit_gathering_node'))
+            self.rc(f'setblock {x+dx} {y+1} {z+dz} '+('minecraft:air' if missing and i==0 else 'yuanxian:spirit_gathering_node'))
 
     def player(self,user=None):
         user=user or self.s.username
         for command in (f'clear {user}',f'gamemode survival {user}',f'yuanxian cultivation awaken {user}',
                         f'yuanxian cultivation initiate {user}',
-                        f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
+                        f'yuanxian cultivation setrealm {user} yuanxian:qi_refining yuanxian:qi_refining_1',
                         f'yuanxian cultivation setprogress {user} 0',f'yuanxian cultivation setstability {user} 0'):
             self.rc(command)
 
@@ -103,7 +103,7 @@ class GatheringEvidence(AlchemyEvidence):
         self.poll(self.inspect,lambda value:value['formed']!=missing,10,'fixture pattern state')
 
     def activate(self,stones=8,core=CORE):
-        self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:low_grade_spirit_stone {stones}')
+        self.rc(f'item replace entity {self.s.username} hotbar.0 with yuanxian:low_grade_spirit_stone {stones}')
         self.open(core);self.click(77,222,True)
         self.poll(lambda:self.inspect(core),lambda value:value['stones']==stones,5,'mapped stone insertion')
         self.click(172,128)
@@ -125,7 +125,7 @@ class GatheringEvidence(AlchemyEvidence):
             point=(dx,-60,3+dz);self.rc('setblock '+pos(point)+' minecraft:air')
             check=self.poll(self.inspect,lambda value:not value['formed'],5,'missing node')
             self.check('missing_direction_'+str(i),check['issue']==i+1,check)
-            self.rc('setblock '+pos(point)+' myvillage:spirit_gathering_node')
+            self.rc('setblock '+pos(point)+' yuanxian:spirit_gathering_node')
             self.poll(self.inspect,lambda value:value['formed'],5,'repaired node')
         for point,block,expected in (((-2,-61,4),'minecraft:air',5),((1,-59,3),'minecraft:stone',6)):
             self.rc('setblock '+pos(point)+' '+block)
@@ -133,13 +133,13 @@ class GatheringEvidence(AlchemyEvidence):
             self.check('structure_issue_'+str(expected),result['issue']==expected,result)
             self.rc('setblock '+pos(point)+(' minecraft:stone_bricks' if expected==5 else ' minecraft:air'))
             self.poll(self.inspect,lambda value:value['formed'],5,'repaired foundation or clearance')
-        self.rc('setblock 0 -61 9 myvillage:spirit_gathering_core')
+        self.rc('setblock 0 -61 9 yuanxian:spirit_gathering_core')
         result=self.poll(self.inspect,lambda value:value['issue']==8,5,'shared node rejected')
         self.check('shared_incomplete_core_rejected',not result['formed'],result)
 
     def mapped(self):
         self.fixture(missing=True)
-        self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:spirit_gathering_node')
+        self.rc(f'item replace entity {self.s.username} hotbar.0 with yuanxian:spirit_gathering_node')
         self.rc(f'tp {self.s.username} .5 -60 -1.5 0 39')
         self.key('1');time.sleep(.35);self.s.game.xdo('click','3')
         self.report['mapped_input'].append({'place_final_node':[0,-60,0]})
@@ -155,7 +155,7 @@ class GatheringEvidence(AlchemyEvidence):
         self.fixture();self.activate(2)
         before=self.energy();time.sleep(1.5)
         self.check('idle_uses_no_energy',self.energy()==before,self.inspect())
-        self.rc(f'give {self.s.username} myvillage:low_grade_spirit_stone 32')
+        self.rc(f'give {self.s.username} yuanxian:low_grade_spirit_stone 32')
         used=self.benefit(key='b');profile=self.profile()
         gain=50+50*self.cfg['bonus_basis_points']//10000
         self.check('spirit_gain_and_array_cost_agree',profile['progress']==used*gain,{'profile':profile,'batches':used})
@@ -250,12 +250,12 @@ class GatheringEvidence(AlchemyEvidence):
         for case in self.cases:
             getattr(self,case)();self.report['completed'].append(case);self.report['unrun'].remove(case);self.save()
         self.close_menu();self.key('x')
-        for command in ('setblock -5 -60 1 myvillage:spirit_testing_stele',
-                        'setblock -5 -60 3 myvillage:technique_inheritance_stele',
+        for command in ('setblock -5 -60 1 yuanxian:spirit_testing_stele',
+                        'setblock -5 -60 3 yuanxian:technique_inheritance_stele',
                         'setblock -5 -60 5 minecraft:chest','setworldspawn 0 -60 -2 0'):
             self.rc(command)
-        for i,(item,count) in enumerate((('myvillage:low_grade_spirit_stone',64),('myvillage:spirit_gathering_core',1),
-                                        ('myvillage:spirit_gathering_node',4),('minecraft:iron_pickaxe',1),('minecraft:stone_bricks',64))):
+        for i,(item,count) in enumerate((('yuanxian:low_grade_spirit_stone',64),('yuanxian:spirit_gathering_core',1),
+                                        ('yuanxian:spirit_gathering_node',4),('minecraft:iron_pickaxe',1),('minecraft:stone_bricks',64))):
             self.rc(f'item replace block -5 -60 5 container.{i} with {item} {count}')
         self.rc('save-all flush');self.stop();self.export();self.report['status']='pass';self.save()
 

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BossBarTypographyTest {
     @Test void hudFontProvidersResolvePackagedFontsAndCoverChineseAndNumbers() throws Exception {
         for (String id : new String[]{"boss_title", "boss_detail"}) {
-            String root = "/assets/myvillage/font/";
+            String root = "/assets/yuanxian/font/";
             try (var json = getClass().getResourceAsStream(root + id + ".json")) {
                 assertNotNull(json);
                 var providers = JsonParser.parseReader(new InputStreamReader(json, StandardCharsets.UTF_8))

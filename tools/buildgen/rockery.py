@@ -7,7 +7,7 @@ cell a role by height decile (peak / slope / base / corner / standalone), and
 within a role a deterministic per-cell seed picks one variant from the catalog.
 The moss level is assigned by cell height (low → none, mid → light, peak →
 heavy). The result is a ``{cell: (variant_id, moss_level)}`` map the compound
-renderer turns into placed ``myvillage:rockery_block`` blocks.
+renderer turns into placed ``yuanxian:rockery_block`` blocks.
 
 Determinism contract (spec): the same ``(seed, bbox, params)`` yields an
 identical placement, reusing :mod:`tools.buildgen.sect_mountain`'s ``_hash2`` /

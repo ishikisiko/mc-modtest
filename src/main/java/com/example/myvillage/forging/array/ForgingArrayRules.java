@@ -67,7 +67,7 @@ public final class ForgingArrayRules {
     private static class Holder { static final ForgingArrayRules INSTANCE=load(); }
     public static ForgingArrayRules get(){return Holder.INSTANCE;}
     private static ForgingArrayRules load(){
-        try(var stream=ForgingArrayRules.class.getResourceAsStream("/data/myvillage/forging/array.json")){
+        try(var stream=ForgingArrayRules.class.getResourceAsStream("/data/yuanxian/forging/array.json")){
             if(stream==null)throw new IllegalStateException("Missing forging array rules");
             return parse(new InputStreamReader(stream,StandardCharsets.UTF_8));
         }catch(IOException e){throw new IllegalStateException(e);}

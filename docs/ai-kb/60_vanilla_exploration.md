@@ -8,7 +8,7 @@
 
 ## 配置与解释
 
-`data/myvillage/exploration/rules.json` 是探索数值和进度规则的唯一来源；`ExplorationRules` 严格读取字段、整数范围、顺序、境界、池引用与重复键。启动后固定，`/reload` 不承诺重载这些规则。所有原版群系有维度默认建议，常见危险群系再细分；当前原版结构注册表的每个 ID 都映射到一个地点。
+`data/yuanxian/exploration/rules.json` 是探索数值和进度规则的唯一来源；`ExplorationRules` 严格读取字段、整数范围、顺序、境界、池引用与重复键。启动后固定，`/reload` 不承诺重载这些规则。所有原版群系有维度默认建议，常见危险群系再细分；当前原版结构注册表的每个 ID 都映射到一个地点。
 
 - `locations`：维度、结构／群系选择、Y 范围、优先级、建议境界、普通怪物范围、洲域参与开关和基础奖励池。`context_only` 记录刷怪房、袭击和不祥试炼等显式场景，不会误匹配整片主世界。
 - `special_births`：巡逻、事件、刷怪笼和试炼出生的场景。真实 `TrialSpawner` 的 owner 与不祥状态区分普通和不祥档，不按玩家境界调整。
@@ -26,7 +26,7 @@
 
 ## 可选传送门限制
 
-`ExplorationServerConfig` 注册 NeoForge SERVER 配置，默认读写实例目录的 `config/myvillage-exploration-server.toml`。服主可在该文件设置：
+`ExplorationServerConfig` 注册 NeoForge SERVER 配置，默认读写实例目录的 `config/yuanxian-exploration-server.toml`。服主可在该文件设置：
 
 ```toml
 [portal_gates]
@@ -49,9 +49,9 @@ enabled = true
 
 ## 四类首领的独立接入
 
-`data/myvillage/exploration/bosses.json` 是四类首领的独立配置，不进入普通怪物的洲域抽样。`BossRules` 严格校验且只接受远古守卫者、末影龙、凋灵、监守者：每个版本化 profile 声明 realm／stage、有效生命、可空的有效近战属性，以及原生伤害通道的 factor／maximum。只有原版真正使用攻击属性的首领设置该属性；其他攻击沿各自原生来源处理。具体数值只维护在配置中，不通过通用境界倍率再次放大原版高基数。
+`data/yuanxian/exploration/bosses.json` 是四类首领的独立配置，不进入普通怪物的洲域抽样。`BossRules` 严格校验且只接受远古守卫者、末影龙、凋灵、监守者：每个版本化 profile 声明 realm／stage、有效生命、可空的有效近战属性，以及原生伤害通道的 factor／maximum。只有原版真正使用攻击属性的首领设置该属性；其他攻击沿各自原生来源处理。具体数值只维护在配置中，不通过通用境界倍率再次放大原版高基数。
 
-`BossRuntime` 在服务器首次 join 接入，覆盖自然生成、构建凋灵、复活龙和命令生成，不依赖 `FinalizeSpawnEvent`。与普通怪物的旧无分配策略不同，尚无本模块／普通怪物出生归属或其他 realm 的旧首领也会一次接入；保留当时生命／最大生命比例，不能把受伤旧首领恢复满血。永久属性修饰符随实体保存，在原版恢复 Health 前恢复最大生命；`myvillage:exploration_boss_birth` 保存版本化 profile、实体、realm／stage、位置与是否从磁盘加载，`myvillage:stats_realm` 供共享境界防御读取。后续跨区、卸载和重启不重新选择、不重新应用属性、不回血；已有或格式异常的归属不作为重新分配许可。
+`BossRuntime` 在服务器首次 join 接入，覆盖自然生成、构建凋灵、复活龙和命令生成，不依赖 `FinalizeSpawnEvent`。与普通怪物的旧无分配策略不同，尚无本模块／普通怪物出生归属或其他 realm 的旧首领也会一次接入；保留当时生命／最大生命比例，不能把受伤旧首领恢复满血。永久属性修饰符随实体保存，在原版恢复 Health 前恢复最大生命；`yuanxian:exploration_boss_birth` 保存版本化 profile、实体、realm／stage、位置与是否从磁盘加载，`yuanxian:stats_realm` 供共享境界防御读取。后续跨区、卸载和重启不重新选择、不重新应用属性、不回血；已有或格式异常的归属不作为重新分配许可。
 
 归属保存的是 profile ID 与 realm／stage，非整套伤害配置快照。永久属性不重算，但非属性伤害每次解析当前同 ID 的 profile；若未来删除 ID 或改变其 realm／stage，解析失败便停止首领专用伤害改写，既有属性不自动清除。同 ID 改伤害策略可能影响旧首领，不能宣称全部数值永久冻结；本版不支持在线重载该配置。
 

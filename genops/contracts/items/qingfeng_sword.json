@@ -1,5 +1,5 @@
 {
-  "item_id": "myvillage:qingfeng_sword",
+  "item_id": "yuanxian:qingfeng_sword",
   "kind": "functional_item",
   "display_name": {
     "en_us": "Qingfeng Sword",
@@ -8,8 +8,8 @@
   "owner_facing_goal": "Provide the one supported sword for a server-authoritative five-move cultivation combat foundation while retaining mapped vanilla diamond-sword behavior in vanilla mode.",
   "creative_tab": {
     "visibility": "visible",
-    "tab_id": "myvillage:main",
-    "ordering": "Immediately after myvillage:rideable_flying_sword; the two items remain independent."
+    "tab_id": "yuanxian:main",
+    "ordering": "Immediately after yuanxian:rideable_flying_sword; the two items remain independent."
   },
   "java_registration": {
     "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
@@ -17,16 +17,16 @@
     "properties": "CombatWeaponItem(Tiers.DIAMOND, properties.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)))"
   },
   "client_assets": {
-    "lang_key": "item.myvillage.qingfeng_sword",
-    "model": "src/main/resources/assets/myvillage/models/item/qingfeng_sword.json",
+    "lang_key": "item.yuanxian.qingfeng_sword",
+    "model": "src/main/resources/assets/yuanxian/models/item/qingfeng_sword.json",
     "textures": [
-      "src/main/resources/assets/myvillage/textures/item/qingfeng_sword.png"
+      "src/main/resources/assets/yuanxian/textures/item/qingfeng_sword.png"
     ],
     "visual_verdict": "pending"
   },
   "data_resources": {
     "recipes": [
-      "src/main/resources/data/myvillage/recipe/qingfeng_sword.json"
+      "src/main/resources/data/yuanxian/recipe/qingfeng_sword.json"
     ],
     "tags": [
       "src/main/resources/data/minecraft/tags/item/swords.json"
@@ -53,9 +53,9 @@
   },
   "acceptance": {
     "commands": [
-      "/give @s myvillage:qingfeng_sword",
-      "/myvillage combat debug on",
-      "/myvillage combat debug off"
+      "/give @s yuanxian:qingfeng_sword",
+      "/yuanxian combat debug on",
+      "/yuanxian combat debug off"
     ],
     "gates": [
       "python3 tools/validate_mod_items.py",
@@ -69,7 +69,7 @@
     ],
     "jar_checks": [
       "Qingfeng Sword class, model, texture, bilingual lang, recipe, and swords tag are packaged",
-      "Seven myvillage player-animation ids are packaged below assets/myvillage/player_animations",
+      "Seven yuanxian player-animation ids are packaged below assets/yuanxian/player_animations",
       "No com/zigythebird PAL classes or nested PAL jar are shaded into MyVillage"
     ],
     "human_verdict": "pending"
@@ -78,7 +78,7 @@
     "sync_required": true
   },
   "non_goals": [
-    "Reuse of myvillage:rideable_flying_sword item, entity, or interaction",
+    "Reuse of yuanxian:rideable_flying_sword item, entity, or interaction",
     "Epic Fight, Better Combat, old PlayerAnimator, or copied third-party assets",
     "GeckoLib item model",
     "Dodge, block, parry, stamina, poise, super armor, or complex hurt animation",

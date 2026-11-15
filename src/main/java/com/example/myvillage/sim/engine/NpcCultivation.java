@@ -27,7 +27,7 @@ public final class NpcCultivation {
 
     public static RealmKey key(SimContext ctx, Person p) {
         String realm = ctx.realm(p).id();
-        return new RealmKey(realm.indexOf(':') < 0 ? "myvillage:" + realm : realm, p.stage);
+        return new RealmKey(realm.indexOf(':') < 0 ? "yuanxian:" + realm : realm, p.stage);
     }
 
     private static int quality(SimContext ctx, Person p, int purpose) {
@@ -94,7 +94,7 @@ public final class NpcCultivation {
         if (!(foundation ? validQuality(p.prodigy, p.foundationQuality) : p.foundationQuality == 0)
                 || !(golden ? validQuality(p.prodigy, p.goldenCoreQuality) : p.goldenCoreQuality == 0))
             throw new com.example.myvillage.sim.SimFormatException("person " + p.id + " has invalid cultivation qualities");
-        long cap = CultivationStatsRules.bundled().at(new RealmKey("myvillage:" + realms.get(p.realm).id(), p.stage),
+        long cap = CultivationStatsRules.bundled().at(new RealmKey("yuanxian:" + realms.get(p.realm).id(), p.stage),
                 p.foundationQuality, p.goldenCoreQuality).power();
         cap=SpiritualPowerMath.capacity(cap,pool.effect(p.fates,"power_cap_bonus"));
         if (p.spiritualPower < 0 || p.spiritualPower > cap)

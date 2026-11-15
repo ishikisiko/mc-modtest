@@ -11,7 +11,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 /** 真实客户端画面采集；传送与视角属于 fixture 准备。 */
-@EventBusSubscriber(modid="myvillage",value=Dist.CLIENT)
+@EventBusSubscriber(modid="yuanxian",value=Dist.CLIENT)
 public final class RoadHubClientEvidence {
     private static String pending,last="";private static int ticks;
     @SubscribeEvent public static void tick(ClientTickEvent.Post event)throws Exception {

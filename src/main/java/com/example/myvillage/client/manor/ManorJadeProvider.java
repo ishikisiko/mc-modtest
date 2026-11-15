@@ -36,7 +36,7 @@ public final class ManorJadeProvider implements IBlockComponentProvider {
             lines.add(info.materialsLine().copy().withStyle(ChatFormatting.GRAY));
             lines.add(info.styleLine().copy().withStyle(ChatFormatting.DARK_GRAY));
         }
-        if(advanced&&shape>=0)lines.add(Component.translatable("tooltip.myvillage.manor_debug",shape).withStyle(ChatFormatting.DARK_GRAY));
+        if(advanced&&shape>=0)lines.add(Component.translatable("tooltip.yuanxian.manor_debug",shape).withStyle(ChatFormatting.DARK_GRAY));
         return new Hint(info.name(),List.copyOf(lines));
     }
 }

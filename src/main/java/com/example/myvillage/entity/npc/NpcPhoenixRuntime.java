@@ -28,7 +28,7 @@ import net.neoforged.neoforge.event.entity.living.*;
 public final class NpcPhoenixRuntime {
     private static final Gson GSON=new Gson();
     private static final String EMBER="phoenix_ember",PROTECTED="phoenix_protected_until";
-    private static final ResourceLocation HEAL=ResourceLocation.parse("myvillage:phoenix_self_healing");
+    private static final ResourceLocation HEAL=ResourceLocation.parse("yuanxian:phoenix_self_healing");
     private NpcPhoenixRuntime() { }
     public static void register() {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,NpcPhoenixRuntime::incoming);

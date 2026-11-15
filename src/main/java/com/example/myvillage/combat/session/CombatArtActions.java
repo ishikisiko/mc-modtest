@@ -118,13 +118,13 @@ public final class CombatArtActions {
                 int shared=ElementalRules.integer("ward_shared_cooldown_ticks",20,1200);
                 COOLDOWNS.start(player.getUUID(),"elemental_ward",clock(player),shared);
                 if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)
-                    com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,ResourceLocation.parse("myvillage:elemental_ward"),clock(player)+shared);
+                    com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,ResourceLocation.parse("yuanxian:elemental_ward"),clock(player)+shared);
             }
         }
         if(target!=null) {
             e.lockTarget=target;e.lockAnchor=target.position();
             if(target instanceof ServerPlayer victim) victim.displayClientMessage(
-                    Component.translatable("combat.myvillage.art.threat",Component.translatable(art.translationKey())),true);
+                    Component.translatable("combat.yuanxian.art.threat",Component.translatable(art.translationKey())),true);
             LOG.info("LOCKED_SWORD player={} t={} result=locked art={} target={} x={} y={} z={}",
                     CombatCaster.name(player),CombatCaster.level(player).getGameTime(),art.id(),target.getId(),
                     target.getX(),target.getY(),target.getZ());
@@ -154,7 +154,7 @@ public final class CombatArtActions {
                     : art.elemental().isPresent()
                     ? ModCultivationRegistries.school(player.registryAccess(),art.school())
                         .filter(s -> s.runtime().equals(Optional.of(com.example.myvillage.cultivation.data.SchoolRuntime.SPELL))
-                            && s.elementLean().contains(ResourceLocation.parse("myvillage:"+art.elemental().get().element().id()))).isPresent()
+                            && s.elementLean().contains(ResourceLocation.parse("yuanxian:"+art.elemental().get().element().id()))).isPresent()
                     : family.equals(Optional.of(art.family())) && ModCultivationRegistries.school(player.registryAccess(),art.school())
                         .flatMap(s -> s.weaponFamily()).equals(family))
                 && technique.get().effects().flatMap(e -> e.active())
@@ -252,7 +252,7 @@ public final class CombatArtActions {
                     SwordArmorBreak.apply(living,lock.armorBreakFraction()*fraction,lock.armorBreakTicks());
             }
             if(owner instanceof ServerPlayer defender && fraction<1) defender.displayClientMessage(
-                    Component.translatable(fraction==0?"combat.myvillage.art.evaded":"combat.myvillage.art.partial"),true);
+                    Component.translatable(fraction==0?"combat.yuanxian.art.evaded":"combat.yuanxian.art.partial"),true);
             LOG.info("LOCKED_SWORD player={} t={} result=strike art={} pulse={} target={} fraction={} success={} damage={}",
                     CombatCaster.name(player),CombatCaster.level(player).getGameTime(),e.art.id(),pulse,victim.getId(),
                     fraction,result.successful(),result.actualDamage());
@@ -296,7 +296,7 @@ public final class CombatArtActions {
         if(e==null) return false;
         if(source!=null && e.guardedSource==source && e.guardedTick==CombatCaster.level(player).getGameTime()) {
             e.guardedSource=null;e.counter=true;
-            CombatCaster.message(player,Component.translatable("combat.myvillage.art.counter"),true);
+            CombatCaster.message(player,Component.translatable("combat.yuanxian.art.counter"),true);
             CombatDisciplines.guarded(player,e.session.revision());
             if(player instanceof ServerPlayer user)com.example.myvillage.wilderness.ExpeditionCombat.guarded(user);
             return false;
@@ -317,7 +317,7 @@ public final class CombatArtActions {
         if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)own=Math.max(own,com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,art.id()));
         if(art.elemental().filter(e->e.role().equals("ward")).isPresent()) {
             own=Math.max(own,COOLDOWNS.remaining(player.getUUID(),"elemental_ward",clock(player)));
-            if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)own=Math.max(own,com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,ResourceLocation.parse("myvillage:elemental_ward")));
+            if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)own=Math.max(own,com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,ResourceLocation.parse("yuanxian:elemental_ward")));
         }
         return own;
     }
@@ -343,6 +343,6 @@ public final class CombatArtActions {
     }
     private static void refuse(LivingEntity player,String why,Component detail) {
         LOG.info("ADVANCED_ART player={} result=rejected reason={}",CombatCaster.name(player),why);
-        CombatCaster.message(player,Component.translatable("combat.myvillage.art."+why,detail),true);
+        CombatCaster.message(player,Component.translatable("combat.yuanxian.art."+why,detail),true);
     }
 }

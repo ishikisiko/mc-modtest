@@ -49,7 +49,7 @@ GRADLE_ARGV = ("./gradlew", "build", "--console=plain")
 GENERATED_ROOT = "src/main/resources"
 # The same arguments build.gradle's generateAllStructures task passes.
 GENERATE_ARGS = ("tools/generate_all_structures.py", "--mc-version", "1.21.1",
-                 "--output", "src/main/resources/data/myvillage/structure")
+                 "--output", "src/main/resources/data/yuanxian/structure")
 GENERATE = "generate-all-structures"
 BUILD = "gradle-build"
 PASS, FAIL, SKIP = "PASS", "FAIL", "SKIP"
@@ -145,11 +145,11 @@ def check_versions(gate: "Gate") -> Outcome:
     return Outcome(PASS, f"all four say {sources.gradle}")
 
 
-JAR_TF_RE = re.compile(r'jar tf build/libs/myvillage-\d[^\s/]*\.jar \| grep "([^"]+)"')
+JAR_TF_RE = re.compile(r'jar tf build/libs/yuanxian-\d[^\s/]*\.jar \| grep "([^"]+)"')
 
 
 def readme_jar_patterns(text: str) -> list[str]:
-    """Distinct ``jar tf build/libs/myvillage-<v>.jar | grep "<pattern>"`` patterns, in README order."""
+    """Distinct ``jar tf build/libs/yuanxian-<v>.jar | grep "<pattern>"`` patterns, in README order."""
     return list(dict.fromkeys(JAR_TF_RE.findall(text)))
 
 
@@ -180,7 +180,7 @@ def check_readme_jar_listing(gate: "Gate") -> Outcome:
     """Every README 'jar tf ... | grep' pattern matches an entry of the jar built by this run."""
     patterns = readme_jar_patterns((gate.root / bump_version.README).read_text(encoding="utf-8"))
     if not patterns:
-        return Outcome(FAIL, "README.md has no 'jar tf build/libs/myvillage-<version>.jar | grep' lines")
+        return Outcome(FAIL, "README.md has no 'jar tf build/libs/yuanxian-<version>.jar | grep' lines")
     try:
         with zipfile.ZipFile(gate.built_jar) as archive:
             names = archive.namelist()
@@ -263,7 +263,7 @@ def gradle_build(gate: "Gate") -> Outcome:
     version = bump_version.read_sources(gate.root).gradle
     if version is None:
         return Outcome(FAIL, "gradle.properties has no mod_version")
-    jar = gate.root / "build/libs" / f"myvillage-{version}.jar"
+    jar = gate.root / "build/libs" / f"yuanxian-{version}.jar"
     gate.say(f"  waiting for heavy-work lock {gate.lock_path}" if not procs.lock_is_free(gate.lock_path)
              else f"  heavy-work lock {gate.lock_path}")
     fd = procs.acquire_lock(gate.lock_path, None,
@@ -280,7 +280,7 @@ def gradle_build(gate: "Gate") -> Outcome:
         return outcome
     if not jar.is_file():
         return Outcome(FAIL, f"the build succeeded but did not write {jar.relative_to(gate.root)}", log=outcome.log)
-    newer = sorted(p.name for p in jar.parent.glob("myvillage-*.jar")
+    newer = sorted(p.name for p in jar.parent.glob("yuanxian-*.jar")
                    if p != jar and p.stat().st_mtime >= jar.stat().st_mtime)
     if newer:
         return Outcome(FAIL, f"{', '.join(newer)} is at least as new as {jar.name}; the combat validator "
@@ -331,7 +331,7 @@ STEPS: tuple[Step, ...] = (
     generator_check("gen_manual_textures"),
     tool("validate_world_sim"),
     Step(GENERATE, func=generate_structures),
-    tool("validate_generated_structures", "src/main/resources/data/myvillage/structure", after=GENERATE),
+    tool("validate_generated_structures", "src/main/resources/data/yuanxian/structure", after=GENERATE),
     tool("validate_mod_block_fallbacks", after=GENERATE),
     tool("validate_plaque_bindings", after=GENERATE),
     tool("validate_compound_library", "--count", "6", after=GENERATE),

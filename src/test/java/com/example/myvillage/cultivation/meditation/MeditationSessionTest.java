@@ -117,7 +117,7 @@ class MeditationSessionTest {
 
     @Test
     void studySitsLikeNormalMeditationAndCarriesItsProgressInTheStatus() {
-        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_jianjue");
+        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("yuanxian", "gengjin_jianjue");
         StudyProgress initial = new StudyProgress(technique, 120, 12_000, 6_000, 50);
         MeditationSession session = MeditationSession.study(
                 new MeditationSession.StudyTarget(3, technique), initial, 0, 64, 0, Level.OVERWORLD);
@@ -145,7 +145,7 @@ class MeditationSessionTest {
         session.updateStudyProgress(later);
         assertEquals(later, session.status(MeditationStopReason.NONE).study().orElseThrow());
         assertThrows(IllegalArgumentException.class, () -> session.updateStudyProgress(
-                new StudyProgress(ResourceLocation.fromNamespaceAndPath("myvillage", "other"), 0, 4_000, -1, 0)));
+                new StudyProgress(ResourceLocation.fromNamespaceAndPath("yuanxian", "other"), 0, 4_000, -1, 0)));
         assertThrows(IllegalStateException.class, session::downgradeToNormal);
     }
 
@@ -154,11 +154,11 @@ class MeditationSessionTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new MeditationSession(MeditationMode.STUDY, 0, 0, 0, Level.OVERWORLD));
         assertThrows(IllegalArgumentException.class,
-                () -> new MeditationSession.StudyTarget(-1, ResourceLocation.fromNamespaceAndPath("myvillage", "x")));
+                () -> new MeditationSession.StudyTarget(-1, ResourceLocation.fromNamespaceAndPath("yuanxian", "x")));
         MeditationSession normal = new MeditationSession(MeditationMode.NORMAL, 0, 0, 0, Level.OVERWORLD);
         assertFalse(normal.studying());
         assertTrue(normal.status(MeditationStopReason.NONE).study().isEmpty());
         assertThrows(IllegalStateException.class, () -> normal.updateStudyProgress(
-                new StudyProgress(ResourceLocation.fromNamespaceAndPath("myvillage", "x"), 0, 4_000, -1, 0)));
+                new StudyProgress(ResourceLocation.fromNamespaceAndPath("yuanxian", "x"), 0, 4_000, -1, 0)));
     }
 }

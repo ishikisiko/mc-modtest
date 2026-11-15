@@ -37,7 +37,7 @@ public final class AptitudeRules {
     }
     public static AptitudeRules get() { return Holder.INSTANCE; }
     private static AptitudeRules load() {
-        try (var stream = AptitudeRules.class.getResourceAsStream("/data/myvillage/aptitudes/rules.json")) {
+        try (var stream = AptitudeRules.class.getResourceAsStream("/data/yuanxian/aptitudes/rules.json")) {
             if (stream == null) throw new IllegalStateException("Missing aptitude rules");
             return new AptitudeRules(JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());
         } catch (java.io.IOException e) { throw new IllegalStateException(e); }

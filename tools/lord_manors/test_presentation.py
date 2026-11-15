@@ -43,9 +43,9 @@ class PresentationTest(unittest.TestCase):
         self.assertEqual(['frame', 'wall'], [box[6] for box in cells(scene, overlay_roles=['wall'])[0, 0, 0]])
 
     def test_every_generated_shape_has_a_translated_name_and_exact_material_list(self):
-        catalog = read('src/main/resources/data/myvillage/lord_manors/catalog.json')
-        display = read('src/main/resources/data/myvillage/lord_manors/presentation.json')
-        lang = read('src/main/resources/assets/myvillage/lang/zh_cn.json')
+        catalog = read('src/main/resources/data/yuanxian/lord_manors/catalog.json')
+        display = read('src/main/resources/data/yuanxian/lord_manors/presentation.json')
+        lang = read('src/main/resources/assets/yuanxian/lang/zh_cn.json')
         self.assertEqual({bank['id'] for bank in catalog['banks']}, set(display['banks']))
         for bank in catalog['banks']:
             self.assertNotRegex(bank['name'], r'精雕|\d')
@@ -55,19 +55,19 @@ class PresentationTest(unittest.TestCase):
                 self.assertIn(info['name'], lang)
                 self.assertNotRegex(lang[info['name']], r'精雕|\d')
                 roles = sorted({box[6] for box in source['boxes']})
-                expected = ['manor_material.myvillage.' + ('plaque' if role.startswith('plaque_') else role) for role in roles]
+                expected = ['manor_material.yuanxian.' + ('plaque' if role.startswith('plaque_') else role) for role in roles]
                 self.assertEqual(expected, info['materials'])
                 for name in info['materials']:
                     self.assertIn(name, lang)
         self.assertEqual({m['id'] for m in catalog['materials']} - {'manor_survey_stone'}, set(display['materials']))
 
     def test_real_lingyue_window_is_named_per_state_and_preserves_all_materials(self):
-        display = read('src/main/resources/data/myvillage/lord_manors/presentation.json')
+        display = read('src/main/resources/data/yuanxian/lord_manors/presentation.json')
         bank = display['banks']['manor_lingyue_carved_7']
         info = bank['profiles'][21]
         self.assertEqual('lingyue', bank['city'])
-        self.assertEqual('manor_part.myvillage.window', info['name'])
-        self.assertEqual(['manor_material.myvillage.frame', 'manor_material.myvillage.window', 'manor_material.myvillage.wood'], info['materials'])
+        self.assertEqual('manor_part.yuanxian.window', info['name'])
+        self.assertEqual(['manor_material.yuanxian.frame', 'manor_material.yuanxian.window', 'manor_material.yuanxian.wood'], info['materials'])
         self.assertGreater(len({profile['name'] for profile in bank['profiles']}), 1)
 
 

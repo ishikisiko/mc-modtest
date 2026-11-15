@@ -46,8 +46,8 @@ class NativeRuleTests(unittest.TestCase):
             collect(World(cells),{'atomic_blocks':{'minecraft:white_bed':'bed'}},{'families':[]})
 
     def test_rotated_rack_keeps_all_four_parts(self):
-        cells={(15,3+part//2,15+part%2):props('myvillage:drying_rack',facing='east',part=part,waterlogged=False) for part in range(4)}
-        groups=collect(World(cells),{'atomic_blocks':{'myvillage:drying_rack':'street_furniture'}},
+        cells={(15,3+part//2,15+part%2):props('yuanxian:drying_rack',facing='east',part=part,waterlogged=False) for part in range(4)}
+        groups=collect(World(cells),{'atomic_blocks':{'yuanxian:drying_rack':'street_furniture'}},
                        {'families':[{'id':'drying_rack','size':[2,2,1]}]})
         self.assertEqual([1,2,2],groups[0]['size']);self.assertEqual(cells,groups[0]['cells'])
 

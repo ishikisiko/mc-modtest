@@ -9,11 +9,11 @@ original output.
 Generated resources:
 
 ```text
-src/main/resources/data/myvillage/structure/chinese_huipai_mansion_001.nbt
-src/main/resources/data/myvillage/structure/chinese_huipai_mansion_002.nbt
-src/main/resources/data/myvillage/function/gallery/chinese_huipai_mansion.mcfunction
-src/main/resources/data/myvillage/function/place/chinese_huipai_mansion_001.mcfunction
-src/main/resources/data/myvillage/function/place/chinese_huipai_mansion_002.mcfunction
+src/main/resources/data/yuanxian/structure/chinese_huipai_mansion_001.nbt
+src/main/resources/data/yuanxian/structure/chinese_huipai_mansion_002.nbt
+src/main/resources/data/yuanxian/function/gallery/chinese_huipai_mansion.mcfunction
+src/main/resources/data/yuanxian/function/place/chinese_huipai_mansion_001.mcfunction
+src/main/resources/data/yuanxian/function/place/chinese_huipai_mansion_002.mcfunction
 reports/chinese_huipai_mansion_compound_library_report.json
 ```
 
@@ -54,7 +54,7 @@ Review it in-game:
 ```mcfunction
 /yuanxian place chinese_huipai_mansion_001
 /yuanxian place chinese_huipai_mansion_002
-/function myvillage:gallery/chinese_huipai_mansion
+/function yuanxian:gallery/chinese_huipai_mansion
 ```
 
 This slice does not complete the broader FUTURE Hui-style vocabulary. It remains

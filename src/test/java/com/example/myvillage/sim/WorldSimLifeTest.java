@@ -293,7 +293,7 @@ class WorldSimLifeTest {
     }
 
     @Test void tuningIsStrictAndNamesUnknownFields() throws Exception {
-        JsonObject rules = JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/life_rules.json"))).getAsJsonObject();
+        JsonObject rules = JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/life_rules.json"))).getAsJsonObject();
         assertEquals(6, LifeRules.parse("life_rules.json", rules).durations().size());
         rules.addProperty("unknown_tuning", 1);
         assertEquals("unknown_tuning", assertThrows(SimDataException.class,

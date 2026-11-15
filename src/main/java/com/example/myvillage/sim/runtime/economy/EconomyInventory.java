@@ -22,7 +22,7 @@ public final class EconomyInventory {
         } else if (count > 0 && !remove(copies.subList(0, 36), required, count)) return new Prepared(access, copies, "missing_items");
         for (var e : reward.stones().entrySet()) {
             String id = switch (e.getKey()) { case "low" -> "low_grade"; case "middle" -> "medium_grade"; case "high" -> "high_grade"; default -> throw new IllegalArgumentException("未知灵石"); };
-            if (!insert(copies, new ItemStack(CommerceInventory.item("myvillage:" + id + "_spirit_stone")), e.getValue(), true))
+            if (!insert(copies, new ItemStack(CommerceInventory.item("yuanxian:" + id + "_spirit_stone")), e.getValue(), true))
                 return new Prepared(access, copies, "inventory_full");
         }
         return new Prepared(access, copies, "ok");

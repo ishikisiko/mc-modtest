@@ -21,8 +21,8 @@
   `story_scene.json` 拥有道路、剧情站位和可点击调查目标。
 - `tools/qianzhen/story_assets.py --opening` 生成新版私人场景的 `build/generated/qianzhen/resources`；不带 `--opening` 的调用保留原 authored 来源供冻结 V6 使用；
   由 `generateQianzhenStoryAssets` 纳入 jar。不要手改结构 NBT 或派生位置表。
-- `data/myvillage/story/qianzhen_actors.json` 定义人物身份与角色。
-- `data/myvillage/story/qianzhen_chapter_1.json` 编排章节、对话、线索和奖励。
+- `data/yuanxian/story/qianzhen_actors.json` 定义人物身份与角色。
+- `data/yuanxian/story/qianzhen_chapter_1.json` 编排章节、对话、线索和奖励。
   第一版在服务器启动时加载并校验，不承诺在线热重载。
 - 个人任务使用独立 Attachment，死亡复制由 `copyOnDeath` 负责。任务服务
   是写入口；客户端只接收快照、提交当前对话的有界选项。

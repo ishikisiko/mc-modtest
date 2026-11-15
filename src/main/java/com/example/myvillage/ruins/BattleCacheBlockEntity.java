@@ -49,7 +49,7 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
         double radius=rules().leashRadius();
         return server.players().stream().filter(this::eligible).filter(p->p.distanceToSqr(worldPosition.getCenter())<=radius*radius).toList();
     }
-    private void message(ServerPlayer p,String key,Object...args){p.displayClientMessage(Component.translatable("message.myvillage."+(isSummonedTrial()?"demon_trial.":"battle.")+key,args),true);}
+    private void message(ServerPlayer p,String key,Object...args){p.displayClientMessage(Component.translatable("message.yuanxian."+(isSummonedTrial()?"demon_trial.":"battle.")+key,args),true);}
     public void use(ServerPlayer p){
         var r=rules();
         if(r==null || !p.isAlive() || p.isSpectator() || !p.mayBuild() || p.level()!=level
@@ -104,7 +104,7 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
             }
         }
         int remaining=0; for(int i=0;i<progress.count();i++)if(!progress.dead(i))remaining++;
-        for(var p:players)message(p,"progress",Component.translatable("structure.myvillage."+kind),progress.wave()+1,r.waves().size(),remaining);
+        for(var p:players)message(p,"progress",Component.translatable("structure.yuanxian."+kind),progress.wave()+1,r.waves().size(),remaining);
     }
     private void spawn(ServerLevel server,BattleRules.Guard definition,int slot,ServerPlayer player){
         BlockPos p=target(definition.pos());
@@ -116,14 +116,14 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
         if(!server.noCollision(mob) || server.containsAnyLiquid(mob.getBoundingBox()))return;
         mob.setPersistenceRequired(); mob.setCanPickUpLoot(false);
         if(!definition.weapon().isEmpty())mob.setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(definition.weapon()))));
-        if(!definition.entity().equals("myvillage:demon_wolf")){
+        if(!definition.entity().equals("yuanxian:demon_wolf")){
             ItemStack helmet=new ItemStack(Items.IRON_HELMET);helmet.set(DataComponents.UNBREAKABLE,new Unbreakable(false));mob.setItemSlot(EquipmentSlot.HEAD,helmet);
         }
         for(var equipment:EquipmentSlot.values())mob.setDropChance(equipment,0F);
         StatsRuntime.applyRealm(mob,definition.realm(),definition.stage());mob.setHealth(mob.getMaxHealth());
-        mob.setCustomName(Component.translatable("entity.myvillage.battle."+(definition.elite()?"elite":"guard"),Component.translatable("structure.myvillage."+kind)));
+        mob.setCustomName(Component.translatable("entity.yuanxian.battle."+(definition.elite()?"elite":"guard"),Component.translatable("structure.yuanxian."+kind)));
         mob.setCustomNameVisible(definition.elite());
-        mob.addTag("combat_ruin_guard");mob.addTag(kind+"_guard");mob.getPersistentData().putLong("myvillage:battle_cache",worldPosition.asLong());
+        mob.addTag("combat_ruin_guard");mob.addTag(kind+"_guard");mob.getPersistentData().putLong("yuanxian:battle_cache",worldPosition.asLong());
         mob.restrictTo(p,(int)rules().leashRadius());mob.setTarget(player);
         UUID id=mob.getUUID();
         progress.bind(slot,id);BattleReceipts.get(server).register(id);setChanged();
@@ -163,7 +163,7 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
         items=NonNullList.withSize(27,ItemStack.EMPTY);
         if(progress.state()==BattleProgress.State.REWARDED)ContainerHelper.loadAllItems(tag,items,registries);
     }
-    @Override public Component getDisplayName(){return Component.translatable(isSummonedTrial()?"block.myvillage.demon_trial_core":"block.myvillage.battle_cache");}
+    @Override public Component getDisplayName(){return Component.translatable(isSummonedTrial()?"block.yuanxian.demon_trial_core":"block.yuanxian.battle_cache");}
     @Override public AbstractContainerMenu createMenu(int id,Inventory inv,Player player){return progress.state()==BattleProgress.State.REWARDED?ChestMenu.threeRows(id,inv,this):null;}
     @Override public int getContainerSize(){return 27;}
     @Override public boolean isEmpty(){return items.stream().allMatch(ItemStack::isEmpty);}

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DerivedSwordWaveTest {
-    private static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("myvillage", path); }
+    private static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("yuanxian", path); }
     @Test void passiveFlightHasNoPaymentOrRefundAndKeepsItsOwnHitLedger() {
         var styles = CombatTestData.styles();
         var skill = styles.skill(id("sword_obsession_wave")).orElseThrow();

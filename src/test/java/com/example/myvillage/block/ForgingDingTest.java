@@ -27,12 +27,12 @@ class ForgingDingTest {
         var registry=(MappedRegistry<Block>)BuiltInRegistries.BLOCK;
         synchronized(registry) {
             registry.unfreeze();
-            try { block=Registry.register(registry,ResourceLocation.parse("myvillage_test:forging_ding"),new ForgingTableBlock(BlockBehaviour.Properties.of())); }
+            try { block=Registry.register(registry,ResourceLocation.parse("yuanxian_test:forging_ding"),new ForgingTableBlock(BlockBehaviour.Properties.of())); }
             finally { registry.freeze(); }
         }
     }
     @Test void propertylessLegacyStateGetsUnlitNorthDefaults() {
-        var old=new CompoundTag();old.putString("Name","myvillage_test:forging_ding");
+        var old=new CompoundTag();old.putString("Name","yuanxian_test:forging_ding");
         var restored=NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(),old);
         assertSame(block,restored.getBlock());
         assertEquals(Direction.NORTH,restored.getValue(ForgingTableBlock.FACING));

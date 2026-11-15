@@ -12,7 +12,7 @@ from tools.alchemy_quality_evidence import SecondClient, read_data
 from tools.combat_capture import scene, session as cs
 
 
-WAVE = 'myvillage:innate_sword_heart_wave'
+WAVE = 'yuanxian:innate_sword_heart_wave'
 NEAR_TAG = 'advanced_heart_near'
 FAR_TAG = 'advanced_heart_far'
 
@@ -151,7 +151,7 @@ def _negative(e, guest, name, source, commands, report, *, active_cooldown=False
     e.rc('tick rate 5')
     start = _offset()
     begun = _press_dodge(e, start)
-    precision_ticks = int(e.definitions['myvillage:innate_sword_heart']['effects']['heart_window_ticks'])
+    precision_ticks = int(e.definitions['yuanxian:innate_sword_heart']['effects']['heart_window_ticks'])
     def canceled_inside_precision(rows):
         return any(0 <= int(row['t'])-int(begun['t']) < precision_ticks
                    for row in _cancelled(rows, source))
@@ -188,7 +188,7 @@ def run(e):
     try:
         e.rc('tick rate 20')
         e.choose_focus('innate_sword_heart')
-        e.equip('myvillage:qingfeng_sword')
+        e.equip('yuanxian:qingfeng_sword')
         scene.ensure_cultivation(e.s)
         e.rc(f'yuanxian cultivation qi fill {user}')
         e.heal()

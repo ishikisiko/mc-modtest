@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class WorldSimCapitalResidentsTest {
     private static final long SEED = 42;
     private List<CapitalResidentDefinition> definitions() throws Exception {
-        try (var reader = Files.newBufferedReader(Path.of("src/main/resources/data/myvillage/story/capital_opening.json"))) {
+        try (var reader = Files.newBufferedReader(Path.of("src/main/resources/data/yuanxian/story/capital_opening.json"))) {
             return CapitalOpeningRules.read(reader).residents();
         }
     }

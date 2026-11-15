@@ -8,7 +8,7 @@ mortal_unawakened
   -> mortal_qi_sensed
   -> independent awakening screen: root result, then innate-fate choice
   -> technique_inheritance_stele: definition-gated basic-breathing inheritance
-  -> myvillage:basic_breathing at mastery 0
+  -> yuanxian:basic_breathing at mastery 0
 ```
 
 The owner explicitly directed one change to contain both boundaries despite the
@@ -69,9 +69,9 @@ total is exactly `10000`.
 
 ## Awakening Transaction And Datapacks
 
-`SpiritualRootAwakeningService` accepts a rootless `myvillage:mortal` profile at
-`myvillage:mortal_unawakened`, plus the narrow administrator-repair state where
-`clearroot` left a mortal player at `myvillage:mortal_qi_sensed`. It rejects an
+`SpiritualRootAwakeningService` accepts a rootless `yuanxian:mortal` profile at
+`yuanxian:mortal_unawakened`, plus the narrow administrator-repair state where
+`clearroot` left a mortal player at `yuanxian:mortal_qi_sensed`. It rejects an
 existing root and rootless profiles in other realm/stage states.
 
 Success installs the generated root and `mortal_qi_sensed` in one immutable
@@ -96,8 +96,8 @@ invalid stage membership, and ambiguous equal-order realms fail closed. Explicit
 minimum-affinity requirements require a present root and sufficient basis points;
 the technique's descriptive `elements` list is not an eligibility rule.
 
-The shipped `myvillage:basic_breathing` definition requires minimum realm
-`myvillage:mortal` and minimum stage `myvillage:mortal_qi_sensed`, with no element
+The shipped `yuanxian:basic_breathing` definition requires minimum realm
+`yuanxian:mortal` and minimum stage `yuanxian:mortal_qi_sensed`, with no element
 or affinity restriction. All valid one-through-five-element roots can qualify.
 
 `TechniqueInheritanceService` resolves that definition first. A missing current
@@ -105,7 +105,7 @@ definition returns `TECHNIQUE_NOT_REGISTERED` while preserving saved unknown
 progress. When the definition exists, `ALREADY_LEARNED` takes precedence over
 later root/stage checks, so repeat inheritance never resets mastery. A new learner
 must then have a root and satisfy the shared evaluator. Success adds only
-`myvillage:basic_breathing -> mastery 0` in one `CultivationService` replacement;
+`yuanxian:basic_breathing -> mastery 0` in one `CultivationService` replacement;
 all other profile fields and learned techniques remain unchanged.
 
 ## Steles, Commands, And Authority
@@ -113,11 +113,11 @@ all other profile fields and learned techniques remain unchanged.
 The independent facilities are:
 
 ```mcfunction
-/give @s myvillage:spirit_testing_stele
-/give @s myvillage:technique_inheritance_stele
+/give @s yuanxian:spirit_testing_stele
+/give @s yuanxian:technique_inheritance_stele
 ```
 
-Both are in `myvillage:main`. Creative inventory and `/give` are the only current
+Both are in `yuanxian:main`. Creative inventory and `/give` are the only current
 acquisition paths: neither has a recipe, natural generation, sect/worldgen
 placement, BlockEntity, menu, or block-local player state. Their vanilla block
 interactions call their corresponding service only on the logical server, and
@@ -149,7 +149,7 @@ a testing-stele session or open the choice screen. Blocks and command handlers
 never write the attachment directly.
 
 Successful actions reuse the existing clientbound-only
-`myvillage:cultivation_snapshot`. The `H` profile screen remains a non-pausing,
+`yuanxian:cultivation_snapshot`. The `H` profile screen remains a non-pausing,
 read-only view of the latest snapshot: it generates no root, evaluates no
 requirements, exposes no root/fate mutation control. Other H pages retain their
 separately specified bounded meditation and core-switch intents. The separate awakening

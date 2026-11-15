@@ -23,12 +23,12 @@ public enum RealmInkStyle {
     public static RealmInkStyle forRealm(String id) {
         if (id == null) return UNKNOWN;
         return switch (id) {
-            case "myvillage:mortal" -> MORTAL;
-            case "myvillage:qi_refining" -> QI;
-            case "myvillage:foundation_establishment" -> FOUNDATION;
-            case "myvillage:golden_core" -> CORE;
+            case "yuanxian:mortal" -> MORTAL;
+            case "yuanxian:qi_refining" -> QI;
+            case "yuanxian:foundation_establishment" -> FOUNDATION;
+            case "yuanxian:golden_core" -> CORE;
             // Presentation is ready for a datapack-defined realm; no realm is registered here.
-            case "myvillage:nascent_soul" -> SOUL;
+            case "yuanxian:nascent_soul" -> SOUL;
             default -> UNKNOWN;
         };
     }

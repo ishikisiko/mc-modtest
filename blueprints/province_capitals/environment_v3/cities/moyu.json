@@ -2606,7 +2606,7 @@
         27,
         159
       ],
-      "state": "myvillage:forging_table[facing=south,lit=false]",
+      "state": "yuanxian:forging_table[facing=south,lit=false]",
       "pad_width": 3,
       "function": "复用现有器物炼灵界面，不建立第二套炼器状态"
     }

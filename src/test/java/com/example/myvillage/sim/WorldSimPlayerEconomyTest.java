@@ -104,15 +104,15 @@ class WorldSimPlayerEconomyTest {
         sim = balance(sim, A, 0, 79); String offer = "buy_pill_zhuji";
         assertEquals(80, sim.commerceReputationRequired(offer)); assertEquals("reputation_low", commerce.quote(sim, offer, A).result());
         sim = balance(sim, A, 0, 80); var quote = commerce.quote(sim, offer, A); assertTrue(quote.ready());
-        assertEquals(64, quote.price()); int stock = commerce.market(sim).items().get("myvillage:pill_zhuji");
-        assertTrue(sim.commitCommerce(quote, A)); assertEquals(stock - 1, commerce.market(sim).items().get("myvillage:pill_zhuji"));
+        assertEquals(64, quote.price()); int stock = commerce.market(sim).items().get("yuanxian:pill_zhuji");
+        assertTrue(sim.commitCommerce(quote, A)); assertEquals(stock - 1, commerce.market(sim).items().get("yuanxian:pill_zhuji"));
         assertEquals(80, sim.jianghuReputation(A));
     }
     @Test void corruptedNegativeReputationAndReversedRewardRangesAreRejected() throws Exception {
         var sim = commerce.fresh(); var a = sim.acceptTownTask(A, "Alice", SITE, "supply_bread", 0); sim.completeTownTask(A, SITE, a, () -> true);
         var root = JsonParser.parseString(new String(sim.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject(); root.getAsJsonArray("player_members").get(0).getAsJsonObject().addProperty("jianghu_reputation", -1);
         assertThrows(SimFormatException.class, () -> WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8), SimFixtures.graph(SEED), SimFixtures.data()));
-        var data = JsonParser.parseString(java.nio.file.Files.readString(java.nio.file.Path.of("src/main/resources/data/myvillage/world_sim/player_economy.json"))).getAsJsonObject();
+        var data = JsonParser.parseString(java.nio.file.Files.readString(java.nio.file.Path.of("src/main/resources/data/yuanxian/world_sim/player_economy.json"))).getAsJsonObject();
         data.getAsJsonObject("sect_task_rewards").getAsJsonObject("patrol_beasts").add("contribution_bonus", JsonParser.parseString("[6,0]"));
         assertThrows(SimDataException.class, () -> PlayerEconomyRules.parse("fixture", data));
     }

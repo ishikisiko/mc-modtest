@@ -25,8 +25,8 @@
 原生范围按[采集方案](../testing/immortal-equipment-plan.md)记录，
 不能以离线或编译结果代替玩家接受。
 
-0.97.0 新增 `myvillage:xuantie_helmet`、`myvillage:xuantie_chestplate`、
-`myvillage:xuantie_leggings`、`myvillage:xuantie_boots`。四件通过主创造栏或 `/give` 获取；
+0.97.0 新增 `yuanxian:xuantie_helmet`、`yuanxian:xuantie_chestplate`、
+`yuanxian:xuantie_leggings`、`yuanxian:xuantie_boots`。四件通过主创造栏或 `/give` 获取；
 沿用原版铁甲属性与穿戴行为。0.98.0 接入器谱、锻器工序、坚韧炼灵、穿戴历练和耐用锻炼，见 [KB54](54_forging.md)；不含套装技能。
 
 ## 墨行外观（0.99.3）
@@ -62,9 +62,9 @@
 - `tools/equipment/mesh.py`：精确保留坐标／UV 的 OBJ 导出，覆盖防具物品与工坊部件；背包、地面和手持使用同一模型。
 - `tools/equipment/geometry.py`：从青锋剑生成器提取的纯几何／显示／PNG 工具；旧函数保留兼容导出。
 
-运行 `python3 -m tools.equipment build` 生成 `assets/myvillage/equipment`、
+运行 `python3 -m tools.equipment build` 生成 `assets/yuanxian/equipment`、
 `textures/equipment`、物品图标与模型、槽位标签、中文名和
-`data/myvillage/equipment/catalogue.json`。`check` 子命令检查漂移，不写资源。
+`data/yuanxian/equipment/catalogue.json`。`check` 子命令检查漂移，不写资源。
 命令、完整字段及限制见 [装备制作源](../../equipment/README.md)。
 
 ## 运行时

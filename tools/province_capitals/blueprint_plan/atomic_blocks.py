@@ -10,7 +10,7 @@ def parse(state):
 
 
 def collect(world,rules,furniture):
-    registered=rules['atomic_blocks'];families={'myvillage:'+f['id']:f for f in furniture['families']}
+    registered=rules['atomic_blocks'];families={'yuanxian:'+f['id']:f for f in furniture['families']}
     members={};roots=[]
     for tx,tz in sorted(set(world.refs)|world.dirty):
         for (x,y,z),state in world.tile((tx,tz)).items():

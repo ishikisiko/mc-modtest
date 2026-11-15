@@ -33,13 +33,13 @@
     "spruce_planks":"minecraft:spruce_planks","spruce_log":"minecraft:spruce_wood","forest_grass":"minecraft:grass_block","bark":"minecraft:spruce_wood","planks":"minecraft:spruce_planks","earth":"minecraft:coarse_dirt","thatch":"minecraft:hay_block","moss":"minecraft:moss_block","bone":"minecraft:bone_block"
   },
   "actors":{
-    "bandit":{"entity":"myvillage:ridge_reaver","boss":false,"weapon":"myvillage:qingfeng_sword"},
-    "caster":{"entity":"myvillage:ash_talismanist","boss":false,"weapon":""},
-    "chief":{"entity":"myvillage:ridge_reaver","boss":true,"weapon":"myvillage:qingfeng_sword"},
-    "wolf":{"entity":"myvillage:demon_wolf","boss":false,"weapon":""},
-    "badger":{"entity":"myvillage:thornback_badger","boss":false,"weapon":""},
-    "lizard":{"entity":"myvillage:redplate_lizard","boss":false,"weapon":""},
-    "wolf_boss":{"entity":"myvillage:demon_wolf","boss":true,"weapon":""}
+    "bandit":{"entity":"yuanxian:ridge_reaver","boss":false,"weapon":"yuanxian:qingfeng_sword"},
+    "caster":{"entity":"yuanxian:ash_talismanist","boss":false,"weapon":""},
+    "chief":{"entity":"yuanxian:ridge_reaver","boss":true,"weapon":"yuanxian:qingfeng_sword"},
+    "wolf":{"entity":"yuanxian:demon_wolf","boss":false,"weapon":""},
+    "badger":{"entity":"yuanxian:thornback_badger","boss":false,"weapon":""},
+    "lizard":{"entity":"yuanxian:redplate_lizard","boss":false,"weapon":""},
+    "wolf_boss":{"entity":"yuanxian:demon_wolf","boss":true,"weapon":""}
   },
   "map_rules":{
     "bandit_stronghold":{"realm_pool":"rogue","stones":12,"reputation":15},

@@ -18,10 +18,10 @@ class NativeTreeTests(unittest.TestCase):
         self.assertFalse(floor_covered([((0,-16,0),(16,-1,16),'stone')],0,0,0))
 
     def test_native_trunk_cannot_replace_architecture(self):
-        with self.assertRaises(ValueError):place({(0,0,0):'myvillage:roof'},{'native_tree_cells':{(0,0,0):'minecraft:oak_log[axis=y]'},'native_tree_soil':set()})
+        with self.assertRaises(ValueError):place({(0,0,0):'yuanxian:roof'},{'native_tree_cells':{(0,0,0):'minecraft:oak_log[axis=y]'},'native_tree_soil':set()})
 
     def test_planned_soil_can_replace_the_original_ground(self):
-        blocks={(0,0,0):'myvillage:ground'}
+        blocks={(0,0,0):'yuanxian:ground'}
         place(blocks,{'native_tree_cells':{(0,0,0):'minecraft:dirt'},'native_tree_soil':{(0,0,0)}})
         self.assertEqual('minecraft:dirt',blocks[0,0,0])
 

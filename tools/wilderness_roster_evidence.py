@@ -33,7 +33,7 @@ class RosterEvidence(FoundationEvidence):
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1;self.report['phases'].append({'phase':'start','timings':state.get('timings',{})});self.save()
     def setup(self):
         u=self.s.username
-        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','gamerule naturalRegeneration false','gamerule doMobLoot true','forceload add -80 -80 80 80','tick unfreeze','tick rate 20',f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',f'yuanxian cultivation learn {u} myvillage:liuyun_bu',f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4',f'yuanxian cultivation crafting set {u} alchemy 100',f'yuanxian cultivation crafting set {u} forging 100'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'yuanxian world pause','gamerule naturalRegeneration false','gamerule doMobLoot true','forceload add -80 -80 80 80','tick unfreeze','tick rate 20',f'yuanxian cultivation awaken {u}',f'yuanxian cultivation initiate {u}',f'yuanxian cultivation learn {u} yuanxian:liuyun_bu',f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_4',f'yuanxian cultivation crafting set {u} alchemy 100',f'yuanxian cultivation crafting set {u} forging 100'):
             self.rc(cmd)
         # Reused production scenes leave formed furnaces/forges at the combat target.
         # Clear only this owned lab before preparing new observations.
@@ -54,7 +54,7 @@ class RosterEvidence(FoundationEvidence):
     def target(self):return read_data(self.rc('data get entity '+TARGET))
     def spawn(self,m,ai=True,z=4):
         self.rc('kill @e[tag=roster_target]');self.rc('tag @e[tag=roster_target] remove roster_target');self.rc('kill @e[type=minecraft:item]');self.rc(f'clear {self.s.username}')
-        self.rc(f'summon myvillage:{m["id"]} .5 -60 {z} {{Tags:["roster_target"],PersistenceRequired:1b,NoAI:{0 if ai else 1}b,Rotation:[180f,0f]}}')
+        self.rc(f'summon yuanxian:{m["id"]} .5 -60 {z} {{Tags:["roster_target"],PersistenceRequired:1b,NoAI:{0 if ai else 1}b,Rotation:[180f,0f]}}')
         return self.poll(self.target,lambda d:d.get('Health',0)>0,8,'new monster')
     def visuals(self):
         u=self.s.username;self.rc(f'gamemode creative {u}')
@@ -69,7 +69,7 @@ class RosterEvidence(FoundationEvidence):
         for m in self.roster['mobs']:
             initial=self.spawn(m,True,6 if m['id'] in ('ash_talismanist','frostplume_pheasant','lantern_sporeling') else 3.2)
             self.rc('attribute '+TARGET+' minecraft:generic.max_health base set 300');self.rc('data merge entity '+TARGET+' {Health:300f}')
-            self.rc(f'tp {u} .5 -60 .5 0 12');self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword');self.s.game.key('1')
+            self.rc(f'tp {u} .5 -60 .5 0 12');self.rc(f'item replace entity {u} hotbar.0 with yuanxian:qingfeng_sword');self.s.game.key('1')
             before=self.number(f'data get entity {u} Health');video=self.record(m['id']+'-combat.mp4',12)
             time.sleep(4);self.mapped('keydown','a');time.sleep(.7);self.mapped('keyup','a');self.mapped('key','Alt_L');self.mapped('keydown','w');time.sleep(.7);self.mapped('keyup','w')
             for _ in range(5):self.mapped('click','1');time.sleep(.45)
@@ -80,7 +80,7 @@ class RosterEvidence(FoundationEvidence):
             self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc(f'tp {u} .5 -60 .5 0 20');self.rc('tp '+TARGET+' .5 -60 2.1 180 0');self.rc('kill @e[type=minecraft:item]')
             for _ in range(5):self.mapped('click','1');time.sleep(.4)
             dropped=self.rc('execute as @e[type=minecraft:item] run data get entity @s Item');inventory=self.inventory()
-            material='myvillage:'+m['material_id']
+            material='yuanxian:'+m['material_id']
             self.check('mapped_kill_drops_'+m['id'],material in dropped or any(v['id']==material for v in inventory.values()),{'drops':dropped,'inventory':inventory})
             self.rc(f'effect give {u} minecraft:instant_health 1 10 true')
         self.report['lethal_preparation']='Health=1 and NoAI only for separate drop boundary; normal AI filmed beforehand'
@@ -95,13 +95,13 @@ class RosterEvidence(FoundationEvidence):
                 for z in range(-128,128,32):
                     reply=self.rc(f'fillbiome {x} -64 {z} {x+31} -48 {z+31} {m["biomes"][0]}')
                     self.check('native_habitat_fixture_'+m['id'],bool(re.match(r'^\d+ biome entry/entries set between ',reply)),reply)
-            selector='@e[type=myvillage:'+m['id']+',limit=1,sort=nearest]'
+            selector='@e[type=yuanxian:'+m['id']+',limit=1,sort=nearest]'
             next_clear=time.monotonic()+5
             def born():
                 nonlocal next_clear
                 if time.monotonic()>=next_clear:
                     reset_cap();next_clear=time.monotonic()+5
-                reply=self.rc('data get entity '+selector+' NeoForgeData.myvillage_roster_birth')
+                reply=self.rc('data get entity '+selector+' NeoForgeData.yuanxian_roster_birth')
                 try:return read_data(reply)
                 except ValueError:return None
             birth=self.poll(born,lambda d:isinstance(d,dict) and 'realm' in d,120,'native spawn '+m['id'])
@@ -118,12 +118,12 @@ class RosterEvidence(FoundationEvidence):
             self.poll(self.known,lambda ids:r['id'] in ids,5,'formula learned')
             self.check('formula_learning_'+r['id'],self.count(r['formula'])==(2 if already else 1),{'already_known':already,'inventory':self.inventory()})
     def alchemy(self):
-        self.rc('gamerule doMobSpawning false');self.rc('kill @e[tag=roster_target]');u=self.s.username;self.rc(f'gamemode survival {u}');self.rc(f'setblock {POS} myvillage:alchemy_furnace[facing=north]');self.learn_all()
+        self.rc('gamerule doMobSpawning false');self.rc('kill @e[tag=roster_target]');u=self.s.username;self.rc(f'gamemode survival {u}');self.rc(f'setblock {POS} yuanxian:alchemy_furnace[facing=north]');self.learn_all()
         self.rc('tick rate 100')
         for index,r in enumerate(self.recipes):
             self.rc(f'clear {u}')
             for item in r['ingredients']:self.rc(f'give {u} {item} 1')
-            self.rc(f'give {u} myvillage:low_grade_spirit_stone {r["fuel_count"]}');self.s.game.key('9');self.open_furnace()
+            self.rc(f'give {u} yuanxian:low_grade_spirit_stone {r["fuel_count"]}');self.s.game.key('9');self.open_furnace()
             for _ in range(4):self.fc(30,117,label='first_recipe_page')
             for _ in range(index//3):self.fc(86,117,label='next_recipe_page')
             self.fc(54,50+(index%3)*22,label='select_'+r['id'])
@@ -139,7 +139,7 @@ class RosterEvidence(FoundationEvidence):
         # One array batch reuses exactly the same new three-ingredient recipe.
         self.place_fixture();r=self.recipes[0];self.rc(f'clear {u}')
         for item in r['ingredients']:self.rc(f'give {u} {item} 1')
-        self.rc(f'give {u} myvillage:low_grade_spirit_stone {r["fuel_count"]}');self.s.game.key('9');self.open();self.click(69,60,label='array_select_expedition');self.click(193,148,label='array_start');self.poll(self.saved,lambda d:'Batch'in d,8,'array accepted');self.click(305,148,label='stop_after_batch');self.close_menu()
+        self.rc(f'give {u} yuanxian:low_grade_spirit_stone {r["fuel_count"]}');self.s.game.key('9');self.open();self.click(69,60,label='array_select_expedition');self.click(193,148,label='array_start');self.poll(self.saved,lambda d:'Batch'in d,8,'array accepted');self.click(305,148,label='stop_after_batch');self.close_menu()
         result=self.poll(self.saved,lambda d:any(s['id']==r['output'] for s in saved_items(d).values()),40,'array expedition medicine');self.check('new_medicine_array',True,result)
     def done(self,name):
         if name in self.report['unrun']:super().done(name)
@@ -153,14 +153,14 @@ class RosterEvidence(FoundationEvidence):
             sub.click((170+55*((index+3)%3),103),label='select_'+sub.trait)
             sub.poll(sub.saved,lambda d:d.get('Trait')==index+3,5,'selected new trait')
             sub.start_batch();product=sub.await_output();sub.capture(sub.trait+'-product.png');sub.retrieve();sub.close_menu()
-            self.check('forged_'+sub.trait,product.get('components',{}).get('myvillage:forge_mark',{}).get('trait')==sub.trait,product)
+            self.check('forged_'+sub.trait,product.get('components',{}).get('yuanxian:forge_mark',{}).get('trait')==sub.trait,product)
         sub.report['status']='passed';sub.save();self.report['production_forging']='forging/evidence.json'
     def effects(self):
         from tools.elemental_arts_evidence import ElementalEvidence
         u=self.s.username;self.close_menu();self.rc('gamerule doMobSpawning false');self.rc('kill @e[type=!minecraft:player,tag=!roster_persist_lantern_sporeling]');self.rc('tick rate 20');self.rc(f'gamemode survival {u}');scene.ensure_cultivation(self.s)
         def status():return self.one(f'yuanxian expedition status {u}','EXPEDITION')
         def equip(trait):
-            self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword[myvillage:forge_mark={{trait:"{trait}",quality:3}}]');self.s.game.key('1');time.sleep(.3)
+            self.rc(f'item replace entity {u} hotbar.0 with yuanxian:qingfeng_sword[yuanxian:forge_mark={{trait:"{trait}",quality:3}}]');self.s.game.key('1');time.sleep(.3)
         def dummy():
             self.rc('kill @e[tag=roster_target]');self.rc('tag @e[tag=roster_target] remove roster_target');self.rc('summon minecraft:husk .5 -60 2.3 {Tags:["roster_target"],NoAI:1b,PersistenceRequired:1b,attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.knockback_resistance",base:1d},{id:"minecraft:generic.armor",base:12d}],Health:1000f}');self.rc(f'tp {u} .5 -60 .5 0 15')
         equip('breach');dummy()
@@ -184,26 +184,26 @@ class RosterEvidence(FoundationEvidence):
         helper=ElementalEvidence(self.out/'effect-actions',[],attach=True);helper.s=self.s;helper.freeze()
         # A previous run/restart may retain this higher-grade skill ahead of the
         # elemental helper's two-card grid. Normalize the owned test loadout.
-        helper.rc(f'yuanxian cultivation forget {u} myvillage:huifeng_jianzhen')
+        helper.rc(f'yuanxian cultivation forget {u} yuanxian:huifeng_jianzhen')
         helper.fixture_loadout(['linghuo_shu']);helper.rc(f'yuanxian cultivation qi fill {u}');equip('warding');dummy();helper.rc('tick unfreeze');helper.key('z');time.sleep(.4)
         self.check('warding_from_actual_elemental_cast',status()['ward']>0 and status()['cooldowns']['warding']>0,status());self.capture('trait-warding.png')
-        helper.freeze();helper.rc(f'yuanxian cultivation learn {u} myvillage:huifeng_jianzhen');helper.fixture_loadout(['huifeng_jianzhen']);helper.rc(f'yuanxian cultivation qi fill {u}');equip('riposte');dummy();helper.key('z');helper.step(1)
+        helper.freeze();helper.rc(f'yuanxian cultivation learn {u} yuanxian:huifeng_jianzhen');helper.fixture_loadout(['huifeng_jianzhen']);helper.rc(f'yuanxian cultivation qi fill {u}');equip('riposte');dummy();helper.key('z');helper.step(1)
         self.rc(f'damage {u} 4 minecraft:mob_attack by '+TARGET)
         self.check('riposte_matching_frontal_guard_receipt',status()['ready']>0 and status()['cooldowns']['riposte']>0,status())
         helper.step(40);self.mapped('click','1');helper.step(12)
         self.check('riposte_consumed_by_mapped_counter',status()['active_boost']>0,status());self.capture('trait-riposte.png');helper.rc('tick unfreeze');helper.report['status']='passed';helper.save()
         equip('soul_return');self.rc('kill @e[tag=roster_target]');self.rc('tag @e[tag=roster_target] remove roster_target');self.rc(f'tp {u} .5 -60 .5 0 15');time.sleep(1.2)
         spawned=self.rc('yuanxian wilderness spawn_test 0 -60 2 1');self.check('assigned_kill_fixture_created','WILDERNESS_BIRTH' in spawned,spawned)
-        self.rc('tag @e[type=myvillage:demon_wolf,sort=nearest,limit=1] add roster_target');self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc('tp '+TARGET+' .5 -60 2.1');self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'yuanxian cultivation qi set {u} 1')
+        self.rc('tag @e[type=yuanxian:demon_wolf,sort=nearest,limit=1] add roster_target');self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc('tp '+TARGET+' .5 -60 2.1');self.rc(f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_1');self.rc(f'yuanxian cultivation qi set {u} 1')
         for _ in range(5):self.mapped('click','1');time.sleep(.3)
         self.check('soul_return_actual_attributed_kill',status()['cooldowns']['soul_return']>0,status());self.capture('trait-soul-return.png')
         self.report['effect_boundary_fixtures']='Carapace and guard incoming hit use attributed /damage for an exact timing boundary; guard cast and counter are mapped input. Soul-return lethal fixture uses assigned wolf at Health=1 and a mapped sword kill.'
     def restart(self):
-        u=self.s.username;self.cooldown();self.use_pill('myvillage:pill_qingshen',3);self.rc('tick freeze');before=self.med();inventory=self.inventory();self.rc('save-all flush');self.stop();self.start(reuse=True);self.rc('tick freeze');after=self.med()
+        u=self.s.username;self.cooldown();self.use_pill('yuanxian:pill_qingshen',3);self.rc('tick freeze');before=self.med();inventory=self.inventory();self.rc('save-all flush');self.stop();self.start(reuse=True);self.rc('tick freeze');after=self.med()
         self.check('medicine_survives_real_restart',after['effect']=='qingshen' and 0<after['effect_ticks']<=before['effect_ticks'],{'before':before,'after':after})
         self.check('equipment_inventory_survives_restart',self.inventory()==inventory,self.inventory())
         if 'natural_persist' in self.report:
-            n=self.report['natural_persist'];birth=read_data(self.rc('data get entity '+n['selector']+' NeoForgeData.myvillage_roster_birth'));self.check('natural_birth_not_rerolled',birth==n['birth'],birth)
+            n=self.report['natural_persist'];birth=read_data(self.rc('data get entity '+n['selector']+' NeoForgeData.yuanxian_roster_birth'));self.check('natural_birth_not_rerolled',birth==n['birth'],birth)
         self.rc('tick unfreeze')
     def observers(self):
         self.close_menu();m=self.roster['mobs'][1];self.spawn(m,True,6);self.rc(f'tp {self.s.username} .5 -60 .5 0 10')
@@ -212,7 +212,7 @@ class RosterEvidence(FoundationEvidence):
             self.capture('observer-caster.png',guest.game);self.capture('actor-caster.png');self.mapped('key','Alt_L');time.sleep(2)
             self.check('two_real_clients_observe_caster',guest.username in self.rc('list'),self.rc('list'))
         self.report['multiplayer']='representative caster and mapped dodge observed by two native clients; broad multiplayer not verified'
-        for m in self.roster['mobs']:self.rc(f'summon myvillage:{m["id"]} 12 -60 12 {{Tags:["roster_peaceful"]}}')
+        for m in self.roster['mobs']:self.rc(f'summon yuanxian:{m["id"]} 12 -60 12 {{Tags:["roster_peaceful"]}}')
         self.rc('difficulty peaceful')
         try:
             self.poll(lambda:self.rc('execute if entity @e[tag=roster_peaceful]'),lambda x:'Test failed' in x,8,'peaceful removes ordinary hostiles')

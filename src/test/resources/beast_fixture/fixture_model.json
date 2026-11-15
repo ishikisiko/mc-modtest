@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:fixture_beast",
+  "id": "yuanxian:fixture_beast",
   "texture": {"width": 64, "height": 32},
   "look": {"bone": "head", "max_yaw": 50.0, "max_pitch": 30.0},
   "shadow_radius": 0.7,

@@ -12,7 +12,7 @@ from tools.forging_quality_evidence import QualityEvidence, spec
 from tools.forging_evidence import POS
 from tools.combat_capture import scene
 
-QUALITY = 'myvillage:pill_quality'
+QUALITY = 'yuanxian:pill_quality'
 
 
 def pill(kind, quality, explicit=False, named=False):
@@ -21,7 +21,7 @@ def pill(kind, quality, explicit=False, named=False):
         parts.append(QUALITY + '=' + str(quality))
     if named:
         parts.append('minecraft:custom_name=' + json.dumps(json.dumps({'text': 'Saved medicine'})))
-    return 'myvillage:pill_' + kind + ('[' + ','.join(parts) + ']' if parts else '')
+    return 'yuanxian:pill_' + kind + ('[' + ','.join(parts) + ']' if parts else '')
 
 
 class PillFrames(QualityEvidence):
@@ -58,7 +58,7 @@ class PillFrames(QualityEvidence):
         self.rc(f'item replace entity {u} hotbar.4 with {pill("huiling", 1, explicit=True)} 16')
         self.rc(f'item replace entity {u} hotbar.5 with {pill("huiling", 4, named=True)} 16')
         self.rc(f'item replace entity {u} hotbar.6 with {spec("qingfeng_sword", 3)}')
-        self.rc(f'item replace entity {u} hotbar.7 with myvillage:xuantie_gauntlet')
+        self.rc(f'item replace entity {u} hotbar.7 with yuanxian:xuantie_gauntlet')
         self.rc(f'item replace entity {u} hotbar.8 with minecraft:stone 16')
         before = self.inventory()
         self.check('legacy_lower_has_no_component', QUALITY not in before[0].get('components', {}), before[0])

@@ -45,7 +45,7 @@ public final class StatsRuntime {
     public static final ResourceLocation REALM_ATTACK = id("stats.realm_attack");
     public static final ResourceLocation REALM_DEFENSE = id("stats.realm_defense");
     private static final ResourceLocation FOUNDATION_HEALTH=id("stats.foundation_health"), FOUNDATION_ATTACK=id("stats.foundation_attack");
-    private static final String REALM_TAG = "myvillage:stats_realm";
+    private static final String REALM_TAG = "yuanxian:stats_realm";
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsRuntime.class);
     // One last trace and one unconsumed calculation per entity; weak keys do not retain worlds.
     private static final Map<LivingEntity, DamageTrace> LAST_DAMAGE = new WeakHashMap<>();
@@ -442,7 +442,7 @@ public final class StatsRuntime {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 
     private record Outgoing(long tick, DamageMath.Trace calculation) {}

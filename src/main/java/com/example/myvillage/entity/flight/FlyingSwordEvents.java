@@ -14,7 +14,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 
-@EventBusSubscriber(modid = "myvillage")
+@EventBusSubscriber(modid = "yuanxian")
 public final class FlyingSwordEvents {
     private FlyingSwordEvents() { }
     @SubscribeEvent public static void login(PlayerEvent.PlayerLoggedInEvent e) {

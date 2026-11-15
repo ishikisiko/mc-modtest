@@ -8,7 +8,7 @@
 
 当前工位分工：普通鼎 `PreparationBlockEntity` 起坯或自动完成标准器物；`HeatingKilnBlockEntity` 加热、保温并回火；实体锻台持锤成形、淬火、精磨、再锻和维修；`AssemblyBlockEntity` 装配或换柄；完整玄枢多方块鼎炼灵并使用辅助火。普通鼎不再打开手工工坊或普通炼灵菜单。赤铜灌灵仍从普通鼎进入，返回其当前菜单。
 
-`tools/forging/foundry.json` 经 `python -m tools.forging.foundry` 生成 `data/myvillage/forging/foundry.json`、窑／组装台、分级锤、六柄、收火瓶、五种特殊火种和地下火源资源。原器谱与工序、历练参数仍由 forging 的 rules/workshop 持有；武器和护甲模型继续由专用生成器拥有。
+`tools/forging/foundry.json` 经 `python -m tools.forging.foundry` 生成 `data/yuanxian/forging/foundry.json`、窑／组装台、分级锤、六柄、收火瓶、五种特殊火种和地下火源资源。原器谱与工序、历练参数仍由 forging 的 rules/workshop 持有；武器和护甲模型继续由专用生成器拥有。
 
 四种锻锤的工作台配方共用 `equipment/workshop/hammer.json` 的排列：顶排三个对应金属锭，正中间一块任意木板，下排中间一根木棍。分级锤只替换金属材料及产物，避免再与原版铁镐的三锭、两木棍配方重合。
 
@@ -42,7 +42,7 @@
 
 本节说明当前实现；下文旧版本中“挨打不获益”的规则已由本节替代。`WorkshopProgress` 仍只处理 `WorkshopRules.crafts` 与炼器配方共同支持的器物，目前穿戴历练只涉及四件玄铁甲，不为十五套外观甲新增配方或成长记录。每件符合实际装备槽的护甲分别获得完整收益，不按穿戴件数分摊；背包、副手和放错槽位的护甲不参与。
 
-所有比例和容量均来自 authored `data/myvillage/forging/workshop.json`，下表是当前初值：
+所有比例和容量均来自 authored `data/yuanxian/forging/workshop.json`，下表是当前初值：
 
 | 配置字段 | 初值 | 含义 |
 |---|---:|---|
@@ -58,7 +58,7 @@
 
 来源必须是 `Mob`，且具有 `Enemy` 身份或正在以受击玩家为目标，并通过 `CombatActors.mayHarm` 的队伍／宗门权限。直接攻击只接受来源本人造成的 `mob_attack`、`mob_attack_no_aggro` 或 `sting`；投射伤害须有 `IS_PROJECTILE` 标签，直接实体须是 `Projectile`，其 owner 必须与 `DamageSource.getEntity()` 的生物一致。无 owner、归属不符、友方／同宗和派生伤害不计入；玩家射出的箭也不计入。
 
-主动近战沿用目标的 `myvillage_workshop_paid_damage`，武器与护甲从同一份已付伤害分别按各自比例取整数阈值差，目标总额度仍不超过其最大生命。承伤另外在攻击者原实体的持久数据中记录 `myvillage_workshop_armor_received_paid_damage`，不占用主动近战额度。治疗、换甲、玩家重连和原实体保存重载都不清空已付额度；额度跟随原实体保存，不在玩家上维护可淘汰的来源列表。不足整点的伤害继续保留在同一实体账本中，换目标或攻击者不会把余数带走；只有跨过阈值当次实际穿戴的合格护甲获益。
+主动近战沿用目标的 `yuanxian_workshop_paid_damage`，武器与护甲从同一份已付伤害分别按各自比例取整数阈值差，目标总额度仍不超过其最大生命。承伤另外在攻击者原实体的持久数据中记录 `yuanxian_workshop_armor_received_paid_damage`，不占用主动近战额度。治疗、换甲、玩家重连和原实体保存重载都不清空已付额度；额度跟随原实体保存，不在玩家上维护可淘汰的来源列表。不足整点的伤害继续保留在同一实体账本中，换目标或攻击者不会把余数带走；只有跨过阈值当次实际穿戴的合格护甲获益。
 
 临时收据以既有 `RealmArmorRuntime.currentContainer` 暴露的精确 `DamageContainer` 身份匹配，同一收据在提交前先标记已消费，重复 `Post` 或同 tick 重放 `Pre/Post` 不会再次发奖，嵌套命中和同 tick 的不同真实命中分别结算。收据按容器身份保留到 tick 结束，避免垃圾回收提前释放已消费记录而绕过当 tick 的容量上限；值只保存 UUID、生命值和消费标记，数量受配置约束，并在 tick 结束及服务器停止时清理。临时收据不保存、不补算；原实体上的两个有界伤害计数保存即可，无须新增玩家附件或更改协议。
 
@@ -114,11 +114,11 @@ Terra 的最小检查范围：配置解析及非法比例／容量拒绝；真�
 
 表现更新：十类工件从成品主体派生为实体模型；剑枪背包显示复用已有本体，四种工具采用实体铁头和木柄。护甲器坯使用原甲片，装配再加护肩／护臂、饰件和衬垫。`equipment/workshop/` 是 authored 输入，`tools/forging/models.py` 导出物品、台面和水槽共用来源的 OBJ/MTL；旧手绘器坯／工具图标由生成器退役。热处理改变材质，精磨恢复成品主体表面。数值、材料成本、服务器流程与协议 49 不变。
 
-四件玄铁甲接入现有 `ForgingRules` / `WorkshopRules`。数据仍由 `data/myvillage/forging/{rules,workshop}.json` authored 配置持有；`gen_forging_assets.py` 生成器谱、工件图标和台面／水槽模型，不接管装备本体模型。新增四类器型与二十件中间工件；`WorkshopItems.registerArmorPatterns` 从护甲 craft 注册器谱，保留既有显式 registry ID。
+四件玄铁甲接入现有 `ForgingRules` / `WorkshopRules`。数据仍由 `data/yuanxian/forging/{rules,workshop}.json` authored 配置持有；`gen_forging_assets.py` 生成器谱、工件图标和台面／水槽模型，不接管装备本体模型。新增四类器型与二十件中间工件；`WorkshopItems.registerArmorPatterns` 从护甲 craft 注册器谱，保留既有显式 registry ID。
 
 工坊器谱每页六项，十个配方不再越界覆盖状态区；协议升至 49，服务端和客户端必须一致。配方最多二十项，与两个菜单各自 recipe/trait 按钮区间互不重叠。护甲由服务器限制为韧性热处理、坚韧炼灵和耐用锻炼；`TemperRecord.strike` 同样拒绝护甲的精工／导灵投入。装柄／精磨显示为铆合衬垫／修整甲片。
 
-0.98.0 当时只通过主动攻击发放护甲历练，未包含承伤；当前行为以上文“护甲承伤历练”为准。主动近战继续沿用目标持久化的 `myvillage_workshop_paid_damage`，额度不超过目标最大生命，治疗不重置。护甲不进入采掘提速。`WorkshopEquipment.refresh` 只刷新护甲最大耐久，保留原版防御属性；不新增伤害减免事件。
+0.98.0 当时只通过主动攻击发放护甲历练，未包含承伤；当前行为以上文“护甲承伤历练”为准。主动近战继续沿用目标持久化的 `yuanxian_workshop_paid_damage`，额度不超过目标最大生命，治疗不重置。护甲不进入采掘提速。`WorkshopEquipment.refresh` 只刷新护甲最大耐久，保留原版防御属性；不新增伤害减免事件。
 
 成品注灵继续共用 `EquipmentInfusion.prepare`，支持旧无 TEMPER 成品；品质、名字、损伤、附魔与历练保留，已有品质不重抽。品质外框和提示涵盖 `EquipmentContent` 独立注册的护甲。使用与材料见 [玄铁甲炼器](../features/xuantie-armor-forging.md)，局部采集入口 `tools/armor_forging_evidence.py`；[固定源功能证据与未接受外观](../testing/2026-10-27-armor-forging.md)。
 
@@ -130,7 +130,7 @@ Terra 的最小检查范围：配置解析及非法比例／容量拒绝；真�
 
 # 0.70.2 淬火水槽
 
-新增 `myvillage:quenching_trough`，以两铁锭、三木板、三圆石合成。放在锻器台或炼器鼎同一高度的四个正交邻格之一；水桶右键注入一桶水并返空桶，空桶右键可取回未使用的水。`filled` 方块状态保存水量；拆槽仅掉落空槽，不保存水或展示器坯。
+新增 `yuanxian:quenching_trough`，以两铁锭、三木板、三圆石合成。放在锻器台或炼器鼎同一高度的四个正交邻格之一；水桶右键注入一桶水并返空桶，空桶右键可取回未使用的水。`filled` 方块状态保存水量；拆槽仅掉落空槽，不保存水或展示器坯。
 
 锻台的“淬火”现在需要有水且空闲的相邻水槽。热成形坯仍由 `WorkshopMenu` 持有，`QuenchingTroughBlockEntity` 只短期占用和广播器型／开始时间。工序中禁止取水或另一菜单抢占；完成时服务器再次检查原槽及水量，耗水并推进器坯阶段。关闭、死亡、拆台或拆槽不会让展示物掉落另一份物品；中断保留尚未消耗的水。水槽可被相邻两座锻台轮流使用，但不能并行。
 
@@ -142,7 +142,7 @@ Terra 的最小检查范围：配置解析及非法比例／容量拒绝；真�
 
 # 0.70.1 实体锻器台
 
-`myvillage:forging_anvil` 保留原物品、配方与放置方式，新增方块实体负责短期工位占用和台面表现。实体模型与六类、六阶段器物模型由 `tools/forging/anvil.py` 生成，统一入口仍为 `tools/gen_forging_assets.py`。冷／热炉口按菜单实际热量更新。
+`yuanxian:forging_anvil` 保留原物品、配方与放置方式，新增方块实体负责短期工位占用和台面表现。实体模型与六类、六阶段器物模型由 `tools/forging/anvil.py` 生成，统一入口仍为 `tools/gen_forging_assets.py`。冷／热炉口按菜单实际热量更新。
 
 `WorkshopMenu` 继续持有真实物品与扣料事务；`ForgingAnvilBlockEntity` 只广播器型、阶段、冷热和落锤开始时刻，不持有 ItemStack、不存储展示物。`ForgingAnvilRenderer` 只在客户端根据服务器时间绘制，接触帧取 `workshop.json` 的 `contact_tick`。关闭菜单后器物返还玩家，砧面清空；重启不恢复占用或热量。
 
@@ -178,7 +178,7 @@ combat generators, moves and older equipment remain compatible.
    registry compatibility but is no longer opened by either placed station or
    the copper-infusion return button.
 
-`data/myvillage/forging/rules.json` owns recipe/affinity/repair costs and existing
+`data/yuanxian/forging/rules.json` owns recipe/affinity/repair costs and existing
 quality effects. `forging/workshop.json` owns forming milestones, timing, heat,
 operation costs, treatment effects, per-strike growth and progression bands.
 Weapon material totals remain equal to the earlier base-plus-affinity cost;
@@ -187,10 +187,10 @@ Tools use iron-tier vanilla mechanics and retain that harvest tier as they grow.
 
 ## Workpieces and authority
 
-- `Workpiece` / `myvillage:workpiece`: recipe, completed stage, forming blows and
+- `Workpiece` / `yuanxian:workpiece`: recipe, completed stage, forming blows and
   treatment. `WorkpieceItem` identity and component must agree before acceptance.
   All five intermediate stages can be removed, dropped, traded, saved and resumed.
-- `TemperRecord` / `myvillage:temper`: bounded item experience plus separately
+- `TemperRecord` / `yuanxian:temper`: bounded item experience plus separately
   accumulated edge, endurance and channeling strikes and the chosen treatment.
   The lifetime count is the sum of these investments; switching direction does
   not reset or reassign earlier work. Experience and growth follow the item.
@@ -267,7 +267,7 @@ with the required generated worldplan resources. `workshop-runtime` adds native
 mapped interaction; `workshop-play --cases ...` supports focused reshoots.
 
 Native scenarios: `stages,training,tools,combat,two_players,lifecycle,ui`.
-`myvillage workshop inspect <player>` is operator-only readback; it cannot forge,
+`yuanxian workshop inspect <player>` is operator-only readback; it cannot forge,
 award experience or edit a stack. Administrator inventory/terrain/enemy fixtures
 are labelled. The collector records real clicks/holds, screenshots, exact item
 components, lifecycle readback and a native audio/video sample through an isolated
@@ -297,7 +297,7 @@ and Lingxiao Spear IDs, models, animations and combat registry. The table now us
 
 ## Sources and boundaries
 
-- `forging/ForgingRules` validates bundled `data/myvillage/forging/rules.json`:
+- `forging/ForgingRules` validates bundled `data/yuanxian/forging/rules.json`:
   recipes, combined material costs, supported traits, bounded quality weights,
   per-quality effects and repair. Rebuild/restart for rule changes. The prototype
   layout supports two recipes and four combined materials per selection.
@@ -404,7 +404,7 @@ batch charge before calling `CultivationService.spendSpiritualPower`. There is n
 client-side cost or item mutation. A successful pulse updates the ingots or converts
 the whole batch; insufficient power pauses without a partial charge.
 
-`myvillage:copper_infusion` is bounded, persistent and network-synchronized **paid qi
+`yuanxian:copper_infusion` is bounded, persistent and network-synchronized **paid qi
 per ingot**. Progress moves with the copper, so splitting cannot multiply investment,
 and stacks with different paid progress do not merge. The rules plan only the
 remaining cost, including a final shorter pulse. Closing, walking away, logout or
@@ -438,7 +438,7 @@ weapons. Generation/harvest tuning is an initial balance candidate, not owner ap
 
 ### Sources and focused checks
 
-- `src/main/resources/data/myvillage/forging/acquisition.json`: sole authored infusion,
+- `src/main/resources/data/yuanxian/forging/acquisition.json`: sole authored infusion,
   ore and sand tuning. `InfusionRules` consumes the infusion section at runtime.
 - `tools/forging/materials.json` schema v4: IDs, material tags, names, descriptions and acquisition
   hints. `materials.py`: item sprites and models.
@@ -466,7 +466,7 @@ Current acquisition evidence: [2026-10-17 forging acquisition](../testing/2026-1
 
 ## Tag compatibility and allocation
 
-Default trait costs use `#myvillage:forging_materials/{xuantie,chitong,edge_tempering_sand}`.
+Default trait costs use `#yuanxian:forging_materials/{xuantie,chitong,edge_tempering_sand}`.
 `materials.json` owns each tag ID and member identity; the generator emits item tags
 and bilingual tag labels. `acquisition.py` additionally emits block/item
 `c:ores/xuantie` -> `c:ores` and the independent sand-deposit classification.
@@ -532,7 +532,7 @@ Delivery evidence: [2026-10-17 weapon quality colors and frames](../testing/2026
 `QualityPickerItem` is creative-tab/command acquisition only, with no recipe or
 loot. `client.item.QualityPickerScreen` opens from mapped use input while the item
 is held, including spectator mode; no game-mode or operator requirement is added.
-The client searches registered `myvillage` items locally and submits only item ID,
+The client searches registered `yuanxian` items locally and submits only item ID,
 quality, trait index and one/full-stack intent through `QualityPickerPayload`.
 Protocol 28 covers the added item/intent. The server requires a living holder,
 reconstructs the result using `PillQuality.apply` or `ForgedEquipment.apply`, and

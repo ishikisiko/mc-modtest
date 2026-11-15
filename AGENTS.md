@@ -30,7 +30,7 @@
 
 ## 不可丢失的技术边界
 
-- 当前 namespace 为 `myvillage`。生成资源只改 authored inputs 后再生成，不能手改输出。数据、阈值、概率和调参值以其配置为唯一来源。
+- 当前 namespace 为 `yuanxian`。生成资源只改 authored inputs 后再生成，不能手改输出。数据、阈值、概率和调参值以其配置为唯一来源。
 - 新 settlement family 经 `tools/buildgen/groups.py`；模组合法性经 `modset.py` 与 catalogue；roof/motif 经注册表，不按字符串前缀分派。
 - 服务器拥有输入校验、命中、成本、状态和结果。公共代码不导入 client-only 类型；客户端只提交有界意图。
 - 修炼不可变替换只经 CultivationService，copyOnDeath 不叠加手工 Clone 复制；世界模拟命簿只经 WorldSim facade 修改，化身为非持久投影。

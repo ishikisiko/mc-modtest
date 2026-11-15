@@ -17,13 +17,13 @@ from tools.forging_array_evidence import (
 
 
 def active():
-    item = dict(id='myvillage:forged_pickaxe', count=1,
-                components={'minecraft:damage': 37, 'myvillage:temper': {'experience': 17}})
+    item = dict(id='yuanxian:forged_pickaxe', count=1,
+                components={'minecraft:damage': 37, 'yuanxian:temper': {'experience': 17}})
     final = deepcopy(item)
-    final['components']['myvillage:forge_mark'] = dict(trait='tough', quality=4)
+    final['components']['yuanxian:forge_mark'] = dict(trait='tough', quality=4)
     return dict(Version=1, Progress=17, Duration=200, Trait=2, Quality=4,
                 Authorizer=[1, -2, 3, -4], Frozen=final, Snapshot=item,
-                Reserved=[dict(id='myvillage:xuantie_ingot', count=1,
+                Reserved=[dict(id='yuanxian:xuantie_ingot', count=1,
                                components={'minecraft:custom_data': {'identity': 'keep'}})],
                 Items=[dict(Slot=0, **item)])
 
@@ -31,7 +31,7 @@ def active():
 class ParserTests(unittest.TestCase):
     def test_saved_unicode_names_are_not_reparsed_as_snbt_json_escapes(self):
         name = '{"text":"留名精铁镐\\n第二行"}'
-        row = dict(Slot=0, id='myvillage:forged_pickaxe', count=1,
+        row = dict(Slot=0, id='yuanxian:forged_pickaxe', count=1,
                    components={'minecraft:custom_name': name})
         self.assertEqual(name, saved_items(dict(Items=[row]))[0]['components']['minecraft:custom_name'])
 
@@ -81,13 +81,13 @@ class ParserTests(unittest.TestCase):
             saved_items(dict(Items=[state['Items'][0], state['Items'][0]]))
 
     def test_ledger_expansion_does_not_truncate_big_integers_or_components(self):
-        stone = dict(id='myvillage:low_grade_spirit_stone', count=1,
+        stone = dict(id='yuanxian:low_grade_spirit_stone', count=1,
                      components={'minecraft:custom_data': {'same': 1}})
         total = 10**40+9
-        bag = dict(id='myvillage:spirit_stone_bag', count=1, components={
-            'myvillage:spirit_stone_balance': [dict(item=stone, quantity=str(total))]})
+        bag = dict(id='yuanxian:spirit_stone_bag', count=1, components={
+            'yuanxian:spirit_stone_balance': [dict(item=stone, quantity=str(total))]})
         self.assertEqual(holdings({0: bag}), multiset([dict(stone, count=total)]))
-        bag['components']['myvillage:spirit_stone_balance'][0]['quantity'] = '-1'
+        bag['components']['yuanxian:spirit_stone_balance'][0]['quantity'] = '-1'
         with self.assertRaises(ValueError):
             holdings({0: bag})
 
@@ -98,8 +98,8 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(infusion_costs(rules, workshop, 'tool', 'tough'), {'#metal': 1, '#stone': 2})
         with self.assertRaises(ValueError):
             infusion_costs(rules, workshop, 'tool', 'sharp')
-        live_rules = json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
-        live_workshop = json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())
+        live_rules = json.loads((ROOT/'src/main/resources/data/yuanxian/forging/rules.json').read_text())
+        live_workshop = json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())
         costs = infusion_costs(live_rules, live_workshop, 'forged_pickaxe', 'tough')
         self.assertNotIn('minecraft:iron_ingot', costs)
         for reference in costs:
@@ -109,8 +109,8 @@ class ParserTests(unittest.TestCase):
 class GeometryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.layout = json.loads((ROOT/'src/main/resources/data/myvillage/forging/array.json').read_text())
-        cls.mesh = json.loads((ROOT/'src/main/resources/assets/myvillage/forging_array/formed_mesh.json').read_text())
+        cls.layout = json.loads((ROOT/'src/main/resources/data/yuanxian/forging/array.json').read_text())
+        cls.mesh = json.loads((ROOT/'src/main/resources/assets/yuanxian/forging_array/formed_mesh.json').read_text())
 
     def test_four_way_transform_and_mesh_origin(self):
         cell = dict(x=1, y=-1, z=1)

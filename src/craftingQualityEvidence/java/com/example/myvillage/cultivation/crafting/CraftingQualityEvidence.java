@@ -27,22 +27,22 @@ import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 专用服务器事务和真实磁盘重启探针。指定结果只用于覆盖分支，未映射玩家输入。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class CraftingQualityEvidence {
     private static final String PHASE=System.getenv("MYVILLAGE_CRAFTING_PHASE");
     private static final Path OUT=Path.of(System.getenv().getOrDefault("MYVILLAGE_CRAFTING_OUT","../reports/crafting-native"));
     private static final BlockPos FURNACE=new BlockPos(0,80,0),PENDING=new BlockPos(4,80,0),ARRAY=new BlockPos(10,80,0),PREP=new BlockPos(0,80,10),ASSEMBLY=new BlockPos(4,80,10);
     private static final List<Map<String,Object>> CHECKS=new ArrayList<>();
     private static final List<String> DONE=new ArrayList<>(),FAILURES=new ArrayList<>();
-    private static final String QI="myvillage:qi_refining",RECIPE="forged_pickaxe";
+    private static final String QI="yuanxian:qi_refining",RECIPE="forged_pickaxe";
     private static boolean finished;
     private static void check(String id,boolean pass,Object detail){CHECKS.add(Map.of("id",id,"pass",pass,"detail",String.valueOf(detail)));if(!pass)throw new IllegalStateException(id+": "+detail);}
     private static ItemStack item(String id,int count){return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(id)),count);}
     private static ItemStack fuel(int count){return new ItemStack(BuiltInRegistries.ITEM.getTagOrEmpty(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE).iterator().next().value(),count);}
     private static ServerPlayer actor(MinecraftServer server){
         var p=FakePlayerFactory.get(server.overworld(),new GameProfile(UUID.nameUUIDFromBytes("crafting-quality-evidence".getBytes()),"CraftingProof"));
-        p.setHealth(p.getMaxHealth());CultivationService.setSpiritualRoot(p,new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:metal"),100)));
-        var chosen=List.of("myvillage:robust","myvillage:lightfoot","myvillage:bright");
+        p.setHealth(p.getMaxHealth());CultivationService.setSpiritualRoot(p,new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:metal"),100)));
+        var chosen=List.of("yuanxian:robust","yuanxian:lightfoot","yuanxian:bright");
         CultivationService.replaceFates(p,com.example.myvillage.cultivation.fate.FateState.empty().choice(chosen,"",chosen,true,1),false);
         CultivationService.initializeCraftingAptitudes(p);CultivationService.setCraftingAptitude(p,CraftingAptitudes.Profession.ALCHEMY,60);CultivationService.setCraftingAptitude(p,CraftingAptitudes.Profession.FORGING,60);
         AlchemyKnowledge.learn(p,"huiling");return p;
@@ -157,13 +157,13 @@ public final class CraftingQualityEvidence {
     }
     private static void pills(MinecraftServer server){
         WorldSimRuntime.setPaused(true);var level=server.overworld();var p=actor(server);
-        CultivationService.replaceProfile(p,CultivationService.getProfile(p).withRealmAndStage(ResourceLocation.parse("myvillage:foundation_establishment"),ResourceLocation.parse("myvillage:foundation_early")).withFoundationQuality(0));
-        var lower=item("myvillage:pill_buji",1);((FoundationPillItem)lower.getItem()).finishUsingItem(lower,level,p);
+        CultivationService.replaceProfile(p,CultivationService.getProfile(p).withRealmAndStage(ResourceLocation.parse("yuanxian:foundation_establishment"),ResourceLocation.parse("yuanxian:foundation_early")).withFoundationQuality(0));
+        var lower=item("yuanxian:pill_buji",1);((FoundationPillItem)lower.getItem()).finishUsingItem(lower,level,p);
         check("lower_buji_consumed",lower.isEmpty(),lower);check("lower_buji_repairs_missing_foundation",CultivationService.getProfile(p).foundationQuality()==1,CultivationService.getProfile(p).foundationQuality());
         var other=FakePlayerFactory.get(level,new GameProfile(UUID.nameUUIDFromBytes("perfect-buji-evidence".getBytes()),"PerfectBuji"));other.setPos(.5,80,.5);other.setHealth(other.getMaxHealth());
-        CultivationService.setSpiritualRoot(other,new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:metal"),100)));
-        CultivationService.replaceProfile(other,CultivationService.getProfile(other).withRealmAndStage(ResourceLocation.parse("myvillage:foundation_establishment"),ResourceLocation.parse("myvillage:foundation_early")).withFoundationQuality(1));
-        var perfect=item("myvillage:pill_buji",1);PillQuality.apply(perfect,4);((FoundationPillItem)perfect.getItem()).finishUsingItem(perfect,level,other);
+        CultivationService.setSpiritualRoot(other,new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:metal"),100)));
+        CultivationService.replaceProfile(other,CultivationService.getProfile(other).withRealmAndStage(ResourceLocation.parse("yuanxian:foundation_establishment"),ResourceLocation.parse("yuanxian:foundation_early")).withFoundationQuality(1));
+        var perfect=item("yuanxian:pill_buji",1);PillQuality.apply(perfect,4);((FoundationPillItem)perfect.getItem()).finishUsingItem(perfect,level,other);
         check("perfect_buji_consumed",perfect.isEmpty(),perfect);check("perfect_buji_stops_at_earth_upper",CultivationService.getProfile(other).foundationQuality()==3,CultivationService.getProfile(other).foundationQuality());
         DONE.add("lower_and_perfect_buji_effects");
     }

@@ -13,8 +13,8 @@ public enum TribulationKind {
     private final String id,displayName,sourceRealm,sourceStage,targetRealm,targetStage;
     TribulationKind(int networkId,String id,String displayName,int quality,String sourceRealm,String sourceStage,String targetRealm,String targetStage){
         this.networkId=networkId;this.id=id;this.displayName=displayName;this.quality=quality;
-        this.sourceRealm="myvillage:"+sourceRealm;this.sourceStage="myvillage:"+sourceStage;
-        this.targetRealm="myvillage:"+targetRealm;this.targetStage="myvillage:"+targetStage;
+        this.sourceRealm="yuanxian:"+sourceRealm;this.sourceStage="yuanxian:"+sourceStage;
+        this.targetRealm="yuanxian:"+targetRealm;this.targetStage="yuanxian:"+targetStage;
     }
     public int networkId(){return networkId;}
     public String id(){return id;}

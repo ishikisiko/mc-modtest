@@ -10,7 +10,7 @@ import net.neoforged.fml.common.asm.enumextension.EnumProxy;
 /** Kept separate: enum initialization must not initialize deferred content too early. */
 public final class OrchardBoatType {
     public static final EnumProxy<Boat.Type> NINGYUAN=new EnumProxy<>(Boat.Type.class,
-            (Supplier<Block>)()->OrchardContent.PLANKS.get(),"myvillage:ningyuan",
+            (Supplier<Block>)()->OrchardContent.PLANKS.get(),"yuanxian:ningyuan",
             (Supplier<Item>)()->OrchardContent.BOAT.get(),(Supplier<Item>)()->OrchardContent.CHEST_BOAT.get(),
             (Supplier<Item>)()->Items.STICK,false);
     private OrchardBoatType() { }

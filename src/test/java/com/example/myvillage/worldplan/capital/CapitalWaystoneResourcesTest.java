@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CapitalWaystoneResourcesTest {
     @Test void allEightFrozenCitiesCarryTheAcceptedStationCounts() {
-        var raw=CapitalGameBundle.readResource("myvillage:worldplan/frozen_v11.json",4*1024*1024);
+        var raw=CapitalGameBundle.readResource("yuanxian:worldplan/frozen_v11.json",4*1024*1024);
         var rules=new WorldPlanRules(new String(raw,StandardCharsets.UTF_8));
         var expected=Map.of("zhongzhou",6,"lingyue",3,"donghuang",3,"donghai",3,"ximo",2,"nanjiang",3,"beiyuan",2,"moyu",3);
         var ids=new HashSet<String>();int total=0;

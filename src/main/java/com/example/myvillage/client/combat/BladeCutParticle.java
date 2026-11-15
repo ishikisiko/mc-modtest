@@ -11,7 +11,7 @@ import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 
 /**
- * {@code myvillage:blade_cut}: a thin white slash line at the contact point, camera-facing and
+ * {@code yuanxian:blade_cut}: a thin white slash line at the contact point, camera-facing and
  * rolled to the cut's angle. The server spawns it with count 0, so the "speed" arguments carry
  * data instead of motion: x is the roll in radians, y above 0.5 marks a heavy hit (a larger
  * slash). It lives 4 ticks, snaps open during the first tick, fades from opaque to clear, and is

@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class AdvancedFateStateTest {
     private final UUID target = UUID.fromString("5f8d2dbe-a43d-43d3-99c0-fb29f7021f4f");
     private FateState state() {
-        return new FateState(1, 1, List.of("myvillage:robust", "myvillage:bright", "myvillage:innate_sword_heart"),
-                "", List.of("myvillage:robust", "myvillage:bright", "myvillage:innate_sword_heart"), true,
+        return new FateState(1, 1, List.of("yuanxian:robust", "yuanxian:bright", "yuanxian:innate_sword_heart"),
+                "", List.of("yuanxian:robust", "yuanxian:bright", "yuanxian:innate_sword_heart"), true,
                 500, 10, .2, 600)
                 .withPillAegis(new PillAegisState(4, 700, 800))
                 .withTemperedBones(new TemperedBonesState(2, false))

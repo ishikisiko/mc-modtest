@@ -24,7 +24,7 @@ import net.minecraft.world.phys.AABB;
 /** 只读取同步状态；鼎体、法环、炉火和实际器物均不驱动生产。 */
 public final class ForgingArrayRenderer implements BlockEntityRenderer<ForgingArrayBlockEntity> {
     private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath("myvillage", "textures/block/forging_array_formed.png");
+            ResourceLocation.fromNamespaceAndPath("yuanxian", "textures/block/forging_array_formed.png");
     private static final int FULL_BRIGHT = 0xF000F0;
     private static final int COLD_RUNE_LIGHT = 0x500050;
     private final ItemRenderer itemRenderer;

@@ -34,7 +34,7 @@ final class CombatReactionEligibilityTest {
         assertTrue(CombatReactionService.stunSlows(ServerPlayer.class));
         assertFalse(CombatReactionService.stunSlows(Zombie.class));
         assertEquals(-0.6, CombatReactionService.PLAYER_STUN_SLOW);
-        assertEquals("myvillage:combat_stun", CombatReactionService.STUN_MODIFIER_ID.toString());
+        assertEquals("yuanxian:combat_stun", CombatReactionService.STUN_MODIFIER_ID.toString());
     }
 
     @Test

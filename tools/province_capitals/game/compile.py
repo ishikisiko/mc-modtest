@@ -13,7 +13,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_OUT = ROOT / 'build/generated/province_capitals/resources'
-BASE = ROOT / 'build/generated/worldplan/resources/data/myvillage/worldplan/frozen_v7.json'
+BASE = ROOT / 'build/generated/worldplan/resources/data/yuanxian/worldplan/frozen_v7.json'
 # This projection is shared with CapitalGameBundle.identityJson. Provenance/status are diagnostics,
 # never geometry inputs; changing a timestamp cannot change a saved city's identity.
 IDENTITY_KEYS = ('schema', 'format', 'city_id', 'region_id', 'display_name', 'layout_family_id',
@@ -54,7 +54,7 @@ def write(path: Path, value) -> None:
 
 def resource_file(out: Path, resource: str, *, template=False) -> Path:
     namespace, relative = resource.split(':', 1)
-    if namespace != 'myvillage' or '..' in relative.split('/') or relative.startswith('/'):
+    if namespace != 'yuanxian' or '..' in relative.split('/') or relative.startswith('/'):
         raise ValueError(f'不合法的正式资源路径：{resource}')
     return out / 'data' / namespace / (f'structure/{relative}.nbt' if template else relative)
 
@@ -99,13 +99,13 @@ def aggregate(out: Path, base_rules: Path) -> dict:
     if not base_rules.is_file():
         raise FileNotFoundError(f'缺少原有资源任务的产物 {base_rules}；先正常生成 generateWorldPlanAssets 的资源，不运行其 --check 或测试套件')
     base = json.loads(base_rules.read_text())
-    if base['algorithm'] != 'myvillage:worldplan_v7':
+    if base['algorithm'] != 'yuanxian:worldplan_v7':
         raise ValueError('V8 只从独立 frozen_v7 输入继承自然地形与聚落配置')
     refs, summaries = [], []
     seen = set()
     for definition in sorted(catalog['capitals'], key=lambda c: c['city_id']):
         city_id, region = definition['city_id'], definition['region_id']
-        path = out / f'data/myvillage/capitals/v1/{city_id}/city.json'
+        path = out / f'data/yuanxian/capitals/v1/{city_id}/city.json'
         if not path.is_file():
             raise FileNotFoundError(f'正式八城缺城，拒绝生成不完整 V8：{path}')
         city = json.loads(path.read_text())
@@ -147,9 +147,9 @@ def aggregate(out: Path, base_rules: Path) -> dict:
             if type(tx) is not int or type(tz) is not int or tx % 16 or tz % 16 or not (0 <= tx < width and 0 <= tz < depth) or (tx, tz) in positions:
                 raise ValueError(f'{city_id} 稀疏 tile 重叠或越界')
             positions.add((tx, tz))
-            if not tile['template'].startswith(f'myvillage:province_capitals/v1/{city_id}/'):
+            if not tile['template'].startswith(f'yuanxian:province_capitals/v1/{city_id}/'):
                 raise ValueError(f'{city_id} tile 不属于其正式资源族')
-            file_id = 'myvillage:structure/' + tile['template'].split(':', 1)[1] + '.nbt'
+            file_id = 'yuanxian:structure/' + tile['template'].split(':', 1)[1] + '.nbt'
             resources[file_id] = sha(resource_file(out, tile['template'], template=True).read_bytes())
             if resources[file_id] != tile['sha256']:
                 raise ValueError(f'{city_id} NBT 声明摘要不符：{file_id}')
@@ -159,7 +159,7 @@ def aggregate(out: Path, base_rules: Path) -> dict:
         manifest_hash = sha(canonical(identity(city)))
         content_hash = sha(canonical({'manifest_sha256': manifest_hash, 'files': resources}))
         ref = {'city_id': city_id, 'region_id': region,
-               'resource': f'myvillage:capitals/v1/{city_id}/city.json',
+               'resource': f'yuanxian:capitals/v1/{city_id}/city.json',
                'manifest_sha256': manifest_hash, 'bundle_sha256': content_hash}
         refs.append(ref)
         summaries.append({**ref, 'layout_id': city['life']['layout_id'], 'layout_family_id': city['layout_family_id'],
@@ -179,15 +179,15 @@ def aggregate(out: Path, base_rules: Path) -> dict:
     preset_path = base_rules.parent.parent / 'worldgen/world_preset/cultivation.json'
     preset = json.loads(preset_path.read_text())
     generator = preset['dimensions']['minecraft:overworld']['generator']
-    generator.update(type='myvillage:planned_v8', rules=text)
+    generator.update(type='yuanxian:planned_v8', rules=text)
     generator.pop('plan_hash', None)
-    write(out / 'data/myvillage/worldplan/frozen_v8.json', frozen)
-    write(out / 'data/myvillage/worldgen/world_preset/cultivation.json', preset)
+    write(out / 'data/yuanxian/worldplan/frozen_v8.json', frozen)
+    write(out / 'data/yuanxian/worldgen/world_preset/cultivation.json', preset)
     report = {'schema': 1, 'format': 'capital_game_index', 'algorithm': spec['algorithm'], 'cities': summaries,
               'total_tiles': sum(c['tiles'] for c in summaries), 'total_bytes': sum(c['bytes'] for c in summaries),
               'frozen_rules_sha256': sha(canonical(frozen)), 'frozen_transport_chars': len(text),
               'status': {'tests': 'not_run', 'compile': 'not_run', 'minecraft': 'not_run', 'owner_appearance': 'not_verified'}}
-    write(out / 'data/myvillage/capitals/v1/index.json', report)
+    write(out / 'data/yuanxian/capitals/v1/index.json', report)
     return report
 
 

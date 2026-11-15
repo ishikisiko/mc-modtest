@@ -18,7 +18,7 @@ Do not start coding from this doc alone — each phase becomes its own change/PR
   against `exmod/mod_block_catalog.json`; `vanilla` forbids all mod ids, `full` allows
   only confirmed-namespace catalog ids; both profiles validate clean.
 - Phase 5: done (change `add-mod-runtime-fallback`) — generated runtime fallback
-  data, Java pre-load palette patching for `/myvillage town` and `/myvillage place`,
+  data, Java pre-load palette patching for `/yuanxian town` and `/yuanxian place`,
   and optional dependency declarations are in place.
 - Phase 6: automated prep done for change `add-mod-runtime-fallback`; mods-on /
   mods-off in-game screenshot acceptance is still pending manual review.

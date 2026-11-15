@@ -2,7 +2,7 @@
 """Read and validate the bundled combat data (styles and weapons, schema version 1).
 
 The combat move sets live in ``src/main/resources/data/<ns>/combat/``, listed by
-``data/myvillage/combat/index.json`` (see the ``add-combat-data-infrastructure`` design, D1-D3).
+``data/yuanxian/combat/index.json`` (see the ``add-combat-data-infrastructure`` design, D1-D3).
 This module is the one Python reader of those files.  It uses only the standard library.
 
 API
@@ -42,7 +42,7 @@ from typing import Any, Callable, Iterator
 
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = "src/main/resources"
-INDEX_FILE = f"{RESOURCES}/data/myvillage/combat/index.json"
+INDEX_FILE = f"{RESOURCES}/data/yuanxian/combat/index.json"
 SCHEMA_VERSION = 1
 MOVE_KINDS = ("thrust", "cut")
 ID_PATTERN = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
@@ -135,7 +135,7 @@ def weapon_rel(weapon_id: str) -> str:
 
 
 def asset_rel(asset_id: str) -> str:
-    """A client asset location such as ``myvillage:combat/x.json`` -> ``assets/myvillage/combat/x.json``."""
+    """A client asset location such as ``yuanxian:combat/x.json`` -> ``assets/yuanxian/combat/x.json``."""
     namespace, path = split_id(asset_id)
     return f"assets/{namespace}/{path}"
 
@@ -280,7 +280,7 @@ def text(c: _Checker, value: Any, path: str) -> bool:
 
 def resource_id(c: _Checker, value: Any, path: str) -> bool:
     if not isinstance(value, str) or not ID_PATTERN.match(value):
-        c.fail("SCHEMA", path, f"must be a namespaced id like 'myvillage:name', got {value!r}")
+        c.fail("SCHEMA", path, f"must be a namespaced id like 'yuanxian:name', got {value!r}")
         return False
     return True
 

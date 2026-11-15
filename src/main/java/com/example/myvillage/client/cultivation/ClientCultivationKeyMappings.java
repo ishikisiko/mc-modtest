@@ -12,30 +12,30 @@ import org.lwjgl.glfw.GLFW;
 @Mod(value = MyVillageMod.MOD_ID, dist = Dist.CLIENT)
 public final class ClientCultivationKeyMappings {
     public static final KeyMapping OPEN_PROFILE = new KeyMapping(
-            "key.myvillage.open_cultivation_profile",
+            "key.yuanxian.open_cultivation_profile",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_H,
-            "key.categories.myvillage");
+            "key.categories.yuanxian");
     public static final KeyMapping START_NORMAL_MEDITATION = new KeyMapping(
-            "key.myvillage.start_normal_meditation",
+            "key.yuanxian.start_normal_meditation",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_V,
-            "key.categories.myvillage");
+            "key.categories.yuanxian");
     public static final KeyMapping START_SPIRIT_MEDITATION = new KeyMapping(
-            "key.myvillage.start_spirit_meditation",
+            "key.yuanxian.start_spirit_meditation",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_B,
-            "key.categories.myvillage");
+            "key.categories.yuanxian");
     public static final KeyMapping STOP_MEDITATION = new KeyMapping(
-            "key.myvillage.stop_meditation",
+            "key.yuanxian.stop_meditation",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_X,
-            "key.categories.myvillage");
+            "key.categories.yuanxian");
     public static final KeyMapping START_ADVANCEMENT = new KeyMapping(
-            "key.myvillage.start_advancement",
+            "key.yuanxian.start_advancement",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_N,
-            "key.categories.myvillage");
+            "key.categories.yuanxian");
 
     public ClientCultivationKeyMappings(IEventBus modEventBus) {
         ClientCultivationEvents.initialize();

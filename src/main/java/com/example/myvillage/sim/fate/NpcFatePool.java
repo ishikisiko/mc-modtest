@@ -12,7 +12,7 @@ import java.util.*;
 
 /** 与玩家注册表同源的纯抽取元数据；运行时由当前服务器注册表构造。 */
 public final class NpcFatePool {
-    private static final String DIRECTORY = "data/myvillage/myvillage/innate_fate";
+    private static final String DIRECTORY = "data/yuanxian/yuanxian/innate_fate";
     public record Entry(String id, int cost, String group, boolean enabled, String element,
                         int minimumAptitude, int maximumRoots, Map<String,Double> effects) {
         public Entry(String id,int cost,String group,boolean enabled,String element,int minimumAptitude,int maximumRoots) {
@@ -27,7 +27,7 @@ public final class NpcFatePool {
         public boolean eligible(int[] root) {
             if (!enabled) return false;
             if (element.isEmpty()) return true;
-            int index = Person.ELEMENTS.indexOf(element.startsWith("myvillage:") ? element.substring(10) : element);
+            int index = Person.ELEMENTS.indexOf(element.startsWith("yuanxian:") ? element.substring(10) : element);
             return index >= 0 && root[index] >= minimumAptitude
                     && Arrays.stream(root).filter(v -> v > 0).count() <= maximumRoots;
         }
@@ -93,7 +93,7 @@ public final class NpcFatePool {
     public static NpcFatePool bundled() { return Holder.VALUE; }
 
     public static int configuredBudget() {
-        try (var input = NpcFatePool.class.getResourceAsStream("/data/myvillage/fates/npc_rules.json")) {
+        try (var input = NpcFatePool.class.getResourceAsStream("/data/yuanxian/fates/npc_rules.json")) {
             if (input == null) throw new IllegalStateException("缺少 NPC 天赋规则");
             var json = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
             return json.get("point_budget").getAsBigDecimal().intValueExact();
@@ -122,7 +122,7 @@ public final class NpcFatePool {
                     Path directory = Path.of(url.toURI());
                     try (var files = Files.walk(directory)) {
                         for (Path file : files.filter(p -> p.toString().endsWith(".json")).sorted().toList()) {
-                            String id = "myvillage:" + directory.relativize(file).toString().replace('\\', '/').replaceFirst("\\.json$", "");
+                            String id = "yuanxian:" + directory.relativize(file).toString().replace('\\', '/').replaceFirst("\\.json$", "");
                             entries.put(id, read(id, JsonParser.parseString(Files.readString(file)).getAsJsonObject()));
                         }
                     }
@@ -130,7 +130,7 @@ public final class NpcFatePool {
                     connection.setUseCaches(false);
                     try (var jar = connection.getJarFile()) {
                         for (var file : jar.stream().filter(e -> e.getName().startsWith(DIRECTORY + "/") && e.getName().endsWith(".json")).toList()) {
-                            String id = "myvillage:" + file.getName().substring(DIRECTORY.length() + 1, file.getName().length() - 5);
+                            String id = "yuanxian:" + file.getName().substring(DIRECTORY.length() + 1, file.getName().length() - 5);
                             try (var reader = new InputStreamReader(jar.getInputStream(file), StandardCharsets.UTF_8)) {
                                 entries.put(id, read(id, JsonParser.parseReader(reader).getAsJsonObject()));
                             }

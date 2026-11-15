@@ -10,9 +10,9 @@ class ElementalArtsTest(unittest.TestCase):
         plan=g.plan();recipes=[]
         for a in self.doc['arts']:
             recipe=json.loads(plan[g.DATA/f'recipe/manual_{a["id"]}.json'])
-            self.assertEqual(recipe['result']['components']['myvillage:technique'],'myvillage:'+a['id'])
+            self.assertEqual(recipe['result']['components']['yuanxian:technique'],'yuanxian:'+a['id'])
             recipes.append(tuple(sorted(json.dumps(i,sort_keys=True) for i in recipe['ingredients'])))
-            technique=json.loads(plan[g.DATA/f'myvillage/technique/{a["id"]}.json'])
+            technique=json.loads(plan[g.DATA/f'yuanxian/technique/{a["id"]}.json'])
             self.assertNotIn('minimum_element_affinity',technique['requirements'])
             self.assertEqual(a['qi_cost'],technique['effects']['active']['qi_cost'])
         self.assertEqual(20,len(set(recipes)))

@@ -31,7 +31,7 @@ def fixture():
     profile = {'bone_origins': {k: [0, 0, 0] for k in check.BONES}, 'parts': parts}
     effects = {'level': 1, 'flows': [{'role': 'chest'}], 'arcs': [],
                'motions': [{'targets': ['coat']}], 'glows': [{'targets': ['cap']}]}
-    data = {'version': 1, 'set_id': 'test_set', 'materials': {'silk': {'texture': 'myvillage:test.png', 'opacity': 1}},
+    data = {'version': 1, 'set_id': 'test_set', 'materials': {'silk': {'texture': 'yuanxian:test.png', 'opacity': 1}},
             'profiles': {'standard': copy.deepcopy(profile), 'slim': copy.deepcopy(profile)},
             'effects': effects, 'effect_bindings': {'flows': ['body'], 'arcs': []}}
     return data, design
@@ -42,17 +42,17 @@ class ImmortalMeshValidationTest(unittest.TestCase):
         from tools.equipment.geometry import encode_png
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);identity='test_helmet'
-            model_path=check.resource(root,f'myvillage:models/item/{identity}.json')
-            texture_path=check.resource(root,f'myvillage:textures/item/{identity}.png')
+            model_path=check.resource(root,f'yuanxian:models/item/{identity}.json')
+            texture_path=check.resource(root,f'yuanxian:textures/item/{identity}.png')
             model_path.parent.mkdir(parents=True);texture_path.parent.mkdir(parents=True)
             model={'loader':'neoforge:separate_transforms','gui_light':'front',
                    'base':{'loader':'neoforge:obj'},'perspectives':{'gui':{
                        'parent':'minecraft:item/generated','gui_light':'front',
-                       'textures':{'layer0':f'myvillage:item/{identity}'}}}}
+                       'textures':{'layer0':f'yuanxian:item/{identity}'}}}}
             pixels=[[(0,0,0,0)]*16 for _ in range(16)];pixels[8][8]=(20,40,60,255)
             texture_path.write_bytes(encode_png(pixels))
             model_path.write_text(json.dumps(model));check.validate_gui_icon(root,identity)
-            bad=copy.deepcopy(model);bad['perspectives']['gui']['textures']['layer0']='myvillage:item/other'
+            bad=copy.deepcopy(model);bad['perspectives']['gui']['textures']['layer0']='yuanxian:item/other'
             model_path.write_text(json.dumps(bad))
             with self.assertRaisesRegex(ValueError,'引用与物品身份不符'):check.validate_gui_icon(root,identity)
             bad=copy.deepcopy(model);bad['perspectives']['ground']=copy.deepcopy(bad['perspectives']['gui'])
@@ -63,12 +63,12 @@ class ImmortalMeshValidationTest(unittest.TestCase):
         from tools.equipment.geometry import encode_png
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);identity='test_helmet'
-            model_path=check.resource(root,f'myvillage:models/item/{identity}.json')
-            texture_path=check.resource(root,f'myvillage:textures/item/{identity}.png')
+            model_path=check.resource(root,f'yuanxian:models/item/{identity}.json')
+            texture_path=check.resource(root,f'yuanxian:textures/item/{identity}.png')
             model_path.parent.mkdir(parents=True);texture_path.parent.mkdir(parents=True)
             model_path.write_text(json.dumps({'loader':'neoforge:separate_transforms','gui_light':'front',
                 'base':{'loader':'neoforge:obj'},'perspectives':{'gui':{'parent':'minecraft:item/generated',
-                    'gui_light':'front','textures':{'layer0':f'myvillage:item/{identity}'}}}}))
+                    'gui_light':'front','textures':{'layer0':f'yuanxian:item/{identity}'}}}}))
             for size,alpha,message in [(32,255,'尺寸/格式'),(16,0,'实体像素'),(16,128,'实体像素')]:
                 with self.subTest(size=size,alpha=alpha):
                     pixels=[[(0,0,0,0)]*size for _ in range(size)];pixels[8][8]=(20,40,60,alpha)
@@ -134,7 +134,7 @@ class ImmortalMeshValidationTest(unittest.TestCase):
             check.validate_mesh(data, design, expected)
 
     def test_resource_reference_cannot_escape_namespace(self):
-        for identity in ('other:models/test.json', 'myvillage:../private', 'myvillage:/../private', 'bad', 'myvillage:C:\\private'):
+        for identity in ('other:models/test.json', 'yuanxian:../private', 'yuanxian:/../private', 'bad', 'yuanxian:C:\\private'):
             with self.subTest(identity=identity), self.assertRaisesRegex(ValueError, '非法资源'):
                 check.resource(check.ROOT, identity)
 
@@ -180,15 +180,15 @@ class ImmortalMeshValidationTest(unittest.TestCase):
 
     def test_hand_readback_uses_selected_hotbar_and_signed_offhand_slot(self):
         from tools.immortal_equipment_evidence import hand_snapshot
-        rows={4:{'id':'myvillage:qingfeng_sword'},-106:{'id':'minecraft:torch'},40:{'id':'wrong_slot'}}
-        self.assertEqual({'main':'myvillage:qingfeng_sword','off':'minecraft:torch'},hand_snapshot(rows,4))
+        rows={4:{'id':'yuanxian:qingfeng_sword'},-106:{'id':'minecraft:torch'},40:{'id':'wrong_slot'}}
+        self.assertEqual({'main':'yuanxian:qingfeng_sword','off':'minecraft:torch'},hand_snapshot(rows,4))
         self.assertEqual({'main':None,'off':None},hand_snapshot({},0))
         with self.assertRaises(RuntimeError):hand_snapshot(rows,9)
 
     def test_swap_requires_mapped_key_and_confirmed_server_readback(self):
         from tools.immortal_equipment_evidence import mapped_swap_hands
         class Driver:
-            def __init__(self,accept):self.state={'main':'myvillage:qingfeng_sword','off':None};self.accept=accept;self.keys=[];self.checks=[]
+            def __init__(self,accept):self.state={'main':'yuanxian:qingfeng_sword','off':None};self.accept=accept;self.keys=[];self.checks=[]
             def hands(self):return self.state.copy()
             def key(self,key):
                 self.keys.append(key)
@@ -200,7 +200,7 @@ class ImmortalMeshValidationTest(unittest.TestCase):
             def check(self,name,passed,detail):self.checks.append(passed)
         good=Driver(True);mapped_swap_hands(good,'first');mapped_swap_hands(good,'return')
         self.assertEqual(['f','f'],good.keys);self.assertEqual([True,True],good.checks)
-        self.assertEqual({'main':'myvillage:qingfeng_sword','off':None},good.hands())
+        self.assertEqual({'main':'yuanxian:qingfeng_sword','off':None},good.hands())
         bad=Driver(False)
         with self.assertRaises(TimeoutError):mapped_swap_hands(bad,'missing input')
         self.assertEqual([],bad.checks)

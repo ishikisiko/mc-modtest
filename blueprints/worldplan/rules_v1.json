@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "algorithm": "myvillage:worldplan_v1",
-  "catalog_directory": "src/main/resources/data/myvillage/worldgen/region_profile",
+  "algorithm": "yuanxian:worldplan_v1",
+  "catalog_directory": "src/main/resources/data/yuanxian/worldgen/region_profile",
   "core_radius": 4000,
   "core_blend": 320,
   "region_count": [5, 7],
@@ -52,7 +52,7 @@
     "moyu": {"base": 103, "amplitude": 61, "biomes": ["minecraft:eroded_badlands", "minecraft:badlands", "minecraft:dark_forest"], "outer_weight": 1}
   },
   "structure_policy": {
-    "myvillage:sect": {"allow_outer": true, "allow_walled": false, "minimum_qi": 4.0, "minimum_tier": 6, "maximum_tier": 20}
+    "yuanxian:sect": {"allow_outer": true, "allow_walled": false, "minimum_qi": 4.0, "minimum_tier": 6, "maximum_tier": 20}
   },
   "spawn": {"search_radius": 1200, "attempts": 192, "pad_radius": 6, "pad_skirt": 24, "minimum_y": 72}
 }

@@ -17,7 +17,7 @@
 
 ## 1. 现状（本稿从哪里出发）
 
-- 玩家侧：注册表 `myvillage:technique` 只有 `basic_breathing`。`TechniqueDefinition` = translation_key + category（core/active/movement/body）+ grade(int) + elements + requirements（最低境界阶段、最低五行亲和）。进度只有 `masteryPoints`。无执行器，只门控打坐（`BasicBreathingEligibility`/`BasicBreathingSettlement`）。功法页 `TechniquesPage` 列已学功法。
+- 玩家侧：注册表 `yuanxian:technique` 只有 `basic_breathing`。`TechniqueDefinition` = translation_key + category（core/active/movement/body）+ grade(int) + elements + requirements（最低境界阶段、最低五行亲和）。进度只有 `masteryPoints`。无执行器，只门控打坐（`BasicBreathingEligibility`/`BasicBreathingSettlement`）。功法页 `TechniquesPage` 列已学功法。
 - 命簿侧：`world_sim/techniques.json` 130 门，中文名、品阶 黄玄地天、五行或 none。每个 `Person` 恰好一门 `techniqueId`，作用是三个乘数（`rules.json` `techniques` 段：修炼、突破、战力）加五行契合加成 0.15。`Sect` 有 `signatureTechniqueId`（镇派功法）和 `basicTechniqueId`，创世随机挑。奇遇 `broken_manual`/`cave_manual`/`hermit_teaching`/`earth_inheritance`/`heaven_inheritance` 发功法。
 - 战斗侧：招式集是数据 `combat/style/{basic_sword,basic_spear}.json`，武器文件绑一个 style。`CombatSession` 按 `nextMoveIndex` 走连段。伤害 = 攻击属性 × `damage_multiplier`。`currentSpiritualPower` 存着没人用。
 - 三块互不相通：玩家学不到命簿里的任何一门功法，宗门的镇派功法只是个名字。
@@ -32,11 +32,11 @@
 
 - **广义流派**按武器家族分：剑、枪、拳掌，后续可加刀、棍、法修等。公共的，谁都能学，不引用任何宗门。
 - **特殊流派**不走招式集而走自己的运行时钩子：御剑（复用可骑乘飞剑实体做远程操剑）、法修（投射物，后置）、符阵（放置型，后置）。特殊流派可以属于某条传承（见 2.3），也可以是公共的。
-- 数据：新注册表 `myvillage:school`，文件 `data/myvillage/myvillage/school/<id>.json`：
+- 数据：新注册表 `yuanxian:school`，文件 `data/yuanxian/yuanxian/school/<id>.json`：
 
 ```json
 {
-  "translation_key": "cultivation.school.myvillage.sword",
+  "translation_key": "cultivation.school.yuanxian.sword",
   "kind": "weapon",            // weapon | special
   "weapon_family": "sword",    // kind=weapon 时必填；武器文件新增同名 family 字段
   "runtime": null,             // kind=special 时必填：flying_sword | spell | talisman
@@ -62,13 +62,13 @@
 
 ```json
 {
-  "translation_key": "cultivation.technique.myvillage.gengjin_jianjue",
+  "translation_key": "cultivation.technique.yuanxian.gengjin_jianjue",
   "category": "active",
   "grade": 2,                       // 0 凡 1 黄 2 玄 3 地 4 天；命簿只认 1..4
-  "elements": ["myvillage:metal"],
-  "school": "myvillage:sword",      // 心法可无流派
-  "requirements": { "minimum_realm": "myvillage:qi_refining", "minimum_stage": "myvillage:qi_refining_3" },
-  "lineage": { "previous": "myvillage:gengjin_yinqi_fa" },   // 传承链上的前一门，可无
+  "elements": ["yuanxian:metal"],
+  "school": "yuanxian:sword",      // 心法可无流派
+  "requirements": { "minimum_realm": "yuanxian:qi_refining", "minimum_stage": "yuanxian:qi_refining_3" },
+  "lineage": { "previous": "yuanxian:gengjin_yinqi_fa" },   // 传承链上的前一门，可无
   "effects": { ... }                // 按类别，见第 3 节；第一阶段只实现 core
 }
 ```
@@ -80,7 +80,7 @@
 传承 = 一条连续的功法序列（心法链或功法链），2 到 4 门，同流派同五行，后一门以前一门为 `lineage.previous`。
 
 - 只有少数宗门有传承，一个宗门最多一条；大多数宗门只有互不相关的基础功法和镇派功法。
-- 数据：`data/myvillage/myvillage/heritage/<id>.json`：`translation_key`、`school`、`techniques`（有序 id 列表）、`exclusive`（true 时只能通过持有它的宗门或其遗迹奇遇获得）。
+- 数据：`data/yuanxian/yuanxian/heritage/<id>.json`：`translation_key`、`school`、`techniques`（有序 id 列表）、`exclusive`（true 时只能通过持有它的宗门或其遗迹奇遇获得）。
 - 命簿：`Sect` 新增 `heritageId`（空串 = 无）。创世按 `rules.json` `genesis.heritage_chance`（默认让小世界六宗里出一两个）分配，持有传承的宗门其 `signatureTechniqueId` 取该链的最高一门、`basicTechniqueId` 取最低一门。宗门被灭：传承进入遗迹奇遇池（新 encounter effect `heritage`），别人可以捡起来重开。
 - 连续性规则（数据可调）：学链上的下一门要求前一门熟练度 ≥ 小成；在同一条链内换心法不散功，前一门熟练度按比例带入。
 
@@ -115,7 +115,7 @@
 ### 3.2 绝技 effects（第二阶段）
 
 ```json
-"effects": { "active": { "skill": "myvillage:gengjin_jianjue", "qi_cost": 12, "slots": 1 } }
+"effects": { "active": { "skill": "yuanxian:gengjin_jianjue", "qi_cost": 12, "slots": 1 } }
 ```
 
 `combat/skill/<id>.json` 用与 style 相同的 move 模式写连段（hitbox、chain、step、reaction 全部复用），外加 `school`、`status`（五行模板）。触发：战斗模式下技能键 1–3；服务端校验 已学、手持本流派家族武器、灵力 ≥ 消耗，然后 `CombatSession` 接受一个外部连段起手，后续 tick 走现有机器。PAL 动作需要新 pose（`tools/gen_sword_pal_anims.py` 的 `POSE_TABLES`），这是真正的美术工作量，第一门剑诀按三招算。
@@ -157,7 +157,7 @@
 
 ### 包 A：目录与生成器（Python + 资源）
 
-拥有：`tools/technique_catalogue/`（新）、`tools/gen_technique_catalogue.py`（新）、`src/main/resources/data/myvillage/myvillage/technique/**`、`.../school/**`、`.../heritage/**`、`src/main/resources/data/myvillage/world_sim/techniques.json`、两份语言文件中 `cultivation.technique.*`/`cultivation.school.*`/`cultivation.heritage.*` 键、`tools/validate_world_sim.py` 的交叉检查、`tools/tests/test_gen_technique_catalogue.py`（新）。不碰 Java。
+拥有：`tools/technique_catalogue/`（新）、`tools/gen_technique_catalogue.py`（新）、`src/main/resources/data/yuanxian/yuanxian/technique/**`、`.../school/**`、`.../heritage/**`、`src/main/resources/data/yuanxian/world_sim/techniques.json`、两份语言文件中 `cultivation.technique.*`/`cultivation.school.*`/`cultivation.heritage.*` 键、`tools/validate_world_sim.py` 的交叉检查、`tools/tests/test_gen_technique_catalogue.py`（新）。不碰 Java。
 
 1. 源表 `tools/technique_catalogue/catalogue.json`：一行一门，字段 id、zh、en、category、grade(1..4)、element、school、previous（可空）。先把现有 130 门原样导入（类别按名字后缀初分：功/经/心法/诀 → core，剑诀/剑典/剑经 → active 剑，锻体/护体/不灭体/金身 → body，其余 core），再加凡阶 `basic_breathing`（仍手写，生成器不覆盖）。
 2. 流派表 `schools.json`：sword、spear、fist（拳掌，招式集暂缺，`style` 留空）、flying_sword（special）。传承表 `heritages.json`：先给 3 条样例链，每条 3 门，用现有名字串起来（如 庚金引气法 → 庚金剑诀 → 庚金不灭体 → 太白剑经）。
@@ -166,7 +166,7 @@
 
 ### 包 B：心法机制（Java `cultivation/**`）
 
-拥有：`cultivation/data/**`（TechniqueDefinition 扩展、`SchoolDefinition`、`HeritageDefinition`、`ModCultivationRegistries` 两个新注册表 `myvillage:school`、`myvillage:heritage`，同步到客户端）、`cultivation/CultivationProfile.java`（schema v3 → v4：新增 `activeCoreTechnique` Optional，迁移：已学 basic_breathing 则设为它，否则空）、`cultivation/CultivationService.java`（`switchCoreTechnique` 唯一入口，散功在此）、`cultivation/technique/**`（传承连续性判断）、`cultivation/meditation/**`（收益乘以心法因子；因子只读自 `WorldSimRuntime.data()` 的 `Rules.Techniques`，命簿未加载时因子为 1）、`cultivation/network/**`（快照带运转心法；新 serverbound `CoreTechniqueSwitchPayload(ResourceLocation)`，空载荷之外唯一的数据是功法 id，处理器只调 `CultivationService.switchCoreTechnique`）、`cultivation/CultivationCommands.java`（`core <target> <id>` 及拼音别名 `xinfa`）、对应测试、`tools/validate_cultivation_*.py` 中因改名需要更新的扫描。不碰 `client/**`、`sim/**`、文档。语言文件在包 A 完成前归 A；B 的命令文案键在最后一步加，编辑前重读文件。
+拥有：`cultivation/data/**`（TechniqueDefinition 扩展、`SchoolDefinition`、`HeritageDefinition`、`ModCultivationRegistries` 两个新注册表 `yuanxian:school`、`yuanxian:heritage`，同步到客户端）、`cultivation/CultivationProfile.java`（schema v3 → v4：新增 `activeCoreTechnique` Optional，迁移：已学 basic_breathing 则设为它，否则空）、`cultivation/CultivationService.java`（`switchCoreTechnique` 唯一入口，散功在此）、`cultivation/technique/**`（传承连续性判断）、`cultivation/meditation/**`（收益乘以心法因子；因子只读自 `WorldSimRuntime.data()` 的 `Rules.Techniques`，命簿未加载时因子为 1）、`cultivation/network/**`（快照带运转心法；新 serverbound `CoreTechniqueSwitchPayload(ResourceLocation)`，空载荷之外唯一的数据是功法 id，处理器只调 `CultivationService.switchCoreTechnique`）、`cultivation/CultivationCommands.java`（`core <target> <id>` 及拼音别名 `xinfa`）、对应测试、`tools/validate_cultivation_*.py` 中因改名需要更新的扫描。不碰 `client/**`、`sim/**`、文档。语言文件在包 A 完成前归 A；B 的命令文案键在最后一步加，编辑前重读文件。
 
 守住：不可变档案替换只经 `CultivationService`；快照只 clientbound；每条英文命令与拼音别名结构等价；收益规则仍全在服务端。
 

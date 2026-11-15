@@ -5,14 +5,14 @@ import java.util.List;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
- * Server config of the world ledger, file {@code myvillage-world_sim-server.toml} in the instance's
+ * Server config of the world ledger, file {@code yuanxian-world_sim-server.toml} in the instance's
  * {@code config/}; a copy in a world's {@code serverconfig/} overrides it for that world. {@code tier}
  * is read only at genesis: once a world has a ledger its tier is fixed in the save and this value is
  * ignored. The other values are read on use, so a reload takes effect at once (the avatars on their
  * next pass).
  */
 public final class WorldSimServerConfig {
-    public static final String FILE_NAME = "myvillage-world_sim-server.toml";
+    public static final String FILE_NAME = "yuanxian-world_sim-server.toml";
     public static final List<String> TIERS = List.of("small", "medium", "large");
     public static final String DEFAULT_TIER = "small";
     public static final int DEFAULT_CATCH_UP_CAP_DAYS = 30;

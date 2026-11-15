@@ -33,7 +33,7 @@ from buildgen.nbtread import read_gzipped_nbt, state_string
 from buildgen.style import load_style
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MOD_ID = "myvillage"
+MOD_ID = "yuanxian"
 RES = os.path.join(PROJECT_ROOT, "src", "main", "resources", "data", MOD_ID)
 REGISTRY = os.path.join(PROJECT_ROOT, "docs", "ai-kb", "references", "blocks_121.json")
 DATA_VERSION = 3955

@@ -4,12 +4,12 @@
   "target_version": "v4",
   "recipes": {
     "rune_lamp": {
-      "block": "myvillage:rune_lamp",
+      "block": "yuanxian:rune_lamp",
       "anchor": "source_origin",
       "facing": "authored"
     },
     "drying_rack": {
-      "block": "myvillage:drying_rack",
+      "block": "yuanxian:drying_rack",
       "anchor": "centered",
       "facing": "garden_gate_or_authored"
     }

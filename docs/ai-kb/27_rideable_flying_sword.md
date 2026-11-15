@@ -1,12 +1,12 @@
 # 御剑飞行
 
-基础 registry ID `myvillage:rideable_flying_sword`（物品、实体）保持兼容，新增物品「青霄飞剑」`myvillage:azure_cloud_flying_sword`。完整入口、诊断 schema、生命周期、配置、预览与实际证据边界见[御剑 demo](../features/flying-sword-demo.md)。本次源码实现尚未执行云端编译或游戏验收。
+基础 registry ID `yuanxian:rideable_flying_sword`（物品、实体）保持兼容，新增物品「青霄飞剑」`yuanxian:azure_cloud_flying_sword`。完整入口、诊断 schema、生命周期、配置、预览与实际证据边界见[御剑 demo](../features/flying-sword-demo.md)。本次源码实现尚未执行云端编译或游戏验收。
 
 ## 实现归属
 
 | 范围 | 唯一入口 |
 |---|---|
-| 资格、速度、耗灵、输入与应急时限 | `data/myvillage/flying_sword/rules.json`；`entity/flight/FlyingSwordRules` 在每次起飞读取冻结 |
+| 资格、速度、耗灵、输入与应急时限 | `data/yuanxian/flying_sword/rules.json`；`entity/flight/FlyingSwordRules` 在每次起飞读取冻结 |
 | 物品与境界/渡劫门槛 | `RideableFlyingSwordItem`；调用约定的 `TribulationManager.isActive(ServerPlayer)`，由渡劫模块实现 |
 | 纯飞行算术、身份与回执 | `entity/flight/FlyingSwordFlight`、`FlyingSwordAuthority`、`FlyingSwordEscrow` |
 | 服务器移动与实体同步 | `RideableFlyingSwordEntity`；六阶段、服务器位置、碰撞、档次、无保存载具 |

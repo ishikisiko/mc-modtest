@@ -1,5 +1,5 @@
 {
-  "item_id": "myvillage:zhenyue_ruler",
+  "item_id": "yuanxian:zhenyue_ruler",
   "kind": "functional_item",
   "display_name": {
     "en_us": "镇岳尺",
@@ -8,7 +8,7 @@
   "owner_facing_goal": "厚重的整块石玉长尺，用镇岳诀立尺或收回。",
   "creative_tab": {
     "visibility": "visible",
-    "tab_id": "myvillage:main"
+    "tab_id": "yuanxian:main"
   },
   "java_registration": {
     "owner_file": "src/main/java/com/example/myvillage/legacy/LegacyContent.java",
@@ -16,16 +16,16 @@
     "properties": "CombatWeaponItem; values from legacy catalogue"
   },
   "client_assets": {
-    "lang_key": "item.myvillage.zhenyue_ruler",
-    "model": "src/main/resources/assets/myvillage/models/item/zhenyue_ruler.json",
+    "lang_key": "item.yuanxian.zhenyue_ruler",
+    "model": "src/main/resources/assets/yuanxian/models/item/zhenyue_ruler.json",
     "textures": [
-      "src/main/resources/assets/myvillage/textures/item/zhenyue_ruler.png"
+      "src/main/resources/assets/yuanxian/textures/item/zhenyue_ruler.png"
     ],
     "visual_verdict": "pending"
   },
   "data_resources": {
     "recipes": [
-      "src/main/resources/data/myvillage/recipe/zhenyue_ruler.json"
+      "src/main/resources/data/yuanxian/recipe/zhenyue_ruler.json"
     ],
     "tags": [
       "src/main/resources/data/minecraft/tags/item/swords.json"
@@ -47,7 +47,7 @@
   },
   "acceptance": {
     "commands": [
-      "/give @s myvillage:zhenyue_ruler"
+      "/give @s yuanxian:zhenyue_ruler"
     ],
     "gates": [
       "python3 -m tools.gen_legacy_encounters --check",

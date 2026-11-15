@@ -88,7 +88,7 @@ public final class CinnabarBossBar {
         int sealX = titleX + titleWidth + 5;
         g.fill(sealX, b.top() + 3, sealX + 14, b.top() + 17, data.enraged() ? 0xFFA43C2D : 0xFF823F32);
         g.renderOutline(sealX, b.top() + 3, 14, 14, 0xBFD6AC86);
-        Component seal = Component.translatable("hud.myvillage.boss.seal").withStyle(DETAIL);
+        Component seal = Component.translatable("hud.yuanxian.boss.seal").withStyle(DETAIL);
         g.drawString(font, seal, sealX + (14 - font.width(seal)) / 2, b.top() + 6, 0xFFF3DFBB, false);
 
         Component percent = Component.literal(Math.round(hp * 100) + "%").withStyle(DETAIL);

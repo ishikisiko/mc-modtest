@@ -38,7 +38,7 @@ class Evidence:
         self.name = 'Arrival' + secrets.token_hex(3)
         shutil.copytree(previous.parents[2] / 'run-acceptance' / world, ROOT / 'run-acceptance' / self.world,
                         ignore=shutil.ignore_patterns('session.lock'))
-        jar = ROOT / 'build/libs/myvillage-0.131.1.jar'
+        jar = ROOT / 'build/libs/yuanxian-0.131.1.jar'
         self.report = {'kind': 'region_entry_native', 'status': 'running', 'selected': CASES, 'completed': [],
                        'failed': [], 'unrun': CASES.copy(), 'checks': [], 'actions': [], 'commands': [],
                        'screenshots': [], 'cleanup': [], 'world': self.world,

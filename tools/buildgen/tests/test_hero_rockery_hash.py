@@ -44,11 +44,11 @@ _BASELINE = Path(__file__).resolve().parent / "fixtures" / "hero_rockery_baselin
 # variants, so it is not hero-stable; the hero models + swatches + cascade
 # assets are.
 _ASSET_PATTERNS = (
-    "assets/myvillage/models/block/rockery_block/hero_taihu_*.json",
-    "assets/myvillage/textures/block/rockery_block/swatch_stone.png",
-    "assets/myvillage/textures/block/rockery_block/swatch_mossy.png",
-    "assets/myvillage/blockstates/rockery_cascade.json",
-    "assets/myvillage/models/block/rockery_cascade.json",
+    "assets/yuanxian/models/block/rockery_block/hero_taihu_*.json",
+    "assets/yuanxian/textures/block/rockery_block/swatch_stone.png",
+    "assets/yuanxian/textures/block/rockery_block/swatch_mossy.png",
+    "assets/yuanxian/blockstates/rockery_cascade.json",
+    "assets/yuanxian/models/block/rockery_cascade.json",
 )
 
 
@@ -176,7 +176,7 @@ def test_water_is_one_mountain_fed_micro_path() -> None:
 
 
 def test_generated_models_carry_foliage_and_water_materials() -> None:
-    model_dir = _RES / "assets/myvillage/models/block/rockery_block"
+    model_dir = _RES / "assets/yuanxian/models/block/rockery_block"
     summit = json.loads((model_dir / "hero_taihu_b2_c11.json").read_text())
     summit_refs = {next(iter(e["faces"].values()))["texture"]
                    for e in summit["elements"]}

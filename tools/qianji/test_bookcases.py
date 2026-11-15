@@ -53,7 +53,7 @@ class BookcasesTest(unittest.TestCase):
     def test_bare_book_region_exports_parameters_without_expanded_book_faces(self):
         profile=[(0,0,0,16,14,7,bookcases.ROLE,0,0)]
         result=bookcases.model(profile,{},'qianji')
-        self.assertEqual('myvillage:procedural_books',result['loader'])
+        self.assertEqual('yuanxian:procedural_books',result['loader'])
         self.assertEqual([],result['base_model']['elements'])
         self.assertEqual([[0,0,0,16,14,7,0,0]],result['book_regions'])
 

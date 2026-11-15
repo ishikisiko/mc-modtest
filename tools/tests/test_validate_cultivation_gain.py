@@ -23,8 +23,8 @@ class CultivationGainValidationTest(unittest.TestCase):
             "src/main/java/com/example/myvillage/cultivation",
             "src/main/java/com/example/myvillage/alchemy",
             "src/main/java/com/example/myvillage/client/cultivation",
-            "src/main/resources/data/myvillage/myvillage/realm",
-            "src/main/resources/assets/myvillage/lang",
+            "src/main/resources/data/yuanxian/yuanxian/realm",
+            "src/main/resources/assets/yuanxian/lang",
         )
         for relative in paths:
             source = ROOT / relative
@@ -55,7 +55,7 @@ class CultivationGainValidationTest(unittest.TestCase):
     def test_stage_cap_drift_is_rejected(self) -> None:
         path = (
             self.fixture_root
-            / "src/main/resources/data/myvillage/myvillage/realm/qi_refining.json"
+            / "src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json"
         )
         realm = json.loads(path.read_text(encoding="utf-8"))
         realm["stages"][0]["cultivation_cap"] = 1101
@@ -280,7 +280,7 @@ class CultivationGainValidationTest(unittest.TestCase):
     def test_stage_spirit_cost_drift_is_rejected(self) -> None:
         path = (
             self.fixture_root
-            / "src/main/resources/data/myvillage/myvillage/realm/qi_refining.json"
+            / "src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json"
         )
         realm = json.loads(path.read_text(encoding="utf-8"))
         realm["stages"][1]["spirit_stone_cost"] = 1
@@ -288,7 +288,7 @@ class CultivationGainValidationTest(unittest.TestCase):
 
         result = self.validate()
 
-        self.assert_error_contains(result, "PROGRESSION_BASELINE: stage myvillage:qi_refining_2 spirit_stone_cost must be 2")
+        self.assert_error_contains(result, "PROGRESSION_BASELINE: stage yuanxian:qi_refining_2 spirit_stone_cost must be 2")
 
     def test_legacy_reserve_use_is_rejected(self) -> None:
         path = self.find_java(r"class\s+BasicBreathingSettlement")

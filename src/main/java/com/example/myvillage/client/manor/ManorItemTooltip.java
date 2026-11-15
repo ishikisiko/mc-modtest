@@ -20,7 +20,7 @@ public final class ManorItemTooltip {
             if(Screen.hasShiftDown()) {
                 lines.add(1,info.materialsLine().copy().withStyle(ChatFormatting.GRAY));
                 lines.add(2,info.styleLine().copy().withStyle(ChatFormatting.DARK_GRAY));
-            } else lines.add(1,Component.translatable("tooltip.myvillage.manor_details").withStyle(ChatFormatting.DARK_GRAY));
+            } else lines.add(1,Component.translatable("tooltip.yuanxian.manor_details").withStyle(ChatFormatting.DARK_GRAY));
         });
     }
     private ManorItemTooltip() { }

@@ -11,7 +11,7 @@
   "accepted_draft_sha256": "26b9b7706b79fe6ca696c82f630af502872b67a49aa0cd24fd543113c77e0280",
   "manor": {
     "scene": "blueprints/lord_manors/cities/beiyuan.json",
-    "manifest": "src/main/resources/data/myvillage/lord_manors/beiyuan.json",
+    "manifest": "src/main/resources/data/yuanxian/lord_manors/beiyuan.json",
     "site": [
       74,
       16

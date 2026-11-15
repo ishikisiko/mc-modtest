@@ -2,16 +2,16 @@
 
 两类街景设施使用独立装饰方块和对应可放置物品，不再将缩小的整方块配方取整后放入世界。
 
-- `myvillage:rune_lamp`：两格高的细铜立灯，上格提供光照。灯面使用已有 `brush.ttf` 书法字体的“明”字，保留 32×32 像素贴图。
-- `myvillage:drying_rack`：两格宽、约一格四分之三高的木架，占用两格宽、两格高、一格深的空间。双柱等粗，木纹跟随构件方向；布面很薄，碰撞由木框承担。
+- `yuanxian:rune_lamp`：两格高的细铜立灯，上格提供光照。灯面使用已有 `brush.ttf` 书法字体的“明”字，保留 32×32 像素贴图。
+- `yuanxian:drying_rack`：两格宽、约一格四分之三高的木架，占用两格宽、两格高、一格深的空间。双柱等粗，木纹跟随构件方向；布面很薄，碰撞由木框承担。
 
 两者均列入 MyVillage 创造栏，有合成配方，支持手动放置、朝向和取物键。服务器先检查全部占用格、支撑和权限，再一次放置并扣除一件物品；拆除由根格拥有唯一掉落。它们没有额外菜单、耗灵或晾晒玩法。
 
 测试世界可使用：
 
 ```mcfunction
-/give @s myvillage:rune_lamp
-/give @s myvillage:drying_rack
+/give @s yuanxian:rune_lamp
+/give @s yuanxian:drying_rack
 ```
 
 ## 当前开发包

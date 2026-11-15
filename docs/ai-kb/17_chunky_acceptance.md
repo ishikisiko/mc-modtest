@@ -2,7 +2,7 @@
 
 See-also specs: [`chunky-acceptance-automation`](../contracts/tooling.md#chunky-acceptance-automation), [`validation`](../contracts/tooling.md#validation).
 
-Stages 1 through 4 are implemented. Stage 1 verifies the server lifecycle, Chunky installation, RCON command channel, bounded chunk generation, save, stop, and report writing. Stage 2 runs the coordinate-addressable MyVillage commands from RCON after Stage 1 passes. Stage 3 extracts the full optional-mod jar set, verifies expected mod ids plus mandatory jar dependencies, and then runs full-mod gallery/town/worldgen-sect cases if the preflight passes. Stage 4 locates a natural `myvillage:sect` and runs a bounded Chunky task around that site after Stage 3 passes.
+Stages 1 through 4 are implemented. Stage 1 verifies the server lifecycle, Chunky installation, RCON command channel, bounded chunk generation, save, stop, and report writing. Stage 2 runs the coordinate-addressable MyVillage commands from RCON after Stage 1 passes. Stage 3 extracts the full optional-mod jar set, verifies expected mod ids plus mandatory jar dependencies, and then runs full-mod gallery/town/worldgen-sect cases if the preflight passes. Stage 4 locates a natural `yuanxian:sect` and runs a bounded Chunky task around that site after Stage 3 passes.
 
 Launch path:
 
@@ -40,33 +40,33 @@ The report retains the matching line and offset before save/stop.
 Stage 2 then runs:
 
 ```text
-myvillage list
-myvillage placeat small_house_001 0 80 192
-myvillage placeat chinese_mansion_001 128 180 192
-myvillage galleryat cultivation 256 80 192
-myvillage townat 20260618 1024 80 192
-myvillage sectat 20260618 -1024 80 192
-myvillage sectat worldgen 20260618 none -1024 80 768
+yuanxian list
+yuanxian placeat small_house_001 0 80 192
+yuanxian placeat chinese_mansion_001 128 180 192
+yuanxian galleryat cultivation 256 80 192
+yuanxian townat 20260618 1024 80 192
+yuanxian sectat 20260618 -1024 80 192
+yuanxian sectat worldgen 20260618 none -1024 80 768
 ```
 
 The acceptance profile sets `max-tick-time=-1` so long synchronous generation commands are not killed by the server watchdog during automation.
 Stage 3 then runs:
 
 ```text
-myvillage galleryat cultivation 1536 80 192
-myvillage townat 20260618 2304 80 192
-myvillage sectat worldgen 20260618 none 2304 80 768
+yuanxian galleryat cultivation 1536 80 192
+yuanxian townat 20260618 2304 80 192
+yuanxian sectat worldgen 20260618 none 2304 80 768
 ```
 
 The local staged `exmod/mod_jars.zip` must include `architectury` because
 Fetzi's Displays declares it as mandatory. With
 `architectury-13.0.8-neoforge.jar` present, the full Stage 4 run passed on
 2026-06-30: Stage 3 loaded 10 jars with no missing dependency, and Stage 4
-located `myvillage:sect` at `[5568, ~, 1888]`.
+located `yuanxian:sect` at `[5568, ~, 1888]`.
 Stage 4 runs:
 
 ```text
-locate structure myvillage:sect
+locate structure yuanxian:sect
 chunky world minecraft:overworld
 chunky shape square
 chunky center <located_x> <located_z>

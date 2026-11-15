@@ -10,12 +10,12 @@ class PackedResourcesIntegrationTest {
     @Test void everyActualModelStructureAndLinkedResourceRestoresOriginalBytes()throws Exception{
         int models=0,structures=0,linked=0,otherModels=0,expected=0,banks=0;
         Set<String> linkedPaths=new HashSet<>();
-        for(String path:new String[]{"/data/myvillage/lord_manors/catalog.json","/data/myvillage/qianji/components/catalog.json"}){
+        for(String path:new String[]{"/data/yuanxian/lord_manors/catalog.json","/data/yuanxian/qianji/components/catalog.json"}){
             try(var in=BuiltinResources.open(path)){
                 var catalog=JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
                 for(var row:catalog.getAsJsonArray("banks")){
                     var bank=row.getAsJsonObject();banks++;expected+=bank.getAsJsonArray("profiles").size();String id=bank.get("id").getAsString();
-                    linkedPaths.add("assets/myvillage/blockstates/"+id+".json");linkedPaths.add("assets/myvillage/models/item/"+id+".json");linkedPaths.add("data/myvillage/loot_table/blocks/"+id+".json");
+                    linkedPaths.add("assets/yuanxian/blockstates/"+id+".json");linkedPaths.add("assets/yuanxian/models/item/"+id+".json");linkedPaths.add("data/yuanxian/loot_table/blocks/"+id+".json");
                 }
             }
         }
@@ -30,7 +30,7 @@ class PackedResourcesIntegrationTest {
                     }else if(entry.path().endsWith(".nbt")){assertEquals(0x1f,value[0]&255);assertEquals(0x8b,value[1]&255);structures++;}
                     else if(linkedPaths.contains(entry.path()))linked++;
                     else{
-                        assertTrue(entry.path().startsWith("assets/myvillage/models/"),entry.path());
+                        assertTrue(entry.path().startsWith("assets/yuanxian/models/"),entry.path());
                         assertTrue(entry.path().endsWith(".json")||entry.path().endsWith(".obj")||entry.path().endsWith(".mtl"),entry.path());otherModels++;
                     }
                 }

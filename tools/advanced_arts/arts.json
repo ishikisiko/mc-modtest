@@ -2,17 +2,17 @@
   "schema": 1,
   "arts": [
     {
-      "id": "myvillage:qinglian_jiange",
+      "id": "yuanxian:qinglian_jiange",
       "name_zh": "青莲剑歌",
       "name_en": "Jade Lotus Refrain",
       "family": "sword",
-      "school": "myvillage:sword",
+      "school": "yuanxian:sword",
       "slot": 0,
       "qi_cost": 18,
       "cooldown_ticks": 160,
       "grade": 2,
-      "minimum_realm": "myvillage:qi_refining",
-      "minimum_stage": "myvillage:qi_refining_4",
+      "minimum_realm": "yuanxian:qi_refining",
+      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -30,7 +30,7 @@
       "description_zh": "三段剑光连斩，末斩扩大范围并击退。适合清理前方敌群。",
       "phases": [
         {
-          "move": "myvillage:basic_sword_02_horizontal_cut",
+          "move": "yuanxian:basic_sword_02_horizontal_cut",
           "shape": "fan",
           "reach": 6.4,
           "arc_degrees": 150,
@@ -49,7 +49,7 @@
           "fx": "arc"
         },
         {
-          "move": "myvillage:basic_sword_03_rising_cut",
+          "move": "yuanxian:basic_sword_03_rising_cut",
           "shape": "fan",
           "reach": 6.8,
           "arc_degrees": 140,
@@ -68,7 +68,7 @@
           "fx": "helix"
         },
         {
-          "move": "myvillage:basic_sword_04_diagonal_cut",
+          "move": "yuanxian:basic_sword_04_diagonal_cut",
           "shape": "fan",
           "reach": 8,
           "arc_degrees": 170,
@@ -94,17 +94,17 @@
       "description_en": "Three advancing cuts culminate in a wide lotus arc. A frontal crowd-clearing art."
     },
     {
-      "id": "myvillage:huifeng_jianzhen",
+      "id": "yuanxian:huifeng_jianzhen",
       "name_zh": "回风剑阵",
       "name_en": "Returning Wind Guard",
       "family": "sword",
-      "school": "myvillage:sword",
+      "school": "yuanxian:sword",
       "slot": 1,
       "qi_cost": 14,
       "cooldown_ticks": 180,
       "grade": 2,
-      "minimum_realm": "myvillage:qi_refining",
-      "minimum_stage": "myvillage:qi_refining_4",
+      "minimum_realm": "yuanxian:qi_refining",
+      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -122,7 +122,7 @@
       "description_zh": "起手迎敌可减伤；成功承受正面攻击后，本次反击强化。随后环斩解围。",
       "phases": [
         {
-          "move": "myvillage:basic_sword_02_horizontal_cut",
+          "move": "yuanxian:basic_sword_02_horizontal_cut",
           "shape": "ring",
           "reach": 7,
           "arc_degrees": 360,
@@ -141,7 +141,7 @@
           "fx": "ring"
         },
         {
-          "move": "myvillage:basic_sword_04_diagonal_cut",
+          "move": "yuanxian:basic_sword_04_diagonal_cut",
           "shape": "fan",
           "reach": 8,
           "arc_degrees": 160,
@@ -167,17 +167,17 @@
       "description_en": "Time the opening ward against a frontal hit to reduce damage and empower this cast. Ring slash followed by a counter-cut."
     },
     {
-      "id": "myvillage:canglong_chushui",
+      "id": "yuanxian:canglong_chushui",
       "name_zh": "苍龙出水",
       "name_en": "Azure Dragon Surge",
       "family": "spear",
-      "school": "myvillage:spear",
+      "school": "yuanxian:spear",
       "slot": 0,
       "qi_cost": 20,
       "cooldown_ticks": 180,
       "grade": 2,
-      "minimum_realm": "myvillage:qi_refining",
-      "minimum_stage": "myvillage:qi_refining_4",
+      "minimum_realm": "yuanxian:qi_refining",
+      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -195,7 +195,7 @@
       "description_zh": "三次循地突进穿刺，可贯穿一线多名敌人；遇墙或悬崖停止位移。",
       "phases": [
         {
-          "move": "myvillage:basic_spear_01_mid_thrust",
+          "move": "yuanxian:basic_spear_01_mid_thrust",
           "shape": "line",
           "reach": 10,
           "arc_degrees": 120,
@@ -214,7 +214,7 @@
           "fx": "helix"
         },
         {
-          "move": "myvillage:basic_spear_01_mid_thrust",
+          "move": "yuanxian:basic_spear_01_mid_thrust",
           "shape": "line",
           "reach": 10.8,
           "arc_degrees": 120,
@@ -233,7 +233,7 @@
           "fx": "helix"
         },
         {
-          "move": "myvillage:basic_spear_01_mid_thrust",
+          "move": "yuanxian:basic_spear_01_mid_thrust",
           "shape": "line",
           "reach": 12,
           "arc_degrees": 120,
@@ -259,17 +259,17 @@
       "description_en": "Three grounded surges pierce several enemies in a line. Steps respect walls and ledges."
     },
     {
-      "id": "myvillage:hengsao_qianjun",
+      "id": "yuanxian:hengsao_qianjun",
       "name_zh": "横扫千军",
       "name_en": "Thousand-Army Sweep",
       "family": "spear",
-      "school": "myvillage:spear",
+      "school": "yuanxian:spear",
       "slot": 1,
       "qi_cost": 18,
       "cooldown_ticks": 200,
       "grade": 2,
-      "minimum_realm": "myvillage:qi_refining",
-      "minimum_stage": "myvillage:qi_refining_4",
+      "minimum_realm": "yuanxian:qi_refining",
+      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -287,7 +287,7 @@
       "description_zh": "两重环形枪罡，先牵制近敌，再击退四周敌群，争取重新站位空间。",
       "phases": [
         {
-          "move": "myvillage:basic_spear_02_sweep",
+          "move": "yuanxian:basic_spear_02_sweep",
           "shape": "ring",
           "reach": 8,
           "arc_degrees": 360,
@@ -306,7 +306,7 @@
           "fx": "ring"
         },
         {
-          "move": "myvillage:basic_spear_02_sweep",
+          "move": "yuanxian:basic_spear_02_sweep",
           "shape": "ring",
           "reach": 9,
           "arc_degrees": 360,
@@ -332,17 +332,17 @@
       "description_en": "Two circular spear auras stagger nearby enemies, then push them outward to create space."
     },
     {
-      "id": "myvillage:bengshan_jin",
+      "id": "yuanxian:bengshan_jin",
       "name_zh": "崩山劲",
       "name_en": "Mountain-Breaking Palm",
       "family": "fist",
-      "school": "myvillage:fist",
+      "school": "yuanxian:fist",
       "slot": 0,
       "qi_cost": 16,
       "cooldown_ticks": 160,
       "grade": 2,
-      "minimum_realm": "myvillage:qi_refining",
-      "minimum_stage": "myvillage:qi_refining_4",
+      "minimum_realm": "yuanxian:qi_refining",
+      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -360,7 +360,7 @@
       "description_zh": "近身挑击接震地掌，以灵力震环打击周围目标；不破坏地形。",
       "phases": [
         {
-          "move": "myvillage:basic_fist_03_uppercut",
+          "move": "yuanxian:basic_fist_03_uppercut",
           "shape": "fan",
           "reach": 4.5,
           "arc_degrees": 100,
@@ -379,7 +379,7 @@
           "fx": "helix"
         },
         {
-          "move": "myvillage:basic_fist_04_chop",
+          "move": "yuanxian:basic_fist_04_chop",
           "shape": "ring",
           "reach": 8,
           "arc_degrees": 360,
@@ -405,17 +405,17 @@
       "description_en": "An uppercut followed by a ground-shock palm launches and scatters nearby enemies without breaking blocks."
     },
     {
-      "id": "myvillage:jingang_zhen",
+      "id": "yuanxian:jingang_zhen",
       "name_zh": "金刚震",
       "name_en": "Adamant Reversal",
       "family": "fist",
-      "school": "myvillage:fist",
+      "school": "yuanxian:fist",
       "slot": 1,
       "qi_cost": 14,
       "cooldown_ticks": 200,
       "grade": 2,
-      "minimum_realm": "myvillage:qi_refining",
-      "minimum_stage": "myvillage:qi_refining_4",
+      "minimum_realm": "yuanxian:qi_refining",
+      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -433,7 +433,7 @@
       "description_zh": "起手凝罡抵御正面攻击，格挡成功强化震掌；震开贴身敌群。",
       "phases": [
         {
-          "move": "myvillage:basic_fist_04_chop",
+          "move": "yuanxian:basic_fist_04_chop",
           "shape": "ring",
           "reach": 5.7,
           "arc_degrees": 360,
@@ -452,7 +452,7 @@
           "fx": "shock"
         },
         {
-          "move": "myvillage:basic_fist_02_horizontal_palm",
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
           "shape": "ring",
           "reach": 8,
           "arc_degrees": 360,

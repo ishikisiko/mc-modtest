@@ -138,7 +138,7 @@ public final class RoadPaver {
     private static boolean replaceable(WorldPlan world,RoadRules rules,int x,int z,BlockState state) {
         String id=BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
         if(state.isAir()||state.canBeReplaced()||state.is(BlockTags.LEAVES)||state.is(BlockTags.LOGS)
-            ||rules.replaceable.contains(id)||rules.vegetation.contains(id)||id.equals(rules.surface)||id.equals(rules.slab)||id.equals(rules.foundation)||id.equals("myvillage:"+rules.guard.id)
+            ||rules.replaceable.contains(id)||rules.vegetation.contains(id)||id.equals(rules.surface)||id.equals(rules.slab)||id.equals(rules.foundation)||id.equals("yuanxian:"+rules.guard.id)
             ||Set.of(rules.style.edgeSurface(),rules.style.edgeSlab(),rules.style.curbSurface(),rules.style.curbSlab(),rules.style.gradeFoundation()).contains(id))return true;
         // The capital terrain generator owns these collar materials. They do not grant
         // permission to edit actual city cells (columnAllowed already rejected those).

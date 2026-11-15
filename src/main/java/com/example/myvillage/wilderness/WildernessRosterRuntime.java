@@ -29,11 +29,11 @@ public final class WildernessRosterRuntime {
         if(e.getSpawnType()!=MobSpawnType.NATURAL&&e.getSpawnType()!=MobSpawnType.CHUNK_GENERATION)return;
         var level=e.getLevel().getLevel();var pos=mob.blockPosition();var region=WildernessRuntime.regionAt(level,pos);
         if(region.isEmpty()){e.setSpawnCancelled(true);return;}
-        if(mob.getPersistentData().contains("myvillage_roster_birth"))return;
+        if(mob.getPersistentData().contains("yuanxian_roster_birth"))return;
         var realm=WildernessRules.bundled().region(region.get()).orElseThrow().beast().sample(level.getSeed(),region.get(),mob.getRandom().nextLong());
         if(mob instanceof RosterBeastEntity beast)beast.assignWildernessBirth(new BeastBirth(realm,region.get(),pos.getX(),pos.getY(),pos.getZ(),true));
         else {StatsRuntime.applyRealm(mob,realm.realmId(),realm.stage());mob.setHealth(mob.getMaxHealth());}
         var birth=new net.minecraft.nbt.CompoundTag();birth.putString("region",region.get());birth.putString("realm",realm.realmId());birth.putInt("stage",realm.stage());birth.putLong("pos",pos.asLong());
-        mob.getPersistentData().put("myvillage_roster_birth",birth);mob.getPersistentData().putBoolean("myvillage_roster_natural",true);
+        mob.getPersistentData().put("yuanxian_roster_birth",birth);mob.getPersistentData().putBoolean("yuanxian_roster_natural",true);
     }
 }

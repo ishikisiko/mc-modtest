@@ -35,7 +35,7 @@ class ReplyTest(unittest.TestCase):
     def test_war_reply(self):
         self.assertTrue(ev.war_reply_ok("玄黄阁 declared war on 青木宗 (admin)"))
         self.assertTrue(ev.war_reply_ok("玄黄阁向青木宗宣战（管理）"))
-        self.assertTrue(ev.war_reply_ok("commands.myvillage.world.sect_war.done"))
+        self.assertTrue(ev.war_reply_ok("commands.yuanxian.world.sect_war.done"))
         self.assertFalse(ev.war_reply_ok("Declaring war failed: already_at_war"))
         self.assertFalse(ev.war_reply_ok("Unknown or incomplete command, see below for error"))
         self.assertFalse(ev.war_reply_ok(""))

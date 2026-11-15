@@ -1,7 +1,7 @@
 """Armed ridge reaver; npcgen owns anatomy, clothing, UV and shared sword retargeting."""
 from .. import wilderness
 from ...beastgen import roster
-ID = "myvillage:ridge_reaver"
+ID = "yuanxian:ridge_reaver"
 ENTITY = "ridge_reaver"
 NAME = "ridge_reaver"
 LOOK = "default"

@@ -31,7 +31,7 @@ class ManorOptionalLoadingTest {
             var type=loader.loadClass("com.example.myvillage.manor.ManorPresentation");
             Object catalog=type.getMethod("get").invoke(null);
             Object info=type.getMethod("component",String.class,int.class).invoke(catalog,"manor_lingyue_carved_7",21);
-            assertEquals("manor_part.myvillage.window",info.getClass().getMethod("nameKey").invoke(info));
+            assertEquals("manor_part.yuanxian.window",info.getClass().getMethod("nameKey").invoke(info));
         }
     }
     @Test void jadeCommonRegistrationLoadsOnADedicatedServerWithoutClientClasses() throws Exception {

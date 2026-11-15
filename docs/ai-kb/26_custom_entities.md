@@ -1,6 +1,6 @@
 # Custom Entities
 
-The first implemented MyVillage custom entity is `myvillage:simple_fox`. Its
+The first implemented MyVillage custom entity is `yuanxian:simple_fox`. Its
 purpose is to exercise the complete low-cost entity path rather than introduce
 a new combat or animation system.
 
@@ -11,7 +11,7 @@ subclasses the mapped Minecraft 1.21.1 `Fox`, so vanilla navigation, goals,
 poses, synchronized fox flags, NBT, held-item behavior, and sounds remain
 authoritative. The only behavior adaptation is offspring construction: vanilla
 `Fox` hardcodes `minecraft:fox`, so `SimpleFoxEntity` creates
-`myvillage:simple_fox` and keeps the inherited parent-variant choice.
+`yuanxian:simple_fox` and keeps the inherited parent-variant choice.
 
 `ModEntities` registers the type at vanilla fox dimensions (`0.6 x 0.7`), and
 the mod-bus entity events register `Fox.createAttributes()` plus the same
@@ -20,8 +20,8 @@ by vanilla. Natural spawning is incomplete unless both that Java registration
 and these data resources exist:
 
 ```text
-data/myvillage/tags/worldgen/biome/has_simple_fox.json
-data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json
+data/yuanxian/tags/worldgen/biome/has_simple_fox.json
+data/yuanxian/neoforge/biome_modifier/add_simple_fox_spawns.json
 ```
 
 The initial modifier is intentionally conservative: taiga-family biomes,
@@ -36,14 +36,14 @@ entity and mod-entry classes do not import `net.minecraft.client` types.
 The visible/resource set is:
 
 ```text
-assets/myvillage/textures/entity/simple_fox/simple_fox.png
-assets/myvillage/models/item/simple_fox_spawn_egg.json
-assets/myvillage/lang/en_us.json
-assets/myvillage/lang/zh_cn.json
-data/myvillage/loot_table/entities/simple_fox.json
+assets/yuanxian/textures/entity/simple_fox/simple_fox.png
+assets/yuanxian/models/item/simple_fox_spawn_egg.json
+assets/yuanxian/lang/en_us.json
+assets/yuanxian/lang/zh_cn.json
+data/yuanxian/loot_table/entities/simple_fox.json
 ```
 
-The spawn egg is in `myvillage:main`. Sounds are legal vanilla fox events; no
+The spawn egg is in `yuanxian:main`. Sounds are legal vanilla fox events; no
 empty OGG or redundant `sounds.json` entry is shipped. The first loot table is
 intentionally empty.
 
@@ -85,9 +85,9 @@ python3 -m unittest tools.tests.test_validate_custom_entities
 Game-side smoke commands:
 
 ```mcfunction
-/summon myvillage:simple_fox ~ ~ ~
-/give @s myvillage:simple_fox_spawn_egg
-/data get entity @e[type=myvillage:simple_fox,limit=1,sort=nearest]
+/summon yuanxian:simple_fox ~ ~ ~
+/give @s yuanxian:simple_fox_spawn_egg
+/data get entity @e[type=yuanxian:simple_fox,limit=1,sort=nearest]
 ```
 
 Dedicated-server startup proves side safety and data codec loading, not entity
@@ -98,7 +98,7 @@ accepted the simple fox on 2026-07-12.
 ## See Also
 
 - Runtime spec: [`custom-entity-runtime`](../contracts/combat-entities.md#custom-entity-runtime)
-- Hostile beasts with their own model and moves (`myvillage:demon_wolf`): [38_hostile_beasts.md](38_hostile_beasts.md), [`hostile-beast-runtime`](../contracts/combat-entities.md#hostile-beast-runtime)
-- Humanoid NPCs with a generated layered model (`myvillage:cultivator`): [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../contracts/combat-entities.md#humanoid-npc-runtime)
+- Hostile beasts with their own model and moves (`yuanxian:demon_wolf`): [38_hostile_beasts.md](38_hostile_beasts.md), [`hostile-beast-runtime`](../contracts/combat-entities.md#hostile-beast-runtime)
+- Humanoid NPCs with a generated layered model (`yuanxian:cultivator`): [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../contracts/combat-entities.md#humanoid-npc-runtime)
 - Validation checklist: [09_validation_checklist.md](09_validation_checklist.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

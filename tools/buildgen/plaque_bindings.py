@@ -12,9 +12,9 @@ from typing import Any, Optional
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 FRAME_MANIFEST = SCRIPT_DIR / "plaque_frames.json"
-BINDINGS_PATH = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "plaque_bindings.json"
-PAINTING_ROOT = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "painting_variant" / "inscription"
-INSCRIPTION_TEXTURE_ROOT = REPO_ROOT / "src" / "main" / "resources" / "assets" / "myvillage" / "textures" / "painting" / "inscription"
+BINDINGS_PATH = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "plaque_bindings.json"
+PAINTING_ROOT = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "painting_variant" / "inscription"
+INSCRIPTION_TEXTURE_ROOT = REPO_ROOT / "src" / "main" / "resources" / "assets" / "yuanxian" / "textures" / "painting" / "inscription"
 VALID_MOUNTS = {"wall", "hanging"}
 VALID_ORIENTATIONS = {"horizontal", "vertical"}
 
@@ -35,7 +35,7 @@ class Inscription:
 
     @property
     def variant(self) -> str:
-        return f"myvillage:inscription/{self.bucket}/{self.id}"
+        return f"yuanxian:inscription/{self.bucket}/{self.id}"
 
 
 @dataclass(frozen=True)
@@ -54,7 +54,7 @@ class Binding:
         base = "hanging_plaque" if self.mount == "hanging" else "wall_plaque"
         if self.orientation == "vertical":
             base += "_vertical"
-        return f"myvillage:{base}"
+        return f"yuanxian:{base}"
 
 
 class BindingValidationError(ValueError):

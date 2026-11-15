@@ -10,19 +10,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PanelAssetsTest {
     @Test void titleFallbackPreservesBodyAppearanceWithoutSharingMutableTrueTypeProviders() throws Exception {
-        try(var body=getClass().getResourceAsStream("/assets/myvillage/font/panel_body.json");
-                var title=getClass().getResourceAsStream("/assets/myvillage/font/panel_title.json")) {
+        try(var body=getClass().getResourceAsStream("/assets/yuanxian/font/panel_body.json");
+                var title=getClass().getResourceAsStream("/assets/yuanxian/font/panel_title.json")) {
             var bodyProviders=JsonParser.parseReader(new InputStreamReader(body,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("providers");
             var titleProviders=JsonParser.parseReader(new InputStreamReader(title,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("providers");
             assertEquals(bodyProviders.size()+1,titleProviders.size());
             for(int i=0;i<bodyProviders.size();i++)assertEquals(bodyProviders.get(i),titleProviders.get(i+1));
-            assertEquals("myvillage:brush.ttf",titleProviders.get(0).getAsJsonObject().get("file").getAsString());
+            assertEquals("yuanxian:brush.ttf",titleProviders.get(0).getAsJsonObject().get("file").getAsString());
             assertTrue(titleProviders.asList().stream().noneMatch(p->p.getAsJsonObject().has("id")
-                    && p.getAsJsonObject().get("id").getAsString().equals("myvillage:panel_body")));
+                    && p.getAsJsonObject().get("id").getAsString().equals("yuanxian:panel_body")));
         }
     }
     private PanelAssets.Look bundled() {
-        var stream=getClass().getResourceAsStream("/assets/myvillage/cultivation_panel.json");
+        var stream=getClass().getResourceAsStream("/assets/yuanxian/cultivation_panel.json");
         assertNotNull(stream);
         return PanelAssets.decode(JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject());
     }
@@ -34,7 +34,7 @@ class PanelAssetsTest {
             assertNotEquals(look.categories().get("active"),entry.getValue());
         }
         for(String id:new String[]{"tuna_xinfa","qingmu_changchun_gong","new_core_variant"})
-            assertEquals(look.categories().get("core"),look.iconFor(ResourceLocation.fromNamespaceAndPath("myvillage",id),TechniqueCategory.CORE));
+            assertEquals(look.categories().get("core"),look.iconFor(ResourceLocation.fromNamespaceAndPath("yuanxian",id),TechniqueCategory.CORE));
         assertEquals(look.categories().get("active"),look.iconFor(ResourceLocation.parse("addon:new_art"),TechniqueCategory.ACTIVE));
         assertEquals(look.categories().get("unknown"),look.iconFor(ResourceLocation.parse("addon:missing"),null));
     }

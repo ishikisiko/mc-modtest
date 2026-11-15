@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
 final class BeastDataLoaderTest {
-    private static final String WOLF_FILE = "data/myvillage/beast/demon_wolf.json";
+    private static final String WOLF_FILE = "data/yuanxian/beast/demon_wolf.json";
 
     @Test
     void loadsTheBundledDemonWolf() {
@@ -113,12 +113,12 @@ final class BeastDataLoaderTest {
         assertEquals("stagger.animation",
                 failure(json -> json.getAsJsonObject("stagger").addProperty("animation", "idle")).field());
         assertEquals("moves[1].id",
-                failure(json -> move(json, 1).addProperty("id", "myvillage:demon_wolf_bite")).field());
+                failure(json -> move(json, 1).addProperty("id", "yuanxian:demon_wolf_bite")).field());
     }
 
     @Test
     void entityMustMatchTheIndex() {
-        BeastDataException error = failure(json -> json.addProperty("entity", "myvillage:other_wolf"));
+        BeastDataException error = failure(json -> json.addProperty("entity", "yuanxian:other_wolf"));
         assertEquals("entity", error.field());
     }
 
@@ -126,14 +126,14 @@ final class BeastDataLoaderTest {
     void indexProblemsNameTheIndex() {
         BeastDataException missing = assertThrows(BeastDataException.class, () -> BeastDataLoader.load(path ->
                 path.equals(BeastDataLoader.INDEX_PATH)
-                        ? stream("{\"schema\": 1, \"beasts\": [\"myvillage:no_such_beast\"]}")
+                        ? stream("{\"schema\": 1, \"beasts\": [\"yuanxian:no_such_beast\"]}")
                         : BeastTestData.open(path)));
         assertEquals(BeastDataLoader.INDEX_PATH, missing.file());
         assertEquals("beasts[0]", missing.field());
 
         BeastDataException duplicateKey = assertThrows(BeastDataException.class, () -> BeastDataLoader.load(path ->
                 path.equals(BeastDataLoader.INDEX_PATH)
-                        ? stream("{\"schema\": 1, \"schema\": 1, \"beasts\": [\"myvillage:demon_wolf\"]}")
+                        ? stream("{\"schema\": 1, \"schema\": 1, \"beasts\": [\"yuanxian:demon_wolf\"]}")
                         : BeastTestData.open(path)));
         assertEquals("schema", duplicateKey.field());
         assertFalse(duplicateKey.getMessage().isBlank());

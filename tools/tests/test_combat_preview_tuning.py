@@ -13,7 +13,7 @@ from tools.combat_preview import cli
 from tools.combat_preview import tuning as t
 
 ROOT = Path(__file__).resolve().parents[2]
-SPEAR_RIG = ROOT / "src/main/resources/assets/myvillage/combat/lingxiao_spear_first_person.json"
+SPEAR_RIG = ROOT / "src/main/resources/assets/yuanxian/combat/lingxiao_spear_first_person.json"
 RIG = {"rig": {"shoulder": [0.3, -0.27, -0.05], "arm": {"thickness": 0.42},
                "off_hand": {"grip_diagonal": 30}}, "neutral": {"reach": 0.3}}
 
@@ -21,8 +21,8 @@ RIG = {"rig": {"shoulder": [0.3, -0.27, -0.05], "arm": {"thickness": 0.42},
 class PathTest(unittest.TestCase):
     def test_keys_and_indices(self):
         self.assertEqual(t.parse_path("rig.shoulder[1]"), ["rig", "shoulder", 1])
-        self.assertEqual(t.parse_path("moves.myvillage:basic_spear_01_mid_thrust.keys[3].reach"),
-                         ["moves", "myvillage:basic_spear_01_mid_thrust", "keys", 3, "reach"])
+        self.assertEqual(t.parse_path("moves.yuanxian:basic_spear_01_mid_thrust.keys[3].reach"),
+                         ["moves", "yuanxian:basic_spear_01_mid_thrust", "keys", 3, "reach"])
         self.assertEqual(t.format_path(["rig", "shoulder", 1]), "rig.shoulder[1]")
 
     def test_bad_paths(self):

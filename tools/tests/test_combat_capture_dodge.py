@@ -11,28 +11,28 @@ from tools.combat_capture.data import Move, load_weapon
 
 ROOT = Path(__file__).resolve().parents[2]
 RESOURCES = ROOT / "src/main/resources"
-BITE = "myvillage:demon_wolf_bite"
-POUNCE = "myvillage:demon_wolf_pounce"
+BITE = "yuanxian:demon_wolf_bite"
+POUNCE = "yuanxian:demon_wolf_pounce"
 
 STARTED = ("[12:00:01] [Server thread/INFO] [co.ex.my.co.ru.CombatDodgeService/]: DODGE_DEBUG player=CaptureDev "
-           "t=1204 result=started technique=myvillage:taxue_wuhen dir=NONE yaw=180.0 distance=4.50 invuln=7 cooldown=24")
+           "t=1204 result=started technique=yuanxian:taxue_wuhen dir=NONE yaw=180.0 distance=4.50 invuln=7 cooldown=24")
 REJECTED = ("[12:00:02] [Server thread/INFO] [co.ex.my.co.ru.CombatDodgeService/]: DODGE_DEBUG player=CaptureDev "
             "t=1209 result=rejected reason=COOLDOWN")
 CANCELLED = ("[12:00:01] [Server thread/INFO] [co.ex.my.co.ru.CombatDodgeService/]: DODGE_DEBUG player=CaptureDev "
              "t=1206 cancelled_damage=4.5 source=minecraft:mob_attack")
 HIT = ("[12:00:01] [Server thread/INFO] [co.ex.my.en.be.BeastEntity/]: BEAST_DEBUG #7 t=15 hit minecraft:player "
-       "with myvillage:demon_wolf_bite at move tick 10: damage 4.5 accepted=true hp 20.0 -> 15.5")
+       "with yuanxian:demon_wolf_bite at move tick 10: damage 4.5 accepted=true hp 20.0 -> 15.5")
 MISS = HIT.replace("accepted=true hp 20.0 -> 15.5", "accepted=false hp 20.0 -> 20.0")
 
 
 def sword_move(active=(3, 4), total=11) -> Move:
-    return Move(index=1, id="myvillage:basic_sword_01_thrust", kind="thrust", total_ticks=total,
+    return Move(index=1, id="yuanxian:basic_sword_01_thrust", kind="thrust", total_ticks=total,
                 active_ticks=list(active), buffer_start_tick=3, chain_tick=7)
 
 
 class PlanTest(unittest.TestCase):
     def setUp(self):
-        self.wolf = beast_data("myvillage:demon_wolf")
+        self.wolf = beast_data("yuanxian:demon_wolf")
         self.moves = {m["id"]: m for m in self.wolf["moves"]}
 
     def test_demon_wolf_trials_follow_the_brief(self):
@@ -54,9 +54,9 @@ class PlanTest(unittest.TestCase):
             self.assertLessEqual(plan["left"] - dodge.LEFT_LEAD_TICKS, plan["left"])
 
     def test_derived_ticks_for_an_unlisted_move(self):
-        move = dict(self.moves[BITE], id="myvillage:other_bite")
+        move = dict(self.moves[BITE], id="yuanxian:other_bite")
         self.assertEqual(dodge.trial_ticks(move), {"distance": 2.9, "back": (4, 7, 9, 10), "left": 9})
-        far = dict(self.moves[POUNCE], id="myvillage:other_pounce")
+        far = dict(self.moves[POUNCE], id="yuanxian:other_pounce")
         self.assertEqual(dodge.trial_ticks(far), {"distance": 6.0, "back": (13, 16, 18, 19), "left": 18})
 
     def test_recovery_ticks_from_the_first_sword_move(self):
@@ -67,7 +67,7 @@ class PlanTest(unittest.TestCase):
         self.assertLessEqual(rec["timing"], first.active_ticks[1])
         self.assertEqual(rec["cancel"], first.active_ticks[1] + 2)
         self.assertLess(rec["cancel"], first.total_ticks)
-        style = json.loads((RESOURCES / "data/myvillage/combat/style/basic_sword.json").read_text(encoding="utf-8"))
+        style = json.loads((RESOURCES / "data/yuanxian/combat/style/basic_sword.json").read_text(encoding="utf-8"))
         self.assertEqual(first.id, style["moves"][0]["id"])
 
     def test_recovery_ticks_refuse_an_impossible_move(self):
@@ -87,7 +87,7 @@ class PlanTest(unittest.TestCase):
 class ParseTest(unittest.TestCase):
     def test_dodge_lines(self):
         e = dodge.parse_dodge_line(STARTED)
-        self.assertEqual((e["kind"], e["t"], e["dir"], e["technique"]), ("started", 1204, "NONE", "myvillage:taxue_wuhen"))
+        self.assertEqual((e["kind"], e["t"], e["dir"], e["technique"]), ("started", 1204, "NONE", "yuanxian:taxue_wuhen"))
         r = dodge.parse_dodge_line(REJECTED)
         self.assertEqual((r["kind"], r["reason"], r["t"]), ("rejected", "COOLDOWN", 1209))
         c = dodge.parse_dodge_line(CANCELLED)
@@ -156,18 +156,18 @@ class VerdictTest(unittest.TestCase):
 class PageAndCliTest(unittest.TestCase):
     def test_technique_movement_reads_effects(self):
         with tempfile.TemporaryDirectory() as d:
-            p = Path(d) / "data/myvillage/myvillage/technique/taxue_wuhen.json"
+            p = Path(d) / "data/yuanxian/yuanxian/technique/taxue_wuhen.json"
             p.parent.mkdir(parents=True)
             p.write_text(json.dumps({"effects": {"movement": {"dash_distance": 4.5, "cooldown_ticks": 24}}}),
                          encoding="utf-8")
-            self.assertEqual(dodge.technique_movement(Path(d), "myvillage:taxue_wuhen")["cooldown_ticks"], 24)
-            self.assertIsNone(dodge.technique_movement(Path(d), "myvillage:liuyun_bu"))
+            self.assertEqual(dodge.technique_movement(Path(d), "yuanxian:taxue_wuhen")["cooldown_ticks"], 24)
+            self.assertIsNone(dodge.technique_movement(Path(d), "yuanxian:liuyun_bu"))
 
     def test_page_renders_and_escapes(self):
         trial = {"trial": "demon_wolf_bite: backstep at move tick 9 <x>", "press_move_tick": 9, "landed_move_tick": 10,
                  "result": "started", "hp_before": 20.0, "hp_after": 20.0, "player_moved": 4.3, "bitten": False,
                  "dodged": True, "cancelled_damage": True, "expect": None, "expectation_met": None}
-        m = {"beast": "myvillage:demon_wolf", "technique": "myvillage:taxue_wuhen", "movement": {"dash_distance": 4.5},
+        m = {"beast": "yuanxian:demon_wolf", "technique": "yuanxian:taxue_wuhen", "movement": {"dash_distance": 4.5},
              "rate": 5, "notes": ["n"], "videos": [{"file": "video/dodge_demon_wolf_bite.mp4", "title": "bite"}],
              "trials": [trial], "summary": dodge.summarize([dict(trial, kind="beast", move=BITE, hp_kept=True)])}
         with tempfile.TemporaryDirectory() as d:
@@ -180,7 +180,7 @@ class PageAndCliTest(unittest.TestCase):
 
     def test_cli_defaults(self):
         a = cli.build_parser().parse_args(["dodge"])
-        self.assertEqual((a.beast, a.technique, a.out), ("myvillage:demon_wolf", "myvillage:taxue_wuhen", None))
+        self.assertEqual((a.beast, a.technique, a.out), ("yuanxian:demon_wolf", "yuanxian:taxue_wuhen", None))
         self.assertIs(a.func, cli.cmd_dodge)
         self.assertEqual(dodge.DEFAULT_OUT, ROOT / "out/preview/movement_dodge")
 

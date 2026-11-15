@@ -23,7 +23,7 @@
 
 ## 收益与事务
 
-`src/main/resources/data/myvillage/gathering/rules.json` 唯一维护各档尺寸、各燃料加成、每石阵能和表现时序。
+`src/main/resources/data/yuanxian/gathering/rules.json` 唯一维护各档尺寸、各燃料加成、每石阵能和表现时序。
 原阵只接受下品（25%）；中品阵接受下品／中品（30%／40%）；上品阵接受下品／中品／上品（35%／50%／60%）。
 燃料分类读取 `SpiritStoneDenominations` 的分级标签；一个物品若同时属于多个品级，拒绝当燃料，不猜测价值。
 

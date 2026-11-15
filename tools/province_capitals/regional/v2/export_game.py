@@ -63,8 +63,8 @@ def export_city(city, out, preview_out):
     started = time.monotonic(); hashes = source_hashes(city)
     model = Capital(city).construct()
     city_id = city["city_id"]
-    data_dir = out / "data/myvillage/capitals/v2" / city_id
-    structure_dir = out / "data/myvillage/structure/province_capitals/v2" / city_id
+    data_dir = out / "data/yuanxian/capitals/v2" / city_id
+    structure_dir = out / "data/yuanxian/structure/province_capitals/v2" / city_id
     data_dir.mkdir(parents=True, exist_ok=True); structure_dir.mkdir(parents=True, exist_ok=True)
     terrain_path = data_dir / "terrain.bin.gz"
     raw = struct.pack("<" + "h" * len(model.terrain), *model.terrain)
@@ -76,7 +76,7 @@ def export_city(city, out, preview_out):
             continue
         path = structure_dir / f"tile_{tx}_{tz}.nbt"
         block_count, palette_count = write_tile(path, tile, model.height)
-        tiles.append({"x": tx * 16, "z": tz * 16, "template": f"myvillage:province_capitals/v2/{city_id}/tile_{tx}_{tz}",
+        tiles.append({"x": tx * 16, "z": tz * 16, "template": f"yuanxian:province_capitals/v2/{city_id}/tile_{tx}_{tz}",
                       "sha256": sha(path), "bytes": path.stat().st_size, "block_count": block_count, "palette_count": palette_count})
         counts["blocks"] += block_count; counts["air"] += sum(row[0] == AIR for row in tile.values()); counts["bytes"] += path.stat().st_size
         palette.update(row[0] for row in tile.values()); scene.add_tile(tx, tz, tile)
@@ -88,7 +88,7 @@ def export_city(city, out, preview_out):
     previous_path = data_dir / "city.json"
     if previous_path.is_file():
         previous = read_json(previous_path); keep = {row["template"] for row in tiles}
-        prefix = f"myvillage:province_capitals/v2/{city_id}/"
+        prefix = f"yuanxian:province_capitals/v2/{city_id}/"
         for row in previous.get("tiles", []):
             leaf = row["template"].removeprefix(prefix)
             if row["template"].startswith(prefix) and row["template"] not in keep and re.fullmatch(r"tile_\d+_\d+", leaf):
@@ -104,7 +104,7 @@ def export_city(city, out, preview_out):
               "display_name": city["name"], "layout_family_id": model.group.scale_params["layout_family_id"],
               "appearance_id": catalog["appearance_id"] + "_v2", "group_id": city["group_id"], "style_id": model.group.style_id,
               "size": city["dimensions"], "source_offset": city["source_offset"], "placement": city["placement"],
-              "terrain": {"resource": f"myvillage:capitals/v2/{city_id}/terrain.bin.gz", "sha256": sha(terrain_path),
+              "terrain": {"resource": f"yuanxian:capitals/v2/{city_id}/terrain.bin.gz", "sha256": sha(terrain_path),
                           "encoding": "i16le_z_major_top_solid", "width": model.width, "depth": model.depth,
                           "top_block": model.material("GROUND_TOP").split("[", 1)[0], "fill_block": model.material("GROUND_FILL").split("[", 1)[0],
                           "subsurface_block": model.material("GROUND_SUBSURFACE").split("[", 1)[0], "subsurface_depth": 3,
@@ -149,7 +149,7 @@ def main():
     write_combined_preview(args.preview_out, scenes)
     inventory = {"schema": 1, "owner": "regional_v2", "resource_root": str(args.out),
                  "generation_command": "python3 tools/province_capitals/regional/v2/export_game.py --out " + str(args.out) + " --regions " + " ".join(args.regions),
-                 "regions": args.regions, "cities": [{"city_id": b["city_id"], "city_json": str(args.out / "data/myvillage/capitals/v2" / b["city_id"] / "city.json"), "size": b["size"], "coverage": b["coverage"], "family_statistics": b["design"]["family_statistics"], "source_hashes": b["source"]["hashes"]} for b in bundles],
+                 "regions": args.regions, "cities": [{"city_id": b["city_id"], "city_json": str(args.out / "data/yuanxian/capitals/v2" / b["city_id"] / "city.json"), "size": b["size"], "coverage": b["coverage"], "family_statistics": b["design"]["family_statistics"], "source_hashes": b["source"]["hashes"]} for b in bundles],
                  "minecraft": "not_run", "owner_appearance": "not_verified"}
     write_json(args.preview_out / "resource-inventory.json", inventory)
     print(f"v2 正常导出完成：{args.out}；同源预览：{args.preview_out}；原生与玩家验收未执行。", flush=True)

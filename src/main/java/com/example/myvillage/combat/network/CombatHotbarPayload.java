@@ -12,7 +12,7 @@ public record CombatHotbarPayload(int entityId, ResourceLocation dimension, Reso
     public static final int LOCKED=0, READY=1, COOLDOWN=2, CHARGING=3, RECOVERING=4, BLOCKED=5;
     public static final int MAX_TICKS=12000;
     public static final int SLOT_COUNT=8;
-    public static final Type<CombatHotbarPayload> TYPE=new Type<>(ResourceLocation.parse("myvillage:combat_hotbar"));
+    public static final Type<CombatHotbarPayload> TYPE=new Type<>(ResourceLocation.parse("yuanxian:combat_hotbar"));
     public record Slot(Optional<ResourceLocation> technique,int state,boolean power,int remaining,int total,int charge) {
         public Slot {
             Objects.requireNonNull(technique);

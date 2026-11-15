@@ -89,7 +89,7 @@ final class RealmInkPage {
         if (c.study().isPresent()) {
             var study = c.study().orElseThrow();
             CultivationInkTheme.pair(g, c.font(),
-                    c.text("screen.myvillage.cultivation.study.title", c.techniqueName(study.techniqueId())),
+                    c.text("screen.yuanxian.cultivation.study.title", c.techniqueName(study.techniqueId())),
                     PanelReadouts.studyPercent(study) + "%", x + 3, modeY + 2, width - 6, CultivationInkTheme.JADE);
             CultivationInkTheme.bar(g, x + 3, modeY + 13, width - 6, PanelReadouts.studyFraction(study), CultivationInkTheme.GOLD);
             CultivationInkTheme.text(g, c.font(), c.text(PanelReadouts.studyGateKey(study), study.nextGatePoints(), study.gateStabilityCost()),

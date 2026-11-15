@@ -35,8 +35,8 @@ MENU = (316, 248)
 POINTS = {'input': (158, 59), 'output': (276, 59), 'start': (186, 128),
           'cancel': (269, 128), 'sharp': (170, 103), 'channeling': (225, 103),
           'tough': (280, 103), 'layer_next': (122, 35)}
-MARK, TEMPER = 'myvillage:forge_mark', 'myvillage:temper'
-BAG, LEDGER = 'myvillage:spirit_stone_bag', 'myvillage:spirit_stone_balance'
+MARK, TEMPER = 'yuanxian:forge_mark', 'yuanxian:temper'
+BAG, LEDGER = 'yuanxian:spirit_stone_bag', 'yuanxian:spirit_stone_balance'
 
 
 def select_cases(value):
@@ -271,10 +271,10 @@ class ForgingArrayEvidence(AlchemyEvidence):
             raise ValueError('Use an empty --out directory; preserve previous attempts: '+str(out))
         super().__init__(out, 'zh_cn')
         self.cases = select_cases(cases)
-        self.layout = json.loads((ROOT/'src/main/resources/data/myvillage/forging/array.json').read_text())
-        self.mesh = json.loads((ROOT/'src/main/resources/assets/myvillage/forging_array/formed_mesh.json').read_text())
-        self.forging = json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
-        self.workshop = json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())
+        self.layout = json.loads((ROOT/'src/main/resources/data/yuanxian/forging/array.json').read_text())
+        self.mesh = json.loads((ROOT/'src/main/resources/assets/yuanxian/forging_array/formed_mesh.json').read_text())
+        self.forging = json.loads((ROOT/'src/main/resources/data/yuanxian/forging/rules.json').read_text())
+        self.workshop = json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())
         self.recipe = next(r for r in self.forging['recipes'] if r['id'] == 'forged_pickaxe')
         self.trait = self.recipe['traits'][0]
         self.costs = infusion_costs(self.forging, self.workshop, self.recipe['id'], self.trait)
@@ -440,9 +440,9 @@ class ForgingArrayEvidence(AlchemyEvidence):
             if cell['role'] == 'air' or cell == omit:
                 continue
             self.rc('setblock '+position(world_pos(origin, facing, cell))+
-                    ' myvillage:forging_array_'+cell['role']+f'[facing={facing}]')
+                    ' yuanxian:forging_array_'+cell['role']+f'[facing={facing}]')
         self.report['native_fixtures'].append(dict(origin=origin, facing=facing, omitted=omit,
-            source='data/myvillage/forging/array.json', cells=deepcopy(self.layout['cells'])))
+            source='data/yuanxian/forging/array.json', cells=deepcopy(self.layout['cells'])))
         self.save()
 
     def awaken(self, user=None):
@@ -468,7 +468,7 @@ class ForgingArrayEvidence(AlchemyEvidence):
             item = ingredient_item(ref)
             if bag and ref == self.workshop['spirit_ingredient']:
                 entry = json.dumps([dict(item=dict(id=item, count=1), quantity=str(n*batches))])
-                self.give(BAG+'['+LEDGER+'='+entry+',minecraft:custom_data={"myvillage:spirit_bag_auto_collect":false}]', user=user)
+                self.give(BAG+'['+LEDGER+'='+entry+',minecraft:custom_data={"yuanxian:spirit_bag_auto_collect":false}]', user=user)
             else:
                 # A distinctive component makes generic replacement refunds observable.
                 self.give(item+'[minecraft:custom_data={array_evidence:"reserved"}]', n*batches, user)
@@ -587,10 +587,10 @@ class ForgingArrayEvidence(AlchemyEvidence):
                 break
         if choice is None:
             raise RuntimeError('No reachable placement support for missing casing '+str(cell))
-        self.rc(f'item replace entity {self.s.username} hotbar.8 with myvillage:forging_array_'+cell['role'])
+        self.rc(f'item replace entity {self.s.username} hotbar.8 with yuanxian:forging_array_'+cell['role'])
         self.s.game.key('9'); self.aim(choice); self.s.game.xdo('click', '3')
         self.log_input('place_missing_'+cell['role'], ray=choice, position=target)
-        self.poll(lambda: self.rc('execute if block '+position(target)+' myvillage:forging_array_'+cell['role']),
+        self.poll(lambda: self.rc('execute if block '+position(target)+' yuanxian:forging_array_'+cell['role']),
                   lambda r: 'Test passed' in r, 6, 'mapped repair block readback')
         self.poll(self.inspect, lambda d: d['formed'], 8, 'mapped repair forms array')
         # Clear the fixture tool rather than replacing an earned item.
@@ -604,7 +604,7 @@ class ForgingArrayEvidence(AlchemyEvidence):
             data = self.poll(self.inspect, lambda d: not d['formed'], 8, 'missing '+facing)
             self.check('missing_cell_rejected_'+facing, not data['formed'], data)
             self.rc('setblock '+position(world_pos(origin, facing, missing))+
-                    ' myvillage:forging_array_'+missing['role']+'[facing=north]')
+                    ' yuanxian:forging_array_'+missing['role']+'[facing=north]')
             data = self.poll(self.inspect, lambda d: d['formed'], 10, 'repaired '+facing)
             self.check('four_direction_fixture_'+facing, data['formed'], data)
         self.report['structure_scope'] = 'administrator placement and authoritative pattern readback; lifecycle separately maps repair'
@@ -684,7 +684,7 @@ class ForgingArrayEvidence(AlchemyEvidence):
             self.start_batch(); active = self.saved(); self.close_menu()
             self.rc('kill @e[type=minecraft:item]'); self.mine(controller)
             dropped = self.drops()
-            contents = [s for s in dropped if s['id'] != 'myvillage:forging_array_controller']
+            contents = [s for s in dropped if s['id'] != 'yuanxian:forging_array_controller']
             self.check('active_controller_returns_only_original_and_exact_escrow',
                        multiset(contents) == multiset([original, *active['Reserved']]), dropped)
         finally:
@@ -863,19 +863,19 @@ class ForgingArrayEvidence(AlchemyEvidence):
         self.place_fixture(); self.poll(self.inspect, lambda d: d['formed'], 8, 'showcase formed')
         self.rc('time set noon'); self.rc('kill @e[type=minecraft:item]')
         for command in ('fill -9 -61 -2 -5 -61 6 minecraft:smooth_stone',
-                        'setblock -7 -60 0 myvillage:spirit_testing_stele',
-                        'setblock -7 -60 2 myvillage:technique_inheritance_stele',
+                        'setblock -7 -60 0 yuanxian:spirit_testing_stele',
+                        'setblock -7 -60 2 yuanxian:technique_inheritance_stele',
                         'setblock -7 -60 4 minecraft:chest'):
             self.rc(command)
-        supplies = [(self.item_fixture(), 1), ('myvillage:cultivation_handbook', 1), ('minecraft:bread', 64),
+        supplies = [(self.item_fixture(), 1), ('yuanxian:cultivation_handbook', 1), ('minecraft:bread', 64),
                     *[(ingredient_item(k), min(64, n*8)) for k, n in self.costs.items()]]
         counts = Counter(c['role'] for c in self.layout['cells'] if c['role'] != 'air')
-        supplies += [('myvillage:forging_array_'+role, n) for role, n in counts.items()]
+        supplies += [('yuanxian:forging_array_'+role, n) for role, n in counts.items()]
         for i, (item, n) in enumerate(supplies):
             self.rc(f'item replace block -7 -60 4 container.{i} with {item} {n}')
         stock = quality_stacks(self.rc('data get block -7 -60 4 Items'))
         self.check('showcase_supplies_and_awakening_station_exist', len(stock) == len(supplies) and
-                   'Test passed' in self.rc('execute if block -7 -60 0 myvillage:spirit_testing_stele'), stock)
+                   'Test passed' in self.rc('execute if block -7 -60 0 yuanxian:spirit_testing_stele'), stock)
         self.rc('setworldspawn 0 -60 -1 0'); self.rc(f'tp {self.s.username} .5 -60 .5 0 0')
         self.rc('save-all flush'); self.stop(); self.export_world()
 

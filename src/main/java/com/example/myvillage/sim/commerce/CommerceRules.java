@@ -23,7 +23,7 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
     public record Staff(String role, String home, String work) { }
     public CommerceRules { offers=List.copyOf(offers); staff=List.copyOf(staff); }
     /** Old pure simulation fixtures deliberately have no new economy. */
-    public static CommerceRules disabled() { return new CommerceRules("myvillage:low_grade_spirit_stone",1,4,3,1200,100,4,.25,.25,List.of(),List.of()); }
+    public static CommerceRules disabled() { return new CommerceRules("yuanxian:low_grade_spirit_stone",1,4,3,1200,100,4,.25,.25,List.of(),List.of()); }
     public List<Offer> offers(String role) { return offers.stream().filter(o->o.role().equals(role)).toList(); }
     public Offer offer(String id) { return offers.stream().filter(o->o.id().equals(id)).findFirst().orElse(null); }
     public static String stockItem(String key) { int at=key.indexOf('#');return at<0?key:key.substring(0,at); }

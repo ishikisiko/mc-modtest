@@ -164,7 +164,7 @@ def guardian_surface():
 def guardian_skeleton():
     from tools.gen_legacy_encounters import catalogue
     entry = next(m for m in catalogue()['mobs'] if m['id'] == 'stele_guardian')
-    b = Builder('myvillage:stele_guardian', look={'bone': 'head', 'max_yaw': 16, 'max_pitch': 12}, shadow_radius=entry['physical']['shadow_radius'])
+    b = Builder('yuanxian:stele_guardian', look={'bone': 'head', 'max_yaw': 16, 'max_pitch': 12}, shadow_radius=entry['physical']['shadow_radius'])
     b.bone('body', 'root', at=(0, -36, 0))
     b.bone('head', 'body', at=(0, -53, -3.5))
     for side, sign in [('right', -1), ('left', 1)]:
@@ -203,11 +203,11 @@ def finalize_guardian(built):
     built.surface = guardian_document(built.model)
     built.model.surface = built.surface
     built.model_doc['texture'] = dict(zip(('width', 'height'), built.model.texture_size))
-    built.model_doc['surface_mesh'] = 'myvillage:beast/stele_guardian_surface.json'
+    built.model_doc['surface_mesh'] = 'yuanxian:beast/stele_guardian_surface.json'
 
 
 def guardian_extra_outputs(built):
-    return {RES / 'assets/myvillage/beast/stele_guardian_surface.json': (json.dumps(built.surface, separators=(',', ':')) + '\n').encode()}
+    return {RES / 'assets/yuanxian/beast/stele_guardian_surface.json': (json.dumps(built.surface, separators=(',', ':')) + '\n').encode()}
 
 
 @lru_cache(maxsize=1)
@@ -236,9 +236,9 @@ def ruler_surface():
 
 def ruler_model(item):
     from tools.gen_qingfeng_sword_model import build_display
-    return {'loader': 'neoforge:obj', 'model': 'myvillage:models/item/zhenyue_ruler.obj',
+    return {'loader': 'neoforge:obj', 'model': 'yuanxian:models/item/zhenyue_ruler.obj',
             'automatic_culling': False, 'shade_quads': True, 'flip_v': False, 'emissive_ambient': False,
-            'gui_light': 'side', 'textures': {'particle': 'myvillage:item/zhenyue_ruler'}, 'display': build_display()}
+            'gui_light': 'side', 'textures': {'particle': 'yuanxian:item/zhenyue_ruler'}, 'display': build_display()}
 
 
 def ruler_outputs():
@@ -249,7 +249,7 @@ def ruler_outputs():
     for face in s.faces:
         points=[(x+8,y,z+8) for x,y,z in face.points];uv=s.mapped(face)
         if len(points)==3:points.append(points[-1]);uv.append(uv[-1])
-        faces.append({'part':face.panel,'points':points,'uv':uv,'texture':'myvillage:item/zhenyue_ruler'})
-    files,_=obj_assets(faces,'myvillage:item/zhenyue_ruler')
+        faces.append({'part':face.panel,'points':points,'uv':uv,'texture':'yuanxian:item/zhenyue_ruler'})
+    files,_=obj_assets(faces,'yuanxian:item/zhenyue_ruler')
     texture, _ = atlas(s)
-    return {**{RES/path:data for path,data in files.items()},RES / 'assets/myvillage/textures/item/zhenyue_ruler.png':encode_png(texture)}
+    return {**{RES/path:data for path,data in files.items()},RES / 'assets/yuanxian/textures/item/zhenyue_ruler.png':encode_png(texture)}

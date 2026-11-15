@@ -9,10 +9,10 @@ import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = Path("src/main/resources/assets/myvillage")
-LOOT = Path("src/main/resources/data/myvillage/loot_table/blocks/scripture_shelf.json")
-SHELF = "myvillage:scripture_shelf"
-MODEL = "myvillage:block/scripture_shelf"
+ASSETS = Path("src/main/resources/assets/yuanxian")
+LOOT = Path("src/main/resources/data/yuanxian/loot_table/blocks/scripture_shelf.json")
+SHELF = "yuanxian:scripture_shelf"
+MODEL = "yuanxian:block/scripture_shelf"
 
 
 def validate(root: Path = ROOT) -> list[str]:
@@ -60,7 +60,7 @@ def validate(root: Path = ROOT) -> list[str]:
             error("SCRIPTURE_TEXTURE", f"{relative}: no own texture mapping")
             textures = {}
         for slot, texture in textures.items():
-            if not isinstance(texture, str) or not texture.startswith("myvillage:block/scripture_shelf"):
+            if not isinstance(texture, str) or not texture.startswith("yuanxian:block/scripture_shelf"):
                 error("SCRIPTURE_TEXTURE", f"{relative}: {slot} must use a dedicated scripture shelf texture")
             else:
                 path = ASSETS / "textures" / (texture.split(":", 1)[1] + ".png")

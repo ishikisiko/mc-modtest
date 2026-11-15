@@ -35,7 +35,7 @@ class Site:
             for z in range(d):
                 for x in range(w):
                     delta=offset(x,y,z,turn);p=tuple(root[i]+delta[i] for i in range(3));part=(y*d+z)*w+x
-                    state=f'myvillage:{family}[facing={facing},variant={vi},waterlogged=false'+(f',part={part}' if max_parts>1 else '')+']'
+                    state=f'yuanxian:{family}[facing={facing},variant={vi},waterlogged=false'+(f',part={part}' if max_parts>1 else '')+']'
                     self.put(p,state);parts.append(p)
         if count>1:
             identity=len(self.assemblies)

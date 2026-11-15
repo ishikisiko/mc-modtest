@@ -50,9 +50,9 @@ public final class CraftingCommands {
     private static int set(CommandSourceStack source, ServerPlayer player, CraftingAptitudes.Profession profession, int value) {
         var result = CultivationService.setCraftingAptitude(player, profession, value);
         if (!result.success()) {
-            source.sendFailure(Component.translatable("command.myvillage.crafting.not_ready")); return 0;
+            source.sendFailure(Component.translatable("command.yuanxian.crafting.not_ready")); return 0;
         }
-        source.sendSuccess(() -> Component.translatable("command.myvillage.crafting.updated", player.getGameProfile().getName()), true);
+        source.sendSuccess(() -> Component.translatable("command.yuanxian.crafting.updated", player.getGameProfile().getName()), true);
         return info(source, player);
     }
 }

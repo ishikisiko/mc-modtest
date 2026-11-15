@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 /** Personal realms and legacy deployment. Reading a placement never loads chunks or replays templates. */
 public final class QianzhenScene {
     private static final Logger LOG = LoggerFactory.getLogger(QianzhenScene.class);
-    private static final ResourceLocation RESOURCE = ResourceLocation.parse("myvillage:story/qianzhen_scene.json");
+    private static final ResourceLocation RESOURCE = ResourceLocation.parse("yuanxian:story/qianzhen_scene.json");
     private static final Map<MinecraftServer, Assets> ASSETS = new WeakHashMap<>();
     private static boolean registered;
     // Conservative protection: unknown blocks, all block entities and all entities are rejected.

@@ -53,7 +53,7 @@ public abstract class FoundryBlockEntity extends BlockEntity implements Containe
     @Override public boolean canPlaceItem(int slot,ItemStack stack){return slot<2&&!locked(slot);}
     @Override public boolean stillValid(Player player){return Container.stillValidBlockEntity(this,player);}
     @Override public void clearContent(){items=NonNullList.withSize(4,ItemStack.EMPTY);progress=duration=status=0;setChanged();}
-    @Override public Component getDisplayName(){return Component.translatable("foundry.myvillage."+switch(kind()){case PREPARATION->"preparation";case KILN->"kiln";case ASSEMBLY->"assembly";});}
+    @Override public Component getDisplayName(){return Component.translatable("foundry.yuanxian."+switch(kind()){case PREPARATION->"preparation";case KILN->"kiln";case ASSEMBLY->"assembly";});}
     @Override public AbstractContainerMenu createMenu(int id,Inventory inventory,Player player){return new FoundryMenu(id,inventory,this,data,kind());}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.saveAdditional(tag,registries);ContainerHelper.saveAllItems(tag,items,registries);

@@ -14,7 +14,7 @@ from ...beastgen.paint import ramp
 from ..humanoid import (HumanoidPaint, _box, _clamp, _form, _leg_angle, _loop,
                         _pair, _rgb, _rx, _sole_low, _tone, _xhz)
 
-ID = "myvillage:cultivator"
+ID = "yuanxian:cultivator"
 ENTITY = "cultivator"
 NAME = "cultivator_f_novice"
 LOOK = "f_novice"

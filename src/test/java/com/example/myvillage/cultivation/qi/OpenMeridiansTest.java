@@ -35,15 +35,15 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Real fate codec + registry ownership and persisted/owning snapshot boundaries. */
 class OpenMeridiansTest {
     private static FateDefinition definition;
-    private static ResourceLocation id(String value) { return ResourceLocation.parse("myvillage:" + value); }
-    private static final List<String> PICKS = List.of("myvillage:open_meridians", "myvillage:robust", "myvillage:bright");
+    private static ResourceLocation id(String value) { return ResourceLocation.parse("yuanxian:" + value); }
+    private static final List<String> PICKS = List.of("yuanxian:open_meridians", "yuanxian:robust", "yuanxian:bright");
 
     @BeforeAll static void setup() throws Exception {
         if (net.neoforged.fml.loading.LoadingModList.get() == null)
             net.neoforged.fml.loading.LoadingModList.of(List.of(), List.of(), List.of(), List.of(), Map.of());
         SharedConstants.tryDetectVersion(); Bootstrap.bootStrap();
         definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(Files.readString(Path.of(
-                "src/main/resources/data/myvillage/myvillage/innate_fate/open_meridians.json")))).getOrThrow();
+                "src/main/resources/data/yuanxian/yuanxian/innate_fate/open_meridians.json")))).getOrThrow();
     }
 
     private static FateState selected() {
@@ -61,7 +61,7 @@ class OpenMeridiansTest {
         // 使用正式数表中的炼气八层（100）与地道上品筑基初期（200），不再另设容量来源。
         for (String name : List.of("qi_refining", "foundation_establishment")) {
             try (var input = OpenMeridiansTest.class.getResourceAsStream(
-                    "/data/myvillage/myvillage/realm/" + name + ".json")) {
+                    "/data/yuanxian/yuanxian/realm/" + name + ".json")) {
                 assertNotNull(input);
                 var realm = RealmDefinition.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(
                         new java.io.InputStreamReader(input, java.nio.charset.StandardCharsets.UTF_8))).getOrThrow();

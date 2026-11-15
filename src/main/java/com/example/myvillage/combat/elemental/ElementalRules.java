@@ -18,7 +18,7 @@ public final class ElementalRules {
     private static final Map<DamageType,ResourceKey<net.minecraft.world.damagesource.DamageType>> SOURCES=sources();
     private ElementalRules() {}
     private static JsonObject read() {
-        try(var in=ElementalRules.class.getResourceAsStream("/data/myvillage/combat/elemental_arts.json")) {
+        try(var in=ElementalRules.class.getResourceAsStream("/data/yuanxian/combat/elemental_arts.json")) {
             if(in==null)throw new IllegalArgumentException("Missing elemental arts");
             var doc=JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject();
             if(doc.get("schema").getAsInt()!=1)throw new IllegalArgumentException("Elemental schema");
@@ -38,7 +38,7 @@ public final class ElementalRules {
     private static Map<DamageType,ResourceKey<net.minecraft.world.damagesource.DamageType>> sources() {
         var result=new EnumMap<DamageType,ResourceKey<net.minecraft.world.damagesource.DamageType>>(DamageType.class);
         for(var type:DamageType.values())if(type!=DamageType.PHYSICAL)
-            result.put(type,ResourceKey.create(Registries.DAMAGE_TYPE,ResourceLocation.parse("myvillage:elemental_"+type.id())));
+            result.put(type,ResourceKey.create(Registries.DAMAGE_TYPE,ResourceLocation.parse("yuanxian:elemental_"+type.id())));
         return Map.copyOf(result);
     }
     public static Optional<DamageType> type(DamageSource source) {

@@ -96,8 +96,8 @@ public final class TravelTalismanProbe {
         var level = p.getServer().overworld();
         for (int x : new int[]{0, 20, 40}) platform(level, new BlockPos(x, 80, 0));
         p.closeContainer(); p.setGameMode(GameType.SURVIVAL);
-        require(CultivationService.setSpiritualRoot(p, new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:metal"), 10000))).success(), "root");
-        require(CultivationService.setRealmAndStage(p, ResourceLocation.parse("myvillage:foundation_establishment"), ResourceLocation.parse("myvillage:foundation_early")).success(), "realm");
+        require(CultivationService.setSpiritualRoot(p, new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:metal"), 10000))).success(), "root");
+        require(CultivationService.setRealmAndStage(p, ResourceLocation.parse("yuanxian:foundation_establishment"), ResourceLocation.parse("yuanxian:foundation_early")).success(), "realm");
         require(CultivationService.setCraftingAptitude(p, CraftingAptitudes.Profession.TALISMAN, 90).success(), "aptitude");
         require(CultivationService.setSpiritualPower(p, CultivationService.spiritualPowerCap(p)).success(), "power");
         p.getInventory().clearContent();

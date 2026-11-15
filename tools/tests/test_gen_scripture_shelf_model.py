@@ -114,14 +114,14 @@ class ScriptureShelfModelTest(unittest.TestCase):
         self.assertEqual(set(state["variants"]), expected)
         for key, variant in state["variants"].items():
             half = key.split("half=")[1]
-            self.assertEqual(variant["model"], "myvillage:block/scripture_shelf_" + half)
+            self.assertEqual(variant["model"], "yuanxian:block/scripture_shelf_" + half)
         item = json.loads(files[gen.ASSETS / "models/item/scripture_shelf.json"])
-        self.assertEqual(item["parent"], "myvillage:block/scripture_shelf")
+        self.assertEqual(item["parent"], "yuanxian:block/scripture_shelf")
         self.assertEqual(len(files), 6)
         for path, data in files.items():
             if path.suffix == ".json" and "models/block" in str(path):
                 obj = json.loads(data)
-                self.assertEqual(obj["textures"]["atlas"], "myvillage:block/scripture_shelf")
+                self.assertEqual(obj["textures"]["atlas"], "yuanxian:block/scripture_shelf")
 
     def test_deterministic_generation_and_missing_or_drifted_output_detection(self):
         self.assertEqual(gen.outputs(), gen.outputs())

@@ -50,11 +50,11 @@ class ForgingTagCostsTest {
     }
     @Test void emptyTagsNeverBecomeAirOrFallbackToAConcreteMaterial(){
         var copper=new ItemStack(Items.COPPER_INGOT,4);
-        assertFalse(ForgingIngredients.matches("#myvillage:test_missing",copper));
-        assertTrue(ForgingIngredients.display("#myvillage:test_missing",List.of(copper)).is(Items.BARRIER));
-        assertTrue(ForgingCosts.plan(List.of(copper),Map.of("#myvillage:test_missing",1)).isEmpty());
+        assertFalse(ForgingIngredients.matches("#yuanxian:test_missing",copper));
+        assertTrue(ForgingIngredients.display("#yuanxian:test_missing",List.of(copper)).is(Items.BARRIER));
+        assertTrue(ForgingCosts.plan(List.of(copper),Map.of("#yuanxian:test_missing",1)).isEmpty());
         assertEquals(4,copper.getCount());
-        assertEquals("#myvillage:test_missing",ForgingIngredients.description("#myvillage:test_missing").getString());
+        assertEquals("#yuanxian:test_missing",ForgingIngredients.description("#yuanxian:test_missing").getString());
     }
     @Test void concreteCostsRemainCompatibleAndTagSyntaxIsBounded(){
         var iron=new ItemStack(Items.IRON_INGOT,3);
@@ -76,7 +76,7 @@ class ForgingTagCostsTest {
                 // This server-side unit bootstrap has no client language resources. Verify the
                 // actual translation argument instead of rendering an untranslated outer key.
                 var content=assertInstanceOf(net.minecraft.network.chat.contents.TranslatableContents.class,line.getContents());
-                assertEquals("tooltip.myvillage.alchemy.ingredient",content.getKey());
+                assertEquals("tooltip.yuanxian.alchemy.ingredient",content.getKey());
                 assertEquals(1,content.getArgs().length);
                 descriptions.add(assertInstanceOf(net.minecraft.network.chat.Component.class,content.getArgs()[0]));
             }

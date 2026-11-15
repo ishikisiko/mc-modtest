@@ -20,7 +20,7 @@ from typing import Iterable
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
-DEFAULT_OUTPUT = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "mod_block_fallbacks.json"
+DEFAULT_OUTPUT = REPO_ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "mod_block_fallbacks.json"
 DEFAULT_LAST_RESORT = "minecraft:cobblestone"
 
 if str(SCRIPT_DIR) not in sys.path:

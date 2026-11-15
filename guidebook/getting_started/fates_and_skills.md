@@ -3,7 +3,7 @@ navigation:
   title: 天命、技艺与技能分配
   parent: index.md
   position: 15
-  icon: myvillage:technique_inheritance_stele
+  icon: yuanxian:technique_inheritance_stele
 ---
 
 # 天命、技艺与技能分配
@@ -18,7 +18,7 @@ navigation:
 
 ## 三项技艺资质
 
-打开修仙面板：<KeyBind id="key.myvillage.open_cultivation_profile" /> →「技艺」，查看炼丹、炼器和制符资质及各自品质规则。三项独立，不能用炼丹高资质代替炼器资质，也不能靠重复开关界面重抽。
+打开修仙面板：<KeyBind id="key.yuanxian.open_cultivation_profile" /> →「技艺」，查看炼丹、炼器和制符资质及各自品质规则。三项独立，不能用炼丹高资质代替炼器资质，也不能靠重复开关界面重抽。
 
 - 炼丹：每颗丹药独立判定失败或下、中、上、极品，丹方有各自资质门槛及难度。
 - 炼器：装备完成装配时决定成器品质；后续炼灵、修补、再锻不会重新确定品质。

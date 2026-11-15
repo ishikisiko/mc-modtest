@@ -28,18 +28,18 @@ There is no capability spec for it; this note and the code are the reference.
 | Schools | `tools/technique_catalogue/schools.json` | the generator |
 | Heritages | `tools/technique_catalogue/heritages.json` | the generator |
 | Grade → requirement, element-affinity rule, the core `effects` block, the classification used for the initial import, hand-written ids | `tools/technique_catalogue/rules.json` | the generator (`importer.py` used the classification once to seed `catalogue.json`) |
-| `basic_breathing` (grade 0, 凡阶) | `data/myvillage/myvillage/technique/basic_breathing.json`, hand-written | never touched by the generator |
-| Grade multipliers, element bonus, `switch_progress_loss`, `roots.element_threshold_bp`, `genesis.heritage_chance` | `data/myvillage/world_sim/rules.json` | the ledger, `CoreTechniqueFactor`, `CultivationService.switchCoreTechnique`, the study element bonus (`StudyRules`) |
+| `basic_breathing` (grade 0, 凡阶) | `data/yuanxian/yuanxian/technique/basic_breathing.json`, hand-written | never touched by the generator |
+| Grade multipliers, element bonus, `switch_progress_loss`, `roots.element_threshold_bp`, `genesis.heritage_chance` | `data/yuanxian/world_sim/rules.json` | the ledger, `CoreTechniqueFactor`, `CultivationService.switchCoreTechnique`, the study element bonus (`StudyRules`) |
 | Study points, gates and gate cost per grade (0.38.0) | `tools/technique_catalogue/rules.json` `study_by_grade` | the generator writes each technique's `study` block |
 | Manual item art (0.38.0) | `tools/gen_manual_textures.py` (character grids in the script) | the eight `textures/item/manual_<category>[_tint].png` |
 
 Generator outputs, never edited by hand (`--check` fails on any difference):
-`data/myvillage/myvillage/technique/*.json` except the hand-written ids,
-`data/myvillage/myvillage/school/*.json`, `data/myvillage/myvillage/heritage/*.json`,
-`data/myvillage/world_sim/techniques.json`, `data/myvillage/world_sim/heritages.json`
+`data/yuanxian/yuanxian/technique/*.json` except the hand-written ids,
+`data/yuanxian/yuanxian/school/*.json`, `data/yuanxian/yuanxian/heritage/*.json`,
+`data/yuanxian/world_sim/techniques.json`, `data/yuanxian/world_sim/heritages.json`
 (each generated technique file carries a `study` block since 0.38.0),
-and the keys `cultivation.technique.myvillage.*`,
-`cultivation.school.myvillage.*`, `cultivation.heritage.myvillage.*` in both
+and the keys `cultivation.technique.yuanxian.*`,
+`cultivation.school.yuanxian.*`, `cultivation.heritage.yuanxian.*` in both
 `en_us.json` and `zh_cn.json` (Chinese literal names in both languages, as for
 the ledger's other names). Existing keys are updated in place, new ones
 appended as a group, stale ones removed; other keys are left alone. A stale
@@ -83,18 +83,18 @@ to realm, element and technique:
 
 | Registry key | Class | Resource root |
 |---|---|---|
-| `myvillage:school` | `SchoolDefinition` | `data/<ns>/myvillage/school/` |
-| `myvillage:heritage` | `HeritageDefinition` | `data/<ns>/myvillage/heritage/` |
+| `yuanxian:school` | `SchoolDefinition` | `data/<ns>/yuanxian/school/` |
+| `yuanxian:heritage` | `HeritageDefinition` | `data/<ns>/yuanxian/heritage/` |
 
 ```json
 // school: kind weapon needs weapon_family ([a-z0-9_]+) and no runtime; kind special needs runtime and no weapon_family
-{"translation_key": "cultivation.school.myvillage.sword", "kind": "weapon",
+{"translation_key": "cultivation.school.yuanxian.sword", "kind": "weapon",
  "weapon_family": "sword", "runtime": null, "element_lean": []}
 
 // heritage: ordered chain, lowest first, at least 2, no repeats; school optional; exclusive defaults to false
-{"translation_key": "cultivation.heritage.myvillage.taibai_jianmai", "school": "myvillage:sword",
- "techniques": ["myvillage:gengjin_yinqi_fa", "myvillage:gengjin_jianjue",
-                "myvillage:tiangang_jiandian", "myvillage:taibai_jianjing"], "exclusive": true}
+{"translation_key": "cultivation.heritage.yuanxian.taibai_jianmai", "school": "yuanxian:sword",
+ "techniques": ["yuanxian:gengjin_yinqi_fa", "yuanxian:gengjin_jianjue",
+                "yuanxian:tiangang_jiandian", "yuanxian:taibai_jianjing"], "exclusive": true}
 ```
 
 `TechniqueDefinition` keeps `translation_key`, `category`, `grade`,
@@ -128,7 +128,7 @@ lists the heritages whose chain holds a technique, by heritage id.
 
 `CultivationProfile` schema v4 adds `active_core_technique` (optional id; it
 must be a learned technique). Decoders for v1, v2 and v3 stay; v3 → v4 sets it
-to `myvillage:basic_breathing` when that is learned, otherwise empty (v1 and v2
+to `yuanxian:basic_breathing` when that is learned, otherwise empty (v1 and v2
 migrate through v3); only v4 is written. A v4 save whose running id is no
 longer learned reads as none running. The snapshot carries the v4 profile.
 
@@ -169,7 +169,7 @@ technique only scales the gain.
 ## Network and commands
 
 - Serverbound `CoreTechniqueSwitchPayload(ResourceLocation)`, type
-  `myvillage:core_technique_switch`; the id is its only data. The handler
+  `yuanxian:core_technique_switch`; the id is its only data. The handler
   calls only `CultivationService.switchCoreTechnique`. A refusal sends
   nothing back; a success pushes the usual snapshot. Sent only by
   `ClientCultivationIntentSender.sendCoreSwitch`.
@@ -200,7 +200,7 @@ falls back to it. Details: [37_cultivation_panel.md](37_cultivation_panel.md).
 
 ### Items
 
-- 16 items `myvillage:manual_<category>_<grade>`, category `core`, `active`,
+- 16 items `yuanxian:manual_<category>_<grade>`, category `core`, `active`,
   `movement`, `body`, grade `huang`, `xuan`, `di`, `tian` (1..4; 凡阶 has no
   manual), class `item/TechniqueManualItem`, registered in `ModItems`
   (`ModItems.MANUALS`, `ModItems.manual(category, grade)`), stack size 1.
@@ -210,14 +210,14 @@ falls back to it. Details: [37_cultivation_panel.md](37_cultivation_panel.md).
 
   | Component | Type | Meaning |
   |---|---|---|
-  | `myvillage:technique` | `ResourceLocation` | the technique this manual teaches; absent = blank |
-  | `myvillage:comprehension` | int ≥ 0 | study points already read; absent = 0 |
+  | `yuanxian:technique` | `ResourceLocation` | the technique this manual teaches; absent = blank |
+  | `yuanxian:comprehension` | int ≥ 0 | study points already read; absent = 0 |
 
 - Validity, `TechniqueManualItem.check`: empty when readable, otherwise the
   first `Mismatch`: `NOT_A_MANUAL`, `BLANK` (no component), `UNKNOWN_TECHNIQUE`,
   `WRONG_CATEGORY`, `WRONG_GRADE` (the technique must match the item's
   category and grade). The last three are "damaged".
-- Name: `《功法名》` (`item.myvillage.manual.named`; English `Manual: …`) for a
+- Name: `《功法名》` (`item.yuanxian.manual.named`; English `Manual: …`) for a
   valid manual, `空白秘籍 · 绝技 · 玄阶` for a blank one, red `残损秘籍` for a
   damaged one.
 - Tooltip: category · grade; then for a valid manual school, elements, each
@@ -225,7 +225,7 @@ falls back to it. Details: [37_cultivation_panel.md](37_cultivation_panel.md).
   states it, `参悟 n%` when the manual has points (whole percent, rounded
   down), and `右键盘坐研读`; a blank manual says it is blank, a damaged one gives
   its reason and that it cannot be read.
-- Creative tab `myvillage:main`: the 16 blank manuals, then one manual per
+- Creative tab `yuanxian:main`: the 16 blank manuals, then one manual per
   registered technique of grade 1..4 (131 since 0.40.0), by category, grade, id
   (`TechniqueManualItem.creativeStacks`, read from the tab's
   `HolderLookup.Provider`).
@@ -241,7 +241,7 @@ falls back to it. Details: [37_cultivation_panel.md](37_cultivation_panel.md).
 - Command `/yuanxian cultivation|xiulian manual|miji <target> <technique_id>`
   (permission 2) gives the manual of that technique (into the inventory, else
   dropped at the target); an unknown technique or grade 0 is refused. Vanilla
-  `/give @s myvillage:manual_active_xuan[myvillage:technique="myvillage:gengjin_jianjue"]`
+  `/give @s yuanxian:manual_active_xuan[yuanxian:technique="yuanxian:gengjin_jianjue"]`
   works too; a component that does not match the item makes a damaged manual.
 - Sources (0.42.0): in survival the only in-game source of a sect's manuals
   is its scripture hall (藏经阁): a member borrows the manuals of the sect's
@@ -280,7 +280,7 @@ Right-click (server `TechniqueManualItem.use` → `cultivation/study/ManualStudy
 The client predicts `consume` for a valid manual and `pass` otherwise, never
 `success`: a hand swing reaches the server and would stop the session that just
 started. Checks in order, each refusal a chat line
-(`message.myvillage.cultivation.study.*`), nothing started:
+(`message.yuanxian.cultivation.study.*`), nothing started:
 
 1. a valid manual (`StudyStart.Refusal.INVALID_MANUAL`);
 2. the technique is not learned yet (`ALREADY_LEARNED`);
@@ -399,7 +399,7 @@ creative tab, `/give`, and the `manual` command.
   only while the pool is not empty: the finder takes the chain's highest
   technique not above the grade they practise (at least the first), even if
   it is no stronger (`fortune.heritage.1`). The heritage stays in the pool.
-- `/yuanxian world sect <id>` prints `commands.myvillage.world.sect.heritage`
+- `/yuanxian world sect <id>` prints `commands.yuanxian.world.sect.heritage`
   (传承); `SectView` and `WorldSimSnapshot.SectDetail` carry the heritage
   name, shown on the 天下 sect detail; `tools/world_sim_report.py` shows it on
   the sect timeline; `WorldSim.lostHeritageIds()` lists the pool.

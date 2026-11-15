@@ -12,7 +12,7 @@ def parts(state):
 
 def audit(root=ROOT):
     root=Path(root);data=load(root);cfg=read(root/CONFIG);material_cfg=read(root/'blueprints/lord_manors/config.json')
-    forbidden=set(material_cfg['native_tree_only_roles']);catalog=read(root/'src/main/resources/data/myvillage/lord_manors/catalog.json');issues=[];cities={}
+    forbidden=set(material_cfg['native_tree_only_roles']);catalog=read(root/'src/main/resources/data/yuanxian/lord_manors/catalog.json');issues=[];cities={}
     for material in catalog['materials']:
         if material['role'] in forbidden:issues.append({'fake_tree_material':material['id']})
     for bank in catalog['banks']:
@@ -42,7 +42,7 @@ def audit(root=ROOT):
             if len(tree['soil'])!=spec['soil_size']**2:issues.append({'city':city,'wrong_planting_footprint':tree['id']})
         scene=read(root/'blueprints/lord_manors/cities'/f'{city}.json')
         if any(b[6] in forbidden for b in scene['boxes']):issues.append({'city':city,'fake_tree_source':True})
-        manifest=read(root/'src/main/resources/data/myvillage/lord_manors'/f'{city}.json')
+        manifest=read(root/'src/main/resources/data/yuanxian/lord_manors'/f'{city}.json')
         if len(manifest['native_trees']['trees'])!=len(records):issues.append({'city':city,'manifest_tree_count':True})
         cities[city]={'trees':len(records),'native_blocks':len(states),'logs':sum(n in logs for n,_ in states.values()),'leaves':leaf_count}
     return {'status':'fail' if issues else 'pass','cities':cities,'issues':issues,'method':'Minecraft原生ConfiguredFeature输出、真实原木/叶距/种植土及无假树资源检查','player_lifecycle':'not_verified'}

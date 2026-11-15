@@ -186,7 +186,7 @@ def assemble(source=SOURCE):
                 data['ops'].append({'op':'set', 'pos':prop['pos'], 'state':prop['state']})
         blocks, _, checked = validate(data, row['max_size'])
         checks[site] = {'walk_targets': len(checked['walks']['targets']), 'reachable_cells':checked['walks']['reachable_cells']}
-        metadata = {'id':site, 'template':'myvillage:qianzhen/'+site,
+        metadata = {'id':site, 'template':'yuanxian:qianzhen/'+site,
                     'origin':row['origin'], 'size':data['size']}
         for p, state in blocks.items():
             at = add(row['origin'], p)
@@ -295,7 +295,7 @@ def generate(out, source=SOURCE):
             pos = tuple(v.value for v in block.value['pos'].value)
             if pos in signs:
                 block.value['nbt'] = nbt._nbt_value_to_tag('nbt', signs[pos])
-        path = out/'data/myvillage/structure/qianzhen'/(site['id']+'.nbt')
+        path = out/'data/yuanxian/structure/qianzhen'/(site['id']+'.nbt')
         nbt.write_gzipped_nbt(root, str(path))
         _, readback = read_gzipped_nbt(str(path))
         actual = {tuple(b['pos']):canonical(state_string(readback['palette'][b['state']])) for b in readback['blocks']}
@@ -312,7 +312,7 @@ def generate(out, source=SOURCE):
     layout['version'] = layout['version'].rsplit('-', 1)[0]+'-'+hashlib.sha256(
         json.dumps(content, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]
     report['scene_version'] = layout['version']
-    path = out/'data/myvillage/story/qianzhen_scene.json'
+    path = out/'data/yuanxian/story/qianzhen_scene.json'
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(layout, ensure_ascii=False, indent=2)+'\n')
     return report
@@ -339,8 +339,8 @@ def main():
             expected = Path(folder)
             report = generate_opening(expected) if args.opening else generate(expected)
             files = {p.relative_to(expected) for p in expected.rglob('*') if p.is_file()}
-            actual = {p.relative_to(args.out) for p in (args.out/'data/myvillage/structure/qianzhen').glob('*.nbt')}
-            scene_path = Path('data/myvillage/story/qianzhen_scene.json')
+            actual = {p.relative_to(args.out) for p in (args.out/'data/yuanxian/structure/qianzhen').glob('*.nbt')}
+            scene_path = Path('data/yuanxian/story/qianzhen_scene.json')
             if (args.out/scene_path).exists():
                 actual.add(scene_path)
             differences = sorted(str(p) for p in files | actual

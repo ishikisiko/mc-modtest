@@ -26,12 +26,12 @@ final class StudyFixtures {
     static final ResourceLocation METAL = ModCultivationRegistries.METAL_ELEMENT_ID;
     static final ResourceLocation FIRE = ModCultivationRegistries.FIRE_ELEMENT_ID;
     static final ResourceLocation BREATHING = ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID;
-    static final ResourceLocation HUANG = ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_yinqi_fa");
-    static final ResourceLocation XUAN = ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_jianjue");
-    static final ResourceLocation UNKNOWN = ResourceLocation.fromNamespaceAndPath("myvillage", "no_such_technique");
+    static final ResourceLocation HUANG = ResourceLocation.fromNamespaceAndPath("yuanxian", "gengjin_yinqi_fa");
+    static final ResourceLocation XUAN = ResourceLocation.fromNamespaceAndPath("yuanxian", "gengjin_jianjue");
+    static final ResourceLocation UNKNOWN = ResourceLocation.fromNamespaceAndPath("yuanxian", "no_such_technique");
 
     static final TechniqueDefinition HUANG_DEFINITION = new TechniqueDefinition(
-            "cultivation.technique.myvillage.gengjin_yinqi_fa",
+            "cultivation.technique.yuanxian.gengjin_yinqi_fa",
             TechniqueCategory.CORE,
             1,
             List.of(METAL),
@@ -44,7 +44,7 @@ final class StudyFixtures {
             Optional.empty(),
             new TechniqueStudy(4_000, 0, 0));
     static final TechniqueDefinition XUAN_DEFINITION = new TechniqueDefinition(
-            "cultivation.technique.myvillage.gengjin_jianjue",
+            "cultivation.technique.yuanxian.gengjin_jianjue",
             TechniqueCategory.ACTIVE,
             2,
             List.of(METAL),
@@ -57,7 +57,7 @@ final class StudyFixtures {
             Optional.empty(),
             new TechniqueStudy(12_000, 1, 50));
     static final TechniqueDefinition BREATHING_DEFINITION = new TechniqueDefinition(
-            "cultivation.technique.myvillage.basic_breathing",
+            "cultivation.technique.yuanxian.basic_breathing",
             TechniqueCategory.CORE,
             0,
             List.of(),

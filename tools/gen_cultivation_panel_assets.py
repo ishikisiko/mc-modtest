@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'tools/cultivation_panel'
-ASSETS = ROOT / 'src/main/resources/assets/myvillage'
+ASSETS = ROOT / 'src/main/resources/assets/yuanxian'
 
 
 def png(image):
@@ -98,7 +98,7 @@ def outputs():
     runtime['navigation'] = {}
     base = ASSETS/'textures/gui/cultivation/panel'
     for ident, name in style['technique_icons'].items():
-        if '/' in name or '..' in name or not ident.startswith('myvillage:'):
+        if '/' in name or '..' in name or not ident.startswith('yuanxian:'):
             raise ValueError('Invalid icon path or technique id')
         original = SOURCE/'source'/f'{name}.png'
         with Image.open(original) as image:
@@ -107,12 +107,12 @@ def outputs():
             # Premultiplied-alpha resampling avoids dark fringes around translucent ink.
             resized = image.convert('RGBa').resize((size,size),Image.Resampling.LANCZOS).convert('RGBA')
             result[base/f'{name}.png'] = png(resized)
-        runtime['technique_icons'][ident] = f'myvillage:textures/gui/cultivation/panel/{name}.png'
+        runtime['technique_icons'][ident] = f'yuanxian:textures/gui/cultivation/panel/{name}.png'
     for group in ('categories','navigation'):
         for name in style[group]:
             stem = ('category_' if group=='categories' else 'nav_')+name
             result[base/f'{stem}.png'] = png(symbol(name,category_size))
-            runtime[group][name] = f'myvillage:textures/gui/cultivation/panel/{stem}.png'
+            runtime[group][name] = f'yuanxian:textures/gui/cultivation/panel/{stem}.png'
     for path in list(result):
         result[Path(str(path)+'.mcmeta')] = b'{"texture":{"blur":true,"clamp":true}}\n'
     result[ASSETS/'cultivation_panel.json'] = (json.dumps(runtime,ensure_ascii=False,indent=2)+'\n').encode()

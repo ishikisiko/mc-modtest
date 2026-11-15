@@ -27,14 +27,14 @@ def check(out:Path) -> dict:
             if hashlib.sha256((out/path).read_bytes()).hexdigest()!=expected:
                 raise ValueError(f'Changed legacy V{version} asset: {path}')
             legacy_count+=1
-    frozen=json.loads((out/'data/myvillage/worldplan/frozen_v4.json').read_text())
+    frozen=json.loads((out/'data/yuanxian/worldplan/frozen_v4.json').read_text())
     layout=frozen['city']['layout'];w,h,d=layout['size']
-    preset=json.loads((out/'data/myvillage/worldgen/world_preset/cultivation.json').read_text())
+    preset=json.loads((out/'data/yuanxian/worldgen/world_preset/cultivation.json').read_text())
     encoded=preset['dimensions']['minecraft:overworld']['generator']['rules']
     if not encoded.startswith('gzip:') or len(encoded)>65000:
         raise ValueError('V4 rules do not fit the per-string NBT envelope')
     preset_rules=json.loads(gzip.decompress(base64.b64decode(encoded[5:],validate=True)))
-    current=json.loads((out/'data/myvillage/worldplan/frozen_v7.json').read_text())
+    current=json.loads((out/'data/yuanxian/worldplan/frozen_v7.json').read_text())
     if preset_rules!=current or preset_rules['city']!=frozen['city']:
         raise ValueError('Preset or retained V4 city rules disagree')
     _,frame,_=descriptor(ROOT)
@@ -44,7 +44,7 @@ def check(out:Path) -> dict:
     tiles={(t['x'],t['z']):t for t in layout['tiles']}
     if len(tiles)!=w*d//256:raise ValueError('Incomplete city tiling')
     for tile in tiles.values():
-        path=out/('data/myvillage/structure/'+tile['template'].split(':')[1]+'.nbt')
+        path=out/('data/yuanxian/structure/'+tile['template'].split(':')[1]+'.nbt')
         if hashlib.sha256(path.read_bytes()).hexdigest()!=tile['sha256']:
             raise ValueError('Changed frozen tile: '+str(path))
     cache={}
@@ -53,7 +53,7 @@ def check(out:Path) -> dict:
         if not (0<=x<w and 0<=y<h and 0<=z<d):raise ValueError('Probe outside city')
         origin=(x//16*16,z//16*16)
         if origin not in cache:
-            tile=tiles[origin];path=out/('data/myvillage/structure/'+tile['template'].split(':')[1]+'.nbt')
+            tile=tiles[origin];path=out/('data/yuanxian/structure/'+tile['template'].split(':')[1]+'.nbt')
             _,tag=read_gzipped_nbt(str(path))
             if tag['size']!=[16,h,16] or len(tag['blocks'])!=16*h*16:raise ValueError('Wrong tile bounds/air coverage')
             cache[origin]={tuple(b['pos']):state_string(tag['palette'][b['state']]) for b in tag['blocks']}

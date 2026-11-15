@@ -3,22 +3,22 @@ navigation:
   title: 打坐与冲关
   parent: index.md
   position: 20
-  icon: myvillage:low_grade_spirit_stone
+  icon: yuanxian:low_grade_spirit_stone
 item_ids:
-  - myvillage:low_grade_spirit_stone
-  - myvillage:spirit_stone_ore
-  - myvillage:deepslate_spirit_stone_ore
+  - yuanxian:low_grade_spirit_stone
+  - yuanxian:spirit_stone_ore
+  - yuanxian:deepslate_spirit_stone_ore
 ---
 
 # 打坐与冲关
 
 下列按键由你的当前键位设置动态显示，不应把默认字母当作固定操作：
 
-- 打开“内视 / 修炼 / 功法”修仙面板：<KeyBind id="key.myvillage.open_cultivation_profile" />
-- 开始普通打坐：<KeyBind id="key.myvillage.start_normal_meditation" />
-- 开始灵石修炼：<KeyBind id="key.myvillage.start_spirit_meditation" />
-- 停止当前修炼：<KeyBind id="key.myvillage.stop_meditation" />
-- 修为与稳定度圆满后开始晋层：<KeyBind id="key.myvillage.start_advancement" />
+- 打开“内视 / 修炼 / 功法”修仙面板：<KeyBind id="key.yuanxian.open_cultivation_profile" />
+- 开始普通打坐：<KeyBind id="key.yuanxian.start_normal_meditation" />
+- 开始灵石修炼：<KeyBind id="key.yuanxian.start_spirit_meditation" />
+- 停止当前修炼：<KeyBind id="key.yuanxian.stop_meditation" />
+- 修为与稳定度圆满后开始晋层：<KeyBind id="key.yuanxian.start_advancement" />
 
 ## 开始与打断
 
@@ -31,7 +31,7 @@ item_ids:
 进入打坐后，每 `10` 个连续合格 tick 结算一批：
 
 - **普通打坐**增加当前“灵气亲和”数值的修为；新档案默认是 `10`，但实际值以服务端档案为准。
-- **灵石修炼**固定增加 `50` 修为，并从普通背包直接扣除当前阶段所需的 <ItemLink id="myvillage:low_grade_spirit_stone" />。
+- **灵石修炼**固定增加 `50` 修为，并从普通背包直接扣除当前阶段所需的 <ItemLink id="yuanxian:low_grade_spirit_stone" />。
 
 | 当前阶段 | 每批灵石 | 每批修为 |
 |---|---:|---:|
@@ -78,11 +78,11 @@ item_ids:
 ## 灵石来源
 
 <Row>
-  <BlockImage id="myvillage:spirit_stone_ore" scale="1.5" />
-  <BlockImage id="myvillage:deepslate_spirit_stone_ore" scale="1.5" />
+  <BlockImage id="yuanxian:spirit_stone_ore" scale="1.5" />
+  <BlockImage id="yuanxian:deepslate_spirit_stone_ore" scale="1.5" />
 </Row>
 
-<ItemLink id="myvillage:spirit_stone_ore" /> 与 <ItemLink id="myvillage:deepslate_spirit_stone_ore" /> 生成在主世界新生成的区块中，已有区块不会补矿。使用铁级或更高等级镐挖掘；精准采集掉落原矿，否则每块矿掉落 4～5 颗下品灵石，时运按原版红石矿规则额外增加数量。
+<ItemLink id="yuanxian:spirit_stone_ore" /> 与 <ItemLink id="yuanxian:deepslate_spirit_stone_ore" /> 生成在主世界新生成的区块中，已有区块不会补矿。使用铁级或更高等级镐挖掘；精准采集掉落原矿，否则每块矿掉落 4～5 颗下品灵石，时运按原版红石矿规则额外增加数量。
 
 ## 寿元门槛
 

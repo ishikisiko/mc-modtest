@@ -48,23 +48,23 @@ the lab copies under numpy 2.5.3 and Pillow 12.3.0.
 
 ```bash
 # the capture tool's five key ticks of every move, without point markers
-python3 -m tools.combat_preview fp --weapon myvillage:lingxiao_spear --move all --key-ticks --no-marks \
+python3 -m tools.combat_preview fp --weapon yuanxian:lingxiao_spear --move all --key-ticks --no-marks \
     --out out/preview/combat_preview/spear_fp.png
 # chosen ticks of one move, a candidate rig, the left main arm
-python3 -m tools.combat_preview fp --weapon myvillage:qingfeng_sword --move 2 --ticks 0,3.3,4.9,6.25 \
+python3 -m tools.combat_preview fp --weapon yuanxian:qingfeng_sword --move 2 --ticks 0,3.3,4.9,6.25 \
     --rig /tmp/candidate_rig.json --main-arm left --out out/preview/combat_preview/sword_m2.png
 # against a capture set: game | render | overlay | silhouette diff per first-person still
-python3 -m tools.combat_preview fp --weapon myvillage:lingxiao_spear \
+python3 -m tools.combat_preview fp --weapon yuanxian:lingxiao_spear \
     --compare-capture out/preview/combat_capture/spear-final --out out/preview/combat_preview/spear_vs_game
 
 python3 -m tools.combat_preview pose \
-    --animations src/main/resources/assets/myvillage/player_animations/spear_combat.json \
-    --animation basic_spear_04_overhead_smash --all-keys --item myvillage:item/lingxiao_spear \
+    --animations src/main/resources/assets/yuanxian/player_animations/spear_combat.json \
+    --animation basic_spear_04_overhead_smash --all-keys --item yuanxian:item/lingxiao_spear \
     --show-axis --out out/preview/combat_preview/spear_smash.png
 
-python3 -m tools.combat_preview model myvillage:item/qingfeng_sword --out out/preview/combat_preview/sword_model.png
-python3 -m tools.combat_preview model myvillage:item/lingxiao_spear \
-    --geometry src/main/resources/assets/myvillage/combat/lingxiao_spear_geometry.json \
+python3 -m tools.combat_preview model yuanxian:item/qingfeng_sword --out out/preview/combat_preview/sword_model.png
+python3 -m tools.combat_preview model yuanxian:item/lingxiao_spear \
+    --geometry src/main/resources/assets/yuanxian/combat/lingxiao_spear_geometry.json \
     --out out/preview/combat_preview/spear_model.png
 ```
 
@@ -78,7 +78,7 @@ finds `assets/<ns>/combat/<item>_geometry.json` by itself.
 changed.
 
 ```bash
-python3 -m tools.combat_preview sweep --weapon myvillage:lingxiao_spear \
+python3 -m tools.combat_preview sweep --weapon yuanxian:lingxiao_spear \
     --set rig.off_hand.thickness=0.42,0.5,0.56,0.62 --frames 1:0,1:4,2:6,3:7.5,5:7.4 \
     --out out/preview/combat_preview/sweep_offarm_thickness
 python3 -m tools.combat_preview diff out/preview/combat_capture/spear-final \

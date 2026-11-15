@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class CoreTechniqueFactorTest {
     private static final ResourceLocation METAL = ModCultivationRegistries.METAL_ELEMENT_ID;
     private static final ResourceLocation FIRE = ModCultivationRegistries.FIRE_ELEMENT_ID;
-    private static final ResourceLocation XUAN_METAL = ResourceLocation.fromNamespaceAndPath("myvillage", "xuan_metal");
+    private static final ResourceLocation XUAN_METAL = ResourceLocation.fromNamespaceAndPath("yuanxian", "xuan_metal");
     private static final Rules RULES = shippedRules();
 
     @Test

@@ -10,15 +10,15 @@ import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 class ShieldLedgerTest {
-    private static final ResourceLocation A = ResourceLocation.parse("myvillage:a");
-    private static final ResourceLocation B = ResourceLocation.parse("myvillage:b");
+    private static final ResourceLocation A = ResourceLocation.parse("yuanxian:a");
+    private static final ResourceLocation B = ResourceLocation.parse("yuanxian:b");
     private static final ResourceLocation C = ResourceLocation.parse("other:a");
     private static ShieldLedger ledger() { return new ShieldLedger(new ShieldRules(2, 10, 15, 100, 8)); }
 
     @Test void paidGrantPlansCapacityBeforePaymentAndDoesNotReplaceOnPaymentFailure() {
         var ledger = new ShieldLedger(new ShieldRules(1, 20, 20, 100, 10));
-        var a = net.minecraft.resources.ResourceLocation.parse("myvillage:a");
-        var b = net.minecraft.resources.ResourceLocation.parse("myvillage:b");
+        var a = net.minecraft.resources.ResourceLocation.parse("yuanxian:a");
+        var b = net.minecraft.resources.ResourceLocation.parse("yuanxian:b");
         assertTrue(ledger.grant(a, 8, 80, 10));
         var before = ledger.entries(10);
         var paid = new java.util.concurrent.atomic.AtomicInteger();

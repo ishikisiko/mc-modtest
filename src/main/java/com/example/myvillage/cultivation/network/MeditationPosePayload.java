@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 /** Presentation only. Does not reveal cultivation profile, resources or study targets to observers. */
 public record MeditationPosePayload(int entityId, UUID playerId, ResourceLocation dimension,
         long revision, long startedAt, int enterTicks, boolean active, boolean graceful) implements CustomPacketPayload {
-    public static final Type<MeditationPosePayload> TYPE = new Type<>(ResourceLocation.parse("myvillage:meditation_pose"));
+    public static final Type<MeditationPosePayload> TYPE = new Type<>(ResourceLocation.parse("yuanxian:meditation_pose"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MeditationPosePayload> STREAM_CODEC = new StreamCodec<>() {
         @Override public MeditationPosePayload decode(RegistryFriendlyByteBuf b) {
             return new MeditationPosePayload(b.readVarInt(), b.readUUID(), b.readResourceLocation(),

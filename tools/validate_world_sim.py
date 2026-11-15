@@ -3,7 +3,7 @@
 
 Checks, each failure printed as ``<check>: <file>: <detail>``:
 
-- data: every file under ``data/myvillage/world_sim/`` parses and has ``"schema": 1``; the eight known files
+- data: every file under ``data/yuanxian/world_sim/`` parses and has ``"schema": 1``; the eight known files
   (rules, realms, encounters, names, techniques, heritages, lore, sect_tasks) have their required fields, enum values, positive
   weights and unique ids, and agree with each other (realm ids and stages named by rules and encounters,
   site kinds named by encounters exist in lore, every technique/artifact grade an encounter or genesis can
@@ -12,7 +12,7 @@ Checks, each failure printed as ``<check>: <file>: <detail>``:
   a non-empty technique list of ledger techniques that share one element, a school that is ``none`` or a
   datapack school, and no technique in two heritages. Sect tasks have unique ``[a-z0-9_]+`` ids, a kind of
   patrol, tribute or courier, and a positive integer count and contribution.
-- datapack: every ledger technique has ``data/myvillage/myvillage/technique/<id>.json`` whose integer grade
+- datapack: every ledger technique has ``data/yuanxian/yuanxian/technique/<id>.json`` whose integer grade
   and elements agree with the ledger's grade and element; every ``lineage.previous`` names a datapack
   technique and no chain is a cycle; each heritage's techniques carry its school (none: no school) and
   follow one another by ``lineage.previous``, the first having none. ``tools/gen_technique_catalogue.py``
@@ -22,7 +22,7 @@ Checks, each failure printed as ``<check>: <file>: <detail>``:
   plus the data-derived keys (realm, stage, rank, root grade, technique grade, the breakthrough lines of every
   realm with a breakthrough, the fortune line of every encounter, the name and brief of every sect task). Every ``world_sim.*`` key in either file is
   in the other with the same ``%n$s`` slots, numbered 1..n; a family's variants run .1..n in both files.
-  The runtime's ``commands.myvillage.world.*`` / ``message.myvillage.world.*`` keys used in ``sim/runtime/**``
+  The runtime's ``commands.yuanxian.world.*`` / ``message.yuanxian.world.*`` keys used in ``sim/runtime/**``
   exist in both files with the same slots.
 - purity: ``sim/**`` outside ``sim/runtime/**`` imports and mentions nothing from ``net.minecraft``,
   ``net.neoforged``, ``com.mojang`` or ``org.slf4j``.
@@ -39,12 +39,12 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA_REL = Path("src/main/resources/data/myvillage/world_sim")
-PLAYER_REALM_REL = Path("src/main/resources/data/myvillage/myvillage/realm")
-TECHNIQUE_REL = Path("src/main/resources/data/myvillage/myvillage/technique")
-SCHOOL_REL = Path("src/main/resources/data/myvillage/myvillage/school")
-DATAPACK_NAMESPACE = "myvillage"
-LANG_REL = Path("src/main/resources/assets/myvillage/lang")
+DATA_REL = Path("src/main/resources/data/yuanxian/world_sim")
+PLAYER_REALM_REL = Path("src/main/resources/data/yuanxian/yuanxian/realm")
+TECHNIQUE_REL = Path("src/main/resources/data/yuanxian/yuanxian/technique")
+SCHOOL_REL = Path("src/main/resources/data/yuanxian/yuanxian/school")
+DATAPACK_NAMESPACE = "yuanxian"
+LANG_REL = Path("src/main/resources/assets/yuanxian/lang")
 SIM_REL = Path("src/main/java/com/example/myvillage/sim")
 
 SCHEMA = 1
@@ -64,8 +64,8 @@ RUNTIME_TIERS = ("small", "medium", "large")  # WorldSimServerConfig.TIERS
 SECT_STATES = ("active", "destroyed")
 SECT_RELATION_STATES = ("none", "feud", "war")
 FORBIDDEN_PACKAGES = ("net.minecraft", "net.neoforged", "com.mojang", "org.slf4j")
-RUNTIME_KEY = "commands.myvillage.world."
-RUNTIME_MESSAGE = "message.myvillage.world."
+RUNTIME_KEY = "commands.yuanxian.world."
+RUNTIME_MESSAGE = "message.yuanxian.world."
 LANGS = ("en_us", "zh_cn")
 SLOT = re.compile(r"%(?:(\d+)\$)?([sd%])")
 

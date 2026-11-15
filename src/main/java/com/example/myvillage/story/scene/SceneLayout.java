@@ -18,9 +18,9 @@ public record SceneLayout(String id, String version, List<Site> sites, Bounds bo
     private static final Set<String> TARGETS = Set.of("water_sample", "withered_crop", "sample_examination",
             "medicine_chest", "transport_record", "recut_array", "fresh_cut", "old_array_text", "spring_core");
     private static final Map<String, String> FACILITIES = Map.of(
-            "testing_stele", "myvillage:spirit_testing_stele",
-            "inheritance_stele", "myvillage:technique_inheritance_stele",
-            "apprentice_plot", "myvillage:spirit_soil");
+            "testing_stele", "yuanxian:spirit_testing_stele",
+            "inheritance_stele", "yuanxian:technique_inheritance_stele",
+            "apprentice_plot", "yuanxian:spirit_soil");
     private static final Set<String> SITES = Set.of("relay_inn", "apothecary", "canal_gardens", "old_relay", "spring_array", "initiation_court");
 
     public record Pos(int x, int y, int z) {
@@ -70,7 +70,7 @@ public record SceneLayout(String id, String version, List<Site> sites, Bounds bo
             String siteId = text(raw, "id");
             require(siteIds.add(siteId), "duplicate site");
             String template = text(raw, "template"), sha = text(raw, "sha256");
-            require(template.equals("myvillage:qianzhen/"+siteId) && SITES.contains(siteId), "invalid site template");
+            require(template.equals("yuanxian:qianzhen/"+siteId) && SITES.contains(siteId), "invalid site template");
             require(sha.matches("[0-9a-f]{64}"), "invalid template digest");
             Site site = new Site(siteId, template, pos(raw.get("origin")), pos(raw.get("size")), sha);
             require(site.size.x > 0 && site.size.y > 0 && site.size.z > 0 && site.origin.y == 0, "invalid site size/origin");

@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /** 旁观者仅接收形态，不接收他人的火种与适应明细。 */
 public record PhoenixFormPayload(int entityId,UUID owner,boolean ember) implements CustomPacketPayload {
-    public static final Type<PhoenixFormPayload> TYPE=new Type<>(ResourceLocation.parse("myvillage:phoenix_form"));
+    public static final Type<PhoenixFormPayload> TYPE=new Type<>(ResourceLocation.parse("yuanxian:phoenix_form"));
     private static Consumer<PhoenixFormPayload> receiver=p->{};
     public static void installReceiver(Consumer<PhoenixFormPayload> consumer){receiver=java.util.Objects.requireNonNull(consumer);}
     public static void receive(PhoenixFormPayload payload){receiver.accept(payload);}

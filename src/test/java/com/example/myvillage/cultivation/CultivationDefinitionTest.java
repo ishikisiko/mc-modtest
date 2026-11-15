@@ -32,7 +32,7 @@ class CultivationDefinitionTest {
     void realmStageCodecRoundTripsStableIdAndOrder() {
         RealmStageDefinition stage = new RealmStageDefinition(
                 id("qi_refining_1"),
-                "cultivation.stage.myvillage.qi_refining_1",
+                "cultivation.stage.yuanxian.qi_refining_1",
                 0);
 
         assertEquals(stage, roundTrip(RealmStageDefinition.CODEC, stage));
@@ -50,7 +50,7 @@ class CultivationDefinitionTest {
                 0);
         RealmStageDefinition stage = new RealmStageDefinition(
                 id("mortal_qi_sensed"),
-                "cultivation.stage.myvillage.mortal_qi_sensed",
+                "cultivation.stage.yuanxian.mortal_qi_sensed",
                 1,
                 Optional.of(1000L),
                 Optional.of(1),
@@ -100,14 +100,14 @@ class CultivationDefinitionTest {
     void realmDefinitionCodecRoundTripsAndChecksMembership() {
         RealmStageDefinition first = new RealmStageDefinition(
                 id("mortal_unawakened"),
-                "cultivation.stage.myvillage.mortal_unawakened",
+                "cultivation.stage.yuanxian.mortal_unawakened",
                 0);
         RealmStageDefinition second = new RealmStageDefinition(
                 id("mortal_qi_sensed"),
-                "cultivation.stage.myvillage.mortal_qi_sensed",
+                "cultivation.stage.yuanxian.mortal_qi_sensed",
                 1);
         RealmDefinition realm = new RealmDefinition(
-                "cultivation.realm.myvillage.mortal",
+                "cultivation.realm.yuanxian.mortal",
                 0,
                 80,
                 List.of(first, second),
@@ -153,7 +153,7 @@ class CultivationDefinitionTest {
                   "sort_order": 0,
                   %s
                   "stages": [
-                    {"id":"myvillage:test","translation_key":"stage.test","sort_order":0}
+                    {"id":"yuanxian:test","translation_key":"stage.test","sort_order":0}
                   ]
                 }
                 """;
@@ -172,7 +172,7 @@ class CultivationDefinitionTest {
     @Test
     void spiritualElementDefinitionCodecRoundTripsOptionalColor() {
         SpiritualElementDefinition element = new SpiritualElementDefinition(
-                "cultivation.element.myvillage.fire",
+                "cultivation.element.yuanxian.fire",
                 3,
                 Optional.of(0xEE4411),
                 27);
@@ -256,7 +256,7 @@ class CultivationDefinitionTest {
                 Optional.of(id("qi_refining_1")),
                 Map.of(id("fire"), 2_500));
         TechniqueDefinition technique = new TechniqueDefinition(
-                "cultivation.technique.myvillage.flame_step",
+                "cultivation.technique.yuanxian.flame_step",
                 TechniqueCategory.MOVEMENT,
                 2,
                 List.of(id("fire")),
@@ -275,7 +275,7 @@ class CultivationDefinitionTest {
     @Test
     void shippedBasicBreathingRequiresQiSensedMortalAndNoElementAffinity() throws Exception {
         Path path = Path.of(
-                "src/main/resources/data/myvillage/myvillage/technique/basic_breathing.json");
+                "src/main/resources/data/yuanxian/yuanxian/technique/basic_breathing.json");
         TechniqueDefinition definition = TechniqueDefinition.CODEC.parse(
                 JsonOps.INSTANCE,
                 JsonParser.parseString(Files.readString(path)))
@@ -297,7 +297,7 @@ class CultivationDefinitionTest {
 
         for (Map.Entry<String, Integer> entry : expected.entrySet()) {
             Path path = Path.of(
-                    "src/main/resources/data/myvillage/myvillage/realm/" + entry.getKey() + ".json");
+                    "src/main/resources/data/yuanxian/yuanxian/realm/" + entry.getKey() + ".json");
             RealmDefinition definition = RealmDefinition.CODEC.parse(
                             JsonOps.INSTANCE,
                             JsonParser.parseString(Files.readString(path)))
@@ -411,7 +411,7 @@ class CultivationDefinitionTest {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 
     private static AdvancementDefinition advancement(
@@ -428,7 +428,7 @@ class CultivationDefinitionTest {
 
     private static RealmDefinition readRealm(String name) throws Exception {
         Path path = Path.of(
-                "src/main/resources/data/myvillage/myvillage/realm/" + name + ".json");
+                "src/main/resources/data/yuanxian/yuanxian/realm/" + name + ".json");
         return RealmDefinition.CODEC.parse(
                         JsonOps.INSTANCE,
                         JsonParser.parseString(Files.readString(path)))

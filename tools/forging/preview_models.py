@@ -37,7 +37,7 @@ def generate(out,root=ROOT):
   ns,path=ref.split(':');rel=f'assets/{ns}/textures/{path}.png';data=outputs.get(base/rel) or catalogue.material_outputs.get(rel) or (base/rel).read_bytes()
   textures[ref]=np.asarray(Image.open(io.BytesIO(data)).convert('RGBA'),dtype=float)/255
  order=['qingfeng_sword','lingxiao_spear','forged_pickaxe','forged_axe','forged_shovel','forged_hoe','xuantie_helmet','xuantie_chestplate','xuantie_leggings','xuantie_boots']
- font=ImageFont.truetype(str(base/'assets/myvillage/font/book.ttf'),21)
+ font=ImageFont.truetype(str(base/'assets/yuanxian/font/book.ttf'),21)
  sheet=Image.new('RGB',(980,1180),(231,221,189));draw=ImageDraw.Draw(sheet);draw.text((25,20),'同源立体模型 · 全阶段预览',font=font,fill='#303b3c')
  headers=['粗坯／料片','成形','淬火','回火','精磨／修整','装配成器']
  for i,title in enumerate(headers):draw.text((130+140*i,65),title,font=font,fill='#625845')
@@ -46,9 +46,9 @@ def generate(out,root=ROOT):
   rows.append('<div class="name">'+catalogue.names[rid]+'</div>');draw.text((12,135+105*row),catalogue.names[rid],font=font,fill='#303b3c')
   manifest[rid]=[]
   for stage in range(6):
-   source=catalogue.stage(rid,stage);ref='myvillage:preview/'+rid+'_'+str(stage)
+   source=catalogue.stage(rid,stage);ref='yuanxian:preview/'+rid+'_'+str(stage)
    # Round-trip through the same OBJ/MTL that Minecraft consumes before rendering.
-   files,_=mesh.obj_assets(source,ref);faces=mesh.read_obj(files[f'assets/myvillage/models/preview/{rid}_{stage}.obj'],files[f'assets/myvillage/models/preview/{rid}_{stage}.mtl'])
+   files,_=mesh.obj_assets(source,ref);faces=mesh.read_obj(files[f'assets/yuanxian/models/preview/{rid}_{stage}.obj'],files[f'assets/yuanxian/models/preview/{rid}_{stage}.mtl'])
    display=mesh.gui_transform(source,*mesh.gui_profile(catalogue.armor(rid),root))
    image=render(faces,display,textures);image.save(out/f'{rid}-{stage}.png');sheet.paste(image.resize((104,104)),(130+140*stage,100+105*row))
    rows.append('<div class="cell">'+svg(image)+'</div>');manifest[rid].append({'stage':stage,'quads':len(faces),'parts':len({f['part'] for f in faces})})

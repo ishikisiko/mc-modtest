@@ -21,10 +21,10 @@ class CapitalWaystoneGenerationTest(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.materials = json.loads(MATERIALS.read_text())
         self.rules = json.loads(SITES.read_text())['constraints']
-        path = self.root/'data/myvillage/capitals/v4/capital_zhongzhou/terrain.bin.gz'
+        path = self.root/'data/yuanxian/capitals/v4/capital_zhongzhou/terrain.bin.gz'
         path.parent.mkdir(parents=True); path.write_bytes(gzip.compress(struct.pack('<'+'h'*1024,*([7]*1024)),mtime=0))
         self.manifest = {'city_id':'capital_zhongzhou','size':[32,32,32], 'tiles':[],
-                         'terrain':{'resource':'myvillage:capitals/v4/capital_zhongzhou/terrain.bin.gz',
+                         'terrain':{'resource':'yuanxian:capitals/v4/capital_zhongzhou/terrain.bin.gz',
                                     'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
                                     'top_block':'minecraft:grass_block','fill_block':'minecraft:stone','subsurface_block':'minecraft:dirt'}}
 
@@ -73,7 +73,7 @@ class CapitalWaystoneGenerationTest(unittest.TestCase):
                             self.assertLessEqual(abs(field[x+dx,z+dz]-y),1,(site['id'],x,z))
 
     def test_block_entity_payload_is_byte_identical_after_a_nearby_station(self):
-        name='myvillage:province_capitals/v4/capital_zhongzhou/tile_0_0';path=resource_file(self.root,name,template=True);path.parent.mkdir(parents=True)
+        name='yuanxian:province_capitals/v4/capital_zhongzhou/tile_0_0';path=resource_file(self.root,name,template=True);path.parent.mkdir(parents=True)
         payload=io.BytesIO()
         nbt._write_named_tag(payload,'id',nbt.String('minecraft:chest'))
         payload.write(bytes([nbt.TAG_LONG]));nbt._write_utf(payload,'LootTableSeed');payload.write(struct.pack('>q',9223372036854775000))

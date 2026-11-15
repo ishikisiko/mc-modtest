@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 /**
- * The bundled {@code myvillage:basic_sword} style (the Qingfeng sword's moves). The accepted
+ * The bundled {@code yuanxian:basic_sword} style (the Qingfeng sword's moves). The accepted
  * Qingfeng numbers are pinned here once, as literals: they are the values the removed
  * {@code BasicSwordStyle} constants and {@code CombatCameraFx} arrays held, proven equal value for
  * value before those were deleted (D5).
@@ -69,7 +69,7 @@ class BasicSwordStyleTest {
         for (int index = 0; index < 5; index++) {
             AttackMoveDefinition move = STYLE.move(index);
             assertEquals(id(paths.get(index)), move.id());
-            assertEquals("combat.myvillage.move." + paths.get(index), move.displayKey());
+            assertEquals("combat.yuanxian.move." + paths.get(index), move.displayKey());
             assertEquals(new AnimationDefinition(move.id(), move.totalTicks()), move.animation());
             assertEquals(shapes.get(index), move.hitbox().shapeFamily());
             assertEquals(0.24, move.hitbox().horizontalTolerance());
@@ -256,7 +256,7 @@ class BasicSwordStyleTest {
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
+        return ResourceLocation.fromNamespaceAndPath("yuanxian", path);
     }
 
     private static AttackMoveDefinition copy(AttackMoveDefinition move, int bufferStart, int chainTick) {

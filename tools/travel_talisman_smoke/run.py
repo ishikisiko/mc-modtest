@@ -361,7 +361,7 @@ def crafting_checks(server, client):
         assert server.desk()['recipe'] == recipe
         client.click(300, 238, 199, 122, hold=12)
         completed = server.desk()
-        assert completed['inventory'][2]['item'] == 'myvillage:' + item and completed['inventory'][2]['count'] == 1, completed
+        assert completed['inventory'][2]['item'] == 'yuanxian:' + item and completed['inventory'][2]['count'] == 1, completed
         assert completed['batch'] is False, completed
         client.capture.shot(client.out / (item + '-crafted.png'))
         client.click(300, 238, 270, 42, shift=True)

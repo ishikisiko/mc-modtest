@@ -28,15 +28,15 @@ def publish(run):
         artifacts[name]={'bytes':file.stat().st_size,'sha256':hashlib.sha256(file.read_bytes()).hexdigest()}
     with zipfile.ZipFile(runtime/'courtyard_sample_world.zip') as world:
         if world.testzip() is not None:raise ValueError('Corrupt exported world')
-    version=evidence['mod_version'];jar=run/'artifacts/build/libs'/f'myvillage-{version}.jar'
+    version=evidence['mod_version'];jar=run/'artifacts/build/libs'/f'yuanxian-{version}.jar'
     with zipfile.ZipFile(jar) as z:
-        rows=json.loads(z.read('data/myvillage/courtyard/assemblies.json'))['families']
+        rows=json.loads(z.read('data/yuanxian/courtyard/assemblies.json'))['families']
         if len(rows)!=10:raise ValueError('Unexpected building entry count')
         names=set(z.namelist())
         for f in rows:
-            for p in [f'assets/myvillage/models/item/{f["id"]}.json',f'assets/myvillage/blockstates/{f["id"]}.json']:
+            for p in [f'assets/yuanxian/models/item/{f["id"]}.json',f'assets/yuanxian/blockstates/{f["id"]}.json']:
                 if p not in names:raise ValueError('Missing jar resource '+p)
-        for p in ['data/myvillage/structure/reference_courtyard.nbt','com/example/myvillage/courtyard/CourtyardAssemblyBlock.class']:
+        for p in ['data/yuanxian/structure/reference_courtyard.nbt','com/example/myvillage/courtyard/CourtyardAssemblyBlock.class']:
             if p not in names:raise ValueError('Missing jar content '+p)
     target=OUT/'runs'/run.name;target.mkdir(parents=True,exist_ok=True)
     shutil.copytree(runtime,target,dirs_exist_ok=True)
@@ -85,7 +85,7 @@ def publish(run):
 <nav>{buttons}</nav><img id="shot" src="{first}" alt="{first_label}"><p id="caption">{first_label}</p>
 <div class="downloads"><a href="{jar.name}" download>下载 MyVillage {version}</a><a href="{prefix}courtyard_sample_world.zip" download>独立样板世界</a><a href="{prefix}courtyard/reference_courtyard_game.nbt" download>游戏保存 NBT</a><a href="{prefix}courtyard/reference_courtyard_game.schem" download>SCHEM</a><a href="{prefix}evidence.json">检查记录</a></div>
 <p>创造栏和 JEI 每类只列一个入口。手持构件后 <b>Shift＋右键</b> 选择款式；整窗一次放置消耗一个物品，任意部分拆除都整件移除。遇到障碍不留下碎片、不扣物品。</p>
-<p>在独立空地使用 <code>/place template myvillage:reference_courtyard ~ ~ ~</code> 放置样板；占地 48×40 格、高度包围盒 28 格。模板包含空气，会覆盖该范围。需要匹配模组及原有依赖；JEI 可选。</p>
+<p>在独立空地使用 <code>/place template yuanxian:reference_courtyard ~ ~ ~</code> 放置样板；占地 48×40 格、高度包围盒 28 格。模板包含空气，会覆盖该范围。需要匹配模组及原有依赖；JEI 可选。</p>
 <p class="note">本轮 {checks} 项实机检查通过：{check_summary}。未列出的项目未在本轮重跑。固定源 {commit}，云端实例已确认销毁。软件渲染不代表你的电脑 FPS；最终外观、手感、声音和广泛多人仍待玩家验收。SCHEM 默认方向导出，外部编辑器的旋转/镜像未单独验收。</p>
 <p class="note"><a href="delivery.json">版本、SHA-256 与交付信息</a> · <a href="../reference-courtyard/">早期独立体素样稿</a></p></main>
 <script>for(const b of document.querySelectorAll('nav button'))b.onclick=()=>{{document.querySelector('#shot').src=b.dataset.src;document.querySelector('#shot').alt=b.textContent;document.querySelector('#caption').textContent=b.textContent;document.querySelectorAll('nav button').forEach(t=>t.classList.toggle('active',t===b))}};document.querySelector('nav button').classList.add('active');</script></html>'''

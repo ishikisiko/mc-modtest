@@ -55,9 +55,9 @@ class StoryParserTests(unittest.TestCase):
                 require_subset({'personal':{'stage':'x'}}, expected)
 
     def test_rewards_count_actual_items_and_stacks(self):
-        inv = [{'id':'myvillage:reward','count':2}, {'id':'minecraft:dirt','count':64},
-               {'id':'myvillage:reward','count':3}]
-        self.assertEqual(reward_counts(inv,[{'item':'myvillage:reward','count':5}]), {'myvillage:reward':5})
+        inv = [{'id':'yuanxian:reward','count':2}, {'id':'minecraft:dirt','count':64},
+               {'id':'yuanxian:reward','count':3}]
+        self.assertEqual(reward_counts(inv,[{'item':'yuanxian:reward','count':5}]), {'yuanxian:reward':5})
 
 
 class StoryRouteTests(unittest.TestCase):

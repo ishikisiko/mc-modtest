@@ -671,7 +671,7 @@
     "river_opacity": 0.38
   },
   "textures": {
-    "font": "src/main/resources/assets/myvillage/font/brush.ttf",
+    "font": "src/main/resources/assets/yuanxian/font/brush.ttf",
     "seal_resolution": 1024,
     "cloud_size": [
       192,

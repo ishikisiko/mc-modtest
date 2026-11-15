@@ -9,7 +9,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.example.myvillage.combat.network.CombatHotbarPayload.*;
 class CombatHotbarPayloadTest {
-    private static ResourceLocation id(String name){return ResourceLocation.parse("myvillage:"+name);}
+    private static ResourceLocation id(String name){return ResourceLocation.parse("yuanxian:"+name);}
     @Test void fixedEightSlotsRoundTripEveryStateWithoutAuthorityIntent() {
         for(int state=LOCKED;state<=BLOCKED;state++) {
             var slots=List.of(new Slot(Optional.of(id("qinglian_jiange")),state,true,30,200,0),

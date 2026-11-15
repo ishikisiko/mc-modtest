@@ -39,7 +39,7 @@ class NpcLifePlaceTests(unittest.TestCase):
         self.assertEqual([35, 6, 86], points['guest_west']['block_pos'])
         self.assertEqual([48, 3, 54], points['herbalist_work']['pos'])
         self.assertEqual([49, 3, 54], points['herbalist_work']['block_pos'])
-        self.assertEqual('myvillage:alchemy_furnace', points['herbalist_work']['block'])
+        self.assertEqual('yuanxian:alchemy_furnace', points['herbalist_work']['block'])
 
     def test_showcase_has_four_distinct_real_guest_beds_and_relative_height(self):
         layout = self.layouts['yunshan_showcase_v2']

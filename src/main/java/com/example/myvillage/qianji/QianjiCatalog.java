@@ -36,7 +36,7 @@ public final class QianjiCatalog {
     private static final class Holder {static final QianjiCatalog INSTANCE=read();}
     public static QianjiCatalog get(){return Holder.INSTANCE;}
     private static QianjiCatalog read(){
-        try(var in=QianjiCatalog.class.getResourceAsStream("/data/myvillage/qianji/components/catalog.json")){
+        try(var in=QianjiCatalog.class.getResourceAsStream("/data/yuanxian/qianji/components/catalog.json")){
             if(in==null)throw new IllegalStateException("缺少千机阁构件目录");return new QianjiCatalog(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());
         }catch(java.io.IOException e){throw new IllegalStateException(e);}
     }

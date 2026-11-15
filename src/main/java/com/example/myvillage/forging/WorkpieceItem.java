@@ -11,8 +11,8 @@ public final class WorkpieceItem extends Item {
     public String recipe(){return recipe;}public int stage(){return stage;}
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){
         var piece=stack.get(ModDataComponents.WORKPIECE.get());
-        lines.add(Component.translatable("workshop.myvillage.stage."+stage).withStyle(net.minecraft.ChatFormatting.GOLD));
-        if(piece!=null)lines.add(Component.translatable("workshop.myvillage.formed",piece.points(),WorkshopRules.get().formingPoints(piece.recipe())).withStyle(net.minecraft.ChatFormatting.GRAY));
-        lines.add(Component.translatable("workshop.myvillage.resume").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        lines.add(Component.translatable("workshop.yuanxian.stage."+stage).withStyle(net.minecraft.ChatFormatting.GOLD));
+        if(piece!=null)lines.add(Component.translatable("workshop.yuanxian.formed",piece.points(),WorkshopRules.get().formingPoints(piece.recipe())).withStyle(net.minecraft.ChatFormatting.GRAY));
+        lines.add(Component.translatable("workshop.yuanxian.resume").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
     }
 }

@@ -228,7 +228,7 @@ def export(out,run):
             pos=[x,y,z]
         places.append({'id':place_id,'kind':kind,'pos':pos,'capacity':1,'block':'','block_pos':[0,0,0]})
     tiles,counts=spool.export(out)
-    city_dir=out/f'data/myvillage/capitals/v1/{spec["city_id"]}';city_dir.mkdir(parents=True,exist_ok=True)
+    city_dir=out/f'data/yuanxian/capitals/v1/{spec["city_id"]}';city_dir.mkdir(parents=True,exist_ok=True)
     terrain=city_dir/'terrain.bin.gz';terrain.write_bytes(gzip.compress(i16_bytes(world.h),compresslevel=9,mtime=0))
     routes_path=city_dir/'routes.json'
     write_json(routes_path,{'schema':1,'city_id':spec['city_id'],'coordinate_space':'normalized_absolute_y',
@@ -246,13 +246,13 @@ def export(out,run):
           'display_name':spec['display_name'],'layout_family_id':family,'settlement_family':spec['family'],
           'size':[world.w,spec['bounds']['height'],world.d],'source_offset':spec['bounds']['source_offset'],
           'placement':spec['placement'],
-          'terrain':{'resource':f'myvillage:capitals/v1/{spec["city_id"]}/terrain.bin.gz','sha256':sha(terrain),
+          'terrain':{'resource':f'yuanxian:capitals/v1/{spec["city_id"]}/terrain.bin.gz','sha256':sha(terrain),
                      'encoding':'i16le_z_major_top_solid','width':world.w,'depth':world.d,
                      'top_block':'minecraft:grass_block','fill_block':spec['materials']['fill'],
                      'subsurface_block':'minecraft:dirt','subsurface_depth':3},
           'tiles':tiles,'entries':[{'id':'main_gate','position':gate['entry'],'facing':'south'}],
           'life':{'layout_id':'capital_zhongzhou_v1','places':places},'services':services,
-          'details':{p.stem:{'resource':f'myvillage:capitals/v1/{spec["city_id"]}/{p.name}','sha256':sha(p)}
+          'details':{p.stem:{'resource':f'yuanxian:capitals/v1/{spec["city_id"]}/{p.name}','sha256':sha(p)}
                      for p in (routes_path,construction,waterworks)},
           'height_adaptation':{'id':profile['height_proposal']['id'],'origin_y':0,
                                'building_scale':1,'top_actual_building_y':max(r['bounds']['max'][1] for r in rows),

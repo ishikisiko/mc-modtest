@@ -18,10 +18,10 @@ public enum TechniqueScrollStyle {
     public static TechniqueScrollStyle forTechnique(String id) {
         if (id == null) return UNKNOWN;
         return switch (id) {
-            case "myvillage:basic_breathing" -> BREATHING;
-            case "myvillage:qingmu_changchun_gong" -> QINGMU;
-            case "myvillage:yimu_shenghua_jue" -> YIMU;
-            case "myvillage:jianqi_jue" -> SWORD;
+            case "yuanxian:basic_breathing" -> BREATHING;
+            case "yuanxian:qingmu_changchun_gong" -> QINGMU;
+            case "yuanxian:yimu_shenghua_jue" -> YIMU;
+            case "yuanxian:jianqi_jue" -> SWORD;
             default -> UNKNOWN;
         };
     }

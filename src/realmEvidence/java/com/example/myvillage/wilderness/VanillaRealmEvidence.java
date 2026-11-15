@@ -28,7 +28,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Compiled only with -PvanillaRealmEvidence; native server fixtures, not mapped-player evidence. */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class VanillaRealmEvidence {
     private static final boolean EXPLORATION = "1".equals(System.getenv("MYVILLAGE_EXPLORATION_EVIDENCE"));
     private static final Path OUT = Path.of(EXPLORATION ? "../reports/exploration-native" : "../reports/vanilla-monster-realms");
@@ -155,7 +155,7 @@ public final class VanillaRealmEvidence {
         ImpactArrow arrow=new ImpactArrow(level);arrow.setOwner(skeleton);arrow.setBaseDamage(4);arrow.setDeltaMovement(1,0,0);arrow.hit(victim);
         near("native_arrow_scaled_once",before-victim.getHealth(),4*factor(skeleton));victim.discard();
         // Existing explicitly assigned ruin skeletons use the same non-attribute damage hook.
-        Skeleton ruin=spawn(level,EntityType.SKELETON,p,MobSpawnType.COMMAND);StatsRuntime.applyRealm(ruin,"myvillage:qi_refining",0);
+        Skeleton ruin=spawn(level,EntityType.SKELETON,p,MobSpawnType.COMMAND);StatsRuntime.applyRealm(ruin,"yuanxian:qi_refining",0);
         victim=target(level,p.offset(2,0,0));before=victim.getHealth();
         arrow=new ImpactArrow(level);arrow.setOwner(ruin);arrow.setBaseDamage(4);arrow.setDeltaMovement(1,0,0);arrow.hit(victim);
         near("explicit_ruin_arrow_scaled_once",before-victim.getHealth(),4*factor(ruin));victim.discard();ruin.discard();skeleton.discard();

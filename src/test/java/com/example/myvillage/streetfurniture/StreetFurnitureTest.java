@@ -27,8 +27,8 @@ class StreetFurnitureTest {
         synchronized(registry){
             registry.unfreeze();
             try{
-                lamp=Registry.register(registry,ResourceLocation.parse("myvillage_test:street_rune_lamp"),new RuneLampBlock(StreetFurnitureBlock.properties("rune_lamp")));
-                rack=Registry.register(registry,ResourceLocation.parse("myvillage_test:street_drying_rack"),new DryingRackBlock(StreetFurnitureBlock.properties("drying_rack")));
+                lamp=Registry.register(registry,ResourceLocation.parse("yuanxian_test:street_rune_lamp"),new RuneLampBlock(StreetFurnitureBlock.properties("rune_lamp")));
+                rack=Registry.register(registry,ResourceLocation.parse("yuanxian_test:street_drying_rack"),new DryingRackBlock(StreetFurnitureBlock.properties("drying_rack")));
             }finally{registry.freeze();}
         }
     }

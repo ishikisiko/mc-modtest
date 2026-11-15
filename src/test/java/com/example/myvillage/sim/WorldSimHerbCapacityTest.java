@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 /** Ledger capacity checks include old stock without an herb classification. */
 class WorldSimHerbCapacityTest {
     private static final long SEED=42;
-    private static final String SITE="herb_capacity_town", LEAF="myvillage:spirit_leaf";
+    private static final String SITE="herb_capacity_town", LEAF="yuanxian:spirit_leaf";
     private static final int DAY=24_000;
 
     private static SimContext context(SimData data) {

@@ -55,11 +55,11 @@
 
 ### 数据与代码缝
 
-- realm 阶段 JSON（`data/myvillage/myvillage/realm/*.json`）每个 stage 加可选 `spiritual_power_cap`（整数 ≥ 0，缺省 0）。`RealmDefinition` / stage 记录解码；`tools/validate_cultivation_core.py` 查每个有 `cultivation_cap` 的阶段都写了上限。
+- realm 阶段 JSON（`data/yuanxian/yuanxian/realm/*.json`）每个 stage 加可选 `spiritual_power_cap`（整数 ≥ 0，缺省 0）。`RealmDefinition` / stage 记录解码；`tools/validate_cultivation_core.py` 查每个有 `cultivation_cap` 的阶段都写了上限。
 - 规则数值（回复节奏、打坐倍数、停回复 tick）放 `world_sim/rules.json` 新段 `qi`，经 `WorldSimRuntime.data()` 读，没有命簿数据时用 Java 默认值（和 `StudyRules` 一个做法）。
 - `cultivation/qi/QiRules`（纯函数：上限、回复量、能否花）、`CultivationService.spendSpiritualPower(player, amount)` 作为唯一扣费入口（返回 boolean，失败不改档案）、`CultivationService.regenerateSpiritualPower` 由服务端 tick 每 20 tick 调一次。档案不换 schema（字段已有）。快照已带整份 profile，客户端用同步注册表里的 stage 算上限，不加载荷。
 - `CombatDodgeService.handleIntent` 在冷却检查后加扣费（第 3.5 步），日志 reason `NO_QI`。
-- 命令：`/myvillage cultivation|xiulian qi|lingli <target> set <n>|fill`，`info` 多打一行 `spiritual power: <cur>/<max>`。
+- 命令：`/yuanxian cultivation|xiulian qi|lingli <target> set <n>|fill`，`info` 多打一行 `spiritual power: <cur>/<max>`。
 - HUD：第一个 GUI 层。`client/cultivation/QiBarLayer` 经 `RegisterGuiLayersEvent` 注册在 `VanillaGuiLayers.HOTBAR` 之上：快捷栏正上方居中一条细条（宽 91 px、高 3 px，和经验条同宽的一半），只在战斗模式 `CULTIVATION`、或灵力值 3 秒内变过时显示；满了淡出；不够用时闪一下。颜色随运转心法五行，无心法青白。纯布局算术进测试。
 
 ### 工作包
@@ -105,8 +105,8 @@ Q-A ∥ Q-B ∥ Q-C（Q-C 只读 Q-B 的字段名）。
 
 | id | 名 | 类别 / 品阶 / 五行 / 流派 | `effects.active` | skill 文件 |
 |---|---|---|---|---|
-| `jianqi_jue` | 剑气诀 | active / 1 黄 / none / sword | `{skill: myvillage:jianqi_jue, qi_cost: 8, slots: 1}` | 一招 `jianqi_jue_01_wave`：total 18、active [6, 9]、speed 2.0、startRange 1.5（到 7.5 格）、halfWidth 1.1、charge max 20 / release 4 / scale 1.5、`maximum_targets` 3、`damage_multiplier` 0.9 |
-| `gengjin_jianjue` | 庚金剑诀（已有，玄 / 金 / sword，previous 庚金引气法） | 加 `{skill: myvillage:gengjin_jianjue, qi_cost: 12, slots: 1}` | 三招：两段近身剑击（复用 basic_sword 的 02、04 采样形）+ 一道大剑气（speed 2.5、到 10 格、`maximum_targets` 4、`damage_multiplier` 1.2）；命中附 金系流血 |
+| `jianqi_jue` | 剑气诀 | active / 1 黄 / none / sword | `{skill: yuanxian:jianqi_jue, qi_cost: 8, slots: 1}` | 一招 `jianqi_jue_01_wave`：total 18、active [6, 9]、speed 2.0、startRange 1.5（到 7.5 格）、halfWidth 1.1、charge max 20 / release 4 / scale 1.5、`maximum_targets` 3、`damage_multiplier` 0.9 |
+| `gengjin_jianjue` | 庚金剑诀（已有，玄 / 金 / sword，previous 庚金引气法） | 加 `{skill: yuanxian:gengjin_jianjue, qi_cost: 12, slots: 1}` | 三招：两段近身剑击（复用 basic_sword 的 02、04 采样形）+ 一道大剑气（speed 2.5、到 10 格、`maximum_targets` 4、`damage_multiplier` 1.2）；命中附 金系流血 |
 
 金系流血：`combat/status/BleedTracker`（服务端，每 UUID / 实体 id 一条），每 20 tick 掉 1 点、持续 4 次、刷新不叠加；`skill.status {kind: bleed, ticks: 80, interval: 20, amount: 1}` 写在 skill 文件里。玩家目标同样生效。
 
@@ -117,11 +117,11 @@ Q-A ∥ Q-B ∥ Q-C（Q-C 只读 Q-B 的字段名）。
 - `MoveKind.WAVE`：世界拖尾画"推进中的弯月 + 一个 tick 长的尾巴"，不像 cut 那样留整条带（`WeaponTrailShape` 加一种形）；撞墙后停在 `stopped_at_tick` 的位置淡出。颜色沿用武器拖尾，玄阶叠一层金色。
 - 蓄力：第一人称 rig 加 `charge` key（剑横于身前，刃面朝外），聚气粒子（`ENCHANT` 向剑身汇聚），蓄满一声提示音；第三人称 PAL 加 `jianqi_jue_charge` / `_release` 两段，`tools/gen_sword_pal_anims.py` 要能读 skill 文件的 moves（pose 表与 style 的"招式集合一致"检查扩成 style ∪ skills）。
 - 发射瞬间顿帧 0.5 tick、镜头后坐 `hit_pitch_kick 0.8`；命中复用 `CombatImpactFx`。
-- 音：`myvillage:combat.sword.qi_release`、`qi_hit` 两个新 sound event，先复用 `cut` / `hit_heavy` 的 ogg。
+- 音：`yuanxian:combat.sword.qi_release`、`qi_hit` 两个新 sound event，先复用 `cut` / `hit_heavy` 的 ogg。
 
 ### 工作包
 
-- **包 W-A 数据、生成器、校验**（`tools/combat_data.py` wave + skill schema、`data/myvillage/combat/skill/*.json` + `index.json` `skills` 列表、`tools/technique_catalogue/**` 两行与 `effects.active` 校验、`tools/validate_sword_combat_foundation.py`（skill 文件进扫描、新载荷为空）、Python 测试）。不碰 Java。
+- **包 W-A 数据、生成器、校验**（`tools/combat_data.py` wave + skill schema、`data/yuanxian/combat/skill/*.json` + `index.json` `skills` 列表、`tools/technique_catalogue/**` 两行与 `effects.active` 校验、`tools/validate_sword_combat_foundation.py`（skill 文件进扫描、新载荷为空）、Python 测试）。不碰 Java。
 - **包 W-B 服务端**（`combat/definition/**` wave / charge / launch / skill 解码、`combat/session/**` 外部起手与蓄力状态、`combat/runtime/CombatHitResolver` 撞墙、`combat/status/BleedTracker`、`combat/network/**` 两个空载荷 + START 的 `chargeLevel` + IMPACT 的 `stopped_at_tick`、`ModPayloads` 协议 16、Java 测试含一个驱动真实 `CombatSession` 走完剑气诀的 `JianqiJueSkillTest`）。
 - **包 W-C 客户端**（`client/combat/ClientCombatEvents` 右键截获：`InteractionKeyMappingTriggered.isUseItem()` 且主手是注册武器且模式 `CULTIVATION` 时取消原版 use 并发 charge 意图，之后每 client tick 轮询 use 键抬起发 release；`ClientCombatState` 蓄力预测只播姿势不预测 start；`CombatWorldTrails` / `WeaponTrailShape` wave 形；三份第一人称 rig 加 charge key（枪、拳先复制剑的再调）；PAL 生成器读 skill；parity golden 重写；测试）。
 - **包 W-D 采集**（`tools/combat_capture/wave.py`，子命令 `wave`：目标分别在 2 / 4 / 6 / 8 / 10 格处各一发，记录命中与否；一发对着 3 格外的墙，`stopped_at_tick` 与墙后目标无伤；蓄力 0 / 10 / 20 tick 三发比较伤害与灵力扣减；灵力耗尽后一发被拒；`/tick rate 5` 的 F5 背视视频。输出 `out/preview/ranged_combat/wave/`）。
@@ -133,7 +133,7 @@ W-A ∥ W-B ∥ W-C（契约：第 3 节的字段名与载荷形状，统筹先�
 
 - gate PASS，版本 0.47.0；`tools/tests/test_combat_style_baseline.py` 与 `BasicSwordStyleTest` 不变（basic_sword 的五招一个数不动）。
 - 采集：8 格命中、10 格不中、墙后无伤、三档蓄力伤害递增且灵力递增、耗尽被拒，各一条证据。
-- 部署到 owner 的 PC；`/myvillage cultivation learn @s myvillage:jianqi_jue` 后右键能放。
+- 部署到 owner 的 PC；`/yuanxian cultivation learn @s yuanxian:jianqi_jue` 后右键能放。
 
 ## 4. 阶段 2：投射物实体与法修（0.48.0，方向与契约）
 
@@ -148,7 +148,7 @@ W-A ∥ W-B ∥ W-C（契约：第 3 节的字段名与载荷形状，统筹先�
 ```json
 {
   "schema": 1,
-  "id": "myvillage:spirit_bolt",
+  "id": "yuanxian:spirit_bolt",
   "speed": 1.4, "gravity": 0.0, "lifetime_ticks": 40,
   "radius": 0.35, "pierce": 1,
   "on_block": "burst",
@@ -163,7 +163,7 @@ W-A ∥ W-B ∥ W-C（契约：第 3 节的字段名与载荷形状，统筹先�
 - move 的 `launch` 块扩成 `{projectile: id, tick, aim_cone_degrees, spread_degrees, count}`；`kind: cast`。
 - `entity/projectile/CombatProjectileEntity extends Projectile`：服务端每 tick 用 `ProjectileUtil.getHitResultOnMoveVector` 做实体与方块命中；命中走 `CombatDamageService.apply` 的 `LivingEntity owner` 重载（玩家仍保留原签名；妖兽与 NPC 作为 owner 用新重载，无耐久、无统计）；`noSave`、`clientTrackingRange 12`、`updateInterval 1`。客户端 `client/entity/projectile/CombatProjectileRenderer` 按 `visual.shape` 画（orb 用双面十字片 + 发光层，crescent 复用 wave 的弯月网格）。
 - 五行状态落成 `combat/status/StatusTemplates`：金 破甲（护甲 −2，80 tick）+ 流血（阶段 1 已有），木 回复（施法者命中回 1 点灵力），水 减速（移速 ×0.7，60 tick），火 灼烧（`setRemainingFireTicks`），土 护盾（命中后施法者获 2 点吸收，一次）。模板数值在 `world_sim/rules.json` 新段 `status`。
-- 法器：school `fashu` 法修（kind weapon，`weapon_family: catalyst`），物品 `yunwen_fuchen` 云纹拂尘，style `basic_catalyst` 五招：01 甩击（cut，1.8 格）、02 点射（cast，`spirit_bolt`）、03 连珠（cast，count 2，spread 6°）、04 横扫（cut，2 目标）、05 聚灵弹（cast，`charge`，`spirit_orb_heavy`，重力 0.02）。按 `docs/ai-kb/36_new_combat_weapon.md` 的 22 步走，`scaffold --from myvillage:qingfeng_sword --style myvillage:basic_catalyst`。基础法器的投射物五行 = 玩家灵根里亲和最高的那一行（`SpiritualRoot` 最大值），没有灵根则 none。
+- 法器：school `fashu` 法修（kind weapon，`weapon_family: catalyst`），物品 `yunwen_fuchen` 云纹拂尘，style `basic_catalyst` 五招：01 甩击（cut，1.8 格）、02 点射（cast，`spirit_bolt`）、03 连珠（cast，count 2，spread 6°）、04 横扫（cut，2 目标）、05 聚灵弹（cast，`charge`，`spirit_orb_heavy`，重力 0.02）。按 `docs/ai-kb/36_new_combat_weapon.md` 的 22 步走，`scaffold --from yuanxian:qingfeng_sword --style yuanxian:basic_catalyst`。基础法器的投射物五行 = 玩家灵根里亲和最高的那一行（`SpiritualRoot` 最大值），没有灵根则 none。
 - 妖兽：`beast/<name>.json` 的 move 加可选 `projectile {id, tick, aim: locked|tracking}`，服务端在该 tick 从头部发射；现有 `BeastGeometry` 命中盒不变。第二只妖兽若是远程型，这里就是它的招。
 
 ### 留给动手前的任务书

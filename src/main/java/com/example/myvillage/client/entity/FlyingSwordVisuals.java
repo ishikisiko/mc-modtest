@@ -11,7 +11,7 @@ public record FlyingSwordVisuals(float boost_fov, float fov_response, float boos
     private static final FlyingSwordVisuals INSTANCE = load();
     public static FlyingSwordVisuals get() { return INSTANCE; }
     private static FlyingSwordVisuals load() {
-        var stream = FlyingSwordVisuals.class.getResourceAsStream("/assets/myvillage/flying_sword/visuals.json");
+        var stream = FlyingSwordVisuals.class.getResourceAsStream("/assets/yuanxian/flying_sword/visuals.json");
         if (stream == null) throw new IllegalStateException("缺少御剑表现配置");
         try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return new Gson().fromJson(reader, FlyingSwordVisuals.class);

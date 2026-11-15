@@ -31,8 +31,8 @@ class FateFoundationTest {
             net.neoforged.fml.loading.LoadingModList.of(List.of(), List.of(), List.of(), List.of(), Map.of());
         SharedConstants.tryDetectVersion(); Bootstrap.bootStrap();
         Map<String, FateDefinition> values = new TreeMap<>();
-        for (String id : IDS) try (var in = FateFoundationTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/" + id + ".json")) {
-            assertNotNull(in); values.put("myvillage:" + id, FateDefinition.CODEC.parse(JsonOps.INSTANCE,
+        for (String id : IDS) try (var in = FateFoundationTest.class.getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/" + id + ".json")) {
+            assertNotNull(in); values.put("yuanxian:" + id, FateDefinition.CODEC.parse(JsonOps.INSTANCE,
                     JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))).getOrThrow());
         }
         defs = Map.copyOf(values);
@@ -48,13 +48,13 @@ class FateFoundationTest {
     @Test void highTierPlaceholdersDecodeSelectAndHaveNoEffects() throws Exception {
         Map<String, FateDefinition> pool = new TreeMap<>(defs);
         for (String id : List.of("earth_spirit_body", "water_spirit_body", "flawless_dao_heart")) {
-            try (var in = FateFoundationTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/" + id + ".json")) {
+            try (var in = FateFoundationTest.class.getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/" + id + ".json")) {
                 assertNotNull(in);
                 var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,
                         JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))).getOrThrow();
                 assertTrue(definition.effects().isEmpty());
                 assertTrue(definition.eligible(root(2500, 2500, 2500, 2500)));
-                pool.put("myvillage:" + id, definition);
+                pool.put("yuanxian:" + id, definition);
             }
         }
         Set<String> seen = new HashSet<>();
@@ -65,21 +65,21 @@ class FateFoundationTest {
             seen.addAll(choices);
         }
         assertTrue(seen.containsAll(pool.keySet()));
-        assertEquals("", FateSelection.validate(List.of("myvillage:flawless_dao_heart",
-                "myvillage:robust", "myvillage:bright"), pool, 8, true));
+        assertEquals("", FateSelection.validate(List.of("yuanxian:flawless_dao_heart",
+                "yuanxian:robust", "yuanxian:bright"), pool, 8, true));
     }
     @Test void eligibilityRespectsPurityAndRootCount() {
         var def = new FateDefinition("name", "desc", 5, 6, "body", true, Map.of(),
-                Optional.of(ResourceLocation.parse("myvillage:fire")), 8000, 3);
+                Optional.of(ResourceLocation.parse("yuanxian:fire")), 8000, 3);
         assertFalse(def.eligible(Optional.empty()));
         assertTrue(def.eligible(root(8000, 1000, 1000, 0)));
         assertFalse(def.eligible(root(7900, 1100, 1000, 0)));
         assertFalse(def.eligible(root(8000, 500, 500, 1000)));
     }
     private static Optional<SpiritualRoot> root(int fire, int a, int b, int c) {
-        return Optional.of(new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:fire"), fire,
-                ResourceLocation.parse("myvillage:wood"), a, ResourceLocation.parse("myvillage:water"), b,
-                ResourceLocation.parse("myvillage:earth"), c)));
+        return Optional.of(new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:fire"), fire,
+                ResourceLocation.parse("yuanxian:wood"), a, ResourceLocation.parse("yuanxian:water"), b,
+                ResourceLocation.parse("yuanxian:earth"), c)));
     }
     private static FateState roll() { return FateSelection.transition(FateState.empty(), 0, 0, 0, defs, 8, FateRules.bundled(), new Random(1)); }
     @Test void steleInitializesOnlyAbsentDraftAndPreservesLockedOrConfirmedChoices() {
@@ -114,7 +114,7 @@ class FateFoundationTest {
         assertThrows(IllegalArgumentException.class, () -> FateSelection.transition(locked, 1, locked.revision(), 1, defs, 8, FateRules.bundled(), new Random()));
         var next = FateSelection.transition(locked, 0, locked.revision(), 0, defs, 3, FateRules.bundled(), new Random(2));
         assertTrue(next.candidates().contains(locked.locked())); assertTrue(FateSelection.hasTriple(next.candidates(), defs, 3));
-        assertEquals("budget", FateSelection.validate(List.of("myvillage:burning_star", "myvillage:robust", "myvillage:bright"), defs, 3, true));
+        assertEquals("budget", FateSelection.validate(List.of("yuanxian:burning_star", "yuanxian:robust", "yuanxian:bright"), defs, 3, true));
         assertThrows(IllegalArgumentException.class, () -> FateSelection.transition(s, 99, s.revision(), 0, defs, 8, FateRules.bundled(), new Random()));
     }
     @Test void multipleHighTierFatesConfirmWhenBudgetAndGroupsAllow() {
@@ -124,12 +124,12 @@ class FateFoundationTest {
                     "high_group_" + tier, true, Map.of("gain", .1), Optional.empty(), 0, 5));
         }
         List<String> candidates = List.of("test:high_3", "test:high_4", "test:high_5",
-                "myvillage:robust", "myvillage:lightfoot", "myvillage:bright");
+                "yuanxian:robust", "yuanxian:lightfoot", "yuanxian:bright");
         FateState draft = FateState.empty().choice(candidates, "", List.of(), false, 1);
         var twoHigh = FateSelection.transition(draft, 2, draft.revision(), 11, pool, 10,
                 FateRules.bundled(), new Random(1));
         assertTrue(twoHigh.confirmed());
-        assertEquals(List.of("test:high_3", "test:high_4", "myvillage:robust"), twoHigh.selected());
+        assertEquals(List.of("test:high_3", "test:high_4", "yuanxian:robust"), twoHigh.selected());
         var threeHigh = FateSelection.transition(draft, 2, draft.revision(), 7, pool, 15,
                 FateRules.bundled(), new Random(1));
         assertTrue(threeHigh.confirmed());
@@ -155,10 +155,10 @@ class FateFoundationTest {
         }
     }
     @Test void recoveryIsNonlethalStrictThresholdAndPersistedCooldown() {
-        var d = defs.get("myvillage:alchemist_descendant");
+        var d = defs.get("yuanxian:alchemist_descendant");
         var empty = FateState.empty();
-        var state = new FateState(1, 1, List.of("myvillage:robust", "myvillage:bright", "myvillage:alchemist_descendant"), "",
-                List.of("myvillage:robust", "myvillage:bright", "myvillage:alchemist_descendant"), true, 0, 0, 0, 0);
+        var state = new FateState(1, 1, List.of("yuanxian:robust", "yuanxian:bright", "yuanxian:alchemist_descendant"), "",
+                List.of("yuanxian:robust", "yuanxian:bright", "yuanxian:alchemist_descendant"), true, 0, 0, 0, 0);
         assertEquals(empty, FateEffects.beginRecovery(empty, 100, 1, 20, .35, .3, 100, 1200));
         assertEquals(state, FateEffects.beginRecovery(state, 100, 0, 20, .35, .3, 100, 1200));
         assertEquals(state, FateEffects.beginRecovery(state, 100, 7, 20, .35, .3, 100, 1200));
@@ -173,7 +173,7 @@ class FateFoundationTest {
         assertEquals(1, FateEffects.damageFactor(0, 0, 0));
         assertEquals(1.6, FateEffects.damageFactor(.3, .15, .15), 1e-12);
         assertEquals(8, FateEffects.recoveredPower(100, .08)); assertEquals(0, FateEffects.recoveredPower(0, .08));
-        assertNotEquals(defs.get("myvillage:unyielding").effect("low_threshold"), defs.get("myvillage:burning_star").effect("low_speed_threshold"));
+        assertNotEquals(defs.get("yuanxian:unyielding").effect("low_threshold"), defs.get("yuanxian:burning_star").effect("low_speed_threshold"));
     }
     @Test void actualNetworkCodecsCarryOnlyIntentAndOwningSnapshot() {
         var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
@@ -194,14 +194,14 @@ class FateFoundationTest {
         } finally { buffer.release(); }
     }
     @Test void swordObsessionDefinitionIsCompleteAndCodecPreservesItsWaveReference() throws Exception {
-        try (var in = FateFoundationTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/sword_obsession.json")) {
+        try (var in = FateFoundationTest.class.getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/sword_obsession.json")) {
             assertNotNull(in);
             var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,
                     JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))).getOrThrow();
             assertEquals(.08, definition.effect("sword_stack_bonus"));
             assertEquals(5, definition.effect("sword_max_stacks"));
             assertEquals(100, definition.effect("sword_timeout_ticks"));
-            assertEquals("myvillage:sword_obsession_wave", definition.derivedSkill().orElseThrow().toString());
+            assertEquals("yuanxian:sword_obsession_wave", definition.derivedSkill().orElseThrow().toString());
             assertEquals(definition, FateDefinition.CODEC.parse(JsonOps.INSTANCE,
                     FateDefinition.CODEC.encodeStart(JsonOps.INSTANCE, definition).getOrThrow()).getOrThrow());
         }

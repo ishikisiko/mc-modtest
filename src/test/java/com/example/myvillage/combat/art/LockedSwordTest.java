@@ -18,7 +18,7 @@ class LockedSwordTest {
         for(var art:arts) {
             assertEquals(-1,art.slot());assertEquals("sword",art.family());
             assertTrue(ArtDefinition.forSlot("sword",-1).isEmpty());
-            var raw=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/myvillage/technique/"+art.id().getPath()+".json")));
+            var raw=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/yuanxian/technique/"+art.id().getPath()+".json")));
             var technique=TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE,raw).getOrThrow();
             assertEquals(SkillBindingRules.Kind.ART,SkillBindingRules.kind(art.id(),technique));
             assertFalse(SkillBindingRules.assignable(art.id(),Set.of(),technique));
@@ -59,7 +59,7 @@ class LockedSwordTest {
         });
     }
     @Test void judgmentKeepsFullPrimaryDamageAndAuthoredSecondaryScale() {
-        var art=ArtDefinition.find(ResourceLocation.parse("myvillage:taibai_jianjing")).orElseThrow();
+        var art=ArtDefinition.find(ResourceLocation.parse("yuanxian:taibai_jianjing")).orElseThrow();
         var lock=art.lock().orElseThrow();
         assertTrue(lock.hasSplash());assertTrue(lock.radius()>1);assertTrue(art.phases().getFirst().targets()>1);
         assertEquals(1,lock.targetMultiplier(true));

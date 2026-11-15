@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  *       otherwise preserves existing custom spawns.</li>
  * </ul>
  *
- * <p>Registered under the existing {@code /myvillage} dispatcher (which already
+ * <p>Registered under the existing {@code /yuanxian} dispatcher (which already
  * requires permission level 2), so both subcommands inherit the admin gate.
  */
 public final class RegionCommands {

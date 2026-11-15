@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public final class CultivationCalendarSavedData extends SavedData {
     private static final Logger LOGGER = LoggerFactory.getLogger(CultivationCalendarSavedData.class);
-    private static final String DATA_NAME = "myvillage_cultivation_calendar";
+    private static final String DATA_NAME = "yuanxian_cultivation_calendar";
     private static final String ELAPSED_TICKS_TAG = "elapsed_calendar_ticks";
 
     private long elapsedCalendarTicks;

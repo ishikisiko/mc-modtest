@@ -41,7 +41,7 @@ class AdvancedEvidence(PurpleEvidence):
 
     def setup(self):
         super().setup()
-        self.rc(f'yuanxian cultivation learn {self.s.username} myvillage:taxue_wuhen')
+        self.rc(f'yuanxian cultivation learn {self.s.username} yuanxian:taxue_wuhen')
 
     def prepare_case(self):
         self.s.game.xdo('keyup','space','keyup','Alt_L','keyup','w','keyup','a','keyup','s','keyup','d',
@@ -86,7 +86,7 @@ class AdvancedEvidence(PurpleEvidence):
             from tools.combat_capture import scene
             from tools.combat_capture.dodge import dodge_events
             self.prepare_case();self.choose_focus('wind_step')
-            self.equip('myvillage:qingfeng_sword');scene.ensure_cultivation(self.s)
+            self.equip('yuanxian:qingfeng_sword');scene.ensure_cultivation(self.s)
             self.poll(self.state,lambda s:not s.get('wind_step',{}).get('air_spent',True)
                       and s['now']>=s.get('wind_step',{}).get('ready_at',0),label='landing before lifecycle flight')
             u=self.s.username

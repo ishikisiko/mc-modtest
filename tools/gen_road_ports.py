@@ -9,7 +9,7 @@ from road_port_sources import CitySource
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / 'config/roads/prototype.json'
-OUTPUT = ROOT / 'src/main/resources/data/myvillage/roads/prototype.json'
+OUTPUT = ROOT / 'src/main/resources/data/yuanxian/roads/prototype.json'
 
 
 def generate(root: Path = ROOT) -> str:
@@ -68,23 +68,23 @@ def generate(root: Path = ROOT) -> str:
 def assets(root: Path = ROOT):
     config=json.loads((root/'config/roads/prototype.json').read_text());out={}
     def put(path,value):out[root/'src/main/resources'/path]=json.dumps(value,ensure_ascii=False,indent=2)+'\n'
-    names=json.loads((root/'src/main/resources/assets/myvillage/lang/zh_cn.json').read_text())
+    names=json.loads((root/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_text())
     for spec in config['style']['slabs']:
-        ident=spec['id'];base=f'myvillage:block/{ident}';texture=spec['texture']
+        ident=spec['id'];base=f'yuanxian:block/{ident}';texture=spec['texture']
         if not (root/'src/main/resources/assets'/Path(texture.replace(':','/textures/',1)+'.png')).is_file():raise ValueError('半砖纹理缺失：'+texture)
-        put(f'assets/myvillage/blockstates/{ident}.json',{'variants':{'type=bottom':{'model':base},'type=top':{'model':base+'_top'},'type=double':{'model':'myvillage:block/'+spec['full'].split(':')[1]}}})
-        for suffix,parent in [('', 'minecraft:block/slab'),('_top','minecraft:block/slab_top')]:put(f'assets/myvillage/models/block/{ident}{suffix}.json',{'parent':parent,'textures':dict.fromkeys(['top','bottom','side'],texture)})
-        put(f'assets/myvillage/models/item/{ident}.json',{'parent':base})
-        put(f'data/myvillage/loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+ident,'functions':[{'function':'minecraft:set_count','count':2,'conditions':[{'condition':'minecraft:block_state_property','block':'myvillage:'+ident,'properties':{'type':'double'}}]},{'function':'minecraft:explosion_decay'}]}]}]})
-        put(f'data/myvillage/recipe/{ident}.json',{'type':'minecraft:crafting_shaped','category':'building','pattern':['###'],'key':{'#':{'item':spec['full']}},'result':{'id':'myvillage:'+ident,'count':6}})
-        names['block.myvillage.'+ident]=spec['name']
-    put('assets/myvillage/lang/zh_cn.json',names)
+        put(f'assets/yuanxian/blockstates/{ident}.json',{'variants':{'type=bottom':{'model':base},'type=top':{'model':base+'_top'},'type=double':{'model':'yuanxian:block/'+spec['full'].split(':')[1]}}})
+        for suffix,parent in [('', 'minecraft:block/slab'),('_top','minecraft:block/slab_top')]:put(f'assets/yuanxian/models/block/{ident}{suffix}.json',{'parent':parent,'textures':dict.fromkeys(['top','bottom','side'],texture)})
+        put(f'assets/yuanxian/models/item/{ident}.json',{'parent':base})
+        put(f'data/yuanxian/loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:'+ident,'functions':[{'function':'minecraft:set_count','count':2,'conditions':[{'condition':'minecraft:block_state_property','block':'yuanxian:'+ident,'properties':{'type':'double'}}]},{'function':'minecraft:explosion_decay'}]}]}]})
+        put(f'data/yuanxian/recipe/{ident}.json',{'type':'minecraft:crafting_shaped','category':'building','pattern':['###'],'key':{'#':{'item':spec['full']}},'result':{'id':'yuanxian:'+ident,'count':6}})
+        names['block.yuanxian.'+ident]=spec['name']
+    put('assets/yuanxian/lang/zh_cn.json',names)
     for path in ['data/minecraft/tags/block/mineable/pickaxe.json','data/minecraft/tags/block/slabs.json','data/minecraft/tags/item/slabs.json']:
         f=root/'src/main/resources'/path;tag=json.loads(f.read_text()) if f.exists() else {'replace':False,'values':[]}
-        tag['values']=list(dict.fromkeys(tag['values']+['myvillage:'+s['id'] for s in config['style']['slabs']]))
+        tag['values']=list(dict.fromkeys(tag['values']+['yuanxian:'+s['id'] for s in config['style']['slabs']]))
         put(path,tag)
     guard=json.loads((root/'config/roads/guardrail.json').read_text())
-    ident=guard['id'];texture=guard['texture'];base=f'myvillage:block/{ident}'
+    ident=guard['id'];texture=guard['texture'];base=f'yuanxian:block/{ident}'
     if not (root/'src/main/resources/assets'/Path(texture.replace(':','/textures/',1)+'.png')).is_file():raise ValueError('护栏纹理缺失：'+texture)
     variants={};models=set()
     for mask in range(256):
@@ -105,15 +105,15 @@ def assets(root: Path = ROOT):
                 sizes={'down':(width,depth),'up':(width,depth),'north':(width,height),'south':(width,height),'west':(depth,height),'east':(depth,height)}
                 faces={face:{'texture':'#stone','uv':[0,0,min(size[0],16),min(size[1],16)]} for face,size in sizes.items()}
                 elements.append({'from':a,'to':b,'faces':faces})
-            put(f'assets/myvillage/models/block/{ident}{suffix}.json',{'parent':'minecraft:block/block','textures':{'particle':texture,'stone':texture},'elements':elements})
-    put(f'assets/myvillage/blockstates/{ident}.json',{'variants':variants})
-    put(f'assets/myvillage/models/item/{ident}.json',{'parent':base+'_10'})
-    put(f'data/myvillage/loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+ident}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
-    put(f'data/myvillage/recipe/{ident}.json',{'type':'minecraft:crafting_shaped','category':'building','pattern':['###','###'],'key':{'#':{'item':guard['recipe_input']}},'result':{'id':'myvillage:'+ident,'count':guard['recipe_count']}})
-    names['block.myvillage.'+ident]=guard['name'];put('assets/myvillage/lang/zh_cn.json',names)
+            put(f'assets/yuanxian/models/block/{ident}{suffix}.json',{'parent':'minecraft:block/block','textures':{'particle':texture,'stone':texture},'elements':elements})
+    put(f'assets/yuanxian/blockstates/{ident}.json',{'variants':variants})
+    put(f'assets/yuanxian/models/item/{ident}.json',{'parent':base+'_10'})
+    put(f'data/yuanxian/loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:'+ident}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
+    put(f'data/yuanxian/recipe/{ident}.json',{'type':'minecraft:crafting_shaped','category':'building','pattern':['###','###'],'key':{'#':{'item':guard['recipe_input']}},'result':{'id':'yuanxian:'+ident,'count':guard['recipe_count']}})
+    names['block.yuanxian.'+ident]=guard['name'];put('assets/yuanxian/lang/zh_cn.json',names)
     for path in ['data/minecraft/tags/block/mineable/pickaxe.json','data/minecraft/tags/block/fences.json','data/minecraft/tags/item/fences.json']:
         f=root/'src/main/resources'/path;tag=json.loads(out[f]) if f in out else json.loads(f.read_text()) if f.exists() else {'replace':False,'values':[]}
-        tag['values']=list(dict.fromkeys(tag['values']+['myvillage:'+ident]));put(path,tag)
+        tag['values']=list(dict.fromkeys(tag['values']+['yuanxian:'+ident]));put(path,tag)
     return out
 
 def main():

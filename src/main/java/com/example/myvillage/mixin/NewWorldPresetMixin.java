@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CreateWorldScreen.class)
 public abstract class NewWorldPresetMixin {
     @Inject(method="openFresh", at=@At("TAIL"))
-    private static void myvillage$default(Minecraft minecraft, Screen previous, CallbackInfo ci) {
+    private static void yuanxian$default(Minecraft minecraft, Screen previous, CallbackInfo ci) {
         if (!(minecraft.screen instanceof CreateWorldScreen screen)) return;
         var state = screen.getUiState();
         var registry = state.getSettings().worldgenLoadContext().registryOrThrow(Registries.WORLD_PRESET);

@@ -42,7 +42,7 @@ class ScriptureShelvesTest {
         synchronized (registry) {
             registry.unfreeze();
             try {
-                shelf = Registry.register(registry, ResourceLocation.fromNamespaceAndPath("myvillage_test", "scripture_shelf_column"),
+                shelf = Registry.register(registry, ResourceLocation.fromNamespaceAndPath("yuanxian_test", "scripture_shelf_column"),
                         new ScriptureShelfBlock(BlockBehaviour.Properties.of().noOcclusion()));
             } finally {
                 registry.freeze();

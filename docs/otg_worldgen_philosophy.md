@@ -1114,11 +1114,11 @@ OTG-like Profile System v0
 请完成：
 
 1. 新增数据目录：
-   - data/myvillage/worldgen/style_profile/
-   - data/myvillage/worldgen/biome_profile/
-   - data/myvillage/worldgen/structure_meta/
-   - data/myvillage/worldgen/structure_pool/
-   - data/myvillage/worldgen/settlement_layout/
+   - data/yuanxian/worldgen/style_profile/
+   - data/yuanxian/worldgen/biome_profile/
+   - data/yuanxian/worldgen/structure_meta/
+   - data/yuanxian/worldgen/structure_pool/
+   - data/yuanxian/worldgen/settlement_layout/
 
 2. 新增 style_profile/medieval_village.json：
    - 定义 material_slots：BASE_STONE、WALL_MAIN、FRAME_WOOD、ROOF_DARK、DETAIL_WOOD、LIGHTING

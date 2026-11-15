@@ -51,7 +51,7 @@ final class ClientCombatStateTest {
     @Test
     void externalSkillKeepsItsTimelineAndCannotPredictAWeaponCombo() {
         var registry = com.example.myvillage.combat.definition.CombatStyles.bundled();
-        var skill = registry.skill(net.minecraft.resources.ResourceLocation.parse("myvillage:jianqi_jue")).orElseThrow();
+        var skill = registry.skill(net.minecraft.resources.ResourceLocation.parse("yuanxian:jianqi_jue")).orElseThrow();
         var reference = registry.move(skill.feedbackMove()).orElseThrow();
         var move = skill.releaseMove(registry, 255);
         ClientCombatState.trackLocalAction(reference.style(), reference.index(), 100, 7);

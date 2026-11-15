@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RegionRuntimeContractTest {
 
     private static final Path WORLDFEN_DIR =
-            Path.of("src/main/resources/data/myvillage/worldgen");
+            Path.of("src/main/resources/data/yuanxian/worldgen");
 
     private static RegionCatalogLoader.RegionData DATA;
 

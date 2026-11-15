@@ -1,6 +1,6 @@
 # 御剑飞行 demo
 
-保留基础物品与实体 `myvillage:rideable_flying_sword`，新增真实物品「青霄飞剑」`myvillage:azure_cloud_flying_sword`。两档共享飞行规则，档次由服务器同步后选择三维模型；高阶目前提供外形区别，不暗中增加速度或免耗灵。0.96.0 的固定源 Colab 编译、定向测试与真实键鼠范围见[交付记录](../testing/2026-10-27-cultivation-demos.md)。
+保留基础物品与实体 `yuanxian:rideable_flying_sword`，新增真实物品「青霄飞剑」`yuanxian:azure_cloud_flying_sword`。两档共享飞行规则，档次由服务器同步后选择三维模型；高阶目前提供外形区别，不暗中增加速度或免耗灵。0.96.0 的固定源 Colab 编译、定向测试与真实键鼠范围见[交付记录](../testing/2026-10-27-cultivation-demos.md)。
 
 ## 玩家入口
 
@@ -9,8 +9,8 @@
 管理员准备：
 
 ```mcfunction
-/give @s myvillage:rideable_flying_sword
-/give @s myvillage:azure_cloud_flying_sword
+/give @s yuanxian:rideable_flying_sword
+/give @s yuanxian:azure_cloud_flying_sword
 /yuanxian cultivation qi fill @s
 /yuanxian flying_sword status
 /yuanxian flying_sword status <玩家名>
@@ -24,7 +24,7 @@ WASD 平移，Space 升、Shift 降，疾跑键催剑。起飞短暂托升；无
 
 ## 数据与权威
 
-唯一飞行数值来源：`data/myvillage/flying_sword/rules.json`。每次唤剑读取并冻结一份，因此资源重载从下一次飞行生效。包含资格、速度、响应、阻尼、起飞花费、计费间隔、悬停/巡航/催剑花费、低灵阈值与应急操控时限；不在此文复制数值作为第二配置。
+唯一飞行数值来源：`data/yuanxian/flying_sword/rules.json`。每次唤剑读取并冻结一份，因此资源重载从下一次飞行生效。包含资格、速度、响应、阻尼、起飞花费、计费间隔、悬停/巡航/催剑花费、低灵阈值与应急操控时限；不在此文复制数值作为第二配置。
 
 七位 C2S 仅表示前后左右升降与催剑，最高位仍非法；另有空召回意图。服务器由发送者当前 vehicle 推导实体，网络入口和实体均复查 owner、passenger、存活与维度，不接受客户端坐标或速度。输入过期中立，斜向归一化。载具碰撞体覆盖剑面至玩家头部，`Entity.move` 处理地面、墙面与头顶；未知区块和世界边界前禁止继续进入并转缓降，不主动加载飞行前方区块。水/岩浆接触也转缓降。
 

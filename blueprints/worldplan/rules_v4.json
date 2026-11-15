@@ -1,6 +1,6 @@
 {
   "base": "rules_v3.json",
-  "algorithm": "myvillage:worldplan_v4",
+  "algorithm": "yuanxian:worldplan_v4",
   "district": "blueprints/yunshan/district_realization_v2.json",
   "city": {
     "id": "yunshan_d1_v4",

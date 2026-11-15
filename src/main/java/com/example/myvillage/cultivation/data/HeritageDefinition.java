@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * A heritage (传承), file {@code data/<ns>/myvillage/heritage/<id>.json}: an ordered chain of
+ * A heritage (传承), file {@code data/<ns>/yuanxian/heritage/<id>.json}: an ordered chain of
  * techniques, lowest first. {@code school} may be absent for a chain that is not tied to a weapon
  * school; {@code exclusive} chains are only obtainable through the sect that holds them or its ruins.
  */

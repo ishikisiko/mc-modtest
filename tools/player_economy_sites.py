@@ -13,7 +13,7 @@ def place_capital_boards(out):
     out=Path(out);spec=json.loads(SOURCE.read_text());reports=[]
     if len(spec)!=8:raise ValueError('江湖榜必须覆盖八州主城')
     for city_id,point in sorted(spec.items()):
-        file=out/f'data/myvillage/capitals/v4/{city_id}/city.json';city=json.loads(file.read_text())
+        file=out/f'data/yuanxian/capitals/v4/{city_id}/city.json';city=json.loads(file.read_text())
         if city['city_id']!=city_id:raise ValueError('江湖榜归属无效')
         if point=={'source':'qianji'}:point=city['qianji']['board']
         if set(point)!={'position','reader','facing'}:raise ValueError('江湖榜坐标无效')
@@ -31,7 +31,7 @@ def place_capital_boards(out):
             xx,yy,zz=p;return tile_at(xx,zz)[1].get((xx%16,yy,zz%16),('minecraft:air',))[0]
         def support(p):
             floor=get((p[0],p[1]-1,p[2]));return floor not in ('minecraft:air','minecraft:water','minecraft:lava') and not any(k in floor for k in ('stairs','slab','fence','wall','door','trapdoor'))
-        state=f"myvillage:jianghu_board[facing={point['facing']}]"
+        state=f"yuanxian:jianghu_board[facing={point['facing']}]"
         if point['facing'] not in ('north','east','south','west') or not support((x,y,z)) or not support(reader):raise ValueError('江湖榜或读者缺少完整地面')
         if any(get((reader[0],reader[1]+dy,reader[2]))!='minecraft:air' for dy in (0,1,2)) or get((x,y,z)) not in ('minecraft:air',state):raise ValueError(f'{city_id} 江湖榜或操作位置被占用')
         if abs(reader[0]-x)+abs(reader[2]-z)!=1 or reader[1]!=y:raise ValueError('江湖榜操作位置须紧邻柜台')
@@ -42,7 +42,7 @@ def place_capital_boards(out):
         if after!=expected:raise ValueError('江湖榜切片回读改变了原有方块')
         tile=tiles[x//16,z//16];tile.update(sha256=sha(path.read_bytes()),bytes=path.stat().st_size,block_count=count,palette_count=palette_count)
         city['palette_states']=sorted(set(city.get('palette_states',[]))|{state})
-        place={'id':'jianghu_board','kind':'entry','pos':list(reader),'capacity':1,'block':'myvillage:jianghu_board','block_pos':[x,y,z],'building_id':'qianji'}
+        place={'id':'jianghu_board','kind':'entry','pos':list(reader),'capacity':1,'block':'yuanxian:jianghu_board','block_pos':[x,y,z],'building_id':'qianji'}
         existing=next((p for p in city['life']['places'] if p['id']=='jianghu_board'),None)
         if existing is not None and existing!=place:raise ValueError('江湖榜位置发生变化，请从作者输入重新导出城市')
         if existing is None:city['life']['places'].append(place)

@@ -16,7 +16,7 @@ public record FateRules(List<Double> tierWeights, int requestTicks) {
     private static final class Holder { static final FateRules VALUE = load(); }
     public static FateRules bundled() { return Holder.VALUE; }
     private static FateRules load() {
-        try (var in = FateRules.class.getResourceAsStream("/data/myvillage/fates/rules.json")) {
+        try (var in = FateRules.class.getResourceAsStream("/data/yuanxian/fates/rules.json")) {
             if (in == null) throw new IllegalStateException("Missing fate rules");
             var json = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
             return new FateRules(java.util.stream.StreamSupport.stream(json.getAsJsonArray("tier_weights").spliterator(), false)

@@ -14,8 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 
 /** Shared eligibility and precision rules; a coarse reading contains only its published endpoints. */
 public final class ObservationRules {
-    public static final ResourceLocation ID = ResourceLocation.parse("myvillage:observation");
-    public static final String PATH = "data/myvillage/cultivation/observation.json";
+    public static final ResourceLocation ID = ResourceLocation.parse("yuanxian:observation");
+    public static final String PATH = "data/yuanxian/cultivation/observation.json";
     public record Reading(boolean exact, RealmKey minimum, RealmKey maximum) { }
     private final StatsRules stats;
     private final List<RealmKey> ladder;

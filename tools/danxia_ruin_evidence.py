@@ -26,10 +26,10 @@ from tools.realm_stats_evidence import Evidence
 from tools.alchemy_quality_evidence import read_data, SecondClient
 from tools.buildgen.nbtread import _read_utf, _read_payload, TAG_COMPOUND
 
-RULES=json.loads((ROOT/'src/main/resources/data/myvillage/ruins/danxia.json').read_text())
+RULES=json.loads((ROOT/'src/main/resources/data/yuanxian/ruins/danxia.json').read_text())
 
 
-def saved_cores(region_dir, center, radius=4, block_entity_id="myvillage:ruin_core"):
+def saved_cores(region_dir, center, radius=4, block_entity_id="yuanxian:ruin_core"):
     """Read only flushed chunks around the located structure; no world mutation or broad scan."""
     result=[]; cx,cz=center[0]//16,center[1]//16
     for x in range(cx-radius,cx+radius+1):
@@ -128,7 +128,7 @@ class RuinEvidence(Evidence):
         user=self.s.username
         for cmd in scene.world_rules(): self.rc(cmd)
         self.rc(f'op {user}'); self.rc(f'gamemode spectator {user}')
-        reply=self.rc('execute positioned 0 100 0 run locate structure myvillage:danxia_ruin')
+        reply=self.rc('execute positioned 0 100 0 run locate structure yuanxian:danxia_ruin')
         match=re.search(r'\[(-?\d+), (?:~|-?\d+), (-?\d+)\]',reply)
         self.must('natural_locate',bool(match),reply)
         x,z=map(int,match.groups())
@@ -142,7 +142,7 @@ class RuinEvidence(Evidence):
         be=self.poll('natural core in flushed chunks',find,90)
         core=(be['x'],be['y'],be['z']); turn=None
         for i,face in enumerate(['north','east','south','west']):
-            reply=self.rc(f'execute if block {self.coords(core)} myvillage:ruin_core[facing={face}] run data get block {self.coords(core)} Choice')
+            reply=self.rc(f'execute if block {self.coords(core)} yuanxian:ruin_core[facing={face}] run data get block {self.coords(core)} Choice')
             if 'CHARGED' in reply: turn=i; break
         self.must('natural_charged_core',turn is not None,{'be':be,'turn':turn})
         site={'core':core,'turn':turn}; self.sites['natural']=site
@@ -151,12 +151,12 @@ class RuinEvidence(Evidence):
         count=self.rc(f'execute positioned {self.coords(core)} if entity @e[tag=danxia_guardian,distance=..80]')
         self.must('natural_guardians_present','count: 2' in count,count)
         for index in range(len(RULES['guardians'])):
-            selector=f'@e[tag=danxia_guardian,nbt={{NeoForgeData:{{"myvillage:ruin_guardian":{{index:{index}}}}}}},limit=1]'
+            selector=f'@e[tag=danxia_guardian,nbt={{NeoForgeData:{{"yuanxian:ruin_guardian":{{index:{index}}}}}}},limit=1]'
             data=read_data(self.rc(f'data get entity {selector}'))
-            marker=data.get('NeoForgeData',{}).get('myvillage:ruin_guardian',{})
-            realm=data.get('NeoForgeData',{}).get('myvillage:stats_realm',{})
+            marker=data.get('NeoForgeData',{}).get('yuanxian:ruin_guardian',{})
+            realm=data.get('NeoForgeData',{}).get('yuanxian:stats_realm',{})
             self.must(f'guardian_{index}_initialized_once',marker.get('pending')==0 and realm.get('realm')==RULES['guardians'][index]['realm'],{'marker':marker,'realm':realm})
-        for point,block in [((5,10,15),'minecraft:mossy_stone_bricks'),((20,3,29),'myvillage:ruin_core'),
+        for point,block in [((5,10,15),'minecraft:mossy_stone_bricks'),((20,3,29),'yuanxian:ruin_core'),
                             ((29,3,34),'minecraft:barrel'),((31,10,18),'minecraft:barrel')]:
             pos=self.map(site,point)
             reply=self.rc(f'execute if block {self.coords(pos)} {block} run data get block {self.coords(core)} Choice')
@@ -177,7 +177,7 @@ class RuinEvidence(Evidence):
         self.click(); self.must('mapped_garden_commit',self.choice(site)=='GARDEN',self.choice(site))
         for plant in RULES['garden']:
             p=self.map(site,plant['pos'])
-            reply=self.rc(f'execute if block {self.coords(p)} {plant["crop"]}[age=2] if block {p[0]} {p[1]-1} {p[2]} myvillage:spirit_soil run data get block {self.coords(site["core"])} Choice')
+            reply=self.rc(f'execute if block {self.coords(p)} {plant["crop"]}[age=2] if block {p[0]} {p[1]-1} {p[2]} yuanxian:spirit_soil run data get block {self.coords(site["core"])} Choice')
             self.must('mature_'+str(plant['pos']),'GARDEN' in reply,reply)
         vault=self.map(site,RULES['vault'])
         self.must('garden_does_not_grant_archive',read_data(self.rc(f'data get block {self.coords(vault)} Items'))==[],str(vault))
@@ -191,7 +191,7 @@ class RuinEvidence(Evidence):
         # Separate rotated admin fixture isolates the alternate branch without resetting the natural site.
         base=(256,100,0); self.rc('forceload add 208 -48 320 80')
         self.rc(f'tp {self.s.username} 260 130 0')
-        self.rc('place template myvillage:danxia_ruin 256 100 0 clockwise_90 none')
+        self.rc('place template yuanxian:danxia_ruin 256 100 0 clockwise_90 none')
         # clockwise_90: block transform (x,z)->(-z,x).
         cx,cy,cz=RULES['core']; site={'core':(base[0]-cz,base[1]+cy,base[2]+cx),'turn':1}
         self.sites['vault']=site; self.report['sites']=self.sites; self.save()
@@ -220,8 +220,8 @@ class RuinEvidence(Evidence):
         self.report['completed'].append('two_client_authority'); self.save()
         self.must('mapped_rotated_vault_commit',self.choice(site)=='VAULT',self.choice(site))
         items=read_data(self.rc(f'data get block {self.coords(v)} Items'))
-        self.must('archive_contains_readable_manual',any(i.get('components',{}).get('myvillage:technique')==RULES['manual'] for i in items),items)
-        self.must('archive_contains_formula',any(i.get('id')=='myvillage:formula_ningshen' for i in items),items)
+        self.must('archive_contains_readable_manual',any(i.get('components',{}).get('yuanxian:technique')==RULES['manual'] for i in items),items)
+        self.must('archive_contains_formula',any(i.get('id')=='yuanxian:formula_ningshen' for i in items),items)
         # Open the actual barrel and shift-click its manual into the real player's inventory.
         p=(v[0]+.5,v[1],v[2]-1.5)
         self.look(p,(v[0]+.5,v[1]+.5,v[2]+.5))
@@ -234,7 +234,7 @@ class RuinEvidence(Evidence):
         finally: self.s.game.xdo('keyup','Shift_L')
         time.sleep(.4); self.s.game.xdo('key','Escape'); self.s.game.require_ingame('close archive')
         inv=read_data(self.rc(f'data get entity {self.s.username} Inventory'))
-        self.must('mapped_manual_pickup',any(i.get('components',{}).get('myvillage:technique')==RULES['manual'] for i in inv),inv)
+        self.must('mapped_manual_pickup',any(i.get('components',{}).get('yuanxian:technique')==RULES['manual'] for i in inv),inv)
         self.report['completed']+=['mapped_vault','modified_target']; self.save()
         return site
 
@@ -244,7 +244,7 @@ class RuinEvidence(Evidence):
         guard_before=read_data(self.rc('data get entity @e[tag=danxia_persist_guard,limit=1] Health'))
         self.rc('save-all flush'); self.stop(); self.start(reuse=True)
         inv=read_data(self.rc(f'data get entity {self.s.username} Inventory'))
-        self.must('picked_up_manual_saved',any(i.get('components',{}).get('myvillage:technique')==RULES['manual'] for i in inv),inv)
+        self.must('picked_up_manual_saved',any(i.get('components',{}).get('yuanxian:technique')==RULES['manual'] for i in inv),inv)
         guard_after=read_data(self.rc('data get entity @e[tag=danxia_persist_guard,limit=1] Health'))
         self.must('guardian_does_not_heal_on_reload',guard_before==guard_after,{'before':guard_before,'after':guard_after})
         for name,site in self.sites.items():
@@ -255,7 +255,7 @@ class RuinEvidence(Evidence):
             self.must(name+'_no_refill',self.choice(site)==expected,self.choice(site))
         vault=self.map(self.sites['vault'],RULES['vault'])
         items=read_data(self.rc(f'data get block {self.coords(vault)} Items'))
-        self.must('looted_manual_does_not_respawn',not any(i.get('components',{}).get('myvillage:technique')==RULES['manual'] for i in items),items)
+        self.must('looted_manual_does_not_respawn',not any(i.get('components',{}).get('yuanxian:technique')==RULES['manual'] for i in items),items)
         self.report['completed'].append('restart'); self.save()
 
 

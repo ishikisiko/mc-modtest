@@ -10,7 +10,7 @@ sect dialogue and the 天下 page. The drawing stays in Python; Java composes fr
 | `PortraitSpec` record (enums, 13-byte buf codec) | `com.example.myvillage.portrait.PortraitSpec` | done |
 | `PortraitAssign`: ledger record → spec | `com.example.myvillage.portrait.PortraitAssign` | server agent |
 | traits on `PersonView`; spec on `PersonSummary`, in `SectDialoguePayload` | sim / net | server agent |
-| part maps + manifest + goldens | `src/main/resources/assets/myvillage/portrait/`, `src/test/resources/portrait_goldens/` | exporter (`tools/portraitgen/export.py`) |
+| part maps + manifest + goldens | `src/main/resources/assets/yuanxian/portrait/`, `src/test/resources/portrait_goldens/` | exporter (`tools/portraitgen/export.py`) |
 | `PortraitPalette`, `PortraitComposer` (pure), `PortraitTextures` (client cache) | `com.example.myvillage.portrait` / `client.portrait` | client agent |
 | dialogue screen, 天下 person detail and rows | `client.sim.SectDialogueScreen`, `client.cultivation.panel.WorldPage` | UI agent |
 
@@ -38,13 +38,13 @@ Then the steps of `assign()` in person.py, salts 1..13, in order, with the same 
 
 ## Part maps (written by the exporter)
 
-`assets/myvillage/portrait/manifest.json`:
+`assets/yuanxian/portrait/manifest.json`:
 ```
 {"roles": "SsTKLBbHhDIJRWwEe1234PXxMmnOcCQgGuNaAZzVFfY",   // index i+1 in the PNG's red channel = roles[i]
  "layers": {"behind": ["short", ...], "face": ["oval_f", "oval_f_old", ...], ...},
  "clears_face": ["short", "ponytail", "twin_buns", "bun"]}   // back styles whose silhouette mask excludes the face
 ```
-Each map is `assets/myvillage/portrait/<layer>/<variant>.png`, 64×64 RGBA: **R** = role index + 1
+Each map is `assets/yuanxian/portrait/<layer>/<variant>.png`, 64×64 RGBA: **R** = role index + 1
 (0 = this step painted nothing here), **G** = 255 when the cell is in the step's *mask* (face mask,
 locks mask, bangs mask, silhouette), **A** = 255 where R or G is set. A map holds every cell one step of
 `render.compose` wrote (whether or not the role changed), captured in the context of the base person; painting it means
@@ -103,7 +103,7 @@ thumbnail at the left, row height 18, text shifted 20 px.
 The cultivator avatar of a ledger person wears the portrait's hair colour and eye colour (owner 2026-10-07:
 "我想让建模的发色和瞳色与像素画的对应"). Hair style, headwear, robe and skin stay as baked into the look.
 
-- **Role map.** `tools/npcgen` writes, next to each look's model files, `assets/myvillage/npc/<name>_roles.png`
+- **Role map.** `tools/npcgen` writes, next to each look's model files, `assets/yuanxian/npc/<name>_roles.png`
   (same size as the texture `textures/entity/cultivator/<name>.png`, RGBA). Alpha 0 = keep the baked texel.
   Alpha 255 = recolour: R = material, G = index, B = 0. Material 1 hair: G = the painter's half-step tone
   0..12 on a 7-step ramp, colour `mix(ramp7[i/2], ramp7[i/2+1], (i%2)*0.5)` (12 = the last step). Material 2
@@ -118,7 +118,7 @@ The cultivator avatar of a ledger person wears the portrait's hair colour and ey
   50–74 % brightness. Every mix rounds half to even (`PortraitPalette.mix`).
 - **Wire.** `NpcColours(hair, eye)` packs to `hair.ordinal() << 4 | eye.ordinal()`; `NpcEntity` syncs it as one
   int (`colours()`, `packedColours()`, `setColours`), `-1` = none (keep the baked colours: every summoned NPC);
-  saved as NBT `Colours` when set, so `/summon myvillage:cultivator ~ ~ ~ {Colours:68}` works for stills.
+  saved as NBT `Colours` when set, so `/summon yuanxian:cultivator ~ ~ ~ {Colours:68}` works for stills.
   `WorldSimAvatars` sets it at spawn and on reconcile from `NpcColours.of(PortraitAssign.of(person, day,
   daysPerYear))`, so greying follows age exactly as in the portrait.
 - **Client.** `NpcRenderer.getTextureLocation` → `NpcSkins.texture(npcId, look, packed, baked)`: a

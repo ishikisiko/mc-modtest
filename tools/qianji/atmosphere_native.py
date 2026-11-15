@@ -30,8 +30,8 @@ def main():
     try:
         result['identity']=verify_candidate(a.jar.resolve());complete();stage=selected[1]
         server.start();server.command('gamerule mobGriefing false');query('export');plan=json.loads((server.data/'worldplan.json').read_text());shutil.copy2(server.data/'worldplan.json',out/'worldplan.json')
-        city=next(c for c in plan['cities'] if c['region_id']=='zhongzhou');q=json.loads((ROOT/'build/resources/main/data/myvillage/capitals/v4/capital_zhongzhou/city.json').read_text())['qianji']
-        cfg=json.loads((ROOT/'blueprints/qianji/zhongzhou_infill.json').read_text());data=json.loads((ROOT/'build/resources/main/data/myvillage/capitals/v4/capital_zhongzhou/city.json').read_text())
+        city=next(c for c in plan['cities'] if c['region_id']=='zhongzhou');q=json.loads((ROOT/'build/resources/main/data/yuanxian/capitals/v4/capital_zhongzhou/city.json').read_text())['qianji']
+        cfg=json.loads((ROOT/'blueprints/qianji/zhongzhou_infill.json').read_text());data=json.loads((ROOT/'build/resources/main/data/yuanxian/capitals/v4/capital_zhongzhou/city.json').read_text())
         assert q['scale']=='headquarters' and q['infill']['id']==cfg['id']
         assert data['size']==q['source_dimensions']==[1200,320,1440]
         assert q['bounds']==cfg['plot'] and [q['size'][0],q['size'][2]]==cfg['size'] and q['rotation_quarters']==cfg['rotation_quarters']

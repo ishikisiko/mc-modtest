@@ -36,7 +36,7 @@ class NpcCombatLedgerTest {
         state.nextPersonId = 4; ctx.newDay(); return ctx;
     }
     static NpcCombatProfile profile(double health, long revision) {
-        return new NpcCombatProfile(health, 20, "{id:\"myvillage:qingfeng_sword\",count:1}",
+        return new NpcCombatProfile(health, 20, "{id:\"yuanxian:qingfeng_sword\",count:1}",
                 400, revision, PLAYER, 320, new NpcCombatProfile.Body("minecraft:overworld", "region", 2, 70, 3,
                     0, -0.5, 0, 9, 60, false));
     }
@@ -49,7 +49,7 @@ class NpcCombatLedgerTest {
             long epoch=NpcCombatLedger.claim(ctx,1,initial);
             var before=StateCodec.toJson(ctx.state,data.realms()).getAsJsonArray("persons").deepCopy();
             var body=new NpcCombatProfile.Body("minecraft:overworld",person.regionId,2,70,3,0,0,0,0,0,true);
-            var moved=new NpcCombatProfile(health,20,"{id:\"myvillage:qingfeng_sword\",count:1}",400,1,"",0,body);
+            var moved=new NpcCombatProfile(health,20,"{id:\"yuanxian:qingfeng_sword\",count:1}",400,1,"",0,body);
             assertTrue(NpcCombatLedger.checkpoint(ctx,1,epoch,moved));
             assertEquals(before,StateCodec.toJson(ctx.state,data.realms()).getAsJsonArray("persons"));
             var restored=StateCodec.fromBytes(StateCodec.toBytes(ctx.state,data.realms()),data.realms());

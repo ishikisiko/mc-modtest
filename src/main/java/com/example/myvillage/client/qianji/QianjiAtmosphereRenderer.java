@@ -16,10 +16,10 @@ import net.minecraft.world.phys.*;
 public final class QianjiAtmosphereRenderer implements BlockEntityRenderer<QianjiAtmosphereEntity> {
     private static final int FULL_BRIGHT=0xF000F0;
     private static final Map<String,RenderType> TEXTURES=new HashMap<>();
-    private static final RenderType COLOR=RenderType.create("myvillage_qianji_light",DefaultVertexFormat.POSITION_COLOR,VertexFormat.Mode.QUADS,32768,false,true,
+    private static final RenderType COLOR=RenderType.create("yuanxian_qianji_light",DefaultVertexFormat.POSITION_COLOR,VertexFormat.Mode.QUADS,32768,false,true,
             RenderType.CompositeState.builder().setShaderState(RenderStateShard.POSITION_COLOR_SHADER).setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
                     .setCullState(RenderStateShard.NO_CULL).setWriteMaskState(RenderStateShard.COLOR_WRITE).createCompositeState(false));
-    private static final RenderType TERRAIN=RenderType.create("myvillage_qianji_mirage",DefaultVertexFormat.POSITION_COLOR,VertexFormat.Mode.QUADS,262144,false,true,
+    private static final RenderType TERRAIN=RenderType.create("yuanxian_qianji_mirage",DefaultVertexFormat.POSITION_COLOR,VertexFormat.Mode.QUADS,262144,false,true,
             RenderType.CompositeState.builder().setShaderState(RenderStateShard.POSITION_COLOR_SHADER).setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                     .setCullState(RenderStateShard.NO_CULL).setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE).createCompositeState(false));
     private record Spark(Vec3 p,double size,int color,double alpha) { }
@@ -38,9 +38,9 @@ public final class QianjiAtmosphereRenderer implements BlockEntityRenderer<Qianj
     private static QianjiAtmosphereRules rules(){return QianjiAtmosphereRules.get();}
     private static double n(JsonObject o,String key){return o.get(key).getAsDouble();}
     private static Vec3 v(JsonArray a){return QianjiAtmosphereMesh.point(a);}
-    private static RenderType texture(String name){return TEXTURES.computeIfAbsent(name,id->RenderType.create("myvillage_qianji_"+id,DefaultVertexFormat.NEW_ENTITY,VertexFormat.Mode.QUADS,16384,false,true,
+    private static RenderType texture(String name){return TEXTURES.computeIfAbsent(name,id->RenderType.create("yuanxian_qianji_"+id,DefaultVertexFormat.NEW_ENTITY,VertexFormat.Mode.QUADS,16384,false,true,
             RenderType.CompositeState.builder().setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
-                    .setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath("myvillage","textures/effect/qianji/"+id+".png"),true,false))
+                    .setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath("yuanxian","textures/effect/qianji/"+id+".png"),true,false))
                     .setTransparencyState(id.startsWith("cloud_")?RenderStateShard.TRANSLUCENT_TRANSPARENCY:RenderStateShard.LIGHTNING_TRANSPARENCY).setCullState(RenderStateShard.NO_CULL).setWriteMaskState(RenderStateShard.COLOR_WRITE).setOverlayState(RenderStateShard.OVERLAY).createCompositeState(false)));}
     private static int alpha(double v){return(int)Math.round(Math.clamp(v,0,1)*255);}
     private static void vertex(PoseStack pose,VertexConsumer out,Vec3 p,int color,double a){out.addVertex(pose.last(),(float)p.x,(float)p.y,(float)p.z).setColor(color>>16&255,color>>8&255,color&255,alpha(a));}

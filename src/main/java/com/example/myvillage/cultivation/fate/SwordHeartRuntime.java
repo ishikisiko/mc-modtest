@@ -78,7 +78,7 @@ public final class SwordHeartRuntime {
                 (int) definition.effect("heart_cooldown"), enemy, amount);
         if (next.equals(latest.swordHeart())) return;
         CultivationService.replaceFates(player, latest.withSwordHeart(next), false);
-        FateActors.message(player,Component.translatable("fate.myvillage.innate_sword_heart.ready"));
+        FateActors.message(player,Component.translatable("fate.yuanxian.innate_sword_heart.ready"));
         LoggerFactory.getLogger(SwordHeartRuntime.class).info("SWORD_HEART player={} t={} result=ready expires={} cooldown={}",
                 player.getName().getString(), now(player), next.openingExpiresAt(), next.cooldownReadyAt());
     }
@@ -174,7 +174,7 @@ public final class SwordHeartRuntime {
         if (!hit.vanillaCritical() && player instanceof ServerPlayer user) user.crit(hit.target());
         boolean wave = CombatStyles.bundled().skill(hit.skill())
                 .map(skill -> DerivedSwordWaves.launch(player, skill, hit.yaw())).orElse(false);
-        FateActors.message(player,Component.translatable("fate.myvillage.innate_sword_heart.trigger"));
+        FateActors.message(player,Component.translatable("fate.yuanxian.innate_sword_heart.trigger"));
         LoggerFactory.getLogger(SwordHeartRuntime.class).info("SWORD_HEART player={} t={} result=trigger target={} wave={}",
                 player.getName().getString(), now(player), hit.target().getId(), wave);
     }

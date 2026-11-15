@@ -46,7 +46,7 @@ class SectProgressionTest {
         return new ElderAssessment.Trial(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "minecraft:overworld", 0, 64, 0, 1000);
     }
     @Test void invalidGradeMoneyAndAssessmentConfigurationIsRejected() throws Exception {
-        var path = Path.of("src/main/resources/data/myvillage/world_sim/rules.json");
+        var path = Path.of("src/main/resources/data/yuanxian/world_sim/rules.json");
         for (String kind : List.of("money", "realm", "trial", "hierarchy")) {
             var doc = com.google.gson.JsonParser.parseString(Files.readString(path)).getAsJsonObject();
             var rule = doc.getAsJsonObject("sect_progression");

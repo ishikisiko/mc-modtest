@@ -91,15 +91,15 @@ class FemaleAdeptTest(unittest.TestCase):
     # -------------------------------------------------------------- schema and skeleton
     def test_paths_follow_the_look(self):
         p = build.paths(NAME)
-        self.assertTrue(str(p["model"]).endswith("assets/myvillage/npc/cultivator_f_adept_model.json"))
-        self.assertTrue(str(p["animations"]).endswith("assets/myvillage/npc/cultivator_f_adept_animations.json"))
+        self.assertTrue(str(p["model"]).endswith("assets/yuanxian/npc/cultivator_f_adept_model.json"))
+        self.assertTrue(str(p["animations"]).endswith("assets/yuanxian/npc/cultivator_f_adept_animations.json"))
         self.assertTrue(str(p["texture"]).endswith("textures/entity/cultivator/cultivator_f_adept.png"))
-        self.assertEqual(("myvillage:cultivator", "cultivator", "f_adept"), (fa.ID, fa.ENTITY, fa.LOOK))
+        self.assertEqual(("yuanxian:cultivator", "cultivator", "f_adept"), (fa.ID, fa.ENTITY, fa.LOOK))
 
     def test_model_matches_schema_and_the_default_look(self):
         d = self.model_doc
         self.assertEqual(1, d["schema"])
-        self.assertEqual("myvillage:cultivator", d["id"])
+        self.assertEqual("yuanxian:cultivator", d["id"])
         self.assertEqual(male.SCALE, d["scale"])
         self.assertEqual(male.HITBOX, fa.HITBOX)
         self.assertEqual({"bone": "head", "max_yaw": 60.0, "max_pitch": 35.0}, d["look"])

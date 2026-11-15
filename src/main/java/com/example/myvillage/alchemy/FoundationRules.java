@@ -31,7 +31,7 @@ public final class FoundationRules {
     public static FoundationRules parse(Reader r){return new FoundationRules(JsonParser.parseReader(r).getAsJsonObject());}
     private static final class Holder {
         static final FoundationRules VALUE=load();
-        private static FoundationRules load(){try(var in=FoundationRules.class.getResourceAsStream("/data/myvillage/alchemy/foundation.json")){if(in==null)throw new IllegalStateException("Missing foundation rules");return parse(new InputStreamReader(in,StandardCharsets.UTF_8));}catch(IOException e){throw new IllegalStateException(e);}}
+        private static FoundationRules load(){try(var in=FoundationRules.class.getResourceAsStream("/data/yuanxian/alchemy/foundation.json")){if(in==null)throw new IllegalStateException("Missing foundation rules");return parse(new InputStreamReader(in,StandardCharsets.UTF_8));}catch(IOException e){throw new IllegalStateException(e);}}
     }
     public static FoundationRules get(){return Holder.VALUE;}
     public boolean source(CultivationProfile p){return p.stageId().toString().equals(sourceStage);}

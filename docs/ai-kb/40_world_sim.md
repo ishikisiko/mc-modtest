@@ -69,7 +69,7 @@ first), `sects`, `regionId`, `causeId` (-1 for none), `textKey`, and
 
 ## Data files
 
-Directory `src/main/resources/data/myvillage/world_sim/`, every file
+Directory `src/main/resources/data/yuanxian/world_sim/`, every file
 `"schema": 1`. `SimDataLoader` reads all eight (since 0.43.0) through a caller-supplied opener
 (the runtime opens them through the server's resource manager at server start;
 tests and the CLI read the source tree). An unknown or missing field, a bad
@@ -91,8 +91,8 @@ copying values.
 
 Text is in both language files: `world_sim.*` (event lines, the two era
 dates, realm, stage, rank, root, grade and cause words, report headings),
-`commands.myvillage.world.*` (command output), and
-`message.myvillage.world.rumor` (the rumor prefix). Person, sect, technique,
+`commands.yuanxian.world.*` (command output), and
+`message.yuanxian.world.rumor` (the rumor prefix). Person, sect, technique,
 artifact, and place names are Chinese literals in both languages. An event
 line is a family `<base>.1 .. <base>.n`, the variant chosen by hash so a
 common event does not repeat one sentence; most lines open with a "who" block
@@ -231,7 +231,7 @@ Health bands are unchanged and pass. After genesis and prehistory, small seed
   tombstones (name, title, sect, realm, birth and death day, cause, killer)
   kept forever, so later events can still name them.
 - **Payload.** `StateCodec` writes canonical compact UTF-8 JSON (fixed key
-  order, maps in id order) with `"format": "myvillage:world_sim"` and
+  order, maps in id order) with `"format": "yuanxian:world_sim"` and
   `"version": 3` (2 since 0.37.0, which added the sect field `heritage` and
   the top-level `lost_heritages`; a version-1 payload loads with no heritages;
   3 since 0.41.0, which added the top-level `player_members`; a version-2
@@ -245,7 +245,7 @@ Health bands are unchanged and pass. After genesis and prehistory, small seed
   newer `version` fails with "saved by a newer world-sim format version N".
   Change it additively and bump `version` when the payload changes.
 - **Wrapper.** `WorldSimSavedData` is overworld SavedData
-  `myvillage_world_sim` (`data/myvillage_world_sim.dat`): a wrapper `format`
+  `yuanxian_world_sim` (`data/yuanxian_world_sim.dat`): a wrapper `format`
   (1), the `tier`, a `paused` mirror, and the core payload as a byte array.
   While a live world is attached every save serialises it afresh; otherwise
   the loaded tag is written back unchanged, so a payload this build cannot
@@ -301,13 +301,13 @@ restart and the save keeps the last checkpoint, never a half-settled day.
 ## Commands and config
 
 All under `/yuanxian world`, permission 2; output goes through
-`commands.myvillage.world.*` keys, so each client reads its own language.
+`commands.yuanxian.world.*` keys, so each client reads its own language.
 
 | Command | Shows or does |
 |---|---|
 | `/yuanxian world` or `world info` | Era date, sim day, calendar day, pending days, running or paused, tier, population against target, deaths, living per realm, sects, event count, the five foremost people |
 | `world sects [all]` | Active sects (with `all`, the destroyed too): region, master, members, top realm, prestige, gate coordinate, whether the gate is realized |
-| `world sect <id\|name>` | One sect: founding, parent sect, master, members, resources, prestige, signature technique (镇派功法), heritage (传承, `commands.myvillage.world.sect.heritage`, 0.37.0), gate, relations to other sects, strongest members at the sect |
+| `world sect <id\|name>` | One sect: founding, parent sect, master, members, resources, prestige, signature technique (镇派功法), heritage (传承, `commands.yuanxian.world.sect.heritage`, 0.37.0), gate, relations to other sects, strongest members at the sect |
 | `world sect <id> build [here]` | Build the sect's compound (山门) at its ledger gate, or with `here` move the gate to the caller first; synchronous (see "P3" below); refused while `GateRealizer` is building that gate |
 | `world sect <id> join <player>` / `leave <player>` | 0.41.0: admin membership; join is forced past the admission rules, leave is the ordinary leave ([43](43_player_sect_entry.md)) |
 | `world player <player>` | 0.41.0: a player's record: sect and rank, joining date, master, contribution, standings, the last sect left |
@@ -322,7 +322,7 @@ All under `/yuanxian world`, permission 2; output goes through
 | `world pause` / `world resume` | Stop or restart settlement; saved with the ledger |
 | `world advance <1-3650>` | Settle that many days now, even while paused; reports events and notable events |
 
-Server config `myvillage-world_sim-server.toml` (instance `config/`, a copy
+Server config `yuanxian-world_sim-server.toml` (instance `config/`, a copy
 in a world's `serverconfig/` overrides it):
 
 | Key | Default | Meaning |
@@ -421,7 +421,7 @@ region first; a notable one (importance 2) only the players in its region;
 minor ones nobody. Each player has a capped queue and a sliding one-minute
 window; queues drain after each settled day and every 20 ticks, in offer
 order. A line is
-`message.myvillage.world.rumor` around the event's own text key, rendered by
+`message.yuanxian.world.rumor` around the event's own text key, rendered by
 the client in its language. A player's queue is forgotten on logout, and the
 board is cleared when the server stops or rumors are switched off.
 `RumorBoard` has no Minecraft types and is unit-tested.
@@ -467,7 +467,7 @@ named by rules and encounters, site kinds, a technique and artifact for every
 grade an encounter or genesis can grant, sim lifespans equal to the player
 realm files for shared ids, the config's three tiers present in rules);
 since 0.37.0 every ledger technique against its datapack file under
-`data/myvillage/myvillage/technique/` (present, same grade and element), the
+`data/yuanxian/yuanxian/technique/` (present, same grade and element), the
 heritages (known techniques, one heritage per technique, one element per
 chain, the datapack `school` and `lineage.previous` following the chain) and
 `lineage.previous` free of cycles;
@@ -475,8 +475,8 @@ every `world_sim.` key the core can emit (literals, constants, and the
 data-derived realm, stage, rank, root, grade, breakthrough, and fortune keys)
 exists in both `en_us` and `zh_cn`; every `world_sim.*` key in one file is in
 the other with the same `%n$s` slots numbered 1..n, and a family's variants
-match; the runtime's `commands.myvillage.world.*` and
-`message.myvillage.world.*` keys exist in both with the same slots; and the
+match; the runtime's `commands.yuanxian.world.*` and
+`message.yuanxian.world.*` keys exist in both with the same slots; and the
 core is free of Minecraft, NeoForge, Mojang, and slf4j. `TextKeyCoverageTest`
 pins the param count per key.
 
@@ -566,7 +566,7 @@ python3 tools/world_sim_evidence.py [--part session|restart|all] [--ticks-per-da
 It holds the shared heavy-work lock itself (never wrap it in `flock`).
 `session` (about 6 to 8 minutes) starts the acceptance server and one client
 in a fresh superflat world with the calendar sped up (`ticks_per_day`, default
-200, set in `run-acceptance/config/myvillage-server.toml` and restored
+200, set in `run-acceptance/config/yuanxian-server.toml` and restored
 afterwards), switches the player to creative, runs every `/yuanxian world`
 command over RCON, shows the calendar and the ledger advancing, pauses
 while at least two calendar days pass, resumes, and floods rumors with `advance` to show
@@ -584,7 +584,7 @@ all 17 checks; it is developer evidence, not an owner verdict.
   ledger sect has no compound until one is built with
   `/yuanxian world sect <id> build` or, since 0.41.0, by `GateRealizer`
   when a player comes near (P4-lite,
-  [43_player_sect_entry.md](43_player_sect_entry.md)). The `myvillage:sect` compounds that
+  [43_player_sect_entry.md](43_player_sect_entry.md)). The `yuanxian:sect` compounds that
   `worldgen/structure_set/sect.json` scatters at random (biome tag
   `has_sect`) are unrelated to the ledger, empty, and unknown to
   `/yuanxian world`.
@@ -639,7 +639,7 @@ all 17 checks; it is developer evidence, not an owner verdict.
 
 ### Avatars (化身)
 
-An avatar is a `myvillage:cultivator` made a ledger avatar by
+An avatar is a `yuanxian:cultivator` made a ledger avatar by
 `NpcEntity.becomeLedgerAvatar(personId)` before it is added (irreversible).
 The ledger person id is synced to clients (`DATA_LEDGER_PERSON`, -1 for an
 ordinary NPC). An avatar is never saved with its chunk (`shouldBeSaved`
@@ -649,7 +649,7 @@ pushable; its stroll goal is removed (it still looks at players and around);
 `mobInteract` passes without effect unless the avatar has a dialogue role
 (`DATA_LEDGER_ROLE`, 0.41.0: the steward, elders, and the master open the
 sect dialogue, [43](43_player_sect_entry.md)). Its name tag is always visible:
-`entity.myvillage.cultivator.avatar` = `%1$s · %2$s · %3$s` (name, realm
+`entity.yuanxian.cultivator.avatar` = `%1$s · %2$s · %3$s` (name, realm
 through `world_sim.realm.*`, sect), so each client reads the realm in its
 own language. A summoned or spawn-egg cultivator is unchanged. If a copy
 escapes some other way it carries the `WorldSimPerson` tag, loads as an

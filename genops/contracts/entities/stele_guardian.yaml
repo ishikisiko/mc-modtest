@@ -1,12 +1,12 @@
 schema_version: 1
 project:
-  mod_id: myvillage
+  mod_id: yuanxian
   java_package: com.example.myvillage
   minecraft_version: 1.21.1
   neoforge_version: 21.1.233
 entity:
   id: stele_guardian
-  resource_location: myvillage:stele_guardian
+  resource_location: yuanxian:stele_guardian
   display_name:
     zh_cn: 守碑石灵
     en_us: 守碑石灵
@@ -67,9 +67,9 @@ state:
   - active shockwaves
 rendering:
   route: vanilla
-  geo: myvillage:beast/stele_guardian_model.json
-  animation: myvillage:beast/stele_guardian_animations.json
-  base_texture: myvillage:textures/entity/stele_guardian/stele_guardian.png
+  geo: yuanxian:beast/stele_guardian_model.json
+  animation: yuanxian:beast/stele_guardian_animations.json
+  base_texture: yuanxian:textures/entity/stele_guardian/stele_guardian.png
   final_texture_size:
     width: 1024
     height: 256

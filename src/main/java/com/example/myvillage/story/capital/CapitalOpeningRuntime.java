@@ -51,7 +51,7 @@ public final class CapitalOpeningRuntime {
     }
     private static void started(ServerStartedEvent event) {
         rules = null; PENDING.clear();
-        try (var stream = event.getServer().getResourceManager().open(ResourceLocation.fromNamespaceAndPath("myvillage", CapitalOpeningRules.RESOURCE));
+        try (var stream = event.getServer().getResourceManager().open(ResourceLocation.fromNamespaceAndPath("yuanxian", CapitalOpeningRules.RESOURCE));
                 var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             var loaded = CapitalOpeningRules.read(reader);
             if (!(CommerceInventory.item(loaded.seedItem()) instanceof BlockItem seed) || !(seed.getBlock() instanceof SpiritCropBlock)

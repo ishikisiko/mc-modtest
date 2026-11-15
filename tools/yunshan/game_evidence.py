@@ -113,7 +113,7 @@ class BuildingEvidence(Evidence):
         self.teleport([32,-60,-8])
         world=cs.SERVER_DIR/cs.LEVEL_NAME
         pack=world/'datapacks/yunshan_expanded'
-        target=pack/'data/myvillage/structure';target.mkdir(parents=True,exist_ok=True)
+        target=pack/'data/yuanxian/structure';target.mkdir(parents=True,exist_ok=True)
         (pack/'pack.mcmeta').write_text(json.dumps({'pack':{'pack_format':48,'description':'Yunshan separately authored showcase structures'}}))
         for d in self.buildings:
             name=d['id'].split(':')[1]
@@ -165,8 +165,8 @@ class BuildingEvidence(Evidence):
             before=self.rc(f'yuanxian cultivation info {u}') if 'inheritance_stele' in service['state'] else None
             self.s.game.require_ingame('mapped facility use');self.s.game.xdo('click','3')
             if 'inheritance_stele' in service['state']:
-                after=self.poll(lambda:self.rc(f'yuanxian cultivation info {u}'),lambda s:'myvillage:basic_breathing' in s,10,'mapped inheritance')
-                self.check(d['id']+'_mapped_inheritance','myvillage:basic_breathing' not in before,{'before':before,'after':after})
+                after=self.poll(lambda:self.rc(f'yuanxian cultivation info {u}'),lambda s:'yuanxian:basic_breathing' in s,10,'mapped inheritance')
+                self.check(d['id']+'_mapped_inheritance','yuanxian:basic_breathing' not in before,{'before':before,'after':after})
             else:
                 self.poll(self.s.game.pointer_grabbed,lambda s:not s,10,'mapped facility UI')
                 window=self.s.game.xdo('search','--name','Minecraft').split()[0]
@@ -178,7 +178,7 @@ class BuildingEvidence(Evidence):
     def save_building(self,d):
         origin=d['site']['world_min'];x,y,z=origin;w,h,length=d['size'];name=d['id'].split(':')[1]+'_game'
         block=(x-2,y+1,z)
-        tag='{name:"myvillage:'+name+'",mode:"SAVE",posX:2,posY:-1,posZ:0,sizeX:'+str(w)+',sizeY:'+str(h)+',sizeZ:'+str(length)+',ignoreEntities:1b,showboundingbox:0b,powered:0b}'
+        tag='{name:"yuanxian:'+name+'",mode:"SAVE",posX:2,posY:-1,posZ:0,sizeX:'+str(w)+',sizeY:'+str(h)+',sizeZ:'+str(length)+',ignoreEntities:1b,showboundingbox:0b,powered:0b}'
         self.rc(f'setblock {block[0]} {block[1]} {block[2]} minecraft:structure_block[mode=save]'+tag)
         # Redstone calls saveStructure(false), which only updates memory. The
         # actual GUI SAVE_AREA button calls saveStructure(true) and writes disk.

@@ -24,8 +24,8 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 public final class BossRuntime {
     public static final String BIRTH = BossAssignment.BIRTH;
     public static final String REALM = BossAssignment.REALM;
-    public static final ResourceLocation HEALTH = ResourceLocation.fromNamespaceAndPath("myvillage", "exploration.boss_health");
-    public static final ResourceLocation ATTACK = ResourceLocation.fromNamespaceAndPath("myvillage", "exploration.boss_attack");
+    public static final ResourceLocation HEALTH = ResourceLocation.fromNamespaceAndPath("yuanxian", "exploration.boss_health");
+    public static final ResourceLocation ATTACK = ResourceLocation.fromNamespaceAndPath("yuanxian", "exploration.boss_attack");
     private BossRuntime() { }
 
     public static void register() {

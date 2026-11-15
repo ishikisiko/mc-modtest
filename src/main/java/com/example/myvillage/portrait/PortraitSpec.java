@@ -5,7 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 /**
  * Which parts a person's 64x64 portrait is composed from. The server derives it from the ledger
  * ({@link PortraitAssign}); the client composes the picture from the part maps under
- * {@code assets/myvillage/portrait/} and the person's palette. The enum names, lower-cased, are
+ * {@code assets/yuanxian/portrait/} and the person's palette. The enum names, lower-cased, are
  * the variant names the Python generator ({@code tools/portraitgen}) uses, so both sides draw the
  * same face for the same record.
  *

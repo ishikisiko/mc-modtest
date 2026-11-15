@@ -29,10 +29,10 @@ MULTISTORY_NAMES = ("medium_shop", "big_house", "tavern", "lord_manor")
 ROOF_OPTIONAL_NAMES = {"hero_rockery"}
 KEY_BLOCK_OPTIONAL_NAMES = {"hero_rockery"}
 PLAQUE_BLOCK_IDS = {
-    "myvillage:wall_plaque",
-    "myvillage:wall_plaque_vertical",
-    "myvillage:hanging_plaque",
-    "myvillage:hanging_plaque_vertical",
+    "yuanxian:wall_plaque",
+    "yuanxian:wall_plaque_vertical",
+    "yuanxian:hanging_plaque",
+    "yuanxian:hanging_plaque_vertical",
 }
 PLAQUE_COL_ORDERS = {
     2: ["left", "right"],
@@ -133,7 +133,7 @@ def inscription_entities(entities: list[dict]) -> list[str]:
         if nbt.get("id") != "minecraft:painting":
             continue
         variant = str(nbt.get("variant", ""))
-        if variant.startswith("myvillage:inscription/"):
+        if variant.startswith("yuanxian:inscription/"):
             variants.append(variant)
     return variants
 
@@ -156,7 +156,7 @@ def validate_wall_plaque_visual_order(name: str, palette: list[str],
     grouped: dict[tuple[str, str, str, int, int], list[tuple[int, str, tuple[int, int, int]]]] = defaultdict(list)
     for block in blocks:
         state = palette[block["state"]]
-        if block_id(state) != "myvillage:wall_plaque":
+        if block_id(state) != "yuanxian:wall_plaque":
             continue
         facing = prop_value(state, "facing")
         frame = prop_value(state, "frame")

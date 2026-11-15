@@ -3,7 +3,7 @@ navigation:
   title: 丹炉与丹药
   parent: index.md
   position: 45
-  icon: myvillage:alchemy_furnace
+  icon: yuanxian:alchemy_furnace
 ---
 
 # 丹炉与丹药
@@ -12,7 +12,7 @@ navigation:
 
 ## 第一次开炉
 
-<Recipe id="myvillage:alchemy_furnace" />
+<Recipe id="yuanxian:alchemy_furnace" />
 
 1. 先完成[测灵](./initiation.md)，在修仙面板「技艺」查看炼丹资质。
 2. 在工作台制作所需丹方，手持丹方右键学习。已经学过的同一丹方不会再次消耗。

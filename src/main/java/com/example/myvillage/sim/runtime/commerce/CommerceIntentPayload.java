@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 public record CommerceIntentPayload(int menuId,long token,int sequence,int offer,int quantity) implements CustomPacketPayload {
     // Wire safety bound; the server further limits quantity by authored stock_limit.
     public static final int MAX_QUANTITY=20_000;
-    public static final Type<CommerceIntentPayload> TYPE=new Type<>(ResourceLocation.fromNamespaceAndPath("myvillage","commerce_intent"));
+    public static final Type<CommerceIntentPayload> TYPE=new Type<>(ResourceLocation.fromNamespaceAndPath("yuanxian","commerce_intent"));
     public static final StreamCodec<RegistryFriendlyByteBuf,CommerceIntentPayload> STREAM_CODEC=StreamCodec.composite(
             ByteBufCodecs.VAR_INT,CommerceIntentPayload::menuId,ByteBufCodecs.VAR_LONG,CommerceIntentPayload::token,
             ByteBufCodecs.VAR_INT,CommerceIntentPayload::sequence,ByteBufCodecs.VAR_INT,CommerceIntentPayload::offer,

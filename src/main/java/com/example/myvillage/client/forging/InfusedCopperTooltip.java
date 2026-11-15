@@ -15,6 +15,6 @@ public final class InfusedCopperTooltip {
     @SubscribeEvent public static void tooltip(ItemTooltipEvent event){
         var stack=event.getItemStack();var progress=stack.get(ModDataComponents.COPPER_INFUSION.get());
         if(progress!=null)
-            event.getToolTip().add(Component.translatable("tooltip.myvillage.infused_copper",progress.paidQi(),InfusionRules.get().qiPerIngot()).withStyle(ChatFormatting.GOLD));
+            event.getToolTip().add(Component.translatable("tooltip.yuanxian.infused_copper",progress.paidQi(),InfusionRules.get().qiPerIngot()).withStyle(ChatFormatting.GOLD));
     }
 }

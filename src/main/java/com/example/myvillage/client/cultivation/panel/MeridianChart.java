@@ -78,25 +78,25 @@ public final class MeridianChart {
     public static final String YUZHEN = "yuzhen";
 
     private static final List<Acupoint> POINTS = List.of(
-            point("huiyin", "screen.myvillage.cultivation.acupoint.huiyin", 0.478F, 0.752F, Tier.MAJOR,
+            point("huiyin", "screen.yuanxian.cultivation.acupoint.huiyin", 0.478F, 0.752F, Tier.MAJOR,
                     label(LabelSide.LEFT, 0.300F, 0.770F)),
-            point("weilu", "screen.myvillage.cultivation.acupoint.weilu", 0.404F, 0.700F, Tier.MINOR, null),
-            point("mingmen", "screen.myvillage.cultivation.acupoint.mingmen", 0.452F, 0.530F, Tier.MAJOR,
+            point("weilu", "screen.yuanxian.cultivation.acupoint.weilu", 0.404F, 0.700F, Tier.MINOR, null),
+            point("mingmen", "screen.yuanxian.cultivation.acupoint.mingmen", 0.452F, 0.530F, Tier.MAJOR,
                     label(LabelSide.LEFT, 0.300F, 0.530F)),
-            point("jiaji", "screen.myvillage.cultivation.acupoint.jiaji", 0.430F, 0.400F, Tier.MINOR, null),
-            point("dazhui", "screen.myvillage.cultivation.acupoint.dazhui", 0.452F, 0.272F, Tier.MAJOR,
+            point("jiaji", "screen.yuanxian.cultivation.acupoint.jiaji", 0.430F, 0.400F, Tier.MINOR, null),
+            point("dazhui", "screen.yuanxian.cultivation.acupoint.dazhui", 0.452F, 0.272F, Tier.MAJOR,
                     label(LabelSide.LEFT, 0.300F, 0.290F)),
-            point("yuzhen", "screen.myvillage.cultivation.acupoint.yuzhen", 0.455F, 0.168F, Tier.MINOR, null),
-            point("baihui", "screen.myvillage.cultivation.acupoint.baihui", 0.512F, 0.080F, Tier.MAJOR,
+            point("yuzhen", "screen.yuanxian.cultivation.acupoint.yuzhen", 0.455F, 0.168F, Tier.MINOR, null),
+            point("baihui", "screen.yuanxian.cultivation.acupoint.baihui", 0.512F, 0.080F, Tier.MAJOR,
                     label(LabelSide.RIGHT, 0.660F, 0.088F)),
-            point("yintang", "screen.myvillage.cultivation.acupoint.yintang", 0.556F, 0.118F, Tier.MINOR, null),
-            point("chengjiang", "screen.myvillage.cultivation.acupoint.chengjiang", 0.550F, 0.200F, Tier.MINOR, null),
-            point("danzhong", "screen.myvillage.cultivation.acupoint.danzhong", 0.594F, 0.385F, Tier.MAJOR,
+            point("yintang", "screen.yuanxian.cultivation.acupoint.yintang", 0.556F, 0.118F, Tier.MINOR, null),
+            point("chengjiang", "screen.yuanxian.cultivation.acupoint.chengjiang", 0.550F, 0.200F, Tier.MINOR, null),
+            point("danzhong", "screen.yuanxian.cultivation.acupoint.danzhong", 0.594F, 0.385F, Tier.MAJOR,
                     label(LabelSide.RIGHT, 0.700F, 0.375F)),
-            point("dantian", "screen.myvillage.cultivation.acupoint.dantian", 0.552F, 0.608F, Tier.DANTIAN,
+            point("dantian", "screen.yuanxian.cultivation.acupoint.dantian", 0.552F, 0.608F, Tier.DANTIAN,
                     label(LabelSide.RIGHT, 0.700F, 0.505F)),
-            point("laogong", "screen.myvillage.cultivation.acupoint.laogong", 0.802F, 0.664F, Tier.MINOR, null),
-            point("yongquan", "screen.myvillage.cultivation.acupoint.yongquan", 0.668F, 0.654F, Tier.MINOR, null));
+            point("laogong", "screen.yuanxian.cultivation.acupoint.laogong", 0.802F, 0.664F, Tier.MINOR, null),
+            point("yongquan", "screen.yuanxian.cultivation.acupoint.yongquan", 0.668F, 0.654F, Tier.MINOR, null));
 
     private static final List<Channel> CHANNELS = List.of(
             channel("du", Vessel.GOVERNING, route(

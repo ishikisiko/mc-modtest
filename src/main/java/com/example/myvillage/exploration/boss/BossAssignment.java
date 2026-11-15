@@ -6,13 +6,13 @@ import net.minecraft.nbt.Tag;
 
 /** Typed, immutable ownership. Invalid/foreign state is never treated as an invitation to resample. */
 public final class BossAssignment {
-    public static final String BIRTH = "myvillage:exploration_boss_birth";
-    public static final String REALM = "myvillage:stats_realm";
+    public static final String BIRTH = "yuanxian:exploration_boss_birth";
+    public static final String REALM = "yuanxian:stats_realm";
     private BossAssignment() { }
 
     public static boolean mayAssign(CompoundTag data) {
         return !data.contains(BIRTH) && !data.contains(REALM)
-                && !data.contains("myvillage:vanilla_monster_birth");
+                && !data.contains("yuanxian:vanilla_monster_birth");
     }
     public static CompoundTag birth(BossRules.Profile profile) {
         var birth = new CompoundTag();

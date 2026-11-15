@@ -43,21 +43,21 @@ def build_assets():
             clips[clip.name]={'duration':clip.length,'frames':frames}
             if heated_frames:heated_clips[clip.name]={'duration':clip.length,'frames':heated_frames}
         doc={'name':mob['name'],'positions':pos,'uv':uv,'clips':clips,'heated_clips':heated_clips,'texture':URL+'/models/'+name+'.png','glow':URL+'/models/'+name+'_eyes.png','height':mob['physical']['height'],
-             'pixels':pixel_data(RES/f'assets/myvillage/textures/entity/{name}/{name}.png'),'glow_pixels':pixel_data(RES/f'assets/myvillage/textures/entity/{name}/{name}_eyes.png')}
+             'pixels':pixel_data(RES/f'assets/yuanxian/textures/entity/{name}/{name}.png'),'glow_pixels':pixel_data(RES/f'assets/yuanxian/textures/entity/{name}/{name}_eyes.png')}
         (OUT/'models'/f'{name}.json').write_text(json.dumps(doc,separators=(',',':'),ensure_ascii=False))
-        for suffix in ('','_eyes'):shutil.copy2(RES/f'assets/myvillage/textures/entity/{name}/{name}{suffix}.png',OUT/'models'/f'{name}{suffix}.png')
+        for suffix in ('','_eyes'):shutil.copy2(RES/f'assets/yuanxian/textures/entity/{name}/{name}{suffix}.png',OUT/'models'/f'{name}{suffix}.png')
         for image in (ROOT/'reports/four-legacies/visuals').glob(name+'*.png'):shutil.copy2(image,OUT/'images'/image.name)
     assets=items.Assets([RES],None)
     for row in catalogue()['items']:
-        name=row['id'];obj=item_model(row);resolved=items.resolve_model(assets,obj,'myvillage:item/'+name);quads=[]
+        name=row['id'];obj=item_model(row);resolved=items.resolve_model(assets,obj,'yuanxian:item/'+name);quads=[]
         for i,element in enumerate(resolved.elements):
             for q in items.element_quads(assets,resolved,element,i):
                 points=q.pos.copy()/16;points[:,0]-=.5;points[:,2]-=.5;quads.append((points,q.uv))
         if resolved.errors:raise ValueError(resolved.errors)
         pos,uv=vertices(quads)
-        doc={'name':row['name'],'positions':pos,'uv':uv,'clips':{},'texture':URL+'/models/'+name+'.png','height':max(pos[1::3]),'deployed_scale':catalogue()['visual']['parameters']['ruler_model_scale'] if name=='zhenyue_ruler' else 1,'pixels':pixel_data(RES/f'assets/myvillage/textures/item/{name}.png')}
+        doc={'name':row['name'],'positions':pos,'uv':uv,'clips':{},'texture':URL+'/models/'+name+'.png','height':max(pos[1::3]),'deployed_scale':catalogue()['visual']['parameters']['ruler_model_scale'] if name=='zhenyue_ruler' else 1,'pixels':pixel_data(RES/f'assets/yuanxian/textures/item/{name}.png')}
         (OUT/'models'/f'{name}.json').write_text(json.dumps(doc,separators=(',',':'),ensure_ascii=False))
-        shutil.copy2(RES/f'assets/myvillage/textures/item/{name}.png',OUT/'models'/f'{name}.png')
+        shutil.copy2(RES/f'assets/yuanxian/textures/item/{name}.png',OUT/'models'/f'{name}.png')
     # A classic same-domain asset script also works inside a sandboxed T3 frame without CORS.
     bundle={p.stem:json.loads(p.read_text()) for p in sorted((OUT/'models').glob('*.json'))}
     (OUT/'models.js').write_text('window.LEGACY_MODELS='+json.dumps(bundle,separators=(',',':'),ensure_ascii=False)+';\n')
@@ -81,7 +81,7 @@ def main():
     summary=json.loads(a.summary.read_text()) if a.summary else {'version':'0.116.1','status':'implementation','message':'模型和玩法已接入，正在完成云端验证。','checks':[],'native':[],'source':'待最终固定','jar':None}
     OUT.mkdir(parents=True,exist_ok=True);(OUT/'index.html').write_text(html(summary));(OUT/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
     if a.publish:
-        target=Path('/home/ubuntu/.local/share/myvillage-assets/www/previews/four-legacies-visuals-20261106');shutil.copytree(OUT,target,dirs_exist_ok=True)
+        target=Path('/home/ubuntu/.local/share/yuanxian-assets/www/previews/four-legacies-visuals-20261106');shutil.copytree(OUT,target,dirs_exist_ok=True)
         print(URL+'/index.html')
     print(OUT/'index.html')
 

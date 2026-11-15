@@ -14,7 +14,7 @@ note and the code are the reference.
 
 | Fact | Source of truth |
 |---|---|
-| Distance, invulnerable ticks, `qi_cost`, cooldown per technique | `effects.movement` in `data/myvillage/myvillage/technique/<id>.json`, generated from the row's `effects` in `tools/technique_catalogue/catalogue.json` |
+| Distance, invulnerable ticks, `qi_cost`, cooldown per technique | `effects.movement` in `data/yuanxian/yuanxian/technique/<id>.json`, generated from the row's `effects` in `tools/technique_catalogue/catalogue.json` |
 | Direction quantisation and world yaw | `combat/DodgeDirection` |
 | Order of checks, window, cooldown, mastery, log lines | `combat/runtime/CombatDodgeService` |
 | Recovery-only cancel rule | `combat/session/CombatSessionManager.canDodgeCancel` / `tryDodgeCancel` |
@@ -33,7 +33,7 @@ note and the code are the reference.
   `worldYaw(viewYaw)` is `viewYaw - atan2(left, forward)` in degrees (left of
   facing is `yaw - 90`); `NONE` is a back step.
 - `CombatDodgeIntentPayload(DodgeDirection)`, serverbound
-  `myvillage:combat_dodge_intent`: one byte of input and no authority.
+  `yuanxian:combat_dodge_intent`: one byte of input and no authority.
   Timing, distance, protection, cooldown, and cost are the server's.
   `tools/validate_sword_combat_foundation.py` allows a serverbound combat
   payload only as an empty record or one whose components are all of a type
@@ -41,7 +41,7 @@ note and the code are the reference.
   is `COMBAT_C2S_AUTHORITY_FIELD`.
 - `CombatDodgeStartPayload(entityId, startTick, directionYaw, distance,
   invulnerableTicks, durationTicks, cooldownTicks, techniqueId)`, clientbound
-  `myvillage:combat_dodge_start`, sent with
+  `yuanxian:combat_dodge_start`, sent with
   `PacketDistributor.sendToPlayersTrackingEntityAndSelf`. Presentation only:
   the motion arrives as the vanilla entity-motion packet of the server's
   impulse. The constructor rejects negative ids, ticks and cooldowns, a
@@ -133,15 +133,15 @@ dodge <name>: technique=<id> grade=<g> distance=<d> invuln=<n> cooldown_ticks=<n
 ```
 
 or `technique=none` when no learned technique qualifies. Learning for tests:
-`/yuanxian cultivation learn <target> myvillage:taxue_wuhen` (checks only
+`/yuanxian cultivation learn <target> yuanxian:taxue_wuhen` (checks only
 that the technique is registered, not realm or affinity), or
 `/yuanxian cultivation manual <target> <id>` to study the manual normally.
 
 ## Client
 
-- Key `ClientCombatKeyMappings.DODGE`: `key.myvillage.dodge` (身法闪避 /
+- Key `ClientCombatKeyMappings.DODGE`: `key.yuanxian.dodge` (身法闪避 /
   Movement Dodge), default `GLFW_KEY_LEFT_ALT`, category
-  `key.categories.myvillage`, rebindable.
+  `key.categories.yuanxian`, rebindable.
 - `ClientCombatEvents.onClientTick` drains its clicks. An intent is sent only
   with a living player, a level, no screen, client mode `CULTIVATION`, no
   meditation session, and at least `INTENT_INTERVAL_TICKS` (4)
@@ -199,7 +199,7 @@ Refining IV with water affinity ≥ 1500 bp for 踏雪无痕) and study numbers.
 ## Capture
 
 `python3 -m tools.combat_capture dodge [--beast ID] [--technique ID] [--out DIR]`
-(defaults `myvillage:demon_wolf`, `myvillage:taxue_wuhen`,
+(defaults `yuanxian:demon_wolf`, `yuanxian:taxue_wuhen`,
 `out/preview/movement_dodge/`): a survival player with no armour and
 `naturalRegeneration` off, Qingfeng sword, cultivation combat mode, the
 technique learned by command, the dodge pressed with xdotool (`Alt_L`; a left

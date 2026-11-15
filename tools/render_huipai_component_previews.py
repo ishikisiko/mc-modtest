@@ -111,7 +111,7 @@ def lattice_window(label: str, x: int, y: int, z: int, width: int, height: int) 
 COMPONENTS: list[dict[str, Any]] = [
     {
         "id": "huipai_gable_cap",
-        "future_block_id": "myvillage:huipai_gable_cap",
+        "future_block_id": "yuanxian:huipai_gable_cap",
         "title": "Huipai Gable Cap",
         "zh_design_name": "徽派马头墙压顶",
         "dimensions": [24, 28, 12],
@@ -132,7 +132,7 @@ COMPONENTS: list[dict[str, Any]] = [
     },
     {
         "id": "dark_tile_ridge",
-        "future_block_id": "myvillage:dark_tile_ridge",
+        "future_block_id": "yuanxian:dark_tile_ridge",
         "title": "Dark Tile Ridge",
         "zh_design_name": "深色瓦脊线",
         "dimensions": [16, 14, 16],
@@ -148,7 +148,7 @@ COMPONENTS: list[dict[str, Any]] = [
     },
     {
         "id": "huipai_gate_frame",
-        "future_block_id": "myvillage:huipai_gate_frame",
+        "future_block_id": "yuanxian:huipai_gate_frame",
         "title": "Huipai Gate Frame",
         "zh_design_name": "徽派门罩门框",
         "dimensions": [40, 38, 16],
@@ -576,8 +576,8 @@ def update_craft_run(run_id: str, out_dir: Path, generated: list[dict[str, str]]
             "owner_facing_goal": item["purpose"],
             "creative_tab": {
                 "visibility": "visible",
-                "tab_id": "myvillage:main",
-                "ordering": "after myvillage:rockery_block when implemented",
+                "tab_id": "yuanxian:main",
+                "ordering": "after yuanxian:rockery_block when implemented",
             },
             "java_registration": {
                 "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",

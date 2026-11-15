@@ -65,7 +65,7 @@ public final class AlchemyPillItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         int quality = PillQuality.get(stack);
-        return Component.empty().append(Component.translatable("item.myvillage.alchemy.quality_name", PillQuality.name(quality),
+        return Component.empty().append(Component.translatable("item.yuanxian.alchemy.quality_name", PillQuality.name(quality),
                 super.getName(stack)).withStyle(style -> style.withColor(QualityDisplay.color(quality))));
     }
 
@@ -76,7 +76,7 @@ public final class AlchemyPillItem extends Item {
         if (!lines.isEmpty()) lines.set(0, lines.getFirst().copy()
                 .withStyle(style -> style.withColor(QualityDisplay.color(quality))));
         if (stack.has(DataComponents.CUSTOM_NAME) || stack.has(DataComponents.ITEM_NAME)) {
-            lines.add(Component.translatable("tooltip.myvillage.alchemy.quality", PillQuality.name(quality))
+            lines.add(Component.translatable("tooltip.yuanxian.alchemy.quality", PillQuality.name(quality))
                     .withStyle(style -> style.withColor(QualityDisplay.color(quality))));
         }
         var rules = AlchemyRules.get();
@@ -90,8 +90,8 @@ public final class AlchemyPillItem extends Item {
                     number(rules.effects().ningshen().durationTicks() / 20.0)};
             default -> {var e=com.example.myvillage.wilderness.ExpeditionRules.get().medicine(effectId);yield e==null?new Object[0]:new Object[]{number(e.strengthForQuality(quality)*100)+"%",number(e.durationTicks(quality)/20.0)};}
         };
-        lines.add(Component.translatable("tooltip.myvillage.alchemy.pill_" + effectId, arguments).withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("tooltip.myvillage.alchemy.shared_interval",
+        lines.add(Component.translatable("tooltip.yuanxian.alchemy.pill_" + effectId, arguments).withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("tooltip.yuanxian.alchemy.shared_interval",
                 number(rules.sharedCooldownTicks() / 20.0)).withStyle(ChatFormatting.DARK_GRAY));
     }
     private static String number(double value) {

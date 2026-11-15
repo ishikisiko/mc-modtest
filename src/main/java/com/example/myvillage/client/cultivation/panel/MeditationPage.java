@@ -38,16 +38,16 @@ public final class MeditationPage extends PanelPage {
     public int init(int x, int y, int width, int height, Consumer<AbstractWidget> widgets) {
         Font font = Minecraft.getInstance().font;
         Component normal = label(
-                "screen.myvillage.cultivation.button.normal",
+                "screen.yuanxian.cultivation.button.normal",
                 ClientCultivationKeyMappings.START_NORMAL_MEDITATION);
         Component spirit = label(
-                "screen.myvillage.cultivation.button.spirit",
+                "screen.yuanxian.cultivation.button.spirit",
                 ClientCultivationKeyMappings.START_SPIRIT_MEDITATION);
         Component advancement = label(
-                "screen.myvillage.cultivation.button.advancement",
+                "screen.yuanxian.cultivation.button.advancement",
                 ClientCultivationKeyMappings.START_ADVANCEMENT);
         Component stop = label(
-                "screen.myvillage.cultivation.button.stop",
+                "screen.yuanxian.cultivation.button.stop",
                 ClientCultivationKeyMappings.STOP_MEDITATION);
         int widest = Math.max(
                 Math.max(font.width(normal), font.width(spirit)),
@@ -75,7 +75,7 @@ public final class MeditationPage extends PanelPage {
 
     private static Component label(String translationKey, KeyMapping key) {
         return Component.translatable(
-                "screen.myvillage.cultivation.button_with_key",
+                "screen.yuanxian.cultivation.button_with_key",
                 Component.translatable(translationKey),
                 key.getTranslatedKeyMessage());
     }
@@ -128,7 +128,7 @@ public final class MeditationPage extends PanelPage {
                 ? Component.literal("雷劫进行中")
                 : context.profile() != null && com.example.myvillage.cultivation.tribulation.TribulationKind.canChoose(context.profile())
                 ? Component.literal("选择引劫 [" + ClientCultivationKeyMappings.START_ADVANCEMENT.getTranslatedKeyMessage().getString() + "]")
-                : label("screen.myvillage.cultivation.button.advancement", ClientCultivationKeyMappings.START_ADVANCEMENT));
+                : label("screen.yuanxian.cultivation.button.advancement", ClientCultivationKeyMappings.START_ADVANCEMENT));
         boolean eligible = context.profile() != null && context.profile().awakened()
                 && context.profile().learnedTechniques().containsKey(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
                 && context.currentStage().flatMap(RealmStageDefinition::cultivationCap).isPresent();
@@ -154,17 +154,17 @@ public final class MeditationPage extends PanelPage {
     }
     static java.util.List<String> gainDetails(PanelContext c) {
         return java.util.List.of(
-                c.text("screen.myvillage.cultivation.normal_rate") + " "
-                        + c.text("screen.myvillage.cultivation.rate_per_ten_ticks", c.profile().spiritualAffinity()),
-                c.text("screen.myvillage.cultivation.spirit_rate") + " "
-                        + c.text("screen.myvillage.cultivation.rate_per_ten_ticks", SPIRIT_PROGRESS_PER_BATCH),
-                c.text("screen.myvillage.cultivation.spirit_cost") + " "
+                c.text("screen.yuanxian.cultivation.normal_rate") + " "
+                        + c.text("screen.yuanxian.cultivation.rate_per_ten_ticks", c.profile().spiritualAffinity()),
+                c.text("screen.yuanxian.cultivation.spirit_rate") + " "
+                        + c.text("screen.yuanxian.cultivation.rate_per_ten_ticks", SPIRIT_PROGRESS_PER_BATCH),
+                c.text("screen.yuanxian.cultivation.spirit_cost") + " "
                         + spiritCostValue(c, c.currentStage(), c.unavailableText()),
-                c.text("screen.myvillage.cultivation.stability_gain") + " "
+                c.text("screen.yuanxian.cultivation.stability_gain") + " "
                         + stabilityGainValue(c, c.currentStage(), c.unavailableText()),
-                c.text("screen.myvillage.cultivation.basic_breathing_mastery") + " "
+                c.text("screen.yuanxian.cultivation.basic_breathing_mastery") + " "
                         + basicBreathingMastery(c.profile(), c.unavailableText()),
-                c.text("screen.myvillage.cultivation.spirit_inventory") + " "
+                c.text("screen.yuanxian.cultivation.spirit_inventory") + " "
                         + spiritStoneInventory(c, c.unavailableText()));
     }
 
@@ -180,12 +180,12 @@ public final class MeditationPage extends PanelPage {
         RealmStageDefinition definition = stage.orElseThrow();
         CultivationProfile profile = context.profile();
         if (profile.cultivationProgress() < definition.cultivationCap().orElseThrow()) {
-            return context.text("screen.myvillage.cultivation.stability_locked");
+            return context.text("screen.yuanxian.cultivation.stability_locked");
         }
         if (profile.stability() >= definition.stabilityCap().orElseThrow()) {
-            return context.text("screen.myvillage.cultivation.stability_capped");
+            return context.text("screen.yuanxian.cultivation.stability_capped");
         }
-        return context.text("screen.myvillage.cultivation.rate_per_ten_ticks", profile.spiritualAffinity());
+        return context.text("screen.yuanxian.cultivation.rate_per_ten_ticks", profile.spiritualAffinity());
     }
 
     static String spiritCostValue(
@@ -198,10 +198,10 @@ public final class MeditationPage extends PanelPage {
         RealmStageDefinition definition = stage.orElseThrow();
         if (definition.cultivationCap().isPresent()
                 && context.profile().cultivationProgress() >= definition.cultivationCap().orElseThrow()) {
-            return context.text("screen.myvillage.cultivation.stability_no_stone_cost");
+            return context.text("screen.yuanxian.cultivation.stability_no_stone_cost");
         }
         return definition.spiritStoneCost()
-                .map(cost -> context.text("screen.myvillage.cultivation.cost_per_ten_ticks", cost))
+                .map(cost -> context.text("screen.yuanxian.cultivation.cost_per_ten_ticks", cost))
                 .orElse(unavailable);
     }
 

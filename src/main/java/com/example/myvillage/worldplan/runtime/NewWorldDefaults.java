@@ -4,7 +4,7 @@ import java.util.Properties;
 
 /** Defaults for new worlds only; explicit choices and saved dimension codecs remain authoritative. */
 public final class NewWorldDefaults {
-    public static final String PRESET = "myvillage:cultivation";
+    public static final String PRESET = "yuanxian:cultivation";
 
     /** Do not mutate the caller's properties or replace an explicit normal/flat/custom choice. */
     public static Properties server(Properties original) {

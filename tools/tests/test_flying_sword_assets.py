@@ -44,8 +44,8 @@ class FlyingSwordAssetsTest(unittest.TestCase):
     def test_upgrade_consumes_existing_basic_sword(self):
         recipes={p.stem:json.loads(data) for p,data in outputs().items() if p.parent.name=='recipe'}
         upgrade=recipes['azure_cloud_flying_sword']
-        self.assertIn({'item':'myvillage:rideable_flying_sword'},upgrade['key'].values())
+        self.assertIn({'item':'yuanxian:rideable_flying_sword'},upgrade['key'].values())
         self.assertEqual(1,upgrade['result']['count'])
-        self.assertNotIn({'item':'myvillage:azure_cloud_flying_sword'},recipes['rideable_flying_sword']['key'].values())
+        self.assertNotIn({'item':'yuanxian:azure_cloud_flying_sword'},recipes['rideable_flying_sword']['key'].values())
 
 if __name__=='__main__':unittest.main()

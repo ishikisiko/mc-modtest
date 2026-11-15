@@ -82,8 +82,8 @@ class GenOpsTests(unittest.TestCase):
                 "+++ b/tools/buildgen/sect.py",
                 "diff --git a/CHANGELOG.md b/CHANGELOG.md",
                 "+++ b/CHANGELOG.md",
-                "diff --git a/src/main/resources/data/myvillage/structure/x.nbt b/src/main/resources/data/myvillage/structure/x.nbt",
-                "+++ b/src/main/resources/data/myvillage/structure/x.nbt",
+                "diff --git a/src/main/resources/data/yuanxian/structure/x.nbt b/src/main/resources/data/yuanxian/structure/x.nbt",
+                "+++ b/src/main/resources/data/yuanxian/structure/x.nbt",
             ]
         )
         result = patch_guard.check_patch_text(task, patch)
@@ -104,7 +104,7 @@ class GenOpsTests(unittest.TestCase):
         )
 
     def test_commander_routes_mod_item_goal(self) -> None:
-        recommendation = commander.recommend("用 CRAFT 创建一个新的 myvillage 物品，包含创造栏、贴图和模型")
+        recommendation = commander.recommend("用 CRAFT 创建一个新的 yuanxian 物品，包含创造栏、贴图和模型")
         self.assertEqual(recommendation["intent"], "mod_item")
         self.assertEqual(recommendation["pipeline"], "genops/pipelines/mod-item.full.yaml")
         self.assertTrue(recommendation["craft_required"])
@@ -435,11 +435,11 @@ class GenOpsTests(unittest.TestCase):
             manifest = self._write_frontdoor_manifest(
                 root,
                 "resource-asset-steward",
-                ["src/main/resources/assets/myvillage/models/item/test.json"],
+                ["src/main/resources/assets/yuanxian/models/item/test.json"],
             )
             protected = check_frontdoor.inspect_paths(
                 root,
-                ["src/main/resources/assets/myvillage/models/item/test.json"],
+                ["src/main/resources/assets/yuanxian/models/item/test.json"],
             )
             self.assertEqual(protected[0].category, "client-resource")
             owners = check_frontdoor.load_ownership(root, manifest)

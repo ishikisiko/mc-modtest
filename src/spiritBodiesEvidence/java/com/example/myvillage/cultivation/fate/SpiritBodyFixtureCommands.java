@@ -20,10 +20,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 /** 真实客户端采集的管理员夹具；不赋予普通客户端资源、伤害或复生权限。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class SpiritBodyFixtureCommands {
     @SubscribeEvent public static void commands(RegisterCommandsEvent event) {
-        var root=Commands.literal("myvillage_spirit_fixture").requires(s->s.hasPermission(2));
+        var root=Commands.literal("yuanxian_spirit_fixture").requires(s->s.hasPermission(2));
         for(String body:List.of("metal_spirit_body","phoenix_body"))root.then(Commands.literal(body)
                 .then(Commands.argument("player",EntityArgument.player()).executes(c->prepare(c.getSource(),EntityArgument.getPlayer(c,"player"),body))));
         root.then(Commands.literal("peek").then(Commands.argument("name",StringArgumentType.word()).executes(c->{
@@ -39,7 +39,7 @@ public final class SpiritBodyFixtureCommands {
                     if(action.equals("fill")){var state=FateService.state(player);CultivationService.replaceFates(player,state.withPhoenix(new PhoenixState(true,SpiritBodyRules.get().phoenix().capacity())),false);player.setHealth(player.getMaxHealth());}
                     else {
                         Zombie enemy=EntityType.ZOMBIE.create(player.serverLevel());enemy.setNoAi(true);enemy.moveTo(player.position().add(2,0,0));player.serverLevel().addFreshEntity(enemy);enemy.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(5);
-                        ((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.invulnerableTime=0;
+                        ((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).yuanxian$setEmberSpawnProtection(0);player.invulnerableTime=0;
                         player.hurt(player.damageSources().mobAttack(enemy),action.equals("lethal")?10000:2);
                     }
                     return reply(c.getSource(),player);
@@ -48,11 +48,11 @@ public final class SpiritBodyFixtureCommands {
     }
     private static int prepare(CommandSourceStack source,ServerPlayer player,String body) {
         if(PhoenixRuntime.active(player))return 0;
-        var profile=CultivationProfile.defaultProfile().withSpiritualRoot(new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:fire"),10000)))
-                .withRealmAndStage(ResourceLocation.parse("myvillage:qi_refining"),ResourceLocation.parse("myvillage:qi_refining_1"))
-                .learnTechnique(ResourceLocation.parse("myvillage:basic_breathing"));
+        var profile=CultivationProfile.defaultProfile().withSpiritualRoot(new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:fire"),10000)))
+                .withRealmAndStage(ResourceLocation.parse("yuanxian:qi_refining"),ResourceLocation.parse("yuanxian:qi_refining_1"))
+                .learnTechnique(ResourceLocation.parse("yuanxian:basic_breathing"));
         var result=CultivationService.replaceProfile(player,profile);if(!result.success())throw new IllegalStateException(result.message());
-        var ids=List.of("myvillage:"+body,"myvillage:bright","myvillage:lightfoot");
+        var ids=List.of("yuanxian:"+body,"yuanxian:bright","yuanxian:lightfoot");
         CultivationService.replaceFates(player,new FateState(1,1,ids,"",ids,true,0,0,0,0),true);StatsRuntime.refreshPlayer(player);
         if(body.equals("phoenix_body"))CultivationService.replaceFates(player,FateService.state(player).withPhoenix(new PhoenixState(true,100)),false);
         player.removeAllEffects();player.setHealth(player.getMaxHealth());SpiritBodyRuntime.sync(player);return reply(source,player);

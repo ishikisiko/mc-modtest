@@ -24,8 +24,8 @@ public record FateAbilityDefinition(ResourceLocation id, ResourceLocation requir
         Objects.requireNonNull(id);
         Objects.requireNonNull(requiredFate);
         if (id.toString().length() > 128 || requiredFate.toString().length() > 128
-                || id.equals(ResourceLocation.parse("myvillage:auto_weapon_art"))
-                || id.equals(ResourceLocation.parse("myvillage:unassigned"))
+                || id.equals(ResourceLocation.parse("yuanxian:auto_weapon_art"))
+                || id.equals(ResourceLocation.parse("yuanxian:unassigned"))
                 || name == null || name.isBlank() || description == null || description.isBlank()
                 || cooldownTicks < 1 || cooldownTicks > 12000
                 || !Double.isFinite(costFraction) || costFraction <= 0 || costFraction > 1
@@ -65,7 +65,7 @@ public record FateAbilityDefinition(ResourceLocation id, ResourceLocation requir
     public static List<FateAbilityDefinition> all() { return List.copyOf(Holder.ALL.values()); }
 
     private static Map<ResourceLocation, FateAbilityDefinition> load() {
-        String path = "/data/myvillage/combat/fate_abilities.json";
+        String path = "/data/yuanxian/combat/fate_abilities.json";
         try (var stream = FateAbilityDefinition.class.getResourceAsStream(path)) {
             if (stream == null) throw new IllegalArgumentException("缺少主动能力配置：" + path);
             return parse(JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());

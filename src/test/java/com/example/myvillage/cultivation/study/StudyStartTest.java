@@ -90,9 +90,9 @@ class StudyStartTest {
 
     @Test
     void refusalKeysAreTheStudyMessageKeys() {
-        assertEquals("message.myvillage.cultivation.study.previous_required",
+        assertEquals("message.yuanxian.cultivation.study.previous_required",
                 StudyMessages.key(StudyStart.Refusal.PREVIOUS_REQUIRED));
-        assertEquals("message.myvillage.cultivation.study.invalid_manual",
+        assertEquals("message.yuanxian.cultivation.study.invalid_manual",
                 StudyMessages.key(StudyStart.Refusal.INVALID_MANUAL));
     }
 

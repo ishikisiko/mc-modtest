@@ -37,7 +37,7 @@ class BossAssignmentTest {
     }
     @Test void ownershipPreventsReassignmentEvenForMalformedOrForeignTags() {
         assertTrue(BossAssignment.mayAssign(new CompoundTag()));
-        for (String key : new String[]{BossAssignment.BIRTH, BossAssignment.REALM, "myvillage:vanilla_monster_birth"}) {
+        for (String key : new String[]{BossAssignment.BIRTH, BossAssignment.REALM, "yuanxian:vanilla_monster_birth"}) {
             var data = new CompoundTag(); data.putString(key, "foreign-or-malformed");
             assertFalse(BossAssignment.mayAssign(data));
         }

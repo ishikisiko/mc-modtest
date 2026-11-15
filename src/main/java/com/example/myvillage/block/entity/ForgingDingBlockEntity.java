@@ -55,7 +55,7 @@ public final class ForgingDingBlockEntity extends BlockEntity {
         for(var stack:items)player.getInventory().placeItemBackInInventory(stack);
         player.getInventory().setChanged();message(player,"taken");
     }
-    private void message(ServerPlayer player,String name){player.displayClientMessage(Component.translatable("workshop.myvillage.world."+name),true);}
+    private void message(ServerPlayer player,String name){player.displayClientMessage(Component.translatable("workshop.yuanxian.world."+name),true);}
     public void dropContents(){
         if(level==null||level.isClientSide())return;
         var actual=job.drain();setChanged();

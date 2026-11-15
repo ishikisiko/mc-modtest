@@ -29,7 +29,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
 
 /** 客户端仅显示服务器快照；形态记录同时核对实体 UUID，避免实体编号复用。 */
-@EventBusSubscriber(modid="myvillage",value=Dist.CLIENT,bus=EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid="yuanxian",value=Dist.CLIENT,bus=EventBusSubscriber.Bus.MOD)
 public final class ClientSpiritBodies {
     private static ClientLevel world;
     private static SpiritBodyStatusPayload status;
@@ -60,7 +60,7 @@ public final class ClientSpiritBodies {
         });
     }
     @SubscribeEvent public static void layers(RegisterGuiLayersEvent event) {
-        event.registerAbove(VanillaGuiLayers.HOTBAR,ResourceLocation.parse("myvillage:spirit_body"),ClientSpiritBodies::render);
+        event.registerAbove(VanillaGuiLayers.HOTBAR,ResourceLocation.parse("yuanxian:spirit_body"),ClientSpiritBodies::render);
     }
     private static void ensureWorld(){if(world!=Minecraft.getInstance().level){clear();world=Minecraft.getInstance().level;}}
     private static void clear(){world=null;status=null;EMBERS.clear();forcedPose=false;}

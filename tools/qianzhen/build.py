@@ -150,8 +150,8 @@ def validate(data, maximum):
         ns, bare = name.split(':', 1)
         if ns == 'minecraft' and bare not in vanilla:
             raise ValueError('unknown vanilla block: ' + name)
-        if ns == 'myvillage':
-            state_path = ROOT / 'src/main/resources/assets/myvillage/blockstates' / (bare+'.json')
+        if ns == 'yuanxian':
+            state_path = ROOT / 'src/main/resources/assets/yuanxian/blockstates' / (bare+'.json')
             if not state_path.exists():
                 raise ValueError('unknown mod block: ' + name)
             states = json.loads(state_path.read_text())
@@ -159,7 +159,7 @@ def validate(data, maximum):
                 permitted = [dict(pair.split('=') for pair in key.split(',')) if key else {} for key in states['variants']]
                 if props not in permitted:
                     raise ValueError('unknown mod blockstate: ' + state)
-            model_path = ROOT / 'src/main/resources/assets/myvillage/models/block' / (bare+'.json')
+            model_path = ROOT / 'src/main/resources/assets/yuanxian/models/block' / (bare+'.json')
             if model_path.exists():
                 model = json.loads(model_path.read_text())
                 if model.get('elements'):
@@ -202,7 +202,7 @@ def render_viewer(data, blocks, models, out):
 def build_one(row, out):
     source = SOURCE / row['source']
     data = json.loads(source.read_text())
-    expected = 'myvillage:qianzhen_' + row['id'] + '_v1'
+    expected = 'yuanxian:qianzhen_' + row['id'] + '_v1'
     if data['id'] != expected:
         raise ValueError(f'expected {expected}')
     blocks, models, checks = validate(data, row['max_size'])
@@ -295,7 +295,7 @@ def main():
     assets = args.out / 'assets'
     assets.mkdir(exist_ok=True)
     for name in ('panel_body.ttf', 'panel-body-notice.txt', 'panel-body-apache-2.0.txt'):
-        shutil.copyfile(ROOT / 'src/main/resources/assets/myvillage/font' / name, assets / name)
+        shutil.copyfile(ROOT / 'src/main/resources/assets/yuanxian/font' / name, assets / name)
     for row in manifest['locations']:
         if args.only and row['id'] != args.only:
             continue

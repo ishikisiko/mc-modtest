@@ -23,7 +23,7 @@ public final class AtlasCityTravelScreen extends Screen {
         this.atlasScreen=atlasScreen; this.city=city; this.region=region; this.fingerprint=fingerprint;
     }
     private static Component tr(String key, Object... args) {
-        return Component.translatable("screen.myvillage.atlas.travel."+key,args);
+        return Component.translatable("screen.yuanxian.atlas.travel."+key,args);
     }
     @Override protected void init() {
         panelWidth=Math.min(360,width-20); panelX=(width-panelWidth)/2; panelY=(height-178)/2;

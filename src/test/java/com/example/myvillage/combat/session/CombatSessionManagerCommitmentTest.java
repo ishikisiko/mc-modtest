@@ -21,6 +21,6 @@ class CombatSessionManagerCommitmentTest {
     void finisherStaysCommittedUntilItsEnd() {
         AttackMoveDefinition lunge = CombatTestData.basicSword().move(4);
         assertEquals(-0.4, CombatSessionManager.commitmentAt(lunge, lunge.totalTicks() - 1));
-        assertEquals("myvillage:combat_commit", CombatSessionManager.COMMIT_MODIFIER_ID.toString());
+        assertEquals("yuanxian:combat_commit", CombatSessionManager.COMMIT_MODIFIER_ID.toString());
     }
 }

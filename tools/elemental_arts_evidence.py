@@ -33,7 +33,7 @@ class ElementalEvidence(LockedEvidence):
         while (self.out/(name+'.png')).exists():
             name=f'{original}-{index}';index+=1
         super().capture(name,game)
-    def learned_text(self):return self.rc(f'data get entity {self.s.username} "neoforge:attachments"."myvillage:cultivation_profile".learned_techniques')
+    def learned_text(self):return self.rc(f'data get entity {self.s.username} "neoforge:attachments"."yuanxian:cultivation_profile".learned_techniques')
     def start(self,reuse=False):
         if os.environ.get('MYVILLAGE_CLOUD_PROVIDER')!='Colab' or not str(ROOT).startswith('/content/'):
             raise RuntimeError('Only run in the requested Colab VM')
@@ -56,10 +56,10 @@ class ElementalEvidence(LockedEvidence):
         self.rc(f'effect give {user} minecraft:instant_health 1 10 true')
     def fixture_loadout(self,ids):
         for ident in self.arts:
-            self.rc(f'yuanxian cultivation {"learn" if ident in ids else "forget"} {self.s.username} myvillage:{ident}')
+            self.rc(f'yuanxian cultivation {"learn" if ident in ids else "forget"} {self.s.username} yuanxian:{ident}')
         for ident in ('jianqi_jue','qinglian_jiange','gengjin_jianjue'):
-            self.rc(f'yuanxian cultivation {"learn" if ident in ids else "forget"} {self.s.username} myvillage:{ident}')
-        self.rc(f'yuanxian cultivation learn {self.s.username} myvillage:liuyun_bu')
+            self.rc(f'yuanxian cultivation {"learn" if ident in ids else "forget"} {self.s.username} yuanxian:{ident}')
+        self.rc(f'yuanxian cultivation learn {self.s.username} yuanxian:liuyun_bu')
         self.learned=list(ids)+['liuyun_bu'];self.bind(ids)
     def bind(self,ids):
         self.step(5);self.rc('tick unfreeze');self.key('h');self.opened=True;time.sleep(.5);b=bounds(self.s.game.size)
@@ -71,7 +71,7 @@ class ElementalEvidence(LockedEvidence):
             self.click(*tile_center(b,ordered.index(ident),18),'选择 '+ident)
             self.click(b['x']+(slot%columns+.5)*b['width']/columns,dock+14+slot//columns*24+11,'选择键位 '+str(slot))
             self.click(b['x']+max(66,b['width']//4)//2,dock+15+rows*24+9,'分配 '+ident)
-            self.poll(self.bindings,lambda s:re.findall(r'myvillage:[a-z0-9_]+',s)[slot:slot+1]==['myvillage:'+ident],label='saved exact binding')
+            self.poll(self.bindings,lambda s:re.findall(r'yuanxian:[a-z0-9_]+',s)[slot:slot+1]==['yuanxian:'+ident],label='saved exact binding')
             self.assigned[ident]=KEYS[slot]
         self.capture('bindings_'+ids[0]);self.s.game.xdo('key','Escape');time.sleep(.25);self.opened=False
         self.s.game.require_ingame('elemental casting');self.freeze()
@@ -84,34 +84,34 @@ class ElementalEvidence(LockedEvidence):
         self.step(2);return '@e[tag='+tag+',limit=1]'
     def cast(self,ident,finish=True,shot=False):
         a=self.arts[ident];self.step(3);mark=self.offset();before=self.power();start=self.now();self.key(self.assigned[ident])
-        self.poll(lambda:self.log(mark),lambda s:f'result=start art=myvillage:{ident}' in s,label='mapped elemental cast accepted')
+        self.poll(lambda:self.log(mark),lambda s:f'result=start art=yuanxian:{ident}' in s,label='mapped elemental cast accepted')
         self.check(ident+'_single_payment',before-self.power()==a['qi_cost'],{'before':before,'after':self.power()})
         if shot:
             self.step(a['windup_ticks']);self.capture(ident+'_impact')
         if finish:
             total=a['windup_ticks']+(a['pulses']-1)*a['pulse_interval_ticks']+1+a['recovery_ticks']
             self.step(max(0,start+total+1-self.now()))
-            self.poll(lambda:self.log(mark),lambda s:f'result=stop art=myvillage:{ident}' in s,label='elemental cast finished')
+            self.poll(lambda:self.log(mark),lambda s:f'result=stop art=yuanxian:{ident}' in s,label='elemental cast finished')
         return mark,start
     def done(self,case):self.report['completed'].append(case);self.report['unrun'].remove(case);self.save()
     def learning(self):
         u=self.s.username
         self.rc('tick unfreeze')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:manual_active_xuan[myvillage:technique="myvillage:baoyan_shu"]')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:manual_active_xuan[yuanxian:technique="yuanxian:baoyan_shu"]')
         time.sleep(.4);self.s.game.xdo('click','3');time.sleep(1)
         self.report['inputs'].append({'method':'mapped manual use without prerequisite','technique':'baoyan_shu'})
-        self.check('missing_prerequisite_not_learned','myvillage:baoyan_shu' not in self.learned_text(),self.learned_text())
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
+        self.check('missing_prerequisite_not_learned','yuanxian:baoyan_shu' not in self.learned_text(),self.learned_text())
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_1')
         for a in self.source['arts']:
             if a['role']!='basic':continue
-            ident=a['id'];self.rc(f'item replace entity {u} hotbar.0 with myvillage:manual_active_huang[myvillage:technique="myvillage:{ident}"]')
+            ident=a['id'];self.rc(f'item replace entity {u} hotbar.0 with yuanxian:manual_active_huang[yuanxian:technique="yuanxian:{ident}"]')
             time.sleep(.4);self.s.game.xdo('click','3');self.report['inputs'].append({'method':'mapped right click zero-progress manual','technique':ident})
-            self.poll(self.learned_text,lambda s:'myvillage:'+ident in s,timeout=90,label='normal manual study '+ident)
+            self.poll(self.learned_text,lambda s:'yuanxian:'+ident in s,timeout=90,label='normal manual study '+ident)
             self.check(ident+'_normal_learning',True,self.learned_text())
         self.freeze();self.rc(f'item replace entity {u} hotbar.0 with minecraft:air')
         for ident in self.arts:
-            reply=self.rc(f'recipe give {u} myvillage:manual_{ident}');self.check(ident+'_recipe_registered','Unknown' not in reply and 'Incorrect' not in reply,reply)
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early')
+            reply=self.rc(f'recipe give {u} yuanxian:manual_{ident}');self.check(ident+'_recipe_registered','Unknown' not in reply and 'Incorrect' not in reply,reply)
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:foundation_establishment yuanxian:foundation_early')
         self.done('learning')
     def five_kits(self):
         u=self.s.username
@@ -142,7 +142,7 @@ class ElementalEvidence(LockedEvidence):
             self.rc(f'damage {u} 10 minecraft:mob_attack by {target}');after=self.hp(u)
             self.check(element+'_ward_reduces',0<after_ward-after<10,{'before':after_ward,'after':after})
             self.step(25);mark,_=self.cast(kit['field'],shot=True);log=self.log(mark)
-            pulses=re.findall(r'ELEMENTAL .*result=pulse art=myvillage:'+kit['field']+r' pulse=(\d+)',log)
+            pulses=re.findall(r'ELEMENTAL .*result=pulse art=yuanxian:'+kit['field']+r' pulse=(\d+)',log)
             self.check(element+'_field_five_pulses',pulses==list(map(str,range(5))),log)
             self.capture(element+'_hotbar');self.rc('kill @e[tag=locked_fixture]');self.rc('kill @e[tag=elemental_extra]')
         self.done('five_kits')
@@ -151,18 +151,18 @@ class ElementalEvidence(LockedEvidence):
         for element in ('metal','wood','water','fire','earth'):
             ident=next(a['id'] for a in self.source['arts'] if a['element']==element and a['role']=='basic')
             self.fixture_loadout([ident]);values=[]
-            for item in ('minecraft:air','myvillage:qingfeng_sword','myvillage:lingxiao_spear','myvillage:xuantie_gauntlet'):
+            for item in ('minecraft:air','yuanxian:qingfeng_sword','yuanxian:lingxiao_spear','yuanxian:xuantie_gauntlet'):
                 self.rc(f'item replace entity {u} hotbar.0 with {item}');self.ready(30);target=self.dummy();before=self.hp(target)
                 self.cast(ident);trace=self.one(f'yuanxian stats trace {target}','STATS_TRACE');values.append(before-self.hp(target))
                 self.check(element+'_typed_'+item,trace['type']==element,trace)
             self.check(element+'_weapon_independent',max(values)-min(values)<.001,values)
             self.rc(f'item replace entity {u} hotbar.0 with minecraft:air');self.ready(30);target=self.dummy()
-            self.rc(f'attribute {target} myvillage:{element}_resistance base set 0.5');before=self.hp(target);self.cast(ident);reduced=before-self.hp(target)
+            self.rc(f'attribute {target} yuanxian:{element}_resistance base set 0.5');before=self.hp(target);self.cast(ident);reduced=before-self.hp(target)
             self.check(element+'_own_resistance',abs(reduced-values[0]*.5)<.02,{'plain':values[0],'resisted':reduced})
-            self.rc(f'attribute {u} myvillage:{element}_resistance_penetration base set 0.25');self.ready(30);target=self.dummy()
-            self.rc(f'attribute {target} myvillage:{element}_resistance base set 0.5');before=self.hp(target);self.cast(ident);pierced=before-self.hp(target)
+            self.rc(f'attribute {u} yuanxian:{element}_resistance_penetration base set 0.25');self.ready(30);target=self.dummy()
+            self.rc(f'attribute {target} yuanxian:{element}_resistance base set 0.5');before=self.hp(target);self.cast(ident);pierced=before-self.hp(target)
             self.check(element+'_own_penetration',abs(pierced-values[0]*.75)<.02,{'plain':values[0],'penetrated':pierced})
-            self.rc(f'attribute {u} myvillage:{element}_resistance_penetration base set 0')
+            self.rc(f'attribute {u} yuanxian:{element}_resistance_penetration base set 0')
         self.rc('kill @e[tag=locked_fixture]');self.done('weapon_and_resistance')
     def refused(self,ident,label):
         mark=self.offset();power=self.power();self.key(self.assigned[ident]);time.sleep(.6)
@@ -170,8 +170,8 @@ class ElementalEvidence(LockedEvidence):
     def refusals(self):
         u=self.s.username;ids=['jinmang_shu','jingang_zhang','pozhen_jinlun','houshi_zhang'];self.fixture_loadout(ids);self.ready(310)
         self.rc(f'yuanxian cultivation qi set {u} 0');self.refused(ids[0],'zero_qi_refused');self.ready(20)
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.refused(ids[2],'low_realm_refused')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early');self.ready(20)
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_1');self.refused(ids[2],'low_realm_refused')
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:foundation_establishment yuanxian:foundation_early');self.ready(20)
         target=self.dummy();self.cast(ids[1]);self.refused(ids[3],'wards_share_cooldown');self.refused(ids[1],'own_cooldown')
         self.ready(220);target=self.dummy();self.rc('fill -5 -60 4 5 -55 4 minecraft:stone');before=self.hp(target)
         self.cast(ids[0]);self.check('wall_blocks_elemental_ray',self.hp(target)==before,self.log());self.rc('fill -5 -60 4 5 -55 4 minecraft:air')
@@ -186,7 +186,7 @@ class ElementalEvidence(LockedEvidence):
         self.check('held_change_cancels',self.hp(target)==before and 'reason=WEAPON_CHANGED' in self.log(mark),self.log(mark));self.refused(ids[2],'switch_does_not_reset_cooldown')
         self.ready(110);self.rc(f'item replace entity {u} hotbar.0 with minecraft:air');before=self.hp(target);mark,_=self.cast(ids[2],finish=False)
         self.key('Alt_L');self.step(30);self.check('dodge_cancels_spell',self.hp(target)==before and 'reason=DODGED' in self.log(mark),self.log(mark))
-        self.ready(220);self.rc(f'yuanxian cultivation forget {u} myvillage:{ids[0]}');self.refused(ids[0],'forgotten_bound_skill_refused')
+        self.ready(220);self.rc(f'yuanxian cultivation forget {u} yuanxian:{ids[0]}');self.refused(ids[0],'forgotten_bound_skill_refused')
         self.rc('kill @e[tag=locked_fixture]');self.done('refusals')
     @contextmanager
     def guest_context(self,guest):
@@ -200,7 +200,7 @@ class ElementalEvidence(LockedEvidence):
         with SecondClient(self) as guest:
             self.guest=guest;self.position(guest.game);self.configure(guest.username)
             self.rc(f'item replace entity {guest.username} hotbar.0 with minecraft:air');self.rc(f'tp {guest.username} .5 -60 9 180 0')
-            self.rc(f'yuanxian cultivation learn {guest.username} myvillage:liuyun_bu')
+            self.rc(f'yuanxian cultivation learn {guest.username} yuanxian:liuyun_bu')
             if scene.parse_combat_mode(self.rc(f'data get entity {guest.username} "neoforge:attachments"'))!='cultivation':self.key('r',guest.game)
             time.sleep(.6);self.freeze();self.ready(25);before=self.hp(guest.username)
             mark,_=self.cast(ids[0]);self.check('guest_takes_typed_spell',self.hp(guest.username)<before,self.log(mark));self.capture('guest_observes_fire',guest.game)
@@ -233,16 +233,16 @@ class ElementalEvidence(LockedEvidence):
         self.check('water_ward_speed_active',self.number(f'attribute {self.s.username} minecraft:generic.movement_speed get')>speed,speed)
         before=self.bindings();learned=self.learned_text();self.rc('tick unfreeze');self.stop();self.attach=False;self.start(reuse=True)
         self.check('transient_ward_speed_not_saved',abs(self.number(f'attribute {self.s.username} minecraft:generic.movement_speed get')-speed)<.0001,speed)
-        self.check('saved_bindings_restart',all('myvillage:'+i in self.bindings() for i in ids),{'before':before,'after':self.bindings()})
-        self.check('saved_learning_restart',all('myvillage:'+i in self.learned_text() for i in ids),{'before':learned,'after':self.learned_text()})
+        self.check('saved_bindings_restart',all('yuanxian:'+i in self.bindings() for i in ids),{'before':before,'after':self.bindings()})
+        self.check('saved_learning_restart',all('yuanxian:'+i in self.learned_text() for i in ids),{'before':learned,'after':self.learned_text()})
         self.rc(f'item replace entity {self.s.username} hotbar.0 with minecraft:air');scene.ensure_cultivation(self.s);self.ready(20)
         target=self.dummy();before=self.hp(target);self.cast(ids[0]);self.check('cast_after_restart',self.hp(target)<before,before);self.rc('kill @e[tag=locked_fixture]');self.done('restart')
     def old_combat(self):
         ids=['qinglian_jiange','gengjin_jianjue'];self.fixture_loadout(ids)
-        self.rc(f'yuanxian cultivation learn {self.s.username} myvillage:jianqi_jue')
-        self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:qingfeng_sword');self.ready(310)
+        self.rc(f'yuanxian cultivation learn {self.s.username} yuanxian:jianqi_jue')
+        self.rc(f'item replace entity {self.s.username} hotbar.0 with yuanxian:qingfeng_sword');self.ready(310)
         target=self.dummy('.5 -60 2.8');before=self.hp(target);mark=self.offset();self.key('z');self.step(70)
-        self.check('original_advanced_art',self.hp(target)<before and 'result=start art=myvillage:qinglian_jiange' in self.log(mark),self.log(mark))
+        self.check('original_advanced_art',self.hp(target)<before and 'result=start art=yuanxian:qinglian_jiange' in self.log(mark),self.log(mark))
         self.ready(30);target=self.dummy();before=self.hp(target);mark=self.offset();self.key('c');self.step(35)
         self.check('original_locked_sword',self.hp(target)<before and 'LOCKED_SWORD' in self.log(mark),self.log(mark))
         self.wave();self.done('old_combat')

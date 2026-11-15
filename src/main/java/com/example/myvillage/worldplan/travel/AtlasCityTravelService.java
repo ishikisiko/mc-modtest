@@ -73,7 +73,7 @@ public final class AtlasCityTravelService {
             rules=AtlasCityTravelRules.parse(JsonParser.parseReader(reader).getAsJsonObject());
             safety=new AtlasCityTravelSafety(rules);
             // Expiration is a bounded fallback even if an unexpected removal failure is logged.
-            ticketType=TicketType.create("myvillage_atlas_city_travel",UUID::compareTo,rules.loadTimeoutTicks());
+            ticketType=TicketType.create("yuanxian_atlas_city_travel",UUID::compareTo,rules.loadTimeoutTicks());
             LOG.info("ATLAS_TRAVEL state=ready enabled={} max_active={} max_chunks={} resource={}",
                     rules.enabled(),rules.maxConcurrentRequests(),rules.maxChunksPerRequest(),AtlasCityTravelRules.RESOURCE);
         } catch (Exception failure) {
@@ -243,6 +243,6 @@ public final class AtlasCityTravelService {
         JOBS.clear(); LIMITER.clear(); rules=null; safety=null; ticketType=null; running=null; clock=0;
     }
     private static void say(ServerPlayer player, String key, Object... args) {
-        player.displayClientMessage(Component.translatable("message.myvillage.atlas.travel."+key,args),false);
+        player.displayClientMessage(Component.translatable("message.yuanxian.atlas.travel."+key,args),false);
     }
 }

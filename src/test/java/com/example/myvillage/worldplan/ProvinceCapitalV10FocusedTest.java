@@ -15,7 +15,7 @@ class ProvinceCapitalV10FocusedTest {
     }
     @Test void v9BytesStayFrozenAndOnlyV10CapitalReferencesChange() throws Exception {
         var old=json(WorldPlanRules.V9_RESOURCE);var current=json(WorldPlanRules.V10_RESOURCE);
-        CapitalGameBundle.requireHash(CapitalGameBundle.readResource("myvillage:worldplan/frozen_v9.json",4*1024*1024),"3c4e6e63fdea47e7f73f16359d0b4a2d8df940e49a0d14a26328f1a9ee6505a3","frozen_v9");
+        CapitalGameBundle.requireHash(CapitalGameBundle.readResource("yuanxian:worldplan/frozen_v9.json",4*1024*1024),"3c4e6e63fdea47e7f73f16359d0b4a2d8df940e49a0d14a26328f1a9ee6505a3","frozen_v9");
         var rules=new WorldPlanRules(current.toString());assertEquals(8,rules.capitals.bundles.size());assertEquals(192,rules.capitals.lifePlaceLimit);
         assertEquals(Set.of("v3"),Set.copyOf(rules.capitals.bundles.stream().map(b->b.resourceVersion).toList()));
         for(var b:rules.capitals.bundles){

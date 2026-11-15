@@ -17,7 +17,7 @@ class SkillBindingRulesTest {
         assertFalse(SkillBindingRules.assignable(observation,Set.of(),null,FateState.empty(),Map.of(),null));
         assertTrue(SkillBindingRules.assignable(observation,Set.of(),null,FateState.empty(),Map.of(),stats.realmKey("qi_refining",0)));
     }
-    private static ResourceLocation id(String s){return ResourceLocation.parse("myvillage:"+s);}
+    private static ResourceLocation id(String s){return ResourceLocation.parse("yuanxian:"+s);}
     private static TechniqueDefinition wave(String skill,String school){
         return new TechniqueDefinition("test",TechniqueCategory.ACTIVE,1,List.of(),TechniqueRequirements.none(),
                 Optional.of(id(school)),Optional.empty(),Optional.of(new TechniqueEffects(Optional.empty(),
@@ -33,11 +33,11 @@ class SkillBindingRulesTest {
     }
     @Test void confirmedFateGrantsActiveBindingWithoutInventingLearnedTechnique() {
         var ability=id("wood_root");
-        var selected=List.of("myvillage:wood_spirit_body","myvillage:robust","myvillage:bright");
+        var selected=List.of("yuanxian:wood_spirit_body","yuanxian:robust","yuanxian:bright");
         var fates=new FateState(1,1,selected,"",selected,true,0,0,0,0);
         var enabled=new FateDefinition("天命名称","天命描述",0,1,"体质",true,Map.of(),Optional.empty(),0,5);
         var disabled=new FateDefinition("天命名称","天命描述",0,1,"体质",false,Map.of(),Optional.empty(),0,5);
-        var definitions=Map.of("myvillage:wood_spirit_body",enabled);
+        var definitions=Map.of("yuanxian:wood_spirit_body",enabled);
         assertEquals(SkillBindingRules.Kind.FATE,SkillBindingRules.kind(ability,null));
         assertTrue(SkillBindingRules.assignable(ability,Set.of(),null,fates,definitions));
         assertFalse(SkillBindingRules.assignable(ability,Set.of(ability),null));
@@ -46,6 +46,6 @@ class SkillBindingRulesTest {
         assertFalse(SkillBindingRules.assignable(id("metal_spirit_body"),Set.of(),null,fates,definitions));
         assertFalse(SkillBindingRules.assignable(ability,Set.of(ability),null,fates,Map.of()));
         assertFalse(SkillBindingRules.assignable(ability,Set.of(ability),null,fates,
-                Map.of("myvillage:wood_spirit_body",disabled)));
+                Map.of("yuanxian:wood_spirit_body",disabled)));
     }
 }

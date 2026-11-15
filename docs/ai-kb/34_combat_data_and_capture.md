@@ -28,7 +28,7 @@ See also:
 |---|---|
 | Move timing, damage, hit shape, step, reaction, sounds, hit-stop, camera cues | `data/<ns>/combat/style/<path>.json` |
 | Which item uses which style, rig, and geometry | `data/<ns>/combat/weapon/<path>.json` |
-| Which styles and weapons exist | `data/myvillage/combat/index.json` |
+| Which styles and weapons exist | `data/yuanxian/combat/index.json` |
 | Third-person poses | one pose table per style in `tools/gen_sword_pal_anims.py`, each generated into its own file (`player_animations/sword_combat.json`, `spear_combat.json`, `fist_combat.json`) |
 | First-person keys, strike window, contact tick, off hand | the rig named by the weapon file |
 | Weapon geometry (grip, off-hand grip, head, trail span) | the geometry contract (format 2) named by the weapon file, written by the model generator its `generator` field names (`tools/gen_qingfeng_sword_model.py`, `tools/gen_lingxiao_spear_model.py`, `tools/gen_xuantie_gauntlet_model.py`) |
@@ -106,7 +106,7 @@ can join `samples`.
 
 `schema`, `item`, `style`, `first_person_rig`, `geometry`, and since 0.39.0 an
 optional `family` (lower_snake_case: `sword`, `spear`, `fist`), which must name
-the `weapon_family` of a school in `data/myvillage/myvillage/school/`
+the `weapon_family` of a school in `data/yuanxian/yuanxian/school/`
 (validator, `COMBAT_WEAPON_FAMILY`); it is the hook a school's techniques will use
 to ask for a weapon of their family without naming an item, and nothing reads it
 at runtime yet (`WeaponDefinition.family`). Two weapons may
@@ -153,7 +153,7 @@ generator, `tools/combat_preview`) the same rule. The Java classes were renamed
 with it: `SwordGeometry` to `WeaponGeometry`, `FirstPersonSwordTransform` to
 `FirstPersonWeaponTransform`, `FirstPersonSwordTrail` to
 `FirstPersonWeaponTrail`, `SwordTrailShape` to `WeaponTrailShape`. Tool file
-names, sound events (`myvillage:combat.sword.*`), item, style, move, and
+names, sound events (`yuanxian:combat.sword.*`), item, style, move, and
 animation ids, and validator finding codes keep their names.
 
 ## Runtime
@@ -207,7 +207,7 @@ animation ids, and validator finding codes keep their names.
 - Server start logs
   `Combat data loaded: <n> style(s) [...], <m> weapon(s) [...]`.
 
-Smoke probes (`/myvillage_pal_smoke`): `move <n>`, `first_person <n> <tick>`,
+Smoke probes (`/yuanxian_pal_smoke`): `move <n>`, `first_person <n> <tick>`,
 and `third_person <n> <tick>` resolve `<n>` (one-based) against the style of the
 main-hand weapon. With no registered weapon they log
 `PAL_SMOKE <probe> rejected reason=no_weapon` and change nothing. Since
@@ -327,7 +327,7 @@ the headless host. It uses the Python standard library plus `Xvfb`, `xdotool`,
 | `check`, `ticks` | Host programs and the weapon's data (held length, default views, rig); the moves and key ticks. |
 | `reload` | Copies changed combat client resources into `build/resources/main`, presses F3+T, waits for the rig-loaded log line. |
 | `compare A B --label L` | Pairs two capture sets by weapon, move, key, and view. |
-| `dodge [--beast ID] [--technique ID] [--out DIR]` | Player movement dodge (0.40.0) against a beast (default `myvillage:demon_wolf`, technique `myvillage:taxue_wuhen`) at `/tick rate 5`: bite and pounce without a dodge, with back steps at several move ticks and one left dodge; a cooldown pair; a press at action tick 3 and in the recovery of a sword swing. Health, distance, `DODGE_DEBUG` and the beast's hit lines per trial, one F5-back video per move, into `out/preview/movement_dodge/` (see [Movement Dodge](42_movement_dodge.md)). |
+| `dodge [--beast ID] [--technique ID] [--out DIR]` | Player movement dodge (0.40.0) against a beast (default `yuanxian:demon_wolf`, technique `yuanxian:taxue_wuhen`) at `/tick rate 5`: bite and pounce without a dodge, with back steps at several move ticks and one left dodge; a cooldown pair; a press at action tick 3 and in the recovery of a sword swing. Health, distance, `DODGE_DEBUG` and the beast's hit lines per trial, one F5-back video per move, into `out/preview/movement_dodge/` (see [Movement Dodge](42_movement_dodge.md)). |
 
 Facts that matter when using it:
 
@@ -343,7 +343,7 @@ Facts that matter when using it:
   two free ports from 25610 upward; the checkout's own `server.properties` is
   restored at stop.
 - Stills use the client freeze probes
-  `/myvillage_pal_smoke first_person <n> <tick>` and
+  `/yuanxian_pal_smoke first_person <n> <tick>` and
   `third_person <n> <tick>`, where `<n>` is one-based within the style of the
   weapon in the main hand. A refused probe stops the wait at once with the
   logged reason. Each still is kept once the frame holds still: two grabs

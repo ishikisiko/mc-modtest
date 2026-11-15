@@ -20,7 +20,7 @@ import java.util.List;
 public final class DemonLurePearlItem extends Item {
     public DemonLurePearlItem(Properties p){super(p.stacksTo(DemonTrialRules.get().stackSize()));}
     private InteractionResult reject(ServerPlayer player,String key,Object... args){
-        player.displayClientMessage(Component.translatable("message.myvillage.demon_trial."+key,args),true);
+        player.displayClientMessage(Component.translatable("message.yuanxian.demon_trial."+key,args),true);
         return InteractionResult.FAIL;
     }
     @Override public InteractionResult useOn(UseOnContext context){
@@ -63,12 +63,12 @@ public final class DemonLurePearlItem extends Item {
         player.getCooldowns().addCooldown(this,config.cooldownTicks());
         level.sendParticles(ParticleTypes.SOUL,core.getX()+.5,core.getY()+.8,core.getZ()+.5,24,.5,.5,.5,0);
         level.playSound(null,core,SoundEvents.RESPAWN_ANCHOR_CHARGE,SoundSource.BLOCKS,.7F,.7F);
-        player.displayClientMessage(Component.translatable("message.myvillage.demon_trial.start"),true);
+        player.displayClientMessage(Component.translatable("message.yuanxian.demon_trial.start"),true);
         return InteractionResult.CONSUME;
     }
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){
         var r=DemonTrialRules.get();
-        lines.add(Component.translatable("tooltip.myvillage.demon_lure_pearl",r.radius()*2+1,r.height()).withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("tooltip.myvillage.demon_lure_pearl.reward").withStyle(ChatFormatting.DARK_PURPLE));
+        lines.add(Component.translatable("tooltip.yuanxian.demon_lure_pearl",r.radius()*2+1,r.height()).withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("tooltip.yuanxian.demon_lure_pearl.reward").withStyle(ChatFormatting.DARK_PURPLE));
     }
 }

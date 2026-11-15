@@ -13,7 +13,7 @@ class RoadPortsTest(unittest.TestCase):
 
     def test_guardrail_models_cover_half_support_and_full_step_couplers(self):
         generated=assets();stem=ROOT/'src/main/resources';ident='road_stone_guardrail'
-        state=json.loads(generated[stem/f'assets/myvillage/blockstates/{ident}.json'])
+        state=json.loads(generated[stem/f'assets/yuanxian/blockstates/{ident}.json'])
         self.assertEqual(len(state['variants']),512)
         for mask in range(256):
             for lowered in [False,True]:
@@ -21,10 +21,10 @@ class RoadPortsTest(unittest.TestCase):
                 model=json.loads(generated[stem/('assets/'+variant.replace(':','/models/',1)+'.json')])
                 self.assertEqual(min(e['from'][1] for e in model['elements']),-8 if lowered else 0)
                 self.assertTrue(all(0<=e['from'][0]<e['to'][0]<=16 and 0<=e['from'][2]<e['to'][2]<=16 for e in model['elements']))
-        model=json.loads(generated[stem/f'assets/myvillage/models/block/{ident}_17.json'])
+        model=json.loads(generated[stem/f'assets/yuanxian/models/block/{ident}_17.json'])
         self.assertEqual(max(e['to'][1] for e in model['elements']),24)
-        loot=json.loads(generated[stem/f'data/myvillage/loot_table/blocks/{ident}.json'])
-        self.assertEqual(loot['pools'][0]['entries'][0]['name'],'myvillage:'+ident)
+        loot=json.loads(generated[stem/f'data/yuanxian/loot_table/blocks/{ident}.json'])
+        self.assertEqual(loot['pools'][0]['entries'][0]['name'],'yuanxian:'+ident)
 
     def test_guardrail_authored_rules_are_embedded_in_runtime_configuration(self):
         self.assertEqual(json.loads(generate())['guardrail'],json.loads((ROOT/'config/roads/guardrail.json').read_text()))
@@ -47,11 +47,11 @@ class RoadPortsTest(unittest.TestCase):
         config=json.loads((ROOT/'config/roads/prototype.json').read_text())
         for spec in config['style']['slabs']:
             stem=ROOT/'src/main/resources'
-            model=json.loads(generated[stem/f"assets/myvillage/models/block/{spec['id']}.json"])
+            model=json.loads(generated[stem/f"assets/yuanxian/models/block/{spec['id']}.json"])
             self.assertEqual(set(model['textures'].values()),{spec['texture']})
-            state=json.loads(generated[stem/f"assets/myvillage/blockstates/{spec['id']}.json"])
+            state=json.loads(generated[stem/f"assets/yuanxian/blockstates/{spec['id']}.json"])
             self.assertEqual(set(state['variants']),{'type=bottom','type=top','type=double'})
-            loot=json.loads(generated[stem/f"data/myvillage/loot_table/blocks/{spec['id']}.json"])
+            loot=json.loads(generated[stem/f"data/yuanxian/loot_table/blocks/{spec['id']}.json"])
             count=loot['pools'][0]['entries'][0]['functions'][0]
             self.assertEqual(count['count'],2)
             self.assertEqual(count['conditions'][0]['properties'],{'type':'double'})

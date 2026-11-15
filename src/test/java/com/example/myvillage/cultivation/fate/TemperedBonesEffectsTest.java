@@ -103,7 +103,7 @@ class TemperedBonesEffectsTest {
     }
 
     @Test void definitionOwnsAllThresholdDamageAndPulseTuning() throws Exception {
-        try (var stream = getClass().getResourceAsStream("/data/myvillage/myvillage/innate_fate/tempered_bones.json")) {
+        try (var stream = getClass().getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/tempered_bones.json")) {
             assertNotNull(stream);
             var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,
                     JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8))).getOrThrow();

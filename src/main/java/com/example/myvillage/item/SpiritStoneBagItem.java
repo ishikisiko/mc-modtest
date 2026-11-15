@@ -39,7 +39,7 @@ public final class SpiritStoneBagItem extends Item {
             int amount = entry.quantity().min(java.math.BigInteger.valueOf(entry.item().getMaxStackSize())).intValueExact();
             ItemStack taken = entry.item().copyWithCount(amount);
             if (SpiritStoneStorage.insertLoose(copies, taken, taken.getCount(), 36) != 0) {
-                player.displayClientMessage(Component.translatable("message.myvillage.spirit_stone_bag.full"), true); return;
+                player.displayClientMessage(Component.translatable("message.yuanxian.spirit_stone_bag.full"), true); return;
             }
             var left = entry.quantity().subtract(java.math.BigInteger.valueOf(amount));
             if (left.signum() == 0) inside.remove(i); else inside.set(i, new SpiritStoneLedger.Entry(entry.item(), left));
@@ -59,18 +59,18 @@ public final class SpiritStoneBagItem extends Item {
         return true;
     }
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
-        lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.balance",
+        lines.add(Component.translatable("tooltip.yuanxian.spirit_stone_bag.balance",
                 SpiritStoneStorage.count(stack, SpiritStoneTags::isLowGrade).toString()).withStyle(ChatFormatting.AQUA));
         for (var tier : SpiritStoneDenominations.get().tiers().subList(1, SpiritStoneDenominations.get().tiers().size())) {
-            lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.grade",
+            lines.add(Component.translatable("tooltip.yuanxian.spirit_stone_bag.grade",
                     net.minecraft.core.registries.BuiltInRegistries.ITEM.get(tier.item()).getDescription(),
                     SpiritStoneStorage.count(stack, item -> item.is(tier.tag())).toString()).withStyle(ChatFormatting.LIGHT_PURPLE));
         }
-        lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.exchange").withStyle(ChatFormatting.GOLD));
-        lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.capacity").withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag." + (SpiritStoneStorage.autoCollect(stack) ? "on" : "off"))
+        lines.add(Component.translatable("tooltip.yuanxian.spirit_stone_bag.exchange").withStyle(ChatFormatting.GOLD));
+        lines.add(Component.translatable("tooltip.yuanxian.spirit_stone_bag.capacity").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("tooltip.yuanxian.spirit_stone_bag." + (SpiritStoneStorage.autoCollect(stack) ? "on" : "off"))
                 .withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.use").withStyle(ChatFormatting.DARK_GREEN));
-        lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.withdraw").withStyle(ChatFormatting.DARK_GREEN));
+        lines.add(Component.translatable("tooltip.yuanxian.spirit_stone_bag.use").withStyle(ChatFormatting.DARK_GREEN));
+        lines.add(Component.translatable("tooltip.yuanxian.spirit_stone_bag.withdraw").withStyle(ChatFormatting.DARK_GREEN));
     }
 }

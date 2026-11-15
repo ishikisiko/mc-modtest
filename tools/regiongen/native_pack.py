@@ -118,7 +118,7 @@ def export(plan_path,out,reuse_tiles=None):
     else:
         tiles=export_tiles(volume,signs,out,32)
         # Existing tile exporter owns serialization; isolate this sample's namespace path.
-        old=out/'datapack/data/myvillage/structure/yunshan_d1_v2';new=old.with_name('river_valley_sample');old.rename(new)
+        old=out/'datapack/data/yuanxian/structure/yunshan_d1_v2';new=old.with_name('river_valley_sample');old.rename(new)
         for tile in tiles:tile['id']=tile['id'].replace('yunshan_d1_v2','river_valley_sample')
     (out/'datapack/pack.mcmeta').write_text(json.dumps({'pack':{'pack_format':48,'description':'河谷聚落固定样板'}}))
     (out/'plan.json').write_bytes(plan_path.read_bytes())

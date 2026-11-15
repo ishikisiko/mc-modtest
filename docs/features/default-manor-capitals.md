@@ -13,7 +13,7 @@
 - 默认导出：`tools/province_capitals/blueprint_plan/runtime.py`；布局组通过 `tools/buildgen/groups.py` 注册。
 - 聚合：`tools/province_capitals/game/compile_v11.py`，七府使用上述导出，中州继续经现有 `environment_v4` 导出。
 - 打包入口：Gradle 的 `generateProvinceCapitalV11Assets`；显式等待原府邸生成/检查，避免从不完整的注册构件切片构造城市。
-- 最终输出：`data/myvillage/capitals/v4/capital_<region>/city.json`、top-solid 地形和 `structure/province_capitals/v4` 稀疏切片。
+- 最终输出：`data/yuanxian/capitals/v4/capital_<region>/city.json`、top-solid 地形和 `structure/province_capitals/v4` 稀疏切片。
 
 地形先由默认生成器按 heightfield 逐列构造，NBT 仅覆盖当前区块的实际建筑、水、道路、支墩和空气。完整床、晒架和魔契柱先做组件检查，再按所属区块写入；不通过跨区块模板或命令在邻块补建。独立试放包仍保留其分批放置机制，两种入口使用同一个实际构造源。
 

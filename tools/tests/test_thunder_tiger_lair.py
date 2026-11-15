@@ -19,12 +19,12 @@ class ThunderTigerLairTest(unittest.TestCase):
         self.assertEqual(10, gzip.decompress(blob)[0])
         self.assertFalse(self.entities, 'A template must not embed untracked boss copies')
         self.assertEqual({tuple(self.rules['anchor']): {
-            'id': 'myvillage:thunder_tiger_lair_anchor', 'LairState': 'READY'}}, self.bes)
+            'id': 'yuanxian:thunder_tiger_lair_anchor', 'LairState': 'READY'}}, self.bes)
         self.assertFalse(any('chest' in b or 'barrel' in b for b in self.blocks.values()))
         self.assertNotIn('rewards', self.rules)
         structure = json.loads(files[gen.DATA / f'worldgen/structure/{gen.IDENTITY}.json'])
         pool = json.loads(files[gen.DATA / f'worldgen/template_pool/{gen.IDENTITY}.json'])
-        self.assertEqual('myvillage:thunder_tiger_lair', structure['start_pool'])
+        self.assertEqual('yuanxian:thunder_tiger_lair', structure['start_pool'])
         self.assertEqual(-self.rules['surface_y'], structure['start_height']['absolute'])
         self.assertEqual('ignore_waterlogging', pool['elements'][0]['element']['override_liquid_settings'])
         for rel in [f'worldgen/structure_set/{gen.IDENTITY}.json', f'tags/worldgen/biome/has_{gen.IDENTITY}.json']:

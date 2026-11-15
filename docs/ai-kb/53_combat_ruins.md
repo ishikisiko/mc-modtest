@@ -8,7 +8,7 @@ Both are native Overworld jigsaw structures, found in newly generated chunks via
 
 ## Ownership and resources
 
-`data/myvillage/ruins/{duange_ruin,fuyao_ruin}.json` owns enemy definitions, realms, spawn and
+`data/yuanxian/ruins/{duange_ruin,fuyao_ruin}.json` owns enemy definitions, realms, spawn and
 trigger positions, stage delays, radii, rewards, geometry anchors, palettes and worldgen.
 `tools/gen_combat_ruins.py` owns both templates, structure/pool/set/biome tags, the cache models
 and bilingual text. Native pool placement explicitly ignores inherited waterlogging, so

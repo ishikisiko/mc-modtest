@@ -27,13 +27,13 @@ class InfusionWorldEvidence(PhysicalForgingEvidence):
   if self.inspect()['open']:self.close_menu()
   current=self.ding()
   assert not current.get('occupied',False),current
-  self.rc('setblock '+POS+' myvillage:forging_table[facing=north]')
+  self.rc('setblock '+POS+' yuanxian:forging_table[facing=north]')
   self.rc(f'gamemode survival {self.username}');self.rc(f'clear {self.username}')
   self.rc(f'yuanxian cultivation awaken {self.username}');self.rc(f'yuanxian cultivation crafting set {self.username} forging 0')
-  self.give('myvillage:'+rid+'[minecraft:custom_name=\'{"text":"留名旧器"}\',minecraft:damage=3,myvillage:temper={experience:14,edge:0,endurance:1,channeling:0,treatment:2}]')
+  self.give('yuanxian:'+rid+'[minecraft:custom_name=\'{"text":"留名旧器"}\',minecraft:damage=3,yuanxian:temper={experience:14,edge:0,endurance:1,channeling:0,treatment:2}]')
   if materials:
-   self.give('myvillage:xuantie_ingot',4);self.give('myvillage:low_grade_spirit_stone',8)
-  self.open();self.insert('myvillage:'+rid)
+   self.give('yuanxian:xuantie_ingot',4);self.give('yuanxian:low_grade_spirit_stone',8)
+  self.open();self.insert('yuanxian:'+rid)
   self.click(182,82 if rid=='qingfeng_sword' else 58)
   return self.inspect()['input']
  def begin(self):
@@ -45,7 +45,7 @@ class InfusionWorldEvidence(PhysicalForgingEvidence):
   return data
  def take(self,rid):
   self.aim();self.right();data=self.poll(self.ding,lambda d:not d['occupied'],label='owner right-click takes finished equipment')
-  self.check('one_finished_'+rid+'_returned',self.count('myvillage:'+rid)==1,data)
+  self.check('one_finished_'+rid+'_returned',self.count('yuanxian:'+rid)==1,data)
  def drops(self):
   reply=self.rc('execute as @e[type=minecraft:item] run data get entity @s Item')
   return [read_data(line) for line in reply.splitlines() if 'entity data:' in line]
@@ -55,7 +55,7 @@ class InfusionWorldEvidence(PhysicalForgingEvidence):
   for rid in ['qingfeng_sword','xuantie_chestplate']:
    original=self.setup(rid)
    self.start_video(rid+'-world-infusion-normal-speed');data=self.begin()
-   self.check('begin_reserves_exact_material_cost',self.count('myvillage:xuantie_ingot')==3 and self.count('myvillage:low_grade_spirit_stone')==6 and data['input']==original and data['output']['count']==0,data)
+   self.check('begin_reserves_exact_material_cost',self.count('yuanxian:xuantie_ingot')==3 and self.count('yuanxian:low_grade_spirit_stone')==6 and data['input']==original and data['output']['count']==0,data)
    for frame in range(3):time.sleep(.38);self.capture(rid+'-phase-'+str(frame))
    finished=self.poll(self.ding,lambda d:not d['running'] and d['output']['count']==1,10,'world job finishes at normal tick rate')
    self.capture(rid+'-finished');self.stop_video()
@@ -71,7 +71,7 @@ class InfusionWorldEvidence(PhysicalForgingEvidence):
    self.rc(f'gamemode creative {self.username}');self.aim();self.hold([],.12,mouse=1)
    self.poll(self.ding,lambda d:not d['present'],label='mapped attack breaks unfinished ding')
    drops=self.drops();expected=[raw['Input'],*raw['Reserved']]
-   actual=[r for r in drops if r['id']!='myvillage:forging_table']
+   actual=[r for r in drops if r['id']!='yuanxian:forging_table']
    self.check('unfinished_break_refunds_exact_escrow_not_frozen_result',sorted(actual,key=lambda r:r['id'])==sorted(expected,key=lambda r:r['id']),{'actual':actual,'expected':expected})
   finally:self.rc('tick unfreeze')
   self.rc('kill @e[type=minecraft:item]')
@@ -81,7 +81,7 @@ class InfusionWorldEvidence(PhysicalForgingEvidence):
   self.check('finished_ding_survives_restart_exactly_once',read_data(self.rc('data get block '+POS+' Infusion'))==saved and self.inventory()==inventory,self.ding())
   self.take('forged_pickaxe')
  def two_players(self):
-  self.rc('setblock '+POS+' myvillage:forging_table[facing=north]')
+  self.rc('setblock '+POS+' yuanxian:forging_table[facing=north]')
   with SecondClient(self,timeout=360) as guest:
    self.guest=guest;self.attach_window(guest.game);u=guest.username
    self.poll(lambda:status_json(self.rc('yuanxian qianzhen realm_status '+u),'QIANZHEN_REALM_STATUS '),lambda d:not d['building'] and not d['waiting'],150,'guest opening ready')
@@ -91,13 +91,13 @@ class InfusionWorldEvidence(PhysicalForgingEvidence):
    self.setup('qingfeng_sword');self.rc('tick freeze')
    try:
     pending=self.begin();self.right(guest.game)
-    self.check('observer_cannot_open_or_take_running_job',self.ding()==pending and not self.inspect(u)['open'] and self.count('myvillage:qingfeng_sword',u)==0,self.ding())
+    self.check('observer_cannot_open_or_take_running_job',self.ding()==pending and not self.inspect(u)['open'] and self.count('yuanxian:qingfeng_sword',u)==0,self.ding())
    finally:self.rc('tick unfreeze')
    self.rc(f'tp {u} 2.5 -60 .5 33.69 3');time.sleep(.35);self.capture('observer-sees-world-infusion',guest.game)
    finished=self.poll(self.ding,lambda d:d['output']['count']==1,label='shared display completes')
    self.aim(guest.game,u);self.right(guest.game)
-   self.check('non_operator_observer_cannot_steal_finished_item',self.ding()==finished and self.count('myvillage:qingfeng_sword',u)==0,self.ding())
-   self.take('qingfeng_sword');self.check('owner_pickup_clears_shared_display_once',not self.ding()['occupied'] and self.count('myvillage:qingfeng_sword')==1 and self.count('myvillage:qingfeng_sword',u)==0,self.ding())
+   self.check('non_operator_observer_cannot_steal_finished_item',self.ding()==finished and self.count('yuanxian:qingfeng_sword',u)==0,self.ding())
+   self.take('qingfeng_sword');self.check('owner_pickup_clears_shared_display_once',not self.ding()['occupied'] and self.count('yuanxian:qingfeng_sword')==1 and self.count('yuanxian:qingfeng_sword',u)==0,self.ding())
    self.capture('observer-sees-empty-ding-after-pickup',guest.game)
   self.guest=None;self.report['multiplayer']='two_native_clients_observed_and_owner_only_pickup';self.save()
 

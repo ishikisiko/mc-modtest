@@ -25,8 +25,8 @@ else:
 
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = Path("src/main/java/com/example/myvillage")
-REALMS = Path("src/main/resources/data/myvillage/myvillage/realm")
-LANG = Path("src/main/resources/assets/myvillage/lang")
+REALMS = Path("src/main/resources/data/yuanxian/yuanxian/realm")
+LANG = Path("src/main/resources/assets/yuanxian/lang")
 
 
 
@@ -428,23 +428,23 @@ class CultivationGainValidator:
                 self.error(screen_path, message)
         if screen is not None and (
             "meditationQiReserve" in screen
-            or "screen.myvillage.cultivation.reserve" in screen
+            or "screen.yuanxian.cultivation.reserve" in screen
         ):
             self.error(screen_path, "H screen must not present the inert legacy meditation reserve")
         if screen is not None and not re.search(r"cap|unsupported|unavailable", screen, re.IGNORECASE):
             self.error(screen_path, "H screen must distinguish current cap and unsupported stages")
 
         required_keys = (
-            "screen.myvillage.cultivation.spiritual_affinity",
-            "screen.myvillage.cultivation.normal_rate",
-            "screen.myvillage.cultivation.spirit_rate",
-            "screen.myvillage.cultivation.spirit_cost",
-            "screen.myvillage.cultivation.rate_per_ten_ticks",
-            "screen.myvillage.cultivation.cost_per_ten_ticks",
-            "screen.myvillage.cultivation.stability_gain",
-            "screen.myvillage.cultivation.stability_locked",
-            "screen.myvillage.cultivation.stability_capped",
-            "screen.myvillage.cultivation.stability_no_stone_cost",
+            "screen.yuanxian.cultivation.spiritual_affinity",
+            "screen.yuanxian.cultivation.normal_rate",
+            "screen.yuanxian.cultivation.spirit_rate",
+            "screen.yuanxian.cultivation.spirit_cost",
+            "screen.yuanxian.cultivation.rate_per_ten_ticks",
+            "screen.yuanxian.cultivation.cost_per_ten_ticks",
+            "screen.yuanxian.cultivation.stability_gain",
+            "screen.yuanxian.cultivation.stability_locked",
+            "screen.yuanxian.cultivation.stability_capped",
+            "screen.yuanxian.cultivation.stability_no_stone_cost",
         )
         for locale in ("en_us", "zh_cn"):
             path = self.root / LANG / f"{locale}.json"

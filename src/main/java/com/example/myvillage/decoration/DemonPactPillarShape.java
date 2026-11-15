@@ -36,7 +36,7 @@ final class DemonPactPillarShape {
         return new BlockPos(x,p.getY(),z);
     }
     private static DemonPactPillarShape load() {
-        String resource="/data/myvillage/decoration/demon_pact_pillar.json";
+        String resource="/data/yuanxian/decoration/demon_pact_pillar.json";
         try(var stream=DemonPactPillarShape.class.getResourceAsStream(resource)) {
             if(stream==null)throw new IllegalStateException("Missing "+resource);
             var data=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();

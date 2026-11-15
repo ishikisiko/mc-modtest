@@ -12,13 +12,13 @@ final class OrchardItems {
         @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag) {
             super.appendHoverText(stack,context,lines,flag);
             String hint=getBlock() instanceof NingyuanSaplingBlock?"sapling":getBlock() instanceof NingyuanFruitBlock?"fruit_cluster":null;
-            if(hint!=null) lines.add(Component.translatable("tooltip.myvillage.ningyuan_"+hint).withStyle(ChatFormatting.GRAY));
+            if(hint!=null) lines.add(Component.translatable("tooltip.yuanxian.ningyuan_"+hint).withStyle(ChatFormatting.GRAY));
         }
     }
     static final class FertilizerItem extends Item {
         FertilizerItem(Properties properties) { super(properties); }
         @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag) {
-            lines.add(Component.translatable("tooltip.myvillage.ningyuan_fertilizer").withStyle(ChatFormatting.GRAY));
+            lines.add(Component.translatable("tooltip.yuanxian.ningyuan_fertilizer").withStyle(ChatFormatting.GRAY));
         }
     }
     private OrchardItems() { }

@@ -33,12 +33,12 @@ public final class QuestState {
         public UUID instance;public Place outside,inside;public String result="ACTIVE";
         public int rescues,stones,reputation;public boolean participated,pendingReward,claiming,claimed;
     }
-    public static String dimension(UUID id){return "myvillage:expedition/"+id;}
+    public static String dimension(UUID id){return "yuanxian:expedition/"+id;}
     public static Optional<UUID> identity(String key){
-        if(!key.startsWith("myvillage:expedition/"))return Optional.empty();
-        try{return Optional.of(UUID.fromString(key.substring("myvillage:expedition/".length())));}catch(IllegalArgumentException ignored){return Optional.empty();}
+        if(!key.startsWith("yuanxian:expedition/"))return Optional.empty();
+        try{return Optional.of(UUID.fromString(key.substring("yuanxian:expedition/".length())));}catch(IllegalArgumentException ignored){return Optional.empty();}
     }
-    public static boolean reserved(String key){return key.equals("myvillage:expedition_template")||key.startsWith("myvillage:expedition/");}
+    public static boolean reserved(String key){return key.equals("yuanxian:expedition_template")||key.startsWith("yuanxian:expedition/");}
     public Instance issue(UUID leader,String map,String site,String sourceName,String region,long seed,WildernessRules.RealmRange range,QuestMap definition,String hash){
         var existing=members.get(leader);
         if(existing!=null&&(existing.pendingReward||existing.claiming||instances.containsKey(existing.instance)&&existing.result.equals("ACTIVE")))throw new IllegalArgumentException("你还有未结束的远征或待领报酬。");

@@ -31,7 +31,7 @@ def texture(name):
 
 
 def outputs(root=ROOT, names=MINERALS):
-    directory = root / "src/main/resources/assets/myvillage/textures/block"
+    directory = root / "src/main/resources/assets/yuanxian/textures/block"
     return {directory / f"{name}.png": png(texture(name)) for name in names}
 
 

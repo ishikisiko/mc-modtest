@@ -30,15 +30,15 @@ def definition(name):
 
 
 def server_data(name):
-    return json.loads((RESOURCES / f"data/myvillage/beast/{name}.json").read_text(encoding="utf-8"))
+    return json.loads((RESOURCES / f"data/yuanxian/beast/{name}.json").read_text(encoding="utf-8"))
 
 
 def paths(name):
     return {
-        "model": RESOURCES / f"assets/myvillage/beast/{name}_model.json",
-        "animations": RESOURCES / f"assets/myvillage/beast/{name}_animations.json",
-        "texture": RESOURCES / f"assets/myvillage/textures/entity/{name}/{name}.png",
-        "glow": RESOURCES / f"assets/myvillage/textures/entity/{name}/{name}_eyes.png",
+        "model": RESOURCES / f"assets/yuanxian/beast/{name}_model.json",
+        "animations": RESOURCES / f"assets/yuanxian/beast/{name}_animations.json",
+        "texture": RESOURCES / f"assets/yuanxian/textures/entity/{name}/{name}.png",
+        "glow": RESOURCES / f"assets/yuanxian/textures/entity/{name}/{name}_eyes.png",
     }
 
 

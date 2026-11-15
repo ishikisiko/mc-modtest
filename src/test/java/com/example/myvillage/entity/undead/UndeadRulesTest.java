@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
 final class UndeadRulesTest {
-    private static JsonObject source() throws IOException { return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/wilderness/undead.json"))).getAsJsonObject(); }
+    private static JsonObject source() throws IOException { return JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/wilderness/undead.json"))).getAsJsonObject(); }
     private static UndeadRules load(JsonObject json) { return UndeadRules.parse(new StringReader(json.toString())); }
     @Test void exactCoverageAndRegionalEligibility() throws Exception {
         var rules=load(source());assertEquals(18,rules.variants().size());

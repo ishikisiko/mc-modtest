@@ -32,7 +32,7 @@ public final class ClientMeditationMotion {
     public static void clear(){ENTRIES.clear();level=null;}
     public static MeditationMotion definition(){return motion;}
     public static void reload(net.minecraft.server.packs.resources.ResourceManager manager) {
-        try(var stream=manager.getResourceOrThrow(ResourceLocation.parse("myvillage:cultivation/meditation_motion.json")).open();
+        try(var stream=manager.getResourceOrThrow(ResourceLocation.parse("yuanxian:cultivation/meditation_motion.json")).open();
                 var reader=new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8)) {
             motion=MeditationMotion.parse(reader);MeditationSurface.clear();
         } catch(java.io.IOException e){throw new IllegalStateException("修炼动作加载失败",e);}

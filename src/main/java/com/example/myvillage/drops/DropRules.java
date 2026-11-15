@@ -101,7 +101,7 @@ public final class DropRules {
                 lo=decimal(l,"min_per_level",q+".looting",0,64);hi=decimal(l,"max_per_level",q+".looting",lo,64);limit=integer(l,"limit",q+".looting",1,64);
             }
             String factory=e.has("factory")?string(e,"factory",q):"plain";
-            if(!Set.of("plain","beast_fire").contains(factory)||factory.equals("beast_fire")&&!item.equals("myvillage:beast_fire_seed"))throw bad(q+".factory","工厂应为plain；beast_fire仅用于兽火");
+            if(!Set.of("plain","beast_fire").contains(factory)||factory.equals("beast_fire")&&!item.equals("yuanxian:beast_fire_seed"))throw bad(q+".factory","工厂应为plain；beast_fire仅用于兽火");
             out.add(new Entry(item,min,max,chance,lo,hi,limit,factory));
         }
         return List.copyOf(out);

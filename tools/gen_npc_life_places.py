@@ -19,7 +19,7 @@ from json_to_nbt import expand_structure, parse_block_state
 from yunshan.build_functional import rotated_pos
 
 AUTHORED = ROOT / 'blueprints/npc_life/layouts.json'
-OUTPUT = ROOT / 'src/main/resources/data/myvillage/npc_life/places.json'
+OUTPUT = ROOT / 'src/main/resources/data/yuanxian/npc_life/places.json'
 KINDS = frozenset(('rest', 'work', 'gather', 'market', 'social', 'entry', 'cultivate'))
 ID = re.compile(r'[a-z0-9_]+')
 

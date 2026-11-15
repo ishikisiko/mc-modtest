@@ -63,7 +63,7 @@ def _player_formulas(evidence, username):
     def visit(value):
         if isinstance(value, dict):
             for key, child in value.items():
-                if key == 'myvillage:learned_formulas':
+                if key == 'yuanxian:learned_formulas':
                     if not isinstance(child, list) or not all(isinstance(v, str) for v in child):
                         raise ValueError('Malformed saved player formula knowledge')
                     found.extend(child)

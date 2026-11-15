@@ -144,14 +144,14 @@ def run_dragon(e):
     e.rc(f"gamemode creative {u}")
     e.rc(f"yuanxian cultivation awaken {u}")
     e.rc(f"yuanxian cultivation initiate {u}")
-    e.rc(f"yuanxian cultivation setrealm {u} myvillage:golden_core myvillage:golden_early")
-    e.rc(f"yuanxian cultivation learn {u} myvillage:jianqi_jue")
+    e.rc(f"yuanxian cultivation setrealm {u} yuanxian:golden_core yuanxian:golden_early")
+    e.rc(f"yuanxian cultivation learn {u} yuanxian:jianqi_jue")
     rc(f"kill @e[tag={TAG}]")
     rc("forceload add 384 368 416 416")
     # A narrow player floor lies below all dragon hurt boxes, so no block obscures the strike.
     rc("fill 397 97 378 403 97 393 minecraft:obsidian")
     rc(f"tp {u} 400.5 98.0 381.0 0 0")
-    e.rc(f"item replace entity {u} hotbar.0 with myvillage:qingfeng_sword")
+    e.rc(f"item replace entity {u} hotbar.0 with yuanxian:qingfeng_sword")
     g.key("1")
     scene.ensure_cultivation(e.s)
 
@@ -208,7 +208,7 @@ def run_dragon(e):
         e.check("dragon_native_sitting_arrow_rejected_on_observed_contact",
                 phase() == 5 and arrow_before == arrow_after and burning["burning"], arrow)
         shot("sitting-arrow-rejection")
-        e.rc(f"item replace entity {u} hotbar.0 with myvillage:qingfeng_sword")
+        e.rc(f"item replace entity {u} hotbar.0 with yuanxian:qingfeng_sword")
         g.key("1")
         place(381.0)
         fresh_dragon("sitting-sword-qi")

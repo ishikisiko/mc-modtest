@@ -308,7 +308,7 @@ class DemoEvidence:
             self.poll(lambda: self.rc('execute if loaded 64 -61 64 run time query gametime'),
                       lambda r: 'The time is' in r, label='fixture chunks loaded')
             self.rc('fill -32 -61 -32 64 -61 64 minecraft:stone')
-            self.rc('setblock ' + DESK + ' myvillage:talisman_desk')
+            self.rc('setblock ' + DESK + ' yuanxian:talisman_desk')
             self.configure()
         self.save()
 
@@ -321,7 +321,7 @@ class DemoEvidence:
         for command in (f'op {u}', f'gamemode survival {u}', f'execute in minecraft:overworld run tp {u} .5 -60 .5 0 0', f'clear {u}',
             f'effect clear {u}', f'effect give {u} minecraft:saturation infinite 255 true',
             f'yuanxian cultivation awaken {u}', f'yuanxian cultivation initiate {u}',
-            f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early',
+            f'yuanxian cultivation setrealm {u} yuanxian:foundation_establishment yuanxian:foundation_early',
             f'yuanxian cultivation qi fill {u}', f'effect give {u} minecraft:instant_health 1 10 true'):
             self.rc(command)
         self.poll(lambda: self.pos(u), lambda p: abs(p[0] - .5) < .05 and abs(p[1] + 60) < .05, label='fixture player settled')
@@ -344,7 +344,7 @@ class DemoEvidence:
         u = self.s.username
         self.rc(f'tp {u} 12.5 -60 .5 0 0')
         self.rc('fill 4 -60 50 20 -42 50 minecraft:stone')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:azure_cloud_flying_sword')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:azure_cloud_flying_sword')
         self.key('1')
         before = self.profile()
         hp = self.hp()
@@ -380,7 +380,7 @@ class DemoEvidence:
         self.right()
         landing = self.poll(self.flight_status, lambda s: s['landing'] or not s['active'], label='mapped recall lands')
         ended = self.poll(self.flight_status, lambda s: not s['active'], 35, 'flight landed and recalled')
-        self.check('flight_returns_exactly_one_sword', self.count('myvillage:azure_cloud_flying_sword') == 1 and not ended['escrow'], self.inventory())
+        self.check('flight_returns_exactly_one_sword', self.count('yuanxian:azure_cloud_flying_sword') == 1 and not ended['escrow'], self.inventory())
         self.check('flight_no_touchdown_damage', self.hp() == hp, {'before': hp, 'after': self.hp(), 'landing': landing})
         self.rc('fill 4 -60 50 20 -42 50 minecraft:air')
         self.rc(f'tp {u} 12.5 -60 .5 0 0')
@@ -388,7 +388,7 @@ class DemoEvidence:
         # The returned stack is in an arbitrary inventory slot. Select it through a fixture,
         # then perform the second launch and controls through mapped input again.
         self.rc(f'clear {u}')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:rideable_flying_sword')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:rideable_flying_sword')
         self.key('1')
         self.right()
         self.poll(self.flight_status, lambda s: s['active'], label='basic sword mounted')
@@ -399,7 +399,7 @@ class DemoEvidence:
                    and falling['velocity'][1] < 0 and falling['qi'] == 0, falling)
         self.capture('flight-empty-descent')
         ended = self.poll(self.flight_status, lambda s: not s['active'], 35, 'empty-qi sword landed')
-        self.check('empty_descent_returns_item_once', self.count('myvillage:rideable_flying_sword') == 1 and not ended['escrow'], self.inventory())
+        self.check('empty_descent_returns_item_once', self.count('yuanxian:rideable_flying_sword') == 1 and not ended['escrow'], self.inventory())
         self.check('empty_descent_no_fall_damage', self.hp() == hp, self.hp())
         self.stop_video()
 
@@ -424,8 +424,8 @@ class DemoEvidence:
         self.configure()
         u = self.s.username
         self.rc(f'yuanxian cultivation crafting set {u} talisman 90')
-        self.rc(f'give {u} myvillage:talisman_paper 4')
-        self.rc(f'give {u} myvillage:spiritual_ink 4')
+        self.rc(f'give {u} yuanxian:talisman_paper 4')
+        self.rc(f'give {u} yuanxian:spiritual_ink 4')
         self.open_desk()
         self.start_video('drawing')
         self.menu_click(78, 222, shift=True)
@@ -447,7 +447,7 @@ class DemoEvidence:
         self.open_desk()
         self.draw_hold(12)
         made = self.talisman_status()
-        self.check('drawing_frozen_quality_survives_reopen', not made['batch'] and made['inventory'][2]['item'] == 'myvillage:talisman_ward'
+        self.check('drawing_frozen_quality_survives_reopen', not made['batch'] and made['inventory'][2]['item'] == 'yuanxian:talisman_ward'
                    and made['inventory'][2]['count'] == 1 and made['inventory'][2]['quality'] == 4, made)
         self.check('drawing_costs_material_once', [s['count'] for s in made['inventory'][:2]] == [3, 3], made)
         self.capture('drawing-completed')
@@ -456,7 +456,7 @@ class DemoEvidence:
         self.check('drawing_full_output_no_extra_cost', blocked['inventory'] == made['inventory'] and not blocked['batch'], blocked)
         self.menu_click(270, 42, shift=True)
         self.close_menu()
-        self.check('drawing_product_received', self.count('myvillage:talisman_ward') == 1, self.inventory())
+        self.check('drawing_product_received', self.count('yuanxian:talisman_ward') == 1, self.inventory())
         self.rc(f'yuanxian cultivation crafting set {u} talisman 90')
         for index, ident in [(0, 'talisman_lightning'), (1, 'talisman_snare')]:
             self.rc(f'yuanxian cultivation qi fill {u}')
@@ -464,7 +464,7 @@ class DemoEvidence:
             self.menu_click(52, 40 + index * 24)
             self.draw_hold(12)
             result = self.talisman_status()
-            self.check('drawing_' + ident, result['inventory'][2]['item'] == 'myvillage:' + ident
+            self.check('drawing_' + ident, result['inventory'][2]['item'] == 'yuanxian:' + ident
                        and result['inventory'][2]['count'] == 1 and result['inventory'][2]['quality'] == 4, result)
             self.menu_click(270, 42, shift=True)
             self.close_menu()
@@ -493,31 +493,31 @@ class DemoEvidence:
     def talismans(self):
         self.configure()
         u = self.s.username
-        rules = json.loads((ROOT / 'src/main/resources/data/myvillage/talisman/rules.json').read_text())
+        rules = json.loads((ROOT / 'src/main/resources/data/yuanxian/talisman/rules.json').read_text())
         self.rc(f'tp {u} 12.5 -60 .5 0 24')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:talisman_ward[myvillage:talisman_quality=4] 3')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:talisman_ward[yuanxian:talisman_quality=4] 3')
         self.key('1')
         self.start_video('talismans')
         self.right()
         ward = self.poll(self.foundation, lambda s: s['shield'] > 0, label='mapped ward shield')
-        self.check('ward_uses_one_and_quality', self.count('myvillage:talisman_ward') == 2
+        self.check('ward_uses_one_and_quality', self.count('yuanxian:talisman_ward') == 2
                    and ward['shield'] == rules['ward']['shield'][3], ward)
         time.sleep(1)
         self.right()
         replaced = self.foundation()
-        self.check('ward_same_source_replaces', replaced['shield'] == ward['shield'] and self.count('myvillage:talisman_ward') == 1, replaced)
+        self.check('ward_same_source_replaces', replaced['shield'] == ward['shield'] and self.count('yuanxian:talisman_ward') == 1, replaced)
         self.capture('talisman-ward')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:talisman_lightning[myvillage:talisman_quality=4] 2')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:talisman_lightning[yuanxian:talisman_quality=4] 2')
         self.rc('summon minecraft:husk 12.5 -60 4 {NoAI:1b,Silent:1b,PersistenceRequired:1b,Health:1000f,Tags:["demo_lightning"],attributes:[{id:"minecraft:generic.max_health",base:1000d}]}')
         target = '@e[tag=demo_lightning,limit=1]'
         hp = self.hp(target)
         time.sleep(1)
         self.right()
         self.poll(lambda: self.hp(target), lambda h: h < hp, label='mapped talisman lightning damages')
-        self.check('lightning_single_consumption', self.count('myvillage:talisman_lightning') == 1, self.inventory())
+        self.check('lightning_single_consumption', self.count('yuanxian:talisman_lightning') == 1, self.inventory())
         self.capture('talisman-lightning')
         self.rc('kill @e[tag=demo_lightning]')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:talisman_snare[myvillage:talisman_quality=4] 2')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:talisman_snare[yuanxian:talisman_quality=4] 2')
         time.sleep(1)
         self.right()
         placed = self.poll(self.talisman_status, lambda s: s['activeSeals'] == 1, label='ground snare armed')
@@ -527,7 +527,7 @@ class DemoEvidence:
         triggered = self.poll(lambda: self.foundation('@e[tag=demo_snare,limit=1]'), lambda s: s.get('rooted') is True,
                               label='ground snare applies shared root')
         self.check('snare_single_trigger', self.talisman_status()['activeSeals'] == 0
-                   and self.count('myvillage:talisman_snare') == 1, triggered)
+                   and self.count('yuanxian:talisman_snare') == 1, triggered)
         self.capture('talisman-snare-triggered')
         self.rc('kill @e[tag=demo_snare]')
         self.stop_video()
@@ -540,18 +540,18 @@ class DemoEvidence:
         u = self.s.username
         self.rc(f'yuanxian foundation clear {u}')
         self.rc(f'tp {u} 32.5 -60 20.5 0 0')
-        realm = json.loads((ROOT / 'src/main/resources/data/myvillage/myvillage/realm/foundation_establishment.json').read_text())
-        stage = next(s for s in realm['stages'] if s['id'] == 'myvillage:foundation_late')
-        self.rc(f'yuanxian cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_late')
+        realm = json.loads((ROOT / 'src/main/resources/data/yuanxian/yuanxian/realm/foundation_establishment.json').read_text())
+        stage = next(s for s in realm['stages'] if s['id'] == 'yuanxian:foundation_late')
+        self.rc(f'yuanxian cultivation setrealm {u} yuanxian:foundation_establishment yuanxian:foundation_late')
         self.rc(f'yuanxian cultivation setprogress {u} ' + str(stage['cultivation_cap']))
         self.rc(f'yuanxian cultivation setstability {u} ' + str(stage['advancement']['required_stability']))
         self.rc(f'yuanxian cultivation qi fill {u}')
         self.rc(f'effect give {u} minecraft:instant_health 1 10 true')
         for slot, item in [('head', 'helmet'), ('chest', 'chestplate'), ('legs', 'leggings'), ('feet', 'boots')]:
             self.rc(f'item replace entity {u} armor.{slot} with ' + ('minecraft:diamond_' + item if protected else 'minecraft:air'))
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:talisman_ward[myvillage:talisman_quality=4] 8')
-        self.rc(f'item replace entity {u} hotbar.1 with myvillage:pill_yangyuan 4')
-        self.rc(f'item replace entity {u} hotbar.2 with myvillage:azure_cloud_flying_sword')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:talisman_ward[yuanxian:talisman_quality=4] 8')
+        self.rc(f'item replace entity {u} hotbar.1 with yuanxian:pill_yangyuan 4')
+        self.rc(f'item replace entity {u} hotbar.2 with yuanxian:azure_cloud_flying_sword')
         self.key('1')
         time.sleep(.5)
         self.poll(lambda: self.pos(), lambda p: abs(p[1] + 60) < .05, label='tribulation ground fixture')
@@ -583,7 +583,7 @@ class DemoEvidence:
         self.key('3')
         self.right()
         self.check('tribulation_blocks_flying_sword', not self.flight_status()['active']
-                   and self.count('myvillage:azure_cloud_flying_sword') == 1, self.flight_status())
+                   and self.count('yuanxian:azure_cloud_flying_sword') == 1, self.flight_status())
         self.key('1')
         active = self.poll(self.tribulation_status, lambda s: s['phase'] == 'ACTIVE', 12, 'tribulation begins')
         startpos = self.pos()
@@ -592,7 +592,7 @@ class DemoEvidence:
         self.check('tribulation_allows_real_movement', math.dist(startpos, moved) > .5
                    and self.tribulation_status()['attempt_id'] == active['attempt_id'], [startpos, moved, active])
         self.hold(['a'], .7)
-        rules = json.loads((ROOT / 'src/main/resources/data/myvillage/tribulation/golden_core.json').read_text())
+        rules = json.loads((ROOT / 'src/main/resources/data/yuanxian/tribulation/golden_core.json').read_text())
         main_ticks = [s['tick'] for s in rules['strikes'] if s['main']]
         protected, captured, observed, last_heal = set(), set(), [], 0
         until = time.monotonic() + rules['duration_ticks'] / 20 + 45
@@ -621,8 +621,8 @@ class DemoEvidence:
         self.check('tribulation_six_main_strikes_complete', ended['phase'] == 'SUCCEEDED'
                    and ended['main_completed'] == 6 and ended['attempt_id'] == started['attempt_id'], ended)
         after = self.profile()
-        self.check('tribulation_advances_once_to_golden', after['realm'] == 'myvillage:golden_core'
-                   and after['stage'] == 'myvillage:golden_early' and after['progress'] == 0
+        self.check('tribulation_advances_once_to_golden', after['realm'] == 'yuanxian:golden_core'
+                   and after['stage'] == 'yuanxian:golden_early' and after['progress'] == 0
                    and after['stability'] == before['stability'] // 2, {'before': before, 'after': after, 'observations': observed})
         self.capture('tribulation-completed')
         time.sleep(1)
@@ -644,7 +644,7 @@ class DemoEvidence:
         started = self.poll(self.tribulation_status, lambda s: s['phase'] == 'PREPARING', label='administrator summon uses real attempt')
         ended = self.poll(self.tribulation_status, lambda s: s['phase'] in ('FAILED', 'RECOVERING'), 30, 'nonlethal trial failure')
         after = self.profile()
-        rules = json.loads((ROOT / 'src/main/resources/data/myvillage/tribulation/golden_core.json').read_text())
+        rules = json.loads((ROOT / 'src/main/resources/data/yuanxian/tribulation/golden_core.json').read_text())
         self.check('tribulation_failure_keeps_alive_and_stage', self.hp() > 0 and after['stage'] == before['stage']
                    and after['progress'] == before['progress'] and ended['attempt_id'] == started['attempt_id'], ended)
         expected = max(0, before['stability'] - rules['failure_stability_loss'])
@@ -659,10 +659,10 @@ class DemoEvidence:
         u = self.s.username
         # A new owned desk keeps this case independent of the earlier drawing case.
         self.rc('setblock ' + DESK + ' minecraft:air')
-        self.rc('setblock ' + DESK + ' myvillage:talisman_desk')
+        self.rc('setblock ' + DESK + ' yuanxian:talisman_desk')
         self.rc(f'yuanxian cultivation crafting set {u} talisman 90')
-        self.rc(f'give {u} myvillage:talisman_paper')
-        self.rc(f'give {u} myvillage:spiritual_ink')
+        self.rc(f'give {u} yuanxian:talisman_paper')
+        self.rc(f'give {u} yuanxian:spiritual_ink')
         self.open_desk()
         self.menu_click(78, 222, shift=True)
         self.menu_click(96, 222, shift=True)
@@ -697,7 +697,7 @@ class DemoEvidence:
         self.close_menu()
         self.configure()
         self.rc(f'tp {u} 12.5 -60 .5 0 0')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:azure_cloud_flying_sword')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:azure_cloud_flying_sword')
         self.key('1')
         self.right()
         self.poll(self.flight_status, lambda s: s['active'], label='flight before restart')
@@ -708,7 +708,7 @@ class DemoEvidence:
         self.stop()
         self.start(reuse=True)
         self.poll(self.flight_status, lambda s: not s['active'], 35, 'rejoined emergency landing completes')
-        self.check('restart_flight_item_returned_once', self.count('myvillage:azure_cloud_flying_sword') == 1
+        self.check('restart_flight_item_returned_once', self.count('yuanxian:azure_cloud_flying_sword') == 1
                    and not self.flight_status()['escrow'], self.inventory())
         self.check('restart_flight_has_no_fall_damage', self.hp() == health, {'before': health, 'after': self.hp()})
         self.capture('flight-after-restart')
@@ -717,9 +717,9 @@ class DemoEvidence:
         self.configure()
         u = self.s.username
         self.rc('setblock ' + DESK + ' minecraft:air')
-        self.rc('setblock ' + DESK + ' myvillage:talisman_desk')
-        self.rc(f'give {u} myvillage:talisman_paper')
-        self.rc(f'give {u} myvillage:spiritual_ink')
+        self.rc('setblock ' + DESK + ' yuanxian:talisman_desk')
+        self.rc(f'give {u} yuanxian:talisman_paper')
+        self.rc(f'give {u} yuanxian:spiritual_ink')
         with SecondClient(self, timeout=360) as guest:
             self.guest = guest
             self.attach_window(guest.game)
@@ -736,7 +736,7 @@ class DemoEvidence:
             self.capture('two-player-desk-owner')
             self.close_menu()
             self.rc(f'tp {u} 12.5 -60 .5 0 0')
-            self.rc(f'item replace entity {u} hotbar.0 with myvillage:azure_cloud_flying_sword')
+            self.rc(f'item replace entity {u} hotbar.0 with yuanxian:azure_cloud_flying_sword')
             self.key('1')
             self.right()
             self.poll(self.flight_status, lambda s: s['active'], label='owner mounts with guest present')

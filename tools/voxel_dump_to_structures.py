@@ -341,7 +341,7 @@ def convert(
     stem.parent.mkdir(parents=True, exist_ok=True)
     if blueprint_id is None:
         path = re.sub(r"[^a-z0-9_./-]+", "_", stem.name.lower())
-        blueprint_id = f"myvillage:{path}"
+        blueprint_id = f"yuanxian:{path}"
     meta = {
         "source": str(dump),
         "world_min": list(structure.world_min),
@@ -380,7 +380,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--include-natural", action="store_true",
                         help="keep minecraft:grass_block and minecraft:dirt (dropped by default)")
     parser.add_argument("--id", dest="blueprint_id", default=None,
-                        help="blueprint id (default myvillage:<stem name>)")
+                        help="blueprint id (default yuanxian:<stem name>)")
     parser.add_argument("--data-version", type=int, default=DEFAULT_DATA_VERSION,
                         help=f"DataVersion for .nbt and .schem (default {DEFAULT_DATA_VERSION}, MC "
                              f"{json_to_nbt.SUPPORTED_MC_VERSION})")

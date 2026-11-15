@@ -20,7 +20,7 @@ class AmplificationEvidence(LockedEvidence):
     def __init__(self,out,cases,attach=False):
         super().__init__(out,cases,attach)
         self.weapons=json.loads((ROOT/'tools/advanced_arts/arts.json').read_text())['arts']
-        self.moves={m['id']:m for p in (ROOT/'src/main/resources/data/myvillage/combat/style').glob('*.json') for m in json.loads(p.read_text())['moves']}
+        self.moves={m['id']:m for p in (ROOT/'src/main/resources/data/yuanxian/combat/style').glob('*.json') for m in json.loads(p.read_text())['moves']}
         self.report.update(kind='weapon_art_amplification',videos=[],method=__doc__,
                            learning='administrator learned fixtures; unchanged learning not rerun',owner_audio='not_verified')
     def start(self):
@@ -39,7 +39,7 @@ class AmplificationEvidence(LockedEvidence):
         if self.cases==['visual_showcase']:self.rc('tick rate 200')
         super().ready()
         if self.cases==['visual_showcase']:self.rc('tick rate 20')
-        self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:{weapon}');self.step(12)
+        self.rc(f'item replace entity {self.s.username} hotbar.0 with yuanxian:{weapon}');self.step(12)
     def spawn(self,tag,x,z,y=-60):
         self.rc(f'summon minecraft:husk {x} {y} {z} '+
                 '{NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Tags:["amplification_fixture","'+tag+'"],attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.armor",base:0d},{id:"minecraft:generic.knockback_resistance",base:1d}]}')
@@ -103,7 +103,7 @@ class AmplificationEvidence(LockedEvidence):
         after=[self.hp(t) for t in targets];loss=[a-b for a,b in zip(before,after)]
         self.check('taibai_primary_and_secondary',loss[0]>0 and loss[1]>0,{'loss':loss,'log':log})
         scale=self.arts['taibai_jianjing']['lock']['splash_multiplier']
-        self.check('taibai_primary_once_secondary_scale',abs(loss[1]-loss[0]*scale)<.01 and log.count('result=strike art=myvillage:taibai_jianjing')==2,{'loss':loss,'scale':scale,'log':log})
+        self.check('taibai_primary_once_secondary_scale',abs(loss[1]-loss[0]*scale)<.01 and log.count('result=strike art=yuanxian:taibai_jianjing')==2,{'loss':loss,'scale':scale,'log':log})
         self.check('taibai_outside_wall_ally_untouched',loss[2:]==[0,0,0],{'loss':loss})
         self.clean()
     def army_capacity(self):
@@ -122,11 +122,11 @@ class AmplificationEvidence(LockedEvidence):
             self.clean();self.ready();inside=self.spawn('wave_inside',.5,near);outside=self.spawn('wave_outside',.5,far)
             before=[self.hp(inside),self.hp(outside)];mark=self.offset()
             self.s.game.xdo('mousedown','3')
-            self.poll(lambda:self.log(mark),lambda s:'result=charging skill=myvillage:jianqi_jue' in s,label='wave charging')
+            self.poll(lambda:self.log(mark),lambda s:'result=charging skill=yuanxian:jianqi_jue' in s,label='wave charging')
             if charge:self.step(20)
             self.s.game.xdo('mouseup','3')
             self.report['inputs'].append({'method':'mapped right mouse press/release','charge':charge,'server_charge_ticks':20 if charge else 0})
-            log=self.poll(lambda:self.log(mark),lambda s:'result=released skill=myvillage:jianqi_jue' in s,label='wave release')
+            log=self.poll(lambda:self.log(mark),lambda s:'result=released skill=yuanxian:jianqi_jue' in s,label='wave release')
             self.check('wave_charge_'+str(charge),'charge='+str(charge)+' ' in log,log)
             self.step(60);after=[self.hp(inside),self.hp(outside)]
             self.check('wave_extended_range_and_boundary_'+str(charge),after[0]<before[0] and after[1]==before[1],{'before':before,'after':after,'log':self.log(mark)})
@@ -162,14 +162,14 @@ class AmplificationEvidence(LockedEvidence):
             with (self.out/(ident+'-ffmpeg.log')).open('w') as log:
                 rec=subprocess.Popen(ffmpeg_record_argv(guest.game.display,file,seconds,fps=20,size=(960,540)),stdout=log,stderr=subprocess.STDOUT)
                 time.sleep(.5);self.rc('tick rate 20');self.rc('tick unfreeze');mark=self.offset();self.key(KEYS[ident]);rec.wait(timeout=seconds+25);self.freeze()
-            self.check(ident+'_normal_time_video',rec.returncode==0 and file.stat().st_size>10000 and 'result=start art=myvillage:'+ident in self.log(mark),{'file':file.name,'bytes':file.stat().st_size,'log':self.log(mark)})
+            self.check(ident+'_normal_time_video',rec.returncode==0 and file.stat().st_size>10000 and 'result=start art=yuanxian:'+ident in self.log(mark),{'file':file.name,'bytes':file.stat().st_size,'log':self.log(mark)})
             self.report['videos'].append({'file':file.name,'seconds':seconds,'server_tick_rate':20,'input':'mapped key','view':'second native client'});self.save();self.clean()
         self.key('F1',guest.game)
     def two_players_and_visuals(self):
         self.clean();self.rc('tick unfreeze')
         with SecondClient(self) as guest:
             self.guest=guest;self.position(guest.game);self.configure(guest.username)
-            self.rc(f'yuanxian cultivation learn {guest.username} myvillage:liuyun_bu')
+            self.rc(f'yuanxian cultivation learn {guest.username} yuanxian:liuyun_bu')
             self.rc(f'tp {guest.username} 5 -60 12 180 0')
             if scene.parse_combat_mode(self.rc(f'data get entity {guest.username} "neoforge:attachments"'))!='cultivation':self.key('r',guest.game)
             time.sleep(.5);self.freeze()

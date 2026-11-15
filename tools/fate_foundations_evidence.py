@@ -22,7 +22,7 @@ sys.path.insert(0, str(ROOT))
 
 CASES = ('selection_binding', 'wood_root', 'lifesteal', 'foundations', 'lifecycle', 'two_players')
 FIRST_PASS = CASES[:4]
-ABILITY = 'myvillage:wood_root'
+ABILITY = 'yuanxian:wood_root'
 FATE = 'wood_spirit_body'
 
 
@@ -274,10 +274,10 @@ class FoundationEvidence(ElementalEvidence):
         self.report.update(initial_report(selected))
         self.report['source_commit'] = json.loads((ROOT / 'source-manifest.json').read_text())['commit'] if (ROOT / 'source-manifest.json').exists() else 'unknown'
         self.report['jar_sha256'] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT / 'build/libs').glob('*.jar')}
-        self.definitions = {'myvillage:' + p.stem: json.loads(p.read_text()) for p in (ROOT / 'src/main/resources/data/myvillage/myvillage/innate_fate').glob('*.json')}
-        self.ability_config = json.loads((ROOT / 'src/main/resources/data/myvillage/combat/fate_abilities.json').read_text())
-        self.field_config = json.loads((ROOT / 'src/main/resources/data/myvillage/combat/foundation/fields.json').read_text())
-        self.healing_config = json.loads((ROOT / 'src/main/resources/data/myvillage/combat/foundation/healing.json').read_text())
+        self.definitions = {'yuanxian:' + p.stem: json.loads(p.read_text()) for p in (ROOT / 'src/main/resources/data/yuanxian/yuanxian/innate_fate').glob('*.json')}
+        self.ability_config = json.loads((ROOT / 'src/main/resources/data/yuanxian/combat/fate_abilities.json').read_text())
+        self.field_config = json.loads((ROOT / 'src/main/resources/data/yuanxian/combat/foundation/fields.json').read_text())
+        self.healing_config = json.loads((ROOT / 'src/main/resources/data/yuanxian/combat/foundation/healing.json').read_text())
         self.report['configuration'] = {'abilities': self.ability_config, 'fields': self.field_config, 'healing': self.healing_config}
         self.case = None
         self.pvp_enabled = True
@@ -420,7 +420,7 @@ class FoundationEvidence(ElementalEvidence):
     def bind_wood(self):
         # 每例清空已学功法 fixture，木体成为唯一可绑定条目，不猜测其他模块排序。
         for ident in self.defs:
-            self.rc(f'yuanxian cultivation forget {self.s.username} myvillage:{ident}')
+            self.rc(f'yuanxian cultivation forget {self.s.username} yuanxian:{ident}')
         self.step(5)
         b = self.skills_page()
         self.click(*tile_center(b, 0, 18), '选择木体缠根')
@@ -429,7 +429,7 @@ class FoundationEvidence(ElementalEvidence):
         dock = b['y']+b['height']-(15+rows*24+22)
         self.click(b['x']+.5*b['width']/columns, dock+25, '选择 Z 槽')
         self.click(b['x']+max(66, b['width']//4)//2, dock+15+rows*24+9, '分配木体缠根')
-        self.poll(self.bindings, lambda s: re.findall(r'myvillage:[a-z0-9_]+', s)[:1] == [ABILITY], label='H 真实点击绑定 wood_root')
+        self.poll(self.bindings, lambda s: re.findall(r'yuanxian:[a-z0-9_]+', s)[:1] == [ABILITY], label='H 真实点击绑定 wood_root')
         self.capture('H绑定木体缠根'); self.close_skills(); self.assigned = {'wood_root': 'z'}
 
     def prepare_case(self, name):
@@ -529,7 +529,7 @@ class FoundationEvidence(ElementalEvidence):
         if scene.parse_combat_mode(self.rc(f'data get entity {u} "neoforge:attachments"')) == 'cultivation':
             self.key('r'); time.sleep(.3)
         self.step(25)
-        effects = self.definitions['myvillage:'+FATE]['effects']
+        effects = self.definitions['yuanxian:'+FATE]['effects']
         fraction = effects['lifesteal_fraction']; cap_fraction = effects['lifesteal_cap_fraction']
         before = self.hp(u); damage = self.attack(target); gained = self.hp(u)-before
         expected = lifesteal_expected(damage, fraction, self.status()['max_health'], cap_fraction, missing=self.status()['max_health']-before)
@@ -660,10 +660,10 @@ class FoundationEvidence(ElementalEvidence):
         self.home()
         self.rc('kill @e[tag=foundation_control]')
         self.rc('kill @e[tag=foundation_attacker]')
-        self.rc(f'yuanxian cultivation learn {u} myvillage:jianqi_jue')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword')
+        self.rc(f'yuanxian cultivation learn {u} yuanxian:jianqi_jue')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:qingfeng_sword')
         self.rc(f'yuanxian cultivation qi fill {u}')
-        self.rc(f'yuanxian foundation grant poise {u} myvillage:fixture_charge 200')
+        self.rc(f'yuanxian foundation grant poise {u} yuanxian:fixture_charge 200')
         scene.ensure_cultivation(self.s)
         self.step(25)
         mark = self.offset()
@@ -679,18 +679,18 @@ class FoundationEvidence(ElementalEvidence):
         finally:
             self.s.game.xdo('mouseup', '3')
             self.report['inputs'].append({'method': '映射右键释放', 'server_tick': self.now()})
-        self.poll(lambda: self.log(mark), lambda text: 'result=released skill=myvillage:jianqi_jue' in text,
+        self.poll(lambda: self.log(mark), lambda text: 'result=released skill=yuanxian:jianqi_jue' in text,
                   label='霸体受击后剑气真实释放')
         log = self.log(mark)
-        self.check('霸体受击不取消蓄力', 'result=released skill=myvillage:jianqi_jue' in log, log)
+        self.check('霸体受击不取消蓄力', 'result=released skill=yuanxian:jianqi_jue' in log, log)
         self.step(30)
 
     def foundations(self):
         u = self.s.username
-        self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_a 8 100')
-        self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_b 6 100')
+        self.rc(f'yuanxian foundation grant shield {u} yuanxian:fixture_a 8 100')
+        self.rc(f'yuanxian foundation grant shield {u} yuanxian:fixture_b 6 100')
         self.check('多来源护盾叠加', close(self.status()['shield'], 14), self.status())
-        self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_a 4 100')
+        self.rc(f'yuanxian foundation grant shield {u} yuanxian:fixture_a 4 100')
         self.check('同源覆盖不叠加', close(self.status()['shield'], 10), self.status())
         before, after = self.hostile_hit()
         self.check('真实受击消费护盾', after['shield'] < before['shield'] and close(after['health'], before['health']), {'before': before, 'after': after})
@@ -701,7 +701,7 @@ class FoundationEvidence(ElementalEvidence):
         self.check('控制fixture生效', self.status(target)['rooted'], self.status(target))
         self.rc(f'yuanxian foundation cleanse {target}')
         self.check('净化解除根缠', not self.status(target)['rooted'], self.status(target))
-        self.rc(f'yuanxian foundation grant poise {target} myvillage:fixture_poise 80')
+        self.rc(f'yuanxian foundation grant poise {target} yuanxian:fixture_poise 80')
         self.rc(f'effect give {target} minecraft:glowing 20 0 true')
         self.rc(f'yuanxian foundation grant root {u} {target} 40')
         self.check('霸体拒绝根缠', self.status(target)['poised'] and not self.status(target)['rooted'], self.status(target))
@@ -711,7 +711,7 @@ class FoundationEvidence(ElementalEvidence):
         self.check('净化保留霸体与无关药水', self.status(target)['poised'] and 'minecraft:glowing' in effects_before and 'minecraft:glowing' in effects_after, {'status': self.status(target), 'effects': effects_after})
         self.wound(30)
         # fixture 治疗修饰，实际治疗由原版瞬间治疗药水事件触发，不能调用 heal 指令。
-        self.rc(f'yuanxian foundation grant healing_modifier {u} myvillage:fixture_heal -0.5 100')
+        self.rc(f'yuanxian foundation grant healing_modifier {u} yuanxian:fixture_heal -0.5 100')
         before = self.hp(u); self.rc(f'effect give {u} minecraft:instant_health 1 0 true'); self.step(1)
         reduced = self.hp(u)-before
         self.rc(f'yuanxian foundation clear {u}'); before = self.hp(u)
@@ -730,8 +730,8 @@ class FoundationEvidence(ElementalEvidence):
         self.cast_wood()
         u = self.s.username
         self.wound(20)
-        self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_lifecycle 8 400')
-        self.rc(f'yuanxian foundation grant healing_modifier {u} myvillage:fixture_lifecycle -0.5 400')
+        self.rc(f'yuanxian foundation grant shield {u} yuanxian:fixture_lifecycle 8 400')
+        self.rc(f'yuanxian foundation grant healing_modifier {u} yuanxian:fixture_lifecycle -0.5 400')
         before = self.status(); bindings = self.bindings()
         self.rc('save-all flush'); self.stop(); self.attach = False; self.start(reuse=True)
         self.freeze(); after = self.status()
@@ -777,8 +777,8 @@ class FoundationEvidence(ElementalEvidence):
                 self.step(self.status()['wood_root']['cooldown_remaining']+2)
                 self.rc(f'yuanxian cultivation qi fill {guest.username}')
                 self.cast_wood()
-                self.rc(f'yuanxian foundation grant shield {guest.username} myvillage:fixture_logout 8 400')
-                self.rc(f'yuanxian foundation grant healing_modifier {guest.username} myvillage:fixture_logout -0.5 400')
+                self.rc(f'yuanxian foundation grant shield {guest.username} yuanxian:fixture_logout 8 400')
+                self.rc(f'yuanxian foundation grant healing_modifier {guest.username} yuanxian:fixture_logout -0.5 400')
                 before = self.status()
             finally:
                 self.s = original; self.guest = None
@@ -820,7 +820,7 @@ class FoundationEvidence(ElementalEvidence):
             self.cast_wood(); self.step(2)
             self.check('友军玩家不受控', not self.status(v)['rooted'], self.status(v))
             self.rc('team remove foundation_allies')
-            self.rc(f'yuanxian foundation grant shield {u} myvillage:fixture_private 8 50')
+            self.rc(f'yuanxian foundation grant shield {u} yuanxian:fixture_private 8 50')
             self.check('护盾按玩家隔离', self.status(v)['shield'] == 0 and self.status()['shield'] == 8, {'owner': self.status(), 'guest': self.status(v)})
             self.guest = None; self.rc('tick unfreeze')
         self.freeze()
@@ -896,7 +896,7 @@ class FoundationEvidence(ElementalEvidence):
         u = self.s.username
         self.rc(f'tp {u} .5 -60 .5 0 0')
         self.rc(f'tp {target} .5 -60 2.5 180 0')
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:qingfeng_sword')
         self.rc(f'item replace entity {target} weapon.offhand with minecraft:totem_of_undying')
         self.rc(f'yuanxian foundation clear {target}')
         self.rc(f'effect clear {target}')
@@ -920,7 +920,7 @@ class FoundationEvidence(ElementalEvidence):
         target_after = self.hp(target); gained = self.hp(u)-before
         self.check('真实近战消费图腾且目标存活', not any(item.get('id') == 'minecraft:totem_of_undying' for item in inventory) and target_after > 0,
                    {'inventory': inventory, 'target_health': target_after})
-        fraction = self.definitions['myvillage:'+FATE]['effects']['lifesteal_fraction']
+        fraction = self.definitions['yuanxian:'+FATE]['effects']['lifesteal_fraction']
         expected = prepared*fraction
         self.check('图腾按实际主伤害吸血且无过量', close(gained, expected, .005) and gained <= expected+.005,
                    {'prepared_health': prepared, 'gained': gained, 'expected': expected, 'target_after': target_after})

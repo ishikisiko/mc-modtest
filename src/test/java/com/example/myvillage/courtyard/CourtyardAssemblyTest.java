@@ -29,7 +29,7 @@ class CourtyardAssemblyTest {
         var br=(MappedRegistry<Block>)BuiltInRegistries.BLOCK;var ir=(MappedRegistry<Item>)BuiltInRegistries.ITEM;
         synchronized(br){synchronized(ir){br.unfreeze();ir.unfreeze();try{
             for(var f:CourtyardCatalog.all()){
-                var key=ResourceLocation.fromNamespaceAndPath("myvillage_test",f.id());
+                var key=ResourceLocation.fromNamespaceAndPath("yuanxian_test",f.id());
                 var b=Registry.register(br,key,CourtyardBlocks.create(f.id(),BlockBehaviour.Properties.of().noOcclusion()));blocks.put(f.id(),b);
                 var item=Registry.register(ir,key,new CourtyardAssemblyItem(b,new Item.Properties()));items.put(f.id(),item);
             }
@@ -97,7 +97,7 @@ class CourtyardAssemblyTest {
     }
     @Test void selectionPayloadContainsOnlyIdentityHandAndIndex(){
         assertEquals(3,CourtyardVariantPayload.class.getRecordComponents().length);
-        var packet=new CourtyardVariantPayload(ResourceLocation.parse("myvillage:courtyard_window"),true,2);
+        var packet=new CourtyardVariantPayload(ResourceLocation.parse("yuanxian:courtyard_window"),true,2);
         var buffer=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
         try{CourtyardVariantPayload.STREAM_CODEC.encode(buffer,packet);assertEquals(packet,CourtyardVariantPayload.STREAM_CODEC.decode(buffer));assertEquals(0,buffer.readableBytes());}
         finally{buffer.release();}

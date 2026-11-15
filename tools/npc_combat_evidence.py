@@ -40,7 +40,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
 
     def equip(self):
         u = self.s.username
-        self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword')
+        self.rc(f'item replace entity {u} hotbar.0 with yuanxian:qingfeng_sword')
         self.s.game.key('1')
         scene.ensure_cultivation(self.s)
 
@@ -89,7 +89,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
     def duel(self):
         self.arena()
         target = '@e[tag=npc_duel,limit=1]'
-        self.rc('summon myvillage:cultivator .5 -60 3.0 {Tags:["npc_duel"],PersistenceRequired:1b,Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.rc('summon yuanxian:cultivator .5 -60 3.0 {Tags:["npc_duel"],PersistenceRequired:1b,Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         self.poll(lambda:self.inspect(target), lambda b:bool(b['HandItems'][0]), 5, 'NPC equipped sword')
         before = self.hp()
         video = subprocess.Popen(ffmpeg_record_argv(self.s.state['display'], self.out/'sword-duel.mp4', 12))
@@ -103,7 +103,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
                 time.sleep(.12)
             (self.out/'duel-samples.json').write_text(json.dumps(samples, indent=2))
             moves = {s['npc'].get('NpcCombatView', {}).get('move') for s in samples} - {None}
-            self.check('npc_ai_uses_shared_basic_sword_moves', bool(moves) and all(m.startswith('myvillage:basic_sword_') for m in moves), sorted(moves))
+            self.check('npc_ai_uses_shared_basic_sword_moves', bool(moves) and all(m.startswith('yuanxian:basic_sword_') for m in moves), sorted(moves))
             self.check('npc_real_attacks_damage_survival_player', self.hp() < before, {'before':before, 'after':self.hp()})
             self.s.game.shot(self.out/'sword-duel.png', max_wait=2, settle=.1)
             self.rc(f'gamemode creative {self.s.username}')
@@ -126,7 +126,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
     def reactions(self):
         self.arena()
         target='@e[tag=npc_reactions,limit=1]'
-        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_reactions"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.rc('summon yuanxian:cultivator .5 -60 3 {Tags:["npc_reactions"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         self.mapped_hit(target,'reaction_mapped_provocation')
         self.rc('tick rate 5')
         try:
@@ -149,14 +149,14 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.arena(); self.rc(f'gamemode creative {self.s.username}')
         a='@e[tag=npc_cross_a,limit=1]'; b='@e[tag=npc_cross_b,limit=1]'
         for tag,z in [('npc_cross_a',3),('npc_cross_b',5)]:
-            self.rc(f'summon myvillage:cultivator .5 -60 {z} {{Tags:["{tag}"],Health:80f,attributes:[{{id:"minecraft:generic.max_health",base:80d}}]}}')
+            self.rc(f'summon yuanxian:cultivator .5 -60 {z} {{Tags:["{tag}"],Health:80f,attributes:[{{id:"minecraft:generic.max_health",base:80d}}]}}')
         self.rc(f'damage {b} 0.1 minecraft:mob_attack by {a}')
         before=[self.hp(a),self.hp(b)]
         self.poll(lambda:[self.hp(a),self.hp(b)],lambda hp:all(hp[i]<before[i] for i in (0,1)),15,'actual NPC versus NPC retaliation')
         self.check('npc_versus_npc_uses_real_attacks',True,{'before':before,'after':[self.hp(a),self.hp(b)]})
         self.rc(f'kill {a}');self.rc(f'kill {b}')
-        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_cross_a"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
-        self.rc('summon myvillage:demon_wolf .5 -60 5 {Tags:["npc_cross_wolf"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.rc('summon yuanxian:cultivator .5 -60 3 {Tags:["npc_cross_a"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.rc('summon yuanxian:demon_wolf .5 -60 5 {Tags:["npc_cross_wolf"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         wolf='@e[tag=npc_cross_wolf,limit=1]'
         self.rc('yuanxian beast debug on')
         self.poll(lambda:self.rc(f'yuanxian beast status {wolf}'),
@@ -176,7 +176,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
     def group_hits(self):
         self.arena(); u=self.s.username
         target='@e[tag=npc_group_target,limit=1]'
-        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_group_target"],Health:240f,attributes:[{id:"minecraft:generic.max_health",base:240d}]}')
+        self.rc('summon yuanxian:cultivator .5 -60 3 {Tags:["npc_group_target"],Health:240f,attributes:[{id:"minecraft:generic.max_health",base:240d}]}')
         self.rc('team add npc_combat_fixture')
         self.rc('team modify npc_combat_fixture friendlyFire false')
         try:
@@ -190,7 +190,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.rc(f'gamemode creative {u}')
         for i,x in enumerate((-1,2)):
             actor=f'@e[tag=npc_group_{i},limit=1]'; attackers.append(actor)
-            self.rc(f'summon myvillage:cultivator {x} -60 4 {{Tags:["npc_group_{i}"],Health:240f,attributes:[{{id:"minecraft:generic.max_health",base:240d}}]}}')
+            self.rc(f'summon yuanxian:cultivator {x} -60 4 {{Tags:["npc_group_{i}"],Health:240f,attributes:[{{id:"minecraft:generic.max_health",base:240d}}]}}')
             self.rc(f'damage {actor} 0.1 minecraft:mob_attack by {target}')
         samples=[]; end=time.monotonic()+8
         while time.monotonic()<end:
@@ -212,7 +212,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
 
     def collision(self):
         self.arena(); target='@e[tag=npc_collision,limit=1]'
-        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_collision"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.rc('summon yuanxian:cultivator .5 -60 3 {Tags:["npc_collision"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         self.mapped_hit(target,'collision_mapped_provocation')
         self.poll(lambda:self.inspect(target).get('NpcCombatView',{}),lambda v:'move' in v,12,'attack before wall')
         self.rc('tick freeze')
@@ -240,7 +240,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
 
     def retreat(self):
         self.arena();target='@e[tag=npc_retreat,limit=1]'
-        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_retreat"],Health:20f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.rc('summon yuanxian:cultivator .5 -60 3 {Tags:["npc_retreat"],Health:20f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         self.mapped_hit(target,'mapped_hit_triggers_wounded_retreat')
         start=self.inspect(target)
         after=self.poll(lambda:self.inspect(target),lambda b:not b.get('NpcCombatView',{}).get('engaged'),25,'wounded NPC escapes')
@@ -254,7 +254,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.rc(f'effect clear {u} minecraft:resistance');self.rc(f'effect give {u} minecraft:resistance 99999 4 true')
         self.rc('fill -2 -55 0 2 -55 3 minecraft:stone')
         self.rc('fill -2 -55 5 2 -55 8 minecraft:stone')
-        self.rc('summon myvillage:cultivator .5 -54 3.5 {Tags:["npc_ledge"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.rc('summon yuanxian:cultivator .5 -54 3.5 {Tags:["npc_ledge"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         try:
             self.rc(f'tp {u} .5 -54 5.5 180 0')
             self.s.game.require_ingame('ledge mapped provocation');time.sleep(.3)
@@ -265,7 +265,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
                 samples.append(self.inspect(target));time.sleep(.12)
             moves={b.get('NpcCombatView',{}).get('move') for b in samples}
             self.check('actual_lunge_does_not_step_into_unsupported_gap',
-                'myvillage:basic_sword_05_lunge_thrust' in moves and all(b['Pos'][1]>=-54.05 and b['Pos'][2]<4.31 for b in samples),
+                'yuanxian:basic_sword_05_lunge_thrust' in moves and all(b['Pos'][1]>=-54.05 and b['Pos'][2]<4.31 for b in samples),
                 {'moves':sorted(str(m) for m in moves),'positions':[b['Pos'] for b in samples]})
         finally:
             self.rc(f'gamemode creative {u}');self.rc(f'kill {target}')
@@ -301,7 +301,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.rc(f'gamemode creative {self.s.username}')
         self.poll(lambda:self.body(pid).get('NpcCombatView',{}), lambda v:not v.get('engaged'), 12, 'lifecycle disengage')
         before = self.body(pid)
-        self.rc(f'summon myvillage:cultivator {before["Pos"][0]} {before["Pos"][1]} {before["Pos"][2]} {{WorldSimPerson:{pid}}}')
+        self.rc(f'summon yuanxian:cultivator {before["Pos"][0]} {before["Pos"][1]} {before["Pos"][2]} {{WorldSimPerson:{pid}}}')
         self.check('copied_avatar_identity_rejected',self.count(pid)==1 and self.body(pid)['UUID']==before['UUID'],{'person':pid})
         self.rc('yuanxian world pause')
         self.away()
@@ -395,7 +395,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
             if info.get('eligibleRogues',0)>0:center=candidate;break
         self.check('wilderness_has_existing_person',center is not None,origin['centers'])
         self.rc(teleport_command(u,[center['x']+.5,-60,center['z']+.5]))
-        selector='@e[type=myvillage:cultivator,nbt={Tags:["myvillage:wild_avatar"]},sort=nearest,limit=1]'
+        selector='@e[type=yuanxian:cultivator,nbt={Tags:["yuanxian:wild_avatar"]},sort=nearest,limit=1]'
         wild=self.poll(lambda:self.rc(f'data get entity {selector}'),lambda r:'data: ' in r,40,'actual wild projection')
         pid=read_data(wild)['WorldSimPerson'];self.equip();self.rc(f'gamemode survival {u}')
         self.mapped_hit(self.entity(pid),'wild_avatar_mapped_damage')

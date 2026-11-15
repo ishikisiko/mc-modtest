@@ -46,14 +46,14 @@ class TempRoot(unittest.TestCase):
 
 class ReadmePatternTest(unittest.TestCase):
     def test_extracts_distinct_patterns_in_order(self):
-        text = (README + 'jar tf build/libs/myvillage-0.29.0-fix1.jar | grep "data/myvillage/structure"\n'
-                'jar tf build/libs/myvillage-0.28.0.jar | grep "assets/old"\n'
+        text = (README + 'jar tf build/libs/yuanxian-0.29.0-fix1.jar | grep "data/yuanxian/structure"\n'
+                'jar tf build/libs/yuanxian-0.28.0.jar | grep "assets/old"\n'
                 'jar tf some/other.jar | grep "ignored"\n')
         self.assertEqual(gate.readme_jar_patterns(text),
-                         ["data/myvillage/structure", "assets/myvillage/combat/", "assets/old"])
+                         ["data/yuanxian/structure", "assets/yuanxian/combat/", "assets/old"])
 
     def test_grep_reads_patterns_as_basic_regex_substrings(self):
-        names = ["assets/myvillage/combat/qingfeng_sword_geometry.json", "data/a+b(c).json"]
+        names = ["assets/yuanxian/combat/qingfeng_sword_geometry.json", "data/a+b(c).json"]
         self.assertEqual(gate.unmatched_patterns(["combat/qingfeng", "qingfeng.sword", "a+b(c)", "a\\+b"], names),
                          ["a\\+b"])  # '.' is any character; '+' and '(' are literal; '\+' is GNU "one or more"
         self.assertEqual(gate.unmatched_patterns(["geometry\\.json", "geometry\\.jsonx", "^assets/"], names),
@@ -63,15 +63,15 @@ class ReadmePatternTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             make_tree(root)
-            jar = root / "build/libs/myvillage-0.29.0-fix1.jar"
-            write_jar(jar, ["data/myvillage/structure/house.nbt", "assets/myvillage/lang/en_us.json"])
+            jar = root / "build/libs/yuanxian-0.29.0-fix1.jar"
+            write_jar(jar, ["data/yuanxian/structure/house.nbt", "assets/yuanxian/lang/en_us.json"])
             g = gate.Gate(root, lock_path=root / "lock", out=io.StringIO())
             g.built_jar = jar
             outcome = gate.check_readme_jar_listing(g)
             self.assertEqual(outcome.status, gate.FAIL)
             self.assertIn("1 of 2 patterns", outcome.detail)
-            self.assertIn("assets/myvillage/combat/", outcome.detail)
-            write_jar(jar, ["data/myvillage/structure/house.nbt", "assets/myvillage/combat/"])
+            self.assertIn("assets/yuanxian/combat/", outcome.detail)
+            write_jar(jar, ["data/yuanxian/structure/house.nbt", "assets/yuanxian/combat/"])
             self.assertEqual(gate.check_readme_jar_listing(g).status, gate.PASS)
 
 
@@ -82,8 +82,8 @@ class VersionStepTest(TempRoot):
         self.assertEqual((outcome.status, outcome.detail), (gate.PASS, "all four say 0.29.0-fix1"))
 
     def test_a_readme_jar_name_on_another_version_fails(self):
-        make_tree(self.root, README=README.replace("myvillage-0.29.0-fix1.jar | grep \"assets",
-                                                   "myvillage-0.29.0.jar | grep \"assets"))
+        make_tree(self.root, README=README.replace("yuanxian-0.29.0-fix1.jar | grep \"assets",
+                                                   "yuanxian-0.29.0.jar | grep \"assets"))
         outcome = gate.check_versions(self.new_gate())
         self.assertEqual(outcome.status, gate.FAIL)
         self.assertIn("README.md: jar names use several versions", outcome.detail)
@@ -92,7 +92,7 @@ class VersionStepTest(TempRoot):
         make_tree(self.root, CHANGELOG=CHANGELOG.replace("## 0.29.0-fix1\n", "## 0.30.0\n\n## 0.29.0-fix1\n"),
                   GRADLE_PROPERTIES="mod_version=0.30.0\n",
                   MODS_TOML='[[mods]]\nversion = "0.30.0"\n',
-                  README="build/libs/myvillage-0.30.0.jar\n")
+                  README="build/libs/yuanxian-0.30.0.jar\n")
         outcome = gate.check_versions(self.new_gate())
         self.assertEqual(outcome.status, gate.FAIL)
         self.assertEqual(outcome.detail, "CHANGELOG.md: the '## 0.30.0' entry has no body")
@@ -223,7 +223,7 @@ class FreshJarTest(TempRoot):
     def setUp(self):
         super().setUp()
         (self.root / "gradle.properties").write_text("mod_version=1.2.3\n", encoding="utf-8")
-        self.jar = self.root / "build/libs/myvillage-1.2.3.jar"
+        self.jar = self.root / "build/libs/yuanxian-1.2.3.jar"
 
     def fake_gradle(self, script: str) -> tuple[str, ...]:
         return (sys.executable, "-c", script)
@@ -233,7 +233,7 @@ class FreshJarTest(TempRoot):
         # Gradle reporting success without rewriting the jar (its up-to-date case).
         outcome = gate.gradle_build(self.new_gate(gradle_argv=PASSING))
         self.assertEqual(outcome.status, gate.FAIL)
-        self.assertIn("did not write build/libs/myvillage-1.2.3.jar", outcome.detail)
+        self.assertIn("did not write build/libs/yuanxian-1.2.3.jar", outcome.detail)
         self.assertFalse(self.jar.exists())
 
     def test_a_jar_written_by_the_build_passes(self):
@@ -241,7 +241,7 @@ class FreshJarTest(TempRoot):
         old_time = time.time() - 3600
         os.utime(self.jar, (old_time, old_time))
         g = self.new_gate(gradle_argv=self.fake_gradle(
-            "import zipfile; zipfile.ZipFile('build/libs/myvillage-1.2.3.jar', 'w').writestr('new', 'x')"))
+            "import zipfile; zipfile.ZipFile('build/libs/yuanxian-1.2.3.jar', 'w').writestr('new', 'x')"))
         outcome = gate.gradle_build(g)
         self.assertEqual(outcome.status, gate.PASS, outcome.detail)
         self.assertEqual(g.built_jar, self.jar)
@@ -250,15 +250,15 @@ class FreshJarTest(TempRoot):
             self.assertEqual(archive.namelist(), ["new"])
 
     def test_an_older_version_jar_with_a_newer_mtime_fails(self):
-        other = self.root / "build/libs/myvillage-1.2.2.jar"
+        other = self.root / "build/libs/yuanxian-1.2.2.jar"
         write_jar(other, ["x"])
         future = time.time() + 3600
         os.utime(other, (future, future))
         g = self.new_gate(gradle_argv=self.fake_gradle(
-            "import zipfile; zipfile.ZipFile('build/libs/myvillage-1.2.3.jar', 'w').writestr('new', 'x')"))
+            "import zipfile; zipfile.ZipFile('build/libs/yuanxian-1.2.3.jar', 'w').writestr('new', 'x')"))
         outcome = gate.gradle_build(g)
         self.assertEqual(outcome.status, gate.FAIL)
-        self.assertIn("myvillage-1.2.2.jar is at least as new", outcome.detail)
+        self.assertIn("yuanxian-1.2.2.jar is at least as new", outcome.detail)
 
     def test_a_failed_build_fails_and_releases_the_lock(self):
         outcome = gate.gradle_build(self.new_gate(gradle_argv=FAILING))

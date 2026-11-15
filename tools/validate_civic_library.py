@@ -16,7 +16,7 @@ from buildgen.modset import load_modset
 from validate_generated_structures import validate_file
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-MOD_ID = "myvillage"
+MOD_ID = "yuanxian"
 RES = PROJECT_ROOT / "src" / "main" / "resources" / "data" / MOD_ID
 OUT_REPORT = PROJECT_ROOT / "reports" / "civic_library_validation.json"
 EXPECTED_NAMES = [*(f"tavern_{i:03d}" for i in range(1, 6)),
@@ -35,7 +35,7 @@ def validate_functions(names: list[str]) -> list[str]:
             needle = f"place template {MOD_ID}:{name} "
             if needle not in text:
                 errors.append(f"gallery_missing_structure: {name}")
-        pat = re.compile(r"^place template myvillage:(tavern_\d{3}|lord_manor_\d{3}) ~(-?\d+)? ~(-?\d+)? ~(-?\d+)?$", re.MULTILINE)
+        pat = re.compile(r"^place template yuanxian:(tavern_\d{3}|lord_manor_\d{3}) ~(-?\d+)? ~(-?\d+)? ~(-?\d+)?$", re.MULTILINE)
         for match in pat.finditer(text):
             positions.append((match.group(1), int(match.group(2) or 0), int(match.group(4) or 0)))
         ordered = [name for name, _, _ in positions]
@@ -44,7 +44,7 @@ def validate_functions(names: list[str]) -> list[str]:
         for (_, x1, z1), (_, x2, z2) in zip(positions, positions[1:]):
             if abs(x1 - x2) < 60 and abs(z1 - z2) < 60:
                 errors.append(f"gallery_spacing: {(x1, z1)} vs {(x2, z2)}")
-    place_pat = re.compile(r"^place template myvillage:\w+ ~ ~-1 ~$")
+    place_pat = re.compile(r"^place template yuanxian:\w+ ~ ~-1 ~$")
     for name in names:
         path = RES / "function" / "place" / f"{name}.mcfunction"
         if not path.is_file():

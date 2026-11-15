@@ -18,9 +18,9 @@ final class TechniqueShelf {
     static final List<TechniqueCategory> ORDER = List.of(
             TechniqueCategory.CORE, TechniqueCategory.ACTIVE, TechniqueCategory.MOVEMENT, TechniqueCategory.BODY);
 
-    private static final String GROUP_KEY = "screen.myvillage.cultivation.technique_group.";
+    private static final String GROUP_KEY = "screen.yuanxian.cultivation.technique_group.";
     private static final String UNRESOLVED_GROUP_KEY = GROUP_KEY + "unresolved";
-    private static final String GRADE_NAME_KEY = "screen.myvillage.cultivation.grade_name.";
+    private static final String GRADE_NAME_KEY = "screen.yuanxian.cultivation.grade_name.";
 
     /** Highest grade first, then by name, then by id so the order never depends on map order. */
     static final Comparator<Item> ITEM_ORDER = Comparator.comparingInt(Item::grade).reversed()

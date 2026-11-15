@@ -3,95 +3,95 @@ loaderVersion = "[4,)"
 license = "MIT"
 
 [[mods]]
-modId = "myvillage"
+modId = "yuanxian"
 enumExtensions = "META-INF/enumextensions.json"
-version = "0.133.1"
+version = "0.134.0"
 displayName = "源仙"
 description = '''
 包含修炼、功法、炼丹炼器、宗门与人物生活的修仙世界模组。
 '''
 
 [[mixins]]
-config = "myvillage.mixins.json"
+config = "yuanxian.mixins.json"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "neoforge"
 type = "required"
 versionRange = "[21.1.0,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "minecraft"
 type = "required"
 versionRange = "[1.21.1]"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "player_animation_library"
 type = "required"
 versionRange = "[1.1.4,1.2)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "guideme"
 type = "required"
 versionRange = "[21.1.17,22)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "jade"
 type = "optional"
 versionRange = "[15.10.5,16)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "waystones"
 type = "optional"
 versionRange = "[21.1.46]"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "ars_nouveau"
 type = "optional"
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "farmersdelight"
 type = "optional"
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "supplementaries"
 type = "optional"
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "fetzisdisplays"
 type = "optional"
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "mcwfurnitures"
 type = "optional"
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.myvillage]]
+[[dependencies.yuanxian]]
 modId = "mcwwindows"
 type = "optional"
 versionRange = "[0,)"

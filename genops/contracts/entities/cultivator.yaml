@@ -6,21 +6,21 @@ schema_version: 1
 # colours and the Java-pinned dimensions below agree with the files and the Java registration.
 
 project:
-  mod_id: myvillage
+  mod_id: yuanxian
   java_package: com.example.myvillage
   minecraft_version: 1.21.1
   neoforge_version: 21.1.233
   java_version: 21
 
 data_sources:
-  model: assets/myvillage/npc/cultivator_model.json
-  animations: assets/myvillage/npc/cultivator_animations.json
-  texture: assets/myvillage/textures/entity/cultivator/cultivator.png
+  model: assets/yuanxian/npc/cultivator_model.json
+  animations: assets/yuanxian/npc/cultivator_animations.json
+  texture: assets/yuanxian/textures/entity/cultivator/cultivator.png
   art_generator: tools/npcgen/defs/cultivator.py
 
 entity:
   id: cultivator
-  resource_location: myvillage:cultivator
+  resource_location: yuanxian:cultivator
   display_name:
     zh_cn: 修仙者
     en_us: Cultivator
@@ -44,8 +44,8 @@ physical:
   width: 0.6
   height: 1.9
   eye_height: 1.67
-  shadow_radius_source: assets/myvillage/npc/cultivator_model.json#shadow_radius
-  model_scale_source: assets/myvillage/npc/cultivator_model.json#scale
+  shadow_radius_source: assets/yuanxian/npc/cultivator_model.json#shadow_radius
+  model_scale_source: assets/yuanxian/npc/cultivator_model.json#scale
   fire_immune: false
   summonable: true
   saveable: true
@@ -63,7 +63,7 @@ attributes:
     - attack_damage
     - attack_knockback
     - follow_range
-  note: gameplay values come from data/myvillage/npc_combat/rules.json; realm modifiers use StatsRuntime
+  note: gameplay values come from data/yuanxian/npc_combat/rules.json; realm modifiers use StatsRuntime
 
 behavior:
   goals:
@@ -90,7 +90,7 @@ behavior:
   combat:
     mode: shared_sword_melee
     statement: Server AI submits basic sword intents to the shared player combat executor. Neutral cultivators defend themselves, retreat when wounded, and resume life only after disengaging.
-    rules: data/myvillage/npc_combat/rules.json
+    rules: data/yuanxian/npc_combat/rules.json
     lifecycle: Current managed avatar lease is required before a ledger NPC can take damage. Health, equipment wear, recovery and attribution are checkpointed through WorldSim; real death is committed once, withdrawal is not death.
     scope: Basic sword chain, ordinary movement and retreat. Spear, fists, active arts, sword qi and technique dodge are deferred.
 
@@ -136,7 +136,7 @@ state:
     - id: Colours
       type: int
       source: com.example.myvillage.entity.npc.NpcEntity#COLOURS_TAG
-      written: only when colours are set (the packed int); on load a value that names no colours clears them, so /summon myvillage:cultivator ~ ~ ~ {Colours:n} wears the colours n
+      written: only when colours are set (the packed int); on load a value that names no colours clears them, so /summon yuanxian:cultivator ~ ~ ~ {Colours:n} wears the colours n
   custom_state:
     statement: A summoned cultivator saves vanilla Mob state plus Look when its look is not default and Colours when colours are set (ledger_person_id stays -1 and is not written; ledger_role is never written).
 
@@ -164,9 +164,9 @@ world_sim_avatar:
   goals_removed:
     - water_avoiding_random_stroll
   interaction: the steward (守山执事) and elder avatars open the sect dialogue on right click (mobInteract consumes; the server checks range, dimension, ledger role and sect, then sends SectDialoguePayload); every other avatar passes without effect
-  name_tag: name · realm · sect (entity.myvillage.cultivator.avatar; the realm through world_sim.realm.<id>), always visible
-  config: myvillage-world_sim-server.toml [avatars] (avatars_enabled, avatar_spawn_radius, max_avatars_per_sect, max_avatars)
-  wilderness_rules: data/myvillage/wilderness/rules.json (region ranges, local/global caps, bounded attempts and loaded-chunk probes); no independent natural spawn route
+  name_tag: name · realm · sect (entity.yuanxian.cultivator.avatar; the realm through world_sim.realm.<id>), always visible
+  config: yuanxian-world_sim-server.toml [avatars] (avatars_enabled, avatar_spawn_radius, max_avatars_per_sect, max_avatars)
+  wilderness_rules: data/yuanxian/wilderness/rules.json (region ranges, local/global caps, bounded attempts and loaded-chunk probes); no independent natural spawn route
 
 rendering:
   route: vanilla
@@ -175,22 +175,22 @@ rendering:
   geckolib: false
   model_class: com.example.myvillage.client.entity.npc.NpcModel
   renderer_class: com.example.myvillage.client.entity.npc.NpcRenderer
-  model_layer: myvillage:cultivator#main
+  model_layer: yuanxian:cultivator#main
   looks: see looks (the files below are the default look's; NpcRenderer draws the synced look's set and falls back to default for a name it does not know)
-  geo: myvillage:npc/cultivator_model.json
-  animation: myvillage:npc/cultivator_animations.json
-  base_texture: myvillage:textures/entity/cultivator/cultivator.png
+  geo: yuanxian:npc/cultivator_model.json
+  animation: yuanxian:npc/cultivator_animations.json
+  base_texture: yuanxian:textures/entity/cultivator/cultivator.png
   render_type: entity cut-out (a texel with zero alpha is a hole)
   texel_density: twice vanilla (the model file's scale is 0.5, one model unit is 1/32 block)
   final_texture_size:
-    source: assets/myvillage/npc/cultivator_model.json#texture
+    source: assets/yuanxian/npc/cultivator_model.json#texture
   generator:
     owner: tools/npcgen
     definition: tools/npcgen/defs/cultivator.py
     check: python3 -m tools.npcgen build cultivator --check
     hand_edits: forbidden
   bones:
-    source: assets/myvillage/npc/cultivator_model.json#bones
+    source: assets/yuanxian/npc/cultivator_model.json#bones
     look_bone: head
   layers:
     - crossed robe collar bands lying on the chest, the left lapel over the right
@@ -241,28 +241,28 @@ variant_catalog: tools/npcgen/female_variants.json
 variant_factory: tools/npcgen/female.py
 male_variant_catalog: tools/npcgen/male_variants.json
 male_variant_factory: tools/npcgen/male.py
-variant_runtime: assets/myvillage/npc/cultivator_variants.json
+variant_runtime: assets/yuanxian/npc/cultivator_variants.json
 variant_selection: 人物 id、birthDay 与固定 salt 确定外观；普通实体仍使用 Look NBT，进阶外观不变。
 variant_acceptance: 女修三脸四发型六衣装、男修五脸五发型四衣装已保留；跨部件组合仍需区分离线与原生证据。
 looks:
   - id: default
-    model: assets/myvillage/npc/cultivator_model.json
-    animations: assets/myvillage/npc/cultivator_animations.json
-    texture: assets/myvillage/textures/entity/cultivator/cultivator.png
+    model: assets/yuanxian/npc/cultivator_model.json
+    animations: assets/yuanxian/npc/cultivator_animations.json
+    texture: assets/yuanxian/textures/entity/cultivator/cultivator.png
     definition: tools/npcgen/defs/cultivator.py
-    model_layer: myvillage:cultivator#main
+    model_layer: yuanxian:cultivator#main
   - id: f_novice
-    model: assets/myvillage/npc/cultivator_f_novice_model.json
-    animations: assets/myvillage/npc/cultivator_f_novice_animations.json
-    texture: assets/myvillage/textures/entity/cultivator/cultivator_f_novice.png
+    model: assets/yuanxian/npc/cultivator_f_novice_model.json
+    animations: assets/yuanxian/npc/cultivator_f_novice_animations.json
+    texture: assets/yuanxian/textures/entity/cultivator/cultivator_f_novice.png
     definition: tools/npcgen/defs/cultivator_f_novice.py
-    model_layer: myvillage:cultivator#f_novice
+    model_layer: yuanxian:cultivator#f_novice
   - id: f_adept
-    model: assets/myvillage/npc/cultivator_f_adept_model.json
-    animations: assets/myvillage/npc/cultivator_f_adept_animations.json
-    texture: assets/myvillage/textures/entity/cultivator/cultivator_f_adept.png
+    model: assets/yuanxian/npc/cultivator_f_adept_model.json
+    animations: assets/yuanxian/npc/cultivator_f_adept_animations.json
+    texture: assets/yuanxian/textures/entity/cultivator/cultivator_f_adept.png
     definition: tools/npcgen/defs/cultivator_f_adept.py
-    model_layer: myvillage:cultivator#f_adept
+    model_layer: yuanxian:cultivator#f_adept
 
 texture_art_direction:
   silhouette: 修长人形，束发戴冠，斜肩盖袖，广袖垂袋，腰封收腰，裙摆两层外扩
@@ -287,7 +287,7 @@ items:
     id: cultivator_spawn_egg
     primary_color: "#DBE3EC"
     secondary_color: "#2A3A6E"
-    creative_tab: myvillage:main
+    creative_tab: yuanxian:main
 
 sound:
   strategy: vanilla_defaults
@@ -298,7 +298,7 @@ sound:
     death: minecraft:entity.generic.death
 
 loot:
-  table: myvillage:entities/cultivator
+  table: yuanxian:entities/cultivator
   intent: no drop in this version
   pools: []
 
@@ -307,8 +307,8 @@ spawn:
   biome_modifier: null
   spawn_placement: null
   routes:
-    - /summon myvillage:cultivator
-    - myvillage:cultivator_spawn_egg
+    - /summon yuanxian:cultivator
+    - yuanxian:cultivator_spawn_egg
     - world-sim sect and wilderness rogue avatar (ledger projection only; see world_sim_avatar)
 
 acceptance:
@@ -350,7 +350,7 @@ acceptance:
   human_verdict_note: owner on 0.34.0, own PC, 2026-10-06 — clothes, back view, poses seen from behind and the walk accepted; the face rejected (像大佛的脸，没有俊朗英气). The 0.34.1 face and every other surface are not_verified; see the README ledger. The 0.41.0 looks f_novice and f_adept were judged only from offline previews and headless captures (owner's PC unavailable) and are not_verified; see the README "Looks (0.41.0)" ledger.
 
 assumptions:
-  - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。
+  - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 yuanxian，Java 包根为 com.example.myvillage。
   - 不使用玩家模型和玩家皮肤格式；模型、动画与贴图由 tools/npcgen 生成，复用妖兽的模型/动画文件 schema 与原版 ModelPart、AnimationDefinition，不引入 GeckoLib 或新依赖。
   - 中立、自卫、有界追击和负伤撤退；基础剑连招共用玩家执行器。宗门与生活交互沿用现有服务器入口。
   - 本版本不自然生成，没有掉落：只能 /summon 或刷怪蛋；另由 WorldSimAvatars 在山门内或玩家附近的有效区域投影符合条件的命簿人物为临时化身，化身不存盘；只有当前受管理身体可受伤并回写命簿。宗门执事和长老的对话仍由服务器验证。

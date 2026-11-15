@@ -25,7 +25,7 @@ import net.neoforged.neoforge.event.level.*;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 独立服务器真实方块破坏与物品掉落实验，不代表映射玩家操作。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class HerbalLoreEvidence {
     private static final Path OUT=Path.of(System.getenv().getOrDefault("MYVILLAGE_HERBAL_OUT","../reports/herbal-native"));
     private static final BlockPos AT=new BlockPos(5,65,0);
@@ -56,11 +56,11 @@ public final class HerbalLoreEvidence {
         var ids=PlayerList.class.getDeclaredField("playersByUUID");ids.setAccessible(true);((Map<UUID,ServerPlayer>)ids.get(server.getPlayerList())).put(player.getUUID(),player);
         var players=PlayerList.class.getDeclaredField("players");players.setAccessible(true);((List<ServerPlayer>)players.get(server.getPlayerList())).add(player);
         level.addNewPlayer(player);player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
-        check("profile_root",CultivationService.replaceProfile(player,CultivationProfile.defaultProfile().withSpiritualRoot(new SpiritualRoot(Map.of(ResourceLocation.parse("myvillage:wood"),60)))).success(),"木灵根60");
+        check("profile_root",CultivationService.replaceProfile(player,CultivationProfile.defaultProfile().withSpiritualRoot(new SpiritualRoot(Map.of(ResourceLocation.parse("yuanxian:wood"),60)))).success(),"木灵根60");
         readyBy=server.getTickCount()+200;stage=1;
     }
     private static void setTrait(boolean active){
-        var picks=List.of("myvillage:"+(active?"herbal_lore":"bright"),"myvillage:robust","myvillage:lightfoot");
+        var picks=List.of("yuanxian:"+(active?"herbal_lore":"bright"),"yuanxian:robust","yuanxian:lightfoot");
         CultivationService.replaceFates(player,FateState.empty().choice(picks,"",picks,true,1),false);
     }
     private static long materialEntities(ServerLevel level){
@@ -83,7 +83,7 @@ public final class HerbalLoreEvidence {
         var level=server.overworld();
         if(!level.isPositionEntityTicking(AT)&&server.getTickCount()<readyBy)return;
         check("fixture_entity_ready",level.isPositionEntityTicking(AT),AT);
-        var definition=FateService.definitions(player.registryAccess()).get("myvillage:herbal_lore");
+        var definition=FateService.definitions(player.registryAccess()).get("yuanxian:herbal_lore");
         check("synced_fate_two_percent",definition!=null&&definition.tier()==0&&definition.effect("herbal_find_chance")==.02,definition);
         setTrait(false);check("no_trait_no_bonus",breakBatch(level,Blocks.SHORT_GRASS.defaultBlockState(),256)==0,"256次");
         setTrait(true);check("active_trait",FateService.effect(player,"herbal_find_chance")==.02,FateService.state(player));

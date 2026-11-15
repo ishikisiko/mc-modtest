@@ -26,7 +26,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** 守山执事提供领取和考核入口；所有账目与考核资格均由命簿复核。 */
 public final class SectBenefitsRuntime {
-    private static final String OWNER = "myvillage:elder_trial_owner", ATTEMPT = "myvillage:elder_trial_attempt";
+    private static final String OWNER = "yuanxian:elder_trial_owner", ATTEMPT = "yuanxian:elder_trial_attempt";
     private SectBenefitsRuntime() { }
     public static void register() {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, SectBenefitsRuntime::damage);
@@ -40,8 +40,8 @@ public final class SectBenefitsRuntime {
             default -> throw new IllegalArgumentException("未知灵石"); };
     }
     private static ResourceLocation denomination(String stone) {
-        return ResourceLocation.parse(switch (stone) { case "low" -> "myvillage:low_grade";
-            case "middle" -> "myvillage:medium_grade"; case "high" -> "myvillage:high_grade";
+        return ResourceLocation.parse(switch (stone) { case "low" -> "yuanxian:low_grade";
+            case "middle" -> "yuanxian:medium_grade"; case "high" -> "yuanxian:high_grade";
             default -> throw new IllegalArgumentException("未知灵石"); });
     }
     public static List<Component> details(ServerPlayer p, WorldSim sim, int sectId) {
@@ -150,7 +150,7 @@ public final class SectBenefitsRuntime {
         if (!(e.getSource().getEntity() instanceof ServerPlayer p)) return;
         var sim = WorldSimRuntime.sim().orElse(null);
         if (sim == null || !valid(p, sim, mob) || !mob.getPersistentData().getUUID(OWNER).equals(p.getUUID())) return;
-        var key = mob.getPersistentData().getCompound("myvillage:stats_realm");
+        var key = mob.getPersistentData().getCompound("yuanxian:stats_realm");
         var rule = sim.sectProgression().trial();
         if (!new com.example.myvillage.stats.RealmKey(key.getString("realm"), key.getInt("stage"))
                 .equals(new com.example.myvillage.stats.RealmKey(rule.realm(), rule.stage()))) return;

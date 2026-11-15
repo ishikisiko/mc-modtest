@@ -10,7 +10,7 @@ from .pack import decode_records, digest, restore_model, valid_path
 class DirectoryResources:
     def __init__(self, root):
         self.root = Path(root)
-        path = self.root / 'myvillage_packed/manifest.json'
+        path = self.root / 'yuanxian_packed/manifest.json'
         self.manifest = json.loads(path.read_bytes()) if path.exists() else None
         self.entries = {v[0]: v[1:] for v in self.manifest['entries']} if self.manifest else {}
         self.cache = OrderedDict()

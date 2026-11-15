@@ -21,9 +21,9 @@ class ScriptureHallListTest {
     private static final int SECT = 7;
 
     private static final Map<String, Def> REGISTRY = Map.of(
-            "qingfeng_jue", new Def(Component.translatable("technique.myvillage.qingfeng_jue"), 1, "core"),
-            "liuyun_bu", new Def(Component.translatable("technique.myvillage.liuyun_bu"), 2, "movement"),
-            "tianjian_shi", new Def(Component.translatable("technique.myvillage.tianjian_shi"), 4, "active"));
+            "qingfeng_jue", new Def(Component.translatable("technique.yuanxian.qingfeng_jue"), 1, "core"),
+            "liuyun_bu", new Def(Component.translatable("technique.yuanxian.liuyun_bu"), 2, "movement"),
+            "tianjian_shi", new Def(Component.translatable("technique.yuanxian.tianjian_shi"), 4, "active"));
     private static final Function<String, Optional<Def>> LOOKUP = id -> Optional.ofNullable(REGISTRY.get(id));
 
     private static Optional<PlayerMemberView> memberOf(int sectId) {
@@ -38,7 +38,7 @@ class ScriptureHallListTest {
         assertEquals(List.of("liuyun_bu", "qingfeng_jue"),
                 entries.stream().map(ScriptureHallPayload.Entry::techniqueId).toList());
         ScriptureHallPayload.Entry first = entries.get(0);
-        assertEquals(Component.translatable("technique.myvillage.liuyun_bu"), first.name());
+        assertEquals(Component.translatable("technique.yuanxian.liuyun_bu"), first.name());
         assertEquals(2, first.grade());
         assertEquals("movement", first.category());
         assertFalse(first.borrowed());
@@ -106,7 +106,7 @@ class ScriptureHallListTest {
     @Test
     void everyRefusalHasAChatLineInBothLanguages() throws Exception {
         for (String lang : List.of("zh_cn", "en_us")) {
-            String path = "/assets/myvillage/lang/" + lang + ".json";
+            String path = "/assets/yuanxian/lang/" + lang + ".json";
             String text;
             try (var in = ScriptureHallListTest.class.getResourceAsStream(path)) {
                 text = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
@@ -116,7 +116,7 @@ class ScriptureHallListTest {
             }
             for (String reason : List.of(ScriptureHallList.NOT_MEMBER, ScriptureHallList.MEMBER_ELSEWHERE,
                     ScriptureHallList.INACTIVE)) {
-                assertTrue(text.contains("\"screen.myvillage.scripture_hall.refused." + reason + "\""), lang + " " + reason);
+                assertTrue(text.contains("\"screen.yuanxian.scripture_hall.refused." + reason + "\""), lang + " " + reason);
             }
         }
     }

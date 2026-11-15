@@ -76,7 +76,7 @@ class NpcFateLedgerTest {
         assertEquals(saved,restored.npcFateRuntime(id).orElseThrow());
         long next=restored.claimCombat(id,new com.example.myvillage.sim.combat.NpcCombatProfile(20,20,"",0,0,"",0,null));
         assertTrue(next>epoch);assertFalse(restored.replaceNpcFateRuntime(id,epoch,saved,saved));
-        runtime.getAsJsonArray("selected").set(0,new com.google.gson.JsonPrimitive("myvillage:unexpected"));
+        runtime.getAsJsonArray("selected").set(0,new com.google.gson.JsonPrimitive("yuanxian:unexpected"));
         assertThrows(IllegalArgumentException.class,()->restored.replaceNpcFateRuntime(id,next,saved,runtime.toString()));
         assertEquals(saved,restored.npcFateRuntime(id).orElseThrow());
     }

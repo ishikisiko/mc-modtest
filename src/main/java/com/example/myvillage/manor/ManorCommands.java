@@ -47,7 +47,7 @@ public final class ManorCommands {
     private static State state(MinecraftServer server){return STATES.computeIfAbsent(server,k->new State());}
     private static JsonObject spec(String city) {
         return SPECS.computeIfAbsent(city,id->{
-            String name="/data/myvillage/lord_manors/"+id+".json";
+            String name="/data/yuanxian/lord_manors/"+id+".json";
             try(var stream=ManorCommands.class.getResourceAsStream(name)) {
                 if(stream==null)throw new IllegalStateException("缺少府邸结构目录："+id);
                 return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();

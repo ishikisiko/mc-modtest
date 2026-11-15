@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "algorithm": "myvillage:worldplan_v8",
+  "algorithm": "yuanxian:worldplan_v8",
   "base": "frozen_v7.json",
   "world": {
     "core_radius": 10000,

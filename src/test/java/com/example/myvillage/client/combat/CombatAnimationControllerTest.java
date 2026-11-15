@@ -151,8 +151,8 @@ final class CombatAnimationControllerTest {
 
     @Test
     void aRefusedTransitionIsLoggedOnceNotEveryTick() {
-        ResourceLocation idle = ResourceLocation.fromNamespaceAndPath("myvillage", "spear_ready_idle");
-        ResourceLocation other = ResourceLocation.fromNamespaceAndPath("myvillage", "sword_ready_idle");
+        ResourceLocation idle = ResourceLocation.fromNamespaceAndPath("yuanxian", "spear_ready_idle");
+        ResourceLocation other = ResourceLocation.fromNamespaceAndPath("yuanxian", "sword_ready_idle");
         assertFalse(CombatAnimationController.repeatedRefusal(null, idle, false), "the first refusal logs");
         assertTrue(CombatAnimationController.repeatedRefusal(idle, idle, false), "its per-tick retries do not");
         assertFalse(CombatAnimationController.repeatedRefusal(idle, other, false), "another weapon's idle logs");

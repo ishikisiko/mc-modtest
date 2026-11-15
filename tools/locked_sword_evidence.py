@@ -21,9 +21,9 @@ class LockedEvidence(Evidence):
     def __init__(self,out,cases,attach=False):
         if out.exists() and any(out.iterdir()):raise ValueError('Retain previous evidence: '+str(out))
         super().__init__(out);self.language='zh_cn';self.cases=cases;self.opened=False;self.guest=None;self.attach=attach
-        self.arts={a['id'].split(':')[1]:a for a in json.loads((ROOT/'src/main/resources/data/myvillage/combat/locked_sword_arts.json').read_text())['arts']}
-        self.defs={p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/myvillage/technique').glob('*.json')}
-        self.lang=json.loads((ROOT/'src/main/resources/assets/myvillage/lang/zh_cn.json').read_text())
+        self.arts={a['id'].split(':')[1]:a for a in json.loads((ROOT/'src/main/resources/data/yuanxian/combat/locked_sword_arts.json').read_text())['arts']}
+        self.defs={p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/yuanxian/yuanxian/technique').glob('*.json')}
+        self.lang=json.loads((ROOT/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_text())
         self.report.update(kind='locked_sword_arts',provider='Colab',runtime_retained=True,selected=list(cases),completed=[],unrun=list(cases),
                            inputs=[],screenshots=[],owner_appearance='not_verified',owner_feel='not_verified',owner_balance='not_verified',owner_fps='not_verified',
                            method=__doc__,source_commit=json.loads((ROOT/'source-manifest.json').read_text())['commit'])
@@ -69,20 +69,20 @@ class LockedEvidence(Evidence):
         self.rc('tick unfreeze')
         self.report['phases'].append({'phase':'initial_setup','timings':state.get('timings',{})})
         self.position(self.s.game)
-        for cmd in (*scene.world_rules(),*scene.player_setup(self.s.username,'myvillage:qingfeng_sword'),
+        for cmd in (*scene.world_rules(),*scene.player_setup(self.s.username,'yuanxian:qingfeng_sword'),
                     'gamerule naturalRegeneration false','yuanxian world pause','forceload add -32 -32 32 48'):
             self.rc(cmd)
         self.poll(lambda:self.rc('execute if loaded 0 -61 0 run time query gametime'),lambda r:'The time is' in r,label='fixture chunk')
         self.rc('fill -16 -61 -16 16 -61 40 minecraft:stone');self.configure(self.s.username)
         self.learned=[*IDS,'liuyun_bu','jianqi_jue']
-        for ident in self.learned:self.rc(f'yuanxian cultivation learn {self.s.username} myvillage:{ident}')
+        for ident in self.learned:self.rc(f'yuanxian cultivation learn {self.s.username} yuanxian:{ident}')
         scene.ensure_cultivation(self.s);self.bind_all();self.freeze()
     def configure(self,user):
         for cmd in (f'op {user}',f'gamemode survival {user}',f'yuanxian cultivation awaken {user}',f'yuanxian cultivation initiate {user}',
-                    f'yuanxian cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early',
+                    f'yuanxian cultivation setrealm {user} yuanxian:foundation_establishment yuanxian:foundation_early',
                     f'yuanxian cultivation setroot {user} 4000 1500 1500 1500 1500',f'yuanxian cultivation qi fill {user}',
                     f'attribute {user} minecraft:generic.max_health base set {20 if user==self.s.username else 200}',f'effect give {user} minecraft:instant_health 1 10 true',
-                    f'effect give {user} minecraft:saturation infinite 255 true',f'item replace entity {user} hotbar.0 with myvillage:qingfeng_sword'):
+                    f'effect give {user} minecraft:saturation infinite 255 true',f'item replace entity {user} hotbar.0 with yuanxian:qingfeng_sword'):
             self.rc(cmd)
     def click(self,x,y,label):
         scale=bounds(self.s.game.size)['scale'];self.s.game.xdo('mousemove',str(round(x*scale)),str(round(y*scale)),'click','1')
@@ -97,9 +97,9 @@ class LockedEvidence(Evidence):
             self.click(*tile_center(b,ordered.index(ident),18),'选择 '+ident)
             self.click(b['x']+(slot%columns+.5)*b['width']/columns,dock+14+slot//columns*24+11,'选择键位 '+str(slot))
             self.click(b['x']+max(66,b['width']//4)//2,dock+15+rows*24+9,'分配 '+ident)
-            self.poll(self.bindings,lambda s:re.findall(r'myvillage:[a-z0-9_]+',s)[slot:slot+1]==['myvillage:'+ident],label='binding saved in exact slot')
+            self.poll(self.bindings,lambda s:re.findall(r'yuanxian:[a-z0-9_]+',s)[slot:slot+1]==['yuanxian:'+ident],label='binding saved in exact slot')
         self.capture('three_sword_bindings');self.s.game.xdo('key','Escape');time.sleep(.3);self.opened=False
-        self.s.game.require_ingame('bound skill tests');self.check('three_server_bindings',all('myvillage:'+i in self.bindings() for i in IDS),self.bindings())
+        self.s.game.require_ingame('bound skill tests');self.check('three_server_bindings',all('yuanxian:'+i in self.bindings() for i in IDS),self.bindings())
     def ready(self):
         self.step(250)
         self.rc(f'tp {self.s.username} .5 -60 .5 0 0');self.rc(f'yuanxian cultivation qi fill {self.s.username}')
@@ -110,15 +110,15 @@ class LockedEvidence(Evidence):
         self.step(2);return '@e[tag=locked_fixture,limit=1]'
     def cast(self,ident):
         self.step(20)  # also expire the client's eight-tick pending lock and allow its time snapshot to catch up
-        mark=self.offset();before=self.power();self.key(KEYS[ident]);log=self.poll(lambda:self.log(mark),lambda s:f'result=start art=myvillage:{ident}' in s,label='mapped cast accepted')
-        match=re.search(r'LOCKED_SWORD player=\S+ t=(\d+) result=locked art=myvillage:'+ident,log)
+        mark=self.offset();before=self.power();self.key(KEYS[ident]);log=self.poll(lambda:self.log(mark),lambda s:f'result=start art=yuanxian:{ident}' in s,label='mapped cast accepted')
+        match=re.search(r'LOCKED_SWORD player=\S+ t=(\d+) result=locked art=yuanxian:'+ident,log)
         if not match:raise RuntimeError('Missing lock receipt')
         self.check(ident+'_single_payment',before-self.power()==self.defs[ident]['effects']['active']['qi_cost'],{'before':before,'after':self.power()})
         return mark,int(match.group(1))
     def finish_cast(self,ident,mark,start):
         lock=self.arts[ident]['lock'];end=lock['first_strike_ticks']+(lock['strikes']-1)*lock['strike_interval_ticks']+1+lock['recovery_ticks']
         self.step(max(0,start+end+1-self.now()))
-        log=self.poll(lambda:self.log(mark),lambda s:f'result=stop art=myvillage:{ident}' in s,label='cast finished')
+        log=self.poll(lambda:self.log(mark),lambda s:f'result=stop art=yuanxian:{ident}' in s,label='cast finished')
         self.report.setdefault('cast_logs',[]).append(log);self.save();return log
     def three_casts(self):
         for ident in IDS:
@@ -146,10 +146,10 @@ class LockedEvidence(Evidence):
         after=self.power()
         self.check('insufficient_power_refused','reason=power' in self.log(mark) and 'result=start art=' not in self.log(mark) and before<self.defs['gengjin_jianjue']['effects']['active']['qi_cost'] and after>=before,{'before':before,'after':after,'log':self.log(mark)})
         self.rc(f'yuanxian cultivation qi fill {self.s.username}')
-        self.rc(f'yuanxian cultivation setrealm {self.s.username} myvillage:qi_refining myvillage:qi_refining_4')
+        self.rc(f'yuanxian cultivation setrealm {self.s.username} yuanxian:qi_refining yuanxian:qi_refining_4')
         self.step(10);mark=self.offset();before=self.power();self.key('k');time.sleep(.5)
         self.check('current_realm_rechecked','reason=unlearned' in self.log(mark) and 'result=start art=' not in self.log(mark) and self.power()==before,self.log(mark))
-        self.rc(f'yuanxian cultivation setrealm {self.s.username} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation setrealm {self.s.username} yuanxian:foundation_establishment yuanxian:foundation_early')
         self.rc(f'yuanxian cultivation qi fill {self.s.username}')
         self.rc('team add locked_allies');self.rc(f'team join locked_allies {self.s.username}');self.rc(f'team join locked_allies {target}')
         self.step(10);mark=self.offset();before=self.power();self.key('i');time.sleep(.5)
@@ -165,7 +165,7 @@ class LockedEvidence(Evidence):
         self.ready();mark,start=self.cast('gengjin_jianjue');before=self.hp(target)
         self.rc(f'item replace entity {self.s.username} hotbar.0 with minecraft:stick');self.step(25)
         self.check('weapon_switch_cancels',self.hp(target)==before and 'reason=WEAPON_CHANGED' in self.log(mark),self.log(mark))
-        self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:qingfeng_sword');self.ready()
+        self.rc(f'item replace entity {self.s.username} hotbar.0 with yuanxian:qingfeng_sword');self.ready()
         mark,start=self.cast('taibai_jianjing');self.rc(f'tp {target} .5 -60 35');before=self.hp(target)
         log=self.finish_cast('taibai_jianjing',mark,start)
         self.check('range_breaks_lock','result=lost' in log and self.hp(target)==before,log)
@@ -193,11 +193,11 @@ class LockedEvidence(Evidence):
         self.rc('tick unfreeze');self.rc('kill @e[tag=locked_fixture]')
         with SecondClient(self) as guest:
             self.guest=guest;self.position(guest.game);self.configure(guest.username)
-            self.rc(f'yuanxian cultivation learn {guest.username} myvillage:liuyun_bu');self.rc(f'tp {guest.username} .5 -60 9 180 0')
+            self.rc(f'yuanxian cultivation learn {guest.username} yuanxian:liuyun_bu');self.rc(f'tp {guest.username} .5 -60 9 180 0')
             if scene.parse_combat_mode(self.rc(f'data get entity {guest.username} "neoforge:attachments"'))!='cultivation':
                 self.key('r',guest.game)
             time.sleep(.7)
-            self.check('guest_cultivation_mode','cultivation' in self.rc(f'data get entity {guest.username} "neoforge:attachments"."myvillage:combat_preference"'),guest.username)
+            self.check('guest_cultivation_mode','cultivation' in self.rc(f'data get entity {guest.username} "neoforge:attachments"."yuanxian:combat_preference"'),guest.username)
             self.freeze()
             plain=self.defend_case(guest,'gengjin_jianjue','walk')
             self.defend_case(guest,'gengjin_jianjue','full')
@@ -219,7 +219,7 @@ class LockedEvidence(Evidence):
     def wave(self):
         self.ready();target=self.dummy('.5 -60 15');before=self.hp(target);mark=self.offset()
         self.s.game.xdo('mousedown','3');time.sleep(.18);self.s.game.xdo('mouseup','3');self.report['inputs'].append({'method':'mapped right mouse hold/release','seconds':.18})
-        self.poll(lambda:self.log(mark),lambda s:'result=released skill=myvillage:jianqi_jue' in s,label='original sword qi released')
+        self.poll(lambda:self.log(mark),lambda s:'result=released skill=yuanxian:jianqi_jue' in s,label='original sword qi released')
         self.step(35)
         self.check('original_sword_qi_hits',self.hp(target)<before,self.log(mark));self.capture('original_sword_qi_preserved')
     def run(self):

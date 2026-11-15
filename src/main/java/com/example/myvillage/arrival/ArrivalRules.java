@@ -45,7 +45,7 @@ public record ArrivalRules(int pollTicks, int settleTicks, int exitGraceTicks, i
     }
 
     private static ArrivalRules load() {
-        try (var stream = ArrivalRules.class.getResourceAsStream("/data/myvillage/arrival/rules.json")) {
+        try (var stream = ArrivalRules.class.getResourceAsStream("/data/yuanxian/arrival/rules.json")) {
             if (stream == null) throw new IllegalStateException("Missing arrival rules");
             try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                 return parse(JsonParser.parseReader(reader).getAsJsonObject());

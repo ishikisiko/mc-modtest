@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Objects;
 
 public record CombatPreference(CombatMode combatMode, SkillBindings skillBindings) {
-    /** Registry path of the player attachment that persists this preference (myvillage namespace). */
+    /** Registry path of the player attachment that persists this preference (yuanxian namespace). */
     public static final String ATTACHMENT_PATH = "combat_preference";
     public static final Codec<CombatPreference> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(

@@ -13,14 +13,14 @@ class AlchemyEvidenceTest(unittest.TestCase):
             meditation_bindings({}, changed)
         with self.assertRaisesRegex(RuntimeError, 'Cannot establish'):
             meditation_bindings({}, '')
-        options = {'key_key.myvillage.start_normal_meditation': 'key.keyboard.z'}
+        options = {'key_key.yuanxian.start_normal_meditation': 'key.keyboard.z'}
         with self.assertRaisesRegex(RuntimeError, 'Unexpected mapped key'):
             meditation_bindings(options, source)
 
     def test_reads_block_and_player_stacks_with_typed_slots(self):
-        value = '[{Slot: 0b, id: "myvillage:formula_huiling", count: 1}, {count: 2, Slot: 4b, id: "myvillage:pill_huiling"}]'
+        value = '[{Slot: 0b, id: "yuanxian:formula_huiling", count: 1}, {count: 2, Slot: 4b, id: "yuanxian:pill_huiling"}]'
         for prefix in ('0, -60, 3 has the following block data: ', 'Player has the following entity data: '):
-            self.assertEqual(stacks(prefix+value), {0: {'id':'myvillage:formula_huiling','count':1},4:{'id':'myvillage:pill_huiling','count':2}})
+            self.assertEqual(stacks(prefix+value), {0: {'id':'yuanxian:formula_huiling','count':1},4:{'id':'yuanxian:pill_huiling','count':2}})
         self.assertEqual(stacks('Player has the following entity data: []'), {})
 
     def test_missing_or_partial_inventory_cannot_pass_as_empty(self):
@@ -29,7 +29,7 @@ class AlchemyEvidenceTest(unittest.TestCase):
             with self.assertRaises(ValueError): stacks(value)
 
     def test_medicine_readback_distinguishes_empty_from_error(self):
-        self.assertEqual(medicine('Found no elements matching NeoForgeData.myvillage_medicine')['cooldown_ticks'], 0)
+        self.assertEqual(medicine('Found no elements matching NeoForgeData.yuanxian_medicine')['cooldown_ticks'], 0)
         self.assertEqual(medicine('Player has the following entity data: {effect: "ningshen", cooldown_ticks: 483, effect_ticks: 1083, healing_elapsed: 0}')['effect_ticks'], 1083)
         for value in ('No entity was found', 'data: {effect:"ningshen",effect_ticks:900}'):
             with self.assertRaises(ValueError): medicine(value)

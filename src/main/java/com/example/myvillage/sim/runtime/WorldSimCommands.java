@@ -34,7 +34,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 /**
  * {@code /yuanxian world ...} — read-only views of the world ledger plus the admin actions
- * {@code pause}, {@code resume} and {@code advance <days>}. Registered under the {@code /myvillage}
+ * {@code pause}, {@code resume} and {@code advance <days>}. Registered under the {@code /yuanxian}
  * root (permission 2). Prose (chronicle lines, realm, rank and status words) goes through language
  * keys so each client reads its own language; names are Chinese literals in every language.
  *

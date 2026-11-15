@@ -16,8 +16,8 @@ from tools.validate_cultivation_initiation import _strip_java_comments, _balance
 
 JAVA = Path('src/main/java/com/example/myvillage')
 RESOURCES = Path('src/main/resources')
-RULES = RESOURCES / 'data/myvillage/crafting/rules.json'
-LANGS = tuple(RESOURCES / f'assets/myvillage/lang/{language}.json' for language in ('en_us', 'zh_cn'))
+RULES = RESOURCES / 'data/yuanxian/crafting/rules.json'
+LANGS = tuple(RESOURCES / f'assets/yuanxian/lang/{language}.json' for language in ('en_us', 'zh_cn'))
 SOURCE_FILES = (
     JAVA / 'cultivation/crafting/CraftingAptitudes.java',
     JAVA / 'cultivation/crafting/CraftingRules.java',
@@ -115,7 +115,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
         try:
             values = load_json(read(language))
             for quality in ('pending', 'lower', 'middle', 'upper', 'perfect'):
-                key = f'crafting.myvillage.quality.{quality}'
+                key = f'crafting.yuanxian.quality.{quality}'
                 need(isinstance(values, dict) and isinstance(values.get(key), str) and bool(values[key].strip()),
                      'CRAFTING_LANG', f'{language}: missing product-quality name {key}')
         except ValueError as exc:

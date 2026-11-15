@@ -64,14 +64,14 @@ def run(out,commit):
             self.report['screenshots'].append(path.name);self.save()
         def dim(self):return self.rc(f'data get entity {self.s.username} Dimension')
         def start(self):
-            os.environ['JAVA_TOOL_OPTIONS']=(os.environ.get('JAVA_TOOL_OPTIONS','')+' -Dmyvillage.uiEvidence=true').strip()
+            os.environ['JAVA_TOOL_OPTIONS']=(os.environ.get('JAVA_TOOL_OPTIONS','')+' -Dyuanxian.uiEvidence=true').strip()
             self.report['launch_files_matching_jar']=verify_launch_artifacts(ROOT)
             state=cs.start(cs.SessionConfig(session_id=secrets.token_hex(6),language='zh_cn',prebuilt_resources=True,
                 gradle_jvmargs='-Xmx2g',settle=3,lock=str(procs.default_lock_path(ROOT))))
             self.s=cs.Session.attach(ui_check=True);self.sessions+=1
             self.poll(lambda:status_json(self.rc('yuanxian qianzhen realm_status '+self.s.username),'QIANZHEN_REALM_STATUS '),
                 lambda s:not s['building'] and not s['waiting'],'首次秘境准备完成',150)
-            self.poll(self.dim,lambda d:'myvillage:qianzhen/' in d,'已经进入自己的秘境')
+            self.poll(self.dim,lambda d:'yuanxian:qianzhen/' in d,'已经进入自己的秘境')
             self.poll(self.s.game.pointer_grabbed,lambda v:v is True,'世界画面已获得输入',90)
         def journey(self):
             self.key('h');self.screen('CultivationProfileScreen');self.click('行迹',True)
@@ -80,8 +80,8 @@ def run(out,commit):
             ui=self.ui();labels={w['text'] for w in ui['widgets']}
             self.must('行迹是H子页','行迹' in labels and '返回原世界' in labels,sorted(labels))
             # O from another hub page switches to journey instead of opening a second standalone screen.
-            language=json.loads((ROOT/'src/main/resources/assets/myvillage/lang/zh_cn.json').read_text())
-            self.click(language['screen.myvillage.cultivation.tab.profile'],True);self.key('o')
+            language=json.loads((ROOT/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_text())
+            self.click(language['screen.yuanxian.cultivation.tab.profile'],True);self.key('o')
             self.poll(self.ui,lambda u:u['screen']=='CultivationProfileScreen' and any(w['text']=='返回原世界' for w in u['widgets']),'O切回H行迹')
             self.click('返回原世界',True)
             self.poll(self.dim,lambda d:'minecraft:overworld' in d,'未完成任务即可返回')
@@ -89,7 +89,7 @@ def run(out,commit):
             self.key('o');self.screen('CultivationProfileScreen')
             self.poll(self.ui,lambda u:any(w['text']=='进入阡镇' for w in u['widgets']),'主世界进入按钮')
             self.shot('H行迹_主世界')
-            self.click('进入阡镇',True);self.poll(self.dim,lambda d:'myvillage:qianzhen/' in d,'重新进入秘境')
+            self.click('进入阡镇',True);self.poll(self.dim,lambda d:'yuanxian:qianzhen/' in d,'重新进入秘境')
             self.poll(self.s.game.pointer_grabbed,lambda v:v is True,'重新进入后游戏输入',90)
             self.key('o');self.screen('CultivationProfileScreen')
             window=self.s.game.xdo('search','--name','Minecraft').split()[0]
@@ -107,12 +107,12 @@ def run(out,commit):
             ui=self.poll(self.ui,lambda u:u and u['screen'] in ('SelectWorldScreen','CreateWorldScreen'),'选择或新建世界',90)
             if ui['screen']=='SelectWorldScreen':self.click('创建新的世界')
             ui=self.screen('CreateWorldScreen',120)
-            self.must('默认选择与实际生成器一致',ui.get('preset')=='myvillage:cultivation' and ui.get('generator','').endswith('PlannedChunkGenerator'),
+            self.must('默认选择与实际生成器一致',ui.get('preset')=='yuanxian:cultivation' and ui.get('generator','').endswith('PlannedChunkGenerator'),
                       {k:ui.get(k) for k in ('preset','generator')})
             self.click('世界',True);self.shot('新建世界_默认修仙大陆')
             # One or more ordinary user clicks can select vanilla again; switching tabs must not override it.
             self.click('修仙大陆')
-            self.poll(self.ui,lambda u:u.get('preset')!='myvillage:cultivation','手动切换预设')
+            self.poll(self.ui,lambda u:u.get('preset')!='yuanxian:cultivation','手动切换预设')
             selected=self.ui()['preset'];generator=self.ui()['generator']
             self.click('游戏',True);self.click('世界',True)
             self.must('手动选择换页后保留',self.ui()['preset']==selected and self.ui()['generator']==generator,{'preset':selected,'generator':generator})
@@ -125,7 +125,7 @@ def run(out,commit):
                 back=self.poll(self.ui,lambda u:u and u['screen'] in ('SelectWorldScreen','CreateWorldScreen'),'再次打开单人世界',120)
             if back['screen']=='SelectWorldScreen':self.click('创建新的世界')
             self.screen('CreateWorldScreen',120)
-            self.must('再次全新建档仍默认修仙大陆',self.ui().get('preset')=='myvillage:cultivation',self.ui().get('preset'))
+            self.must('再次全新建档仍默认修仙大陆',self.ui().get('preset')=='yuanxian:cultivation',self.ui().get('preset'))
             self.key('Escape')
             self.report['completed'].append('fresh_default');self.report['unrun'].remove('fresh_default');self.save()
     e=Driver()

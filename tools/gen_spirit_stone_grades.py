@@ -17,9 +17,9 @@ def encoded(value):
 
 def outputs(root=ROOT):
     base = root / 'src/main/resources'
-    tiers = json.loads((base / 'data/myvillage/spirit_stones/denominations.json').read_text())['tiers']
+    tiers = json.loads((base / 'data/yuanxian/spirit_stones/denominations.json').read_text())['tiers']
     out = {}
-    lang_path = base / 'assets/myvillage/lang/zh_cn.json'
+    lang_path = base / 'assets/yuanxian/lang/zh_cn.json'
     lang = json.loads(lang_path.read_text())
     for tier in tiers[1:]:
         grade = tier['id'].split(':')[1]
@@ -32,15 +32,15 @@ def outputs(root=ROOT):
         texture.paste(source, ((64-source.width)//2, (64-source.height)//2))
         blob = io.BytesIO()
         texture.save(blob, format='PNG')
-        out[base / f'assets/myvillage/textures/item/{item}.png'] = blob.getvalue()
-        out[base / f'assets/myvillage/models/item/{item}.json'] = encoded({
-            'parent': 'minecraft:item/generated', 'textures': {'layer0': f'myvillage:item/{item}'}})
+        out[base / f'assets/yuanxian/textures/item/{item}.png'] = blob.getvalue()
+        out[base / f'assets/yuanxian/models/item/{item}.json'] = encoded({
+            'parent': 'minecraft:item/generated', 'textures': {'layer0': f'yuanxian:item/{item}'}})
         out[base / f'data/c/tags/item/spirit_stones/{grade}.json'] = encoded({'replace': False, 'values': [tier['item']]})
-        lang[f'item.myvillage.{item}'] = NAMES[grade]
+        lang[f'item.yuanxian.{item}'] = NAMES[grade]
         lang[f'tag.item.c.spirit_stones.{grade}'] = NAMES[grade]
     out[base / 'data/c/tags/item/spirit_stones.json'] = encoded({'replace': False, 'values': ['#'+t['tag'] for t in tiers]})
-    lang['tooltip.myvillage.spirit_stone_bag.grade'] = '%s：%s 枚'
-    lang['tooltip.myvillage.spirit_stone_bag.exchange'] = '输入 /灵石 查看余额、兑换和拆分用法。'
+    lang['tooltip.yuanxian.spirit_stone_bag.grade'] = '%s：%s 枚'
+    lang['tooltip.yuanxian.spirit_stone_bag.exchange'] = '输入 /灵石 查看余额、兑换和拆分用法。'
     out[lang_path] = encoded(lang)
     return out
 

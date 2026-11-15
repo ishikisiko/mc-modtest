@@ -3,16 +3,16 @@ navigation:
   title: 御剑飞行
   parent: index.md
   position: 70
-  icon: myvillage:azure_cloud_flying_sword
+  icon: yuanxian:azure_cloud_flying_sword
 ---
 
 # 御剑飞行
 
 飞行用的飞剑和手持战斗兵器用途不同。当前有基础飞剑与青霄飞剑；青锋剑等普通兵器不能因为外形是剑就直接乘骑。
 
-<Recipe id="myvillage:rideable_flying_sword" />
+<Recipe id="yuanxian:rideable_flying_sword" />
 
-<Recipe id="myvillage:azure_cloud_flying_sword" />
+<Recipe id="yuanxian:azure_cloud_flying_sword" />
 
 ## 起飞与操控
 

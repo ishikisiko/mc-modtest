@@ -73,7 +73,7 @@ class NpcCultivationTest {
     }
     @Test void promotionPreservesAbsoluteHealthAndRepeatedRefreshIsIdempotent() {
         var ctx=context();var p=person(ctx,1,0);
-        p.fates=new com.example.myvillage.sim.fate.NpcFateRoll(java.util.List.of("myvillage:bright","myvillage:herbal_lore","myvillage:lightfoot"),9,3);
+        p.fates=new com.example.myvillage.sim.fate.NpcFateRoll(java.util.List.of("yuanxian:bright","yuanxian:herbal_lore","yuanxian:lightfoot"),9,3);
         ctx.state.combat.profiles.put(1,new NpcCombatProfile(7,40,"saved sword",3,4,"npc:2",5,null));
         var previous=NpcCultivation.body(ctx,p);p.realm=1;NpcCultivation.advanced(ctx,p,previous);
         var checkpoint=ctx.state.combat.profiles.get(1);
@@ -83,7 +83,7 @@ class NpcCultivationTest {
     }
     @Test void promotionAddsTheEarnedFateHealthDifferenceWithoutHealing() {
         var ctx=context();var p=person(ctx,1,0);
-        p.fates=new com.example.myvillage.sim.fate.NpcFateRoll(java.util.List.of("myvillage:robust","myvillage:bright","myvillage:herbal_lore"),9,3);
+        p.fates=new com.example.myvillage.sim.fate.NpcFateRoll(java.util.List.of("yuanxian:robust","yuanxian:bright","yuanxian:herbal_lore"),9,3);
         ctx.state.combat.profiles.put(1,new NpcCombatProfile(7,40,"saved sword",3,4,"npc:2",5,null));
         var previous=NpcCultivation.body(ctx,p);p.realm=1;NpcCultivation.advanced(ctx,p,previous);
         var saved=ctx.state.combat.profiles.get(1);

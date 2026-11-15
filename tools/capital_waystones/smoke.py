@@ -79,7 +79,7 @@ class Server:
         self.game.mkdir(parents=True,exist_ok=True)
         props={'server-ip':'127.0.0.1','server-port':self.sport,'online-mode':'false','enforce-secure-profile':'false',
                'enable-rcon':'true','rcon.port':self.rport,'rcon.password':self.password,'broadcast-rcon-to-ops':'false',
-               'level-name':'world','level-type':'myvillage\\:cultivation','level-seed':'6166082384136082383',
+               'level-name':'world','level-type':'yuanxian\\:cultivation','level-seed':'6166082384136082383',
                'generate-structures':'true','spawn-protection':0,'difficulty':'peaceful','view-distance':2,
                'simulation-distance':2,'max-tick-time':600000,'max-players':2,'allow-flight':'true'}
         (self.game/'server.properties').write_text('\n'.join(f'{k}={v}' for k,v in props.items())+'\n')

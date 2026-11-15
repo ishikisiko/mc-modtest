@@ -73,9 +73,9 @@ class ParserTests(unittest.TestCase):
 
 class AuthorityTests(unittest.TestCase):
     def test_rcon_can_prepare_and_read_but_cannot_bind_or_cast(self):
-        allowed = ('yuanxian foundation grant shield CaptureDev myvillage:fixture_a 8 60',
+        allowed = ('yuanxian foundation grant shield CaptureDev yuanxian:fixture_a 8 60',
                    'yuanxian foundation grant root CaptureDev @e[tag=fixture,limit=1] 60',
-                   'yuanxian foundation grant poise CaptureDev myvillage:fixture 60',
+                   'yuanxian foundation grant poise CaptureDev yuanxian:fixture 60',
                    'yuanxian foundation status CaptureDev', 'tick freeze', 'tick step 60',
                    'execute as CaptureDev run yuanxian combat bindings',
                    'execute if loaded 0 -61 0 run time query gametime',
@@ -87,7 +87,7 @@ class AuthorityTests(unittest.TestCase):
                      'yuanxian cultivation fate confirm CaptureDev 7',
                      'execute as CaptureDev run yuanxian foundation cast wood_root',
                      'execute if entity @a run yuanxian combat cast wood_root',
-                     'tick freeze\nmyvillage combat cast wood_root',
+                     'tick freeze\nyuanxian combat cast wood_root',
                      'data modify entity CaptureDev Health set value 100f')
         for command in forbidden:
             with self.subTest(command=command):
@@ -746,7 +746,7 @@ class DispatchTests(unittest.TestCase):
         evidence.s = Mock(); evidence.s.username = 'CaptureDev'
         evidence.report = initial_report(['two_players'])
         evidence.healing_config = {'lifesteal_window_ticks': 20}
-        evidence.definitions = {'myvillage:wood_spirit_body': {'effects': {'lifesteal_fraction': .08}}}
+        evidence.definitions = {'yuanxian:wood_spirit_body': {'effects': {'lifesteal_fraction': .08}}}
         evidence.rc = Mock(return_value='目标的实体数据: []')
         evidence.hp = Mock(side_effect=[200, 1, 60, 1, 60+gained])
         evidence.wound = Mock(); evidence.step = Mock(); evidence.now = Mock(return_value=100)

@@ -14,7 +14,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 final class ForgingArrayMesh implements ResourceManagerReloadListener {
     static final ForgingArrayMesh INSTANCE = new ForgingArrayMesh();
     static final ResourceLocation LOCATION =
-            ResourceLocation.fromNamespaceAndPath("myvillage", "forging_array/formed_mesh.json");
+            ResourceLocation.fromNamespaceAndPath("yuanxian", "forging_array/formed_mesh.json");
 
     enum Group { BODY, RING, FIRE }
     record Face(float[][] points, float[] normal, int material, Group group, boolean glow) { }

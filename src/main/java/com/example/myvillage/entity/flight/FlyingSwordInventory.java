@@ -5,8 +5,8 @@ import net.minecraft.world.item.ItemStack;
 
 /** Escrow lives in player data, not the unsaved vehicle. There is exactly one return authority. */
 public final class FlyingSwordInventory {
-    private static final String LANDING = "myvillage:flying_sword_pending_landing";
-    private static final String KEY = "myvillage:flying_sword_escrow";
+    private static final String LANDING = "yuanxian:flying_sword_pending_landing";
+    private static final String KEY = "yuanxian:flying_sword_escrow";
     private FlyingSwordInventory() { }
     public static boolean occupied(ServerPlayer p) { return p.getPersistentData().contains(KEY); }
     public static void take(ServerPlayer p, ItemStack stack) {

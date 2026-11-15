@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class WorldPlanV4Test {
     @Test void verifiedOlderLayoutCanRegisterFacilitiesButUnknownIdentityCannot() throws Exception {
         JsonObject layout;
-        try(var in=WorldPlanV4Test.class.getResourceAsStream("/data/myvillage/npc_life/places.json")) {
+        try(var in=WorldPlanV4Test.class.getResourceAsStream("/data/yuanxian/npc_life/places.json")) {
             assertNotNull(in);
             var layouts=JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("layouts");
             layout=java.util.stream.StreamSupport.stream(layouts.spliterator(),false).map(JsonElement::getAsJsonObject)
@@ -35,7 +35,7 @@ class WorldPlanV4Test {
     }
     @Test void currentDefaultContainsTheWholeDistrictAndCorrectLifeAdapter() throws Exception {
         var r=load(WorldPlanRules.RESOURCE);
-        assertEquals("myvillage:worldplan_v4",r.algorithm);assertEquals("yunshan_planned_v4",r.city.lifeLayout());
+        assertEquals("yuanxian:worldplan_v4",r.algorithm);assertEquals("yunshan_planned_v4",r.city.lifeLayout());
         assertEquals(224,r.city.width());assertEquals(272,r.city.depth());assertEquals(82,r.city.height());
         assertEquals(238,r.city.tiles().size());assertTrue(r.city.tiles().stream().allMatch(t->t.template().contains("/yunshan_v4/")));
         assertEquals(r.city.width()*r.city.depth(),r.city.surfaces().length);

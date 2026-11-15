@@ -25,27 +25,27 @@ class SchoolInsightTest {
         SharedConstants.tryDetectVersion();Bootstrap.bootStrap();
     }
     private static FateDefinition definition()throws Exception{
-        try(var in=SchoolInsightTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/school_insight.json")){
+        try(var in=SchoolInsightTest.class.getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/school_insight.json")){
             assertNotNull(in);return FateDefinition.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8))).getOrThrow();
         }
     }
     private static TechniqueDefinition technique(String id)throws Exception{
-        try(var in=SchoolInsightTest.class.getResourceAsStream("/data/myvillage/myvillage/technique/"+id+".json")){
+        try(var in=SchoolInsightTest.class.getResourceAsStream("/data/yuanxian/yuanxian/technique/"+id+".json")){
             assertNotNull(in);return TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8))).getOrThrow();
         }
     }
     @Test void choiceIsRequiredForThisFateAndMustNameAnAvailableSchool()throws Exception{
         var d=definition();assertEquals(2,d.tier());assertEquals(3,d.cost());assertEquals(.4,d.effect("school_study"));assertEquals(.4,d.effect("school_mastery"));
-        var definitions=Map.of("myvillage:school_insight",d);var picks=List.of("myvillage:school_insight");var available=Set.of("myvillage:fire_arts","myvillage:sword");
+        var definitions=Map.of("yuanxian:school_insight",d);var picks=List.of("yuanxian:school_insight");var available=Set.of("yuanxian:fire_arts","yuanxian:sword");
         assertThrows(IllegalArgumentException.class,()->SchoolInsight.confirm(picks,definitions,"",available));
         assertThrows(IllegalArgumentException.class,()->SchoolInsight.confirm(picks,definitions,"other:school",available));
-        assertEquals(new SchoolInsightState("myvillage:fire_arts"),SchoolInsight.confirm(picks,definitions,"myvillage:fire_arts",available));
+        assertEquals(new SchoolInsightState("yuanxian:fire_arts"),SchoolInsight.confirm(picks,definitions,"yuanxian:fire_arts",available));
         assertEquals(SchoolInsightState.EMPTY,SchoolInsight.confirm(List.of(),definitions,"",available));
-        assertThrows(IllegalArgumentException.class,()->SchoolInsight.confirm(List.of(),definitions,"myvillage:sword",available));
+        assertThrows(IllegalArgumentException.class,()->SchoolInsight.confirm(List.of(),definitions,"yuanxian:sword",available));
         assertThrows(IllegalArgumentException.class,()->new SchoolInsightState("invalid id"));
     }
     @Test void matchingUsesTheDeclaredSchoolRatherThanElementOrWeaponName()throws Exception{
-        var fire=new SchoolInsightState("myvillage:fire_arts");
+        var fire=new SchoolInsightState("yuanxian:fire_arts");
         assertTrue(SchoolInsight.matches(fire,technique("linghuo_shu")));
         assertFalse(SchoolInsight.matches(fire,technique("shuiren_shu")));
         assertFalse(SchoolInsight.matches(fire,technique("basic_breathing")));
@@ -68,9 +68,9 @@ class SchoolInsightTest {
     @Test void PayloadsCarryBoundedChoiceAndSavedFraction(){
         var buffer=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
         try{
-            var intent=new FateIntentPayload((byte)2,17,(byte)7,22,"myvillage:fire_arts");FateIntentPayload.STREAM_CODEC.encode(buffer,intent);
+            var intent=new FateIntentPayload((byte)2,17,(byte)7,22,"yuanxian:fire_arts");FateIntentPayload.STREAM_CODEC.encode(buffer,intent);
             assertEquals(intent,FateIntentPayload.STREAM_CODEC.decode(buffer));
-            var state=new SchoolInsightState("myvillage:fire_arts");
+            var state=new SchoolInsightState("yuanxian:fire_arts");
             var profile=CultivationProfile.defaultProfile().learnTechnique(ResourceLocation.parse("test:move"))
                     .withTechniqueProgress(ResourceLocation.parse("test:move"),new TechniqueProgress(1,"",0,0,4000));
             var snapshot=new CultivationSnapshotPayload(profile,FateState.empty(),8,com.example.myvillage.cultivation.crafting.CraftingAptitudes.EMPTY,0,0,0,EverlastingState.EMPTY,com.example.myvillage.aptitude.AptitudeState.EMPTY,state);

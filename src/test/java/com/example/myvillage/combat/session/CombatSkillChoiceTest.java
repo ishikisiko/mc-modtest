@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CombatSkillChoiceTest {
     private final CombatStyles styles = CombatTestData.styles();
-    private static ResourceLocation id(String name) { return ResourceLocation.fromNamespaceAndPath("myvillage", name); }
+    private static ResourceLocation id(String name) { return ResourceLocation.fromNamespaceAndPath("yuanxian", name); }
     private static TechniqueDefinition technique(int grade, String skill, String school) {
         return new TechniqueDefinition("cultivation.technique.test", TechniqueCategory.ACTIVE, grade, List.of(),
                 TechniqueRequirements.none(), Optional.of(id(school)), Optional.empty(),

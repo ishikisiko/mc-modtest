@@ -8,8 +8,8 @@ from tools import crafting_quality as quality
 class CraftingQualityTest(unittest.TestCase):
     def setUp(self):
         self.rules = quality.load()
-        self.qi = 'myvillage:qi_refining'
-        self.foundation = 'myvillage:foundation_establishment'
+        self.qi = 'yuanxian:qi_refining'
+        self.foundation = 'yuanxian:foundation_establishment'
 
     def test_confirmed_cutoffs_and_difficulty_shift_every_boundary(self):
         for tier in self.rules['tiers']:

@@ -12,9 +12,9 @@ import java.util.Locale;
 
 /** Display arithmetic for the cultivation panel. It derives nothing the server did not send. */
 public final class PanelReadouts {
-    public static final String SESSION_KEY = "screen.myvillage.cultivation.session.";
-    public static final String WAITING_KEY = "screen.myvillage.cultivation.time_waiting";
-    public static final String STUDY_KEY = "screen.myvillage.cultivation.study.";
+    public static final String SESSION_KEY = "screen.yuanxian.cultivation.session.";
+    public static final String WAITING_KEY = "screen.yuanxian.cultivation.time_waiting";
+    public static final String STUDY_KEY = "screen.yuanxian.cultivation.study.";
 
     private PanelReadouts() {
     }
@@ -40,7 +40,7 @@ public final class PanelReadouts {
         if (status.studying()) {
             return STUDY_KEY + (status.state().preparing() ? "preparing" : "reading");
         }
-        if (status.practice().isPresent()) return "screen.myvillage.cultivation.practice." + (status.state().preparing() ? "preparing" : "training");
+        if (status.practice().isPresent()) return "screen.yuanxian.cultivation.practice." + (status.state().preparing() ? "preparing" : "training");
         return SESSION_KEY + status.state().name().toLowerCase(Locale.ROOT);
     }
 

@@ -75,7 +75,7 @@ class FixtureAndReadbackTests(unittest.TestCase):
     @staticmethod
     def active():
         return {'Batch':{'Version':1,'Brewer':[1,-2,3,-4],'Recipe':'huiling','Score':100,'Cap':4,'Quality':3},
-                'Reserved':{'Items':[{'Slot':0,'id':'myvillage:spirit_leaf','count':1}]},
+                'Reserved':{'Items':[{'Slot':0,'id':'yuanxian:spirit_leaf','count':1}]},
                 'SelectedRecipe':'huiling','Authorizer':[1,-2,3,-4],'Identity':[5,6,7,8],
                 'Score':100,'Cap':4,'Progress':12}
 
@@ -97,8 +97,8 @@ class FixtureAndReadbackTests(unittest.TestCase):
             frozen_identity(changed)
 
     def test_inventory_component_identity_is_preserved_and_duplicates_rejected(self):
-        stack = {'Slot':3,'id':'myvillage:pill_huiling','count':2,
-                 'components':{'myvillage:pill_quality':4,'minecraft:custom_data':{'value':[1,-2,3]}}}
+        stack = {'Slot':3,'id':'yuanxian:pill_huiling','count':2,
+                 'components':{'yuanxian:pill_quality':4,'minecraft:custom_data':{'value':[1,-2,3]}}}
         self.assertEqual(saved_items({'Items':[stack]})[3]['components'],stack['components'])
         with self.assertRaises(ValueError):
             saved_items({'Items':[stack,stack]})

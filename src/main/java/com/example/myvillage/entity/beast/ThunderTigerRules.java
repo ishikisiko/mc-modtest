@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 /** Strict, bundled boss-only tuning. Ordinary beasts keep their schema and behavior. */
 public record ThunderTigerRules(ResourceLocation encounterRealm, int encounterStage, double phaseHealthFraction, PhaseTwo phaseTwo, Bounds bounds,
         Horn horn, Thunder thunder, Presentation presentation, Feedback feedback) {
-    public static final String PATH = "data/myvillage/beast/thunder_tiger_boss.json";
+    public static final String PATH = "data/yuanxian/beast/thunder_tiger_boss.json";
     private static final class Holder { static final ThunderTigerRules INSTANCE = load(); }
     public static ThunderTigerRules bundled() { return Holder.INSTANCE; }
 

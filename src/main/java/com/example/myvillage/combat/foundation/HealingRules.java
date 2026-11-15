@@ -10,7 +10,7 @@ public record HealingRules(int maximumTrackedEntities, int maximumDamageReceipts
         int maximumSourcesPerEntity, int maximumDurationTicks, double maximumBonusFraction,
         double maximumReductionFraction, double maximumHealingMultiplier,
         double maximumHealingPerCall, int lifestealWindowTicks) {
-    private static final String RESOURCE = "/data/myvillage/combat/foundation/healing.json";
+    private static final String RESOURCE = "/data/yuanxian/combat/foundation/healing.json";
 
     public HealingRules {
         if (maximumTrackedEntities < 1 || maximumTrackedEntities > 65536

@@ -152,7 +152,7 @@ def main():
                 expected=source.block(x,y,z);assert expected!='minecraft:air'
                 assert server.test(f'if block {wx} {wy} {wz} {expected}'),landmark
             board=office['board']['position'];wx,wy,wz=city['x']+board[0],city['origin_y']+board[1],city['z']+board[2]
-            load(wx,wz);assert server.test(f'if block {wx} {wy} {wz} myvillage:jianghu_board[facing={office["board"]["facing"]}]')
+            load(wx,wz);assert server.test(f'if block {wx} {wy} {wz} yuanxian:jianghu_board[facing={office["board"]["facing"]}]')
             info=query('qianji '+city['region_id'])['qianji'];assert len(info)==1
             assert info[0]['task_reader']==[city['x']+office['board']['reader'][0],city['origin_y']+office['board']['reader'][1],city['z']+office['board']['reader'][2]]
             buildings.append(dict(region=city['region_id'],name=office['name'],scale=office['scale'],checked_targets=len(points),board=[wx,wy,wz],info=info[0]))
@@ -180,7 +180,7 @@ def main():
             stage='saved_rules_and_cached_restart';before=status['layout_hash'];server.stop();_,tag=read_gzipped_nbt(str(game/'world/level.dat'))
             gen=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
             from worldplan.acceptance import decode_saved_rules
-            assert decode_saved_rules(gen['rules'],'myvillage:worldplan_v11')['region_progression']['levels']==levels
+            assert decode_saved_rules(gen['rules'],'yuanxian:worldplan_v11')['region_progression']['levels']==levels
             assert gen['roads']['layout_hash']==before and len(gen['roads']['routes'])==len(roads['routes'])
             server.start();after=server.roads('status');assert after['layout_hash']==before and after['planning_progress']['phase']=='cached',after
             query('export');restored=json.loads((server.data/'worldplan.json').read_text());assert restored==manifest

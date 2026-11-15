@@ -45,7 +45,7 @@ public final class QuenchingTroughBlock extends HorizontalDirectionalBlock imple
         if(level.isClientSide()) return ItemInteractionResult.SUCCESS;
         if(!(level.getBlockEntity(pos) instanceof QuenchingTroughBlockEntity trough)) return ItemInteractionResult.FAIL;
         if(!trough.available()) {
-            player.displayClientMessage(Component.translatable("workshop.myvillage.trough.busy"),true);
+            player.displayClientMessage(Component.translatable("workshop.yuanxian.trough.busy"),true);
             return ItemInteractionResult.CONSUME;
         }
         boolean fill=stack.is(Items.WATER_BUCKET);
@@ -57,7 +57,7 @@ public final class QuenchingTroughBlock extends HorizontalDirectionalBlock imple
     }
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit) {
         if(!level.isClientSide()) player.displayClientMessage(Component.translatable(state.getValue(FILLED)
-                ?"workshop.myvillage.trough.ready":"workshop.myvillage.trough.empty"),true);
+                ?"workshop.yuanxian.trough.ready":"workshop.yuanxian.trough.empty"),true);
         return InteractionResult.sidedSuccess(level.isClientSide());
     }
 }

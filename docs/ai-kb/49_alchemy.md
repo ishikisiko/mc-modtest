@@ -62,7 +62,7 @@
 
 ## Sources of truth
 
-- `data/myvillage/alchemy/rules.json` format2 owns recipes, costs, durations,
+- `data/yuanxian/alchemy/rules.json` format2 owns recipes, costs, durations,
   output counts, shared interval, base effects, quality weights by ceiling and
   strength multipliers. `AlchemyRules` rejects malformed/out-of-bounds data;
   rebuild/restart for changes (not datapack hot reload).
@@ -88,13 +88,13 @@
   blockage pauses without cost or reroll. Completion requires another manual start.
   Unload pauses; breaking preserves held items but abandons unfinished output.
   No hopper capability is advertised. This alchemy wire layout was introduced in protocol22; current builds require protocol25.
-- `PillQuality` uses bounded persistent/networked `myvillage:pill_quality`, integers
+- `PillQuality` uses bounded persistent/networked `yuanxian:pill_quality`, integers
   1..4 (lower/middle/upper/perfect), on the three existing pill IDs. Missing is
   lower; ordinary new lower pills omit it and stack with legacy pills. Explicit
   component1 has baseline strength but vanilla component equality still controls
   stacking. Invalid data rejects or safely falls back to lower, never higher.
 - `MedicineRuntime` / `MedicineState` / `MedicineEffects` own consumption,
-  eligibility and online counters in `NeoForgeData.myvillage_medicine`, including
+  eligibility and online counters in `NeoForgeData.yuanxian_medicine`, including
   sustained-effect `quality`. Recovery and each healing tick multiply base
   strength by quality. Ningshen scales only the bonus above1:
   `1 + (baseStabilityMultiplier - 1) * qualityMultiplier`. Duration, interval,

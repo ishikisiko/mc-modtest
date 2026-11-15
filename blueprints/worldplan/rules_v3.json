@@ -1,6 +1,6 @@
 {
   "base": "rules_v1.json",
-  "algorithm": "myvillage:worldplan_v3",
+  "algorithm": "yuanxian:worldplan_v3",
   "ecotone": {
     "radius": 32,
     "clear_spawn_canopy": true,

@@ -41,7 +41,7 @@ def export(out, ids=None, minecraft_jar=None):
             with zipfile.ZipFile(minecraft_jar) as archive:
                 data=archive.read('assets/minecraft/textures/block/'+material['file'])
         else:
-            source=ROOT/'src/main/resources/assets/myvillage/textures/block'/material['file']
+            source=ROOT/'src/main/resources/assets/yuanxian/textures/block'/material['file']
             data=source.read_bytes()
         (out/'textures'/(key+'.png')).write_bytes(data)
         textures[key]=dict(material,sha256=hashlib.sha256(data).hexdigest(),url='textures/'+key+'.png')

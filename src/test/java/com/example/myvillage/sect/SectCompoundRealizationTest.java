@@ -28,7 +28,7 @@ class SectCompoundRealizationTest {
         if (LoadingModList.get()==null) LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
         SharedConstants.tryDetectVersion();Bootstrap.bootStrap();
         data=SectBlueprint.current();
-        fallbacks=SectBlueprint.json(SectBlueprint.readClasspath("data/myvillage/mod_block_fallbacks.json",8*1024*1024));
+        fallbacks=SectBlueprint.json(SectBlueprint.readClasspath("data/yuanxian/mod_block_fallbacks.json",8*1024*1024));
     }
     static CompoundTag root(SectBlueprint.Tile tile) throws Exception {
         byte[] raw=SectBlueprint.readClasspath("data/"+tile.template().getNamespace()+"/structure/"+tile.template().getPath()+".nbt",4*1024*1024);

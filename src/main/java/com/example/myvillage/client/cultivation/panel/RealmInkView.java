@@ -15,7 +15,7 @@ final class RealmInkView {
 
     static {
         for (RealmInkStyle style : RealmInkStyle.values()) {
-            TEXTURES.put(style, ResourceLocation.fromNamespaceAndPath("myvillage",
+            TEXTURES.put(style, ResourceLocation.fromNamespaceAndPath("yuanxian",
                     "textures/gui/cultivation/ink/" + style.texture() + ".png"));
         }
     }

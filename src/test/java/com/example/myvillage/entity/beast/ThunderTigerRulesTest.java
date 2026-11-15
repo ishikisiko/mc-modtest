@@ -17,7 +17,7 @@ final class ThunderTigerRulesTest {
     }
     private ThunderTigerRules rules() throws Exception { return ThunderTigerRules.parse(source()); }
     private BeastDefinition beast() {
-        return new BeastDefinitions(BeastTestData.load()).require(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("myvillage", "thunder_tiger"));
+        return new BeastDefinitions(BeastTestData.load()).require(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("yuanxian", "thunder_tiger"));
     }
     @Test void bundledBossHasAllReadableMovesAndSafeAftershockTiming() throws Exception {
         var rules = rules();

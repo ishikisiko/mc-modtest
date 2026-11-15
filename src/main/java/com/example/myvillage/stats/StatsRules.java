@@ -26,7 +26,7 @@ import java.util.Set;
 
 /** Immutable startup rules. A malformed candidate never produces a partially usable ruleset. */
 public final class StatsRules {
-    public static final String RESOURCE = "/data/myvillage/stats/rules.json";
+    public static final String RESOURCE = "/data/yuanxian/stats/rules.json";
 
     public record RealmDefinition(String id, int order, int stages, boolean mortal) {}
     public record Limits(double maxBaseHealth, double maxBaseAttack, double maxHealth, double maxAttack,
@@ -110,7 +110,7 @@ public final class StatsRules {
             double last = growth(new RealmKey(realm.id(), realm.stages() - 1));
             if (!realm.mortal() && first <= previousMaximum)
                 throw invalid(realm.id(), "growth boundary must strictly increase");
-            if (realm.id().equals("myvillage:spirit_transformation")) {
+            if (realm.id().equals("yuanxian:spirit_transformation")) {
                 // 化神使用已定义的加法数表，校验全部品质和最大实体基础值下的实际结果。
                 CultivationStatsRules.validateBundledEnvelope(limits);
             } else {

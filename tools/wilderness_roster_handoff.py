@@ -24,25 +24,25 @@ def main():
     for i,m in enumerate(catalogue()['mobs']):
         x=(i%3-1)*12;z=12+(i//3)*14
         e.rc(f'fill {x-3} -61 {z-3} {x+3} -61 {z+3} minecraft:polished_andesite')
-        e.rc(f'summon myvillage:{m["id"]} {x+.5} -60 {z+.5} {{NoAI:1b,PersistenceRequired:1b,Rotation:[180f,0f],Tags:["roster_gallery"]}}')
+        e.rc(f'summon yuanxian:{m["id"]} {x+.5} -60 {z+.5} {{NoAI:1b,PersistenceRequired:1b,Rotation:[180f,0f],Tags:["roster_gallery"]}}')
         sign(x,z-4,[m['name'],m['role'],m['material'],'静态标本 · 演武请用蛋'])
-    e.rc('setblock -16 -60 0 myvillage:spirit_testing_stele');e.rc('setblock -13 -60 0 myvillage:technique_inheritance_stele')
-    e.rc('setblock 9 -60 0 myvillage:alchemy_furnace[facing=north]');e.rc('setblock 13 -60 0 myvillage:forging_table');e.rc('setblock 17 -60 0 myvillage:forging_anvil');e.rc('setblock 18 -60 0 myvillage:quenching_trough')
+    e.rc('setblock -16 -60 0 yuanxian:spirit_testing_stele');e.rc('setblock -13 -60 0 yuanxian:technique_inheritance_stele')
+    e.rc('setblock 9 -60 0 yuanxian:alchemy_furnace[facing=north]');e.rc('setblock 13 -60 0 yuanxian:forging_table');e.rc('setblock 17 -60 0 yuanxian:forging_anvil');e.rc('setblock 18 -60 0 yuanxian:quenching_trough')
     chests=[(-16,4),(-12,4),(-8,4),(8,4),(12,4),(16,4)]
     for x,z in chests:e.rc(f'setblock {x} -60 {z} minecraft:chest[facing=north]')
     def put(chest,slot,item,count=1):x,z=chests[chest];e.rc(f'item replace block {x} -60 {z} container.{slot} with {item} {count}')
     for i,m in enumerate(catalogue()['mobs']):
-        put(0,i,'myvillage:'+m['id']+'_spawn_egg',8);put(1,i,'myvillage:'+m['material_id'],64);put(2,i,'myvillage:formula_'+m['pill_id'],2)
-        put(3,i,'myvillage:pill_'+m['pill_id']+'[myvillage:pill_quality=2]',8)
-        put(4,i,'myvillage:qingfeng_sword[myvillage:forge_mark={trait:"'+m['trait_id']+'",quality:3}]')
-    for i,id in enumerate(['spirit_leaf','dew_blossom','sunroot','blood_berry','cloud_fungus','calm_lotus','low_grade_spirit_stone']):put(1,9+i,'myvillage:'+id,64)
-    for i,id in enumerate(['qingfeng_sword','lingxiao_spear','pattern_qingfeng_sword','pattern_lingxiao_spear']):put(5,i,'myvillage:'+id)
+        put(0,i,'yuanxian:'+m['id']+'_spawn_egg',8);put(1,i,'yuanxian:'+m['material_id'],64);put(2,i,'yuanxian:formula_'+m['pill_id'],2)
+        put(3,i,'yuanxian:pill_'+m['pill_id']+'[yuanxian:pill_quality=2]',8)
+        put(4,i,'yuanxian:qingfeng_sword[yuanxian:forge_mark={trait:"'+m['trait_id']+'",quality:3}]')
+    for i,id in enumerate(['spirit_leaf','dew_blossom','sunroot','blood_berry','cloud_fungus','calm_lotus','low_grade_spirit_stone']):put(1,9+i,'yuanxian:'+id,64)
+    for i,id in enumerate(['qingfeng_sword','lingxiao_spear','pattern_qingfeng_sword','pattern_lingxiao_spear']):put(5,i,'yuanxian:'+id)
     for i,id in enumerate(['iron_helmet','iron_chestplate','iron_leggings','iron_boots','shield','water_bucket','coal','flint']):put(5,9+i,'minecraft:'+id,16 if id in ('coal','flint') else 1)
     sign(0,3,['野外历练验收场','两侧箱子含材料和成品','先看标本，再去空地试招','平坦测试世界 · 不替换旧档'])
     sign(-16,6,['刷怪蛋 / 主材 / 丹方','测灵碑与传承碑在后方','生产按真实界面操作','默认创造模式便于观察'])
     sign(12,6,['丹药 / 专长剑 / 装备','专长互斥，药效不叠加','普通炼器鼎在后方','切生存后检验战斗效果'])
     for i,m in enumerate(catalogue()['mobs']):
-        e.check('handoff_specimen_'+m['id'],'Test passed' in e.rc('execute if entity @e[type=myvillage:'+m['id']+',tag=roster_gallery]'),m['id'])
+        e.check('handoff_specimen_'+m['id'],'Test passed' in e.rc('execute if entity @e[type=yuanxian:'+m['id']+',tag=roster_gallery]'),m['id'])
     e.rc('kill @e[type=minecraft:item]');e.rc('kill @e[type=minecraft:experience_orb]');e.rc(f'clear {u}')
     time.sleep(2)
     e.s.game.key('F1')
@@ -59,7 +59,7 @@ def main():
     version=next(line.split('=',1)[1].strip() for line in (ROOT/'gradle.properties').read_text().splitlines() if line.startswith('mod_version='))
     instructions=f'''野外历练 {version} 独立验收场
 
-把 ZIP 中的 wilderness-roster-acceptance 文件夹放入 saves，使用本次 myvillage-{version}.jar。
+把 ZIP 中的 wilderness-roster-acceptance 文件夹放入 saves，使用本次 yuanxian-{version}.jar。
 这是独立平坦试用世界，默认创造模式、保留物品、关闭随机刷怪；不会替换已有存档。
 六只静态标本用于观察模型；左侧箱子是刷怪蛋、主材和丹方，右侧是丹药、六种专长剑及装备。
 去空地使用刷怪蛋可试普通 AI。刷怪蛋是基础属性试招；自然出生的地区境界另有测试证据。
@@ -67,12 +67,12 @@ def main():
 快速开发验收可在聊天依次执行（世界副本已开启命令）：
 /yuanxian cultivation awaken @s
 /yuanxian cultivation initiate @s
-/yuanxian cultivation setrealm @s myvillage:qi_refining myvillage:qi_refining_4
+/yuanxian cultivation setrealm @s yuanxian:qi_refining yuanxian:qi_refining_4
 /yuanxian cultivation crafting set @s alchemy 100
 /yuanxian cultivation crafting set @s forging 100
-/yuanxian cultivation learn @s myvillage:liuyun_bu
-/yuanxian cultivation learn @s myvillage:huifeng_jianzhen
-/yuanxian cultivation learn @s myvillage:linghuo_shu
+/yuanxian cultivation learn @s yuanxian:liuyun_bu
+/yuanxian cultivation learn @s yuanxian:huifeng_jianzhen
+/yuanxian cultivation learn @s yuanxian:linghuo_shu
 /yuanxian cultivation qi fill @s
 /gamemode survival
 R 切修炼战斗，左键基础连招、Alt 身法；H 的技能页可分配回风剑阵和灵火术。

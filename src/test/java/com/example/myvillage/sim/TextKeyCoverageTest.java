@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  * each template uses exactly the positional slots {@code %1$s..%n$s} for its n params.
  */
 class TextKeyCoverageTest {
-    private static final Path LANG = Path.of("src/main/resources/assets/myvillage/lang");
+    private static final Path LANG = Path.of("src/main/resources/assets/yuanxian/lang");
     private static final Pattern SLOT = Pattern.compile("%(\\d+)\\$s");
     private static final Pattern ANY_FORMAT = Pattern.compile("%(?!\\d+\\$s)");
 

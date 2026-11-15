@@ -74,7 +74,7 @@ public final class SimCli {
         }
         long finished = System.nanoTime();
 
-        Lang lang = new Lang(root.resolve("src/main/resources/assets/myvillage/lang/" + langId + ".json"));
+        Lang lang = new Lang(root.resolve("src/main/resources/assets/yuanxian/lang/" + langId + ".json"));
         ChronicleWriter writer = new ChronicleWriter(lang, dpy, sim.prehistoryDays());
         JsonObject doc = new JsonObject();
         JsonObject config = new JsonObject();
@@ -153,9 +153,9 @@ public final class SimCli {
         }
     }
 
-    /** The seed's region graph from {@code src/main/resources/data/myvillage/worldgen}. */
+    /** The seed's region graph from {@code src/main/resources/data/yuanxian/worldgen}. */
     public static RegionGraph buildGraph(Path root, long seed) throws IOException {
-        Path worldgen = root.resolve("src/main/resources/data/myvillage/worldgen");
+        Path worldgen = root.resolve("src/main/resources/data/yuanxian/worldgen");
         Ruleset ruleset;
         try (Reader r = Files.newBufferedReader(worldgen.resolve("region_topology.json"), StandardCharsets.UTF_8)) {
             ruleset = Ruleset.fromJson(JsonParser.parseReader(r).getAsJsonObject());

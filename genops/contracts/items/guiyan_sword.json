@@ -1,5 +1,5 @@
 {
-  "item_id": "myvillage:guiyan_sword",
+  "item_id": "yuanxian:guiyan_sword",
   "kind": "functional_item",
   "display_name": {
     "en_us": "归燕剑",
@@ -8,7 +8,7 @@
   "owner_facing_goal": "完整的青灰剑身配浅金护手，用回锋御剑诀放出和召回。",
   "creative_tab": {
     "visibility": "visible",
-    "tab_id": "myvillage:main"
+    "tab_id": "yuanxian:main"
   },
   "java_registration": {
     "owner_file": "src/main/java/com/example/myvillage/legacy/LegacyContent.java",
@@ -16,16 +16,16 @@
     "properties": "CombatWeaponItem; values from legacy catalogue"
   },
   "client_assets": {
-    "lang_key": "item.myvillage.guiyan_sword",
-    "model": "src/main/resources/assets/myvillage/models/item/guiyan_sword.json",
+    "lang_key": "item.yuanxian.guiyan_sword",
+    "model": "src/main/resources/assets/yuanxian/models/item/guiyan_sword.json",
     "textures": [
-      "src/main/resources/assets/myvillage/textures/item/guiyan_sword.png"
+      "src/main/resources/assets/yuanxian/textures/item/guiyan_sword.png"
     ],
     "visual_verdict": "pending"
   },
   "data_resources": {
     "recipes": [
-      "src/main/resources/data/myvillage/recipe/guiyan_sword.json"
+      "src/main/resources/data/yuanxian/recipe/guiyan_sword.json"
     ],
     "tags": [
       "src/main/resources/data/minecraft/tags/item/swords.json"
@@ -47,7 +47,7 @@
   },
   "acceptance": {
     "commands": [
-      "/give @s myvillage:guiyan_sword"
+      "/give @s yuanxian:guiyan_sword"
     ],
     "gates": [
       "python3 -m tools.gen_legacy_encounters --check",

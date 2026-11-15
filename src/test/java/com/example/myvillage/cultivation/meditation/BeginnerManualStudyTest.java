@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** The shipped beginner manual, driven by the production session's preparation and settlement clocks. */
 class BeginnerManualStudyTest {
-    private static final ResourceLocation SWORD_QI = ResourceLocation.fromNamespaceAndPath("myvillage", "jianqi_jue");
+    private static final ResourceLocation SWORD_QI = ResourceLocation.fromNamespaceAndPath("yuanxian", "jianqi_jue");
     private static final ResourceLocation QI_REALM = ModCultivationRegistries.QI_REFINING_REALM_ID;
 
     @Test
@@ -127,7 +127,7 @@ class BeginnerManualStudyTest {
         boolean acceptCommits = true;
 
         StudyRun(int comprehension, int affinity) throws IOException {
-            Path directory = Path.of("src/main/resources/data/myvillage/myvillage");
+            Path directory = Path.of("src/main/resources/data/yuanxian/yuanxian");
             definition = TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE,
                     JsonParser.parseString(Files.readString(directory.resolve("technique/jianqi_jue.json")))).getOrThrow();
             realm = RealmDefinition.CODEC.parse(JsonOps.INSTANCE,

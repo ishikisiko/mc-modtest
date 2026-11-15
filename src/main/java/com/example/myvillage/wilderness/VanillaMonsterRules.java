@@ -10,7 +10,7 @@ import java.util.Set;
 /** Vanilla-only scope and lower endpoint; local upper endpoints and growth retain their owners. */
 public record VanillaMonsterRules(Set<String> excludedEntities, Set<String> spawnReasons,
                                   Set<String> nonAttributeDamageTypes, RealmKey minimumRealm) {
-    public static final String PATH = "data/myvillage/wilderness/vanilla_monsters.json";
+    public static final String PATH = "data/yuanxian/wilderness/vanilla_monsters.json";
     public VanillaMonsterRules {
         excludedEntities = Set.copyOf(excludedEntities);
         spawnReasons = Set.copyOf(spawnReasons);

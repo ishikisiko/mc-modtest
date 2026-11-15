@@ -4,7 +4,7 @@ import java.util.Objects;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * One beast attack move (schema 1, see {@code data/myvillage/beast/*.json}). Ticks are server
+ * One beast attack move (schema 1, see {@code data/yuanxian/beast/*.json}). Ticks are server
  * ticks counted from 0 at move start, in the beast's own tick (a hit-stop freeze pauses them).
  *
  * <p>The record checks its own cross-field invariants; the loader reports the same rules with the

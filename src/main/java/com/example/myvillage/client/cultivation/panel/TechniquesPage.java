@@ -31,7 +31,7 @@ public final class TechniquesPage extends PanelPage {
         this.x=x;this.width=width;dockY=y+height-DOCK_HEIGHT;
         for(int i=0;i<5;i++){
             final int index=i;int left=x+i*width/5,right=x+(i+1)*width/5-3;
-            String label=i==0?"全部":Component.translatable("screen.myvillage.cultivation.category."+TechniqueShelf.ORDER.get(i-1).serializedName()).getString();
+            String label=i==0?"全部":Component.translatable("screen.yuanxian.cultivation.category."+TechniqueShelf.ORDER.get(i-1).serializedName()).getString();
             PanelButton b=new PanelButton(PanelButton.Style.NAV,InkPanelTheme.JADE,left,y,right-left,18,Component.literal(label),pressed->{
                 filter=index==0?null:TechniqueShelf.ORDER.get(index-1);scrollToTop=true;selected=null;
             });

@@ -19,7 +19,7 @@ from .session import REPO, RIG_LOADED, SessionConfig
 
 RESOURCES = REPO / "src/main/resources"
 OUT_ROOT = REPO / "out/preview/combat_capture"
-DEFAULT_WEAPON = "myvillage:qingfeng_sword"
+DEFAULT_WEAPON = "yuanxian:qingfeng_sword"
 RELOAD_GLOBS = (
     "assets/*/combat/**/*.json",
     "assets/*/player_animations/*.json",
@@ -644,7 +644,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("beast", help="beast evidence: idle/move stills, walk/run and fight videos, stagger log")
     session_opts(p)
-    p.add_argument("--beast", default="myvillage:demon_wolf")
+    p.add_argument("--beast", default="yuanxian:demon_wolf")
     p.add_argument("--parts", default=",".join(BEAST_PARTS), help="comma list of: " + ", ".join(BEAST_PARTS))
     p.add_argument("--out", type=Path, default=None, help="output directory (default out/preview/<name>/ingame)")
     p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
@@ -652,8 +652,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("dodge", help="player movement dodge trials against a beast: server lines, health, videos")
     session_opts(p)
-    p.add_argument("--beast", default="myvillage:demon_wolf")
-    p.add_argument("--technique", default="myvillage:taxue_wuhen", help="movement technique the player learns")
+    p.add_argument("--beast", default="yuanxian:demon_wolf")
+    p.add_argument("--technique", default="yuanxian:taxue_wuhen", help="movement technique the player learns")
     p.add_argument("--out", type=Path, default=None, help="output directory (default out/preview/movement_dodge)")
     p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
     p.set_defaults(func=cmd_dodge)
@@ -669,7 +669,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("npc", help="NPC evidence: full-figure and close-up stills, walk videos")
     session_opts(p)
-    p.add_argument("--npc", default="myvillage:cultivator")
+    p.add_argument("--npc", default="yuanxian:cultivator")
     p.add_argument("--parts", default="idle,walk", help="comma list of: idle, walk")
     p.add_argument("--look", default="default",
                    help="Look 存档名：旧外观或 npcgen 目录中的女修组合；输出 ingame_<look>")

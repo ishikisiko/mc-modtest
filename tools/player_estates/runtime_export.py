@@ -22,7 +22,7 @@ RULES = ROOT / 'blueprints/player_estates/purchase.json'
 
 def integrate(out: Path):
     out = Path(out)
-    file = out / 'data/myvillage/capitals/v4/capital_zhongzhou/city.json'
+    file = out / 'data/yuanxian/capitals/v4/capital_zhongzhou/city.json'
     city = json.loads(file.read_text())
     inputs = {str(p.relative_to(ROOT)): sha(p.read_bytes()) for p in
               sorted((ROOT / 'blueprints/player_estates').glob('*.json')) +

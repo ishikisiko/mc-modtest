@@ -18,7 +18,7 @@ public final class ForgingDingRenderer implements BlockEntityRenderer<ForgingDin
     private static final int FULL_BRIGHT=0xF000F0;
     private final ItemRenderer itemRenderer;
     public ForgingDingRenderer(BlockEntityRendererProvider.Context context){itemRenderer=context.getItemRenderer();}
-    private static ResourceLocation id(String name){return ResourceLocation.fromNamespaceAndPath("myvillage","textures/effect/"+name+".png");}
+    private static ResourceLocation id(String name){return ResourceLocation.fromNamespaceAndPath("yuanxian","textures/effect/"+name+".png");}
     @Override public void render(ForgingDingBlockEntity block,float partialTick,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         var item=block.displayItem();var level=block.getLevel();if(item.isEmpty()||level==null)return;
         var rules=InfusionVisuals.get();var craft=WorkshopEquipment.craft(item);if(craft.isEmpty())return;

@@ -48,7 +48,7 @@ class CultivationProgressionContractTest(unittest.TestCase):
         stages = {s['id']: s for path in (self.root / contract.REALMS).glob('*.json')
                   for s in json.loads(path.read_text())['stages']}
         route = []
-        sid = 'myvillage:mortal_qi_sensed'
+        sid = 'yuanxian:mortal_qi_sensed'
         while True:
             self.assertNotIn(sid, route)
             route.append(sid)
@@ -56,8 +56,8 @@ class CultivationProgressionContractTest(unittest.TestCase):
                 break
             sid = stages[sid]['advancement']['target_stage']
         self.assertEqual(16, len(route))
-        self.assertEqual('myvillage:golden_late', route[-1])
-        self.assertEqual(set(stages) - {'myvillage:mortal_unawakened'}, set(route))
+        self.assertEqual('yuanxian:golden_late', route[-1])
+        self.assertEqual(set(stages) - {'yuanxian:mortal_unawakened'}, set(route))
         self.assertEqual(15, sum('advancement' in s for s in stages.values()))
 
     def test_every_missing_edge_is_a_premature_terminal(self):
@@ -72,20 +72,20 @@ class CultivationProgressionContractTest(unittest.TestCase):
                 path.write_text(original)
 
     def test_skipping_an_existing_stage_is_rejected(self):
-        self.mutate_stage('myvillage:qi_refining_4', lambda s: s['advancement'].update(target_stage='myvillage:qi_refining_6'))
+        self.mutate_stage('yuanxian:qi_refining_4', lambda s: s['advancement'].update(target_stage='yuanxian:qi_refining_6'))
         self.assert_code('PROGRESSION_ADJACENCY', self.errors())
         self.assert_code('PROGRESSION_REACHABILITY', self.errors())
 
     def test_self_loop_and_multi_stage_cycle_are_rejected(self):
-        for target in ('myvillage:qi_refining_5', 'myvillage:qi_refining_4'):
-            self.mutate_stage('myvillage:qi_refining_5', lambda s: s['advancement'].update(target_stage=target))
+        for target in ('yuanxian:qi_refining_5', 'yuanxian:qi_refining_4'):
+            self.mutate_stage('yuanxian:qi_refining_5', lambda s: s['advancement'].update(target_stage=target))
             self.assert_code('PROGRESSION_CYCLE', self.errors())
 
     def test_major_boundaries_require_the_exact_next_owner_and_stage(self):
         for sid, wrong_realm, wrong_stage in (
-            ('myvillage:qi_refining_9', 'myvillage:golden_core', 'myvillage:golden_early'),
-            ('myvillage:foundation_late', 'myvillage:golden_core', 'myvillage:golden_middle'),
-            ('myvillage:qi_refining_9', 'myvillage:qi_refining', 'myvillage:foundation_early'),
+            ('yuanxian:qi_refining_9', 'yuanxian:golden_core', 'yuanxian:golden_early'),
+            ('yuanxian:foundation_late', 'yuanxian:golden_core', 'yuanxian:golden_middle'),
+            ('yuanxian:qi_refining_9', 'yuanxian:qi_refining', 'yuanxian:foundation_early'),
         ):
             with self.subTest(sid=sid):
                 path = self.root / contract.REALMS / (contract.STAGE_OWNERS[sid].split(':')[1] + '.json')
@@ -95,8 +95,8 @@ class CultivationProgressionContractTest(unittest.TestCase):
                 path.write_text(original)
 
     def test_terminal_cannot_gain_or_advance_to_a_supported_stats_only_realm(self):
-        self.mutate_stage('myvillage:golden_late', lambda s: s.update(cultivation_cap=8400, advancement={
-            'target_realm': 'myvillage:nascent_soul', 'target_stage': 'myvillage:nascent_early'}))
+        self.mutate_stage('yuanxian:golden_late', lambda s: s.update(cultivation_cap=8400, advancement={
+            'target_realm': 'yuanxian:nascent_soul', 'target_stage': 'yuanxian:nascent_early'}))
         self.assert_code('PROGRESSION_TERMINAL', self.errors())
 
     def test_deleted_duplicated_reordered_or_wrong_owner_stage_is_rejected(self):
@@ -106,7 +106,7 @@ class CultivationProgressionContractTest(unittest.TestCase):
         for change in (lambda d: d['stages'].pop(),
                        lambda d: d['stages'].append(copy.deepcopy(d['stages'][0])),
                        lambda d: d['stages'].reverse(),
-                       lambda d: d['stages'][1].update(id='myvillage:golden_middle')):
+                       lambda d: d['stages'][1].update(id='yuanxian:golden_middle')):
             path.write_text(original)
             self.mutate_json(relative, change)
             self.assert_code('PROGRESSION_STAGE', self.errors())
@@ -116,15 +116,15 @@ class CultivationProgressionContractTest(unittest.TestCase):
 
     def test_registered_but_unreachable_extra_stage_is_rejected(self):
         self.mutate_json(contract.REALMS / 'golden_core.json', lambda d: d['stages'].append({
-            'id': 'myvillage:golden_secret', 'sort_order': 3, 'spiritual_power_cap': 650}))
+            'id': 'yuanxian:golden_secret', 'sort_order': 3, 'spiritual_power_cap': 650}))
         self.assert_code('PROGRESSION_STAGE', self.errors())
 
     def test_next_realm_must_agree_with_the_actual_major_transition(self):
-        self.mutate_json(contract.REALMS / 'foundation_establishment.json', lambda d: d.update(next_realm='myvillage:qi_refining'))
+        self.mutate_json(contract.REALMS / 'foundation_establishment.json', lambda d: d.update(next_realm='yuanxian:qi_refining'))
         self.assert_code('PROGRESSION_NEXT_REALM', self.errors())
 
     def test_cap_and_stone_cost_match_java_numeric_limits(self):
-        sid = 'myvillage:foundation_early'
+        sid = 'yuanxian:foundation_early'
         path = self.root / contract.REALMS / 'foundation_establishment.json'
         original = path.read_text()
         for key, value, code in (('cultivation_cap', 1, 'PROGRESSION_CAP'),
@@ -139,20 +139,20 @@ class CultivationProgressionContractTest(unittest.TestCase):
             self.assert_code(code, self.errors())
 
     def test_missing_cost_cannot_leave_a_nominally_reachable_but_unusable_source(self):
-        self.mutate_stage('myvillage:golden_middle', lambda s: s.pop('spirit_stone_cost'))
+        self.mutate_stage('yuanxian:golden_middle', lambda s: s.pop('spirit_stone_cost'))
         self.assert_code('PROGRESSION_COST', self.errors())
 
     def test_required_stability_and_compatibility_cost_remain_cap_derived(self):
         for key, code in (('required_stability', 'PROGRESSION_STABILITY'), ('stability_cost', 'PROGRESSION_RETENTION')):
-            self.mutate_stage('myvillage:golden_early', lambda s: s['advancement'].update({key: 1}))
+            self.mutate_stage('yuanxian:golden_early', lambda s: s['advancement'].update({key: 1}))
             self.assert_code(code, self.errors())
 
     def test_a_coherent_new_stage_retune_is_valid_and_odd_compatibility_cost_rounds_up(self):
         # No duplicated new-stage balance table: valid authored tuning is accepted.
-        self.mutate_stage('myvillage:foundation_early', lambda s: s.update(cultivation_cap=3002))
-        self.mutate_stage('myvillage:foundation_early', lambda s: s['advancement'].update(required_stability=1501, stability_cost=751))
+        self.mutate_stage('yuanxian:foundation_early', lambda s: s.update(cultivation_cap=3002))
+        self.mutate_stage('yuanxian:foundation_early', lambda s: s['advancement'].update(required_stability=1501, stability_cost=751))
         self.assertEqual([], self.errors())
-        self.mutate_stage('myvillage:foundation_early', lambda s: s['advancement'].update(stability_cost=750))
+        self.mutate_stage('yuanxian:foundation_early', lambda s: s['advancement'].update(stability_cost=750))
         self.assert_code('PROGRESSION_RETENTION', self.errors())
 
     def test_duration_kind_loss_and_rule_field_boundaries(self):
@@ -165,15 +165,15 @@ class CultivationProgressionContractTest(unittest.TestCase):
                                  ('interruption_stability_loss', 1, 'PROGRESSION_LOSS'),
                                  ('authority', 1, 'PROGRESSION_RULE')):
             path.write_text(original)
-            self.mutate_stage('myvillage:foundation_early', lambda s: s['advancement'].update({key: value}))
+            self.mutate_stage('yuanxian:foundation_early', lambda s: s['advancement'].update({key: value}))
             self.assert_code(code, self.errors())
         path.write_text(original)
-        self.mutate_stage('myvillage:foundation_late', lambda s: s['advancement'].update(interruption_stability_loss=0, kind='ordinary'))
+        self.mutate_stage('yuanxian:foundation_late', lambda s: s['advancement'].update(interruption_stability_loss=0, kind='ordinary'))
         self.assert_code('PROGRESSION_LOSS', self.errors())
         self.assert_code('PROGRESSION_KIND', self.errors())
 
     def test_first_four_transitions_remain_pinned(self):
-        self.mutate_stage('myvillage:qi_refining_2', lambda s: s['advancement'].update(duration_ticks=121))
+        self.mutate_stage('yuanxian:qi_refining_2', lambda s: s['advancement'].update(duration_ticks=121))
         self.assert_code('PROGRESSION_BASELINE', self.errors())
 
     def test_power_is_explicit_nonnegative_bounded_and_preserves_old_capacities(self):
@@ -181,12 +181,12 @@ class CultivationProgressionContractTest(unittest.TestCase):
         original = path.read_text()
         for value in (None, -1, 0, True, 600.5, float('inf'), contract.MAX_LONG + 1):
             path.write_text(original)
-            self.mutate_stage('myvillage:golden_middle', lambda s: s.update(spiritual_power_cap=value))
+            self.mutate_stage('yuanxian:golden_middle', lambda s: s.update(spiritual_power_cap=value))
             self.assert_code('PROGRESSION_POWER', self.errors())
         path.write_text(original)
-        self.mutate_stage('myvillage:golden_middle', lambda s: s.update(spiritual_power_cap=399))
+        self.mutate_stage('yuanxian:golden_middle', lambda s: s.update(spiritual_power_cap=399))
         self.assert_code('PROGRESSION_POWER', self.errors())
-        self.mutate_stage('myvillage:qi_refining_7', lambda s: s.update(spiritual_power_cap=91))
+        self.mutate_stage('yuanxian:qi_refining_7', lambda s: s.update(spiritual_power_cap=91))
         self.assert_code('PROGRESSION_POWER', self.errors())
 
     def test_alias_coverage_duplicates_and_owner_or_ordinal_mismatch(self):
@@ -194,10 +194,10 @@ class CultivationProgressionContractTest(unittest.TestCase):
         original = path.read_text()
         for mutation in (lambda d: d['player_stage_aliases'].pop(),
                          lambda d: d['player_stage_aliases'].append(d['player_stage_aliases'][0]),
-                         lambda d: d['player_stage_aliases'][-1].update(realm='myvillage:foundation_establishment'),
+                         lambda d: d['player_stage_aliases'][-1].update(realm='yuanxian:foundation_establishment'),
                          lambda d: d['player_stage_aliases'][-1].update(stage=1),
                          lambda d: d['player_stage_aliases'][-1].update(stage=True),
-                         lambda d: d['player_stage_aliases'][-1].update(id='myvillage:unknown')):
+                         lambda d: d['player_stage_aliases'][-1].update(id='yuanxian:unknown')):
             path.write_text(original)
             self.mutate_json(contract.STATS, mutation)
             self.assert_code('PROGRESSION_ALIAS', self.errors())
@@ -211,7 +211,7 @@ class CultivationProgressionContractTest(unittest.TestCase):
         self.assert_code('PROGRESSION_LIFESPAN', self.errors())
 
     def test_both_focused_data_gates_use_the_shared_graph_contract(self):
-        self.mutate_stage('myvillage:qi_refining_9', lambda s: s.pop('advancement'))
+        self.mutate_stage('yuanxian:qi_refining_9', lambda s: s.pop('advancement'))
         gain = CultivationGainValidator(self.root)
         gain.validate_caps()
         advancement = CultivationAdvancementValidator(self.root)

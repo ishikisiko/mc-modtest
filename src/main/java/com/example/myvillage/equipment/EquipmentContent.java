@@ -10,7 +10,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** Adding another authored armor set needs catalogue data, not another renderer/registration class. */
 public final class EquipmentContent {
-    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("myvillage");
+    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("yuanxian");
     private static final Map<ResourceLocation, DeferredItem<EquipmentArmorItem>> ARMOR = new LinkedHashMap<>();
 
     static {

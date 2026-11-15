@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class SectDialogueScreen extends Screen {
     private static final Logger LOGGER = LoggerFactory.getLogger(SectDialogueScreen.class);
-    private static final String KEY = "screen.myvillage.sect_dialogue.";
+    private static final String KEY = "screen.yuanxian.sect_dialogue.";
     static final int MAX_PANEL_WIDTH = 400;
     static final int PORTRAIT = 64;
     static final int COLUMN_GAP = 10;

@@ -120,17 +120,17 @@ def export(spec_path,out):
     checks=model.audit()
     if checks['status']!='pass':raise ValueError('宗门几何失败：'+json.dumps(checks,ensure_ascii=False))
     anchors=metadata(model);key=spec['id'].split(':',1)[1]
-    folder=out/'data/myvillage/sect_blueprints'/key
+    folder=out/'data/yuanxian/sect_blueprints'/key
     tiles=[];palette=set(model.surface_states);max_y=max(model.terrain)
     for tx,tz,cells,entities,_ in final_tiles(model,terrain=False):
         if not cells:continue
-        path=out/'data/myvillage/structure/sect_blueprints'/key/f'tile_{tx}_{tz}.nbt'
+        path=out/'data/yuanxian/structure/sect_blueprints'/key/f'tile_{tx}_{tz}.nbt'
         count,_,_=write_tile(path,cells,model.height,entities)
         _,root=read_gzipped_nbt(path);states=[state_string(s) for s in root['palette']]
         actual={tuple(row['pos']):states[row['state']] for row in root['blocks']}
         if actual!={p:v[0] for p,v in cells.items()}:raise ValueError('正式分块回读不一致：'+str(path))
         palette.update(states);max_y=max(max_y,max(p[1] for p,state in actual.items() if state!=AIR))
-        tiles.append({'x':tx*16,'z':tz*16,'template':f'myvillage:sect_blueprints/{key}/{path.stem}',
+        tiles.append({'x':tx*16,'z':tz*16,'template':f'yuanxian:sect_blueprints/{key}/{path.stem}',
                       'sha256':digest(path),'blocks':count})
     errors=load_modset('full').palette_block_errors(sorted(palette))
     if errors:raise ValueError('; '.join(errors))
@@ -147,7 +147,7 @@ def export(spec_path,out):
               'archetype':spec['archetype'],'scale':spec['scale'],'road_port':spec['runtime']['road_port'],
               'surfaces':surfaces,'subsoil':'minecraft:dirt','topsoil_depth':spec['landscape']['topsoil_depth'],
               'regional_surfaces':spec['landscape']['regional_surfaces'],
-              'terrain':{'resource':f'myvillage:sect_blueprints/{key}/terrain.bin.gz','sha256':digest(terrain)},
+              'terrain':{'resource':f'yuanxian:sect_blueprints/{key}/terrain.bin.gz','sha256':digest(terrain)},
               'worldgen':json.loads((ROOT/'blueprints/sects/catalog.json').read_text())['worldgen'],'tiles':tiles,**anchors,'source_hashes':hashes,
               'routes':[{k:v for k,v in route.items() if k!='columns'} for route in model.routes],
               'entry_connections':spec['entry_connections'],
@@ -162,16 +162,16 @@ def export(spec_path,out):
 
 def export_catalog(out):
     source=ROOT/'blueprints/sects/catalog.json';catalog=json.loads(source.read_text());out=Path(out)
-    for relative in ('data/myvillage/sect_blueprints','data/myvillage/structure/sect_blueprints'):
+    for relative in ('data/yuanxian/sect_blueprints','data/yuanxian/structure/sect_blueprints'):
         shutil.rmtree(out/relative,ignore_errors=True)
     refs=[]
     for row in catalog['layouts']:
         path=source.parent/row['source'];spec=export(path,out);key=spec['id'].split(':')[1]
         if any(spec[k]!=row[k] for k in ('id','archetype','scale')):raise ValueError('宗门目录与输入不符')
-        refs.append({'id':spec['id'],'resource':f'myvillage:sect_blueprints/{key}/sect.json',
-                     'sha256':digest(out/f'data/myvillage/sect_blueprints/{key}/sect.json')})
+        refs.append({'id':spec['id'],'resource':f'yuanxian:sect_blueprints/{key}/sect.json',
+                     'sha256':digest(out/f'data/yuanxian/sect_blueprints/{key}/sect.json')})
     if len({r['id'] for r in refs})!=len(refs) or catalog['default'] not in {r['id'] for r in refs}:raise ValueError('宗门目录身份无效')
-    write_json(out/'data/myvillage/sect_blueprints/catalog.json',{'schema':1,'default':catalog['default'],'layouts':refs})
+    write_json(out/'data/yuanxian/sect_blueprints/catalog.json',{'schema':1,'default':catalog['default'],'layouts':refs})
 
 
 if __name__=='__main__':

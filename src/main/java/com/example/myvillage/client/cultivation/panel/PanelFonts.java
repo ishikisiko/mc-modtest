@@ -8,8 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 
 /** A scoped default font: drawing, wrapping and measuring resolve exactly the same glyphs. */
 public final class PanelFonts {
-    public static final ResourceLocation BODY = ResourceLocation.fromNamespaceAndPath("myvillage", "panel_body");
-    public static final ResourceLocation TITLE = ResourceLocation.fromNamespaceAndPath("myvillage", "panel_title");
+    public static final ResourceLocation BODY = ResourceLocation.fromNamespaceAndPath("yuanxian", "panel_body");
+    public static final ResourceLocation TITLE = ResourceLocation.fromNamespaceAndPath("yuanxian", "panel_title");
     private static Font vanilla;
     private static Font panel;
 
@@ -19,7 +19,7 @@ public final class PanelFonts {
         Font current = Minecraft.getInstance().font;
         if (panel == null || vanilla != current) {
             vanilla = current;
-            var sets = ((PanelFontAccess) current).myvillage$fontSets();
+            var sets = ((PanelFontAccess) current).yuanxian$fontSets();
             // The function reads the manager on every lookup and therefore survives resource reloads.
             panel = new Font(id -> sets.apply(Style.DEFAULT_FONT.equals(id) ? BODY : id), false);
         }

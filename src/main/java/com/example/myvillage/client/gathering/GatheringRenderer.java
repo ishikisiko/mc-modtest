@@ -10,7 +10,7 @@ import net.minecraft.world.phys.AABB;
 
 /** Bounded ground runes: original octagon, jade lotus loops, or purple-gold trigram rings. */
 public final class GatheringRenderer implements BlockEntityRenderer<GatheringBlockEntity> {
-    private static final ResourceLocation TEXTURE=ResourceLocation.fromNamespaceAndPath("myvillage","textures/block/gathering_glow.png");
+    private static final ResourceLocation TEXTURE=ResourceLocation.fromNamespaceAndPath("yuanxian","textures/block/gathering_glow.png");
     public GatheringRenderer(BlockEntityRendererProvider.Context context){ }
     @Override public void render(GatheringBlockEntity core,float delta,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         if(!core.formed()||core.getLevel()==null)return;

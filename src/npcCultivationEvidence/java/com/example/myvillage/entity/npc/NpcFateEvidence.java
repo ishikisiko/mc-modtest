@@ -23,7 +23,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** 原生实体、实际伤害事件和真实服务器重启；不声称玩家输入或 NPC 战术验收。 */
-@EventBusSubscriber(modid="myvillage")
+@EventBusSubscriber(modid="yuanxian")
 public final class NpcFateEvidence {
     private static final Path OUT=Path.of(System.getenv().getOrDefault("MYVILLAGE_NPC_CULTIVATION_OUT","../reports/npc-fates-native"));
     private static final List<Map<String,Object>> CHECKS=new ArrayList<>();
@@ -41,16 +41,16 @@ public final class NpcFateEvidence {
                 "failed",CHECKS.stream().filter(c->c.get("pass").equals(false)).toList())));
     }
     @SubscribeEvent public static void commands(RegisterCommandsEvent event){event.getDispatcher().register(
-            Commands.literal("myvillage_npc_fates_evidence").requires(s->s.hasPermission(2))
+            Commands.literal("yuanxian_npc_fates_evidence").requires(s->s.hasPermission(2))
                     .then(Commands.literal("begin").executes(c->{try{begin(c.getSource().getServer());return 1;}catch(Exception e){throw new IllegalStateException(e);}}))
                     .then(Commands.literal("restart").executes(c->{try{restart(c.getSource().getServer());return 1;}catch(Exception e){throw new IllegalStateException(e);}})));}
     private static NpcEntity actor(ServerLevel level,String name,String special)throws Exception{
-        var ids=List.of("myvillage:"+special,"myvillage:bright","myvillage:herbal_lore");
+        var ids=List.of("yuanxian:"+special,"yuanxian:bright","yuanxian:herbal_lore");
         int spent=ids.stream().map(FateService.definitions(level.registryAccess())::get).mapToInt(FateDefinition::cost).sum();
         NpcEntity npc=ModEntities.CULTIVATOR.get().create(level);npc.cultivationInitialized=true;npc.setProdigy(spent==9);
         npc.foundationQuality=spent==9?2:1;
         npc.fates=new com.example.myvillage.sim.fate.NpcFateRoll(ids,9,spent);npc.setNoAi(true);npc.spiritualPower=0;
-        npc.moveTo(8+ACTORS.size()*3,-60,8,0,0);StatsRuntime.applyRealm(npc,"myvillage:foundation_establishment",0);
+        npc.moveTo(8+ACTORS.size()*3,-60,8,0,0);StatsRuntime.applyRealm(npc,"yuanxian:foundation_establishment",0);
         if(!level.addFreshEntity(npc))throw new IllegalStateException("fixture actor rejected");
         npc.setHealth(npc.getMaxHealth());ACTORS.put(name,npc);return npc;
     }
@@ -61,7 +61,7 @@ public final class NpcFateEvidence {
         var level=server.overworld();for(int x=0;x<=4;x++)for(int z=0;z<=1;z++){level.setChunkForced(x,z,true);level.getChunk(x,z);}
         WorldSimRuntime.setPaused(true);var sim=WorldSimRuntime.sim().orElseThrow();
         var robust=actor(level,"robust","robust");var foot=actor(level,"lightfoot","lightfoot");
-        var base=CultivationStatsRules.bundled().at(new RealmKey("myvillage:foundation_establishment",0),1,0);
+        var base=CultivationStatsRules.bundled().at(new RealmKey("yuanxian:foundation_establishment",0),1,0);
         check("npc_health_effect",near(robust.getMaxHealth(),base.health()*1.15),StatsRuntime.info(robust));
         check("npc_speed_effect",near(foot.getAttributeValue(Attributes.MOVEMENT_SPEED),NpcCombatRules.get().speed()*1.1),StatsRuntime.info(foot));
         var burning=actor(level,"burning","burning_star");var normal=actor(level,"normal","school_insight");

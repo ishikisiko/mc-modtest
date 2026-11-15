@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 final class ImmortalEquipmentCatalogueTest {
     private static JsonObject source() {
-        var stream = ImmortalEquipmentCatalogueTest.class.getResourceAsStream("/data/myvillage/immortal_equipment/catalogue.json");
+        var stream = ImmortalEquipmentCatalogueTest.class.getResourceAsStream("/data/yuanxian/immortal_equipment/catalogue.json");
         assertNotNull(stream, "缺少正式目录");
         try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return JsonParser.parseReader(reader).getAsJsonObject();
@@ -70,9 +70,9 @@ final class ImmortalEquipmentCatalogueTest {
 
     @Test void foreignIdsAndMismatchedResourcesFailClosed() {
         rejects(d -> first(d).getAsJsonObject("ingot").addProperty("id", "minecraft:iron_ingot"));
-        rejects(d -> first(d).getAsJsonArray("armor").get(0).getAsJsonObject().addProperty("id", "myvillage:xuantie_helmet"));
-        rejects(d -> first(d).addProperty("model", "myvillage:immortal_equipment/other.json"));
-        rejects(d -> first(d).addProperty("texture", "myvillage:textures/equipment/xuantie_armor.png"));
+        rejects(d -> first(d).getAsJsonArray("armor").get(0).getAsJsonObject().addProperty("id", "yuanxian:xuantie_helmet"));
+        rejects(d -> first(d).addProperty("model", "yuanxian:immortal_equipment/other.json"));
+        rejects(d -> first(d).addProperty("texture", "yuanxian:textures/equipment/xuantie_armor.png"));
     }
 
     @Test void invalidTierAndNonfiniteNumbersFailClosed() {

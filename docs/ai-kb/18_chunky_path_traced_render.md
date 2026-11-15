@@ -1,6 +1,6 @@
 # Chunky Path-Traced Rendering (Headless)
 
-> **Status:** pipeline verified end-to-end on 2026-07-01 with `tools/render_structure.py` producing upright multi-view PNGs from the Stage 2 acceptance world. The renderer can load world chunks, solve camera yaw/pitch/roll, render, snapshot, and emit a manifest without manual camera tuning for ordinary Minecraft blocks. It is **not** currently a custom `myvillage:` block visual-acceptance path: `myvillage:rockery_block` renders as Chunky's unknown-block placeholder even when the MyVillage jar is passed via `-texture`.
+> **Status:** pipeline verified end-to-end on 2026-07-01 with `tools/render_structure.py` producing upright multi-view PNGs from the Stage 2 acceptance world. The renderer can load world chunks, solve camera yaw/pitch/roll, render, snapshot, and emit a manifest without manual camera tuning for ordinary Minecraft blocks. It is **not** currently a custom `yuanxian:` block visual-acceptance path: `yuanxian:rockery_block` renders as Chunky's unknown-block placeholder even when the MyVillage jar is passed via `-texture`.
 >
 > See-also [17_chunky_acceptance.md](17_chunky_acceptance.md) (the *block-pregen* Chunky acceptance flow — a different tool that happens to share the name), and the `chunky-acceptance-automation` change spec.
 
@@ -104,7 +104,7 @@ These are the **authoritative** field names from the 2.4.6 constant pool / `java
 5. **Two-pass/fallback:** `-render` may write an auto-snapshot under `<scene>/snapshots/`; otherwise `-snapshot` reads the dump and writes the PNG. `tools/render_structure.py` tries auto-snapshot first, then restores the pristine scene JSON and runs `-snapshot`.
 6. **`-f` (force)** is required or headless render silently skips scenes it thinks are already at target SPP.
 7. **Bbox-only `chunkList` clips the world.** Chunky renders unloaded chunks as empty background. `tools/render_structure.py` now builds a per-view chunk rectangle covering the structure bbox, camera position, line of sight, and `--chunk-pad` margin (default 4), so multi-view shots include surrounding terrain.
-8. **Custom `myvillage:` blocks are not visually accepted through this renderer yet.** A 2026-07-01 `hero_rockery` test proved that the world contains the expected `myvillage:rockery_block` cells, but Chunky 2.4.6 rendered them as purple/black unknown-block placeholders. Passing `build/libs/myvillage-0.18.1.jar` through `-texture` did not fix block-model resolution. Until a dedicated Chunky model/plugin/resource solution exists, use Minecraft client inspection for custom block appearance and treat renderer output only as block-presence evidence.
+8. **Custom `yuanxian:` blocks are not visually accepted through this renderer yet.** A 2026-07-01 `hero_rockery` test proved that the world contains the expected `yuanxian:rockery_block` cells, but Chunky 2.4.6 rendered them as purple/black unknown-block placeholders. Passing `build/libs/yuanxian-0.18.1.jar` through `-texture` did not fix block-model resolution. Until a dedicated Chunky model/plugin/resource solution exists, use Minecraft client inspection for custom block appearance and treat renderer output only as block-presence evidence.
 
 ## Verification record (2026-06-30)
 
@@ -144,12 +144,12 @@ Requested target: render the standalone `hero_rockery` review fragment to see th
 actual 假山 form. The server-side placement path worked:
 
 ```text
-myvillage placeat hero_rockery 0 140 -512
+yuanxian placeat hero_rockery 0 140 -512
 ```
 
 The saved-world scan around that high-air fixture found a clean target bbox:
 `[2,140,-510]..[4,142,-508]`, size `3x3x3`, `20` blocks, all
-`myvillage:rockery_block`.
+`yuanxian:rockery_block`.
 
 Chunky renderer outputs were written under
 `chunky-render/hero_rockery_sky_spp10/`. They show the fixture and platform, but
@@ -157,14 +157,14 @@ the rockery blocks render as purple/black question-mark unknown-block geometry,
 not as the mod's baked 太湖石 models. A follow-up one-view render with:
 
 ```text
--texture build/libs/myvillage-0.18.1.jar
+-texture build/libs/yuanxian-0.18.1.jar
 ```
 
 wrote `chunky-render/hero_rockery_sky_texture_test/front_texture.png` and showed
 the same placeholder geometry. This rules out camera framing and basic texture
 pack presence as the primary issue; the unresolved gap is Chunky's handling of
 the mod-owned custom block id/model. For now, do **not** use Chunky renderer
-images as acceptance evidence for custom `myvillage:` block appearance.
+images as acceptance evidence for custom `yuanxian:` block appearance.
 
 ## Open work (next session)
 
@@ -173,7 +173,7 @@ images as acceptance evidence for custom `myvillage:` block appearance.
 3. **Deferred custom-block renderer support.** If custom block visual acceptance
    is needed later, investigate a Chunky-side model/plugin workflow or a
    deliberate vanilla proxy scene. Do not fold that into routine acceptance until
-   it renders `myvillage:rockery_block` without unknown-block placeholders.
+   it renders `yuanxian:rockery_block` without unknown-block placeholders.
 
 ## Cleanup note
 

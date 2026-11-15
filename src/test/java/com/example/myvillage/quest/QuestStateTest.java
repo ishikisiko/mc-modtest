@@ -47,7 +47,7 @@ class QuestStateTest {
         var state=new QuestState();var p=UUID.randomUUID();var r=issue(state,"beast_den","ximo",p);
         state.members.get(p).outside=new QuestState.Place(QuestState.dimension(r.id),1,80,1,0,0);
         assertThrows(IllegalStateException.class,state::validate);
-        assertEquals(r.id,QuestState.identity(QuestState.dimension(r.id)).orElseThrow());assertTrue(QuestState.reserved("myvillage:expedition_template"));
-        assertTrue(QuestState.identity("myvillage:expedition/not-a-uuid").isEmpty());assertFalse(QuestState.reserved("myvillage:qianzhen/"+p));
+        assertEquals(r.id,QuestState.identity(QuestState.dimension(r.id)).orElseThrow());assertTrue(QuestState.reserved("yuanxian:expedition_template"));
+        assertTrue(QuestState.identity("yuanxian:expedition/not-a-uuid").isEmpty());assertFalse(QuestState.reserved("yuanxian:qianzhen/"+p));
     }
 }

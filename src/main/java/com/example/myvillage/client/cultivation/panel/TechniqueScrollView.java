@@ -13,7 +13,7 @@ final class TechniqueScrollView {
     private static final Map<TechniqueScrollStyle, ResourceLocation> TEXTURES = new EnumMap<>(TechniqueScrollStyle.class);
     static {
         for (var style : TechniqueScrollStyle.values()) if (style != TechniqueScrollStyle.UNKNOWN)
-            TEXTURES.put(style, ResourceLocation.fromNamespaceAndPath("myvillage",
+            TEXTURES.put(style, ResourceLocation.fromNamespaceAndPath("yuanxian",
                     "textures/gui/cultivation/technique_scroll/" + style.texture() + ".png"));
     }
 

@@ -16,7 +16,7 @@ class WorldSimCommerceTest {
     static final long SEED=42;
     static final int DAY=24_000;
     static final String A="00000000-0000-0000-0000-00000000000a",B="00000000-0000-0000-0000-00000000000b";
-    static final String SITE="shop_town",PILL="myvillage:pill_huiling",BUY="buy_pill_huiling";
+    static final String SITE="shop_town",PILL="yuanxian:pill_huiling",BUY="buy_pill_huiling";
     WorldSim fresh() {
         var state=new WorldState();state.seed=SEED;state.tierId="small";state.genesisDaysPerYear=24;
         var graph=SimFixtures.graph(SEED);String region=graph.regions().getFirst().id();
@@ -73,7 +73,7 @@ class WorldSimCommerceTest {
         for(String slot:List.of("helmet","chestplate","leggings","boots")) {
             String id="buy_pattern_xuantie_"+slot;var offer=sim.commerceRules().offer(id);
             assertEquals("herbalist",offer.role());assertEquals("buy",offer.kind());
-            assertEquals("myvillage:pattern_xuantie_"+slot,offer.item());
+            assertEquals("yuanxian:pattern_xuantie_"+slot,offer.item());
             assertTrue(offer.unlimited());assertEquals(0,offer.initialStock());assertEquals(0,offer.medicineCost());
             var before=market(sim);var q=bulk(sim,id,A,8);var competing=bulk(sim,id,B,8);
             assertTrue(q.ready());assertEquals(offer.price()*8,q.price());
@@ -95,7 +95,7 @@ class WorldSimCommerceTest {
             var before=market(original);
             var root=JsonParser.parseString(new String(original.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
             var items=root.getAsJsonObject("commerce").getAsJsonObject("markets").getAsJsonObject(SITE).getAsJsonObject("items");
-            for(String slot:List.of("helmet","chestplate","leggings","boots"))items.addProperty("myvillage:pattern_xuantie_"+slot,legacyStock);
+            for(String slot:List.of("helmet","chestplate","leggings","boots"))items.addProperty("yuanxian:pattern_xuantie_"+slot,legacyStock);
             var sim=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
             for(var r:sim.lifeResidents())sim.activateLife(r.personId());
             assertEquals(before.revision(),market(sim).revision());
@@ -112,7 +112,7 @@ class WorldSimCommerceTest {
         }
     }
     @Test void unlimitedCatalogueMustBeBuyOnlyAndHaveNoFiniteStockOrMedicineProduction() throws Exception {
-        String source=Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"));
+        String source=Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/commerce_rules.json"));
         for(String field:List.of("kind","initial_stock","capacity","medicine_cost")) {
             var root=JsonParser.parseString(source).getAsJsonObject();
             var offer=java.util.stream.StreamSupport.stream(root.getAsJsonArray("offers").spliterator(),false)
@@ -151,7 +151,7 @@ class WorldSimCommerceTest {
         assertEquals("cannot_buy",bulk(loaded,"sell_dew_blossom",A,2).result());
         assertTrue(loaded.commitCommerce(quote(loaded,"sell_dew_blossom",A),A));
         assertEquals(32,loaded.lifeSupply(SITE).orElseThrow().stock());
-        assertEquals(3,loaded.professionSupply(SITE).orElseThrow().herbs().get("myvillage:dew_blossom"));
+        assertEquals(3,loaded.professionSupply(SITE).orElseThrow().herbs().get("yuanxian:dew_blossom"));
         assertEquals(19,loaded.professionSupply(SITE).orElseThrow().legacyStock());
         assertEquals("cannot_buy",quote(loaded,"sell_spirit_leaf",A).result());
     }
@@ -219,7 +219,7 @@ class WorldSimCommerceTest {
         assertEquals(1,sim.lifeSupply(SITE).orElseThrow().stock());
         assertEquals(0,sim.lifeSupply(SITE).orElseThrow().medicine());
         assertEquals(initial,market(sim).items(),"herbalist wages never authorize production");
-        assertEquals(1,sim.professionSupply(SITE).orElseThrow().herbs().get("myvillage:spirit_leaf"));
+        assertEquals(1,sim.professionSupply(SITE).orElseThrow().herbs().get("yuanxian:spirit_leaf"));
         var before=market(sim);sim.advanceLife(420,DAY);assertEquals(before,market(sim));
     }
     @Test void legacyMedicineAndClassifiedHerbsCannotMakeClerkAProducer() {
@@ -280,14 +280,14 @@ class WorldSimCommerceTest {
         assertEquals("paused",q.result());assertFalse(sim.commitCommerce(q,A));assertEquals(before,market(sim));
     }
     @Test void configurationRejectsNegativePricesAndUnknownFields() throws Exception {
-        var source=Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"));
+        var source=Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/commerce_rules.json"));
         var root=JsonParser.parseString(source).getAsJsonObject();root.getAsJsonArray("offers").get(0).getAsJsonObject().addProperty("price",-1);
         assertThrows(SimDataException.class,()->CommerceRules.parse("test",root));
         var extra=JsonParser.parseString(source).getAsJsonObject();extra.addProperty("typo",true);
         assertThrows(SimDataException.class,()->CommerceRules.parse("test",extra));
     }
     @Test void commodityUnitsMustMatchPhysicalQuantityIncludingHerbs() throws Exception {
-        var source=Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"));
+        var source=Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/commerce_rules.json"));
         var offers=JsonParser.parseString(source).getAsJsonObject().getAsJsonArray("offers");
         int checked=0;
         for(int i=0;i<offers.size();i++) {
@@ -302,7 +302,7 @@ class WorldSimCommerceTest {
         assertEquals(offers.size()-1,checked);
     }
     @Test void herbOffersMustAgreeOnSharedCapacity() throws Exception {
-        var source=Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"));
+        var source=Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/commerce_rules.json"));
         var root=JsonParser.parseString(source).getAsJsonObject();
         int herbSeen=0;
         for(var value:root.getAsJsonArray("offers")) {

@@ -144,7 +144,7 @@ class QianzhenEvidence(BuildingEvidence):
                     'forceload add -16 -16 208 128', 'defaultgamemode creative', 'setworldspawn 23 -60 -5 0'):
             self.rc(cmd)
         pack = cs.SERVER_DIR/cs.LEVEL_NAME/'datapacks/qianzhen_acceptance'
-        target = pack/'data/myvillage/structure'
+        target = pack/'data/yuanxian/structure'
         target.mkdir(parents=True, exist_ok=True)
         (pack/'pack.mcmeta').write_text(json.dumps({'pack':{'pack_format':48,'description':'阡镇独立蓝图验收场景'}}))
         for d in self.buildings:
@@ -315,8 +315,8 @@ class QianzhenEvidence(BuildingEvidence):
                 self.report['inputs'].append({'action':'right_mouse','purpose':name,'block':self.xyz(d,service['pos'])})
                 if before is not None:
                     after = self.poll(lambda:self.rc(f'yuanxian cultivation info {u}'),
-                        lambda s:'myvillage:basic_breathing' in s,10,'mapped inheritance')
-                    self.check(d['id']+'_mapped_inheritance','myvillage:basic_breathing' not in before,
+                        lambda s:'yuanxian:basic_breathing' in s,10,'mapped inheritance')
+                    self.check(d['id']+'_mapped_inheritance','yuanxian:basic_breathing' not in before,
                                {'before':before,'after':after,'video':str(video.relative_to(self.out))})
                     time.sleep(1)
                 else:

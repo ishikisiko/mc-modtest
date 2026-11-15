@@ -65,7 +65,7 @@ class SectDialoguePayloadTest {
         return List.of(
                 Component.translatable("world_sim.dialogue.steward.greet.1", "青云宗"),
                 Component.translatable("world_sim.dialogue.steward.intro.1", "青云宗", "61", "14",
-                        Component.translatable("screen.myvillage.sect_dialogue.none")),
+                        Component.translatable("screen.yuanxian.sect_dialogue.none")),
                 Component.translatable("world_sim.dialogue.steward.member.1", Component.translatable("world_sim.rank.outer")),
                 Component.literal("plain"));
     }
@@ -218,7 +218,7 @@ class SectDialoguePayloadTest {
 
     @Test
     void typeIds() {
-        assertEquals("myvillage:sect_dialogue", SectDialoguePayload.TYPE.id().toString());
-        assertEquals("myvillage:sect_intent", SectIntentPayload.TYPE.id().toString());
+        assertEquals("yuanxian:sect_dialogue", SectDialoguePayload.TYPE.id().toString());
+        assertEquals("yuanxian:sect_intent", SectIntentPayload.TYPE.id().toString());
     }
 }

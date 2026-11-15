@@ -97,7 +97,7 @@ class InkEvidence(Evidence):
         options = dict(line.split(":", 1) for line in (cs.CLIENT_DIR / "options.txt").read_text().splitlines() if ":" in line)
         registration = (ROOT / "src/main/java/com/example/myvillage/client/cultivation/ClientCultivationKeyMappings.java").read_text()
         self.report["verified_bindings"] = meditation_bindings(options, registration)
-        self.must("profile_binding", options.get("key_key.myvillage.open_cultivation_profile", "key.keyboard.h") == "key.keyboard.h", options.get("key_key.myvillage.open_cultivation_profile", "registered H"))
+        self.must("profile_binding", options.get("key_key.yuanxian.open_cultivation_profile", "key.keyboard.h") == "key.keyboard.h", options.get("key_key.yuanxian.open_cultivation_profile", "registered H"))
         u = self.s.username
         for cmd in (*scene.world_rules(), *scene.player_setup(u, "minecraft:air"),
                     "yuanxian world pause", "forceload add -16 -16 32 32",
@@ -178,9 +178,9 @@ class InkEvidence(Evidence):
     def fixture(self, realm, stage, fraction=.25, stable=0):
         self.close_panel()
         self.s.game.key("x")
-        data = json.loads((ROOT / f"src/main/resources/data/myvillage/myvillage/realm/{realm}.json").read_text())
-        definition = next(s for s in data["stages"] if s["id"] == "myvillage:" + stage)
-        for cmd in (f"yuanxian cultivation setrealm {self.s.username} myvillage:{realm} myvillage:{stage}",
+        data = json.loads((ROOT / f"src/main/resources/data/yuanxian/yuanxian/realm/{realm}.json").read_text())
+        definition = next(s for s in data["stages"] if s["id"] == "yuanxian:" + stage)
+        for cmd in (f"yuanxian cultivation setrealm {self.s.username} yuanxian:{realm} yuanxian:{stage}",
                     f"yuanxian cultivation setprogress {self.s.username} {int(definition.get('cultivation_cap', 0) * fraction)}",
                     f"yuanxian cultivation setstability {self.s.username} {stable}"):
             self.rc(cmd)
@@ -216,7 +216,7 @@ class InkEvidence(Evidence):
             self.report["completed"].append(name)
 
         self.fixture("foundation_establishment", "foundation_middle")
-        self.rc(f"give {self.s.username} myvillage:low_grade_spirit_stone 128")
+        self.rc(f"give {self.s.username} yuanxian:low_grade_spirit_stone 128")
         before = self.profile()["progress"]
         self.action(1)
         after = self.poll(self.profile, lambda p: p["progress"] >= before + 50, 10, "mapped spirit button")
@@ -254,7 +254,7 @@ class InkEvidence(Evidence):
         self.fixture("foundation_establishment", "foundation_middle")
         self.close_panel()
         self.rc(f"clear {self.s.username}")
-        self.rc(f"yuanxian cultivation manual {self.s.username} myvillage:tuna_xinfa")
+        self.rc(f"yuanxian cultivation manual {self.s.username} yuanxian:tuna_xinfa")
         self.s.game.key("1")
         self.s.game.xdo("click", "3")
         self.report["inputs"].append({"action": "study manual", "method": "mapped right mouse"})

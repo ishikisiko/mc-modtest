@@ -39,6 +39,6 @@ public final class CultivationHandbookItem extends Item {
             List<Component> tooltipComponents,
             TooltipFlag tooltipFlag) {
         tooltipComponents.add(Component.translatable(
-                "item.myvillage.cultivation_handbook.tooltip").withStyle(ChatFormatting.DARK_GRAY));
+                "item.yuanxian.cultivation_handbook.tooltip").withStyle(ChatFormatting.DARK_GRAY));
     }
 }

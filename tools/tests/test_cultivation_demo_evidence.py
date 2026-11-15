@@ -7,7 +7,7 @@ class DemoEvidenceBoundaryTest(unittest.TestCase):
     def test_player_actions_cannot_be_sent_as_rcon(self):
         for command in ['yuanxian tribulation start DemoTester', 'yuanxian cultivation advance DemoTester',
                         'yuanxian combat cast 1', 'execute as DemoTester run yuanxian combat cast 1',
-                        'give DemoTester minecraft:stone\nmyvillage tribulation start DemoTester']:
+                        'give DemoTester minecraft:stone\nyuanxian tribulation start DemoTester']:
             self.assertFalse(allowed_rcon(command), command)
 
     def test_fixture_and_readback_remain_available(self):

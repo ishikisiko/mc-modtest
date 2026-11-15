@@ -49,7 +49,7 @@ def close(actual, expected, tolerance=0.002) -> bool:
 
 def realm_in_range(key: dict, bounds: list[dict]) -> bool:
     """Independent readback check against the authored ordinal ladder."""
-    rules = json.loads((ROOT / 'src/main/resources/data/myvillage/stats/rules.json').read_text())
+    rules = json.loads((ROOT / 'src/main/resources/data/yuanxian/stats/rules.json').read_text())
     ladder = [(realm['id'], stage) for realm in rules['realms'] for stage in range(realm['stages'])]
     try:
         rank = lambda value: ladder.index((value.get('realmId', value.get('realm')), value['stage']))
@@ -141,7 +141,7 @@ class Evidence:
         else:
             raise RuntimeError('Summoned fixture did not become entity-ticking within 15 seconds')
         self.rc(f'attribute {TARGET} minecraft:generic.armor base set {armor}')
-        self.rc(f'attribute {TARGET} myvillage:physical_resistance base set {resistance}')
+        self.rc(f'attribute {TARGET} yuanxian:physical_resistance base set {resistance}')
         if absorption:
             self.rc(f'effect give {TARGET} minecraft:absorption 60 0 true')
         return self.number(f'data get entity {TARGET} Health')
@@ -185,11 +185,11 @@ class Evidence:
         self.check('rogue_projection_within_caps', 0 < count <= current['settings']['maxPerRegion']
                    and current['wildAvatarsTotal'] <= current['settings']['maxTotal']
                    and current['avatarsTotal'] <= current['avatarsLimit'], current)
-        people = self.rc('execute as @e[type=myvillage:cultivator,nbt={Tags:["myvillage:wild_avatar"]}] run data get entity @s WorldSimPerson')
+        people = self.rc('execute as @e[type=yuanxian:cultivator,nbt={Tags:["yuanxian:wild_avatar"]}] run data get entity @s WorldSimPerson')
         ids = [int(value) for value in re.findall(r': (\d+)\s*$', people, flags=re.MULTILINE)]
         self.check('rogue_identity_deduplicated', len(ids) >= count and len(ids) == len(set(ids)), ids)
         self.report['rogue_stats'] = json_lines(
-            self.rc('yuanxian stats info @e[type=myvillage:cultivator,nbt={Tags:["myvillage:wild_avatar"]}]'), 'STATS_INFO')
+            self.rc('yuanxian stats info @e[type=yuanxian:cultivator,nbt={Tags:["yuanxian:wild_avatar"]}]'), 'STATS_INFO')
         self.check('projected_rogues_inside_region_range',
                    len(self.report['rogue_stats']) >= count and all(
                        realm_in_range({'realmId': row['realm'], 'stage': row['stage']}, current['rogueRange'])
@@ -207,14 +207,14 @@ class Evidence:
         try:
             while time.monotonic() < deadline:
                 time.sleep(5)
-                births = json_lines(self.rc('yuanxian wilderness birth @e[type=myvillage:demon_wolf]'),
+                births = json_lines(self.rc('yuanxian wilderness birth @e[type=yuanxian:demon_wolf]'),
                                     'WILDERNESS_BIRTH')
                 natural = [b for b in births if (b.get('birth') or {}).get('natural')]
                 if natural:
                     break
                 # Clear other natural monsters from this isolated fixture to permit another
                 # bounded spawn round. Do not change biome weights or synthesize a natural flag.
-                self.rc('kill @e[type=!minecraft:player,type=!myvillage:cultivator,type=!myvillage:demon_wolf]')
+                self.rc('kill @e[type=!minecraft:player,type=!yuanxian:cultivator,type=!yuanxian:demon_wolf]')
         finally:
             self.rc('gamerule doMobSpawning false')
             self.rc('time set 6000')
@@ -222,7 +222,7 @@ class Evidence:
         self.report['natural_birth_observation'] = natural
         self.check('natural_birth_observed', bool(natural), natural)
         if natural:
-            regions = json.loads((ROOT / 'src/main/resources/data/myvillage/wilderness/rules.json').read_text())['regions']
+            regions = json.loads((ROOT / 'src/main/resources/data/yuanxian/wilderness/rules.json').read_text())['regions']
             valid = all(realm_in_range(row['birth']['realm'],
                                       [regions[row['birth']['region']]['beast']['min'],
                                        regions[row['birth']['region']]['beast']['max']]) for row in natural)
@@ -257,17 +257,17 @@ class Evidence:
     def initial(self, sword_qi=True):
         user = self.s.username
         started = time.monotonic()
-        for command in (*scene.world_rules(), *scene.player_setup(user, 'myvillage:qingfeng_sword'),
+        for command in (*scene.world_rules(), *scene.player_setup(user, 'yuanxian:qingfeng_sword'),
                         'gamerule naturalRegeneration false', 'yuanxian world pause'):
             self.rc(command)
         # Fixture chunks are explicit. Production wilderness placement never force-loads chunks.
         self.rc('forceload add -16 -16 32 32')
-        self.rc(f'yuanxian cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1')
-        self.rc(f'attribute {user} myvillage:resistance_penetration base set 0')
+        self.rc(f'yuanxian cultivation setrealm {user} yuanxian:qi_refining yuanxian:qi_refining_1')
+        self.rc(f'attribute {user} yuanxian:resistance_penetration base set 0')
         growth = json_lines(self.rc('yuanxian stats growth'), 'STATS_GROWTH')
         self.check('growth_table_exposed', bool(growth), growth)
-        first = self.one('yuanxian stats growth myvillage:qi_refining 0', 'STATS_GROWTH')
-        expected_first = next(row for row in growth if row['realm'] == 'myvillage:qi_refining' and row['stage'] == 0)
+        first = self.one('yuanxian stats growth yuanxian:qi_refining 0', 'STATS_GROWTH')
+        expected_first = next(row for row in growth if row['realm'] == 'yuanxian:qi_refining' and row['stage'] == 0)
         self.check('namespaced_growth_query', first == expected_first, first)
         preview = self.one('yuanxian stats damage preview 10 0 1 0 1 10 physical 0.5 0.1', 'STATS_PREVIEW')
         self.check('damage_preview_readout', close(preview['mitigation']['damage'], 6), preview)
@@ -275,20 +275,20 @@ class Evidence:
         self.damage_probe('armor_then_resistance_once', 10, 8, 4, armor=10, resistance=0.5)
         self.damage_probe('absorption_after_resistance', 10, 10, 5, resistance=0.5, absorption=True)
         self.damage_probe('unknown_damage_untouched', 10, 10, 10, resistance=0.5, source='minecraft:generic')
-        self.rc(f'attribute {user} myvillage:resistance_penetration base set 0.1')
+        self.rc(f'attribute {user} yuanxian:resistance_penetration base set 0.1')
         self.damage_probe('resistance_penetration', 10, 10, 6, resistance=0.5)
-        self.rc(f'attribute {user} myvillage:resistance_penetration base set 0')
+        self.rc(f'attribute {user} yuanxian:resistance_penetration base set 0')
 
         # One mapped attack proves the common outgoing path on a real client.
-        self.rc(f'attribute {user} myvillage:damage_flat base set 2')
-        self.rc(f'attribute {user} myvillage:damage_bonus base set 0.5')
-        self.rc(f'attribute {user} myvillage:damage_multiplier base set 2')
+        self.rc(f'attribute {user} yuanxian:damage_flat base set 2')
+        self.rc(f'attribute {user} yuanxian:damage_bonus base set 0.5')
+        self.rc(f'attribute {user} yuanxian:damage_multiplier base set 2')
         self.rc(f'tp {user} 0.5 -60 0.5 0 0')
         self.s.game.key('1')
         scene.ensure_cultivation(self.s)
         before = self.target(resistance=0.25)
         base = self.number(f'attribute {user} minecraft:generic.attack_damage get')
-        style = json.loads((ROOT / 'src/main/resources/data/myvillage/combat/style/basic_sword.json').read_text())
+        style = json.loads((ROOT / 'src/main/resources/data/yuanxian/combat/style/basic_sword.json').read_text())
         multiplier = style['moves'][0]['damage_multiplier']
         expected = (base + 2) * multiplier * 1.5 * 2 * 0.75
         self.s.game.require_ingame('realm stats mapped melee')
@@ -300,7 +300,7 @@ class Evidence:
                    {'base': base, 'move': multiplier, 'expected': expected,
                     'before': before, 'after': after, 'trace': trace})
         for attr, value in [('damage_flat', 0), ('damage_bonus', 0), ('damage_multiplier', 1)]:
-            self.rc(f'attribute {user} myvillage:{attr} base set {value}')
+            self.rc(f'attribute {user} yuanxian:{attr} base set {value}')
 
         if sword_qi:
             from tools.combat_capture.sword_qi import run_sword_qi
@@ -332,14 +332,14 @@ class Evidence:
 
         # Save health above vanilla player base max, then restart: this catches
         # transient-modifier loading that would silently clamp Health to 20.
-        self.rc(f'yuanxian cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation setrealm {user} yuanxian:foundation_establishment yuanxian:foundation_early')
         self.rc(f'gamemode survival {user}')
         self.rc(f'effect give {user} minecraft:instant_health 1 10 true')
         time.sleep(1.2)
         self.rc(f'damage {user} 7 minecraft:generic')
         self.report['player_max_before'] = self.number(f'attribute {user} minecraft:generic.max_health get')
         self.report['player_health_before'] = self.number(f'data get entity {user} Health')
-        self.rc(f'yuanxian cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early')
+        self.rc(f'yuanxian cultivation setrealm {user} yuanxian:foundation_establishment yuanxian:foundation_early')
         refreshed = self.number(f'data get entity {user} Health')
         self.check('refresh_does_not_heal', close(refreshed, self.report['player_health_before']), refreshed)
         self.rc(f'tp {user} 0.5 -60 0.5 0 0')

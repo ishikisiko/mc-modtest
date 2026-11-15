@@ -24,7 +24,7 @@ public final class FireCaptureItem extends Item {
         var result=seed(kind,0,player.level().dimension().location().toString(),pos);
         bottle.shrink(1);player.getInventory().placeItemBackInInventory(result);player.getInventory().setChanged();
         player.getCooldowns().addCooldown(this,FoundryRules.get().fire().capture_cooldown_ticks());
-        player.displayClientMessage(Component.translatable("foundry.myvillage.captured",FoundryRules.get().flame(kind).name()),true);return true;
+        player.displayClientMessage(Component.translatable("foundry.yuanxian.captured",FoundryRules.get().flame(kind).name()),true);return true;
     }
     @Override public InteractionResult useOn(UseOnContext context){
         var level=context.getLevel();var pos=context.getClickedPos();var state=level.getBlockState(pos);
@@ -41,14 +41,14 @@ public final class FireCaptureItem extends Item {
         return InteractionResult.FAIL;
     }
     @Override public InteractionResult interactLivingEntity(ItemStack stack,Player player,LivingEntity target,InteractionHand hand){
-        if(!(target instanceof Blaze)||target.getPersistentData().getBoolean("myvillage_fire_captured"))return InteractionResult.PASS;
+        if(!(target instanceof Blaze)||target.getPersistentData().getBoolean("yuanxian_fire_captured"))return InteractionResult.PASS;
         if(player.level().isClientSide())return InteractionResult.SUCCESS;
         if(!(player instanceof ServerPlayer owner)||!target.isAlive()||owner.distanceToSqr(target)>25||!com.example.myvillage.combat.runtime.CombatActors.mayHarm(owner,target))return InteractionResult.FAIL;
         if(target.getHealth()>target.getMaxHealth()*FoundryRules.get().fire().capture_health_fraction()){
-            owner.displayClientMessage(Component.translatable("foundry.myvillage.capture_weak"),true);return InteractionResult.FAIL;
+            owner.displayClientMessage(Component.translatable("foundry.yuanxian.capture_weak"),true);return InteractionResult.FAIL;
         }
-        if(receive(owner,stack,"beast",target.blockPosition())){target.getPersistentData().putBoolean("myvillage_fire_captured",true);return InteractionResult.CONSUME;}
+        if(receive(owner,stack,"beast",target.blockPosition())){target.getPersistentData().putBoolean("yuanxian_fire_captured",true);return InteractionResult.CONSUME;}
         return InteractionResult.FAIL;
     }
-    @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){super.appendHoverText(stack,context,lines,flag);lines.add(Component.translatable("foundry.myvillage.capture_hint"));}
+    @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){super.appendHoverText(stack,context,lines,flag);lines.add(Component.translatable("foundry.yuanxian.capture_hint"));}
 }

@@ -20,7 +20,7 @@
 | 魔域 | `moyu_corpse` 血煞尸：重抓命中少量回血 | `moyu_bone_archer` 乌骨弓手：落点先预警再爆发一次 |
 | 中州 | `zhongzhou_corpse` 古道尸卒：旧兵器横扫 | `zhongzhou_bone_archer` 遗迹骸弓：短促三连点射 |
 
-完整命名空间均为 `myvillage:`；对应生成蛋为 `<id>_spawn_egg`。创造物品栏可搜索中文名称。`/yuanxian beast status <目标>` 读取当前动作与时点；强制动作命令仅作诊断，不代替普通 AI 或真实玩家输入。
+完整命名空间均为 `yuanxian:`；对应生成蛋为 `<id>_spawn_egg`。创造物品栏可搜索中文名称。`/yuanxian beast status <目标>` 读取当前动作与时点；强制动作命令仅作诊断，不代替普通 AI 或真实玩家输入。
 
 ## 生成、境界与掉落
 

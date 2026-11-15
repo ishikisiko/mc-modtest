@@ -44,7 +44,7 @@ class AlchemyRulesTest(unittest.TestCase):
             data = copy.deepcopy(self.rules)
             data['recipes'][0]['difficulty'] = invalid
             self.assert_code('ALCHEMY_BOUNDS', validator.check_rules(data))
-        for invalid in (None, True, 'myvillage:missing', ''):
+        for invalid in (None, True, 'yuanxian:missing', ''):
             data = copy.deepcopy(self.rules)
             data['recipes'][0]['quality_tier'] = invalid
             self.assert_code('ALCHEMY_REFERENCE', validator.check_rules(data))
@@ -120,10 +120,10 @@ class AlchemyRulesTest(unittest.TestCase):
         for mutation in (
             lambda d: d['recipes'][0].update(id='other'),
             lambda d: d['recipes'][1].update(id='huiling'),
-            lambda d: d['recipes'][0].update(formula='myvillage:formula_ningshen'),
-            lambda d: d['recipes'][0].update(output='myvillage:pill_yangyuan'),
-            lambda d: d['recipes'][0].update(ingredients=['myvillage:spirit_leaf'] * 2),
-            lambda d: d['recipes'][0].update(ingredients=['myvillage:spirit_leaf', 'myvillage:sunroot']),
+            lambda d: d['recipes'][0].update(formula='yuanxian:formula_ningshen'),
+            lambda d: d['recipes'][0].update(output='yuanxian:pill_yangyuan'),
+            lambda d: d['recipes'][0].update(ingredients=['yuanxian:spirit_leaf'] * 2),
+            lambda d: d['recipes'][0].update(ingredients=['yuanxian:spirit_leaf', 'yuanxian:sunroot']),
             lambda d: d['recipes'][0].update(ingredients=[[], {}]),
         ):
             data = copy.deepcopy(self.rules)
@@ -189,7 +189,7 @@ class AlchemyResourceTest(unittest.TestCase):
         textures = self.root / validator.ASSETS / 'textures/item'
         shutil.copy2(textures / 'spirit_leaf.png', textures / 'dew_blossom.png')
         self.assert_code('ALCHEMY_TEXTURE_DISTINCT')
-        self.mutate(validator.ASSETS / 'lang/zh_cn.json', lambda d: d.pop('item.myvillage.formula_huiling'))
+        self.mutate(validator.ASSETS / 'lang/zh_cn.json', lambda d: d.pop('item.yuanxian.formula_huiling'))
         self.assert_code('ALCHEMY_LANG')
 
     def test_wrong_formula_ingredient_is_rejected(self):
@@ -198,7 +198,7 @@ class AlchemyResourceTest(unittest.TestCase):
         self.assert_code('ALCHEMY_ACQUISITION')
 
     def test_formula_name_must_display_its_configured_difficulty(self):
-        self.mutate(validator.ASSETS / 'lang/zh_cn.json',lambda d:d.update({'item.myvillage.formula_zhuji_high':'上品筑基丹方'}))
+        self.mutate(validator.ASSETS / 'lang/zh_cn.json',lambda d:d.update({'item.yuanxian.formula_zhuji_high':'上品筑基丹方'}))
         self.assert_code('ALCHEMY_DIFFICULTY_NAME')
 
     def test_restored_herb_recipe_is_rejected(self):
@@ -208,7 +208,7 @@ class AlchemyResourceTest(unittest.TestCase):
 
     def test_missing_shop_supply_or_restock_is_rejected(self):
         path=validator.DATA / 'world_sim/commerce_rules.json'
-        self.mutate(path,lambda d:d['herb_restock']['stock'].pop('myvillage:spirit_leaf'))
+        self.mutate(path,lambda d:d['herb_restock']['stock'].pop('yuanxian:spirit_leaf'))
         self.assert_code('ALCHEMY_ACQUISITION')
 
     def test_recipe_malformed_ingredients_and_loot_report_errors_without_crashing(self):
@@ -222,7 +222,7 @@ class AlchemyResourceTest(unittest.TestCase):
         self.mutate(path, lambda d: d['pools'].append(copy.deepcopy(d['pools'][0])))
         self.assert_code('ALCHEMY_LOOT')
         self.mutate(validator.RESOURCES / 'data/minecraft/tags/block/mineable/pickaxe.json',
-                    lambda d: d['values'].remove('myvillage:alchemy_furnace'))
+                    lambda d: d['values'].remove('yuanxian:alchemy_furnace'))
         self.assert_code('ALCHEMY_TAG')
 
     def test_missing_and_wrong_lit_blockstate(self):

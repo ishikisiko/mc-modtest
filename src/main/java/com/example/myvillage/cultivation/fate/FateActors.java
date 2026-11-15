@@ -22,7 +22,7 @@ public final class FateActors {
     public static int slot(LivingEntity actor) { return actor instanceof ServerPlayer player ? player.getInventory().selected : -1; }
     public static UUID identity(LivingEntity actor) {
         return actor instanceof NpcEntity npc && npc.isLedgerAvatar()
-                ? UUID.nameUUIDFromBytes(("myvillage:npc:"+npc.ledgerPersonId()).getBytes(java.nio.charset.StandardCharsets.UTF_8)) : actor.getUUID();
+                ? UUID.nameUUIDFromBytes(("yuanxian:npc:"+npc.ledgerPersonId()).getBytes(java.nio.charset.StandardCharsets.UTF_8)) : actor.getUUID();
     }
     public static java.util.Optional<com.example.myvillage.stats.CultivationStatsRules.Body> body(LivingEntity actor) {
         if(actor instanceof ServerPlayer player)return com.example.myvillage.cultivation.CultivationStats.find(

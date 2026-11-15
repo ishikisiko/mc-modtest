@@ -13,8 +13,8 @@ class SharedForgingModelsTest(unittest.TestCase):
  def test_obj_roundtrip_preserves_geometry_uv_and_material_for_every_stage(self):
   for rid in self.c.sources:
    for stage in range(6):
-    faces=self.c.stage(rid,stage);files,_=mesh.obj_assets(faces,'myvillage:probe')
-    parsed=mesh.read_obj(files['assets/myvillage/models/probe.obj'],files['assets/myvillage/models/probe.mtl'])
+    faces=self.c.stage(rid,stage);files,_=mesh.obj_assets(faces,'yuanxian:probe')
+    parsed=mesh.read_obj(files['assets/yuanxian/models/probe.obj'],files['assets/yuanxian/models/probe.mtl'])
     self.assertEqual(len(faces),len(parsed))
     for a,b in zip(faces,parsed):
      self.assertEqual(a['texture'],b['texture']);self.assertEqual(a['part'],b['part'])
@@ -39,7 +39,7 @@ class SharedForgingModelsTest(unittest.TestCase):
       if not face['texture'].split(':')[1].startswith(('item/','block/')):self.assertIn(face['texture'],refs)
  def test_native_warning_for_missing_atlas_sprite_is_a_failure(self):
   from tools.forging_models_evidence import model_load_errors
-  warning='[Worker-Main-4/WARN] [net.minecraft.client.resources.model.ModelManager/]: Missing textures in model myvillage:forged_hoe#inventory:\n    minecraft:textures/atlas/blocks.png:myvillage:equipment/forging/wood'
+  warning='[Worker-Main-4/WARN] [net.minecraft.client.resources.model.ModelManager/]: Missing textures in model yuanxian:forged_hoe#inventory:\n    minecraft:textures/atlas/blocks.png:yuanxian:equipment/forging/wood'
   self.assertTrue(model_load_errors(warning))
   self.assertFalse(model_load_errors('[INFO]: EQUIPMENT_MODELS loaded 8 item/profile models'))
  def test_heat_treatments_preserve_shape_and_polishing_restores_source_material(self):
@@ -79,7 +79,7 @@ class SharedForgingModelsTest(unittest.TestCase):
    self.assertTrue(head_parts);self.assertTrue(head_parts<=iron);self.assertFalse(head_parts&soft)
    hot=self.c.stage(rid,5,True)
    self.assertEqual({f['part'] for f in hot if f['texture'].endswith('/hot')},iron)
-   self.assertTrue(soft<={f['part'] for f in hot if f['texture']=='myvillage:equipment/xuantie_armor'})
+   self.assertTrue(soft<={f['part'] for f in hot if f['texture']=='yuanxian:equipment/xuantie_armor'})
  def test_approved_weapon_geometry_textures_and_non_gui_transforms_are_unchanged(self):
   from tools import gen_qingfeng_sword_model as q,gen_lingxiao_spear_model as s
   for gen,expected in [(q,'dbffa13a45ef43148e4db66262528b29b5e068a90d03a1c39d0e4f06e85193ee'),(s,'4e4b8d5c50128390768e5b10010f5d5141b501c60b2e74f83923291efa0cd2bd')]:
@@ -87,7 +87,7 @@ class SharedForgingModelsTest(unittest.TestCase):
    self.assertEqual(expected,hashlib.sha256(json.dumps(model,sort_keys=True).encode()).hexdigest())
  def test_moxing_worn_armor_and_atlas_match_redesign_baseline(self):
   for filename,expected in [('equipment/xuantie_armor.json','726f4cb8f2456559e765aaaf9b471e4d3d9becee93b6ae3fb3c7b6623e1d39f8'),('textures/equipment/xuantie_armor.png','6ccdff0748041d1ee626d0533f40968f6fd35cd327f4f979673b88b80ba59d91')]:
-   self.assertEqual(expected,hashlib.sha256((ROOT/'src/main/resources/assets/myvillage'/filename).read_bytes()).hexdigest())
+   self.assertEqual(expected,hashlib.sha256((ROOT/'src/main/resources/assets/yuanxian'/filename).read_bytes()).hexdigest())
  def test_armor_obj_matches_the_existing_worn_model_preview_vertex_for_vertex(self):
   from tools.equipment.export import compile_armor
   from tools.equipment.preview import scene

@@ -21,9 +21,9 @@ class QingzhangEvidence(RosterEvidence):
             self.rc('tick sprint 1300t');time.sleep(1);self.poll(self.med,lambda s:s['effect_ticks']==0 and s['cooldown_ticks']==0,10,'old dose expires')
             self.rc(f'clear {u}');self.rc(f'effect give {u} minecraft:poison 60 0 true')
             self.check('poison_fixture_'+str(quality),self.poison(),self.med())
-            before_tick=self.number('time query gametime');self.use_pill('myvillage:pill_qingzhang',quality)
+            before_tick=self.number('time query gametime');self.use_pill('yuanxian:pill_qingzhang',quality)
             state=self.med();after_tick=self.number('time query gametime')
-            self.check('mapped_duration_quality_'+str(quality),state['effect']=='qingzhang' and state['quality']==quality and expected-(after_tick-before_tick)<=state['effect_ticks']<=expected and self.count('myvillage:pill_qingzhang')==1,{'expected':expected,'elapsed_ticks':after_tick-before_tick,'state':state})
+            self.check('mapped_duration_quality_'+str(quality),state['effect']=='qingzhang' and state['quality']==quality and expected-(after_tick-before_tick)<=state['effect_ticks']<=expected and self.count('yuanxian:pill_qingzhang')==1,{'expected':expected,'elapsed_ticks':after_tick-before_tick,'state':state})
             self.check('clears_existing_poison_'+str(quality),not self.poison(),state)
             self.rc(f'effect give {u} minecraft:poison 60 0 true');self.poll(self.poison,lambda p:not p,3,'sustained poison removal')
             self.check('removes_reapplied_poison_'+str(quality),True,self.med())
@@ -38,7 +38,7 @@ class QingzhangEvidence(RosterEvidence):
         self.tooltips();self.rc('save-all flush');self.stop()
     def tooltips(self):
         u=self.s.username
-        for slot in range(4):self.rc(f'item replace entity {u} hotbar.{slot} with myvillage:pill_qingzhang[myvillage:pill_quality={slot+1}]')
+        for slot in range(4):self.rc(f'item replace entity {u} hotbar.{slot} with yuanxian:pill_qingzhang[yuanxian:pill_quality={slot+1}]')
         game=self.s.game;game.key('e');self.poll(game.pointer_grabbed,lambda v:not v,5,'inventory opened')
         book=bool(read_data(self.rc(f'data get entity {u} recipeBook.isGuiOpen')));window=game.xdo('search','--name','Minecraft').split()[0]
         try:

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /** Displays growable aptitudes, individual alchemy/forging rolls, and talisman quality limits. */
 public final class CraftingPage extends PanelPage {
     private static final Logger LOGGER = LoggerFactory.getLogger(CraftingPage.class);
-    private static final String KEY = "screen.myvillage.crafting.";
+    private static final String KEY = "screen.yuanxian.crafting.";
     private static final int CARD_HEIGHT = 116;
     private static final int GAP = 6;
     private static final int THREE_COLUMNS_AT = 330;
@@ -76,7 +76,7 @@ public final class CraftingPage extends PanelPage {
         var font = context.font();
         InkPanelTheme.card(graphics, font, x, y, width, CARD_HEIGHT, Component.translatable(row.professionKey()));
         int pad = InkPanelTheme.CARD_PADDING, innerWidth = width - pad * 2;
-        String symbol = row.professionKey().equals("screen.myvillage.crafting.alchemy") ? "alchemy" : "forging";
+        String symbol = row.professionKey().equals("screen.yuanxian.crafting.alchemy") ? "alchemy" : "forging";
         if (row.professionKey().endsWith("talisman")) {
             graphics.pose().pushPose();
             graphics.pose().translate(x + (width - 46) / 2.0F, y + 19, 0);

@@ -22,8 +22,8 @@ class CultivationMeditationValidationTest(unittest.TestCase):
             "src/main/java/com/example/myvillage/cultivation/meditation",
             "src/main/java/com/example/myvillage/cultivation/network",
             "src/main/java/com/example/myvillage/client/cultivation",
-            "src/main/resources/assets/myvillage/lang/en_us.json",
-            "src/main/resources/assets/myvillage/lang/zh_cn.json",
+            "src/main/resources/assets/yuanxian/lang/en_us.json",
+            "src/main/resources/assets/yuanxian/lang/zh_cn.json",
         )
         for relative in paths:
             source = ROOT / relative
@@ -181,8 +181,8 @@ class CultivationMeditationValidationTest(unittest.TestCase):
     def test_missing_data_fallback_removal_is_rejected(self) -> None:
         self.mutate(
             "src/main/java/com/example/myvillage/client/cultivation/CultivationProfileScreen.java",
-            '"screen.myvillage.cultivation.no_snapshot"',
-            '"screen.myvillage.cultivation.waiting"',
+            '"screen.yuanxian.cultivation.no_snapshot"',
+            '"screen.yuanxian.cultivation.waiting"',
         )
 
         result = self.validate()

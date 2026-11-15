@@ -877,7 +877,7 @@ def _rockery_block_state(variant: str, facing: str, moss: str,
     to ``false`` for the generic heightfield placements.
     """
     wl = "true" if waterlogged else "false"
-    return (f"myvillage:rockery_block[variant={variant},facing={facing},"
+    return (f"yuanxian:rockery_block[variant={variant},facing={facing},"
             f"moss_level={moss},waterlogged={wl}]")
 
 
@@ -922,7 +922,7 @@ def place_hero_rockery(compound: CompoundGraph, origin: Cell2, seed: int,
         x, y, z = ox + dx, base_y + dy, oz + dz
         tags = ["DETAIL", "GROUND"] if is_water else ["DETAIL", "STRUCTURE"]
         slot = "WATER" if is_water else (
-            "ROCKERY_STONE" if state.startswith("myvillage:rockery_cascade") else "PLANTING")
+            "ROCKERY_STONE" if state.startswith("yuanxian:rockery_cascade") else "PLANTING")
         compound.grid.set((x, y, z), state, tags, PRIORITY["DETAIL"], slot, force=True)
         if is_water:
             # Carve the cell above the surface pool to air so the water shows
@@ -992,7 +992,7 @@ def place_garden_rockery(compound: CompoundGraph, bbox: Tuple[int, int, int, int
 
     Calls :func:`tools.buildgen.rockery.derive_rockery` to assign each cell in
     ``bbox`` a variant + moss_level by the heightfield, then writes a
-    ``myvillage:rockery_block`` at each cell's standable y (the natural surface
+    ``yuanxian:rockery_block`` at each cell's standable y (the natural surface
     y, so the rockery rests on the garden ground). Returns the ParcelNode
     describing the placed rockery (cells + the role/variant manifest in meta).
 
@@ -4679,7 +4679,7 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
         _open_garden_pavilion_sightline(compound, style, pavilion_node)
 
     # NOTE: the 汀步 (stepping stones) across the pond were removed. They had
-    # previously been rendered as myvillage:rockery_block[variant=standalone] —
+    # previously been rendered as yuanxian:rockery_block[variant=standalone] —
     # each block reads in-game as an independent mini-mountain, so a path of
     # them read as a row of stone-textured spikes. They were later switched to
     # flat minecraft:stone / mossy_cobblestone, but that left an unrelated row of

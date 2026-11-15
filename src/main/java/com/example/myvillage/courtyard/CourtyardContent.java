@@ -28,7 +28,7 @@ public final class CourtyardContent {
         }
     }
     public static final DeferredHolder<CreativeModeTab,CreativeModeTab> TAB=TABS.register("courtyard",()->CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.myvillage.courtyard"))
+            .title(Component.translatable("itemGroup.yuanxian.courtyard"))
             .icon(()->new ItemStack(ITEMS_BY_FAMILY.get("courtyard_window").get()))
             .displayItems((parameters,output)->ITEMS_BY_FAMILY.values().forEach(item->output.accept(item.get())))
             .build());
