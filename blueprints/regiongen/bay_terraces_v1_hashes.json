@@ -2,8 +2,8 @@
   "schema": 1,
   "id": "bay_terraces_v1",
   "resources": {
-    "assets/yuanxian_regiongen/lang/zh_cn.json": "0e08c0212a520f5c44b8ee07e3be15e569744991af81a1fbf9cd2f065b1e05be",
-    "data/yuanxian/regiongen/bay_terraces_v1.json": "46e9cedeaa45705c37b0a3b847f91d02afa1732aa737b4072ed3a4fe96768f03",
+    "assets/yuanxian_regiongen/lang/zh_cn.json": "6826eabc6afc4e885ce18ba91fb36baafc144dd335fc6950e1a439246ab2c9a1",
+    "data/yuanxian/regiongen/bay_terraces_v1.json": "ca775e8e302a72c8e4f62d1c958a5232c27aa69a5e83d0bbfb658ab0a8797fed",
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_10_1.nbt": "32c9552f97fd668b44de4e5489bdf6d0063d5216a2b55d1835803bfb4b22372f",
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_10_10.nbt": "b90de2b8dbbd77e94129c88fd249be75279335e3ee78db394182206c016296f9",
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_10_2.nbt": "4e7b286a1eed9f8d8f38989047f07c533d916ebb9bf4fb87f7d28d96b774cefa",
@@ -12,7 +12,7 @@
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_10_5.nbt": "8b357595406641bad1801b9436ccf753e67b3570674594026c54252d3415b923",
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_10_6.nbt": "3739536c387d97be179e26500a5c27897af1869c77c086c3139b758e70f044f0",
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_10_7.nbt": "568cc90ae00b7513c928026868061a2af6fe4dc9661e038746ec710f9d36f832",
-    "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_10_8.nbt": "c2a4576f2221f898dcabfad8cec1d46bc58dabc279b8a7d07b10e5d4c6978897",
+    "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_10_8.nbt": "bb9acffc8a400b69fd92ffe753c4f194edda0890400215cc1851b14b71745c8c",
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_10_9.nbt": "a2b25f2b63ac842e681f88e0b36406b3eaca881c1221ae46a8960e51ccf0f6e3",
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_11_1.nbt": "5d9f8f8d07a94e49a98f67e19727153af70ad67035c170bbf900e6c3861c664c",
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_11_10.nbt": "2778433cb7e7f52685c5f7ed6afc3ea65a82bf37fa3ab6903848009f295a2fa9",
@@ -134,7 +134,7 @@
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_9_8.nbt": "ab4ed7886be099bb49969aa624a04876b20a00abf0e08fcdf8ee20479e178319",
     "data/yuanxian/structure/regiongen/bay_terraces_v1/tile_9_9.nbt": "b1e5c0d3a16ff98d4484e21f9e60d9380197d8ebd54b1b5d30b09eba84489f81",
     "data/yuanxian/tags/worldgen/biome/has_bay_terraces.json": "9dd962f988856341705e926e66e6957e0601710da9ede121a1371c735e5e3bc2",
-    "data/yuanxian/worldgen/structure/bay_terraces.json": "d2a9fbc845900a00df7a39080073e26d5c451a85356db67b4219b6140095694c",
-    "data/yuanxian/worldgen/structure_set/bay_terraces.json": "ad209c43c18dd9b156cd007531de2b0ec6884ecd9cd680495c86bb519998552b"
+    "data/yuanxian/worldgen/structure/bay_terraces.json": "bdfa312e3969913ed6e57af5e216bd90d4db5e72167b97dd0443f5e0827446b3",
+    "data/yuanxian/worldgen/structure_set/bay_terraces.json": "75eaf679e3f2106c2b368174f435b4c59a86f74c8f0c3bc8f8260bd3f5af28d3"
   }
 }
