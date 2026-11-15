@@ -46,7 +46,8 @@ def inspect(root):
    for value in obj:asset_model_refs(name,value)
  for name in sorted(names):
   if OLD in name:fail(name,'资源路径保留旧命名空间')
-  raw=reader.read(name)
+  physical=root/name
+  raw=physical.read_bytes() if physical.is_file() else reader.read(name)
   if name.endswith(('.png','.ttf','.ogg','.class')):continue
   if name.endswith(('.nbt','.gz')):
    try:raw=gzip.decompress(raw)
