@@ -3,8 +3,8 @@
   "recipes": [
     {
       "id": "qingfeng_sword",
-      "pattern": "myvillage:pattern_qingfeng_sword",
-      "output": "myvillage:qingfeng_sword",
+      "pattern": "yuanxian:pattern_qingfeng_sword",
+      "output": "yuanxian:qingfeng_sword",
       "costs": {
         "minecraft:diamond": 2,
         "minecraft:stick": 1,
@@ -21,12 +21,12 @@
         "frost_edge",
         "soul_return"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     },
     {
       "id": "lingxiao_spear",
-      "pattern": "myvillage:pattern_lingxiao_spear",
-      "output": "myvillage:lingxiao_spear",
+      "pattern": "yuanxian:pattern_lingxiao_spear",
+      "output": "yuanxian:lingxiao_spear",
       "costs": {
         "minecraft:diamond": 3,
         "minecraft:stick": 2,
@@ -42,12 +42,12 @@
         "frost_edge",
         "soul_return"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     },
     {
       "id": "forged_pickaxe",
-      "pattern": "myvillage:pattern_forged_pickaxe",
-      "output": "myvillage:forged_pickaxe",
+      "pattern": "yuanxian:pattern_forged_pickaxe",
+      "output": "yuanxian:forged_pickaxe",
       "costs": {
         "minecraft:iron_ingot": 3,
         "minecraft:stick": 2,
@@ -56,12 +56,12 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     },
     {
       "id": "forged_axe",
-      "pattern": "myvillage:pattern_forged_axe",
-      "output": "myvillage:forged_axe",
+      "pattern": "yuanxian:pattern_forged_axe",
+      "output": "yuanxian:forged_axe",
       "costs": {
         "minecraft:iron_ingot": 3,
         "minecraft:stick": 2,
@@ -70,12 +70,12 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     },
     {
       "id": "forged_shovel",
-      "pattern": "myvillage:pattern_forged_shovel",
-      "output": "myvillage:forged_shovel",
+      "pattern": "yuanxian:pattern_forged_shovel",
+      "output": "yuanxian:forged_shovel",
       "costs": {
         "minecraft:iron_ingot": 1,
         "minecraft:stick": 2,
@@ -84,12 +84,12 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     },
     {
       "id": "forged_hoe",
-      "pattern": "myvillage:pattern_forged_hoe",
-      "output": "myvillage:forged_hoe",
+      "pattern": "yuanxian:pattern_forged_hoe",
+      "output": "yuanxian:forged_hoe",
       "costs": {
         "minecraft:iron_ingot": 2,
         "minecraft:stick": 2,
@@ -98,69 +98,69 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     },
     {
       "id": "xuantie_helmet",
-      "pattern": "myvillage:pattern_xuantie_helmet",
-      "output": "myvillage:xuantie_helmet",
+      "pattern": "yuanxian:pattern_xuantie_helmet",
+      "output": "yuanxian:xuantie_helmet",
       "costs": {
-        "#myvillage:forging_materials/xuantie": 5,
+        "#yuanxian:forging_materials/xuantie": 5,
         "minecraft:leather": 1,
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
         "tough"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     },
     {
       "id": "xuantie_chestplate",
-      "pattern": "myvillage:pattern_xuantie_chestplate",
-      "output": "myvillage:xuantie_chestplate",
+      "pattern": "yuanxian:pattern_xuantie_chestplate",
+      "output": "yuanxian:xuantie_chestplate",
       "costs": {
-        "#myvillage:forging_materials/xuantie": 8,
+        "#yuanxian:forging_materials/xuantie": 8,
         "minecraft:leather": 2,
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
         "tough"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     },
     {
       "id": "xuantie_leggings",
-      "pattern": "myvillage:pattern_xuantie_leggings",
-      "output": "myvillage:xuantie_leggings",
+      "pattern": "yuanxian:pattern_xuantie_leggings",
+      "output": "yuanxian:xuantie_leggings",
       "costs": {
-        "#myvillage:forging_materials/xuantie": 7,
+        "#yuanxian:forging_materials/xuantie": 7,
         "minecraft:leather": 2,
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
         "tough"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     },
     {
       "id": "xuantie_boots",
-      "pattern": "myvillage:pattern_xuantie_boots",
-      "output": "myvillage:xuantie_boots",
+      "pattern": "yuanxian:pattern_xuantie_boots",
+      "output": "yuanxian:xuantie_boots",
       "costs": {
-        "#myvillage:forging_materials/xuantie": 4,
+        "#yuanxian:forging_materials/xuantie": 4,
         "minecraft:leather": 1,
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
         "tough"
       ],
-      "quality_tier": "myvillage:qi_refining"
+      "quality_tier": "yuanxian:qi_refining"
     }
   ],
   "traits": {
     "sharp": {
       "costs": {
-        "#myvillage:forging_materials/edge_tempering_sand": 1
+        "#yuanxian:forging_materials/edge_tempering_sand": 1
       },
       "values": [
         1,
@@ -171,7 +171,7 @@
     },
     "channeling": {
       "costs": {
-        "#myvillage:forging_materials/chitong": 1
+        "#yuanxian:forging_materials/chitong": 1
       },
       "values": [
         0.1,
@@ -182,7 +182,7 @@
     },
     "tough": {
       "costs": {
-        "#myvillage:forging_materials/xuantie": 1
+        "#yuanxian:forging_materials/xuantie": 1
       },
       "values": [
         1.5,
@@ -193,7 +193,7 @@
     },
     "breach": {
       "costs": {
-        "myvillage:reaver_grit": 3
+        "yuanxian:reaver_grit": 3
       },
       "values": [
         0.12,
@@ -204,7 +204,7 @@
     },
     "warding": {
       "costs": {
-        "myvillage:talisman_ash": 3
+        "yuanxian:talisman_ash": 3
       },
       "values": [
         0.08,
@@ -215,7 +215,7 @@
     },
     "riposte": {
       "costs": {
-        "myvillage:thorn_bone": 3
+        "yuanxian:thorn_bone": 3
       },
       "values": [
         0.2,
@@ -226,7 +226,7 @@
     },
     "carapace": {
       "costs": {
-        "myvillage:redplate_scale": 3
+        "yuanxian:redplate_scale": 3
       },
       "values": [
         0.18,
@@ -237,7 +237,7 @@
     },
     "frost_edge": {
       "costs": {
-        "myvillage:frost_plume": 3
+        "yuanxian:frost_plume": 3
       },
       "values": [
         0.1,
@@ -248,7 +248,7 @@
     },
     "soul_return": {
       "costs": {
-        "myvillage:lantern_spore": 3
+        "yuanxian:lantern_spore": 3
       },
       "values": [
         0.02,

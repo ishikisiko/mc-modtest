@@ -12,7 +12,7 @@
     "repair": 24
   },
   "fuel_cost": {
-    "#myvillage:forging_fuels": 1
+    "#yuanxian:forging_fuels": 1
   },
   "grind_cost": {
     "minecraft:flint": 1

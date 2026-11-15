@@ -13,7 +13,7 @@ STATIC=[
  'gen_tribulation','gen_sword_qi_decoration','gen_thunder_tiger_support','gen_wilderness_roster','gen_undead_roster',
  'gen_legacy_encounters','gen_technique_growth']
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);args=parser.parse_args();out=args.out;out.mkdir(parents=True,exist_ok=False)
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--start',type=int,default=0);args=parser.parse_args();out=args.out;out.mkdir(parents=True,exist_ok=False)
  commands=[[sys.executable,f'tools/{name}.py'] for name in STATIC]
  commands += [[sys.executable,'-m','tools.demon_pact_pillar.generate'],[sys.executable,'-m','tools.equipment','build'],[sys.executable,'-m','tools.immortal_equipment','build'],[sys.executable,'-m','tools.ore_textures.generate']]
  # Model families retain their dedicated authoring systems.
@@ -24,11 +24,14 @@ def main():
  commands += [[sys.executable,'-m','tools.beastgen','build',name] for name in [*DEFINITIONS,*legacy.names(),*undead.names()]]
  commands += [[sys.executable,'-m','tools.npcgen','build',name] for name in NPCS]
  commands += [[sys.executable,'-m','tools.npcgen','variants'],[sys.executable,'-m','tools.npcgen','goldens']]
- report={'status':'running','selected':len(commands),'completed':[],'failed':[],'unrun':commands.copy()}
+ total=len(commands)
+ if not 0<=args.start<total:raise ValueError('起始索引超出导出清单')
+ commands=commands[args.start:]
+ report={'status':'running','start':args.start,'owner_commands_total':total,'selected':len(commands),'completed':[],'failed':[],'unrun':commands.copy()}
  def save(): (out/'result.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
  save()
  for i,cmd in enumerate(commands):
-  print(f'[{i+1}/{len(commands)}] '+ ' '.join(cmd),flush=True);start=time.monotonic()
+  print(f'[{i+args.start+1}/{total}] '+ ' '.join(cmd),flush=True);start=time.monotonic()
   with (out/f'{i:03d}.log').open('w') as log:r=subprocess.run(cmd,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT)
   row={'command':cmd,'seconds':time.monotonic()-start,'returncode':r.returncode,'log':f'{i:03d}.log'}
   if r.returncode:report['status']='failed';report['failed'].append(row);report['unrun']=commands[i+1:];save();raise SystemExit(r.returncode)
