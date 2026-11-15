@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/stripped_ningyuan_wood",
+  "parent": "yuanxian:block/stripped_ningyuan_wood",
   "display": {
     "gui": {
       "rotation": [

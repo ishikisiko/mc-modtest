@@ -1,5 +1,5 @@
 # Authored equipment mesh; generated, do not edit.
-mtllib myvillage:models/equipment/forging/workpiece_forged_hoe_rough.mtl
+mtllib yuanxian:models/equipment/forging/workpiece_forged_hoe_rough.mtl
 g geometry
 # 锄眼
 usemtl m0

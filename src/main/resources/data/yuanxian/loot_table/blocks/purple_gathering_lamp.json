@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:purple_gathering_lamp"
+          "name": "yuanxian:purple_gathering_lamp"
         }
       ],
       "conditions": [

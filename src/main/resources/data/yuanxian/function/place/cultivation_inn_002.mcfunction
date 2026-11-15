@@ -1,1 +1,1 @@
-place template myvillage:cultivation_inn_002 ~ ~-1 ~
+place template yuanxian:cultivation_inn_002 ~ ~-1 ~

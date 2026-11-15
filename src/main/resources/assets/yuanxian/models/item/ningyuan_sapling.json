@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_sapling",
+  "parent": "yuanxian:block/ningyuan_sapling",
   "display": {
     "gui": {
       "rotation": [

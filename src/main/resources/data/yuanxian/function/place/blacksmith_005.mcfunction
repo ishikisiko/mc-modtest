@@ -1,1 +1,1 @@
-place template myvillage:blacksmith_005 ~ ~-1 ~
+place template yuanxian:blacksmith_005 ~ ~-1 ~

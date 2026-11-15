@@ -1,8 +1,8 @@
 {
   "gui_light": "side",
   "textures": {
-    "all": "myvillage:item/zhaoshui_mirror",
-    "particle": "myvillage:item/zhaoshui_mirror"
+    "all": "yuanxian:item/zhaoshui_mirror",
+    "particle": "yuanxian:item/zhaoshui_mirror"
   },
   "elements": [
     {

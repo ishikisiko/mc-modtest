@@ -9,7 +9,7 @@
           "children": [
             {
               "type": "minecraft:item",
-              "name": "myvillage:xuantie_ore",
+              "name": "yuanxian:xuantie_ore",
               "conditions": [
                 {
                   "condition": "minecraft:match_tool",
@@ -30,7 +30,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "myvillage:raw_xuantie",
+              "name": "yuanxian:raw_xuantie",
               "functions": [
                 {
                   "function": "minecraft:set_count",

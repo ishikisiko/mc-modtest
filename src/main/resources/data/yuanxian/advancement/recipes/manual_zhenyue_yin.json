@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_zhenyue_yin"
+        "recipe": "yuanxian:manual_zhenyue_yin"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_zhenyue_yin"
+      "yuanxian:manual_zhenyue_yin"
     ]
   }
 }

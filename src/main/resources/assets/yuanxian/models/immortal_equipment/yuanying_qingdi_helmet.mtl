@@ -2,22 +2,22 @@ newmtl jade
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/yuanying_qingdi/jade
+map_Kd yuanxian:immortal_equipment/yuanying_qingdi/jade
 
 newmtl bronze
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/yuanying_qingdi/bronze
+map_Kd yuanxian:immortal_equipment/yuanying_qingdi/bronze
 
 newmtl dew
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/yuanying_qingdi/dew
+map_Kd yuanxian:immortal_equipment/yuanying_qingdi/dew
 
 newmtl leaf
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/yuanying_qingdi/leaf
+map_Kd yuanxian:immortal_equipment/yuanying_qingdi/leaf

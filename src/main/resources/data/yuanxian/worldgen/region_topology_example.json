@@ -78,7 +78,7 @@
       ],
       "display_name": "北原",
       "id": "beiyuan",
-      "nominal_tier": 11,
+      "nominal_tier": 10,
       "position": [
         1.026,
         0.0
@@ -100,7 +100,7 @@
       ],
       "display_name": "东荒",
       "id": "donghuang",
-      "nominal_tier": 12,
+      "nominal_tier": 8,
       "position": [
         0.313,
         0.9634
@@ -122,7 +122,7 @@
       ],
       "display_name": "灵岳",
       "id": "lingyue",
-      "nominal_tier": 14,
+      "nominal_tier": 9,
       "position": [
         -0.8203,
         0.596
@@ -164,7 +164,7 @@
       ],
       "display_name": "南疆",
       "id": "nanjiang",
-      "nominal_tier": 10,
+      "nominal_tier": 16,
       "position": [
         -0.7969,
         -0.579
@@ -186,7 +186,7 @@
       ],
       "display_name": "西漠",
       "id": "ximo",
-      "nominal_tier": 8,
+      "nominal_tier": 12,
       "position": [
         0.3121,
         -0.9606
@@ -208,7 +208,7 @@
       ],
       "display_name": "中州",
       "id": "zhongzhou",
-      "nominal_tier": 18,
+      "nominal_tier": 20,
       "position": [
         0.0,
         0.0
@@ -221,7 +221,7 @@
       "tier": 20
     }
   ],
-  "ruleset": "myvillage:region_topology",
+  "ruleset": "yuanxian:region_topology",
   "seed": 20260620,
   "tier_range": [
     1,

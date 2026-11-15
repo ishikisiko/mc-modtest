@@ -16,10 +16,10 @@
   "kind": "golden_high",
   "required_hits": 12,
   "duration_ticks": 961,
-  "source_realm": "myvillage:foundation_establishment",
-  "source_stage": "myvillage:foundation_late",
-  "target_realm": "myvillage:golden_core",
-  "target_stage": "myvillage:golden_early",
+  "source_realm": "yuanxian:foundation_establishment",
+  "source_stage": "yuanxian:foundation_late",
+  "target_realm": "yuanxian:golden_core",
+  "target_stage": "yuanxian:golden_early",
   "strikes": [
     {
       "tick": 80,

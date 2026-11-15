@@ -16,10 +16,10 @@
   "kind": "heaven",
   "required_hits": 6,
   "duration_ticks": 481,
-  "source_realm": "myvillage:qi_refining",
-  "source_stage": "myvillage:qi_refining_9",
-  "target_realm": "myvillage:foundation_establishment",
-  "target_stage": "myvillage:foundation_early",
+  "source_realm": "yuanxian:qi_refining",
+  "source_stage": "yuanxian:qi_refining_9",
+  "target_realm": "yuanxian:foundation_establishment",
+  "target_stage": "yuanxian:foundation_early",
   "strikes": [
     {
       "tick": 80,

@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:frost_plume",
+          "name": "yuanxian:frost_plume",
           "functions": [
             {
               "function": "minecraft:set_count",

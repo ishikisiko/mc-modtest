@@ -7,7 +7,7 @@
   ],
   "key": {
     "I": {
-      "item": "myvillage:xuantie_ingot"
+      "item": "yuanxian:xuantie_ingot"
     },
     "P": {
       "tag": "minecraft:planks"
@@ -17,7 +17,7 @@
     }
   },
   "result": {
-    "id": "myvillage:xuantie_forging_hammer",
+    "id": "yuanxian:xuantie_forging_hammer",
     "count": 1
   },
   "category": "misc"

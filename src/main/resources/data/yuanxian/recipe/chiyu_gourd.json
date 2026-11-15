@@ -9,14 +9,14 @@
       "item": "minecraft:glass_bottle"
     },
     {
-      "item": "myvillage:ember_cinnabar"
+      "item": "yuanxian:ember_cinnabar"
     },
     {
-      "item": "myvillage:low_grade_spirit_stone"
+      "item": "yuanxian:low_grade_spirit_stone"
     }
   ],
   "result": {
-    "id": "myvillage:chiyu_gourd",
+    "id": "yuanxian:chiyu_gourd",
     "count": 1
   }
 }

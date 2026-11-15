@@ -1,7 +1,7 @@
 {
   "credit": "MyVillage original procedural jian (tools/gen_qingfeng_sword_model.py)",
   "texture_size": [64, 64],
-  "textures": {"sword": "myvillage:item/qingfeng_sword_model", "particle": "myvillage:item/qingfeng_sword"},
+  "textures": {"sword": "yuanxian:item/qingfeng_sword_model", "particle": "yuanxian:item/qingfeng_sword"},
   "elements": [
     {"name": "blade", "from": [7.8, 8.5, 7.1], "to": [8.2, 22.9636, 8.9], "faces": {"north": {"uv": [2.0, 0.6364, 2.5, 15.0], "texture": "#sword"}, "south": {"uv": [2.0, 0.6364, 2.5, 15.0], "texture": "#sword"}, "east": {"uv": [0.0, 0.6364, 2.0, 15.0], "texture": "#sword"}, "west": {"uv": [0.0, 0.6364, 2.0, 15.0], "texture": "#sword"}, "up": {"uv": [2.0, 0.0, 2.5, 0.3], "texture": "#sword"}}},
     {"name": "ridge", "from": [7.7525, 8.6, 7.7525], "to": [8.2475, 21.8, 8.2475], "rotation": {"angle": 45, "axis": "y", "origin": [8.0, 8.6, 8.0]}, "faces": {"north": {"uv": [2.5, 1.8, 3.0, 15.0], "texture": "#sword"}, "south": {"uv": [2.5, 1.8, 3.0, 15.0], "texture": "#sword"}, "east": {"uv": [2.5, 1.8, 3.0, 15.0], "texture": "#sword"}, "west": {"uv": [2.5, 1.8, 3.0, 15.0], "texture": "#sword"}, "up": {"uv": [2.5, 0.0, 3.0, 0.6], "texture": "#sword"}}},

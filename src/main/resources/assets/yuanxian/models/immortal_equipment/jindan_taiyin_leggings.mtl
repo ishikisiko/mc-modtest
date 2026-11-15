@@ -2,28 +2,28 @@ newmtl night
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/night
+map_Kd yuanxian:immortal_equipment/jindan_taiyin/night
 
 newmtl orn_border_jade
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/orn_border_jade
+map_Kd yuanxian:immortal_equipment/jindan_taiyin/orn_border_jade
 
 newmtl orn_border_silver
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/orn_border_silver
+map_Kd yuanxian:immortal_equipment/jindan_taiyin/orn_border_silver
 
 newmtl frost
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/frost
+map_Kd yuanxian:immortal_equipment/jindan_taiyin/frost
 
 newmtl moon
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/moon
+map_Kd yuanxian:immortal_equipment/jindan_taiyin/moon

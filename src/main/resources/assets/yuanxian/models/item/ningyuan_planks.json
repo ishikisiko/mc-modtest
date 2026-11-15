@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_planks",
+  "parent": "yuanxian:block/ningyuan_planks",
   "display": {
     "gui": {
       "rotation": [

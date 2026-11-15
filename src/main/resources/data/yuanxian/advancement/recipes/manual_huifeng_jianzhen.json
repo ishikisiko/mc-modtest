@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_huifeng_jianzhen"
+        "recipe": "yuanxian:manual_huifeng_jianzhen"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_huifeng_jianzhen"
+      "yuanxian:manual_huifeng_jianzhen"
     ]
   }
 }

@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/quenching_trough",
+  "parent": "yuanxian:block/quenching_trough",
   "display": {
     "gui": {
       "rotation": [

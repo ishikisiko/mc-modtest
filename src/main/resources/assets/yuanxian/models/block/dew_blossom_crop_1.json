@@ -2,8 +2,8 @@
   "ambientocclusion": false,
   "render_type": "minecraft:cutout",
   "textures": {
-    "plant": "myvillage:block/dew_blossom_plant",
-    "particle": "myvillage:block/dew_blossom_plant"
+    "plant": "yuanxian:block/dew_blossom_plant",
+    "particle": "yuanxian:block/dew_blossom_plant"
   },
   "elements": [
     {

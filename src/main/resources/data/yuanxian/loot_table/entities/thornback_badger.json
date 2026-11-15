@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:thorn_bone",
+          "name": "yuanxian:thorn_bone",
           "functions": [
             {
               "function": "minecraft:set_count",

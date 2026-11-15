@@ -1,9 +1,9 @@
 {
-  "translation_key": "cultivation.school.myvillage.water_arts",
+  "translation_key": "cultivation.school.yuanxian.water_arts",
   "kind": "special",
   "weapon_family": null,
   "runtime": "spell",
   "element_lean": [
-    "myvillage:water"
+    "yuanxian:water"
   ]
 }

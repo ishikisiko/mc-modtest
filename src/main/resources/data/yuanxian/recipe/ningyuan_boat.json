@@ -7,11 +7,11 @@
   ],
   "key": {
     "P": {
-      "item": "myvillage:ningyuan_planks"
+      "item": "yuanxian:ningyuan_planks"
     }
   },
   "result": {
-    "id": "myvillage:ningyuan_boat",
+    "id": "yuanxian:ningyuan_boat",
     "count": 1
   }
 }

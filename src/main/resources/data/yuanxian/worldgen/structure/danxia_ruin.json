@@ -1,10 +1,10 @@
 {
   "type": "minecraft:jigsaw",
-  "biomes": "#myvillage:has_danxia_ruin",
+  "biomes": "#yuanxian:has_danxia_ruin",
   "step": "surface_structures",
   "terrain_adaptation": "beard_thin",
   "spawn_overrides": {},
-  "start_pool": "myvillage:danxia_ruin",
+  "start_pool": "yuanxian:danxia_ruin",
   "size": 1,
   "start_height": {
     "absolute": -9

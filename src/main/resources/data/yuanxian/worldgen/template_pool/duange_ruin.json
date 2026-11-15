@@ -1,12 +1,12 @@
 {
-  "name": "myvillage:duange_ruin",
+  "name": "yuanxian:duange_ruin",
   "fallback": "minecraft:empty",
   "elements": [
     {
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "myvillage:duange_ruin",
+        "location": "yuanxian:duange_ruin",
         "processors": "minecraft:empty",
         "projection": "rigid",
         "override_liquid_settings": "ignore_waterlogging"

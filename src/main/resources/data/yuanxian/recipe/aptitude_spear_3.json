@@ -12,11 +12,11 @@
     }
   ],
   "result": {
-    "id": "myvillage:aptitude_treatise",
+    "id": "yuanxian:aptitude_treatise",
     "count": 1,
     "components": {
       "minecraft:custom_data": {
-        "myvillage_aptitude": {
+        "yuanxian_aptitude": {
           "aptitude": "spear",
           "tier": 3
         }

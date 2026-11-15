@@ -2,8 +2,8 @@
   "ambientocclusion": false,
   "render_type": "minecraft:cutout",
   "textures": {
-    "plant": "myvillage:block/cloud_fungus_plant",
-    "particle": "myvillage:block/cloud_fungus_plant"
+    "plant": "yuanxian:block/cloud_fungus_plant",
+    "particle": "yuanxian:block/cloud_fungus_plant"
   },
   "elements": [
     {

@@ -1,9 +1,9 @@
 {
   "loader": "neoforge:separate_transforms",
   "gui_light": "side",
-  "base": {"parent": "myvillage:item/qingfeng_sword_3d"},
+  "base": {"parent": "yuanxian:item/qingfeng_sword_3d"},
   "perspectives": {
-    "gui": {"parent": "myvillage:item/qingfeng_sword_3d"}
+    "gui": {"parent": "yuanxian:item/qingfeng_sword_3d"}
   },
-  "textures": {"particle": "myvillage:item/qingfeng_sword"}
+  "textures": {"particle": "yuanxian:item/qingfeng_sword"}
 }

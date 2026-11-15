@@ -1,8 +1,8 @@
 {
   "replace": false,
   "values": [
-    "myvillage:ningyuan_sapling",
-    "myvillage:ningyuan_leaves",
-    "myvillage:ningyuan_fruit_cluster"
+    "yuanxian:ningyuan_sapling",
+    "yuanxian:ningyuan_leaves",
+    "yuanxian:ningyuan_fruit_cluster"
   ]
 }

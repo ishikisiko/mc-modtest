@@ -1,15 +1,15 @@
 {
-  "translation_key": "cultivation.technique.myvillage.lihuo_zhenjue",
+  "translation_key": "cultivation.technique.yuanxian.lihuo_zhenjue",
   "category": "core",
   "grade": 2,
   "elements": [
-    "myvillage:fire"
+    "yuanxian:fire"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4",
     "minimum_element_aptitude": {
-      "myvillage:fire": 40
+      "yuanxian:fire": 40
     }
   },
   "effects": {

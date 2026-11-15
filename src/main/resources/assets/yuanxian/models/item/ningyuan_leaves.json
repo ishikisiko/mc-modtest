@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_leaves",
+  "parent": "yuanxian:block/ningyuan_leaves",
   "display": {
     "gui": {
       "rotation": [

@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_pressure_plate",
+  "parent": "yuanxian:block/ningyuan_pressure_plate",
   "display": {
     "gui": {
       "rotation": [

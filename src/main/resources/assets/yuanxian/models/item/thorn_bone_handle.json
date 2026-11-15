@@ -1,7 +1,7 @@
 {
   "textures": {
-    "body": "myvillage:item/thorn_bone_handle",
-    "particle": "myvillage:item/thorn_bone_handle"
+    "body": "yuanxian:item/thorn_bone_handle",
+    "particle": "yuanxian:item/thorn_bone_handle"
   },
   "elements": [
     {

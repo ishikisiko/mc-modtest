@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:ningyuan_trapdoor"
+          "name": "yuanxian:ningyuan_trapdoor"
         }
       ],
       "conditions": [

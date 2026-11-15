@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:stele_guardian",
+  "id": "yuanxian:stele_guardian",
   "texture": {"width": 1024, "height": 256},
   "look": {"bone": "head", "max_yaw": 16, "max_pitch": 12},
   "shadow_radius": 1.2,
@@ -133,5 +133,5 @@
       ]
     }
   ],
-  "surface_mesh": "myvillage:beast/stele_guardian_surface.json"
+  "surface_mesh": "yuanxian:beast/stele_guardian_surface.json"
 }

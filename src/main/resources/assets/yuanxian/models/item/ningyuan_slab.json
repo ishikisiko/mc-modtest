@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_slab",
+  "parent": "yuanxian:block/ningyuan_slab",
   "display": {
     "gui": {
       "rotation": [

@@ -2,7 +2,7 @@
   "providers": [
     {
       "type": "ttf",
-      "file": "myvillage:book.ttf",
+      "file": "yuanxian:book.ttf",
       "size": 10.0,
       "oversample": 4.0,
       "shift": [
@@ -13,7 +13,7 @@
     },
     {
       "type": "ttf",
-      "file": "myvillage:panel_body.ttf",
+      "file": "yuanxian:panel_body.ttf",
       "size": 10.0,
       "oversample": 4.0,
       "shift": [

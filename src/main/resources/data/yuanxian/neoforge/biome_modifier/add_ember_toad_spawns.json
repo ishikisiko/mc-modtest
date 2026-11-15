@@ -1,9 +1,9 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#myvillage:has_ember_toad",
+  "biomes": "#yuanxian:has_ember_toad",
   "spawners": [
     {
-      "type": "myvillage:ember_toad",
+      "type": "yuanxian:ember_toad",
       "weight": 5,
       "minCount": 1,
       "maxCount": 1

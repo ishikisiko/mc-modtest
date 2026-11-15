@@ -1,13 +1,13 @@
 {
   "loader": "neoforge:obj",
-  "model": "myvillage:models/equipment/forging/workpiece_qingfeng_sword_rough.obj",
+  "model": "yuanxian:models/equipment/forging/workpiece_qingfeng_sword_rough.obj",
   "automatic_culling": false,
   "shade_quads": true,
   "flip_v": false,
   "emissive_ambient": false,
   "gui_light": "side",
   "textures": {
-    "particle": "myvillage:equipment/forging/rough"
+    "particle": "yuanxian:equipment/forging/rough"
   },
   "display": {
     "gui": {

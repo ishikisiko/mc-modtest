@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:ember_toad",
+  "id": "yuanxian:ember_toad",
   "texture": {"width": 256, "height": 128},
   "look": {"bone": "head", "max_yaw": 20, "max_pitch": 15},
   "shadow_radius": 1.05,

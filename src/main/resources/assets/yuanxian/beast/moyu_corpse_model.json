@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:moyu_corpse",
+  "id": "yuanxian:moyu_corpse",
   "texture": {"width": 128, "height": 128},
   "look": {"bone": "head", "max_yaw": 35, "max_pitch": 25},
   "shadow_radius": 0.35,

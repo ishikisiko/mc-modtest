@@ -1,16 +1,16 @@
 {
-  "translation_key": "cultivation.technique.myvillage.canglong_chushui",
+  "translation_key": "cultivation.technique.yuanxian.canglong_chushui",
   "category": "active",
   "grade": 2,
   "elements": [],
-  "school": "myvillage:spear",
+  "school": "yuanxian:spear",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:canglong_chushui",
+      "skill": "yuanxian:canglong_chushui",
       "qi_cost": 20,
       "slots": 1
     }

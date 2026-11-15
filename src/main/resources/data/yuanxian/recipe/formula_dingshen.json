@@ -5,17 +5,17 @@
       "item": "minecraft:paper"
     },
     {
-      "item": "myvillage:talisman_ash"
+      "item": "yuanxian:talisman_ash"
     },
     {
-      "item": "myvillage:calm_lotus"
+      "item": "yuanxian:calm_lotus"
     },
     {
       "tag": "c:spirit_stones/low_grade"
     }
   ],
   "result": {
-    "id": "myvillage:formula_dingshen",
+    "id": "yuanxian:formula_dingshen",
     "count": 1
   }
 }

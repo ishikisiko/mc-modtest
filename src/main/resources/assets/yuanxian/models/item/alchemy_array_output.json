@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/alchemy_array_output",
+  "parent": "yuanxian:block/alchemy_array_output",
   "display": {
     "gui": {
       "rotation": [

@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:calm_lotus",
+          "name": "yuanxian:calm_lotus",
           "functions": [
             {
               "function": "minecraft:set_count",
@@ -18,7 +18,7 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "myvillage:calm_lotus_crop",
+                  "block": "yuanxian:calm_lotus_crop",
                   "properties": {
                     "age": "2"
                   }

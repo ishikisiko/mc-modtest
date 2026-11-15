@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_qingmu_yi"
+        "recipe": "yuanxian:manual_qingmu_yi"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_qingmu_yi"
+      "yuanxian:manual_qingmu_yi"
     ]
   }
 }

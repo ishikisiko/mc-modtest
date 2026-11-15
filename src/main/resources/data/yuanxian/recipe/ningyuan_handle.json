@@ -3,14 +3,14 @@
   "category": "equipment",
   "ingredients": [
     {
-      "item": "myvillage:ningyuan_planks"
+      "item": "yuanxian:ningyuan_planks"
     },
     {
-      "item": "myvillage:ningyuan_planks"
+      "item": "yuanxian:ningyuan_planks"
     }
   ],
   "result": {
-    "id": "myvillage:ningyuan_handle",
+    "id": "yuanxian:ningyuan_handle",
     "count": 1
   }
 }

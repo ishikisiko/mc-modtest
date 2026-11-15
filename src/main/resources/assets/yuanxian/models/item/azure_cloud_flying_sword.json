@@ -1,7 +1,7 @@
 {
   "textures": {
-    "palette": "myvillage:item/flying_sword_palette",
-    "particle": "myvillage:item/flying_sword_palette"
+    "palette": "yuanxian:item/flying_sword_palette",
+    "particle": "yuanxian:item/flying_sword_palette"
   },
   "elements": [
     {

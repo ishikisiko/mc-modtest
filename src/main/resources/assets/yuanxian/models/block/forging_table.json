@@ -1,8 +1,8 @@
 {
   "ambientocclusion": true,
   "textures": {
-    "atlas": "myvillage:block/forging_ding",
-    "particle": "myvillage:block/forging_ding"
+    "atlas": "yuanxian:block/forging_ding",
+    "particle": "yuanxian:block/forging_ding"
   },
   "elements": [
     {

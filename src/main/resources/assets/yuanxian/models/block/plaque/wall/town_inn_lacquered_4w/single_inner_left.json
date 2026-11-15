@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "myvillage:block/plaque/wall/town_inn_lacquered_4w/single_inner_left",
-    "plaque": "myvillage:block/plaque/wall/town_inn_lacquered_4w/horizontal_full",
-    "edge": "myvillage:block/plaque/wall/town_inn_lacquered_4w/single_inner_left"
+    "particle": "yuanxian:block/plaque/wall/town_inn_lacquered_4w/single_inner_left",
+    "plaque": "yuanxian:block/plaque/wall/town_inn_lacquered_4w/horizontal_full",
+    "edge": "yuanxian:block/plaque/wall/town_inn_lacquered_4w/single_inner_left"
   },
   "elements": [
     {

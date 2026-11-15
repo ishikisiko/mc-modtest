@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:dew_blossom",
+          "name": "yuanxian:dew_blossom",
           "functions": [
             {
               "function": "minecraft:set_count",
@@ -18,7 +18,7 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "myvillage:dew_blossom_crop",
+                  "block": "yuanxian:dew_blossom_crop",
                   "properties": {
                     "age": "2"
                   }

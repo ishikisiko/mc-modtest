@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/huashen_dari_leggings.mtl
+mtllib yuanxian:models/immortal_equipment/huashen_dari_leggings.mtl
 o sun_waist
 usemtl orn_border_red
 v 0.28125 0.8437499985 0.160937503

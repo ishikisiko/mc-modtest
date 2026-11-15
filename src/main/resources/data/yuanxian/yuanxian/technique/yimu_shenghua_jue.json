@@ -1,19 +1,19 @@
 {
-  "translation_key": "cultivation.technique.myvillage.yimu_shenghua_jue",
+  "translation_key": "cultivation.technique.yuanxian.yimu_shenghua_jue",
   "category": "core",
   "grade": 2,
   "elements": [
-    "myvillage:wood"
+    "yuanxian:wood"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4",
     "minimum_element_aptitude": {
-      "myvillage:wood": 40
+      "yuanxian:wood": 40
     }
   },
   "lineage": {
-    "previous": "myvillage:qingmu_changchun_gong"
+    "previous": "yuanxian:qingmu_changchun_gong"
   },
   "effects": {
     "core": {

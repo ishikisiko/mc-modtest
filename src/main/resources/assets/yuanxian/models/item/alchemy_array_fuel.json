@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/alchemy_array_fuel",
+  "parent": "yuanxian:block/alchemy_array_fuel",
   "display": {
     "gui": {
       "rotation": [

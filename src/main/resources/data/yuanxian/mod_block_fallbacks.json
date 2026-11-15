@@ -38,8 +38,8 @@
   "supplementaries:awning_yellow": "minecraft:brick_stairs",
   "supplementaries:blackstone_lamp": "minecraft:torch",
   "supplementaries:blackstone_tile": "minecraft:polished_andesite",
-  "supplementaries:blackstone_tile_slab": "minecraft:dark_oak_stairs",
-  "supplementaries:blackstone_tile_stairs": "minecraft:dark_oak_stairs",
+  "supplementaries:blackstone_tile_slab": "minecraft:brick_stairs",
+  "supplementaries:blackstone_tile_stairs": "minecraft:brick_stairs",
   "supplementaries:blackstone_tile_wall": "minecraft:quartz_pillar[axis=y]",
   "supplementaries:candle_holder_green": "minecraft:lantern",
   "supplementaries:candle_holder_red": "minecraft:lantern",
@@ -53,7 +53,7 @@
   "supplementaries:rope_chandelier": "minecraft:torch",
   "supplementaries:stone_lamp": "minecraft:torch",
   "supplementaries:stone_tile": "minecraft:stone_bricks",
-  "supplementaries:stone_tile_slab": "minecraft:dark_oak_stairs",
-  "supplementaries:stone_tile_stairs": "minecraft:dark_oak_stairs",
+  "supplementaries:stone_tile_slab": "minecraft:brick_stairs",
+  "supplementaries:stone_tile_stairs": "minecraft:brick_stairs",
   "supplementaries:stone_tile_wall": "minecraft:stone_brick_wall"
 }

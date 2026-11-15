@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "myvillage:ningyuan_fruit_low"
+      "item": "yuanxian:ningyuan_fruit_low"
     },
     {
       "item": "minecraft:snowball"
@@ -12,11 +12,11 @@
     }
   ],
   "result": {
-    "id": "myvillage:aptitude_fruit",
+    "id": "yuanxian:aptitude_fruit",
     "count": 1,
     "components": {
       "minecraft:custom_data": {
-        "myvillage_aptitude": {
+        "yuanxian_aptitude": {
           "aptitude": "water",
           "tier": 3
         }

@@ -9,7 +9,7 @@
           "children": [
             {
               "type": "minecraft:item",
-              "name": "myvillage:edge_tempering_sand_deposit",
+              "name": "yuanxian:edge_tempering_sand_deposit",
               "conditions": [
                 {
                   "condition": "minecraft:match_tool",
@@ -30,7 +30,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "myvillage:edge_tempering_sand",
+              "name": "yuanxian:edge_tempering_sand",
               "functions": [
                 {
                   "function": "minecraft:set_count",

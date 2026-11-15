@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_fence_gate",
+  "parent": "yuanxian:block/ningyuan_fence_gate",
   "display": {
     "gui": {
       "rotation": [

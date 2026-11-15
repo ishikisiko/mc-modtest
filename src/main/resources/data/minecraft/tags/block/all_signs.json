@@ -1,9 +1,9 @@
 {
   "replace": false,
   "values": [
-    "myvillage:ningyuan_sign",
-    "myvillage:ningyuan_wall_sign",
-    "myvillage:ningyuan_hanging_sign",
-    "myvillage:ningyuan_wall_hanging_sign"
+    "yuanxian:ningyuan_sign",
+    "yuanxian:ningyuan_wall_sign",
+    "yuanxian:ningyuan_hanging_sign",
+    "yuanxian:ningyuan_wall_hanging_sign"
   ]
 }

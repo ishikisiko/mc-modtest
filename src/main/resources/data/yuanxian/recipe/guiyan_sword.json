@@ -6,14 +6,14 @@
       "item": "minecraft:iron_ingot"
     },
     {
-      "item": "myvillage:sword_spirit_core"
+      "item": "yuanxian:sword_spirit_core"
     },
     {
-      "item": "myvillage:low_grade_spirit_stone"
+      "item": "yuanxian:low_grade_spirit_stone"
     }
   ],
   "result": {
-    "id": "myvillage:guiyan_sword",
+    "id": "yuanxian:guiyan_sword",
     "count": 1
   }
 }

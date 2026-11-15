@@ -8,6 +8,10 @@
     "yuanxian:redplate_lizard",
     "yuanxian:frostplume_pheasant",
     "yuanxian:lantern_sporeling",
+    "yuanxian:wandering_sword",
+    "yuanxian:mirror_wraith",
+    "yuanxian:ember_toad",
+    "yuanxian:stele_guardian",
     "yuanxian:wandering_corpse",
     "yuanxian:bone_archer",
     "yuanxian:ximo_corpse",
@@ -25,10 +29,6 @@
     "yuanxian:moyu_corpse",
     "yuanxian:moyu_bone_archer",
     "yuanxian:zhongzhou_corpse",
-    "yuanxian:zhongzhou_bone_archer",
-    "yuanxian:wandering_sword",
-    "yuanxian:mirror_wraith",
-    "yuanxian:ember_toad",
-    "yuanxian:stele_guardian"
+    "yuanxian:zhongzhou_bone_archer"
   ]
 }

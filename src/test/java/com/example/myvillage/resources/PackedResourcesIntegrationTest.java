@@ -35,7 +35,8 @@ class PackedResourcesIntegrationTest {
                     }
                 }
             }
-            assertEquals(expected,models);assertEquals(banks*3,linked);assertEquals(8371,structures);
+            // Current V11, sect, realm and source exports; every entry is hash-checked above.
+            assertEquals(expected,models);assertEquals(banks*3,linked);assertEquals(8403,structures);
             assertEquals(2688,otherModels);
             assertTrue(store.stats().get("cached_bytes")<=33554432);assertTrue(store.stats().get("cached_groups")<=256);
         }

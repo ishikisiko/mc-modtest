@@ -1,10 +1,10 @@
 {
   "type": "minecraft:jigsaw",
-  "biomes": "#myvillage:has_fuyao_ruin",
+  "biomes": "#yuanxian:has_fuyao_ruin",
   "step": "surface_structures",
   "terrain_adaptation": "beard_thin",
   "spawn_overrides": {},
-  "start_pool": "myvillage:fuyao_ruin",
+  "start_pool": "yuanxian:fuyao_ruin",
   "size": 1,
   "start_height": {
     "absolute": -11

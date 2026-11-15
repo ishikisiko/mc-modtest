@@ -1,15 +1,15 @@
 {
-  "translation_key": "cultivation.technique.myvillage.zaohua_qinglian_jing",
+  "translation_key": "cultivation.technique.yuanxian.zaohua_qinglian_jing",
   "category": "core",
   "grade": 4,
   "elements": [
-    "myvillage:wood"
+    "yuanxian:wood"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
-      "myvillage:wood": 200
+      "yuanxian:wood": 200
     }
   },
   "effects": {

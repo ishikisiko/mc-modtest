@@ -1,1 +1,1 @@
-place template myvillage:medium_house_010 ~ ~-1 ~
+place template yuanxian:medium_house_010 ~ ~-1 ~

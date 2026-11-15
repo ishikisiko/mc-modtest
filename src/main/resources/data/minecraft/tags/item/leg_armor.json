@@ -1,21 +1,21 @@
 {
   "replace": false,
   "values": [
-    "myvillage:xuantie_leggings",
-    "myvillage:qi_moqing_leggings",
-    "myvillage:qi_tingyu_leggings",
-    "myvillage:qi_chixia_leggings",
-    "myvillage:zhuji_baiqing_lingyun_leggings",
-    "myvillage:zhuji_yuheng_yizhuang_leggings",
-    "myvillage:zhuji_wuyao_yeque_leggings",
-    "myvillage:jindan_jinwu_leggings",
-    "myvillage:jindan_taiyin_leggings",
-    "myvillage:jindan_zixiao_leggings",
-    "myvillage:yuanying_xinghe_leggings",
-    "myvillage:yuanying_jiuse_leggings",
-    "myvillage:yuanying_qingdi_leggings",
-    "myvillage:huashen_taixu_leggings",
-    "myvillage:huashen_xuanji_leggings",
-    "myvillage:huashen_dari_leggings"
+    "yuanxian:xuantie_leggings",
+    "yuanxian:qi_moqing_leggings",
+    "yuanxian:qi_tingyu_leggings",
+    "yuanxian:qi_chixia_leggings",
+    "yuanxian:zhuji_baiqing_lingyun_leggings",
+    "yuanxian:zhuji_yuheng_yizhuang_leggings",
+    "yuanxian:zhuji_wuyao_yeque_leggings",
+    "yuanxian:jindan_jinwu_leggings",
+    "yuanxian:jindan_taiyin_leggings",
+    "yuanxian:jindan_zixiao_leggings",
+    "yuanxian:yuanying_xinghe_leggings",
+    "yuanxian:yuanying_jiuse_leggings",
+    "yuanxian:yuanying_qingdi_leggings",
+    "yuanxian:huashen_taixu_leggings",
+    "yuanxian:huashen_xuanji_leggings",
+    "yuanxian:huashen_dari_leggings"
   ]
 }

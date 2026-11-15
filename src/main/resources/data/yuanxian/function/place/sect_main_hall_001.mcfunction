@@ -1,1 +1,1 @@
-place template myvillage:sect_main_hall_001 ~ ~-1 ~
+place template yuanxian:sect_main_hall_001 ~ ~-1 ~

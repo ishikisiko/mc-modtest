@@ -1,12 +1,12 @@
 {
   "loader": "neoforge:obj",
-  "model": "myvillage:models/equipment/forging/bench_sword_2.obj",
+  "model": "yuanxian:models/equipment/forging/bench_sword_2.obj",
   "automatic_culling": false,
   "shade_quads": true,
   "flip_v": false,
   "emissive_ambient": false,
   "gui_light": "side",
   "textures": {
-    "particle": "myvillage:equipment/forging/quenched"
+    "particle": "yuanxian:equipment/forging/quenched"
   }
 }

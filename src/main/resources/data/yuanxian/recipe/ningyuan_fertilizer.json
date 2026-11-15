@@ -3,10 +3,10 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "myvillage:medium_grade_spirit_stone"
+      "item": "yuanxian:medium_grade_spirit_stone"
     },
     {
-      "item": "myvillage:medium_grade_spirit_stone"
+      "item": "yuanxian:medium_grade_spirit_stone"
     },
     {
       "item": "minecraft:ghast_tear"
@@ -19,7 +19,7 @@
     }
   ],
   "result": {
-    "id": "myvillage:ningyuan_fertilizer",
+    "id": "yuanxian:ningyuan_fertilizer",
     "count": 1
   }
 }

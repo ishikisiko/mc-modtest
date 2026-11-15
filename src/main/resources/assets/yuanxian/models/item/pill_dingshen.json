@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/pill_dingshen"
+    "layer0": "yuanxian:item/pill_dingshen"
   }
 }

@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/single_right",
-    "plaque": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/horizontal_full",
-    "edge": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/single_right"
+    "particle": "yuanxian:block/plaque/wall/sect_scripture_ornate_4w/single_right",
+    "plaque": "yuanxian:block/plaque/wall/sect_scripture_ornate_4w/horizontal_full",
+    "edge": "yuanxian:block/plaque/wall/sect_scripture_ornate_4w/single_right"
   },
   "elements": [
     {

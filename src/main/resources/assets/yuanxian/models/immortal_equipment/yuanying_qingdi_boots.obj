@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/yuanying_qingdi_boots.mtl
+mtllib yuanxian:models/immortal_equipment/yuanying_qingdi_boots.mtl
 o boot_shaft_-1
 usemtl jade
 v 0.024999997 0.350000003 0

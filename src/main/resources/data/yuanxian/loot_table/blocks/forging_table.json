@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:forging_table"
+          "name": "yuanxian:forging_table"
         }
       ],
       "conditions": [

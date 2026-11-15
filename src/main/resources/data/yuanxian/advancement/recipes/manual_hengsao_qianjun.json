@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_hengsao_qianjun"
+        "recipe": "yuanxian:manual_hengsao_qianjun"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_hengsao_qianjun"
+      "yuanxian:manual_hengsao_qianjun"
     ]
   }
 }

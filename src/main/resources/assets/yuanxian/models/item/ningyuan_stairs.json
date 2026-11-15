@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_stairs",
+  "parent": "yuanxian:block/ningyuan_stairs",
   "display": {
     "gui": {
       "rotation": [

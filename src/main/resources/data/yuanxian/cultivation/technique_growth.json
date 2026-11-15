@@ -13,7 +13,7 @@
     "圆满"
   ],
   "techniques": {
-    "myvillage:basic_breathing": {
+    "yuanxian:basic_breathing": {
       "category": "core",
       "thresholds": [
         0,
@@ -62,7 +62,7 @@
       ],
       "transfers": []
     },
-    "myvillage:qingmu_changchun_gong": {
+    "yuanxian:qingmu_changchun_gong": {
       "category": "core",
       "thresholds": [
         0,
@@ -75,7 +75,7 @@
       "practice_stones": 2,
       "hit_gain": 0,
       "potential": "青帝木脉的基础篇。圆满并参悟后，可研读乙木生华诀，承接修习与参悟方向。",
-      "next": "myvillage:yimu_shenghua_jue",
+      "next": "yuanxian:yimu_shenghua_jue",
       "bonuses": {
         "cultivation": [
           0,
@@ -112,7 +112,7 @@
       ],
       "transfers": [
         {
-          "source": "myvillage:basic_breathing",
+          "source": "yuanxian:basic_breathing",
           "study_bonus_bp": 2000,
           "first_insight_discount": 1,
           "inherited_mastery": 0,
@@ -120,7 +120,7 @@
         }
       ]
     },
-    "myvillage:yimu_shenghua_jue": {
+    "yuanxian:yimu_shenghua_jue": {
       "category": "core",
       "thresholds": [
         0,
@@ -171,14 +171,14 @@
       ],
       "transfers": [
         {
-          "source": "myvillage:basic_breathing",
+          "source": "yuanxian:basic_breathing",
           "study_bonus_bp": 500,
           "first_insight_discount": 0,
           "inherited_mastery": 0,
           "inherit_insight": false
         },
         {
-          "source": "myvillage:qingmu_changchun_gong",
+          "source": "yuanxian:qingmu_changchun_gong",
           "study_bonus_bp": 4000,
           "first_insight_discount": 1,
           "inherited_mastery": 60,
@@ -186,7 +186,7 @@
         }
       ]
     },
-    "myvillage:jianqi_jue": {
+    "yuanxian:jianqi_jue": {
       "category": "active",
       "thresholds": [
         0,

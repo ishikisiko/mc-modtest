@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/xuantie_ore"
+      "model": "yuanxian:block/xuantie_ore"
     }
   }
 }

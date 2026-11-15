@@ -1,5 +1,5 @@
 # Authored equipment mesh; generated, do not edit.
-mtllib myvillage:models/equipment/forging/bench_hoe_0.mtl
+mtllib yuanxian:models/equipment/forging/bench_hoe_0.mtl
 g geometry
 # 锄眼
 usemtl m0

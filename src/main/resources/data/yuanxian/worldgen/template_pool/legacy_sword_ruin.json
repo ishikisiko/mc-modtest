@@ -1,12 +1,12 @@
 {
-  "name": "myvillage:legacy_sword_ruin",
+  "name": "yuanxian:legacy_sword_ruin",
   "fallback": "minecraft:empty",
   "elements": [
     {
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "myvillage:legacy_sword_ruin",
+        "location": "yuanxian:legacy_sword_ruin",
         "processors": "minecraft:empty",
         "projection": "rigid"
       }

@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.zhenyue_jue",
+  "translation_key": "cultivation.technique.yuanxian.zhenyue_jue",
   "category": "active",
   "grade": 2,
   "elements": [
-    "myvillage:earth"
+    "yuanxian:earth"
   ],
-  "school": "myvillage:legacy",
+  "school": "yuanxian:legacy",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:zhenyue_jue",
+      "skill": "yuanxian:zhenyue_jue",
       "qi_cost": 12,
       "slots": 1
     }

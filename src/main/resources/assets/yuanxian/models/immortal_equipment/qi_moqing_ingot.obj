@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/qi_moqing_ingot.mtl
+mtllib yuanxian:models/immortal_equipment/qi_moqing_ingot.mtl
 o ingot_body
 usemtl silver
 v -0.1598287083 -0.0324999988 0

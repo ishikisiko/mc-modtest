@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "myvillage:block/plaque/wall/town_shop_wood_3w/middle",
-    "plaque": "myvillage:block/plaque/wall/town_shop_wood_3w/vertical_full",
-    "edge": "myvillage:block/plaque/wall/town_shop_wood_3w/middle"
+    "particle": "yuanxian:block/plaque/wall/town_shop_wood_3w/middle",
+    "plaque": "yuanxian:block/plaque/wall/town_shop_wood_3w/vertical_full",
+    "edge": "yuanxian:block/plaque/wall/town_shop_wood_3w/middle"
   },
   "elements": [
     {

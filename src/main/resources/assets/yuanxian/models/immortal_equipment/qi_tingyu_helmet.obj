@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/qi_tingyu_helmet.mtl
+mtllib yuanxian:models/immortal_equipment/qi_tingyu_helmet.mtl
 o cap_top
 usemtl bronze
 v 0.2687500119 2.053125 0

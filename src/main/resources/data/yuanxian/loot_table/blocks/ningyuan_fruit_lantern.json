@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:ningyuan_fruit_lantern"
+          "name": "yuanxian:ningyuan_fruit_lantern"
         }
       ],
       "conditions": [

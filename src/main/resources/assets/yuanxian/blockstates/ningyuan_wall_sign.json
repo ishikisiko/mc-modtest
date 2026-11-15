@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/ningyuan_sign"
+      "model": "yuanxian:block/ningyuan_sign"
     }
   }
 }

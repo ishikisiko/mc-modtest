@@ -7,11 +7,11 @@
   ],
   "key": {
     "L": {
-      "item": "myvillage:ningyuan_log"
+      "item": "yuanxian:ningyuan_log"
     }
   },
   "result": {
-    "id": "myvillage:ningyuan_wood",
+    "id": "yuanxian:ningyuan_wood",
     "count": 3
   }
 }

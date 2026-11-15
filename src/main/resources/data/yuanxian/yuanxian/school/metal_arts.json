@@ -1,9 +1,9 @@
 {
-  "translation_key": "cultivation.school.myvillage.metal_arts",
+  "translation_key": "cultivation.school.yuanxian.metal_arts",
   "kind": "special",
   "weapon_family": null,
   "runtime": "spell",
   "element_lean": [
-    "myvillage:metal"
+    "yuanxian:metal"
   ]
 }

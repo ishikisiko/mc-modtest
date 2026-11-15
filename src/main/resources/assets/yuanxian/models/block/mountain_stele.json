@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "myvillage:block/mountain_stele"
+    "all": "yuanxian:block/mountain_stele"
   }
 }

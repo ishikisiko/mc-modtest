@@ -17,14 +17,14 @@
       "item": "minecraft:redstone"
     },
     "X": {
-      "item": "myvillage:xuantie_ingot"
+      "item": "yuanxian:xuantie_ingot"
     },
     "I": {
       "item": "minecraft:iron_ingot"
     }
   },
   "result": {
-    "id": "myvillage:forging_array_controller",
+    "id": "yuanxian:forging_array_controller",
     "count": 1
   }
 }

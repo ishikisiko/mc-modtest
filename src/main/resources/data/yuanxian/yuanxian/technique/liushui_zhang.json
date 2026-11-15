@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.liushui_zhang",
+  "translation_key": "cultivation.technique.yuanxian.liushui_zhang",
   "category": "active",
   "grade": 1,
   "elements": [
-    "myvillage:water"
+    "yuanxian:water"
   ],
-  "school": "myvillage:water_arts",
+  "school": "yuanxian:water_arts",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_1"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_1"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:liushui_zhang",
+      "skill": "yuanxian:liushui_zhang",
       "qi_cost": 6,
       "slots": 1
     }
@@ -23,6 +23,6 @@
     "gate_stability_cost": 0
   },
   "lineage": {
-    "previous": "myvillage:shuiren_shu"
+    "previous": "yuanxian:shuiren_shu"
   }
 }

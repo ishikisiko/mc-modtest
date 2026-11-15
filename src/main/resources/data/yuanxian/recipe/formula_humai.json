@@ -5,17 +5,17 @@
       "item": "minecraft:paper"
     },
     {
-      "item": "myvillage:thorn_bone"
+      "item": "yuanxian:thorn_bone"
     },
     {
-      "item": "myvillage:blood_berry"
+      "item": "yuanxian:blood_berry"
     },
     {
       "tag": "c:spirit_stones/low_grade"
     }
   ],
   "result": {
-    "id": "myvillage:formula_humai",
+    "id": "yuanxian:formula_humai",
     "count": 1
   }
 }

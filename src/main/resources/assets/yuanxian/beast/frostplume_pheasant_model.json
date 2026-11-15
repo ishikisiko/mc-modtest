@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:frostplume_pheasant",
+  "id": "yuanxian:frostplume_pheasant",
   "texture": {"width": 128, "height": 64},
   "look": {"bone": "head", "max_yaw": 28.0, "max_pitch": 22.0},
   "shadow_radius": 0.5363,

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:thunder_tiger",
+  "id": "yuanxian:thunder_tiger",
   "texture": {"width": 256, "height": 128},
   "look": {"bone": "head", "max_yaw": 32.0, "max_pitch": 22.0},
   "shadow_radius": 1.8,

@@ -1,7 +1,7 @@
 {
   "textures": {
-    "body": "myvillage:item/chitong_handle",
-    "particle": "myvillage:item/chitong_handle"
+    "body": "yuanxian:item/chitong_handle",
+    "particle": "yuanxian:item/chitong_handle"
   },
   "elements": [
     {

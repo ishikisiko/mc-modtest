@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/ningyuan_planks"
+      "model": "yuanxian:block/ningyuan_planks"
     }
   }
 }

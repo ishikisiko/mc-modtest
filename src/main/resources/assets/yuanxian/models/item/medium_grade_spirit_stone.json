@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/medium_grade_spirit_stone"
+    "layer0": "yuanxian:item/medium_grade_spirit_stone"
   }
 }

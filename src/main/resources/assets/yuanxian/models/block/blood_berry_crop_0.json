@@ -2,8 +2,8 @@
   "ambientocclusion": false,
   "render_type": "minecraft:cutout",
   "textures": {
-    "plant": "myvillage:block/blood_berry_plant",
-    "particle": "myvillage:block/blood_berry_plant"
+    "plant": "yuanxian:block/blood_berry_plant",
+    "particle": "yuanxian:block/blood_berry_plant"
   },
   "elements": [
     {

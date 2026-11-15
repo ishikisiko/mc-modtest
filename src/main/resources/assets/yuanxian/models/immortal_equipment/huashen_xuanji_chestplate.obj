@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/huashen_xuanji_chestplate.mtl
+mtllib yuanxian:models/immortal_equipment/huashen_xuanji_chestplate.mtl
 o imperial_body
 usemtl armor
 v 0.275000006 1.515625 0

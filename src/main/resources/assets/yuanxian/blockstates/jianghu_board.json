@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=north": {
-      "model": "myvillage:block/jianghu_board"
+      "model": "yuanxian:block/jianghu_board"
     },
     "facing=east": {
-      "model": "myvillage:block/jianghu_board",
+      "model": "yuanxian:block/jianghu_board",
       "y": 90
     },
     "facing=south": {
-      "model": "myvillage:block/jianghu_board",
+      "model": "yuanxian:block/jianghu_board",
       "y": 180
     },
     "facing=west": {
-      "model": "myvillage:block/jianghu_board",
+      "model": "yuanxian:block/jianghu_board",
       "y": 270
     }
   }

@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "myvillage:block/plaque/hanging/lord_manor_heraldry_5w/single_center",
-    "plaque": "myvillage:block/plaque/hanging/lord_manor_heraldry_5w/horizontal_full",
-    "edge": "myvillage:block/plaque/hanging/lord_manor_heraldry_5w/single_center"
+    "particle": "yuanxian:block/plaque/hanging/lord_manor_heraldry_5w/single_center",
+    "plaque": "yuanxian:block/plaque/hanging/lord_manor_heraldry_5w/horizontal_full",
+    "edge": "yuanxian:block/plaque/hanging/lord_manor_heraldry_5w/single_center"
   },
   "elements": [
     {

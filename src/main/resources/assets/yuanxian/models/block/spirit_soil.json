@@ -1,9 +1,9 @@
 {
   "textures": {
-    "top": "myvillage:block/spirit_soil_top",
-    "bottom": "myvillage:block/spirit_soil_bottom",
-    "side": "myvillage:block/spirit_soil_side",
-    "particle": "myvillage:block/spirit_soil_top"
+    "top": "yuanxian:block/spirit_soil_top",
+    "bottom": "yuanxian:block/spirit_soil_bottom",
+    "side": "yuanxian:block/spirit_soil_side",
+    "particle": "yuanxian:block/spirit_soil_top"
   },
   "elements": [
     {

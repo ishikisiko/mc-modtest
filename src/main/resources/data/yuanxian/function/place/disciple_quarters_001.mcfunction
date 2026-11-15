@@ -1,1 +1,1 @@
-place template myvillage:disciple_quarters_001 ~ ~-1 ~
+place template yuanxian:disciple_quarters_001 ~ ~-1 ~

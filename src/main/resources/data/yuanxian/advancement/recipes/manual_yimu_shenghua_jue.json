@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_yimu_shenghua_jue"
+        "recipe": "yuanxian:manual_yimu_shenghua_jue"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_yimu_shenghua_jue"
+      "yuanxian:manual_yimu_shenghua_jue"
     ]
   }
 }

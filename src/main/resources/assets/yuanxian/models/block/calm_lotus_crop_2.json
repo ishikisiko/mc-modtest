@@ -2,8 +2,8 @@
   "ambientocclusion": false,
   "render_type": "minecraft:cutout",
   "textures": {
-    "plant": "myvillage:block/calm_lotus_plant",
-    "particle": "myvillage:block/calm_lotus_plant"
+    "plant": "yuanxian:block/calm_lotus_plant",
+    "particle": "yuanxian:block/calm_lotus_plant"
   },
   "elements": [
     {

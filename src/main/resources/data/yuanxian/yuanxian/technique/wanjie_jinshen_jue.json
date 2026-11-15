@@ -1,19 +1,19 @@
 {
-  "translation_key": "cultivation.technique.myvillage.wanjie_jinshen_jue",
+  "translation_key": "cultivation.technique.yuanxian.wanjie_jinshen_jue",
   "category": "body",
   "grade": 4,
   "elements": [
-    "myvillage:metal"
+    "yuanxian:metal"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
-      "myvillage:metal": 200
+      "yuanxian:metal": 200
     }
   },
   "lineage": {
-    "previous": "myvillage:gengjin_bumie_ti"
+    "previous": "yuanxian:gengjin_bumie_ti"
   },
   "study": {
     "points": 96000,

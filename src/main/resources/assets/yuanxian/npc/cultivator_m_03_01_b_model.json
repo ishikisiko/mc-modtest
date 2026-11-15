@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:cultivator",
+  "id": "yuanxian:cultivator",
   "texture": {"width": 256, "height": 128},
   "look": {"bone": "head", "max_yaw": 60.0, "max_pitch": 35.0},
   "shadow_radius": 0.4,

@@ -6,7 +6,7 @@
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "myvillage:demon_pact_pillar",
+          "block": "yuanxian:demon_pact_pillar",
           "properties": {
             "part": "0"
           }
@@ -15,7 +15,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:demon_pact_pillar"
+          "name": "yuanxian:demon_pact_pillar"
         }
       ]
     }

@@ -2,28 +2,28 @@ newmtl blue
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/yuanying_xinghe/blue
+map_Kd yuanxian:immortal_equipment/yuanying_xinghe/blue
 
 newmtl night
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/yuanying_xinghe/night
+map_Kd yuanxian:immortal_equipment/yuanying_xinghe/night
 
 newmtl ink
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/yuanying_xinghe/ink
+map_Kd yuanxian:immortal_equipment/yuanying_xinghe/ink
 
 newmtl silver
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/yuanying_xinghe/silver
+map_Kd yuanxian:immortal_equipment/yuanying_xinghe/silver
 
 newmtl star
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/yuanying_xinghe/star
+map_Kd yuanxian:immortal_equipment/yuanying_xinghe/star

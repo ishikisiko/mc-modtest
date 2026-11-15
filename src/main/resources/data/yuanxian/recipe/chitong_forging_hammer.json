@@ -7,7 +7,7 @@
   ],
   "key": {
     "I": {
-      "item": "myvillage:chitong_ingot"
+      "item": "yuanxian:chitong_ingot"
     },
     "P": {
       "tag": "minecraft:planks"
@@ -17,7 +17,7 @@
     }
   },
   "result": {
-    "id": "myvillage:chitong_forging_hammer",
+    "id": "yuanxian:chitong_forging_hammer",
     "count": 1
   },
   "category": "misc"

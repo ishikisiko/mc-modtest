@@ -1,6 +1,6 @@
 {
   "loader": "neoforge:obj",
-  "model": "myvillage:models/immortal_equipment/huashen_dari_ingot.obj",
+  "model": "yuanxian:models/immortal_equipment/huashen_dari_ingot.obj",
   "automatic_culling": false,
   "shade_quads": false,
   "flip_v": false,
@@ -8,7 +8,7 @@
   "gui_light": "side",
   "render_type": "minecraft:cutout",
   "textures": {
-    "particle": "myvillage:immortal_equipment/huashen_dari/trim"
+    "particle": "yuanxian:immortal_equipment/huashen_dari/trim"
   },
   "display": {
     "gui": {

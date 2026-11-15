@@ -1,1 +1,1 @@
-place template myvillage:big_house_005 ~ ~-1 ~
+place template yuanxian:big_house_005 ~ ~-1 ~

@@ -2,22 +2,22 @@ newmtl copper
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_chixia/copper
+map_Kd yuanxian:immortal_equipment/qi_chixia/copper
 
 newmtl leather
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_chixia/leather
+map_Kd yuanxian:immortal_equipment/qi_chixia/leather
 
 newmtl lining
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_chixia/lining
+map_Kd yuanxian:immortal_equipment/qi_chixia/lining
 
 newmtl gold
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_chixia/gold
+map_Kd yuanxian:immortal_equipment/qi_chixia/gold

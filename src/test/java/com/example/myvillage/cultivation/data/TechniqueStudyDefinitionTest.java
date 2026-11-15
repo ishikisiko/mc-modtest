@@ -13,17 +13,10 @@ import com.mojang.serialization.JsonOps;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /** The optional {@code study} block of a technique (docs/technique-manual-brief.md section 4). */
 class TechniqueStudyDefinitionTest {
-    private static final Map<Integer, TechniqueStudy> STUDY_BY_GRADE = Map.of(
-            1, new TechniqueStudy(160, 0, 0),
-            2, new TechniqueStudy(12000, 1, 50),
-            3, new TechniqueStudy(36000, 2, 100),
-            4, new TechniqueStudy(96000, 3, 150));
-
     @Test
     void absentStudyReadsAsTheDefaultAndIsNotWrittenBack() {
         TechniqueDefinition technique = decode(technique(""));
@@ -77,12 +70,24 @@ class TechniqueStudyDefinitionTest {
         Path directory = Path.of("src/main/resources/data/yuanxian/yuanxian/technique");
         int checked = 0;
         var authored = new java.util.HashMap<String, TechniqueStudy>();
+        var studyByGrade = new java.util.HashMap<Integer, TechniqueStudy>();
+        var catalogueRules = JsonParser.parseString(Files.readString(Path.of("tools/technique_catalogue/rules.json"))).getAsJsonObject();
+        for (var entry : catalogueRules.getAsJsonObject("study_by_grade").entrySet()) {
+            var study = entry.getValue().getAsJsonObject();
+            studyByGrade.put(Integer.parseInt(entry.getKey()), new TechniqueStudy(study.get("points").getAsInt(),
+                    study.get("gates").getAsInt(), study.get("gate_stability_cost").getAsInt()));
+        }
         for(var row:JsonParser.parseString(Files.readString(Path.of("tools/advanced_arts/arts.json"))).getAsJsonObject().getAsJsonArray("arts")) {
             var a=row.getAsJsonObject();var study=a.getAsJsonObject("study");
             authored.put(a.get("id").getAsString().substring("yuanxian:".length()),new TechniqueStudy(study.get("points").getAsInt(),study.get("gates").getAsInt(),study.get("gate_stability_cost").getAsInt()));
         }
         for(var row:JsonParser.parseString(Files.readString(Path.of("tools/elemental_arts/arts.json"))).getAsJsonObject().getAsJsonArray("arts")) {
             var a=row.getAsJsonObject();authored.put(a.get("id").getAsString(),new TechniqueStudy(a.get("study_points").getAsInt(),0,0));
+        }
+        var legacy = JsonParser.parseString(Files.readString(Path.of("tools/legacy_encounters/catalogue.json"))).getAsJsonObject();
+        for (var row : legacy.getAsJsonArray("arts")) {
+            authored.put(row.getAsJsonObject().get("id").getAsString(),
+                    new TechniqueStudy(legacy.getAsJsonObject("runtime").get("study_points").getAsInt(), 0, 0));
         }
         try (var files = Files.list(directory)) {
             for (Path file : files.filter(path -> path.toString().endsWith(".json")).sorted().toList()) {
@@ -93,7 +98,7 @@ class TechniqueStudyDefinitionTest {
                     continue;
                 }
                 assertTrue(json.getAsJsonObject().has("study"), () -> file + " has no study block");
-                assertEquals(authored.getOrDefault(file.getFileName().toString().replace(".json",""),STUDY_BY_GRADE.get(technique.grade())), technique.study(), file::toString);
+                assertEquals(authored.getOrDefault(file.getFileName().toString().replace(".json",""),studyByGrade.get(technique.grade())), technique.study(), file::toString);
                 checked++;
             }
         }

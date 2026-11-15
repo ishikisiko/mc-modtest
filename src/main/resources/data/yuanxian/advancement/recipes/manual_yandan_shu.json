@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_yandan_shu"
+        "recipe": "yuanxian:manual_yandan_shu"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_yandan_shu"
+      "yuanxian:manual_yandan_shu"
     ]
   }
 }

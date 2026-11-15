@@ -11,7 +11,7 @@
       "item": "minecraft:copper_ingot"
     },
     "X": {
-      "item": "myvillage:xuantie_ingot"
+      "item": "yuanxian:xuantie_ingot"
     },
     "R": {
       "item": "minecraft:redstone"
@@ -24,7 +24,7 @@
     }
   },
   "result": {
-    "id": "myvillage:forging_array_hearth",
+    "id": "yuanxian:forging_array_hearth",
     "count": 1
   }
 }

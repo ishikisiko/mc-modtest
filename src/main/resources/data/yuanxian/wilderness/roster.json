@@ -72,8 +72,8 @@
       ],
       "experience": 5,
       "alchemy_herbs": [
-        "myvillage:sunroot",
-        "myvillage:spirit_leaf"
+        "yuanxian:sunroot",
+        "yuanxian:spirit_leaf"
       ],
       "fuel_count": 3,
       "brew_ticks": 500,
@@ -82,7 +82,7 @@
       "trait_cost": 3,
       "moves": [],
       "body_scale": 1.0,
-      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_tier": "yuanxian:qi_refining",
       "alchemy_difficulty": 1
     },
     {
@@ -139,8 +139,8 @@
       ],
       "experience": 5,
       "alchemy_herbs": [
-        "myvillage:calm_lotus",
-        "myvillage:cloud_fungus"
+        "yuanxian:calm_lotus",
+        "yuanxian:cloud_fungus"
       ],
       "fuel_count": 3,
       "brew_ticks": 500,
@@ -149,7 +149,7 @@
       "trait_cost": 3,
       "moves": [
         {
-          "id": "myvillage:ash_talismanist_talisman",
+          "id": "yuanxian:ash_talismanist_talisman",
           "animation": "talisman",
           "total_ticks": 48,
           "windup_ticks": 22,
@@ -194,7 +194,7 @@
           "_mode": "bolt"
         },
         {
-          "id": "myvillage:ash_talismanist_sigil",
+          "id": "yuanxian:ash_talismanist_sigil",
           "animation": "sigil",
           "total_ticks": 70,
           "windup_ticks": 32,
@@ -240,7 +240,7 @@
         }
       ],
       "body_scale": 1.0,
-      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_tier": "yuanxian:qi_refining",
       "alchemy_difficulty": 2
     },
     {
@@ -297,8 +297,8 @@
       ],
       "experience": 5,
       "alchemy_herbs": [
-        "myvillage:blood_berry",
-        "myvillage:sunroot"
+        "yuanxian:blood_berry",
+        "yuanxian:sunroot"
       ],
       "fuel_count": 3,
       "brew_ticks": 500,
@@ -307,7 +307,7 @@
       "trait_cost": 3,
       "moves": [
         {
-          "id": "myvillage:thornback_badger_swipe",
+          "id": "yuanxian:thornback_badger_swipe",
           "animation": "swipe",
           "total_ticks": 32,
           "windup_ticks": 12,
@@ -352,7 +352,7 @@
           "_mode": "melee"
         },
         {
-          "id": "myvillage:thornback_badger_charge",
+          "id": "yuanxian:thornback_badger_charge",
           "animation": "charge",
           "total_ticks": 58,
           "windup_ticks": 24,
@@ -398,7 +398,7 @@
         }
       ],
       "body_scale": 1.5,
-      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_tier": "yuanxian:qi_refining",
       "alchemy_difficulty": 2
     },
     {
@@ -455,8 +455,8 @@
       ],
       "experience": 5,
       "alchemy_herbs": [
-        "myvillage:dew_blossom",
-        "myvillage:calm_lotus"
+        "yuanxian:dew_blossom",
+        "yuanxian:calm_lotus"
       ],
       "fuel_count": 3,
       "brew_ticks": 500,
@@ -465,7 +465,7 @@
       "trait_cost": 3,
       "moves": [
         {
-          "id": "myvillage:redplate_lizard_bite",
+          "id": "yuanxian:redplate_lizard_bite",
           "animation": "bite",
           "total_ticks": 38,
           "windup_ticks": 16,
@@ -510,7 +510,7 @@
           "_mode": "melee"
         },
         {
-          "id": "myvillage:redplate_lizard_tail_sweep",
+          "id": "yuanxian:redplate_lizard_tail_sweep",
           "animation": "tail_sweep",
           "total_ticks": 58,
           "windup_ticks": 24,
@@ -556,7 +556,7 @@
         }
       ],
       "body_scale": 1.5,
-      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_tier": "yuanxian:qi_refining",
       "alchemy_difficulty": 2
     },
     {
@@ -613,8 +613,8 @@
       ],
       "experience": 5,
       "alchemy_herbs": [
-        "myvillage:dew_blossom",
-        "myvillage:spirit_leaf"
+        "yuanxian:dew_blossom",
+        "yuanxian:spirit_leaf"
       ],
       "fuel_count": 3,
       "brew_ticks": 500,
@@ -623,7 +623,7 @@
       "trait_cost": 3,
       "moves": [
         {
-          "id": "myvillage:frostplume_pheasant_peck",
+          "id": "yuanxian:frostplume_pheasant_peck",
           "animation": "peck",
           "total_ticks": 30,
           "windup_ticks": 12,
@@ -668,7 +668,7 @@
           "_mode": "melee"
         },
         {
-          "id": "myvillage:frostplume_pheasant_feathers",
+          "id": "yuanxian:frostplume_pheasant_feathers",
           "animation": "feathers",
           "total_ticks": 50,
           "windup_ticks": 20,
@@ -714,7 +714,7 @@
         }
       ],
       "body_scale": 1.5,
-      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_tier": "yuanxian:qi_refining",
       "alchemy_difficulty": 1
     },
     {
@@ -771,8 +771,8 @@
       ],
       "experience": 5,
       "alchemy_herbs": [
-        "myvillage:cloud_fungus",
-        "myvillage:calm_lotus"
+        "yuanxian:cloud_fungus",
+        "yuanxian:calm_lotus"
       ],
       "fuel_count": 3,
       "brew_ticks": 500,
@@ -781,7 +781,7 @@
       "trait_cost": 3,
       "moves": [
         {
-          "id": "myvillage:lantern_sporeling_root_sweep",
+          "id": "yuanxian:lantern_sporeling_root_sweep",
           "animation": "root_sweep",
           "total_ticks": 42,
           "windup_ticks": 18,
@@ -826,7 +826,7 @@
           "_mode": "melee"
         },
         {
-          "id": "myvillage:lantern_sporeling_spores",
+          "id": "yuanxian:lantern_sporeling_spores",
           "animation": "spores",
           "total_ticks": 66,
           "windup_ticks": 30,
@@ -872,7 +872,7 @@
         }
       ],
       "body_scale": 1.5,
-      "alchemy_tier": "myvillage:qi_refining",
+      "alchemy_tier": "yuanxian:qi_refining",
       "alchemy_difficulty": 1
     }
   ],

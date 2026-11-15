@@ -8,15 +8,15 @@
       "item": "minecraft:ink_sac"
     },
     {
-      "item": "myvillage:low_grade_spirit_stone"
+      "item": "yuanxian:low_grade_spirit_stone"
     }
   ],
   "result": {
-    "id": "myvillage:research_notes",
+    "id": "yuanxian:research_notes",
     "count": 1,
     "components": {
       "minecraft:custom_data": {
-        "myvillage_aptitude": {
+        "yuanxian_aptitude": {
           "aptitude": "talisman",
           "tier": 1
         }

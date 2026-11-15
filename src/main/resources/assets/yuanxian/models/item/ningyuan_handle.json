@@ -1,7 +1,7 @@
 {
   "textures": {
-    "body": "myvillage:item/ningyuan_handle",
-    "particle": "myvillage:item/ningyuan_handle"
+    "body": "yuanxian:item/ningyuan_handle",
+    "particle": "yuanxian:item/ningyuan_handle"
   },
   "elements": [
     {

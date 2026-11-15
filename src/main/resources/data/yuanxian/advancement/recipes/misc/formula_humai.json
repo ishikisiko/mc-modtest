@@ -7,7 +7,7 @@
         "items": [
           {
             "items": [
-              "myvillage:thorn_bone"
+              "yuanxian:thorn_bone"
             ]
           }
         ]
@@ -21,7 +21,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:formula_humai"
+      "yuanxian:formula_humai"
     ]
   }
 }

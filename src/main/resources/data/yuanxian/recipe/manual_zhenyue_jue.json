@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "myvillage:mountain_rubbing"
+      "item": "yuanxian:mountain_rubbing"
     },
     {
       "item": "minecraft:book"
@@ -13,10 +13,10 @@
     }
   ],
   "result": {
-    "id": "myvillage:manual_active_xuan",
+    "id": "yuanxian:manual_active_xuan",
     "count": 1,
     "components": {
-      "myvillage:technique": "myvillage:zhenyue_jue"
+      "yuanxian:technique": "yuanxian:zhenyue_jue"
     }
   }
 }

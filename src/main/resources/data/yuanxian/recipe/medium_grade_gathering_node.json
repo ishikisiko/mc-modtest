@@ -14,14 +14,14 @@
       "item": "minecraft:copper_ingot"
     },
     "A": {
-      "item": "myvillage:spirit_gathering_node"
+      "item": "yuanxian:spirit_gathering_node"
     },
     "Q": {
       "item": "minecraft:quartz_block"
     }
   },
   "result": {
-    "id": "myvillage:medium_grade_gathering_node",
+    "id": "yuanxian:medium_grade_gathering_node",
     "count": 1
   }
 }

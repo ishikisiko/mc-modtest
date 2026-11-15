@@ -1,7 +1,7 @@
 {
   "textures": {
-    "body": "myvillage:item/bamboo_handle",
-    "particle": "myvillage:item/bamboo_handle"
+    "body": "yuanxian:item/bamboo_handle",
+    "particle": "yuanxian:item/bamboo_handle"
   },
   "elements": [
     {

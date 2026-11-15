@@ -1,15 +1,15 @@
 {
-  "translation_key": "cultivation.technique.myvillage.wanmu_huichun_gong",
+  "translation_key": "cultivation.technique.yuanxian.wanmu_huichun_gong",
   "category": "core",
   "grade": 2,
   "elements": [
-    "myvillage:wood"
+    "yuanxian:wood"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4",
     "minimum_element_aptitude": {
-      "myvillage:wood": 40
+      "yuanxian:wood": 40
     }
   },
   "effects": {

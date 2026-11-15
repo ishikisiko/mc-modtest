@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/medium_grade_gathering_core"
+      "model": "yuanxian:block/medium_grade_gathering_core"
     }
   }
 }

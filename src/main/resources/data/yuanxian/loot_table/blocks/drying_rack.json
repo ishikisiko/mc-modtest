@@ -6,13 +6,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:drying_rack"
+          "name": "yuanxian:drying_rack"
         }
       ],
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "myvillage:drying_rack",
+          "block": "yuanxian:drying_rack",
           "properties": {
             "part": "0"
           }

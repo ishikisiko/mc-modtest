@@ -1,1 +1,1 @@
-place template myvillage:alchemy_room_002 ~ ~-1 ~
+place template yuanxian:alchemy_room_002 ~ ~-1 ~

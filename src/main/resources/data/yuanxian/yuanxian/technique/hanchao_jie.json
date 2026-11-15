@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.hanchao_jie",
+  "translation_key": "cultivation.technique.yuanxian.hanchao_jie",
   "category": "active",
   "grade": 3,
   "elements": [
-    "myvillage:water"
+    "yuanxian:water"
   ],
-  "school": "myvillage:water_arts",
+  "school": "yuanxian:water_arts",
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early"
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:hanchao_jie",
+      "skill": "yuanxian:hanchao_jie",
       "qi_cost": 18,
       "slots": 1
     }
@@ -23,6 +23,6 @@
     "gate_stability_cost": 0
   },
   "lineage": {
-    "previous": "myvillage:canglang_chong"
+    "previous": "yuanxian:canglang_chong"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/spirit_soil",
+  "parent": "yuanxian:block/spirit_soil",
   "gui_light": "side",
   "display": {
     "gui": {

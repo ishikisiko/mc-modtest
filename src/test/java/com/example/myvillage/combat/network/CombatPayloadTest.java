@@ -111,8 +111,8 @@ class CombatPayloadTest {
                 java.util.Arrays.stream(CombatImpactPayload.class.getRecordComponents())
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
-        // Attack-start packets also freeze the server-owned equipment playback speed.
-        assertEquals("71", ModPayloads.PROTOCOL_VERSION);
+        // Current protocol also carries server-owned regional arrival announcements.
+        assertEquals("76", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

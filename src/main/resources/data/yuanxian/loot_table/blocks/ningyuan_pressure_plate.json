@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:ningyuan_pressure_plate"
+          "name": "yuanxian:ningyuan_pressure_plate"
         }
       ],
       "conditions": [

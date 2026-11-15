@@ -7,7 +7,7 @@
         "items": [
           {
             "items": [
-              "myvillage:talisman_ash"
+              "yuanxian:talisman_ash"
             ]
           }
         ]
@@ -21,7 +21,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:formula_dingshen"
+      "yuanxian:formula_dingshen"
     ]
   }
 }

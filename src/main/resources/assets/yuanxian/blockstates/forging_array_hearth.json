@@ -6,7 +6,7 @@
         "lit": "false"
       },
       "apply": {
-        "model": "myvillage:block/forging_array_hearth",
+        "model": "yuanxian:block/forging_array_hearth",
         "y": 0
       }
     },
@@ -16,7 +16,7 @@
         "lit": "true"
       },
       "apply": {
-        "model": "myvillage:block/forging_array_hearth_lit",
+        "model": "yuanxian:block/forging_array_hearth_lit",
         "y": 0
       }
     },
@@ -26,7 +26,7 @@
         "lit": "false"
       },
       "apply": {
-        "model": "myvillage:block/forging_array_hearth",
+        "model": "yuanxian:block/forging_array_hearth",
         "y": 90
       }
     },
@@ -36,7 +36,7 @@
         "lit": "true"
       },
       "apply": {
-        "model": "myvillage:block/forging_array_hearth_lit",
+        "model": "yuanxian:block/forging_array_hearth_lit",
         "y": 90
       }
     },
@@ -46,7 +46,7 @@
         "lit": "false"
       },
       "apply": {
-        "model": "myvillage:block/forging_array_hearth",
+        "model": "yuanxian:block/forging_array_hearth",
         "y": 180
       }
     },
@@ -56,7 +56,7 @@
         "lit": "true"
       },
       "apply": {
-        "model": "myvillage:block/forging_array_hearth_lit",
+        "model": "yuanxian:block/forging_array_hearth_lit",
         "y": 180
       }
     },
@@ -66,7 +66,7 @@
         "lit": "false"
       },
       "apply": {
-        "model": "myvillage:block/forging_array_hearth",
+        "model": "yuanxian:block/forging_array_hearth",
         "y": 270
       }
     },
@@ -76,7 +76,7 @@
         "lit": "true"
       },
       "apply": {
-        "model": "myvillage:block/forging_array_hearth_lit",
+        "model": "yuanxian:block/forging_array_hearth_lit",
         "y": 270
       }
     }

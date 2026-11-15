@@ -7,7 +7,7 @@
         "items": [
           {
             "items": [
-              "myvillage:raw_xuantie"
+              "yuanxian:raw_xuantie"
             ]
           }
         ]
@@ -16,7 +16,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:xuantie_ingot_from_blasting"
+        "recipe": "yuanxian:xuantie_ingot_from_blasting"
       }
     }
   },
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:xuantie_ingot_from_blasting"
+      "yuanxian:xuantie_ingot_from_blasting"
     ]
   }
 }

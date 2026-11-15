@@ -1,9 +1,9 @@
 {
   "replace": false,
   "values": [
-    "myvillage:ningyuan_log",
-    "myvillage:ningyuan_wood",
-    "myvillage:stripped_ningyuan_log",
-    "myvillage:stripped_ningyuan_wood"
+    "yuanxian:ningyuan_log",
+    "yuanxian:ningyuan_wood",
+    "yuanxian:stripped_ningyuan_log",
+    "yuanxian:stripped_ningyuan_wood"
   ]
 }

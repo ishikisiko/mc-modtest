@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.houshi_zhang",
+  "translation_key": "cultivation.technique.yuanxian.houshi_zhang",
   "category": "active",
   "grade": 1,
   "elements": [
-    "myvillage:earth"
+    "yuanxian:earth"
   ],
-  "school": "myvillage:earth_arts",
+  "school": "yuanxian:earth_arts",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_1"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_1"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:houshi_zhang",
+      "skill": "yuanxian:houshi_zhang",
       "qi_cost": 6,
       "slots": 1
     }
@@ -23,6 +23,6 @@
     "gate_stability_cost": 0
   },
   "lineage": {
-    "previous": "myvillage:yandan_shu"
+    "previous": "yuanxian:yandan_shu"
   }
 }

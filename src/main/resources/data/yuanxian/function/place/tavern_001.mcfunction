@@ -1,1 +1,1 @@
-place template myvillage:tavern_001 ~ ~-1 ~
+place template yuanxian:tavern_001 ~ ~-1 ~

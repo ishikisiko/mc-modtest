@@ -1,24 +1,24 @@
 {
-  "translation_key": "cultivation.technique.myvillage.gengjin_jianjue",
+  "translation_key": "cultivation.technique.yuanxian.gengjin_jianjue",
   "category": "active",
   "grade": 2,
   "elements": [
-    "myvillage:metal"
+    "yuanxian:metal"
   ],
-  "school": "myvillage:sword",
+  "school": "yuanxian:sword",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4",
     "minimum_element_aptitude": {
-      "myvillage:metal": 40
+      "yuanxian:metal": 40
     }
   },
   "lineage": {
-    "previous": "myvillage:gengjin_yinqi_fa"
+    "previous": "yuanxian:gengjin_yinqi_fa"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:gengjin_jianjue",
+      "skill": "yuanxian:gengjin_jianjue",
       "qi_cost": 14,
       "slots": 1
     }

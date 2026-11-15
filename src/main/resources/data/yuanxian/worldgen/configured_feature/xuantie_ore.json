@@ -10,7 +10,7 @@
           "tag": "minecraft:stone_ore_replaceables"
         },
         "state": {
-          "Name": "myvillage:xuantie_ore"
+          "Name": "yuanxian:xuantie_ore"
         }
       },
       {
@@ -19,7 +19,7 @@
           "tag": "minecraft:deepslate_ore_replaceables"
         },
         "state": {
-          "Name": "myvillage:xuantie_ore"
+          "Name": "yuanxian:xuantie_ore"
         }
       }
     ]

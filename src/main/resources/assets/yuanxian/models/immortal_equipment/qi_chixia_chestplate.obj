@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/qi_chixia_chestplate.mtl
+mtllib yuanxian:models/immortal_equipment/qi_chixia_chestplate.mtl
 o body
 usemtl copper
 v 0.2781249881 1.512499988 0

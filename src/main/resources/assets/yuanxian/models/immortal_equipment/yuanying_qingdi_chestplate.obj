@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/yuanying_qingdi_chestplate.mtl
+mtllib yuanxian:models/immortal_equipment/yuanying_qingdi_chestplate.mtl
 o wood_body
 usemtl cloth
 v 0.275000006 1.512499988 0

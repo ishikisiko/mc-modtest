@@ -2,22 +2,22 @@ newmtl bronze
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_tingyu/bronze
+map_Kd yuanxian:immortal_equipment/qi_tingyu/bronze
 
 newmtl edge
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_tingyu/edge
+map_Kd yuanxian:immortal_equipment/qi_tingyu/edge
 
 newmtl celadon
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_tingyu/celadon
+map_Kd yuanxian:immortal_equipment/qi_tingyu/celadon
 
 newmtl plum
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_tingyu/plum
+map_Kd yuanxian:immortal_equipment/qi_tingyu/plum

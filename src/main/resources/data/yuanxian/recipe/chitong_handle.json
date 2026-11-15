@@ -3,14 +3,14 @@
   "category": "equipment",
   "ingredients": [
     {
-      "item": "myvillage:chitong_ingot"
+      "item": "yuanxian:chitong_ingot"
     },
     {
-      "item": "myvillage:chitong_ingot"
+      "item": "yuanxian:chitong_ingot"
     }
   ],
   "result": {
-    "id": "myvillage:chitong_handle",
+    "id": "yuanxian:chitong_handle",
     "count": 1
   }
 }

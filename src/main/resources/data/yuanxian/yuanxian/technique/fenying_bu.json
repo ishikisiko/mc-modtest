@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.fenying_bu",
+  "translation_key": "cultivation.technique.yuanxian.fenying_bu",
   "category": "active",
   "grade": 2,
   "elements": [
-    "myvillage:water"
+    "yuanxian:water"
   ],
-  "school": "myvillage:legacy",
+  "school": "yuanxian:legacy",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:fenying_bu",
+      "skill": "yuanxian:fenying_bu",
       "qi_cost": 8,
       "slots": 1
     }

@@ -1,15 +1,15 @@
 {
-  "translation_key": "cultivation.technique.myvillage.ruoshui_xuanjing",
+  "translation_key": "cultivation.technique.yuanxian.ruoshui_xuanjing",
   "category": "core",
   "grade": 3,
   "elements": [
-    "myvillage:water"
+    "yuanxian:water"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
-      "myvillage:water": 100
+      "yuanxian:water": 100
     }
   },
   "effects": {

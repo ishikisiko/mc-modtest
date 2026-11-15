@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/mountain_rubbing"
+    "layer0": "yuanxian:item/mountain_rubbing"
   }
 }

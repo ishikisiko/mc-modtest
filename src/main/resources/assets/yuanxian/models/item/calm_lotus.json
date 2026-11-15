@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/calm_lotus"
+    "layer0": "yuanxian:item/calm_lotus"
   }
 }

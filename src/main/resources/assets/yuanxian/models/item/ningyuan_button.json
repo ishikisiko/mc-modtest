@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_button_inventory",
+  "parent": "yuanxian:block/ningyuan_button_inventory",
   "display": {
     "gui": {
       "rotation": [

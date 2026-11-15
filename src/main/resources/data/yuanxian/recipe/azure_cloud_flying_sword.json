@@ -11,11 +11,11 @@
       "item": "minecraft:diamond"
     },
     "I": {
-      "item": "myvillage:rideable_flying_sword"
+      "item": "yuanxian:rideable_flying_sword"
     }
   },
   "result": {
-    "id": "myvillage:azure_cloud_flying_sword",
+    "id": "yuanxian:azure_cloud_flying_sword",
     "count": 1
   }
 }

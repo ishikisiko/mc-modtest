@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:wandering_sword",
+  "id": "yuanxian:wandering_sword",
   "texture": {"width": 64, "height": 64},
   "look": {"bone": "head", "max_yaw": 20, "max_pitch": 15},
   "shadow_radius": 0.6,

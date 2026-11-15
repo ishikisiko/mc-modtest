@@ -1,5 +1,5 @@
 # Authored equipment mesh; generated, do not edit.
-mtllib myvillage:models/equipment/forging/workpiece_xuantie_chestplate_tempered.mtl
+mtllib yuanxian:models/equipment/forging/workpiece_xuantie_chestplate_tempered.mtl
 g geometry
 # 右胸铁叶
 usemtl m0

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/sword_spirit_core"
+    "layer0": "yuanxian:item/sword_spirit_core"
   }
 }

@@ -6,11 +6,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:ningyuan_fruit_low",
+          "name": "yuanxian:ningyuan_fruit_low",
           "conditions": [
             {
               "condition": "minecraft:block_state_property",
-              "block": "myvillage:ningyuan_fruit_cluster",
+              "block": "yuanxian:ningyuan_fruit_cluster",
               "properties": {
                 "age": "2",
                 "enriched": "false"
@@ -36,11 +36,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:ningyuan_fruit_high",
+          "name": "yuanxian:ningyuan_fruit_high",
           "conditions": [
             {
               "condition": "minecraft:block_state_property",
-              "block": "myvillage:ningyuan_fruit_cluster",
+              "block": "yuanxian:ningyuan_fruit_cluster",
               "properties": {
                 "age": "2",
                 "enriched": "true"

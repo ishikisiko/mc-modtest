@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "myvillage:block/plaque/hanging/sect_treasure_gilded_5w_2h/top",
-    "plaque": "myvillage:block/plaque/hanging/sect_treasure_gilded_5w_2h/vertical_full",
-    "edge": "myvillage:block/plaque/hanging/sect_treasure_gilded_5w_2h/top"
+    "particle": "yuanxian:block/plaque/hanging/sect_treasure_gilded_5w_2h/top",
+    "plaque": "yuanxian:block/plaque/hanging/sect_treasure_gilded_5w_2h/vertical_full",
+    "edge": "yuanxian:block/plaque/hanging/sect_treasure_gilded_5w_2h/top"
   },
   "elements": [
     {

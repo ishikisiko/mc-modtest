@@ -1,8 +1,8 @@
 {
   "ambientocclusion": true,
   "textures": {
-    "atlas": "myvillage:block/scripture_shelf",
-    "particle": "myvillage:block/scripture_shelf"
+    "atlas": "yuanxian:block/scripture_shelf",
+    "particle": "yuanxian:block/scripture_shelf"
   },
   "elements": [
     {

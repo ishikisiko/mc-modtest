@@ -1,7 +1,7 @@
 {
   "textures": {
-    "body": "myvillage:item/xuantie_handle",
-    "particle": "myvillage:item/xuantie_handle"
+    "body": "yuanxian:item/xuantie_handle",
+    "particle": "yuanxian:item/xuantie_handle"
   },
   "elements": [
     {

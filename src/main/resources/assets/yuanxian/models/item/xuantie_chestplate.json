@@ -3,14 +3,14 @@
   "gui_light": "front",
   "base": {
     "loader": "neoforge:obj",
-    "model": "myvillage:models/equipment/items/xuantie_chestplate.obj",
+    "model": "yuanxian:models/equipment/items/xuantie_chestplate.obj",
     "automatic_culling": false,
     "shade_quads": true,
     "flip_v": false,
     "emissive_ambient": false,
     "gui_light": "side",
     "textures": {
-      "particle": "myvillage:item/xuantie_chestplate"
+      "particle": "yuanxian:item/xuantie_chestplate"
     },
     "display": {
       "gui": {
@@ -156,11 +156,11 @@
       "parent": "minecraft:item/generated",
       "gui_light": "front",
       "textures": {
-        "layer0": "myvillage:item/xuantie_chestplate"
+        "layer0": "yuanxian:item/xuantie_chestplate"
       }
     }
   },
   "textures": {
-    "particle": "myvillage:item/xuantie_chestplate"
+    "particle": "yuanxian:item/xuantie_chestplate"
   }
 }

@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "myvillage:ember_cinnabar"
+      "item": "yuanxian:ember_cinnabar"
     },
     {
       "item": "minecraft:book"
@@ -13,10 +13,10 @@
     }
   ],
   "result": {
-    "id": "myvillage:manual_active_xuan",
+    "id": "yuanxian:manual_active_xuan",
     "count": 1,
     "components": {
-      "myvillage:technique": "myvillage:fuhuo_jue"
+      "yuanxian:technique": "yuanxian:fuhuo_jue"
     }
   }
 }

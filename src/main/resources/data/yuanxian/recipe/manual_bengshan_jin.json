@@ -22,10 +22,10 @@
     }
   ],
   "result": {
-    "id": "myvillage:manual_active_xuan",
+    "id": "yuanxian:manual_active_xuan",
     "count": 1,
     "components": {
-      "myvillage:technique": "myvillage:bengshan_jin"
+      "yuanxian:technique": "yuanxian:bengshan_jin"
     }
   }
 }

@@ -3,7 +3,7 @@
   "gui_light": "front",
   "base": {
     "loader": "neoforge:obj",
-    "model": "myvillage:models/immortal_equipment/zhuji_baiqing_lingyun_chestplate.obj",
+    "model": "yuanxian:models/immortal_equipment/zhuji_baiqing_lingyun_chestplate.obj",
     "automatic_culling": false,
     "shade_quads": false,
     "flip_v": false,
@@ -11,7 +11,7 @@
     "gui_light": "side",
     "render_type": "minecraft:cutout",
     "textures": {
-      "particle": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/cloud"
+      "particle": "yuanxian:immortal_equipment/zhuji_baiqing_lingyun/cloud"
     },
     "display": {
       "gui": {
@@ -157,11 +157,11 @@
       "parent": "minecraft:item/generated",
       "gui_light": "front",
       "textures": {
-        "layer0": "myvillage:item/zhuji_baiqing_lingyun_chestplate"
+        "layer0": "yuanxian:item/zhuji_baiqing_lingyun_chestplate"
       }
     }
   },
   "textures": {
-    "particle": "myvillage:item/zhuji_baiqing_lingyun_chestplate"
+    "particle": "yuanxian:item/zhuji_baiqing_lingyun_chestplate"
   }
 }

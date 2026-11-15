@@ -1,1 +1,1 @@
-place template myvillage:front_row_review ~ ~-1 ~
+place template yuanxian:front_row_review ~ ~-1 ~

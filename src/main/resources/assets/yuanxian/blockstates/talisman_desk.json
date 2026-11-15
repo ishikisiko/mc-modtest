@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/talisman_desk"
+      "model": "yuanxian:block/talisman_desk"
     }
   }
 }

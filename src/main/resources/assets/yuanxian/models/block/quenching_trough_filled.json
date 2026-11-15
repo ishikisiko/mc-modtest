@@ -1,20 +1,20 @@
 {
   "ambientocclusion": true,
   "textures": {
-    "stone": "myvillage:block/workshop_stone",
-    "wood": "myvillage:block/workshop_wood",
-    "iron": "myvillage:block/workshop_iron",
-    "edge": "myvillage:block/workshop_edge",
-    "dark": "myvillage:block/workshop_dark",
-    "copper": "myvillage:block/workshop_copper",
-    "coal": "myvillage:block/workshop_coal",
-    "fire": "myvillage:block/workshop_fire",
-    "rough": "myvillage:block/workshop_rough",
-    "quench": "myvillage:block/workshop_quench",
-    "temper": "myvillage:block/workshop_temper",
-    "hotmetal": "myvillage:block/workshop_hotmetal",
-    "particle": "myvillage:block/workshop_stone",
-    "water": "myvillage:block/workshop_water"
+    "stone": "yuanxian:block/workshop_stone",
+    "wood": "yuanxian:block/workshop_wood",
+    "iron": "yuanxian:block/workshop_iron",
+    "edge": "yuanxian:block/workshop_edge",
+    "dark": "yuanxian:block/workshop_dark",
+    "copper": "yuanxian:block/workshop_copper",
+    "coal": "yuanxian:block/workshop_coal",
+    "fire": "yuanxian:block/workshop_fire",
+    "rough": "yuanxian:block/workshop_rough",
+    "quench": "yuanxian:block/workshop_quench",
+    "temper": "yuanxian:block/workshop_temper",
+    "hotmetal": "yuanxian:block/workshop_hotmetal",
+    "particle": "yuanxian:block/workshop_stone",
+    "water": "yuanxian:block/workshop_water"
   },
   "elements": [
     {

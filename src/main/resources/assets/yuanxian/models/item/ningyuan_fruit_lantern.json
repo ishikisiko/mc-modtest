@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_fruit_lantern",
+  "parent": "yuanxian:block/ningyuan_fruit_lantern",
   "display": {
     "gui": {
       "rotation": [

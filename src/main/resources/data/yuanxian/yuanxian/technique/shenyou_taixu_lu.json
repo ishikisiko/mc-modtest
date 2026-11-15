@@ -1,11 +1,11 @@
 {
-  "translation_key": "cultivation.technique.myvillage.shenyou_taixu_lu",
+  "translation_key": "cultivation.technique.yuanxian.shenyou_taixu_lu",
   "category": "core",
   "grade": 3,
   "elements": [],
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early"
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early"
   },
   "effects": {
     "core": {

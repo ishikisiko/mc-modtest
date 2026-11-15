@@ -8,14 +8,14 @@
   ],
   "key": {
     "P": {
-      "item": "myvillage:stripped_ningyuan_log"
+      "item": "yuanxian:stripped_ningyuan_log"
     },
     "C": {
       "item": "minecraft:chain"
     }
   },
   "result": {
-    "id": "myvillage:ningyuan_hanging_sign",
+    "id": "yuanxian:ningyuan_hanging_sign",
     "count": 6
   }
 }

@@ -3,14 +3,14 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "myvillage:ningyuan_boat"
+      "item": "yuanxian:ningyuan_boat"
     },
     {
       "item": "minecraft:chest"
     }
   ],
   "result": {
-    "id": "myvillage:ningyuan_chest_boat",
+    "id": "yuanxian:ningyuan_chest_boat",
     "count": 1
   }
 }

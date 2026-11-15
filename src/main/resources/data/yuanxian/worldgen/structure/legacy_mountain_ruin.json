@@ -1,10 +1,10 @@
 {
   "type": "minecraft:jigsaw",
-  "biomes": "#myvillage:has_legacy_mountain_ruin",
+  "biomes": "#yuanxian:has_legacy_mountain_ruin",
   "step": "surface_structures",
   "spawn_overrides": {},
   "terrain_adaptation": "beard_thin",
-  "start_pool": "myvillage:legacy_mountain_ruin",
+  "start_pool": "yuanxian:legacy_mountain_ruin",
   "size": 1,
   "start_height": {
     "absolute": 0

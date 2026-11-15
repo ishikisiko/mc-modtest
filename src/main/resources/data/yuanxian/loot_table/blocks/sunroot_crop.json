@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:sunroot",
+          "name": "yuanxian:sunroot",
           "functions": [
             {
               "function": "minecraft:set_count",
@@ -18,7 +18,7 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "myvillage:sunroot_crop",
+                  "block": "yuanxian:sunroot_crop",
                   "properties": {
                     "age": "2"
                   }

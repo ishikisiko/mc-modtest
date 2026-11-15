@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:road_grey_ashlar_slab",
+          "name": "yuanxian:road_grey_ashlar_slab",
           "functions": [
             {
               "function": "minecraft:set_count",
@@ -14,7 +14,7 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "myvillage:road_grey_ashlar_slab",
+                  "block": "yuanxian:road_grey_ashlar_slab",
                   "properties": {
                     "type": "double"
                   }

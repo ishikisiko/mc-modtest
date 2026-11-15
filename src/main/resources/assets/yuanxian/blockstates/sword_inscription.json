@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/sword_inscription"
+      "model": "yuanxian:block/sword_inscription"
     }
   }
 }

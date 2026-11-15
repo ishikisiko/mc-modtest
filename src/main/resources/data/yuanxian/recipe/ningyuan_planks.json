@@ -3,11 +3,11 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "myvillage:ningyuan_logs"
+      "tag": "yuanxian:ningyuan_logs"
     }
   ],
   "result": {
-    "id": "myvillage:ningyuan_planks",
+    "id": "yuanxian:ningyuan_planks",
     "count": 4
   }
 }

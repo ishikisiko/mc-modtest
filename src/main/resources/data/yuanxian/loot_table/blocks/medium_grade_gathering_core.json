@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:medium_grade_gathering_core"
+          "name": "yuanxian:medium_grade_gathering_core"
         }
       ],
       "conditions": [

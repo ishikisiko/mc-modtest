@@ -7,6 +7,6 @@
     "minecraft:old_growth_birch_forest",
     "minecraft:meadow"
   ],
-  "features": "myvillage:ningyuan_tree",
+  "features": "yuanxian:ningyuan_tree",
   "step": "vegetal_decoration"
 }

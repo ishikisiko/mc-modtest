@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/ningyuan_chest_boat"
+    "layer0": "yuanxian:item/ningyuan_chest_boat"
   }
 }

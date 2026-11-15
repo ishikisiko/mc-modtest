@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/blood_berry"
+    "layer0": "yuanxian:item/blood_berry"
   }
 }

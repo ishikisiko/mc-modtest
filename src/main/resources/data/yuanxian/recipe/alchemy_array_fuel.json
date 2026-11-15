@@ -8,14 +8,14 @@
   ],
   "key": {
     "C": {
-      "item": "myvillage:alchemy_array_casing"
+      "item": "yuanxian:alchemy_array_casing"
     },
     "S": {
       "tag": "c:spirit_stones/low_grade"
     }
   },
   "result": {
-    "id": "myvillage:alchemy_array_fuel",
+    "id": "yuanxian:alchemy_array_fuel",
     "count": 1
   }
 }

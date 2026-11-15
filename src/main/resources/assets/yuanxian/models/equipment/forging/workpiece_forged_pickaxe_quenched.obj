@@ -1,5 +1,5 @@
 # Authored equipment mesh; generated, do not edit.
-mtllib myvillage:models/equipment/forging/workpiece_forged_pickaxe_quenched.mtl
+mtllib yuanxian:models/equipment/forging/workpiece_forged_pickaxe_quenched.mtl
 g geometry
 # 镐眼
 usemtl m0

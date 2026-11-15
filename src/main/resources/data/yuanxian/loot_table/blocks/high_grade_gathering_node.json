@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:high_grade_gathering_node"
+          "name": "yuanxian:high_grade_gathering_node"
         }
       ],
       "conditions": [

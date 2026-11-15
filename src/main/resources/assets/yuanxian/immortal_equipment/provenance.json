@@ -28,10 +28,10 @@
     "tools/equipment/boots.py": "246b384ad949f4381b87f000c6dcef9d77291e169fadd6db4647305a67502959",
     "tools/equipment/mesh.py": "d1e49dcb6233da07875e0369e73d1fda14ba4ab8a7866422ed04c597f6ba529e",
     "tools/immortal_equipment/__init__.py": "97a9f6ce820eafb5bc3df7c5b08adc00037e74e5c29f9d4bae574ef06246d38c",
-    "tools/immortal_equipment/__main__.py": "328f3a6b635e6a3ab51eb60beff3c6a295d505b09b00af46ca89e431aff90086",
-    "tools/immortal_equipment/exporter.py": "5d61abdc407b212e279c1dc0ae5f2dca0a768f3cef96a2c54b346f792f5a2186",
+    "tools/immortal_equipment/__main__.py": "d7eb85c2fe9c0b3336a5b18a36fc219bfcdf54955f6916c2dc26faaefd8ecc6b",
+    "tools/immortal_equipment/exporter.py": "d17ca767dc6582889002b8fe5fcc8c75a76d52f0f7c5a5e3ac24fe53b0684f38",
     "tools/immortal_equipment/extract.cjs": "26173f0f649220d27f76e5a09a8e7d948c9ff6b82f4804376fd5e6b26ca2b7aa",
-    "tools/immortal_equipment/test_exporter.py": "a81ca55dc71fdc60ab8daf9a6faafb751f2ce5feff10d7e09cfd107ccc5e0908",
+    "tools/immortal_equipment/test_exporter.py": "38cbb6f4ce214abb652f5f43222e94fe42ad1927b08cfae38e923c9e61ff8aa7",
     "tools/ingot_shape.py": "9f59372509759dc61e724646d08e884420ea3dd5c9f66ea23677544c0c0348c4",
     "tools/web/three.min.js": "9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2"
   },

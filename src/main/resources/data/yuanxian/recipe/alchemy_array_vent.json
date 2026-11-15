@@ -8,7 +8,7 @@
   ],
   "key": {
     "C": {
-      "item": "myvillage:alchemy_array_casing"
+      "item": "yuanxian:alchemy_array_casing"
     },
     "I": {
       "item": "minecraft:iron_bars"
@@ -18,7 +18,7 @@
     }
   },
   "result": {
-    "id": "myvillage:alchemy_array_vent",
+    "id": "yuanxian:alchemy_array_vent",
     "count": 1
   }
 }

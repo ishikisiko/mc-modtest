@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:spirit_soil"
+          "name": "yuanxian:spirit_soil"
         }
       ],
       "conditions": [

@@ -6,20 +6,20 @@
       "item": "minecraft:paper"
     },
     {
-      "item": "myvillage:ningyuan_fruit_low"
+      "item": "yuanxian:ningyuan_fruit_low"
     },
     {
-      "item": "myvillage:spirit_leaf"
+      "item": "yuanxian:spirit_leaf"
     },
     {
-      "item": "myvillage:calm_lotus"
+      "item": "yuanxian:calm_lotus"
     },
     {
-      "item": "myvillage:medium_grade_spirit_stone"
+      "item": "yuanxian:medium_grade_spirit_stone"
     }
   ],
   "result": {
-    "id": "myvillage:formula_zhuji_middle",
+    "id": "yuanxian:formula_zhuji_middle",
     "count": 1
   }
 }

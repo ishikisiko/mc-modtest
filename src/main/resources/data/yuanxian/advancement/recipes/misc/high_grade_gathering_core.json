@@ -7,7 +7,7 @@
         "items": [
           {
             "items": [
-              "myvillage:medium_grade_gathering_core"
+              "yuanxian:medium_grade_gathering_core"
             ]
           }
         ]
@@ -16,7 +16,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:high_grade_gathering_core"
+        "recipe": "yuanxian:high_grade_gathering_core"
       }
     }
   },
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:high_grade_gathering_core"
+      "yuanxian:high_grade_gathering_core"
     ]
   }
 }

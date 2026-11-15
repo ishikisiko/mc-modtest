@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_wood",
+  "parent": "yuanxian:block/ningyuan_wood",
   "display": {
     "gui": {
       "rotation": [

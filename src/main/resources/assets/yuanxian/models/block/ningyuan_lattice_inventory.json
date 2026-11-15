@@ -3,10 +3,10 @@
   "render_type": "minecraft:cutout",
   "ambientocclusion": true,
   "textures": {
-    "wood": "myvillage:block/ningyuan_planks",
-    "jade": "myvillage:block/ningyuan_jade",
-    "pattern": "myvillage:block/ningyuan_lattice",
-    "particle": "myvillage:block/ningyuan_planks"
+    "wood": "yuanxian:block/ningyuan_planks",
+    "jade": "yuanxian:block/ningyuan_jade",
+    "pattern": "yuanxian:block/ningyuan_lattice",
+    "particle": "yuanxian:block/ningyuan_planks"
   },
   "elements": [
     {

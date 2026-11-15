@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "stone": "myvillage:block/gathering_medium_stone",
-    "dark": "myvillage:block/gathering_medium_dark",
-    "copper": "myvillage:block/gathering_medium_copper",
-    "jade": "myvillage:block/gathering_medium_jade",
-    "particle": "myvillage:block/gathering_medium_stone"
+    "stone": "yuanxian:block/gathering_medium_stone",
+    "dark": "yuanxian:block/gathering_medium_dark",
+    "copper": "yuanxian:block/gathering_medium_copper",
+    "jade": "yuanxian:block/gathering_medium_jade",
+    "particle": "yuanxian:block/gathering_medium_stone"
   },
   "elements": [
     {

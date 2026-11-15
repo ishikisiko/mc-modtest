@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/talisman_paper"
+    "layer0": "yuanxian:item/talisman_paper"
   }
 }

@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_qingteng_jie"
+        "recipe": "yuanxian:manual_qingteng_jie"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_qingteng_jie"
+      "yuanxian:manual_qingteng_jie"
     ]
   }
 }

@@ -1,9 +1,9 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#myvillage:has_bone_archer",
+  "biomes": "#yuanxian:has_bone_archer",
   "spawners": [
     {
-      "type": "myvillage:bone_archer",
+      "type": "yuanxian:bone_archer",
       "weight": 4,
       "minCount": 1,
       "maxCount": 2

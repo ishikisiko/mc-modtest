@@ -8,7 +8,7 @@
   ],
   "key": {
     "C": {
-      "item": "myvillage:alchemy_array_casing"
+      "item": "yuanxian:alchemy_array_casing"
     },
     "H": {
       "item": "minecraft:hopper"
@@ -18,7 +18,7 @@
     }
   },
   "result": {
-    "id": "myvillage:alchemy_array_output",
+    "id": "yuanxian:alchemy_array_output",
     "count": 1
   }
 }

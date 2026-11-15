@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:redplate_scale",
+          "name": "yuanxian:redplate_scale",
           "functions": [
             {
               "function": "minecraft:set_count",

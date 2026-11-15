@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:sword_qi_pedestal"
+          "name": "yuanxian:sword_qi_pedestal"
         }
       ],
       "conditions": [

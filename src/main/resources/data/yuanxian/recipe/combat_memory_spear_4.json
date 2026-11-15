@@ -12,11 +12,11 @@
     }
   ],
   "result": {
-    "id": "myvillage:combat_memory",
+    "id": "yuanxian:combat_memory",
     "count": 1,
     "components": {
       "minecraft:custom_data": {
-        "myvillage_aptitude": {
+        "yuanxian_aptitude": {
           "aptitude": "spear",
           "tier": 4
         }

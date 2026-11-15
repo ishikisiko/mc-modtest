@@ -2,22 +2,22 @@ newmtl leather
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_moqing/leather
+map_Kd yuanxian:immortal_equipment/qi_moqing/leather
 
 newmtl steel
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_moqing/steel
+map_Kd yuanxian:immortal_equipment/qi_moqing/steel
 
 newmtl weft
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_moqing/weft
+map_Kd yuanxian:immortal_equipment/qi_moqing/weft
 
 newmtl silver
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/qi_moqing/silver
+map_Kd yuanxian:immortal_equipment/qi_moqing/silver

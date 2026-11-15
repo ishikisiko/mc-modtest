@@ -1,5 +1,5 @@
 # Authored equipment mesh; generated, do not edit.
-mtllib myvillage:models/equipment/forging/bench_chestplate_1_hot.mtl
+mtllib yuanxian:models/equipment/forging/bench_chestplate_1_hot.mtl
 g geometry
 # 右胸铁叶
 usemtl m0

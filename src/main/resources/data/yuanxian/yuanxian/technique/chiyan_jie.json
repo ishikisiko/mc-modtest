@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.chiyan_jie",
+  "translation_key": "cultivation.technique.yuanxian.chiyan_jie",
   "category": "active",
   "grade": 3,
   "elements": [
-    "myvillage:fire"
+    "yuanxian:fire"
   ],
-  "school": "myvillage:fire_arts",
+  "school": "yuanxian:fire_arts",
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early"
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:chiyan_jie",
+      "skill": "yuanxian:chiyan_jie",
       "qi_cost": 18,
       "slots": 1
     }
@@ -23,6 +23,6 @@
     "gate_stability_cost": 0
   },
   "lineage": {
-    "previous": "myvillage:baoyan_shu"
+    "previous": "yuanxian:baoyan_shu"
   }
 }

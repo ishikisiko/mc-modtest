@@ -1,1 +1,1 @@
-place template myvillage:small_shop_001 ~ ~-1 ~
+place template yuanxian:small_shop_001 ~ ~-1 ~

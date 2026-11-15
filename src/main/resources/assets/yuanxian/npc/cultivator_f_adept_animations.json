@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:cultivator",
+  "id": "yuanxian:cultivator",
   "clips": {
     "idle": {
       "length": 4.0,

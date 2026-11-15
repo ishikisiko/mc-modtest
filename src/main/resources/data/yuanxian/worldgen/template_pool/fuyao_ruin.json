@@ -1,12 +1,12 @@
 {
-  "name": "myvillage:fuyao_ruin",
+  "name": "yuanxian:fuyao_ruin",
   "fallback": "minecraft:empty",
   "elements": [
     {
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "myvillage:fuyao_ruin",
+        "location": "yuanxian:fuyao_ruin",
         "processors": "minecraft:empty",
         "projection": "rigid",
         "override_liquid_settings": "ignore_waterlogging"

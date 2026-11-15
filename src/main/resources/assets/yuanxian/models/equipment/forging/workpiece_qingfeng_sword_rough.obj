@@ -1,5 +1,5 @@
 # Authored equipment mesh; generated, do not edit.
-mtllib myvillage:models/equipment/forging/workpiece_qingfeng_sword_rough.mtl
+mtllib yuanxian:models/equipment/forging/workpiece_qingfeng_sword_rough.mtl
 g geometry
 # 料坯段0
 usemtl m0

@@ -15,14 +15,14 @@
       "item": "minecraft:oak_sapling"
     },
     {
-      "item": "myvillage:spirit_leaf"
+      "item": "yuanxian:spirit_leaf"
     }
   ],
   "result": {
-    "id": "myvillage:manual_core_huang",
+    "id": "yuanxian:manual_core_huang",
     "count": 1,
     "components": {
-      "myvillage:technique": "myvillage:qingmu_changchun_gong"
+      "yuanxian:technique": "yuanxian:qingmu_changchun_gong"
     }
   }
 }

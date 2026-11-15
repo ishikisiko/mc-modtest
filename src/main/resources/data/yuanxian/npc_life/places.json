@@ -17,15 +17,15 @@
         67,
         241
       ],
-      "worldplan_layout_hash": "5e782d299c43aadae3088e29253db40fb1992bc56375537de34b09e2d607b922",
+      "worldplan_layout_hash": "8423bf3a3f9721e50b23e5d39fa441dd57169a9a6a5d827e28caeb679d82726d",
       "source_hashes": {
-        "blueprints/worldplan/yunshan_placeholder_v1.json": "87bf8a0d00ec7b7f12ba49568194de957d576a633c0e0864df5e3d8449d10be9",
-        "blueprints/yunshan/apothecary_v1.json": "18142224a5d3e2231e9618457e4696f740bf189f639fa65db08253e6f6966098",
+        "blueprints/worldplan/yunshan_placeholder_v1.json": "b90ac3b081cc98d1ead31ac347ca86a9d8c716c068004bdce59ae74ccf385c5f",
+        "blueprints/yunshan/apothecary_v1.json": "ea1f717adfc82607fd2da00ebcc26d8c74cfe07614d6785331091a520ec5cd3e",
         "blueprints/yunshan/d1_site_reference.json": "26432d468f2a237da2ab69eb474cdc335bf9ea026f9b4f2879630aebe5915c30",
         "blueprints/yunshan/functional_buildings_v1.json": "f883fa392270db3784012128e92ffebfb9c4f1b52abb2941377a74123d9c4314",
-        "blueprints/yunshan/initiation_hall_v1.json": "c22ae24036eef5b386bcb787e1e94147af1e3445c08603c8abf834d8fe322b04",
-        "blueprints/yunshan/smithy_v1.json": "68c0f7584781fee778c6ad14f170a0f9e8aece4bd55c148cefe85537983f7402",
-        "blueprints/yunshan/south_gate_inn_v3.json": "7add8a69cac0a42e71f57dca71b96e00202cc358f5991bba555485c321d97ee1"
+        "blueprints/yunshan/initiation_hall_v1.json": "06f110809366dbd9240b1cceba8db3bba120ce10f52126bb9f83703e537e0247",
+        "blueprints/yunshan/smithy_v1.json": "04176700b3a9876f0221d0798e0a252d782faa7f9ec917e064f19b0a0f43eee8",
+        "blueprints/yunshan/south_gate_inn_v3.json": "593dfdb57b3eac915b62b8ca54fcded1c316c0e86c4a617657850ed092e9c034"
       },
       "places": [
         {
@@ -163,7 +163,7 @@
             54
           ],
           "capacity": 1,
-          "block": "myvillage:alchemy_furnace",
+          "block": "yuanxian:alchemy_furnace",
           "block_pos": [
             49,
             3,
@@ -243,11 +243,11 @@
       ],
       "worldplan_layout_hash": "",
       "source_hashes": {
-        "blueprints/yunshan/apothecary_v2.json": "791e3457adad2c7f7f32f639bc39537c26c698ec4deaa86c8a5333fd4f361974",
+        "blueprints/yunshan/apothecary_v2.json": "719aee1e6c28f9709e4321af94bbf9ffe15b43a0b7b900308379586126d88d62",
         "blueprints/yunshan/functional_buildings_v2.json": "39c77df78d1b9414833b0be8e859a9e0f23078f5023e060160d1c35ddea91f64",
-        "blueprints/yunshan/initiation_hall_v2.json": "2d1cf5a4ef63721f7280aa9d361e792f155ab2c64675f4df10a3a7310366a8f6",
-        "blueprints/yunshan/smithy_v2.json": "27791b6e97a2f4e9ccb97fb33e8982845ab490af834b6eb6b28a428d1021dd7a",
-        "blueprints/yunshan/south_gate_inn_v4.json": "0b729623b355514d290c334f737abb2643dd096a034eb0f5e0ac72e0016feec3"
+        "blueprints/yunshan/initiation_hall_v2.json": "376cf7c5ec728c707150eb93f3c6d1d00595605e22db50a59df535ccbaf4b673",
+        "blueprints/yunshan/smithy_v2.json": "eaf3facaa3335dbdfb40186081f3af7a177f377ed8a002a61b67ded73f0207d0",
+        "blueprints/yunshan/south_gate_inn_v4.json": "d1080050542b84831cd3063afc3e4fd7221029955a19fbce2f39e1670d9c9ea9"
       },
       "places": [
         {
@@ -421,7 +421,7 @@
             10
           ],
           "capacity": 1,
-          "block": "myvillage:alchemy_furnace",
+          "block": "yuanxian:alchemy_furnace",
           "block_pos": [
             14,
             1,
@@ -499,22 +499,22 @@
         62,
         110
       ],
-      "worldplan_layout_hash": "5a9daca670d8da574dcf768f9bbaebf5adcfe9595c377b08d9feeff82ae8d26b",
+      "worldplan_layout_hash": "a8940b5ae7669f6ce58a6ce52f7a799050e35d11441c37f50e9e04893020a823",
       "source_hashes": {
         "blueprints/worldplan/compatible_v4.json": "8e4af13d8141bd55b2b8f7c9c9bc087c4baf5daaa11c9de07d58fc99078e195f",
-        "blueprints/worldplan/rules_v4.json": "3aae9cb9c4b89246bad001e80ff32abb4b944ec90bf60ac376cdbda50c63ea4d",
-        "blueprints/yunshan/apothecary_v2.json": "791e3457adad2c7f7f32f639bc39537c26c698ec4deaa86c8a5333fd4f361974",
+        "blueprints/worldplan/rules_v4.json": "e30abf6d4aa6717a844bc7da1eeec11100c72cc9fef26a576569fc744071e495",
+        "blueprints/yunshan/apothecary_v2.json": "719aee1e6c28f9709e4321af94bbf9ffe15b43a0b7b900308379586126d88d62",
         "blueprints/yunshan/baseline/d1_columns.json": "c9600dce0d71c95bf4a2178588b090a96074211989bbffd7be1bc2fc149b3b9a",
         "blueprints/yunshan/d1_landscape_reference.json": "5658ebaab99de48cbb81badbaae88e46dbb678c597370e03693b8f800b2c0c57",
         "blueprints/yunshan/d1_site_reference.json": "26432d468f2a237da2ab69eb474cdc335bf9ea026f9b4f2879630aebe5915c30",
         "blueprints/yunshan/district_plan_v2.json": "f5028dc97d6ae0206140796fd93aeae8de547d1a87ee50242f3bd5fd36f592dc",
         "blueprints/yunshan/district_realization_v2.json": "e448ddd99c4cafc9d1b76f6917c281ffbdd0d7d6c6fc15e998f97cf77bd0514c",
-        "blueprints/yunshan/initiation_hall_v2.json": "2d1cf5a4ef63721f7280aa9d361e792f155ab2c64675f4df10a3a7310366a8f6",
-        "blueprints/yunshan/smithy_v2.json": "27791b6e97a2f4e9ccb97fb33e8982845ab490af834b6eb6b28a428d1021dd7a",
-        "blueprints/yunshan/south_gate_inn_v4.json": "0b729623b355514d290c334f737abb2643dd096a034eb0f5e0ac72e0016feec3",
-        "tools/worldplan/district.py": "5eade4ff8314493ef3c223dfb026bd83e80b2c9c7544046aadd8041faaae97a8",
+        "blueprints/yunshan/initiation_hall_v2.json": "376cf7c5ec728c707150eb93f3c6d1d00595605e22db50a59df535ccbaf4b673",
+        "blueprints/yunshan/smithy_v2.json": "eaf3facaa3335dbdfb40186081f3af7a177f377ed8a002a61b67ded73f0207d0",
+        "blueprints/yunshan/south_gate_inn_v4.json": "d1080050542b84831cd3063afc3e4fd7221029955a19fbce2f39e1670d9c9ea9",
+        "tools/worldplan/district.py": "c3668e49763975974c8e94d1a6a73302a0ab5b49eec421afe4f64c05447976fc",
         "tools/yunshan/baseline_houses.py": "3a83f7200f5201c6a43f312f922c4489513bffa9cafcb678cdc6a16ddd0c8128",
-        "tools/yunshan/build_district.py": "7e5ff0fd14c47cbdc4b421fa97f1d007ed82244712eec12fa9c78891ce069923",
+        "tools/yunshan/build_district.py": "0a11dcf8386eec0407ddffd17a5d1d4962b2206c50f2a74b21a71542d9d7e1ea",
         "tools/yunshan/plan_district.py": "1af7d45da997a46b60285258eeaeb6f6f3a45572ac6e5cc55b4c9958c6932fe5"
       },
       "places": [
@@ -689,7 +689,7 @@
             161
           ],
           "capacity": 1,
-          "block": "myvillage:alchemy_furnace",
+          "block": "yuanxian:alchemy_furnace",
           "block_pos": [
             90,
             9,
@@ -779,7 +779,7 @@
             216
           ],
           "capacity": 1,
-          "block": "myvillage:forging_table",
+          "block": "yuanxian:forging_table",
           "block_pos": [
             63,
             13,
@@ -824,9 +824,6 @@
           "source": "blueprints/yunshan/initiation_hall_v2.json",
           "target": "meditation"
         }
-      ],
-      "compatible_worldplan_layout_hashes": [
-        "6b8499e40862fd165e98c8f26c608b7a0b2fe2d00ee3e9c906000e0a40b9c14c"
       ]
     }
   ]

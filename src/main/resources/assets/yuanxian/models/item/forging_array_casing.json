@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/forging_array_casing",
+  "parent": "yuanxian:block/forging_array_casing",
   "display": {
     "gui": {
       "rotation": [

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/earth_fire_seed"
+    "layer0": "yuanxian:item/earth_fire_seed"
   }
 }

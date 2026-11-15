@@ -9,14 +9,14 @@
       "item": "minecraft:glass"
     },
     {
-      "item": "myvillage:watermarked_silk"
+      "item": "yuanxian:watermarked_silk"
     },
     {
-      "item": "myvillage:low_grade_spirit_stone"
+      "item": "yuanxian:low_grade_spirit_stone"
     }
   ],
   "result": {
-    "id": "myvillage:zhaoshui_mirror",
+    "id": "yuanxian:zhaoshui_mirror",
     "count": 1
   }
 }

@@ -1,6 +1,6 @@
 {
   "loader": "neoforge:obj",
-  "model": "myvillage:models/immortal_equipment/yuanying_xinghe_ingot.obj",
+  "model": "yuanxian:models/immortal_equipment/yuanying_xinghe_ingot.obj",
   "automatic_culling": false,
   "shade_quads": false,
   "flip_v": false,
@@ -8,7 +8,7 @@
   "gui_light": "side",
   "render_type": "minecraft:cutout",
   "textures": {
-    "particle": "myvillage:immortal_equipment/yuanying_xinghe/silver"
+    "particle": "yuanxian:immortal_equipment/yuanying_xinghe/silver"
   },
   "display": {
     "gui": {

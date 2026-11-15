@@ -6,13 +6,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:rune_lamp"
+          "name": "yuanxian:rune_lamp"
         }
       ],
       "conditions": [
         {
           "condition": "minecraft:block_state_property",
-          "block": "myvillage:rune_lamp",
+          "block": "yuanxian:rune_lamp",
           "properties": {
             "part": "0"
           }

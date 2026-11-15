@@ -1,15 +1,15 @@
 {
-  "translation_key": "cultivation.technique.myvillage.xirang_zaohua_jing",
+  "translation_key": "cultivation.technique.yuanxian.xirang_zaohua_jing",
   "category": "core",
   "grade": 3,
   "elements": [
-    "myvillage:earth"
+    "yuanxian:earth"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
-      "myvillage:earth": 100
+      "yuanxian:earth": 100
     }
   },
   "effects": {

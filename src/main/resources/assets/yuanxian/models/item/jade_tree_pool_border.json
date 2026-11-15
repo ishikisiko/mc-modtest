@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/jade_tree_pool_border",
+  "parent": "yuanxian:block/jade_tree_pool_border",
   "display": {
     "gui": {
       "rotation": [

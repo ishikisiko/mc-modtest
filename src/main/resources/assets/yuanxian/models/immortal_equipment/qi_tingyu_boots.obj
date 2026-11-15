@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/qi_tingyu_boots.mtl
+mtllib yuanxian:models/immortal_equipment/qi_tingyu_boots.mtl
 o boot_shaft_-1
 usemtl celadon
 v 0.023437506 0.2187499985 0

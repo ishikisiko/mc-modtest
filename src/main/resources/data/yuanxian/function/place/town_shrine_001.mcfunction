@@ -1,1 +1,1 @@
-place template myvillage:town_shrine_001 ~ ~-1 ~
+place template yuanxian:town_shrine_001 ~ ~-1 ~

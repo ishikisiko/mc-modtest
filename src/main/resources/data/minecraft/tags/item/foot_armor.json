@@ -1,21 +1,21 @@
 {
   "replace": false,
   "values": [
-    "myvillage:xuantie_boots",
-    "myvillage:qi_moqing_boots",
-    "myvillage:qi_tingyu_boots",
-    "myvillage:qi_chixia_boots",
-    "myvillage:zhuji_baiqing_lingyun_boots",
-    "myvillage:zhuji_yuheng_yizhuang_boots",
-    "myvillage:zhuji_wuyao_yeque_boots",
-    "myvillage:jindan_jinwu_boots",
-    "myvillage:jindan_taiyin_boots",
-    "myvillage:jindan_zixiao_boots",
-    "myvillage:yuanying_xinghe_boots",
-    "myvillage:yuanying_jiuse_boots",
-    "myvillage:yuanying_qingdi_boots",
-    "myvillage:huashen_taixu_boots",
-    "myvillage:huashen_xuanji_boots",
-    "myvillage:huashen_dari_boots"
+    "yuanxian:xuantie_boots",
+    "yuanxian:qi_moqing_boots",
+    "yuanxian:qi_tingyu_boots",
+    "yuanxian:qi_chixia_boots",
+    "yuanxian:zhuji_baiqing_lingyun_boots",
+    "yuanxian:zhuji_yuheng_yizhuang_boots",
+    "yuanxian:zhuji_wuyao_yeque_boots",
+    "yuanxian:jindan_jinwu_boots",
+    "yuanxian:jindan_taiyin_boots",
+    "yuanxian:jindan_zixiao_boots",
+    "yuanxian:yuanying_xinghe_boots",
+    "yuanxian:yuanying_jiuse_boots",
+    "yuanxian:yuanying_qingdi_boots",
+    "yuanxian:huashen_taixu_boots",
+    "yuanxian:huashen_xuanji_boots",
+    "yuanxian:huashen_dari_boots"
   ]
 }

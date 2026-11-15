@@ -3,14 +3,14 @@
   "category": "equipment",
   "ingredients": [
     {
-      "item": "myvillage:xuantie_ingot"
+      "item": "yuanxian:xuantie_ingot"
     },
     {
-      "item": "myvillage:xuantie_ingot"
+      "item": "yuanxian:xuantie_ingot"
     }
   ],
   "result": {
-    "id": "myvillage:xuantie_handle",
+    "id": "yuanxian:xuantie_handle",
     "count": 1
   }
 }

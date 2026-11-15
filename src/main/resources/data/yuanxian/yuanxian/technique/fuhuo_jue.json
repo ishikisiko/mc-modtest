@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.fuhuo_jue",
+  "translation_key": "cultivation.technique.yuanxian.fuhuo_jue",
   "category": "active",
   "grade": 2,
   "elements": [
-    "myvillage:fire"
+    "yuanxian:fire"
   ],
-  "school": "myvillage:legacy",
+  "school": "yuanxian:legacy",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:fuhuo_jue",
+      "skill": "yuanxian:fuhuo_jue",
       "qi_cost": 6,
       "slots": 1
     }

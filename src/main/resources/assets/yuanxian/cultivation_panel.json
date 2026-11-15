@@ -39,29 +39,29 @@
     }
   ],
   "technique_icons": {
-    "myvillage:qinglian_jiange": "myvillage:textures/gui/cultivation/panel/qinglian_jiange.png",
-    "myvillage:huifeng_jianzhen": "myvillage:textures/gui/cultivation/panel/huifeng_jianzhen.png",
-    "myvillage:canglong_chushui": "myvillage:textures/gui/cultivation/panel/canglong_chushui.png",
-    "myvillage:hengsao_qianjun": "myvillage:textures/gui/cultivation/panel/hengsao_qianjun.png",
-    "myvillage:bengshan_jin": "myvillage:textures/gui/cultivation/panel/bengshan_jin.png",
-    "myvillage:jingang_zhen": "myvillage:textures/gui/cultivation/panel/jingang_zhen.png"
+    "yuanxian:qinglian_jiange": "yuanxian:textures/gui/cultivation/panel/qinglian_jiange.png",
+    "yuanxian:huifeng_jianzhen": "yuanxian:textures/gui/cultivation/panel/huifeng_jianzhen.png",
+    "yuanxian:canglong_chushui": "yuanxian:textures/gui/cultivation/panel/canglong_chushui.png",
+    "yuanxian:hengsao_qianjun": "yuanxian:textures/gui/cultivation/panel/hengsao_qianjun.png",
+    "yuanxian:bengshan_jin": "yuanxian:textures/gui/cultivation/panel/bengshan_jin.png",
+    "yuanxian:jingang_zhen": "yuanxian:textures/gui/cultivation/panel/jingang_zhen.png"
   },
   "categories": {
-    "core": "myvillage:textures/gui/cultivation/panel/category_core.png",
-    "active": "myvillage:textures/gui/cultivation/panel/category_active.png",
-    "movement": "myvillage:textures/gui/cultivation/panel/category_movement.png",
-    "body": "myvillage:textures/gui/cultivation/panel/category_body.png",
-    "unknown": "myvillage:textures/gui/cultivation/panel/category_unknown.png"
+    "core": "yuanxian:textures/gui/cultivation/panel/category_core.png",
+    "active": "yuanxian:textures/gui/cultivation/panel/category_active.png",
+    "movement": "yuanxian:textures/gui/cultivation/panel/category_movement.png",
+    "body": "yuanxian:textures/gui/cultivation/panel/category_body.png",
+    "unknown": "yuanxian:textures/gui/cultivation/panel/category_unknown.png"
   },
   "navigation": {
-    "profile": "myvillage:textures/gui/cultivation/panel/nav_profile.png",
-    "meditation": "myvillage:textures/gui/cultivation/panel/nav_meditation.png",
-    "techniques": "myvillage:textures/gui/cultivation/panel/nav_techniques.png",
-    "skills": "myvillage:textures/gui/cultivation/panel/nav_skills.png",
-    "world": "myvillage:textures/gui/cultivation/panel/nav_world.png",
-    "fates": "myvillage:textures/gui/cultivation/panel/nav_fates.png",
-    "crafting": "myvillage:textures/gui/cultivation/panel/nav_crafting.png",
-    "alchemy": "myvillage:textures/gui/cultivation/panel/nav_alchemy.png",
-    "forging": "myvillage:textures/gui/cultivation/panel/nav_forging.png"
+    "profile": "yuanxian:textures/gui/cultivation/panel/nav_profile.png",
+    "meditation": "yuanxian:textures/gui/cultivation/panel/nav_meditation.png",
+    "techniques": "yuanxian:textures/gui/cultivation/panel/nav_techniques.png",
+    "skills": "yuanxian:textures/gui/cultivation/panel/nav_skills.png",
+    "world": "yuanxian:textures/gui/cultivation/panel/nav_world.png",
+    "fates": "yuanxian:textures/gui/cultivation/panel/nav_fates.png",
+    "crafting": "yuanxian:textures/gui/cultivation/panel/nav_crafting.png",
+    "alchemy": "yuanxian:textures/gui/cultivation/panel/nav_alchemy.png",
+    "forging": "yuanxian:textures/gui/cultivation/panel/nav_forging.png"
   }
 }

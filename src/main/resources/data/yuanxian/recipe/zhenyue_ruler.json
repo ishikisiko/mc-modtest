@@ -9,14 +9,14 @@
       "item": "minecraft:iron_ingot"
     },
     {
-      "item": "myvillage:stele_stone_heart"
+      "item": "yuanxian:stele_stone_heart"
     },
     {
-      "item": "myvillage:low_grade_spirit_stone"
+      "item": "yuanxian:low_grade_spirit_stone"
     }
   ],
   "result": {
-    "id": "myvillage:zhenyue_ruler",
+    "id": "yuanxian:zhenyue_ruler",
     "count": 1
   }
 }

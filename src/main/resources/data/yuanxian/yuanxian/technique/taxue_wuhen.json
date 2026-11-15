@@ -1,19 +1,19 @@
 {
-  "translation_key": "cultivation.technique.myvillage.taxue_wuhen",
+  "translation_key": "cultivation.technique.yuanxian.taxue_wuhen",
   "category": "movement",
   "grade": 2,
   "elements": [
-    "myvillage:water"
+    "yuanxian:water"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4",
     "minimum_element_aptitude": {
-      "myvillage:water": 40
+      "yuanxian:water": 40
     }
   },
   "lineage": {
-    "previous": "myvillage:liuyun_bu"
+    "previous": "yuanxian:liuyun_bu"
   },
   "effects": {
     "movement": {

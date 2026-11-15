@@ -2,7 +2,7 @@
   "type": "minecraft:smelting",
   "category": "misc",
   "ingredient": {
-    "item": "myvillage:ningyuan_log"
+    "item": "yuanxian:ningyuan_log"
   },
   "result": {
     "id": "minecraft:charcoal"

@@ -2,28 +2,28 @@ newmtl dark
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/dark
+map_Kd yuanxian:immortal_equipment/zhuji_wuyao_yeque/dark
 
 newmtl obsidian
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/obsidian
+map_Kd yuanxian:immortal_equipment/zhuji_wuyao_yeque/obsidian
 
 newmtl silver
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/silver
+map_Kd yuanxian:immortal_equipment/zhuji_wuyao_yeque/silver
 
 newmtl jade
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/jade
+map_Kd yuanxian:immortal_equipment/zhuji_wuyao_yeque/jade
 
 newmtl bronze
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/bronze
+map_Kd yuanxian:immortal_equipment/zhuji_wuyao_yeque/bronze

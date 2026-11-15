@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/yuanying_jiuse_leggings.mtl
+mtllib yuanxian:models/immortal_equipment/yuanying_jiuse_leggings.mtl
 o glass_pants_-1
 usemtl jiu_cloth
 v 0.006249994 0.768750006 0

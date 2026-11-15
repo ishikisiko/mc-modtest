@@ -2,10 +2,10 @@
   "type": "minecraft:blasting",
   "category": "misc",
   "ingredient": {
-    "item": "myvillage:raw_xuantie"
+    "item": "yuanxian:raw_xuantie"
   },
   "result": {
-    "id": "myvillage:xuantie_ingot",
+    "id": "yuanxian:xuantie_ingot",
     "count": 1
   },
   "experience": 0.7,

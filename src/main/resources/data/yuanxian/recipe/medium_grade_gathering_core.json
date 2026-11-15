@@ -17,11 +17,11 @@
       "tag": "c:spirit_stones/medium_grade"
     },
     "A": {
-      "item": "myvillage:spirit_gathering_core"
+      "item": "yuanxian:spirit_gathering_core"
     }
   },
   "result": {
-    "id": "myvillage:medium_grade_gathering_core",
+    "id": "yuanxian:medium_grade_gathering_core",
     "count": 1
   }
 }

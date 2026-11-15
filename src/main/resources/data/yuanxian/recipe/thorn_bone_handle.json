@@ -3,14 +3,14 @@
   "category": "equipment",
   "ingredients": [
     {
-      "item": "myvillage:thorn_bone"
+      "item": "yuanxian:thorn_bone"
     },
     {
-      "item": "myvillage:thorn_bone"
+      "item": "yuanxian:thorn_bone"
     }
   ],
   "result": {
-    "id": "myvillage:thorn_bone_handle",
+    "id": "yuanxian:thorn_bone_handle",
     "count": 1
   }
 }

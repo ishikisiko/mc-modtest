@@ -1,19 +1,19 @@
 {
   "variants": {
     "facing=south": {
-      "model": "myvillage:block/jade_gathering_step",
+      "model": "yuanxian:block/jade_gathering_step",
       "y": 0
     },
     "facing=west": {
-      "model": "myvillage:block/jade_gathering_step",
+      "model": "yuanxian:block/jade_gathering_step",
       "y": 90
     },
     "facing=north": {
-      "model": "myvillage:block/jade_gathering_step",
+      "model": "yuanxian:block/jade_gathering_step",
       "y": 180
     },
     "facing=east": {
-      "model": "myvillage:block/jade_gathering_step",
+      "model": "yuanxian:block/jade_gathering_step",
       "y": 270
     }
   }

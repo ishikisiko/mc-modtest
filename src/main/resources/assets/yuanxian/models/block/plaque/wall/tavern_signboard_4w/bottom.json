@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "myvillage:block/plaque/wall/tavern_signboard_4w/bottom",
-    "plaque": "myvillage:block/plaque/wall/tavern_signboard_4w/vertical_full",
-    "edge": "myvillage:block/plaque/wall/tavern_signboard_4w/bottom"
+    "particle": "yuanxian:block/plaque/wall/tavern_signboard_4w/bottom",
+    "plaque": "yuanxian:block/plaque/wall/tavern_signboard_4w/vertical_full",
+    "edge": "yuanxian:block/plaque/wall/tavern_signboard_4w/bottom"
   },
   "elements": [
     {

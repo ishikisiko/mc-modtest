@@ -5,17 +5,17 @@
       "item": "minecraft:paper"
     },
     {
-      "item": "myvillage:redplate_scale"
+      "item": "yuanxian:redplate_scale"
     },
     {
-      "item": "myvillage:dew_blossom"
+      "item": "yuanxian:dew_blossom"
     },
     {
       "tag": "c:spirit_stones/low_grade"
     }
   ],
   "result": {
-    "id": "myvillage:formula_yuyan",
+    "id": "yuanxian:formula_yuyan",
     "count": 1
   }
 }

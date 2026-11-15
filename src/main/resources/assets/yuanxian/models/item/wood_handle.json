@@ -1,7 +1,7 @@
 {
   "textures": {
-    "body": "myvillage:item/wood_handle",
-    "particle": "myvillage:item/wood_handle"
+    "body": "yuanxian:item/wood_handle",
+    "particle": "yuanxian:item/wood_handle"
   },
   "elements": [
     {

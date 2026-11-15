@@ -2,28 +2,28 @@ newmtl lining
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_yuheng_yizhuang/lining
+map_Kd yuanxian:immortal_equipment/zhuji_yuheng_yizhuang/lining
 
 newmtl jade_metal
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_yuheng_yizhuang/jade_metal
+map_Kd yuanxian:immortal_equipment/zhuji_yuheng_yizhuang/jade_metal
 
 newmtl gold
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_yuheng_yizhuang/gold
+map_Kd yuanxian:immortal_equipment/zhuji_yuheng_yizhuang/gold
 
 newmtl jade
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_yuheng_yizhuang/jade
+map_Kd yuanxian:immortal_equipment/zhuji_yuheng_yizhuang/jade
 
 newmtl red
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/zhuji_yuheng_yizhuang/red
+map_Kd yuanxian:immortal_equipment/zhuji_yuheng_yizhuang/red

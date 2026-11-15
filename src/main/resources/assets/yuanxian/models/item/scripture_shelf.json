@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/scripture_shelf",
+  "parent": "yuanxian:block/scripture_shelf",
   "display": {
     "gui": {
       "rotation": [

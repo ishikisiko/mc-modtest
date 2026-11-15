@@ -5,18 +5,18 @@
       "item": "minecraft:writable_book"
     },
     {
-      "item": "myvillage:xuantie_ingot"
+      "item": "yuanxian:xuantie_ingot"
     },
     {
       "item": "minecraft:diamond"
     }
   ],
   "result": {
-    "id": "myvillage:research_notes",
+    "id": "yuanxian:research_notes",
     "count": 1,
     "components": {
       "minecraft:custom_data": {
-        "myvillage_aptitude": {
+        "yuanxian_aptitude": {
           "aptitude": "forging",
           "tier": 3
         }

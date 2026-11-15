@@ -1,10 +1,10 @@
 {
   "type": "minecraft:jigsaw",
-  "biomes": "#myvillage:has_thunder_tiger_lair",
+  "biomes": "#yuanxian:has_thunder_tiger_lair",
   "step": "surface_structures",
   "terrain_adaptation": "beard_thin",
   "spawn_overrides": {},
-  "start_pool": "myvillage:thunder_tiger_lair",
+  "start_pool": "yuanxian:thunder_tiger_lair",
   "size": 1,
   "start_height": {
     "absolute": -6

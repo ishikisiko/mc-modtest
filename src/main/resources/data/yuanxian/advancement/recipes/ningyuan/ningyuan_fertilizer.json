@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "myvillage:ningyuan_fruit_low"
+            "items": "yuanxian:ningyuan_fruit_low"
           }
         ]
       }
@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:ningyuan_fertilizer"
+        "recipe": "yuanxian:ningyuan_fertilizer"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:ningyuan_fertilizer"
+      "yuanxian:ningyuan_fertilizer"
     ]
   }
 }

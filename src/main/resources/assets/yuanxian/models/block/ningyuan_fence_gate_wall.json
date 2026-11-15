@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:block/template_fence_gate_wall",
   "textures": {
-    "texture": "myvillage:block/ningyuan_planks"
+    "texture": "yuanxian:block/ningyuan_planks"
   },
   "render_type": "minecraft:solid"
 }

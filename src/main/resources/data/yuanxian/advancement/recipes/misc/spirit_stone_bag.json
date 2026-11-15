@@ -16,7 +16,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:spirit_stone_bag"
+        "recipe": "yuanxian:spirit_stone_bag"
       }
     }
   },
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:spirit_stone_bag"
+      "yuanxian:spirit_stone_bag"
     ]
   }
 }

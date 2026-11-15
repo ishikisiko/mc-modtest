@@ -1,5 +1,5 @@
 # Authored equipment mesh; generated, do not edit.
-mtllib myvillage:models/equipment/forging/bench_axe_2.mtl
+mtllib yuanxian:models/equipment/forging/bench_axe_2.mtl
 g geometry
 # 斧眼
 usemtl m0

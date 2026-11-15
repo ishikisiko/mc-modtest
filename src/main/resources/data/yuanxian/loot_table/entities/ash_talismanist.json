@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:talisman_ash",
+          "name": "yuanxian:talisman_ash",
           "functions": [
             {
               "function": "minecraft:set_count",

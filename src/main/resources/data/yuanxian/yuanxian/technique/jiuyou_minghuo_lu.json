@@ -1,15 +1,15 @@
 {
-  "translation_key": "cultivation.technique.myvillage.jiuyou_minghuo_lu",
+  "translation_key": "cultivation.technique.yuanxian.jiuyou_minghuo_lu",
   "category": "core",
   "grade": 4,
   "elements": [
-    "myvillage:fire"
+    "yuanxian:fire"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
-      "myvillage:fire": 200
+      "yuanxian:fire": 200
     }
   },
   "effects": {

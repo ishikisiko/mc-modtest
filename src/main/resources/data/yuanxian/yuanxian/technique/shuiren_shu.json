@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.shuiren_shu",
+  "translation_key": "cultivation.technique.yuanxian.shuiren_shu",
   "category": "active",
   "grade": 1,
   "elements": [
-    "myvillage:water"
+    "yuanxian:water"
   ],
-  "school": "myvillage:water_arts",
+  "school": "yuanxian:water_arts",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_1"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_1"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:shuiren_shu",
+      "skill": "yuanxian:shuiren_shu",
       "qi_cost": 1,
       "slots": 1
     }

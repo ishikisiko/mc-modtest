@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/stripped_ningyuan_log",
+  "parent": "yuanxian:block/stripped_ningyuan_log",
   "display": {
     "gui": {
       "rotation": [

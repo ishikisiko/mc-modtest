@@ -1,11 +1,11 @@
 {
-  "translation_key": "cultivation.technique.myvillage.liangyi_huasheng_jing",
+  "translation_key": "cultivation.technique.yuanxian.liangyi_huasheng_jing",
   "category": "core",
   "grade": 3,
   "elements": [],
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early"
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early"
   },
   "effects": {
     "core": {

@@ -1,12 +1,12 @@
 {
-  "name": "myvillage:danxia_ruin",
+  "name": "yuanxian:danxia_ruin",
   "fallback": "minecraft:empty",
   "elements": [
     {
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "myvillage:danxia_ruin",
+        "location": "yuanxian:danxia_ruin",
         "processors": "minecraft:empty",
         "projection": "rigid"
       }

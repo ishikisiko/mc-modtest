@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/jindan_taiyin_chestplate.mtl
+mtllib yuanxian:models/immortal_equipment/jindan_taiyin_chestplate.mtl
 o moon_robe_body
 usemtl frost
 v 0.2687500119 1.512499988 0

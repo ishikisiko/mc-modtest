@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "wood": "myvillage:block/talisman_wood",
-    "copper": "myvillage:block/talisman_copper",
-    "paper": "myvillage:block/talisman_paper_surface",
-    "ink": "myvillage:block/talisman_inkwell",
-    "particle": "myvillage:block/talisman_wood"
+    "wood": "yuanxian:block/talisman_wood",
+    "copper": "yuanxian:block/talisman_copper",
+    "paper": "yuanxian:block/talisman_paper_surface",
+    "ink": "yuanxian:block/talisman_inkwell",
+    "particle": "yuanxian:block/talisman_wood"
   },
   "elements": [
     {

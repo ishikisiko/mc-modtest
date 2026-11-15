@@ -7,11 +7,11 @@
   ],
   "key": {
     "L": {
-      "item": "myvillage:stripped_ningyuan_log"
+      "item": "yuanxian:stripped_ningyuan_log"
     }
   },
   "result": {
-    "id": "myvillage:stripped_ningyuan_wood",
+    "id": "yuanxian:stripped_ningyuan_wood",
     "count": 3
   }
 }

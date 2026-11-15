@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/mountain_stele"
+      "model": "yuanxian:block/mountain_stele"
     }
   }
 }

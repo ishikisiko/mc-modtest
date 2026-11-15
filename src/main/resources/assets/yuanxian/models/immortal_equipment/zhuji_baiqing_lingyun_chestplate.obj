@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/zhuji_baiqing_lingyun_chestplate.mtl
+mtllib yuanxian:models/immortal_equipment/zhuji_baiqing_lingyun_chestplate.mtl
 o cloud_body
 usemtl cloud
 v 0.2687500119 1.512499988 0

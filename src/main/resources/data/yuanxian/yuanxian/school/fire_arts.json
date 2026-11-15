@@ -1,9 +1,9 @@
 {
-  "translation_key": "cultivation.school.myvillage.fire_arts",
+  "translation_key": "cultivation.school.yuanxian.fire_arts",
   "kind": "special",
   "weapon_family": null,
   "runtime": "spell",
   "element_lean": [
-    "myvillage:fire"
+    "yuanxian:fire"
   ]
 }

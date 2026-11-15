@@ -10,11 +10,11 @@
       "item": "minecraft:stick"
     },
     "F": {
-      "item": "myvillage:ningyuan_fruit_low"
+      "item": "yuanxian:ningyuan_fruit_low"
     }
   },
   "result": {
-    "id": "myvillage:ningyuan_fruit_cluster",
+    "id": "yuanxian:ningyuan_fruit_cluster",
     "count": 1
   }
 }

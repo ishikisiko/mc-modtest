@@ -9,7 +9,7 @@
           "children": [
             {
               "type": "minecraft:item",
-              "name": "myvillage:ningyuan_leaves",
+              "name": "yuanxian:ningyuan_leaves",
               "conditions": [
                 {
                   "condition": "minecraft:any_of",
@@ -41,7 +41,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "myvillage:ningyuan_sapling",
+              "name": "yuanxian:ningyuan_sapling",
               "conditions": [
                 {
                   "condition": "minecraft:table_bonus",

@@ -1,9 +1,9 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#myvillage:has_moyu_corpse",
+  "biomes": "#yuanxian:has_moyu_corpse",
   "spawners": [
     {
-      "type": "myvillage:moyu_corpse",
+      "type": "yuanxian:moyu_corpse",
       "weight": 6,
       "minCount": 1,
       "maxCount": 1

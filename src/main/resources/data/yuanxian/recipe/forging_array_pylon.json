@@ -14,7 +14,7 @@
       "item": "minecraft:redstone"
     },
     "X": {
-      "item": "myvillage:xuantie_ingot"
+      "item": "yuanxian:xuantie_ingot"
     },
     "B": {
       "item": "minecraft:stone_bricks"
@@ -24,7 +24,7 @@
     }
   },
   "result": {
-    "id": "myvillage:forging_array_pylon",
+    "id": "yuanxian:forging_array_pylon",
     "count": 2
   }
 }

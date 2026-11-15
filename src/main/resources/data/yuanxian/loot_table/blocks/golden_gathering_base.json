@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:golden_gathering_base"
+          "name": "yuanxian:golden_gathering_base"
         }
       ],
       "conditions": [

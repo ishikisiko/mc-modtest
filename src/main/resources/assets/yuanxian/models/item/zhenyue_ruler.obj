@@ -1,5 +1,5 @@
 # Authored equipment mesh; generated, do not edit.
-mtllib myvillage:models/item/zhenyue_ruler.mtl
+mtllib yuanxian:models/item/zhenyue_ruler.mtl
 g geometry
 # ruler.front
 usemtl m0

@@ -1,9 +1,9 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "particle": "myvillage:block/ningyuan_lattice",
-    "bars": "myvillage:block/ningyuan_lattice",
-    "edge": "myvillage:block/ningyuan_lattice"
+    "particle": "yuanxian:block/ningyuan_lattice",
+    "bars": "yuanxian:block/ningyuan_lattice",
+    "edge": "yuanxian:block/ningyuan_lattice"
   },
   "elements": [
     {

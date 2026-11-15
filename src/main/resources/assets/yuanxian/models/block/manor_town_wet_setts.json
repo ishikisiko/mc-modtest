@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","render_type":"minecraft:solid","textures":{"all":"myvillage:block/lord_manors/manor_town_wet_setts"}}
+{"parent":"minecraft:block/cube_all","render_type":"minecraft:solid","textures":{"all":"yuanxian:block/lord_manors/manor_town_wet_setts"}}

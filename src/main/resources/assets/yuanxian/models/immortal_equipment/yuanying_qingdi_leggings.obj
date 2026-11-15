@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/yuanying_qingdi_leggings.mtl
+mtllib yuanxian:models/immortal_equipment/yuanying_qingdi_leggings.mtl
 o wood_pants_-1
 usemtl bark
 v 0.004687503 0.765625003 0

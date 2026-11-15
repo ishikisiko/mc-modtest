@@ -1,1 +1,1 @@
-place template myvillage:hero_rockery ~ ~-1 ~
+place template yuanxian:hero_rockery ~ ~-1 ~

@@ -1,9 +1,9 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#myvillage:has_lingyue_corpse",
+  "biomes": "#yuanxian:has_lingyue_corpse",
   "spawners": [
     {
-      "type": "myvillage:lingyue_corpse",
+      "type": "yuanxian:lingyue_corpse",
       "weight": 6,
       "minCount": 1,
       "maxCount": 1

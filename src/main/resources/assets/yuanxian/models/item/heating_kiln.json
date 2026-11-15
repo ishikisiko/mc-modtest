@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/heating_kiln",
+  "parent": "yuanxian:block/heating_kiln",
   "display": {
     "gui": {
       "rotation": [

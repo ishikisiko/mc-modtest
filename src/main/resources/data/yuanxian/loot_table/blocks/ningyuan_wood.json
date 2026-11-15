@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:ningyuan_wood"
+          "name": "yuanxian:ningyuan_wood"
         }
       ],
       "conditions": [

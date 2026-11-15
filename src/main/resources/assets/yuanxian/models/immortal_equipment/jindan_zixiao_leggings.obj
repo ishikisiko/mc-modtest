@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/jindan_zixiao_leggings.mtl
+mtllib yuanxian:models/immortal_equipment/jindan_zixiao_leggings.mtl
 o zx_waist
 usemtl zx_lining
 v 0.275000006 0.8375 0

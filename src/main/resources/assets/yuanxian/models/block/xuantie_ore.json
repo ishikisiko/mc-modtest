@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "myvillage:block/xuantie_ore"
+    "all": "yuanxian:block/xuantie_ore"
   }
 }

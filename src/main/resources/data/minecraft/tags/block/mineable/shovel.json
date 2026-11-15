@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    "myvillage:edge_tempering_sand_deposit",
-    "myvillage:spirit_soil"
+    "yuanxian:edge_tempering_sand_deposit",
+    "yuanxian:spirit_soil"
   ]
 }

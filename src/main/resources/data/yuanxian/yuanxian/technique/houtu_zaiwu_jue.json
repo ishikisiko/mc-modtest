@@ -1,15 +1,15 @@
 {
-  "translation_key": "cultivation.technique.myvillage.houtu_zaiwu_jue",
+  "translation_key": "cultivation.technique.yuanxian.houtu_zaiwu_jue",
   "category": "core",
   "grade": 2,
   "elements": [
-    "myvillage:earth"
+    "yuanxian:earth"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4",
     "minimum_element_aptitude": {
-      "myvillage:earth": 40
+      "yuanxian:earth": 40
     }
   },
   "effects": {

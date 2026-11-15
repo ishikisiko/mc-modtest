@@ -3,7 +3,7 @@
   "gui_light": "front",
   "base": {
     "loader": "neoforge:obj",
-    "model": "myvillage:models/immortal_equipment/zhuji_wuyao_yeque_helmet.obj",
+    "model": "yuanxian:models/immortal_equipment/zhuji_wuyao_yeque_helmet.obj",
     "automatic_culling": false,
     "shade_quads": false,
     "flip_v": false,
@@ -11,7 +11,7 @@
     "gui_light": "side",
     "render_type": "minecraft:cutout",
     "textures": {
-      "particle": "myvillage:immortal_equipment/zhuji_wuyao_yeque/obsidian"
+      "particle": "yuanxian:immortal_equipment/zhuji_wuyao_yeque/obsidian"
     },
     "display": {
       "gui": {
@@ -157,11 +157,11 @@
       "parent": "minecraft:item/generated",
       "gui_light": "front",
       "textures": {
-        "layer0": "myvillage:item/zhuji_wuyao_yeque_helmet"
+        "layer0": "yuanxian:item/zhuji_wuyao_yeque_helmet"
       }
     }
   },
   "textures": {
-    "particle": "myvillage:item/zhuji_wuyao_yeque_helmet"
+    "particle": "yuanxian:item/zhuji_wuyao_yeque_helmet"
   }
 }

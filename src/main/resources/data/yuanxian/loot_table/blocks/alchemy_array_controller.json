@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:alchemy_array_controller"
+          "name": "yuanxian:alchemy_array_controller"
         }
       ],
       "conditions": [
@@ -16,5 +16,5 @@
       ]
     }
   ],
-  "random_sequence": "myvillage:blocks/alchemy_array_controller"
+  "random_sequence": "yuanxian:blocks/alchemy_array_controller"
 }

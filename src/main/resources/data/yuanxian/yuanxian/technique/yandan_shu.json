@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.yandan_shu",
+  "translation_key": "cultivation.technique.yuanxian.yandan_shu",
   "category": "active",
   "grade": 1,
   "elements": [
-    "myvillage:earth"
+    "yuanxian:earth"
   ],
-  "school": "myvillage:earth_arts",
+  "school": "yuanxian:earth_arts",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_1"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_1"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:yandan_shu",
+      "skill": "yuanxian:yandan_shu",
       "qi_cost": 1,
       "slots": 1
     }

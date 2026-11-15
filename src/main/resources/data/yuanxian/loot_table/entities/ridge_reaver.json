@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:reaver_grit",
+          "name": "yuanxian:reaver_grit",
           "functions": [
             {
               "function": "minecraft:set_count",

@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/forging_table",
+  "parent": "yuanxian:block/forging_table",
   "display": {
     "gui": {
       "rotation": [

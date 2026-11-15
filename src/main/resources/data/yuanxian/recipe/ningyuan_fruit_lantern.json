@@ -11,14 +11,14 @@
       "item": "minecraft:copper_ingot"
     },
     "F": {
-      "item": "myvillage:ningyuan_planks"
+      "item": "yuanxian:ningyuan_planks"
     },
     "L": {
       "tag": "c:spirit_stones/low_grade"
     }
   },
   "result": {
-    "id": "myvillage:ningyuan_fruit_lantern",
+    "id": "yuanxian:ningyuan_fruit_lantern",
     "count": 1
   }
 }

@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/assembly_table",
+  "parent": "yuanxian:block/assembly_table",
   "display": {
     "gui": {
       "rotation": [

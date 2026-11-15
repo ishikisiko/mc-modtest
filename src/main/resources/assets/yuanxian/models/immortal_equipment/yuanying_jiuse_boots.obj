@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/yuanying_jiuse_boots.mtl
+mtllib yuanxian:models/immortal_equipment/yuanying_jiuse_boots.mtl
 o boot_shaft_-1
 usemtl jiu_glass
 v 0.023437506 0.2625 0

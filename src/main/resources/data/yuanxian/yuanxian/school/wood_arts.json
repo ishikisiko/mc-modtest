@@ -1,9 +1,9 @@
 {
-  "translation_key": "cultivation.school.myvillage.wood_arts",
+  "translation_key": "cultivation.school.yuanxian.wood_arts",
   "kind": "special",
   "weapon_family": null,
   "runtime": "spell",
   "element_lean": [
-    "myvillage:wood"
+    "yuanxian:wood"
   ]
 }

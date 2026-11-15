@@ -15,20 +15,20 @@
       "tag": "c:spirit_stones/low_grade"
     },
     {
-      "item": "myvillage:spirit_leaf"
+      "item": "yuanxian:spirit_leaf"
     },
     {
-      "item": "myvillage:dew_blossom"
+      "item": "yuanxian:dew_blossom"
     },
     {
-      "item": "myvillage:calm_lotus"
+      "item": "yuanxian:calm_lotus"
     }
   ],
   "result": {
-    "id": "myvillage:manual_core_xuan",
+    "id": "yuanxian:manual_core_xuan",
     "count": 1,
     "components": {
-      "myvillage:technique": "myvillage:yimu_shenghua_jue"
+      "yuanxian:technique": "yuanxian:yimu_shenghua_jue"
     }
   }
 }

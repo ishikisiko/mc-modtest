@@ -2,22 +2,22 @@ newmtl bronze
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_zixiao/bronze
+map_Kd yuanxian:immortal_equipment/jindan_zixiao/bronze
 
 newmtl dark
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_zixiao/dark
+map_Kd yuanxian:immortal_equipment/jindan_zixiao/dark
 
 newmtl blue
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_zixiao/blue
+map_Kd yuanxian:immortal_equipment/jindan_zixiao/blue
 
 newmtl glass
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_zixiao/glass
+map_Kd yuanxian:immortal_equipment/jindan_zixiao/glass

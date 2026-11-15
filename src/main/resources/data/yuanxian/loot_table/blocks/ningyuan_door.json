@@ -6,11 +6,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:ningyuan_door",
+          "name": "yuanxian:ningyuan_door",
           "conditions": [
             {
               "condition": "minecraft:block_state_property",
-              "block": "myvillage:ningyuan_door",
+              "block": "yuanxian:ningyuan_door",
               "properties": {
                 "half": "lower"
               }

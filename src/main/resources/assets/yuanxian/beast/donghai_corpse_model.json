@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:donghai_corpse",
+  "id": "yuanxian:donghai_corpse",
   "texture": {"width": 256, "height": 64},
   "look": {"bone": "head", "max_yaw": 35, "max_pitch": 25},
   "shadow_radius": 0.35,

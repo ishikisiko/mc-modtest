@@ -1,8 +1,8 @@
 {
   "ambientocclusion": true,
   "textures": {
-    "atlas": "myvillage:block/alchemy_array",
-    "particle": "myvillage:block/alchemy_array"
+    "atlas": "yuanxian:block/alchemy_array",
+    "particle": "yuanxian:block/alchemy_array"
   },
   "elements": [
     {

@@ -2,8 +2,8 @@
   "ambientocclusion": false,
   "render_type": "minecraft:cutout",
   "textures": {
-    "plant": "myvillage:block/sunroot_plant",
-    "particle": "myvillage:block/sunroot_plant"
+    "plant": "yuanxian:block/sunroot_plant",
+    "particle": "yuanxian:block/sunroot_plant"
   },
   "elements": [
     {

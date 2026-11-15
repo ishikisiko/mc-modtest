@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.qingteng_jie",
+  "translation_key": "cultivation.technique.yuanxian.qingteng_jie",
   "category": "active",
   "grade": 3,
   "elements": [
-    "myvillage:wood"
+    "yuanxian:wood"
   ],
-  "school": "myvillage:wood_arts",
+  "school": "yuanxian:wood_arts",
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early"
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:qingteng_jie",
+      "skill": "yuanxian:qingteng_jie",
       "qi_cost": 18,
       "slots": 1
     }
@@ -23,6 +23,6 @@
     "gate_stability_cost": 0
   },
   "lineage": {
-    "previous": "myvillage:kurong_yin"
+    "previous": "yuanxian:kurong_yin"
   }
 }

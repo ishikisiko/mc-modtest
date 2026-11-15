@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:jade_gathering_wing"
+          "name": "yuanxian:jade_gathering_wing"
         }
       ],
       "conditions": [

@@ -8,14 +8,14 @@
   ],
   "key": {
     "C": {
-      "item": "myvillage:alchemy_array_casing"
+      "item": "yuanxian:alchemy_array_casing"
     },
     "F": {
-      "item": "myvillage:alchemy_furnace"
+      "item": "yuanxian:alchemy_furnace"
     }
   },
   "result": {
-    "id": "myvillage:alchemy_array_controller",
+    "id": "yuanxian:alchemy_array_controller",
     "count": 1
   }
 }

@@ -1,15 +1,15 @@
 {
   "variants": {
     "axis=x": {
-      "model": "myvillage:block/stripped_ningyuan_wood",
+      "model": "yuanxian:block/stripped_ningyuan_wood",
       "x": 90,
       "y": 90
     },
     "axis=y": {
-      "model": "myvillage:block/stripped_ningyuan_wood"
+      "model": "yuanxian:block/stripped_ningyuan_wood"
     },
     "axis=z": {
-      "model": "myvillage:block/stripped_ningyuan_wood",
+      "model": "yuanxian:block/stripped_ningyuan_wood",
       "x": 90
     }
   }

@@ -4198,5 +4198,7 @@
   "block.yuanxian.qianji_atmosphere_anchor": "千机阁阵枢",
   "itemGroup.yuanxian.qianji": "千机阁建筑",
   "block.yuanxian.qianji_paper_window": "千机阁·透光窗纸",
-  "itemGroup.yuanxian.main": "源仙"
+  "itemGroup.yuanxian.main": "源仙",
+  "config.jade.plugin_yuanxian.manor_names": "建筑部件名称",
+  "config.jade.plugin_yuanxian.manor_location": "建筑归属"
 }

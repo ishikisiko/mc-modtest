@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:forging_array_pylon"
+          "name": "yuanxian:forging_array_pylon"
         }
       ],
       "conditions": [
@@ -16,5 +16,5 @@
       ]
     }
   ],
-  "random_sequence": "myvillage:blocks/forging_array_pylon"
+  "random_sequence": "yuanxian:blocks/forging_array_pylon"
 }

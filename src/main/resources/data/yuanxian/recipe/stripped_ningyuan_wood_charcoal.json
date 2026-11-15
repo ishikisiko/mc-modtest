@@ -2,7 +2,7 @@
   "type": "minecraft:smelting",
   "category": "misc",
   "ingredient": {
-    "item": "myvillage:stripped_ningyuan_wood"
+    "item": "yuanxian:stripped_ningyuan_wood"
   },
   "result": {
     "id": "minecraft:charcoal"

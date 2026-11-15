@@ -1,15 +1,15 @@
 {
-  "translation_key": "cultivation.technique.myvillage.xuanbing_jimie_jing",
+  "translation_key": "cultivation.technique.yuanxian.xuanbing_jimie_jing",
   "category": "core",
   "grade": 4,
   "elements": [
-    "myvillage:water"
+    "yuanxian:water"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
-      "myvillage:water": 200
+      "yuanxian:water": 200
     }
   },
   "effects": {

@@ -17,11 +17,11 @@
       "item": "minecraft:stone_bricks"
     },
     "X": {
-      "item": "myvillage:xuantie_ingot"
+      "item": "yuanxian:xuantie_ingot"
     }
   },
   "result": {
-    "id": "myvillage:forging_array_casing",
+    "id": "yuanxian:forging_array_casing",
     "count": 4
   }
 }

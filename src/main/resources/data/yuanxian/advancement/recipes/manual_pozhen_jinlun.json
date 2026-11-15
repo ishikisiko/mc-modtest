@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_pozhen_jinlun"
+        "recipe": "yuanxian:manual_pozhen_jinlun"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_pozhen_jinlun"
+      "yuanxian:manual_pozhen_jinlun"
     ]
   }
 }

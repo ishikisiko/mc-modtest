@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:jade_tree_pool_border",
+          "name": "yuanxian:jade_tree_pool_border",
           "functions": [
             {
               "function": "minecraft:set_count",
@@ -14,7 +14,7 @@
               "conditions": [
                 {
                   "condition": "minecraft:block_state_property",
-                  "block": "myvillage:jade_tree_pool_border",
+                  "block": "yuanxian:jade_tree_pool_border",
                   "properties": {
                     "type": "double"
                   }

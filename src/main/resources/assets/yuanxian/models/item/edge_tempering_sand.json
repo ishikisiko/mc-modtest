@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/edge_tempering_sand"
+    "layer0": "yuanxian:item/edge_tempering_sand"
   }
 }

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/pattern_qingfeng_sword"
+    "layer0": "yuanxian:item/pattern_qingfeng_sword"
   }
 }

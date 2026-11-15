@@ -1,9 +1,9 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#myvillage:has_nanjiang_corpse",
+  "biomes": "#yuanxian:has_nanjiang_corpse",
   "spawners": [
     {
-      "type": "myvillage:nanjiang_corpse",
+      "type": "yuanxian:nanjiang_corpse",
       "weight": 6,
       "minCount": 1,
       "maxCount": 1

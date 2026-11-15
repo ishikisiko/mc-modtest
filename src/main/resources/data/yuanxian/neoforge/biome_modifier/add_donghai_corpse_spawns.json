@@ -1,9 +1,9 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#myvillage:has_donghai_corpse",
+  "biomes": "#yuanxian:has_donghai_corpse",
   "spawners": [
     {
-      "type": "myvillage:donghai_corpse",
+      "type": "yuanxian:donghai_corpse",
       "weight": 6,
       "minCount": 1,
       "maxCount": 1

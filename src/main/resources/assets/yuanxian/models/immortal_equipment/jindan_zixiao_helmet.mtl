@@ -2,28 +2,28 @@ newmtl zx_ink
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_ink
+map_Kd yuanxian:immortal_equipment/jindan_zixiao/zx_ink
 
 newmtl zx_edge
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_edge
+map_Kd yuanxian:immortal_equipment/jindan_zixiao/zx_edge
 
 newmtl zx_steel
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_steel
+map_Kd yuanxian:immortal_equipment/jindan_zixiao/zx_steel
 
 newmtl zx_crystal
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_crystal
+map_Kd yuanxian:immortal_equipment/jindan_zixiao/zx_crystal
 
 newmtl zx_gold
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_gold
+map_Kd yuanxian:immortal_equipment/jindan_zixiao/zx_gold

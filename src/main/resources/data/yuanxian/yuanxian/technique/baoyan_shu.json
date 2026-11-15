@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.baoyan_shu",
+  "translation_key": "cultivation.technique.yuanxian.baoyan_shu",
   "category": "active",
   "grade": 2,
   "elements": [
-    "myvillage:fire"
+    "yuanxian:fire"
   ],
-  "school": "myvillage:fire_arts",
+  "school": "yuanxian:fire_arts",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:baoyan_shu",
+      "skill": "yuanxian:baoyan_shu",
       "qi_cost": 8,
       "slots": 1
     }
@@ -23,6 +23,6 @@
     "gate_stability_cost": 0
   },
   "lineage": {
-    "previous": "myvillage:linghuo_shu"
+    "previous": "yuanxian:linghuo_shu"
   }
 }

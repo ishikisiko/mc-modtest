@@ -7,14 +7,14 @@
   ],
   "key": {
     "P": {
-      "item": "myvillage:ningyuan_planks"
+      "item": "yuanxian:ningyuan_planks"
     },
     "S": {
       "item": "minecraft:stick"
     }
   },
   "result": {
-    "id": "myvillage:ningyuan_fence",
+    "id": "yuanxian:ningyuan_fence",
     "count": 3
   }
 }

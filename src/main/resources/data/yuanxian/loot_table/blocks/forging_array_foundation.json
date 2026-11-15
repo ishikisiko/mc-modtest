@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:forging_array_foundation"
+          "name": "yuanxian:forging_array_foundation"
         }
       ],
       "conditions": [
@@ -16,5 +16,5 @@
       ]
     }
   ],
-  "random_sequence": "myvillage:blocks/forging_array_foundation"
+  "random_sequence": "yuanxian:blocks/forging_array_foundation"
 }

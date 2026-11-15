@@ -7,7 +7,7 @@
         "items": [
           {
             "items": [
-              "myvillage:frost_plume"
+              "yuanxian:frost_plume"
             ]
           }
         ]
@@ -21,7 +21,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:formula_qingshen"
+      "yuanxian:formula_qingshen"
     ]
   }
 }

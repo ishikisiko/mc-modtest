@@ -2,34 +2,34 @@ newmtl black_gold
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_jinwu/black_gold
+map_Kd yuanxian:immortal_equipment/jindan_jinwu/black_gold
 
 newmtl sun_gold
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_jinwu/sun_gold
+map_Kd yuanxian:immortal_equipment/jindan_jinwu/sun_gold
 
 newmtl sole
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_jinwu/sole
+map_Kd yuanxian:immortal_equipment/jindan_jinwu/sole
 
 newmtl copper
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_jinwu/copper
+map_Kd yuanxian:immortal_equipment/jindan_jinwu/copper
 
 newmtl pale_gold
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_jinwu/pale_gold
+map_Kd yuanxian:immortal_equipment/jindan_jinwu/pale_gold
 
 newmtl amber
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_jinwu/amber
+map_Kd yuanxian:immortal_equipment/jindan_jinwu/amber

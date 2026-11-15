@@ -1,1 +1,1 @@
-place template myvillage:sect_gate_001 ~ ~-1 ~
+place template yuanxian:sect_gate_001 ~ ~-1 ~

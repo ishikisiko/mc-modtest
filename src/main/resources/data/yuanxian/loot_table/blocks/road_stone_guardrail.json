@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:road_stone_guardrail"
+          "name": "yuanxian:road_stone_guardrail"
         }
       ],
       "conditions": [

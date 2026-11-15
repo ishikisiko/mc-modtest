@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:ningyuan_sign"
+          "name": "yuanxian:ningyuan_sign"
         }
       ],
       "conditions": [

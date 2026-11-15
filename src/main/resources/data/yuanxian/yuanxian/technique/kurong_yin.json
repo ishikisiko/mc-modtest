@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.kurong_yin",
+  "translation_key": "cultivation.technique.yuanxian.kurong_yin",
   "category": "active",
   "grade": 2,
   "elements": [
-    "myvillage:wood"
+    "yuanxian:wood"
   ],
-  "school": "myvillage:wood_arts",
+  "school": "yuanxian:wood_arts",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:kurong_yin",
+      "skill": "yuanxian:kurong_yin",
       "qi_cost": 8,
       "slots": 1
     }
@@ -23,6 +23,6 @@
     "gate_stability_cost": 0
   },
   "lineage": {
-    "previous": "myvillage:lingzhong_shu"
+    "previous": "yuanxian:lingzhong_shu"
   }
 }

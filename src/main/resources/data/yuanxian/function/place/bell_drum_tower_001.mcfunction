@@ -1,1 +1,1 @@
-place template myvillage:bell_drum_tower_001 ~ ~-1 ~
+place template yuanxian:bell_drum_tower_001 ~ ~-1 ~

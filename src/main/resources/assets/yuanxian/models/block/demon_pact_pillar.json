@@ -1,14 +1,14 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "front": "myvillage:block/demon_pact_pillar/front",
-    "back": "myvillage:block/demon_pact_pillar/back",
-    "side": "myvillage:block/demon_pact_pillar/side",
-    "stone": "myvillage:block/demon_pact_pillar/stone",
-    "base": "myvillage:block/demon_pact_pillar/base",
-    "bronze": "myvillage:block/demon_pact_pillar/bronze",
-    "crown": "myvillage:block/demon_pact_pillar/crown",
-    "particle": "myvillage:block/demon_pact_pillar/stone"
+    "front": "yuanxian:block/demon_pact_pillar/front",
+    "back": "yuanxian:block/demon_pact_pillar/back",
+    "side": "yuanxian:block/demon_pact_pillar/side",
+    "stone": "yuanxian:block/demon_pact_pillar/stone",
+    "base": "yuanxian:block/demon_pact_pillar/base",
+    "bronze": "yuanxian:block/demon_pact_pillar/bronze",
+    "crown": "yuanxian:block/demon_pact_pillar/crown",
+    "particle": "yuanxian:block/demon_pact_pillar/stone"
   },
   "elements": [
     {

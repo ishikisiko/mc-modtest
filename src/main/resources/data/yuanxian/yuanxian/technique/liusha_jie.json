@@ -1,18 +1,18 @@
 {
-  "translation_key": "cultivation.technique.myvillage.liusha_jie",
+  "translation_key": "cultivation.technique.yuanxian.liusha_jie",
   "category": "active",
   "grade": 3,
   "elements": [
-    "myvillage:earth"
+    "yuanxian:earth"
   ],
-  "school": "myvillage:earth_arts",
+  "school": "yuanxian:earth_arts",
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early"
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:liusha_jie",
+      "skill": "yuanxian:liusha_jie",
       "qi_cost": 18,
       "slots": 1
     }
@@ -23,6 +23,6 @@
     "gate_stability_cost": 0
   },
   "lineage": {
-    "previous": "myvillage:zhenyue_yin"
+    "previous": "yuanxian:zhenyue_yin"
   }
 }

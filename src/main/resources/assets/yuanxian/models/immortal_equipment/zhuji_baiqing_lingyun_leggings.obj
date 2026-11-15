@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/zhuji_baiqing_lingyun_leggings.mtl
+mtllib yuanxian:models/immortal_equipment/zhuji_baiqing_lingyun_leggings.mtl
 o cloud_trouser_-1
 usemtl lining
 v -0.003125 0.7875 0

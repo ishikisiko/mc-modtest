@@ -8,15 +8,15 @@
       "item": "minecraft:iron_sword"
     },
     {
-      "item": "myvillage:low_grade_spirit_stone"
+      "item": "yuanxian:low_grade_spirit_stone"
     }
   ],
   "result": {
-    "id": "myvillage:aptitude_treatise",
+    "id": "yuanxian:aptitude_treatise",
     "count": 1,
     "components": {
       "minecraft:custom_data": {
-        "myvillage_aptitude": {
+        "yuanxian_aptitude": {
           "aptitude": "sword",
           "tier": 1
         }

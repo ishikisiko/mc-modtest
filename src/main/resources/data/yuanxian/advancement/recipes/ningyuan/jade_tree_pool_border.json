@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "myvillage:ningyuan_sapling"
+            "items": "yuanxian:ningyuan_sapling"
           }
         ]
       }
@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:jade_tree_pool_border"
+        "recipe": "yuanxian:jade_tree_pool_border"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:jade_tree_pool_border"
+      "yuanxian:jade_tree_pool_border"
     ]
   }
 }

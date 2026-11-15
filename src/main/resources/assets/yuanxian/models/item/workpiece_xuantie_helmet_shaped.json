@@ -1,13 +1,13 @@
 {
   "loader": "neoforge:obj",
-  "model": "myvillage:models/equipment/forging/workpiece_xuantie_helmet_shaped.obj",
+  "model": "yuanxian:models/equipment/forging/workpiece_xuantie_helmet_shaped.obj",
   "automatic_culling": false,
   "shade_quads": true,
   "flip_v": false,
   "emissive_ambient": false,
   "gui_light": "side",
   "textures": {
-    "particle": "myvillage:equipment/forging/formed"
+    "particle": "yuanxian:equipment/forging/formed"
   },
   "display": {
     "gui": {

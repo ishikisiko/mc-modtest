@@ -2,28 +2,28 @@ newmtl m0
 Kd 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:equipment/forging/steel
+map_Kd yuanxian:equipment/forging/steel
 
 newmtl m1
 Kd 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:equipment/forging/edge
+map_Kd yuanxian:equipment/forging/edge
 
 newmtl m2
 Kd 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:equipment/forging/copper
+map_Kd yuanxian:equipment/forging/copper
 
 newmtl m3
 Kd 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:equipment/forging/wood
+map_Kd yuanxian:equipment/forging/wood
 
 newmtl m4
 Kd 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:equipment/forging/leather
+map_Kd yuanxian:equipment/forging/leather

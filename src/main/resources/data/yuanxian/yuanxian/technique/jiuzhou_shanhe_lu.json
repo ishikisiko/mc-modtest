@@ -1,15 +1,15 @@
 {
-  "translation_key": "cultivation.technique.myvillage.jiuzhou_shanhe_lu",
+  "translation_key": "cultivation.technique.yuanxian.jiuzhou_shanhe_lu",
   "category": "core",
   "grade": 3,
   "elements": [
-    "myvillage:earth"
+    "yuanxian:earth"
   ],
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
-      "myvillage:earth": 100
+      "yuanxian:earth": 100
     }
   },
   "effects": {

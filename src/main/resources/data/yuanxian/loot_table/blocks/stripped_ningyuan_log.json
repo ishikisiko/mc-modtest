@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:stripped_ningyuan_log"
+          "name": "yuanxian:stripped_ningyuan_log"
         }
       ],
       "conditions": [

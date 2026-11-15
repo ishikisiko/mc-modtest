@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/spirit_soil"
+      "model": "yuanxian:block/spirit_soil"
     }
   }
 }

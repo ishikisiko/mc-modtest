@@ -1,1 +1,1 @@
-place template myvillage:side_wing_review ~ ~-1 ~
+place template yuanxian:side_wing_review ~ ~-1 ~

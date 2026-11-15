@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/zhuji_yuheng_yizhuang_leggings.mtl
+mtllib yuanxian:models/immortal_equipment/zhuji_yuheng_yizhuang_leggings.mtl
 o yuheng_pants_-1
 usemtl lining
 v -0.003125 0.787500006 0

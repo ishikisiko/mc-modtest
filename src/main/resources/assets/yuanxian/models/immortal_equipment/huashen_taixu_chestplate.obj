@@ -1,5 +1,5 @@
 # 原作者三角面；生成文件，禁止手改。
-mtllib myvillage:models/immortal_equipment/huashen_taixu_chestplate.mtl
+mtllib yuanxian:models/immortal_equipment/huashen_taixu_chestplate.mtl
 o robe_body
 usemtl void_silk
 v 0.265625 1.512499988 0

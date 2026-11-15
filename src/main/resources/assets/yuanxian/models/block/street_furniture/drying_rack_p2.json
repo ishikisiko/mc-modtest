@@ -4,13 +4,13 @@
   "ambientocclusion": false,
   "textures": {
     "particle": "#wood",
-    "bronze": "myvillage:block/street_furniture/bronze",
-    "stone": "myvillage:block/street_furniture/stone",
-    "wood": "myvillage:block/street_furniture/wood",
-    "wood_end": "myvillage:block/street_furniture/wood_end",
-    "cloth": "myvillage:block/street_furniture/cloth",
-    "cloth_fold": "myvillage:block/street_furniture/cloth_fold",
-    "lamp_panel": "myvillage:block/street_furniture/lamp_panel"
+    "bronze": "yuanxian:block/street_furniture/bronze",
+    "stone": "yuanxian:block/street_furniture/stone",
+    "wood": "yuanxian:block/street_furniture/wood",
+    "wood_end": "yuanxian:block/street_furniture/wood_end",
+    "cloth": "yuanxian:block/street_furniture/cloth",
+    "cloth_fold": "yuanxian:block/street_furniture/cloth_fold",
+    "lamp_panel": "yuanxian:block/street_furniture/lamp_panel"
   },
   "elements": [
     {

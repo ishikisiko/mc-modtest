@@ -7,7 +7,7 @@
         "items": [
           {
             "items": [
-              "myvillage:redplate_scale"
+              "yuanxian:redplate_scale"
             ]
           }
         ]
@@ -21,7 +21,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:formula_yuyan"
+      "yuanxian:formula_yuyan"
     ]
   }
 }

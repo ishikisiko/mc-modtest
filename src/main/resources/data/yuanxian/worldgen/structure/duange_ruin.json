@@ -1,10 +1,10 @@
 {
   "type": "minecraft:jigsaw",
-  "biomes": "#myvillage:has_duange_ruin",
+  "biomes": "#yuanxian:has_duange_ruin",
   "step": "surface_structures",
   "terrain_adaptation": "beard_thin",
   "spawn_overrides": {},
-  "start_pool": "myvillage:duange_ruin",
+  "start_pool": "yuanxian:duange_ruin",
   "size": 1,
   "start_height": {
     "absolute": -4

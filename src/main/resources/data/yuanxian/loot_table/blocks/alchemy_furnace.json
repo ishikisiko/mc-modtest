@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:alchemy_furnace"
+          "name": "yuanxian:alchemy_furnace"
         }
       ],
       "conditions": [
@@ -16,5 +16,5 @@
       ]
     }
   ],
-  "random_sequence": "myvillage:blocks/alchemy_furnace"
+  "random_sequence": "yuanxian:blocks/alchemy_furnace"
 }

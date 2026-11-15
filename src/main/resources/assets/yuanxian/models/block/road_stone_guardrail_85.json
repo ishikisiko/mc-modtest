@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "myvillage:block/lord_manors/manor_town_grey_ashlar",
-    "stone": "myvillage:block/lord_manors/manor_town_grey_ashlar"
+    "particle": "yuanxian:block/lord_manors/manor_town_grey_ashlar",
+    "stone": "yuanxian:block/lord_manors/manor_town_grey_ashlar"
   },
   "elements": [
     {

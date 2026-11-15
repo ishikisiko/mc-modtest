@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "top": "myvillage:block/sword_qi_pedestal_top",
-    "side": "myvillage:block/sword_qi_pedestal_side",
-    "particle": "myvillage:block/sword_qi_pedestal_side"
+    "top": "yuanxian:block/sword_qi_pedestal_top",
+    "side": "yuanxian:block/sword_qi_pedestal_side",
+    "particle": "yuanxian:block/sword_qi_pedestal_side"
   },
   "elements": [
     {

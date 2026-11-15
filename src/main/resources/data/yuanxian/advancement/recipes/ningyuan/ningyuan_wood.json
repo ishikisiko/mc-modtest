@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "myvillage:ningyuan_sapling"
+            "items": "yuanxian:ningyuan_sapling"
           }
         ]
       }
@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:ningyuan_wood"
+        "recipe": "yuanxian:ningyuan_wood"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:ningyuan_wood"
+      "yuanxian:ningyuan_wood"
     ]
   }
 }

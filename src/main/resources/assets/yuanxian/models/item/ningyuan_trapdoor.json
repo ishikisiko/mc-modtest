@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_trapdoor_bottom",
+  "parent": "yuanxian:block/ningyuan_trapdoor_bottom",
   "display": {
     "gui": {
       "rotation": [

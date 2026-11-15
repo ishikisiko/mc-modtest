@@ -1,16 +1,16 @@
 {
-  "translation_key": "cultivation.technique.myvillage.bengshan_jin",
+  "translation_key": "cultivation.technique.yuanxian.bengshan_jin",
   "category": "active",
   "grade": 2,
   "elements": [],
-  "school": "myvillage:fist",
+  "school": "yuanxian:fist",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:bengshan_jin",
+      "skill": "yuanxian:bengshan_jin",
       "qi_cost": 16,
       "slots": 1
     }

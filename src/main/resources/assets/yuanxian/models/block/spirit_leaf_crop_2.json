@@ -2,8 +2,8 @@
   "ambientocclusion": false,
   "render_type": "minecraft:cutout",
   "textures": {
-    "plant": "myvillage:block/spirit_leaf_plant",
-    "particle": "myvillage:block/spirit_leaf_plant"
+    "plant": "yuanxian:block/spirit_leaf_plant",
+    "particle": "yuanxian:block/spirit_leaf_plant"
   },
   "elements": [
     {

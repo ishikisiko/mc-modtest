@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_jingang_zhen"
+        "recipe": "yuanxian:manual_jingang_zhen"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_jingang_zhen"
+      "yuanxian:manual_jingang_zhen"
     ]
   }
 }

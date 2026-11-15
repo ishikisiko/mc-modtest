@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/spirit_gathering_core"
+      "model": "yuanxian:block/spirit_gathering_core"
     }
   }
 }

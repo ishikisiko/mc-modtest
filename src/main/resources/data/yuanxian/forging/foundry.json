@@ -51,7 +51,7 @@
       "power": 30,
       "quality": 4000,
       "durability": 800,
-      "material": "myvillage:xuantie_ingot",
+      "material": "yuanxian:xuantie_ingot",
       "color": "#414d54"
     },
     {
@@ -60,7 +60,7 @@
       "power": 42,
       "quality": 5200,
       "durability": 1000,
-      "material": "myvillage:chitong_ingot",
+      "material": "yuanxian:chitong_ingot",
       "color": "#b46f4c"
     },
     {
@@ -107,7 +107,7 @@
     {
       "id": "ningyuan",
       "name": "凝元木柄",
-      "ingredient": "myvillage:ningyuan_planks",
+      "ingredient": "yuanxian:ningyuan_planks",
       "attack": 1.0,
       "speed": 1.0,
       "durability": 1.15,
@@ -122,7 +122,7 @@
     {
       "id": "thorn_bone",
       "name": "荆骨柄",
-      "ingredient": "myvillage:thorn_bone",
+      "ingredient": "yuanxian:thorn_bone",
       "attack": 1.08,
       "speed": 1.0,
       "durability": 0.92,
@@ -137,7 +137,7 @@
     {
       "id": "xuantie",
       "name": "玄铁柄",
-      "ingredient": "myvillage:xuantie_ingot",
+      "ingredient": "yuanxian:xuantie_ingot",
       "attack": 1.02,
       "speed": 0.96,
       "durability": 1.35,
@@ -152,7 +152,7 @@
     {
       "id": "chitong",
       "name": "赤铜柄",
-      "ingredient": "myvillage:chitong_ingot",
+      "ingredient": "yuanxian:chitong_ingot",
       "attack": 1.0,
       "speed": 1.0,
       "durability": 1.05,
@@ -180,7 +180,7 @@
       "name": "兽火",
       "strength": 0.35,
       "speed": 1.05,
-      "nurture_item": "myvillage:thorn_bone",
+      "nurture_item": "yuanxian:thorn_bone",
       "affinity": "beast",
       "color": "#cf4937"
     },
@@ -257,15 +257,15 @@
   "affinity_items": {
     "metal": [
       "minecraft:iron_ingot",
-      "myvillage:xuantie_ingot",
-      "#myvillage:forging_materials/xuantie",
-      "myvillage:chitong_ingot",
-      "#myvillage:forging_materials/chitong"
+      "yuanxian:xuantie_ingot",
+      "#yuanxian:forging_materials/xuantie",
+      "yuanxian:chitong_ingot",
+      "#yuanxian:forging_materials/chitong"
     ],
     "beast": [
-      "myvillage:thorn_bone",
-      "myvillage:redplate_scale",
-      "myvillage:frost_plume"
+      "yuanxian:thorn_bone",
+      "yuanxian:redplate_scale",
+      "yuanxian:frost_plume"
     ],
     "crystal": [
       "minecraft:diamond",
@@ -274,7 +274,7 @@
     ],
     "thunder": [
       "minecraft:diamond",
-      "myvillage:thunder_tiger_horn"
+      "yuanxian:thunder_tiger_horn"
     ],
     "universal": []
   },

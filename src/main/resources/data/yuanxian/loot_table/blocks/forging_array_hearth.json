@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:forging_array_hearth"
+          "name": "yuanxian:forging_array_hearth"
         }
       ],
       "conditions": [
@@ -16,5 +16,5 @@
       ]
     }
   ],
-  "random_sequence": "myvillage:blocks/forging_array_hearth"
+  "random_sequence": "yuanxian:blocks/forging_array_hearth"
 }

@@ -7,7 +7,7 @@
         "items": [
           {
             "items": [
-              "myvillage:lantern_spore"
+              "yuanxian:lantern_spore"
             ]
           }
         ]
@@ -21,7 +21,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:formula_qingzhang"
+      "yuanxian:formula_qingzhang"
     ]
   }
 }

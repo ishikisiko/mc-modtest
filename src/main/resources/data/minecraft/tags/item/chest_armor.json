@@ -1,21 +1,21 @@
 {
   "replace": false,
   "values": [
-    "myvillage:xuantie_chestplate",
-    "myvillage:qi_moqing_chestplate",
-    "myvillage:qi_tingyu_chestplate",
-    "myvillage:qi_chixia_chestplate",
-    "myvillage:zhuji_baiqing_lingyun_chestplate",
-    "myvillage:zhuji_yuheng_yizhuang_chestplate",
-    "myvillage:zhuji_wuyao_yeque_chestplate",
-    "myvillage:jindan_jinwu_chestplate",
-    "myvillage:jindan_taiyin_chestplate",
-    "myvillage:jindan_zixiao_chestplate",
-    "myvillage:yuanying_xinghe_chestplate",
-    "myvillage:yuanying_jiuse_chestplate",
-    "myvillage:yuanying_qingdi_chestplate",
-    "myvillage:huashen_taixu_chestplate",
-    "myvillage:huashen_xuanji_chestplate",
-    "myvillage:huashen_dari_chestplate"
+    "yuanxian:xuantie_chestplate",
+    "yuanxian:qi_moqing_chestplate",
+    "yuanxian:qi_tingyu_chestplate",
+    "yuanxian:qi_chixia_chestplate",
+    "yuanxian:zhuji_baiqing_lingyun_chestplate",
+    "yuanxian:zhuji_yuheng_yizhuang_chestplate",
+    "yuanxian:zhuji_wuyao_yeque_chestplate",
+    "yuanxian:jindan_jinwu_chestplate",
+    "yuanxian:jindan_taiyin_chestplate",
+    "yuanxian:jindan_zixiao_chestplate",
+    "yuanxian:yuanying_xinghe_chestplate",
+    "yuanxian:yuanying_jiuse_chestplate",
+    "yuanxian:yuanying_qingdi_chestplate",
+    "yuanxian:huashen_taixu_chestplate",
+    "yuanxian:huashen_xuanji_chestplate",
+    "yuanxian:huashen_dari_chestplate"
   ]
 }

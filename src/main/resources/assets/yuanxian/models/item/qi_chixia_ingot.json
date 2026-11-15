@@ -1,6 +1,6 @@
 {
   "loader": "neoforge:obj",
-  "model": "myvillage:models/immortal_equipment/qi_chixia_ingot.obj",
+  "model": "yuanxian:models/immortal_equipment/qi_chixia_ingot.obj",
   "automatic_culling": false,
   "shade_quads": false,
   "flip_v": false,
@@ -8,7 +8,7 @@
   "gui_light": "side",
   "render_type": "minecraft:cutout",
   "textures": {
-    "particle": "myvillage:immortal_equipment/qi_chixia/gold"
+    "particle": "yuanxian:immortal_equipment/qi_chixia/gold"
   },
   "display": {
     "gui": {

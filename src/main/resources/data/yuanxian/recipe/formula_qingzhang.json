@@ -5,17 +5,17 @@
       "item": "minecraft:paper"
     },
     {
-      "item": "myvillage:lantern_spore"
+      "item": "yuanxian:lantern_spore"
     },
     {
-      "item": "myvillage:cloud_fungus"
+      "item": "yuanxian:cloud_fungus"
     },
     {
       "tag": "c:spirit_stones/low_grade"
     }
   ],
   "result": {
-    "id": "myvillage:formula_qingzhang",
+    "id": "yuanxian:formula_qingzhang",
     "count": 1
   }
 }

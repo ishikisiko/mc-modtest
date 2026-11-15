@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:spirit_gathering_core"
+          "name": "yuanxian:spirit_gathering_core"
         }
       ],
       "conditions": [

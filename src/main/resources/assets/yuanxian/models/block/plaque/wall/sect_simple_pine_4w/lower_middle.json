@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle",
-    "plaque": "myvillage:block/plaque/wall/sect_simple_pine_4w/vertical_full",
-    "edge": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle"
+    "particle": "yuanxian:block/plaque/wall/sect_simple_pine_4w/lower_middle",
+    "plaque": "yuanxian:block/plaque/wall/sect_simple_pine_4w/vertical_full",
+    "edge": "yuanxian:block/plaque/wall/sect_simple_pine_4w/lower_middle"
   },
   "elements": [
     {

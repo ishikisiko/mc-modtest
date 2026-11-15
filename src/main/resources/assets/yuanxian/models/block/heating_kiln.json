@@ -1,13 +1,13 @@
 {
   "ambientocclusion": true,
   "textures": {
-    "brick": "myvillage:block/foundry_brick",
-    "stone": "myvillage:block/foundry_stone",
-    "wood": "myvillage:block/foundry_wood",
-    "bronze": "myvillage:block/foundry_bronze",
-    "jade": "myvillage:block/foundry_jade",
-    "ember": "myvillage:block/foundry_ember",
-    "dark": "myvillage:block/foundry_dark"
+    "brick": "yuanxian:block/foundry_brick",
+    "stone": "yuanxian:block/foundry_stone",
+    "wood": "yuanxian:block/foundry_wood",
+    "bronze": "yuanxian:block/foundry_bronze",
+    "jade": "yuanxian:block/foundry_jade",
+    "ember": "yuanxian:block/foundry_ember",
+    "dark": "yuanxian:block/foundry_dark"
   },
   "elements": [
     {

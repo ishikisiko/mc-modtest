@@ -1,21 +1,21 @@
 {
   "replace": false,
   "values": [
-    "myvillage:xuantie_helmet",
-    "myvillage:qi_moqing_helmet",
-    "myvillage:qi_tingyu_helmet",
-    "myvillage:qi_chixia_helmet",
-    "myvillage:zhuji_baiqing_lingyun_helmet",
-    "myvillage:zhuji_yuheng_yizhuang_helmet",
-    "myvillage:zhuji_wuyao_yeque_helmet",
-    "myvillage:jindan_jinwu_helmet",
-    "myvillage:jindan_taiyin_helmet",
-    "myvillage:jindan_zixiao_helmet",
-    "myvillage:yuanying_xinghe_helmet",
-    "myvillage:yuanying_jiuse_helmet",
-    "myvillage:yuanying_qingdi_helmet",
-    "myvillage:huashen_taixu_helmet",
-    "myvillage:huashen_xuanji_helmet",
-    "myvillage:huashen_dari_helmet"
+    "yuanxian:xuantie_helmet",
+    "yuanxian:qi_moqing_helmet",
+    "yuanxian:qi_tingyu_helmet",
+    "yuanxian:qi_chixia_helmet",
+    "yuanxian:zhuji_baiqing_lingyun_helmet",
+    "yuanxian:zhuji_yuheng_yizhuang_helmet",
+    "yuanxian:zhuji_wuyao_yeque_helmet",
+    "yuanxian:jindan_jinwu_helmet",
+    "yuanxian:jindan_taiyin_helmet",
+    "yuanxian:jindan_zixiao_helmet",
+    "yuanxian:yuanying_xinghe_helmet",
+    "yuanxian:yuanying_jiuse_helmet",
+    "yuanxian:yuanying_qingdi_helmet",
+    "yuanxian:huashen_taixu_helmet",
+    "yuanxian:huashen_xuanji_helmet",
+    "yuanxian:huashen_dari_helmet"
   ]
 }

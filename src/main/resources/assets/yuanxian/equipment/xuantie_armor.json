@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "id": "myvillage:xuantie_armor",
+  "id": "yuanxian:xuantie_armor",
   "texture_size": 512,
   "texel_density": 2,
-  "texture": "myvillage:textures/equipment/xuantie_armor.png",
+  "texture": "yuanxian:textures/equipment/xuantie_armor.png",
   "profiles": {
     "standard": [
       {
-        "id": "myvillage:xuantie_helmet",
+        "id": "yuanxian:xuantie_helmet",
         "name": "玄铁盔",
         "slot": "head",
         "boxes": [
@@ -380,7 +380,7 @@
         ]
       },
       {
-        "id": "myvillage:xuantie_chestplate",
+        "id": "yuanxian:xuantie_chestplate",
         "name": "玄铁胸甲",
         "slot": "chest",
         "boxes": [
@@ -1031,7 +1031,7 @@
         ]
       },
       {
-        "id": "myvillage:xuantie_leggings",
+        "id": "yuanxian:xuantie_leggings",
         "name": "玄铁护腿",
         "slot": "legs",
         "boxes": [
@@ -1398,7 +1398,7 @@
         ]
       },
       {
-        "id": "myvillage:xuantie_boots",
+        "id": "yuanxian:xuantie_boots",
         "name": "玄铁靴",
         "slot": "feet",
         "boxes": [
@@ -1911,7 +1911,7 @@
     ],
     "slim": [
       {
-        "id": "myvillage:xuantie_helmet",
+        "id": "yuanxian:xuantie_helmet",
         "name": "玄铁盔",
         "slot": "head",
         "boxes": [
@@ -2284,7 +2284,7 @@
         ]
       },
       {
-        "id": "myvillage:xuantie_chestplate",
+        "id": "yuanxian:xuantie_chestplate",
         "name": "玄铁胸甲",
         "slot": "chest",
         "boxes": [
@@ -2935,7 +2935,7 @@
         ]
       },
       {
-        "id": "myvillage:xuantie_leggings",
+        "id": "yuanxian:xuantie_leggings",
         "name": "玄铁护腿",
         "slot": "legs",
         "boxes": [
@@ -3302,7 +3302,7 @@
         ]
       },
       {
-        "id": "myvillage:xuantie_boots",
+        "id": "yuanxian:xuantie_boots",
         "name": "玄铁靴",
         "slot": "feet",
         "boxes": [

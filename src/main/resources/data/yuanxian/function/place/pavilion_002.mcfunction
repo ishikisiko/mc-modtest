@@ -1,1 +1,1 @@
-place template myvillage:pavilion_002 ~ ~-1 ~
+place template yuanxian:pavilion_002 ~ ~-1 ~

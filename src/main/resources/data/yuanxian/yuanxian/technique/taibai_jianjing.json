@@ -1,24 +1,24 @@
 {
-  "translation_key": "cultivation.technique.myvillage.taibai_jianjing",
+  "translation_key": "cultivation.technique.yuanxian.taibai_jianjing",
   "category": "active",
   "grade": 4,
   "elements": [
-    "myvillage:metal"
+    "yuanxian:metal"
   ],
-  "school": "myvillage:sword",
+  "school": "yuanxian:sword",
   "requirements": {
-    "minimum_realm": "myvillage:foundation_establishment",
-    "minimum_stage": "myvillage:foundation_early",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
-      "myvillage:metal": 200
+      "yuanxian:metal": 200
     }
   },
   "lineage": {
-    "previous": "myvillage:tiangang_jiandian"
+    "previous": "yuanxian:tiangang_jiandian"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:taibai_jianjing",
+      "skill": "yuanxian:taibai_jianjing",
       "qi_cost": 32,
       "slots": 1
     }

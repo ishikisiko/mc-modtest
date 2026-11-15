@@ -5,18 +5,18 @@
       "item": "minecraft:book"
     },
     {
-      "item": "myvillage:spirit_leaf"
+      "item": "yuanxian:spirit_leaf"
     },
     {
       "item": "minecraft:quartz"
     }
   ],
   "result": {
-    "id": "myvillage:aptitude_treatise",
+    "id": "yuanxian:aptitude_treatise",
     "count": 1,
     "components": {
       "minecraft:custom_data": {
-        "myvillage_aptitude": {
+        "yuanxian_aptitude": {
           "aptitude": "alchemy",
           "tier": 2
         }

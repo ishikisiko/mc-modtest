@@ -3,14 +3,14 @@
   "gui_light": "front",
   "base": {
     "loader": "neoforge:obj",
-    "model": "myvillage:models/equipment/items/xuantie_boots.obj",
+    "model": "yuanxian:models/equipment/items/xuantie_boots.obj",
     "automatic_culling": false,
     "shade_quads": true,
     "flip_v": false,
     "emissive_ambient": false,
     "gui_light": "side",
     "textures": {
-      "particle": "myvillage:item/xuantie_boots"
+      "particle": "yuanxian:item/xuantie_boots"
     },
     "display": {
       "gui": {
@@ -156,11 +156,11 @@
       "parent": "minecraft:item/generated",
       "gui_light": "front",
       "textures": {
-        "layer0": "myvillage:item/xuantie_boots"
+        "layer0": "yuanxian:item/xuantie_boots"
       }
     }
   },
   "textures": {
-    "particle": "myvillage:item/xuantie_boots"
+    "particle": "yuanxian:item/xuantie_boots"
   }
 }

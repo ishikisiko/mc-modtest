@@ -1,10 +1,10 @@
 {
-  "translation_key": "cultivation.heritage.myvillage.qingdi_mumai",
+  "translation_key": "cultivation.heritage.yuanxian.qingdi_mumai",
   "techniques": [
-    "myvillage:qingmu_changchun_gong",
-    "myvillage:yimu_shenghua_jue",
-    "myvillage:jiayi_changsheng_jing",
-    "myvillage:qingdi_daozang"
+    "yuanxian:qingmu_changchun_gong",
+    "yuanxian:yimu_shenghua_jue",
+    "yuanxian:jiayi_changsheng_jing",
+    "yuanxian:qingdi_daozang"
   ],
   "exclusive": true
 }

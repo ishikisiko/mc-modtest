@@ -1,16 +1,16 @@
 {
-  "translation_key": "cultivation.technique.myvillage.huifeng_jianzhen",
+  "translation_key": "cultivation.technique.yuanxian.huifeng_jianzhen",
   "category": "active",
   "grade": 2,
   "elements": [],
-  "school": "myvillage:sword",
+  "school": "yuanxian:sword",
   "requirements": {
-    "minimum_realm": "myvillage:qi_refining",
-    "minimum_stage": "myvillage:qi_refining_4"
+    "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_4"
   },
   "effects": {
     "active": {
-      "skill": "myvillage:huifeng_jianzhen",
+      "skill": "yuanxian:huifeng_jianzhen",
       "qi_cost": 14,
       "slots": 1
     }

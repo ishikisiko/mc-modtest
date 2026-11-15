@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:jianghu_board"
+          "name": "yuanxian:jianghu_board"
         }
       ],
       "conditions": [

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "id": "myvillage:ash_talismanist",
+  "id": "yuanxian:ash_talismanist",
   "texture": {"width": 128, "height": 64},
   "look": {"bone": "head", "max_yaw": 45.0, "max_pitch": 30.0},
   "shadow_radius": 0.38,

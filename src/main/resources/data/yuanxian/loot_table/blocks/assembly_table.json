@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "myvillage:assembly_table"
+          "name": "yuanxian:assembly_table"
         }
       ],
       "conditions": [

@@ -1,5 +1,5 @@
 # Authored equipment mesh; generated, do not edit.
-mtllib myvillage:models/equipment/items/xuantie_chestplate.mtl
+mtllib yuanxian:models/equipment/items/xuantie_chestplate.mtl
 g geometry
 # 交领衣身
 usemtl m0

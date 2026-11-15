@@ -14,7 +14,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:manual_liusha_jie"
+        "recipe": "yuanxian:manual_liusha_jie"
       }
     }
   },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:manual_liusha_jie"
+      "yuanxian:manual_liusha_jie"
     ]
   }
 }

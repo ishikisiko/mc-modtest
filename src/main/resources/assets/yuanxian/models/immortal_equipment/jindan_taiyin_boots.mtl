@@ -2,22 +2,22 @@ newmtl night
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/night
+map_Kd yuanxian:immortal_equipment/jindan_taiyin/night
 
 newmtl frost
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/frost
+map_Kd yuanxian:immortal_equipment/jindan_taiyin/frost
 
 newmtl sole
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/sole
+map_Kd yuanxian:immortal_equipment/jindan_taiyin/sole
 
 newmtl silver
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/silver
+map_Kd yuanxian:immortal_equipment/jindan_taiyin/silver

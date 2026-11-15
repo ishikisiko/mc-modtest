@@ -16,7 +16,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "myvillage:demon_lure_pearl"
+        "recipe": "yuanxian:demon_lure_pearl"
       }
     }
   },
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "myvillage:demon_lure_pearl"
+      "yuanxian:demon_lure_pearl"
     ]
   }
 }

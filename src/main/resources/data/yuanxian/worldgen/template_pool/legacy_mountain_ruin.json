@@ -1,12 +1,12 @@
 {
-  "name": "myvillage:legacy_mountain_ruin",
+  "name": "yuanxian:legacy_mountain_ruin",
   "fallback": "minecraft:empty",
   "elements": [
     {
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "myvillage:legacy_mountain_ruin",
+        "location": "yuanxian:legacy_mountain_ruin",
         "processors": "minecraft:empty",
         "projection": "rigid"
       }

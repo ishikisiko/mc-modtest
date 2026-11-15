@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/potted_ningyuan_sapling"
+      "model": "yuanxian:block/potted_ningyuan_sapling"
     }
   }
 }
