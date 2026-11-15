@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT))
 from tools.ningyuan_tree.assets import outputs
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--preview',action='store_true');args=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--preview',action='store_true');p.add_argument('--rename-namespace-from');args=p.parse_args()
     changed=[]
     for relative in ('src/main/resources/data/yuanxian/recipe/ningyuan_sapling.json',
                      'src/main/resources/data/yuanxian/advancement/recipes/ningyuan/ningyuan_sapling.json'):
@@ -16,7 +16,7 @@ def main():
         if path.exists():
             changed.append(relative+' (removed sapling recipe)')
             if not args.check:path.unlink()
-    for relative,content in outputs().items():
+    for relative,content in outputs(args.rename_namespace_from).items():
         path=ROOT/relative
         if not path.is_file() or path.read_bytes()!=content:
             changed.append(str(relative))

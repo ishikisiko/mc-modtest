@@ -31,4 +31,11 @@ class NamespaceTest(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,'未声明'):validate_retained_ids(old|{'other:c'},new,'myvillage')
   for bad in ('yuanxian','../bad',''):
    with self.assertRaisesRegex(ValueError,'无效'):validate_retained_ids(old,new,bad)
+ def test_explicit_tag_input_rename_preserves_members_and_foreign_namespaces(self):
+  from tools.namespace_migration import tag_values
+  values=['myvillage:leaf','#myvillage:logs','other:leaf','minecraft:oak_log']
+  self.assertEqual(['yuanxian:leaf','#yuanxian:logs','other:leaf','minecraft:oak_log'],tag_values(values,'myvillage'))
+  self.assertEqual(values,tag_values(values));self.assertEqual('myvillage:leaf',values[0])
+  for bad in ('yuanxian','../bad',''):
+   with self.assertRaisesRegex(ValueError,'无效'):tag_values(values,bad)
 if __name__=='__main__':unittest.main()

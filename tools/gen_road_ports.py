@@ -5,9 +5,12 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-from road_port_sources import CitySource
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path[:0]=[str(ROOT),str(ROOT/'tools')]
+from road_port_sources import CitySource
+from tools.namespace_migration import tag_values
 CONFIG = ROOT / 'config/roads/prototype.json'
 OUTPUT = ROOT / 'src/main/resources/data/yuanxian/roads/prototype.json'
 
@@ -65,7 +68,7 @@ def generate(root: Path = ROOT) -> str:
 
 
 
-def assets(root: Path = ROOT):
+def assets(root: Path = ROOT,rename_namespace_from=None):
     config=json.loads((root/'config/roads/prototype.json').read_text());out={}
     def put(path,value):out[root/'src/main/resources'/path]=json.dumps(value,ensure_ascii=False,indent=2)+'\n'
     names=json.loads((root/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_text())
@@ -81,7 +84,7 @@ def assets(root: Path = ROOT):
     put('assets/yuanxian/lang/zh_cn.json',names)
     for path in ['data/minecraft/tags/block/mineable/pickaxe.json','data/minecraft/tags/block/slabs.json','data/minecraft/tags/item/slabs.json']:
         f=root/'src/main/resources'/path;tag=json.loads(f.read_text()) if f.exists() else {'replace':False,'values':[]}
-        tag['values']=list(dict.fromkeys(tag['values']+['yuanxian:'+s['id'] for s in config['style']['slabs']]))
+        tag['values']=list(dict.fromkeys(tag_values(tag['values'],rename_namespace_from)+['yuanxian:'+s['id'] for s in config['style']['slabs']]))
         put(path,tag)
     guard=json.loads((root/'config/roads/guardrail.json').read_text())
     ident=guard['id'];texture=guard['texture'];base=f'yuanxian:block/{ident}'
@@ -113,12 +116,13 @@ def assets(root: Path = ROOT):
     names['block.yuanxian.'+ident]=guard['name'];put('assets/yuanxian/lang/zh_cn.json',names)
     for path in ['data/minecraft/tags/block/mineable/pickaxe.json','data/minecraft/tags/block/fences.json','data/minecraft/tags/item/fences.json']:
         f=root/'src/main/resources'/path;tag=json.loads(out[f]) if f in out else json.loads(f.read_text()) if f.exists() else {'replace':False,'values':[]}
-        tag['values']=list(dict.fromkeys(tag['values']+['yuanxian:'+ident]));put(path,tag)
+        tag['values']=list(dict.fromkeys(tag_values(tag['values'],rename_namespace_from)+['yuanxian:'+ident]));put(path,tag)
     return out
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true')
+    parser.add_argument('--rename-namespace-from')
     args = parser.parse_args()
     text = generate()
     if args.check:
@@ -127,7 +131,7 @@ def main():
     else:
         OUTPUT.parent.mkdir(parents=True, exist_ok=True)
         OUTPUT.write_text(text)
-    for path,value in assets().items():
+    for path,value in assets(rename_namespace_from=args.rename_namespace_from).items():
         if args.check:
             if not path.is_file() or path.read_text()!=value:raise SystemExit('官道资源已过期：'+str(path.relative_to(ROOT)))
         else:

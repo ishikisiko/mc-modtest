@@ -9,6 +9,7 @@ import random
 from pathlib import Path
 from tools.gen_alchemy_assets import png
 from tools.gen_spirit_crops import BLOCK_ITEM_DISPLAY
+from tools.namespace_migration import tag_values
 
 ROOT=Path(__file__).resolve().parents[2]
 RES=Path('src/main/resources')
@@ -192,7 +193,7 @@ def lantern_model(hanging=False):
     else:elements.extend([box((6.8,12.5,7.5),(7.5,15,8.5),'bronze'),box((8.5,12.5,7.5),(9.2,15,8.5),'bronze'),box((6.8,14.5,7.5),(9.2,15.2,8.5),'bronze')])
     result=model(elements);result['textures']['particle']='yuanxian:block/ningyuan_bronze';return result
 
-def outputs():
+def outputs(rename_namespace_from=None):
     rules=json.loads((ROOT/RES/'data/yuanxian/orchard/rules.json').read_text());out={}
     def put(path,value):out[path]=encoded(value)
     def rename(s):
@@ -251,7 +252,7 @@ def outputs():
     put(DATA/'yuanxian/orchard/geometry.json',{'fruit_bounds':bounds,'lantern_shapes':{str(h).lower():[e['from']+e['to'] for e in lantern_model(h)['elements']] for h in (False,True)}})
     put(DATA/'yuanxian/orchard/catalogue.json',{'blocks':sorted(NAMES.keys()-NON_BLOCK),'items':sorted(NAMES.keys()-NO_ITEM),'no_item_blocks':sorted(NO_ITEM),'owner':'tools/gen_ningyuan_tree.py'})
     loot_and_recipes(put,rules)
-    tags(put)
+    tags(put,rename_namespace_from)
     put(DATA/'yuanxian/worldgen/configured_feature/ningyuan_tree.json',{'type':'yuanxian:ningyuan_tree','config':{}})
     put(DATA/'yuanxian/worldgen/placed_feature/ningyuan_tree.json',{'feature':'yuanxian:ningyuan_tree','placement':[
         {'type':'minecraft:rarity_filter','chance':rules['worldgen']['rarity']},{'type':'minecraft:in_square'},
@@ -319,7 +320,7 @@ def loot_and_recipes(put,rules):
     for log in LOGS:
         recipe(log+'_charcoal',{'type':'minecraft:smelting','category':'misc','ingredient':item(log),'result':{'id':'minecraft:charcoal'},'experience':.15,'cookingtime':200})
 
-def tags(put):
+def tags(put,rename_namespace_from=None):
     values={
       'yuanxian:ningyuan_logs':LOGS,
       'minecraft:logs_that_burn':['#yuanxian:ningyuan_logs'], 'minecraft:logs':['#yuanxian:ningyuan_logs'],
@@ -345,4 +346,4 @@ def tags(put):
             namespace,path=key.split(':');target=DATA/f'{namespace}/tags/{kind}/{path}.json'
             previous=json.loads((ROOT/target).read_text()) if (ROOT/target).exists() else {'replace':False,'values':[]}
             additions=[s if ':' in s or s.startswith('#') else 'yuanxian:'+s for s in ids]
-            previous['values']=list(dict.fromkeys(previous['values']+additions));put(target,previous)
+            previous['values']=list(dict.fromkeys(tag_values(previous['values'],rename_namespace_from)+additions));put(target,previous)

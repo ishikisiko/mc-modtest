@@ -1,8 +1,8 @@
 {
   "replace": false,
   "values": [
-    "myvillage:deepslate_spirit_stone_ore",
-    "myvillage:spirit_stone_ore",
-    "myvillage:xuantie_ore"
+    "yuanxian:deepslate_spirit_stone_ore",
+    "yuanxian:spirit_stone_ore",
+    "yuanxian:xuantie_ore"
   ]
 }

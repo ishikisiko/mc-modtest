@@ -9,6 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path: sys.path.insert(0, str(ROOT))
 from tools.gen_alchemy_assets import png, HERBS, NAMES
+from tools.namespace_migration import tag_values
 ASSET = Path('src/main/resources/assets/yuanxian')
 DATA = Path('src/main/resources/data')
 # Minecraft 1.21.1 block/block.json item transforms; world geometry stays full size.
@@ -142,7 +143,7 @@ def outputs(root=ROOT):
     put(DATA/'yuanxian/loot_table/blocks/spirit_soil.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:spirit_soil'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
     put(DATA/'yuanxian/recipe/spirit_soil.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':'minecraft:dirt'},{'tag':'c:spirit_stones/low_grade'}],'result':{'id':'yuanxian:spirit_soil','count':1}})
     return out
-def merged(root=ROOT):
+def merged(root=ROOT,rename_namespace_from=None):
     root=Path(root);out={}
     for language,index in (('en_us',0),('zh_cn',1)):
         path=root/ASSET/f'lang/{language}.json';lang=json.loads(path.read_text())
@@ -152,7 +153,7 @@ def merged(root=ROOT):
     for tag,values in (('mineable/shovel',['yuanxian:spirit_soil']),('crops',[f'yuanxian:{h}_crop' for h in HERBS])):
         path=root/DATA/f'minecraft/tags/block/{tag}.json'
         data=json.loads(path.read_text()) if path.exists() else {'replace':False,'values':[]}
-        data['values']=list(dict.fromkeys(data['values']+values));out[path]=encoded(data)
+        data['values']=list(dict.fromkeys(tag_values(data['values'],rename_namespace_from)+values));out[path]=encoded(data)
     return out
 def preview():
     import numpy as np
@@ -177,8 +178,8 @@ def preview():
     (out/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>灵植 · 三阶段</title><style>body{background:#18201f;color:#ddd;font:18px sans-serif;max-width:1000px;margin:30px auto}img{width:100%}</style><h1>六种灵植 · 幼苗 / 生长 / 成熟</h1><p>实际游戏模型与贴图离线渲染。灵土永久肥沃，无需浇水；药材兼作播种材料，成熟收获 2–4 份。实机观感待玩家确认。</p><img src="stages.png">')
     print(out/'index.html')
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');parser.add_argument('--preview',action='store_true');args=parser.parse_args()
-    generated={**outputs(),**merged()};stale=[]
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');parser.add_argument('--preview',action='store_true');parser.add_argument('--rename-namespace-from');args=parser.parse_args()
+    generated={**outputs(),**merged(rename_namespace_from=args.rename_namespace_from)};stale=[]
     for path,data in generated.items():
         if args.check:
             if not path.exists() or path.read_bytes()!=data:stale.append(str(path.relative_to(ROOT)))
