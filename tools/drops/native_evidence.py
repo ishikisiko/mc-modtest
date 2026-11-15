@@ -67,7 +67,12 @@ class Evidence:
         deadline=time.monotonic()+30
         while time.monotonic()<deadline:
             value=self.value('drop_probe ready','DROP_PROBE ')
-            if value.get('target_loaded') and value.get('chunk_entity_ticking'):return value
+            if value.get('target_loaded') and value.get('chunk_entity_ticking'):
+                # A restarted probe has no in-memory previous area; saved item entities still exist.
+                self.rc('kill @e[type=minecraft:item]')
+                cleared=self.value('drop_probe read','DROP_PROBE ')
+                self.check('empty_item_fixture_before_death',cleared.get('world_items')=={},cleared)
+                return value
             time.sleep(.1)
         raise TimeoutError('夹具区块尚未进入实体运行状态')
     def finish(self,looting=0,captured=False):
