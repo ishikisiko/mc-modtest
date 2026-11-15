@@ -27,7 +27,7 @@ class Capture(Evidence):
                         position=read_data(self.rc(f'data get entity {client.name} Pos'));self.check('相机坐标有效',isinstance(position,list)and len(position)==3,position);candidates.append(position)
                     camera=min(candidates,key=lambda p:p[1]);camera[1]=max(camera[1],site['y']+20)
                     self.fixture(client,camera,[site['x']+.5,site['y']+1.5,site['z']+.5]);time.sleep(3);client.capture('review-'+kind)
-                    self.action('captured_representative',kind=kind,camera=camera,mode='spectator',acceptance='captured_for_review')
+                    self.action('captured_representative',habitat_kind=kind,camera=camera,mode='spectator',acceptance='captured_for_review')
                 self.rc('save-all flush')
             self.done('four_representative_views');self.report['status']='captured_for_review'
         except BaseException as error:
