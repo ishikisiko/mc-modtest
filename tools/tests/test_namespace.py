@@ -38,4 +38,24 @@ class NamespaceTest(unittest.TestCase):
   self.assertEqual(values,tag_values(values));self.assertEqual('myvillage:leaf',values[0])
   for bad in ('yuanxian','../bad',''):
    with self.assertRaisesRegex(ValueError,'无效'):tag_values(values,bad)
+ def test_wood_owner_migrates_merged_tag_members_without_editing_input(self):
+  from unittest.mock import patch
+  from tools.ningyuan_tree import assets
+  relative=Path('src/main/resources/data/minecraft/tags/block/leaves.json');path=self.root/relative;path.parent.mkdir(parents=True);path.write_text(json.dumps({'replace':False,'values':['myvillage:ningyuan_leaves','other:leaves','yuanxian:ningyuan_leaves']}));before=path.read_bytes();out={}
+  with patch.object(assets,'ROOT',self.root):assets.tags(lambda name,value:out.__setitem__(name,value),'myvillage')
+  self.assertEqual(['yuanxian:ningyuan_leaves','other:leaves'],out[relative]['values']);self.assertEqual(before,path.read_bytes())
+ def test_crop_owner_migrates_merged_tag_members(self):
+  from tools import gen_spirit_crops as gen
+  base=self.root/'src/main/resources'
+  for locale in ('zh_cn','en_us'):
+   p=base/f'assets/yuanxian/lang/{locale}.json';p.parent.mkdir(parents=True,exist_ok=True);p.write_text('{}')
+  p=base/'data/minecraft/tags/block/mineable/shovel.json';p.parent.mkdir(parents=True);p.write_text(json.dumps({'replace':False,'values':['myvillage:spirit_soil','other:soil']}))
+  out=gen.merged(self.root,rename_namespace_from='myvillage')
+  self.assertEqual(['yuanxian:spirit_soil','other:soil'],json.loads(out[p])['values'])
+ def test_road_owner_migrates_fence_tag_instead_of_accumulating_both_ids(self):
+  from tools.gen_road_ports import assets,ROOT
+  out=assets(rename_namespace_from='myvillage')
+  for kind in ('block','item'):
+   data=json.loads(out[ROOT/f'src/main/resources/data/minecraft/tags/{kind}/fences.json'])
+   self.assertEqual(['yuanxian:road_stone_guardrail'],data['values'])
 if __name__=='__main__':unittest.main()

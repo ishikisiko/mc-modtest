@@ -11,6 +11,7 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 - 模组及全部资源命名空间统一为 yuanxian，更新物品、方块、实体、注册表、网络、数据组件、翻译键、资源目录和配置路径。
 - 生成器、作者数据和打包入口采用同一命名空间；本版用于新世界，不提供旧 myvillage ID 别名或存档迁移。
+- NPC设施仅接受当前布局摘要；修复森林树冠越出宗门蓝图边界导致的导出失败。
 
 ## 0.133.1
 

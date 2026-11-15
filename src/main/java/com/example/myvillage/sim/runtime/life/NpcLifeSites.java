@@ -188,13 +188,9 @@ public final class NpcLifeSites {
         return bindDescription(level,sim,city.cityId(),description,new BlockPos(city.x(),city.originY(),city.z()));
     }
 
-    /** Only aliases whose complete tile/surface and facility fingerprints pass generation are shipped. */
+    /** 当前设施仅绑定同一布局摘要；开发版本不接受历史布局别名。 */
     public static boolean matchesLayout(JsonObject description, String frozenHash) {
-        if (description.get("worldplan_layout_hash").getAsString().equals(frozenHash)) return true;
-        if (!description.has("compatible_worldplan_layout_hashes")) return false;
-        for (var alias : description.getAsJsonArray("compatible_worldplan_layout_hashes"))
-            if (alias.getAsString().equals(frozenHash)) return true;
-        return false;
+        return description.get("worldplan_layout_hash").getAsString().equals(frozenHash);
     }
 
     /** Called by the life runtime. Each configured interval visits only the bounded saved registry. */

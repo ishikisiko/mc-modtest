@@ -148,13 +148,6 @@ def compile_layout(layout: dict, root: Path = ROOT) -> dict:
     compiled = {'id': layout['id'], 'name': layout['name'], 'size': dimensions,
             'source_origin': origin, 'worldplan_layout_hash': frozen_hash,
             'source_hashes': dict(sorted(sources.items())), 'places': places}
-    if 'worldplan_district' in layout:
-        from worldplan.district import compatible_layouts, content_hash
-        aliases=compatible_layouts(root)
-        actual=content_hash({k:compiled[k] for k in ('size','source_origin','places')})
-        if any(entry['places_sha256']!=actual for entry in aliases):
-            raise ValueError('V4 compatibility alias does not match NPC facilities')
-        compiled['compatible_worldplan_layout_hashes']=[entry['layout_hash'] for entry in aliases]
     return compiled
 
 
