@@ -44,6 +44,9 @@ class Evidence:
      self.rc('item replace entity '+client.name+' hotbar.0 with yuanxian:qingfeng_sword');self.rc('give '+client.name+' yuanxian:low_grade_spirit_stone 8')
      client.close_screen();client.guard();client.game.xdo('key','1');self.action('mapped_hotbar',slot=1);time.sleep(2);client.capture('new-namespace-client');self.done()
      self.stage='mapped_profile_network';client.guard();client.game.xdo('key','h');self.action('mapped_key',key='h');wait(client.game.pointer_grabbed,lambda v:v is False,20,'修炼面板打开');time.sleep(2);client.capture('cultivation-profile');client.close_screen()
+     self.rc('gamemode survival '+client.name)
+     wait(lambda:self.rc('data get entity '+client.name+' OnGround'),lambda reply:reply.strip().endswith('1b'),15,'生存角色已站稳地面')
+     self.action('fixture_prepared',purpose='按正式规则使用生存模式并确认着地，保留开始和停止的按键与服务器状态断言')
      # 正式 V 键经新命名空间的意图载荷到达服务器，正式状态命令读回。
      def state():return json.loads(self.rc('namespace_player_probe '+client.name).split('NAMESPACE_PLAYER ',1)[1])['meditation_state']
      assert state()=='IDLE'
@@ -56,7 +59,9 @@ class Evidence:
    self.stage='saved_world_restart';self.rc('save-all flush');self.server.stop();self.server.start();after=self.probe('namespace_probe','namespace-restart');self.probe('brand_probe','brand-restart');assert before['counts']==after['counts'],(before,after);self.done()
    self.report['status']='passed' if not self.report['unrun'] else 'partial';self.save()
   except BaseException as error:
-   self.report['status']='failed';self.report['failed'].append(dict(stage=self.stage,error=repr(error),traceback=traceback.format_exc()));self.save();raise
+   self.report['status']='failed';self.report['failed'].append(dict(stage=self.stage,error=repr(error),traceback=traceback.format_exc()))
+   if self.stage in self.report['unrun']:self.report['unrun'].remove(self.stage)
+   self.save();raise
   finally:
    try:self.server.stop()
    finally:self.save()
