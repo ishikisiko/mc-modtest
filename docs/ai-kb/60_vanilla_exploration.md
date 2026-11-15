@@ -96,7 +96,7 @@ enabled = true
 /exploration catalogue
 ```
 
-`/exploration guide side` 显示三条可选首领路线及准备 tips，向导主对话同时提供可点击入口；已完成主线仍可查看。管理员可用 `/yuanxian exploration` 同名别名与 `info` 诊断；原 `/myvillage` 根权限不放宽。地点建议在实际切换且满足冷却后发送两条聊天信息，反复跨边界不刷屏。
+`/exploration guide side` 显示三条可选首领路线及准备 tips，向导主对话同时提供可点击入口；已完成主线仍可查看。管理员可用 `/yuanxian exploration` 同名别名与 `info` 诊断；管理员诊断继续校验权限2。地点建议在实际切换且满足冷却后发送两条聊天信息，反复跨边界不刷屏。
 
 `tools/gen_exploration_guide.py` 从探索规则、首领配置与中英语言输入生成两份 GuideME exploration 页面；包含完整主线、可选三首领支线和可选门槛说明，支线建议境界随 boss profile 生成，不在页面复制另一套常量。`processResources` 自动生成，手册首页链接它。不要手改生成页。
 

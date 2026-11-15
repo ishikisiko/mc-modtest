@@ -3609,8 +3609,7 @@ an explicit status, but the profile is not cleared and the system does not kill
 the player. Lifespan continues to be counted monotonically while otherwise
 eligible.
 
-All cultivation commands inherit the existing `/myvillage` permission-level-2
-requirement. The existing administrator surface remains available:
+修炼调试命令要求权限2，由模块子命令校验；完整入口与快捷入口执行相同的权限检查。管理员可用：
 
 ```mcfunction
 /yuanxian cultivation info [target]

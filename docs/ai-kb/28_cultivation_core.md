@@ -171,7 +171,7 @@ technique-execution or combat HUD.
 
 ## Administrator Commands
 
-All commands inherit the existing `/myvillage` permission-level-2 boundary.
+修炼调试命令要求权限2，校验保留在模块子命令上；完整入口与快捷入口共用同一权限。
 Targets use the standard single-player argument.
 
 ```mcfunction
