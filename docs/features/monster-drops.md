@@ -104,4 +104,4 @@ JSON导出保留完整配置、各实体各场景的规则预览和继承表。C
 
 仅生态资源引用发生变化时，拥有者生成器可执行 `tools/province_capitals/game/compile_v11.py --refresh-habitat-only --out <资源根目录>`。该入口核对当前作者输出，只更新生态摘要、预设内的冻结规则及索引摘要，保留其他世界规划输入。
 
-本次构建、服务器检查和下载记录见 [0.133.0交付记录](../testing/2026-11-15-dynamic-drops.md)。
+0.133.0的原始实现见[动态掉落交付记录](../testing/2026-11-15-dynamic-drops.md)；0.134.1的默认来源切换、重启检查与下载见[随模组更新交付记录](../testing/2026-11-16-drops-follow-mod.md)。
