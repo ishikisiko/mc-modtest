@@ -6,7 +6,7 @@
   },
   "neutral": {"plane": 0, "sweep": -5, "reach": 0.64, "lead": 27, "lift": -36, "twist": 55, "offset": [0, 0.08, 0], "grip_roll": 120, "elbow": 30},
   "moves": {
-    "myvillage:basic_sword_01_thrust": {
+    "yuanxian:basic_sword_01_thrust": {
       "strike": [2.5, 4.8],
       "contact": 3.8,
       "keys": [
@@ -19,7 +19,7 @@
         {"tick": 11, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_sword_02_horizontal_cut": {
+    "yuanxian:basic_sword_02_horizontal_cut": {
       "strike": [3.3, 6.25],
       "contact": 4.9,
       "keys": [
@@ -32,7 +32,7 @@
         {"tick": 13, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_sword_03_rising_cut": {
+    "yuanxian:basic_sword_03_rising_cut": {
       "strike": [4.3, 7.25],
       "contact": 6.0,
       "keys": [
@@ -45,7 +45,7 @@
         {"tick": 15, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_sword_04_diagonal_cut": {
+    "yuanxian:basic_sword_04_diagonal_cut": {
       "strike": [5.6, 8.55],
       "contact": 7.0,
       "keys": [
@@ -58,7 +58,7 @@
         {"tick": 17, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_sword_05_lunge_thrust": {
+    "yuanxian:basic_sword_05_lunge_thrust": {
       "strike": [6.4, 9.2],
       "contact": 8.0,
       "keys": [

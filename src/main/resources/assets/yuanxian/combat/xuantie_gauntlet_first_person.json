@@ -7,7 +7,7 @@
   },
   "neutral": {"plane": 0, "sweep": 10, "reach": 0.52, "lead": 0, "lift": -45, "twist": 70, "offset": [0, 0.23, 0], "grip_roll": 0, "elbow": 20},
   "moves": {
-    "myvillage:basic_fist_01_straight_punch": {
+    "yuanxian:basic_fist_01_straight_punch": {
       "strike": [2.3, 4.6],
       "contact": 3.2,
       "keys": [
@@ -20,7 +20,7 @@
         {"tick": 9, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_fist_02_horizontal_palm": {
+    "yuanxian:basic_fist_02_horizontal_palm": {
       "strike": [3.3, 5.8],
       "contact": 4.3,
       "keys": [
@@ -33,7 +33,7 @@
         {"tick": 10, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_fist_03_uppercut": {
+    "yuanxian:basic_fist_03_uppercut": {
       "strike": [3.4, 5.8],
       "contact": 4.5,
       "keys": [
@@ -46,7 +46,7 @@
         {"tick": 10, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_fist_04_chop": {
+    "yuanxian:basic_fist_04_chop": {
       "strike": [4.3, 6.8],
       "contact": 5.4,
       "keys": [
@@ -59,7 +59,7 @@
         {"tick": 11, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_fist_05_step_double_strike": {
+    "yuanxian:basic_fist_05_step_double_strike": {
       "strike": [5.4, 7.8],
       "contact": 6.4,
       "keys": [

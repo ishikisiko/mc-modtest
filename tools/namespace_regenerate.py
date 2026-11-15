@@ -24,6 +24,10 @@ def main():
  commands += [[sys.executable,'-m','tools.beastgen','build',name] for name in [*DEFINITIONS,*legacy.names(),*undead.names()]]
  commands += [[sys.executable,'-m','tools.npcgen','build',name] for name in NPCS]
  commands += [[sys.executable,'-m','tools.npcgen','variants'],[sys.executable,'-m','tools.npcgen','goldens']]
+ commands += [[sys.executable,'-m','tools.buildgen.gen_plaque_assets','--no-png'],
+              [sys.executable,'-c','from tools.buildgen import rockery_models as r; r.from_voxel_json(); variants=r.VARIANT_CATALOG+r.HERO_CATALOG; cache={v.variant_id:r.derive_variant_voxels(v.variant_id) for v in variants}; r.write_models(cache,variants); r.write_blockstate(variants)'],
+              [sys.executable,'-m','tools.gen_forging_assets'],
+              [sys.executable,'-m','tools.generate_region_topology','20260620','--out','src/main/resources/data/yuanxian/worldgen/region_topology_example.json']]
  total=len(commands)
  if not 0<=args.start<total:raise ValueError('起始索引超出导出清单')
  commands=commands[args.start:]

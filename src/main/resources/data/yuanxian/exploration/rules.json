@@ -18,11 +18,11 @@
       "priority": 0,
       "recommended": {
         "min": {
-          "realm": "myvillage:mortal",
+          "realm": "yuanxian:mortal",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         }
       },
@@ -41,21 +41,21 @@
       "priority": 5,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 4
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
@@ -75,21 +75,21 @@
       "priority": 8,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         }
       },
@@ -109,21 +109,21 @@
       "priority": 8,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 4
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
@@ -153,11 +153,11 @@
       "priority": 6,
       "recommended": {
         "min": {
-          "realm": "myvillage:mortal",
+          "realm": "yuanxian:mortal",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 4
         }
       },
@@ -182,11 +182,11 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:mortal",
+          "realm": "yuanxian:mortal",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1
         }
       },
@@ -212,11 +212,11 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:mortal",
+          "realm": "yuanxian:mortal",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         }
       },
@@ -237,11 +237,11 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:mortal",
+          "realm": "yuanxian:mortal",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         }
       },
@@ -262,11 +262,11 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:mortal",
+          "realm": "yuanxian:mortal",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         }
       },
@@ -287,11 +287,11 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:mortal",
+          "realm": "yuanxian:mortal",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         }
       },
@@ -313,11 +313,11 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:mortal",
+          "realm": "yuanxian:mortal",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
@@ -339,21 +339,21 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 5
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 4
         }
       },
@@ -373,21 +373,21 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 5
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
@@ -407,21 +407,21 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 5
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
@@ -441,21 +441,21 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 5
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 2
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 5
         }
       },
@@ -476,21 +476,21 @@
       "priority": 30,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
@@ -508,21 +508,21 @@
       "priority": 35,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         }
       },
@@ -542,21 +542,21 @@
       "priority": 40,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 6
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 3
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 6
         }
       },
@@ -576,21 +576,21 @@
       "priority": 50,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 8
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 6
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
@@ -610,21 +610,21 @@
       "priority": 50,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 8
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 5
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 8
         }
       },
@@ -644,21 +644,21 @@
       "priority": 70,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 6
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 8
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 5
         },
         "max": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 8
         }
       },
@@ -676,21 +676,21 @@
       "priority": 90,
       "recommended": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 2
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 2
         }
       },
@@ -708,21 +708,21 @@
       "priority": 90,
       "recommended": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 8
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         }
       },
@@ -742,21 +742,21 @@
       "priority": 65,
       "recommended": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 8
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
@@ -776,11 +776,11 @@
       "priority": 12,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 6
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
@@ -801,11 +801,11 @@
       "priority": 65,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 6
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
@@ -824,21 +824,21 @@
       "priority": 0,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 8
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 7
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
@@ -859,21 +859,21 @@
       "priority": 10,
       "recommended": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         }
       },
@@ -894,21 +894,21 @@
       "priority": 20,
       "recommended": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 8
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:qi_refining",
+          "realm": "yuanxian:qi_refining",
           "stage": 7
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         }
       },
@@ -928,21 +928,21 @@
       "priority": 60,
       "recommended": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         }
       },
@@ -962,21 +962,21 @@
       "priority": 60,
       "recommended": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 2
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:foundation_establishment",
+          "realm": "yuanxian:foundation_establishment",
           "stage": 2
         }
       },
@@ -994,21 +994,21 @@
       "priority": 0,
       "recommended": {
         "min": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 1
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 0
         }
       },
@@ -1031,21 +1031,21 @@
       "priority": 10,
       "recommended": {
         "min": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 1
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 0
         },
         "max": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 1
         }
       },
@@ -1065,21 +1065,21 @@
       "priority": 60,
       "recommended": {
         "min": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 2
         }
       },
       "encounters": {
         "min": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 1
         },
         "max": {
-          "realm": "myvillage:golden_core",
+          "realm": "yuanxian:golden_core",
           "stage": 2
         }
       },
@@ -1104,35 +1104,35 @@
       "rolls": 1,
       "entries": [
         {
-          "item": "myvillage:low_grade_spirit_stone",
+          "item": "yuanxian:low_grade_spirit_stone",
           "min": 2,
           "max": 5,
           "weight": 8,
           "technique": ""
         },
         {
-          "item": "myvillage:spirit_leaf",
+          "item": "yuanxian:spirit_leaf",
           "min": 1,
           "max": 3,
           "weight": 4,
           "technique": ""
         },
         {
-          "item": "myvillage:dew_blossom",
+          "item": "yuanxian:dew_blossom",
           "min": 1,
           "max": 3,
           "weight": 4,
           "technique": ""
         },
         {
-          "item": "myvillage:edge_tempering_sand",
+          "item": "yuanxian:edge_tempering_sand",
           "min": 1,
           "max": 2,
           "weight": 2,
           "technique": ""
         },
         {
-          "item": "myvillage:formula_huiling",
+          "item": "yuanxian:formula_huiling",
           "min": 1,
           "max": 1,
           "weight": 1,
@@ -1144,60 +1144,60 @@
       "rolls": 2,
       "entries": [
         {
-          "item": "myvillage:low_grade_spirit_stone",
+          "item": "yuanxian:low_grade_spirit_stone",
           "min": 4,
           "max": 9,
           "weight": 8,
           "technique": ""
         },
         {
-          "item": "myvillage:sunroot",
+          "item": "yuanxian:sunroot",
           "min": 1,
           "max": 3,
           "weight": 3,
           "technique": ""
         },
         {
-          "item": "myvillage:blood_berry",
+          "item": "yuanxian:blood_berry",
           "min": 1,
           "max": 3,
           "weight": 3,
           "technique": ""
         },
         {
-          "item": "myvillage:xuantie_ingot",
+          "item": "yuanxian:xuantie_ingot",
           "min": 1,
           "max": 2,
           "weight": 2,
           "technique": ""
         },
         {
-          "item": "myvillage:chitong_ingot",
+          "item": "yuanxian:chitong_ingot",
           "min": 1,
           "max": 2,
           "weight": 2,
           "technique": ""
         },
         {
-          "item": "myvillage:formula_yangyuan",
+          "item": "yuanxian:formula_yangyuan",
           "min": 1,
           "max": 1,
           "weight": 1,
           "technique": ""
         },
         {
-          "item": "myvillage:pattern_qingfeng_sword",
+          "item": "yuanxian:pattern_qingfeng_sword",
           "min": 1,
           "max": 1,
           "weight": 1,
           "technique": ""
         },
         {
-          "item": "myvillage:manual_movement_huang",
+          "item": "yuanxian:manual_movement_huang",
           "min": 1,
           "max": 1,
           "weight": 1,
-          "technique": "myvillage:liuyun_bu"
+          "technique": "yuanxian:liuyun_bu"
         }
       ]
     },
@@ -1205,60 +1205,60 @@
       "rolls": 2,
       "entries": [
         {
-          "item": "myvillage:low_grade_spirit_stone",
+          "item": "yuanxian:low_grade_spirit_stone",
           "min": 8,
           "max": 16,
           "weight": 8,
           "technique": ""
         },
         {
-          "item": "myvillage:cloud_fungus",
+          "item": "yuanxian:cloud_fungus",
           "min": 2,
           "max": 4,
           "weight": 3,
           "technique": ""
         },
         {
-          "item": "myvillage:calm_lotus",
+          "item": "yuanxian:calm_lotus",
           "min": 2,
           "max": 4,
           "weight": 3,
           "technique": ""
         },
         {
-          "item": "myvillage:xuantie_ingot",
+          "item": "yuanxian:xuantie_ingot",
           "min": 2,
           "max": 3,
           "weight": 3,
           "technique": ""
         },
         {
-          "item": "myvillage:chitong_ingot",
+          "item": "yuanxian:chitong_ingot",
           "min": 2,
           "max": 3,
           "weight": 3,
           "technique": ""
         },
         {
-          "item": "myvillage:formula_ningshen",
+          "item": "yuanxian:formula_ningshen",
           "min": 1,
           "max": 1,
           "weight": 2,
           "technique": ""
         },
         {
-          "item": "myvillage:pattern_lingxiao_spear",
+          "item": "yuanxian:pattern_lingxiao_spear",
           "min": 1,
           "max": 1,
           "weight": 1,
           "technique": ""
         },
         {
-          "item": "myvillage:manual_active_huang",
+          "item": "yuanxian:manual_active_huang",
           "min": 1,
           "max": 1,
           "weight": 1,
-          "technique": "myvillage:jianqi_jue"
+          "technique": "yuanxian:jianqi_jue"
         }
       ]
     },
@@ -1266,39 +1266,39 @@
       "rolls": 3,
       "entries": [
         {
-          "item": "myvillage:low_grade_spirit_stone",
+          "item": "yuanxian:low_grade_spirit_stone",
           "min": 12,
           "max": 24,
           "weight": 8,
           "technique": ""
         },
         {
-          "item": "myvillage:xuantie_ingot",
+          "item": "yuanxian:xuantie_ingot",
           "min": 2,
           "max": 4,
           "weight": 4,
           "technique": ""
         },
         {
-          "item": "myvillage:chitong_ingot",
+          "item": "yuanxian:chitong_ingot",
           "min": 2,
           "max": 4,
           "weight": 4,
           "technique": ""
         },
         {
-          "item": "myvillage:formula_ningshen",
+          "item": "yuanxian:formula_ningshen",
           "min": 1,
           "max": 1,
           "weight": 2,
           "technique": ""
         },
         {
-          "item": "myvillage:manual_active_huang",
+          "item": "yuanxian:manual_active_huang",
           "min": 1,
           "max": 1,
           "weight": 1,
-          "technique": "myvillage:jianqi_jue"
+          "technique": "yuanxian:jianqi_jue"
         }
       ]
     },
@@ -1306,56 +1306,56 @@
       "rolls": 2,
       "entries": [
         {
-          "item": "myvillage:low_grade_spirit_stone",
+          "item": "yuanxian:low_grade_spirit_stone",
           "min": 12,
           "max": 24,
           "weight": 8,
           "technique": ""
         },
         {
-          "item": "myvillage:xuantie_ingot",
+          "item": "yuanxian:xuantie_ingot",
           "min": 2,
           "max": 4,
           "weight": 4,
           "technique": ""
         },
         {
-          "item": "myvillage:chitong_ingot",
+          "item": "yuanxian:chitong_ingot",
           "min": 2,
           "max": 4,
           "weight": 4,
           "technique": ""
         },
         {
-          "item": "myvillage:edge_tempering_sand",
+          "item": "yuanxian:edge_tempering_sand",
           "min": 2,
           "max": 4,
           "weight": 3,
           "technique": ""
         },
         {
-          "item": "myvillage:formula_ningshen",
+          "item": "yuanxian:formula_ningshen",
           "min": 1,
           "max": 1,
           "weight": 2,
           "technique": ""
         },
         {
-          "item": "myvillage:formula_yangyuan",
+          "item": "yuanxian:formula_yangyuan",
           "min": 1,
           "max": 1,
           "weight": 2,
           "technique": ""
         },
         {
-          "item": "myvillage:manual_active_xuan",
+          "item": "yuanxian:manual_active_xuan",
           "min": 1,
           "max": 1,
           "weight": 2,
-          "technique": "myvillage:huifeng_jianzhen"
+          "technique": "yuanxian:huifeng_jianzhen"
         },
         {
-          "item": "myvillage:pattern_lingxiao_spear",
+          "item": "yuanxian:pattern_lingxiao_spear",
           "min": 1,
           "max": 1,
           "weight": 2,
@@ -1367,28 +1367,28 @@
   "reward_tiers": [
     {
       "minimum": {
-        "realm": "myvillage:mortal",
+        "realm": "yuanxian:mortal",
         "stage": 0
       },
       "pool": "novice"
     },
     {
       "minimum": {
-        "realm": "myvillage:qi_refining",
+        "realm": "yuanxian:qi_refining",
         "stage": 6
       },
       "pool": "adept"
     },
     {
       "minimum": {
-        "realm": "myvillage:foundation_establishment",
+        "realm": "yuanxian:foundation_establishment",
         "stage": 0
       },
       "pool": "deep"
     },
     {
       "minimum": {
-        "realm": "myvillage:golden_core",
+        "realm": "yuanxian:golden_core",
         "stage": 0
       },
       "pool": "exalted"
@@ -1442,7 +1442,7 @@
     {
       "id": "awaken",
       "minimum": {
-        "realm": "myvillage:mortal",
+        "realm": "yuanxian:mortal",
         "stage": 0
       },
       "flags": [
@@ -1456,7 +1456,7 @@
     {
       "id": "initiate",
       "minimum": {
-        "realm": "myvillage:mortal",
+        "realm": "yuanxian:mortal",
         "stage": 0
       },
       "flags": [
@@ -1470,7 +1470,7 @@
     {
       "id": "qi_explore",
       "minimum": {
-        "realm": "myvillage:qi_refining",
+        "realm": "yuanxian:qi_refining",
         "stage": 3
       },
       "flags": [
@@ -1484,7 +1484,7 @@
     {
       "id": "qi_late",
       "minimum": {
-        "realm": "myvillage:qi_refining",
+        "realm": "yuanxian:qi_refining",
         "stage": 6
       },
       "flags": [],
@@ -1496,7 +1496,7 @@
     {
       "id": "foundation",
       "minimum": {
-        "realm": "myvillage:foundation_establishment",
+        "realm": "yuanxian:foundation_establishment",
         "stage": 0
       },
       "flags": [],
@@ -1508,7 +1508,7 @@
     {
       "id": "nether",
       "minimum": {
-        "realm": "myvillage:foundation_establishment",
+        "realm": "yuanxian:foundation_establishment",
         "stage": 0
       },
       "flags": [
@@ -1522,7 +1522,7 @@
     {
       "id": "fortress",
       "minimum": {
-        "realm": "myvillage:foundation_establishment",
+        "realm": "yuanxian:foundation_establishment",
         "stage": 0
       },
       "flags": [
@@ -1536,7 +1536,7 @@
     {
       "id": "stronghold",
       "minimum": {
-        "realm": "myvillage:foundation_establishment",
+        "realm": "yuanxian:foundation_establishment",
         "stage": 0
       },
       "flags": [
@@ -1550,7 +1550,7 @@
     {
       "id": "golden",
       "minimum": {
-        "realm": "myvillage:golden_core",
+        "realm": "yuanxian:golden_core",
         "stage": 0
       },
       "flags": [],
@@ -1562,7 +1562,7 @@
     {
       "id": "dragon",
       "minimum": {
-        "realm": "myvillage:golden_core",
+        "realm": "yuanxian:golden_core",
         "stage": 0
       },
       "flags": [
@@ -1577,7 +1577,7 @@
     {
       "id": "islands",
       "minimum": {
-        "realm": "myvillage:golden_core",
+        "realm": "yuanxian:golden_core",
         "stage": 0
       },
       "flags": [
@@ -1591,7 +1591,7 @@
     {
       "id": "end_city",
       "minimum": {
-        "realm": "myvillage:golden_core",
+        "realm": "yuanxian:golden_core",
         "stage": 1
       },
       "flags": [
@@ -1605,7 +1605,7 @@
     {
       "id": "elytra",
       "minimum": {
-        "realm": "myvillage:golden_core",
+        "realm": "yuanxian:golden_core",
         "stage": 1
       },
       "flags": [
@@ -1650,11 +1650,11 @@
   "portal_gates": {
     "enabled": false,
     "nether_minimum": {
-      "realm": "myvillage:foundation_establishment",
+      "realm": "yuanxian:foundation_establishment",
       "stage": 0
     },
     "end_minimum": {
-      "realm": "myvillage:golden_core",
+      "realm": "yuanxian:golden_core",
       "stage": 0
     }
   }

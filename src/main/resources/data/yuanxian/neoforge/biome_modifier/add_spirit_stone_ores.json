@@ -1,10 +1,10 @@
 {
   "type": "neoforge:add_features",
-  "biomes": "#myvillage:has_spirit_stone_ore",
+  "biomes": "#yuanxian:has_spirit_stone_ore",
   "features": [
-    "myvillage:spirit_stone_ore_upper",
-    "myvillage:spirit_stone_ore_middle",
-    "myvillage:spirit_stone_ore_deep"
+    "yuanxian:spirit_stone_ore_upper",
+    "yuanxian:spirit_stone_ore_middle",
+    "yuanxian:spirit_stone_ore_deep"
   ],
   "step": "underground_ores"
 }

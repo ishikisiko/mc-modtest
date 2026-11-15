@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/spirit_stone_ore"
+      "model": "yuanxian:block/spirit_stone_ore"
     }
   }
 }

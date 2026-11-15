@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "name": "观察",
-  "unlock": {"realm": "myvillage:qi_refining", "stage": 0},
+  "unlock": {"realm": "yuanxian:qi_refining", "stage": 0},
   "range": 16,
   "cooldown_ticks": 20,
   "request_interval_ticks": 4,

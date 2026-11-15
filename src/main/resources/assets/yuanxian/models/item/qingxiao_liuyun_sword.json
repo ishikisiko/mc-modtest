@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "myvillage:item/qingxiao_liuyun_sword"
+    "layer0": "yuanxian:item/qingxiao_liuyun_sword"
   }
 }

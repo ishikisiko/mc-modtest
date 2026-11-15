@@ -6,7 +6,7 @@
     "targets": [
       {
         "state": {
-          "Name": "myvillage:spirit_stone_ore"
+          "Name": "yuanxian:spirit_stone_ore"
         },
         "target": {
           "predicate_type": "minecraft:tag_match",
@@ -15,7 +15,7 @@
       },
       {
         "state": {
-          "Name": "myvillage:deepslate_spirit_stone_ore"
+          "Name": "yuanxian:deepslate_spirit_stone_ore"
         },
         "target": {
           "predicate_type": "minecraft:tag_match",

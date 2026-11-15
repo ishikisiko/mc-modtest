@@ -7,7 +7,7 @@
   },
   "neutral": {"plane": 0.0, "sweep": -29.8, "reach": 0.346, "lead": 63.0, "lift": -89.1, "twist": 250.0, "offset": [0.0, -0.03, 0.0], "grip_roll": 120.0, "elbow": 20.0, "off_hand_slide": -4.5, "off_hand_roll": -15.0, "off_hand_elbow": 80.0, "off_hand_hold": 1.0},
   "moves": {
-    "myvillage:basic_spear_01_mid_thrust": {
+    "yuanxian:basic_spear_01_mid_thrust": {
       "strike": [2.8, 5.5],
       "contact": 4.0,
       "keys": [
@@ -21,7 +21,7 @@
         {"tick": 12, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_spear_02_sweep": {
+    "yuanxian:basic_spear_02_sweep": {
       "strike": [4.6, 7.6],
       "contact": 6.0,
       "keys": [
@@ -41,7 +41,7 @@
         {"tick": 15, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_spear_03_rising_flick": {
+    "yuanxian:basic_spear_03_rising_flick": {
       "strike": [4.5, 7.5],
       "contact": 6.0,
       "keys": [
@@ -60,7 +60,7 @@
         {"tick": 15, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_spear_04_overhead_smash": {
+    "yuanxian:basic_spear_04_overhead_smash": {
       "strike": [6.5, 9.5],
       "contact": 8.0,
       "keys": [
@@ -80,7 +80,7 @@
         {"tick": 19, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
-    "myvillage:basic_spear_05_dragon_lunge": {
+    "yuanxian:basic_spear_05_dragon_lunge": {
       "strike": [7.4, 10.4],
       "contact": 8.2,
       "keys": [

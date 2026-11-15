@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "myvillage:block/test_item_block"
+      "model": "yuanxian:block/test_item_block"
     }
   }
 }

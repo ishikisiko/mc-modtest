@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "myvillage:item/manual_body",
-    "layer1": "myvillage:item/manual_body_tint"
+    "layer0": "yuanxian:item/manual_body",
+    "layer1": "yuanxian:item/manual_body_tint"
   }
 }

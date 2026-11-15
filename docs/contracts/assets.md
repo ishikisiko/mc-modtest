@@ -19,7 +19,7 @@
 
 ## 输入和导出
 
-- 当前命名空间是 `yuanxian`；历史 `minecraft_town_mod` 不代表另一套运行时资源。
+- 当前mod ID和资源命名空间是 `yuanxian`，由 `tools/branding.json` 声明。0.134.0需要新世界，不注册旧ID别名或迁移旧存档。Java实现包 `com.example.myvillage` 保持现有路径。
 - Blueprint v1 与 Structure JSON 是两种输入。前者包含版本、namespaced id、正尺寸、局部 palette、整数坐标和字符串 state；占位 `export_nbt.py`/`export_schem.py` 不能冒充已实现导出器。
 - Structure JSON 面向 Minecraft 1.21.1：有界正尺寸，确定性解析 palette/blockstate，支持 set、fill、轴对齐 line 和旧 blocks；只有显式 `fill_air` 才补空气。元数据尺寸须匹配；道路需至少两个连接锚点。
 - 实际 NBT 导出为 gzip Java structure template，包含 DataVersion、author、size、palette、blocks、entities；生成网格先归一化到最小坐标零。模板导出不应被描述为通用实体、战利品或任意复杂 BlockEntity 导出器；模组已有独立世界生成与实体系统。

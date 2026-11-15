@@ -17,8 +17,8 @@
   },
   "harvest": {
     "count": 1,
-    "low_item": "myvillage:ningyuan_fruit_low",
-    "high_item": "myvillage:ningyuan_fruit_high"
+    "low_item": "yuanxian:ningyuan_fruit_low",
+    "high_item": "yuanxian:ningyuan_fruit_high"
   },
   "worldgen": {
     "rarity": 18,
@@ -26,7 +26,7 @@
     "biomes": ["minecraft:forest", "minecraft:flower_forest", "minecraft:birch_forest", "minecraft:old_growth_birch_forest", "minecraft:meadow"]
   },
   "fertilizer": {
-    "ingredients": ["myvillage:medium_grade_spirit_stone", "myvillage:medium_grade_spirit_stone", "minecraft:ghast_tear", "minecraft:blaze_powder", "minecraft:bone_meal"],
+    "ingredients": ["yuanxian:medium_grade_spirit_stone", "yuanxian:medium_grade_spirit_stone", "minecraft:ghast_tear", "minecraft:blaze_powder", "minecraft:bone_meal"],
     "count": 1
   },
   "lantern_light": 10

@@ -1,6 +1,6 @@
 {
-  "type": "myvillage:sect",
-  "biomes": "#myvillage:has_sect",
+  "type": "yuanxian:sect",
+  "biomes": "#yuanxian:has_sect",
   "step": "surface_structures",
   "terrain_adaptation": "none",
   "spawn_overrides": {}

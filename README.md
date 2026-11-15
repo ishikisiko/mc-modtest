@@ -1,6 +1,6 @@
 # 源仙
 
-正式显示名为“源仙”。主指令 `/yuanxian`，快捷入口 `/yx`；直接输入任一入口或加 `帮助` 可查看自己有权限使用的子命令。物品、方块和资源ID继续使用 `yuanxian:`，服务端配置仍放在 `config/yuanxian/`。名称与指令入口由 `tools/branding.json` 维护。[名称、指令与权限说明](docs/features/yuanxian-name.md)。
+正式显示名为“源仙”。主指令 `/yuanxian`，快捷入口 `/yx`；直接输入任一入口或加 `帮助` 可查看自己有权限使用的子命令。从0.134.0起，mod ID及物品、方块、实体和资源ID统一改为 `yuanxian`，服务端配置使用 `config/yuanxian/`。本版需要新建世界，不提供旧ID别名或旧存档迁移。名称、命名空间与指令入口由 `tools/branding.json` 维护。[名称、指令与权限说明](docs/features/yuanxian-name.md)。
 
 委托战斗秘境（0.131.0）：在千机阁江湖榜第二页办理“山寨清剿”或“兽巢讨伐”，再按H → 行迹 → 进入远征。支持1—4人组队；清除必经守敌后在出口磁石验核，回榜领取报酬。敌人境界按签发地的地区范围固定。[入口、光照、刷怪与保存说明](docs/features/combat-quest-runtime.md)。
 

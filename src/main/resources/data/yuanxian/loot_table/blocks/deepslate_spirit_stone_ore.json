@@ -26,7 +26,7 @@
                   }
                 }
               ],
-              "name": "myvillage:deepslate_spirit_stone_ore"
+              "name": "yuanxian:deepslate_spirit_stone_ore"
             },
             {
               "type": "minecraft:item",
@@ -52,7 +52,7 @@
                   "function": "minecraft:explosion_decay"
                 }
               ],
-              "name": "myvillage:low_grade_spirit_stone"
+              "name": "yuanxian:low_grade_spirit_stone"
             }
           ]
         }
@@ -60,5 +60,5 @@
       "rolls": 1.0
     }
   ],
-  "random_sequence": "myvillage:blocks/deepslate_spirit_stone_ore"
+  "random_sequence": "yuanxian:blocks/deepslate_spirit_stone_ore"
 }

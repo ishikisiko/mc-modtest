@@ -4,7 +4,7 @@
     {
       "id": "elder_guardian_v2",
       "entity": "minecraft:elder_guardian",
-      "realm": "myvillage:foundation_establishment",
+      "realm": "yuanxian:foundation_establishment",
       "stage": 1,
       "health": 240.0,
       "attribute_attack": 24.0,
@@ -16,7 +16,7 @@
     {
       "id": "ender_dragon_v2",
       "entity": "minecraft:ender_dragon",
-      "realm": "myvillage:golden_core",
+      "realm": "yuanxian:golden_core",
       "stage": 0,
       "health": 800.0,
       "attribute_attack": null,
@@ -28,7 +28,7 @@
     {
       "id": "wither_v2",
       "entity": "minecraft:wither",
-      "realm": "myvillage:golden_core",
+      "realm": "yuanxian:golden_core",
       "stage": 1,
       "health": 960.0,
       "attribute_attack": null,
@@ -41,7 +41,7 @@
     {
       "id": "warden_v2",
       "entity": "minecraft:warden",
-      "realm": "myvillage:golden_core",
+      "realm": "yuanxian:golden_core",
       "stage": 2,
       "health": 1024.0,
       "attribute_attack": 90.0,

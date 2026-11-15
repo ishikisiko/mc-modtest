@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    "myvillage:fire_spirit",
-    "myvillage:elemental_fire"
+    "yuanxian:fire_spirit",
+    "yuanxian:elemental_fire"
   ]
 }
