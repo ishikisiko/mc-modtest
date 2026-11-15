@@ -140,7 +140,7 @@ public final class DropRuntime {
                 .then(Commands.argument("region",StringArgumentType.word()).executes(c->show(c.getSource(),ResourceLocationArgument.getId(c,"entity").toString(),StringArgumentType.getString(c,"scene"),StringArgumentType.getString(c,"region"),null,0))
                     .then(Commands.argument("realm",ResourceLocationArgument.id()).then(Commands.argument("stage",IntegerArgumentType.integer(0,8))
                         .executes(c->show(c.getSource(),ResourceLocationArgument.getId(c,"entity").toString(),StringArgumentType.getString(c,"scene"),StringArgumentType.getString(c,"region"),ResourceLocationArgument.getId(c,"realm").toString(),IntegerArgumentType.getInteger(c,"stage"))))))));
-        e.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(Commands.literal("drops")
+        e.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("drops").requires(s->s.hasPermission(2))
             .executes(c->status(c.getSource())).then(Commands.literal("status").executes(c->status(c.getSource())))
             .then(Commands.literal("reload").executes(c->reload(c.getSource())))
             .then(Commands.literal("inspect").then(Commands.argument("target",EntityArgument.entity()).executes(c->inspect(c.getSource(),EntityArgument.getEntity(c,"target")))))
@@ -157,14 +157,16 @@ public final class DropRuntime {
         var store=STORES.get(server);var s=store.active();JsonObject out=new JsonObject();out.addProperty("revision",s.revision());out.addProperty("sha256",s.sha256());out.add("configuration",s.rules().json());
         out.addProperty("preview_scope","逐实体导出各场景规则；habitat使用本世界的实际群落地区，其余场景地区与境界留空；条件限定请用show或inspect查询；不执行随机抽取");JsonArray rows=new JsonArray();
         var ids=new TreeSet<>(s.rules().entities());for(var type:BuiltInRegistries.ENTITY_TYPE)if(type.getCategory()==MobCategory.MONSTER)ids.add(BuiltInRegistries.ENTITY_TYPE.getKey(type).toString());
-        StringBuilder csv=new StringBuilder("实体ID,场景,模式,规则来源,配置掉落,原始战利品表ID\r\n");
+        StringBuilder csv=new StringBuilder("实体ID,场景,模式,规则来源,配置掉落,原始战利品表ID,继承战利品表,原生状态掉落说明\r\n");
         for(String id:ids)for(var scene:DropRules.Scene.values()){
             var layout=scene==DropRules.Scene.HABITAT?HabitatRuntime.layout(server.overworld()):null;
             String region=layout==null?"":layout.rules().region;
             var context=new DropRules.Context(id,scene,region,null,true,false);var row=describe(server,s,context,table(id));rows.add(row);
             var resolution=s.rules().resolve(context);List<DropRules.Entry> entries=new ArrayList<>(resolution.policy().drops());for(var addition:resolution.additions())entries.addAll(addition.drops());
             csv.append(csv(id)).append(',').append(csv(scene.id())).append(',').append(csv(resolution.policy().mode().name().toLowerCase(Locale.ROOT))).append(',')
-                .append(csv(resolution.origin())).append(',').append(csv(JSON.toJson(entries))).append(',').append(csv(row.has("inherited_table_id")?row.get("inherited_table_id").getAsString():"")).append("\r\n");
+                .append(csv(resolution.origin())).append(',').append(csv(JSON.toJson(entries))).append(',').append(csv(row.has("inherited_table_id")?row.get("inherited_table_id").getAsString():""))
+                .append(',').append(csv(row.has("inherited_table")?JSON.toJson(row.get("inherited_table")):""))
+                .append(',').append(csv(row.has("inherited_runtime_items")?row.get("inherited_runtime_items").getAsString():"")).append("\r\n");
         }
         out.add("rows",rows);write(store.file().resolveSibling("monster_drops_effective.json"),JSON.toJson(out)+"\n");write(store.file().resolveSibling("monster_drops_effective.csv"),"\ufeff"+csv);
     }

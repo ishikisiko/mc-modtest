@@ -1,6 +1,6 @@
 """独立服务器的动态掉落检查。通过死亡回调夹具观察真实事件与落地物品，不声称玩家输入验收。"""
 from __future__ import annotations
-import argparse,copy,hashlib,json,os,re,shutil,subprocess,sys,time,traceback
+import argparse,copy,csv,fcntl,hashlib,json,os,re,shutil,subprocess,sys,time,traceback
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'tools')]
@@ -16,18 +16,25 @@ class Server(BaseServer):
         self.command('difficulty normal')
 
 class Evidence:
-    def __init__(self,out,jar,probe,seed):
+    def __init__(self,out,jar,probe,seed,world_fixture=None):
         self.out=out;out.mkdir(parents=True,exist_ok=False)
         self.jar=jar;self.probe=probe
         self.game=ROOT/'run-dynamic-drops'/out.name
         if self.game.exists():raise ValueError('每次初始检查使用独立新世界')
         self.game.mkdir(parents=True);(self.game/'mods').mkdir()
+        if world_fixture is not None:
+            world_fixture=world_fixture.resolve()
+            if not world_fixture.is_relative_to(ROOT/'run-dynamic-drops') or not (world_fixture/'level.dat').is_file():raise ValueError('仅复用本采集器的自有测试世界')
+            with (world_fixture/'session.lock').open('r+b') as lock:
+                fcntl.lockf(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                shutil.copytree(world_fixture,self.game/'world')
         shutil.copyfile(probe,self.game/'mods'/probe.name)
         self.server=Server(out,self.game,seed);self.server.startup_timeout=1800
         self.path=self.game/'config/myvillage/monster_drops.json'
         self.defaults=json.loads((ROOT/'src/main/resources/data/myvillage/drops/monster_drops.json').read_text())
         self.report=dict(kind='dynamic_drops_native',status='running',selected=CASES,completed=[],failed=[],unrun=CASES.copy(),checks=[],commands=[],world=str(self.game),seed=seed,evidence='accepted_death_callback_fixture_and_native_item_entities',mapped_combat='not_verified',owner_feel='not_verified',owner_visual='not_verified',owner_fps='not_verified',collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
         self.current=CASES[0];self.save()
+        if world_fixture is not None:self.report['world_fixture']=str(world_fixture);self.save()
     def save(self):write(self.out/'report.json',self.report)
     def rc(self,command):
         value=self.server.command(command);self.report['commands'].append(dict(command=command,response=value));self.save();return value
@@ -62,6 +69,7 @@ class Evidence:
         try:
             self.case('candidate_identity',lambda:self.identity())
             self.server.start()
+            self.rc('kill @e[type=minecraft:item]')
             self.case('fresh_config_and_export',self.initial)
             self.case('query_and_inspect',self.query)
             self.case('inherit',lambda:self.items({'myvillage:stele_stone_heart':1}))
@@ -86,6 +94,7 @@ class Evidence:
             self.report['status']='passed'
         except BaseException as error:
             self.report['failed'].append(dict(case=self.current,error=repr(error),traceback=traceback.format_exc()));self.report['status']='failed'
+            self.report['unrun']=[v for v in CASES if v not in self.report['completed'] and v!=self.current]
             raise
         finally:
             try:self.server.stop()
@@ -102,6 +111,9 @@ class Evidence:
         self.check('export_snapshot_identity',result['revision']==status['revision'] and result['sha256']==status['sha256'])
         self.check('export_all_scenes',len(result['rows'])>=71*6 and len({r['context']['scene'] for r in result['rows']})==6)
         self.check('csv_bom',self.path.with_name('monster_drops_effective.csv').read_bytes().startswith(b'\xef\xbb\xbf'))
+        with self.path.with_name('monster_drops_effective.csv').open(encoding='utf-8-sig',newline='') as stream:csv_rows=list(csv.DictReader(stream))
+        inherited=next(row for row in csv_rows if row['实体ID']=='myvillage:stele_guardian' and row['场景']=='normal')
+        self.check('csv_includes_native_drop_expression','myvillage:stele_stone_heart' in inherited['继承战利品表'],inherited)
         for suffix in ['json','csv']:shutil.copyfile(self.path.with_name('monster_drops_effective.'+suffix),self.out/f'{label}-effective.{suffix}')
     def query(self):
         born=self.spawn();v=self.value('myvillage drops inspect '+born['uuid'],'DROPS ')
@@ -156,6 +168,6 @@ class Evidence:
     def restore(self):self.config(self.defaults);self.export('restored-defaults');self.check('restored_configuration',json.loads(self.path.read_text())==self.defaults)
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--jar',type=Path,required=True);parser.add_argument('--probe',type=Path,required=True);parser.add_argument('--seed',type=int,default=202611150133)
-    args=parser.parse_args();Evidence(args.out.resolve(),args.jar.resolve(),args.probe.resolve(),args.seed).run()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--jar',type=Path,required=True);parser.add_argument('--probe',type=Path,required=True);parser.add_argument('--seed',type=int,default=202611150133);parser.add_argument('--world-fixture',type=Path)
+    args=parser.parse_args();Evidence(args.out.resolve(),args.jar.resolve(),args.probe.resolve(),args.seed,args.world_fixture).run()
 if __name__=='__main__':main()
