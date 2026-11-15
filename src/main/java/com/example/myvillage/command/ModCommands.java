@@ -18,11 +18,11 @@ public final class ModCommands {
     public static void register() { NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,ModCommands::complete); }
     private static void complete(RegisterCommandsEvent event) {
         var dispatcher=event.getDispatcher();
-        var root=dispatcher.register(root().executes(c->help(c.getSource()))
+        dispatcher.register(root().executes(c->help(c.getSource()))
                 .then(Commands.literal("help").executes(c->help(c.getSource())))
                 .then(Commands.literal("帮助").executes(c->help(c.getSource()))));
         if(dispatcher.getRoot().getChild(ModBrand.COMMAND_SHORT)!=null)throw new IllegalStateException("命令入口已被占用："+ModBrand.COMMAND_SHORT);
-        dispatcher.register(CommandRoots.shortcut(ModBrand.COMMAND_SHORT,root));
+        CommandRoots.registerShortcut(dispatcher,ModBrand.COMMAND_SHORT,ModBrand.COMMAND_ROOT);
     }
     private static int help(CommandSourceStack source) {
         var root=source.getServer().getCommands().getDispatcher().getRoot().getChild(ModBrand.COMMAND_ROOT);

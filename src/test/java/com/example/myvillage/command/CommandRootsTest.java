@@ -51,4 +51,12 @@ class CommandRootsTest {
         var d=new CommandDispatcher<Integer>();var node=d.register(literal("restricted").requires(p->p>=3).executes(c->3));
         d.register(CommandRoots.shortcut("short",node));assertThrows(CommandSyntaxException.class,()->d.execute("short",0));assertEquals(3,d.execute("short",3));
     }
+    @Test void shortcutUsesMergedNodeAfterHelpRegistration()throws Exception {
+        var d=new CommandDispatcher<Integer>();d.register(CommandRoots.<Integer>root("yuanxian").then(literal("existing").executes(c->7)));
+        var staged=d.register(CommandRoots.<Integer>root("yuanxian").executes(c->1).then(literal("help").executes(c->1)));
+        assertNotSame(staged,d.getRoot().getChild("yuanxian"));
+        CommandRoots.registerShortcut(d,"yx","yuanxian");
+        assertSame(d.getRoot().getChild("yuanxian"),d.getRoot().getChild("yx").getRedirect());
+        assertEquals(7,d.execute("yx existing",0));assertEquals(1,d.execute("yx",0));
+    }
 }

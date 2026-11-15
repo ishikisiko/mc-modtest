@@ -1,6 +1,7 @@
 package com.example.myvillage.command;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import java.util.function.Predicate;
@@ -14,6 +15,11 @@ public final class CommandRoots {
         var builder=LiteralArgumentBuilder.<S>literal(name).requires(target.getRequirement()).redirect(target);
         if(target.getCommand()!=null)builder.executes(target.getCommand());
         return builder;
+    }
+    public static <S> void registerShortcut(CommandDispatcher<S> dispatcher,String name,String canonical) {
+        var target=dispatcher.getRoot().getChild(canonical);
+        if(target==null)throw new IllegalStateException("完整命令尚未注册："+canonical);
+        dispatcher.register(shortcut(name,target));
     }
     private static final class GuardedRoot<S> extends LiteralArgumentBuilder<S> {
         private final Predicate<S> guard;
