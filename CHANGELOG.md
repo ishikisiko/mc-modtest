@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.133.0
+
+- 怪物掉落统一支持服务端外置 JSON、管理员热重载、场景与地区境界条件、继承/追加/替换/禁用模式，以及当前生效规则的查询和 JSON/CSV 导出。
+- 将东荒群落临时灵石、烈焰人兽火及委托秘境/考核的禁止掉落迁到同一默认配置，保留原掉落与资格校验；掉落数值脱离冻结的世界生成规则。
+
 ## 0.132.1
 
 - 东荒妖兽与劫修的出生境界上限调整为炼气九层，下限仍为炼气一层；群落首领同步使用九层上限。

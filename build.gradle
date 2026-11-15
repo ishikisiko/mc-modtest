@@ -84,6 +84,22 @@ tasks.named('test') {
     }
 }
 
+// 独立原生掉落探针模组；主交付JAR始终只包含main输出。
+if (providers.gradleProperty('dropProbe').isPresent()) {
+    sourceSets {
+        dropProbe {
+            compileClasspath += sourceSets.main.output + configurations.compileClasspath
+            runtimeClasspath += output + compileClasspath
+        }
+    }
+    tasks.register('dropProbeJar', Jar) {
+        dependsOn 'dropProbeClasses'
+        from sourceSets.dropProbe.output
+        archiveBaseName = 'myvillage-drop-probe'
+        archiveVersion = '1'
+    }
+}
+
 neoForge {
     version = project.neo_version
     // moddev-gradle 2.0.141 registers mod sources via a top-level `mods {}`

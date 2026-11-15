@@ -33,7 +33,6 @@ public final class SectBenefitsRuntime {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, SectBenefitsRuntime::death);
         NeoForge.EVENT_BUS.addListener(SectBenefitsRuntime::tick);
         NeoForge.EVENT_BUS.addListener(SectBenefitsRuntime::logout);
-        NeoForge.EVENT_BUS.addListener(SectBenefitsRuntime::drops);
         NeoForge.EVENT_BUS.addListener(SectBenefitsRuntime::experience);
     }
     public static String stoneName(String stone) {
@@ -193,7 +192,6 @@ public final class SectBenefitsRuntime {
         var sim = WorldSimRuntime.sim().orElse(null);
         if (sim != null && sim.cancelElderTrial(p.getUUID().toString())) { dirty(p); if (!reason.isEmpty()) message(p, reason); }
     }
-    private static void drops(LivingDropsEvent e) { if (e.getEntity().getPersistentData().hasUUID(OWNER)) e.getDrops().clear(); }
     private static void experience(LivingExperienceDropEvent e) { if (e.getEntity().getPersistentData().hasUUID(OWNER)) e.setDroppedExperience(0); }
     public static void dirty(ServerPlayer p) { WorldSimSavedData.get(p.getServer().overworld()).setDirty(); }
     private static void message(ServerPlayer p, String line) { if (!line.isEmpty()) p.sendSystemMessage(Component.literal(line)); }

@@ -1,0 +1,366 @@
+{
+  "schema": 1,
+  "defaults": {
+    "mode": "inherit",
+    "drops": []
+  },
+  "entities": {
+    "myvillage:demon_wolf": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:thunder_tiger": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:ridge_reaver": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:ash_talismanist": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:thornback_badger": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:redplate_lizard": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:frostplume_pheasant": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:lantern_sporeling": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:stele_guardian": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:wandering_sword": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:mirror_wraith": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:ember_toad": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:beiyuan_bone_archer": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:beiyuan_corpse": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:bone_archer": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:donghai_bone_archer": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:donghai_corpse": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:donghuang_bone_archer": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:donghuang_corpse": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:lingyue_bone_archer": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:lingyue_corpse": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:moyu_bone_archer": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:moyu_corpse": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:nanjiang_bone_archer": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:nanjiang_corpse": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:wandering_corpse": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:ximo_bone_archer": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:ximo_corpse": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:zhongzhou_bone_archer": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:zhongzhou_corpse": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:blaze": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:bogged": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:breeze": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:cave_spider": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:creeper": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:drowned": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:elder_guardian": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:ender_dragon": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:enderman": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:endermite": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:evoker": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:ghast": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:giant": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:guardian": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:hoglin": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:husk": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:illusioner": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:magma_cube": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:phantom": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:piglin": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:piglin_brute": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:pillager": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:ravager": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:shulker": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:silverfish": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:skeleton": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:slime": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:spider": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:stray": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:vex": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:vindicator": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:warden": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:witch": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:wither": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:wither_skeleton": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:zoglin": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:zombie": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:zombie_villager": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "minecraft:zombified_piglin": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:cultivator": {
+      "mode": "inherit",
+      "drops": []
+    },
+    "myvillage:simple_fox": {
+      "mode": "inherit",
+      "drops": []
+    }
+  },
+  "overrides": [
+    {
+      "id": "aptitude_trial",
+      "when": {
+        "scenes": [
+          "aptitude_trial"
+        ]
+      },
+      "mode": "disabled",
+      "drops": []
+    },
+    {
+      "id": "sect_trial",
+      "when": {
+        "scenes": [
+          "sect_trial"
+        ]
+      },
+      "mode": "disabled",
+      "drops": []
+    },
+    {
+      "id": "quest_realm",
+      "when": {
+        "scenes": [
+          "quest_realm"
+        ]
+      },
+      "mode": "disabled",
+      "drops": []
+    },
+    {
+      "id": "donghuang_habitat",
+      "when": {
+        "scenes": [
+          "habitat"
+        ],
+        "regions": [
+          "donghuang"
+        ]
+      },
+      "mode": "replace",
+      "drops": [
+        {
+          "item": "myvillage:low_grade_spirit_stone",
+          "min": 1,
+          "max": 3,
+          "chance": 1
+        }
+      ]
+    }
+  ],
+  "additions": [
+    {
+      "id": "beast_fire",
+      "when": {
+        "entities": [
+          "minecraft:blaze"
+        ],
+        "player_kill": true,
+        "fire_captured": false
+      },
+      "drops": [
+        {
+          "item": "myvillage:beast_fire_seed",
+          "min": 1,
+          "max": 1,
+          "chance": 0.035,
+          "factory": "beast_fire"
+        }
+      ]
+    }
+  ]
+}

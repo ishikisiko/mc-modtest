@@ -22,7 +22,7 @@ public record FoundryRules(int version, Heat heat, Skill skill, Bonus manual, Bo
     public record Fire(String id,String name,double strength,double speed,String nurture_item,String affinity,String color) {}
     public record FireRules(int max_maturity,int nurture_gain,int nurture_qi,int samadhi_qi,double maturity_scale,
                             int completed_gain,double affinity_bonus,int thunder_pulses,double thunder_bonus,
-                            int earth_radius,double capture_health_fraction,double beast_drop_chance,int capture_cooldown_ticks,
+                            int earth_radius,double capture_health_fraction,int capture_cooldown_ticks,
                             int samadhi_skill_level,int samadhi_creation_qi,Map<String,Integer> samadhi_creation_cost,int samadhi_interval_ticks) {}
     public record HandleEffects(int nurture_idle_ticks,double nurture_min_power_fraction,int nurture_repair) {}
     public record Worldgen(int search_radius,int earth_attempts,int cold_attempts,int earth_min_y,int earth_max_y,int cold_min_y,int cold_max_y) {}
@@ -45,7 +45,7 @@ public record FoundryRules(int version, Heat heat, Skill skill, Bonus manual, Bo
             throw new IllegalArgumentException("Invalid foundry bounds");
         finite(skill.power_per_level(),0,0.1);finite(skill.overleveled_multiplier(),0,1);finite(heat.minimum_efficiency(),0.1,1);
         finite(handle_effects.nurture_min_power_fraction(),0,1);
-        finite(fire.maturity_scale(),0,1);finite(fire.capture_health_fraction(),0,1);finite(fire.beast_drop_chance(),0,1);
+        finite(fire.maturity_scale(),0,1);finite(fire.capture_health_fraction(),0,1);
         validateBonus(manual);validateBonus(caps);validateBonus(fire_bonus);
         unique(hammers.stream().map(Hammer::id).toList());unique(handles.stream().map(Handle::id).toList());unique(fires.stream().map(Fire::id).toList());
         for(var h:hammers){if(h.power()<1||h.power()>10000||h.quality()<0||h.quality()>10000||h.durability()<1||h.durability()>10000)

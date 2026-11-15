@@ -114,8 +114,33 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     return report
 
 
+def refresh_habitat_reference(out:Path):
+    """仅重生成冻结生态资源引用；供未改城市与宗门资源的局部构建复用。"""
+    from wilderness_habitats.generate import generate
+    path=out/'data/myvillage/worldplan/frozen_v11.json'
+    original=old.read_bounded(path,4*1024*1024);frozen=json.loads(original)
+    if frozen['algorithm']!='myvillage:worldplan_v11':raise ValueError('生态引用刷新需要当前V11冻结规则')
+    resource=(json.dumps(generate(),ensure_ascii=False,indent=2)+'\n').encode()
+    authored=ROOT/'src/main/resources/data/myvillage/wilderness/habitats.json'
+    if authored.read_bytes()!=resource:raise ValueError('生态资源未由当前作者输入生成')
+    before=copy.deepcopy(frozen);frozen['habitats']={'resource_sha256':sha(resource)}
+    raw=canonical(frozen);transport='gzip:'+base64.b64encode(gzip.compress(raw,mtime=0)).decode()
+    if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError('冻结规则超出既有容量')
+    preset_path=out/'data/myvillage/worldgen/world_preset/cultivation.json'
+    preset=json.loads(preset_path.read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
+    if generator['type']!='myvillage:planned_v11':raise ValueError('需要当前V11预设')
+    generator['rules']=transport;generator.pop('plan_hash',None)
+    write(path,frozen);write(preset_path,preset)
+    index_path=out/'data/myvillage/capitals/v4/index.json'
+    if index_path.exists():
+        index=json.loads(index_path.read_text());index['frozen_rules_sha256']=sha(raw);write(index_path,index)
+    return {'operation':'refresh_habitat_reference','before':sha(original),'after':sha(raw),
+            'old_habitats':before.get('habitats'),'habitats':frozen['habitats']}
+
+
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,default=OUT);parser.add_argument('--v10-out',type=Path,default=V10);parser.add_argument('--v9-out',type=Path,default=V9);parser.add_argument('--legacy-out',type=Path,default=LEGACY);parser.add_argument('--skip-base-export',action='store_true');parser.add_argument('--aggregate-only',action='store_true');parser.add_argument('--refresh-current',action='store_true',help='从当前 V11 导出资源重建冻结规则，不重导出未变城市');a=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,default=OUT);parser.add_argument('--v10-out',type=Path,default=V10);parser.add_argument('--v9-out',type=Path,default=V9);parser.add_argument('--legacy-out',type=Path,default=LEGACY);parser.add_argument('--skip-base-export',action='store_true');parser.add_argument('--aggregate-only',action='store_true');parser.add_argument('--refresh-current',action='store_true',help='从当前 V11 导出资源重建冻结规则，不重导出未变城市');parser.add_argument('--refresh-habitat-only',action='store_true',help='仅刷新当前冻结规则的生态资源引用');a=parser.parse_args()
+    if a.refresh_habitat_only:print(json.dumps(refresh_habitat_reference(a.out),ensure_ascii=False));return
     if not a.aggregate_only and not a.refresh_current:
         if not a.skip_base_export:subprocess.run([sys.executable,str(Path(__file__).with_name('compile_v10.py')),'--out',str(a.v10_out),'--v9-out',str(a.v9_out),'--legacy-out',str(a.legacy_out)],check=True)
         subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/environment_v4/export_game.py'),'--out',str(a.out),'--source',str(a.v10_out),'--v9-source',str(a.v9_out),'--legacy-source',str(a.legacy_out),'--regions','zhongzhou'],check=True)

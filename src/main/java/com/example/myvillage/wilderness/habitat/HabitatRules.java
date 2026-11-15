@@ -7,12 +7,10 @@ import java.util.*;
 public final class HabitatRules {
     public record Kind(String id,String name,String faction,List<String> members,int guards,boolean nightHunt,String nearKind) {}
     public record Block(int x,int y,int z,String block) {}
-    public record Loot(String item,int min,int max) {}
     private final JsonObject json;
     public final String region;
     public final List<Kind> kinds;
     public final Map<String,List<Block>> templates;
-    public final List<Loot> loot;
     public HabitatRules(JsonObject input) {
         if(input==null)throw new IllegalArgumentException("缺少东荒生态规则");
         if(!input.keySet().equals(Set.of("resource_sha256")))throw new IllegalArgumentException("生态规则必须使用精确资源引用");
@@ -50,7 +48,6 @@ public final class HabitatRules {
                 list.add(block);
             }blocks.put(k.id(),List.copyOf(list));
         }templates=Map.copyOf(blocks);
-        List<Loot> drops=new ArrayList<>();for(var element:json.getAsJsonArray("loot")){var l=element.getAsJsonObject();var drop=new Loot(l.get("item").getAsString(),l.get("min").getAsInt(),l.get("max").getAsInt());if(drop.min()<1||drop.max()<drop.min()||drop.max()>64)throw new IllegalArgumentException("临时战利品数量错误");drops.add(drop);}loot=List.copyOf(drops);if(loot.isEmpty())throw new IllegalArgumentException("缺少临时战利品");
     }
     public boolean flag(String key){return json.get(key).getAsBoolean();}
     public int integer(String key){return json.get(key).getAsInt();}

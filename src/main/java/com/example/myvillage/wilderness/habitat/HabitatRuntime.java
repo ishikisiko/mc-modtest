@@ -149,15 +149,11 @@ public final class HabitatRuntime {
     }
     @SubscribeEvent public static void hurt(LivingIncomingDamageEvent event){if(event.getEntity() instanceof Mob mob&&event.getSource().getEntity() instanceof LivingEntity attacker)alarm(mob,attacker);}
     @SubscribeEvent public static void death(LivingDeathEvent event){if(event.getEntity() instanceof Mob mob){var c=member(mob);if(c!=null&&HabitatSavedData.get(c.level()).state.death(c.site().id(),c.round().generation,mob.getUUID()))HabitatSavedData.get(c.level()).setDirty();}}
-    @SubscribeEvent public static void drops(LivingDropsEvent event){
-        if(!(event.getEntity().level() instanceof ServerLevel level)||!event.getEntity().getPersistentData().contains(TAG))return;
-        var layout=layout(level);event.getDrops().clear();if(layout==null)return;
-        var identity=event.getEntity().getPersistentData().getCompound(TAG);var round=HabitatSavedData.get(level).state.rounds.get(identity.getString("site"));
-        if(round==null||round.generation!=identity.getLong("generation"))return;
-        var slot=round.members.stream().filter(m->m.id.equals(event.getEntity().getUUID())&&m.dead).findFirst().orElse(null);if(slot==null)return;
-        var drop=layout.rules().loot.get(event.getEntity().getRandom().nextInt(layout.rules().loot.size()));var item=BuiltInRegistries.ITEM.get(ResourceLocation.parse(drop.item()));
-        var stack=new ItemStack(item,drop.min()+event.getEntity().getRandom().nextInt(drop.max()-drop.min()+1));
-        event.getDrops().add(new net.minecraft.world.entity.item.ItemEntity(level,event.getEntity().getX(),event.getEntity().getY(),event.getEntity().getZ(),stack));
+    public static boolean validLootReceipt(LivingEntity entity){
+        if(!(entity.level() instanceof ServerLevel level)||!entity.getPersistentData().contains(TAG))return false;
+        var layout=layout(level);if(layout==null)return false;
+        var identity=entity.getPersistentData().getCompound(TAG);var round=HabitatSavedData.get(level).state.rounds.get(identity.getString("site"));
+        return round!=null&&round.generation==identity.getLong("generation")&&round.members.stream().anyMatch(m->m.id.equals(entity.getUUID())&&m.dead);
     }
     private static void construction(ServerLevel level,BlockPos pos,boolean placed){var layout=layout(level);if(layout==null)return;var saved=HabitatSavedData.get(level);int radius=layout.rules().integer("construction_radius");
         for(var site:layout.sites())if(Math.abs(pos.getX()-site.x())<=radius&&Math.abs(pos.getZ()-site.z())<=radius){var round=saved.state.site(site.id());if(placed&&round.construction.size()<4096)round.construction.add(pos.asLong());else if(!placed)round.construction.remove(pos.asLong());saved.setDirty();}

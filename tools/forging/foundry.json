@@ -224,7 +224,6 @@
     "thunder_bonus": 0.08,
     "earth_radius": 48,
     "capture_health_fraction": 0.25,
-    "beast_drop_chance": 0.035,
     "capture_cooldown_ticks": 20,
     "samadhi_skill_level": 40,
     "samadhi_creation_qi": 300,

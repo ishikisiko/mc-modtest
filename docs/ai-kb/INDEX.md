@@ -136,3 +136,5 @@ above and link the relevant contract. Update only affected documentation.
 长生道胎：[寿元上限、按境界的年度累加、半点结算和保存](../features/everlasting-embryo.md)。
 
 东荒生态群落：[巢穴、巡猎与巡逻、群体冲突和按月恢复](../features/east-wilderness.md)。
+
+怪物掉落：[服务端外置配置、管理员热重载、场景覆盖、条件匹配与查询导出](../features/monster-drops.md)。

@@ -76,7 +76,6 @@ public final class QuestRuntime {
         NeoForge.EVENT_BUS.addListener(QuestRuntime::loggedOut);
         NeoForge.EVENT_BUS.addListener(QuestRuntime::loggedIn);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,QuestRuntime::death);
-        NeoForge.EVENT_BUS.addListener(QuestRuntime::drops);
         NeoForge.EVENT_BUS.addListener(QuestRuntime::damage);
         NeoForge.EVENT_BUS.addListener(QuestRuntime::breakBlock);
         NeoForge.EVENT_BUS.addListener(QuestRuntime::placeBlock);
@@ -526,7 +525,6 @@ public final class QuestRuntime {
         if(e.isCanceled()||!(e.getEntity() instanceof ServerPlayer p)||!realm(p.serverLevel()))return;
         var m=member(p);if(m==null||!m.result.equals("ACTIVE"))return;e.setCanceled(true);m.rescues++;p.setHealth(1);p.invulnerableTime=rules().integer("rescue_protection_ticks");RETURNS.remove(p.getUUID());RESCUE.put(p.getUUID(),m.rescues>rules().integer("rescue_count")?-1:1);save(p.getServer());
     }
-    private static void drops(LivingDropsEvent e){if(e.getEntity().getPersistentData().hasUUID(TAG))e.getDrops().clear();}
     private static void damage(LivingDamageEvent.Post e){if(e.getEntity() instanceof ServerPlayer p&&e.getNewDamage()>0&&RETURNS.remove(p.getUUID())!=null)say(p,"受伤中断了离场读条。");}
     private static void breakBlock(BlockEvent.BreakEvent e){if(e.getLevel() instanceof ServerLevel level&&realm(level))e.setCanceled(true);}
     private static void placeBlock(BlockEvent.EntityPlaceEvent e){if(e.getLevel() instanceof ServerLevel level&&realm(level))e.setCanceled(true);}

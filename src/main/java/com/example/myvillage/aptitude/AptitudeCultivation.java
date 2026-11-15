@@ -41,9 +41,6 @@ public final class AptitudeCultivation {
         NeoForge.EVENT_BUS.addListener(AptitudeCultivation::repairAtAnvil);
         NeoForge.EVENT_BUS.addListener(AptitudeCultivation::guardDamage);
         NeoForge.EVENT_BUS.addListener(AptitudeCultivation::guardTick);
-        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.living.LivingDropsEvent e) -> {
-            if (e.getEntity().getPersistentData().hasUUID(OWNER)) e.setCanceled(true);
-        });
         NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent e) -> {
             if (e.getEntity().getPersistentData().hasUUID(OWNER)) e.setDroppedExperience(0);
         });
