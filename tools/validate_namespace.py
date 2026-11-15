@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from tools.runtime_resources.read import DirectoryResources
 OLD='myvillage';NEW='yuanxian'
-LEGACY=[b'myvillage:',b'assets/myvillage/',b'data/myvillage/',b'myvillage_packed']
+LEGACY=[b'myvillage:',b'assets/myvillage/',b'data/myvillage/',b'myvillage_packed',b'subtitles.myvillage.',b'plugin_myvillage.']
 
 def inspect(root):
  reader=DirectoryResources(root);names={p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file() and not p.name.endswith('.class')};names.update(reader.entries)
@@ -20,7 +20,9 @@ def inspect(root):
    for key,value in obj.items():nested(name,value,depth+1)
   elif isinstance(obj,list):
    for value in obj:nested(name,value,depth+1)
-  elif isinstance(obj,str) and len(obj)>40:
+  elif isinstance(obj,str):
+   if not obj.startswith(('com.example.myvillage','com/example/myvillage')) and re.search(r'(^|[.:/_-])myvillage([.:/_-]|$)',obj):fail(name,'仍含旧资源ID或资源路径')
+   if len(obj)<=40:return
    encoded=obj[5:] if obj.startswith('gzip:') else obj
    try:raw=base64.b64decode(encoded,validate=True)
    except (ValueError,TypeError):return
@@ -63,7 +65,14 @@ def inspect(root):
      if not isinstance(entry.get('name'),str) or not entry['name'].startswith(NEW.upper()+'_'):
       fail(name,'枚举扩展名称必须使用当前mod ID前缀：'+str(entry.get('name')))
    if '/lang/' in name and isinstance(obj,dict):
-    if any('.'+OLD+'.' in key or key.endswith('.'+OLD) for key in obj):fail(name,'翻译键保留旧命名空间')
+    if any('.'+OLD+'.' in key or key.endswith('.'+OLD) or 'plugin_'+OLD+'.' in key for key in obj):fail(name,'翻译键保留旧命名空间')
+   if name=='assets/'+NEW+'/sounds.json' and isinstance(obj,dict):
+    locales=['zh_cn']+(['en_us'] if 'assets/'+NEW+'/lang/en_us.json' in names else [])
+    for locale in locales:
+     language_name='assets/'+NEW+'/lang/'+locale+'.json'
+     language=json.loads(reader.read(language_name)) if language_name in names else {}
+     for event,entry in obj.items():
+      if isinstance(entry,dict) and isinstance(entry.get('subtitle'),str) and entry['subtitle'] not in language:fail(name,'缺少字幕翻译：'+locale+'/'+event+'/'+entry['subtitle'])
    if name.startswith('assets/'+NEW+'/') and any(part in name for part in ['/models/','/blockstates/']):counts['models']+=1;asset_model_refs(name,obj)
  return {'status':'passed' if not errors else 'failed','counts':counts,'errors':errors}
 

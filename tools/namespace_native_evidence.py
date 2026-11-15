@@ -52,7 +52,7 @@ class Evidence:
      assert state()=='IDLE'
      client.guard();client.game.xdo('key','v');self.action('mapped_key',key='v');wait(state,lambda value:value in ('PREPARING_NORMAL','MEDITATING_NORMAL'),20,'新网络ID接收打坐意图')
      client.capture('meditation-network');client.guard();client.game.xdo('key','x');self.action('mapped_key',key='x');wait(state,lambda value:value=='IDLE',20,'新网络ID接收停止意图');self.done()
-    log=(self.out/'resources-YuanxianWitness/client.log').read_text(errors='replace')
+    self.stage='client_login_and_assets';log=(self.out/'resources-YuanxianWitness/client.log').read_text(errors='replace')
     import re
     bad=[line for line in log.splitlines() if re.search(r'missing|unable to load|failed to load|unknown custom packet|disconnect',line,re.I) and ('yuanxian' in line or 'packet' in line.lower())]
     write(self.out/'client-resource-errors.json',dict(errors=bad));assert not bad,bad
@@ -60,6 +60,7 @@ class Evidence:
    self.report['status']='passed' if not self.report['unrun'] else 'partial';self.save()
   except BaseException as error:
    self.report['status']='failed';self.report['failed'].append(dict(stage=self.stage,error=repr(error),traceback=traceback.format_exc()))
+   if self.stage in self.report['completed']:self.report['completed'].remove(self.stage)
    if self.stage in self.report['unrun']:self.report['unrun'].remove(self.stage)
    self.save();raise
   finally:

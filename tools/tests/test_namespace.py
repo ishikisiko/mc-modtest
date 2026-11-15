@@ -26,6 +26,23 @@ class NamespaceTest(unittest.TestCase):
   entry={'enum':'net/minecraft/world/entity/vehicle/Boat$Type','name':'MYVILLAGE_NINGYUAN','parameters':{'class':'com/example/myvillage/orchard/OrchardBoatType'}}
   self.write('META-INF/enumextensions.json',{'entries':[entry]});self.assertEqual('failed',inspect(self.root)['status'])
   entry['name']='YUANXIAN_NINGYUAN';self.write('META-INF/enumextensions.json',{'entries':[entry]});self.assertEqual('passed',inspect(self.root)['status'])
+ def test_sound_subtitles_resolve_in_chinese_and_retained_english(self):
+  path='assets/yuanxian/sounds.json';self.write(path,{'sword':{'subtitle':'subtitles.myvillage.sword','sounds':[]}})
+  self.assertEqual('failed',inspect(self.root)['status'])
+  self.write(path,{'sword':{'subtitle':'subtitles.yuanxian.sword','sounds':[]}});self.assertEqual('failed',inspect(self.root)['status'])
+  self.write('assets/yuanxian/lang/zh_cn.json',{'subtitles.yuanxian.sword':'剑声'});self.assertEqual('passed',inspect(self.root)['status'])
+  self.write('assets/yuanxian/lang/en_us.json',{});self.assertEqual('failed',inspect(self.root)['status'])
+  self.write('assets/yuanxian/lang/en_us.json',{'subtitles.yuanxian.sword':'Sword'});self.assertEqual('passed',inspect(self.root)['status'])
+ def test_jade_namespace_keys_are_renamed_without_conflicting_values(self):
+  import shutil
+  from tools.gen_branding import outputs,ROOT
+  for n in ['tools/branding.json','src/main/resources/META-INF/neoforge.mods.toml','src/main/resources/pack.mcmeta','gradle.properties','settings.gradle']:
+   target=self.root/n;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/n,target)
+  for locale in ('zh_cn','en_us'):
+   self.write('src/main/resources/assets/yuanxian/lang/'+locale+'.json',{'itemGroup.yuanxian.main':'源仙','config.jade.plugin_myvillage.manor_names':'名称','config.jade.plugin_yuanxian.manor_names':'名称'})
+  out=outputs(self.root,rename_namespace_from='myvillage');key='src/main/resources/assets/yuanxian/lang/zh_cn.json';language=json.loads(out[key]);self.assertNotIn('config.jade.plugin_myvillage.manor_names',language);self.assertEqual('名称',language['config.jade.plugin_yuanxian.manor_names'])
+  self.write(key,{'itemGroup.yuanxian.main':'源仙','config.jade.plugin_myvillage.manor_names':'冲突','config.jade.plugin_yuanxian.manor_names':'名称'})
+  with self.assertRaisesRegex(ValueError,'冲突'):outputs(self.root,rename_namespace_from='myvillage')
  def test_explicit_equipment_namespace_rename_keeps_every_item_path(self):
   from tools.immortal_equipment.exporter import validate_retained_ids
   old={'myvillage:a','myvillage:b'};new={'yuanxian:a','yuanxian:b'}

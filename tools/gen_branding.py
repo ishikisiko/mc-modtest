@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from tools.language_assets import language_text,load_language
 
-def outputs(root=ROOT):
+def outputs(root=ROOT,rename_namespace_from=None):
     data=json.loads((root/'tools/branding.json').read_text())
     if set(data)!={'display_name','namespace','command_root','command_short','description'}:raise ValueError('名称输入字段错误')
     if not all(isinstance(v,str) and v and '\n' not in v for v in data.values()):raise ValueError('名称须为非空单行文字')
@@ -28,10 +28,22 @@ def outputs(root=ROOT):
     for locale in ['zh_cn','en_us']:
         path=f'src/main/resources/assets/{data["namespace"]}/lang/{locale}.json';original=load_language((root/path).read_text())
         prefixes={k.split('.')[1] for k in original if k.startswith('itemGroup.') and k.endswith('.main')}
+        if rename_namespace_from:
+            if not re.fullmatch('[a-z][a-z0-9_]{1,31}',rename_namespace_from) or rename_namespace_from==data['namespace']:raise ValueError('旧命名空间无效')
+            prefixes.add(rename_namespace_from)
+            # Jade 用下划线拼接 namespace；旧键与已生成的新键同值时移除旧键。
+            for key in list(original):
+                old='plugin_'+rename_namespace_from+'.';new='plugin_'+data['namespace']+'.'
+                if old in key:
+                    target=key.replace(old,new)
+                    if target in original:
+                        if original[key]!=original[target]:raise ValueError('语言命名空间变更存在冲突：'+key)
+                        del original[key]
         rekeyed={}
         for key,value in original.items():
             for prefix in prefixes:
                 key=key.replace('.'+prefix+'.','.'+data['namespace']+'.')
+                key=key.replace('plugin_'+prefix+'.','plugin_'+data['namespace']+'.')
                 if key.endswith('.'+prefix):key=key[:-len(prefix)]+data['namespace']
                 value=value.replace(prefix+':',data['namespace']+':')
             if key in rekeyed:raise ValueError('命名空间重排产生重复语言键：'+key)
@@ -45,9 +57,9 @@ def outputs(root=ROOT):
     return out
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');parser.add_argument('--rename-namespace-from');args=parser.parse_args()
     bad=[]
-    for name,text in outputs().items():
+    for name,text in outputs(rename_namespace_from=args.rename_namespace_from).items():
         path=ROOT/name
         if args.check:
             if not path.exists() or path.read_text()!=text:bad.append(name)

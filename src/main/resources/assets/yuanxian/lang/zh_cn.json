@@ -3393,8 +3393,6 @@
   "tooltip.yuanxian.manor_details": "按住 Shift 查看材质",
   "tooltip.yuanxian.manor_debug": "造型状态：%s",
   "tooltip.yuanxian.manor_gallery": "%s · 独立样板",
-  "config.jade.plugin_myvillage.manor_names": "建筑部件名称",
-  "config.jade.plugin_myvillage.manor_location": "建筑归属",
   "tooltip.yuanxian.manor_component": "中键取样保留造型；放置时随面向旋转",
   "fate.yuanxian.effect.everlasting": "自然寿元成长",
   "item.yuanxian.aptitude_fruit": "资质灵果",
