@@ -101,7 +101,7 @@ public final class AlchemyRules {
         Set<String> herbs=Set.of("spirit_leaf","dew_blossom","sunroot","blood_berry","cloud_fungus","calm_lotus","ningyuan_fruit_low","ningyuan_fruit_high");
         for (Recipe r:result) {
             if (!r.formula().equals("yuanxian:formula_"+r.id())) throw invalid("formula","must match recipe id");
-            for(String herb:r.ingredients())if(!herb.startsWith("yuanxian:")||(!herbs.contains(herb.substring(10)) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMaterial(herb)))throw invalid("ingredients","unknown herb");
+            for(String herb:r.ingredients())if(!herb.startsWith("yuanxian:")||(!herbs.contains(herb.substring("yuanxian:".length())) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMaterial(herb)))throw invalid("ingredients","unknown herb");
             if(com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("yuanxian:pill_"+r.id()) || r.ingredients().size()!=3))throw invalid("recipe","invalid expedition formula");
             boolean foundation=r.output().equals("yuanxian:pill_zhuji")||r.output().equals("yuanxian:pill_buji");
             if(foundation && r.ingredients().size()!=3)throw invalid("recipe","foundation recipe needs three herbs");

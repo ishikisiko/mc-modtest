@@ -27,7 +27,7 @@ public final class NpcFatePool {
         public boolean eligible(int[] root) {
             if (!enabled) return false;
             if (element.isEmpty()) return true;
-            int index = Person.ELEMENTS.indexOf(element.startsWith("yuanxian:") ? element.substring(10) : element);
+            int index = Person.ELEMENTS.indexOf(element.startsWith("yuanxian:") ? element.substring("yuanxian:".length()) : element);
             return index >= 0 && root[index] >= minimumAptitude
                     && Arrays.stream(root).filter(v -> v > 0).count() <= maximumRoots;
         }

@@ -8,6 +8,7 @@ import copy
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 import struct
 import subprocess
@@ -335,15 +336,26 @@ def outputs(root=ROOT):
     return out
 
 
-def write_or_check(root=ROOT, *, check=False):
+def validate_retained_ids(old_ids, new_ids, rename_namespace_from=None):
+    if rename_namespace_from is not None:
+        if not re.fullmatch(r"[a-z0-9_.-]+", rename_namespace_from) or rename_namespace_from == "yuanxian":
+            raise ValueError("原命名空间无效")
+        prefix = rename_namespace_from + ":"
+        if any(not identity.startswith((prefix, "yuanxian:")) for identity in old_ids):
+            raise ValueError("原装备清单含未声明的命名空间")
+        old_ids = {"yuanxian:" + identity[len(prefix):] if identity.startswith(prefix) else identity for identity in old_ids}
+    if old_ids - new_ids:
+        raise ValueError("不得删除原注册装备 ID：" + ", ".join(sorted(old_ids-new_ids)))
+
+
+def write_or_check(root=ROOT, *, check=False, rename_namespace_from=None):
     root = Path(root)
     rendered = outputs(root)
     catalogue = root / "src/main/resources/data/yuanxian/immortal_equipment/catalogue.json"
     if catalogue.exists():
         old_ids = {a["id"] for s in read(catalogue)["sets"] for a in [*s["armor"], s["ingot"]]}
         new_ids = {a["id"] for s in json.loads(rendered[catalogue])["sets"] for a in [*s["armor"], s["ingot"]]}
-        if old_ids - new_ids:
-            raise ValueError("不得删除原注册装备 ID：" + ", ".join(sorted(old_ids-new_ids)))
+        validate_retained_ids(old_ids, new_ids, rename_namespace_from)
     changed = []
     for path, data in rendered.items():
         if not path.exists() or path.read_bytes() != data:

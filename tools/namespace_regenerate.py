@@ -14,8 +14,8 @@ STATIC=[
  'gen_legacy_encounters','gen_technique_growth']
 def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--start',type=int,default=0);args=parser.parse_args();out=args.out;out.mkdir(parents=True,exist_ok=False)
- commands=[[sys.executable,f'tools/{name}.py'] for name in STATIC]
- commands += [[sys.executable,'-m','tools.demon_pact_pillar.generate'],[sys.executable,'-m','tools.equipment','build'],[sys.executable,'-m','tools.immortal_equipment','build'],[sys.executable,'-m','tools.ore_textures.generate']]
+ commands=[[sys.executable,'-m',f'tools.{name}'] for name in STATIC]
+ commands += [[sys.executable,'-m','tools.demon_pact_pillar.generate'],[sys.executable,'-m','tools.equipment','build'],[sys.executable,'-m','tools.immortal_equipment','build','--rename-namespace-from','myvillage'],[sys.executable,'-m','tools.ore_textures.generate']]
  # Model families retain their dedicated authoring systems.
  sys.path.insert(0,str(ROOT))
  from tools.beastgen.build import DEFINITIONS

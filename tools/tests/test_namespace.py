@@ -22,4 +22,13 @@ class NamespaceTest(unittest.TestCase):
   self.assertEqual(2,len(inspect(self.root)['errors']))
  def test_java_implementation_package_is_not_a_resource_id(self):
   self.write('META-INF/enumextensions.json',{'class':'com.example.myvillage.SomeType'});self.assertEqual('passed',inspect(self.root)['status'])
+ def test_explicit_equipment_namespace_rename_keeps_every_item_path(self):
+  from tools.immortal_equipment.exporter import validate_retained_ids
+  old={'myvillage:a','myvillage:b'};new={'yuanxian:a','yuanxian:b'}
+  with self.assertRaisesRegex(ValueError,'不得删除'):validate_retained_ids(old,new)
+  validate_retained_ids(old,new,'myvillage')
+  with self.assertRaisesRegex(ValueError,'不得删除'):validate_retained_ids(old,{'yuanxian:a'},'myvillage')
+  with self.assertRaisesRegex(ValueError,'未声明'):validate_retained_ids(old|{'other:c'},new,'myvillage')
+  for bad in ('yuanxian','../bad',''):
+   with self.assertRaisesRegex(ValueError,'无效'):validate_retained_ids(old,new,bad)
 if __name__=='__main__':unittest.main()
