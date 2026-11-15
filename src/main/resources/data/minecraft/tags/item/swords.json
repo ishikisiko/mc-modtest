@@ -1,13 +1,13 @@
 {
   "replace": false,
   "values": [
-    "myvillage:qingfeng_sword",
-    "myvillage:xuanyue_zhenshan_sword",
-    "myvillage:chilian_lihuo_sword",
-    "myvillage:qingxiao_liuyun_sword",
-    "myvillage:lingxiao_spear",
-    "myvillage:xuantie_gauntlet",
-    "myvillage:guiyan_sword",
-    "myvillage:zhenyue_ruler"
+    "yuanxian:qingfeng_sword",
+    "yuanxian:xuanyue_zhenshan_sword",
+    "yuanxian:chilian_lihuo_sword",
+    "yuanxian:qingxiao_liuyun_sword",
+    "yuanxian:lingxiao_spear",
+    "yuanxian:xuantie_gauntlet",
+    "yuanxian:guiyan_sword",
+    "yuanxian:zhenyue_ruler"
   ]
 }
