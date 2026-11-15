@@ -8,7 +8,7 @@ from tools.qianji.server import Server as BaseServer
 from tools.roads_smoke.run import verify_candidate
 from tools.roadweaver_probe.run import write
 
-CASES=['candidate_identity','fresh_config_and_export','bundled_ignores_external_config','external_override_toggle','invalid_settings_keeps_snapshot','external_override_restart','bundled_restart','query_and_inspect','inherit','append','replace','disabled','live_existing_entity','invalid_config_keeps_snapshot','permission_gate','quest_default','sect_default','aptitude_default','scene_override_can_change','region_realm_conditions','looting_and_probability','beast_fire_components','captured_fire_suppressed','stale_habitat_rejected','habitat_default','habitat_live_override','restart_preserves_custom','restore_defaults_and_export']
+CASES=['candidate_identity','fresh_config_and_export','bundled_ignores_external_config','external_override_toggle','invalid_settings_keeps_snapshot','external_override_restart','bundled_restart','query_and_inspect','inherit','append','replace','disabled','live_existing_entity','invalid_config_keeps_snapshot','permission_gate','quest_default','sect_default','aptitude_default','scene_override_can_change','region_realm_conditions','looting_and_probability','beast_fire_components','item_variants','invalid_item_variants','captured_fire_suppressed','stale_habitat_rejected','habitat_default','habitat_live_override','restart_preserves_custom','restore_defaults_and_export']
 class Server(BaseServer):
     def start(self):
         # Existing lifecycle owns locking, startup, RCON and graceful release. Test-only mod is separate.
@@ -108,6 +108,8 @@ class Evidence:
             self.case('region_realm_conditions',self.conditions)
             self.case('looting_and_probability',self.looting)
             self.case('beast_fire_components',self.fire)
+            self.case('item_variants',self.item_variants)
+            self.case('invalid_item_variants',self.invalid_item_variants)
             self.case('captured_fire_suppressed',lambda:self.items({},entity='minecraft:blaze',captured=True))
             self.case('stale_habitat_rejected',self.stale)
             self.case('habitat_default',self.habitat)
@@ -206,6 +208,38 @@ class Evidence:
         self.config(data);value=self.items({'yuanxian:beast_fire_seed':1},entity='minecraft:blaze')
         detail=value['world_item_details'][0]['components'];fire=detail.get('components',{}).get('yuanxian:fire_seed',{})
         self.check('formal_fire_components',fire.get('kind')=='beast' and fire.get('maturity')==0 and fire.get('dimension')=='minecraft:overworld' and isinstance(fire.get('origin'),int),detail)
+    def item_variants(self):
+        self.value('drop_probe variants','DROP_PROBE ')
+        options=json.loads((self.game/'drop-variant-catalogue.json').read_text())
+        expected=json.loads((ROOT/'drop-workbench-catalogue.json').read_text())['items']
+        mismatches=[]
+        for row in expected:
+            actual=options.get(row['id'],{})
+            for key in ['qualities','rarities','quality_kind']:
+                if actual.get(key)!=row.get(key):mismatches.append({'item':row['id'],'field':key,'expected':row.get(key),'actual':actual.get(key)})
+        self.check('all_workbench_variant_capabilities_match_native_registry',not mismatches,{'checked_items':len(expected),'mismatches':mismatches})
+        entries=[self.entry('yuanxian:pill_huiling',17,quality=4),self.entry('yuanxian:pill_huiling',1,quality=1),self.entry('yuanxian:pill_zhuji',1,quality=4),self.entry('yuanxian:qingfeng_sword',1,quality=2),self.entry('yuanxian:xuantie_helmet',1,quality=3),self.entry('yuanxian:forged_pickaxe',1,quality=1),self.entry('yuanxian:forged_hoe',1,quality=0),self.entry('minecraft:diamond_sword',1,rarity='rare'),self.entry('yuanxian:huashen_dari_helmet',1,rarity='epic')]
+        self.config(self.entity_policy('replace',entries))
+        value=self.kill();details=value['world_item_details']
+        self.check('all_variant_drop_quantities',value['world_items']=={'yuanxian:pill_huiling':18,'yuanxian:pill_zhuji':1,'yuanxian:qingfeng_sword':1,'yuanxian:xuantie_helmet':1,'yuanxian:forged_pickaxe':1,'yuanxian:forged_hoe':1,'minecraft:diamond_sword':1,'yuanxian:huashen_dari_helmet':1},value)
+        def components(row):return row['components'].get('components',{})
+        huiling=[r for r in details if r['item']=='yuanxian:pill_huiling']
+        self.check('pill_split_stacks_keep_quality',sorted((r['count'],components(r).get('yuanxian:pill_quality',1)) for r in huiling)==[(1,1),(1,4),(16,4)],huiling)
+        for id,q in [('yuanxian:pill_zhuji',4),('yuanxian:qingfeng_sword',2),('yuanxian:xuantie_helmet',3),('yuanxian:forged_pickaxe',1)]:
+            row=next(r for r in details if r['item']==id);c=components(row)
+            self.check('drop_component_'+id,c.get('yuanxian:pill_quality')==q if 'pill_' in id else c.get('yuanxian:forge_mark')=={'trait':'','quality':q},row)
+        ordinary=next(r for r in details if r['item']=='yuanxian:forged_hoe')
+        self.check('ordinary_tool_is_present_without_forge_mark','yuanxian:forge_mark' not in components(ordinary),ordinary)
+        for id,rarity in [('minecraft:diamond_sword','rare'),('yuanxian:huashen_dari_helmet','epic')]:
+            row=next(r for r in details if r['item']==id);self.check('drop_native_rarity_'+id,components(row).get('minecraft:rarity')==rarity,row)
+        state=self.status();self.check('query_exports_quality_and_rarity',state['source']=='external')
+        shown=self.value('yuanxian drops show yuanxian:stele_guardian normal','DROPS ')
+        self.check('query_keeps_variant_fields',shown['effective']['policy']['drops'][0]['quality']==4 and shown['effective']['policy']['drops'][-1]['rarity']=='epic',shown['effective'])
+    def invalid_item_variants(self):
+        before=self.status()
+        for item,field,value in [('yuanxian:pill_huiling','quality',0),('yuanxian:pill_huiling','quality',5),('minecraft:diamond','quality',4),('yuanxian:qingfeng_sword','rarity','epic'),('minecraft:diamond_sword','rarity','legendary')]:
+            data=self.entity_policy('replace',[self.entry(item,1,**{field:value})]);self.path.write_text(json.dumps(data));answer=self.rc('yuanxian drops reload')
+            self.check('invalid_variant_keeps_active_snapshot','重载失败' in answer and self.status()['sha256']==before['sha256'],{'item':item,'field':field,'value':value,'response':answer})
     def stale(self):
         data=copy.deepcopy(self.defaults);data['overrides']=[dict(id='any_habitat',when=dict(scenes=['habitat']),mode='replace',drops=[self.entry()])];self.config(data);self.items({},scene='stale_habitat')
     def habitat(self):

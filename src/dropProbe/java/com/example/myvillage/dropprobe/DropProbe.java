@@ -91,6 +91,20 @@ public final class DropProbe {
         boolean denied=false;try{var result=server.getCommands().getDispatcher().execute("yuanxian drops reload",low);denied=result==0;}catch(Exception expected){denied=true;}
         last=new JsonObject();last.addProperty("permission_zero_denied",denied);last.addProperty("revision_unchanged",before.revision()==DropRuntime.snapshot(server).revision());reply(source);return denied?1:0;
     }
+    private static int variants(CommandSourceStack source) {
+        JsonObject options=new JsonObject();
+        for(var item:BuiltInRegistries.ITEM){
+            String id=BuiltInRegistries.ITEM.getKey(item).toString();
+            if(!id.startsWith("minecraft:")&&!id.startsWith("yuanxian:"))continue;
+            JsonObject row=new JsonObject();row.addProperty("quality_kind",DropItemVariants.qualityKind(item));
+            JsonArray qualities=new JsonArray();for(int q=0;q<=4;q++)if(DropItemVariants.allowsQuality(id,q))qualities.add(q);
+            JsonArray rarities=new JsonArray();if(DropItemVariants.allowsRarity(id))for(String r:List.of("common","uncommon","rare","epic"))rarities.add(r);
+            row.add("qualities",qualities);row.add("rarities",rarities);options.add(id,row);
+        }
+        try{java.nio.file.Files.writeString(java.nio.file.Path.of("drop-variant-catalogue.json"),JSON.toJson(options));}
+        catch(java.io.IOException error){throw new IllegalStateException(error);}
+        last=new JsonObject();last.addProperty("variant_items",options.size());reply(source);return options.size();
+    }
     private static void commands(RegisterCommandsEvent e){
         e.getDispatcher().register(Commands.literal("drop_probe").requires(s->s.hasPermission(4))
             .then(Commands.literal("spawn").then(Commands.argument("entity",ResourceLocationArgument.id())
@@ -100,6 +114,7 @@ public final class DropProbe {
                 .executes(c->finish(c.getSource(),IntegerArgumentType.getInteger(c,"looting"),BoolArgumentType.getBool(c,"captured"))))))
             .then(Commands.literal("read").executes(c->read(c.getSource())))
             .then(Commands.literal("ready").executes(c->ready(c.getSource())))
+            .then(Commands.literal("variants").executes(c->variants(c.getSource())))
             .then(Commands.literal("deny").executes(c->deny(c.getSource()))));
     }
 }

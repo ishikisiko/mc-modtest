@@ -8,6 +8,9 @@ class WorkbenchTest(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.file=self.root/SOURCE;self.file.parent.mkdir(parents=True);self.original=(ROOT/SOURCE).read_bytes();self.file.write_bytes(self.original);self.data=decode(self.original)
         self.catalogue={'items':[{'id':id} for id in ['minecraft:diamond','minecraft:emerald','yuanxian:low_grade_spirit_stone','yuanxian:beast_fire_seed']],'entities':[{'id':id} for id in self.data['entities']],'regions':[{'id':id} for id in ['donghuang','lingyue','beiyuan','donghai','ximo','nanjiang','moyu','zhongzhou']],'realms':json.loads((ROOT/'src/main/resources/data/yuanxian/stats/rules.json').read_text())['realms']}
+        from tools.drop_workbench.variants import attach
+        self.catalogue['items'] += [{'id':id} for id in ['yuanxian:pill_huiling','yuanxian:pill_zhuji','yuanxian:qingfeng_sword','yuanxian:xuantie_helmet','yuanxian:forged_pickaxe','yuanxian:guiyan_sword','yuanxian:zhenyue_ruler','yuanxian:huashen_dari_helmet']]
+        attach(ROOT,self.catalogue['items'],{})
         self.store=Store(self.root,self.catalogue,self.root/'state')
     def tearDown(self):self.tmp.cleanup()
     def change(self):
@@ -51,6 +54,20 @@ class WorkbenchTest(unittest.TestCase):
         for t in threads:t.start()
         for t in threads:t.join()
         self.assertCountEqual(['saved','conflict'],results)
+    def test_quality_and_rarity_survive_save_read_and_restore(self):
+        for item,value in [('yuanxian:pill_huiling',4),('yuanxian:pill_zhuji',4),('yuanxian:qingfeng_sword',2),('yuanxian:xuantie_helmet',3),('yuanxian:forged_pickaxe',0)]:
+            data=self.change();d=data['entities']['yuanxian:redplate_lizard']['drops'][0];d.update(item=item,quality=value)
+            saved=self.store.save(data,self.store.read()['revision']);self.assertEqual(value,saved['config']['entities']['yuanxian:redplate_lizard']['drops'][0]['quality']);self.assertEqual(data,decode(self.file.read_bytes()))
+        data=self.change();data['entities']['yuanxian:redplate_lizard']['drops'][0]['rarity']='epic';saved=self.store.save(data,self.store.read()['revision']);self.assertEqual('epic',saved['config']['entities']['yuanxian:redplate_lizard']['drops'][0]['rarity'])
+    def test_invalid_variants_never_replace_the_file(self):
+        for item,field,value in [('yuanxian:pill_huiling','quality',0),('yuanxian:pill_huiling','quality',5),('yuanxian:pill_huiling','quality',1.5),('yuanxian:pill_huiling','quality',True),('yuanxian:pill_huiling','quality',None),('yuanxian:pill_huiling','quality','4'),('minecraft:diamond','quality',4),('yuanxian:qingfeng_sword','rarity','epic'),('minecraft:diamond','rarity','legendary'),('minecraft:diamond','rarity',None),('minecraft:diamond','rarity',4)]:
+            data=self.change();d=data['entities']['yuanxian:redplate_lizard']['drops'][0];d.update(item=item);d[field]=value
+            with self.assertRaises(Invalid):self.store.save(data,self.store.read()['revision'])
+            self.assertEqual(self.original,self.file.read_bytes())
+    def test_component_capabilities_use_actual_registered_families(self):
+        by={v['id']:v for v in self.catalogue['items']}
+        self.assertEqual([1,2,3,4],by['yuanxian:pill_huiling']['qualities']);self.assertEqual([0,1,2,3,4],by['yuanxian:guiyan_sword']['qualities']);self.assertEqual([0,1,2,3,4],by['yuanxian:zhenyue_ruler']['qualities']);self.assertEqual([],by['minecraft:diamond']['qualities']);self.assertEqual(['common','uncommon','rare','epic'],by['yuanxian:huashen_dari_helmet']['rarities'])
+
 class HttpTest(WorkbenchTest):
     def setUp(self):
         super().setUp();self.http=App(('127.0.0.1',0),self.store,b'fixture-password');self.thread=threading.Thread(target=self.http.serve_forever,daemon=True);self.thread.start();self.base='http://127.0.0.1:'+str(self.http.server_port)

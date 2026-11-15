@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.134.2
+
+- 掉落工作台支持添加物品时选择品质或原版稀有度，已配置条目可继续修改，同一物品的不同品质分别保存。
+- 统一掉落规则新增可选 quality／rarity，服务端复用丹药品质、成器品质和原版稀有度组件，保留默认值与堆叠拆分，并拒绝不适用档位。
+
 ## 0.134.1
 
 - 怪物掉落默认使用当前JAR内的统一表，更新模组后已有世界也采用新规则；已有外置表保留但默认不参与加载。

@@ -12,9 +12,11 @@ class DropRulesTest {
     static JsonObject json()throws Exception{return JsonParser.parseString(defaults()).getAsJsonObject();}
     static DropRules.Catalog catalog()throws Exception{
         var entities=new HashSet<>(json().getAsJsonObject("entities").keySet());
-        return new DropRules.Catalog(Set.of("yuanxian:low_grade_spirit_stone","yuanxian:beast_fire_seed","yuanxian:redplate_scale","minecraft:diamond")::contains,
+        return new DropRules.Catalog(Set.of("yuanxian:low_grade_spirit_stone","yuanxian:beast_fire_seed","yuanxian:redplate_scale","minecraft:diamond","yuanxian:pill_huiling","yuanxian:qingfeng_sword","yuanxian:xuantie_helmet","yuanxian:forged_pickaxe")::contains,
             entities::contains,Set.of("donghuang","lingyue","beiyuan","donghai","ximo","nanjiang","moyu","zhongzhou")::contains,
-            key->{var s=StatsRules.bundled();s.definition(key);return s.definition(key).order()*16+key.stage();});
+            key->{var s=StatsRules.bundled();s.definition(key);return s.definition(key).order()*16+key.stage();},
+            (id,q)->id.equals("yuanxian:pill_huiling")?q>=1&&q<=4:Set.of("yuanxian:qingfeng_sword","yuanxian:xuantie_helmet","yuanxian:forged_pickaxe").contains(id)&&q>=0&&q<=4,
+            id->!Set.of("yuanxian:pill_huiling","yuanxian:qingfeng_sword","yuanxian:xuantie_helmet","yuanxian:forged_pickaxe").contains(id));
     }
     static DropRules.Context context(String entity,DropRules.Scene scene){return new DropRules.Context(entity,scene,"donghuang",null,true,false);}
     static JsonObject diamond(String mode){return JsonParser.parseString("{\"mode\":\""+mode+"\",\"drops\":[{\"item\":\"minecraft:diamond\",\"min\":2,\"max\":3,\"chance\":1}]}").getAsJsonObject();}
@@ -85,4 +87,29 @@ class DropRulesTest {
         var r=DropRules.parse(defaults(),catalog());r.json().getAsJsonObject("entities").remove("yuanxian:demon_wolf");assertTrue(r.entities().contains("yuanxian:demon_wolf"));
         var h=r.resolve(context("yuanxian:demon_wolf",DropRules.Scene.HABITAT));assertThrows(UnsupportedOperationException.class,()->h.policy().drops().clear());assertThrows(UnsupportedOperationException.class,()->r.entities().clear());
     }
+    @Test void qualityAndRarityReachRewardsWithoutChangingQuantities()throws Exception{
+        for(String item:List.of("yuanxian:pill_huiling","yuanxian:qingfeng_sword","yuanxian:xuantie_helmet","yuanxian:forged_pickaxe")){
+            var j=json();var policy=diamond("replace");var e=policy.getAsJsonArray("drops").get(0).getAsJsonObject();e.addProperty("item",item);e.addProperty("quality",4);
+            j.getAsJsonObject("entities").add("yuanxian:demon_wolf",policy);
+            var reward=DropRules.roll(DropRules.parse(j.toString(),catalog()).resolve(context("yuanxian:demon_wolf",DropRules.Scene.NORMAL)),0,new Random(1)).getFirst();
+            assertEquals(item,reward.item());assertEquals(4,reward.quality());assertNull(reward.rarity());assertTrue(reward.count()>=2&&reward.count()<=4);
+        }
+        var j=json();var policy=diamond("replace");policy.getAsJsonArray("drops").get(0).getAsJsonObject().addProperty("rarity","epic");j.getAsJsonObject("entities").add("yuanxian:demon_wolf",policy);
+        var reward=DropRules.roll(DropRules.parse(j.toString(),catalog()).resolve(context("yuanxian:demon_wolf",DropRules.Scene.NORMAL)),0,new Random(1)).getFirst();
+        assertEquals("epic",reward.rarity());assertNull(reward.quality());
+    }
+    @Test void invalidVariantsAreRejectedBeforeRulesCanActivate()throws Exception{
+        for(String value:List.of("null","true","1.5","-1","5","\"4\"")){
+            var j=json();var p=diamond("replace");var e=p.getAsJsonArray("drops").get(0).getAsJsonObject();e.addProperty("item","yuanxian:pill_huiling");e.add("quality",JsonParser.parseString(value));j.getAsJsonObject("entities").add("yuanxian:demon_wolf",p);
+            assertThrows(IllegalArgumentException.class,()->DropRules.parse(j.toString(),catalog()),value);
+        }
+        for(String item:List.of("minecraft:diamond","yuanxian:pill_huiling")){
+            var j=json();var p=diamond("replace");var e=p.getAsJsonArray("drops").get(0).getAsJsonObject();e.addProperty("item",item);e.addProperty("quality",0);j.getAsJsonObject("entities").add("yuanxian:demon_wolf",p);assertThrows(IllegalArgumentException.class,()->DropRules.parse(j.toString(),catalog()));
+        }
+        for(String value:List.of("null","0","true","\"legendary\"","\"EPIC\"")){
+            var j=json();var p=diamond("replace");p.getAsJsonArray("drops").get(0).getAsJsonObject().add("rarity",JsonParser.parseString(value));j.getAsJsonObject("entities").add("yuanxian:demon_wolf",p);assertThrows(IllegalArgumentException.class,()->DropRules.parse(j.toString(),catalog()));
+        }
+        var j=json();var p=diamond("replace");var e=p.getAsJsonArray("drops").get(0).getAsJsonObject();e.addProperty("item","yuanxian:qingfeng_sword");e.addProperty("quality",2);e.addProperty("rarity","epic");j.getAsJsonObject("entities").add("yuanxian:demon_wolf",p);assertThrows(IllegalArgumentException.class,()->DropRules.parse(j.toString(),catalog()));
+    }
+
 }

@@ -17,9 +17,10 @@ public final class DropRules {
         public String id(){return name().toLowerCase(Locale.ROOT);}
         public static Scene parse(String id){try{return valueOf(id.toUpperCase(Locale.ROOT));}catch(Exception e){throw bad("scene","未知场景："+id);}}
     }
-    public record Catalog(Predicate<String> item,Predicate<String> entity,Predicate<String> region,ToIntFunction<RealmKey> realmRank) {}
+    public record Catalog(Predicate<String> item,Predicate<String> entity,Predicate<String> region,ToIntFunction<RealmKey> realmRank,
+                          BiPredicate<String,Integer> quality,Predicate<String> rarity) {}
     public record Context(String entity,Scene scene,String region,Integer realmRank,boolean playerKill,boolean fireCaptured) {}
-    public record Entry(String item,int min,int max,double chance,double lootingMin,double lootingMax,int limit,String factory) {}
+    public record Entry(String item,int min,int max,double chance,double lootingMin,double lootingMax,int limit,String factory,Integer quality,String rarity) {}
     public record Policy(Mode mode,List<Entry> drops) {public Policy{drops=List.copyOf(drops);}}
     public record Match(Set<String> entities,Set<Scene> scenes,Set<String> regions,Integer minRealm,Integer maxRealm,Boolean playerKill,Boolean fireCaptured) {
         public boolean matches(Context c){return (entities.isEmpty()||entities.contains(c.entity()))&&(scenes.isEmpty()||scenes.contains(c.scene()))
@@ -30,7 +31,7 @@ public final class DropRules {
     public record Override(String id,Match when,Policy policy) {}
     public record Addition(String id,Match when,List<Entry> drops) {public Addition{drops=List.copyOf(drops);}}
     public record Resolution(String origin,Policy policy,List<Addition> additions) {public Resolution{additions=List.copyOf(additions);}}
-    public record Reward(String item,int count,String factory) {}
+    public record Reward(String item,int count,String factory,Integer quality,String rarity) {}
     private final Policy defaults;
     private final Map<String,Policy> entities;
     private final List<Override> overrides;
@@ -58,7 +59,7 @@ public final class DropRules {
         for(var e:entries){if(e.chance()==0||e.chance()<1&&random.nextDouble()>=e.chance())continue;
             int count=e.min()+random.nextInt(e.max()-e.min()+1);
             if(looting>0&&e.lootingMax()>0)count+=Math.round((float)(looting*(e.lootingMin()+(e.lootingMax()-e.lootingMin())*random.nextDouble())));
-            count=Math.min(count,e.limit());if(count>0)out.add(new Reward(e.item(),count,e.factory()));
+            count=Math.min(count,e.limit());if(count>0)out.add(new Reward(e.item(),count,e.factory(),e.quality(),e.rarity()));
         }
     }
     public static DropRules parse(String input,Catalog catalog){
@@ -93,7 +94,7 @@ public final class DropRules {
     private static List<Entry> entries(JsonObject o,String p,Catalog c){
         JsonArray a=array(o,"drops",p,64);List<Entry> out=new ArrayList<>();
         for(int i=0;i<a.size();i++){
-            String q=p+".drops["+i+"]";JsonObject e=asObject(a.get(i),q);fields(e,q,"item","min","max","chance","looting","factory");
+            String q=p+".drops["+i+"]";JsonObject e=asObject(a.get(i),q);fields(e,q,"item","min","max","chance","looting","factory","quality","rarity");
             String item=string(e,"item",q);id(item,q+".item");if(item.equals("minecraft:air")||!c.item().test(item))throw bad(q+".item","物品不存在或为空气");
             int min=integer(e,"min",q,0,64),max=integer(e,"max",q,min,64);double chance=decimal(e,"chance",q,0,1);
             double lo=0,hi=0;int limit=64;if(e.has("looting")){
@@ -102,7 +103,12 @@ public final class DropRules {
             }
             String factory=e.has("factory")?string(e,"factory",q):"plain";
             if(!Set.of("plain","beast_fire").contains(factory)||factory.equals("beast_fire")&&!item.equals("yuanxian:beast_fire_seed"))throw bad(q+".factory","工厂应为plain；beast_fire仅用于兽火");
-            out.add(new Entry(item,min,max,chance,lo,hi,limit,factory));
+            Integer quality=e.has("quality")?integer(e,"quality",q,0,4):null;
+            if(quality!=null&&!c.quality().test(item,quality))throw bad(q+".quality","该物品不支持此品质");
+            String rarity=e.has("rarity")?string(e,"rarity",q):null;
+            if(rarity!=null&&(!Set.of("common","uncommon","rare","epic").contains(rarity)||!c.rarity().test(item)))throw bad(q+".rarity","该物品不支持此稀有度");
+            if(quality!=null&&rarity!=null)throw bad(q,"品质与原版稀有度不能同时指定");
+            out.add(new Entry(item,min,max,chance,lo,hi,limit,factory,quality,rarity));
         }
         return List.copyOf(out);
     }

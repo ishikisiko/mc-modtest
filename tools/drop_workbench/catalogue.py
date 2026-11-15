@@ -4,6 +4,7 @@ import argparse,hashlib,json,re,shutil,zipfile
 from pathlib import Path
 from .categories import classify
 from .loot import native_loot
+from .variants import attach
 ROOT=Path(__file__).resolve().parents[2]
 ASSETS='https://assets.ishiki333hhh.win/drop-workbench/'
 
@@ -45,7 +46,7 @@ class Assets:
             return self.read(f'assets/{ns}/textures/{name}.png') or self.read(f'assets/{ns}/textures/block/{name[5:]}.png')
         return None
 
-def build(root=ROOT,client=None,assets_cache=None,out=None):
+def build(root=ROOT,client=None,assets_cache=None,out=None,asset_base=ASSETS):
     client=client or Path.home()/'.gradle/caches/neoformruntime/artifacts/minecraft_1.21.1_client.jar'
     assets_cache=assets_cache or Path.home()/'.gradle/caches/neoformruntime/assets'
     out=out or root/'reports/drop-workbench/site';out.mkdir(parents=True,exist_ok=True);(out/'icons').mkdir(exist_ok=True)
@@ -94,6 +95,7 @@ def build(root=ROOT,client=None,assets_cache=None,out=None):
         else:names={p.stem for p in (root/'src/main/resources/data/yuanxian/loot_table/entities').glob('*.json')}
         entities={id:v for id,v in entities.items() if v['namespace']!=ns or id.split(':')[1] in names or id in defaults['entities']}
     categories=classify(root,reader,items)
+    variants=attach(root,items,langs['yuanxian'])
     unsupported=native_loot(reader,langs,entities)
     portraits=root/'reports/drop-workbench/portraits'
     if (portraits/'manifest.json').exists():
@@ -107,16 +109,23 @@ def build(root=ROOT,client=None,assets_cache=None,out=None):
                 for view in v.get('portrait',{}).get('views',[]):
                     file=view['url'].split('/')[-1].split('?')[0];archive.write(portraits/'entities'/file,('原版' if v['namespace']=='minecraft' else '源仙')+'/'+v['name']+'__'+id.split(':')[1]+'/'+view['name']+'.png')
     result={'version':2,'minecraft_version':'1.21.1','items':items,'categories':categories,'entities':sorted(entities.values(),key=lambda v:(v['namespace'],v['id'])),'regions':[{'id':id,'name':name} for id,name in [('donghuang','东荒'),('lingyue','灵岳'),('beiyuan','北原'),('donghai','东海'),('ximo','西漠'),('nanjiang','南疆'),('moyu','魔域'),('zhongzhou','中州')]],'realms':[],'provenance':{'minecraft_client_sha256':hashlib.file_digest(client.open('rb'),'sha256').hexdigest(),'minecraft_language_sha1':entry['hash'],'mod_language_sha256':hashlib.sha256((root/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_bytes()).hexdigest(),'selection':'当前物品模型及其物品名称、BlockItem父方块名称','loot_unrecognized':unsupported}}
+    result['variants']=variants
     realm_names={'mortal':'凡人','qi_refining':'炼气','foundation_establishment':'筑基','golden_core':'金丹','nascent_soul':'元婴','spirit_transformation':'化神'}
     for value in json.loads((root/'src/main/resources/data/yuanxian/stats/rules.json').read_text())['realms']:
         id=value['id'];name=id.split(':')[1]
         result['realms'].append({'id':id,'name':realm_names.get(name,name),'order':value['order'],'stages':value['stages']})
     result['realms'].sort(key=lambda v:v['order']);(out/'catalogue.json').write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n')
     for path in (root/'web/drop-workbench').iterdir():
-        if path.suffix in ('.html','.css','.js'):shutil.copy2(path,out/path.name)
+        if path.suffix=='.html':
+            html=path.read_text()
+            for name in ['app.js','style.css']:
+                digest=hashlib.sha256((root/'web/drop-workbench'/name).read_bytes()).hexdigest()[:12]
+                html=html.replace(ASSETS+name,asset_base.rstrip('/')+'/'+name+'?v='+digest)
+            (out/path.name).write_text(html)
+        elif path.suffix in ('.css','.js'):shutil.copy2(path,out/path.name)
     print(json.dumps({'items':len(items),'by_namespace':{ns:sum(v['namespace']==ns for v in items) for ns in langs},'entities':len(entities),'icons':len(list((out/'icons').glob('*.png'))),'output':str(out)},ensure_ascii=False))
     return result
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);p.add_argument('--client',type=Path);p.add_argument('--assets-cache',type=Path);p.add_argument('--out',type=Path);a=p.parse_args();build(a.root,a.client,a.assets_cache,a.out)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);p.add_argument('--client',type=Path);p.add_argument('--assets-cache',type=Path);p.add_argument('--out',type=Path);p.add_argument('--asset-base',default=ASSETS);a=p.parse_args();build(a.root,a.client,a.assets_cache,a.out,a.asset_base)
 if __name__=='__main__':main()

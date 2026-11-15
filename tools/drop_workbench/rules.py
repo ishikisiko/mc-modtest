@@ -17,7 +17,7 @@ def decode(raw):
     except (UnicodeError,json.JSONDecodeError,RecursionError) as e:raise Invalid('JSON格式错误：'+str(e)) from e
 
 def validate(data,catalogue):
-    items={x['id'] for x in catalogue['items']};entities={x['id'] for x in catalogue['entities']};regions={x['id'] for x in catalogue['regions']};realms={x['id']:x for x in catalogue['realms']}
+    items={x['id'] for x in catalogue['items']};item_map={x['id']:x for x in catalogue['items']};entities={x['id'] for x in catalogue['entities']};regions={x['id'] for x in catalogue['regions']};realms={x['id']:x for x in catalogue['realms']}
     def obj(v,path,allowed,required=None):
         if not isinstance(v,dict):raise Invalid(path+'应为对象')
         if set(v)-set(allowed):raise Invalid(path+'有未知字段：'+','.join(set(v)-set(allowed)))
@@ -31,9 +31,15 @@ def validate(data,catalogue):
     def drops(v,path):
         array(v,path,64)
         for n,entry in enumerate(v):
-            p=path+f'[{n}]';obj(entry,p,['item','min','max','chance','looting','factory'],['item','min','max','chance'])
+            p=path+f'[{n}]';obj(entry,p,['item','min','max','chance','looting','factory','quality','rarity'],['item','min','max','chance'])
             if not isinstance(entry['item'],str) or entry['item'] not in items or entry['item']=='minecraft:air':raise Invalid(p+'物品不存在，请从物品库选择')
             number(entry['min'],p+'最少数量',0,64,True);number(entry['max'],p+'最多数量',entry['min'],64,True);number(entry['chance'],p+'概率',0,1)
+            if 'quality' in entry:
+                number(entry['quality'],p+'品质',0,4,True)
+                if entry['quality'] not in item_map[entry['item']].get('qualities',[]):raise Invalid(p+'该物品不支持此品质')
+            if 'rarity' in entry:
+                if not isinstance(entry['rarity'],str) or entry['rarity'] not in item_map[entry['item']].get('rarities',[]):raise Invalid(p+'该物品不支持此稀有度')
+            if 'quality' in entry and 'rarity' in entry:raise Invalid(p+'品质与原版稀有度不能同时指定')
             if 'looting' in entry:
                 l=entry['looting'];obj(l,p+'.looting',['min_per_level','max_per_level','limit'],['min_per_level','max_per_level','limit']);number(l['min_per_level'],p+'每级抢夺最小增量',0,64);number(l['max_per_level'],p+'每级抢夺最大增量',l['min_per_level'],64);number(l['limit'],p+'抢夺上限',1,64,True)
             if entry.get('factory','plain') not in ['plain','beast_fire'] or entry.get('factory')=='beast_fire' and entry['item']!='yuanxian:beast_fire_seed':raise Invalid(p+'特殊物品工厂不匹配')

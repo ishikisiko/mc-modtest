@@ -56,7 +56,8 @@ public final class DropRuntime {
     private static DropRules.Catalog catalog(MinecraftServer server){
         var regions=RegionCatalogLoader.loadFromResourceManager(server.getResourceManager(),"yuanxian").catalog().stream().map(p->p.id()).collect(java.util.stream.Collectors.toSet());
         return new DropRules.Catalog(id->BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(id)),
-                id->!id.equals("minecraft:player")&&BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.parse(id)),regions::contains,DropRuntime::realmRank);
+                id->!id.equals("minecraft:player")&&BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.parse(id)),regions::contains,DropRuntime::realmRank,
+                DropItemVariants::allowsQuality,DropItemVariants::allowsRarity);
     }
     private static void started(ServerStartedEvent e){
         try(var stream=com.example.myvillage.resources.BuiltinResources.open(DEFAULTS)){
@@ -104,6 +105,7 @@ public final class DropRuntime {
         for(var reward:DropRules.roll(resolution,looting,new Random(entity.getRandom().nextLong()))){
             var stack=reward.factory().equals("beast_fire")?FireCaptureItem.seed("beast",0,level.dimension().location().toString(),entity.blockPosition())
                     :new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(reward.item())));
+            DropItemVariants.apply(stack,reward.quality(),reward.rarity());
             int remaining=reward.count();while(remaining>0){int count=Math.min(remaining,stack.getMaxStackSize());var part=stack.copyWithCount(count);remaining-=count;
                 event.getDrops().add(new ItemEntity(level,entity.getX(),entity.getY(),entity.getZ(),part));}
         }
