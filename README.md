@@ -5077,3 +5077,5 @@ H → 内视可查看实际生命、攻击、肉身防御、灵力、筑基来�
 ## 怪物掉落配置
 
 0.134.1 起，掉落规则默认随模组JAR更新，替换JAR并重新启动后，已有世界也使用当前包内的统一表。服务器需要自定义时，将 `config/yuanxian/monster_drops_settings.json` 的 `use_external_config` 设为 `true`，再通过 `monster_drops.json` 和 `/yuanxian drops reload` 调整。关闭开关并重载即可恢复包内规则；`status` 显示实际来源，`inspect`、`show` 和 `export` 提供查询与导出。完整格式和示例见 [怪物掉落动态配置](docs/features/monster-drops.md)。
+
+[在线掉落工作台](https://assets.ishiki333hhh.win/drop-workbench/)提供生物三视图、原有掉落说明，以及按材料、丹药、武器等用途分类的原版／源仙物品库。解锁后修改会自动写回源码统一表，供下次编译使用；[生成与部署说明](tools/drop_workbench/README.md)包含访问、历史恢复和原生表范围。

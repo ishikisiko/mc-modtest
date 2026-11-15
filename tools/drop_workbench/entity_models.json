@@ -1,0 +1,417 @@
+{
+  "minecraft:allay": {
+    "layer": "minecraft:allay#main",
+    "texture": "minecraft:textures/entity/allay/allay.png",
+    "source": "net/minecraft/client/renderer/entity/AllayRenderer.java"
+  },
+  "minecraft:armadillo": {
+    "layer": "minecraft:armadillo#main",
+    "texture": "minecraft:textures/entity/armadillo.png",
+    "source": "net/minecraft/client/renderer/entity/ArmadilloRenderer.java"
+  },
+  "minecraft:armor_stand": {
+    "layer": "minecraft:armor_stand#main",
+    "texture": "minecraft:textures/entity/armorstand/wood.png",
+    "source": "net/minecraft/client/renderer/entity/ArmorStandRenderer.java"
+  },
+  "minecraft:axolotl": {
+    "layer": "minecraft:axolotl#main",
+    "texture": "minecraft:textures/entity/axolotl/axolotl_lucy.png",
+    "source": "net/minecraft/client/renderer/entity/AxolotlRenderer.java"
+  },
+  "minecraft:bat": {
+    "layer": "minecraft:bat#main",
+    "texture": "minecraft:textures/entity/bat.png",
+    "source": "net/minecraft/client/renderer/entity/BatRenderer.java"
+  },
+  "minecraft:bee": {
+    "layer": "minecraft:bee#main",
+    "texture": "minecraft:textures/entity/bee/bee.png",
+    "source": "net/minecraft/client/renderer/entity/BeeRenderer.java"
+  },
+  "minecraft:blaze": {
+    "layer": "minecraft:blaze#main",
+    "texture": "minecraft:textures/entity/blaze.png",
+    "source": "net/minecraft/client/renderer/entity/BlazeRenderer.java"
+  },
+  "minecraft:bogged": {
+    "layer": "minecraft:bogged#main",
+    "texture": "minecraft:textures/entity/skeleton/bogged.png",
+    "source": "net/minecraft/client/renderer/entity/BoggedRenderer.java"
+  },
+  "minecraft:breeze": {
+    "layer": "minecraft:breeze#main",
+    "texture": "minecraft:textures/entity/breeze/breeze.png",
+    "source": "net/minecraft/client/renderer/entity/BreezeRenderer.java"
+  },
+  "minecraft:camel": {
+    "layer": "minecraft:camel#main",
+    "texture": "minecraft:textures/entity/camel/camel.png",
+    "source": "net/minecraft/client/renderer/entity/CamelRenderer.java"
+  },
+  "minecraft:cat": {
+    "layer": "minecraft:cat#main",
+    "texture": "minecraft:textures/entity/cat/tabby.png",
+    "source": "net/minecraft/client/renderer/entity/CatRenderer.java"
+  },
+  "minecraft:cave_spider": {
+    "layer": "minecraft:cave_spider#main",
+    "texture": "minecraft:textures/entity/spider/cave_spider.png",
+    "source": "net/minecraft/client/renderer/entity/CaveSpiderRenderer.java"
+  },
+  "minecraft:chicken": {
+    "layer": "minecraft:chicken#main",
+    "texture": "minecraft:textures/entity/chicken.png",
+    "source": "net/minecraft/client/renderer/entity/ChickenRenderer.java"
+  },
+  "minecraft:cod": {
+    "layer": "minecraft:cod#main",
+    "texture": "minecraft:textures/entity/fish/cod.png",
+    "source": "net/minecraft/client/renderer/entity/CodRenderer.java"
+  },
+  "minecraft:cow": {
+    "layer": "minecraft:cow#main",
+    "texture": "minecraft:textures/entity/cow/cow.png",
+    "source": "net/minecraft/client/renderer/entity/CowRenderer.java"
+  },
+  "minecraft:creeper": {
+    "layer": "minecraft:creeper#main",
+    "texture": "minecraft:textures/entity/creeper/creeper.png",
+    "source": "net/minecraft/client/renderer/entity/CreeperRenderer.java"
+  },
+  "minecraft:dolphin": {
+    "layer": "minecraft:dolphin#main",
+    "texture": "minecraft:textures/entity/dolphin.png",
+    "source": "net/minecraft/client/renderer/entity/DolphinRenderer.java"
+  },
+  "minecraft:donkey": {
+    "layer": "minecraft:donkey#main",
+    "texture": "minecraft:textures/entity/horse/donkey.png",
+    "source": "net/minecraft/client/renderer/entity/ChestedHorseRenderer.java"
+  },
+  "minecraft:drowned": {
+    "layer": "minecraft:drowned#main",
+    "texture": "minecraft:textures/entity/zombie/drowned.png",
+    "source": "net/minecraft/client/renderer/entity/DrownedRenderer.java"
+  },
+  "minecraft:elder_guardian": {
+    "layer": "minecraft:elder_guardian#main",
+    "texture": "minecraft:textures/entity/guardian_elder.png",
+    "source": "net/minecraft/client/renderer/entity/ElderGuardianRenderer.java"
+  },
+  "minecraft:ender_dragon": {
+    "layer": "minecraft:ender_dragon#main",
+    "texture": "minecraft:textures/entity/enderdragon/dragon.png",
+    "source": "net/minecraft/client/renderer/entity/EnderDragonRenderer.java"
+  },
+  "minecraft:enderman": {
+    "layer": "minecraft:enderman#main",
+    "texture": "minecraft:textures/entity/enderman/enderman.png",
+    "source": "net/minecraft/client/renderer/entity/EndermanRenderer.java"
+  },
+  "minecraft:endermite": {
+    "layer": "minecraft:endermite#main",
+    "texture": "minecraft:textures/entity/endermite.png",
+    "source": "net/minecraft/client/renderer/entity/EndermiteRenderer.java"
+  },
+  "minecraft:evoker": {
+    "layer": "minecraft:evoker#main",
+    "texture": "minecraft:textures/entity/illager/evoker.png",
+    "source": "net/minecraft/client/renderer/entity/EvokerRenderer.java"
+  },
+  "minecraft:fox": {
+    "layer": "minecraft:fox#main",
+    "texture": "minecraft:textures/entity/fox/fox.png",
+    "source": "net/minecraft/client/renderer/entity/FoxRenderer.java"
+  },
+  "minecraft:frog": {
+    "layer": "minecraft:frog#main",
+    "texture": "minecraft:textures/entity/frog/temperate_frog.png",
+    "source": "net/minecraft/client/renderer/entity/FrogRenderer.java"
+  },
+  "minecraft:ghast": {
+    "layer": "minecraft:ghast#main",
+    "texture": "minecraft:textures/entity/ghast/ghast.png",
+    "source": "net/minecraft/client/renderer/entity/GhastRenderer.java"
+  },
+  "minecraft:giant": {
+    "layer": "minecraft:giant#main",
+    "texture": "minecraft:textures/entity/zombie/zombie.png",
+    "source": "net/minecraft/client/renderer/entity/GiantMobRenderer.java"
+  },
+  "minecraft:glow_squid": {
+    "layer": "minecraft:glow_squid#main",
+    "texture": "minecraft:textures/entity/squid/glow_squid.png",
+    "source": "net/minecraft/client/renderer/entity/GlowSquidRenderer.java"
+  },
+  "minecraft:goat": {
+    "layer": "minecraft:goat#main",
+    "texture": "minecraft:textures/entity/goat/goat.png",
+    "source": "net/minecraft/client/renderer/entity/GoatRenderer.java"
+  },
+  "minecraft:guardian": {
+    "layer": "minecraft:guardian#main",
+    "texture": "minecraft:textures/entity/guardian.png",
+    "source": "net/minecraft/client/renderer/entity/GuardianRenderer.java"
+  },
+  "minecraft:hoglin": {
+    "layer": "minecraft:hoglin#main",
+    "texture": "minecraft:textures/entity/hoglin/hoglin.png",
+    "source": "net/minecraft/client/renderer/entity/HoglinRenderer.java"
+  },
+  "minecraft:horse": {
+    "layer": "minecraft:horse#main",
+    "texture": "minecraft:textures/entity/horse/horse_white.png",
+    "source": "net/minecraft/client/renderer/entity/HorseRenderer.java"
+  },
+  "minecraft:husk": {
+    "layer": "minecraft:husk#main",
+    "texture": "minecraft:textures/entity/zombie/husk.png",
+    "source": "net/minecraft/client/renderer/entity/HuskRenderer.java"
+  },
+  "minecraft:illusioner": {
+    "layer": "minecraft:illusioner#main",
+    "texture": "minecraft:textures/entity/illager/illusioner.png",
+    "source": "net/minecraft/client/renderer/entity/IllusionerRenderer.java"
+  },
+  "minecraft:iron_golem": {
+    "layer": "minecraft:iron_golem#main",
+    "texture": "minecraft:textures/entity/iron_golem/iron_golem.png",
+    "source": "net/minecraft/client/renderer/entity/IronGolemRenderer.java"
+  },
+  "minecraft:llama": {
+    "layer": "minecraft:llama#main",
+    "texture": "minecraft:textures/entity/llama/creamy.png",
+    "source": "net/minecraft/client/renderer/entity/LlamaRenderer.java"
+  },
+  "minecraft:magma_cube": {
+    "layer": "minecraft:magma_cube#main",
+    "texture": "minecraft:textures/entity/slime/magmacube.png",
+    "source": "net/minecraft/client/renderer/entity/MagmaCubeRenderer.java"
+  },
+  "minecraft:mooshroom": {
+    "layer": "minecraft:mooshroom#main",
+    "texture": "minecraft:textures/entity/cow/red_mooshroom.png",
+    "source": "net/minecraft/client/renderer/entity/MushroomCowRenderer.java"
+  },
+  "minecraft:mule": {
+    "layer": "minecraft:mule#main",
+    "texture": "minecraft:textures/entity/horse/mule.png",
+    "source": "net/minecraft/client/renderer/entity/ChestedHorseRenderer.java"
+  },
+  "minecraft:ocelot": {
+    "layer": "minecraft:ocelot#main",
+    "texture": "minecraft:textures/entity/cat/ocelot.png",
+    "source": "net/minecraft/client/renderer/entity/OcelotRenderer.java"
+  },
+  "minecraft:panda": {
+    "layer": "minecraft:panda#main",
+    "texture": "minecraft:textures/entity/panda/panda.png",
+    "source": "net/minecraft/client/renderer/entity/PandaRenderer.java"
+  },
+  "minecraft:parrot": {
+    "layer": "minecraft:parrot#main",
+    "texture": "minecraft:textures/entity/parrot/parrot_red_blue.png",
+    "source": "net/minecraft/client/renderer/entity/ParrotRenderer.java"
+  },
+  "minecraft:phantom": {
+    "layer": "minecraft:phantom#main",
+    "texture": "minecraft:textures/entity/phantom.png",
+    "source": "net/minecraft/client/renderer/entity/PhantomRenderer.java"
+  },
+  "minecraft:pig": {
+    "layer": "minecraft:pig#main",
+    "texture": "minecraft:textures/entity/pig/pig.png",
+    "source": "net/minecraft/client/renderer/entity/PigRenderer.java"
+  },
+  "minecraft:piglin": {
+    "layer": "minecraft:piglin#main",
+    "texture": "minecraft:textures/entity/piglin/piglin.png",
+    "source": "net/minecraft/client/renderer/entity/PiglinRenderer.java"
+  },
+  "minecraft:piglin_brute": {
+    "layer": "minecraft:piglin_brute#main",
+    "texture": "minecraft:textures/entity/piglin/piglin_brute.png",
+    "source": "net/minecraft/client/renderer/entity/PiglinRenderer.java"
+  },
+  "minecraft:pillager": {
+    "layer": "minecraft:pillager#main",
+    "texture": "minecraft:textures/entity/illager/pillager.png",
+    "source": "net/minecraft/client/renderer/entity/PillagerRenderer.java"
+  },
+  "minecraft:polar_bear": {
+    "layer": "minecraft:polar_bear#main",
+    "texture": "minecraft:textures/entity/bear/polarbear.png",
+    "source": "net/minecraft/client/renderer/entity/PolarBearRenderer.java"
+  },
+  "minecraft:pufferfish": {
+    "layer": "minecraft:pufferfish_big#main",
+    "texture": "minecraft:textures/entity/fish/pufferfish.png",
+    "source": "net/minecraft/client/renderer/entity/PufferfishRenderer.java"
+  },
+  "minecraft:rabbit": {
+    "layer": "minecraft:rabbit#main",
+    "texture": "minecraft:textures/entity/rabbit/brown.png",
+    "source": "net/minecraft/client/renderer/entity/RabbitRenderer.java"
+  },
+  "minecraft:ravager": {
+    "layer": "minecraft:ravager#main",
+    "texture": "minecraft:textures/entity/illager/ravager.png",
+    "source": "net/minecraft/client/renderer/entity/RavagerRenderer.java"
+  },
+  "minecraft:salmon": {
+    "layer": "minecraft:salmon#main",
+    "texture": "minecraft:textures/entity/fish/salmon.png",
+    "source": "net/minecraft/client/renderer/entity/SalmonRenderer.java"
+  },
+  "minecraft:sheep": {
+    "layer": "minecraft:sheep#main",
+    "texture": "minecraft:textures/entity/sheep/sheep.png",
+    "source": "net/minecraft/client/renderer/entity/SheepRenderer.java"
+  },
+  "minecraft:shulker": {
+    "layer": "minecraft:shulker#main",
+    "texture": "minecraft:textures/entity/shulker/shulker.png",
+    "source": "net/minecraft/client/renderer/entity/ShulkerRenderer.java"
+  },
+  "minecraft:silverfish": {
+    "layer": "minecraft:silverfish#main",
+    "texture": "minecraft:textures/entity/silverfish.png",
+    "source": "net/minecraft/client/renderer/entity/SilverfishRenderer.java"
+  },
+  "minecraft:skeleton": {
+    "layer": "minecraft:skeleton#main",
+    "texture": "minecraft:textures/entity/skeleton/skeleton.png",
+    "source": "net/minecraft/client/renderer/entity/SkeletonRenderer.java"
+  },
+  "minecraft:skeleton_horse": {
+    "layer": "minecraft:skeleton_horse#main",
+    "texture": "minecraft:textures/entity/horse/horse_skeleton.png",
+    "source": "net/minecraft/client/renderer/entity/UndeadHorseRenderer.java"
+  },
+  "minecraft:slime": {
+    "layer": "minecraft:slime#main",
+    "texture": "minecraft:textures/entity/slime/slime.png",
+    "source": "net/minecraft/client/renderer/entity/SlimeRenderer.java"
+  },
+  "minecraft:sniffer": {
+    "layer": "minecraft:sniffer#main",
+    "texture": "minecraft:textures/entity/sniffer/sniffer.png",
+    "source": "net/minecraft/client/renderer/entity/SnifferRenderer.java"
+  },
+  "minecraft:snow_golem": {
+    "layer": "minecraft:snow_golem#main",
+    "texture": "minecraft:textures/entity/snow_golem.png",
+    "source": "net/minecraft/client/renderer/entity/SnowGolemRenderer.java"
+  },
+  "minecraft:spider": {
+    "layer": "minecraft:spider#main",
+    "texture": "minecraft:textures/entity/spider/spider.png",
+    "source": "net/minecraft/client/renderer/entity/SpiderRenderer.java"
+  },
+  "minecraft:squid": {
+    "layer": "minecraft:squid#main",
+    "texture": "minecraft:textures/entity/squid/squid.png",
+    "source": "net/minecraft/client/renderer/entity/SquidRenderer.java"
+  },
+  "minecraft:stray": {
+    "layer": "minecraft:stray#main",
+    "texture": "minecraft:textures/entity/skeleton/stray.png",
+    "source": "net/minecraft/client/renderer/entity/StrayRenderer.java"
+  },
+  "minecraft:strider": {
+    "layer": "minecraft:strider#main",
+    "texture": "minecraft:textures/entity/strider/strider.png",
+    "source": "net/minecraft/client/renderer/entity/StriderRenderer.java"
+  },
+  "minecraft:tadpole": {
+    "layer": "minecraft:tadpole#main",
+    "texture": "minecraft:textures/entity/tadpole/tadpole.png",
+    "source": "net/minecraft/client/renderer/entity/TadpoleRenderer.java"
+  },
+  "minecraft:trader_llama": {
+    "layer": "minecraft:trader_llama#main",
+    "texture": "minecraft:textures/entity/llama/creamy.png",
+    "source": "net/minecraft/client/renderer/entity/LlamaRenderer.java"
+  },
+  "minecraft:tropical_fish": {
+    "layer": "minecraft:tropical_fish_small#main",
+    "texture": "minecraft:textures/entity/fish/tropical_a.png",
+    "source": "net/minecraft/client/renderer/entity/TropicalFishRenderer.java"
+  },
+  "minecraft:turtle": {
+    "layer": "minecraft:turtle#main",
+    "texture": "minecraft:textures/entity/turtle/big_sea_turtle.png",
+    "source": "net/minecraft/client/renderer/entity/TurtleRenderer.java"
+  },
+  "minecraft:vex": {
+    "layer": "minecraft:vex#main",
+    "texture": "minecraft:textures/entity/illager/vex.png",
+    "source": "net/minecraft/client/renderer/entity/VexRenderer.java"
+  },
+  "minecraft:villager": {
+    "layer": "minecraft:villager#main",
+    "texture": "minecraft:textures/entity/villager/villager.png",
+    "source": "net/minecraft/client/renderer/entity/VillagerRenderer.java"
+  },
+  "minecraft:vindicator": {
+    "layer": "minecraft:vindicator#main",
+    "texture": "minecraft:textures/entity/illager/vindicator.png",
+    "source": "net/minecraft/client/renderer/entity/VindicatorRenderer.java"
+  },
+  "minecraft:wandering_trader": {
+    "layer": "minecraft:wandering_trader#main",
+    "texture": "minecraft:textures/entity/wandering_trader.png",
+    "source": "net/minecraft/client/renderer/entity/WanderingTraderRenderer.java"
+  },
+  "minecraft:warden": {
+    "layer": "minecraft:warden#main",
+    "texture": "minecraft:textures/entity/warden/warden.png",
+    "source": "net/minecraft/client/renderer/entity/WardenRenderer.java"
+  },
+  "minecraft:witch": {
+    "layer": "minecraft:witch#main",
+    "texture": "minecraft:textures/entity/witch.png",
+    "source": "net/minecraft/client/renderer/entity/WitchRenderer.java"
+  },
+  "minecraft:wither": {
+    "layer": "minecraft:wither#main",
+    "texture": "minecraft:textures/entity/wither/wither_invulnerable.png",
+    "source": "net/minecraft/client/renderer/entity/WitherBossRenderer.java"
+  },
+  "minecraft:wither_skeleton": {
+    "layer": "minecraft:wither_skeleton#main",
+    "texture": "minecraft:textures/entity/skeleton/wither_skeleton.png",
+    "source": "net/minecraft/client/renderer/entity/WitherSkeletonRenderer.java"
+  },
+  "minecraft:wolf": {
+    "layer": "minecraft:wolf#main",
+    "texture": "minecraft:textures/entity/wolf/wolf.png",
+    "source": "net/minecraft/client/renderer/entity/WolfRenderer.java"
+  },
+  "minecraft:zoglin": {
+    "layer": "minecraft:zoglin#main",
+    "texture": "minecraft:textures/entity/hoglin/zoglin.png",
+    "source": "net/minecraft/client/renderer/entity/ZoglinRenderer.java"
+  },
+  "minecraft:zombie": {
+    "layer": "minecraft:zombie#main",
+    "texture": "minecraft:textures/entity/zombie/zombie.png",
+    "source": "net/minecraft/client/renderer/entity/ZombieRenderer.java"
+  },
+  "minecraft:zombie_horse": {
+    "layer": "minecraft:zombie_horse#main",
+    "texture": "minecraft:textures/entity/horse/horse_zombie.png",
+    "source": "net/minecraft/client/renderer/entity/UndeadHorseRenderer.java"
+  },
+  "minecraft:zombie_villager": {
+    "layer": "minecraft:zombie_villager#main",
+    "texture": "minecraft:textures/entity/zombie_villager/zombie_villager.png",
+    "source": "net/minecraft/client/renderer/entity/ZombieVillagerRenderer.java"
+  },
+  "minecraft:zombified_piglin": {
+    "layer": "minecraft:zombified_piglin#main",
+    "texture": "minecraft:textures/entity/piglin/zombified_piglin.png",
+    "source": "net/minecraft/client/renderer/entity/PiglinRenderer.java"
+  }
+}
