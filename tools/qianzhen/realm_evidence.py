@@ -83,7 +83,7 @@ class Client:
             self.spawn(['Xvfb',display,'-screen','0','960x540x24','+extension','GLX','-nolisten','tcp','-noreset'],self.out/'xvfb.log')
             wait(lambda:cs.x_display_ready(display),bool,20,'owned X display')
             cs.merge_options(self.directory/'options.txt',{**cs.CLIENT_OPTIONS,'lang':'zh_cn','renderDistance':'3',
-                'simulationDistance':'3','maxFps':'30','rawMouseInput':'false','key_key.use':'key.mouse.right'})
+                'simulationDistance':'5','maxFps':'30','rawMouseInput':'false','key_key.use':'key.mouse.right'})
             p=self.spawn(cs.gradle_argv('runClient','-Xmx768m',[
                 '-Pcombat_smoke_server=127.0.0.1:'+str(self.server.sport),
                 '-Pcombat_smoke_game_dir='+str(self.directory),'-Pcombat_smoke_username='+self.name],prebuilt_resources=self.prebuilt_resources),

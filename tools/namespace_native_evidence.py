@@ -11,11 +11,14 @@ CASES=['candidate_identity','new_world_registry_and_resources','command_roots','
 class Server(LifecycleServer):
  def cmd(self,text):return self.command(text)
 class Evidence:
- def __init__(self,out,jar,probe,client):
+ def __init__(self,out,jar,probe,client,world=None):
   self.out=out.resolve();self.out.mkdir(parents=True,exist_ok=False);self.jar=jar.resolve();self.with_client=client
-  game=ROOT/'run-namespace'/('native-'+secrets.token_hex(4));assert not game.exists();(game/'mods').mkdir(parents=True);shutil.copyfile(probe,game/'mods'/probe.name)
+  game=world.resolve() if world else ROOT/'run-namespace'/('native-'+secrets.token_hex(4))
+  if world:assert (game/'world/level.dat').is_file(), '只能复用已有的本次验收世界'
+  else:assert not game.exists()
+  (game/'mods').mkdir(parents=True,exist_ok=True);shutil.copyfile(probe,game/'mods'/probe.name)
   self.server=Server(self.out,game,202611150134);self.server.startup_timeout=1800;self.server.view_distance=3
-  self.report=dict(status='running',selected=CASES.copy(),completed=[],failed=[],unrun=CASES.copy(),actions=[],commands=[],screenshots=[],cleanup=[],world=str(game),collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),owner_appearance='not_verified',owner_feel='not_verified',owner_fps='not_verified');self.stage=CASES[0];self.save()
+  self.report=dict(status='running',selected=CASES.copy(),completed=[],failed=[],unrun=CASES.copy(),actions=[],commands=[],screenshots=[],cleanup=[],world=str(game),reused_world=bool(world),collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),owner_appearance='not_verified',owner_feel='not_verified',owner_fps='not_verified');self.stage=CASES[0];self.save()
  def save(self):write(self.out/'report.json',self.report)
  def action(self,kind,**detail):self.report['actions'].append(dict(kind=kind,time=time.monotonic(),**detail));self.save()
  def rc(self,command):
@@ -58,5 +61,5 @@ class Evidence:
    try:self.server.stop()
    finally:self.save()
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,required=True);p.add_argument('--jar',type=Path,required=True);p.add_argument('--probe',type=Path,required=True);p.add_argument('--client',action='store_true');a=p.parse_args();Evidence(a.out,a.jar,a.probe,a.client).run()
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,required=True);p.add_argument('--jar',type=Path,required=True);p.add_argument('--probe',type=Path,required=True);p.add_argument('--client',action='store_true');p.add_argument('--world',type=Path);a=p.parse_args();Evidence(a.out,a.jar,a.probe,a.client,a.world).run()
 if __name__=='__main__':main()

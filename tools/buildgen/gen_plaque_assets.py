@@ -570,6 +570,34 @@ def variant_entry(model: str, facing: str) -> dict:
     return out
 
 
+def complete_state_variants(blockstates: dict[str, dict], frames: list[str]) -> None:
+    """覆盖方块属性的完整组合；未用于拼匾的组合取同框最近的已有图块。"""
+    rows = {"top": 0, "upper_middle": .25, "middle": .5,
+            "lower_middle": .75, "single": .5, "bottom": 1}
+    cols = {"left": 0, "inner_left": .25, "center": .5,
+            "inner_right": .75, "single": .5, "right": 1}
+    original = {block: dict(variants) for block, variants in blockstates.items()}
+    for block, variants in blockstates.items():
+        for frame in frames:
+            for facing in FACING_ROTATION:
+                candidates = []
+                for source in (block, block.removesuffix("_vertical")):
+                    for key, entry in original[source].items():
+                        state = dict(part.split("=", 1) for part in key.split(","))
+                        if state["frame"] == frame and state["facing"] == facing:
+                            candidates.append((key, state, entry))
+                    if candidates:
+                        break
+                if not candidates:
+                    raise ValueError(f"匾额缺少基础图块：{block}/{frame}/{facing}")
+                for row in rows:
+                    for col in cols:
+                        key = f"facing={facing},frame={frame},row={row},col={col}"
+                        nearest = min(candidates, key=lambda c: (
+                            abs(rows[row] - rows[c[1]["row"]]) + abs(cols[col] - cols[c[1]["col"]]), c[0]))
+                        variants.setdefault(key, dict(nearest[2]))
+
+
 def generate(manifest: dict, write_pngs: bool = True) -> list[dict]:
     assets: list[dict] = []
     inscriptions = inscription_map()
@@ -628,8 +656,7 @@ def generate(manifest: dict, write_pngs: bool = True) -> list[dict]:
                         key = f"facing={facing},frame={pid},row={row},col={col}"
                         blockstate_variants[block][key] = variant_entry(model_ref, facing)
                 if width == 4:
-                    # Backward-compatible model for old generated structures
-                    # that used the repeated center state for both inner tiles.
+                    # 四格匾额的独立 center 状态使用左内格图块。
                     alias_model = f"yuanxian:block/plaque/{mount}/{pid}/{horizontal_part(row, 'inner_left')}"
                     for facing in FACING_ROTATION:
                         key = f"facing={facing},frame={pid},row={row},col=center"
@@ -690,6 +717,7 @@ def generate(manifest: dict, write_pngs: bool = True) -> list[dict]:
                         key = f"facing={facing},frame={pid},row=middle,col=single"
                         blockstate_variants[block][key] = variant_entry(alias_model, facing)
 
+    complete_state_variants(blockstate_variants, [p["id"] for p in manifest["presets"]])
     for block, variants in blockstate_variants.items():
         write_json(ASSET_ROOT / "blockstates" / f"{block}.json", {"variants": variants})
     return assets
