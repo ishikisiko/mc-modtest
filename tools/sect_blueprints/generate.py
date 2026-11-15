@@ -429,6 +429,11 @@ class SectModel:
                         self.construction.box((xx,y-2,zz),(xx,y+self.spec["rules"]["bridge_rail_height"]-1,zz),
                                               self.materials["edge"],r["id"],"parapet")
 
+    def tree_fits(self,position,height,radius):
+        x,y,z=position
+        return (0<=x-radius and x+radius<self.width and 0<=z-radius and z+radius<self.depth
+                and 0<=y and y+height<self.height)
+
     def plant_trees(self):
         trees=list(self.spec['trees']);cfg=self.spec['landscape']
         for zone in cfg['forests']:
@@ -446,10 +451,14 @@ class SectModel:
                     if any(b['origin'][0]-r<=xx<b['origin'][0]+b['size'][0]+r and b['origin'][2]-r<=zz<b['origin'][2]+b['size'][2]+r for b in self.buildings):continue
                     if any(a['bounds'][0]-r<=xx<a['bounds'][2]+r and a['bounds'][1]-r<=zz<a['bounds'][3]+r for a in self.spec.get('courts',[])+self.spec['runtime']['avatar_areas']):continue
                     if any(inside_polygon(xx+.5,zz+.5,w['outline']) and self.ground(xx,zz)<w['level'] for w in self.spec.get('waters',[])):continue
-                    trees.append({'position':[xx,y,zz],'height':zone['height']+(xx+zz)%zone['height_variation'],'radius':r})
+                    height=zone['height']+(xx+zz)%zone['height_variation']
+                    if not self.tree_fits([xx,y,zz],height,r):continue
+                    trees.append({'position':[xx,y,zz],'height':height,'radius':r})
         self.trees=trees
         for tree in trees:
             x,y,z = tree["position"]; h = tree["height"]; radius = tree["radius"]
+            if not self.tree_fits(tree['position'],h,radius):
+                raise ValueError('宗门树冠超出蓝图范围：'+str(tree))
             ground = self.ground(x,z)
             self.construction.box((x,ground+1,z),(x,y+h,z),self.materials["tree_log"],"pine","landscape")
             for dy in range(radius,h+1):
