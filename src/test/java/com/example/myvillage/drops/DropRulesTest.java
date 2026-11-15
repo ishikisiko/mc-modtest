@@ -8,7 +8,8 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 class DropRulesTest {
-    static String defaults()throws Exception{return Files.readString(Path.of("src/main/resources/data/yuanxian/drops/monster_drops.json"));}
+    // 固定样例用于规则优先级及来源切换；实际可编辑包内表由原生启动与导出检查。
+    static String defaults()throws Exception{return Files.readString(Path.of("src/test/resources/drops/rules_fixture.json"));}
     static JsonObject json()throws Exception{return JsonParser.parseString(defaults()).getAsJsonObject();}
     static DropRules.Catalog catalog()throws Exception{
         var entities=new HashSet<>(json().getAsJsonObject("entities").keySet());
