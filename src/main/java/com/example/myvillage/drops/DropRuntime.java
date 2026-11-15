@@ -64,7 +64,7 @@ public final class DropRuntime {
             String defaults=new String(stream.readNBytes(DropRules.MAX_BYTES+1),StandardCharsets.UTF_8);
             var store=new DropConfigStore(FMLPaths.CONFIGDIR.get().resolve("yuanxian/monster_drops.json"),defaults,catalog(e.getServer()));
             STORES.put(e.getServer(),store);
-            try{store.reload();ERRORS.remove(e.getServer());}catch(Exception error){ERRORS.put(e.getServer(),error.getMessage());LoggerFactory.getLogger(DropRuntime.class).error("掉落外置配置未载入，使用本次包内默认值：{}",error.getMessage());}
+            try{store.reload();ERRORS.remove(e.getServer());}catch(Exception error){ERRORS.put(e.getServer(),error.getMessage());LoggerFactory.getLogger(DropRuntime.class).error("掉落配置未载入，使用本次包内默认值：{}",error.getMessage());}
             exportQuietly(e.getServer());
         }catch(IOException error){throw new IllegalStateException("无法读取掉落默认配置",error);}
     }
@@ -109,7 +109,7 @@ public final class DropRuntime {
         }
     }
     private static JsonObject describe(MinecraftServer server,DropConfigStore.Snapshot snapshot,DropRules.Context context,ResourceKey<LootTable> tableId){
-        JsonObject out=new JsonObject();out.addProperty("revision",snapshot.revision());out.addProperty("sha256",snapshot.sha256());out.add("context",JSON.toJsonTree(context));
+        JsonObject out=new JsonObject();out.addProperty("revision",snapshot.revision());out.addProperty("sha256",snapshot.sha256());out.addProperty("source",snapshot.source().id());out.add("context",JSON.toJsonTree(context));
         var resolution=snapshot.rules().resolve(context);out.add("effective",JSON.toJsonTree(resolution));
         if(resolution.policy().mode()==DropRules.Mode.INHERIT||resolution.policy().mode()==DropRules.Mode.APPEND){
             out.addProperty("inherited_table_id",tableId.location().toString());
@@ -148,15 +148,21 @@ public final class DropRuntime {
             .then(Commands.literal("inspect").then(Commands.argument("target",EntityArgument.entity()).executes(c->inspect(c.getSource(),EntityArgument.getEntity(c,"target")))))
             .then(show).then(Commands.literal("export").executes(c->{try{export(c.getSource().getServer());c.getSource().sendSuccess(()->Component.literal("已导出 config/yuanxian/monster_drops_effective.json 与 .csv。"),false);return 1;}catch(Exception error){c.getSource().sendFailure(Component.literal("导出失败："+error.getMessage()));return 0;}}))));
     }
-    private static int status(CommandSourceStack source){var s=snapshot(source.getServer());var out=new JsonObject();out.addProperty("revision",s.revision());out.addProperty("sha256",s.sha256());out.addProperty("config",STORES.get(source.getServer()).file().toAbsolutePath().toString());out.addProperty("last_error",ERRORS.getOrDefault(source.getServer(),""));source.sendSuccess(()->Component.literal("DROPS_STATUS "+out),false);return 1;}
+    private static int status(CommandSourceStack source){
+        var store=STORES.get(source.getServer());var s=store.active();var out=new JsonObject();
+        out.addProperty("revision",s.revision());out.addProperty("sha256",s.sha256());out.addProperty("source",s.source().id());
+        out.addProperty("config",s.source()==DropConfigStore.Source.BUNDLED?DEFAULTS:store.file().toAbsolutePath().toString());
+        out.addProperty("external_config",store.file().toAbsolutePath().toString());out.addProperty("settings",store.settingsFile().toAbsolutePath().toString());
+        out.addProperty("last_error",ERRORS.getOrDefault(source.getServer(),""));source.sendSuccess(()->Component.literal("DROPS_STATUS "+out),false);return 1;
+    }
     private static int reload(CommandSourceStack source){
         var server=source.getServer();DropConfigStore.Snapshot s;
         try{s=STORES.get(server).reload();ERRORS.remove(server);}catch(Exception error){ERRORS.put(server,error.getMessage());source.sendFailure(Component.literal("掉落配置重载失败，当前规则继续生效："+error.getMessage()));return 0;}
-        source.sendSuccess(()->Component.literal("掉落配置已生效，版本 "+s.revision()+"，SHA-256 "+s.sha256()),true);exportQuietly(server);return 1;
+        source.sendSuccess(()->Component.literal("掉落配置已生效，来源："+(s.source()==DropConfigStore.Source.BUNDLED?"模组内置":"外置配置")+"，版本 "+s.revision()+"，SHA-256 "+s.sha256()),true);exportQuietly(server);return 1;
     }
     private static void exportQuietly(MinecraftServer server){try{export(server);}catch(Exception error){LoggerFactory.getLogger(DropRuntime.class).warn("掉落规则已生效，导出未完成：{}",error.getMessage());}}
     public static void export(MinecraftServer server)throws IOException{
-        var store=STORES.get(server);var s=store.active();JsonObject out=new JsonObject();out.addProperty("revision",s.revision());out.addProperty("sha256",s.sha256());out.add("configuration",s.rules().json());
+        var store=STORES.get(server);var s=store.active();JsonObject out=new JsonObject();out.addProperty("revision",s.revision());out.addProperty("sha256",s.sha256());out.addProperty("source",s.source().id());out.add("configuration",s.rules().json());
         out.addProperty("preview_scope","逐实体导出各场景规则；habitat使用本世界的实际群落地区，其余场景地区与境界留空；条件限定请用show或inspect查询；不执行随机抽取");JsonArray rows=new JsonArray();
         var ids=new TreeSet<>(s.rules().entities());for(var type:BuiltInRegistries.ENTITY_TYPE)if(type.getCategory()==MobCategory.MONSTER)ids.add(BuiltInRegistries.ENTITY_TYPE.getKey(type).toString());
         StringBuilder csv=new StringBuilder("实体ID,场景,模式,规则来源,配置掉落,原始战利品表ID,继承战利品表,原生状态掉落说明\r\n");

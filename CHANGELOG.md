@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.134.1
+
+- 怪物掉落默认使用当前JAR内的统一表，更新模组后已有世界也采用新规则；已有外置表保留但默认不参与加载。
+- 新增默认关闭的外置覆盖开关，服务器可显式启用自定义表并热重载，也可即时切回包内规则；状态、查询和JSON导出显示实际来源，配置错误保留当前快照。
+
 ## 0.134.0
 
 - 模组及全部资源命名空间统一为 yuanxian，更新物品、方块、实体、注册表、网络、数据组件、翻译键、资源目录和配置路径。

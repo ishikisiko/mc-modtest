@@ -8,7 +8,7 @@ from tools.qianji.server import Server as BaseServer
 from tools.roads_smoke.run import verify_candidate
 from tools.roadweaver_probe.run import write
 
-CASES=['candidate_identity','fresh_config_and_export','query_and_inspect','inherit','append','replace','disabled','live_existing_entity','invalid_config_keeps_snapshot','permission_gate','quest_default','sect_default','aptitude_default','scene_override_can_change','region_realm_conditions','looting_and_probability','beast_fire_components','captured_fire_suppressed','stale_habitat_rejected','habitat_default','habitat_live_override','restart_preserves_custom','restore_defaults_and_export']
+CASES=['candidate_identity','fresh_config_and_export','bundled_ignores_external_config','external_override_toggle','invalid_settings_keeps_snapshot','external_override_restart','bundled_restart','query_and_inspect','inherit','append','replace','disabled','live_existing_entity','invalid_config_keeps_snapshot','permission_gate','quest_default','sect_default','aptitude_default','scene_override_can_change','region_realm_conditions','looting_and_probability','beast_fire_components','captured_fire_suppressed','stale_habitat_rejected','habitat_default','habitat_live_override','restart_preserves_custom','restore_defaults_and_export']
 class Server(BaseServer):
     def start(self):
         # Existing lifecycle owns locking, startup, RCON and graceful release. Test-only mod is separate.
@@ -31,6 +31,7 @@ class Evidence:
         shutil.copyfile(probe,self.game/'mods'/probe.name)
         self.server=Server(out,self.game,seed);self.server.startup_timeout=1800
         self.path=self.game/'config/yuanxian/monster_drops.json'
+        self.settings=self.path.with_name('monster_drops_settings.json')
         self.defaults=json.loads((ROOT/'src/main/resources/data/yuanxian/drops/monster_drops.json').read_text())
         self.selected=CASES.copy() if only is None else [v for v in CASES if v=='candidate_identity' or v in only]
         self.report=dict(kind='dynamic_drops_native',status='running',selected=self.selected,completed=[],failed=[],unrun=self.selected.copy(),checks=[],commands=[],world=str(self.game),seed=seed,evidence='accepted_death_callback_fixture_and_native_item_entities',mapped_combat='not_verified',owner_feel='not_verified',owner_visual='not_verified',owner_fps='not_verified',collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
@@ -52,7 +53,11 @@ class Evidence:
     def status(self):return self.value('yuanxian drops status','DROPS_STATUS ')
     def config(self,data):
         self.path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+        self.settings.write_text(json.dumps({'use_external_config':True})+'\n')
         answer=self.rc('yuanxian drops reload');self.check('reload_accepted','掉落配置已生效' in answer,answer)
+    def bundled(self):
+        self.settings.write_text(json.dumps({'use_external_config':False})+'\n')
+        answer=self.rc('yuanxian drops reload');self.check('bundled_reload_accepted','掉落配置已生效' in answer and self.status()['source']=='bundled',answer)
     def entity_policy(self,mode,drops=None):
         data=copy.deepcopy(self.defaults);data['entities']['yuanxian:stele_guardian']={'mode':mode,'drops':drops or []};return data
     @staticmethod
@@ -79,6 +84,11 @@ class Evidence:
             self.server.start()
             self.rc('kill @e[type=minecraft:item]')
             self.case('fresh_config_and_export',self.initial)
+            self.case('bundled_ignores_external_config',self.ignored)
+            self.case('external_override_toggle',self.toggle)
+            self.case('invalid_settings_keeps_snapshot',self.invalid_settings)
+            self.case('external_override_restart',self.external_restart)
+            self.case('bundled_restart',self.bundled_restart)
             self.case('query_and_inspect',self.query)
             self.case('inherit',lambda:self.items({'yuanxian:stele_stone_heart':1}))
             self.case('append',lambda:self.mode('append',{'yuanxian:stele_stone_heart':1,'minecraft:diamond':2}))
@@ -111,12 +121,38 @@ class Evidence:
         self.report['candidate']=verify_candidate(self.jar);self.report['probe_sha256']=hashlib.sha256(self.probe.read_bytes()).hexdigest()
         self.report['source']=json.loads((ROOT/'candidate.json').read_text());self.save()
     def initial(self):
-        self.check('first_start_creates_pretty_defaults',json.loads(self.path.read_text())==self.defaults and '\n  "' in self.path.read_text())
-        self.export('defaults');self.check('initial_snapshot',self.status()['revision']==1)
+        self.check('first_start_defaults_to_bundled',json.loads(self.settings.read_text())=={'use_external_config':False} and not self.path.exists())
+        self.export('defaults');self.check('initial_snapshot',self.status()['revision']==1 and self.status()['source']=='bundled')
+    def ignored(self):
+        self.path.write_text(json.dumps(self.entity_policy('replace',[self.entry()])))
+        original=self.path.read_bytes();self.bundled();self.items({'yuanxian:stele_stone_heart':1})
+        self.check('disabled_override_preserved',self.path.read_bytes()==original)
+        self.path.write_text('{unused invalid external config');self.bundled();self.items({'yuanxian:stele_stone_heart':1})
+    def toggle(self):
+        self.spawn();self.config(self.entity_policy('replace',[self.entry()]));self.check('external_source',self.status()['source']=='external')
+        value=self.finish();self.check('enable_affects_existing_entity',value['world_items']=={'minecraft:diamond':2},value)
+        self.export('external');original=self.path.read_bytes();self.spawn();self.bundled()
+        value=self.finish();self.check('disable_affects_existing_entity',value['world_items']=={'yuanxian:stele_stone_heart':1},value)
+        self.check('toggle_preserves_custom_file',self.path.read_bytes()==original)
+    def invalid_settings(self):
+        self.config(self.entity_policy('replace',[self.entry()]));before=self.status()
+        for raw in ['{','{"use_external_config":"false"}','{"use_external_config":false,"extra":true}','{"use_external_config":false,"use_external_config":true}']:
+            self.settings.write_text(raw);reply=self.rc('yuanxian drops reload');after=self.status()
+            self.check('invalid_settings_keep_source_and_snapshot','重载失败' in reply and all(before[k]==after[k] for k in ['revision','sha256','source']),reply)
+            self.items({'minecraft:diamond':2})
+        self.settings.write_text(json.dumps({'use_external_config':True})+'\n')
+    def external_restart(self):
+        self.config(self.entity_policy('replace',[self.entry()]));original=self.path.read_bytes();before=self.status();self.server.stop();self.server.start()
+        after=self.status();self.check('restart_retains_explicit_override',after['source']=='external' and after['sha256']==before['sha256'] and self.path.read_bytes()==original)
+        self.items({'minecraft:diamond':2})
+    def bundled_restart(self):
+        self.bundled();self.path.write_text('{old unused config');original=self.path.read_bytes();before=self.status();self.server.stop();self.server.start()
+        after=self.status();self.check('restart_uses_current_bundle',after['source']=='bundled' and after['sha256']==before['sha256'] and not after['last_error'] and self.path.read_bytes()==original)
+        self.items({'yuanxian:stele_stone_heart':1})
     def export(self,label):
         reply=self.rc('yuanxian drops export');self.check('export_command','已导出' in reply,reply)
         result=json.loads(self.path.with_name('monster_drops_effective.json').read_text());status=self.status()
-        self.check('export_snapshot_identity',result['revision']==status['revision'] and result['sha256']==status['sha256'])
+        self.check('export_snapshot_identity',result['revision']==status['revision'] and result['sha256']==status['sha256'] and result['source']==status['source'] and all(row['source']==status['source'] for row in result['rows']))
         self.check('export_all_scenes',len(result['rows'])>=71*6 and len({r['context']['scene'] for r in result['rows']})==6)
         self.check('csv_bom',self.path.with_name('monster_drops_effective.csv').read_bytes().startswith(b'\xef\xbb\xbf'))
         with self.path.with_name('monster_drops_effective.csv').open(encoding='utf-8-sig',newline='') as stream:csv_rows=list(csv.DictReader(stream))
@@ -173,7 +209,8 @@ class Evidence:
         self.check('restart_keeps_external_file',self.path.read_bytes()==raw and self.status()['sha256']==sha)
         v=self.value('yuanxian drops show yuanxian:demon_wolf habitat donghuang','DROPS ')
         self.check('restart_custom_rule_live',v['effective']['policy']['drops'][0]['min']==7,v)
-    def restore(self):self.config(self.defaults);self.export('restored-defaults');self.check('restored_configuration',json.loads(self.path.read_text())==self.defaults)
+    def restore(self):
+        self.config(self.defaults);self.bundled();self.export('restored-defaults');self.check('restored_configuration',json.loads(self.path.read_text())==self.defaults and self.status()['source']=='bundled')
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--jar',type=Path,required=True);parser.add_argument('--probe',type=Path,required=True);parser.add_argument('--seed',type=int,default=202611150133);parser.add_argument('--world-fixture',type=Path);parser.add_argument('--only',nargs='+',choices=CASES)

@@ -136,7 +136,7 @@ public final class DropRules {
     }
     private static int integer(JsonObject o,String key,String p,int min,int max){double v=decimal(o,key,p,min,max);if(v!=Math.rint(v))throw bad(p+"."+key,"应为整数");return (int)v;}
     private static IllegalArgumentException bad(String p,String message){return new IllegalArgumentException(p+"："+message);}
-    private static JsonObject strict(String text){
+    static JsonObject strict(String text){
         try(JsonReader r=new JsonReader(new StringReader(text))){r.setLenient(false);var root=read(r,0,new int[]{0});if(r.peek()!=JsonToken.END_DOCUMENT)throw bad("$","存在多余文档");return asObject(root,"$");}
         catch(IOException|IllegalStateException e){throw bad("$","JSON格式错误："+e.getMessage());}
     }
