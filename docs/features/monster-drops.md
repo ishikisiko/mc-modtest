@@ -95,3 +95,5 @@ JSON导出保留完整配置、各实体各场景的规则预览和继承表。C
 包内默认文件为 `src/main/resources/data/myvillage/drops/monster_drops.json`。它与外置文件使用同一格式；发布时修改默认文件，运行时编辑服务器外置文件。掉落参数已从冻结的生态模板及炼器兽火配置中移出。
 
 仅生态资源引用发生变化时，拥有者生成器可执行 `tools/province_capitals/game/compile_v11.py --refresh-habitat-only --out <资源根目录>`。该入口核对当前作者输出，只更新生态摘要、预设内的冻结规则及索引摘要，保留其他世界规划输入。
+
+本次构建、服务器检查和下载记录见 [0.133.0交付记录](../testing/2026-11-15-dynamic-drops.md)。
