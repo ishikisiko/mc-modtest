@@ -68,8 +68,8 @@ final class NamespaceProbe {
         });
         check("recipe_loot_and_tag",()->{
             require(server.getRecipeManager().byKey(id("formula_huiling")).isPresent(),"丹方配方未加载");
-            var table=server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE,id("entities/demon_wolf")));
-            var encoded=LootTable.DIRECT_CODEC.encodeStart(server.registryAccess().createSerializationContext(JsonOps.INSTANCE),table).getOrThrow();require(encoded.toString().contains("yuanxian:"),"妖狼掉落表为空或未迁移");
+            var table=server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE,id("entities/thornback_badger")));
+            var encoded=LootTable.DIRECT_CODEC.encodeStart(server.registryAccess().createSerializationContext(JsonOps.INSTANCE),table).getOrThrow();require(encoded.toString().contains("yuanxian:thorn_bone"),"棘背獾掉落表缺少新物品ID");
             require(new ItemStack(BuiltInRegistries.ITEM.get(id("qingfeng_sword"))).is(ItemTags.SWORDS),"青锋剑标签未绑定");
         });
         check("entity_constructor",()->{var type=BuiltInRegistries.ENTITY_TYPE.get(id("demon_wolf"));var entity=type.create(level);require(entity!=null&&BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).equals(id("demon_wolf")),"实体无法建立");entity.discard();});
