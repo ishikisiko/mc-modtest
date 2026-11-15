@@ -28,7 +28,7 @@ class DynamicDropsResourcesTest(unittest.TestCase):
             self.assertEqual('keep',generator['other']);self.assertEqual(result,json.loads(gzip.decompress(base64.b64decode(generator['rules'][5:]))))
 
     def test_default_policy_has_preserved_scenes_and_single_fire_probability(self):
-        data=json.loads((ROOT/'src/main/resources/data/yuanxian/drops/monster_drops.json').read_text())
+        data=json.loads((ROOT/'src/test/resources/drops/rules_fixture.json').read_text())
         self.assertEqual({'inherit'},{v['mode'] for v in data['entities'].values()})
         self.assertEqual(71,len(data['entities']))
         self.assertEqual(['aptitude_trial','sect_trial','quest_realm','donghuang_habitat'],[v['id'] for v in data['overrides']])

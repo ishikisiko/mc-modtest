@@ -6,7 +6,7 @@ from tools.drop_workbench.server import App,Conflict,SOURCE,Store,ORIGIN
 ROOT=Path(__file__).resolve().parents[2]
 class WorkbenchTest(unittest.TestCase):
     def setUp(self):
-        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.file=self.root/SOURCE;self.file.parent.mkdir(parents=True);self.original=(ROOT/SOURCE).read_bytes();self.file.write_bytes(self.original);self.data=decode(self.original)
+        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.file=self.root/SOURCE;self.file.parent.mkdir(parents=True);self.original=(ROOT/'src/test/resources/drops/rules_fixture.json').read_bytes();self.file.write_bytes(self.original);self.data=decode(self.original)
         self.catalogue={'items':[{'id':id} for id in ['minecraft:diamond','minecraft:emerald','yuanxian:low_grade_spirit_stone','yuanxian:beast_fire_seed']],'entities':[{'id':id} for id in self.data['entities']],'regions':[{'id':id} for id in ['donghuang','lingyue','beiyuan','donghai','ximo','nanjiang','moyu','zhongzhou']],'realms':json.loads((ROOT/'src/main/resources/data/yuanxian/stats/rules.json').read_text())['realms']}
         from tools.drop_workbench.variants import attach
         self.catalogue['items'] += [{'id':id} for id in ['yuanxian:pill_huiling','yuanxian:pill_zhuji','yuanxian:qingfeng_sword','yuanxian:xuantie_helmet','yuanxian:forged_pickaxe','yuanxian:guiyan_sword','yuanxian:zhenyue_ruler','yuanxian:huashen_dari_helmet']]

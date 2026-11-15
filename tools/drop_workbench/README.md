@@ -53,3 +53,5 @@ systemctl --user status myvillage-drop-workbench.service
 当前工作台修改的是源码文件，因此真实编辑会出现在正式仓库的 Git diff 中。工作台不自动提交、推送或构建 JAR；按项目正常版本流程纳入后续模组更新。
 
 品质适用族由 `variants.py` 读取实际注册输入，原生检查将全部网页物品的能力逐项与真实服务端注册表比较。用于独立测试页面时，可给目录生成器传入同域 HTTPS 的 `--asset-base`；样式与脚本带内容摘要，刷新时读取对应版本。
+
+规则语义的固定样例位于 `src/test/resources/drops/rules_fixture.json`。Java和网页存储单元测试保留原来的精确断言，通过该样例验证，避免把用户可编辑的掉落方式和概率固定成编译要求。真实包内表仍由网页写回校验和原生服务器启动检查；原生 `item_variants` 场景读取根目录的 `drop-workbench-catalogue.json` 作为本次生成目录的检查副本，构建采集器负责准备它。
