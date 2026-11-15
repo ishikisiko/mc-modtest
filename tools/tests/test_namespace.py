@@ -22,6 +22,10 @@ class NamespaceTest(unittest.TestCase):
   self.assertEqual(2,len(inspect(self.root)['errors']))
  def test_java_implementation_package_is_not_a_resource_id(self):
   self.write('META-INF/enumextensions.json',{'class':'com.example.myvillage.SomeType'});self.assertEqual('passed',inspect(self.root)['status'])
+ def test_enum_extension_uses_the_current_mod_prefix(self):
+  entry={'enum':'net/minecraft/world/entity/vehicle/Boat$Type','name':'MYVILLAGE_NINGYUAN','parameters':{'class':'com/example/myvillage/orchard/OrchardBoatType'}}
+  self.write('META-INF/enumextensions.json',{'entries':[entry]});self.assertEqual('failed',inspect(self.root)['status'])
+  entry['name']='YUANXIAN_NINGYUAN';self.write('META-INF/enumextensions.json',{'entries':[entry]});self.assertEqual('passed',inspect(self.root)['status'])
  def test_explicit_equipment_namespace_rename_keeps_every_item_path(self):
   from tools.immortal_equipment.exporter import validate_retained_ids
   old={'myvillage:a','myvillage:b'};new={'yuanxian:a','yuanxian:b'}

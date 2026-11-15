@@ -58,6 +58,10 @@ def inspect(root):
    try:obj=json.loads(raw)
    except (ValueError,UnicodeDecodeError) as e:fail(name,'JSON无效：'+str(e));continue
    counts['json']+=1;nested(name,obj)
+   if name=='META-INF/enumextensions.json' and isinstance(obj,dict):
+    for entry in obj.get('entries',[]):
+     if not isinstance(entry.get('name'),str) or not entry['name'].startswith(NEW.upper()+'_'):
+      fail(name,'枚举扩展名称必须使用当前mod ID前缀：'+str(entry.get('name')))
    if '/lang/' in name and isinstance(obj,dict):
     if any('.'+OLD+'.' in key or key.endswith('.'+OLD) for key in obj):fail(name,'翻译键保留旧命名空间')
    if name.startswith('assets/'+NEW+'/') and any(part in name for part in ['/models/','/blockstates/']):counts['models']+=1;asset_model_refs(name,obj)
