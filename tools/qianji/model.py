@@ -199,7 +199,8 @@ class Model:
 
 # 本生成族的 roof 注册表；样式选择只使用注册 ID。
 def hip(m,x,y,z,w,d):
-    for i in range((min(w,d)+3)//2):
+    # 檐口向外各伸两格；收拢次数必须包含最后一条或两条中脊列。
+    for i in range((min(w,d)+5)//2):
         xx,zz=x-2+i,z-2+i;ww,dd=w+4-2*i,d+4-2*i
         yy=y+i//2
         for px in range(xx,xx+ww):
@@ -209,15 +210,19 @@ def hip(m,x,y,z,w,d):
                     m.put(px,yy,pz,state,'roof')
     # 脊线和角部上挑均为实体构件。
     peak=y+(min(w,d)+3)//4
-    m.box(x+min(w,d)//2-1,peak,z+d//2,max(1,w-min(w,d)+2),1,1,'roof','roof')
+    if w>=d:
+        m.box(x+d//2-1,peak,z+d//2,max(1,w-d+2),1,1,'roof','roof')
+    else:
+        m.box(x+w//2,peak,z+w//2-1,1,1,max(1,d-w+2),'roof','roof')
     for px,pz in [(x-2,z-2),(x+w+1,z-2),(x-2,z+d+1),(x+w+1,z+d+1)]:m.put(px,y+1,pz,'roof_slab','roof')
 def octagonal(m,x,y,z,w,d):
-    for i in range((min(w,d)+3)//2):
-        xx,zz=x-2+i,z-2+i;ww,dd=w+4-2*i,d+4-2*i;cut=max(1,min(ww,dd)//5)
+    for i in range((min(w,d)+5)//2):
+        xx,zz=x-2+i,z-2+i;ww,dd=w+4-2*i,d+4-2*i;cut=min(ww,dd)//5
         def inside(px,pz):return xx<=px<xx+ww and zz<=pz<zz+dd and min(px-xx,xx+ww-1-px)+min(pz-zz,zz+dd-1-pz)>=cut
         for px in range(xx,xx+ww):
             for pz in range(zz,zz+dd):
-                if inside(px,pz) and any(not inside(px+dx,pz+dz) for dx,dz in [(1,0),(-1,0),(0,1),(0,-1)]):m.put(px,y+i//2,pz,'roof_slab' if i%2==0 else 'roof','roof')
+                # 斜角的相邻坡层也要衔接，八邻域边界覆盖两层之间的对角窄缝。
+                if inside(px,pz) and any(not inside(px+dx,pz+dz) for dx,dz in [(1,0),(-1,0),(0,1),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1)]):m.put(px,y+i//2,pz,'roof_slab' if i%2==0 else 'roof','roof')
 ROOFS={'sweeping_eave_roof':hip,'hip_roof':hip,'pyramidal_roof':octagonal}
 def roof(m,x,y,z,w,d,id):
     if id not in ROOFS:raise ValueError('未注册的千机阁屋顶：'+id)
