@@ -1,0 +1,712 @@
+{
+  "schema": 1,
+  "status": "design_preview",
+  "plot_size": [
+    64,
+    72
+  ],
+  "kit": "tools/reference_courtyard/assemblies.json",
+  "collision_catalog": "src/main/resources/data/yuanxian/courtyard/assemblies.json",
+  "materials": "tools/reference_courtyard/minecraft.json",
+  "court_feet_y": 2,
+  "room_feet_y": 3,
+  "wall_height": 4,
+  "boundary_inset": 1,
+  "module_types": {
+    "hall": {
+      "roof_width": 25,
+      "body_inset": 2,
+      "eave_above_feet": 6,
+      "front_roof_overhang": 2,
+      "roof_key": "curve_lower_sides",
+      "end_key": "curve_lower_gable",
+      "overhang_key": "curve_lower",
+      "post_columns": [
+        4,
+        10,
+        14,
+        20
+      ],
+      "beam_segments": [
+        [
+          4,
+          "cloud"
+        ],
+        [
+          7,
+          "cloud"
+        ],
+        [
+          10,
+          "cloud_long"
+        ],
+        [
+          15,
+          "cloud"
+        ],
+        [
+          18,
+          "cloud"
+        ]
+      ]
+    },
+    "wing": {
+      "roof_width": 10,
+      "body_inset": 1,
+      "eave_above_feet": 5,
+      "front_roof_overhang": 1,
+      "roof_key": "curve_gallery",
+      "end_key": "curve_screen",
+      "overhang_key": "curve_gallery",
+      "post_columns": [],
+      "beam_segments": []
+    }
+  },
+  "templates": [
+    {
+      "id": "compact_court",
+      "name": "小院住宅",
+      "description": "一座主屋配一间厨房，院子紧凑，地块外侧保留较多建造和种植空间。",
+      "size": [
+        36,
+        24,
+        38
+      ],
+      "plot_origin": [
+        4,
+        30
+      ],
+      "front_gates": [
+        21
+      ],
+      "modules": [
+        {
+          "id": "main",
+          "name": "起居卧房",
+          "type": "hall",
+          "roof_x": 9,
+          "front_z": 22,
+          "back_z": 34
+        },
+        {
+          "id": "kitchen",
+          "name": "厨房与储物",
+          "type": "wing",
+          "roof_x": 2,
+          "front_z": 8,
+          "back_z": 17
+        }
+      ],
+      "partitions": [],
+      "furniture": [
+        {
+          "kind": "bed",
+          "position": [
+            15,
+            31
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            13,
+            27
+          ]
+        },
+        {
+          "kind": "crafting_table",
+          "position": [
+            29,
+            29
+          ]
+        },
+        {
+          "kind": "bookshelf",
+          "position": [
+            28,
+            32
+          ]
+        },
+        {
+          "kind": "furnace",
+          "position": [
+            4,
+            14
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            9,
+            14
+          ]
+        }
+      ],
+      "room_targets": [
+        {
+          "name": "主屋",
+          "position": [
+            21,
+            27
+          ]
+        },
+        {
+          "name": "厨房",
+          "position": [
+            6,
+            13
+          ]
+        }
+      ],
+      "lanterns": [
+        [
+          17,
+          5
+        ],
+        [
+          26,
+          5
+        ]
+      ],
+      "ponds": [],
+      "screens": [],
+      "farm_example": [
+        [
+          43,
+          12,
+          61,
+          65
+        ],
+        [
+          4,
+          4,
+          38,
+          26
+        ]
+      ],
+      "courtyard_features": [
+        {
+          "kind": "planter",
+          "box": [
+            16,
+            8,
+            21,
+            13
+          ]
+        },
+        {
+          "kind": "planter",
+          "box": [
+            27,
+            15,
+            32,
+            19
+          ]
+        },
+        {
+          "kind": "bench",
+          "position": [
+            26,
+            10
+          ],
+          "length": 3,
+          "facing": "south"
+        }
+      ]
+    },
+    {
+      "id": "family_court",
+      "name": "三面合院",
+      "description": "后部主屋配两侧厢房，安排起居、卧房、书房和厨房，中央院子可自由布置。",
+      "size": [
+        50,
+        24,
+        48
+      ],
+      "plot_origin": [
+        4,
+        20
+      ],
+      "front_gates": [
+        25
+      ],
+      "modules": [
+        {
+          "id": "main",
+          "name": "正房与卧房",
+          "type": "hall",
+          "roof_x": 12,
+          "front_z": 33,
+          "back_z": 45
+        },
+        {
+          "id": "west",
+          "name": "西厢卧房",
+          "type": "wing",
+          "roof_x": 3,
+          "front_z": 11,
+          "back_z": 28
+        },
+        {
+          "id": "east",
+          "name": "书房与厨房",
+          "type": "wing",
+          "roof_x": 37,
+          "front_z": 11,
+          "back_z": 28
+        }
+      ],
+      "partitions": [
+        {
+          "axis": "z",
+          "line": 19,
+          "span": [
+            4,
+            12
+          ],
+          "door": 7
+        },
+        {
+          "axis": "z",
+          "line": 19,
+          "span": [
+            38,
+            46
+          ],
+          "door": 41
+        }
+      ],
+      "furniture": [
+        {
+          "kind": "bed",
+          "position": [
+            18,
+            42
+          ]
+        },
+        {
+          "kind": "bookshelf",
+          "position": [
+            31,
+            42
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            16,
+            37
+          ]
+        },
+        {
+          "kind": "bed",
+          "position": [
+            6,
+            25
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            10,
+            16
+          ]
+        },
+        {
+          "kind": "crafting_table",
+          "position": [
+            39,
+            16
+          ]
+        },
+        {
+          "kind": "bookshelf",
+          "position": [
+            44,
+            16
+          ]
+        },
+        {
+          "kind": "furnace",
+          "position": [
+            39,
+            25
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            44,
+            25
+          ]
+        }
+      ],
+      "room_targets": [
+        {
+          "name": "正房",
+          "position": [
+            25,
+            38
+          ]
+        },
+        {
+          "name": "西厢前室",
+          "position": [
+            7,
+            16
+          ]
+        },
+        {
+          "name": "西厢卧房",
+          "position": [
+            7,
+            24
+          ]
+        },
+        {
+          "name": "东厢书房",
+          "position": [
+            41,
+            16
+          ]
+        },
+        {
+          "name": "厨房",
+          "position": [
+            41,
+            24
+          ]
+        }
+      ],
+      "lanterns": [
+        [
+          20,
+          6
+        ],
+        [
+          30,
+          6
+        ],
+        [
+          21,
+          27
+        ],
+        [
+          29,
+          27
+        ]
+      ],
+      "ponds": [],
+      "screens": [],
+      "farm_example": [
+        [
+          4,
+          3,
+          54,
+          16
+        ],
+        [
+          57,
+          21,
+          62,
+          66
+        ]
+      ],
+      "courtyard_features": [
+        {
+          "kind": "planter",
+          "box": [
+            17,
+            13,
+            22,
+            18
+          ]
+        },
+        {
+          "kind": "planter",
+          "box": [
+            29,
+            13,
+            34,
+            18
+          ]
+        },
+        {
+          "kind": "well",
+          "box": [
+            23,
+            22,
+            28,
+            27
+          ]
+        },
+        {
+          "kind": "bench",
+          "position": [
+            17,
+            25
+          ],
+          "length": 3,
+          "facing": "south"
+        },
+        {
+          "kind": "bench",
+          "position": [
+            30,
+            25
+          ],
+          "length": 3,
+          "facing": "south"
+        }
+      ]
+    },
+    {
+      "id": "workshop_court",
+      "name": "双院工坊宅",
+      "description": "月洞墙分开居住院和作业院；两座厢房供加工、储物，作业院保留连续空坪。",
+      "size": [
+        54,
+        24,
+        48
+      ],
+      "plot_origin": [
+        5,
+        20
+      ],
+      "front_gates": [
+        17,
+        38
+      ],
+      "modules": [
+        {
+          "id": "main",
+          "name": "居住主屋",
+          "type": "hall",
+          "roof_x": 26,
+          "front_z": 33,
+          "back_z": 45
+        },
+        {
+          "id": "workshop",
+          "name": "加工房",
+          "type": "wing",
+          "roof_x": 3,
+          "front_z": 9,
+          "back_z": 21
+        },
+        {
+          "id": "storage",
+          "name": "储物房",
+          "type": "wing",
+          "roof_x": 3,
+          "front_z": 29,
+          "back_z": 41
+        }
+      ],
+      "partitions": [],
+      "furniture": [
+        {
+          "kind": "bed",
+          "position": [
+            32,
+            42
+          ]
+        },
+        {
+          "kind": "bookshelf",
+          "position": [
+            46,
+            42
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            30,
+            37
+          ]
+        },
+        {
+          "kind": "crafting_table",
+          "position": [
+            5,
+            16
+          ]
+        },
+        {
+          "kind": "furnace",
+          "position": [
+            10,
+            16
+          ]
+        },
+        {
+          "kind": "anvil",
+          "position": [
+            8,
+            18
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            5,
+            34
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            10,
+            34
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            5,
+            38
+          ]
+        },
+        {
+          "kind": "barrel",
+          "position": [
+            10,
+            38
+          ]
+        }
+      ],
+      "room_targets": [
+        {
+          "name": "主屋",
+          "position": [
+            39,
+            38
+          ]
+        },
+        {
+          "name": "加工房",
+          "position": [
+            7,
+            15
+          ]
+        },
+        {
+          "name": "储物房",
+          "position": [
+            7,
+            35
+          ]
+        },
+        {
+          "name": "作业空坪",
+          "position": [
+            19,
+            26
+          ]
+        }
+      ],
+      "lanterns": [
+        [
+          14,
+          6
+        ],
+        [
+          21,
+          6
+        ],
+        [
+          34,
+          6
+        ],
+        [
+          43,
+          6
+        ]
+      ],
+      "ponds": [
+        [
+          34,
+          10,
+          46,
+          18
+        ]
+      ],
+      "screens": [
+        {
+          "axis": "x",
+          "line": 26,
+          "span": [
+            6,
+            31
+          ],
+          "moon_gate_start": 18
+        }
+      ],
+      "farm_example": [
+        [
+          5,
+          3,
+          59,
+          16
+        ],
+        [
+          60,
+          22,
+          63,
+          65
+        ]
+      ],
+      "courtyard_features": [
+        {
+          "kind": "planter",
+          "box": [
+            45,
+            22,
+            50,
+            27
+          ]
+        },
+        {
+          "kind": "bench",
+          "position": [
+            34,
+            24
+          ],
+          "length": 3,
+          "facing": "south"
+        }
+      ]
+    }
+  ],
+  "reference": {
+    "id": "moon_courtyard",
+    "name": "月洞水院原版",
+    "description": "找回的旧庭院，保留水池、木桥、门亭、主厅与连续月洞回廊，未缩放。",
+    "size": [
+      48,
+      28,
+      40
+    ],
+    "plot_origin": [
+      8,
+      28
+    ],
+    "farm_example": [
+      [
+        8,
+        3,
+        56,
+        23
+      ]
+    ],
+    "historical_image": "reference/owner-pc-courtyard.png"
+  },
+  "decor_materials": {
+    "planter_rim": "minecraft:polished_andesite_slab[type=bottom,waterlogged=false]",
+    "soil": "minecraft:dirt",
+    "plant": "minecraft:azalea",
+    "bench": "minecraft:dark_oak_stairs",
+    "well_rim": "minecraft:stone_bricks"
+  }
+}
