@@ -23,6 +23,7 @@ public final class MaterialClientProbe {
         if(mc.player==null||mc.level==null||!Files.isRegularFile(request))return;
         try {
             String action=Files.readString(request).trim();
+            if(action.equals("stop")){Files.delete(request);mc.stop();return;}
             if(action.equals("open")) {
                 CommerceRules rules;
                 try(var stream=com.example.myvillage.resources.BuiltinResources.open("data/yuanxian/world_sim/commerce_rules.json")) {

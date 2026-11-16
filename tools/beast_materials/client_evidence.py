@@ -95,6 +95,13 @@ def capture(evidence):
         raise
     finally:
         if client is not None:
+            if client.poll() is None and (game / 'material-preview-state.json').exists():
+                (game / 'material-preview.request').write_text('stop')
+                try:
+                    client.wait(timeout=30)
+                    record['graceful_client_exit'] = True
+                except subprocess.TimeoutExpired:
+                    record['graceful_client_exit'] = False
             record['client_cleanup'] = terminate(client)
         record['xvfb_cleanup'] = terminate(xvfb)
         if log is not None:
