@@ -142,3 +142,5 @@ above and link the relevant contract. Update only affected documentation.
 源仙名称与指令：[正式显示名、统一名称输入、完整与快捷命令入口及权限](../features/yuanxian-name.md)。
 
 妖兽材料与回收：[三类材料、境界与稀有度、统一掉落配置及铁匠持续收购](../features/beast-materials.md)。
+
+千机阁屋顶与城镇地面：[现行建筑和屋面修复](../features/qianji-halls.md)、[尚未接入生成的七城入城及地面分区草案](../features/qianji-city-layout-study.md)。

@@ -4,6 +4,8 @@
 
 总舵书册的共享参数、区块模型及同源选框见[书册按位置生成](../features/procedural-bookcases.md)。
 
+0.135.0-fix1修复分阁屋面中脊和八角斜缝。七州千机阁入城及街区地面分区处于[可查看草案](../features/qianji-city-layout-study.md)阶段，未改变正式城镇布局。
+
 当前默认大陆使用六档地区分组：东荒 → 灵岳 → 北原 → 东海／西漠 → 南疆／魔域 → 中州。出生州为东荒，同档共用阶位与境界范围，下一档查询返回同档全部地区。相邻州和官道覆盖全部八城；魔域的两处关隘连接南疆与中州。地区分组来自 `blueprints/worldplan/rules_v11.json` 的 `region_progression.levels`，阶位来自地区 profile；冻结规则、世界摘要和道路缓存共同校验。东荒的生态群落与月度恢复见[东荒生态](../features/east-wilderness.md)。
 
 前七州千机阁继续使用省城东侧署区，前三档为紧凑版、随后两档为大版。中州总舵位于御街西侧的159×170格住宅坊，撤并获准的73栋民居，保留功能建筑、庄园与原城域。`blueprints/qianji/zhongzhou_infill.json` 维护地块和楼院落位，`tools/qianji/infill.py` 保留单栋作者几何尺寸并生成台基、三格阶廊和公共路接点，`infill_export.py` 写入当前城市切片并核对保留楼体、原路与方块实体。总舵包含五层主阁、功能院落、高廊和水亭；常驻云气、流光和间歇阵纹、山河异象由迁址后的同一阵枢驱动。任务榜迁入办事廊，城市身份及原任务规则保留。详情见[千机阁署区](../features/qianji-halls.md)。
