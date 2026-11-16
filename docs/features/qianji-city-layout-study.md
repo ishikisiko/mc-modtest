@@ -4,6 +4,12 @@
 
 [交互预览](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/index.html)可逐城切换现有布局与入城草案，显示地面分区、原尺寸楼房位置及住宅调整清单。[完整平面数据](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/plans.json)的SHA256为 `ac64f336f91b8ad9b6ba0ee7cb31803ec6d5788a2fa667ca57488f4460cd4a90`。
 
+[七城三维草案](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/3d/index.html)复用现有整城蓝图的三维查看器，从当前作者输入构造建筑、府邸、地标和阶梯地形；千机阁各栋由自己的方块生成器构造，再按同一平面草案落位。可以切换城市，查看整城、千机阁街区、俯视和街道视角，隐藏千机阁屋顶或地面分区。原三维站点保持原样。
+
+新千机阁楼房暂按地块最高地面落位；住宅和私院按迁排位移显示，架空住宅保留原有离地关系。三维中的浅色改线标记仅表示平面走向，保留的旧路用作现状对照。新院路、道路标高、完整路幅、土方及公共院场迁排均未作为施工通过项。三维材料配色为示意，屋顶修复的真实客户端画面在平面预览中另列。
+
+[三维生成清单](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/3d/manifest.json)记录源提交、平面输入与各页摘要；[草案生成脚本及输入](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/qianji-city-study-source.zip)单独归档。桌面东荒和窄屏魔域均已显示三维画面，控制台无错误；软件WebGL及截图读回性能警告保留，这些检查只证明开发者预览能够显示。
+
 ## 本轮方向
 
 保留千机阁各栋楼房的尺寸和层数，把公开办事厅放到城内公共街道旁，内部楼院按街坊地块组织，以街巷与短廊连接。中州现有总舵的位置保留。七座分阁共22栋楼房全部位于原城市本地范围内；这次平面研究不扩大原城域。
