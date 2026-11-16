@@ -146,3 +146,5 @@ above and link the relevant contract. Update only affected documentation.
 千机阁屋顶与城镇地面：[现行建筑和屋面修复](../features/qianji-halls.md)、[尚未接入生成的七城入城及地面分区草案](../features/qianji-city-layout-study.md)、[七城玩家宅田区域规划](../features/player-land-plan.md)。
 
 玩家住宅模板：[三套月洞风格住宅与恢复的原版水院](../features/player-house-templates.md)，包含同源三维、宅田占地及独立SCHEM/NBT下载，尚未加入游戏选房菜单。
+
+住宅大门：[3×4格净开口的木格双开门设计](../features/player-house-door-study.md)，含开合演示、原版门对照和主屋局部试装，尚未接入游戏。

@@ -4,6 +4,8 @@
 
 [住宅模板与三维预览](https://assets.ishiki333hhh.win/previews/player-house-templates-20261117/index.html)可切换全貌、院内、去顶、俯视及“放进宅田地块”。每套可下载SCHEM、NBT和同源占地图，当前选择只影响预览，不写入游戏。
 
+针对单格门偏小的反馈，另有[木格双开大门独立设计](player-house-door-study.md)，净开口3×4格；当前住宅下载文件仍保留原门。
+
 ## 已找回的旧庭院
 
 用户确认旧蓝图为“月洞水院”，包含白墙灰瓦、月洞门、木桥、水池、门亭和连续回廊。当前作者源仍在 `tools/reference_courtyard/assemblies.json` 与 `assembly_scene.py`，原版结构为 `data/yuanxian/structure/reference_courtyard.nbt`。

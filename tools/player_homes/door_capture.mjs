@@ -1,0 +1,11 @@
+// 导出独立门体设计的同源画面；不启动Minecraft或新服务。
+import{createRequire}from'node:module';import{mkdirSync,writeFileSync}from'node:fs';import{resolve,join}from'node:path';
+const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAYWRIGHT_CORE||'/home/ubuntu/.t3/runtime/versions/0.1.6/node_modules/playwright-core');
+const out=resolve(process.argv[2]),url=process.argv[3];mkdirSync(out,{recursive:true});
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE||'/home/ubuntu/.cache/ms-playwright/chromium-1228/chrome-linux64/chrome',args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
+try{const page=await browser.newPage({viewport:{width:1100,height:1200}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__doorReady===true,undefined,{timeout:60000});
+ const cases=[['closed','standalone',0],['open','standalone',90],['compare','compare',0],['facade-closed','facade',0],['facade-open','facade',90]],completed=[];
+ for(const[name,mode,angle]of cases){await page.evaluate(({mode,angle})=>{DOOR_STUDY.setMode(mode);DOOR_STUDY.setAngle(angle)},{mode,angle});await page.locator('#scene').screenshot({path:join(out,name+'.png'),timeout:60000});completed.push(name);console.log('已导出',name)}
+ await page.getByRole('button',{name:'闭合',exact:true}).click();await page.waitForFunction(()=>DOOR_STUDY.angle===0);await page.getByRole('button',{name:'全开',exact:true}).click();await page.waitForFunction(()=>DOOR_STUDY.angle===90);await page.setViewportSize({width:390,height:1000});await page.locator('#scene').screenshot({path:join(out,'mobile-open.png')});const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);if(errors.length||overflow)throw new Error(JSON.stringify({errors,overflow}));
+ writeFileSync(join(out,'capture-check.json'),JSON.stringify({status:'captured_for_review',selected:cases.map(x=>x[0]),completed,failed:[],unrun:[],errors,mobile_horizontal_overflow:overflow,button_animation:'0 to 90 reached',minecraft:'not_run'},null,2));
+}finally{await browser.close()}
