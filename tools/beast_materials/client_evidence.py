@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 from pathlib import Path
 import shutil
@@ -11,6 +12,7 @@ import traceback
 
 from tools.drops.native_evidence import ROOT
 from tools.roadweaver_probe.run import terminate, write
+from tools.combat_capture.session import CLIENT_OPTIONS, merge_options
 
 
 def capture(evidence):
@@ -19,7 +21,8 @@ def capture(evidence):
     game = ROOT / 'run-beast-material-client' / evidence.out.name
     (game / 'mods').mkdir(parents=True)
     shutil.copy2(evidence.probe, game / 'mods' / evidence.probe.name)
-    (game / 'options.txt').write_text('lang:zh_cn\nguiScale:2\nmaxFps:30\nrenderDistance:3\nsimulationDistance:3\nenableVsync:false\n')
+    merge_options(game / 'options.txt', {**CLIENT_OPTIONS, 'lang':'zh_cn', 'guiScale':'2', 'maxFps':'30',
+                                       'renderDistance':'3', 'simulationDistance':'3'})
     (game / 'material-preview.request').write_text('open')
     display = next(':' + str(n) for n in range(100, 200) if not Path('/tmp/.X11-unix/X' + str(n)).exists())
     env = dict(os.environ, DISPLAY=display, LIBGL_ALWAYS_SOFTWARE='1', JAVA_TOOL_OPTIONS='-Xmx3g')
@@ -28,7 +31,8 @@ def capture(evidence):
     client = None
     log = None
     record = {'status': 'running', 'evidence': 'real_client_render_fixture_and_mapped_filter_mouse_input',
-              'npc_opening_and_trade': 'not_verified', 'owner_visual': 'not_verified', 'inputs': []}
+              'npc_opening_and_trade': 'not_verified', 'owner_visual': 'not_verified', 'inputs': [],
+              'collector_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
     try:
         deadline = time.monotonic() + 20
         while not Path('/tmp/.X11-unix/X' + display[1:]).exists():

@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import hashlib
 import shutil
 import traceback
 
@@ -23,7 +24,9 @@ class MaterialEvidence(Evidence):
         self.selected = CASES.copy()
         if client:
             self.selected.insert(-1, 'client_menu_render')
-        self.report.update(kind='beast_materials_native', selected=self.selected, completed=[], unrun=self.selected.copy())
+        from pathlib import Path
+        self.report.update(kind='beast_materials_native', selected=self.selected, completed=[], unrun=self.selected.copy(),
+                           collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
         self.save()
 
     def material_check(self, restore=False):
