@@ -102,7 +102,7 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
                         ||medicine>0&&(!kind.equals("buy")||!role.equals("herbalist"))) throw new IllegalArgumentException("Invalid commodity");
                 int target=kind.equals("buy")&&pool.equals("items")?targets.getOrDefault(item,0):0;
                 if(target>capacity||target>0&&(!role.equals("herbalist")||!restocked.add(item)))throw new IllegalArgumentException("Invalid restock offer");
-                offers.add(new Offer(id,role,kind,item,quantity,integer(o,"price",1,MAX_PRICE),pool,units,initial,capacity,medicine,0,target>0?restockDays:0,target));
+                offers.add(new Offer(id,role,kind,item,quantity,integer(o,"price",1,10_000),pool,units,initial,capacity,medicine,0,target>0?restockDays:0,target));
             }
             if(!restocked.equals(targets.keySet()))throw new IllegalArgumentException("Restock requires matching shop offers");
             for(var material:com.example.myvillage.drops.BeastMaterialRules.bundled().variants()) {
