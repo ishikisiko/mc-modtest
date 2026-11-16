@@ -1,0 +1,298 @@
+{
+  "schema": 1,
+  "status": "design_preview",
+  "base_plan": "blueprints/province_capitals/blueprint_plan/studies/qianji_infill_r1.json",
+  "policy": {
+    "urban_default": "paved_court",
+    "narrow_residual": "paved_alley",
+    "green_authority": "named_parcels_only",
+    "natural_authority": "outside_walls_or_declared_natural_feature",
+    "grass_allowed_as_residual": false,
+    "formal_worldgen_modified": false
+  },
+  "regions": {
+    "donghuang": {
+      "paving": "#aaa497",
+      "plaza": "#b8b09d",
+      "border": "#716f64",
+      "green": "#71805b",
+      "natural": "#6f7f5e",
+      "texture": "flagstone",
+      "reserve": "outside_wall",
+      "green_sites": [
+        {
+          "id": "donghuang_tree_court",
+          "name": "北关树院",
+          "box": [
+            14,
+            10,
+            42,
+            42
+          ],
+          "entrance": "south",
+          "trees": "regular_court",
+          "edge": "low_stone_border",
+          "public_use": "树下休息",
+          "base_surface": "bounded_planting"
+        }
+      ],
+      "public_spaces": [
+        {
+          "id": "north_waiting_court",
+          "name": "北关候行前坪",
+          "box": [
+            46,
+            20,
+            82,
+            51
+          ],
+          "opening": "east",
+          "use": "候行与街坊议事",
+          "preserve_existing_courts": true
+        }
+      ],
+      "overview_bounds": [
+        0,
+        0,
+        112,
+        124
+      ],
+      "framed_courts": [
+        "market_square",
+        "relay_square",
+        "hall_square",
+        "herb_square",
+        "gate_square",
+        "smith_square"
+      ]
+    },
+    "lingyue": {
+      "paving": "#939c9b",
+      "plaza": "#b2b9af",
+      "border": "#596c65",
+      "green": "#617652",
+      "natural": "#62755d",
+      "texture": "flagstone",
+      "reserve": "ravine",
+      "green_sites": [
+        {
+          "id": "lingyue_tree_court",
+          "name": "台地松庭",
+          "box": [
+            164,
+            242,
+            186,
+            258
+          ],
+          "entrance": "south",
+          "trees": "regular_court",
+          "edge": "low_stone_border",
+          "public_use": "树下休息",
+          "base_surface": "bounded_planting"
+        }
+      ],
+      "framed_courts": [
+        "hall_square",
+        "lingyue_garden_02",
+        "lingyue_garden_04",
+        "lingyue_garden_05",
+        "lingyue_garden_17",
+        "lingyue_garden_18",
+        "bridge_market",
+        "herb_square",
+        "stair_well",
+        "lingyue_garden_09",
+        "forge_square",
+        "lingyue_garden_06",
+        "lingyue_garden_10",
+        "lingyue_garden_14",
+        "inn_veranda",
+        "lingyue_garden_07"
+      ],
+      "public_spaces": []
+    },
+    "beiyuan": {
+      "paving": "#a3adae",
+      "plaza": "#bbc2c1",
+      "border": "#697978",
+      "green": "#d5d9ce",
+      "natural": "#d6dcd7",
+      "texture": "cobble",
+      "reserve": "outside_wall",
+      "green_sites": [
+        {
+          "id": "beiyuan_tree_court",
+          "name": "北关避风松庭",
+          "box": [
+            30,
+            16,
+            50,
+            32
+          ],
+          "entrance": "south",
+          "trees": "regular_court",
+          "edge": "low_stone_border",
+          "public_use": "树下休息",
+          "base_surface": "bounded_planting"
+        }
+      ],
+      "framed_courts": [
+        "west_court_square",
+        "citadel_square",
+        "granary_square",
+        "beiyuan_garden_17",
+        "beiyuan_garden_9",
+        "beiyuan_garden_19"
+      ],
+      "public_spaces": []
+    },
+    "donghai": {
+      "paving": "#b1b2a6",
+      "plaza": "#c6c5b1",
+      "border": "#758781",
+      "green": "#718166",
+      "natural": "#b8b19a",
+      "texture": "flagstone",
+      "reserve": "shore",
+      "green_sites": [
+        {
+          "id": "donghai_tree_court",
+          "name": "港街树院",
+          "box": [
+            30,
+            16,
+            50,
+            32
+          ],
+          "entrance": "south",
+          "trees": "regular_court",
+          "edge": "low_stone_border",
+          "public_use": "树下休息",
+          "base_surface": "bounded_planting"
+        }
+      ],
+      "framed_courts": [
+        "donghai_garden_04",
+        "donghai_garden_18",
+        "harbour_transfer",
+        "well_square",
+        "donghai_garden_03",
+        "donghai_garden_06",
+        "donghai_garden_07",
+        "donghai_garden_12",
+        "donghai_garden_15"
+      ],
+      "public_spaces": []
+    },
+    "ximo": {
+      "paving": "#bbac8d",
+      "plaza": "#cebd99",
+      "border": "#8c795c",
+      "green": "#7e8b57",
+      "natural": "#b7a07d",
+      "texture": "sandstone",
+      "reserve": "oasis",
+      "green_sites": [],
+      "framed_courts": [
+        "inn_square",
+        "oasis_south_square",
+        "ximo_garden_18",
+        "ximo_garden_19",
+        "public_well",
+        "ximo_garden_2",
+        "ximo_garden_17"
+      ],
+      "public_spaces": []
+    },
+    "nanjiang": {
+      "paving": "#8c9995",
+      "plaza": "#acb4a2",
+      "border": "#536b60",
+      "green": "#647c4b",
+      "natural": "#62734f",
+      "texture": "cobble",
+      "reserve": "stream",
+      "green_sites": [
+        {
+          "id": "nanjiang_tree_court",
+          "name": "药街树院",
+          "box": [
+            42,
+            12,
+            64,
+            28
+          ],
+          "entrance": "south",
+          "trees": "regular_court",
+          "edge": "low_stone_border",
+          "public_use": "树下休息",
+          "base_surface": "bounded_planting"
+        }
+      ],
+      "framed_courts": [
+        "hall_square",
+        "herb_square",
+        "waterwork_square",
+        "warehouse_square",
+        "south_bridge_square",
+        "north_bridge_square",
+        "east_gallery_square",
+        "nanjiang_garden_11",
+        "nanjiang_garden_24"
+      ],
+      "public_spaces": []
+    },
+    "moyu": {
+      "paving": "#656a6c",
+      "plaza": "#858d89",
+      "border": "#3d4c48",
+      "green": "#6d795b",
+      "natural": "#535f5c",
+      "texture": "darkstone",
+      "reserve": "rift",
+      "green_sites": [
+        {
+          "id": "moyu_tree_court",
+          "name": "北炉岩松院",
+          "box": [
+            30,
+            10,
+            50,
+            24
+          ],
+          "entrance": "south",
+          "trees": "regular_court",
+          "edge": "low_stone_border",
+          "public_use": "树下休息",
+          "base_surface": "bounded_planting"
+        }
+      ],
+      "framed_courts": [
+        "market_square",
+        "hall_square",
+        "inn_square",
+        "forge_square",
+        "herb_square",
+        "north_bridge_square",
+        "south_bridge_square"
+      ],
+      "public_spaces": []
+    }
+  },
+  "layout_rules": {
+    "path_width": 3,
+    "alley_component_max_area": 64,
+    "forecourt_margin": 4,
+    "border_height": 0.5,
+    "border_width": 0.4,
+    "tree_spacing": 8,
+    "natural_margin": {
+      "ravine": 2,
+      "shore": 3,
+      "oasis": 3
+    },
+    "public_border_height": 0.25,
+    "public_border_width": 0.3,
+    "green_max_height_range": 1
+  }
+}
