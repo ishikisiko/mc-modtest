@@ -10,7 +10,7 @@ import traceback
 
 from tools.drops.native_evidence import Evidence, ROOT
 
-CASES = ['candidate_identity', 'registered_items_and_recycling', 'ordinary_loot',
+CASES = ['candidate_identity', 'server_startup', 'registered_items_and_recycling', 'ordinary_loot',
          'all_realms_and_rarities', 'non_player_sources', 'trial_shields',
          'invalid_config_keeps_snapshot', 'restart_persistence', 'restored_defaults']
 
@@ -21,6 +21,7 @@ class MaterialEvidence(Evidence):
         self.server.level_type = 'minecraft:flat'
         self.server.generate_structures = 'false'
         self.server.view_distance = 3
+        self.server.readiness_command = 'list'
         self.selected = CASES.copy()
         if client:
             self.selected.insert(-1, 'client_menu_render')
@@ -133,7 +134,7 @@ class MaterialEvidence(Evidence):
     def run(self):
         try:
             self.case('candidate_identity', self.identity)
-            self.server.start()
+            self.case('server_startup', self.server.start)
             self.case('registered_items_and_recycling', self.material_check)
             self.case('ordinary_loot', self.ordinary)
             self.case('all_realms_and_rarities', self.matrix)

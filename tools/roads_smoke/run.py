@@ -106,7 +106,10 @@ class Server:
             if self.process.poll() is not None:
                 raise RuntimeError('Server startup exit '+str(self.process.returncode))
             try:
-                self.roads('status')
+                if getattr(self,'readiness_command',None):
+                    self.command(self.readiness_command)
+                else:
+                    self.roads('status')
                 break
             except (OSError, ValueError, RuntimeError):
                 time.sleep(2)
