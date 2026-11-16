@@ -99,8 +99,6 @@ def prepare_city(root,proposal,data,scene,style,rules):
         else:delta=[0,0,0]
         garden_delta[g['id']]=delta;translate_record(g,delta);translate_record(g,[sx,0,sz]);kept.append(g)
     data['gardens']=kept
-    # 新鲜编译结果可能共享装饰对象，JSON缓存会拆开引用；显式汇总保证两种输入一致。
-    data['fixtures']=[copy.deepcopy(f)for g in kept for f in g.get('fixtures',[])]
     all_deltas={**deltas,**garden_delta}
     transformed=[]
     wall_material=next((b['m']for b in scene['boxes']if b['tag']=='城防'),'stone')
@@ -289,6 +287,8 @@ def access_and_context(root,data,scene,proposal,style,rules,ground_rules):
 
 
 def finalize_checks(data,scene,proposal):
+    # 地面规划会新增树院；最后统一汇总，既包含新院也不依赖缓存中的对象引用。
+    data['fixtures']=[copy.deepcopy(f)for g in data['gardens']for f in g.get('fixtures',[])]
     land=data['player_land'];box=land['box'];violations=[]
     for b in scene['boxes']:
         x,y,z=b['p'];w,h,d=b['s']
