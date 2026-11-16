@@ -299,7 +299,9 @@ def finalize_checks(data,scene,proposal):
     for b in scene['boxes']:
         if not b['tag'].startswith('qianji_'):continue
         x,y,z=b['p'];w,h,d=b['s']
-        if any(not in_polygon(data['wall']['points'],xx,zz)for xx,zz in((x-w/2+.001,z-d/2+.001),(x+w/2-.001,z+d/2+.001),(x-w/2+.001,z+d/2-.001),(x+w/2-.001,z+d/2-.001))):q_outside.append(b['tag'])
+        corners=((x-w/2+.001,z-d/2+.001),(x+w/2-.001,z-d/2+.001),
+                 (x-w/2+.001,z+d/2-.001),(x+w/2-.001,z+d/2-.001))
+        if any(not in_polygon(data['wall']['points'],xx,zz)for xx,zz in corners):q_outside.append(b['tag'])
     assert not q_outside,('千机阁构件越出新城墙',proposal['region'],sorted(set(q_outside)))
     return {'net_size':land['size'],'net_area':land['area'],'empty_above_ground':True,'inside_city_wall':True,'qianji_inside_city_wall':True,'public_access_xz':'connected','road_height_and_native_walkability':'not_verified','minecraft':'not_run'}
 
