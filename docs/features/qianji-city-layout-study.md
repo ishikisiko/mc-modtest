@@ -21,15 +21,17 @@ python3 tools/province_capitals/blueprint_plan/ground_study.py \
 
 生成器复用现有整城构件和三维查看器；缓存只在源提交匹配且相关正式输入未修改时复用。桌面东荒、新旧地面对照、树院近景和窄屏魔域均已查看，控制台无错误；软件WebGL与截图读回警告保留。它们只证明开发者预览可显示，未证明新布局的游戏施工或玩家接受。本轮未构建JAR，也未启动Minecraft。
 
+[当前生成清单](https://assets.ishiki333hhh.win/previews/qianji-ground-r2-20261116/manifest.json)记录固定源与逐页摘要；[本轮作者输入和预览脚本](https://assets.ishiki333hhh.win/previews/qianji-ground-r2-20261116/study-source.zip)可独立下载。最后一次固定源生成的七页HTML与已经查看的页面逐字节一致。
+
 ## 第一版研究记录
 
-[交互预览](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/index.html)可逐城切换现有布局与入城草案，显示地面分区、原尺寸楼房位置及住宅调整清单。[完整平面数据](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/plans.json)的SHA256为 `ac64f336f91b8ad9b6ba0ee7cb31803ec6d5788a2fa667ca57488f4460cd4a90`。
+[原平面预览存档](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/rejected-r1/index.html)可逐城切换现有布局与入城草案，显示当时的地面分区、原尺寸楼房位置及住宅调整清单。[完整平面数据](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/plans.json)的SHA256为 `ac64f336f91b8ad9b6ba0ee7cb31803ec6d5788a2fa667ca57488f4460cd4a90`。
 
 [原三维草案存档](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/3d/rejected-r1/index.html)复用现有整城蓝图的三维查看器，从当前作者输入构造建筑、府邸、地标和阶梯地形；千机阁各栋由自己的方块生成器构造，再按同一平面草案落位。原三维站点保持原样；本次任务的旧三维入口转至第二稿，第一版文件另行保留。
 
 新千机阁楼房暂按地块最高地面落位；住宅和私院按迁排位移显示，架空住宅保留原有离地关系。三维中的浅色改线标记仅表示平面走向，保留的旧路用作现状对照。新院路、道路标高、完整路幅、土方及公共院场迁排均未作为施工通过项。三维材料配色为示意，屋顶修复的真实客户端画面在平面预览中另列。
 
-[三维生成清单](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/3d/manifest.json)记录源提交、平面输入与各页摘要；[草案生成脚本及输入](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/qianji-city-study-source.zip)单独归档。桌面东荒和窄屏魔域均已显示三维画面，控制台无错误；软件WebGL及截图读回性能警告保留，这些检查只证明开发者预览能够显示。
+[原三维生成清单](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/3d/rejected-r1/manifest.json)记录源提交、平面输入与各页摘要；[草案生成脚本及输入](https://assets.ishiki333hhh.win/previews/qianji-city-plan-20261116/qianji-city-study-source.zip)单独归档。桌面东荒和窄屏魔域均已显示三维画面，控制台无错误；软件WebGL及截图读回性能警告保留，这些检查只证明开发者预览能够显示。
 
 ## 本轮方向
 
