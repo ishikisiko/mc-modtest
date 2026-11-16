@@ -39,7 +39,8 @@ def main():
                 if time.monotonic()>deadline:raise TimeoutError('模板目标区块未加载 '+h['id'])
                 time.sleep(1)
             reply=server.command(f'place template yuanxian:door_home_{h["id"]} {x} {y} {z}')
-            if 'Placed'in reply:continue
+            expected_reply=f'Loaded template "yuanxian:door_home_{h["id"]}" at {x}, {y}, {z}'
+            if reply.strip()==expected_reply:continue
             raise AssertionError(reply)
         def probe(action):
             reply=server.command('door_probe '+action)
