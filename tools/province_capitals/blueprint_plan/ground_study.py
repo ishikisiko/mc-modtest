@@ -18,6 +18,7 @@ def inside(x, z, box, margin=0):
     return box[0]-margin <= x < box[2]+margin and box[1]-margin <= z < box[3]+margin
 
 def build(p):
+    style=copy.deepcopy(CONFIG['regions'][p['region']])
     started = time.monotonic()
     region = p['region']
     cached = CACHE / (region + '.json.gz')
@@ -34,64 +35,72 @@ def build(p):
         gc.collect()
     width, _, depth = data['dimensions']
     ground = lambda x, z: data['terrain'][max(0, min(depth-1, int(z))) * width + max(0, min(width-1, int(x)))]
-    by_id = {b['id']: b for b in data['plots']}
-    before = {b['id']: b for b in p['before']}
-    after = {b['id']: b for b in p['after']}
-    moved = {}
-    for m in p['house_moves']:
-        b = by_id[m['id']]['building']
-        dx, dz = m['to'][0]-m['from'][0], m['to'][1]-m['from'][1]
-        new_box = m['to']
-        old_box = m['from']
-        new_ground = max(ground(x,z) for z in range(new_box[1],new_box[3]) for x in range(new_box[0],new_box[2]))
-        old_ground = max(ground(x,z) for z in range(old_box[1],old_box[3]) for x in range(old_box[0],old_box[2]))
-        dy = new_ground - old_ground
-        moved[m['id']] = [dx, dy, dz]
-        assert [m['to'][2]-m['to'][0], m['to'][3]-m['to'][1]] == [m['from'][2]-m['from'][0], m['from'][3]-m['from'][1]]
-    retired = set(p['proposed_retired_houses'])
-    removed_gardens = set(g['id'] for g in data['gardens'] if g.get('owner') in retired)
-    affected_courts = set(c for q in p['qianji'] for c in q['courts'])
-    garden_shifts = {g['id']: moved[g['owner']] for g in data['gardens'] if g.get('owner') in moved}
-    shifts = {**moved, **garden_shifts}
-    removed_tags = retired | removed_gardens | affected_courts
-    transformed = []
-    for b in scene['boxes']:
-        if b['tag'] in removed_tags:
-            continue
-        if b['tag'] in shifts:
-            b = {**b, 'p': [v+d for v, d in zip(b['p'], shifts[b['tag']])]}
-        if b['layer'] in ('roads', 'road', 'road_edge') and any(inside(b['p'][0], b['p'][2], q['box']) for q in p['qianji']):
-            continue
-        transformed.append(b)
-    scene['boxes'] = transformed
-    for plot in data['plots']:
-        if plot['id'] not in moved:
-            continue
-        delta = moved[plot['id']]
-        b = plot['building']
-        for key in ('position', 'entrance'):
-            b[key] = [v+d for v, d in zip(b[key], delta)]
-        for key in ('min', 'max'):
-            b['bounds'][key] = [v+d for v, d in zip(b['bounds'][key], delta)]
-        box = after[plot['id']]['box']
-        plot['cell_runs'] = [[z, box[0], box[2]-1] for z in range(box[1], box[3])]
-    data['plots'] = [b for b in data['plots'] if b['id'] not in retired]
-    kept_gardens = []
-    for g in data['gardens']:
-        if g['id'] in removed_tags:
-            continue
-        if g['id'] in garden_shifts:
-            dx, dy, dz = garden_shifts[g['id']]
-            g['bounds'] = [v+d for v, d in zip(g['bounds'], [dx, dz, dx, dz])]
-            g['y'] += dy
-            for key in ('gate',):
-                g[key] = [v+d for v, d in zip(g[key], [dx, dy, dz])]
-            for key in ('path', 'internal_path'):
-                g[key] = [[v+d for v, d in zip(point, [dx, dy, dz])] for point in g[key]]
-            for f in g['fixtures']:
-                f['position'] = [v+d for v, d in zip(f['position'], [dx, dy, dz])]
-        kept_gardens.append(g)
-    data['gardens'] = kept_gardens
+    if 'player_land' in style:
+        from province_capitals.blueprint_plan.player_land_study import prepare_city, access_and_context, finalize_checks, amend_viewer as player_viewer
+        p,data,scene=prepare_city(ROOT,p,data,scene,style,CONFIG['planning_rules'])
+        before={b['id']:b for b in p['before']}
+        moved={b['id']:b['box'] for b in p['after'] if b['role']=='house' and b['box']!=before[b['id']]['box']}
+    else:
+        by_id = {b['id']: b for b in data['plots']}
+        before = {b['id']: b for b in p['before']}
+        after = {b['id']: b for b in p['after']}
+        moved = {}
+        for m in p['house_moves']:
+            b = by_id[m['id']]['building']
+            dx, dz = m['to'][0]-m['from'][0], m['to'][1]-m['from'][1]
+            new_box = m['to']
+            old_box = m['from']
+            new_ground = max(ground(x,z) for z in range(new_box[1],new_box[3]) for x in range(new_box[0],new_box[2]))
+            old_ground = max(ground(x,z) for z in range(old_box[1],old_box[3]) for x in range(old_box[0],old_box[2]))
+            dy = new_ground - old_ground
+            moved[m['id']] = [dx, dy, dz]
+            assert [m['to'][2]-m['to'][0], m['to'][3]-m['to'][1]] == [m['from'][2]-m['from'][0], m['from'][3]-m['from'][1]]
+        retired = set(p['proposed_retired_houses'])
+        removed_gardens = set(g['id'] for g in data['gardens'] if g.get('owner') in retired)
+        affected_courts = set(c for q in p['qianji'] for c in q['courts'])
+        garden_shifts = {g['id']: moved[g['owner']] for g in data['gardens'] if g.get('owner') in moved}
+        shifts = {**moved, **garden_shifts}
+        removed_tags = retired | removed_gardens | affected_courts
+        transformed = []
+        for b in scene['boxes']:
+            if b['tag'] in removed_tags:
+                continue
+            if b['tag'] in shifts:
+                b = {**b, 'p': [v+d for v, d in zip(b['p'], shifts[b['tag']])]}
+            if b['layer'] in ('roads', 'road', 'road_edge') and any(inside(b['p'][0], b['p'][2], q['box']) for q in p['qianji']):
+                continue
+            transformed.append(b)
+        scene['boxes'] = transformed
+        for plot in data['plots']:
+            if plot['id'] not in moved:
+                continue
+            delta = moved[plot['id']]
+            b = plot['building']
+            for key in ('position', 'entrance'):
+                b[key] = [v+d for v, d in zip(b[key], delta)]
+            for key in ('min', 'max'):
+                b['bounds'][key] = [v+d for v, d in zip(b['bounds'][key], delta)]
+            box = after[plot['id']]['box']
+            plot['cell_runs'] = [[z, box[0], box[2]-1] for z in range(box[1], box[3])]
+        data['plots'] = [b for b in data['plots'] if b['id'] not in retired]
+        kept_gardens = []
+        for g in data['gardens']:
+            if g['id'] in removed_tags:
+                continue
+            if g['id'] in garden_shifts:
+                dx, dy, dz = garden_shifts[g['id']]
+                g['bounds'] = [v+d for v, d in zip(g['bounds'], [dx, dz, dx, dz])]
+                g['y'] += dy
+                for key in ('gate',):
+                    g[key] = [v+d for v, d in zip(g[key], [dx, dy, dz])]
+                for key in ('path', 'internal_path'):
+                    g[key] = [[v+d for v, d in zip(point, [dx, dy, dz])] for point in g[key]]
+                for f in g['fixtures']:
+                    f['position'] = [v+d for v, d in zip(f['position'], [dx, dy, dz])]
+            kept_gardens.append(g)
+        data['gardens'] = kept_gardens
+    width, _, depth = data['dimensions']
+    ground = lambda x,z:data['terrain'][min(depth-1,max(0,int(z)))*width+min(width-1,max(0,int(x)))]
     qspec = json.loads((ROOT / 'blueprints/qianji' / (p['qianji_variant']+'.json')).read_text())
     qcount = 0
     for q in p['qianji']:
@@ -127,7 +136,14 @@ def build(p):
         qcount += len(room_boxes)
     for key, (color, _) in PALETTE.items():
         scene['materials']['q_'+key] = {'color': color}
-    surface_report=apply_surfaces(ROOT,data,scene,p,CONFIG['regions'][region],CONFIG['layout_rules'])
+    if 'player_land' in style:
+        access_and_context(ROOT,data,scene,p,style,CONFIG['planning_rules'],CONFIG['layout_rules'])
+    surface_report=apply_surfaces(ROOT,data,scene,p,style,CONFIG['layout_rules'])
+    if 'player_land' in style:
+        surface_report['player_checks']=finalize_checks(data,scene,p)
+        surface_report['player_land']=data['player_land']
+        surface_report['city_wall']=data['wall']['points']
+        surface_report['city_dimensions']=data['dimensions']
     (OUT/(region+'-ground.json')).write_text(json.dumps(surface_report,ensure_ascii=False,indent=2)+'\n')
     # 改线按真实地形显示为细线，保留旧路作为现状参考；不虚构已完成的道路标高。
     road_hints = []
@@ -158,7 +174,7 @@ def build(p):
     data['checks']['houses'] = sum(v['building']['role']=='house' for v in data['plots'])
     data['checks']['gardens'] = len(data['gardens'])
     data['checks']['game_runtime'] = 'not_run'
-    data['name'] = p['name']+' · 城镇地面重排第二稿'
+    data['name'] = p['name']+(' · 玩家宅田区域规划' if 'player_land' in style else ' · 城镇地面重排第二稿')
     original = html(data, scene)
     packed = original.split("atob('",1)[1].split("')",1)[0]
     payload = json.loads(gzip.decompress(base64.b64decode(packed)))
@@ -188,6 +204,7 @@ $('citypick').onchange=e=>{location.href=e.target.value+'.html';};
 if(DATA.study_road_hints.length){const geo=new THREE.BufferGeometry().setFromPoints(DATA.study_road_hints.map(p=>new THREE.Vector3(...p)));const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xe5c875,size:.65}));world.add(pts);}
 const mats={};""")
     viewer=amend_viewer(viewer)
+    if 'player_land' in style:viewer=player_viewer(viewer)
     payload['viewer'] = viewer
     packed = base64.b64encode(gzip.compress(json.dumps(payload, ensure_ascii=False, separators=(',', ':')).encode(), mtime=0, compresslevel=6)).decode()
     page = template.replace('__CITY_TITLE__', data['name']).replace('__PAYLOAD__', packed)
@@ -198,8 +215,19 @@ const mats={};""")
     page = page.replace('<button id="reset">复位</button>', '<button id="reset">整城</button><button id="qfocus">千机阁街区</button><button id="treeview">集中树院</button><button id="topview">俯视</button><button id="streetview">街道视角</button><button id="ground_old">上一版地面</button><button id="ground_new" aria-pressed="true">本次地面</button>')
     page = page.replace('<div class="count"', '<p style="margin:0 0 9px;color:var(--soft)">建成街坊以连续铺地为主；绿地与自然区域按明确地块保留。当前为设计草案。</p><div class="count"')
     page=page.replace('<div class="legend">','<div class="legend" style="display:none">')
+    if 'player_land' in style:
+        page=page.replace('<button id="qfocus">','<button id="playerfocus">玩家用地</button><button id="qfocus">')
+        page=page.replace('<button id="ground_old"','<button style="display:none" id="ground_old"').replace('<button id="ground_new"','<button style="display:none" id="ground_new"')
+        page=page.replace('建成街坊以连续铺地为主；绿地与自然区域按明确地块保留。当前为设计草案。','七城各预留一块64×72格净用地，可自由建房种地。当前为区域规划，尚未用于正式世界生成。')
     (OUT / (region+'.html')).write_text(page)
-    result = {'region':region,'status':'design_preview','seconds':round(time.monotonic()-started,3),'boxes':len(scene['boxes']),'qianji_boxes':qcount,'houses_moved':len(moved),'ordinary_houses_proposed_retired':len(retired),'new_road_heights':'not_verified','native_runtime':'not_run','sha256':hashlib.sha256(page.encode()).hexdigest()}
+    result = {'region':region,'status':'design_preview','seconds':round(time.monotonic()-started,3),'boxes':len(scene['boxes']),'qianji_boxes':qcount,'houses_moved':len(moved),'ordinary_houses_proposed_retired':len(p['proposed_retired_houses']),'new_road_heights':'not_verified','native_runtime':'not_run','sha256':hashlib.sha256(page.encode()).hexdigest()}
+    if 'player_land' in style:
+        roles={b['id']:b['role'] for b in p['after']}
+        extra=style['player_land']['entity_moves']
+        result['additional_houses_moved']=sum(roles.get(key)=='house' for key in extra)
+        result['additional_services_moved']=sum(key in roles and roles[key]!='house' for key in extra)
+        result['additional_qianji_moved']=sum(key in {q['id'] for q in p['qianji']} for key in extra)
+        result['additional_public_courts_moved']=sum(key in {g['id'] for g in data['gardens'] if g['access']=='public'} for key in extra)
     print(json.dumps(result, ensure_ascii=False), flush=True)
     return result
 
@@ -209,11 +237,16 @@ def main():
     args_parser.add_argument('--out',type=Path,required=True)
     args_parser.add_argument('--cache',type=Path,default=ROOT/'reports/qianji-ground-r2/cache')
     args_parser.add_argument('--input',type=Path,default=ROOT/'blueprints/province_capitals/blueprint_plan/studies/qianji_ground_r2.json')
+    args_parser.add_argument('--regions',nargs='+',help='仅生成指定省城，默认按输入生成全部城市')
     args=args_parser.parse_args()
     OUT=args.out.resolve();OUT.mkdir(parents=True,exist_ok=False)
     CACHE=args.cache.resolve();CACHE.mkdir(parents=True,exist_ok=True)
     CONFIG=json.loads(args.input.read_text())
     plans=json.loads((ROOT/CONFIG['base_plan']).read_text())
+    if args.regions:
+        requested=set(args.regions)
+        assert requested<={p['region']for p in plans},'包含未知省城'
+        plans=[p for p in plans if p['region']in requested]
     SOURCE_COMMIT=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip()
     cache_marker=CACHE/'.source_commit'
     CACHE_VALID=cache_marker.exists() and cache_marker.read_text().strip()==SOURCE_COMMIT and subprocess.run(['git','-C',str(ROOT),'diff','--quiet','HEAD','--','blueprints/province_capitals','blueprints/lord_manors','tools/province_capitals','tools/buildgen','tools/lord_manors']).returncode==0

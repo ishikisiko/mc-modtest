@@ -4,7 +4,7 @@
 
 总舵书册的共享参数、区块模型及同源选框见[书册按位置生成](../features/procedural-bookcases.md)。
 
-0.135.0-fix1修复分阁屋面中脊和八角斜缝。七州千机阁入城及街区地面分区处于[可查看草案](../features/qianji-city-layout-study.md)阶段，未改变正式城镇布局。
+0.135.0-fix1修复分阁屋面中脊和八角斜缝。七州千机阁入城及街区地面分区处于[可查看草案](../features/qianji-city-layout-study.md)阶段；其后的[宅田区域规划](../features/player-land-plan.md)为七城各预留64×72格净用地，调整相邻街坊与五城城墙。以上草案均未改变正式城镇布局。
 
 当前默认大陆使用六档地区分组：东荒 → 灵岳 → 北原 → 东海／西漠 → 南疆／魔域 → 中州。出生州为东荒，同档共用阶位与境界范围，下一档查询返回同档全部地区。相邻州和官道覆盖全部八城；魔域的两处关隘连接南疆与中州。地区分组来自 `blueprints/worldplan/rules_v11.json` 的 `region_progression.levels`，阶位来自地区 profile；冻结规则、世界摘要和道路缓存共同校验。东荒的生态群落与月度恢复见[东荒生态](../features/east-wilderness.md)。
 

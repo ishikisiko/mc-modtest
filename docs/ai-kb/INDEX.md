@@ -143,4 +143,4 @@ above and link the relevant contract. Update only affected documentation.
 
 妖兽材料与回收：[三类材料、境界与稀有度、统一掉落配置及铁匠持续收购](../features/beast-materials.md)。
 
-千机阁屋顶与城镇地面：[现行建筑和屋面修复](../features/qianji-halls.md)、[尚未接入生成的七城入城及地面分区草案](../features/qianji-city-layout-study.md)。
+千机阁屋顶与城镇地面：[现行建筑和屋面修复](../features/qianji-halls.md)、[尚未接入生成的七城入城及地面分区草案](../features/qianji-city-layout-study.md)、[七城玩家宅田区域规划](../features/player-land-plan.md)。

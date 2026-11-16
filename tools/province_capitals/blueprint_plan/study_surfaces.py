@@ -50,6 +50,8 @@ def apply_surfaces(root, data, scene, proposal, style, rules):
         for x,y,z in r['points']:
             road.update((xx,zz) for zz in range(max(0,z-pad),min(depth,z+pad+1)) for xx in range(max(0,x-pad),min(width,x+pad+1)))
     green_sites = style['green_sites']
+    player=style.get('player_land')
+    sx,sz=style.get('coordinate_offset',[0,0])
     path_width = rules['path_width']
     for site in green_sites:
         b=site['box']
@@ -64,13 +66,16 @@ def apply_surfaces(root, data, scene, proposal, style, rules):
     for z in range(depth):
         for x in range(width):
             point = x,z
-            if point in occupied:
+            if player and contains(player['box'],x,z):
+                assert point not in occupied
+                kind,owner='player_land',player['id']
+            elif point in occupied:
                 kind,owner = 'structure','building'
             elif point in road:
                 kind,owner = 'paved','public_street'
             elif not in_polygon(data['wall']['points'],x+.5,z+.5):
                 kind,owner = 'natural','outside_wall'
-            elif natural_feature(style['reserve'],city['terrain'],x+.5,z+.5,rules['natural_margin']):
+            elif natural_feature(style['reserve'],city['terrain'],x-sx+.5,z-sz+.5,rules['natural_margin']):
                 kind,owner = 'natural',style['reserve']
             else:
                 kind,owner = 'paved','urban_court'
@@ -115,6 +120,7 @@ def apply_surfaces(root, data, scene, proposal, style, rules):
         'natural':{'color':style['natural'],'pattern':'natural'},
     }
     for name,value in materials.items():scene['materials']['land_'+name]=value
+    if player:scene['materials']['land_player_land']={'color':style['player_soil'],'pattern':'natural'}
     scene['materials'].update({'land_border':{'color':style['border']},'land_leaf':{'color':'#476445'},'land_wood':{'color':'#71593d'}})
     meshes={}
     for z in range(depth):
@@ -123,6 +129,7 @@ def apply_surfaces(root, data, scene, proposal, style, rules):
             kind=types[x,z];y=ground(x,z)+1;end=x+1
             while end<width and types[end,z]==kind and ground(end,z)+1==y:end+=1
             m=meshes.setdefault(kind,{'v':[],'f':[],'uv':[],'m':'land_'+kind,'layer':'planned_ground','tag':'街坊地面_'+kind})
+            if kind=='player_land':m['tag']=player['id']
             n=len(m['v']);m['v'].extend([[x,y,z],[x,y,z+1],[end,y,z+1],[end,y,z]])
             m['uv'].extend([[x,z],[x,z+1],[end,z+1],[end,z]])
             m['f'].extend([[n,n+1,n+2],[n,n+2,n+3]])
