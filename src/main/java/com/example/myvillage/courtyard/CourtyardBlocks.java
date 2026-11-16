@@ -105,6 +105,16 @@ public final class CourtyardBlocks {
     @Override public IntegerProperty partProperty(){return PART;}
     @Override protected MapCodec<? extends Block> codec(){return CODEC;}
   }
+  public static final class DoubleDoor extends CourtyardDoorBlock {
+    public static final MapCodec<DoubleDoor> CODEC=simpleCodec(DoubleDoor::new);
+    private static final IntegerProperty VARIANT=null;
+    private static final IntegerProperty PART=IntegerProperty.create("part",0,74);
+    public DoubleDoor(BlockBehaviour.Properties properties){super(properties);}
+    @Override public String familyId(){return "courtyard_double_door";}
+    @Override public IntegerProperty variantProperty(){return VARIANT;}
+    @Override public IntegerProperty partProperty(){return PART;}
+    @Override protected MapCodec<? extends Block> codec(){return CODEC;}
+  }
   public static CourtyardAssemblyBlock create(String family,BlockBehaviour.Properties properties){
     return switch(family){
       case "courtyard_wall" -> new Wall(properties);
@@ -117,6 +127,7 @@ public final class CourtyardBlocks {
       case "courtyard_roof" -> new Roof(properties);
       case "courtyard_ridge" -> new Ridge(properties);
       case "courtyard_lantern" -> new Lantern(properties);
+      case "courtyard_double_door" -> new DoubleDoor(properties);
       default -> throw new IllegalArgumentException("Unknown courtyard family "+family);
     };
   }

@@ -83,7 +83,7 @@
 ## 装饰块、匾额与书籍
 
 - 装饰类别各有 block id、变体和碰撞表，不以一个 `family` 属性混合不相干类别。保留 variant/facing/moss，以及需要时的 waterlogged；手放 BlockItem 支持 pick-block。
-- 模型与碰撞由同一离线来源生成，合并 AABB 控制复杂度；外观细节不自动成为碰撞体。
+- 模型与碰撞由同一离线来源生成，合并 AABB 控制复杂度；外观细节不自动成为碰撞体。庭院双开门按显式`behavior`选择运行时类，闭合与全开的逐格模型、碰撞均从已确认的门体输入派生；服务器校验整件归属、权限与实体阻挡后统一开合，任一部位拆除仅由根格掉落一件。
 - 匾额保留横/竖、壁挂/悬挂四种 id；multipart 的左右顺序是外侧观察顺序，不是递增世界坐标。悬挂链是装饰，不作为存活支撑条件。
 - frame 与 inscription 是独立目录；binding 校验方向和尺寸桶。整幅题字按完整画布烘焙到共享整牌纹理，各分块用 UV 裁切，不能拆成逐字低清贴图或用 painting 实体替代当前匾额。
 - GuideME 通过 Maven 依赖；根 `guidebook/` 是唯一 authored Markdown，构建单向打包。使用绑定组件显示按键，保持 G 不被 MyVillage 默认占用；不自动迁移玩家键位。手册调用 GuideME API，不新增开书网络协议；21.1.17 的 custom_colors 限制见 KB31。

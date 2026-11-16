@@ -4257,5 +4257,7 @@
   "item.yuanxian.beast_core_spirit_transformation_legendary": "化神·传说妖丹",
   "tooltip.yuanxian.beast_material.recycle": "城镇铁匠持续收购：每件 %s 枚下品灵石",
   "tooltip.yuanxian.beast_material.use": "可携带到城镇铁匠处，选择“卖出”批量回收。",
-  "screen.yuanxian.commerce.batch_detail_recycling": "总价 %s 枚；持续收购"
+  "screen.yuanxian.commerce.batch_detail_recycling": "总价 %s 枚；持续收购",
+  "variant.yuanxian.courtyard_double_door.0": "木格双开大门",
+  "block.yuanxian.courtyard_double_door": "木格双开大门"
 }

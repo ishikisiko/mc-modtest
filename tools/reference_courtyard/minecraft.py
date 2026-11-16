@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate ten semantic architectural items, variants and a real MC courtyard."""
+"""Generate semantic architectural items, variants and a real MC courtyard."""
 from __future__ import annotations
 import argparse
 import json
@@ -33,9 +33,10 @@ def generated_blocks(config):
            'public final class CourtyardBlocks {']
     for f in config['families']:
         name=f['class'];n=len(f['variants']);p=max(math.prod(v['size']) for v in f['variants'])
-        lines += [f'  public static final class {name} extends CourtyardAssemblyBlock {{',
+        parent={'static':'CourtyardAssemblyBlock','double_door':'CourtyardDoorBlock'}[f.get('behavior','static')]
+        lines += [f'  public static final class {name} extends {parent} {{',
                   f'    public static final MapCodec<{name}> CODEC=simpleCodec({name}::new);',
-                  f'    private static final IntegerProperty VARIANT=IntegerProperty.create("variant",0,{n-1});',
+                  '    private static final IntegerProperty VARIANT='+(f'IntegerProperty.create("variant",0,{n-1});' if n>1 else 'null;'),
                   '    private static final IntegerProperty PART='+ (f'IntegerProperty.create("part",0,{p-1});' if p>1 else 'null;'),
                   f'    public {name}(BlockBehaviour.Properties properties){{super(properties);}}',
                   f'    @Override public String familyId(){{return "{f["id"]}";}}',
@@ -55,34 +56,39 @@ def generate():
     for f in config['families']:
         identity=f['id'];max_parts=max(math.prod(v['size']) for v in f['variants']);variants=[];states={};loot=[];overrides=[]
         for vi,v in enumerate(f['variants']):
-            cells=geometry(v);split=parts(v,cells);part_specs=[]
-            for pi,local in enumerate(split):
-                solid=merge({p:'solid' for p in local});boxes=[[*b['from'],*b['to']] for b in solid];max_boxes=max(max_boxes,len(boxes))
-                part_specs.append({'boxes':boxes,'full':len(local)==4096})
-                visual={'parent':'minecraft:block/block','textures':{'particle':f'yuanxian:block/courtyard/{v["material"]}',**{m:'yuanxian:block/courtyard/'+m for m in sorted(set(local.values()))}},'elements':model_elements(merge(local))}
-                j(ASSETS/f'models/block/courtyard/{identity}/{vi}_{pi}.json',visual)
-            for pi in range(max_parts):
-                for turn,facing in enumerate(['north','east','south','west']):
-                    key=f'facing={facing},variant={vi}'+(f',part={pi}' if max_parts>1 else '')
-                    states[key]={'model':f'yuanxian:block/courtyard/{identity}/{vi}_{pi}' if pi<len(split) else 'yuanxian:block/courtyard/empty','y':90*turn}
-            variants.append({'key':v['key'],'size':v['size'],'parts':part_specs})
+            cells=geometry(v);variant={'key':v['key'],'size':v['size']}
+            def texture(material):return v.get('textures',{}).get(material,'yuanxian:block/courtyard/'+material)
+            door=f.get('behavior')=='double_door'
+            for opened in ([False,True]if door else[False]):
+                active=geometry(v,opened);split=parts(v,active);part_specs=[];suffix='_open'if opened else''
+                for pi,local in enumerate(split):
+                    solid=merge({p:'solid' for p in local});boxes=[[*b['from'],*b['to']] for b in solid];max_boxes=max(max_boxes,len(boxes))
+                    part_specs.append({'boxes':boxes,'full':len(local)==4096})
+                    visual={'parent':'minecraft:block/block','textures':{'particle':texture(v['material']),**{m:texture(m)for m in sorted(set(local.values()))}},'elements':model_elements(merge(local))}
+                    j(ASSETS/f'models/block/courtyard/{identity}/{vi}_{pi}{suffix}.json',visual)
+                for pi in range(max_parts):
+                    for turn,facing in enumerate(['north','east','south','west']):
+                        key=f'facing={facing}'+(f',variant={vi}'if len(f['variants'])>1 else'')+(f',part={pi}' if max_parts>1 else '')+(f',open={str(opened).lower()}'if door else'')
+                        states[key]={'model':f'yuanxian:block/courtyard/{identity}/{vi}_{pi}{suffix}' if pi<len(split) else 'yuanxian:block/courtyard/empty','y':90*turn}
+                variant['open_parts'if opened else'parts']=part_specs
+            variants.append(variant)
             # The inventory icon represents the entire assembly, not one cell.
             boxes=merge(cells);scale=1/max(v['size']);ox=(16-v['size'][0]*16*scale)/2;oz=(16-v['size'][2]*16*scale)/2
             for b in boxes:
                 for endpoint in ['from','to']:
                     x,y,z=b[endpoint];b[endpoint]=[round(x*scale+ox,5),round(y*scale,5),round(z*scale+oz,5)]
-            j(ASSETS/f'models/item/courtyard/{identity}_{vi}.json',{'parent':'minecraft:block/block','textures':{'particle':'yuanxian:block/courtyard/'+v['material'],**{m:'yuanxian:block/courtyard/'+m for m in sorted(set(cells.values()))}},'elements':model_elements(boxes),
+            j(ASSETS/f'models/item/courtyard/{identity}_{vi}.json',{'parent':'minecraft:block/block','textures':{'particle':texture(v['material']),**{m:texture(m) for m in sorted(set(cells.values()))}},'elements':model_elements(boxes),
                 'display':{'gui':{'rotation':[30,225,0],'translation':[0,0,0],'scale':[.85,.85,.85]}}})
             overrides.append({'predicate':{'custom_model_data':vi+1},'model':f'yuanxian:item/courtyard/{identity}_{vi}'})
-            properties={'variant':str(vi),**({'part':'0'} if max_parts>1 else {})}
+            properties={**({'variant':str(vi)}if len(f['variants'])>1 else{}),**({'part':'0'} if max_parts>1 else {})}
             loot.append({'rolls':1,'conditions':[{'condition':'minecraft:block_state_property','block':'yuanxian:'+identity,'properties':properties},{'condition':'minecraft:survives_explosion'}],
                          'entries':[{'type':'minecraft:item','name':'yuanxian:'+identity,'functions':[{'function':'minecraft:set_components','components':{'minecraft:block_state':{'variant':str(vi)},'minecraft:custom_model_data':vi+1}}]}]})
-            for lang,key in [('zh_cn','zh'),('en_us','en')]:langs[lang][f'variant.yuanxian.{identity}.{vi}']=v[key]
+            for lang,key in [('zh_cn','zh'),('en_us','en')]:langs[lang][f'variant.yuanxian.{identity}.{vi}']=v.get(key,v['zh'])
         j(ASSETS/f'blockstates/{identity}.json',{'variants':states})
         j(ASSETS/f'models/item/{identity}.json',{'parent':f'yuanxian:item/courtyard/{identity}_0','overrides':overrides})
         j(DATA/f'loot_table/blocks/{identity}.json',{'type':'minecraft:block','pools':loot})
         catalog.append({k:f[k] for k in ['id','sound','strength']}|{'light':f.get('light',0),'variants':variants})
-        for lang,key in [('zh_cn','zh'),('en_us','en')]:langs[lang]['block.yuanxian.'+identity]=f[key]
+        for lang,key in [('zh_cn','zh'),('en_us','en')]:langs[lang]['block.yuanxian.'+identity]=f.get(key,f['zh'])
     j(ASSETS/'models/block/courtyard/empty.json',{'textures':{'particle':'yuanxian:block/courtyard/plaster'},'elements':[]})
     j(DATA/'courtyard/assemblies.json',{'format':1,'families':catalog})
     outputs[JAVA/'CourtyardBlocks.java']=generated_blocks(config).encode()

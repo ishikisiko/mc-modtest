@@ -95,6 +95,29 @@ class CourtyardAssemblyTest {
         assertEquals(2,stack.get(DataComponents.CUSTOM_MODEL_DATA).value());
         assertThrows(IllegalArgumentException.class,()->CourtyardAssemblyItem.setVariant(stack,100000));
     }
+    @Test void doubleDoorHasOneStyleAndPersistsEveryOpenPartInAllFacings(){
+        var b=(CourtyardDoorBlock)blocks.get("courtyard_double_door");var v=b.family().variant(0);
+        assertNull(b.variantProperty());assertEquals(75,v.partCount());assertEquals(1,b.family().variants().size());
+        assertThrows(IllegalArgumentException.class,()->b.state(1,0,Direction.NORTH,false));
+        var item=items.get(b.familyId());var stack=new ItemStack(item,2);var id=BuiltInRegistries.ITEM.getKey(item);
+        assertTrue(CourtyardAssemblyItem.accepts(stack,id,0));assertFalse(CourtyardAssemblyItem.accepts(stack,id,1));
+        for(var facing:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST))for(int p=0;p<v.partCount();p++){
+            var state=b.state(0,p,facing,p%2==0).setValue(CourtyardDoorBlock.OPEN,true);
+            assertEquals(state,NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(),NbtUtils.writeBlockState(state)));
+            assertEquals(state,state.mirror(Mirror.FRONT_BACK).mirror(Mirror.FRONT_BACK));
+            assertTrue(state.rotate(Rotation.CLOCKWISE_90).getValue(CourtyardDoorBlock.OPEN));
+        }
+    }
+    @Test void openDoorCollisionLeavesTheThreeByFourPortalClear(){
+        var v=CourtyardCatalog.get("courtyard_double_door").variant(0);boolean closedBlocks=false;
+        var portal=new net.minecraft.world.phys.AABB(1,.125,0,4,4.125,3);
+        for(int p=0;p<v.partCount();p++){
+            var offset=v.offset(p,Direction.NORTH);
+            for(var box:v.part(p,true).shape(Direction.NORTH).toAabbs())assertFalse(box.move(offset).intersects(portal),"open part "+p);
+            for(var box:v.part(p).shape(Direction.NORTH).toAabbs())closedBlocks|=box.move(offset).intersects(portal);
+        }
+        assertTrue(closedBlocks);
+    }
     @Test void selectionPayloadContainsOnlyIdentityHandAndIndex(){
         assertEquals(3,CourtyardVariantPayload.class.getRecordComponents().length);
         var packet=new CourtyardVariantPayload(ResourceLocation.parse("yuanxian:courtyard_window"),true,2);

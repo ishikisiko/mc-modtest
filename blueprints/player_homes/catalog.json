@@ -708,5 +708,9 @@
     "plant": "minecraft:azalea",
     "bench": "minecraft:dark_oak_stairs",
     "well_rim": "minecraft:stone_bricks"
+  },
+  "door": {
+    "family": "courtyard_double_door",
+    "variant": "lattice"
   }
 }

@@ -30,15 +30,16 @@ public final class CourtyardCatalog {
         public VoxelShape shape(Direction facing){return shapes[turn(facing)];}
     }
     public static final class Variant {
-        private final String key;private final int width,height,depth;private final List<Part> parts;
-        Variant(String key,int w,int h,int d,List<Part> parts){
-            if(w<1||h<1||d<1||w>25||h>5||d>3||w*h*d>125||parts.size()!=w*h*d)throw new IllegalArgumentException("Invalid whole assembly size");
-            this.key=key;width=w;height=h;depth=d;this.parts=List.copyOf(parts);
+        private final String key;private final int width,height,depth;private final List<Part> parts,openParts;
+        Variant(String key,int w,int h,int d,List<Part> parts,List<Part> openParts){
+            if(w<1||h<1||d<1||w>25||h>5||d>3||w*h*d>125||parts.size()!=w*h*d||openParts.size()!=w*h*d)throw new IllegalArgumentException("Invalid whole assembly size");
+            this.key=key;width=w;height=h;depth=d;this.parts=List.copyOf(parts);this.openParts=List.copyOf(openParts);
         }
         public String key(){return key;}public int width(){return width;}public int height(){return height;}public int depth(){return depth;}
         public int partCount(){return parts.size();}
         public boolean validPart(int p){return p>=0&&p<parts.size();}
         public Part part(int p){return validPart(p)?parts.get(p):Empty.PART;}
+        public Part part(int p,boolean open){return open?(validPart(p)?openParts.get(p):Empty.PART):part(p);}
         public BlockPos offset(int part,Direction facing){
             if(!validPart(part))throw new IllegalArgumentException("Invalid assembly part");
             int x=part%width,z=(part/width)%depth,y=part/(width*depth);
@@ -49,7 +50,7 @@ public final class CourtyardCatalog {
     }
     private static final class Empty {static final Part PART=new Part(List.of(),false);}
     public record Family(String id,String sound,float strength,int light,List<Variant> variants) {
-        public Family {variants=List.copyOf(variants);if(!id.matches("courtyard_[a-z_]+")||variants.size()<2||variants.size()>16||light<0||light>15||!Float.isFinite(strength)||strength<=0)throw new IllegalArgumentException("Invalid family");}
+        public Family {variants=List.copyOf(variants);if(!id.matches("courtyard_[a-z_]+")||variants.isEmpty()||variants.size()>16||light<0||light>15||!Float.isFinite(strength)||strength<=0)throw new IllegalArgumentException("Invalid family");}
         public Variant variant(int index){if(index<0||index>=variants.size())throw new IllegalArgumentException("Invalid building variant");return variants.get(index);}
     }
     public static int turn(Direction d){return switch(d){case NORTH->0;case EAST->1;case SOUTH->2;case WEST->3;default->throw new IllegalArgumentException("Horizontal direction required");};}
@@ -66,23 +67,29 @@ public final class CourtyardCatalog {
             for(var e:root.getAsJsonArray("families")){
                 var f=e.getAsJsonObject();List<Variant> variants=new ArrayList<>();
                 for(var ve:f.getAsJsonArray("variants")){
-                    var v=ve.getAsJsonObject();List<Part> parts=new ArrayList<>();var size=v.getAsJsonArray("size");
-                    for(var pe:v.getAsJsonArray("parts")){
-                        var p=pe.getAsJsonObject();List<Box> boxes=new ArrayList<>();
-                        for(var be:p.getAsJsonArray("boxes")){
-                            var b=be.getAsJsonArray();if(b.size()!=6)throw new IllegalArgumentException("Invalid box length");
-                            int[] n=new int[6];for(int i=0;i<6;i++){double a=b.get(i).getAsDouble();if(a!=(int)a)throw new IllegalArgumentException("Nonintegral voxel");n[i]=(int)a;}
-                            boxes.add(new Box(n[0],n[1],n[2],n[3],n[4],n[5]));
-                        }
-                        parts.add(new Part(boxes,p.get("full").getAsBoolean()));
-                    }
-                    variants.add(new Variant(v.get("key").getAsString(),size.get(0).getAsInt(),size.get(1).getAsInt(),size.get(2).getAsInt(),parts));
+                    var v=ve.getAsJsonObject();var size=v.getAsJsonArray("size");
+                    var parts=readParts(v.getAsJsonArray("parts"));
+                    var openParts=v.has("open_parts")?readParts(v.getAsJsonArray("open_parts")):parts;
+                    variants.add(new Variant(v.get("key").getAsString(),size.get(0).getAsInt(),size.get(1).getAsInt(),size.get(2).getAsInt(),parts,openParts));
                 }
                 var family=new Family(f.get("id").getAsString(),f.get("sound").getAsString(),f.get("strength").getAsFloat(),f.get("light").getAsInt(),variants);
                 if(result.put(family.id(),family)!=null)throw new IllegalStateException("Duplicate building family");
             }
             return Collections.unmodifiableMap(result);
         }catch(java.io.IOException e){throw new IllegalStateException(e);}
+    }
+    private static List<Part> readParts(com.google.gson.JsonArray entries){
+        List<Part> parts=new ArrayList<>();
+        for(var pe:entries){
+            var p=pe.getAsJsonObject();List<Box> boxes=new ArrayList<>();
+            for(var be:p.getAsJsonArray("boxes")){
+                var b=be.getAsJsonArray();if(b.size()!=6)throw new IllegalArgumentException("Invalid box length");
+                int[] n=new int[6];for(int i=0;i<6;i++){double a=b.get(i).getAsDouble();if(a!=(int)a)throw new IllegalArgumentException("Nonintegral voxel");n[i]=(int)a;}
+                boxes.add(new Box(n[0],n[1],n[2],n[3],n[4],n[5]));
+            }
+            parts.add(new Part(boxes,p.get("full").getAsBoolean()));
+        }
+        return parts;
     }
     private CourtyardCatalog(){}
 }

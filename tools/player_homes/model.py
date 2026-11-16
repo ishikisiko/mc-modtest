@@ -1,4 +1,4 @@
-"""复用月洞水院的完整构件，组合独立住宅；不注册或改写游戏资源。"""
+"""复用月洞水院的完整构件，组合独立住宅；按当前注册方块导出住宅模板。"""
 from collections import deque
 from functools import lru_cache
 import copy, json, math
@@ -14,6 +14,10 @@ class Home(Site):
         self.catalog=catalog;self.config=config;self.layers={};self.rooms=[];self.targets={}
         self.c={**config,'reference':{'source':'月洞水院自有构件','scope':'独立住宅选型模板'}}
         self.floor={};self.doors=[];self.module_bounds=[]
+        from pathlib import Path
+        family=self.families[catalog['door']['family']]
+        variant=next(v for v in family['variants']if v['key']==catalog['door']['variant'])
+        self.door_design=json.loads((Path(__file__).resolve().parents[2]/variant['design']).read_text())
 
     def put(self,p,block):
         super().put(p,block)
@@ -21,8 +25,12 @@ class Home(Site):
         self.layers[p]='roof' if name=='yuanxian:courtyard_roof' else 'water' if name=='minecraft:water' else 'architecture'
 
     def door(self,x,y,z,facing='north'):
-        for half,dy in [('lower',0),('upper',1)]:
-            self.put((x,y+dy,z),state('dark_oak_door',facing=facing,half=half,hinge='left',open=False,powered=False))
+        # Five cells across the wall; three cells inside reserve the full swing.
+        from tools.reference_courtyard.assembly_scene import offset,DIRECTIONS
+        turn=DIRECTIONS.index(facing);delta=offset(-2,0,0,turn)
+        root=(x+delta[0],y,z+delta[2]);self.place(root,self.catalog['door']['family'],self.catalog['door']['variant'],facing)
+        for i in range(1,4):
+            dx,_,dz=offset(i,0,0,turn);self.floor[root[0]+dx,root[2]+dz]=y+self.door_design['threshold_height']
         self.doors.append((x,y,z))
 
     def window(self,x,y,z,facing='north',key='octagonal'):
@@ -144,13 +152,13 @@ def assembly_check(site):
 
 
 def walk_check(root,catalog,site):
-    """用当前1/16格碰撞目录核对站位与房间动线，原版门按可开启处理。"""
+    """用当前1/16格碰撞目录核对站位与房间动线，可开门使用全开碰撞。"""
     entries=json.loads((root/catalog['collision_catalog']).read_text())['families'];families={f['id']:f for f in entries}
     @lru_cache(None)
     def colliders(block):
         name,p=parse(block)
         if name.startswith('yuanxian:courtyard_'):
-            v=families[name.split(':')[1]]['variants'][int(p['variant'])];part=int(p.get('part','0'));boxes=v['parts'][part]['boxes'];turn=['north','east','south','west'].index(p['facing']);result=[]
+            v=families[name.split(':')[1]]['variants'][int(p.get('variant','0'))];part=int(p.get('part','0'));boxes=v.get('open_parts',v['parts'])[part]['boxes'];turn=['north','east','south','west'].index(p['facing']);result=[]
             for box in boxes:
                 x0,y0,z0,x1,y1,z1=[a/16 for a in box]
                 for _ in range(turn):x0,z0,x1,z1=1-z1,x0,1-z0,x1
@@ -185,4 +193,4 @@ def walk_check(root,catalog,site):
             if n in nodes and n not in seen and abs(nodes[n]-nodes[x,z])<=.6:seen.add(n);q.append(n)
     missing={name:list(pos)for name,pos in site.targets.items()if(pos[0],pos[2])not in seen}
     if missing:raise ValueError(('房间离线动线不通',missing))
-    return {'status':'pass','reachable_cells':len(seen),'targets':{k:list(v)for k,v in site.targets.items()},'failed':{},'doors':'assumed_openable','scope':'格点站位及当前构件碰撞，未代替游戏操作'}
+    return {'status':'pass','reachable_cells':len(seen),'targets':{k:list(v)for k,v in site.targets.items()},'failed':{},'doors':'open_collision_checked','scope':'格点站位及当前构件碰撞，未代替游戏操作'}

@@ -50,7 +50,7 @@ class HomeModels(NativeModels):
 
 def views_for(site,plot=False):
     W,_,D=site.c['size'];span=max(W,D);center=[W/2,5,D/2]
-    return {
+    result={
         'overview':{'name':'全貌','eye':[-span*.65,span*.82,-span*.72],'target':center},
         'front':{'name':'正面','eye':[W/2,10,-span*.8],'target':[W/2,6,D*.45]},
         'court':{'name':'院内','eye':[W*.35,8,D*.18],'target':[W*.55,6,D*.75],'fov':55},
@@ -58,6 +58,11 @@ def views_for(site,plot=False):
         'top':{'name':'俯视','eye':[W/2,span*1.45,D/2-.01],'target':[W/2,2,D/2]},
         'plot':{'name':'放进宅田地块','eye':[-40,80,-45],'target':[32,4,36],'plot':True}
     }
+    if getattr(site,'doors',None):
+        m=next(m for m in site.config['modules']if m['id']=='main');t=site.catalog['module_types'][m['type']]
+        cx=m['roof_x']+(t['roof_width']-1)/2;front=m['front_z'];feet=site.catalog['room_feet_y']
+        result['door']={'name':'主屋大门','eye':[cx+7,feet+4,front-10],'target':[cx+.5,feet+2,front+.5],'fov':50}
+    return result
 
 
 def write_viewer(site,out,base_url):
@@ -68,6 +73,7 @@ def write_viewer(site,out,base_url):
           'atlas':'data:image/png;base64,'+base64.b64encode((out/'atlas.png').read_bytes()).decode(),
           'soil':'data:image/png;base64,'+base64.b64encode((out/'plot-soil.png').read_bytes()).decode(),
           'libraries':libraries,'id':site.config['id'],'height':site.c['size'][1],
+          'doors':bool(getattr(site,'doors',[])),
           'plot':{'size':site.c['plot_size'],'origin':site.config['plot_origin'],'house':[site.c['size'][0],site.c['size'][2]]}}
     page=page.replace('/*SETUP*/',json.dumps(data,ensure_ascii=False,separators=(',',':')))
     page=page.replace('/*SCENE*/',(out/'scene.js').read_text())
@@ -117,19 +123,22 @@ def bake_instances(site,jar,out):
     assert covered==set(site.blocks),'显示实例没有覆盖完整蓝图'
     prototypes=[];rendered_faces=0
     for key,unit in units.items():
-        root=unit['root'];groups=defaultdict(lambda:{'p':[],'n':[],'u':[],'i':[]})
-        for pos in unit['parts']:
-            block=site.blocks[pos];layer=site.layers[pos];delta=[pos[i]-root[i]for i in range(3)]
-            for points,normal,uvs,texture,tint,cull,transparent in native.faces(block):
-                group=groups[layer,tint,transparent];idx=len(group['p'])//3;tx,ty=locations[texture]
-                for point,uv in zip(points,uvs):
-                    group['p'].extend(delta[i]+point[i]/16 for i in range(3));group['n'].extend(round(v*127)for v in normal)
-                    group['u'].extend(((tx+uv[0])/atlas.width,1-(ty+uv[1])/atlas.height))
-                group['i'].extend((idx,idx+1,idx+2,idx,idx+2,idx+3));rendered_faces+=len(unit['instances'])
-        for (layer,tint,transparent),g in groups.items():
-            prototypes.append({'layer':layer,'tint':tint,'transparent':transparent,
-                'positions':packed(g['p'],'f'),'normals':packed(g['n'],'b'),'uv':packed(g['u'],'f'),'indices':packed(g['i'],'I'),
-                'instances':[list(p)for p in unit['instances']]})
+        root=unit['root'];is_door=key[0]=='assembly' and 'open'in parse(site.blocks[unit['parts'][0]])[1]
+        for opened in ([False,True]if is_door else[None]):
+            groups=defaultdict(lambda:{'p':[],'n':[],'u':[],'i':[]})
+            for pos in unit['parts']:
+                block=site.blocks[pos];layer=site.layers[pos];delta=[pos[i]-root[i]for i in range(3)]
+                if opened:block=block.replace('open=false','open=true')
+                for points,normal,uvs,texture,tint,cull,transparent in native.faces(block):
+                    group=groups[layer,tint,transparent];idx=len(group['p'])//3;tx,ty=locations[texture]
+                    for point,uv in zip(points,uvs):
+                        group['p'].extend(delta[i]+point[i]/16 for i in range(3));group['n'].extend(round(v*127)for v in normal)
+                        group['u'].extend(((tx+uv[0])/atlas.width,1-(ty+uv[1])/atlas.height))
+                    group['i'].extend((idx,idx+1,idx+2,idx,idx+2,idx+3));rendered_faces+=len(unit['instances'])
+            for (layer,tint,transparent),g in groups.items():
+                prototypes.append({'layer':layer,'tint':tint,'transparent':transparent,'door_open':opened,
+                    'positions':packed(g['p'],'f'),'normals':packed(g['n'],'b'),'uv':packed(g['u'],'f'),'indices':packed(g['i'],'I'),
+                    'instances':[list(p)for p in unit['instances']]})
     payload={'size':site.c['size'],'views':site.c['views'],'prototypes':prototypes,'blocks':len(site.blocks),'rooms':site.rooms}
     raw=json.dumps(payload,ensure_ascii=False,separators=(',',':')).encode();(out/'scene.json').write_bytes(raw)
     (out/'scene.js').write_text('window.__estatePacked='+json.dumps(base64.b64encode(gzip.compress(raw,mtime=0)).decode())+';')

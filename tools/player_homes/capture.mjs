@@ -12,9 +12,17 @@ try{
  const errors=[],consoleMessages=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',e=>consoleMessages.push({level:e.type(),text:e.text()}));
  await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});console.log('文档加载',Date.now()-started,'ms');
  await page.waitForFunction(()=>window.__ready===true,undefined,{timeout:60000});console.log('模型就绪',Date.now()-started,'ms');
- for(const key of ['overview','court','cut','plot']){
+ const info=await page.evaluate(()=>window.__homeInfo);
+ const captures=['overview','court','cut','plot',...(info.views.includes('door')?['door']:[])];
+ for(const key of captures){
   await page.evaluate(key=>window.setView(key),key);
   await page.locator('#scene').screenshot({path:join(out,key+'.png'),timeout:60000});console.log('画面已导出',key);
+ }
+ if(info.views.includes('door')){
+  await page.locator('#doors').check();
+  await page.locator('#scene').screenshot({path:join(out,'door-open.png'),timeout:60000});
+  const visibleDoorStates=await page.evaluate(()=>document.querySelector('#doors').checked);
+  if(!visibleDoorStates)throw new Error('双开门预览开关没有生效');
  }
  await page.setViewportSize({width:390,height:844});
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);

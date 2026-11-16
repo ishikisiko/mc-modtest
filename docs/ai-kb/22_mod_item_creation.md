@@ -32,5 +32,7 @@ manifest or mandatory subagent. `genops/pipelines/mod-item.full.yaml` remains an
 optional complete pipeline when GenOps is explicitly selected.
 
 0.68.0 的[月洞水院构件](../features/reference-courtyard-minecraft.md)使用独立生成器
-`tools/reference_courtyard/minecraft.py`：十类统一入口、稳定款式索引、整体多格放置与根节点掉落、
+`tools/reference_courtyard/minecraft.py`：统一分类入口、款式索引、整体多格放置与根节点掉落、
 专用创造栏及独立结构模板。目录注册由 `CourtyardContent` 完成，物品校验器读取同一生成目录。
+
+0.135.1新增[木格双开大门](../features/player-house-doors.md)，同一生成链输出闭合与全开的模型、局部碰撞；显式`behavior`选择可开门类，单款构件省略方块的`variant`属性。

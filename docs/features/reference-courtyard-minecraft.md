@@ -22,7 +22,7 @@ fix3 通过 `courtyard-interior` 的 7/7 场景、18 项局部实机检查；同
 
 ## 玩家使用
 
-- 创造栏“月洞水院 · 建筑构件”和 JEI 各只提供 10 个分类入口：墙、地面、窗、门、柱、梁、栏杆、瓦面、屋脊、灯。当前总计 41 个款式，原 39 款索引不变。
+- 创造栏“月洞水院 · 建筑构件”和 JEI 各提供11个分类入口：墙、地面、窗、月洞门、柱、梁、栏杆、瓦面、屋脊、灯、[木格双开大门](player-house-doors.md)。当前总计42个款式。
 - 手持构件时 Shift＋右键打开原生款式选择；每页最多九款，较多款式可用左右箭头翻页；切换不改变物品数量，客户端只发送手持物品身份、手与款式序号，由服务器校验。
 - 窗是完整的 3×3×1 物品，月洞门是完整的 5×5×1 物品。新弧顶是完整横截面，宽 10/17/25 格、最高五格、厚一格；沿屋脊方向重复铺设，山墙和木格收口使用对应款式。一次放置消耗一个物品；需给整个范围留空，障碍、边界或实体碰撞使本次放置完整失败，不留下零件。
 - 中键取任意部分取得完整物品及其款式。生存拆除任意部分整体移除，只掉落一个同款物品；创造拆除不掉落。
@@ -32,7 +32,7 @@ fix3 通过 `courtyard-interior` 的 7/7 场景、18 项局部实机检查；同
 
 ## 源与技术约束
 
-`tools/reference_courtyard/assemblies.json` 定义十类入口、稳定款式顺序、尺寸和形状语义；`assembly_shapes.py` 以 1/16 格生成几何，`assembly_scene.py` 组合整座庭院；`minecraft.json` 只拥有材质颜色与像素参数。
+`tools/reference_courtyard/assemblies.json` 定义十一类入口、款式顺序、尺寸和形状语义；`assembly_shapes.py` 以 1/16 格生成几何，`assembly_scene.py` 组合整座庭院；`minecraft.json` 只拥有材质颜色与像素参数。
 
 `python3 tools/reference_courtyard/minecraft.py` 生成模型、物品图标、贴图、双语、根节点掉落、碰撞目录、Java 属性包装类和 NBT。`--check` 检查这些输出。款式索引是保存数据，后续仅追加，不重排既有款式。
 
@@ -54,6 +54,6 @@ JEI 的测试版本由 gradle.properties 固定，只有传入 `-Pcourtyard_jei_
 
 0.68.0 完整基线运行 `20261018T210318Z-75c3ed61`（固定源 `60e48b21`）通过 9 项 Python、14 项 Java 和 23 项实机检查；10/10 场景完成、`unrun=[]`、实例销毁已确认。游戏 SAVE 的 53,760 格完整状态逐格一致，重启读回通过。实机截图核对了闭合屋面、清晰款式菜单和仅十个入口的专属创造分页。详细结果与前置失败见 [验证记录](../testing/2026-10-19-reference-courtyard.md)。
 
-[实机预览与下载](http://43.156.135.198:8765/reference-courtyard-mc/) 包含匹配 jar、独立样板世界、原始游戏 NBT 和转换后的 SCHEM。`python3 tools/reference_courtyard/publish.py --run reports/modal-runs/20261019T154046Z-c3e27c43` 只接受已通过且确认销毁的运行，并校验 jar 内容、世界压缩包和文件哈希。
+[实机预览与下载](https://assets.ishiki333hhh.win/reference-courtyard-mc/) 包含匹配 jar、独立样板世界、原始游戏 NBT 和转换后的 SCHEM。`python3 tools/reference_courtyard/publish.py --run reports/modal-runs/20261019T154046Z-c3e27c43` 只接受已通过且确认销毁的运行，并校验 jar 内容、世界压缩包和文件哈希。
 
 玩家外观、手感、声音、FPS 与广泛多人仍为 `not_verified`；本轮没有在用户电脑启动游戏或替换已有世界。

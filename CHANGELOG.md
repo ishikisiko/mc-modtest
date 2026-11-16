@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.135.1
+
+- 新增木格双开大门，整件占用5×5×3格、净开口3×4格；右键联动开合，按状态切换真实模型与碰撞，生存整件拆除仅掉落一件。
+- 三套独立玩家住宅的10处门换用新门，同源三维可切换开合；更新NBT与SCHEM蓝图，原版月洞水院及城镇生成保持原样。
+
 ## 0.135.0-fix1
 
 - 修复千机阁分阁屋面收拢不足导致的屋脊长缝，按长边布置屋脊；补齐八角屋顶的中心和斜向坡面接缝。

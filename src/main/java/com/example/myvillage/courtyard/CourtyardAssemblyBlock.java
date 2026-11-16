@@ -22,18 +22,22 @@ public abstract class CourtyardAssemblyBlock extends Block implements SimpleWate
     public abstract IntegerProperty variantProperty();
     public abstract IntegerProperty partProperty();
     public CourtyardCatalog.Family family(){return CourtyardCatalog.get(familyId());}
-    public CourtyardCatalog.Variant variant(BlockState state){return family().variant(state.getValue(variantProperty()));}
+    public int variantIndex(BlockState state){return variantProperty()==null?0:state.getValue(variantProperty());}
+    public CourtyardCatalog.Variant variant(BlockState state){return family().variant(variantIndex(state));}
     public int part(BlockState state){return partProperty()==null?0:state.getValue(partProperty());}
     public BlockState state(int variant,int part,Direction facing,boolean water){
-        BlockState state=defaultBlockState().setValue(variantProperty(),variant).setValue(FACING,facing).setValue(WATERLOGGED,water);
+        family().variant(variant);
+        BlockState state=defaultBlockState().setValue(FACING,facing).setValue(WATERLOGGED,water);
+        if(variantProperty()!=null)state=state.setValue(variantProperty(),variant);
         return partProperty()==null?state:state.setValue(partProperty(),part);
     }
     protected CourtyardAssemblyBlock(BlockBehaviour.Properties properties){
         super(properties);
-        var state=stateDefinition.any().setValue(FACING,Direction.NORTH).setValue(WATERLOGGED,false).setValue(variantProperty(),0);
+        var state=stateDefinition.any().setValue(FACING,Direction.NORTH).setValue(WATERLOGGED,false);
+        if(variantProperty()!=null)state=state.setValue(variantProperty(),0);
         registerDefaultState(partProperty()==null?state:state.setValue(partProperty(),0));
     }
-    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> b){b.add(FACING,WATERLOGGED,variantProperty());if(partProperty()!=null)b.add(partProperty());}
+    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> b){b.add(FACING,WATERLOGGED);if(variantProperty()!=null)b.add(variantProperty());if(partProperty()!=null)b.add(partProperty());}
     @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return variant(state).part(part(state)).shape(state.getValue(FACING));}
     @Override protected VoxelShape getCollisionShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return getShape(state,level,pos,context);}
     @Override protected BlockState rotate(BlockState state,Rotation rotation){return state.setValue(FACING,rotation.rotate(state.getValue(FACING)));}
@@ -43,7 +47,7 @@ public abstract class CourtyardAssemblyBlock extends Block implements SimpleWate
         // Whole parts reverse across local X. All authored patterns are symmetric across X.
         return partProperty()==null?result:result.setValue(partProperty(),variant(state).mirroredPart(part(state)));
     }
-    @Override public ItemStack getCloneItemStack(BlockState state,HitResult target,LevelReader level,BlockPos pos,Player player){return CourtyardAssemblyItem.stack(asItem(),state.getValue(variantProperty()));}
+    @Override public ItemStack getCloneItemStack(BlockState state,HitResult target,LevelReader level,BlockPos pos,Player player){return CourtyardAssemblyItem.stack(asItem(),variantIndex(state));}
     @Override protected FluidState getFluidState(BlockState state){return state.getValue(WATERLOGGED)?Fluids.WATER.getSource(false):super.getFluidState(state);}
     @Override public boolean canPlaceLiquid(Player player,BlockGetter level,BlockPos pos,BlockState state,Fluid fluid){return !variant(state).part(part(state)).full()&&SimpleWaterloggedBlock.super.canPlaceLiquid(player,level,pos,state,fluid);}
     @Override protected BlockState updateShape(BlockState state,Direction direction,BlockState other,LevelAccessor level,BlockPos pos,BlockPos otherPos){
@@ -54,7 +58,7 @@ public abstract class CourtyardAssemblyBlock extends Block implements SimpleWate
     public static void beginEdit(){EDIT_DEPTH.set(EDIT_DEPTH.get()+1);}
     public static void endEdit(){int n=EDIT_DEPTH.get()-1;if(n==0)EDIT_DEPTH.remove();else EDIT_DEPTH.set(n);}
     public BlockPos root(BlockPos pos,BlockState state){return pos.subtract(variant(state).offset(part(state),state.getValue(FACING)));}
-    public boolean matches(BlockState candidate,BlockState original,int part){return candidate.is(this)&&candidate.getValue(variantProperty()).equals(original.getValue(variantProperty()))&&candidate.getValue(FACING)==original.getValue(FACING)&&part(candidate)==part;}
+    public boolean matches(BlockState candidate,BlockState original,int part){return candidate.is(this)&&variantIndex(candidate)==variantIndex(original)&&candidate.getValue(FACING)==original.getValue(FACING)&&part(candidate)==part;}
 
     private void removeOthers(Level level,BlockPos pos,BlockState original,boolean dropRoot){
         var v=variant(original);int currentPart=part(original);if(!v.validPart(currentPart))return;

@@ -3,7 +3,30 @@ from __future__ import annotations
 import math
 
 
-def geometry(v):
+def door_geometry(v,opened=False):
+    from pathlib import Path
+    import json
+    from tools.player_homes.door_model import door_parts,transformed_bounds
+    config=json.loads((Path(__file__).resolve().parents[2]/v['design']).read_text())
+    frame,leaf=door_parts(config);settings=config['leaf'];angle=math.pi/2 if opened else 0
+    boxes=[(p['bounds'],p['material'])for p in frame]
+    for pivot,a,mirror in [(settings['left_pivot'],-angle,False),(settings['right_pivot'],angle,True)]:
+        boxes.extend((transformed_bounds(p,pivot,a,mirror),p['material'])for p in leaf)
+    W,H,D=(n*16 for n in v['size']);cells={}
+    for bounds,material in boxes:
+        values=[round(n*16)for n in bounds]
+        assert all(abs(n*16-i)<1e-7 for n,i in zip(bounds,values))
+        x0,y0,z0,x1,y1,z1=values
+        assert 0<=x0<x1<=W and 0<=y0<y1<=H and 0<=z0<z1<=D,values
+        for x in range(x0,x1):
+            for y in range(y0,y1):
+                for z in range(z0,z1):cells[x,y,z]=material
+    return cells
+
+
+def geometry(v,opened=False):
+    if v['shape']=='double_door':return door_geometry(v,opened)
+
     W,H,D=(n*16 for n in v['size']);m=v['material'];cells={}
     def box(x0,y0,z0,x1,y1,z1,mat=m):
         assert 0<=x0<x1<=W and 0<=y0<y1<=H and 0<=z0<z1<=D,(v['key'],x0,y0,z0,x1,y1,z1)

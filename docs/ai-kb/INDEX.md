@@ -148,3 +148,5 @@ above and link the relevant contract. Update only affected documentation.
 玩家住宅模板：[三套月洞风格住宅与恢复的原版水院](../features/player-house-templates.md)，包含同源三维、宅田占地及独立SCHEM/NBT下载，尚未加入游戏选房菜单。
 
 住宅大门：[3×4格净开口的木格双开门设计](../features/player-house-door-study.md)，含开合演示、原版门对照和主屋局部试装，尚未接入游戏。
+
+玩家住宅的[木格双开大门与模板替换](../features/player-house-doors.md)：整件5×5×3、3×4净开口、状态模型与碰撞、服务器联动开合。

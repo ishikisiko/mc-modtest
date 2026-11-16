@@ -2,7 +2,7 @@
   "schema": 1,
   "id": "lattice_double_door",
   "name": "木格双开大门",
-  "status": "design_preview",
+  "status": "integrated",
   "frame_size": [
     5,
     5,
@@ -73,6 +73,6 @@
     "back_margin": 3
   },
   "player_reference_height": 1.8,
-  "game_registration": false,
-  "home_templates_modified": false
+  "game_registration": true,
+  "home_templates_modified": true
 }

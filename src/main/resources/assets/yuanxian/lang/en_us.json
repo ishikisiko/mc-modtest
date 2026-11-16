@@ -2313,5 +2313,7 @@
   "fate.yuanxian.effect.forging_initial_aptitude": "开局炼器资质",
   "fate.yuanxian.effect.crafting_mean_shift": "炼丹／炼器得分均值偏移",
   "fate.yuanxian.effect.crafting_variance_multiplier": "炼丹／炼器正态方差倍率",
-  "screen.yuanxian.crafting.fates_pending": "请在测灵碑确认三条开局天赋，再查看生成的技艺资质。"
+  "screen.yuanxian.crafting.fates_pending": "请在测灵碑确认三条开局天赋，再查看生成的技艺资质。",
+  "variant.yuanxian.courtyard_double_door.0": "木格双开大门",
+  "block.yuanxian.courtyard_double_door": "木格双开大门"
 }
