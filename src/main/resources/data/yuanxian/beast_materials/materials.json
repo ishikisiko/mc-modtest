@@ -1,0 +1,460 @@
+{
+  "schema": 1,
+  "fallback_realm": "yuanxian:qi_refining",
+  "rarities": [
+    "common",
+    "uncommon",
+    "rare",
+    "legendary"
+  ],
+  "variants": [
+    {
+      "id": "yuanxian:beast_hide_qi_refining_common",
+      "family": "beast_hide",
+      "realm": "yuanxian:qi_refining",
+      "rarity": "common",
+      "price": 2,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_hide_qi_refining_uncommon",
+      "family": "beast_hide",
+      "realm": "yuanxian:qi_refining",
+      "rarity": "uncommon",
+      "price": 4,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_hide_qi_refining_rare",
+      "family": "beast_hide",
+      "realm": "yuanxian:qi_refining",
+      "rarity": "rare",
+      "price": 10,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_hide_qi_refining_legendary",
+      "family": "beast_hide",
+      "realm": "yuanxian:qi_refining",
+      "rarity": "legendary",
+      "price": 20,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_hide_foundation_establishment_common",
+      "family": "beast_hide",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "common",
+      "price": 8,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_hide_foundation_establishment_uncommon",
+      "family": "beast_hide",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "uncommon",
+      "price": 16,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_hide_foundation_establishment_rare",
+      "family": "beast_hide",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "rare",
+      "price": 40,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_hide_foundation_establishment_legendary",
+      "family": "beast_hide",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "legendary",
+      "price": 80,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_hide_golden_core_common",
+      "family": "beast_hide",
+      "realm": "yuanxian:golden_core",
+      "rarity": "common",
+      "price": 32,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_hide_golden_core_uncommon",
+      "family": "beast_hide",
+      "realm": "yuanxian:golden_core",
+      "rarity": "uncommon",
+      "price": 64,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_hide_golden_core_rare",
+      "family": "beast_hide",
+      "realm": "yuanxian:golden_core",
+      "rarity": "rare",
+      "price": 160,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_hide_golden_core_legendary",
+      "family": "beast_hide",
+      "realm": "yuanxian:golden_core",
+      "rarity": "legendary",
+      "price": 320,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_hide_nascent_soul_common",
+      "family": "beast_hide",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "common",
+      "price": 128,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_hide_nascent_soul_uncommon",
+      "family": "beast_hide",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "uncommon",
+      "price": 256,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_hide_nascent_soul_rare",
+      "family": "beast_hide",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "rare",
+      "price": 640,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_hide_nascent_soul_legendary",
+      "family": "beast_hide",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "legendary",
+      "price": 1280,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_hide_spirit_transformation_common",
+      "family": "beast_hide",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "common",
+      "price": 512,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_hide_spirit_transformation_uncommon",
+      "family": "beast_hide",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "uncommon",
+      "price": 1024,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_hide_spirit_transformation_rare",
+      "family": "beast_hide",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "rare",
+      "price": 2560,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_hide_spirit_transformation_legendary",
+      "family": "beast_hide",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "legendary",
+      "price": 5120,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_bone_qi_refining_common",
+      "family": "beast_bone",
+      "realm": "yuanxian:qi_refining",
+      "rarity": "common",
+      "price": 3,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_bone_qi_refining_uncommon",
+      "family": "beast_bone",
+      "realm": "yuanxian:qi_refining",
+      "rarity": "uncommon",
+      "price": 6,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_bone_qi_refining_rare",
+      "family": "beast_bone",
+      "realm": "yuanxian:qi_refining",
+      "rarity": "rare",
+      "price": 15,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_bone_qi_refining_legendary",
+      "family": "beast_bone",
+      "realm": "yuanxian:qi_refining",
+      "rarity": "legendary",
+      "price": 30,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_bone_foundation_establishment_common",
+      "family": "beast_bone",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "common",
+      "price": 12,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_bone_foundation_establishment_uncommon",
+      "family": "beast_bone",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "uncommon",
+      "price": 24,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_bone_foundation_establishment_rare",
+      "family": "beast_bone",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "rare",
+      "price": 60,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_bone_foundation_establishment_legendary",
+      "family": "beast_bone",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "legendary",
+      "price": 120,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_bone_golden_core_common",
+      "family": "beast_bone",
+      "realm": "yuanxian:golden_core",
+      "rarity": "common",
+      "price": 48,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_bone_golden_core_uncommon",
+      "family": "beast_bone",
+      "realm": "yuanxian:golden_core",
+      "rarity": "uncommon",
+      "price": 96,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_bone_golden_core_rare",
+      "family": "beast_bone",
+      "realm": "yuanxian:golden_core",
+      "rarity": "rare",
+      "price": 240,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_bone_golden_core_legendary",
+      "family": "beast_bone",
+      "realm": "yuanxian:golden_core",
+      "rarity": "legendary",
+      "price": 480,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_bone_nascent_soul_common",
+      "family": "beast_bone",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "common",
+      "price": 192,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_bone_nascent_soul_uncommon",
+      "family": "beast_bone",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "uncommon",
+      "price": 384,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_bone_nascent_soul_rare",
+      "family": "beast_bone",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "rare",
+      "price": 960,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_bone_nascent_soul_legendary",
+      "family": "beast_bone",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "legendary",
+      "price": 1920,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_bone_spirit_transformation_common",
+      "family": "beast_bone",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "common",
+      "price": 768,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_bone_spirit_transformation_uncommon",
+      "family": "beast_bone",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "uncommon",
+      "price": 1536,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_bone_spirit_transformation_rare",
+      "family": "beast_bone",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "rare",
+      "price": 3840,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_bone_spirit_transformation_legendary",
+      "family": "beast_bone",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "legendary",
+      "price": 7680,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_core_foundation_establishment_common",
+      "family": "beast_core",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "common",
+      "price": 40,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_core_foundation_establishment_uncommon",
+      "family": "beast_core",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "uncommon",
+      "price": 80,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_core_foundation_establishment_rare",
+      "family": "beast_core",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "rare",
+      "price": 200,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_core_foundation_establishment_legendary",
+      "family": "beast_core",
+      "realm": "yuanxian:foundation_establishment",
+      "rarity": "legendary",
+      "price": 400,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_core_golden_core_common",
+      "family": "beast_core",
+      "realm": "yuanxian:golden_core",
+      "rarity": "common",
+      "price": 160,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_core_golden_core_uncommon",
+      "family": "beast_core",
+      "realm": "yuanxian:golden_core",
+      "rarity": "uncommon",
+      "price": 320,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_core_golden_core_rare",
+      "family": "beast_core",
+      "realm": "yuanxian:golden_core",
+      "rarity": "rare",
+      "price": 800,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_core_golden_core_legendary",
+      "family": "beast_core",
+      "realm": "yuanxian:golden_core",
+      "rarity": "legendary",
+      "price": 1600,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_core_nascent_soul_common",
+      "family": "beast_core",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "common",
+      "price": 640,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_core_nascent_soul_uncommon",
+      "family": "beast_core",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "uncommon",
+      "price": 1280,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_core_nascent_soul_rare",
+      "family": "beast_core",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "rare",
+      "price": 3200,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_core_nascent_soul_legendary",
+      "family": "beast_core",
+      "realm": "yuanxian:nascent_soul",
+      "rarity": "legendary",
+      "price": 6400,
+      "color": 15318370
+    },
+    {
+      "id": "yuanxian:beast_core_spirit_transformation_common",
+      "family": "beast_core",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "common",
+      "price": 2560,
+      "color": 14605264
+    },
+    {
+      "id": "yuanxian:beast_core_spirit_transformation_uncommon",
+      "family": "beast_core",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "uncommon",
+      "price": 5120,
+      "color": 7454073
+    },
+    {
+      "id": "yuanxian:beast_core_spirit_transformation_rare",
+      "family": "beast_core",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "rare",
+      "price": 12800,
+      "color": 7973626
+    },
+    {
+      "id": "yuanxian:beast_core_spirit_transformation_legendary",
+      "family": "beast_core",
+      "realm": "yuanxian:spirit_transformation",
+      "rarity": "legendary",
+      "price": 25600,
+      "color": 15318370
+    }
+  ]
+}

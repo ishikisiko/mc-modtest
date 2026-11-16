@@ -27,7 +27,7 @@ public final class ModPayloads {
     // 协议70为取物器增加有界召唤配置、测试关系操作和私有单位列表。
     // 协议71增加测试 NPC 的功法、熟练度和自动施放配置。
     // 协议76增加服务器拥有的洲域、城镇入场报幕。
-    public static final String PROTOCOL_VERSION = "76";
+    public static final String PROTOCOL_VERSION = "77";
 
     private ModPayloads() {
     }

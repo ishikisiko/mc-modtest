@@ -37,7 +37,7 @@ public final class DropItemVariants {
 
     public static boolean allowsRarity(String id) {
         var item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(id));
-        return qualityKind(item).isEmpty() && !(item instanceof NingyuanFruitItem);
+        return qualityKind(item).isEmpty() && !(item instanceof NingyuanFruitItem) && !(item instanceof BeastMaterialItem);
     }
 
     public static boolean validRarity(String value) {

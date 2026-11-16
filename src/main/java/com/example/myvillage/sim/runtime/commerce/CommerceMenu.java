@@ -24,6 +24,7 @@ public final class CommerceMenu extends AbstractContainerMenu {
     private final String currency;
     private final int maxQuantity;
     private final List<CommerceRules.Offer> offers;
+    private final int filterOffset;
     private List<Integer> reputationRequired;
     private final ContainerData data;
     private int lastActionTick = Integer.MIN_VALUE;
@@ -36,16 +37,19 @@ public final class CommerceMenu extends AbstractContainerMenu {
     public CommerceMenu(int id,Inventory inventory,NpcEntity npc,long token,String currency,int maxQuantity,List<CommerceRules.Offer> offers) {
         super(CommerceMenus.SHOP.get(),id);this.inventory=inventory;this.npc=npc;this.token=token;
         this.currency=currency;this.offers=List.copyOf(offers);
+        this.filterOffset=offers.stream().anyMatch(o->com.example.myvillage.drops.BeastMaterialRules.bundled().find(o.item()).isPresent())?24:0;
         reputationRequired=offers.stream().map(o->WorldSimRuntime.sim().map(s->s.commerceReputationRequired(o.id())).orElse(0)).toList();
         if(maxQuantity<1||maxQuantity>CommerceIntentPayload.MAX_QUANTITY)throw new IllegalArgumentException("Quantity limit");
         this.maxQuantity=maxQuantity;
         if(!inventory.player.level().isClientSide()&&npc==null)throw new IllegalArgumentException("Server commerce requires a real NPC");
         if(offers.isEmpty()||offers.size()>CommerceRules.MAX_OFFERS)throw new IllegalArgumentException("Offer limit");
         data=new SimpleContainerData(offers.size()+4);addDataSlots(data);
-        for(int row=0;row<3;row++)for(int col=0;col<9;col++)addSlot(new Slot(inventory,9+row*9+col,69+col*18,155+row*18));
-        for(int col=0;col<9;col++)addSlot(new Slot(inventory,col,69+col*18,215));
+        for(int row=0;row<3;row++)for(int col=0;col<9;col++)addSlot(new Slot(inventory,9+row*9+col,69+col*18,155+filterOffset()+row*18));
+        for(int col=0;col<9;col++)addSlot(new Slot(inventory,col,69+col*18,215+filterOffset()));
     }
     public List<CommerceRules.Offer> offers(){return offers;}
+    public int filterOffset(){return filterOffset;}
+    public int height(){return HEIGHT+filterOffset();}
     public String currency(){return currency;}
     public int maxQuantity(){return maxQuantity;}
     public long token(){return token;}
@@ -98,7 +102,7 @@ public final class CommerceMenu extends AbstractContainerMenu {
                     int count=quote.ready()?quote.available():0;
                     if(offers.get(i).kind().equals("rest")&&!NpcCommerce.restRefusal(player,npc,sim).equals("ok"))count=0;
                     // -1 denotes an unlimited catalogue offer, not a quantity the client may submit.
-                    data.set(i+2,offers.get(i).unlimited()&&quote.ready()?-1:Math.clamp(count,0,30_000));
+                    data.set(i+2,(offers.get(i).unlimited()||offers.get(i).recycling())&&quote.ready()?-1:Math.clamp(count,0,30_000));
                 }
                 NpcCommerce.pause(player,npc,sim);
             } else for(int i=0;i<offers.size();i++)data.set(i+2,0);
@@ -127,7 +131,7 @@ public final class CommerceMenu extends AbstractContainerMenu {
         for(int i=0;i<size;i++) {
             String id=buf.readUtf(96),role=buf.readUtf(32),kind=buf.readUtf(16),item=buf.readUtf(160);
             int quantity=buf.readVarInt(),price=buf.readVarInt(),quality=buf.readVarInt();
-            if(!Set.of("buy","sell","rest").contains(kind)||quantity<0||quantity>64||price<1||price>10_000||quality<0||quality>4
+            if(!Set.of("buy","sell","rest").contains(kind)||quantity<0||quantity>64||price<1||price>CommerceRules.MAX_PRICE||quality<0||quality>4
                     ||kind.equals("rest")&&quality!=0)
                 throw new IllegalArgumentException("Invalid offer snapshot");
             // Client receives display data only, not the ledger settlement contract.

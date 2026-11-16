@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "realm_multiplier": 4,
+  "fallback_realm": "qi_refining",
+  "realms": [
+    {"id": "qi_refining", "name": "炼气", "tint": "ad8965"},
+    {"id": "foundation_establishment", "name": "筑基", "tint": "72a391"},
+    {"id": "golden_core", "name": "金丹", "tint": "d5b15f"},
+    {"id": "nascent_soul", "name": "元婴", "tint": "9d8fc7"},
+    {"id": "spirit_transformation", "name": "化神", "tint": "7cbac7"}
+  ],
+  "rarities": [
+    {"id": "common", "name": "普通", "price_multiplier": 1, "color": "dedbd0"},
+    {"id": "uncommon", "name": "不凡", "price_multiplier": 2, "color": "71bd79"},
+    {"id": "rare", "name": "罕见", "price_multiplier": 5, "color": "79aafa"},
+    {"id": "legendary", "name": "传说", "price_multiplier": 10, "color": "e9bd62"}
+  ],
+  "materials": [
+    {"id": "beast_hide", "name": "妖兽皮", "base_price": 2, "minimum_realm": "qi_refining", "shape": "hide"},
+    {"id": "beast_bone", "name": "妖兽骨", "base_price": 3, "minimum_realm": "qi_refining", "shape": "bone"},
+    {"id": "beast_core", "name": "妖丹", "base_price": 10, "minimum_realm": "foundation_establishment", "shape": "core"}
+  ]
+}

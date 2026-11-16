@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.135.0
+
+- 新增妖兽皮、妖兽骨、妖丹的56种大境界与稀有度组合，妖丹从筑基开始；境界价格每境四倍，稀有度分别为普通、不凡、罕见、传说。
+- 普通兽类与首领的独立稀有度掉落接入统一配置，保留原专属材料、试炼禁掉落及据点死亡回执；兽类据点改掉材料，普通皮骨支持有上限的抢夺概率增量。
+- 城镇铁匠持续回收三类材料，增加材料与境界筛选、批量报价及优先入灵石袋结算；回收不占普通货栈容量，失败交易不扣材料。
+
 ## 0.134.2
 
 - 掉落工作台支持添加物品时选择品质或原版稀有度，已配置条目可继续修改，同一物品的不同品质分别保存。

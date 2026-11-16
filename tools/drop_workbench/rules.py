@@ -31,7 +31,7 @@ def validate(data,catalogue):
     def drops(v,path):
         array(v,path,64)
         for n,entry in enumerate(v):
-            p=path+f'[{n}]';obj(entry,p,['item','min','max','chance','looting','factory','quality','rarity'],['item','min','max','chance'])
+            p=path+f'[{n}]';obj(entry,p,['item','min','max','chance','looting','factory','quality','rarity','chance_looting','rarity_weights'],['item','min','max','chance'])
             if not isinstance(entry['item'],str) or entry['item'] not in items or entry['item']=='minecraft:air':raise Invalid(p+'物品不存在，请从物品库选择')
             number(entry['min'],p+'最少数量',0,64,True);number(entry['max'],p+'最多数量',entry['min'],64,True);number(entry['chance'],p+'概率',0,1)
             if 'quality' in entry:
@@ -42,7 +42,17 @@ def validate(data,catalogue):
             if 'quality' in entry and 'rarity' in entry:raise Invalid(p+'品质与原版稀有度不能同时指定')
             if 'looting' in entry:
                 l=entry['looting'];obj(l,p+'.looting',['min_per_level','max_per_level','limit'],['min_per_level','max_per_level','limit']);number(l['min_per_level'],p+'每级抢夺最小增量',0,64);number(l['max_per_level'],p+'每级抢夺最大增量',l['min_per_level'],64);number(l['limit'],p+'抢夺上限',1,64,True)
-            if entry.get('factory','plain') not in ['plain','beast_fire'] or entry.get('factory')=='beast_fire' and entry['item']!='yuanxian:beast_fire_seed':raise Invalid(p+'特殊物品工厂不匹配')
+            factory=entry.get('factory','plain')
+            if factory not in ['plain','beast_fire','beast_material'] or factory=='beast_fire' and entry['item']!='yuanxian:beast_fire_seed' or factory=='beast_material' and not item_map[entry['item']].get('beast_material'):raise Invalid(p+'特殊物品工厂不匹配')
+            if 'chance_looting' in entry:
+                l=entry['chance_looting'];obj(l,p+'.chance_looting',['per_level','max_level'],['per_level','max_level']);number(l['per_level'],p+'每级抢夺概率增量',0,1);number(l['max_level'],p+'抢夺概率等级上限',1,255,True)
+            if factory=='beast_material':
+                if 'quality' in entry or 'rarity' in entry:raise Invalid(p+'妖兽材料使用自身境界与稀有度')
+                w=entry.get('rarity_weights');array(w,p+'稀有度权重',4)
+                if len(w)!=4:raise Invalid(p+'需要四种材料稀有度权重')
+                for weight in w:number(weight,p+'稀有度权重',0,1_000_000,True)
+                if sum(w)==0:raise Invalid(p+'总权重必须大于零')
+            elif 'rarity_weights' in entry:raise Invalid(p+'稀有度权重仅适用于妖兽材料')
     def policy(v,path,override=False):
         obj(v,path,['id','when','mode','drops'] if override else ['mode','drops'],['mode','drops'])
         if v['mode'] not in ['inherit','append','replace','disabled']:raise Invalid(path+'掉落模式无效')

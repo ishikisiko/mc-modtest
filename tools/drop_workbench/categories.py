@@ -10,8 +10,10 @@ def classify(root,reader,items):
     alchemy=json.loads((root/'src/main/resources/data/yuanxian/alchemy/rules.json').read_text())
     pills={r['output'] for r in alchemy['recipes']};herbs={v for r in alchemy['recipes'] for v in r['ingredients']}
     weapon_ids={p.stem for p in (root/'src/main/resources/data/yuanxian/combat/weapon').glob('*.json')}
+    beast_materials={v['id'] for v in json.loads((root/'src/main/resources/data/yuanxian/beast_materials/materials.json').read_text())['variants']}
     def category(v):
         id=v['id'];ns,n=id.split(':');label=v['name'];model=reader.model(ns+':item/'+n)
+        if id in beast_materials:return 'materials'
         if id in pills or n.startswith('pill_') or n in {'potion','splash_potion','lingering_potion','tipped_arrow'}:return 'pills'
         if n.startswith('workpiece_'):return 'materials'
         if n.startswith('pattern_'):return 'manuals'

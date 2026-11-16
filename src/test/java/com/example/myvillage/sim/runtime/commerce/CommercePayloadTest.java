@@ -59,7 +59,7 @@ class CommercePayloadTest {
         assertThrows(IllegalArgumentException.class,()->new CommerceIntentPayload(1,0,-1,0,1));
         assertThrows(IllegalArgumentException.class,()->new CommerceIntentPayload(1,0,30_001,0,1));
         assertThrows(IllegalArgumentException.class,()->new CommerceIntentPayload(1,0,1,-1,1));
-        assertThrows(IllegalArgumentException.class,()->new CommerceIntentPayload(1,0,1,64,1));
+        assertThrows(IllegalArgumentException.class,()->new CommerceIntentPayload(1,0,1,CommerceRules.MAX_OFFERS,1));
     }
     @Test void openingSnapshotCarriesEveryDisplayedQualityAndItsServerPrice() throws Exception {
         var rules=CommerceRules.parse("test",JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/commerce_rules.json"))).getAsJsonObject());
@@ -88,5 +88,17 @@ class CommercePayloadTest {
             buf.clear();buf.writeVarInt(CommerceRules.MAX_OFFERS+1);
             assertThrows(IllegalArgumentException.class,()->CommerceMenu.readOffers(buf));
         }finally{buf.release();}
+    }
+    @Test void beastRecycleSnapshotPreservesHighTierPricesAndNewCatalogueBounds()throws Exception {
+        var rules=CommerceRules.parse("test",JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/commerce_rules.json"))).getAsJsonObject());
+        var offers=rules.offers("smith");assertEquals(56,offers.stream().filter(CommerceRules.Offer::recycling).count());
+        var buf=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
+        try {
+            CommerceMenu.writeOpening(buf,123,rules.currency(),rules.stockLimit(),offers);
+            buf.readLong();buf.readUtf(160);buf.readVarInt();var decoded=CommerceMenu.readOffers(buf);
+            assertEquals(offers.size(),decoded.size());
+            assertEquals(25_600,decoded.stream().filter(o->o.id().equals("recycle_beast_core_spirit_transformation_legendary")).findFirst().orElseThrow().price());
+        }finally{buf.release();}
+        assertDoesNotThrow(()->new CommerceIntentPayload(1,0,1,CommerceRules.MAX_OFFERS-1,1));
     }
 }

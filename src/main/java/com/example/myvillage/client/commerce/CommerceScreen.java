@@ -26,8 +26,11 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
     private boolean selling;
     private Button previous,next,buyTab,sellTab,minus,plus;
     private EditBox quantity;
+    private String materialFamily="",materialRealm="";
+    private final List<Button> filters=new ArrayList<>();
+    private Button realmFilter;
     public CommerceScreen(CommerceMenu menu,Inventory inventory,Component title) {
-        super(menu,inventory,title);imageWidth=CommerceMenu.WIDTH;imageHeight=CommerceMenu.HEIGHT;
+        super(menu,inventory,title);imageWidth=CommerceMenu.WIDTH;imageHeight=menu.height();
     }
     @Override protected void init() {
         String value=quantity==null?"1":quantity.getValue();
@@ -35,7 +38,7 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
         for(int i=0;i<ROWS;i++) {
             final int row=i;
             actions.add(addRenderableWidget(Button.builder(Component.empty(),b->send(row))
-                    .bounds(leftPos+244,topPos+ROW_Y+i*20,48,18).build()));
+                    .bounds(leftPos+244,topPos+ROW_Y+menu.filterOffset()+i*20,48,18).build()));
         }
         buyTab=addRenderableWidget(Button.builder(Component.translatable(KEY+"buy"),b->tab(false)).bounds(leftPos+8,topPos+36,54,18).build());
         sellTab=addRenderableWidget(Button.builder(Component.translatable(KEY+"sell"),b->tab(true)).bounds(leftPos+64,topPos+36,54,18).build());
@@ -48,8 +51,23 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
         plus=addRenderableWidget(Button.builder(Component.literal("+"),b->adjust(1)).bounds(leftPos+274,topPos+36,18,18).build());
         minus.setTooltip(Tooltip.create(Component.translatable(KEY+"decrease")));
         plus.setTooltip(Tooltip.create(Component.translatable(KEY+"increase")));
-        previous=addRenderableWidget(Button.builder(Component.literal("<"),b->{page--;update();}).bounds(leftPos+202,topPos+123,28,16).build());
-        next=addRenderableWidget(Button.builder(Component.literal(">"),b->{page++;update();}).bounds(leftPos+264,topPos+123,28,16).build());
+        filters.clear();
+        if(menu.filterOffset()>0) {
+            String[] ids={"","beast_hide","beast_bone","beast_core"},labels={"全部","妖兽皮","妖兽骨","妖丹"};
+            for(int i=0;i<ids.length;i++) {
+                String id=ids[i];
+                filters.add(addRenderableWidget(Button.builder(Component.literal(labels[i]),b->{materialFamily=id;page=0;update();})
+                        .bounds(leftPos+8+i*45,topPos+59,43,18).build()));
+            }
+            realmFilter=addRenderableWidget(Button.builder(Component.empty(),b->{
+                var realms=new ArrayList<String>();realms.add("");
+                com.example.myvillage.drops.BeastMaterialRules.bundled().variants().stream().map(v->v.realm()).distinct().forEach(realms::add);
+                materialRealm=realms.get((realms.indexOf(materialRealm)+1)%realms.size());page=0;update();
+            }).bounds(leftPos+190,topPos+59,102,18).build());
+            realmFilter.setTooltip(Tooltip.create(Component.literal("点击切换材料境界")));
+        }
+        previous=addRenderableWidget(Button.builder(Component.literal("<"),b->{page--;update();}).bounds(leftPos+202,topPos+123+menu.filterOffset(),28,16).build());
+        next=addRenderableWidget(Button.builder(Component.literal(">"),b->{page++;update();}).bounds(leftPos+264,topPos+123+menu.filterOffset(),28,16).build());
         update();
     }
     private void tab(boolean sell) {
@@ -76,7 +94,14 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
     }
     private void update() {
         visibleOffers=java.util.stream.IntStream.range(0,menu.offers().size())
-                .filter(i->menu.offers().get(i).kind().equals("sell")==selling).boxed().toList();
+                .filter(i->menu.offers().get(i).kind().equals("sell")==selling)
+                .filter(i->!selling||com.example.myvillage.drops.BeastMaterialRules.bundled().find(menu.offers().get(i).item())
+                        .map(v->(materialFamily.isEmpty()||v.family().equals(materialFamily))&&(materialRealm.isEmpty()||v.realm().equals(materialRealm)))
+                        .orElse(materialFamily.isEmpty()&&materialRealm.isEmpty())).boxed().toList();
+        String[] familyIds={"","beast_hide","beast_bone","beast_core"};
+        for(int i=0;i<filters.size();i++){filters.get(i).visible=selling;filters.get(i).active=!materialFamily.equals(familyIds[i]);}
+        if(realmFilter!=null){realmFilter.visible=selling;realmFilter.setMessage(materialRealm.isEmpty()?Component.literal("境界：全部"):
+                Component.translatable("world_sim.realm."+materialRealm.substring(materialRealm.indexOf(':')+1)));}
         page=Math.clamp(page,0,Math.max(0,(visibleOffers.size()-1)/ROWS));
         for(int i=0;i<actions.size();i++) {
             int index=index(i);var b=actions.get(i);b.visible=index>=0;
@@ -101,21 +126,22 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
         int x=leftPos,y=topPos;
         g.fill(x-1,y-1,x+imageWidth+1,y+imageHeight+1,0xFF8C7850);
         g.fill(x,y,x+imageWidth,y+imageHeight,0xFF242C28);
-        g.fill(x+6,y+57,x+imageWidth-6,y+121,0xFF333F37);
+        g.fill(x+6,y+57+menu.filterOffset(),x+imageWidth-6,y+121+menu.filterOffset(),0xFF333F37);
         for(var s:menu.slots){g.fill(x+s.x-1,y+s.y-1,x+s.x+17,y+s.y+17,0xFF938570);g.fill(x+s.x,y+s.y,x+s.x+16,y+s.y+16,0xFF171E1A);}
-        if(visibleOffers.isEmpty())g.drawString(font,Component.translatable(KEY+"empty_tab"),x+12,y+70,0xFFBDB698,false);
+        if(visibleOffers.isEmpty())g.drawString(font,Component.translatable(KEY+"empty_tab"),x+12,y+70+menu.filterOffset(),0xFFBDB698,false);
         for(int row=0;row<ROWS;row++) {
             int index=index(row);if(index<0)break;
-            var o=menu.offers().get(index);int yy=y+ROW_Y+row*20;boolean rest=o.kind().equals("rest");
+            var o=menu.offers().get(index);int yy=y+ROW_Y+menu.filterOffset()+row*20;boolean rest=o.kind().equals("rest");
             int count=rest?1:amount();String name;
             if(rest)name=Component.translatable(KEY+"rest_name").getString();
             else {
                 ItemStack icon=CommerceInventory.stack(o);g.renderItem(icon,x+10,yy);
                 name=icon.getHoverName().getString()+" ×"+((long)o.quantity()*count);
             }
-            g.drawString(font,font.plainSubstrByWidth(name,205),x+30,yy+1,0xFFDFE8D7,false);
+            var material=com.example.myvillage.drops.BeastMaterialRules.bundled().find(o.item());
+            g.drawString(font,font.plainSubstrByWidth(name,205),x+30,yy+1,material.map(v->0xFF000000|v.color()).orElse(0xFFDFE8D7),false);
             String detail=menu.stock(index)==-1
-                    ?Component.translatable(KEY+"batch_detail_unlimited",(long)o.price()*count).getString()
+                    ?Component.translatable(KEY+(material.isPresent()?"batch_detail_recycling":"batch_detail_unlimited"),(long)o.price()*count).getString()
                     :Component.translatable(KEY+"batch_detail",(long)o.price()*count,menu.stock(index)).getString();
             if(menu.reputationRequired(index)>0)detail="声望 "+menu.reputationRequired(index)+(menu.reputation()<menu.reputationRequired(index)?"（未解锁）":"（已解锁）")+"；"+detail;
             g.drawString(font,font.plainSubstrByWidth(detail,205),x+30,yy+10,0xFFBDB698,false);
@@ -126,9 +152,9 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
         var coins=CommerceInventory.balance(com.example.myvillage.spiritstone.SpiritStoneSources.open(minecraft.player).copies(),menu.currency());
         g.drawString(font,font.plainSubstrByWidth(Component.translatable(KEY+"coins",coins.toString()).getString()+"   江湖声望："+menu.reputation(),284),8,23,0xFFCCDEBF,false);
         g.drawString(font,Component.translatable(KEY+"quantity"),145,41,0xFFE2D3A8,false);
-        g.drawString(font,(page+1)+"/"+Math.max(1,(visibleOffers.size()+ROWS-1)/ROWS),235,127,0xFFE2D3A8,false);
+        g.drawString(font,(page+1)+"/"+Math.max(1,(visibleOffers.size()+ROWS-1)/ROWS),235,127+menu.filterOffset(),0xFFE2D3A8,false);
         String status=Component.translatable(KEY+"status."+(amount()==0&&quantity.active?"invalid_quantity":menu.status())).getString();
-        g.drawString(font,font.plainSubstrByWidth(status,284),8,142,0xFFD6C9AC,false);
+        g.drawString(font,font.plainSubstrByWidth(status,284),8,142+menu.filterOffset(),0xFFD6C9AC,false);
     }
     @Override public boolean keyPressed(int key,int scan,int modifiers) {
         // Inventory hotkeys must not close the shop while editing or pasting a quantity.
@@ -140,7 +166,7 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
         for(int row=0;row<ROWS;row++) {
             int index=index(row);if(index<0)break;
             var o=menu.offers().get(index);
-            if(!o.kind().equals("rest")&&mx>=leftPos+10&&mx<leftPos+26&&my>=topPos+ROW_Y+row*20&&my<topPos+ROW_Y+16+row*20)
+            if(!o.kind().equals("rest")&&mx>=leftPos+10&&mx<leftPos+26&&my>=topPos+ROW_Y+menu.filterOffset()+row*20&&my<topPos+ROW_Y+menu.filterOffset()+16+row*20)
                 g.renderTooltip(font,CommerceInventory.stack(o),mx,my);
         }
     }

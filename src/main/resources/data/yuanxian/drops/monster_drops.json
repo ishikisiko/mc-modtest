@@ -322,6 +322,25 @@
       "drops": []
     },
     {
+      "id": "beast_habitat_materials",
+      "when": {
+        "entities": [
+          "yuanxian:demon_wolf",
+          "yuanxian:thornback_badger",
+          "yuanxian:redplate_lizard",
+          "yuanxian:frostplume_pheasant",
+          "yuanxian:ember_toad",
+          "yuanxian:thunder_tiger",
+          "yuanxian:lantern_sporeling"
+        ],
+        "scenes": [
+          "habitat"
+        ]
+      },
+      "mode": "inherit",
+      "drops": []
+    },
+    {
       "id": "donghuang_habitat",
       "when": {
         "scenes": [
@@ -359,6 +378,182 @@
           "max": 1,
           "chance": 0.035,
           "factory": "beast_fire"
+        }
+      ]
+    },
+    {
+      "id": "beast_body_materials",
+      "when": {
+        "entities": [
+          "yuanxian:demon_wolf",
+          "yuanxian:thornback_badger",
+          "yuanxian:redplate_lizard",
+          "yuanxian:frostplume_pheasant",
+          "yuanxian:ember_toad"
+        ],
+        "scenes": [
+          "normal",
+          "habitat",
+          "battle_ruin"
+        ]
+      },
+      "drops": [
+        {
+          "item": "yuanxian:beast_hide_qi_refining_common",
+          "min": 1,
+          "max": 1,
+          "chance": 1,
+          "factory": "beast_material",
+          "rarity_weights": [
+            8000,
+            1600,
+            350,
+            50
+          ]
+        },
+        {
+          "item": "yuanxian:beast_hide_qi_refining_common",
+          "min": 1,
+          "max": 1,
+          "chance": 0.2,
+          "factory": "beast_material",
+          "rarity_weights": [
+            8000,
+            1600,
+            350,
+            50
+          ],
+          "chance_looting": {
+            "per_level": 0.1,
+            "max_level": 3
+          }
+        },
+        {
+          "item": "yuanxian:beast_bone_qi_refining_common",
+          "min": 1,
+          "max": 1,
+          "chance": 0.5,
+          "factory": "beast_material",
+          "rarity_weights": [
+            8000,
+            1600,
+            350,
+            50
+          ],
+          "chance_looting": {
+            "per_level": 0.1,
+            "max_level": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "beast_cores",
+      "when": {
+        "entities": [
+          "yuanxian:demon_wolf",
+          "yuanxian:thornback_badger",
+          "yuanxian:redplate_lizard",
+          "yuanxian:frostplume_pheasant",
+          "yuanxian:ember_toad",
+          "yuanxian:lantern_sporeling"
+        ],
+        "scenes": [
+          "normal",
+          "habitat",
+          "battle_ruin"
+        ],
+        "min_realm": {
+          "realm": "yuanxian:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "drops": [
+        {
+          "item": "yuanxian:beast_core_foundation_establishment_common",
+          "min": 1,
+          "max": 1,
+          "chance": 0.2,
+          "factory": "beast_material",
+          "rarity_weights": [
+            8000,
+            1600,
+            350,
+            50
+          ]
+        }
+      ]
+    },
+    {
+      "id": "beast_boss_body",
+      "when": {
+        "entities": [
+          "yuanxian:thunder_tiger"
+        ],
+        "scenes": [
+          "normal",
+          "habitat",
+          "battle_ruin"
+        ]
+      },
+      "drops": [
+        {
+          "item": "yuanxian:beast_hide_qi_refining_common",
+          "min": 3,
+          "max": 3,
+          "chance": 1,
+          "factory": "beast_material",
+          "rarity_weights": [
+            5000,
+            3500,
+            1400,
+            100
+          ]
+        },
+        {
+          "item": "yuanxian:beast_bone_qi_refining_common",
+          "min": 3,
+          "max": 3,
+          "chance": 1,
+          "factory": "beast_material",
+          "rarity_weights": [
+            5000,
+            3500,
+            1400,
+            100
+          ]
+        }
+      ]
+    },
+    {
+      "id": "beast_boss_core",
+      "when": {
+        "entities": [
+          "yuanxian:thunder_tiger"
+        ],
+        "scenes": [
+          "normal",
+          "habitat",
+          "battle_ruin"
+        ],
+        "min_realm": {
+          "realm": "yuanxian:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "drops": [
+        {
+          "item": "yuanxian:beast_core_foundation_establishment_common",
+          "min": 1,
+          "max": 1,
+          "chance": 1,
+          "factory": "beast_material",
+          "rarity_weights": [
+            5000,
+            3500,
+            1400,
+            100
+          ]
         }
       ]
     }

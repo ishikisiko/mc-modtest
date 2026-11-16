@@ -8,7 +8,9 @@ import java.util.*;
 public record CommerceRules(String currency, int stockLimit, int interactionRange, int stationRange,
         int restCooldownTicks, int restSafeTicks, int actionIntervalTicks, double restHealthFraction, double restQiFraction,
         List<Offer> offers, List<Staff> staff) {
-    public static final int MAX_OFFERS = 64;
+    public static final int MAX_OFFERS = 128;
+    // stock_limit <= 20,000, so a bounded batch stays within signed int currency amounts.
+    public static final int MAX_PRICE = 100_000;
     public static final Set<String> ROLES = Set.of("herbalist", "smith", "innkeeper");
     public record Offer(String id, String role, String kind, String item, int quantity, int price,
                         String pool, int units, int initialStock, int capacity, int medicineCost,
@@ -18,6 +20,7 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
                     ||(restockDays==0)!=(restockStock==0))throw new IllegalArgumentException("Invalid quality or restock bounds");
         }
         public boolean unlimited() { return pool.equals("unlimited"); }
+        public boolean recycling() { return pool.equals("recycle"); }
         public String stockKey() { return pillQuality > 1 ? item + "#" + pillQuality : item; }
     }
     public record Staff(String role, String home, String work) { }
@@ -99,9 +102,14 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
                         ||medicine>0&&(!kind.equals("buy")||!role.equals("herbalist"))) throw new IllegalArgumentException("Invalid commodity");
                 int target=kind.equals("buy")&&pool.equals("items")?targets.getOrDefault(item,0):0;
                 if(target>capacity||target>0&&(!role.equals("herbalist")||!restocked.add(item)))throw new IllegalArgumentException("Invalid restock offer");
-                offers.add(new Offer(id,role,kind,item,quantity,integer(o,"price",1,10_000),pool,units,initial,capacity,medicine,0,target>0?restockDays:0,target));
+                offers.add(new Offer(id,role,kind,item,quantity,integer(o,"price",1,MAX_PRICE),pool,units,initial,capacity,medicine,0,target>0?restockDays:0,target));
             }
             if(!restocked.equals(targets.keySet()))throw new IllegalArgumentException("Restock requires matching shop offers");
+            for(var material:com.example.myvillage.drops.BeastMaterialRules.bundled().variants()) {
+                String id="recycle_"+material.id().substring(material.id().indexOf(':')+1);
+                if(!ids.add(id)||material.price()>MAX_PRICE)throw new IllegalArgumentException("Invalid recycling offer");
+                offers.add(new Offer(id,"smith","sell",material.id(),1,material.price(),"recycle",1,0,1,0,0,0,0));
+            }
             if(offers.isEmpty()||offers.size()>MAX_OFFERS) throw new IllegalArgumentException("Offer limit");
             // Recurring starter supplies occupy the first pages of the purchase tab.
             offers.sort(Comparator.comparingInt(o->o.restockStock()>0?0:1));

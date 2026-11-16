@@ -55,3 +55,5 @@ systemctl --user status myvillage-drop-workbench.service
 品质适用族由 `variants.py` 读取实际注册输入，原生检查将全部网页物品的能力逐项与真实服务端注册表比较。用于独立测试页面时，可给目录生成器传入同域 HTTPS 的 `--asset-base`；样式与脚本带内容摘要，刷新时读取对应版本。
 
 规则语义的固定样例位于 `src/test/resources/drops/rules_fixture.json`。Java和网页存储单元测试保留原来的精确断言，通过该样例验证，避免把用户可编辑的掉落方式和概率固定成编译要求。真实包内表仍由网页写回校验和原生服务器启动检查；原生 `item_variants` 场景读取根目录的 `drop-workbench-catalogue.json` 作为本次生成目录的检查副本，构建采集器负责准备它。
+
+0.135.0的妖兽材料由正式目录提供56种固定身份，普通、不凡、罕见、传说保持各自名称和价格。选择具体材料可配置固定掉落；材料工厂可按目标境界生成，并编辑四档稀有度权重及已有的抢夺概率增量。参数语义与作者入口见[妖兽材料说明](../../docs/features/beast-materials.md)。

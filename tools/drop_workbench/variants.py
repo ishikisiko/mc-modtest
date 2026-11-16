@@ -24,9 +24,16 @@ def attach(root,items,lang):
         text=path.read_text()
         for m in re.finditer(r'registerItem\(\s*"([a-z0-9_]+)"\s*,\s*\w+\s*->\s*new\s+CombatWeaponItem\b',text):kinds['yuanxian:'+m.group(1)]='equipment'
         for m in re.finditer(r'DeferredItem<CombatWeaponItem>\s+\w+\s*=\s*[\w.]*registerItem\(\s*"([a-z0-9_]+)"',text):kinds['yuanxian:'+m.group(1)]='equipment'
+    materials=json.loads((root/'src/main/resources/data/yuanxian/beast_materials/materials.json').read_text())
+    material_map={v['id']:v for v in materials['variants']};fixed.update(material_map)
     for v in items:
         kind=kinds.get(v['id'],'');v['quality_kind']=kind
         v['qualities']=list(range(1 if kind=='pill' else 0,5)) if kind else []
         v['rarities']=[r['id'] for r in RARITIES] if not kind and v['id'] not in fixed else []
+        if v['id'] in material_map:v['beast_material']=material_map[v['id']]
     colors=['#ffffff','#55ff55','#5555ff','#aa55ff','#ffaa00']
-    return {'qualities':[{'id':q,'name':lang.get('forging.yuanxian.quality.'+str(q),['凡品','下品','中品','上品','极品'][q]),'color':colors[q]} for q in range(5)],'rarities':RARITIES}
+    authored=json.loads((root/'tools/beast_materials/catalogue.json').read_text())
+    drops=json.loads((root/'src/main/resources/data/yuanxian/drops/monster_drops.json').read_text())
+    weights=next(d['rarity_weights'] for a in drops['additions'] for d in a['drops'] if d.get('factory')=='beast_material')
+    return {'qualities':[{'id':q,'name':lang.get('forging.yuanxian.quality.'+str(q),['凡品','下品','中品','上品','极品'][q]),'color':colors[q]} for q in range(5)],'rarities':RARITIES,
+            'material_rarities':[{'id':v['id'],'name':v['name'],'color':'#'+v['color']} for v in authored['rarities']], 'material_weights_default':weights}

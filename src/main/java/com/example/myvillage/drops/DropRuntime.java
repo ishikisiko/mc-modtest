@@ -103,8 +103,14 @@ public final class DropRuntime {
             looting=EnchantmentHelper.getEnchantmentLevel(holder,attacker);
         }
         for(var reward:DropRules.roll(resolution,looting,new Random(entity.getRandom().nextLong()))){
+            String item=reward.item();
+            if(reward.factory().equals("beast_material")) {
+                var variant=BeastMaterialRules.bundled().resolve(item,StatsRuntime.assignedRealm(entity).map(RealmKey::realmId).orElse(null),reward.materialRarity());
+                if(variant.isEmpty())continue;
+                item=variant.get().id();
+            }
             var stack=reward.factory().equals("beast_fire")?FireCaptureItem.seed("beast",0,level.dimension().location().toString(),entity.blockPosition())
-                    :new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(reward.item())));
+                    :new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item)));
             DropItemVariants.apply(stack,reward.quality(),reward.rarity());
             int remaining=reward.count();while(remaining>0){int count=Math.min(remaining,stack.getMaxStackSize());var part=stack.copyWithCount(count);remaining-=count;
                 event.getDrops().add(new ItemEntity(level,entity.getX(),entity.getY(),entity.getZ(),part));}

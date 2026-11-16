@@ -401,6 +401,7 @@ public final class ModItems {
                         for (String topic : aptitudeRules.crafts()) output.accept(com.example.myvillage.aptitude.AptitudeContent.create("research", topic, 1));
                         UNDEAD_SPAWN_EGGS.forEach(egg -> output.accept(egg.get()));
                         com.example.myvillage.legacy.LegacyContent.creative(output);
+                        BeastMaterialContent.creative(output);
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(DEMON_WOLF_SPAWN_EGG.get());
                         output.accept(THUNDER_TIGER_SPAWN_EGG.get());

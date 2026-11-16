@@ -140,3 +140,5 @@ above and link the relevant contract. Update only affected documentation.
 怪物掉落：[默认随模组更新、显式外置覆盖、管理员热重载、场景条件与查询导出](../features/monster-drops.md)。 [网页工作台](../../tools/drop_workbench/README.md)提供生物三视图、用途分类和原生掉落说明，并自动写回源码统一表。
 
 源仙名称与指令：[正式显示名、统一名称输入、完整与快捷命令入口及权限](../features/yuanxian-name.md)。
+
+妖兽材料与回收：[三类材料、境界与稀有度、统一掉落配置及铁匠持续收购](../features/beast-materials.md)。

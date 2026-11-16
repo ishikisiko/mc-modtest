@@ -675,6 +675,17 @@ tasks.register('generateTechniqueGrowth', Exec) {
 }
 tasks.named('processResources') { dependsOn 'generateTechniqueGrowth' }
 
+tasks.register('generateBeastMaterials', Exec) {
+    workingDir projectDir
+    executable pythonExecutable.get()
+    args '-m', 'tools.beast_materials.generate'
+    inputs.files('tools/beast_materials/catalogue.json', 'tools/beast_materials/generate.py', 'tools/language_assets.py')
+    outputs.file('src/main/resources/data/yuanxian/beast_materials/materials.json')
+    outputs.upToDateWhen { false }
+}
+tasks.named('compileJava') { dependsOn 'generateBeastMaterials' }
+tasks.named('processResources') { dependsOn 'generateBeastMaterials' }
+
 // 生成器完成后校验实际语言源，打包完成后严格核对JAR字节。
 def languageInputSnapshot = layout.buildDirectory.file('language-assets/before-generation.json')
 tasks.register('captureLanguageAssets', Exec) {
@@ -686,6 +697,8 @@ tasks.register('captureLanguageAssets', Exec) {
 // 单独运行生成器仍可更新其资源；正式打包时先固定两份共享语言输入。
 tasks.withType(Exec).configureEach {
     if (name != 'captureLanguageAssets') mustRunAfter 'captureLanguageAssets'
+    // Shared-language consumers read branding outputs after the naming generator has finished.
+    if (!(name in ['captureLanguageAssets', 'generateModBranding'])) mustRunAfter 'generateModBranding'
 }
 tasks.named('processResources') {
     dependsOn 'captureLanguageAssets'

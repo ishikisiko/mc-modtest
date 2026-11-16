@@ -33,7 +33,7 @@ public final class DropProbe {
     private static AABB area;
     private static JsonObject last=new JsonObject();
     private static final Gson JSON=new Gson();
-    public DropProbe(){BrandProbe.register();NamespaceProbe.register();NeoForge.EVENT_BUS.addListener(DropProbe::commands);NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,DropProbe::drops);}
+    public DropProbe(){BrandProbe.register();NamespaceProbe.register();MaterialProbe.register();NeoForge.EVENT_BUS.addListener(DropProbe::commands);NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,DropProbe::drops);}
     private static void reply(CommandSourceStack source){source.sendSuccess(()->Component.literal("DROP_PROBE "+last),false);}
     private static void drops(LivingDropsEvent e){if(target!=null&&target.equals(e.getEntity().getUUID())){
         Map<String,Integer> items=new TreeMap<>();for(var drop:e.getDrops())items.merge(BuiltInRegistries.ITEM.getKey(drop.getItem().getItem()).toString(),drop.getItem().getCount(),Integer::sum);
@@ -77,6 +77,19 @@ public final class DropProbe {
         last.addProperty("chunk_entity_ticking",mob!=null&&lastLevel.isPositionEntityTicking(mob.blockPosition()));
         reply(source);return mob==null?0:1;
     }
+    private static int realm(CommandSourceStack source,String realm,int stage) {
+        if(target==null||!(lastLevel.getEntity(target) instanceof LivingEntity mob))throw new IllegalArgumentException("没有探针目标");
+        StatsRuntime.applyRealm(mob,realm,stage);last.add("spawn_context",JSON.toJsonTree(DropRuntime.context(mob,true)));reply(source);return 1;
+    }
+    private static int otherDeath(CommandSourceStack source,boolean npc) {
+        if(target==null||!(lastLevel.getEntity(target) instanceof LivingEntity mob))throw new IllegalArgumentException("没有探针目标");
+        mob.setLastHurtByPlayer(null);mob.setHealth(0);
+        if(npc) {
+            var attacker=(LivingEntity)BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse("yuanxian:cultivator")).create(lastLevel);
+            mob.die(lastLevel.damageSources().mobAttack(attacker));attacker.discard();
+        }else mob.die(lastLevel.damageSources().genericKill());
+        last.addProperty("fixture_death_callback",true);last.addProperty("death_source",npc?"npc":"environment");reply(source);return 1;
+    }
     private static int read(CommandSourceStack source){
         Map<String,Integer> items=new TreeMap<>();JsonArray details=new JsonArray();
         if(lastLevel!=null&&area!=null)for(var item:lastLevel.getEntitiesOfClass(ItemEntity.class,area)){
@@ -113,6 +126,10 @@ public final class DropProbe {
             .then(Commands.literal("finish").then(Commands.argument("looting",IntegerArgumentType.integer(0,3)).then(Commands.argument("captured",BoolArgumentType.bool())
                 .executes(c->finish(c.getSource(),IntegerArgumentType.getInteger(c,"looting"),BoolArgumentType.getBool(c,"captured"))))))
             .then(Commands.literal("read").executes(c->read(c.getSource())))
+            .then(Commands.literal("realm").then(Commands.argument("realm",ResourceLocationArgument.id()).then(Commands.argument("stage",IntegerArgumentType.integer(0,8))
+                    .executes(c->realm(c.getSource(),ResourceLocationArgument.getId(c,"realm").toString(),IntegerArgumentType.getInteger(c,"stage"))))))
+            .then(Commands.literal("environment").executes(c->otherDeath(c.getSource(),false)))
+            .then(Commands.literal("npc_finish").executes(c->otherDeath(c.getSource(),true)))
             .then(Commands.literal("ready").executes(c->ready(c.getSource())))
             .then(Commands.literal("variants").executes(c->variants(c.getSource())))
             .then(Commands.literal("deny").executes(c->deny(c.getSource()))));

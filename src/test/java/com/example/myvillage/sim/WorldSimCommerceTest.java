@@ -17,6 +17,20 @@ class WorldSimCommerceTest {
     static final int DAY=24_000;
     static final String A="00000000-0000-0000-0000-00000000000a",B="00000000-0000-0000-0000-00000000000b";
     static final String SITE="shop_town",PILL="yuanxian:pill_huiling",BUY="buy_pill_huiling";
+    @Test void beastRecyclingNeverFillsWarehouseAndUsesSingleUsePersistentReceipts() {
+        var sim=fresh();String id="recycle_beast_core_spirit_transformation_legendary";
+        assertEquals(56,sim.commerceRules().offers().stream().filter(CommerceRules.Offer::recycling).count());
+        var before=market(sim);
+        for(int i=0;i<3;i++) {
+            var quote=bulk(sim,id,A,sim.commerceRules().stockLimit());
+            assertTrue(quote.ready());assertEquals(25_600*sim.commerceRules().stockLimit(),quote.price());
+            assertTrue(sim.commitCommerce(quote,A));assertFalse(sim.commitCommerce(quote,A));
+            assertEquals(before.items(),market(sim).items());assertEquals(before.treasury(),market(sim).treasury());
+        }
+        assertEquals(before.transactions()+3,market(sim).transactions());
+        sim=reload(sim);
+        assertTrue(bulk(sim,id,B,1).ready());assertEquals(before.items(),market(sim).items());
+    }
     WorldSim fresh() {
         var state=new WorldState();state.seed=SEED;state.tierId="small";state.genesisDaysPerYear=24;
         var graph=SimFixtures.graph(SEED);String region=graph.regions().getFirst().id();

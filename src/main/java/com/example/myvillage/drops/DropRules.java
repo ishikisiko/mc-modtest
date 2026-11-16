@@ -20,7 +20,11 @@ public final class DropRules {
     public record Catalog(Predicate<String> item,Predicate<String> entity,Predicate<String> region,ToIntFunction<RealmKey> realmRank,
                           BiPredicate<String,Integer> quality,Predicate<String> rarity) {}
     public record Context(String entity,Scene scene,String region,Integer realmRank,boolean playerKill,boolean fireCaptured) {}
-    public record Entry(String item,int min,int max,double chance,double lootingMin,double lootingMax,int limit,String factory,Integer quality,String rarity) {}
+    public record Entry(String item,int min,int max,double chance,double lootingMin,double lootingMax,int limit,String factory,Integer quality,String rarity,
+                        double chancePerLootingLevel,int chanceLootingCap,List<Integer> materialWeights) {
+        public Entry { materialWeights=List.copyOf(materialWeights); }
+        public double effectiveChance(int looting){return Math.min(1,chance+chancePerLootingLevel*Math.clamp(looting,0,chanceLootingCap));}
+    }
     public record Policy(Mode mode,List<Entry> drops) {public Policy{drops=List.copyOf(drops);}}
     public record Match(Set<String> entities,Set<Scene> scenes,Set<String> regions,Integer minRealm,Integer maxRealm,Boolean playerKill,Boolean fireCaptured) {
         public boolean matches(Context c){return (entities.isEmpty()||entities.contains(c.entity()))&&(scenes.isEmpty()||scenes.contains(c.scene()))
@@ -31,7 +35,7 @@ public final class DropRules {
     public record Override(String id,Match when,Policy policy) {}
     public record Addition(String id,Match when,List<Entry> drops) {public Addition{drops=List.copyOf(drops);}}
     public record Resolution(String origin,Policy policy,List<Addition> additions) {public Resolution{additions=List.copyOf(additions);}}
-    public record Reward(String item,int count,String factory,Integer quality,String rarity) {}
+    public record Reward(String item,int count,String factory,Integer quality,String rarity,String materialRarity) {}
     private final Policy defaults;
     private final Map<String,Policy> entities;
     private final List<Override> overrides;
@@ -56,10 +60,18 @@ public final class DropRules {
         return List.copyOf(out);
     }
     private static void draw(List<Entry> entries,int looting,RandomGenerator random,List<Reward> out){
-        for(var e:entries){if(e.chance()==0||e.chance()<1&&random.nextDouble()>=e.chance())continue;
+        for(var e:entries){double chance=e.effectiveChance(looting);if(chance==0||chance<1&&random.nextDouble()>=chance)continue;
             int count=e.min()+random.nextInt(e.max()-e.min()+1);
             if(looting>0&&e.lootingMax()>0)count+=Math.round((float)(looting*(e.lootingMin()+(e.lootingMax()-e.lootingMin())*random.nextDouble())));
-            count=Math.min(count,e.limit());if(count>0)out.add(new Reward(e.item(),count,e.factory(),e.quality(),e.rarity()));
+            count=Math.min(count,e.limit());
+            if(e.factory().equals("beast_material")) {
+                // Each physical unit receives its own rarity draw, including all fixed boss units.
+                for(int unit=0;unit<count;unit++) {
+                    int selected=random.nextInt(e.materialWeights().stream().mapToInt(Integer::intValue).sum()),index=0;
+                    while(selected>=e.materialWeights().get(index)){selected-=e.materialWeights().get(index);index++;}
+                    out.add(new Reward(e.item(),1,e.factory(),null,null,BeastMaterialRules.bundled().rarities().get(index)));
+                }
+            } else if(count>0)out.add(new Reward(e.item(),count,e.factory(),e.quality(),e.rarity(),null));
         }
     }
     public static DropRules parse(String input,Catalog catalog){
@@ -94,7 +106,7 @@ public final class DropRules {
     private static List<Entry> entries(JsonObject o,String p,Catalog c){
         JsonArray a=array(o,"drops",p,64);List<Entry> out=new ArrayList<>();
         for(int i=0;i<a.size();i++){
-            String q=p+".drops["+i+"]";JsonObject e=asObject(a.get(i),q);fields(e,q,"item","min","max","chance","looting","factory","quality","rarity");
+            String q=p+".drops["+i+"]";JsonObject e=asObject(a.get(i),q);fields(e,q,"item","min","max","chance","looting","factory","quality","rarity","chance_looting","rarity_weights");
             String item=string(e,"item",q);id(item,q+".item");if(item.equals("minecraft:air")||!c.item().test(item))throw bad(q+".item","物品不存在或为空气");
             int min=integer(e,"min",q,0,64),max=integer(e,"max",q,min,64);double chance=decimal(e,"chance",q,0,1);
             double lo=0,hi=0;int limit=64;if(e.has("looting")){
@@ -102,13 +114,30 @@ public final class DropRules {
                 lo=decimal(l,"min_per_level",q+".looting",0,64);hi=decimal(l,"max_per_level",q+".looting",lo,64);limit=integer(l,"limit",q+".looting",1,64);
             }
             String factory=e.has("factory")?string(e,"factory",q):"plain";
-            if(!Set.of("plain","beast_fire").contains(factory)||factory.equals("beast_fire")&&!item.equals("yuanxian:beast_fire_seed"))throw bad(q+".factory","工厂应为plain；beast_fire仅用于兽火");
+            if(!Set.of("plain","beast_fire","beast_material").contains(factory)||factory.equals("beast_fire")&&!item.equals("yuanxian:beast_fire_seed")
+                    ||factory.equals("beast_material")&&BeastMaterialRules.bundled().find(item).isEmpty())throw bad(q+".factory","物品与掉落工厂不匹配");
             Integer quality=e.has("quality")?integer(e,"quality",q,0,4):null;
             if(quality!=null&&!c.quality().test(item,quality))throw bad(q+".quality","该物品不支持此品质");
             String rarity=e.has("rarity")?string(e,"rarity",q):null;
             if(rarity!=null&&(!Set.of("common","uncommon","rare","epic").contains(rarity)||!c.rarity().test(item)))throw bad(q+".rarity","该物品不支持此稀有度");
             if(quality!=null&&rarity!=null)throw bad(q,"品质与原版稀有度不能同时指定");
-            out.add(new Entry(item,min,max,chance,lo,hi,limit,factory,quality,rarity));
+            double chancePerLevel=0;int chanceCap=0;
+            if(e.has("chance_looting")) {
+                var l=object(e,"chance_looting",q);fields(l,q+".chance_looting","per_level","max_level");
+                chancePerLevel=decimal(l,"per_level",q+".chance_looting",0,1);chanceCap=integer(l,"max_level",q+".chance_looting",1,255);
+            }
+            List<Integer> weights=new ArrayList<>();
+            if(factory.equals("beast_material")) {
+                if(quality!=null||rarity!=null)throw bad(q,"妖兽材料使用自身境界与稀有度，不接受品质覆盖");
+                var w=array(e,"rarity_weights",q,4);if(w.size()!=4)throw bad(q+".rarity_weights","需要四种稀有度权重");
+                int total=0;for(var value:w) {
+                    if(!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isNumber())throw bad(q+".rarity_weights","权重须为非负整数");
+                    int n;try{n=value.getAsBigDecimal().intValueExact();}catch(ArithmeticException ex){throw bad(q+".rarity_weights","权重须为整数");}
+                    if(n<0||n>1_000_000)throw bad(q+".rarity_weights","权重超出范围");weights.add(n);total+=n;
+                }
+                if(total==0)throw bad(q+".rarity_weights","总权重必须大于零");
+            } else if(e.has("rarity_weights"))throw bad(q+".rarity_weights","仅妖兽材料工厂使用权重");
+            out.add(new Entry(item,min,max,chance,lo,hi,limit,factory,quality,rarity,chancePerLevel,chanceCap,weights));
         }
         return List.copyOf(out);
     }

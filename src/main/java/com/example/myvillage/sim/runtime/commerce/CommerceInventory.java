@@ -36,7 +36,7 @@ public final class CommerceInventory {
         ItemStack money=new ItemStack(item(currency));
         if(offer.kind().equals("sell")) {
             if(!remove(copies.subList(0,storageSlots),stack(offer,qualityType),count,offer.pillQuality(),qualityType))return new Plan("missing_items",List.of());
-            if(!insert(copies,money,price,storageSlots))return new Plan("inventory_full",List.of());
+            if(!insert(copies,money,price,storageSlots,!offer.recycling()))return new Plan("inventory_full",List.of());
         } else {
             if(!com.example.myvillage.spiritstone.SpiritStoneStorage.remove(copies,com.example.myvillage.spiritstone.SpiritStoneStorage.ordinary(money),price))return new Plan("insufficient_funds",List.of());
             if(offer.kind().equals("buy")&&!insert(copies,stack(offer,qualityType),count,storageSlots))
@@ -73,7 +73,10 @@ public final class CommerceInventory {
                 stack,com.example.myvillage.spiritstone.SpiritStoneStorage.ordinary(type))).reduce(java.math.BigInteger.ZERO,java.math.BigInteger::add);
     }
     private static boolean insert(List<ItemStack> inventory,ItemStack type,int count,int storageSlots) {
-        int remaining=com.example.myvillage.spiritstone.SpiritStoneStorage.insertBags(inventory,type,count,true);
+        return insert(inventory,type,count,storageSlots,true);
+    }
+    private static boolean insert(List<ItemStack> inventory,ItemStack type,int count,int storageSlots,boolean requireAutomatic) {
+        int remaining=com.example.myvillage.spiritstone.SpiritStoneStorage.insertBags(inventory,type,count,requireAutomatic);
         return com.example.myvillage.spiritstone.SpiritStoneStorage.insertLoose(inventory,type,remaining,storageSlots)==0;
     }
 }

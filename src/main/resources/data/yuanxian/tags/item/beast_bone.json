@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    "yuanxian:beast_bone_qi_refining_common",
+    "yuanxian:beast_bone_qi_refining_uncommon",
+    "yuanxian:beast_bone_qi_refining_rare",
+    "yuanxian:beast_bone_qi_refining_legendary",
+    "yuanxian:beast_bone_foundation_establishment_common",
+    "yuanxian:beast_bone_foundation_establishment_uncommon",
+    "yuanxian:beast_bone_foundation_establishment_rare",
+    "yuanxian:beast_bone_foundation_establishment_legendary",
+    "yuanxian:beast_bone_golden_core_common",
+    "yuanxian:beast_bone_golden_core_uncommon",
+    "yuanxian:beast_bone_golden_core_rare",
+    "yuanxian:beast_bone_golden_core_legendary",
+    "yuanxian:beast_bone_nascent_soul_common",
+    "yuanxian:beast_bone_nascent_soul_uncommon",
+    "yuanxian:beast_bone_nascent_soul_rare",
+    "yuanxian:beast_bone_nascent_soul_legendary",
+    "yuanxian:beast_bone_spirit_transformation_common",
+    "yuanxian:beast_bone_spirit_transformation_uncommon",
+    "yuanxian:beast_bone_spirit_transformation_rare",
+    "yuanxian:beast_bone_spirit_transformation_legendary"
+  ]
+}
