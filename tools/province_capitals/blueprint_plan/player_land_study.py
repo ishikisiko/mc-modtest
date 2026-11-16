@@ -45,7 +45,11 @@ def translate_record(record,delta):
         else:
             for key in ('min','max'):record['bounds'][key]=[v+d for v,d in zip(record['bounds'][key],delta)]
     if 'y' in record:record['y']+=dy
-    for f in record.get('fixtures',[]):f['position']=[v+d for v,d in zip(f['position'],delta)]
+    for f in record.get('fixtures',[]):
+        f['position']=[v+d for v,d in zip(f['position'],delta)]
+        for key in ('roots','soil'):
+            if key in f.get('planting',{}):
+                f['planting'][key]=[[v+d for v,d in zip(point,delta)]for point in f['planting'][key]]
 
 
 def prepare_city(root,proposal,data,scene,style,rules):
@@ -95,6 +99,8 @@ def prepare_city(root,proposal,data,scene,style,rules):
         else:delta=[0,0,0]
         garden_delta[g['id']]=delta;translate_record(g,delta);translate_record(g,[sx,0,sz]);kept.append(g)
     data['gardens']=kept
+    # 新鲜编译结果可能共享装饰对象，JSON缓存会拆开引用；显式汇总保证两种输入一致。
+    data['fixtures']=[copy.deepcopy(f)for g in kept for f in g.get('fixtures',[])]
     all_deltas={**deltas,**garden_delta}
     transformed=[]
     wall_material=next((b['m']for b in scene['boxes']if b['tag']=='城防'),'stone')
@@ -299,7 +305,7 @@ def finalize_checks(data,scene,proposal):
 
 
 def amend_viewer(viewer):
-    viewer=viewer.replace("function reset(){", "function reset(){$('district').value='';")
+    viewer=viewer.replace("function reset(){", "function reset(){$('district').value='all';")
     viewer=viewer.replace("$('selectedName').textContent='千机阁入城草案';", "$('selectedName').textContent='七城宅田区域规划';")
     viewer=viewer.replace("建筑使用当前作者输入的实际构件，千机阁保留各栋原尺寸和楼层。迁排住宅按草案移动，街坊空地连成铺地院场，绿地集中在有边界的树院。", "每座城预留一块64×72格净用地，住宅与田地比例由玩家决定。预览同时显示街坊迁排、公共入口和城墙调整。")
     viewer=viewer.replace("...DATA.plots,...DATA.gardens", "...DATA.plots,...DATA.gardens,DATA.player_land")
