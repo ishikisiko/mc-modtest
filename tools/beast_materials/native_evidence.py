@@ -15,12 +15,14 @@ CASES = ['candidate_identity', 'registered_items_and_recycling', 'ordinary_loot'
 
 
 class MaterialEvidence(Evidence):
-    def __init__(self, out, jar, probe):
+    def __init__(self, out, jar, probe, client=False):
         super().__init__(out, jar, probe, 202611160135, only=[])
         self.server.level_type = 'minecraft:flat'
         self.server.generate_structures = 'false'
         self.server.view_distance = 3
         self.selected = CASES.copy()
+        if client:
+            self.selected.insert(-1, 'client_menu_render')
         self.report.update(kind='beast_materials_native', selected=self.selected, completed=[], unrun=self.selected.copy())
         self.save()
 
@@ -136,6 +138,9 @@ class MaterialEvidence(Evidence):
             self.case('trial_shields', self.shields)
             self.case('invalid_config_keeps_snapshot', self.invalid_weights)
             self.case('restart_persistence', self.restart)
+            if 'client_menu_render' in self.selected:
+                from tools.beast_materials.client_evidence import capture
+                self.case('client_menu_render', lambda: capture(self))
             self.case('restored_defaults', self.bundled)
             self.report['status'] = 'passed'
         except BaseException as error:
@@ -155,8 +160,9 @@ def main():
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--jar', type=Path, required=True)
     p.add_argument('--probe', type=Path, required=True)
+    p.add_argument('--client', action='store_true')
     a = p.parse_args()
-    MaterialEvidence(a.out.resolve(), a.jar.resolve(), a.probe.resolve()).run()
+    MaterialEvidence(a.out.resolve(), a.jar.resolve(), a.probe.resolve(), a.client).run()
 
 
 if __name__ == '__main__':

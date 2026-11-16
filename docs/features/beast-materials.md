@@ -39,3 +39,5 @@ python3 -m tools.beast_materials.generate --check
 生成的 `data/yuanxian/beast_materials/materials.json` 同时用于Java注册、固定回收报价和网页物品能力。`BeastMaterialContent` 注册物品并放入创造栏，`BeastMaterialItem` 显示稀有度颜色与回收说明；现有 `DropRuntime` 负责服务器死亡结算，现有 WorldSim 商业 facade 负责交易回执。
 
 定向检查为 `tools.tests.test_beast_materials`、掉落规则及商业测试。`python3 -m tools.beast_materials.native_evidence` 在隔离平坦测试世界观察真实死亡事件、落地物品、原生注册表、回收背包事务和存档容器重启。该探针通过独立测试模组运行，不进入交付JAR；命令夹具不代表玩家战斗、菜单操作、外观、手感、FPS或多人验收。
+
+加 `--client` 可附加真实客户端画面及鼠标筛选检查。此时由测试夹具打开正式回收菜单，再以实际鼠标切换卖出页、材料、境界和分页；它验证渲染及筛选交互，NPC接待与真实购买操作仍需分别观察。
