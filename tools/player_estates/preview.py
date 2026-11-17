@@ -63,7 +63,7 @@ class NativeModels:
     def models(self, s):
         name,props=parse(s);base=name.split(':')[1]
         if base=='water':return [{'model':'block/water_still_preview'}]
-        if base.endswith('_bed'):return [{'model':'block/bed_preview'}]
+        if base.endswith('_bed'):return [{'model':'block/bed_preview','y':{'south':0,'west':90,'north':180,'east':270}.get(props.get('facing','south'),0)}]
         raw=self.read(f'assets/minecraft/blockstates/{base}.json')
         found=[]
         if 'variants' in raw:
@@ -95,7 +95,15 @@ class NativeModels:
             if entry['model']=='block/water_still_preview':
                 m={'textures':{'all':'block/water_still'},'elements':[{'from':[0,0,0],'to':[16,14,16], 'faces':{k:{'texture':'#all','cullface':k} for k in NORMALS}}]}
             elif entry['model']=='block/bed_preview':
-                m={'textures':{'all':'block/red_wool'},'elements':[{'from':[0,0,0],'to':[16,9,16], 'faces':{k:{'texture':'#all'} for k in NORMALS}}]}
+                # Block-entity beds have no ordinary block model. Keep their real
+                # footprint and 9/16 height, with a frame, feet and head pillow.
+                def bed_box(bounds,material):return {'from':bounds[:3],'to':bounds[3:],'faces':{k:{'texture':'#'+material}for k in NORMALS}}
+                head=props.get('part')=='head';pieces=[bed_box([0,3,0,16,4,16],'wood')]
+                end=13 if head else 1
+                for x in (1,13):pieces.append(bed_box([x,0,end,x+2,3,end+2],'wood'))
+                pieces.append(bed_box([0,4,0,16,9,9 if head else 16],'cloth'))
+                if head:pieces.append(bed_box([0,4,9,16,9,16],'pillow'))
+                m={'textures':{'wood':'block/oak_planks','cloth':'block/'+name.split(':')[1].removesuffix('_bed')+'_wool','pillow':'block/white_wool'},'elements':pieces}
             else:m=self.model(entry['model'])
             for element in m.get('elements',[]):
                 x0,y0,z0=element['from'];x1,y1,z1=element['to']

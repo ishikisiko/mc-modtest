@@ -103,13 +103,13 @@ def bake_instances(site,jar,out):
         atlas.paste(im.crop((0,0,16,1)),(x,y-1));atlas.paste(im.crop((0,15,16,16)),(x,y+16))
     atlas.save(out/'atlas.png');units={};occupied=set()
     for a in site.assemblies:
-        root=tuple(a['root']);key=('assembly',a['family'],a['variant'],a['facing']);positions=[tuple(p)for p in a['parts']]
+        root=tuple(a['root']);positions=[tuple(p)for p in a['parts']];key=('assembly',a['family'],a['variant'],a['facing'],tuple(site.layers[p]for p in positions))
         occupied.update(positions)
         if key not in units:units[key]={'root':root,'parts':positions,'instances':[]}
         units[key]['instances'].append(root)
     for p,block in site.blocks.items():
         if p in occupied:continue
-        key=('block',block)
+        key=('block',block,site.layers[p])
         if key not in units:units[key]={'root':p,'parts':[p],'instances':[]}
         units[key]['instances'].append(p)
     covered=set()
@@ -118,7 +118,7 @@ def bake_instances(site,jar,out):
         for instance in unit['instances']:
             for part in unit['parts']:
                 position=tuple(instance[i]+part[i]-root[i]for i in range(3))
-                assert position not in covered and site.blocks[position]==site.blocks[part],('显示实例与蓝图不同',position)
+                assert position not in covered and site.blocks[position]==site.blocks[part] and site.layers[position]==site.layers[part],('显示实例与蓝图不同',position)
                 covered.add(position)
     assert covered==set(site.blocks),'显示实例没有覆盖完整蓝图'
     prototypes=[];rendered_faces=0

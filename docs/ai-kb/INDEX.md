@@ -150,3 +150,5 @@ above and link the relevant contract. Update only affected documentation.
 住宅大门：[3×4格净开口的木格双开门设计](../features/player-house-door-study.md)，含开合演示、原版门对照和主屋局部试装，尚未接入游戏。
 
 玩家住宅的[木格双开大门与模板替换](../features/player-house-doors.md)：整件5×5×3、3×4净开口、状态模型与碰撞、服务器联动开合。
+
+月洞水院的[宅居改版草案](../features/moon-courtyard-home.md)：保留原水岸、桥亭、回廊和高低台基，在原空间内增补卧房、厨房与储物；三维可同机位隐藏新增内容对照原版。

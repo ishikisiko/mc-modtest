@@ -1,5 +1,7 @@
 # 玩家住宅模板选型
 
+此前三套新增住宅已被用户否定，等待重做；当前先审阅[月洞水院宅居改版](moon-courtyard-home.md)。以下保留旧草案的范围和实现记录。
+
 状态：`design_preview`。在[七城宅田区域规划](player-land-plan.md)之后，先提供可选择的独立建筑蓝图，地块中的摆放、通路和种植位置都可调整。
 
 [住宅模板与三维预览](https://assets.ishiki333hhh.win/previews/player-house-doors-20261117/index.html)可切换全貌、院内、去顶、俯视及“放进宅田地块”。每套可下载SCHEM、NBT和同源占地图，当前选择只影响预览，不写入游戏。

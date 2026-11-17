@@ -1,0 +1,561 @@
+{
+  "schema": 1,
+  "id": "moon_courtyard_home",
+  "name": "月洞水院·宅居改版",
+  "description": "保留原版水院的水池、长桥、敞亭、低回廊和高台主厅，在主厅后部安排卧房，侧房改作厨房，低回廊补储物。",
+  "source": "tools/reference_courtyard/assemblies.json",
+  "status": "design_preview",
+  "owner_visual_acceptance": "pending",
+  "size": [
+    48,
+    28,
+    40
+  ],
+  "plot_size": [
+    64,
+    72
+  ],
+  "plot_origin": [
+    8,
+    28
+  ],
+  "partitions": [
+    {
+      "name": "卧房前隔断",
+      "bounds": [
+        25,
+        5,
+        32,
+        33,
+        11,
+        33
+      ],
+      "transom_y": 10
+    },
+    {
+      "name": "卧房侧隔断",
+      "bounds": [
+        32,
+        5,
+        33,
+        33,
+        11,
+        37
+      ],
+      "transom_y": 10
+    }
+  ],
+  "doors": [
+    {
+      "name": "卧房双开门",
+      "root": [
+        26,
+        5,
+        32
+      ],
+      "family": "courtyard_double_door",
+      "variant": "lattice",
+      "facing": "north"
+    }
+  ],
+  "furniture": [
+    {
+      "name": "卧床",
+      "kind": "bed",
+      "block": "brown_bed",
+      "position": [
+        28,
+        5,
+        35
+      ],
+      "facing": "south"
+    },
+    {
+      "name": "床侧储物",
+      "block": "barrel",
+      "position": [
+        30,
+        5,
+        36
+      ],
+      "properties": {
+        "facing": "north",
+        "open": false
+      }
+    },
+    {
+      "name": "茶案",
+      "kind": "fill",
+      "block": "dark_oak_slab",
+      "bounds": [
+        38,
+        5,
+        30,
+        41,
+        6,
+        32
+      ],
+      "properties": {
+        "type": "bottom",
+        "waterlogged": false
+      }
+    },
+    {
+      "name": "席垫西",
+      "kind": "fill",
+      "block": "brown_carpet",
+      "bounds": [
+        37,
+        5,
+        30,
+        38,
+        6,
+        32
+      ]
+    },
+    {
+      "name": "席垫东",
+      "kind": "fill",
+      "block": "brown_carpet",
+      "bounds": [
+        41,
+        5,
+        30,
+        42,
+        6,
+        32
+      ]
+    },
+    {
+      "name": "书架",
+      "kind": "fill",
+      "block": "bookshelf",
+      "bounds": [
+        41,
+        5,
+        36,
+        44,
+        7,
+        37
+      ]
+    },
+    {
+      "name": "厨房炉台",
+      "block": "smoker",
+      "position": [
+        17,
+        3,
+        34
+      ],
+      "properties": {
+        "facing": "west",
+        "lit": false
+      }
+    },
+    {
+      "name": "厨房工作台",
+      "block": "crafting_table",
+      "position": [
+        17,
+        3,
+        35
+      ]
+    },
+    {
+      "name": "厨房熔炉",
+      "block": "furnace",
+      "position": [
+        17,
+        3,
+        36
+      ],
+      "properties": {
+        "facing": "west",
+        "lit": false
+      }
+    },
+    {
+      "name": "厨房储物",
+      "block": "barrel",
+      "position": [
+        17,
+        3,
+        37
+      ],
+      "properties": {
+        "facing": "north",
+        "open": false
+      }
+    },
+    {
+      "name": "廊下储物",
+      "kind": "fill",
+      "block": "barrel",
+      "bounds": [
+        8,
+        3,
+        31,
+        11,
+        4,
+        32
+      ],
+      "properties": {
+        "facing": "north",
+        "open": false
+      }
+    }
+  ],
+  "rooms": [
+    {
+      "id": "pavilion",
+      "name": "临水敞亭",
+      "bounds": [
+        29,
+        17,
+        40,
+        25
+      ],
+      "floor_y": 5,
+      "color": "#bca77a"
+    },
+    {
+      "id": "hall",
+      "name": "起居与茶席",
+      "bounds": [
+        33,
+        26,
+        44,
+        37
+      ],
+      "floor_y": 5,
+      "color": "#ba996f"
+    },
+    {
+      "id": "bedroom",
+      "name": "后部卧房",
+      "bounds": [
+        25,
+        32,
+        33,
+        37
+      ],
+      "floor_y": 5,
+      "color": "#8fabc0"
+    },
+    {
+      "id": "kitchen",
+      "name": "厨房",
+      "bounds": [
+        12,
+        33,
+        18,
+        38
+      ],
+      "floor_y": 3,
+      "color": "#ae9b7a"
+    },
+    {
+      "id": "storage",
+      "name": "低廊储物",
+      "bounds": [
+        7,
+        26,
+        12,
+        32
+      ],
+      "floor_y": 3,
+      "color": "#91aaa1"
+    }
+  ],
+  "walk": {
+    "minimum_feet": 2.5,
+    "maximum_feet": 5.25,
+    "body_height": 1.8,
+    "body_half_width": 0.3,
+    "step_height": 0.6,
+    "start": [
+      3,
+      2.5,
+      10
+    ],
+    "targets": [
+      {
+        "name": "桥面转折",
+        "position": [
+          34,
+          2.5,
+          11
+        ]
+      },
+      {
+        "name": "敞亭",
+        "position": [
+          34,
+          5,
+          20
+        ]
+      },
+      {
+        "name": "主厅",
+        "position": [
+          34,
+          5,
+          29
+        ]
+      },
+      {
+        "name": "卧床侧面",
+        "position": [
+          29,
+          5,
+          35
+        ]
+      },
+      {
+        "name": "厨房工作位",
+        "position": [
+          16,
+          3,
+          35
+        ]
+      },
+      {
+        "name": "廊下储物操作位",
+        "position": [
+          9,
+          3,
+          30
+        ]
+      }
+    ],
+    "tour": [
+      "桥面转折",
+      "敞亭",
+      "主厅",
+      "卧床侧面"
+    ],
+    "service": [
+      "廊下储物操作位",
+      "厨房工作位"
+    ],
+    "feet_epsilon": 0.015,
+    "edge_samples": 4
+  },
+  "plot_areas": [
+    {
+      "name": "种植预留示意",
+      "bounds": [
+        8,
+        4,
+        30,
+        20
+      ],
+      "color": "#a4ac7b"
+    },
+    {
+      "name": "玩家自建预留示意",
+      "bounds": [
+        34,
+        4,
+        55,
+        20
+      ],
+      "color": "#bda47c"
+    }
+  ],
+  "views": {
+    "overview": {
+      "name": "临水全貌",
+      "eye": [
+        66,
+        27,
+        -24
+      ],
+      "target": [
+        24,
+        6,
+        23
+      ],
+      "fov": 42
+    },
+    "bridge": {
+      "name": "桥头看门亭",
+      "eye": [
+        10.5,
+        4.12,
+        10.5
+      ],
+      "target": [
+        32,
+        7.8,
+        20
+      ],
+      "fov": 63
+    },
+    "pavilion": {
+      "name": "敞亭望主厅",
+      "eye": [
+        34.5,
+        6.62,
+        20.5
+      ],
+      "target": [
+        34.5,
+        7,
+        32
+      ],
+      "fov": 60
+    },
+    "cut": {
+      "name": "去顶看布置",
+      "eye": [
+        60,
+        58,
+        1
+      ],
+      "target": [
+        24,
+        3,
+        26
+      ],
+      "cut": 7.5,
+      "rooms": true,
+      "fov": 43
+    },
+    "bedroom": {
+      "name": "卧房门口",
+      "eye": [
+        29.2,
+        6.62,
+        30.2
+      ],
+      "target": [
+        28.5,
+        6.1,
+        35.5
+      ],
+      "fov": 63,
+      "open_doors": true
+    },
+    "kitchen": {
+      "name": "厨房入口",
+      "eye": [
+        15,
+        4.62,
+        29.5
+      ],
+      "target": [
+        15.5,
+        4.2,
+        36
+      ],
+      "fov": 62
+    },
+    "gallery": {
+      "name": "低廊与储物",
+      "eye": [
+        20.5,
+        4.62,
+        28.5
+      ],
+      "target": [
+        8.5,
+        4.1,
+        29
+      ],
+      "fov": 65
+    },
+    "plot": {
+      "name": "宅田占地",
+      "eye": [
+        -36,
+        82,
+        -42
+      ],
+      "target": [
+        32,
+        4,
+        36
+      ],
+      "plot": true,
+      "fov": 42
+    }
+  },
+  "kit_fixtures": [
+    {
+      "name": "储物灯托木",
+      "root": [
+        9,
+        8,
+        31
+      ],
+      "family": "courtyard_floor",
+      "variant": "wood",
+      "layer": "residential"
+    },
+    {
+      "name": "卧房梁下灯",
+      "root": [
+        28,
+        8,
+        35
+      ],
+      "family": "courtyard_lantern",
+      "variant": "hanging",
+      "support": [
+        28,
+        9,
+        35
+      ],
+      "attach": "above"
+    },
+    {
+      "name": "主厅梁下灯",
+      "root": [
+        39,
+        8,
+        35
+      ],
+      "family": "courtyard_lantern",
+      "variant": "hanging",
+      "support": [
+        39,
+        9,
+        35
+      ],
+      "attach": "above"
+    },
+    {
+      "name": "厨房柜面灯",
+      "root": [
+        17,
+        4,
+        37
+      ],
+      "family": "courtyard_lantern",
+      "variant": "standing",
+      "support": [
+        17,
+        3,
+        37
+      ],
+      "attach": "below"
+    },
+    {
+      "name": "储物廊灯",
+      "root": [
+        9,
+        7,
+        31
+      ],
+      "family": "courtyard_lantern",
+      "variant": "hanging",
+      "support": [
+        9,
+        8,
+        31
+      ],
+      "attach": "above"
+    }
+  ]
+}
