@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{color-scheme:dark light;--font-sans:system-ui,"Noto Sans CJK SC",sans-serif;--radius:12px}
+*{box-sizing:border-box}[hidden]{display:none!important}html,body{margin:0;font-family:var(--font-sans);color:var(--foreground);background:transparent}
+#astra-houses{display:grid;gap:12px;width:100%}.choices,.controls,.views{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button,select{font:inherit;color:var(--foreground);background:var(--secondary);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;min-height:40px}
+button[aria-pressed=true]{color:var(--primary-foreground);background:var(--primary)}label{display:inline-flex;gap:7px;align-items:center}
+#astra-stage{position:relative;height:490px;overflow:hidden;border-radius:var(--radius);background:var(--card)}#astra-canvas{display:block;width:100%;height:490px;touch-action:none;cursor:grab}
+#astra-canvas:active{cursor:grabbing}#astra-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}.room-label{position:absolute;transform:translate(-50%,-50%);background:var(--popover);color:var(--popover-foreground);border-radius:5px;padding:3px 5px;white-space:nowrap;font-size:12px}
+#astra-summary,#astra-info{color:var(--muted-foreground);font-size:13px;line-height:1.55}#astra-info{min-height:22px}#astra-error{color:var(--destructive);padding:16px}
+@media(max-width:480px){#astra-stage,#astra-canvas{height:410px}button,select{min-height:44px;padding:7px 9px}.choices button{flex:1}.room-label{font-size:11px}#astra-summary,#astra-info{font-size:12px}}
+</style></head><body>
+<div id="astra-houses">
+ <div class="choices" role="group" aria-label="住宅方案">
+  <button type="button" data-house="0" aria-pressed="true">松廊小院</button>
+  <button type="button" data-house="1" aria-pressed="false">赤陶长屋</button>
+  <button type="button" data-house="2" aria-pressed="false">石阶露台居</button>
+ </div>
+ <div id="astra-summary" aria-live="polite"></div>
+ <div class="controls">
+  <label><input id="astra-roof" type="checkbox" checked>显示屋顶</label>
+  <label id="astra-floor-label" hidden>查看楼层 <select id="astra-floor"><option value="1">一层</option><option value="2">二层</option></select></label>
+  <label><input id="astra-room-names" type="checkbox">房间名称</label>
+ </div>
+ <div id="astra-stage"><canvas id="astra-canvas" role="img" aria-label="可旋转的 Minecraft 住宅三维模型。拖动旋转，滚轮缩放，右键或按住 Shift 拖动平移。下方按钮可切换全貌、人视、去顶平面与完整宅基地。">住宅三维模型</canvas><div id="astra-labels"></div><div id="astra-error" hidden></div></div>
+ <div class="views" role="group" aria-label="相机位置">
+  <button type="button" data-view="overview">全貌</button><button type="button" data-view="person">院内人视</button><button type="button" data-view="plan">去顶平面</button><button type="button" data-view="plot">64×72 宅基地</button>
+ </div>
+ <div id="astra-info">拖动旋转 · 滚轮缩放 · 右键或 Shift 拖动平移 · 地面标记朝北方向</div>
+</div>
+<script>
+(() => {
+'use strict';
+const root=document.getElementById('astra-houses'), canvas=document.getElementById('astra-canvas'), labels=document.getElementById('astra-labels');
+const roofInput=document.getElementById('astra-roof'), floorInput=document.getElementById('astra-floor'), namesInput=document.getElementById('astra-room-names');
+const gl=canvas.getContext('webgl',{alpha:true,antialias:true,preserveDrawingBuffer:true});
+if(!gl){const e=document.getElementById('astra-error');e.hidden=false;e.textContent='当前浏览器未启用 WebGL，无法显示三维模型。';return;}
+const palettes=[
+ ['草方块','#71825b','grass'],['泥土','#806044','noise'],['砂砾','#aaa28d','noise'],['泥土径','#9b8968','noise'],
+ ['去皮云杉木','#80613d','log'],['云杉木板','#a27f4f','plank'],['方解石','#d8d4bb','stone'],['深板岩瓦','#46515a','tile'],
+ ['石砖','#929084','brick'],['红色陶瓦','#a75a42','noise'],['深色橡木','#4b382b','plank'],['白桦木板','#c6ad79','plank'],
+ ['平滑砂岩','#cdbb8e','stone'],['氧化的切制铜','#578e7e','copper'],['凝灰岩','#828577','stone'],['玻璃','#a7c8bf','glass'],
+ ['床褥','#a94e42','cloth'],['枕头','#e0d8bc','cloth'],['树叶','#4a6d42','leaf'],['耕地','#74543a','furrow'],
+ ['灰色地毯','#747d79','cloth'],['木门','#715332','door'],['红砖','#9e664d','brick'],['熔炉','#666963','furnace'],
+ ['箱子','#ac7c36','chest'],['麦田','#aea052','leaf'],['深色原木','#5a4532','log'],['金合欢木','#aa7453','log']
+];
+const MAT=Object.fromEntries(palettes.map((p,i)=>[p[0],i]));
+function rgb(hex){return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
+function hash(a,b,c=0){let n=Math.imul(a+37,374761393)^Math.imul(b+19,668265263)^Math.imul(c+1,1442695041);n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967295;}
+const atlas=document.createElement('canvas');atlas.width=128;atlas.height=64;const ac=atlas.getContext('2d');
+palettes.forEach(([name,color,type],id)=>{const base=rgb(color),tx=id%8*16,ty=Math.floor(id/8)*16;
+ for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+  let d=(hash(x,y,id)-.5)*20,alpha=255;
+  if(type==='plank'){if(y%4===0)d-=22;if((x+(Math.floor(y/4)%2)*8)%16===0)d-=20;d+=(hash(x,Math.floor(y/2),id)-.5)*12;}
+  if(type==='log'){d+=(hash(x,0,id)-.5)*38;if(x===1||x===14)d-=17;}
+  if(type==='brick'){if(y%8===0||(x+Math.floor(y/8)*8)%16===0)d-=28;}
+  if(type==='tile'){if(y%4===0)d-=20;if((x+Math.floor(y/4)*4)%8===0)d-=18;}
+  if(type==='copper'){if(x===0||y===0)d-=28;if(x===1||y===1)d+=14;d+=(hash(Math.floor(x/3),Math.floor(y/3),id)-.5)*24;}
+  if(type==='stone')d+=(hash(Math.floor(x/4),Math.floor(y/4),id)-.5)*14;
+  if(type==='grass'||type==='leaf')d+=(hash(Math.floor(x/2),Math.floor(y/2),id)-.5)*26;
+  if(type==='furrow'&&y%4<2)d-=22;
+  if(type==='glass'){alpha=x===0||y===0||x===15||y===15?155:55;d=x===y||x===y+1?32:0;}
+  if(type==='cloth')d=(hash(x,y,id)-.5)*9;
+  if(type==='door'){if(x===1||x===14||y===1||y===14)d-=25;if((x===3||x===12)&&y>4&&y<12)d-=12;}
+  if(type==='furnace'&&x>3&&x<12&&y>3&&y<9)d-=62;
+  if(type==='chest'){if(y===5||x===0||x===15)d-=45;if(x>6&&x<9&&y>4&&y<9)d+=45;}
+  ac.fillStyle=`rgba(${base.map(v=>Math.max(0,Math.min(255,v+d))).join(',')},${alpha/255})`;ac.fillRect(tx+x,ty+y,1,1);
+ }
+});
+const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,atlas);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+function program(v,f){const p=gl.createProgram();gl.attachShader(p,shader(gl.VERTEX_SHADER,v));gl.attachShader(p,shader(gl.FRAGMENT_SHADER,f));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;}
+const vs=`attribute vec3 aP;attribute vec3 aN;attribute vec2 aUV;attribute float aM;uniform mat4 uVP;uniform mat4 uLight;varying vec3 vN;varying vec3 vP;varying vec2 vUV;varying float vM;varying vec4 vL;void main(){vN=aN;vP=aP;vUV=aUV;vM=aM;vL=uLight*vec4(aP,1.);gl_Position=uVP*vec4(aP,1.);}`;
+const fs=`precision highp float;uniform sampler2D uTex;uniform sampler2D uShadow;uniform float uShadowOn;varying vec3 vN;varying vec3 vP;varying vec2 vUV;varying float vM;varying vec4 vL;float depth(vec4 c){return dot(c,vec4(1.,1./255.,1./65025.,1./16581375.));}void main(){float m=floor(vM+.1);vec2 tile=vec2(mod(m,8.),floor(m/8.));vec2 uv=(tile*16.+floor(fract(vUV)*16.)+.5)/vec2(128.,64.);vec4 c=texture2D(uTex,uv);vec3 n=normalize(vN);float sun=max(0.,dot(n,normalize(vec3(-.55,.85,.4))));vec3 l=vL.xyz/vL.w*.5+.5;float shade=1.;if(uShadowOn>.5&&l.x>0.&&l.x<1.&&l.y>0.&&l.y<1.){float s=0.;float bias=.0013+.001*(1.-sun);for(int i=0;i<2;i++)for(int j=0;j<2;j++){float z=depth(texture2D(uShadow,l.xy+(vec2(float(i),float(j))-.5)/1536.));s+=(l.z-bias>z)?0.55:1.;}shade=s*.25;}float light=.56+.44*sun*shade;float grain=.985+.03*fract(sin(dot(floor(vP),vec3(12.9898,78.233,45.164)))*43758.5453);gl_FragColor=vec4(c.rgb*light*grain,c.a);}`;
+const main=program(vs,fs);const dep=program(`attribute vec3 aP;uniform mat4 uVP;void main(){gl_Position=uVP*vec4(aP,1.);}`,`precision highp float;vec4 pack(float v){vec4 r=fract(v*vec4(1.,255.,65025.,16581375.));r-=r.yzww*vec4(1./255.,1./255.,1./255.,0.);return r;}void main(){gl_FragColor=pack(gl_FragCoord.z);}`);
+const size=1536, shadowTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,shadowTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,size,size,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+const sfbo=gl.createFramebuffer(),drb=gl.createRenderbuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,sfbo);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,shadowTex,0);gl.bindRenderbuffer(gl.RENDERBUFFER,drb);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,size,size);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,drb);const shadowOK=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>{let l=Math.hypot(...a);return a.map(v=>v/l);};
+function mul(a,b){let o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o;}
+function look(eye,target,up=[0,1,0]){const f=norm(sub(target,eye)),r=norm(cross(f,up)),u=cross(r,f);return new Float32Array([r[0],u[0],-f[0],0,r[1],u[1],-f[1],0,r[2],u[2],-f[2],0,-dot(r,eye),-dot(u,eye),dot(f,eye),1]);}
+function ortho(l,r,b,t,n,f){return new Float32Array([2/(r-l),0,0,0,0,2/(t-b),0,0,0,0,-2/(f-n),0,-(r+l)/(r-l),-(t+b)/(t-b),-(f+n)/(f-n),1]);}
+function perspective(fov,a,n,f){const q=1/Math.tan(fov/2);return new Float32Array([q/a,0,0,0,0,q,0,0,0,0,(f+n)/(n-f),-1,0,0,2*f*n/(n-f),0]);}
+const world=p=>[p[0],p[1],-p[2]];
+const lightVP=mul(ortho(-65,65,-65,65,1,210),look([-35,100,65],[32,0,-28]));
+let boxes=[],rooms=[],house=0,fullPlot=false,viewName='overview',pending=true,roof=true,floor=1;
+let eye=[78,54,-34],target=[32,3,23],span=60,isPlan=false,isPerson=false;
+function box(x0,x1,y0,y1,z0,z1,mat,opt={}){if(x1<=x0||y1<=y0||z1<=z0)return;boxes.push({x0,x1,y0,y1,z0,z1,mat:typeof mat==='string'?MAT[mat]:mat,...opt});}
+function base(x0,x1,z0,z1,y,mat='石砖'){box(x0,x1,0,y,z0,z1,mat);box(x0,x1,y-.5,y,z0,z1,'云杉木板');}
+function paving(x0,x1,z0,z1,y=0,mat='砂砾'){box(x0,x1,y-.15,y,z0,z1,mat);}
+function wall(axis,start,end,fixed,y0,y1,mat,holes=[],timber=null,opt={}){
+ for(let p=start;p<end;p++)for(let y=y0;y<y1;y+=1){let top=Math.min(y+1,y1);if(holes.some(h=>p>=h.a&&p+1<=h.b&&y>=h.lo-.01&&top<=h.hi+.01))continue;let m=timber&&(p===start||p===end-1||(p-start)%6===0||y>=y1-1)?timber:mat;if(axis==='x')box(p,p+1,y,top,fixed,fixed+1,m,opt);else box(fixed,fixed+1,y,top,p,p+1,m,opt);}
+ holes.forEach(h=>{if(h.kind!=='window')return;const mid=(h.a+h.b)/2,frame=timber||'去皮云杉木',depth=.16;
+ if(axis==='x'){box(h.a,h.b,h.lo,h.hi,fixed+.46,fixed+.54,'玻璃',opt);box(mid-.08,mid+.08,h.lo,h.hi,fixed+.35,fixed+.65,frame,opt);box(h.a,h.b,h.lo-.12,h.lo+.12,fixed-.12,fixed+1.12,frame,opt);box(h.a,h.b,h.hi-.1,h.hi+.1,fixed+.2,fixed+.8,frame,opt);}else{box(fixed+.46,fixed+.54,h.lo,h.hi,h.a,h.b,'玻璃',opt);box(fixed+.35,fixed+.65,h.lo,h.hi,mid-.08,mid+.08,frame,opt);box(fixed-.12,fixed+1.12,h.lo-.12,h.lo+.12,h.a,h.b,frame,opt);box(fixed+.2,fixed+.8,h.hi-.1,h.hi+.1,h.a,h.b,frame,opt);}
+ });
+}
+const door=(a,b,y,h=3)=>({a,b,lo:y,hi:y+h,kind:'door'}),win=(a,b,y)=>({a,b,lo:y+2,hi:y+4,kind:'window'});
+function doorLeaves(axis,fixed,a,b,y,h=2.8,mat='木门',opt={}){const len=(b-a)/2-.12;if(axis==='x'){box(a,a+.16,y,y+h,fixed,fixed+len,mat,opt);box(b-.16,b,y,y+h,fixed,fixed+len,mat,opt);}else{box(fixed,fixed+len,y,y+h,a,a+.16,mat,opt);box(fixed,fixed+len,y,y+h,b-.16,b,mat,opt);}}
+function gable(x0,x1,z0,z1,eave,axis,roofMat,wallMat,beam='去皮云杉木'){
+ const opt={roof:true},a=axis==='x'?z0:x0,b=axis==='x'?z1:x1;
+ for(let k=a;k<b;k++){const top=eave+.5*Math.min(k-a,b-1-k)+.5;if(axis==='x'){box(x0,x1,top-.5,top,k,k+1,roofMat,opt);if(k>a&&k<b-1){box(x0+1,x0+2,eave,top-.5,k,k+1,wallMat,opt);box(x1-2,x1-1,eave,top-.5,k,k+1,wallMat,opt);}}else{box(k,k+1,top-.5,top,z0,z1,roofMat,opt);if(k>a&&k<b-1){box(k,k+1,eave,top-.5,z0+1,z0+2,wallMat,opt);box(k,k+1,eave,top-.5,z1-2,z1-1,wallMat,opt);}}}
+ if(axis==='x'){for(let x=x0+2;x<x1-1;x+=6)box(x,x+.45,eave-.5,eave,z0+1,z1-1,beam,opt);box(x0+1,x1-1,eave+(b-a)/4-1,eave+(b-a)/4-.5,(z0+z1)/2-.25,(z0+z1)/2+.25,beam,opt);}else{for(let z=z0+2;z<z1-1;z+=5)box(x0+1,x1-1,eave-.5,eave,z,z+.45,beam,opt);}
+}
+function lean(x0,x1,z0,z1,lo,axis,reverse=false,mat='深板岩瓦'){
+ const a=axis==='x'?x0:z0,b=axis==='x'?x1:z1;
+ for(let k=a;k<b;k++){let y=lo+.5*(reverse?b-1-k:k-a);if(axis==='x')box(k,k+1,y,y+.5,z0,z1,mat,{roof:true});else box(x0,x1,y,y+.5,k,k+1,mat,{roof:true});}
+}
+function stairs(axis,start,end,across0,across1,baseY,mat='石砖',opt={}){for(let k=start;k<end;k++){let y=baseY+.5*(k-start+1);if(axis==='z')box(across0,across1,baseY,y,k,k+1,mat,opt);else box(k,k+1,baseY,y,across0,across1,mat,opt);}}
+function post(x,z,bottom,top,mat='去皮云杉木'){box(x,x+1,bottom,top,z,z+1,mat);}
+function table(x,z,y,w=3,d=2,mat='云杉木板'){box(x,x+w,y+.9,y+1.15,z,z+d,mat);[[x,z],[x+w-.3,z],[x,z+d-.3],[x+w-.3,z+d-.3]].forEach(([a,b])=>box(a,a+.3,y,y+1,b,b+.3,'深色原木'));}
+function seat(x,z,y,axis='x'){box(x,x+(axis==='x'?2:1),y+.35,y+.6,z,z+(axis==='x'?1:2),'云杉木板');box(x,x+.25,y,y+.4,z,z+.8,'深色原木');}
+function bed(x,z,y){box(x,x+2,y,y+.28,z,z+2,'深色原木');box(x,x+2,y+.28,y+.65,z,z+1.5,'床褥');box(x,x+2,y+.28,y+.7,z+1.5,z+2,'枕头');box(x,x+2,y,y+1,z+1.9,z+2.12,'去皮云杉木');}
+function chest(x,z,y,w=2){box(x,x+w,y,y+.9,z,z+.9,'箱子');}
+function shelf(x,z,y,axis='x',n=3){for(let i=0;i<n;i++){let a=x+(axis==='x'?i:0),b=z+(axis==='z'?i:0);chest(a,b,y,1);chest(a,b,y+1.35,1);}if(axis==='x'){box(x,x+n,y+1.2,y+1.35,z,z+1,'云杉木板');box(x,x+.25,y,y+2.3,z,z+1,'去皮云杉木');box(x+n-.25,x+n,y,y+2.3,z,z+1,'去皮云杉木');}else{box(x,x+1,y+1.2,y+1.35,z,z+n,'云杉木板');box(x,x+1,y,y+2.3,z,z+.25,'去皮云杉木');box(x,x+1,y,y+2.3,z+n-.25,z+n,'去皮云杉木');}}
+function garden(x0,x1,z0,z1){paving(x0,x1,z0,z1,.12,'泥土');box(x0-.25,x1+.25,0,.35,z0-.25,z0,'去皮云杉木');box(x0-.25,x1+.25,0,.35,z1,z1+.25,'去皮云杉木');box(x0-.25,x0,0,.35,z0,z1,'去皮云杉木');box(x1,x1+.25,0,.35,z0,z1,'去皮云杉木');for(let x=x0+1;x<x1;x+=2)for(let z=z0+1;z<z1;z+=3){box(x,x+.65,.12,.7,z,z+.65,hash(x,z)>.5?'树叶':'麦田');}}
+function railing(axis,start,end,fixed,y,mat='去皮云杉木',gaps=[]){for(let p=start;p<end;p+=3){if(gaps.some(g=>p>=g[0]&&p<g[1]))continue;if(axis==='x')box(p,p+.25,y,y+1.2,fixed,fixed+.25,mat);else box(fixed,fixed+.25,y,y+1.2,p,p+.25,mat);}for(let p=start;p<end;p++){if(gaps.some(g=>p>=g[0]&&p<g[1]))continue;if(axis==='x')box(p,p+1,y+.7,y+.95,fixed,fixed+.2,mat);else box(fixed,fixed+.2,y+.7,y+.95,p,p+1,mat);}}
+function room(text,x,y,z,level=1){rooms.push({text,p:[x,y,z],level});}
+function common(bounds){const [x0,x1,z1]=bounds;const xa=fullPlot?0:x0-2,xb=fullPlot?64:x1+2,za=fullPlot?0:-2,zb=fullPlot?72:z1+2;
+ box(xa,xb,-1,0,za,zb,'泥土');box(xa,xb,-.12,0,za,zb,'草方块');
+ for(let x=xa;x<xb;x+=4){paving(x,Math.min(x+2,xb),z1,z1+.2,.03,'石砖');}for(let z=0;z<z1;z+=4){paving(x0,x0+.2,z,z+2,.03,'石砖');paving(x1-.2,x1,z,z+2,.03,'石砖');}
+ paving(x0,x1,-.2,0,.03,'石砖');
+ // 方块组成的北向箭头，位于住宅东南边界。
+ const nx=x1-3,nz=3;paving(nx,nx+.4,nz,nz+3,.04,'方解石');paving(nx-.6,nx+1,nz+2.2,nz+2.6,.04,'方解石');paving(nx-.3,nx+.7,nz+2.6,nz+3,.04,'方解石');
+ if(fullPlot){paving(0,64,0,.15,.03,'石砖');paving(0,64,71.85,72,.03,'石砖');paving(0,.15,0,72,.03,'石砖');paving(63.85,64,0,72,.03,'石砖');room('北侧留白 · 后续自建与种地',32,.1,(z1+72)/2,0);room('西',1,.1,z1/2,0);room('东',63,.1,z1/2,0);}
+ room('入口 · 南 z=0',32,.1,1,0);
+}
+function buildA(){common([8,56,48]);
+ paving(30,34,0,28,0,'泥土径');paving(24,40,10,27,0,'砂砾');paving(30,34,10,28,.02,'石砖');garden(25,29,12,24);garden(35,39,12,24);
+ base(18,46,30,44,1);base(11,21,12,28,1);base(43,53,12,28,1);base(21,25,12,30,1);base(39,43,12,30,1);base(21,43,27,30,1);
+ stairs('z',26,28,26,30,0);stairs('z',10,12,21,24,0);stairs('z',10,12,40,43,0);
+ wall('x',18,46,30,1,7,'方解石',[door(26,29,1,4),win(20,24,1),win(38,42,1)],'去皮云杉木');wall('x',18,46,43,1,7,'方解石',[win(23,27,1),win(38,42,1)],'去皮云杉木');wall('z',31,43,18,1,7,'方解石',[win(35,39,1)],'去皮云杉木');wall('z',31,43,45,1,7,'方解石',[win(35,39,1)],'去皮云杉木');wall('z',31,43,34,1,7,'方解石',[door(34,36,1)],'去皮云杉木');doorLeaves('x',30,26,29,1,3.8);doorLeaves('z',34,34,36,1);
+ for(const [a,b,isWest] of [[11,21,true],[43,53,false]]){wall('x',a,b,12,1,7,'方解石',[win(a+3,a+6,1)],'去皮云杉木');wall('x',a,b,27,1,7,'方解石',[win(a+3,a+6,1)],'去皮云杉木');wall('z',13,27,a,1,7,'方解石',isWest?[win(17,20,1)]:[door(16,18,1),win(21,24,1)],'去皮云杉木');wall('z',13,27,b-1,1,7,'方解石',isWest?[door(16,18,1),win(23,26,1)]:[win(17,20,1)],'去皮云杉木');}
+ wall('x',12,20,21,1,7,'方解石',[door(15,17,1)],'去皮云杉木');doorLeaves('z',20,16,18,1);doorLeaves('z',43,16,18,1);doorLeaves('x',21,15,17,1);
+ gable(17,47,29,45,7,'x','深板岩瓦','方解石');gable(10,22,11,29,7,'z','深板岩瓦','方解石');gable(42,54,11,29,7,'z','深板岩瓦','方解石');
+ lean(20,25,11,31,5,'x',true);lean(39,44,11,31,5,'x');lean(21,43,27,31,5,'z');
+ for(const z of [12,18,24,29]){post(24,z,1,5.4);post(39,z,1,5.4);}box(24,24.65,5,5.5,11,31,'去皮云杉木');box(39,39.65,5,5.5,11,31,'去皮云杉木');for(const x of [21,30,42])post(x,27,1,5.5);box(21,43,5,5.5,27,27.65,'去皮云杉木');
+ post(29,1,0,4);post(34,1,0,4);post(29,3,0,4);post(34,3,0,4);box(29,34.65,3.6,4.1,1,1.65,'去皮云杉木');box(29,34.65,3.6,4.1,3,3.65,'去皮云杉木');gable(28,36,0,5,4,'x','深板岩瓦','去皮云杉木');
+ railing('x',8,29,0,0);railing('x',35,56,0,0);railing('z',0,48,8,0);railing('z',0,48,55.7,0);
+ table(25,36,1,4,2);seat(25,34.5,1);seat(25,39,1);paving(23,31,34,41,1.03,'灰色地毯');bed(40,39,1);chest(36,40,1);table(38,32,1,2,1);shelf(12,24,1,'x',6);
+ box(12,15,1,2,18,20,'熔炉');box(12,13,2,11.5,19,20,'红砖');table(15,14,1,3,2);chest(18,18,1,1);table(47,22,1,3,2);seat(47,20,1);paving(46,50,15,19,1.05,'灰色地毯');shelf(50,23,1,'z',3);
+ room('起居室',26,1.1,37);room('卧室',40,1.1,37);room('厨房',16,1.1,17);room('储藏',16,1.1,25);room('书房',48,1.1,20);room('内院',32,.1,20);
+}
+function buildB(){common([14,50,40]);
+ paving(30,34,0,8,0,'石砖');paving(22,42,1,7,0,'砂砾');paving(30,34,0,8,.03,'石砖');garden(18,26,1,5);garden(38,46,1,5);base(18,46,12,34,1);base(22,42,8,12,1);stairs('z',6,8,30,34,0);
+ base(46,50,23,35,1);railing('z',23,35,49.7,1);railing('x',46,50,23,1);railing('x',46,50,34.7,1);
+ wall('x',18,46,12,1,6.5,'红色陶瓦',[door(31,34,1,4),win(21,25,1),win(39,43,1)],'深色原木');wall('x',18,46,33,1,6.5,'红色陶瓦',[win(21,25,1),win(31,36,1),win(40,43,1)],'深色原木');wall('z',13,33,18,1,6.5,'红色陶瓦',[win(16,19,1),win(21,24,1)],'深色原木');wall('z',13,33,45,1,6.5,'红色陶瓦',[win(17,20,1),door(30,32,1)],'深色原木');
+ wall('z',13,33,28,1,6.5,'白桦木板',[door(15,17,1),door(21,23,1)],'深色原木');wall('x',19,28,27,1,6.5,'白桦木板',[door(22,24,1)],'深色原木');wall('z',13,28,39,1,6.5,'白桦木板',[door(14,17,1)],'深色原木');
+ doorLeaves('x',12,31,34,1,3.8);doorLeaves('z',28,21,23,1);doorLeaves('x',27,22,24,1);doorLeaves('z',45,30,32,1);
+ stairs('z',14,26,40,43,1,'深色橡木');box(40,45,6.5,7,26,29,'深色橡木');
+ box(18,40,6.5,7,12,34,'白桦木板');box(43,46,6.5,7,12,34,'白桦木板');box(40,43,6.5,7,12,14,'白桦木板');box(40,43,6.5,7,28,34,'白桦木板');
+ for(const x of [19,28,39,44])box(x,x+.5,6,6.5,13,33,'深色原木');
+ wall('x',18,46,12,7,12,'白桦木板',[win(21,25,7),win(31,36,7),win(40,43,7)],'深色原木');wall('x',18,46,33,7,12,'白桦木板',[win(21,25,7),win(31,36,7)],'深色原木');wall('z',13,33,18,7,12,'白桦木板',[win(17,21,7),win(26,30,7)],'深色原木');wall('z',13,33,45,7,12,'白桦木板',[win(17,21,7),win(28,31,7)],'深色原木');
+ wall('z',13,33,28,7,12,'白桦木板',[door(29,31,7)],'深色原木');wall('z',13,27,39,7,12,'白桦木板',[],'深色原木');wall('x',29,39,26,7,12,'白桦木板',[door(33,35,7)],'深色原木');doorLeaves('z',28,29,31,7);doorLeaves('x',26,33,35,7);
+ railing('z',14,26,43,7);railing('x',40,43,14,7);gable(17,47,11,35,12,'x','深色橡木','白桦木板','深色原木');lean(21,43,7,12,5,'z',false,'深色橡木');for(const x of [22,28,36,41])post(x,8,1,5.7,'深色原木');box(21,43,5,5.5,8,8.65,'深色原木');
+ box(19,21,1,2,24,27,'熔炉');box(19,21,2,19,25,27,'红砖');table(22,16,1);seat(22,14.5,1);shelf(20,31,1,'x',6);shelf(20,29,1,'x',4);paving(30,38,24,32,1.03,'灰色地毯');table(32,26,1);seat(32,24,1);seat(32,29,1);table(41,30,1,2,1);bed(23,29,7);chest(20,14,7);shelf(20,24,7,'x',3);table(32,17,7,3,2);paving(31,36,21,25,7.04,'灰色地毯');shelf(35,14,7,'x',3);
+ room('门厅',33,1.1,16);room('起居室',34,1.1,26);room('厨房',23,1.1,21);room('储藏',23,1.1,30);room('楼梯 ↑',42,4,21);room('卧室',23,7.1,23,2);room('书房',34,7.1,20,2);room('楼上过厅',35,7.1,30,2);room('楼梯口',42,7.1,26,2);
+}
+function buildC(){common([8,56,44]);
+ paving(29,33,0,24,0,'泥土径');paving(27,52,5,20,0,'砂砾');paving(29,33,0,24,.02,'石砖');garden(39,50,6,14);paving(34,48,16,20,.03,'泥土径');garden(15,23,1,5);
+ base(12,26,8,24,1);base(12,37,24,38,1);base(36,50,24,38,3);base(26,36,20,24,1);stairs('z',18,20,28,32,0);box(27,28,0,.5,15,18,'石砖');box(26,27,0,1,15,18,'石砖');base(50,54,26,36,3);
+ wall('x',12,26,8,1,6,'平滑砂岩',[win(16,21,1)]);wall('z',9,24,12,1,6,'平滑砂岩',[win(14,18,1)]);wall('z',9,24,25,1,6,'平滑砂岩',[door(15,17,1),win(19,22,1)]);wall('x',13,25,23,1,6,'平滑砂岩',[door(21,24,1)]);doorLeaves('z',25,15,17,1);doorLeaves('x',23,21,24,1);
+ wall('x',12,37,24,1,7,'平滑砂岩',[door(21,24,1),door(28,31,1,4)]);wall('x',12,37,37,1,7,'平滑砂岩',[win(14,18,1),win(23,28,1)]);wall('z',25,37,12,1,7,'平滑砂岩',[]);wall('z',25,37,19,1,7,'平滑砂岩',[door(29,31,1)]);doorLeaves('x',24,28,31,1,3.8);doorLeaves('z',19,29,31,1);
+ wall('x',36,50,24,3,9,'平滑砂岩',[win(40,45,3)]);wall('x',36,50,37,3,9,'平滑砂岩',[win(40,45,3)]);wall('z',25,37,36,3,9,'平滑砂岩',[door(28,31,3)]);wall('z',25,37,49,3,9,'平滑砂岩',[door(29,31,3),win(33,35,3)]);doorLeaves('z',36,28,31,3);doorLeaves('z',49,29,31,3);
+ stairs('x',31,35,28,31,1);box(35,37,1,3,28,31,'石砖');
+ box(11,27,6,6.5,7,25,'氧化的切制铜',{roof:true});for(const z of [9,14,19,23])box(12,26,5.5,6,z,z+.5,'金合欢木',{roof:true});
+ box(11,37,7,7.5,23,33,'平滑砂岩',{roof:true});box(11,13,7,7.5,33,37,'平滑砂岩',{roof:true});box(13,33,7,7.5,33,37,'云杉木板',{roof:true});box(33,37,7,7.5,33,37,'平滑砂岩',{roof:true});box(11,37,7,7.5,37,39,'平滑砂岩',{roof:true});for(const x of [13,19,25,31,35])box(x,x+.5,6.5,7,24,38,'金合欢木',{roof:true});for(const x of [19,25,31]){post(x,25,1,6.5,'金合欢木');post(x,36,1,6.5,'金合欢木');}box(12,36,6.5,7,31.25,31.75,'金合欢木',{roof:true});for(const x of [19,25,31,35])post(x,31.25,1,6.5,'金合欢木');
+ // 屋顶露台栏墙与铺面同属屋顶，去顶时一同隐藏。
+ box(11,35,7.5,8.5,23,23.5,'平滑砂岩',{roof:true});box(11,35,7.5,8.5,38.5,39,'平滑砂岩',{roof:true});box(11,11.5,7.5,8.5,23,35,'平滑砂岩',{roof:true});box(34.5,35,7.5,8.5,23,39,'平滑砂岩',{roof:true});box(14,18,7.5,7.6,29,33,'灰色地毯',{roof:true});
+ const terraceFurnitureStart=boxes.length;table(20,34,7.5,3,2);seat(16,35,7.5);seat(25,35,7.5);for(const [x,z] of [[29,25],[29,29],[13,25]]){box(x,x+3,7.5,8,z,z+2,'红色陶瓦');box(x+.25,x+2.75,8,8.15,z+.25,z+1.75,'泥土');box(x+.5,x+2.5,8.15,8.65,z+.5,z+1.5,'树叶');}for(let i=terraceFurnitureStart;i<boxes.length;i++)boxes[i].roof=true;
+ gable(35,51,23,39,9,'z','氧化的切制铜','平滑砂岩','金合欢木');
+ box(26,36,5.5,6,20,25,'氧化的切制铜',{roof:true});post(26,20,1,5.5,'金合欢木');post(35,20,1,5.5,'金合欢木');box(26,36,5,5.5,20,20.65,'金合欢木');
+ box(8,12,0,.5,20,22,'石砖');stairs('z',22,36,8,11,.5);box(8,13,0,7.5,36,39,'石砖');railing('z',26,36,53.7,3,'金合欢木');railing('x',50,54,26,3,'金合欢木');railing('x',50,54,35.7,3,'金合欢木');
+ for(let z=22;z<36;z+=2){let y=.5+.5*(z-22+1);box(8,8.25,y,y+1.2,z,z+.25,'金合欢木');box(10.75,11,y,y+1.2,z,z+.25,'金合欢木');}for(let z=22;z<36;z++){let y=.5+.5*(z-22+1);box(8,8.2,y+.8,y+1,z,z+1,'金合欢木');box(10.8,11,y+.8,y+1,z,z+1,'金合欢木');}
+ box(13,16,1,2,18,21,'熔炉');box(13,14,2,8,20,21,'石砖');table(18,12,1);shelf(13,34,1,'x',5);shelf(13,26,1,'z',6);table(21,33,1);seat(21,35.5,1);paving(22,29,31,36,1.03,'灰色地毯');bed(44,33,3);chest(38,34,3);table(40,26,3,3,1);seat(51,31,3,'z');
+ room('厨房',19,1.1,16);room('储藏',16,1.1,31);room('起居室',27,1.1,33);room('卧室 +2',43,3.1,31);room('庭院',33,.1,13);room('卧室露台',52,3.1,31);room('屋顶楼梯 ↑',9.5,5,30);
+}
+const cfg=[
+ {name:'松廊小院',bounds:[8,56,48],summary:'48×48 格 · 三面围院 · 单层 · 北侧完整留白 64×24 格',eye:[78,54,-34],target:[32,3,23],person:[32,1.7,13],aim:[27.5,3.3,31],span:61},
+ {name:'赤陶长屋',bounds:[14,50,40],summary:'36×40 格 · 两层长屋 · 集中起居与家务 · 北侧完整留白 64×32 格',eye:[-15,44,-35],target:[32,7,21],person:[32,1.7,4],aim:[32,4,13],span:54},
+ {name:'石阶露台居',bounds:[8,56,44],summary:'48×44 格 · 石砌错层 · 可登屋顶露台 · 北侧完整留白 64×28 格',eye:[79,48,-31],target:[32,4,22],person:[32,1.7,12],aim:[29,3.2,25],span:60}
+];
+let opaqueBuffer=gl.createBuffer(),glassBuffer=gl.createBuffer(),opaqueCount=0,glassCount=0,shadowDirty=true,visibleBoxes=[];
+function emitBox(b,out){const {x0,x1,y0,y1,z0,z1,mat}=b;
+ const faces=[[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[0,0,-1],x1-x0,y1-y0],[[x1,y0,z1],[x0,y0,z1],[x0,y1,z1],[x1,y1,z1],[0,0,1],x1-x0,y1-y0],[[x0,y0,z1],[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[-1,0,0],z1-z0,y1-y0],[[x1,y0,z0],[x1,y0,z1],[x1,y1,z1],[x1,y1,z0],[1,0,0],z1-z0,y1-y0],[[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1],[0,1,0],x1-x0,z1-z0],[[x0,y0,z1],[x1,y0,z1],[x1,y0,z0],[x0,y0,z0],[0,-1,0],x1-x0,z1-z0]];
+ for(const f of faces){const u=[[0,0],[f[5],0],[f[5],f[6]],[0,f[6]]];for(const i of [0,1,2,0,2,3])out.push(f[i][0],f[i][1],-f[i][2],f[4][0],f[4][1],-f[4][2],u[i][0],u[i][1],mat);}
+}
+function upload(){const op=[],tr=[];visibleBoxes=[];for(const b of boxes){if(!roof&&b.roof)continue;let n=b;if(house===1&&!roof&&floor===1){if(b.y0>=6.5)continue;if(b.y1>6.5)n={...b,y1:6.5};}visibleBoxes.push(n);emitBox(n,n.mat===15?tr:op);}gl.bindBuffer(gl.ARRAY_BUFFER,opaqueBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(op),gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,glassBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(tr),gl.STATIC_DRAW);opaqueCount=op.length/9;glassCount=tr.length/9;shadowDirty=true;pending=true;refreshLabels();}
+function build(){boxes=[];rooms=[];[buildA,buildB,buildC][house]();document.getElementById('astra-summary').textContent=cfg[house].summary;document.getElementById('astra-floor-label').hidden=house!==1;root.querySelectorAll('[data-house]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.house===house)));upload();}
+function attrs(p,buffer){gl.bindBuffer(gl.ARRAY_BUFFER,buffer);for(const [name,n,off] of [['aP',3,0],['aN',3,12],['aUV',2,24],['aM',1,32]]){let l=gl.getAttribLocation(p,name);if(l<0)continue;gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,n,gl.FLOAT,false,36,off);}}
+function refreshLabels(){labels.replaceChildren();if(!namesInput.checked)return;const level=house===1&&!roof?floor:1;for(const r of rooms){if(fullPlot&&r.level!==0)continue;if(r.level!==0&&r.level!==level)continue;const e=document.createElement('span');e.className='room-label';e.textContent=r.text;labels.append(e);e._p=r.p;}pending=true;}
+function project(p,m){const q=[p[0],p[1],-p[2],1],v=[0,0,0,0];for(let r=0;r<4;r++)for(let c=0;c<4;c++)v[r]+=m[c*4+r]*q[c];return [v[0]/v[3],v[1]/v[3],v[2]/v[3],v[3]];}
+function render(){if(!pending)return;pending=false;const rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2),w=Math.round(rect.width*dpr),h=Math.round(rect.height*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
+ if(shadowOK&&shadowDirty){gl.bindFramebuffer(gl.FRAMEBUFFER,sfbo);gl.viewport(0,0,size,size);gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.BLEND);gl.useProgram(dep);attrs(dep,opaqueBuffer);gl.uniformMatrix4fv(gl.getUniformLocation(dep,'uVP'),false,lightVP);gl.drawArrays(gl.TRIANGLES,0,opaqueCount);gl.bindFramebuffer(gl.FRAMEBUFFER,null);shadowDirty=false;}
+ gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=w/h;const view=look(world(eye),world(target),isPlan?[0,0,-1]:[0,1,0]);const fittedSpan=Math.max(span,span*(isPlan?1:1.28)/aspect);let proj=isPerson?perspective(72*Math.PI/180,aspect,.08,400):ortho(-fittedSpan*aspect/2,fittedSpan*aspect/2,-fittedSpan/2,fittedSpan/2,.1,400);const vp=mul(proj,view);gl.useProgram(main);gl.uniformMatrix4fv(gl.getUniformLocation(main,'uVP'),false,vp);gl.uniformMatrix4fv(gl.getUniformLocation(main,'uLight'),false,lightVP);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);gl.uniform1i(gl.getUniformLocation(main,'uTex'),0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,shadowTex);gl.uniform1i(gl.getUniformLocation(main,'uShadow'),1);gl.uniform1f(gl.getUniformLocation(main,'uShadowOn'),shadowOK?1:0);gl.disable(gl.BLEND);attrs(main,opaqueBuffer);gl.drawArrays(gl.TRIANGLES,0,opaqueCount);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);attrs(main,glassBuffer);gl.drawArrays(gl.TRIANGLES,0,glassCount);gl.depthMask(true);
+ for(const e of labels.children){const p=project(e._p,vp);e.style.display=p[2]<-1||p[2]>1||p[3]<0?'none':'';e.style.left=(p[0]*.5+.5)*rect.width+'px';e.style.top=(-p[1]*.5+.5)*rect.height+'px';}
+ window.__housePreview={house:cfg[house].name,roof,floor,view:viewName,boxes:visibleBoxes.length,vertices:opaqueCount+glassCount,eye:[...eye],target:[...target],webglError:gl.getError()};
+}
+function save(){if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{方案:cfg[house].name,显示屋顶:roof,查看楼层:floor},privateContent:{house,roof,floor,viewName}}).catch(()=>{});}
+function preset(v){viewName=v;isPlan=v==='plan';isPerson=v==='person';let c=cfg[house],was=fullPlot;fullPlot=v==='plot';if(isPlan){roof=false;roofInput.checked=false;namesInput.checked=true;eye=[32,90,c.bounds[2]/2];target=[32,0,c.bounds[2]/2];span=c.bounds[2]+6;}else if(isPerson){eye=[...c.person];target=[...c.aim];}else if(fullPlot){eye=[87,75,-42];target=[32,0,36];span=92;namesInput.checked=true;}else{eye=[...c.eye];target=[...c.target];span=c.span;namesInput.checked=false;}if(was!==fullPlot)build();else upload();save();pending=true;}
+root.querySelectorAll('[data-house]').forEach(b=>b.addEventListener('click',()=>{house=+b.dataset.house;roof=roofInput.checked;floor=+floorInput.value;fullPlot=false;build();preset('overview');save();}));root.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>preset(b.dataset.view)));roofInput.addEventListener('change',()=>{roof=roofInput.checked;upload();save();});floorInput.addEventListener('change',()=>{floor=+floorInput.value;roof=false;roofInput.checked=false;upload();save();});namesInput.addEventListener('change',()=>{refreshLabels();pending=true;});
+let pointers=new Map(),drag=null,pinch=null;
+canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);drag={x:e.clientX,y:e.clientY,pan:e.button===2||e.shiftKey};if(pointers.size===2){const a=[...pointers.values()];pinch=Math.hypot(a[1][0]-a[0][0],a[1][1]-a[0][1]);}});
+canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===2){const a=[...pointers.values()],dist=Math.hypot(a[1][0]-a[0][0],a[1][1]-a[0][1]);if(pinch){span=Math.max(8,Math.min(140,span*pinch/dist));}pinch=dist;pending=true;return;}if(!drag)return;let dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
+ if(drag.pan||e.shiftKey){let dir=norm(sub(target,eye)),right=norm(cross([dir[0],dir[1],-dir[2]],[0,1,0]));if(!Number.isFinite(right[0]))right=[1,0,0];let sc=span/canvas.clientHeight;let move=[-right[0]*dx*sc,dy*sc,right[2]*dx*sc];eye=eye.map((x,i)=>x+move[i]);target=target.map((x,i)=>x+move[i]);}
+ else if(isPerson){let v=sub(target,eye),r=Math.hypot(...v),yaw=Math.atan2(v[0],v[2])-dx*.006,pitch=Math.max(-1.4,Math.min(1.4,Math.asin(v[1]/r)+dy*.006));target=[eye[0]+r*Math.cos(pitch)*Math.sin(yaw),eye[1]+r*Math.sin(pitch),eye[2]+r*Math.cos(pitch)*Math.cos(yaw)];}
+ else{let v=sub(eye,target),r=Math.hypot(...v),yaw=Math.atan2(v[0],-v[2])-dx*.006,pitch=Math.max(.035,Math.min(1.53,Math.asin(v[1]/r)+dy*.006));eye=[target[0]+r*Math.cos(pitch)*Math.sin(yaw),target[1]+r*Math.sin(pitch),target[2]-r*Math.cos(pitch)*Math.cos(yaw)];isPlan=false;}viewName='custom';pending=true;});
+function end(e){pointers.delete(e.pointerId);drag=null;pinch=null;}canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+canvas.addEventListener('wheel',e=>{e.preventDefault();if(isPerson){const f=norm(sub(target,eye)),s=e.deltaY*.015;eye=eye.map((v,i)=>v+f[i]*s);target=target.map((v,i)=>v+f[i]*s);}else span=Math.max(8,Math.min(140,span*Math.exp(e.deltaY*.001)));pending=true;},{passive:false});
+function restore(s){if(!s)return;const p=s.privateContent||s;if(Number.isInteger(p.house)&&p.house>=0&&p.house<3)house=p.house;if(typeof p.roof==='boolean')roof=p.roof;if(p.floor===1||p.floor===2)floor=p.floor;roofInput.checked=roof;floorInput.value=String(floor);build();const c=cfg[house];eye=[...c.eye];target=[...c.target];span=c.span;pending=true;}
+build();restore(window.openai?.widgetState);window.addEventListener('openai:set_globals',e=>restore(e.detail?.globals?.widgetState));new ResizeObserver(()=>{pending=true;}).observe(canvas);
+function loop(){render();requestAnimationFrame(loop);}requestAnimationFrame(loop);
+})();
+</script></body></html>

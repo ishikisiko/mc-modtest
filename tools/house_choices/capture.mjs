@@ -1,0 +1,13 @@
+import{createRequire}from'node:module';import{mkdirSync,writeFileSync}from'node:fs';import{resolve,join}from'node:path';
+const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAYWRIGHT_CORE||'/home/ubuntu/.t3/runtime/versions/0.1.6/node_modules/playwright-core');
+const out=resolve(process.argv[2]),url=process.argv[3];mkdirSync(out,{recursive:true});
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE||'/home/ubuntu/.cache/ms-playwright/chromium-1228/chrome-linux64/chrome',args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
+try{const page=await browser.newPage({viewport:{width:1100,height:1200}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__ready,{timeout:60000});
+const ids=await page.locator('[data-choice]').evaluateAll(b=>b.map(x=>x.dataset.choice)),checks=[];
+for(const id of ids){await page.evaluate(id=>setChoice(id),id);const dir=join(out,id);mkdirSync(dir,{recursive:true});const views=await page.evaluate(()=>__homeInfo.views);for(const view of views){await page.evaluate(v=>setView(v),view);await page.locator('#scene').screenshot({path:join(dir,view+'.png'),timeout:60000})}
+await page.evaluate(()=>setView('overview'));const before=await page.evaluate(()=>__inspect());await page.locator('#roof').uncheck();const after=await page.evaluate(()=>__inspect());if(before.roofMeshes===0||after.roofMeshes!==0)throw Error(id+'屋顶开关无效');await page.locator('#doors').uncheck();if((await page.evaluate(()=>__inspect())).doorsOpen)throw Error(id+'大门开关无效');checks.push({id,views,roof_toggle:'pass',door_toggle:'pass'});console.log(id,'已采集',views.join(','))}
+await page.setViewportSize({width:390,height:844});for(const id of ids){await page.evaluate(id=>setChoice(id),id);const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);if(overflow)throw Error(id+'手机宽度溢出')}
+// Switching twice before the first decompression finishes must preserve the last selection.
+await page.evaluate(async ids=>{await Promise.all([setChoice(ids[0]),setChoice(ids.at(-1))]);if(__homeInfo.id!==ids.at(-1))throw Error('快速切换显示了过期住宅')},ids);
+if(errors.length)throw Error(JSON.stringify(errors));writeFileSync(join(out,'checks.json'),JSON.stringify({status:'captured_for_review',choices:checks,mobile_overflow:false,rapid_switch:'pass',errors,minecraft_runtime:'not_run'},null,2));
+}finally{await browser.close()}
