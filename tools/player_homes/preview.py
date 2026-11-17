@@ -90,9 +90,9 @@ def bake_home(site,jar,out,base_url):
     return report
 
 
-def bake_instances(site,jar,out):
+def bake_instances(site,jar,out,models_factory=None):
     """完整构件共享同一份网格，保留实际模型的全部顶点和贴图。"""
-    native=HomeModels(jar)
+    native=(models_factory or HomeModels)(jar)
     for block in set(site.blocks.values()):native.faces(block)
     names=sorted(native.textures);tile=18;cols=8;rows=math.ceil(len(names)/cols)
     atlas=Image.new('RGBA',(cols*tile,rows*tile),(0,0,0,0));locations={}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>三套修仙城镇住宅设计预览</title>
+<style>
+:root{color-scheme:light dark;--font-sans:system-ui,"Noto Sans CJK SC",sans-serif;--radius:12px}
+*{box-sizing:border-box}[hidden]{display:none!important}html,body{margin:0;background:transparent;color:var(--foreground,#26352e);font-family:var(--font-sans)}
+#astra-houses{display:grid;gap:12px;width:100%;min-width:0}.choices,.controls,.views{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button,select{font:inherit;font-size:13px;color:var(--foreground,#26352e);background:var(--secondary,#e4e9e1);border:1px solid var(--border,#cbd2c9);border-radius:var(--radius);padding:9px 12px;min-height:40px;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visible{outline:2px solid var(--ring,#658d72);outline-offset:2px}button[aria-pressed=true]{background:var(--primary,#3f654e);color:var(--primary-foreground,#fff)}
+.choices button{flex:1;min-width:135px;text-align:left}.choice-num{font-family:var(--font-mono,monospace);opacity:.65;margin-right:8px}.choices small{display:block;font-size:11px;margin:4px 0 0 24px;opacity:.8}
+label{display:inline-flex;align-items:center;gap:6px;font-size:13px}input[type=checkbox]{accent-color:var(--primary,#3f654e)}.caption{font-size:12px;line-height:1.6;color:var(--muted-foreground,#5d6b60);margin:0}
+#astra-summary{font-size:14px;line-height:1.65;margin:0}#astra-summary strong{font-weight:650}#astra-stage{height:540px;position:relative;overflow:hidden;border-radius:var(--radius);background:var(--card,#e9ede5)}
+#astra-canvas{display:block;width:100%;height:540px;touch-action:none;cursor:grab}#astra-canvas:active{cursor:grabbing}#astra-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}.room-label{position:absolute;transform:translate(-50%,-50%);padding:4px 6px;border-radius:5px;background:var(--popover,#fff);color:var(--popover-foreground,#26352e);font-size:11px;line-height:1.2;white-space:nowrap;box-shadow:0 1px 4px #0002}.room-label.dimension{font-weight:650;font-size:12px}
+#astra-mode{position:absolute;left:12px;top:12px;background:var(--popover,#fff);color:var(--popover-foreground,#26352e);padding:6px 9px;border-radius:6px;font-size:11px;max-width:calc(100% - 24px);pointer-events:none}#astra-error{position:absolute;inset:20px;padding:16px;color:var(--destructive,#b3413e)}
+.prompt{font-size:13px;line-height:1.6;border-left:3px solid var(--border,#b4c6b4);padding-left:12px;margin:0}.plot-key{display:inline-flex;align-items:center;gap:6px}.key-square{width:10px;height:10px;background:#71825b;border:1px solid #647651;display:inline-block}
+details{font-size:12px;line-height:1.65;color:var(--muted-foreground,#5d6b60)}summary{cursor:pointer;color:var(--foreground,#26352e)}.detail-body{padding-top:8px;display:grid;gap:8px}.detail-body p{margin:0}.room-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:5px 12px}
+@media(max-width:480px){#astra-stage,#astra-canvas{height:430px}.choices{gap:5px}.choices button{min-width:0;padding:8px 5px;text-align:center}.choice-num{display:block;margin:0 0 3px}.choices small{margin:4px 0 0;font-size:10px}.controls{gap:8px 12px}button,select{min-height:44px;padding:7px 9px}.views button{flex:1;white-space:nowrap}.room-label{font-size:10px}.room-label.dimension{font-size:11px}}
+</style></head><body>
+<main id="astra-houses">
+ <div class="choices" role="group" aria-label="选择住宅方案">
+  <button type="button" data-house="0" aria-pressed="true"><span class="choice-num">01</span>杉廊双院宅<small>54×50 格 · 北侧留白 64×22</small></button>
+  <button type="button" data-house="1" aria-pressed="false"><span class="choice-num">02</span>赤陶桥院楼<small>56×52 格 · 北侧留白 64×20</small></button>
+  <button type="button" data-house="2" aria-pressed="false"><span class="choice-num">03</span>岩台水庭居<small>52×48 格 · 北侧留白 64×24</small></button>
+ </div>
+ <p id="astra-summary" aria-live="polite"></p>
+ <div class="controls">
+  <label>显示层次 <select id="astra-layer"><option value="full">完整建筑</option><option value="roofless">去顶看上层与庭院</option><option value="first">一层剖切</option></select></label>
+  <label><input id="astra-names" type="checkbox">空间名称</label>
+  <label><input id="astra-route" type="checkbox">日常路线</label>
+ </div>
+ <div id="astra-stage"><canvas id="astra-canvas" tabindex="0" role="img" aria-label="完整 Minecraft 住宅三维设计模型，可拖动旋转、滚轮缩放，右键或 Shift 拖动平移。院内人视可拖动转头并用方向键移动。"></canvas><div id="astra-labels"></div><div id="astra-mode"></div><div id="astra-error" hidden>当前浏览器无法创建 WebGL 上下文，暂时不能显示三维模型。请用支持 WebGL 的浏览器打开本文件。</div></div>
+ <div class="views" role="group" aria-label="展示相机">
+  <button type="button" data-view="overview">全貌</button><button type="button" data-view="person">院内人视</button><button type="button" data-view="gallery">廊下视点</button><button type="button" data-view="upper">二层与露台</button><button type="button" data-view="plan">一层平面</button><button type="button" data-view="plot">64×72 宅田留白</button>
+ </div>
+ <p class="caption">拖动旋转，滚轮缩放；右键或 Shift 拖动平移。人视下可拖动转头，方向键或 W/A/S/D 移动。移动相机用于观察，尚未接入游戏碰撞。</p>
+ <p class="prompt" id="astra-question"></p>
+ <details><summary>查看空间、尺寸和预览范围</summary><div class="detail-body"><p id="astra-space-note"></p><div class="room-list" id="astra-room-list"></div><p>这是方块几何与程序像素材质的设计预览。坐标 x 向东、z 向北，南边 z=0 为入口，原地面 y=0。图中留白只表示连续空地和尺寸。</p><p>游戏内碰撞、原版方块落地效果、玩家外观接受、行走手感、FPS 与多人体验均未验证。</p></div></details>
+</main>
+<script>/* GEOMETRY */</script>
+<script>/* RENDERER */</script>
+</body></html>

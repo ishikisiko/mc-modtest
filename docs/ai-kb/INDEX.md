@@ -154,3 +154,5 @@ above and link the relevant contract. Update only affected documentation.
 月洞水院的[宅居改版草案](../features/moon-courtyard-home.md)：保留原水岸、桥亭、回廊和高低台基，在原空间内增补卧房、厨房与储物；三维可同机位隐藏新增内容对照原版。
 
 玩家住宅的[六套三维候选](../../tools/house_choices/README.md)：主代理与独立上下文 Astra max 各规划三套；仅提供布局、体量、房间和宅田留白预览，尚未接入游戏。
+
+玩家住宅的[较大住宅空间与外观候选](../../tools/complex_houses/README.md)：继续由主代理和独立 Astra max 设计，重点查看屋顶比例、院落层次与廊下空间，仍只制作3D预览。

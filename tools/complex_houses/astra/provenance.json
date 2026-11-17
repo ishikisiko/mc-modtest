@@ -1,0 +1,16 @@
+{
+  "model": "gpt-6-astra",
+  "reasoningEffort": "max",
+  "independent_context": true,
+  "thread_link": "<t3-thread://v2/981349c3-e6a1-461b-978f-decf7d5f0e8c/thread:delegated-task:command%3Amcp%3A9b0c771d-7f62-4892-87a4-7c821bc33973%3Adelegate-task%3Aastra-three-complex-house-designs-20261117>",
+  "architectural_changes_by_parent": false,
+  "raw_html_sha256": "6f33c9a05c0f7dd6130df40fb6aa211f47795c93ffe3e0ca0fde83e3b9430635",
+  "raw_source_hashes": {
+    "build_preview.py": "8d25f1b4ba81c5d31e565bfff662c95690267efe9e1df8936cf039f4c59cf5f0",
+    "write_design.py": "c51f738ac73816e0172617786defcc69c428e4ebc04d87c5b20aaee34275ef40",
+    "frame.html": "0e000ec7f9a6cbb25a6ff2ef53a7e9a8252240c7752ac60088c71a50308a5329",
+    "check_geometry.js": "1790a5920c6e8d8a015775eb200b5c610b870408f8186714c09348340a200a00",
+    "geometry.js": "6a57bf6b57d0b072e833ca39f37c24d6e5233e8c001e903d32e7349548fc2bf7",
+    "renderer.js": "1cd92ee1238192967dd3246453399348ab049f0ac137c231f98de7e9eaf8581f"
+  }
+}
