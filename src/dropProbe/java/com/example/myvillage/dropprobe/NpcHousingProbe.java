@@ -36,7 +36,7 @@ final class NpcHousingProbe {
     static void register(){NeoForge.EVENT_BUS.addListener(NpcHousingProbe::commands);NeoForge.EVENT_BUS.addListener(NpcHousingProbe::tick);}
     private static void commands(RegisterCommandsEvent e){
         var root=Commands.literal("npc_housing_probe").requires(s->s.hasPermission(4));
-        for(String action:List.of("info","audit","walk","enclosure"))root.then(Commands.literal(action).then(Commands.argument("index",IntegerArgumentType.integer(0,6))
+        for(String action:List.of("info","audit","staffed_audit","walk","enclosure"))root.then(Commands.literal(action).then(Commands.argument("index",IntegerArgumentType.integer(0,6))
             .executes(c->run(c.getSource(),action,IntegerArgumentType.getInteger(c,"index")))));
         e.getDispatcher().register(root);
     }
@@ -59,16 +59,34 @@ final class NpcHousingProbe {
             BlockPos outsidePos=origin.offset(pos(social.getAsJsonArray("pos"))),insidePos=origin.offset(pos(rest.getAsJsonArray("pos")));
             report.add("outside",JSON.toJsonTree(new int[]{outsidePos.getX(),outsidePos.getY(),outsidePos.getZ()}));
             report.add("inside",JSON.toJsonTree(new int[]{insidePos.getX(),insidePos.getY(),insidePos.getZ()}));
-            if(action.equals("audit")){
+            if(action.equals("audit")||action.equals("staffed_audit")){
                 var building=data.getAsJsonArray("buildings").asList().stream().map(JsonElement::getAsJsonObject)
                         .filter(b->b.get("id").getAsString().equals(home.get("id").getAsString())).findFirst().orElseThrow();
                 var bounds=building.getAsJsonObject("bounds");
                 checkTiles(l,city,origin,pos(bounds.getAsJsonArray("min")),pos(bounds.getAsJsonArray("max")),report);
                 var sim=WorldSimRuntime.sim().orElseThrow();
-                long residents=sim.lifeResidents().stream().filter(r->r.siteId().equals(city.cityId())
-                        &&r.homeId().equals(pair.home())).count();
-                report.addProperty("assigned_residents",residents);require(residents>0,"院宅尚未分配已有居民");
-                require(sim.lifeResidents().stream().noneMatch(r->r.homeId().startsWith("player_land")),"玩家宅地被分配给 NPC");
+                var site=sim.lifeSite(city.cityId()).orElseThrow();
+                var homeState=NpcLifeSites.availability(l,site.place(pair.home()).orElseThrow());
+                var workState=NpcLifeSites.availability(l,site.place(pair.work()).orElseThrow());
+                report.addProperty("bed_approach",homeState.id());
+                report.addProperty("street_approach",workState.id());
+                require(homeState==NpcLifeSites.Availability.AVAILABLE&&workState==NpcLifeSites.Availability.AVAILABLE,"床边或街边站位不通");
+                var residents=sim.lifeResidents();
+                var here=residents.stream().filter(r->r.siteId().equals(site.id())).toList();
+                var household=here.stream().filter(r->r.homeId().equals(pair.home())).toList();
+                var residentIds=residents.stream().map(LifeResidentView::personId).collect(java.util.stream.Collectors.toSet());
+                long eligible=sim.livingIn(site.regionId()).stream()
+                        .filter(p->p.sectId()<0&&!Set.of("travelling","secluded").contains(p.status()))
+                        .filter(p->!residentIds.contains(p.id())&&!sim.combatLeased(p.id()))
+                        .filter(p->sim.combatProfile(p.id()).map(profile->profile.body()==null||!profile.body().unresolved()).orElse(true))
+                        .count();
+                report.addProperty("unassigned_eligible_locals",eligible);
+                report.addProperty("assigned_residents",household.size());
+                report.add("household_person_ids",JSON.toJsonTree(household.stream().map(LifeResidentView::personId).toList()));
+                require(!household.isEmpty()||(!action.equals("staffed_audit")&&(eligible==0||here.size()>=sim.lifeRules().maxResidentsPerSite())),
+                        "符合入住条件时院宅仍无居民");
+                require(household.stream().allMatch(r->r.workId().equals(pair.work())),"院宅居民未绑定生成的街边站位");
+                require(residents.stream().noneMatch(r->r.homeId().startsWith("player_land")),"玩家宅地被分配给 NPC");
             }else if(action.equals("enclosure")){
                 var office=data.getAsJsonObject("qianji");var bounds=office.getAsJsonArray("bounds");
                 int base=office.get("base_y").getAsInt();

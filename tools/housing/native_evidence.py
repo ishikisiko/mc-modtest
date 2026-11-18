@@ -15,17 +15,20 @@ def main():
     ap.add_argument('--reuse-world',type=Path,help='复用本工具创建的隔离世界；仅用于输入未变的局部复验')
     ap.add_argument('--resume-claimed-fixture',action='store_true',help='从夹具已领取且尚未建房的宅地继续；不重复领取检查')
     ap.add_argument('--player-start-index',type=int,choices=range(7),default=0,help='仅复验尚未完成的后续宅地；大于零时复用隔离世界')
+    ap.add_argument('--require-staffed-homes',action='store_true',help='在已准备本地适任散修的隔离世界中，要求各城抽检院宅均有住户')
     a=ap.parse_args()
     if a.reuse_world and len(a.seeds)!=1:ap.error('复用世界须明确指定一个种子')
     if a.resume_claimed_fixture and(not a.reuse_world or a.checks!='player'):ap.error('继续已领取夹具须指定隔离世界和 player 检查')
     if a.player_start_index and(not a.reuse_world or a.checks!='player'or a.resume_claimed_fixture):ap.error('后续宅地复验须指定隔离世界及 player 检查，不能同时重跑首块宅地收费')
+    if a.require_staffed_homes and (not a.reuse_world or a.checks!='npc'):ap.error('指定院宅必有住户须复用准备好的隔离世界及 npc 检查')
     out=a.out.resolve();out.mkdir(parents=True,exist_ok=False)
     case_prefix='new_world'if a.checks=='all'else a.checks
     if a.player_start_index:case_prefix+=f'_from_{a.player_start_index}'
     selected=['candidate_identity']+[f'{case_prefix}_{s}'for s in a.seeds]
     report={'status':'running','selected':selected,'completed':[],'failed':[],'unrun':selected.copy(),
         'evidence':'server_command_fixture','mapped_player_input':'not_verified','owner_appearance':'not_verified','multiplayer':'not_verified',
-        'checks':a.checks,'world_origin':'reused_isolated'if a.reuse_world else'fresh_isolated','resume_claimed_fixture':a.resume_claimed_fixture,'player_start_index':a.player_start_index}
+        'checks':a.checks,'world_origin':'reused_isolated'if a.reuse_world else'fresh_isolated','resume_claimed_fixture':a.resume_claimed_fixture,'player_start_index':a.player_start_index,
+        'require_staffed_homes':a.require_staffed_homes}
     def save():(out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     def complete(stage):report['completed'].append(stage);report['unrun'].remove(stage);save()
     save();stage=selected[0]
@@ -96,7 +99,7 @@ def main():
                     # 包含整套住宅及其路口，不能用传送把 NPC 直接放到终点。
                     box=description['housing']['bounds'];base_x,_,base_z=description['origin']
                     loaded([base_x+box[0]-8,base_z+box[1]-8,base_x+box[2]+8,base_z+box[3]+8],oy)
-                    server.command('tick sprint 200t');time.sleep(2);command('audit',i,npc=True)
+                    server.command('tick sprint 200t');time.sleep(2);command('staffed_audit'if a.require_staffed_homes else'audit',i,npc=True)
                     if number==0:
                         command('walk',i,npc=True,allow_running=True);path=game/f'npc-housing-probe-walk-{i}.json';deadline=time.monotonic()+180
                         while True:
