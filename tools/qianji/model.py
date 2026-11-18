@@ -51,7 +51,7 @@ class Model:
             for q in range(z0,z0+d,6):
                 for p in [x0,x0+w-1]:self.box(p,1,q,1,feet+4,1,'column')
         roof(self,x0,feet+5,z0,w,d,'sweeping_eave_roof')
-    def hall(self,room):
+    def hall(self,room,facade=None):
         x,z,w,d=room['box'];cx=x+w//2;feet=room['floor_y'];shaft_x=x+w-max(v['inset'] for v in room['levels'])-9;shaft_z=z+max(v['inset'] for v in room['levels'])+3
         maxrise=max(v['height'] for v in room['levels']);run=(maxrise+1)//2
         if d<run+7:raise ValueError('楼梯井深度不足：'+room['id'])
@@ -68,35 +68,11 @@ class Model:
             if level:self.clear(shaft_x,feet-1,shaft_z,6,1,run+3)
             if room['kind']=='atrium' and level:
                 self.clear(xx+ww//4,feet-1,zz+dd//4,ww//2,1,dd//2)
-            layer='arch' if level==0 else 'upper';spacing=room.get('column_spacing',6);column_width=room.get('column_width',1);sill=room.get('window_sill',2);head=room.get('window_head',2);door=9 if self.spec['scale']=='headquarters' else 3
-            cut=max(2,min(ww,dd)//5)
-            def inside(px,pz):
-                if not(xx<=px<xx+ww and zz<=pz<zz+dd):return False
-                if room.get('shape')!='octagon':return True
-                return min(px-xx,xx+ww-1-px)+min(pz-zz,zz+dd-1-pz)>=cut
-            for wx in range(xx,xx+ww):
-                for wz in range(zz,zz+dd):
-                    if not inside(wx,wz):continue
-                    if all(inside(wx+dx,wz+dz) for dx,dz in [(1,0),(-1,0),(0,1),(0,-1)]):continue
-                    is_front=wz==zz;is_back=wz==zz+dd-1
-                    entry=(is_front or is_back) and abs(wx-cx)<=door//2
-                    side_entry=room['kind']=='gate' and (is_front or is_back) and any(abs(wx-(cx+sign*ww//3))<=3 for sign in (-1,1))
-                    if room['kind']=='open' and level==0 and is_front:
-                        if (wx-xx)%6!=0:continue
-                    for yy in range(feet,top):
-                        if entry and yy<feet+(18 if room['kind']=='gate' else min(room.get('portal_height',6),hh-2)):continue
-                        if side_entry and yy<feet+10:continue
-                        state='wall'
-                        if ((wx-xx)%spacing<column_width if is_front or is_back else (wz-zz)%spacing<column_width):state='column'
-                        elif feet+sill<=yy<top-head:state='rail'
-                        self.put(wx,yy,wz,state,layer)
-            if room.get('shape')=='octagon':
-                for wx in range(xx,xx+ww):
-                    for wz in range(zz,zz+dd):
-                        if not inside(wx,wz):self.clear(wx,feet-1,wz,1,hh+1,1)
-            # 大柱与横梁形成完整主体；前后门洞上方保留承重梁。
-            self.box(xx,top-1,zz,ww,1,1,'beam',layer);self.box(xx,top-1,zz+dd-1,ww,1,1,'beam',layer)
-            self.box(xx,top-1,zz,1,1,dd,'column',layer);self.box(xx+ww-1,top-1,zz,1,1,dd,'column',layer)
+            layer='arch' if level==0 else 'upper'
+            if facade is None:
+                self.standard_shell(room,level,node,layer)
+            else:
+                facade.storey(self,room,level,node,layer)
             if level<len(room['levels'])-1:
                 stair_jobs.append((shaft_x,shaft_z,feet,hh,layer))
                 # 檐廊与腰檐位于楼身以外，保持楼心楼梯净空。
@@ -125,6 +101,37 @@ class Model:
         self.signs.append(dict(position=[cx,room['floor_y']+room['levels'][0]['height']-1,z-1],facing='north',text=room['name']))
         self.put(cx,room['floor_y']+room['levels'][0]['height']-1,z-1,'minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]','detail')
         self.rooms.append(dict(id=room['id'],name=room['name'],rect=room['box'],y=room['floor_y'],floors=len(levels),use='；'.join(v['use'] for v in levels),levels=levels,roof_top=self.h))
+    def standard_shell(self,room,level,node,layer):
+        xx,feet,zz=node.origin;ww,hh,dd=node.size;top=feet+hh;cx=xx+ww//2
+        spacing=room.get('column_spacing',6);column_width=room.get('column_width',1);sill=room.get('window_sill',2);head=room.get('window_head',2);door=9 if self.spec['scale']=='headquarters' else 3
+        cut=max(2,min(ww,dd)//5)
+        def inside(px,pz):
+            if not(xx<=px<xx+ww and zz<=pz<zz+dd):return False
+            if room.get('shape')!='octagon':return True
+            return min(px-xx,xx+ww-1-px)+min(pz-zz,zz+dd-1-pz)>=cut
+        for wx in range(xx,xx+ww):
+            for wz in range(zz,zz+dd):
+                if not inside(wx,wz):continue
+                if all(inside(wx+dx,wz+dz) for dx,dz in [(1,0),(-1,0),(0,1),(0,-1)]):continue
+                is_front=wz==zz;is_back=wz==zz+dd-1
+                entry=(is_front or is_back) and abs(wx-cx)<=door//2
+                side_entry=room['kind']=='gate' and (is_front or is_back) and any(abs(wx-(cx+sign*ww//3))<=3 for sign in (-1,1))
+                if room['kind']=='open' and level==0 and is_front:
+                    if (wx-xx)%6!=0:continue
+                for yy in range(feet,top):
+                    if entry and yy<feet+(18 if room['kind']=='gate' else min(room.get('portal_height',6),hh-2)):continue
+                    if side_entry and yy<feet+10:continue
+                    state='wall'
+                    if ((wx-xx)%spacing<column_width if is_front or is_back else (wz-zz)%spacing<column_width):state='column'
+                    elif feet+sill<=yy<top-head:state='rail'
+                    self.put(wx,yy,wz,state,layer)
+        if room.get('shape')=='octagon':
+            for wx in range(xx,xx+ww):
+                for wz in range(zz,zz+dd):
+                    if not inside(wx,wz):self.clear(wx,feet-1,wz,1,hh+1,1)
+        # 大柱与横梁形成完整主体；前后门洞上方保留承重梁。
+        self.box(xx,top-1,zz,ww,1,1,'beam',layer);self.box(xx,top-1,zz+dd-1,ww,1,1,'beam',layer)
+        self.box(xx,top-1,zz,1,1,dd,'column',layer);self.box(xx+ww-1,top-1,zz,1,1,dd,'column',layer)
     def switchback(self,x,z,feet,height,layer):
         first=(height+1)//2;second=height-first
         for i in range(first):
@@ -246,7 +253,7 @@ def armillary_sphere(m,cx,feet,cz,radius):
                 if x*x+y*y+z*z<=36:m.put(cx+x,cy+y,cz+z,'gold' if y==0 else 'artifact_core','detail')
 ARTIFACTS={'armillary_sphere':armillary_sphere}
 
-def build(ident,validate=True):
+def build(ident,validate=True,*,facade=None):
     spec=json.loads((ROOT/'blueprints/qianji'/f'{ident}.json').read_text())
     if spec.get('generator')=='sculpted_headquarters':
         from qianji.headquarters_model import build as detailed
@@ -256,7 +263,7 @@ def build(ident,validate=True):
     for x,z,w,d in spec.get('water',[]):m.floor(x,1,z,w,d,'water','water')
     for i,v in enumerate(spec.get('platforms',[])):
         m.platform(*v);x,z,w,d,y=v;m.compound.parcel_nodes.append(ParcelNode('terrace_'+str(i),'platform',{(xx,zz) for xx in range(x,x+w) for zz in range(z,z+d)},dict(floor_y=y)))
-    for room in spec['rooms']:m.hall(room)
+    for room in spec['rooms']:m.hall(room,facade)
     for index,(a,b,y,width) in enumerate(spec.get('bridges',[])):
         m.gallery(a,b,y,width);m.target('gallery_'+str(index),((a[0]+b[0])//2,y,(a[1]+b[1])//2))
     # 主要院路沿作者声明的折线连接，并保留通行净空。

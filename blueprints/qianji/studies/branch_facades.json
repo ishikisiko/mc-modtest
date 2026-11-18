@@ -1,0 +1,95 @@
+{
+  "materials": {
+    "plaster": "minecraft:calcite",
+    "foot": "minecraft:polished_deepslate",
+    "post": "minecraft:stripped_dark_oak_log[axis=y]",
+    "wood": "minecraft:spruce_planks",
+    "panel": "minecraft:dark_oak_planks",
+    "reveal": "minecraft:polished_blackstone",
+    "bronze": "minecraft:waxed_exposed_cut_copper",
+    "patina": "minecraft:waxed_oxidized_cut_copper",
+    "grille": "minecraft:waxed_exposed_copper_grate[waterlogged=false]",
+    "boss": "minecraft:chiseled_tuff_bricks",
+    "pin": "minecraft:waxed_chiseled_copper",
+    "ledge": "minecraft:polished_blackstone_slab[type=top,waterlogged=false]",
+    "glazing": "light_gray",
+    "bar": "minecraft:dark_oak_slab[type=top,waterlogged=false]",
+    "dial_plate": "minecraft:waxed_oxidized_copper_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]",
+    "dial_axis": "minecraft:lightning_rod[facing=east,powered=false,waterlogged=false]",
+    "dial_spindle": "minecraft:lightning_rod[facing=north,powered=false,waterlogged=false]"
+  },
+  "provinces": {
+    "donghuang": {
+      "panel": "minecraft:mangrove_planks",
+      "glazing": "white"
+    },
+    "beiyuan": {
+      "plaster": "minecraft:smooth_stone",
+      "panel": "minecraft:spruce_planks",
+      "glazing": "white"
+    },
+    "lingyue": {
+      "plaster": "minecraft:smooth_quartz",
+      "wood": "minecraft:stripped_spruce_wood[axis=y]",
+      "glazing": "light_blue"
+    },
+    "donghai": {
+      "plaster": "minecraft:calcite",
+      "panel": "minecraft:warped_planks",
+      "glazing": "light_gray"
+    },
+    "ximo": {
+      "plaster": "minecraft:smooth_sandstone",
+      "wood": "minecraft:stripped_spruce_wood[axis=y]",
+      "panel": "minecraft:mud_bricks",
+      "glazing": "light_gray"
+    },
+    "nanjiang": {
+      "plaster": "minecraft:bone_block[axis=y]",
+      "wood": "minecraft:jungle_planks",
+      "panel": "minecraft:mangrove_planks",
+      "glazing": "white"
+    },
+    "moyu": {
+      "plaster": "minecraft:polished_tuff",
+      "wood": "minecraft:mangrove_planks",
+      "panel": "minecraft:polished_blackstone_bricks",
+      "patina": "minecraft:waxed_weathered_cut_copper",
+      "glazing": "gray"
+    }
+  },
+  "buildings": {
+    "office": "office",
+    "supply": "supply",
+    "archive": "archive",
+    "archive_w": "archive",
+    "command": "command"
+  },
+  "dial": [
+    [
+      "  oao  ",
+      " o  ss ",
+      "o  s so",
+      "a-s*s-a",
+      "os s  o",
+      " ss  o ",
+      "  oao  "
+    ],
+    [
+      "   oao   ",
+      " oo . oo ",
+      " o   sso ",
+      "o  ss  so",
+      "a-s-*-s-a",
+      "os  ss  o",
+      " oss   o ",
+      " oo . oo ",
+      "   oao   "
+    ]
+  ],
+  "mirror_dial": [
+    "donghuang",
+    "donghai",
+    "moyu"
+  ]
+}

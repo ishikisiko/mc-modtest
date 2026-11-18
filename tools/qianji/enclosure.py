@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from qianji.model import AIR, build
+from qianji.branch_facades import BranchFacade
 
 ROOT = Path(__file__).resolve().parents[2]
 RULES = ROOT / "blueprints/qianji/studies/urban_enclosure.json"
@@ -111,7 +112,7 @@ def check_wall(model):
 
 def build_enclosed(region,validate=True):
     town=rules()["towns"][region]
-    model,_=build(variants()[region],validate=False)
+    model,_=build(variants()[region],validate=False,facade=BranchFacade(region))
     for x,z in perimeter(model.w,model.d):
         if any(model.blocks.get((x,y,z),AIR)!=AIR for y in range(1,model.h)):
             raise ValueError((region,"外墙压到原有楼体",x,z))

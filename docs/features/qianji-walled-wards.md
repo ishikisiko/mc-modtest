@@ -4,6 +4,14 @@
 
 城内街坊、宅田与院外场地采用七城地面分区稿。整院模板和全城结构切片已生成并回读。本稿供布局验收，正式世界生成仍沿用已发布版本。[七城三维预览](https://assets.ishiki333hhh.win/previews/seven-qianji-enclosed-20261118/index.html)
 
+## 楼房立面
+
+七城围院内的 22 栋楼共有 46 层。委托厅的墙面退到檐柱后两格，玩家可从廊下去任务榜或大厅。卷宗楼用厚墙、阶梯形木窗格和铜格高窗收住书架一侧，器物库的侧墙开窄窗。各州按本地材料调整墙色、木料和窗芯。
+
+各院主楼的入口设挑檐门廊。中层勘图窗向庭院挑出两格，玩家可从室内走入，站着越过木窗台看院中。顶层的铜星盘嵌在深色石板里，斜向铜轨、水平轴和星钉依次突出。院墙、门楼、屋顶和地块沿用街坊布局。可以在同一机位切换原版和新版，也可从勘图窗内向外看。[立面三维模型](https://assets.ishiki333hhh.win/previews/qianji-branch-facades-20261118/index.html) · [近景对照](https://assets.ishiki333hhh.win/previews/qianji-branch-facades-20261118/gallery.html)
+
+立面使用 `blueprints/qianji/studies/branch_facades.json` 的地区材料与盘纹，由 `tools/qianji/branch_facades.py` 在逐层施工时生成。下方的街坊导出命令会生成新版楼房。网页提供作者朝向的单院 NBT，全城施工时建筑和方块状态按街面一起旋转。
+
 ## 落位
 
 城内范围使用局部方块坐标，包含起点，不包含终点。表中迁排数量与上一版七城地面分区稿逐栋比较，包含原有民居和已选的 NPC 院宅。七城共保留原有 378 栋民居和新增 29 座院宅。

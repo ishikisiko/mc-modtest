@@ -63,6 +63,7 @@ def main():
             "qianji":{str(path.relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest() for path in (
                 RULES,ROOT/"blueprints/qianji"/(variants()[region]+".json"),ROOT/"blueprints/qianji/materials.json",
                 ROOT/"blueprints/qianji/lighting.json",ROOT/"tools/qianji/model.py",ROOT/"tools/qianji/enclosure.py",
+                ROOT/"blueprints/qianji/studies/branch_facades.json",ROOT/"tools/qianji/branch_facades.py",
                 ROOT/"tools/province_capitals/inner_neighborhoods/qianji.py",ROOT/"exmod/mod_block_catalog.json")},
             "houses":{tid:hashlib.sha256((HOUSES/(tid+".json")).read_bytes()).hexdigest() for tid,_,_ in config["homes"]}})
         city=BlockCity(source,dest).assemble()
