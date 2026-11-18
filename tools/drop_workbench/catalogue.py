@@ -8,6 +8,44 @@ from .variants import attach
 ROOT=Path(__file__).resolve().parents[2]
 ASSETS='https://assets.ishiki333hhh.win/drop-workbench/'
 
+def scene_groups(root):
+    habitats = json.loads((root / 'blueprints/wilderness/habitats.json').read_text())
+    beasts = sorted({
+        f'yuanxian:{member}'
+        for kind in habitats['kinds'] if kind['faction'] == 'beast'
+        for member in kind['members']
+    })
+    groups = [{
+        'id': 'beast_habitat', 'name': '野外兽群聚落', 'scene': 'habitat',
+        'entities': beasts,
+    }]
+    quests = root / 'blueprints/quest_realms'
+    runtime = json.loads((quests / 'runtime.json').read_text())
+    for number, map_id in enumerate(runtime['maps'], start=1):
+        spec = json.loads((quests / f'{map_id}.json').read_text())
+        entities = sorted({
+            runtime['actors'][actor['kind']]['entity']
+            for encounter in spec['encounters']
+            for actor in encounter['actors']
+        })
+        groups.append({
+            'id': map_id, 'name': f'秘境试炼 {number} · {spec["name"]}',
+            'scene': 'quest_realm', 'entities': entities,
+        })
+    return groups
+
+
+def write_frontend(root, out, asset_base=ASSETS):
+    frontend = root / 'web/drop-workbench'
+    html = (frontend / 'index.html').read_text()
+    for name in ('app.js', 'style.css'):
+        source = frontend / name
+        digest = hashlib.sha256(source.read_bytes()).hexdigest()[:12]
+        html = html.replace(ASSETS + name, asset_base.rstrip('/') + '/' + name + '?v=' + digest)
+        shutil.copy2(source, out / name)
+    (out / 'index.html').write_text(html)
+
+
 class Assets:
     def __init__(self,root,client):self.root=root;self.client=zipfile.ZipFile(client)
     def read(self,name):
@@ -110,19 +148,13 @@ def build(root=ROOT,client=None,assets_cache=None,out=None,asset_base=ASSETS):
                     file=view['url'].split('/')[-1].split('?')[0];archive.write(portraits/'entities'/file,('原版' if v['namespace']=='minecraft' else '源仙')+'/'+v['name']+'__'+id.split(':')[1]+'/'+view['name']+'.png')
     result={'version':2,'minecraft_version':'1.21.1','items':items,'categories':categories,'entities':sorted(entities.values(),key=lambda v:(v['namespace'],v['id'])),'regions':[{'id':id,'name':name} for id,name in [('donghuang','东荒'),('lingyue','灵岳'),('beiyuan','北原'),('donghai','东海'),('ximo','西漠'),('nanjiang','南疆'),('moyu','魔域'),('zhongzhou','中州')]],'realms':[],'provenance':{'minecraft_client_sha256':hashlib.file_digest(client.open('rb'),'sha256').hexdigest(),'minecraft_language_sha1':entry['hash'],'mod_language_sha256':hashlib.sha256((root/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_bytes()).hexdigest(),'selection':'当前物品模型及其物品名称、BlockItem父方块名称','loot_unrecognized':unsupported}}
     result['variants']=variants
+    result['scene_groups']=scene_groups(root)
     realm_names={'mortal':'凡人','qi_refining':'炼气','foundation_establishment':'筑基','golden_core':'金丹','nascent_soul':'元婴','spirit_transformation':'化神'}
     for value in json.loads((root/'src/main/resources/data/yuanxian/stats/rules.json').read_text())['realms']:
         id=value['id'];name=id.split(':')[1]
         result['realms'].append({'id':id,'name':realm_names.get(name,name),'order':value['order'],'stages':value['stages']})
     result['realms'].sort(key=lambda v:v['order']);(out/'catalogue.json').write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n')
-    for path in (root/'web/drop-workbench').iterdir():
-        if path.suffix=='.html':
-            html=path.read_text()
-            for name in ['app.js','style.css']:
-                digest=hashlib.sha256((root/'web/drop-workbench'/name).read_bytes()).hexdigest()[:12]
-                html=html.replace(ASSETS+name,asset_base.rstrip('/')+'/'+name+'?v='+digest)
-            (out/path.name).write_text(html)
-        elif path.suffix in ('.css','.js'):shutil.copy2(path,out/path.name)
+    write_frontend(root, out, asset_base)
     print(json.dumps({'items':len(items),'by_namespace':{ns:sum(v['namespace']==ns for v in items) for ns in langs},'entities':len(entities),'icons':len(list((out/'icons').glob('*.png'))),'output':str(out)},ensure_ascii=False))
     return result
 
