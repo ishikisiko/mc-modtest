@@ -1,0 +1,176 @@
+{
+  "textures": {
+    "slate": "yuanxian:block/enchanting/slate",
+    "jade": "yuanxian:block/enchanting/jade",
+    "bronze": "yuanxian:block/enchanting/bronze",
+    "brass": "yuanxian:block/enchanting/brass",
+    "violet": "yuanxian:block/enchanting/violet",
+    "rose": "yuanxian:block/enchanting/rose",
+    "ivory": "yuanxian:block/enchanting/ivory",
+    "shadow": "yuanxian:block/enchanting/shadow",
+    "glow": "yuanxian:block/enchanting/glow",
+    "particle": "yuanxian:block/enchanting/bronze"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        2,
+        14
+      ],
+      "faces": {
+        "up": {
+          "texture": "#slate"
+        },
+        "down": {
+          "texture": "#slate"
+        },
+        "north": {
+          "texture": "#slate"
+        },
+        "south": {
+          "texture": "#slate"
+        },
+        "east": {
+          "texture": "#slate"
+        },
+        "west": {
+          "texture": "#slate"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        14,
+        13
+      ],
+      "faces": {
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        },
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        14,
+        2
+      ],
+      "to": [
+        14,
+        16,
+        14
+      ],
+      "faces": {
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        },
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        3,
+        2.6
+      ],
+      "to": [
+        9,
+        13,
+        3
+      ],
+      "faces": {
+        "up": {
+          "texture": "#brass"
+        },
+        "down": {
+          "texture": "#brass"
+        },
+        "north": {
+          "texture": "#brass"
+        },
+        "south": {
+          "texture": "#brass"
+        },
+        "east": {
+          "texture": "#brass"
+        },
+        "west": {
+          "texture": "#brass"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        3,
+        13
+      ],
+      "to": [
+        9,
+        13,
+        13.4
+      ],
+      "faces": {
+        "up": {
+          "texture": "#brass"
+        },
+        "down": {
+          "texture": "#brass"
+        },
+        "north": {
+          "texture": "#brass"
+        },
+        "south": {
+          "texture": "#brass"
+        },
+        "east": {
+          "texture": "#brass"
+        },
+        "west": {
+          "texture": "#brass"
+        }
+      }
+    }
+  ]
+}

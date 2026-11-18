@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "item": "minecraft:redstone"
+    },
+    {
+      "item": "minecraft:deepslate_tiles"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:library_oblique",
+    "count": 4
+  }
+}

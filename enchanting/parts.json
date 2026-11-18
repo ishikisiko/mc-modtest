@@ -1,0 +1,22 @@
+{
+  "enchanting_socket": ["阵石托座", "jade", 1, ["minecraft:stone_bricks", "minecraft:stone_bricks", "minecraft:copper_ingot", "spiritual_ink"]],
+  "crystal_shelf": ["紫晶书架", "violet", 1, ["minecraft:bookshelf", "minecraft:amethyst_shard", "minecraft:amethyst_shard", "minecraft:amethyst_shard", "minecraft:amethyst_shard"]],
+  "focus_shelf": ["定向书架", "brass", 1, ["minecraft:bookshelf", "minecraft:compass"]],
+  "seal_table": ["篆纹阵台", "violet", 1, ["minecraft:enchanting_table", "minecraft:amethyst_shard", "spiritual_ink"]],
+  "seal_tile": ["篆纹阵砖", "slate", 8, ["minecraft:deepslate_tiles", "minecraft:deepslate_tiles", "minecraft:copper_ingot"]],
+  "seal_pivot": ["篆纹承枢", "jade", 4, ["minecraft:polished_deepslate", "minecraft:copper_ingot", "minecraft:amethyst_shard"]],
+  "seal_rack": ["铜简架", "brass", 2, ["minecraft:bookshelf", "minecraft:copper_ingot", "minecraft:paper"]],
+  "library_port": ["藏纹匣", "jade", 1, ["minecraft:chest", "minecraft:paper", "minecraft:paper", "minecraft:paper", "minecraft:paper", "low_grade_spirit_stone", "low_grade_spirit_stone", "spiritual_ink"]],
+  "library_base": ["玄青石座", "slate", 16, ["minecraft:polished_deepslate", "minecraft:polished_deepslate", "minecraft:copper_ingot"]],
+  "library_frame": ["藏纹承轴", "bronze", 4, ["minecraft:polished_deepslate", "minecraft:copper_ingot"]],
+  "library_outer": ["竖环阵节", "bronze", 4, ["minecraft:copper_ingot", "minecraft:amethyst_shard", "minecraft:deepslate_tiles"]],
+  "library_equator": ["横环阵节", "jade", 4, ["minecraft:copper_ingot", "minecraft:prismarine_shard", "minecraft:deepslate_tiles"]],
+  "library_oblique": ["斜环阵节", "rose", 4, ["minecraft:copper_ingot", "minecraft:redstone", "minecraft:deepslate_tiles"]],
+  "library_core": ["玉芯轴节", "jade", 4, ["minecraft:prismarine_shard", "minecraft:amethyst_shard", "minecraft:copper_ingot"]],
+  "library_crown": ["藏纹轴冠", "brass", 2, ["minecraft:gold_ingot", "minecraft:amethyst_shard", "minecraft:polished_deepslate"]],
+  "library_joint": ["共轴阵节", "slate", 4, ["minecraft:copper_ingot", "minecraft:iron_ingot", "minecraft:prismarine_shard"]],
+  "loadout_slip": ["配装玉简", "jade", 1, ["minecraft:paper", "minecraft:amethyst_shard", "spiritual_ink"]],
+  "array_stone": ["入门阵石", "jade", 1, []],
+  "array_stone_refined": ["凝纹阵石", "violet", 1, []],
+  "array_stone_supreme": ["合印阵石", "rose", 1, []]
+}

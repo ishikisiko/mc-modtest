@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "item": "minecraft:prismarine_shard"
+    },
+    {
+      "item": "minecraft:deepslate_tiles"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:library_equator",
+    "count": 4
+  }
+}

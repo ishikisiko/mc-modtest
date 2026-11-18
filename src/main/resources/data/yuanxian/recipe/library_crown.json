@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "minecraft:amethyst_shard"
+    },
+    {
+      "item": "minecraft:polished_deepslate"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:library_crown",
+    "count": 2
+  }
+}

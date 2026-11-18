@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "item": "minecraft:amethyst_shard"
+    },
+    {
+      "item": "yuanxian:spiritual_ink"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:loadout_slip",
+    "count": 1
+  }
+}

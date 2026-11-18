@@ -1,0 +1,84 @@
+{
+  "empty_cap": 4,
+  "shelf_cap": 15,
+  "candidates": 2,
+  "maximum_candidates": 4,
+  "seal_candidates": 3,
+  "preference_weight": 3,
+  "lapis_cost": 1,
+  "xp_cost": 3,
+  "wash_ink": 2,
+  "swap_ink": 2,
+  "lock_strength": 12,
+  "double_strength": 15,
+  "point_capacity": 1000000,
+  "level_thresholds": {
+    "1": [
+      0
+    ],
+    "2": [
+      0,
+      8
+    ],
+    "3": [
+      0,
+      6,
+      12
+    ],
+    "4": [
+      0,
+      4,
+      8,
+      12
+    ],
+    "5": [
+      0,
+      4,
+      8,
+      12,
+      15
+    ]
+  },
+  "overrides": {
+    "minecraft:fortune": {
+      "thresholds": [
+        8,
+        12,
+        15
+      ],
+      "factor": 2
+    },
+    "minecraft:silk_touch": {
+      "thresholds": [
+        12
+      ],
+      "factor": 4
+    }
+  },
+  "stones": [
+    {
+      "id": "array_stone",
+      "strength": 8,
+      "stage": "qi_refining_3",
+      "progress": 120,
+      "ingredient": "minecraft:amethyst_shard",
+      "count": 1
+    },
+    {
+      "id": "array_stone_refined",
+      "strength": 12,
+      "stage": "qi_refining_6",
+      "progress": 360,
+      "ingredient": "minecraft:amethyst_shard",
+      "count": 4
+    },
+    {
+      "id": "array_stone_supreme",
+      "strength": 15,
+      "stage": "qi_refining_9",
+      "progress": 720,
+      "ingredient": "minecraft:amethyst_shard",
+      "count": 8
+    }
+  ]
+}

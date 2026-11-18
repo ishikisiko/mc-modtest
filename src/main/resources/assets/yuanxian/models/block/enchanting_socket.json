@@ -1,0 +1,112 @@
+{
+  "textures": {
+    "slate": "yuanxian:block/enchanting/slate",
+    "jade": "yuanxian:block/enchanting/jade",
+    "bronze": "yuanxian:block/enchanting/bronze",
+    "brass": "yuanxian:block/enchanting/brass",
+    "violet": "yuanxian:block/enchanting/violet",
+    "rose": "yuanxian:block/enchanting/rose",
+    "ivory": "yuanxian:block/enchanting/ivory",
+    "shadow": "yuanxian:block/enchanting/shadow",
+    "glow": "yuanxian:block/enchanting/glow",
+    "particle": "yuanxian:block/enchanting/jade"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        13,
+        16
+      ],
+      "faces": {
+        "up": {
+          "texture": "#slate"
+        },
+        "down": {
+          "texture": "#slate"
+        },
+        "north": {
+          "texture": "#slate"
+        },
+        "south": {
+          "texture": "#slate"
+        },
+        "east": {
+          "texture": "#slate"
+        },
+        "west": {
+          "texture": "#slate"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        13,
+        1
+      ],
+      "to": [
+        15,
+        15,
+        15
+      ],
+      "faces": {
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        },
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        15,
+        4
+      ],
+      "to": [
+        12,
+        16,
+        12
+      ],
+      "faces": {
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        },
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:stone_bricks"
+    },
+    {
+      "item": "minecraft:stone_bricks"
+    },
+    {
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "item": "yuanxian:spiritual_ink"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:enchanting_socket",
+    "count": 1
+  }
+}

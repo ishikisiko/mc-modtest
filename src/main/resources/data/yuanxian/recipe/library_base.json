@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:polished_deepslate"
+    },
+    {
+      "item": "minecraft:polished_deepslate"
+    },
+    {
+      "item": "minecraft:copper_ingot"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:library_base",
+    "count": 16
+  }
+}

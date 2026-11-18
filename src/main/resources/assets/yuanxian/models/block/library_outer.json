@@ -1,0 +1,80 @@
+{
+  "textures": {
+    "slate": "yuanxian:block/enchanting/slate",
+    "jade": "yuanxian:block/enchanting/jade",
+    "bronze": "yuanxian:block/enchanting/bronze",
+    "brass": "yuanxian:block/enchanting/brass",
+    "violet": "yuanxian:block/enchanting/violet",
+    "rose": "yuanxian:block/enchanting/rose",
+    "ivory": "yuanxian:block/enchanting/ivory",
+    "shadow": "yuanxian:block/enchanting/shadow",
+    "glow": "yuanxian:block/enchanting/glow",
+    "particle": "yuanxian:block/enchanting/bronze"
+  },
+  "elements": [
+    {
+      "from": [
+        3,
+        3,
+        3
+      ],
+      "to": [
+        13,
+        13,
+        13
+      ],
+      "faces": {
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        },
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        2.8
+      ],
+      "to": [
+        11,
+        11,
+        3
+      ],
+      "faces": {
+        "up": {
+          "texture": "#brass"
+        },
+        "down": {
+          "texture": "#brass"
+        },
+        "north": {
+          "texture": "#brass"
+        },
+        "south": {
+          "texture": "#brass"
+        },
+        "east": {
+          "texture": "#brass"
+        },
+        "west": {
+          "texture": "#brass"
+        }
+      }
+    }
+  ]
+}

@@ -123,6 +123,7 @@ public final class MyVillageMod {
         com.example.myvillage.talisman.TalismanContent.register(modEventBus);
         com.example.myvillage.alchemy.array.AlchemyArrayContent.register(modEventBus);
         com.example.myvillage.forging.array.ForgingArrayContent.register(modEventBus);
+        com.example.myvillage.enchanting.EnchantingContent.register(modEventBus);
         com.example.myvillage.gathering.GatheringContent.register(modEventBus);
         com.example.myvillage.orchard.OrchardContent.register(modEventBus);
         com.example.myvillage.decoration.SwordQiDecorationContent.register(modEventBus);
