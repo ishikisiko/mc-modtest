@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "wall": {"height": 4, "pier_spacing": 8, "body": "minecraft:calcite", "plinth": "minecraft:stone_bricks", "cap": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]", "post": "minecraft:stripped_dark_oak_log[axis=y]"},
+  "gate": {"width": 5, "clear_height": 5, "depth": 5, "paving": "minecraft:polished_andesite"},
+  "towns": {
+    "donghuang": {"approach":[[118,82],[125,82],[125,80]], "box": [51,50,118,110], "turn": 1, "frontage": "北关横街", "paving": "yuanxian:manor_town_warm_setts",
+      "roads": {"replan_04": [[26,80],[43,80],[43,44],[125,44],[125,80],[242,80]]}},
+    "beiyuan": {"approach":[[233,66],[231,66]], "box": [234,35,300,99], "turn": 3, "frontage": "府东绕街", "paving": "yuanxian:manor_town_cold_setts", "roads": {}},
+    "lingyue": {"approach":[[180,291],[187,291]], "box": [110,259,180,321], "turn": 1, "frontage": "南市横街", "paving": "yuanxian:manor_town_grey_setts",
+      "roads": {"replan_06": [[20,294],[102,294],[102,252],[187,252],[187,294],[202,294]]}},
+    "donghai": {"approach":[[145,250],[152,250]], "box": [25,194,145,302], "turn": 1, "frontage": "府西公街", "paving": "yuanxian:manor_town_salt_flagstone",
+      "roads": {"replan_00": [[108,23],[108,187],[152,187],[152,310],[108,310],[108,342]],
+                "replan_04": [[0,282],[21,282],[21,310],[153,310],[153,282],[293,282]],
+                "replan_09": [[24,23],[24,186],[20,186],[20,306],[24,306],[24,347]]}},
+    "ximo": {"approach":[[197,71],[194,71]], "box": [198,20,316,128], "turn": 3, "frontage": "驿市门前街", "paving": "yuanxian:manor_town_sandstone_walk",
+      "roads": {"replan_05": [[194,21],[163,21],[163,113],[194,113]],
+                "replan_03": [[319,136],[275,136],[275,319],[147,319]]},
+      "links": [{"name":"驿市门前街","width":5,"points":[[163,71],[194,71],[197,71]]}]},
+    "nanjiang": {"approach":[[315,238],[315,231]], "box": [259,239,363,355], "turn": 0, "frontage": "东岸公共长廊", "paving": "yuanxian:manor_town_wet_setts",
+      "roads": {"replan_04": [[203,292],[249,292]],"replan_06": [[335,23],[335,231],[249,231],[249,350]],"replan_09": [[243,257],[249,257]]}},
+    "moyu": {"approach":[[151,71],[159,71]], "box": [33,15,151,123], "turn": 1, "frontage": "北炉横街", "paving": "yuanxian:manor_town_dark_setts",
+      "roads": {"replan_01": [[18,75],[26,75],[26,11],[159,11],[159,75],[175,75]]}}
+  }
+}

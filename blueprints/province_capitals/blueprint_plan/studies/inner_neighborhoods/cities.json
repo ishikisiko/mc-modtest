@@ -1,0 +1,44 @@
+{
+  "donghuang": {
+    "dimensions": [272, 448], "plot": [109, 315], "streets": ["north", "west", "south"],
+    "description": "南驿市街留出宅田，沿谷的北关、古剑街和南驿各自保留一段住家门面。",
+    "homes": [["pine_gallery", 128, 50], ["terracotta_longhouse", 45, 163], ["terrace", 42, 335], ["bamboo", 130, 375]],
+    "surface": ["warm_setts", "grey_flagstone"], "tree": "oak"
+  },
+  "beiyuan": {
+    "dimensions": [336, 336], "plot": [68, 151], "plot_setback": 8, "wall_gap": 39, "outer_neighbors": true, "streets": ["east", "north", "south"],
+    "description": "西市暖巷贯通宅田与药铺，玄武场两翼分别接粮仓街和南关客栈。",
+    "homes": [["pine_gallery", 41, 65], ["stream", 177, 121], ["terrace", 45, 212], ["terracotta_longhouse", 160, 229]],
+    "surface": ["cold_setts", "cold_edge"], "tree": "spruce"
+  },
+  "lingyue": {
+    "dimensions": [336, 368], "plot": [95, 215], "streets": ["west", "south", "east"],
+    "description": "宅田落在下市平缓的台面。登山的一路依次经过石木宅、沿街小铺和上台廊院。",
+    "homes": [["terrace", 158, 62], ["stone_terrace", 181, 194], ["pine_gallery", 50, 243], ["bamboo", 201, 50]],
+    "surface": ["grey_setts", "grey_flagstone"], "tree": "oak"
+  },
+  "donghai": {
+    "dimensions": [384, 352], "plot": [65, 143], "wall_gap": 38, "outer_neighbors": true, "streets": ["east", "north", "west"],
+    "description": "宅田放进港西居民街。盐市以长屋夹街，临溪工坊与织网小户共享通往码头的街口。",
+    "homes": [["stream", 165, 238], ["terracotta_longhouse", 38, 54], ["bamboo", 89, 99], ["stone_terrace", 51, 237], ["pine_gallery", 168, 178]],
+    "surface": ["salt_flagstone", "shore_edge"], "tree": "oak"
+  },
+  "ximo": {
+    "dimensions": [336, 352], "plot": [79, 189], "streets": ["south", "east", "north"],
+    "description": "宅田设在南泉工市和驼商主路之间。泉岸留出步道，夯土长屋和石台院分别面向北驿与南市。",
+    "homes": [["terracotta_longhouse", 155, 49], ["stone_terrace", 176, 218], ["terrace", 48, 229]],
+    "surface": ["sandstone_walk", "compacted_sand"], "tree": "acacia"
+  },
+  "nanjiang": {
+    "dimensions": [368, 368], "plot": [89, 198], "streets": ["east", "south", "west"],
+    "description": "南埠宅田与西岸店住共用街路，河对岸的竹庭、石台院和原有干栏民居沿桥头分布。",
+    "homes": [["bamboo", 186, 72], ["stream", 88, 250], ["stone_terrace", 188, 240], ["pine_gallery", 65, 39], ["terrace", 205, 182]],
+    "surface": ["wet_setts", "grey_flagstone"], "tree": "jungle"
+  },
+  "moyu": {
+    "dimensions": [352, 368], "plot": [181, 189], "wall_gap": 39, "outer_neighbors": true, "streets": ["north", "east", "west"],
+    "description": "宅田设在中桥东侧的高岸街坊，石台院与沿街小楼分置桥头和炉市。从西岸商街过桥就能到达。",
+    "homes": [["terracotta_longhouse", 54, 49], ["stream", 102, 250], ["stone_terrace", 193, 164], ["terrace", 189, 64]],
+    "surface": ["dark_setts", "grey_setts"], "tree": "spruce"
+  }
+}

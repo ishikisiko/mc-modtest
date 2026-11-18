@@ -1,0 +1,65 @@
+{
+  "donghuang": {
+    "residential":"yuanxian:manor_town_warm_setts", "backcourt":"minecraft:mud_bricks", "infill":["林院", "驿作", "市廊", "林院", "共井"],
+    "yard":"minecraft:packed_mud", "court":"minecraft:polished_granite", "curb":"minecraft:smooth_stone", "stone":"minecraft:stone_bricks", "timber":"dark_oak", "plant":"oak", "bank":"minecraft:cobblestone",
+    "wall":"yuanxian:manor_town_warm_plaster", "frame":"stripped_dark_oak_log", "foot":"minecraft:mud_bricks", "tile":"deepslate_brick", "porch":"驿廊", "plot_front":"north",
+    "reserve":[[6,115],[20,122],[26,206],[17,268],[6,265]],
+    "sites":[["北关验货院","freight","north_gate",32,23],["西谷树院","grove","landmark",36,24],["南驿系马场","horse","inn",34,22],["南市棚街","market","market",29,20],["府前石坪","civic","manor",32,22],["铁作堆料院","freight","smith",26,17]],
+    "description":"沿谷把主道铺成暖灰石街，北关留验货院，南驿客栈旁设系马场。西侧谷坡保留林地。",
+    "variant_note":"住宅用暖色墙身、深木梁和砖脚，沿原有檐廊补一开间驿棚。"
+  },
+  "beiyuan": {
+    "residential":"yuanxian:manor_town_cold_setts", "backcourt":"minecraft:stone_bricks", "infill":["暖院", "仓作", "松院", "仓作", "共井"],
+    "yard":"minecraft:andesite", "court":"minecraft:stone_bricks", "curb":"minecraft:smooth_stone", "stone":"minecraft:polished_andesite", "timber":"spruce", "plant":"spruce", "bank":"minecraft:gravel",
+    "wall":"minecraft:smooth_stone", "frame":"stripped_spruce_log", "foot":"minecraft:polished_andesite", "tile":"deepslate_tile", "porch":"风障", "plot_front":"east",
+    "reserve":[[17,13],[126,13],[124,27],[55,37],[18,30]],
+    "sites":[["仓前晒粮场","grain","warehouse",38,25],["北关防风松院","grove","watch_nw",32,21],["西市暖棚","market","market",31,20],["南关柴场","timber","inn",32,22],["玄武前石庭","civic","landmark",29,20],["药铺后圃","herb","apothecary",23,17]],
+    "description":"粮仓门前铺出晒场和运粮车道。清雪的石面沿居民巷连续，松林与背阴处留雪。",
+    "variant_note":"院宅加厚青灰色墙脚，廊侧立云杉木风障，檐坡留有分段积雪。"
+  },
+  "lingyue": {
+    "residential":"yuanxian:manor_town_grey_setts", "backcourt":"minecraft:tuff_bricks", "infill":["石园", "山作", "松院", "市廊", "石园"],
+    "yard":"minecraft:andesite", "court":"minecraft:polished_andesite", "curb":"minecraft:polished_tuff", "stone":"minecraft:tuff_bricks", "timber":"dark_oak", "plant":"spruce", "bank":"minecraft:tuff",
+    "wall":"minecraft:calcite", "frame":"stripped_dark_oak_log", "foot":"minecraft:tuff_bricks", "tile":"deepslate_brick", "porch":"石槛", "plot_front":"south",
+    "reserve":[[16,32],[51,34],[51,70],[35,106],[17,120]],
+    "sites":[["中台观璧庭","terrace","landmark",33,23],["上台松石园","rockery","manor",30,21],["下市歇脚坪","market","market",27,19],["山门候客庭","terrace","gate",31,20],["药坊梯圃","herb","apothecary",25,18],["西台松院","grove","inn",27,18]],
+    "description":"石街随台地转折，台缘砌挡墙。观璧庭设两层坐台，石园和药圃分别收住山坡与街角。",
+    "variant_note":"院宅接入当地青石台基，廊侧增设踏步、矮石槛和观景坐台。"
+  },
+  "donghai": {
+    "residential":"yuanxian:manor_town_salt_flagstone", "backcourt":"minecraft:stone_bricks", "infill":["港栈", "树院", "市廊", "网作", "共井"],
+    "yard":"minecraft:light_gray_terracotta", "court":"minecraft:smooth_sandstone", "curb":"minecraft:polished_andesite", "stone":"minecraft:stone_bricks", "timber":"spruce", "plant":"oak", "bank":"minecraft:gravel",
+    "wall":"minecraft:smooth_sandstone", "frame":"stripped_spruce_log", "foot":"minecraft:stone_bricks", "tile":"deepslate_tile", "porch":"港廊", "plot_front":"east",
+    "reserve":[[311,276],[331,279],[337,341],[313,338]],
+    "sites":[["港北晒盐院","salt","warehouse_north",37,23],["南埠织网场","nets","warehouse_south",31,21],["盐市货栈","freight","market",30,20],["候潮棚","market","landmark",29,18],["西井树院","grove","inn",28,19],["陆门交货坪","freight","gate",27,18]],
+    "description":"盐石街从居民区通到港口。仓旁分出晒盐池、织网场和交货坪，沿潮岸铺木栈并立系缆桩。",
+    "variant_note":"院宅采用港西常见的浅砂墙和云杉框架，檐下添木格晒架与铜包边雨棚。"
+  },
+  "ximo": {
+    "residential":"yuanxian:manor_town_sandstone_walk", "backcourt":"minecraft:cut_sandstone", "infill":["荫院", "驼栈", "水院", "市廊", "荫院"],
+    "yard":"minecraft:terracotta", "court":"minecraft:cut_sandstone", "curb":"minecraft:smooth_red_sandstone", "stone":"minecraft:smooth_sandstone", "timber":"acacia", "plant":"acacia", "bank":"minecraft:sandstone",
+    "wall":"minecraft:smooth_sandstone", "frame":"stripped_acacia_log", "foot":"minecraft:cut_sandstone", "tile":"sandstone", "porch":"花墙", "plot_front":"south",
+    "reserve":[[16,22],[40,22],[42,87],[19,105]],
+    "sites":[["北驿驼队歇院","horse","inn",36,24],["泉边饮水庭","watercourt","landmark",30,20],["香料市遮荫棚","market","market",32,21],["南仓卸货院","freight","warehouse",30,18],["绿洲枣荫院","grove","apothecary",28,20],["南坊石坪","civic","smith",26,18]],
+    "description":"以浅砂岩步道连起商街和泉岸。驼队歇院留饮水槽，市棚与树荫落在城内能停留的街角。",
+    "variant_note":"院宅改用砂岩墙脚和金合欢梁，临街一开间设遮阳格墙，给窗口和廊道留通风口。"
+  },
+  "nanjiang": {
+    "residential":"yuanxian:manor_town_wet_setts", "backcourt":"minecraft:mud_bricks", "infill":["药园", "水作", "树院", "市廊", "药园"],
+    "yard":"minecraft:packed_mud", "court":"minecraft:mossy_stone_bricks", "curb":"minecraft:polished_andesite", "stone":"minecraft:stone_bricks", "timber":"jungle", "plant":"jungle", "bank":"minecraft:mud_bricks",
+    "wall":"minecraft:jungle_planks", "frame":"stripped_jungle_log", "foot":"minecraft:mossy_stone_bricks", "tile":"deepslate_tile", "porch":"晒药廊", "plot_front":"south",
+    "reserve":[[213,72],[238,77],[241,211],[221,216]],
+    "sites":[["东岸药畦","herb","apothecary",38,24],["南埠洗晒院","nets","warehouse",32,20],["西岸雨棚市","market","market",32,20],["灵木荫院","grove","landmark",32,22],["桥头水庭","watercourt","inn",28,19],["药材交货坪","freight","smith",26,18]],
+    "description":"两岸房前铺湿青石，沿河留出木栈、洗晒坪和苇岸。药铺附近采用成畦的药圃和竹木晒架。",
+    "variant_note":"院宅以丛林木柱承檐，外侧添架空晒药廊、竹格和伸出的挡雨檐。"
+  },
+  "moyu": {
+    "residential":"yuanxian:manor_town_dark_setts", "backcourt":"minecraft:deepslate_bricks", "infill":["炉作", "石园", "市廊", "松院", "共井"],
+    "yard":"minecraft:polished_tuff", "court":"minecraft:polished_blackstone_bricks", "curb":"minecraft:polished_basalt[axis=y]", "stone":"minecraft:deepslate_bricks", "timber":"dark_oak", "plant":"spruce", "bank":"minecraft:basalt[axis=y]",
+    "wall":"minecraft:gray_terracotta", "frame":"stripped_dark_oak_log", "foot":"minecraft:polished_blackstone_bricks", "tile":"polished_blackstone_brick", "porch":"炉街门垛", "plot_front":"east",
+    "reserve":[[178,97],[208,95],[207,245],[179,251]],
+    "sites":[["西炉检料庭","forge","smith",36,24],["高岸铸件场","forge","warehouse",33,22],["鼎前仪坪","civic","landmark",33,21],["矿货交割院","freight","market",28,19],["暗松石庭","rockery","apothecary",27,19],["南市工棚","market","inn",27,18]],
+    "description":"炉街砌玄岩，炉场以铜边与卸料地坪分区。铜箅火槽嵌入工院，跨谷桥的两端各有完整落脚台。",
+    "variant_note":"住宅的灰陶墙落在黑石砖脚上，临街门垛配铜箍和挑出的石托。"
+  }
+}
