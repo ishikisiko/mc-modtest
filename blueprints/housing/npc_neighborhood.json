@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "gap": 32,
+  "edge_clearance": 16,
+  "road_width": 3,
+  "headroom": 4,
+  "name": "城东院宅街坊",
+  "gardens": {
+    "depth": 4,
+    "gap": 2,
+    "inset": 4,
+    "border": "minecraft:stone_brick_slab[type=bottom,waterlogged=false]",
+    "hedge": "minecraft:oak_leaves[persistent=true,distance=1,waterlogged=false]",
+    "plant_spacing": 12
+  },
+  "street_furniture": {
+    "offset": 6,
+    "bench_offset": 8,
+    "lamp_post": "minecraft:dark_oak_fence[north=false,south=false,east=false,west=false,waterlogged=false]",
+    "bench": "minecraft:spruce_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+  },
+  "water_bridges": {
+    "regions": [
+      "donghai"
+    ],
+    "support_spacing": 5,
+    "support": "minecraft:dark_oak_log[axis=y]"
+  }
+}

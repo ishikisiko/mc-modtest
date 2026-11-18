@@ -146,6 +146,7 @@ def main():
 
 def export_cities(args):
     from capital_waystones.generate import generate as decorate_waystones
+    from housing.town_expansion import integrate as build_pavilion_donors
     from player_estates.runtime_export import integrate as place_estates
     from province_capitals.inner_neighborhoods.runtime import integrate as place_neighborhoods
     from qianji.runtime_export import integrate as place_qianji
@@ -160,6 +161,8 @@ def export_cities(args):
                         '--out',str(donors)],check=True)
         place_estates(donors)
         place_qianji(donors)
+        # 有些传送亭需要原扩建地形才能施工。最终布局只搬运原设施和亭台。
+        build_pavilion_donors(donors)
         decorate_waystones(donors)
         # 七城直接消费新街坊坐标。旧坐标只用于取得已批准的原楼体与独立亭台。
         for relative in ("capitals/v4", "structure/province_capitals/v4"):
