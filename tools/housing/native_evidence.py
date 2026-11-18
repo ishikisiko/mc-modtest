@@ -109,8 +109,8 @@ def main():
                             server.command('tick sprint 100t');time.sleep(.5)
                         (case/path.name).write_text(json.dumps(value,ensure_ascii=False,indent=2));assert value['status']=='passed',value
                     server.command('forceload remove all')
-                    a,b,e,f=description['enclosure']
-                    loaded([base_x+a,base_z+b,base_x+e,base_z+f],oy)
+                    west,north,east,south=description['enclosure']
+                    loaded([base_x+west,base_z+north,base_x+east,base_z+south],oy)
                     command('enclosure',i,npc=True)
                 complete(stage)
             finally:
