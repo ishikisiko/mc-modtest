@@ -88,7 +88,7 @@ final class DoorProbe {
                 check(rows,"restart_right_click_closes",state.useWithoutItem(level,player,new BlockHitResult(Vec3.atCenterOf(part),Direction.NORTH,part,false)).consumesAction());
                 allStates(rows,level,door,Direction.NORTH,false);
             }else{
-                check(rows,"real_registered_door_and_item",item.assembly()==door&&v.partCount()==75&&door.variantProperty()==null);
+                check(rows,"real_registered_door_and_item",item.assembly()==door&&v.partCount()==75&&door.variantProperty()!=null&&door.family().variants().size()==3);
                 for(var facing:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST)){
                     clear(level,door);player.setYRot(facing.getOpposite().toYRot());
                     var stack=new ItemStack(item,3);player.setItemInHand(InteractionHand.MAIN_HAND,stack);

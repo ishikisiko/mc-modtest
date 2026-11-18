@@ -65,6 +65,9 @@
       {"key":"standing","zh":"落地灯","en":"Standing Lantern","size":[1,1,1],"shape":"lantern","hanging":false,"material":"timber"},
       {"key":"hanging","zh":"悬灯","en":"Hanging Lantern","size":[1,1,1],"shape":"lantern","hanging":true,"material":"timber"}
     ]},
-    {"id":"courtyard_double_door","class":"DoubleDoor","zh":"木格双开大门","sound":"wood","strength":2.0,"behavior":"double_door","state_defaults":{"open":"false"},"variants":[{"key":"lattice","zh":"木格双开大门","size":[5,5,3],"shape":"double_door","material":"timber","design":"blueprints/player_homes/door_study.json","textures":{"panel":"minecraft:block/dark_oak_planks"}}]}
+    {"id":"courtyard_double_door","class":"DoubleDoor","zh":"木格双开大门","sound":"wood","strength":2.0,"behavior":"double_door","state_defaults":{"open":"false"},"variants":[{"key":"lattice","zh":"木格双开大门","size":[5,5,3],"shape":"double_door","material":"timber","design":"blueprints/player_homes/door_study.json","textures":{"panel":"minecraft:block/dark_oak_planks"}},
+      {"key":"inner_2_3","zh":"院宅双开内门（2×3）","size":[4,4,3],"shape":"house_double_door","opening":[2,3],"material":"timber","textures":{"panel":"minecraft:block/dark_oak_planks"}},
+      {"key":"inner_3_3","zh":"院宅双开内门（3×3）","size":[5,4,3],"shape":"house_double_door","opening":[3,3],"material":"timber","textures":{"panel":"minecraft:block/dark_oak_planks"}}
+    ]}
   ]
 }

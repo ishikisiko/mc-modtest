@@ -37,12 +37,12 @@
     "yuanxian:road_grey_flagstone_slab",
     "yuanxian:road_grey_setts_slab",
     "yuanxian:road_stone_guardrail",
-    "yuanxian:rune_lamp",
     "yuanxian:spirit_gathering_core",
     "yuanxian:spirit_gathering_node",
     "yuanxian:spirit_stone_ore",
     "yuanxian:spirit_testing_stele",
     "yuanxian:technique_inheritance_stele",
-    "yuanxian:xuantie_ore"
+    "yuanxian:xuantie_ore",
+    "yuanxian:rune_lamp"
   ]
 }

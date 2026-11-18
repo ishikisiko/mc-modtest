@@ -175,6 +175,20 @@ public final class LifeEngine {
         return assign(ctx, id, siteId, "guide", homeId, workId) ? id : -1;
     }
 
+    /** 已有本州散修入住可用院宅；不生成新人物，也不占用其他岗位的居民。 */
+    public static int staffHousehold(SimContext ctx,String siteId,String homeId,String workId){
+        var site=requireSite(ctx,siteId);var home=site.place(homeId).orElse(null);var work=site.place(workId).orElse(null);
+        if(home==null||work==null||!home.kind().equals("rest")||!work.kind().equals("social")||!knownAvailable(ctx,siteId,homeId)||!knownAvailable(ctx,siteId,workId))return -1;
+        if(ctx.state.life.residents.values().stream().anyMatch(r->r.siteId.equals(siteId)&&r.homeId.equals(homeId)))return -1;
+        if(ctx.state.life.residents.values().stream().filter(r->r.siteId.equals(siteId)).count()>=rules(ctx).maxResidentsPerSite())return -1;
+        long dx=(long)home.x()-work.x(),dy=(long)home.y()-work.y(),dz=(long)home.z()-work.z();
+        if(dx*dx+dy*dy+dz*dz>(long)rules(ctx).maxPathDistance()*rules(ctx).maxPathDistance())return -1;
+        var person=ctx.state.persons.values().stream().filter(p->p.regionId.equals(site.regionId())&&p.sectId<0&&!p.status.equals("travelling")&&!p.status.equals("secluded")
+            &&!ctx.state.life.residents.containsKey(p.id)&&!ctx.state.combat.leases.containsKey(p.id)
+            &&(ctx.state.combat.profiles.get(p.id)==null||ctx.state.combat.profiles.get(p.id).body()==null||!ctx.state.combat.profiles.get(p.id).body().unresolved())).findFirst();
+        return person.isPresent()&&assign(ctx,person.get().id,siteId,"rogue",homeId,workId)?person.get().id:-1;
+    }
+
     public static boolean unassign(SimContext ctx, int id) {
         if (StoryActors.forPerson(ctx.state, id).isPresent()) throw new IllegalArgumentException("story_actor_assignment_owned");
         LifeResident resident = ctx.state.life.residents.remove(id);

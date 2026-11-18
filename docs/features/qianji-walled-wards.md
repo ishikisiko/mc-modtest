@@ -2,7 +2,7 @@
 
 七座分阁各占一块完整街坊。每城只有一处正门通向公共街道，办事厅、库房、藏卷楼及本型原有的水院、阶道和廊桥均在同一圈院墙内。原模型的房间尺寸、标高、层数、任务榜和题匾随整院一起平移、旋转。中州总舵使用自己的生成器。
 
-城内街坊、宅田与院外场地采用七城地面分区稿。整院模板和全城结构切片已生成并回读。本稿供布局验收，正式世界生成仍沿用已发布版本。[七城三维预览](https://assets.ishiki333hhh.win/previews/seven-qianji-enclosed-20261118/index.html)
+城内街坊、宅田与院外场地采用七城地面分区稿。整院模板和全城结构切片已生成并回读。自 0.136.0 起，默认修仙大陆的新世界使用这版街坊。[七城三维预览](https://assets.ishiki333hhh.win/previews/seven-qianji-enclosed-20261118/index.html)
 
 ## 楼房立面
 
@@ -10,7 +10,7 @@
 
 各院主楼的入口设挑檐门廊。中层勘图窗向庭院挑出两格，玩家可从室内走入，站着越过木窗台看院中。顶层的铜星盘嵌在深色石板里，斜向铜轨、水平轴和星钉依次突出。院墙、门楼、屋顶和地块沿用街坊布局。可以在同一机位切换原版和新版，也可从勘图窗内向外看。[立面三维模型](https://assets.ishiki333hhh.win/previews/qianji-branch-facades-20261118/index.html) · [近景对照](https://assets.ishiki333hhh.win/previews/qianji-branch-facades-20261118/gallery.html)
 
-立面使用 `blueprints/qianji/studies/branch_facades.json` 的地区材料与盘纹，由 `tools/qianji/branch_facades.py` 在逐层施工时生成。下方的街坊导出命令会生成新版楼房。网页提供作者朝向的单院 NBT，全城施工时建筑和方块状态按街面一起旋转。
+立面使用 `blueprints/qianji/studies/branch_facades.json` 的地区材料与盘纹，由 `tools/qianji/branch_facades.py` 在逐层施工时生成。V11 正式生成会施工新版楼房。下方的离线导出命令也可独立重建预览。网页提供作者朝向的单院 NBT，全城施工时建筑和方块状态按街面一起旋转。
 
 ## 落位
 
@@ -45,4 +45,4 @@ python -m tools.province_capitals.inner_neighborhoods.export \
   --output reports/housing/enclosed-qianji --structures --volume
 ```
 
-每城的 `qianji.json` 保存院门、榜位、楼房、目标点和题匾的城市坐标，`plan.json` 保存实际迁排、街道折点与路幅。`structures/compound.nbt` 是带题匾的整院模板，`structures/layout.json`、`terrain.bin.gz` 和 `tiles/` 一起描述整城的方块几何。导出器从 NBT 和高度场逐格重建并比较整城，也逐项核对方块实体。场地净空与高差检查属于离线方块证据。这一布局的游戏内寻路及玩家外观验收尚待进行。[七城结构文件](https://assets.ishiki333hhh.win/previews/seven-qianji-enclosed-20261118/seven-city-layouts.zip)
+每城的 `qianji.json` 保存院门、榜位、楼房、目标点和题匾的城市坐标，`plan.json` 保存实际迁排、街道折点与路幅。`structures/compound.nbt` 是带题匾的整院模板，`structures/layout.json`、`terrain.bin.gz` 和 `tiles/` 一起描述整城的方块几何。导出器从 NBT 和高度场逐格重建并比较整城，也逐项核对方块实体。场地净空与高差检查属于离线方块证据。游戏内测试和玩家外观反馈分别记录。[七城结构文件](https://assets.ishiki333hhh.win/previews/seven-qianji-enclosed-20261118/seven-city-layouts.zip)

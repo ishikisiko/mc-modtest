@@ -25,7 +25,11 @@ def generate(root: Path = ROOT) -> str:
     for binding in config['ports']:
         path = root / binding['layout']
         layout = json.loads(path.read_text())
-        matches = [p for p in layout['public_passages'] if p['id'] == binding['passage']]
+        city=CitySource(root/'build/generated/province_capitals_v11/resources',binding['region']);policy=config['network']
+        formal=city.city.get('blueprint',{}).get('public_passages')
+        if formal is not None and city.city['blueprint']['layout']!=binding['layout']:raise ValueError('城门与正式城市作者输入不一致')
+        if formal is None and city.city.get('qianji',{}).get('source_dimensions',city.city['size'])!=layout['dimensions']:raise ValueError('门洞与当前城市尺寸不一致')
+        matches = [p for p in(formal if formal is not None else layout['public_passages'])if p['id']==binding['passage']]
         if len(matches) != 1 or binding['facing'] not in ['south','north','east','west']:
             raise ValueError('出口必须绑定唯一正式公共门洞及四向朝向')
         passage = matches[0]
@@ -33,7 +37,7 @@ def generate(root: Path = ROOT) -> str:
         if gate_width < 3 or gate_width > width or gate_width % 2 != 1:
             raise ValueError('门洞净宽必须显式声明，且不能超过城外路幅')
         x0, z0, x1, z1 = passage['bounds']
-        dimensions = layout['dimensions']
+        dimensions = city.city['size']
         facing=binding['facing'];x=(x0+x1)//2;z=(z0+z1)//2
         if facing=='south':z=z0
         elif facing=='north':z=z1-1
@@ -44,9 +48,7 @@ def generate(root: Path = ROOT) -> str:
             raise ValueError('公共门洞不能容纳完整路幅和净空')
         if layout['city_id'] != 'capital_' + binding['region'] or not(0<=x0<x1<=dimensions[0] and 0<=z0<z1<=dimensions[2]):
             raise ValueError('出口必须属于绑定城市的本地坐标')
-        city=CitySource(root/'build/generated/province_capitals_v11/resources',binding['region']);policy=config['network']
-        if city.city['city_id']!=layout['city_id'] or city.city.get('qianji',{}).get('source_dimensions',city.city['size'])!=dimensions:raise ValueError('门洞与当前城市资源不一致')
-        dimensions=city.city['size']
+        if city.city['city_id']!=layout['city_id']:raise ValueError('门洞与当前城市资源不一致')
         try:floors=city.corridor(x,z,facing,gate_width,policy['gate_source_probe_radius'],config['clearance'],policy['gate_side_search'],policy['gate_max_step2'])
         except ValueError as e:raise ValueError(binding['region']+'：'+str(e)) from e
         ports.append({

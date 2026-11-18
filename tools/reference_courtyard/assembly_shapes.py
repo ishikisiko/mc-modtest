@@ -24,8 +24,38 @@ def door_geometry(v,opened=False):
     return cells
 
 
+def house_door_geometry(v,opened=False):
+    """院宅内门：保留两格或三格净宽，门轴和全开的门扇收在侧框内。"""
+    w,h=v['opening'];cells={}
+    def box(a,b,mat='timber'):
+        lo=[round(n*16)for n in a];hi=[round(n*16)for n in b]
+        for x in range(lo[0],hi[0]):
+            for y in range(lo[1],hi[1]):
+                for z in range(lo[2],hi[2]):cells[x,y,z]=mat
+    for x in (0,w+1):
+        box((x,0,0),(x+1,h+1,1),'plaster')
+        box((x+.5 if x==0 else x,0,.125),(x+1 if x==0 else x+.5,h,.5))
+    box((1,h,0),(w+1,h+.5,1))
+    box((1,h+.5,0),(w+1,h+1,1),'plaster')
+    # 门槛只有 1/16 格，普通房间保持三格净高。
+    box((1,0,0),(w+1,.0625,1),'stone')
+    length=w/2+.5
+    for side in (0,1):
+        if opened:
+            xa,xb=(.5,.6875)if side==0 else(w+1.3125,w+1.5)
+            box((xa,.0625,.5),(xb,h-.0625,.5+length),'panel')
+            for y in (.25,h-1.0,h-.25):box((xa-.0625,y,.5),(xb+.0625,y+.125,.5+length),'timber')
+        else:
+            xa,xb=(.5,1+w/2)if side==0 else(1+w/2,w+1.5)
+            box((xa,.0625,.5),(xb,h-.0625,.6875),'panel')
+            for y in (.25,h-1.0,h-.25):box((xa,y,.4375),(xb,y+.125,.75))
+            for x in (xa,xb-.125):box((x,.0625,.4375),(x+.125,h-.0625,.75))
+    return cells
+
+
 def geometry(v,opened=False):
     if v['shape']=='double_door':return door_geometry(v,opened)
+    if v['shape']=='house_double_door':return house_door_geometry(v,opened)
 
     W,H,D=(n*16 for n in v['size']);m=v['material'];cells={}
     def box(x0,y0,z0,x1,y1,z1,mat=m):

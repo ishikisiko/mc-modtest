@@ -36,6 +36,8 @@ def identity(city):
     if 'qianji' in city:projected['qianji']=city['qianji']
     if 'player_estates' in city:
         projected['player_estates'] = city['player_estates']
+    if 'player_housing' in city:projected['player_housing']=city['player_housing']
+    if 'npc_households'in city:projected['npc_households']=city['npc_households']
     projected['placement'] = pick(city['placement'], 'vertical_mode anchor_y rotation_quarters blend_margin')
     projected['terrain'] = pick(city['terrain'], 'resource sha256 encoding width depth top_block fill_block subsurface_block subsurface_depth')
     projected['tiles'] = [pick(tile, 'x z template sha256') for tile in city['tiles']]

@@ -2,7 +2,6 @@
   "replace": false,
   "values": [
     "yuanxian:assembly_table",
-    "yuanxian:drying_rack",
     "yuanxian:ningyuan_button",
     "yuanxian:ningyuan_door",
     "yuanxian:ningyuan_fence",
@@ -20,6 +19,7 @@
     "yuanxian:ningyuan_wall_sign",
     "yuanxian:ningyuan_wood",
     "yuanxian:stripped_ningyuan_log",
-    "yuanxian:stripped_ningyuan_wood"
+    "yuanxian:stripped_ningyuan_wood",
+    "yuanxian:drying_rack"
   ]
 }

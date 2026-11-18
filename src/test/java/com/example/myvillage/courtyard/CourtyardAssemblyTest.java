@@ -95,12 +95,14 @@ class CourtyardAssemblyTest {
         assertEquals(2,stack.get(DataComponents.CUSTOM_MODEL_DATA).value());
         assertThrows(IllegalArgumentException.class,()->CourtyardAssemblyItem.setVariant(stack,100000));
     }
-    @Test void doubleDoorHasOneStyleAndPersistsEveryOpenPartInAllFacings(){
+    @Test void doubleDoorIncludesInnerDoorsAndPersistsEveryOpenPartInAllFacings(){
         var b=(CourtyardDoorBlock)blocks.get("courtyard_double_door");var v=b.family().variant(0);
-        assertNull(b.variantProperty());assertEquals(75,v.partCount());assertEquals(1,b.family().variants().size());
-        assertThrows(IllegalArgumentException.class,()->b.state(1,0,Direction.NORTH,false));
+        assertNotNull(b.variantProperty());assertEquals(75,v.partCount());assertEquals(3,b.family().variants().size());
+        assertEquals(48,b.family().variant(1).partCount());assertEquals(60,b.family().variant(2).partCount());
+        assertThrows(IllegalArgumentException.class,()->b.state(3,0,Direction.NORTH,false));
         var item=items.get(b.familyId());var stack=new ItemStack(item,2);var id=BuiltInRegistries.ITEM.getKey(item);
-        assertTrue(CourtyardAssemblyItem.accepts(stack,id,0));assertFalse(CourtyardAssemblyItem.accepts(stack,id,1));
+        for(int variant=0;variant<3;variant++)assertTrue(CourtyardAssemblyItem.accepts(stack,id,variant));
+        assertFalse(CourtyardAssemblyItem.accepts(stack,id,3));
         for(var facing:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST))for(int p=0;p<v.partCount();p++){
             var state=b.state(0,p,facing,p%2==0).setValue(CourtyardDoorBlock.OPEN,true);
             assertEquals(state,NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(),NbtUtils.writeBlockState(state)));

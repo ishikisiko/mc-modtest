@@ -1,1 +1,1 @@
-{"parent":"yuanxian:item/courtyard/courtyard_double_door_0","overrides":[{"predicate":{"custom_model_data":1},"model":"yuanxian:item/courtyard/courtyard_double_door_0"}]}
+{"parent":"yuanxian:item/courtyard/courtyard_double_door_0","overrides":[{"predicate":{"custom_model_data":1},"model":"yuanxian:item/courtyard/courtyard_double_door_0"},{"predicate":{"custom_model_data":2},"model":"yuanxian:item/courtyard/courtyard_double_door_1"},{"predicate":{"custom_model_data":3},"model":"yuanxian:item/courtyard/courtyard_double_door_2"}]}

@@ -27,7 +27,7 @@ public final class ModPayloads {
     // 协议70为取物器增加有界召唤配置、测试关系操作和私有单位列表。
     // 协议71增加测试 NPC 的功法、熟练度和自动施放配置。
     // 协议76增加服务器拥有的洲域、城镇入场报幕。
-    public static final String PROTOCOL_VERSION = "77";
+    public static final String PROTOCOL_VERSION = "78";
 
     private ModPayloads() {
     }
@@ -80,6 +80,10 @@ public final class ModPayloads {
                             payload.offhand()?net.minecraft.world.InteractionHand.OFF_HAND:net.minecraft.world.InteractionHand.MAIN_HAND,
                             payload.item(),payload.variant()));
         });
+        registrar.playToClient(com.example.myvillage.housing.HousingOffer.TYPE,com.example.myvillage.housing.HousingOffer.STREAM_CODEC,
+            (payload,context)->context.enqueueWork(()->com.example.myvillage.housing.HousingOffer.receive(payload)));
+        registrar.playToServer(com.example.myvillage.housing.HousingIntent.TYPE,com.example.myvillage.housing.HousingIntent.STREAM_CODEC,
+            (payload,context)->context.enqueueWork(()->{if(context.player() instanceof ServerPlayer p)com.example.myvillage.housing.HousingRuntime.choose(p,payload);}));
         registrar.playToServer(QualityPickerPayload.TYPE, QualityPickerPayload.STREAM_CODEC, (payload, context) -> {
             if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
                     com.example.myvillage.item.QualityPicker.give(player, payload.item(), payload.quality(), payload.trait(), payload.fullStack()));

@@ -7,6 +7,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -40,12 +44,26 @@ public abstract class CourtyardDoorBlock extends CourtyardAssemblyBlock {
     }
 
     public boolean setOpen(Level level,BlockPos pos,BlockState clicked,Player player,boolean open){
-        if(level.isClientSide()||player==null||!player.isAlive()||!clicked.is(this)||clicked.getValue(OPEN)==open)return false;
+        return change(level,pos,clicked,player,open);
+    }
+    public boolean setOpenByNpc(Level level,BlockPos pos,BlockState clicked,com.example.myvillage.entity.npc.NpcEntity npc,boolean open){
+        if(npc==null||npc.level()!=level||open&&npc.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(pos))>36)return false;
+        return change(level,pos,clicked,npc,open);
+    }
+    @Override public PathType getBlockPathType(BlockState state,BlockGetter level,BlockPos pos,Mob mob){
+        var shape=variant(state).part(part(state),true).shape(state.getValue(FACING));
+        var body=new net.minecraft.world.phys.AABB(.2,.25,.2,.8,.99,.8);
+        if(shape.toAabbs().stream().anyMatch(body::intersects))return PathType.BLOCKED;
+        return state.getValue(OPEN)?PathType.OPEN:PathType.DOOR_WOOD_CLOSED;
+    }
+    @Override protected boolean isPathfindable(BlockState state,PathComputationType type){return state.getValue(OPEN);}
+    private boolean change(Level level,BlockPos pos,BlockState clicked,LivingEntity actor,boolean open){
+        if(level.isClientSide()||actor==null||!actor.isAlive()||!clicked.is(this)||clicked.getValue(OPEN)==open)return false;
         var variant=variant(clicked);var facing=clicked.getValue(FACING);var root=root(pos,clicked);
         List<BlockPos> positions=new ArrayList<>();List<BlockState> before=new ArrayList<>(),after=new ArrayList<>();
         for(int part=0;part<variant.partCount();part++){
             var target=root.offset(variant.offset(part,facing));
-            if(!level.isInWorldBounds(target)||!level.getWorldBorder().isWithinBounds(target)||!level.hasChunkAt(target)||!level.mayInteract(player,target))return false;
+            if(!level.isInWorldBounds(target)||!level.getWorldBorder().isWithinBounds(target)||!level.hasChunkAt(target)||actor instanceof Player player&&!level.mayInteract(player,target))return false;
             var previous=level.getBlockState(target);
             if(!matches(previous,clicked,part)||previous.getValue(OPEN)!=clicked.getValue(OPEN))return false;
             var next=previous.setValue(OPEN,open);
@@ -65,7 +83,7 @@ public abstract class CourtyardDoorBlock extends CourtyardAssemblyBlock {
         }
         for(var target:positions)level.updateNeighborsAt(target,this);
         level.playSound(null,root,open?SoundEvents.WOODEN_DOOR_OPEN:SoundEvents.WOODEN_DOOR_CLOSE,SoundSource.BLOCKS,1,1);
-        level.gameEvent(open?GameEvent.BLOCK_OPEN:GameEvent.BLOCK_CLOSE,root,GameEvent.Context.of(player,after.getFirst()));
+        level.gameEvent(open?GameEvent.BLOCK_OPEN:GameEvent.BLOCK_CLOSE,root,GameEvent.Context.of(actor,after.getFirst()));
         return true;
     }
 }

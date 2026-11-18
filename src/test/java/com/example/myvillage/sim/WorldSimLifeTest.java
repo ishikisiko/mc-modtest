@@ -99,6 +99,17 @@ class WorldSimLifeTest {
         assertFalse(sim.unassignLife(2));
     }
 
+    @Test void courtyardHouseholdUsesObservedVacancyAndExistingPeopleAcrossReload(){
+        var sim=fresh();sim.registerLifeSite(site(sim));int population=sim.overview(24).population();
+        assertEquals(-1,sim.staffHousehold("test_town","home2","social"));
+        sim.setLifePlaceAvailability("test_town","home2","available");sim.setLifePlaceAvailability("test_town","social","available");
+        int id=sim.staffHousehold("test_town","home2","social");assertTrue(id>0);
+        assertEquals("rogue",sim.life(id).orElseThrow().role());assertEquals("home2",sim.life(id).orElseThrow().homeId());
+        assertEquals(population,sim.overview(24).population());assertEquals(-1,sim.staffHousehold("test_town","home2","social"));
+        var copy=restore(sim);assertEquals(population,copy.overview(24).population());assertEquals(-1,copy.staffHousehold("test_town","home2","social"));
+        assertEquals(1,copy.lifeResidents().size());
+    }
+
     @Test void unobservedPlacesNeverProduceAndUnloadedDoesNotEraseConfirmedObservation() {
         WorldSim sim = resident(false);
         sim.advanceLife(1200, DAY);

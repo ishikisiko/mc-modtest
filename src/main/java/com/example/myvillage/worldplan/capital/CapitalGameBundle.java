@@ -16,6 +16,7 @@ public final class CapitalGameBundle {
             "display_name", "layout_family_id", "size", "source_offset", "placement", "terrain", "tiles", "entries", "life");
     public record Entry(String id, int x, int y, int z, String facing) { }
     public record QianjiOffice(String variant,String name,String scale,Entry entry,Entry board,Entry reader) { }
+    public record Household(String home,String work){}
     /** 只读提示消费实际施工的三维范围，不参与选址或世界生成。 */
     public record ManorSite(int x,int y,int z,int width,int height,int depth) {
         public boolean contains(int px,int py,int pz) {
@@ -31,6 +32,8 @@ public final class CapitalGameBundle {
     public final Optional<ManorSite> manorSite;
     public final QianjiOffice qianji;
     public final List<com.example.myvillage.estate.EstateDefinition> estates;
+    public final List<com.example.myvillage.housing.HousingPlot> housingPlots;
+    public final List<Household> npcHouseholds;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
     private final short[] topSolid;
     private final JsonObject life;
@@ -127,6 +130,19 @@ public final class CapitalGameBundle {
         if (properties.size()>4 || properties.stream().map(com.example.myvillage.estate.EstateDefinition::id).distinct().count()!=properties.size())
             throw new IllegalArgumentException("庄园数量或身份无效");
         estates=List.copyOf(properties);
+        var housing=new ArrayList<com.example.myvillage.housing.HousingPlot>();
+        if(root.has("player_housing"))for(var value:root.getAsJsonArray("player_housing"))
+            housing.add(com.example.myvillage.housing.HousingPlot.read(value.getAsJsonObject(),width,height,depth));
+        if(housing.size()>1)throw new IllegalArgumentException("每城只安排一块宅田");
+        housingPlots=List.copyOf(housing);
+        var households=new ArrayList<Household>();
+        if(root.has("npc_households"))for(var e:root.getAsJsonArray("npc_households")){
+            var o=e.getAsJsonObject();String home=text(o,"home"),work=text(o,"work");
+            if(!placeIds.contains(home)||!placeIds.contains(work))throw new IllegalArgumentException("院宅生活点不存在");
+            households.add(new Household(home,work));
+        }
+        if(households.size()>8||households.stream().map(Household::home).distinct().count()!=households.size())throw new IllegalArgumentException("院宅住户位置重复或过多");
+        npcHouseholds=List.copyOf(households);
     }
 
     private QianjiOffice readQianji(JsonObject root) {
@@ -200,6 +216,8 @@ public final class CapitalGameBundle {
         JsonObject projection = new JsonObject();
         if(root.has("qianji"))projection.add("qianji",root.get("qianji"));
         if(root.has("player_estates"))projection.add("player_estates",root.get("player_estates"));
+        if(root.has("player_housing"))projection.add("player_housing",root.get("player_housing"));
+        if(root.has("npc_households"))projection.add("npc_households",root.get("npc_households"));
         for (String key : IDENTITY_KEYS) {
             if (!root.has(key)) throw new IllegalArgumentException("Missing capital field " + key);
             projection.add(key, root.get(key));

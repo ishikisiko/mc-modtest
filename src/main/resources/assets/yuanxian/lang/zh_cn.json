@@ -4259,5 +4259,13 @@
   "tooltip.yuanxian.beast_material.use": "可携带到城镇铁匠处，选择“卖出”批量回收。",
   "screen.yuanxian.commerce.batch_detail_recycling": "总价 %s 枚；持续收购",
   "variant.yuanxian.courtyard_double_door.0": "木格双开大门",
-  "block.yuanxian.courtyard_double_door": "木格双开大门"
+  "block.yuanxian.courtyard_double_door": "木格双开大门",
+  "variant.yuanxian.courtyard_double_door.1": "院宅双开内门（2×3）",
+  "variant.yuanxian.courtyard_double_door.2": "院宅双开内门（3×3）",
+  "block.yuanxian.housing_details_0": "院宅建筑细部",
+  "block.yuanxian.housing_details_1": "院宅建筑细部",
+  "block.yuanxian.housing_details_2": "院宅建筑细部",
+  "block.yuanxian.housing_details_3": "院宅建筑细部",
+  "block.yuanxian.housing_details_4": "院宅建筑细部",
+  "block.yuanxian.housing_details_5": "院宅建筑细部"
 }

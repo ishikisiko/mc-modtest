@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "houses": [
+    {"id":"water_courts","name":"双院水廊宅","role":"player","source":"native_player","index":0,"description":"水庭、竹庭与起居院依次展开，桥廊连接两侧房间。"},
+    {"id":"library_bridge","name":"叠台书楼宅","role":"player","source":"native_player","index":1,"description":"书楼沿石台抬升，二层过廊面向院内，起居与读书分层安排。"},
+    {"id":"workshop_courts","name":"曲院作坊宅","role":"player","source":"native_player","index":2,"description":"前院接待与作坊相连，后院围住起居空间，回廊在院间转折。"},
+    {"id":"shanlang","name":"杉廊双院宅","role":"player","source":"astra_player","index":0,"description":"低回廊分隔前后两院，东北主楼与两侧低厢房形成高低层次。"},
+    {"id":"chitao","name":"赤陶桥院楼","role":"player","source":"astra_player","index":1,"description":"两栋楼错位围住院子，二层连桥连接生活空间。"},
+    {"id":"yantai","name":"岩台水庭居","role":"player","source":"astra_player","index":2,"description":"开放水庭连接错层卧室、石台与屋顶茶亭。"},
+    {"id":"bamboo","name":"竹庭廊宅","role":"npc","source":"native_npc","index":0,"description":"三面生活房围住竹庭，有顶回廊连接各房间。"},
+    {"id":"terrace","name":"坡台石木宅","role":"npc","source":"native_npc","index":1,"description":"石台承接起居层，卧房与观景廊位于上层。"},
+    {"id":"stream","name":"临溪工坊宅","role":"npc","source":"native_npc","index":2,"description":"临水工坊与生活房组成错落的院落。"},
+    {"id":"pine_gallery","name":"松廊小院","role":"npc","source":"astra_npc","index":0,"description":"主屋与两厢围院，厨房、书房接入同一条回廊。"},
+    {"id":"terracotta_longhouse","name":"赤陶长屋","role":"npc","source":"astra_npc","index":1,"description":"两层长屋集中安排家务、起居和卧室，前方保留有顶门廊。"},
+    {"id":"stone_terrace","name":"石阶露台居","role":"npc","source":"astra_npc","index":2,"description":"L 形生活房朝庭院敞开，抬高的卧室连接私人露台。"}
+  ]
+}

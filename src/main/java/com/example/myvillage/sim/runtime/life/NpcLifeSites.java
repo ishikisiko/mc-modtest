@@ -248,7 +248,10 @@ public final class NpcLifeSites {
         // Full D1 city worlds (V4+) retain their existing automatic commerce opt-in.
         WorldPlanRuntime.generator(server.overworld()).ifPresent(generator -> {
             if(generator.plan().rules().capitals!=null) {
-                for(var city:generator.plan().cities())if(boundCapitals.contains(city.cityId()))enableCommerce(server,sim,city.cityId());
+                for(var city:generator.plan().cities())if(boundCapitals.contains(city.cityId())){
+                    enableCommerce(server,sim,city.cityId());
+                    for(var pair:city.bundle().npcHouseholds)if(sim.staffHousehold(city.cityId(),pair.home(),pair.work())>0)dirty(server);
+                }
                 return;
             }
             if (com.example.myvillage.worldplan.WorldPlanRules.compressed(generator.plan().rules().algorithm)

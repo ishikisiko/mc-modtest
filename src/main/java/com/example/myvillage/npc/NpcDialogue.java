@@ -70,6 +70,7 @@ public final class NpcDialogue {
 
     public static void open(ServerPlayer p, NpcEntity npc) {
         if (!valid(p, npc) || !allow(p)) return;
+        if(com.example.myvillage.housing.HousingRuntime.open(p,npc))return;
         var estate = com.example.myvillage.estate.EstateRuntime.interact(p,npc,"estate_home");
         if (estate.isPresent()) { send(p,npc,estate.get().lines(),estate.get().options()); return; }
         var sim = npc.isLedgerAvatar() ? WorldSimRuntime.sim().orElse(null) : null;

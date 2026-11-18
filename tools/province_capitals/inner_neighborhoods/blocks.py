@@ -138,6 +138,7 @@ class BlockCity:
         if o.get("family") in ("stilt_longhouse","pier_warehouse"):
             source_floor=int(np.median(self.source_ground[b:B,a:A]))
         delta=o["grade"]-source_floor
+        o["delta"]=delta
         lo=max(lo,-delta);hi=min(hi,self.h-delta)
         v=np.rot90(self.source[lo:hi,b:B,a:A],-q,axes=(1,2))
         self.blocks[lo+delta:hi+delta,z:Z,x:X]=self.rotate_codes(v,q)

@@ -47,6 +47,11 @@ def integrate(out):
         if region=='zhongzhou':
             from qianji.infill_export import integrate as integrate_infill
             reports.append(integrate_infill(out,city,inputs));continue
+        if city.get('qianji',{}).get('placement')=='town_housing_plan':
+            for ref in [city['terrain'],*city['tiles']]:
+                p=resource_file(out,ref.get('resource',ref.get('template')),template='template'in ref)
+                if sha(p.read_bytes())!=ref['sha256']:raise ValueError('城内千机阁切片摘要不符')
+            reports.append(city['qianji']);continue
         if 'qianji' in city:
             for ref in [city['terrain'],*city['tiles']]:
                 p=resource_file(out,ref.get('resource',ref.get('template')),template='template' in ref)

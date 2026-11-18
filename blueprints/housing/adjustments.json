@@ -1,0 +1,8 @@
+{
+  "format":1,
+  "shared_passages":[
+    {"source_id":"yantai","axis":"x","fixed":26,"a":20,"reason":"储藏北门与起居厅服务门属于同一条短通道，保留起居厅一端的整门，储藏一端保持敞口。"},
+    {"source_id":"yantai","axis":"z","fixed":33,"a":35,"reason":"两道相邻墙线共用卧室西门，台阶一侧保持敞口。"},
+    {"source_id":"stone-terrace","axis":"x","fixed":23,"a":21,"reason":"厨房与起居室之间的相邻墙线共用一套门，厨房一端保持敞口。"}
+  ]
+}

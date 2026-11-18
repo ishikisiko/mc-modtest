@@ -14,19 +14,25 @@ class ProvinceCapitalV11FocusedTest {
     private static JsonObject json(String path)throws Exception{
         try(var in=ProvinceCapitalV11FocusedTest.class.getResourceAsStream(path)){assertNotNull(in,path);return JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();}
     }
-    @Test void v10StaysFrozenAndV11ChangesOnlyAlgorithmAndAssetReferences()throws Exception{
-        CapitalGameBundle.requireHash(CapitalGameBundle.readResource("yuanxian:worldplan/frozen_v10.json",4*1024*1024),"9308a842d9dfedb64c43622cac1aaf4d46b07c614ed66c40d3e3d3484537fbc1","frozen_v10");
-        var old=json(WorldPlanRules.V10_RESOURCE);var current=json(WorldPlanRules.V11_RESOURCE);var rules=new WorldPlanRules(current.toString());
+    @Test void currentDevelopmentResourcesContainOnlyTheCurrentWorldplan()throws Exception{
+        var current=json(WorldPlanRules.V11_RESOURCE);var rules=new WorldPlanRules(current.toString());
+        assertEquals(WorldPlanRules.V11_ALGORITHM,rules.algorithm);
         assertEquals(8,rules.capitals.bundles.size());assertEquals(192,rules.capitals.lifePlaceLimit);
         assertEquals(Set.of("v4"),Set.copyOf(rules.capitals.bundles.stream().map(b->b.resourceVersion).toList()));
-        current.addProperty("algorithm",WorldPlanRules.V10_ALGORITHM);current.getAsJsonObject("capitals").add("assets",old.getAsJsonObject("capitals").get("assets"));current.getAsJsonObject("capitals").add("bundles",old.getAsJsonObject("capitals").get("bundles"));
-        assertEquals(old,current);
+        for(int version=1;version<=10;version++){
+            String resource="yuanxian:worldplan/frozen_v"+version+".json";
+            assertThrows(IllegalStateException.class,()->CapitalGameBundle.readResource(resource,4*1024*1024),resource);
+        }
     }
-    @Test void v10RejectsV4AndV11RejectsTheOldResourceVersion()throws Exception{
-        var old=json(WorldPlanRules.V10_RESOURCE);old.getAsJsonObject("capitals").getAsJsonObject("assets").getAsJsonArray("accepted_versions").set(0,new JsonPrimitive("v4"));
-        assertThrows(IllegalArgumentException.class,()->new WorldPlanRules(old.toString()));
-        var current=json(WorldPlanRules.V11_RESOURCE);current.getAsJsonObject("capitals").getAsJsonObject("assets").getAsJsonArray("accepted_versions").set(0,new JsonPrimitive("v3"));
-        assertThrows(IllegalArgumentException.class,()->new WorldPlanRules(current.toString()));
+    @Test void currentWorldplanRejectsRetiredAlgorithmsAndAssetVersions()throws Exception{
+        for(int version=1;version<=10;version++){
+            var current=json(WorldPlanRules.V11_RESOURCE);current.addProperty("algorithm","yuanxian:worldplan_v"+version);
+            assertThrows(IllegalArgumentException.class,()->new WorldPlanRules(current.toString()));
+        }
+        for(String version:new String[]{"v1","v2","v3","v5"}){
+            var current=json(WorldPlanRules.V11_RESOURCE);current.getAsJsonObject("capitals").getAsJsonObject("assets").getAsJsonArray("accepted_versions").set(0,new JsonPrimitive(version));
+            assertThrows(IllegalArgumentException.class,()->new WorldPlanRules(current.toString()));
+        }
     }
     @Test void v11RoundTripKeepsThePlanAndAllEightCities()throws Exception{
         var rules=new WorldPlanRules(json(WorldPlanRules.V11_RESOURCE).toString());var plan=new WorldPlan(20261029L,rules);

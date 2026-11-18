@@ -2315,5 +2315,7 @@
   "fate.yuanxian.effect.crafting_variance_multiplier": "炼丹／炼器正态方差倍率",
   "screen.yuanxian.crafting.fates_pending": "请在测灵碑确认三条开局天赋，再查看生成的技艺资质。",
   "variant.yuanxian.courtyard_double_door.0": "木格双开大门",
-  "block.yuanxian.courtyard_double_door": "木格双开大门"
+  "block.yuanxian.courtyard_double_door": "木格双开大门",
+  "variant.yuanxian.courtyard_double_door.1": "院宅双开内门（2×3）",
+  "variant.yuanxian.courtyard_double_door.2": "院宅双开内门（3×3）"
 }

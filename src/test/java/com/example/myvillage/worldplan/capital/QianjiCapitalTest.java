@@ -26,7 +26,16 @@ class QianjiCapitalTest {
             int dx=q.board().facing().equals("east")?1:q.board().facing().equals("west")?-1:0;
             int dz=q.board().facing().equals("south")?1:q.board().facing().equals("north")?-1:0;
             assertEquals(q.board().x()+dx,q.reader().x());assertEquals(q.board().z()+dz,q.reader().z());
-            assertEquals(rank==5?"east":"south",q.entry().facing());
+            var faces=Map.of("zhongzhou","east","ximo","west","beiyuan","west","nanjiang","north",
+                    "moyu","east","donghai","east","lingyue","east","donghuang","east");
+            assertEquals(faces.get(city.regionId),q.entry().facing());
+            if(rank<5){
+                var root=JsonParser.parseString(new String(CapitalGameBundle.readResource(city.resource,8*1024*1024),StandardCharsets.UTF_8)).getAsJsonObject();
+                var court=root.getAsJsonObject("qianji");
+                assertEquals("enclosed_town_ward",court.get("placement").getAsString());
+                assertEquals(5,court.get("gate_width").getAsInt());assertEquals(5,court.get("gate_height").getAsInt());
+                assertTrue(court.getAsJsonArray("rooms").size()>=2);
+            }
             for(long seed:new long[]{20261112,42}){
                 var world=new WorldPlan(seed,rules);var placed=world.capitalOf(city.regionId).orElseThrow();
                 assertEquals(city.regionId,world.sample(placed.x()+q.reader().x(),placed.z()+q.reader().z()).regionId());

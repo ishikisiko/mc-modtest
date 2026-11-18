@@ -38,6 +38,9 @@ class ManorPlanner:
         self.spec=spec;self.layout=read(spec['sources']['layout']);self.catalog=catalog;self.env=copy.deepcopy(environment)
         if self.layout['schema']!=1 or self.layout['city_id']!=spec['city_id'] or city['city_id']!=spec['city_id']:
             raise ValueError('正式重排蓝图城市身份不一致')
+        from housing.town_plan import prepare
+        city,environment,self.layout=prepare(city['region_id'],city,environment,self.layout)
+        self.env=copy.deepcopy(environment)
         self.region=city['region_id'];self.source_city=copy.deepcopy(city)
         self.native_rules=read(spec['sources']['native_rules'])
         self.city=copy.deepcopy(city);self.city['dimensions']=self.layout['dimensions']
@@ -51,6 +54,9 @@ class ManorPlanner:
         self.road_columns=set();self.private_owner={};self.building_columns={};self.core=set();self.manor_cells={};self.manor_boxes=[]
         self.goal_distances={};self.public_garden_columns=set();self.courtyards=[];self.access_field={};self.floor_columns=set()
         self.parcels={b['id']:b for b in self.layout['buildings']}
+        waystone_plan=read('blueprints/capital_waystones/sites.json')
+        self.housing_waystone_sites=next(c['sites']for c in waystone_plan['cities']if c['id']==self.region)
+        self.housing_waystones={p for site in self.housing_waystone_sites for p in half_cells([site['bounds'][0],site['bounds'][1],site['bounds'][2]+1,site['bounds'][3]+1])}
         self.removed=set(environment.get('remove_buildings',[]))|set(self.layout['retired_buildings'])
         active={b['id'] for b in city['buildings']}-set(environment.get('remove_buildings',[]))
         if set(self.parcels)|set(self.layout['retired_buildings'])!=active or set(self.parcels)&set(self.layout['retired_buildings']):
@@ -67,10 +73,18 @@ class ManorPlanner:
                 if g['owner'] not in self.parcels:raise ValueError('私院缺少在用主人')
                 for p in half_cells(g['box']):self.private_owner[p]=g['owner']
             else:self.public_garden_columns.update(half_cells(g['box']))
+        from housing.town_plan import private_link
+        for g in self.layout['gardens']:
+            if g['access']!='private':continue
+            owner=g['owner']
+            for p in private_link(self.parcels[owner]['box'],g['box']):
+                if p in self.building_columns or self.private_owner.get(p,owner)!=owner:raise ValueError('私院连接带侵入其他院宅 '+g['id'])
+                self.private_owner[p]=owner
         self.core=half_cells(self.layout['manor']['bounds'])|half_cells(self.layout['landmark']['bounds'])
         if self.core&self.building_columns.keys():raise ValueError('府邸或地标侵入保留建筑')
         if any(self.core&half_cells(g['box']) for g in self.layout['gardens']):raise ValueError('府邸或地标侵入保留庭院')
         if any(set(self.building_columns)&half_cells(g['box']) for g in self.layout['gardens']):raise ValueError('庭院侵入保留建筑地块')
+        if self.housing_waystones&(self.core|set(self.building_columns)|set(self.private_owner)):raise ValueError('扩建规划覆盖保留传送亭台 '+self.region)
 
     def tile(self,key):
         if key not in self.cache:self.cache[key]={p:r[0] for p,r in self.model.construction.tile(*key).items()}
@@ -218,6 +232,8 @@ class ManorPlanner:
         # 所有交叉口共享同一个高度场；只抬低格形成连续阶坡，不重写全城地形。
         field={};owners=defaultdict(set);roads=[]
         road_inputs=copy.deepcopy(self.layout['roads'])
+        from housing.town_plan import route_roads,add_lanes
+        road_inputs=add_lanes(self,route_roads(self,road_inputs))
         base_columns=set()
         for r in road_inputs:
             for a,b in zip(r['points'],r['points'][1:]):
@@ -251,6 +267,7 @@ class ManorPlanner:
                 while end is not None:pts.append(list(end));end=previous[end]
                 pts.reverse()
             if len(pts)>1:road_inputs.append({'id':'alley_'+hint['building_id'],'name':self.summaries[hint['building_id']]['name']+'公共接巷','width':1,'points':pts,'kind':'alley','surface':'lane','gate_detour':adjusted})
+        road_inputs=route_roads(self,road_inputs)
         for raw in road_inputs:
             r=copy.deepcopy(raw);samples=[]
             for a,b in zip(r['points'],r['points'][1:]):
@@ -258,9 +275,10 @@ class ManorPlanner:
                 length=max(abs(a[0]-b[0]),abs(a[1]-b[1]));vx=0 if a[0]==b[0] else (1 if b[0]>a[0] else -1);vz=0 if a[1]==b[1] else (1 if b[1]>a[1] else -1)
                 for i in range(length+1):
                     x,z=a[0]+vx*i,a[1]+vz*i;y=self.original_terrain[z*self.width+x]+1
+                    local_x=x-self.layout['_housing']['city_shift'][0]
                     if self.region=='donghai':y=8
-                    elif self.region=='nanjiang' and (x>=130 or r['kind']=='bridge'):y=17 if x>=130 else 14
-                    elif self.region=='moyu':y=18 if x<120 else 27 if x>=150 else 18+round((x-120)*9/30)
+                    elif self.region=='nanjiang' and (local_x>=130 or r['kind']=='bridge'):y=17 if local_x>=130 else 14
+                    elif self.region=='moyu':y=18 if local_x<120 else 27 if local_x>=150 else 18+round((local_x-120)*9/30)
                     elif self.region=='lingyue' and r['name'] in ('玄璧环场','观璧接廊'):y=32
                     elif self.region=='lingyue' and r['name']=='沟桥':y=28+round((x-118)*4/11)
                     samples.append([x,y,z])
@@ -271,6 +289,15 @@ class ManorPlanner:
                         field[xx,zz]=max(field.get((xx,zz),0),y);owners[xx,zz].add(r['id'])
             r['points']=samples;roads.append(r)
         fixed={p:self.summaries[self.building_columns[p]]['position'][1] for p in field if p in self.building_columns and self.summaries[self.building_columns[p]]['role']=='gate'}
+        for q in self.housing_models:
+            x,y,z=q['entry']
+            if(x,z)in field:fixed[x,z]=y
+            for dx,dz in DIR.values():
+                p=x+dx,z+dz
+                if p not in field:continue
+                value=max(y-1,min(y+1,field[p]))
+                if p in fixed and not y-1<=fixed[p]<=y+1:raise ValueError('千机阁与相邻固定路口标高冲突')
+                fixed[p]=value
         for entry in self.model.entries:
             x,y,z=entry['position']
             if (x,z) not in field:raise ValueError('重排街路遗漏保留城门外接口：'+entry['id'])
@@ -416,11 +443,13 @@ class ManorPlanner:
                 xx,zz=x+dx,z+dz;column=(xx,zz)
                 if column in columns:continue
                 if not(0<=xx<self.width and 0<=zz<self.depth) or column in self.core:continue
+                if column in self.housing_reserved:continue
+                if column in self.housing_waystones:continue
                 if self.building_columns.get(column,owner)!=owner:continue
                 if self.private_owner.get(column,owner)!=owner:continue
                 if private and column in self.road_field:continue
                 if private and column in self.public_garden_columns:continue
-                if self.is_wet(xx,zz) and column not in self.road_field and self.private_owner.get(column)!=owner:continue
+                if self.is_wet(xx,zz) and column not in self.road_field and column not in self.floor_columns and self.private_owner.get(column)!=owner:continue
                 heights=(y,) if private else (y,y-1,y+1)
                 for yy in heights:
                     np=(xx,yy,zz)
@@ -462,6 +491,7 @@ class ManorPlanner:
             self.emit_floor(x,y,z,tag,'road',stair,surface=self.surfaces.access(points,i))
 
     def new_door_candidates(self,bid):
+        if bid not in self.templates:return {}
         template=self.templates[bid];src=template.source;allowed=set()
         for z in range(template.d):
             for x in range(template.w):
@@ -679,8 +709,9 @@ class ManorPlanner:
 
     def compile(self):
         if not self.built:
-            self.prepare_buildings();self.validate_passages();self.prepare_manor();self.prepare_roads();self.emit_structures();self.grade_gardens()
-            self.connect_buildings();self.connect_manor();self.complete_gardens();self.emit_walls();self.audit()
+            from housing.town_plan import reserve,emit,connect_plot,landscape
+            self.prepare_buildings();self.validate_passages();self.prepare_manor();reserve(self);self.prepare_roads();self.emit_structures();emit(self);self.grade_gardens()
+            self.connect_buildings();self.connect_manor();self.complete_gardens();connect_plot(self);landscape(self);self.emit_walls();self.audit()
             self.built=True
         return self.data()
 

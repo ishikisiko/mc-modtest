@@ -19,7 +19,7 @@ from province_capitals.blueprint_plan.generate import make_planner,digest
 from province_capitals.blueprint_plan.manor_relayout import read,AIR
 from province_capitals.blueprint_plan.manor_relayout_export import source_hashes,check_tile,pillar_groups
 from province_capitals.blueprint_plan.atomic_blocks import collect
-from province_capitals.regional.v2.export_game import write_tile
+from province_capitals.blueprint_plan.nbt_entities import write_tile
 from province_capitals.game.compile import life_inputs,write,sha
 
 REGIONS=('beiyuan','nanjiang','lingyue','ximo','donghai','donghuang','moyu')
@@ -32,6 +32,8 @@ def entry_points(planner):
             entries.append({'id':building['id'],'position':building['entrance'],'facing':building['facing']})
     entries.append({'id':'lord_manor','position':planner.manor_entry,
                     'facing':('north','east','south','west')[planner.layout['manor']['rotation_quarters']]})
+    housing=planner.layout['_housing']
+    entries.append({'id':'qianji','position':housing['qianji_entry'],'facing':housing['qianji_board']['facing']})
     if len({p['id'] for p in entries})!=len(entries):raise ValueError('默认城市入口身份重复')
     for entry in entries:
         position=tuple(entry['position'])
@@ -62,11 +64,14 @@ def export(region,out):
     # 检查完整组件，但不搬到跨区块模板：运行时直接写当前区块的状态，不触发逐块放置更新。
     planner.refs={};planner.dirty=set(model.construction.by_tile)
     atomic=collect(planner,planner.native_rules,read(planner.native_rules['furniture_source']))+pillar_groups(planner)
+    from housing.town_plan import entities,bundle_fields
+    extra_entities=entities(planner)
     for tx,tz in sorted(model.construction.by_tile,key=lambda p:(p[1],p[0])):
         if not(0<=tx<model.width//16 and 0<=tz<model.depth//16):raise ValueError('默认主城切片越出所属城市')
         cells=model.construction.tile(tx,tz)
         if not cells:continue
-        path=structures/f'tile_{tx}_{tz}.nbt';blocks,colors=write_tile(path,cells,model.height)
+        local_entities={(x%16,y,z%16):entity for(x,y,z),entity in extra_entities.items()if x//16==tx and z//16==tz}
+        path=structures/f'tile_{tx}_{tz}.nbt';blocks,colors,_=write_tile(path,cells,model.height,local_entities)
         if colors>4096:raise ValueError('默认主城切片超出既有 palette 边界')
         check_tile(path,cells);palette.update(v[0] for v in cells.values())
         tiles.append({'x':tx*16,'z':tz*16,'template':f'yuanxian:province_capitals/v4/{city_id}/'+path.stem,
@@ -94,11 +99,13 @@ def export(region,out):
                         'complete_component_groups':len(atomic)},
             'blueprint':{'input':str(spec_path.relative_to(ROOT)),'layout':spec['sources']['layout'],
                          'manor':data['manor'],'landmark':data['landmark'],'gardens':data['gardens'],
+                         'public_passages':data['public_passages'],
                          'checks':data['checks'],'construction_audit':data['construction_audit']},
             'source':{'generator':'tools/province_capitals/blueprint_plan/runtime.py','hashes':inputs,
                       'source_fingerprint':digest(inputs),'terrain_semantics':'top-solid 地基；稀疏 NBT 覆盖实际地坪、架空支墩、水、楼梯和空气。'},
             'status':{'generation':'completed','nbt_roundtrip':'pass','palette':'pass','minecraft':'not_run',
                       'owner_appearance':'not_verified','fps':'not_verified','multiplayer':'not_verified'}}
+    bundle.update(bundle_fields(planner))
     life_inputs(bundle,model.width,model.height,model.depth,192)
     if inputs!=source_hashes(spec_path,spec):raise ValueError('默认主城生成期间输入变化；保留失败产物')
     write(data_dir/'city.json',bundle)

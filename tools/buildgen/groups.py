@@ -23,6 +23,13 @@ class SettlementGroup:
 
 
 GROUPS: Dict[str, SettlementGroup] = {
+    "housing_residences": SettlementGroup(
+        group_id="housing_residences",style_id="cultivation_town",
+        archetype_roster=("living","bedroom","kitchen","storage","gallery","court"),
+        layout_strategy="authored_housing_templates",
+        scale_params={"authored_input":"blueprints/housing/catalog.json"},
+        classifications={"living":"residential","bedroom":"residential","kitchen":"functional","storage":"functional","gallery":"circulation","court":"garden"},
+    ),
     "qianji": SettlementGroup(
         group_id="qianji",style_id="cultivation_town",
         archetype_roster=("gate","office","archive","command","store"),

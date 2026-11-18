@@ -1,0 +1,142 @@
+{
+  "format": 1,
+  "regions": {
+    "donghuang": {
+      "gardens": {},
+      "wall_additions": []
+    },
+    "lingyue": {
+      "gardens": {},
+      "wall_additions": []
+    },
+    "beiyuan": {
+      "gardens": {
+        "beiyuan_garden_5": [
+          151,
+          30,
+          158,
+          37
+        ]
+      },
+      "wall_additions": []
+    },
+    "donghai": {
+      "gardens": {
+        "donghai_garden_10": [
+          128,
+          133,
+          138,
+          141
+        ],
+        "donghai_garden_11": [
+          155,
+          181,
+          165,
+          189
+        ],
+        "donghai_garden_13": [
+          122,
+          63,
+          132,
+          71
+        ],
+        "donghai_garden_08": [
+          156,
+          229,
+          163,
+          236
+        ],
+        "donghai_garden_09": [
+          163,
+          232,
+          172,
+          238
+        ],
+        "donghai_garden_19": [
+          87,
+          233,
+          99,
+          249
+        ]
+      },
+      "wall_additions": [
+        [
+          84,
+          230,
+          102,
+          252
+        ]
+      ]
+    },
+    "ximo": {
+      "gardens": {
+        "ximo_garden_20": [
+          250,
+          234,
+          258,
+          244
+        ],
+        "ximo_garden_13": [
+          185,
+          232,
+          192,
+          239
+        ]
+      },
+      "wall_additions": []
+    },
+    "nanjiang": {
+      "gardens": {
+        "nanjiang_garden_9": [
+          164,
+          102,
+          171,
+          109
+        ],
+        "nanjiang_garden_1": [
+          19,
+          42,
+          26,
+          49
+        ],
+        "nanjiang_garden_3": [
+          16,
+          30,
+          26,
+          42
+        ]
+      },
+      "wall_additions": []
+    },
+    "moyu": {
+      "gardens": {
+        "moyu_garden_3": [
+          5,
+          197,
+          13,
+          207
+        ],
+        "moyu_garden_2": [
+          83,
+          257,
+          93,
+          269
+        ],
+        "moyu_garden_18": [
+          232,
+          175,
+          239,
+          182
+        ]
+      },
+      "wall_additions": [
+        [
+          3,
+          194,
+          16,
+          210
+        ]
+      ]
+    }
+  }
+}

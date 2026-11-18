@@ -110,6 +110,7 @@ public abstract class NpcEntity extends PathfinderMob {
     /** Transient executor only. Identity, activity, position and progress live in the world ledger. */
     private NpcLifeGoal lifeGoal;
     private Goal lifeDoorGoal;
+    private Goal courtyardDoorGoal;
     private net.minecraft.core.BlockPos rogueAnchor;
     private String rogueDimension = "";
     private long conversationUntil;
@@ -220,15 +221,22 @@ public abstract class NpcEntity extends PathfinderMob {
         if (level().isClientSide() || !isLedgerAvatar()) {
             throw new IllegalStateException("life behaviour requires a server ledger avatar");
         }
-        // Open decorative shutters are classified as TRAPDOOR by vanilla even when their
-        // vertical collision blocks the crossing. Town routes use doors and authored entries.
-        setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.TRAPDOOR, -1.0F);
         if (lifeGoal != null) {
             goalSelector.removeGoal(lifeGoal);
         }
+        configureBuildingNavigation();
+        lifeGoal = new NpcLifeGoal(this, epoch);
+        goalSelector.addGoal(2, lifeGoal);
+    }
+
+    /** 正式居民和独立测试 NPC 共用相同的建筑导航、门框碰撞与开门配置。 */
+    public void configureBuildingNavigation() {
+        if(level().isClientSide())throw new IllegalStateException("建筑导航只能在服务器配置");
+        setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.TRAPDOOR, -1.0F);
         if (lifeDoorGoal != null) {
             goalSelector.removeGoal(lifeDoorGoal);
         }
+        if(courtyardDoorGoal!=null)goalSelector.removeGoal(courtyardDoorGoal);
         // Resident routes need collision-safe stairs, landings and interior corners.
         if (!(navigation instanceof com.example.myvillage.sim.runtime.life.NpcLifeNavigation)) {
             navigation.stop();
@@ -238,9 +246,9 @@ public abstract class NpcEntity extends PathfinderMob {
             ground.setCanOpenDoors(true);
             lifeDoorGoal = new OpenDoorGoal(this, true);
             goalSelector.addGoal(1, lifeDoorGoal);
+            courtyardDoorGoal=new com.example.myvillage.sim.runtime.life.NpcCourtyardDoorGoal(this);
+            goalSelector.addGoal(1,courtyardDoorGoal);
         }
-        lifeGoal = new NpcLifeGoal(this, epoch);
-        goalSelector.addGoal(2, lifeGoal);
     }
 
     /** Rechecks an active job before ledger work can be paid, including a newly projected body. */

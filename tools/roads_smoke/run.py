@@ -95,7 +95,7 @@ class Server:
             'max-tick-time': 180000, 'max-players': 2, 'sync-chunk-writes': 'true', 'pause-when-empty-seconds': -1}
         (self.game/'server.properties').write_text('\n'.join(f'{k}={v}' for k,v in properties.items())+'\n')
         (self.game/'eula.txt').write_text('eula=true\n')
-        args = ['./gradlew', '-I', 'tools/roads_smoke/runtime.init.gradle', 'runAcceptanceServer',
+        args = ['./gradlew', '-I', getattr(self,'init_script','tools/roads_smoke/runtime.init.gradle'), 'runAcceptanceServer',
             '-x', 'processResources', '--no-daemon', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx6g']
         self.log = (self.out/f'server-{self.starts}.log').open('w')
         env = dict(os.environ, MYVILLAGE_ROAD_ADAPTER_GAME=str(self.game))

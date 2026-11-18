@@ -35,13 +35,8 @@ def source_entities(city, resources):
     for o in city.objects:
         if "source" not in o:continue
         a,b,A,B=o["source"];x,z,X,Z=o["box"];turn=o.get("turn",0)
-        if o["type"]=="anchor":
-            low,high=0,city.h;delta=o["delta"]
-        else:
-            low,high=o["source_y"];floor=o["source_floor"]
-            if o.get("family") in ("stilt_longhouse","pier_warehouse"):
-                floor=int(np.median(city.source_ground[b:B,a:A]))
-            delta=o["grade"]-floor
+        low,high=o.get("source_y",(0,city.h))
+        delta=o["delta"]
         for tx in range(a//16,(A-1)//16+1):
             for tz in range(b//16,(B-1)//16+1):
                 for (u,y,v),data in by_chunk[tx,tz].items():
@@ -67,22 +62,25 @@ def check_nbt(path,size,cells,entities):
     return found
 
 
-def emit(city,directory,resources):
+def emit(city,directory,resources,*,standalone=True):
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     states=city.states;volume=city.blocks
     objects=source_entities(city,resources)
-    ox,oz,X,Z=city.qianji["bounds"];base=city.qianji["base_y"]
-    obj=next(o for o in city.objects if o["type"]=="qianji")
-    model=city.qianji_model;turn=obj["turn"]
-    cells={}
-    for u,y,v in model.blocks:
-        dx,dz=rotate(u,v,model.w,model.d,turn)
-        cells[dx,y,dz]=(states[volume[base+y,oz+dz,ox+dx]],"qianji","court")
-    signs={(x-ox,y-base,z-oz):data for (x,y,z),data in objects.items() if ox<=x<X and oz<=z<Z and base<=y<base+model.h}
-    size=(X-ox,model.h,Z-oz)
-    compound=directory/"compound.nbt"
-    write_tile(compound,cells,model.h,signs,size=size)
-    check_nbt(compound,size,cells,signs)
+    standalone_ref=None
+    if standalone:
+        ox,oz,X,Z=city.qianji["bounds"];base=city.qianji["base_y"]
+        obj=next(o for o in city.objects if o["type"]=="qianji")
+        model=city.qianji_model;turn=obj["turn"]
+        cells={}
+        for u,y,v in model.blocks:
+            dx,dz=rotate(u,v,model.w,model.d,turn)
+            cells[dx,y,dz]=(states[volume[base+y,oz+dz,ox+dx]],"qianji","court")
+        signs={(x-ox,y-base,z-oz):data for (x,y,z),data in objects.items() if ox<=x<X and oz<=z<Z and base<=y<base+model.h}
+        size=(X-ox,model.h,Z-oz)
+        compound=directory/"compound.nbt"
+        write_tile(compound,cells,model.h,signs,size=size)
+        check_nbt(compound,size,cells,signs)
+        standalone_ref={"file":compound.name,"sha256":digest(compound.read_bytes()),"size":size,"origin":[ox,base,oz],"signs":len(signs)}
     terrain=city.city["terrain"]
     foundation=[city.code(terrain[k]) for k in ("top_block","subsurface_block","fill_block")]
     ground=city.ground.astype("<i2")
@@ -123,12 +121,14 @@ def emit(city,directory,resources):
                 restored[y,v,u]=canonical_ids[state]
             if not np.array_equal(restored,normalize[tile]):
                 raise ValueError(("高度场与切片未能复原整城",x,z))
-            file_rows.append({"file":name,"x":x,"z":z,"sha256":digest(path.read_bytes()),"blocks":n})
+            file_rows.append({"file":name,"x":x,"z":z,"sha256":digest(path.read_bytes()),"blocks":n,
+                              "palette_count":colors,"bytes":path.stat().st_size})
             counts+=n;entity_count+=b
     record={"format":"minecraft_structure_templates","region":city.region,"size":city.plan["size"],
             "terrain":{**{k:terrain[k] for k in ("top_block","subsurface_block","fill_block","subsurface_depth")},
                        "file":terrain_file.name,"encoding":"i16le_z_major_top_solid","sha256":digest(terrain_file.read_bytes())},
-            "compound":{"file":compound.name,"sha256":digest(compound.read_bytes()),"size":size,"origin":[ox,base,oz],"signs":len(signs)},
             "tiles":file_rows,"tile_blocks":counts,"preserved_block_entities":entity_count,"entry":city.qianji["entry"],"board":city.qianji["board"]}
+    if standalone_ref is not None:
+        record["compound"]=standalone_ref
     write(directory/"layout.json",record)
     return record

@@ -16,7 +16,7 @@ class DefaultManorCapitalTest {
     }
     private static WorldPlanRules rules() { return new WorldPlanRules(json("yuanxian:worldplan/frozen_v11.json").toString()); }
 
-    @Test void landCityAnchorsDoNotFollowTheSeabedBelowTheWaterSurface() {
+    @Test void landCityAnchorsDoNotFollowTheSeabedBelowTheWaterSurface() throws Exception {
         var rules=rules();
         for(long seed:new long[]{6166082384136082383L,-5039563940284781517L,2211984914834465989L}) {
             var plan=new WorldPlan(seed,rules);
@@ -24,14 +24,27 @@ class DefaultManorCapitalTest {
                 assertTrue(city.originY()+city.bundle().anchorY>=rules.seaLevel,city.regionId()+" seed="+seed);
             assertEquals(8,plan.cities().size());
         }
-        var coast=new WorldPlan(6166082384136082383L,rules).capitalOf("ximo").orElseThrow();
-        assertEquals(832,coast.x());assertEquals(-6224,coast.z());
-        assertEquals(rules.seaLevel,coast.originY()+coast.bundle().anchorY);
+        var natural=WorldPlan.class.getDeclaredMethod("naturalValues",double.class,double.class);
+        natural.setAccessible(true);
+        int lowSites=0;
+        for(long seed:new long[]{6166082384136082383L,5L,-5039563940284781517L,2211984914834465989L}){
+            var plan=new WorldPlan(seed,rules);
+            for(var city:plan.cities()){
+                if(!city.bundle().verticalMode.equals("terrain_relative"))continue;
+                var values=natural.invoke(plan,city.x()+city.bundle().width/2.0,city.z()+city.bundle().depth/2.0);
+                var height=values.getClass().getDeclaredMethod("height");height.setAccessible(true);
+                if((double)height.invoke(values)<rules.seaLevel){
+                    assertEquals(rules.seaLevel,city.originY()+city.bundle().anchorY,city.regionId());
+                    lowSites++;
+                }
+            }
+        }
+        assertTrue(lowSites>0,"扩城之后仍须有自然地面低于海面的夹具");
     }
 
     @Test void currentDefaultReferencesSevenFormalManorsAndTheExistingZhongzhou() {
         var rules=rules();assertEquals(8,rules.capitals.bundles.size());assertEquals(192,rules.capitals.lifePlaceLimit);
-        var houses=Map.of("beiyuan",55,"nanjiang",55,"lingyue",53,"ximo",53,"donghai",55,"donghuang",60,"moyu",55);
+        var houses=Map.of("beiyuan",58,"nanjiang",59,"lingyue",57,"ximo",56,"donghai",60,"donghuang",64,"moyu",53);
         int total=0,services=0;
         for(var bundle:rules.capitals.bundles) {
             assertEquals("v4",bundle.resourceVersion);
@@ -44,10 +57,14 @@ class DefaultManorCapitalTest {
             assertTrue(city.getAsJsonObject("blueprint").getAsJsonObject("manor").get("native_architectural_cells").getAsInt()>20000);
             assertTrue(bundle.entries.stream().anyMatch(e->e.id().equals("lord_manor")));
             assertTrue(bundle.life().getAsJsonArray("places").size()<=192);
-            if(bundle.regionId.equals("donghai"))assertEquals(256,bundle.width);
+            assertEquals(1,bundle.housingPlots.size());
+            var homes=city.getAsJsonArray("npc_housing");
+            assertEquals(homes.size(),bundle.npcHouseholds.size());
+            assertEquals(switch(bundle.regionId){case "ximo"->3;case "donghai","nanjiang"->5;default->4;}, homes.size());
+            if(bundle.regionId.equals("donghai"))assertEquals(384,bundle.width);
             if(bundle.regionId.equals("moyu"))assertEquals(128,bundle.height);
         }
-        assertEquals(386,total);assertEquals(51,services);
+        assertEquals(407,total);assertEquals(73,services);
     }
 
     @Test void theDefaultPresetAndAllRuntimeResourcesHaveTheSameFrozenIdentity() throws Exception {

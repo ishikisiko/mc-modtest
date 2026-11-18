@@ -505,8 +505,10 @@ tasks.register('generateStarterMineAssets', Exec) {
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/starter_mine/resources'))
 tasks.named('processResources') { dependsOn 'generateStarterMineAssets' }
 
+def housingGeneratorInputs = new groovy.json.JsonSlurper().parse(file('blueprints/housing/generator_inputs.json'))
+
 tasks.register('generateProvinceCapitalV11Assets', Exec) {
-    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets', 'verifyQianjiAssets', 'generateSectBlueprintAssets', 'generateStarterMineAssets'
+    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets', 'verifyQianjiAssets', 'generateSectBlueprintAssets', 'generateStarterMineAssets', 'generateHousingAssets'
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
@@ -514,6 +516,7 @@ tasks.register('generateProvinceCapitalV11Assets', Exec) {
     inputs.files(fileTree('blueprints/wilderness'),fileTree('tools/wilderness_habitats'),fileTree('src/main/resources/data/yuanxian/worldgen/region_profile'))
     inputs.files(fileTree('blueprints/qianji'), fileTree('tools/qianji') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('blueprints/player_estates'), fileTree('tools/player_estates') { exclude '**/__pycache__/**', '**/*.pyc' })
+    inputs.files(fileTree('blueprints/housing'), files(housingGeneratorInputs),fileTree('build/generated/housing/resources'))
     inputs.files(fileTree('build/generated/sect_blueprints/resources'), fileTree('build/generated/starter_mine/resources'), files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
             fileTree('blueprints/province_capitals/blueprint_plan'), fileTree('blueprints/lord_manors'),
             fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' },
@@ -528,19 +531,6 @@ tasks.register('generateProvinceCapitalV11Assets', Exec) {
     outputs.dir(layout.buildDirectory.dir('generated/province_capitals_v11/resources'))
     inputs.files(fileTree('blueprints/capital_waystones'),
             fileTree('tools/capital_waystones') { exclude '**/__pycache__/**', '**/*.pyc' })
-    doLast {
-        exec {
-            workingDir projectDir
-            executable pythonExecutable.get()
-            args '-m', 'tools.capital_waystones.generate', '--resources', 'build/generated/province_capitals_v11/resources'
-        }
-        // 亭台模板和石碑元数据共同进入八城冻结摘要。
-        exec {
-            workingDir projectDir
-            executable pythonExecutable.get()
-            args 'tools/province_capitals/game/compile_v11.py', '--refresh-current'
-        }
-    }
 }
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/province_capitals_v11/resources'))
 tasks.named('processResources') {
@@ -674,6 +664,21 @@ tasks.register('generateTechniqueGrowth', Exec) {
     outputs.upToDateWhen { false }
 }
 tasks.named('processResources') { dependsOn 'generateTechniqueGrowth' }
+
+tasks.register('generateHousingAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args '-m', 'tools.housing.generate'
+    inputs.files(fileTree('blueprints/housing'),files(housingGeneratorInputs),
+        fileTree('tools/house_choices'),fileTree('tools/complex_houses'),fileTree('tools/reference_courtyard'))
+    inputs.files('tools/buildgen/groups.py','tools/language_assets.py','exmod/mod_block_catalog.json')
+    outputs.dir(layout.buildDirectory.dir('generated/housing/resources'))
+    outputs.dir(layout.buildDirectory.dir('generated/housing/java'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/housing/resources'))
+sourceSets.main.java.srcDir(layout.buildDirectory.dir('generated/housing/java'))
+tasks.named('compileJava') { dependsOn 'generateHousingAssets' }
+tasks.named('processResources') { dependsOn 'generateHousingAssets' }
 
 tasks.register('generateBeastMaterials', Exec) {
     workingDir projectDir

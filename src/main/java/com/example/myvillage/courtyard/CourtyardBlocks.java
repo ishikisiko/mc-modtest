@@ -107,7 +107,7 @@ public final class CourtyardBlocks {
   }
   public static final class DoubleDoor extends CourtyardDoorBlock {
     public static final MapCodec<DoubleDoor> CODEC=simpleCodec(DoubleDoor::new);
-    private static final IntegerProperty VARIANT=null;
+    private static final IntegerProperty VARIANT=IntegerProperty.create("variant",0,2);
     private static final IntegerProperty PART=IntegerProperty.create("part",0,74);
     public DoubleDoor(BlockBehaviour.Properties properties){super(properties);}
     @Override public String familyId(){return "courtyard_double_door";}

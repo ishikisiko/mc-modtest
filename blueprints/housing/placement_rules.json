@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "public_setback": 3,
+  "npc_margin": 4,
+  "public_alley_width": 1,
+  "qianji_lane_width": 3,
+  "max_earthwork": 8,
+  "road_search_limit": 300000,
+  "natural_margin": {
+    "ravine": 2,
+    "shore": 3,
+    "oasis": 3
+  },
+  "green_max_height_range": 1,
+  "green_fallback_sizes": [
+    [
+      22,
+      16
+    ],
+    [
+      18,
+      14
+    ],
+    [
+      12,
+      10
+    ]
+  ],
+  "player_access_width": 3
+}

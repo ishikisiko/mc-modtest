@@ -11,6 +11,7 @@ import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /** Ground navigation for resident bodies, including the full collision sweep between floors. */
 public final class NpcLifeNavigation extends GroundPathNavigation {
@@ -24,6 +25,10 @@ public final class NpcLifeNavigation extends GroundPathNavigation {
 
     // Vanilla can skip a stair/corner node solely from direction, without checking the swept body.
     @Override public boolean canCutCorner(PathType type) { return false; }
+
+    @Override protected double getGroundY(Vec3 next) {
+        return Math.max(super.getGroundY(next),floor(level,BlockPos.containing(next),nodeEvaluator.canOpenDoors(),mob.getBbWidth()));
+    }
 
     @Override public void tick() {
         if (!isDone() && !mob.onGround() && !mob.isInLiquid() && !mob.isPassenger()
@@ -56,8 +61,8 @@ public final class NpcLifeNavigation extends GroundPathNavigation {
      * The getter is the already bounded navigation region, never a world chunk request.
      */
     static boolean clearStep(BlockGetter blocks, Node from, Node to, double width, double height, boolean doors) {
-        double fy = WalkNodeEvaluator.getFloorLevel(blocks, new BlockPos(from.x, from.y, from.z));
-        double ty = WalkNodeEvaluator.getFloorLevel(blocks, new BlockPos(to.x, to.y, to.z));
+        double fy = floor(blocks,new BlockPos(from.x,from.y,from.z),doors,width);
+        double ty = floor(blocks,new BlockPos(to.x,to.y,to.z),doors,width);
         double high = Math.max(fy, ty);
         AABB start = body(from.x, fy, from.z, width, height);
         AABB end = body(to.x, ty, to.z, width, height);
@@ -74,13 +79,27 @@ public final class NpcLifeNavigation extends GroundPathNavigation {
                 x + .5 + half, y + height - 1.0e-5, z + .5 + half);
     }
 
+    private static double floor(BlockGetter blocks,BlockPos pos,boolean doors,double width){
+        double y=WalkNodeEvaluator.getFloorLevel(blocks,pos);var state=blocks.getBlockState(pos);
+        var shape=doors&&state.getBlock() instanceof com.example.myvillage.courtyard.CourtyardDoorBlock door
+                ?door.variant(state).part(door.part(state),true).shape(state.getValue(com.example.myvillage.courtyard.CourtyardAssemblyBlock.FACING))
+                :state.getCollisionShape(blocks,pos);
+        double a=.5-width/2,b=.5+width/2;
+        // 地毯、薄铺面和门槛可能与脚处于同一格；同时用于路径检查与实际移动高度。
+        for(var box:shape.toAabbs())if(box.maxY<=.5&&box.maxX>a&&box.minX<b&&box.maxZ>a&&box.minZ<b)y=Math.max(y,pos.getY()+box.maxY);
+        return y;
+    }
+
     private static boolean clear(BlockGetter blocks, AABB body, boolean doors) {
         // A neighboring fence/wall can extend beyond the block above which the body stands.
         for (BlockPos at : BlockPos.betweenClosed(BlockPos.containing(body.minX, body.minY - 1, body.minZ),
                 BlockPos.containing(body.maxX, body.maxY, body.maxZ))) {
             var state = blocks.getBlockState(at);
             if (doors && DoorBlock.isWoodenDoor(state)) continue;
-            for (AABB shape : state.getCollisionShape(blocks, at).toAabbs()) {
+            var collision=doors&&state.getBlock() instanceof com.example.myvillage.courtyard.CourtyardDoorBlock door
+                    ?door.variant(state).part(door.part(state),true).shape(state.getValue(com.example.myvillage.courtyard.CourtyardAssemblyBlock.FACING))
+                    :state.getCollisionShape(blocks,at);
+            for (AABB shape : collision.toAabbs()) {
                 if (body.intersects(shape.move(at))) return false;
             }
         }

@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.136.0
+
+- 七座州城使用重新规划的街坊。29 座 NPC 院宅分布在城内，各州分别采用本地材料、窗格、屋檐和街面做法。院宅门、实际床位和生活点随城市落位。
+- 各州千机阁作为完整围院生成。新增退廊、格窗、主楼勘图窗和铜星盘，并按最终城门、亭台与任务榜坐标导出服务点和官道接头。
+- 七座州城提供 64×72 格宅田。执事办理领地和建房，玩家可从六套住宅中选一套，旋转并调整位置，也可直接自建。开发期默认免费，领地和建造费用可在服务器配置中指定灵石物品及金额。
+- 建造前核对已有建筑和种植区，施工分批存档，服务器重启可恢复进度。居民可以开启整扇木格双开门，门框按实际碰撞保留。
+
 ## 0.135.1
 
 - 新增木格双开大门，整件占用5×5×3格、净开口3×4格；右键联动开合，按状态切换真实模型与碰撞，生存整件拆除仅掉落一件。

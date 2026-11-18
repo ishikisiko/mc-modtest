@@ -30,6 +30,13 @@ def source_hashes(spec_path,spec):
     for folder in ('tools/province_capitals/blueprint_plan','tools/province_capitals/regional/v2','tools/province_capitals/environment_design','tools/buildgen'):
         files.update(p for p in (ROOT/folder).rglob('*') if p.suffix in ('.py','.json','.js','.html') and not p.name.startswith('test_'))
     files.update((ROOT/'tools'/name) for name in ('json_to_nbt.py','web/three.min.js','web/OrbitControls.js'))
+    files.update((ROOT/'blueprints/housing').glob('*.json'))
+    files.add(ROOT/'blueprints/capital_waystones/sites.json')
+    files.update(ROOT/p for p in read('blueprints/housing/generator_inputs.json'))
+    files.update((ROOT/'tools/house_choices').glob('*.py'))
+    files.update((ROOT/'tools/complex_houses').glob('*.py'))
+    files.update((ROOT/'tools/complex_houses/astra').glob('*.js'))
+    files.update((ROOT/'tools/house_choices/astra').glob('*.js'))
     from buildgen.groups import get_group
     city=read(spec['sources']['city']);files.add(ROOT/'tools/buildgen/styles'/ (get_group(city['group_id']).style_id+'.json'))
     return {str(p.relative_to(ROOT)):sha(p) for p in sorted(files)}

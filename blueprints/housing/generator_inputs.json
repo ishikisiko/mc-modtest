@@ -1,0 +1,6 @@
+[
+  "tools/housing/__init__.py",
+  "tools/housing/generate.py",
+  "tools/housing/materialize.py",
+  "tools/housing/town_plan.py"
+]

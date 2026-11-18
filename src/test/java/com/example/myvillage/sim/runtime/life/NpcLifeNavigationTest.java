@@ -58,11 +58,35 @@ class NpcLifeNavigationTest {
         var v=new View().put(1,0,0,Blocks.END_ROD.defaultBlockState());
         assertFalse(step(v,new Node(0,0,0),new Node(1,0,0)));
     }
+    @Test void thinFloorAtFeetIsWalkableAndStillCountsAgainstHeadroom(){
+        var v=new View().put(0,0,0,Blocks.WHITE_CARPET.defaultBlockState()).put(1,0,0,Blocks.WHITE_CARPET.defaultBlockState());
+        assertTrue(step(v,new Node(0,0,0),new Node(1,0,0)));
+        assertTrue(step(v,new Node(1,0,0),new Node(0,0,0)));
+        v.put(1,2,0,Blocks.STONE.defaultBlockState());
+        assertFalse(step(v,new Node(0,0,0),new Node(1,0,0)));
+    }
     @Test void onlyHandOpenableDoorsCanBeTraversedWhileClosed() {
         // EAST puts the closed panel across this eastward crossing, not parallel to it.
         var v=new View().put(1,0,0,Blocks.OAK_DOOR.defaultBlockState().setValue(DoorBlock.FACING,Direction.EAST));
         assertTrue(step(v,new Node(0,0,0),new Node(1,0,0)));
         v.put(1,0,0,Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.FACING,Direction.EAST));
         assertFalse(step(v,new Node(0,0,0),new Node(1,0,0)));
+    }
+    @Test void courtyardThresholdCanBeCrossedWhileTheActualFrameStillBlocks(){
+        var registry=(net.minecraft.core.MappedRegistry<net.minecraft.world.level.block.Block>)net.minecraft.core.registries.BuiltInRegistries.BLOCK;
+        var id=net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("yuanxian_test","life_inner_door");
+        com.example.myvillage.courtyard.CourtyardDoorBlock door;
+        synchronized(registry){
+            if(registry.containsKey(id))door=(com.example.myvillage.courtyard.CourtyardDoorBlock)registry.get(id);
+            else{registry.unfreeze();try{door=(com.example.myvillage.courtyard.CourtyardDoorBlock)net.minecraft.core.Registry.register(registry,id,com.example.myvillage.courtyard.CourtyardBlocks.create("courtyard_double_door",net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().noOcclusion()));}finally{registry.freeze();}}
+        }
+        var variant=door.family().variant(1);var view=new View();
+        for(int p=0;p<variant.partCount();p++){
+            var pos=variant.offset(p,Direction.NORTH);view.put(pos.getX(),pos.getY(),pos.getZ(),door.state(1,p,Direction.NORTH,false));
+        }
+        assertTrue(step(view,new Node(2,0,-1),new Node(2,0,0)));
+        assertTrue(step(view,new Node(2,0,0),new Node(2,0,1)));
+        assertFalse(step(view,new Node(0,0,-1),new Node(0,0,0)));
+        assertFalse(NpcLifeNavigation.clearStep(view,new Node(2,0,-1),new Node(2,0,0),.6,1.95,false));
     }
 }

@@ -1,0 +1,13 @@
+gradle.afterProject { project ->
+    if (project != project.rootProject) return
+    def directory = System.getenv('MYVILLAGE_ROAD_ADAPTER_GAME')
+    if (!directory) throw new GradleException('需要独立住宅检查目录')
+    project.neoForge.runs.named('acceptanceServer') {
+        programArgument 'nogui'
+        gameDirectory = project.file(directory)
+        systemProperty 'neoforge.enableGameTest', 'true'
+        systemProperty 'neoforge.enabledGameTestNamespaces', 'yuanxian_drop_probe'
+        def selected = System.getenv('MYVILLAGE_HOUSING_LAB_IDS')
+        if (selected) systemProperty 'yuanxian.housing.lab.ids', selected
+    }
+}

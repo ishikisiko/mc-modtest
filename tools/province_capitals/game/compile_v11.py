@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """当前 V11 默认资源：七府正式重排与现有中州，统一聚合为 v4。"""
 from __future__ import annotations
-import argparse,base64,copy,gzip,json,subprocess,sys
+import argparse,base64,copy,gzip,json,shutil,subprocess,sys
 from pathlib import Path
+from tempfile import TemporaryDirectory
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/'tools'))
 from province_capitals.game.compile import canonical,sha,write
@@ -52,10 +53,6 @@ def apply_region_progression(frozen, policy):
 
 
 def aggregate(out:Path,source:Path,*,refresh_current=False):
-    from player_estates.runtime_export import integrate
-    integrate(out)
-    from qianji.runtime_export import integrate as integrate_qianji
-    integrate_qianji(out)
     from player_economy_sites import place_capital_boards
     place_capital_boards(out)
     if out.resolve()==source.resolve() and not refresh_current:raise ValueError('V11 不能覆盖 V10 资源')
@@ -143,9 +140,34 @@ def main():
     if a.refresh_habitat_only:print(json.dumps(refresh_habitat_reference(a.out),ensure_ascii=False));return
     if not a.aggregate_only and not a.refresh_current:
         if not a.skip_base_export:subprocess.run([sys.executable,str(Path(__file__).with_name('compile_v10.py')),'--out',str(a.v10_out),'--v9-out',str(a.v9_out),'--legacy-out',str(a.legacy_out)],check=True)
-        subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/environment_v4/export_game.py'),'--out',str(a.out),'--source',str(a.v10_out),'--v9-source',str(a.v9_out),'--legacy-source',str(a.legacy_out),'--regions','zhongzhou'],check=True)
-        subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/blueprint_plan/runtime.py'),'--out',str(a.out)],check=True)
+        export_cities(a)
     result=aggregate(a.out,a.out if a.refresh_current else a.v10_out,refresh_current=a.refresh_current);print(json.dumps({'V11':'aggregated','cities':len(result['cities']),'tiles':result['total_tiles'],'bytes':result['total_bytes']},ensure_ascii=False))
+
+
+def export_cities(args):
+    from capital_waystones.generate import generate as decorate_waystones
+    from player_estates.runtime_export import integrate as place_estates
+    from province_capitals.inner_neighborhoods.runtime import integrate as place_neighborhoods
+    from qianji.runtime_export import integrate as place_qianji
+
+    args.out.parent.mkdir(parents=True,exist_ok=True)
+    with TemporaryDirectory(prefix="capital-donors-",dir=args.out.parent) as temp:
+        donors=Path(temp)/"resources"
+        subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/environment_v4/export_game.py'),
+                        '--out',str(donors),'--source',str(args.v10_out),'--v9-source',str(args.v9_out),
+                        '--legacy-source',str(args.legacy_out),'--regions','zhongzhou'],check=True)
+        subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/blueprint_plan/runtime.py'),
+                        '--out',str(donors)],check=True)
+        place_estates(donors)
+        place_qianji(donors)
+        decorate_waystones(donors)
+        # 七城直接消费新街坊坐标。旧坐标只用于取得已批准的原楼体与独立亭台。
+        for relative in ("capitals/v4", "structure/province_capitals/v4"):
+            dest=args.out/"data/yuanxian"/relative
+            if dest.exists():
+                shutil.rmtree(dest)
+            shutil.copytree(donors/"data/yuanxian"/relative/"capital_zhongzhou",dest/"capital_zhongzhou")
+        place_neighborhoods(donors,args.out)
 
 
 if __name__=='__main__':main()

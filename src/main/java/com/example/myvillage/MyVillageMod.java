@@ -99,6 +99,7 @@ public final class MyVillageMod {
         LOGGER.info("{}模组已载入", ModBrand.DISPLAY_NAME);
         com.example.myvillage.legacy.LegacyContent.initialize();
         modContainer.registerConfig(ModConfig.Type.SERVER, CultivationServerConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, com.example.myvillage.housing.HousingConfig.SPEC,"yuanxian-housing-server.toml");
         modContainer.registerConfig(ModConfig.Type.SERVER, WorldSimServerConfig.SPEC, WorldSimServerConfig.FILE_NAME);
         modContainer.registerConfig(ModConfig.Type.SERVER, com.example.myvillage.exploration.ExplorationServerConfig.SPEC,
                 com.example.myvillage.exploration.ExplorationServerConfig.FILE_NAME);
@@ -112,6 +113,7 @@ public final class MyVillageMod {
         com.example.myvillage.entity.npc.CultivatorAppearance.register();
         ModBlocks.register(modEventBus);
         com.example.myvillage.courtyard.CourtyardContent.register(modEventBus);
+        com.example.myvillage.housing.HousingContent.register(modEventBus);
         ModBlockEntities.register(modEventBus);
         com.example.myvillage.forging.ForgingMenus.register(modEventBus);
         com.example.myvillage.sim.runtime.commerce.CommerceMenus.register(modEventBus);
@@ -154,6 +156,7 @@ public final class MyVillageMod {
         com.example.myvillage.worldplan.runtime.WorldPlanRuntime.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         com.example.myvillage.estate.EstateRuntime.register();
+        com.example.myvillage.housing.HousingRuntime.register();
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
