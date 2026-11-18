@@ -2,8 +2,19 @@
 navigation:
   title: 仙纹图书馆 · 藏纹阵枢
   parent: index.md
-  position: 56
+  position: 57
   icon: yuanxian:library_port
+item_ids:
+  - yuanxian:library_port
+  - yuanxian:library_base
+  - yuanxian:library_frame
+  - yuanxian:library_outer
+  - yuanxian:library_equator
+  - yuanxian:library_oblique
+  - yuanxian:library_core
+  - yuanxian:library_crown
+  - yuanxian:library_joint
+  - yuanxian:loadout_slip
 ---
 
 # 仙纹图书馆 · 藏纹阵枢
@@ -68,8 +79,46 @@ navigation:
 
 ![第 13 层，正中放置上轴冠](./cangwen_array/placement_13.png)
 
-单独摆一只藏纹匣，就可以收录原版附魔书。I 至 V 级分别折算成 1、2、4、8、16 点。每种附魔独立记账，能印出的等级以藏纹匣实际收录过的最高等级为准。取书时在空书槽放一本普通书。带诅咒的附魔书会原样留在器物槽里。
+## 收录和印书
 
-成阵后可以给已有装备换装。放入装备和灵墨，逐条调整目标等级。确认前可以查看本次要收回和取用的点数。确认换装消耗两份朱砂灵墨，原有伤损、品质和炼灵专长随装备保留。配装玉简可以保存两套配法。拆下藏纹匣时，库存与已收录等级随匣保留。
+单独摆一只藏纹匣，就可以收录已有附魔书。把附魔书放进「器物」槽，点「收录书」。I 至 V 级分别折算成 1、2、4、8、16 点。两本效率 II 可以存下 4 点，只有实际收录过效率 III 的匣才允许用这 4 点印回效率 III。印完最后一本后，已收录的最高等级仍会保留。
+
+印书时在「空书」槽放普通书，选择词条和等级，点「印成书」，再从出书槽取走。带诅咒的附魔书会原样留在器物槽里。拆下藏纹匣时，库存与已收录等级随匣保留。
+
+## 调配装备和保存配法
+
+成阵后，放入装备和朱砂灵墨，逐条调整目标等级。等级调到空白即可把对应词条收回匣内。想把时运 II 换成精准采集 I，可以先把时运调空，再把精准采集设为 I，一次确认。只要已收录精准采集 I 且库存足够，这次会取用 1 点精准采集，并返还 2 点时运。
+
+确认前可以查看本次收回和取用的点数。确认换装消耗两份朱砂灵墨，原有损伤、品质和炼灵专长随装备保留。想保留当前配法，把配装玉简放进「玉简」槽，选择配法一或配法二，再点「存玉简」。下次点「读玉简」会填入目标等级，核对后再确认换装。
+
+## 工作台配方
+
+### 藏纹匣和配装玉简
+
+<Recipe id="yuanxian:library_port" />
+
+<Recipe id="yuanxian:loadout_slip" />
+
+### 石座和承轴
+
+<Recipe id="yuanxian:library_base" />
+
+<Recipe id="yuanxian:library_frame" />
+
+### 三道阵环
+
+<Recipe id="yuanxian:library_outer" />
+
+<Recipe id="yuanxian:library_equator" />
+
+<Recipe id="yuanxian:library_oblique" />
+
+### 玉芯、轴冠和共轴节点
+
+<Recipe id="yuanxian:library_core" />
+
+<Recipe id="yuanxian:library_crown" />
+
+<Recipe id="yuanxian:library_joint" />
 
 [查看扩展附魔台和篆纹阵](./seal_array.md)

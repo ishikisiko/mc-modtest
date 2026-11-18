@@ -21,6 +21,11 @@ except ImportError:  # pragma: no cover - the repository toolchain provides PyYA
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from tools.runtime_resources.pack import png_recompress
+from tools.runtime_resources.read import DirectoryResources
+
 GUIDEME_VERSION = "21.1.17"
 
 BUILD_GRADLE = Path("build.gradle")
@@ -455,6 +460,21 @@ class GuideMECultivationGuideValidator:
                 if match:
                     ids = {f"{kind}_array_{role.strip().lower()}" for role in match.group(1).split(",") if role.strip() != "AIR"}
                     items.update(ids); blocks.update(ids)
+        # Enchanting devices and array parts share a block-item factory.
+        enchanting = self.root / JAVA_ROOT / "enchanting/EnchantingContent.java"
+        if enchanting.is_file():
+            source = _strip_code_comments(enchanting.read_text(encoding="utf-8"))
+            if "ITEMS.registerSimpleBlockItem(name, block)" in source:
+                ids = set(re.findall(r'\bdevice\("([a-z0-9_]+)"\)', source))
+                loop = re.search(r'String part : new String\[\]\{([^}]+)\}', source)
+                if loop:
+                    ids.update(re.findall(r'"([a-z0-9_]+)"', loop[1]))
+                items.update(ids)
+                blocks.update(ids)
+            if "ITEMS.registerSimpleItem(stone.id())" in source:
+                rules = self.load_json(Path("enchanting/rules.json"), "array stone registrations")
+                if isinstance(rules, dict):
+                    items.update(stone["id"] for stone in rules["stones"])
         return ({f"yuanxian:{item}" for item in items}, {f"yuanxian:{block}" for block in blocks})
 
     @staticmethod
@@ -522,6 +542,14 @@ class GuideMECultivationGuideValidator:
                 resolved = self._resolve_page_link(path, target)
                 if resolved is not None and resolved not in pages:
                     self.error(location, f"internal page link does not resolve: {target}")
+            for target in re.findall(r"!\[[^\]]*\]\(([^)]+)\)", page.body):
+                resolved = self._resolve_page_link(path, target)
+                if resolved is not None:
+                    image = self.root / GUIDEBOOK / resolved
+                    if image.is_file():
+                        self.checked_files.add(image)
+                    else:
+                        self.error(location, f"guide image does not resolve: {target}")
 
         for language_prefix in ("", "_en_us/"):
             index = pages.get(f"{language_prefix}index.md")
@@ -565,6 +593,15 @@ class GuideMECultivationGuideValidator:
                     self.error(location, f"ItemLink id must be fully qualified: {item_id}")
                 elif item_id.startswith("yuanxian:") and item_id not in registered_items:
                     self.error(location, f"ItemLink references unknown registered item {item_id}")
+            for item_id in sorted(self._tag_ids(page.body, "ItemImage")):
+                if ":" not in item_id:
+                    self.error(location, f"ItemImage id must be fully qualified: {item_id}")
+                elif item_id.startswith("yuanxian:"):
+                    model = ASSET_ROOT / "models/item" / (item_id.split(":", 1)[1] + ".json")
+                    if (self.root / model).is_file():
+                        self.checked_files.add(self.root / model)
+                    else:
+                        self.error(location, f"ItemImage references missing item model {item_id}")
             for block_id in sorted(self._tag_ids(page.body, "BlockImage")):
                 if ":" not in block_id:
                     self.error(location, f"BlockImage id must be fully qualified: {block_id}")
@@ -1109,7 +1146,9 @@ class GuideMECultivationGuideValidator:
         try:
             with zipfile.ZipFile(jar) as archive:
                 names = set(archive.namelist())
-                for entry in sorted(REQUIRED_JAR_ENTRIES - names):
+                resources = DirectoryResources(zipfile.Path(archive))
+                logical_names = names | resources.entries.keys()
+                for entry in sorted(REQUIRED_JAR_ENTRIES - logical_names):
                     self.error(jar, f"missing packaged entry {entry}")
                 actual_pages = {
                     name
@@ -1128,7 +1167,17 @@ class GuideMECultivationGuideValidator:
                         f"missing={sorted(expected_pages - actual_pages)}, "
                         f"extra={sorted(actual_pages - expected_pages)}",
                     )
+                guide_root = self.root / GUIDEBOOK
+                source_images = {f"{PACKAGED_GUIDE_ROOT}/{path.relative_to(guide_root).as_posix()}": path
+                                 for path in guide_root.rglob("*.png")}
+                actual_images = {name for name in names
+                                 if name.startswith(f"{PACKAGED_GUIDE_ROOT}/") and name.endswith(".png")}
+                if actual_images != source_images.keys():
+                    self.error(jar, "packaged guide images must exactly match authored images; "
+                               f"missing={sorted(source_images.keys() - actual_images)}, "
+                               f"extra={sorted(actual_images - source_images.keys())}")
                 source_map = {
+                    **source_images,
                     "META-INF/neoforge.mods.toml": self.root / MODS_TOML,
                     "assets/yuanxian/guideme_guides/cultivation.json": self.root / GUIDE_DEFINITION,
                     "assets/yuanxian/models/item/cultivation_handbook.json": self.root / HANDBOOK_MODEL,
@@ -1140,7 +1189,11 @@ class GuideMECultivationGuideValidator:
                     },
                 }
                 for entry, source in source_map.items():
-                    if entry in names and source.is_file() and archive.read(entry) != source.read_bytes():
+                    if entry not in logical_names or not source.is_file():
+                        continue
+                    expected = source.read_bytes()
+                    actual = archive.read(entry) if entry in names else resources.read(entry)
+                    if actual != expected and (source.suffix != ".png" or actual != png_recompress(expected)):
                         self.error(jar, f"packaged entry differs from source truth: {entry}")
 
                 if "assets/yuanxian/textures/item/cultivation_handbook.png" in names:
@@ -1159,7 +1212,7 @@ class GuideMECultivationGuideValidator:
                         metadata_text = archive.read(metadata_name).decode("utf-8", errors="replace")
                         if "guideme" in metadata_text.lower():
                             self.error(jar, f"must not declare nested GuideME in {metadata_name}")
-        except (OSError, zipfile.BadZipFile) as exc:
+        except (OSError, AssertionError, KeyError, ValueError, zipfile.BadZipFile) as exc:
             self.error(jar, f"cannot inspect practical jar: {exc}")
             return f"failed ({self.label(jar)})"
         self.checked_files.add(jar)

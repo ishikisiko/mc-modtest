@@ -3,13 +3,14 @@ from collections import OrderedDict
 import gzip
 import json
 from pathlib import Path
+from zipfile import Path as ArchivePath
 
 from .pack import decode_records, digest, restore_model, valid_path
 
 
 class DirectoryResources:
     def __init__(self, root):
-        self.root = Path(root)
+        self.root = root if isinstance(root, ArchivePath) else Path(root)
         path = self.root / 'yuanxian_packed/manifest.json'
         self.manifest = json.loads(path.read_bytes()) if path.exists() else None
         self.entries = {v[0]: v[1:] for v in self.manifest['entries']} if self.manifest else {}

@@ -1,0 +1,6 @@
+{
+  "empty_socket_shelves": [[-1, -2], [0, -2], [1, -2], [-2, -1]],
+  "entry_stone_extra_shelves": [[-2, -2], [2, -2], [2, -1], [2, 0]],
+  "focus_shelf": [0, -2],
+  "raised_crystal_shelves": [[-2, 2], [2, 2]]
+}

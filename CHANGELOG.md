@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.137.0-fix1
+
+- 《修行入门录》增加扩展附魔台分层摆法，补齐篆纹阵和仙纹图书馆的 17 项合成配方，以及锻器模型展示和工位操作说明。
+
 ## 0.137.0
 
 - 扩展附魔台用书架与阵石控制刻写等级。普通炼器鼎可消耗修为和紫水晶炼制阵石，玩家用青金石或少量经验抽选，再用朱砂灵墨刻写。

@@ -18,6 +18,7 @@ item_ids:
 - 开始修行：[开局与阡镇学徒](./getting_started/first_steps.md)、[入门仪式](./getting_started/initiation.md)、[天命、技艺与技能分配](./getting_started/fates_and_skills.md)。
 - 提升境界：[打坐与冲关](./getting_started/cultivation_loop.md)、[筑基与补全根基](./getting_started/foundation_pills.md)、[天道筑基与金丹雷劫](./getting_started/tribulation.md)。
 - 获取装备：[锻造、玄铁甲与炼灵](./getting_started/forging.md)。安装 JEI 后，查看成品的「炼器」配方即可找到起坯主材。
+- 调整装备附魔：[扩展附魔台和篆纹阵](./getting_started/seal_array.md)、[仙纹图书馆](./getting_started/cangwen_array.md)。
 - 准备丹药：[丹炉与丹药](./getting_started/alchemy.md)、[青铜丹炉阵](./getting_started/alchemy_array.md)、[灵土与六味药材](./getting_started/spirit_farming.md)、[凝元果树与灵木](./getting_started/ningyuan_tree.md)。
 - 制作符箓：[朱纹制符案与三种符](./getting_started/talismans.md)。
 - 战斗与远行：[高级武技](./getting_started/advanced_arts.md)、[太白剑脉绝技](./getting_started/locked_sword_arts.md)、[五行法修](./getting_started/elemental_arts.md)、[御剑飞行](./getting_started/flying_swords.md)。

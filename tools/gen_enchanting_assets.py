@@ -103,6 +103,67 @@ def diagram(layout, y):
     return image
 
 
+def starter_diagram(layout, layer, colors):
+    """Show one placement layer in plan and from the same fixed angle."""
+    image = Image.new("RGB", (342, 156), "#202e32")
+    draw = ImageDraw.Draw(image)
+    cells = {(x, z): part for x, h, z, part in layout if h == layer}
+    for z in range(-2, 3):
+        for x in range(-2, 3):
+            left, top = 16 + (x + 2) * 24, 10 + (z + 2) * 24
+            symbol, tint = colors.get(cells.get((x, z)), ("", "#293b3d"))
+            draw.rectangle((left, top, left + 22, top + 22), fill=tint, outline="#9a9a83")
+            if symbol:
+                draw.text((left + 8, top + 6), symbol, fill="#fff2d8")
+    draw.polygon([(75, 134), (70, 146), (80, 146)], fill="#dfcd9d")
+
+    # Draw from rear to front. Grey pieces show the layers already placed below.
+    for x, y, z, part in sorted(layout, key=lambda cell: (cell[0] + cell[2], cell[1])):
+        if y > layer:
+            continue
+        a, b = 242 + (x - z) * 15, 91 + (x + z) * 7 - y * 18
+        tint = colors[part][1] if y == layer else "#59615b"
+        draw.polygon([(a - 14,b),(a,b + 7),(a + 14,b),(a + 14,b + 11),(a,b + 18),(a - 14,b + 11)],
+                     fill="#35484b", outline="#263a3d")
+        draw.polygon([(a - 14,b),(a,b - 7),(a + 14,b),(a,b + 7)], fill=tint, outline="#a3a390")
+    return image
+
+
+def starter_diagrams(source):
+    cfg = json.loads(source.read_text())
+    palette = {
+        "enchanting_socket": ("1", "#557e73"), "enchanting_table": ("2", "#8a668f"),
+        "bookshelf": ("3", "#94794f"), "floor": ("", "#435657"),
+        "support": ("4", "#62746f"), "focus_shelf": ("5", "#a38150"),
+        "crystal_shelf": ("6", "#8672ad"),
+    }
+    perimeter = {(x, z) for x in range(-2, 3) for z in range(-2, 3)
+                 if max(abs(x), abs(z)) == 2} - {(0, 2)}
+    floor = [(x, -1, z, "enchanting_socket" if (x, z) == (0, 0) else "floor")
+             for x in range(-2, 3) for z in range(-2, 3)]
+    base = list(map(tuple, cfg["empty_socket_shelves"]))
+    entry = base + list(map(tuple, cfg["entry_stone_extra_shelves"]))
+    focus = tuple(cfg["focus_shelf"])
+    raised = set(map(tuple, cfg["raised_crystal_shelves"]))
+    assert len(set(base)) == 4 and len(set(entry)) == 8 and set(entry) <= perimeter
+    assert focus in perimeter - raised and len(raised) == 2 and raised <= perimeter
+
+    def shelves(positions):
+        return floor + [(0, 0, 0, "enchanting_table")] + [(x, 0, z, "bookshelf") for x, z in positions]
+
+    mixed = shelves(sorted(perimeter - raised - {focus}))
+    mixed.append((focus[0], 0, focus[1], "focus_shelf"))
+    for x, z in sorted(raised):
+        mixed.extend([(x, 0, z, "support"), (x, 1, z, "crystal_shelf")])
+
+    for name, layout, layer in [
+        ("floor", floor, -1), ("empty_socket", shelves(base), 0),
+        ("entry_stone", shelves(entry), 0), ("mixed_table", mixed, 0),
+        ("mixed_raised", mixed, 1),
+    ]:
+        yield name, starter_diagram(layout, layer, palette)
+
+
 def outputs(root, namespace):
     cfg = root / "enchanting"
     resource = root / "src/main/resources"
@@ -173,6 +234,8 @@ def outputs(root, namespace):
     assert rules["shelf_cap"] == max(row["strength"] for row in rules["stones"])
     for y in (-1, 0, 1, 2, 3):
         out[root / f"guidebook/getting_started/seal_array/placement_{y + 2}.png"] = png(diagram(layout, y))
+    for name, image in starter_diagrams(cfg / "starter_placement.json"):
+        out[root / f"guidebook/getting_started/enchanting_table/{name}.png"] = png(image)
     return out
 
 

@@ -10,6 +10,8 @@ navigation:
 
 普通炼器鼎负责起坯，也能自动制作标准成品。手工路线还需要加热窑、锻器台、淬火水槽和组装台。玄枢多方块炼器鼎负责成品炼灵和辅助火精炼。
 
+起坯、加热窑、锻器台、组装、装备炼灵和赤铜灌灵的界面都有旋转的工位模型。需要放料或取物时，使用界面里的物品槽。手工锻打仍在世界里的锻器台台面进行。
+
 目前支持青锋剑、凌霄枪、精铁镐斧铲锄及玄铁甲四件。其他高阶衣甲的物品和外观不代表已有生存器谱。
 
 ## 查询材料并学习器谱
@@ -30,11 +32,21 @@ navigation:
 
 关闭界面后自动炉次继续。开炉者或管理员可以撤炉退料；拆鼎退出现有器物和实际暂存材料，不提前掉落未完成的成品。自动成品可以换柄，也能送入多方块鼎炼灵。
 
+普通炼器鼎还可以打开「炼制阵石」和「赤铜灌灵」。阵石的材料和修为要求见[扩展附魔台](./seal_array.md)。做赤铜时，把普通铜锭放进输入槽，点「开始 / 继续」，再从输出槽取走赤铜锭。界面左边是炼器鼎的展示模型，批次、灵力和进度显示在物品槽附近。
+
 ## 手工加热和成形
 
 <Recipe id="yuanxian:heating_kiln" />
 
 <Recipe id="yuanxian:forging_anvil" />
+
+<Row>
+  <BlockImage id="yuanxian:forging_anvil" scale="1.5" />
+  <BlockImage id="yuanxian:heating_kiln" scale="1.5" />
+  <BlockImage id="yuanxian:assembly_table" scale="1.5" />
+</Row>
+
+从左到右是锻器台、加热窑和组装台。新版锻器台正面有炉口，上方是承放器坯的砧面。
 
 <Recipe id="yuanxian:forging_hammer" />
 
@@ -48,7 +60,16 @@ navigation:
 
 热量和进度跟随实际器物保存，搬运和关界面不会清空。锻打消耗热量，闲置缓慢冷却，冷却不丢进度。成品再锻前也在窑中加热。
 
-锻铁锤之后可制作玄铁锻锤、赤铜灵锤和下界合金锻锤。熟练度按有效完成点数增长，空敲、补敲和反复加热没有经验；好锤敲得少也不会少拿经验。低难度配方在熟练后提供较少练习收益。
+锻锤之后可制作玄铁锻锤、赤铜灵锤和下界合金锻锤。熟练度按有效完成点数增长，空敲、补敲和反复加热没有经验；好锤敲得少也不会少拿经验。低难度配方在熟练后提供较少练习收益。
+
+<Row>
+  <ItemImage id="yuanxian:forging_hammer" scale="1.5" />
+  <ItemImage id="yuanxian:xuantie_forging_hammer" scale="1.5" />
+  <ItemImage id="yuanxian:chitong_forging_hammer" scale="1.5" />
+  <ItemImage id="yuanxian:netherite_forging_hammer" scale="1.5" />
+</Row>
+
+从左到右是锻锤、玄铁锻锤、赤铜灵锤、下界合金锻锤。
 
 手工成形同时改善器物适用的伤害、速度、耐久、防护和耗灵，不需要逐锤评分或选一种属性。自动路线是标准基准，手工、柄材、炼灵与再锻受对应属性的合计上限限制。
 
@@ -58,7 +79,19 @@ navigation:
 
 精磨器坯与一个柄材放入组装台，核对预览后装配。护甲使用皮革，不装武器柄。开始装配时按操作者的炼器资质随机判定失败或四种品质，未觉醒的入门工具按资质 0 计算。普通鼎自动成器同样判定；只起坯不判定品质。失败在工序完成时消耗已投入的器坯和材料，暂停或重启保留原结果。
 
-六种柄均由两个对应原料合成：
+六种柄均由两个对应原料合成。两行图从左到右的顺序与下表一致。
+
+<Row>
+  <ItemImage id="yuanxian:wood_handle" scale="1.5" />
+  <ItemImage id="yuanxian:bamboo_handle" scale="1.5" />
+  <ItemImage id="yuanxian:ningyuan_handle" scale="1.5" />
+</Row>
+
+<Row>
+  <ItemImage id="yuanxian:thorn_bone_handle" scale="1.5" />
+  <ItemImage id="yuanxian:xuantie_handle" scale="1.5" />
+  <ItemImage id="yuanxian:chitong_handle" scale="1.5" />
+</Row>
 
 | 柄材 | 用途 |
 |---|---|
@@ -70,6 +103,20 @@ navigation:
 | 赤铜柄 | 降低耗灵，灵力技能有效命中后强化下一次普通攻击。 |
 
 成品可更换柄，原柄从返还槽取回。换柄保留品质、手工贡献、炼灵、历练、附魔、名字和损伤比例；反复更换不会叠加属性或修复器物。右侧预览显示属性变化，悬停可看完整说明。
+
+## 精铁镐和精铁锄
+
+两种工具的成品和各阶段器坯使用同一套基础轮廓，便于在锻台上辨认。下面从左到右分别是精磨后的镐坯和精铁镐，以及精磨后的锄坯和精铁锄。成品的柄从头部下方接入，顶面保留完整金属。
+
+<Row>
+  <ItemImage id="yuanxian:workpiece_forged_pickaxe_ground" scale="1.5" />
+  <ItemImage id="yuanxian:forged_pickaxe" scale="1.5" />
+</Row>
+
+<Row>
+  <ItemImage id="yuanxian:workpiece_forged_hoe_ground" scale="1.5" />
+  <ItemImage id="yuanxian:forged_hoe" scale="1.5" />
+</Row>
 
 ## 多方块鼎炼灵和辅助火
 
