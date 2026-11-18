@@ -42,15 +42,38 @@ class BeastMaterialRulesTest {
             assertTrue(DropRules.roll(r.resolve(context("demon_wolf",scene,32,true)),3,new Random(0)).isEmpty());
         assertTrue(r.resolve(context("stele_guardian",DropRules.Scene.NORMAL,32,true)).additions().isEmpty());
     }
-    @Test void exactLootingChanceCapsDoNotIncreaseCoreOrBossDrops()throws Exception {
-        var r=DropRules.parse(production(),catalog());
-        var entries=r.resolve(context("demon_wolf",DropRules.Scene.NORMAL,16,true)).additions().stream().flatMap(a->a.drops().stream()).toList();
-        assertEquals(.2,entries.get(1).effectiveChance(0),1e-12);assertEquals(.5,entries.get(1).effectiveChance(3),1e-12);
-        assertEquals(.8,entries.get(2).effectiveChance(3),1e-12);assertEquals(.8,entries.get(2).effectiveChance(255),1e-12);
+    @Test void materialQuantitiesScaleWithLootingAndChanceKeepsItsCaps()throws Exception {
+        var rules=DropRules.parse(production(),catalog());
+        var wolf=rules.resolve(context("demon_wolf",DropRules.Scene.NORMAL,16,true));
+        var entries=wolf.additions().stream().flatMap(a->a.drops().stream()).toList();
+        assertEquals(.2,entries.get(1).effectiveChance(0),1e-12);
+        assertEquals(.5,entries.get(1).effectiveChance(3),1e-12);
+        assertEquals(.5,entries.get(1).effectiveChance(255),1e-12);
+        assertEquals(.8,entries.get(2).effectiveChance(3),1e-12);
+        assertEquals(.8,entries.get(2).effectiveChance(255),1e-12);
         assertEquals(.2,entries.get(3).effectiveChance(255),1e-12);
-        var boss=r.resolve(context("thunder_tiger",DropRules.Scene.NORMAL,16,true));
-        assertEquals(DropRules.roll(boss,0,new Random(42)),DropRules.roll(boss,255,new Random(42)));
-        assertEquals(7,DropRules.roll(boss,3,new Random(42)).stream().mapToInt(DropRules.Reward::count).sum());
+
+        String hide=entries.getFirst().item(), bone=entries.get(2).item(), core=entries.get(3).item();
+        double maximum=Math.nextDown(1d);
+        var successfulMaxRolls=new Random(42) {
+            private final double[] rolls={maximum,0,maximum,0,maximum,0,maximum};
+            private int position;
+            @Override public double nextDouble(){return rolls[position++];}
+        };
+        assertEquals(Map.of(hide,22,bone,11,core,11),quantities(DropRules.roll(wolf,10,successfulMaxRolls)));
+
+        var boss=rules.resolve(context("thunder_tiger",DropRules.Scene.NORMAL,16,true));
+        assertEquals(Map.of(hide,3,bone,3,core,1),quantities(DropRules.roll(boss,0,new Random(42))));
+        var maxBossRolls=new Random(42) {
+            @Override public double nextDouble(){return maximum;}
+        };
+        assertEquals(Map.of(hide,13,bone,13,core,11),quantities(DropRules.roll(boss,10,maxBossRolls)));
+        assertEquals(Map.of(hide,258,bone,258,core,256),quantities(DropRules.roll(boss,255,maxBossRolls)));
+    }
+    private static Map<String,Integer> quantities(List<DropRules.Reward> rewards) {
+        Map<String,Integer> totals=new HashMap<>();
+        for(var reward:rewards)totals.merge(reward.item(),reward.count(),Integer::sum);
+        return totals;
     }
     @Test void everyBossUnitDrawsItsOwnRarityAtExactWeightBoundaries()throws Exception {
         var rules=DropRules.parse(production(),catalog());
