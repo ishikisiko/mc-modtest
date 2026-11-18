@@ -2,6 +2,7 @@ package com.example.myvillage.dropprobe;
 
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.npc.NpcEntity;
+import com.example.myvillage.sim.life.LifeResidentView;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.runtime.life.*;
 import com.example.myvillage.worldplan.capital.*;
@@ -86,7 +87,9 @@ final class NpcHousingProbe {
                 require(!household.isEmpty()||(!action.equals("staffed_audit")&&(eligible==0||here.size()>=sim.lifeRules().maxResidentsPerSite())),
                         "符合入住条件时院宅仍无居民");
                 require(household.stream().allMatch(r->r.workId().equals(pair.work())),"院宅居民未绑定生成的街边站位");
-                require(residents.stream().noneMatch(r->r.homeId().startsWith("player_land")),"玩家宅地被分配给 NPC");
+                var plot=city.bundle().housingPlots.getFirst().bounds();
+                require(site.places().stream().noneMatch(p->p.kind().equals("rest")&&plot.overlaps(p.x()-city.x()+.5,p.z()-city.z()+.5,0)),
+                        "玩家宅地被列为 NPC 住处");
             }else if(action.equals("enclosure")){
                 var office=data.getAsJsonObject("qianji");var bounds=office.getAsJsonArray("bounds");
                 int base=office.get("base_y").getAsInt();
