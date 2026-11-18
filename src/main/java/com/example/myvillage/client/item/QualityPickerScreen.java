@@ -5,6 +5,7 @@ import com.example.myvillage.forging.ForgeMark;
 import com.example.myvillage.item.AlchemyPillItem;
 import com.example.myvillage.item.QualityDisplay;
 import com.example.myvillage.item.QualityPicker;
+import com.example.myvillage.item.QualityPickerArrays;
 import com.example.myvillage.network.QualityPickerPayload;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -50,6 +51,10 @@ public final class QualityPickerScreen extends Screen {
         rows.clear(); qualities.clear(); traits.clear();
         addRenderableWidget(Button.builder(Component.literal("召唤与战斗"), b -> minecraft.setScreen(new TestUnitScreen(this)))
                 .bounds(left + 202, top + 5, 94, 18).build());
+        var arrays = addRenderableWidget(Button.builder(Component.literal("快捷搭建"), b -> minecraft.setScreen(new QuickArrayScreen(this)))
+                .bounds(left + 104, top + 5, 92, 18).build());
+        arrays.active = QualityPickerArrays.builderHand(minecraft.player);
+        if (!arrays.active) arrays.setTooltip(Tooltip.create(Component.literal("创造模式下把取物器拿在主手。")));
         search = new EditBox(font, left + 8, top + 28, 288, 18, text("search"));
         search.setMaxLength(64); search.setHint(text("search"));
         search.setResponder(value -> {
@@ -155,7 +160,19 @@ public final class QualityPickerScreen extends Screen {
         @SubscribeEvent public static void use(InputEvent.InteractionKeyMappingTriggered event) {
             var mc = Minecraft.getInstance();
             if (event.isUseItem() && mc.screen == null && mc.player != null && QualityPicker.held(mc.player)) {
-                event.setCanceled(true); event.setSwingHand(false);
+                if (QualityPickerArrays.builderHand(mc.player)
+                        && QualityPickerArrays.selected(mc.player.getMainHandItem()) != QualityPickerArrays.Layout.NONE) {
+                    if (mc.player.isShiftKeyDown()) return;
+                    var preview = QualityPickerArrays.selectedPreview(mc.player.getMainHandItem()).orElse(null);
+                    if (preview != null && mc.level != null && preview.dimension().equals(mc.level.dimension().location())) {
+                        event.setCanceled(true);
+                        event.setSwingHand(false);
+                        QuickArrayScreen.confirm(mc, preview);
+                        return;
+                    }
+                }
+                event.setCanceled(true);
+                event.setSwingHand(false);
                 mc.setScreen(new QualityPickerScreen());
             }
         }

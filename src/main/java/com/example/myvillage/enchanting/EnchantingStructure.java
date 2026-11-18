@@ -8,6 +8,7 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 public final class EnchantingStructure {
@@ -36,11 +37,14 @@ public final class EnchantingStructure {
         return offset(port, front, 0, -1, -5);
     }
 
+    public static Block blockFor(Cell cell, boolean library) {
+        return EnchantingContent.PARTS.get(library ? "library_" + cell.part() : cell.part()).get();
+    }
+
     static boolean matches(Level level, BlockPos origin, Direction front, boolean library) {
         for (var cell : library ? LIBRARY : SEAL) {
-            String part = library ? "library_" + cell.part() : cell.part();
             var pos = offset(origin, front, cell.x(), cell.y(), cell.z());
-            if (!level.isLoaded(pos) || !level.getBlockState(pos).is(EnchantingContent.PARTS.get(part).get())) return false;
+            if (!level.isLoaded(pos) || !level.getBlockState(pos).is(blockFor(cell, library))) return false;
         }
         return library || level.getBlockState(origin.below()).is(EnchantingContent.SOCKET.get());
     }

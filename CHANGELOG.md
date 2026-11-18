@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.138.0
+
+- 品质取物器增加快捷搭建。创造模式可在世界中预览青铜丹炉阵、玄枢炼器鼎、篆纹阵和仙纹图书馆，确认后清空选定区域并搭建。
+
 ## 0.137.0-fix1
 
 - 《修行入门录》增加扩展附魔台分层摆法，补齐篆纹阵和仙纹图书馆的 17 项合成配方，以及锻器模型展示和工位操作说明。

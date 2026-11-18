@@ -212,7 +212,17 @@ public final class HousingRuntime {
         }
     }
     private static void breakBlock(BlockEvent.BreakEvent e){if(e.getLevel() instanceof ServerLevel l){if(locked(l,e.getPos()))e.setCanceled(true);else if(!e.isCanceled())changed(l,e.getPos());}}
-    private static void placeBlock(BlockEvent.EntityPlaceEvent e){if(e.getLevel() instanceof ServerLevel l){if(locked(l,e.getPos()))e.setCanceled(true);else if(!e.isCanceled())changed(l,e.getPos());}}
+    private static void placeBlock(BlockEvent.EntityPlaceEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || event.isCanceled()) return;
+        var positions = event instanceof BlockEvent.EntityMultiPlaceEvent multi
+                ? multi.getReplacedBlockSnapshots().stream().map(snapshot -> snapshot.getPos()).toList()
+                : java.util.List.of(event.getPos());
+        if (positions.stream().anyMatch(pos -> locked(level, pos))) {
+            event.setCanceled(true);
+        } else {
+            positions.forEach(pos -> changed(level, pos));
+        }
+    }
     private static void rightClick(PlayerInteractEvent.RightClickBlock e){if(e.getLevel() instanceof ServerLevel l&&locked(l,e.getPos()))e.setCanceled(true);}
     private static void explode(ExplosionEvent.Detonate e){if(e.getLevel() instanceof ServerLevel l)e.getAffectedBlocks().removeIf(p->locked(l,p));}
     private static void tick(ServerTickEvent.Post e){

@@ -112,7 +112,7 @@ class CombatPayloadTest {
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
         // Current protocol also carries server-owned regional arrival announcements.
-        assertEquals("76", ModPayloads.PROTOCOL_VERSION);
+        assertEquals("79", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

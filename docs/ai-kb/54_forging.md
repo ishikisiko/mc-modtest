@@ -552,3 +552,8 @@ validation for this delivery; gameplay/UI/multiplayer acceptance is `not_verifie
 普通炼器鼎通过「炼制阵石」菜单消费当前修为和紫水晶，门槛与价格在 `enchanting/rules.json`。阵石装入附魔台下的托座，限制刻写等级。扩展台、篆纹阵和藏纹匣的玩法及两套多方块的摆放见[篆纹阵](../../guidebook/getting_started/seal_array.md)和[仙纹图书馆](../../guidebook/getting_started/cangwen_array.md)。
 
 扩展附魔沿用原版附魔组件、适用标签和互斥关系。仙纹图书馆的收录等级和库存随藏纹匣保存，调配后的物品保留炼器组件。四把锻锤与六款柄材使用 `tools/forging/tool_components.py` 的放样，锻器台的炉膛、台围和砧角见 `tools/forging/anvil_profile.py`。
+
+
+## 取物器快捷搭阵
+
+创造玩家主手持品质取物器，在「快捷搭建」选择青铜丹炉阵、玄枢炼器鼎、篆纹阵或仙纹图书馆。服务器根据现有蓝图、点选地面和朝向确定区域，客户端绘制带实际方块材质的透明预览。确认包只回传本次预览票号，服务器重新校验位置、区块、区域状态和占位。搭建会清理整个预览区域，保留点选的地面；放置事件被拒绝时恢复原状态和方块实体。
