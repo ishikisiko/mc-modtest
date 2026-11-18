@@ -9,7 +9,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import java.util.*;
@@ -17,8 +16,8 @@ import java.util.function.BooleanSupplier;
 
 /** Physical anvil finishing and existing equipment training. Preparation, heating and assembly have dedicated stations. */
 public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> {
-    private static final Style BOOK=Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("yuanxian","forge_detail"));
-    private static final int INK=0xFF353B32,MUTED=0xFF756A52,CINNABAR=0xFF8C4031,PAPER=0xFFE1D6B9;
+    private static final Style BOOK=Style.EMPTY;
+    private static final int INK=0xFF273B35,MUTED=0xFF605B4B,CINNABAR=0xFF8C4031;
     private final List<InkButton> directions=new ArrayList<>();
     private InkButton quench,grind,repair;
     public WorkshopScreen(WorkshopMenu menu,Inventory inventory,Component title){super(menu,inventory,title);imageWidth=WorkshopMenu.WIDTH;imageHeight=WorkshopMenu.HEIGHT;}
@@ -38,13 +37,16 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
     }
     @Override protected void containerTick(){super.containerTick();update();}
     @Override protected void renderBg(GuiGraphics g,float partial,int mx,int my){
-        int x=leftPos,y=topPos;g.fill(x,y,x+imageWidth,y+imageHeight,INK);g.fill(x+2,y+2,x+imageWidth-2,y+imageHeight-2,PAPER);
+        int x=leftPos,y=topPos;StationPanel.paper(g,x,y,imageWidth,imageHeight);
+        var state=com.example.myvillage.block.ModBlocks.FORGING_ANVIL.get().defaultBlockState()
+                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT,menu.heat()>0);
+        StationPanel.station(g,x+11,y+153,64,72,state,partial);
         for(int[] p:new int[][]{{94,104},{188,104}})slot(g,x+p[0],y+p[1]);
         for(int row=0;row<3;row++)for(int col=0;col<9;col++)slot(g,x+144+col*18,y+151+row*18);
         for(int col=0;col<9;col++)slot(g,x+144+col*18,y+209);
         int heat=Math.min(menu.heat(),FoundryRules.get().heat().capacity());g.fill(x+12,y+66,x+304,y+71,0xFFB7A78B);g.fill(x+12,y+66,x+12+292*heat/FoundryRules.get().heat().capacity(),y+71,0xFFB06E3F);
     }
-    private static void slot(GuiGraphics g,int x,int y){g.fill(x-1,y-1,x+17,y+17,0xFF99896D);g.fill(x,y,x+16,y+16,0xFFC9BFA5);}
+    private static void slot(GuiGraphics g,int x,int y){StationPanel.slot(g,x,y);}
     @Override protected void renderLabels(GuiGraphics g,int mx,int my){
         g.drawString(font,title,12,9,INK,false);g.drawString(font,"台面器物由右键放置，空手右键取回。",12,28,MUTED,false);
         var piece=menu.piece();String detail;
@@ -56,7 +58,7 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
         g.drawString(font,Component.translatable("workshop.yuanxian.status."+menu.status()),12,140,MUTED,false);
         if(!menu.input().isEmpty()){
             var craft=piece!=null?WorkshopRules.get().craft(piece.recipe()):WorkshopEquipment.craft(menu.input()).orElse(null);
-            if(craft!=null){var record=FoundryEquipment.record(menu.input());g.drawString(font,"手工贡献",12,164,MUTED,false);g.drawString(font,WorkshopEquipment.amount(record.manualStrength(craft.forming_points())*100)+"%",12,178,INK,false);}
+            if(craft!=null){var record=FoundryEquipment.record(menu.input());g.drawString(font,"手工贡献",82,164,MUTED,false);g.drawString(font,WorkshopEquipment.amount(record.manualStrength(craft.forming_points())*100)+"%",82,178,INK,false);}
         }
     }
     @Override public void render(GuiGraphics g,int mx,int my,float partial){super.render(g,mx,my,partial);renderTooltip(g,mx,my);}
@@ -66,8 +68,10 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
         @Override public void playDownSound(SoundManager manager){} // The committed tool contact supplies the sound.
         @Override protected void renderWidget(GuiGraphics g,int mx,int my,float delta){
             int x=getX(),y=getY();boolean current=selected.getAsBoolean();
-            int background=current?0xFFBFA57B:isHoveredOrFocused()&&active?0xFFD9C399:0xFFD2BF96;
-            g.fill(x,y,x+width,y+height,background);g.fill(x,y+height-1,x+width,y+height,active?0xFF98805C:0xFFB19E79);
+            int background=!active?0xFFD9D2BC:current||isHoveredOrFocused()?0xFFCEDDC3:0xFFD0C4A5;
+            g.fill(x,y,x+width,y+height,background);
+            g.fill(x,y,x+width,y+1,current?0xFF68917E:0xFF9E8B63);
+            g.fill(x,y+height-1,x+width,y+height,0xFF938161);
             if(current)g.fill(x,y+2,x+2,y+height-2,CINNABAR);
             var font=Minecraft.getInstance().font;var message=getMessage();
             if(font.width(message)>width-7)message=Component.literal(font.getSplitter().plainHeadByWidth(message.getString(),width-13,BOOK)+"…").withStyle(BOOK);

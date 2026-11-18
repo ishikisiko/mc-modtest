@@ -7,6 +7,6 @@
   "emissive_ambient": false,
   "gui_light": "side",
   "textures": {
-    "particle": "yuanxian:equipment/forging/steel"
+    "particle": "yuanxian:equipment/forging/edge"
   }
 }

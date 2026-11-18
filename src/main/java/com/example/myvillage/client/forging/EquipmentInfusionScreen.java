@@ -6,20 +6,17 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Dedicated ding page: only compatible affinities, with full-height paging controls. */
 public final class EquipmentInfusionScreen extends AbstractContainerScreen<EquipmentInfusionMenu> {
-    private static final Style BOOK=Style.EMPTY.withFont(id("forge_detail"));
-    private static final Style BRUSH=Style.EMPTY.withFont(id("boss_title"));
+    private static final Style BOOK=Style.EMPTY;
     private static final int INK=0xFF353B32,MUTED=0xFF756A52,RED=0xFF8C4031,PER_PAGE=6;
     private final List<WorkshopScreen.InkButton> traits=new ArrayList<>();
     private WorkshopScreen.InkButton infuse,next,copper;
     private int page,lastRecipe=-1;
-    private static ResourceLocation id(String path){return ResourceLocation.fromNamespaceAndPath("yuanxian",path);}
     private static Component text(String key,Object...args){return Component.translatable("workshop.yuanxian."+key,args).withStyle(BOOK);}
     public EquipmentInfusionScreen(EquipmentInfusionMenu menu,Inventory inventory,Component title){
         super(menu,inventory,title);imageWidth=WorkshopMenu.WIDTH;imageHeight=WorkshopMenu.HEIGHT;
@@ -62,10 +59,11 @@ public final class EquipmentInfusionScreen extends AbstractContainerScreen<Equip
     }
     @Override protected void renderBg(GuiGraphics g,float delta,int mx,int my){
         int x=leftPos,y=topPos;
-        g.blit(id("textures/gui/equipment_infusion_panel.png"),x,y,0,0,imageWidth,imageHeight,imageWidth,imageHeight);
-        for(var slot:menu.slots){int sx=x+slot.x,sy=y+slot.y;g.fill(sx-1,sy-1,sx+17,sy+17,0xFF8F7956);g.fill(sx,sy,sx+16,sy+16,slot.index<2?0xFFB6A47D:0xFF353B33);}
-        var shown=menu.input().isEmpty()?menu.output():menu.input();
-        if(!shown.isEmpty()){g.pose().pushPose();g.pose().translate(x+54,y+43,0);g.pose().scale(2,2,1);g.renderItem(shown,0,0);g.pose().popPose();}
+        StationPanel.paper(g,x,y,imageWidth,imageHeight);
+        var state=com.example.myvillage.block.ModBlocks.FORGING_TABLE.get().defaultBlockState()
+                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT,menu.busy());
+        StationPanel.station(g,x+11,y+43,122,38,state,delta);
+        for(var slot:menu.slots)StationPanel.slot(g,x+slot.x,y+slot.y);
         if(menu.busy()){int w=(int)(124*(1-menu.remaining()/(double)menu.duration(menu.action())));g.fill(x+10,y+143,x+10+w,y+145,RED);}
     }
     private void line(GuiGraphics g,Component text,int x,int y,int width,int color){
@@ -73,7 +71,7 @@ public final class EquipmentInfusionScreen extends AbstractContainerScreen<Equip
         g.drawString(font,text,x,y,color,false);
     }
     @Override protected void renderLabels(GuiGraphics g,int mx,int my){
-        g.drawString(font,text("infusion.title").copy().withStyle(BRUSH),12,8,INK,false);
+        g.drawString(font,text("infusion.title"),12,8,INK,false);
         line(g,text("infusion.equipment"),10,29,124,MUTED);line(g,text("traits"),144,29,158,MUTED);
         line(g,text("input"),26,84,40,MUTED);line(g,text("output"),100,84,34,MUTED);
         line(g,Component.literal("→").withStyle(BOOK),68,102,20,MUTED);

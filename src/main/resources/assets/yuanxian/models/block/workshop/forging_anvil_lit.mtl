@@ -1,0 +1,47 @@
+newmtl m0
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop_stone
+
+newmtl m1
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop_dark
+
+newmtl m2
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop_iron
+
+newmtl m3
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop_coal
+
+newmtl m4
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop_fire
+
+newmtl m5
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop_wood
+
+newmtl m6
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop_copper
+
+newmtl m7
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop_edge

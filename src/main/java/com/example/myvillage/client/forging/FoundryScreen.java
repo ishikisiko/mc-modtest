@@ -15,18 +15,18 @@ import java.util.*;
 /** Paper/bronze panels show actual requirements and preview the same server-owned assembly plan. */
 public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
     private static final int INK=0xFF353B32,PAPER=0xFFE1D6B9,GOLD=0xFF9B7B49,JADE=0xFF397C6F,MUTED=0xFF766B55;
-    private Button first,second,cancel;
+    private Button first,second,cancel,stone;
     public FoundryScreen(FoundryMenu menu,Inventory player,Component title){super(menu,player,title);imageWidth=FoundryMenu.WIDTH;imageHeight=FoundryMenu.HEIGHT;}
     private void send(int action){if(minecraft!=null&&minecraft.gameMode!=null)minecraft.gameMode.handleInventoryButtonClick(menu.containerId,action);}
     private Button button(int x,int y,int width,String label,int action){return addRenderableWidget(new WorkshopScreen.InkButton(leftPos+x,topPos+y,width,18,Component.literal(label),b->send(action),()->false));}
     @Override protected void init(){
-        super.init();first=second=cancel=null;
+        super.init();first=second=cancel=stone=null;
         switch(menu.kind()){
             case PREPARATION->{
                 addRenderableWidget(new WorkshopScreen.InkButton(leftPos+10,topPos+28,22,18,Component.literal("‹"),b->send(20+Math.floorMod(menu.recipeIndex()-1,WorkshopRules.get().crafts().size())),()->false));
                 addRenderableWidget(new WorkshopScreen.InkButton(leftPos+123,topPos+28,22,18,Component.literal("›"),b->send(20+(menu.recipeIndex()+1)%WorkshopRules.get().crafts().size()),()->false));
                 first=button(153,28,57,"只起坯",0);second=button(217,28,72,"自动制作",1);
-                button(10,57,72,"赤铜灌灵",2);cancel=button(217,57,72,"撤炉退料",3);
+                button(10,57,72,"赤铜灌灵",2);stone=button(90,57,72,"炼制阵石",4);cancel=button(217,57,72,"撤炉退料",3);
             }
             case ASSEMBLY->{first=button(118,117,78,"组装 / 换柄",0);cancel=button(205,117,78,"取消",1);}
             case KILN->{}
@@ -36,6 +36,7 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
     private void updateButtons(){
         if(first!=null)first.active=!menu.active()&&menu.output().isEmpty()&&(menu.kind()!=FoundryMenu.Kind.PREPARATION||menu.input().isEmpty()&&menu.knows(menu.recipeIndex()));
         if(second!=null)second.active=!menu.active()&&menu.output().isEmpty()&&menu.knows(menu.recipeIndex());
+        if(stone!=null)stone.active=!menu.active();
         if(cancel!=null)cancel.active=menu.active();
         if(menu.kind()==FoundryMenu.Kind.PREPARATION){
             var craft=WorkshopRules.get().crafts().get(menu.recipeIndex());var recipe=ForgingRules.get().recipe(craft.recipe()).orElseThrow();
@@ -52,7 +53,13 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
     }
     @Override protected void containerTick(){super.containerTick();updateButtons();}
     @Override protected void renderBg(GuiGraphics g,float partial,int mx,int my){
-        int x=leftPos,y=topPos;g.fill(x,y,x+imageWidth,y+imageHeight,INK);g.fill(x+2,y+2,x+imageWidth-2,y+imageHeight-2,PAPER);g.fill(x+9,y+21,x+291,y+22,GOLD);
+        int x=leftPos,y=topPos;StationPanel.paper(g,x,y,imageWidth,imageHeight);
+        var state=switch(menu.kind()) {
+            case PREPARATION->com.example.myvillage.block.ModBlocks.FORGING_TABLE.get().defaultBlockState();
+            case KILN->com.example.myvillage.block.ModBlocks.HEATING_KILN.get().defaultBlockState();
+            case ASSEMBLY->com.example.myvillage.block.ModBlocks.ASSEMBLY_TABLE.get().defaultBlockState();
+        };
+        StationPanel.station(g,x+10,y+153,48,72,state,partial);
         for(int[] p:new int[][]{{32,92},{96,92},{202,92},{258,92}})slot(g,x+p[0],y+p[1]);
         for(int row=0;row<3;row++)for(int col=0;col<9;col++)slot(g,x+69+col*18,y+151+row*18);
         for(int col=0;col<9;col++)slot(g,x+69+col*18,y+209);
@@ -66,7 +73,7 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
             var plan=AssemblyPlan.prepare(menu.input(),menu.material(),1);if(plan.valid())g.renderItem(plan.result(),x+202,y+92);
         }
     }
-    private static void slot(GuiGraphics g,int x,int y){g.fill(x-1,y-1,x+17,y+17,0xFF99896D);g.fill(x,y,x+16,y+16,0xFFC9BFA5);}
+    private static void slot(GuiGraphics g,int x,int y){StationPanel.slot(g,x,y);}
     private static String assemblyStatus(int status){return switch(status){case 1->"放入精磨器坯，或需要换柄的成品。";case 2->"器坯尚未完成精磨。";case 3->"放入柄材；护甲装配使用皮革。";case 4->"当前已经使用这种柄材。";case 5->"先取走成品和返还物。";case 6->"正在组装。";case 7->"装配状态异常，请取消并取回原件。";case 8->"组装完成。";default->"放入器坯与柄材，确认预览后组装。";};}
     private String status(){return switch(menu.kind()){
         case ASSEMBLY->assemblyStatus(menu.status());
@@ -97,8 +104,8 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
             }
         }
         var lines=font.split(Component.literal(status()),278);if(!lines.isEmpty())g.drawString(font,lines.getFirst(),10,138,INK);
-        g.drawString(font,"熟练度",11,158,MUTED,false);g.drawString(font,menu.skill()+" 级",16,171,JADE,false);
-        g.drawString(font,"炼器资质",8,193,MUTED,false);g.drawString(font,Integer.toString(menu.aptitude()),12,207,INK,false);
+        g.drawString(font,"熟练度",239,158,MUTED,false);g.drawString(font,menu.skill()+" 级",239,171,JADE,false);
+        g.drawString(font,"炼器资质",239,193,MUTED,false);g.drawString(font,Integer.toString(menu.aptitude()),239,207,INK,false);
     }
     private static String number(double value){return java.math.BigDecimal.valueOf(value).setScale(2,java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();}
     private static double attack(ItemStack stack){return 1+stack.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).modifiers().stream()

@@ -52,6 +52,10 @@ public final class PreparationBlockEntity extends FoundryBlockEntity {
             var refund=drainReserved();if(paidRaw)items.set(0,ItemStack.EMPTY);reset();setChanged();sync();
             refund.forEach(stack->player.getInventory().placeItemBackInInventory(stack));return true;
         }
+        if(button==4&&!active()){
+            com.example.myvillage.enchanting.EnchantingContent.openStoneForge(player,worldPosition);
+            return true;
+        }
         if(button==2&&!active()){
             player.openMenu(new SimpleMenuProvider((id,inv,p)->new CopperInfusionMenu(id,inv,ContainerLevelAccess.create(level,worldPosition)),net.minecraft.network.chat.Component.translatable("screen.yuanxian.infusion.title")));return true;
         }

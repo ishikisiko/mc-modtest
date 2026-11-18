@@ -1,367 +1,14 @@
 {
-  "ambientocclusion": true,
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/block/workshop/chitong_forging_hammer.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
   "textures": {
-    "stone": "yuanxian:block/workshop_stone",
-    "wood": "yuanxian:block/workshop_wood",
-    "iron": "yuanxian:block/chitong_forging_hammer",
-    "edge": "yuanxian:block/chitong_forging_hammer",
-    "dark": "yuanxian:block/workshop_dark",
-    "copper": "yuanxian:block/workshop_copper",
-    "coal": "yuanxian:block/workshop_coal",
-    "fire": "yuanxian:block/workshop_fire",
-    "rough": "yuanxian:block/workshop_rough",
-    "quench": "yuanxian:block/workshop_quench",
-    "temper": "yuanxian:block/workshop_temper",
-    "hotmetal": "yuanxian:block/workshop_hotmetal",
-    "particle": "yuanxian:block/workshop_stone"
+    "particle": "yuanxian:block/workshop/finish/copper_face"
   },
-  "elements": [
-    {
-      "name": "锤柄",
-      "from": [
-        7.55,
-        -1,
-        7.55
-      ],
-      "to": [
-        8.45,
-        7,
-        8.45
-      ],
-      "faces": {
-        "up": {
-          "texture": "#wood",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "down": {
-          "texture": "#wood",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "north": {
-          "texture": "#wood",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#wood",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "east": {
-          "texture": "#wood",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "west": {
-          "texture": "#wood",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        }
-      }
-    },
-    {
-      "name": "柄箍",
-      "from": [
-        7.4,
-        5,
-        7.4
-      ],
-      "to": [
-        8.6,
-        6,
-        8.6
-      ],
-      "faces": {
-        "up": {
-          "texture": "#copper",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "down": {
-          "texture": "#copper",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "north": {
-          "texture": "#copper",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#copper",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "east": {
-          "texture": "#copper",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "west": {
-          "texture": "#copper",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        }
-      }
-    },
-    {
-      "name": "锤头",
-      "from": [
-        5.4,
-        6,
-        6.5
-      ],
-      "to": [
-        10.6,
-        9,
-        9.5
-      ],
-      "faces": {
-        "up": {
-          "texture": "#iron",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "down": {
-          "texture": "#iron",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "north": {
-          "texture": "#iron",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#iron",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "east": {
-          "texture": "#iron",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "west": {
-          "texture": "#iron",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        }
-      }
-    },
-    {
-      "name": "锤击面",
-      "from": [
-        5.3,
-        6.1,
-        6.6
-      ],
-      "to": [
-        5.6,
-        8.9,
-        9.4
-      ],
-      "faces": {
-        "up": {
-          "texture": "#edge",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "down": {
-          "texture": "#edge",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "north": {
-          "texture": "#edge",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#edge",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "east": {
-          "texture": "#edge",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "west": {
-          "texture": "#edge",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        }
-      }
-    },
-    {
-      "name": "柄楔",
-      "from": [
-        7.6,
-        9,
-        7.6
-      ],
-      "to": [
-        8.4,
-        9.2,
-        8.4
-      ],
-      "faces": {
-        "up": {
-          "texture": "#dark",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "down": {
-          "texture": "#dark",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "north": {
-          "texture": "#dark",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#dark",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "east": {
-          "texture": "#dark",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "west": {
-          "texture": "#dark",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        }
-      }
-    }
-  ],
   "display": {
     "gui": {
       "rotation": [
@@ -370,14 +17,14 @@
         -67.39953537600312
       ],
       "translation": [
-        2.3436971556176953,
-        3.832610586045131,
-        0.08048910404182531
+        2.9395608171580476,
+        3.941811594154524,
+        0.08324316544017521
       ],
       "scale": [
-        1.4153310207692475,
-        1.4153310207692475,
-        1.4153310207692475
+        1.4490491801557703,
+        1.4490491801557703,
+        1.4490491801557703
       ]
     },
     "ground": {
@@ -387,8 +34,8 @@
         0
       ],
       "translation": [
-        0.030000000000000426,
-        4.34,
+        -0.011999999999999744,
+        4.2829999999999995,
         -0.0
       ],
       "scale": [
@@ -404,9 +51,9 @@
         0
       ],
       "translation": [
-        -0.05000000000000071,
-        3.9000000000000004,
-        -6.1232339957368534e-18
+        0.019999999999999574,
+        3.8049999999999997,
+        2.4492935982946544e-18
       ],
       "scale": [
         1,
@@ -421,9 +68,9 @@
         0
       ],
       "translation": [
-        -0.05000000000000071,
-        3.9000000000000004,
-        -6.1232339957368534e-18
+        0.019999999999999574,
+        3.8049999999999997,
+        2.4492935982946544e-18
       ],
       "scale": [
         1,
@@ -499,6 +146,5 @@
         0.65
       ]
     }
-  },
-  "gui_light": "side"
+  }
 }

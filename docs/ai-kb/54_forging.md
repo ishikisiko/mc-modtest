@@ -12,7 +12,7 @@
 
 四种锻锤的工作台配方共用 `equipment/workshop/hammer.json` 的排列：顶排三个对应金属锭，正中间一块任意木板，下排中间一根木棍。分级锤只替换金属材料及产物，避免再与原版铁镐的三锭、两木棍配方重合。
 
-后续制作不同材质的镐和锄时，沿用已确认的[镐锄造型模板](../../equipment/workshop/pickaxe_hoe_shape_templates.json)。模板保存了各锻造阶段的截面、成品握点和柄孔尺寸，头部、握柄和包缠可分别换材质。模板目前供造型与预览使用。
+后续制作不同材质的镐和锄时，沿用已确认的[镐锄造型模板](../../equipment/workshop/pickaxe_hoe_shape_templates.json)。模板保存了各锻造阶段的截面、成品握点和柄孔尺寸，头部、握柄和包缠可分别换材质。工件、成品、锻台与器谱通过 `tools/forging/models.py` 同源生成。
 
 每个 craft 的 `forming_points` 与 `grade` 决定加工需求和练习难度。服务器接触帧按锤子、熟练度和器物火候增加有限点数；`ForgeCraft` 以点数加权保存手工成效，最后一锤只计算剩余工作量。`ForgingSkill` 独立 attachment 保存累计经验并在死亡时复制；经验按累计完成点数之差取整，低难度折扣也不会让小锤多敲获利。资质仍只负责装配成器品质，不按熟练度重抽。
 
@@ -545,3 +545,10 @@ full inventories produce no item. Ordinary items are available only unchanged.
 bilingual picker strings. Modal `--preset quality-picker-build` only compiles and
 packages committed resources. The user explicitly requested no tests or runtime
 validation for this delivery; gameplay/UI/multiplayer acceptance is `not_verified`.
+
+
+## 阵石与附魔
+
+普通炼器鼎通过「炼制阵石」菜单消费当前修为和紫水晶，门槛与价格在 `enchanting/rules.json`。阵石装入附魔台下的托座，限制刻写等级。扩展台、篆纹阵和藏纹匣的玩法及两套多方块的摆放见[篆纹阵](../../guidebook/getting_started/seal_array.md)和[仙纹图书馆](../../guidebook/getting_started/cangwen_array.md)。
+
+扩展附魔沿用原版附魔组件、适用标签和互斥关系。仙纹图书馆的收录等级和库存随藏纹匣保存，调配后的物品保留炼器组件。四把锻锤与六款柄材使用 `tools/forging/tool_components.py` 的放样，锻器台的炉膛、台围和砧角见 `tools/forging/anvil_profile.py`。

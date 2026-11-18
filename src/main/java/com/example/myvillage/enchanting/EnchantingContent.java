@@ -4,7 +4,6 @@ import static com.example.myvillage.enchanting.EnchantingRules.RULES;
 import static com.example.myvillage.enchanting.EnchantingRules.id;
 
 import com.example.myvillage.MyVillageMod;
-import com.example.myvillage.block.ForgingTableBlock;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import java.util.LinkedHashMap;
@@ -94,7 +93,6 @@ public final class EnchantingContent {
         MENUS.register(bus);
         TABS.register(bus);
         NeoForge.EVENT_BUS.addListener(EnchantingContent::useVanillaTable);
-        NeoForge.EVENT_BUS.addListener(EnchantingContent::openStoneCraft);
     }
 
     static boolean isInk(ItemStack stack) {
@@ -126,16 +124,8 @@ public final class EnchantingContent {
         event.setCanceled(true);
     }
 
-    private static void openStoneCraft(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getHand() != InteractionHand.MAIN_HAND || !event.getEntity().isShiftKeyDown()
-                || !(event.getLevel().getBlockState(event.getPos()).getBlock() instanceof ForgingTableBlock)
-                || RULES.stones().stream().noneMatch(stone -> event.getItemStack().is(
-                        BuiltInRegistries.ITEM.get(ResourceLocation.parse(stone.ingredient()))))) return;
-        if (event.getEntity() instanceof ServerPlayer player && !player.isSpectator()) {
-            open(player, EnchantingMenu.Mode.STONE, event.getPos(), null);
-        }
-        event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
-        event.setCanceled(true);
+    public static void openStoneForge(ServerPlayer player, net.minecraft.core.BlockPos pos) {
+        open(player, EnchantingMenu.Mode.STONE, pos, null);
     }
 
     static boolean forgeStone(ServerPlayer player, EnchantingRules.Stone stone, ItemStack input) {

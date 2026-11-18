@@ -61,24 +61,15 @@ def outputs(root=ROOT):
     def shaped(id,pattern,keys):add(f'data/yuanxian/recipe/{id}.json',{'type':'minecraft:crafting_shaped','category':'misc','pattern':pattern,'key':{k:{'tag':v[1:]} if v.startswith('#') else {'item':v} for k,v in keys.items()},'result':{'id':'yuanxian:'+id,'count':1}})
     shaped('heating_kiln',['BBB','BFB','III'],{'B':'minecraft:bricks','F':'minecraft:furnace','I':'minecraft:iron_ingot'})
     shaped('assembly_table',['III','PPP','P P'],{'I':'minecraft:iron_nugget','P':'#minecraft:planks'})
-    from tools.forging import anvil
-    from tools.equipment import mesh
     authored=json.loads((Path(root)/'equipment/workshop/hammer.json').read_text())
     for h in cfg['hammers']:
         if h['id']=='forging_hammer':continue
-        model=anvil.hammer();model['textures']['iron']='yuanxian:block/'+h['id'];model['textures']['edge']='yuanxian:block/'+h['id']
-        out[base/f'assets/yuanxian/textures/block/{h["id"]}.png']=texture(h['color'])
-        model['display']=mesh.item_display(mesh.elements_mesh(model),grip=authored['grip'],root=Path(root))
-        for ctx in ['firstperson_righthand','firstperson_lefthand']:model['display'][ctx]['translation']=[a+b for a,b in zip(model['display'][ctx]['translation'],authored['first_person_offset'])]
-        model['gui_light']='side';add(f'assets/yuanxian/models/item/{h["id"]}.json',model)
         recipe=copy.deepcopy(authored['recipe'])
         recipe.setdefault('category','misc')
         recipe['key']['I']={'item':h['material']}
         recipe['result']['id']='yuanxian:'+h['id']
         add(f'data/yuanxian/recipe/{h["id"]}.json',recipe)
     for h in cfg['handles']:
-        parts=[];box(parts,'完整柄身',[6.8,0,6.8],[9.2,15,9.2],'body')
-        add(f'assets/yuanxian/models/item/{h["id"]}_handle.json',{'textures':{'body':'yuanxian:item/'+h['id']+'_handle','particle':'yuanxian:item/'+h['id']+'_handle'},'elements':parts,'display':{'gui':{'rotation':[0,0,-35],'scale':[.9,.9,.9]},'ground':{'scale':[.4,.4,.4]},'thirdperson_righthand':{'rotation':[0,0,0],'translation':[0,1,0],'scale':[.6,.6,.6]},'firstperson_righthand':{'rotation':[0,0,-25],'translation':[0,1,0],'scale':[.5,.5,.5]}}})
         out[base/f'assets/yuanxian/textures/item/{h["id"]}_handle.png']=texture(h['color'],'wood')
         add(f'data/yuanxian/recipe/{h["id"]}_handle.json',{'type':'minecraft:crafting_shapeless','category':'equipment','ingredients':[{'item':h['ingredient']},{'item':h['ingredient']}],'result':{'id':'yuanxian:'+h['id']+'_handle','count':1}})
     for f in cfg['fires']:
@@ -103,7 +94,8 @@ def outputs(root=ROOT):
     for tool,ids in [('pickaxe',['heating_kiln','earth_fire_vent','cold_fire_vent']),('axe',['assembly_table'])]:
         path=base/f'data/minecraft/tags/block/mineable/{tool}.json'
         tag=json.loads(path.read_text()) if path.exists() else {'replace':False,'values':[]}
-        tag['values']=sorted(set(tag['values'])|{'yuanxian:'+id for id in ids});out[path]=encoded(tag)
+        tag['values']+=sorted({'yuanxian:'+id for id in ids}-set(tag['values']))
+        out[path]=encoded(tag)
     return out
 def lang():
     c=json.loads(CFG.read_text());d={'block.yuanxian.heating_kiln':'加热窑','block.yuanxian.assembly_table':'组装台',

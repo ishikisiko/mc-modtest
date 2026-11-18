@@ -1,0 +1,35 @@
+newmtl m0
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop/finish/alloy_face
+
+newmtl m1
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop/finish/alloy
+
+newmtl m2
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop/finish/black
+
+newmtl m3
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop/finish/brass
+
+newmtl m4
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop/finish/leather
+
+newmtl m5
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:block/workshop/finish/face

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.137.0
+
+- 扩展附魔台用书架与阵石控制刻写等级。普通炼器鼎可消耗修为和紫水晶炼制阵石，玩家用青金石或少量经验抽选，再用朱砂灵墨刻写。
+- 篆纹阵成阵后会展开四扇阵叶和悬印，强度达到要求时开放留纹与双刻。仙纹图书馆可存取附魔书，成阵后可在藏纹匣调配装备附魔，并用玉简保存配法。
+- 更新锻器台、四把锻锤、六款柄材和精铁镐、精铁锄的模型。镐和锄从器坯到成品使用统一造型，成品接柄孔从下方开入并封顶。锻器工位界面加入旋转的立体工位展示。
+
 ## 0.136.2
 
 - 普通妖兽和雷角山君掉落妖兽皮、妖兽骨及妖丹时，每个抽中的条目按抢夺等级随机多掉材料。数量增量每级 0–1 件。

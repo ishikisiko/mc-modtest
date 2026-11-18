@@ -4,6 +4,7 @@ import copy
 import json
 from pathlib import Path
 from tools.equipment import mesh
+from tools.forging.mesh_profiles import tool_faces
 from tools.equipment.geometry import encode_png
 ROOT=Path(__file__).resolve().parents[2]
 PREFIX='yuanxian:equipment/forging/'
@@ -39,7 +40,8 @@ def palette_texture(name,colors):
 class Catalogue:
  def __init__(self,root=ROOT):
   self.root=Path(root);self.config=read(self.root/'equipment/workshop/stages.json');self.authored=read(self.root/'equipment/workshop/tools.json')
-  self.sources={};self.heads={};self.kinds={};self.displays={};self.names={};self.material_outputs={}
+  self.templates=read(self.root/'equipment/workshop/pickaxe_hoe_shape_templates.json')
+  self.sources={};self.tool_sources={};self.heads={};self.kinds={};self.displays={};self.names={};self.material_outputs={}
   self._tools();self._weapons();self._armor()
  def _tools(self):
   for spec in self.authored['tools']:
@@ -52,7 +54,15 @@ class Catalogue:
     for f in fs:f['metal']=part['role'] in ('head','edge')
     faces.extend(fs)
     if part['role'] in ('head','edge'):head.extend(fs)
-   rid=spec['id'];self.sources[rid]=faces;self.heads[rid]=head;self.kinds[rid]=spec['kind'];self.names[rid]=spec['name'];self.displays[rid]=mesh.item_display(faces,grip=spec['grip'])
+   rid=spec['id']
+   self.tool_sources[rid]=faces
+   self.heads[rid]=head
+   self.kinds[rid]=spec['kind']
+   self.names[rid]=spec['name']
+   templated=rid in self.templates['模板']
+   self.sources[rid]=tool_faces(self.templates,rid,5,faces) if templated else faces
+   grip=self.templates['坐标']['握点'] if templated else spec['grip']
+   self.displays[rid]=mesh.item_display(self.sources[rid],grip=grip,root=self.root)
  def _weapons(self):
   from tools import gen_qingfeng_sword_model as q,gen_lingxiao_spear_model as s
   for rid,gen in [('qingfeng_sword',q),('lingxiao_spear',s)]:
@@ -97,12 +107,14 @@ class Catalogue:
   spec=next(s for s in self.authored['tools'] if s['id']==rid);core={b['name'] for b in spec['boxes'] if b['role']=='head'}
   return surface([f for f in head if f['part'] in core],'rough')
  def stage(self,rid,stage,hot=False):
-  if stage==5:faces=copy.deepcopy(self.sources[rid])
+  templated=rid in self.templates['模板']
+  if stage==5:faces=copy.deepcopy(self.tool_sources[rid] if templated else self.sources[rid])
   elif stage==0:faces=self.coarse(rid)
   else:
    faces=copy.deepcopy(self.heads[rid]);material=self.config['states'][stage]['surface']
    if material:faces=surface(faces,material)
   if hot:faces=surface(faces,'hot',metal_only=stage==5)
+  if templated:return tool_faces(self.templates,rid,stage,faces)
   return faces
  def bench(self,rid,faces,stage=5):
   # Put the broad face on the anvil, keeping the complete item's part proportions.

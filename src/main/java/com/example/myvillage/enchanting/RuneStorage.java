@@ -17,12 +17,14 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 public final class RuneStorage {
     private RuneStorage() {}
 
     static final String CANDIDATES = "ArrayCandidates";
     static final String HELD = "ArrayHeld";
+    static final String HELD_LEVEL = "ArrayHeldLevel";
     static final String REDRAWN = "ArrayRedrawn";
 
     static CompoundTag read(ItemStack stack) {
@@ -37,6 +39,7 @@ public final class RuneStorage {
         update(stack, tag -> {
             tag.remove(CANDIDATES);
             tag.remove(HELD);
+            tag.remove(HELD_LEVEL);
             tag.remove(REDRAWN);
         });
     }
@@ -45,12 +48,13 @@ public final class RuneStorage {
         return read(stack).getList(CANDIDATES, Tag.TAG_STRING).stream().map(Tag::getAsString).toList();
     }
 
-    static void saveDraw(ItemStack stack, List<Holder<Enchantment>> batch, String held) {
+    static void saveDraw(ItemStack stack, List<Holder<Enchantment>> batch, String held, int heldLevel) {
         var list = new ListTag();
         batch.forEach(rune -> list.add(StringTag.valueOf(key(rune))));
         update(stack, tag -> {
             tag.put(CANDIDATES, list);
             tag.putString(HELD, held);
+            tag.putInt(HELD_LEVEL, heldLevel);
             tag.putBoolean(REDRAWN, !held.isEmpty());
         });
     }
@@ -60,7 +64,7 @@ public final class RuneStorage {
     }
 
     static boolean supported(Holder<Enchantment> rune, int level) {
-        return !rune.is(EnchantmentTags.CURSE) && points(level) > 0 && level <= rune.value().getMaxLevel();
+        return rune.unwrapKey().isPresent() && !rune.is(EnchantmentTags.CURSE) && points(level) > 0 && level <= rune.value().getMaxLevel();
     }
 
     static boolean drawable(Holder<Enchantment> rune) {
@@ -80,10 +84,10 @@ public final class RuneStorage {
 
     static ItemStack write(ItemStack input, Map<Holder<Enchantment>, Integer> effects) {
         var result = input.is(Items.BOOK) ? input.transmuteCopy(Items.ENCHANTED_BOOK, 1) : input.copy();
-        EnchantmentHelper.updateEnchantments(result, value -> {
-            value.removeIf(rune -> !effects.containsKey(rune));
-            effects.forEach(value::set);
-        });
+        var value = new ItemEnchantments.Mutable(EnchantmentHelper.getEnchantmentsForCrafting(result));
+        value.removeIf(rune -> !effects.containsKey(rune));
+        effects.forEach(value::set);
+        EnchantmentHelper.setEnchantments(result, value.toImmutable());
         clearDraw(result);
         return result;
     }

@@ -40,7 +40,7 @@ public final class EnchantingMenu extends AbstractContainerMenu {
             PREVIOUS = 5, NEXT = 6, FOCUS = 7, DEPOSIT = 8, PRINT = 9, REPLACE = 10,
             DRAFT_DOWN = 11, DRAFT_UP = 12, SAVE_SLIP = 13, LOAD_SLIP = 14, RESET = 15,
             PRESET = 16, LEVEL_DOWN = 17, LEVEL_UP = 18;
-    public static final int SELECT = 24, RAISE = 28, HOLD = 32, LOWER = 36;
+    public static final int SELECT = 24, RAISE = 28, HOLD = 32, LOWER = 36, CATALOGUE_SELECT = 64;
     public static final int WIDTH = 304, HEIGHT = 238;
 
     private static final int INPUT = 0, INK = 1, MATERIAL = 2, SLIP = 3, OUTPUT = 4, SLOT_COUNT = 5;
@@ -196,6 +196,8 @@ public final class EnchantingMenu extends AbstractContainerMenu {
         });
         mask = 0;
         java.util.Arrays.fill(selectedLevels, 0);
+        int held = heldIndex();
+        if (held >= 0 && held < selectedLevels.length) selectedLevels[held] = read(input()).getInt(HELD_LEVEL);
         status = READY;
     }
 
@@ -233,16 +235,18 @@ public final class EnchantingMenu extends AbstractContainerMenu {
         data.set(FORMED, table.formed() ? 1 : 0);
         data.set(FOCUSED, table.focused() ? 1 : 0);
         data.set(PREFERENCE, preference);
-        data.set(MASK, mask);
         int packed = 0;
         int ink = 0;
         var batch = batch();
+        var current = effects(input());
         for (int i = 0; i < batch.size(); i++) {
             var rune = batch.get(i);
-            int level = rune == null ? 0 : selectedLevel(rune, i, table.strength());
+            int level = rune == null || !canWrite(rune, table.strength(), current) ? 0 : selectedLevel(rune, i, table.strength());
             packed |= Math.min(15, level) << (4 * i);
-            if (rune != null && (mask & (1 << i)) != 0) ink += RULES.ink(rune, 0, level);
+            if (level == 0) mask &= ~(1 << i);
+            else if ((mask & (1 << i)) != 0) ink += RULES.ink(rune, 0, level);
         }
+        data.set(MASK, mask);
         data.set(LEVELS, packed);
         data.set(COST, ink);
     }
@@ -255,7 +259,13 @@ public final class EnchantingMenu extends AbstractContainerMenu {
     @Override public boolean clickMenuButton(Player player, int button) {
         if (!(player instanceof ServerPlayer server) || player.containerMenu != this || !stillValid(player)) return false;
         syncInput();
-        if (button == PREVIOUS || button == NEXT) {
+        if (button >= CATALOGUE_SELECT && serverMode != Mode.STONE) {
+            int selected = button - CATALOGUE_SELECT;
+            if (selected >= catalogue.size()) return false;
+            index = selected;
+            printLevel = 1;
+            status = READY;
+        } else if (button == PREVIOUS || button == NEXT) {
             int size = serverMode == Mode.STONE ? RULES.stones().size() : catalogue.size();
             if (size > 0) index = Math.floorMod(index + (button == PREVIOUS ? -1 : 1), size);
             printLevel = 1;
@@ -346,12 +356,20 @@ public final class EnchantingMenu extends AbstractContainerMenu {
             mask = next;
         } else if (row >= 8 && row < 12) {
             if (!table.formed() || table.strength() < RULES.lock_strength() || read(input()).getBoolean(REDRAWN)) return INVALID;
-            update(input(), tag -> tag.putString(HELD, key(chosen).equals(tag.getString(HELD)) ? "" : key(chosen)));
+            update(input(), tag -> {
+                boolean unset = key(chosen).equals(tag.getString(HELD));
+                tag.putString(HELD, unset ? "" : key(chosen));
+                tag.putInt(HELD_LEVEL, unset ? 0 : selectedLevel(chosen, slot, table.strength()));
+            });
             previousInput = input().copy();
         } else {
             int increment = row < 8 ? 1 : -1;
             selectedLevels[slot] = Math.clamp(selectedLevel(chosen, slot, table.strength()) + increment, 1,
                     Math.min(15, RULES.maxLevel(chosen, table.strength())));
+            if (slot == heldIndex()) {
+                update(input(), tag -> tag.putInt(HELD_LEVEL, selectedLevels[slot]));
+                previousInput = input().copy();
+            }
         }
         return READY;
     }
@@ -388,10 +406,12 @@ public final class EnchantingMenu extends AbstractContainerMenu {
                 }
             }
         }
-        saveDraw(input(), result, retained ? held : "");
+        int heldLevel = retained ? data.getInt(HELD_LEVEL) : 0;
+        saveDraw(input(), result, retained ? held : "", heldLevel);
         previousInput = input().copy();
         mask = retained ? 1 : 0;
         java.util.Arrays.fill(selectedLevels, 0);
+        selectedLevels[0] = heldLevel;
         if (serverMode == Mode.SEAL) device.animate(1);
         return READY;
     }
@@ -404,8 +424,9 @@ public final class EnchantingMenu extends AbstractContainerMenu {
     private boolean hasInk(int fee) { return work.getItem(INK).getCount() >= fee; }
 
     private void apply(Map<Holder<Enchantment>, Integer> current, int fee) {
+        var result = write(input(), current);
         work.getItem(INK).shrink(fee);
-        work.setItem(INPUT, write(input(), current));
+        work.setItem(INPUT, result);
         if (serverMode == Mode.SEAL || serverMode == Mode.LIBRARY) device.animate(2);
         complete();
     }

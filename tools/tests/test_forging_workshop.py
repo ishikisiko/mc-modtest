@@ -11,8 +11,11 @@ class WorkshopResourcesTest(unittest.TestCase):
         from tools.equipment import mesh,geometry
         base=ROOT/'src/main/resources';out=workshop.outputs()
         held=json.loads(out[base/'assets/yuanxian/models/item/forging_hammer.json'])
-        self.assertEqual(anvil.hammer()['elements'],held['elements'])
-        faces=mesh.elements_mesh(held)
+        display=json.loads(out[base/'assets/yuanxian/models/block/workshop/hammer.json'])
+        self.assertEqual(display['model'],held['model'])
+        self.assertEqual('neoforge:obj',held['loader'])
+        ref=held['model'].split(':')[1]
+        faces=mesh.read_obj(out[base/'assets/yuanxian'/ref],out[base/'assets/yuanxian'/ref.replace('.obj','.mtl')])
         for face in faces:
             for p in face['points']:
                 self.assertTrue(all(abs(v)<=7.000001 for v in geometry.display_point(held['display']['gui'],p)[:2]))
@@ -43,9 +46,13 @@ class WorkshopResourcesTest(unittest.TestCase):
 
     def test_station_does_not_keep_an_automatic_hammer_arm(self):
         from tools.forging import anvil
-        for lit in (False,True):
-            names={e['name'] for e in anvil.station(lit)['elements']}
-            self.assertTrue({'砧面','炉床','足座'}<=names)
+        base=ROOT/'src/main/resources'
+        out=anvil.outputs(base)
+        for suffix in ('','_lit'):
+            model=json.loads(out[base/f'assets/yuanxian/models/block/forging_anvil{suffix}.json'])
+            obj=out[base/'assets/yuanxian'/model['model'].split(':')[1]].decode()
+            names={line[2:] for line in obj.splitlines() if line.startswith('# ')}
+            self.assertTrue({'平砧工作面','炉床','削角整石底座'}<=names)
             self.assertFalse({'锻锤支架','支架底箍','锤柄转轴'}&names)
 
     def test_trough_states_resolve_and_only_filled_model_has_water(self):

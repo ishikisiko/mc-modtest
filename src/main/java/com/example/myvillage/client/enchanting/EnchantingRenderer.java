@@ -38,7 +38,7 @@ public final class EnchantingRenderer implements BlockEntityRenderer<EnchantingD
         float started;
         long spark = -1;
         float at(float time, int desired) {
-            float t = Mth.clamp((time - started) / 21F, 0, 1);
+            float t = (time < started ? 1 : Mth.clamp((time - started) / 21F, 0, 1));
             float value = Mth.lerp(t * t * (3 - 2 * t), from, target);
             if (target != desired) {
                 from = value;
@@ -93,9 +93,9 @@ public final class EnchantingRenderer implements BlockEntityRenderer<EnchantingD
             float phase = (float) (time * Math.PI * 2 / PERIODS[index]) * (index == 1 ? -1 : 1);
             String tone = index == 1 ? "jade" : index == 2 ? "rose" : ring.main();
             for (int i = 0; i < 48; i++) {
-                float angle = (float) (i * Math.PI / 24);
-                segment(pose, buffers, ring, angle, .131f, ring.r() - ring.w() / 2,
-                        ring.r() + ring.w() / 2, -ring.d() / 2, ring.d() / 2, tone, light);
+                float angle = phase + (float) (i * Math.PI / 24);
+                segment(pose, buffers, ring, angle, .126f, ring.r() - ring.w() / 2,
+                        ring.r() + ring.w() / 2, -ring.d() / 2, ring.d() / 2, i % 12 == 0 ? "brass" : tone, light);
             }
             for (int i = 0; i < 12; i++) {
                 float moving = phase + (float) (i * Math.PI / 6);

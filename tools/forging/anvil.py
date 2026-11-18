@@ -55,16 +55,6 @@ def station(lit=False):
     return model(p)
 
 
-def hammer():
-    p = []
-    box(p, '锤柄', [7.55, -1, 7.55], [8.45, 7, 8.45], 'wood')
-    box(p, '柄箍', [7.4, 5, 7.4], [8.6, 6, 8.6], 'copper')
-    box(p, '锤头', [5.4, 6, 6.5], [10.6, 9, 9.5], 'iron')
-    box(p, '锤击面', [5.3, 6.1, 6.6], [5.6, 8.9, 9.4], 'edge')
-    box(p, '柄楔', [7.6, 9, 7.6], [8.4, 9.2, 8.4], 'dark')
-    return model(p)
-
-
 def outputs(base):
     out = {}
     def add(path, obj): out[base/path] = (json.dumps(obj, ensure_ascii=False, indent=2)+'\n').encode()
@@ -79,21 +69,33 @@ def outputs(base):
                 row.append(tuple(max(0, min(255, c+shade)) for c in color)+(255,))
             rows.append(row)
         out[base/f'assets/yuanxian/textures/block/workshop_{name}.png'] = png(rows)
+    from tools.forging.anvil_profile import new_station
+    from tools.forging.tool_components import all_profiles, textures
+    from tools.equipment import mesh
     for lit in (False, True):
-        add('assets/yuanxian/models/block/forging_anvil'+('_lit' if lit else '')+'.json', station(lit))
+        name='forging_anvil'+('_lit' if lit else '')
+        faces=new_station(mesh.elements_mesh(station(lit)), lit)
+        files, model=mesh.obj_assets(faces, 'yuanxian:block/workshop/'+name)
+        out.update({base/path:data for path,data in files.items()})
+        add('assets/yuanxian/models/block/'+name+'.json', model)
     add('assets/yuanxian/blockstates/forging_anvil.json', {'variants': {
         f'facing={d},lit={str(lit).lower()}': {'model': 'yuanxian:block/forging_anvil'+('_lit' if lit else ''), 'y': angle}
         for lit in (False, True) for d, angle in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
-    add('assets/yuanxian/models/block/workshop/hammer.json', hammer())
-    from tools.equipment import mesh
     root=base.parents[2]
     authored=json.loads((root/'equipment/workshop/hammer.json').read_text())
-    held=hammer()
-    held['display']=mesh.item_display(mesh.elements_mesh(held),grip=authored['grip'],root=root)
-    # A short hammer needs its own camera framing rather than the long-weapon anchor alone.
-    for context in ('firstperson_righthand','firstperson_lefthand'):
-        held['display'][context]['translation']=[v+offset for v,offset in zip(held['display'][context]['translation'],authored['first_person_offset'])]
-    held['gui_light']='side'
-    add('assets/yuanxian/models/item/forging_hammer.json',held)
+    out.update({base/path:data for path,data in textures()})
+    for name,faces in all_profiles().items():
+        files, item=mesh.obj_assets(faces, 'yuanxian:block/workshop/'+name)
+        out.update({base/path:data for path,data in files.items()})
+        grip=authored['grip'] if name.endswith('hammer') else [8, 4.5, 8]
+        item['display']=mesh.item_display(faces,grip=grip,root=root)
+        if name.endswith('hammer'):
+            for context in ('firstperson_righthand','firstperson_lefthand'):
+                item['display'][context]['translation']=[v+offset for v,offset in zip(
+                    item['display'][context]['translation'],authored['first_person_offset'])]
+        add('assets/yuanxian/models/item/'+name+'.json',item)
+        if name=='forging_hammer':
+            add('assets/yuanxian/models/block/workshop/hammer.json',
+                mesh.obj_assets(faces, 'yuanxian:block/workshop/'+name)[1])
     add('data/yuanxian/recipe/forging_hammer.json',authored['recipe'])
     return out

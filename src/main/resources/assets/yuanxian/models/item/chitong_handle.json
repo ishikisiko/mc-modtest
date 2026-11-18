@@ -1,131 +1,149 @@
 {
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/block/workshop/chitong_handle.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
   "textures": {
-    "body": "yuanxian:item/chitong_handle",
-    "particle": "yuanxian:item/chitong_handle"
+    "particle": "yuanxian:block/workshop/finish/copper_face"
   },
-  "elements": [
-    {
-      "name": "完整柄身",
-      "from": [
-        6.8,
-        0,
-        6.8
-      ],
-      "to": [
-        9.2,
-        15,
-        9.2
-      ],
-      "faces": {
-        "north": {
-          "texture": "#body",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "south": {
-          "texture": "#body",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "west": {
-          "texture": "#body",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "east": {
-          "texture": "#body",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "up": {
-          "texture": "#body",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        },
-        "down": {
-          "texture": "#body",
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ]
-        }
-      }
-    }
-  ],
   "display": {
     "gui": {
       "rotation": [
-        0,
-        0,
-        -35
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        0.31950553213451993,
+        0.4399871541612912,
+        0.08854552852325996
       ],
       "scale": [
-        0.9,
-        0.9,
-        0.9
+        1.0668979278932844,
+        1.0668979278932844,
+        1.0668979278932844
       ]
     },
     "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        2.2666666666666666,
+        -0.0
+      ],
       "scale": [
-        0.4,
-        0.4,
-        0.4
+        0.5333333333333333,
+        0.5333333333333333,
+        0.5333333333333333
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        0.43333333333333335,
+        -0.0
+      ],
+      "scale": [
+        0.8666666666666667,
+        0.8666666666666667,
+        0.8666666666666667
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        0.43333333333333335,
+        -0.0
+      ],
+      "scale": [
+        0.8666666666666667,
+        0.8666666666666667,
+        0.8666666666666667
       ]
     },
     "thirdperson_righthand": {
       "rotation": [
-        0,
-        0,
-        0
+        -10.81,
+        180.0,
+        0.0
       ],
       "translation": [
-        0,
-        1,
-        0
+        0.0,
+        0.475,
+        1.527
       ],
       "scale": [
-        0.6,
-        0.6,
-        0.6
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        0.475,
+        1.527
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
       ]
     },
     "firstperson_righthand": {
       "rotation": [
-        0,
-        0,
-        -25
+        19.19,
+        180.0,
+        0.0
       ],
       "translation": [
-        0,
-        1,
-        0
+        1.13,
+        0.288,
+        0.036
       ],
       "scale": [
-        0.5,
-        0.5,
-        0.5
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        0.288,
+        0.036
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
       ]
     }
   }

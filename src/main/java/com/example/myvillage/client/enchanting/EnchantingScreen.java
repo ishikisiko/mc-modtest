@@ -25,7 +25,11 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
     private static final int GOLD = 0xffa98d59;
     private static final int FULL_LIGHT = 0xF000F0;
     private final List<Control> controls = new ArrayList<>();
+    private static final int RUNES_PER_PAGE = 6;
+    private final List<Button> catalogue = new ArrayList<>();
     private Mode layout;
+    private boolean choosing;
+    private int runePage;
 
     private record Control(Button widget, Supplier<String> caption, BooleanSupplier active) {}
 
@@ -39,11 +43,14 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
         super.init();
         layout = menu.mode();
         controls.clear();
+        catalogue.clear();
+        choosing = false;
         switch (layout) {
             case TABLE, SEAL -> table();
             case LIBRARY -> library();
             case STONE -> stone();
         }
+        if (layout != Mode.STONE) catalogue();
     }
 
     private void send(int action) {
@@ -75,6 +82,7 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
         button(239, 104, 56, () -> "刻写 " + menu.cost() + "墨", WRITE, () -> menu.mask() != 0, "");
         button(136, 123, 16, "‹", PREVIOUS, () -> !menu.catalogue().isEmpty());
         button(279, 123, 16, "›", NEXT, () -> !menu.catalogue().isEmpty());
+        chooser(123);
         button(136, 140, 51, () -> menu.preferred() ? "已定向" : "定向", FOCUS, menu::focused, "定向书架会提高这一词条的抽取权重");
         button(190, 140, 47, "升一级", UPGRADE, () -> menu.existing() > 0);
         button(240, 140, 55, "洗去", WASH, () -> menu.existing() > 0);
@@ -83,6 +91,7 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
     private void library() {
         button(136, 34, 16, "‹", PREVIOUS, () -> !menu.catalogue().isEmpty());
         button(279, 34, 16, "›", NEXT, () -> !menu.catalogue().isEmpty());
+        chooser(34);
         button(136, 65, 17, "−", LEVEL_DOWN, () -> menu.targetLevel() > 1);
         button(174, 65, 17, "＋", LEVEL_UP, () -> menu.targetLevel() < menu.recorded());
         button(194, 65, 47, "印成书", PRINT, () -> menu.recorded() > 0);
@@ -100,6 +109,42 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
         button(136, 35, 18, "‹", PREVIOUS, () -> true);
         button(277, 35, 18, "›", NEXT, () -> true);
         button(238, 103, 57, "开炉", WRITE, () -> !menu.input().isEmpty());
+    }
+
+    private void chooser(int y) {
+        var button = new EngravedButton(leftPos + 155, topPos + y, 120, 15, Component.empty(), b -> {
+            if (menu.catalogue().isEmpty()) return;
+            choosing = true;
+            runePage = menu.selection() / RUNES_PER_PAGE;
+        });
+        button.setTooltip(Tooltip.create(Component.literal("选择附魔词条")));
+        controls.add(new Control(addRenderableWidget(button), this::selectedRune, () -> !menu.catalogue().isEmpty()));
+    }
+
+    private String selectedRune() {
+        return menu.catalogue().isEmpty() ? "" : menu.current().value().description().getString()
+                + (layout != Mode.LIBRARY && menu.existing() > 0 ? " " + roman(menu.existing()) : "");
+    }
+
+    private void catalogue() {
+        for (int i = 0; i < RUNES_PER_PAGE; i++) {
+            int row = i;
+            catalogue.add(addRenderableWidget(new EngravedButton(leftPos + 136, topPos + 33 + 17 * i, 159, 15,
+                    Component.empty(), button -> {
+                        int index = runePage * RUNES_PER_PAGE + row;
+                        if (index < menu.catalogue().size()) send(CATALOGUE_SELECT + index);
+                        choosing = false;
+                    })));
+        }
+        catalogue.add(addRenderableWidget(new EngravedButton(leftPos + 136, topPos + 136, 26, 15,
+                Component.literal("‹"), b -> runePage = Math.max(0, runePage - 1))));
+        catalogue.add(addRenderableWidget(new EngravedButton(leftPos + 165, topPos + 136, 101, 15,
+                Component.literal("返回"), b -> choosing = false)));
+        catalogue.add(addRenderableWidget(new EngravedButton(leftPos + 269, topPos + 136, 26, 15,
+                Component.literal("›"), b -> {
+                    if ((runePage + 1) * RUNES_PER_PAGE < menu.catalogue().size()) runePage++;
+                })));
+        catalogue.forEach(button -> button.visible = false);
     }
 
     private String candidate(int index) {
@@ -145,6 +190,10 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
             g.fill(x + slot.x, y + slot.y, x + slot.x + 16, y + slot.y + 16, 0xffc5baa1);
         }
         scene(g, x, y, partial);
+        if (choosing) {
+            g.fill(x + 133, y + 29, x + 297, y + 153, 0xffd9cdb0);
+            g.renderOutline(x + 133, y + 29, 164, 124, 0xff9e8b63);
+        }
     }
 
     private boolean visibleSlot(int slot) {
@@ -208,6 +257,7 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
         if (layout == Mode.LIBRARY) {
             print(g, "玉简", 102, 100, MUTED);
             print(g, "出书", 78, 138, MUTED);
+            if (choosing) return;
             print(g, "库存 " + menu.points() + "  收录 " + roman(menu.recorded()), 136, 52, INK);
             print(g, roman(menu.targetLevel()), 157, 69, INK);
             print(g, "装备词条  " + roman(menu.existing()) + " → " + roman(menu.draftLevel()), 136, 85, INK);
@@ -221,11 +271,6 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
             print(g, "需炼气 " + stone.stage().substring(stone.stage().lastIndexOf('_') + 1) + " 层", 136, 69, MUTED);
             print(g, "修为 " + stone.progress() + "   紫水晶 ×" + stone.count(), 136, 82, MUTED);
         }
-        if (layout != Mode.STONE && !menu.catalogue().isEmpty()) {
-            String selected = menu.current().value().description().getString();
-            if (layout != Mode.LIBRARY && menu.existing() > 0) selected += " " + roman(menu.existing());
-            print(g, font.plainSubstrByWidth(selected, 119), 158, layout == Mode.LIBRARY ? 38 : 127, INK);
-        }
     }
 
     private void print(GuiGraphics g, String text, int x, int y, int color) { g.drawString(font, text, x, y, color, false); }
@@ -233,7 +278,15 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
     @Override public void render(GuiGraphics g, int mx, int my, float partial) {
         for (var control : controls) {
             control.widget.setMessage(Component.literal(control.caption.get()));
+            control.widget.visible = !choosing;
             control.widget.active = control.active.getAsBoolean();
+        }
+        for (int i = 0; i < catalogue.size(); i++) {
+            var widget = catalogue.get(i);
+            int index = runePage * RUNES_PER_PAGE + i;
+            widget.visible = choosing && (i >= RUNES_PER_PAGE || index < menu.catalogue().size());
+            if (i < RUNES_PER_PAGE && widget.visible)
+                widget.setMessage(menu.catalogue().get(index).value().description());
         }
         super.render(g, mx, my, partial);
         renderTooltip(g, mx, my);

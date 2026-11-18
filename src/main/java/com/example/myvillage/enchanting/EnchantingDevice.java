@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 public final class EnchantingDevice extends BlockEntity {
     private ItemStack stone = ItemStack.EMPTY;
     private CompoundTag ledger = new CompoundTag();
-    private boolean formed;
+    private volatile boolean formed;
     private int pose;
     private long phaseEnd;
 
@@ -91,8 +91,8 @@ public final class EnchantingDevice extends BlockEntity {
 
     void animate(int target) {
         if (!(level instanceof ServerLevel server)) return;
-        formed = verifyStructure();
-        if (!formed) return;
+        if (!verifyStructure()) return;
+        formed = true;
         pose = target;
         phaseEnd = server.getGameTime() + (target == 1 ? 100 : 34);
         sync();
@@ -114,8 +114,6 @@ public final class EnchantingDevice extends BlockEntity {
         super.loadAdditional(tag, registries);
         stone = ItemStack.parseOptional(registries, tag.getCompound("Stone"));
         ledger = tag.getCompound("Ledger").copy();
-        formed = tag.getBoolean("Formed");
-        pose = tag.getInt("Pose");
     }
 
     @Override protected void collectImplicitComponents(DataComponentMap.Builder components) {
@@ -138,6 +136,47 @@ public final class EnchantingDevice extends BlockEntity {
         tag.putBoolean("Formed", formed);
         tag.putInt("Pose", pose);
         return tag;
+    }
+
+    @Override public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        boolean before = formed;
+        formed = tag.getBoolean("Formed");
+        pose = tag.getInt("Pose");
+        if (before != formed) refreshLibraryModels();
+    }
+
+    @Override public void onDataPacket(net.minecraft.network.Connection connection,
+            ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+        handleUpdateTag(packet.getTag(), registries);
+    }
+
+    @Override public void setRemoved() {
+        formed = false;
+        refreshLibraryModels();
+        super.setRemoved();
+    }
+
+    @Override public void onChunkUnloaded() {
+        formed = false;
+        refreshLibraryModels();
+        super.onChunkUnloaded();
+    }
+
+    @Override public void onLoad() {
+        super.onLoad();
+        refreshLibraryModels();
+    }
+
+    private void refreshLibraryModels() {
+        if (level == null || !level.isClientSide() || !library()) return;
+        var center = EnchantingStructure.libraryCenter(worldPosition, front());
+        for (var cell : EnchantingStructure.LIBRARY) {
+            if (!cell.part().equals("outer") && !cell.part().equals("equator") && !cell.part().equals("oblique")) continue;
+            var pos = EnchantingStructure.offset(center, front(), cell.x(), cell.y(), cell.z());
+            if (!level.isLoaded(pos)) continue;
+            var state = level.getBlockState(pos);
+            level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+        }
     }
 
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
