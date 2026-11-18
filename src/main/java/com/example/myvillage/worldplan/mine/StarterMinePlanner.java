@@ -1,114 +1,162 @@
 package com.example.myvillage.worldplan.mine;
 
 import com.example.myvillage.worldplan.WorldPlan;
-import com.example.myvillage.worldplan.roads.RoadAStar;
+import com.example.myvillage.worldplan.roads.RoadAStar.Point;
 import com.example.myvillage.worldplan.roads.RoadLayout;
-import com.example.myvillage.worldplan.roads.RoadPlan;
-import com.example.myvillage.worldplan.roads.RoadNetworkGeometry;
 import java.util.*;
 
-/** 从出生省城已经可通行的官道旁选址；既有道路和城镇始终只读。 */
+/** 在完成的官道上寻找实际可通行的接出点，再共同确定支路与矿场的标高。 */
 public final class StarterMinePlanner {
+    public record Search(Optional<StarterMineLayout> layout,int approaches,int attempted,Map<String,Integer> rejections) {
+        public Search {rejections=Map.copyOf(rejections);}
+    }
+
+    static final class Rejected extends IllegalArgumentException {
+        Rejected(String reason){super(reason);}
+        Rejected(String reason,Throwable cause){super(reason,cause);}
+    }
+
     private record Candidate(int x,int z,int dx,int dz,long distance) {}
+    private record Altitude(int low,int high) {}
+
     private StarterMinePlanner(){}
 
-    public static StarterMineLayout plan(WorldPlan world,RoadLayout roads,StarterMineDefinition def){
-        String region=world.spawn().regionId();var policy=def.placement;var candidates=new HashMap<Long,Candidate>();
+    public static Search search(WorldPlan world,RoadLayout roads,StarterMineDefinition def){
+        var policy=def.placement;
+        var approaches=approaches(world,roads,policy);
+        int variants=policy.connectorLengths().size()*policy.lateralOffsets().size();
+        int budget=policy.attempts()/variants;
+        var sampled=spread(approaches,budget);
+        int attempted=0;
+        Map<String,Integer> rejections=new TreeMap<>();
+        for(int offset:policy.lateralOffsets())for(var join:sampled)for(int length:policy.connectorLengths()){
+            attempted++;
+            try{
+                var layout=planSite(world,roads,def,join,length,offset);
+                return new Search(Optional.of(layout),approaches.size(),attempted,rejections);
+            }catch(Rejected rejected){
+                rejections.merge(rejected.getMessage(),1,Integer::sum);
+            }
+        }
+        return new Search(Optional.empty(),approaches.size(),attempted,rejections);
+    }
+
+    private static List<StarterMineAccess.Join> approaches(WorldPlan world,RoadLayout roads,StarterMineDefinition.Placement policy){
+        String region=world.spawn().regionId();
+        Map<Point,Candidate> candidates=new HashMap<>();
         for(var route:roads.routes()){
-            if(!route.sectSite.isEmpty()||!route.from.equals(region)&&!route.to.equals(region))continue;
+            if(!route.sectSite.isEmpty()||(!route.from.equals(region)&&!route.to.equals(region)))continue;
             var points=route.points();
             for(int i=1;i<points.size()-1;i++){
-                var p=points.get(i);long dx=(long)p.x()-world.spawn().x(),dz=(long)p.z()-world.spawn().z(),distance=dx*dx+dz*dz;
-                if(distance<(long)policy.minimumRoadDistance()*policy.minimumRoadDistance()||distance>(long)policy.maximumRoadDistance()*policy.maximumRoadDistance())continue;
-                var cell=roads.at(p.x(),p.z());if(cell==null||cell.band()!=0||cell.rail()>=0)continue;
-                var before=points.get(Math.max(0,i-policy.sampleSpacing()/2));var after=points.get(Math.min(points.size()-1,i+policy.sampleSpacing()/2));
-                candidates.putIfAbsent(RoadPlan.Cell.key(p.x(),p.z()),new Candidate(p.x(),p.z(),after.x()-before.x(),after.z()-before.z(),distance));
+                var p=points.get(i);
+                long distance=distance(world,p.x(),p.z());
+                if(!inRange(policy,distance))continue;
+                var before=points.get(Math.max(0,i-policy.sampleSpacing()/2));
+                var after=points.get(Math.min(points.size()-1,i+policy.sampleSpacing()/2));
+                candidates.putIfAbsent(p,new Candidate(p.x(),p.z(),after.x()-before.x(),after.z()-before.z(),distance));
             }
         }
-        var ordered=candidates.values().stream().sorted(Comparator.comparingLong(Candidate::distance).thenComparingInt(Candidate::x).thenComparingInt(Candidate::z)).toList();
-        List<Candidate> sampled=new ArrayList<>();for(var candidate:ordered){
-            if(sampled.stream().noneMatch(p->Math.abs(p.x-candidate.x)+Math.abs(p.z-candidate.z)<policy.sampleSpacing()))sampled.add(candidate);
-        }
-        // 每个锚点保留完整方向和长度组合，将既有预算均匀分配到整个允许距离内。
-        int anchors=Math.max(1,policy.attempts()/(4*policy.connectorLengths().size()));
-        if(sampled.size()>anchors){var spread=new ArrayList<Candidate>();for(int i=0;i<anchors;i++)spread.add(sampled.get(anchors==1?0:(int)Math.round(i*(sampled.size()-1.0)/(anchors-1))));sampled=spread;}
-        int attempted=0;Map<String,Integer> failures=new LinkedHashMap<>();
-        for(var candidate:sampled){
+        var ordered=candidates.values().stream()
+            .sorted(Comparator.comparingLong(Candidate::distance).thenComparingInt(Candidate::x).thenComparingInt(Candidate::z)).toList();
+        List<StarterMineAccess.Join> joins=new ArrayList<>();
+        for(var candidate:ordered){
             int[] rotations=Math.abs(candidate.dx)>Math.abs(candidate.dz)?new int[]{0,2,1,3}:new int[]{1,3,0,2};
-            for(int rotation:rotations)for(int length:policy.connectorLengths()){
-                if(attempted++>=policy.attempts())throw failure(attempted-1,failures);
-                int dx=switch(rotation){case 1->-1;case 3->1;default->0;};
-                int dz=switch(rotation){case 0->1;case 2->-1;default->0;};
-                int portX=candidate.x+dx*length,portZ=candidate.z+dz*length;
-                int originX=portX-switch(rotation){case 0->def.port.x();case 1->-def.port.z();case 2->-def.port.x();default->def.port.z();};
-                int originZ=portZ-switch(rotation){case 0->def.port.z();case 1->def.port.x();case 2->-def.port.z();default->-def.port.x();};
-                int originY=world.surfaceY(portX,portZ)-def.groundY;
-                try{
-                    var path=connector(world,roads,def,candidate.x,candidate.z,dx,dz,length,originY+def.groundY);
-                    var layout=new StarterMineLayout(world.fingerprint(),roads.hash(),def.hash,region,originX,originY,originZ,rotation,candidate.x,candidate.z,path,StarterMineCavePlan.seed(world.seed(),originX,originZ,def.caves.salt));
-                    validate(world,roads,def,layout);return layout;
-                }catch(IllegalArgumentException|IllegalStateException ex){failures.merge(ex.getMessage(),1,Integer::sum);}
+            for(int rotation:rotations){
+                // Each side is sampled independently so a blocked shoulder cannot discard a nearby usable one.
+                if(joins.stream().anyMatch(join->join.rotation()==rotation&&
+                    Math.abs(join.x()-candidate.x)+Math.abs(join.z()-candidate.z)<policy.sampleSpacing()))continue;
+                StarterMineAccess.join(roads,policy,candidate.x,candidate.z,rotation).ifPresent(joins::add);
             }
         }
-        throw failure(attempted,failures);
+        return joins;
     }
-    private static IllegalStateException failure(int attempted,Map<String,Integer> failures){return new IllegalStateException("初始城附近未找到可步行接通的陆地矿场，已检查 "+attempted+" 处："+failures);}
 
-    private static List<StarterMineLayout.Path> connector(WorldPlan world,RoadLayout roads,StarterMineDefinition def,int ax,int az,int dx,int dz,int length,int endY){
-        var first=roads.at(ax,az);if(first==null||first.band()!=0)throw new IllegalArgumentException("矿场接路点不在官道通行面");
-        int start=first.feet2(),end=endY*2,radius=def.placement.pathWidth()/2;
-        if(Math.abs(end-start)>length)throw new IllegalArgumentException("矿场接路坡度过大");
-        List<RoadPlan.Cell> columns=new ArrayList<>(),anchors=new ArrayList<>();
-        for(int step=0;step<=length;step++)for(int lateral=-radius;lateral<=radius;lateral++){
-            int x=ax+dx*step-dz*lateral,z=az+dz*step+dx*lateral;
-            int feet=start+(int)Math.round((end-start)*(step/(double)length));
-            var road=roads.at(x,z);
-            if(road!=null){if(road.rail()>=0)throw new IllegalArgumentException("矿场接路点被官道护栏封闭");feet=road.feet2();anchors.add(new RoadPlan.Cell(x,z,feet,true));}
-            if(step==length)anchors.add(new RoadPlan.Cell(x,z,end,true));
-            columns.add(new RoadPlan.Cell(x,z,feet,false));
-        }
-        try{return RoadNetworkGeometry.fit(columns,List.of(),anchors,world::surfaceY,def.placement.earthwork()).stream().map(c->new StarterMineLayout.Path(c.x(),c.z(),c.feet2())).toList();}
-        catch(IllegalStateException failure){throw new IllegalArgumentException("矿场接路无法在既有路面和土方限制内形成半格台阶",failure);}
+    private static <T> List<T> spread(List<T> ordered,int count){
+        if(ordered.size()<=count)return ordered;
+        if(count==1)return List.of(ordered.getFirst());
+        List<T> selected=new ArrayList<>(count);
+        for(int i=0;i<count;i++)selected.add(ordered.get((int)Math.round(i*(ordered.size()-1.0)/(count-1))));
+        return selected;
     }
+
+    private static StarterMineLayout planSite(WorldPlan world,RoadLayout roads,StarterMineDefinition def,
+                                               StarterMineAccess.Join join,int length,int offset){
+        var front=join.at(length,offset);
+        var origin=join.at(length,offset+def.port.x());
+        int naturalY=world.surfaceY(front.x(),front.z());
+        long seed=StarterMineCavePlan.seed(world.seed(),origin.x(),origin.z(),def.caves.salt);
+        var footprint=new StarterMineLayout(world.fingerprint(),roads.hash(),def.hash,world.spawn().regionId(),
+            origin.x(),naturalY-def.groundY,origin.z(),join.rotation(),join.x(),join.z(),List.of(),seed);
+        requireUnoccupied(world,def,footprint);
+        var corridor=StarterMineAccess.corridor(join,def.placement,length,offset);
+        var profile=StarterMineAccess.profile(world,roads,def,join,corridor);
+        var port=profile.port();
+        var feasible=altitude(world,roads,def,footprint,Math.ceilDiv(port.low(),2)-def.groundY,Math.floorDiv(port.high(),2)-def.groundY);
+        int baseY=Math.clamp(footprint.y,feasible.low,feasible.high);
+        var layout=new StarterMineLayout(footprint.worldHash,footprint.roadsHash,footprint.definitionHash,footprint.region,
+            footprint.x,baseY,footprint.z,footprint.rotation,footprint.anchorX,footprint.anchorZ,profile.fit(baseY+def.groundY),seed);
+        return layout;
+    }
+
     static void validate(WorldPlan world,RoadLayout roads,StarterMineDefinition def,StarterMineLayout layout){
         var policy=def.placement;
-        if(!layout.region.equals(world.spawn().regionId())||world.rules().spawnExcludedRegions.contains(layout.region))throw new IllegalArgumentException("矿场不属于当前初始城");
-        if(layout.y+def.minBlockY<policy.minimumY()||layout.y+def.maxBlockY>=policy.maximumY())throw new IllegalArgumentException("矿场超过世界高度");
+        if(!layout.region.equals(world.spawn().regionId())||world.rules().spawnExcludedRegions.contains(layout.region))
+            throw new Rejected("矿场不属于当前初始城");
+        requireUnoccupied(world,def,layout);
+        altitude(world,roads,def,layout,layout.y,layout.y);
+        if(!inRange(policy,distance(world,layout.anchorX,layout.anchorZ)))throw new Rejected("矿场距离初始城过远或过近");
+        var join=StarterMineAccess.join(roads,policy,layout.anchorX,layout.anchorZ,layout.rotation)
+            .orElseThrow(()->new Rejected("矿场接路点失效"));
+        var front=layout.position(def.port);
+        var port=new Point(front.x(),front.z());
+        var corridor=StarterMineAccess.corridor(join,policy,join.forward(port),join.lateral(port));
+        StarterMineAccess.validate(world,roads,def,layout,join,corridor);
+    }
+
+    private static void requireUnoccupied(WorldPlan world,StarterMineDefinition def,StarterMineLayout layout){
         int x0=layout.minX(def),x1=layout.maxX(def),z0=layout.minZ(def),z1=layout.maxZ(def);
-        if(world.intersectsCity(x0,z0,x1,z1)||world.intersectsSettlements(x0,z0,x1,z1)||world.intersectsSects(x0,z0,x1,z1))throw new IllegalArgumentException("矿场与既有城镇或宗门预留地重叠");
-        int low=Integer.MAX_VALUE,high=Integer.MIN_VALUE;
+        if(world.intersectsCity(x0,z0,x1,z1)||world.intersectsSettlements(x0,z0,x1,z1)||world.intersectsSects(x0,z0,x1,z1))
+            throw new Rejected("矿场与既有城镇或宗门预留地重叠");
+    }
+
+    private static Altitude altitude(WorldPlan world,RoadLayout roads,StarterMineDefinition def,StarterMineLayout layout,int low,int high){
+        var policy=def.placement;
+        low=Math.max(low,policy.minimumY()-Math.min(def.minBlockY,def.caves.minY-def.caves.seal));
+        high=Math.min(high,policy.maximumY()-1-def.maxBlockY);
+        if(low>high)throw new Rejected("矿场没有合适的世界高度");
+        int landY=Math.max(world.rules().seaLevel+1,policy.minimumLandY());
+        int lowest=Integer.MAX_VALUE,highest=Integer.MIN_VALUE;
         for(int z=0;z<def.depth;z++)for(int x=0;x<def.width;x++){
-            int wx=layout.worldX(x,z),wz=layout.worldZ(x,z),surface=world.surfaceY(wx,wz);
-            if(!world.coreRegionAt(wx,wz).map(WorldPlan.Region::id).orElse("").equals(layout.region))throw new IllegalArgumentException("矿场越过初始城所在州域");
-            if(roads.at(wx,wz)!=null)throw new IllegalArgumentException("矿场本体侵入已有官道");
-            if(surface<Math.max(world.rules().seaLevel+1,policy.minimumLandY()))throw new IllegalArgumentException("矿场下方不是陆地");
-            if(world.reserved(wx,surface,wz))throw new IllegalArgumentException("矿场覆盖世界保留区域");
-            low=Math.min(low,surface);high=Math.max(high,surface);
-            if(high-low>policy.surfaceSpread())throw new IllegalArgumentException("矿场天然地面起伏超过上限");
-            if(Math.abs(def.surface(layout.y,x,z,surface)-surface)>policy.terrainAdjustment())throw new IllegalArgumentException("矿场需要过大地形改动");
+            int wx=layout.worldX(x,z),wz=layout.worldZ(x,z);
+            if(roads.at(wx,wz)!=null)throw new Rejected("矿场本体侵入已有官道");
+            if(!world.coreRegionAt(wx,wz).map(WorldPlan.Region::id).orElse("").equals(layout.region))
+                throw new Rejected("矿场越过初始城所在州域");
+            int natural=world.surfaceY(wx,wz);
+            if(natural<landY)throw new Rejected("矿场下方不是陆地");
+            if(world.reserved(wx,natural,wz))throw new Rejected("矿场覆盖世界保留区域");
+            lowest=Math.min(lowest,natural);
+            highest=Math.max(highest,natural);
+            if(highest-lowest>policy.surfaceSpread())throw new Rejected("矿场天然地面起伏超过上限");
+
+            int weight=def.weight(x,z);
+            if(weight==0)continue;
+            // Blend uses round(delta * weight / 255), then applies the authoring earthwork limit.
+            int cut=Math.min(policy.terrainAdjustment(),natural-world.rules().seaLevel-1);
+            int keep=natural-def.top(x,z);
+            low=Math.max(low,keep-(cut*255+127)/weight);
+            high=Math.min(high,keep+(policy.terrainAdjustment()*255+127)/weight);
+            if(low>high)throw new Rejected("矿场地面与支路没有共同的合法标高");
         }
-        var anchor=roads.at(layout.anchorX,layout.anchorZ);if(anchor==null||anchor.band()!=0||anchor.rail()>=0)throw new IllegalArgumentException("矿场接路点失效");
-        long ax=(long)layout.anchorX-world.spawn().x(),az=(long)layout.anchorZ-world.spawn().z(),distance=ax*ax+az*az;
-        if(distance<(long)policy.minimumRoadDistance()*policy.minimumRoadDistance()||distance>(long)policy.maximumRoadDistance()*policy.maximumRoadDistance())throw new IllegalArgumentException("矿场距离初始城过远或过近");
-        var port=layout.position(def.port);int dx=Integer.compare(port.x(),layout.anchorX),dz=Integer.compare(port.z(),layout.anchorZ);
-        int length=Math.abs(port.x()-layout.anchorX)+Math.abs(port.z()-layout.anchorZ);
-        if(Math.abs(dx)+Math.abs(dz)!=1||!policy.connectorLengths().contains(length))throw new IllegalArgumentException("矿场接路方向或长度无效");
-        if(layout.path.size()!=(length+1)*policy.pathWidth())throw new IllegalArgumentException("矿场接路缺少完整路幅");
-        int radius=policy.pathWidth()/2;
-        for(int step=0;step<=length;step++)for(int side=-radius;side<=radius;side++){
-            int wx=layout.anchorX+dx*step-dz*side,wz=layout.anchorZ+dz*step+dx*side;var cell=layout.pathAt(wx,wz);
-            if(cell==null)throw new IllegalArgumentException("矿场接路存在缺列");
-            var road=roads.at(wx,wz);
-            if(road!=null){if(road.feet2()!=cell.feet2()||road.rail()>=0)throw new IllegalArgumentException("矿场接路改变既有官道或穿过护栏");}
-            else{
-                int natural=world.surfaceY(wx,wz);
-                if(!world.coreRegionAt(wx,wz).map(WorldPlan.Region::id).orElse("").equals(layout.region)||world.intersectsCity(wx,wz,wx,wz)
-                    ||world.intersectsSettlements(wx,wz,wx,wz)||world.intersectsSects(wx,wz,wx,wz)||world.reserved(wx,natural,wz))throw new IllegalArgumentException("矿场接路触及保留区域");
-                if(natural<Math.max(world.rules().seaLevel+1,policy.minimumLandY()))throw new IllegalArgumentException("矿场接路经过水域");
-                if(Math.abs(cell.feet2()-natural*2)>policy.earthwork()*2)throw new IllegalArgumentException("矿场接路土方超过上限");
-            }
-            for(int[] dir:new int[][]{{1,0},{0,1}}){var other=layout.pathAt(wx+dir[0],wz+dir[1]);if(other!=null&&Math.abs(other.feet2()-cell.feet2())>1)throw new IllegalArgumentException("矿场接路没有连续半格台阶");}
-            if(step==length&&cell.feet2()!=port.y()*2)throw new IllegalArgumentException("矿场接路与入口标高不一致");
-        }
+        return new Altitude(low,high);
+    }
+
+    private static long distance(WorldPlan world,int x,int z){
+        long dx=(long)x-world.spawn().x(),dz=(long)z-world.spawn().z();
+        return dx*dx+dz*dz;
+    }
+
+    private static boolean inRange(StarterMineDefinition.Placement policy,long distance){
+        return distance>=(long)policy.minimumRoadDistance()*policy.minimumRoadDistance()
+            &&distance<=(long)policy.maximumRoadDistance()*policy.maximumRoadDistance();
     }
 }

@@ -260,6 +260,8 @@
       40,
       56
     ],
+    "connector_lateral_offsets": [0, -24, 24, -48, 48],
+    "maximum_road_overlap": 12,
     "connector_width": 3,
     "maximum_connector_earthwork": 8,
     "minimum_land_y": 64,
@@ -268,7 +270,7 @@
     "maximum_candidates": 384,
     "minimum_y": -60,
     "maximum_y_exclusive": 316,
-    "on_candidate_exhaustion": "fail_whole_plan"
+    "on_candidate_exhaustion": "record_shortfall"
   },
   "underground": {
     "algorithm": "minecraft_cave_carver_v1",

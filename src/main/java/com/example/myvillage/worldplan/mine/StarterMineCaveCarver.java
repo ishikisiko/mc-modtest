@@ -31,7 +31,7 @@ public final class StarterMineCaveCarver extends CaveWorldCarver {
     private final Map<BlockPos,BlockState> fixed=new HashMap<>();
 
     private StarterMineCaveCarver(WorldPlan world,StarterMineGeneration mine,ChunkAccess chunk){
-        super(CaveCarverConfiguration.CODEC);this.world=world;layout=mine.layout();def=mine.definition();plan=mine.caves();
+        super(CaveCarverConfiguration.CODEC);this.world=world;layout=mine.layout().orElseThrow();def=mine.definition();plan=mine.caves();
         int halo=def.caves.seal+1;minX=chunk.getPos().getMinBlockX()-halo;maxX=chunk.getPos().getMaxBlockX()+halo;minZ=chunk.getPos().getMinBlockZ()-halo;maxZ=chunk.getPos().getMaxBlockZ()+halo;
     }
     public static Shape shape(WorldPlan world,StarterMineGeneration mine,ChunkAccess chunk){
@@ -85,7 +85,9 @@ public final class StarterMineCaveCarver extends CaveWorldCarver {
         if(!(chunk instanceof ProtoChunk)||chunk instanceof ImposterProtoChunk||chunk.getPersistedStatus().isOrAfter(ChunkStatus.FULL))throw new IllegalStateException("洞穴只能写入当前生成区块");
     }
     public static void carve(WorldPlan world,StarterMineGeneration mine,ChunkAccess chunk){
-        var layout=mine.layout();var def=mine.definition();int x=chunk.getPos().getMinBlockX(),z=chunk.getPos().getMinBlockZ();
+        var layout=mine.layout().orElse(null);
+        if(layout==null)return;
+        var def=mine.definition();int x=chunk.getPos().getMinBlockX(),z=chunk.getPos().getMinBlockZ();
         if(x>layout.maxX(def)||x+15<layout.minX(def)||z>layout.maxZ(def)||z+15<layout.minZ(def))return;
         requireGenerating(chunk);var shape=shape(world,mine,chunk);Set<BlockPos> seal=new HashSet<>();
         for(var p:shape.air())for(var direction:net.minecraft.core.Direction.values())for(int n=1;n<=def.caves.seal;n++){
@@ -97,6 +99,7 @@ public final class StarterMineCaveCarver extends CaveWorldCarver {
     }
     /** 装饰结束后只重申短连接段和落脚面，洞体其余部分保留普通矿脉及洞穴装饰。 */
     public static void finishAccess(WorldPlan world,StarterMineGeneration mine,ChunkAccess chunk){
+        if(mine.layout().isEmpty())return;
         requireGenerating(chunk);var g=new StarterMineCaveCarver(world,mine,chunk);g.collectAccess();g.air.removeAll(g.fixed.keySet());
         for(var p:g.air)if(owns(chunk,p))chunk.setBlockState(p,Blocks.CAVE_AIR.defaultBlockState(),false);
         for(var entry:g.fixed.entrySet())if(owns(chunk,entry.getKey()))chunk.setBlockState(entry.getKey(),entry.getValue(),false);

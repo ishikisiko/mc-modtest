@@ -3,6 +3,8 @@ package com.example.myvillage.worldplan.runtime;
 import com.example.myvillage.command.ModCommands;
 
 import com.example.myvillage.worldplan.*;
+import com.example.myvillage.worldplan.mine.StarterMineGeneration;
+import com.example.myvillage.worldplan.mine.StarterMineLayout;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -99,15 +101,12 @@ public final class WorldPlanCommands {
     }catch(Exception e){return fail(s,e);}}
     private static int at(CommandSourceStack s,int x,int z){try{return reply(s,WorldPlanRules.JSON.toJsonTree(generator(s).plan().sample(x,z)).getAsJsonObject());}catch(Exception e){return fail(s,e);}}
     private static int mine(CommandSourceStack s){try{
-        var generator=generator(s);var generation=generator.starterMine();var definition=generation.definition();var layout=generation.layout();
-        var result=layout.manifest();result.addProperty("name",definition.name);result.addProperty("layout_hash",layout.hash);
-        result.add("entry",WorldPlanRules.JSON.toJsonTree(layout.position(definition.entry)));
-        result.add("road_port",WorldPlanRules.JSON.toJsonTree(layout.position(definition.port)));
-        var bounds=new com.google.gson.JsonArray();for(int value:new int[]{layout.minX(definition),layout.y+Math.min(definition.minBlockY,definition.caves.minY),layout.minZ(definition),layout.maxX(definition),layout.y+definition.maxBlockY,layout.maxZ(definition)})bounds.add(value);result.add("bounds",bounds);
-        var points=new com.google.gson.JsonArray();for(var landmark:definition.landmarks){var point=WorldPlanRules.JSON.toJsonTree(layout.position(landmark.position())).getAsJsonObject();point.addProperty("id",landmark.id());point.addProperty("name",landmark.name());points.add(point);}result.add("landmarks",points);
-        var trees=new com.google.gson.JsonArray();for(var tree:definition.trees)trees.add(WorldPlanRules.JSON.toJsonTree(layout.position(tree)));result.add("trees",trees);
-        var cave=generation.caves().manifest();cave.addProperty("plan_hash",generation.caves().hash);cave.addProperty("algorithm","minecraft_cave_carver_v1");
-        var route=new com.google.gson.JsonArray();for(int z=definition.entry.z();z<=generation.caves().endZ;z++){var p=generation.caves().at(definition.entry.x(),z);var row=new com.google.gson.JsonArray();row.add(layout.worldX(p.x(),p.z())+.5);row.add(layout.y+p.feet2()/2.0);row.add(layout.worldZ(p.x(),p.z())+.5);route.add(row);}cave.add("world_access_route",route);result.add("cave",cave);
+        var generation=generator(s).starterMine();var definition=generation.definition();
+        var result=generation.layout().map(layout->starterMineDetails(generation,layout)).orElseGet(JsonObject::new);
+        generation.shortfall().ifPresent(shortfall->{
+            result.addProperty("starter_status","unavailable");
+            result.add("starter_shortfall",WorldPlanRules.JSON.toJsonTree(shortfall));
+        });
         var regional=new com.google.gson.JsonArray();
         for(var site:generation.regional()){
             var surface=site.surface();var entry=surface.manifest();entry.addProperty("mode","existing_natural_cave");entry.addProperty("natural_stances",site.naturalStances().size());
@@ -119,6 +118,19 @@ public final class WorldPlanCommands {
         result.addProperty("structures_enabled",s.getServer().getWorldData().worldGenOptions().generateStructures());
         return reply(s,result);
     }catch(Exception e){return fail(s,e);}}
+    private static JsonObject starterMineDetails(StarterMineGeneration generation,StarterMineLayout layout){
+        var definition=generation.definition();
+        var result=layout.manifest();result.addProperty("starter_status","planned");
+        result.addProperty("name",definition.name);result.addProperty("layout_hash",layout.hash);
+        result.add("entry",WorldPlanRules.JSON.toJsonTree(layout.position(definition.entry)));
+        result.add("road_port",WorldPlanRules.JSON.toJsonTree(layout.position(definition.port)));
+        var bounds=new com.google.gson.JsonArray();for(int value:new int[]{layout.minX(definition),layout.y+Math.min(definition.minBlockY,definition.caves.minY),layout.minZ(definition),layout.maxX(definition),layout.y+definition.maxBlockY,layout.maxZ(definition)})bounds.add(value);result.add("bounds",bounds);
+        var points=new com.google.gson.JsonArray();for(var landmark:definition.landmarks){var point=WorldPlanRules.JSON.toJsonTree(layout.position(landmark.position())).getAsJsonObject();point.addProperty("id",landmark.id());point.addProperty("name",landmark.name());points.add(point);}result.add("landmarks",points);
+        var trees=new com.google.gson.JsonArray();for(var tree:definition.trees)trees.add(WorldPlanRules.JSON.toJsonTree(layout.position(tree)));result.add("trees",trees);
+        var cave=generation.caves().manifest();cave.addProperty("plan_hash",generation.caves().hash);cave.addProperty("algorithm","minecraft_cave_carver_v1");
+        var route=new com.google.gson.JsonArray();for(int z=definition.entry.z();z<=generation.caves().endZ;z++){var p=generation.caves().at(definition.entry.x(),z);var row=new com.google.gson.JsonArray();row.add(layout.worldX(p.x(),p.z())+.5);row.add(layout.y+p.feet2()/2.0);row.add(layout.worldZ(p.x(),p.z())+.5);route.add(row);}cave.add("world_access_route",route);result.add("cave",cave);
+        return result;
+    }
     private static int export(CommandSourceStack s){try{WorldPlanRuntime.export(s.getLevel(),256);return info(s);}catch(Exception e){return fail(s,e);}}
     private static int pregen(CommandSourceStack s,String order,int limit){try{
         if(!order.equals("forward")&&!order.equals("reverse"))throw new IllegalArgumentException("Order must be forward or reverse");

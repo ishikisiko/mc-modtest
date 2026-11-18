@@ -1,6 +1,7 @@
 package com.example.myvillage.worldplan.mine;
 
 import com.example.myvillage.worldplan.capital.CapitalGameBundle;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.ByteArrayInputStream;
@@ -15,9 +16,9 @@ public final class StarterMineDefinition {
     public record Point(int x,int y,int z) {}
     public record Landmark(String id,String name,Point position) {}
     public record Placement(int minimumRoadDistance,int maximumRoadDistance,int sampleSpacing,List<Integer> connectorLengths,
-                            int pathWidth,int earthwork,int minimumLandY,int surfaceSpread,int terrainAdjustment,
+                            List<Integer> lateralOffsets,int roadOverlap,int pathWidth,int earthwork,int minimumLandY,int surfaceSpread,int terrainAdjustment,
                             int attempts,int minimumY,int maximumY) {
-        public Placement {connectorLengths=List.copyOf(connectorLengths);}
+        public Placement {connectorLengths=List.copyOf(connectorLengths);lateralOffsets=List.copyOf(lateralOffsets);}
     }
     public final String resource,hash,name;
     public final int width,height,depth,groundY,soilDepth,clearance,foundationDepth,minBlockY,maxBlockY;
@@ -53,14 +54,18 @@ public final class StarterMineDefinition {
             var input=new DataInputStream(new ByteArrayInputStream(data));
             for(int i=0;i<terrain.length;i++){terrain[i]=(short)bounded(input.readShort(),1,height-8);weights[i]=input.readByte();}
         }catch(java.io.IOException e){throw new IllegalArgumentException("矿场地形无法解码",e);}
-        if(weight(port.x,port.z)!=255||top(port.x,port.z)!=groundY)throw new IllegalArgumentException("矿场出口没有完整地面");
-        var p=r.getAsJsonObject("placement");List<Integer> lengths=new ArrayList<>();
-        for(var v:p.getAsJsonArray("connector_lengths")){int n=bounded(v.getAsInt(),12,128);if(lengths.contains(n))throw new IllegalArgumentException("矿场接路长度重复");lengths.add(n);}
-        if(lengths.isEmpty()||lengths.size()>8||!text(p,"on_candidate_exhaustion").equals("fail_whole_plan"))throw new IllegalArgumentException("矿场选址规则不完整");
-        placement=new Placement(integer(p,"minimum_road_distance",16,512),integer(p,"maximum_road_distance",128,1536),integer(p,"road_sample_spacing",4,64),lengths,
+        var p=r.getAsJsonObject("placement");
+        var lengths=integerList(p,"connector_lengths",12,128);
+        var offsets=integerList(p,"connector_lateral_offsets",-128,128);
+        if(offsets.getFirst()!=0||!text(p,"on_candidate_exhaustion").equals("record_shortfall"))throw new IllegalArgumentException("矿场选址规则不完整");
+        placement=new Placement(integer(p,"minimum_road_distance",16,512),integer(p,"maximum_road_distance",128,1536),integer(p,"road_sample_spacing",4,64),lengths,offsets,
+            integer(p,"maximum_road_overlap",1,16),
             integer(p,"connector_width",3,5),integer(p,"maximum_connector_earthwork",1,16),integer(p,"minimum_land_y",32,128),integer(p,"maximum_surface_spread",1,48),
             integer(p,"maximum_terrain_adjustment",1,48),integer(p,"maximum_candidates",8,2048),integer(p,"minimum_y",-64,0),integer(p,"maximum_y_exclusive",256,320));
-        if(placement.pathWidth%2==0||placement.maximumRoadDistance<=placement.minimumRoadDistance)throw new IllegalArgumentException("矿场距离或道路宽度不合法");
+        if(placement.pathWidth%2==0||placement.maximumRoadDistance<=placement.minimumRoadDistance
+            ||placement.attempts<(long)lengths.size()*offsets.size())throw new IllegalArgumentException("矿场距离、道路宽度或候选预算不合法");
+        for(int x=port.x-placement.pathWidth/2;x<=port.x+placement.pathWidth/2;x++)
+            if(weight(x,port.z)!=255||top(x,port.z)!=groundY)throw new IllegalArgumentException("矿场出口没有完整地面");
         Map<String,String> materials=new HashMap<>();for(String key:List.of("stone","dirt","grass","path"))materials.put(key,text(r.getAsJsonObject("surface_materials"),key));surfaces=Map.copyOf(materials);
         byte[] compressed=CapitalGameBundle.readResource(text(r,"blocks_resource"),4*1024*1024);
         CapitalGameBundle.requireHash(compressed,text(r,"blocks_sha256"),"矿场方块");
@@ -97,10 +102,24 @@ public final class StarterMineDefinition {
     private Point point(JsonObject r,String name){var p=r.getAsJsonArray(name);if(p==null||p.size()!=3)throw new IllegalArgumentException("矿场坐标无效："+name);return new Point(bounded(p.get(0).getAsInt(),0,width-1),bounded(p.get(1).getAsInt(),0,height-1),bounded(p.get(2).getAsInt(),0,depth-1));}
     static int bounded(int n,int lo,int hi){if(n<lo||n>hi)throw new IllegalArgumentException("矿场数值越界："+n);return n;}
     static int integer(JsonObject r,String key,int lo,int hi){
-        var value=r==null?null:r.get(key);
+        return integerValue(r==null?null:r.get(key),key,lo,hi);
+    }
+    private static int integerValue(JsonElement value,String key,int lo,int hi){
         if(value==null||!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isNumber())throw new IllegalArgumentException("矿场缺少整数："+key);
         double number=value.getAsDouble();if(!Double.isFinite(number)||number!=Math.rint(number)||number<lo||number>hi)throw new IllegalArgumentException("矿场整数越界："+key);
         return (int)number;
+    }
+    private static List<Integer> integerList(JsonObject r,String key,int lo,int hi){
+        if(r==null||!r.has(key)||!r.get(key).isJsonArray())throw new IllegalArgumentException("矿场缺少整数列表："+key);
+        var values=r.getAsJsonArray(key);
+        if(values.isEmpty()||values.size()>8)throw new IllegalArgumentException("矿场整数列表越界："+key);
+        List<Integer> result=new ArrayList<>();
+        for(var value:values){
+            int n=integerValue(value,key,lo,hi);
+            if(result.contains(n))throw new IllegalArgumentException("矿场整数列表有重复值："+key);
+            result.add(n);
+        }
+        return List.copyOf(result);
     }
     static String text(JsonObject r,String key){
         var value=r==null?null:r.get(key);

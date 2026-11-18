@@ -32,11 +32,13 @@ public final class HabitatRules {
         List<Kind> ks=new ArrayList<>();Set<String> ids=new HashSet<>();
         for(var element:json.getAsJsonArray("kinds")){
             var k=element.getAsJsonObject();String id=k.get("id").getAsString();
+            String nearKind=k.get("near_kind").getAsString();
+            if(!nearKind.isEmpty()&&!ids.contains(nearKind))throw new IllegalArgumentException("相邻生态类型必须先声明："+nearKind);
             if(!ids.add(id))throw new IllegalArgumentException("重复生态类型");
             var members=k.getAsJsonArray("members").asList().stream().map(JsonElement::getAsString).toList();
             if(members.isEmpty()||members.size()>12)throw new IllegalArgumentException("群落成员数错误");
             int guards=k.get("guard_count").getAsInt();if(guards<0||guards>members.size())throw new IllegalArgumentException("留守数量错误");
-            ks.add(new Kind(id,k.get("name").getAsString(),k.get("faction").getAsString(),members,guards,k.get("night_hunt").getAsBoolean(),k.get("near_kind").getAsString()));
+            ks.add(new Kind(id,k.get("name").getAsString(),k.get("faction").getAsString(),members,guards,k.get("night_hunt").getAsBoolean(),nearKind));
         }
         kinds=List.copyOf(ks);if(kinds.size()!=4)throw new IllegalArgumentException("当前必须完整声明四种生态群落");
         JsonObject templateData=json.getAsJsonObject("templates");

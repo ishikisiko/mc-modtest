@@ -41,10 +41,10 @@ class StarterMineCaveTest {
     }
     private record Fixture(WorldPlan world,StarterMineGeneration mine) {}
     private static Fixture fixture(long seed,boolean horizontal)throws Exception{
-        var world=StarterMinePlanTest.flatWorld(seed);var roads=StarterMinePlanTest.road(world,horizontal);var mine=new StarterMineGeneration(Optional.empty());mine.bind(world,roads);return new Fixture(world,mine);
+        var world=StarterMinePlanTest.flatWorld(seed);var roads=StarterMinePlanTest.road(world,horizontal);var mine=new StarterMineGeneration(Optional.empty(),Optional.empty());mine.bind(world,roads);return new Fixture(world,mine);
     }
     private static Map<Long,TerrainChunk> generate(Fixture f,BlockState base,boolean reverse){
-        var m=f.mine.layout();var d=f.mine.definition();List<ChunkPos> order=new ArrayList<>();
+        var m=f.mine.layout().orElseThrow();var d=f.mine.definition();List<ChunkPos> order=new ArrayList<>();
         for(int z=m.minZ(d)>>4;z<=m.maxZ(d)>>4;z++)for(int x=m.minX(d)>>4;x<=m.maxX(d)>>4;x++)order.add(new ChunkPos(x,z));
         if(reverse)Collections.reverse(order);Map<Long,TerrainChunk> chunks=new HashMap<>();
         for(var at:order){var chunk=new TerrainChunk(at,base);StarterMineCaveCarver.carve(f.world,f.mine,chunk);StarterMineCaveCarver.finishAccess(f.world,f.mine,chunk);chunks.put(at.toLong(),chunk);}
@@ -90,7 +90,7 @@ class StarterMineCaveTest {
         Set<Integer> geometries=new HashSet<>();
         for(long seed:new long[]{0,1,-1,20261105})for(boolean horizontal:new boolean[]{false,true}){
             var f=fixture(seed,horizontal);var first=generate(f,Blocks.STONE.defaultBlockState(),false);var second=generate(f,Blocks.STONE.defaultBlockState(),true);
-            assertEquals(writes(first),writes(second));var all=writes(first);var normalized=new HashMap<BlockPos,BlockState>();var layout=f.mine.layout();all.forEach((pos,state)->normalized.put(new BlockPos(layout.localX(pos.getX(),pos.getZ()),pos.getY()-layout.y,layout.localZ(pos.getX(),pos.getZ())),state));geometries.add(normalized.hashCode());
+            assertEquals(writes(first),writes(second));var all=writes(first);var normalized=new HashMap<BlockPos,BlockState>();var layout=f.mine.layout().orElseThrow();all.forEach((pos,state)->normalized.put(new BlockPos(layout.localX(pos.getX(),pos.getZ()),pos.getY()-layout.y,layout.localZ(pos.getX(),pos.getZ())),state));geometries.add(normalized.hashCode());
             assertTrue(all.values().stream().filter(BlockState::isAir).count()>=f.mine.definition().caves.minimumAir);
             assertEquals(12,all.values().stream().filter(s->s.is(Blocks.COAL_ORE)).count());assertEquals(12,all.values().stream().filter(s->s.is(Blocks.IRON_ORE)).count());
             assertEquals(8,all.values().stream().filter(s->s.is(Blocks.COPPER_ORE)).count());
@@ -99,7 +99,7 @@ class StarterMineCaveTest {
         assertEquals(8,geometries.size());
     }
     @Test void emptyAndWaterFilledUndergroundKeepTheAccessDrySupportedAndUsable()throws Exception{
-        var f=fixture(20261105,false);var m=f.mine.layout();var def=f.mine.definition();
+        var f=fixture(20261105,false);var m=f.mine.layout().orElseThrow();var def=f.mine.definition();
         for(var base:List.of(Blocks.AIR.defaultBlockState(),Blocks.WATER.defaultBlockState())){
             var chunks=generate(f,base,false);
             var lighting=lights(m,f.mine.caves().torches);
@@ -114,7 +114,7 @@ class StarterMineCaveTest {
         }
     }
     @Test void fullyGeneratedChunksCannotBeRecarvedOrHaveMinedBlocksRefilled()throws Exception{
-        var f=fixture(42,false);var entry=f.mine.layout().position(f.mine.definition().entry);var c=new TerrainChunk(new ChunkPos(entry.x()>>4,entry.z()>>4),Blocks.AIR.defaultBlockState());c.setPersistedStatus(ChunkStatus.FULL);
+        var f=fixture(42,false);var entry=f.mine.layout().orElseThrow().position(f.mine.definition().entry);var c=new TerrainChunk(new ChunkPos(entry.x()>>4,entry.z()>>4),Blocks.AIR.defaultBlockState());c.setPersistedStatus(ChunkStatus.FULL);
         assertThrows(IllegalStateException.class,()->StarterMineCaveCarver.carve(f.world,f.mine,c));assertThrows(IllegalStateException.class,()->StarterMineCaveCarver.finishAccess(f.world,f.mine,c));assertTrue(c.writes.isEmpty());
     }
 }

@@ -13,7 +13,9 @@ class HabitatLayoutTest {
     @Test void deterministicSitesAreEntirelyEastAndAvoidEveryReservedPlotAcrossSeeds()throws Exception{
         for(long seed:new long[]{42,20261115,202611141,-20261115}){
             var world=world(seed);var roads=new RoadLayout(world.fingerprint(),"0".repeat(64),List.of(),List.of());
-            var a=HabitatLayout.plan(world,roads);assertEquals(a,HabitatLayout.plan(world,roads));assertEquals(12,a.sites().size());
+            var a=HabitatLayout.plan(world,roads,site->false);
+            assertEquals(a,HabitatLayout.plan(world,roads,site->false));assertEquals(12,a.sites().size());
+            assertTrue(a.shortfalls().isEmpty());
             for(var site:a.sites()){
                 int radius=a.rules().integer("site_radius");
                 for(int dx:new int[]{-radius,0,radius})for(int dz:new int[]{-radius,0,radius}){
@@ -23,6 +25,15 @@ class HabitatLayoutTest {
             }
             assertEquals(Set.of("wolf_den","lizard_shelf","spore_grove","bandit_camp"),a.sites().stream().map(HabitatLayout.Site::kind).collect(java.util.stream.Collectors.toSet()));
         }
+    }
+    @Test void exhaustedHabitatAndItsDependentAreReportedWithoutDroppingOtherKinds()throws Exception{
+        var world=world(42);
+        var roads=RoadLayout.empty(world,RoadRules.load());
+        var plan=HabitatLayout.plan(world,roads,site->site.id().equals("wolf_den_0"));
+        assertEquals(10,plan.sites().size());
+        assertEquals(Set.of("wolf_den_0","bandit_camp_0"),plan.shortfalls().keySet());
+        assertTrue(plan.shortfalls().get("bandit_camp_0").contains("wolf_den_0"));
+        assertTrue(plan.sites().stream().anyMatch(site->site.id().equals("bandit_camp_1")));
     }
     @Test void peerRegionsShareTheSameSectTierAndEastIsTheInitialRegion()throws Exception{
         var world=world(20261115);assertEquals("donghuang",world.spawn().regionId());

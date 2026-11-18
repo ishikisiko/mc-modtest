@@ -11,6 +11,7 @@ public final class RoadNetworkGeometry {
     public record Change(Cell before,Cell after) {}
     public record Candidate(RoadPlan route,List<Cell> cells) {public Candidate{cells=List.copyOf(cells);}}
     public record GradeLimit(int x,int z,int feet2) {}
+    public record GradeRange(int low,int high) {}
     /** The two constraints that made this footprint infeasible are retained for replanning. */
     public static final class GradeConflict extends IllegalStateException {
         private final Cell cell;
@@ -51,6 +52,18 @@ public final class RoadNetworkGeometry {
             for(int[] d:CARDINAL){Cell n=fixed.get(Cell.key(c.x()+d[0],c.z()+d[1]));if(n!=null){b.minimum(n.feet2()-1,n);b.maximum(n.feet2()+1,n);}}
             bounds.put(c.key(),b);
         }
+        return completeFit(cells,bounds);
+    }
+    /** 接入既有路时可以精确锁定其成品标高，新增施工列另有各自的地形区间。 */
+    public static List<Cell> fitWithin(List<Cell> cells,Map<Long,GradeRange> limits) {
+        Map<Long,Bounds> bounds=new HashMap<>();
+        for(Cell c:cells) {
+            GradeRange limit=Objects.requireNonNull(limits.get(c.key()));
+            bounds.put(c.key(),new Bounds(c,limit.low(),limit.high()));
+        }
+        return completeFit(cells,bounds);
+    }
+    private static List<Cell> completeFit(List<Cell> cells,Map<Long,Bounds> bounds) {
         propagate(bounds,true);propagate(bounds,false);
         List<Cell> result=new ArrayList<>();
         for(Cell c:cells){Bounds b=bounds.get(c.key());if(b.low>b.high)throw new GradeConflict(b);result.add(new Cell(c.x(),c.z(),Math.clamp(c.feet2(),b.low,b.high),false));}

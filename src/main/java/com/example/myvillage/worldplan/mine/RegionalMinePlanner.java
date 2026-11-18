@@ -11,7 +11,7 @@ import java.util.function.BiFunction;
 /** 在真实噪声地形中寻找已有干燥洞体，不调用雕刻器，也不加载或改写区块。 */
 public final class RegionalMinePlanner {
     private RegionalMinePlanner(){}
-    public static List<RegionalMineSite> plan(WorldPlan world,RoadLayout roads,StarterMineLayout starter,BiFunction<Integer,Integer,NoiseColumn> columns){
+    public static List<RegionalMineSite> plan(WorldPlan world,RoadLayout roads,Optional<StarterMineLayout> starter,BiFunction<Integer,Integer,NoiseColumn> columns){
         var def=world.rules().starterMine;var rules=def.regional;List<RegionalMineSite> sites=new ArrayList<>();
         for(var region:world.regions()){
             var capital=world.capitalOf(region.id()).orElseThrow();var center=capital.entrance();
@@ -83,23 +83,27 @@ public final class RegionalMinePlanner {
         return true;
     }
     /** 长连接段不扩大地面整形；逐列检查自身地下写入体积及保留区域。 */
-    public static void requireAccess(WorldPlan world,RoadLayout roads,RegionalMineSite site,StarterMineLayout starter,List<RegionalMineSite> others){
+    public static void requireAccess(WorldPlan world,RoadLayout roads,RegionalMineSite site,Optional<StarterMineLayout> starter,List<RegionalMineSite> others){
         var d=world.rules().starterMine;var layout=site.surface();
-        if(site.minX(d)<=starter.maxX(d)&&site.maxX(d)>=starter.minX(d)&&site.minZ(d)<=starter.maxZ(d)&&site.maxZ(d)>=starter.minZ(d))throw new IllegalArgumentException("普通矿口通道侵入开局矿场");
+        if(starter.filter(s->site.minX(d)<=s.maxX(d)&&site.maxX(d)>=s.minX(d)&&site.minZ(d)<=s.maxZ(d)&&site.maxZ(d)>=s.minZ(d)).isPresent())
+            throw new IllegalArgumentException("普通矿口通道侵入开局矿场");
         for(var other:others)if(site.minX(d)<=other.maxX(d)&&site.maxX(d)>=other.minX(d)&&site.minZ(d)<=other.maxZ(d)&&site.maxZ(d)>=other.minZ(d))throw new IllegalArgumentException("普通矿口通道相交");
         for(var cell:site.construction(d)){
             int x=layout.worldX(cell.x(),cell.z()),z=layout.worldZ(cell.x(),cell.z()),low=layout.y+cell.floorY()-d.caves.floorDepth+1,high=layout.y+(int)Math.ceil(cell.feet2()/2.0)+d.caves.headroom-1;
             int protectedHigh=high+(site.lined(d,cell.z())?d.caves.seal:0);
             if(low<d.placement.minimumY()||protectedHigh>=d.placement.maximumY())throw new IllegalArgumentException("普通矿口通道超过世界高度");
             if(!world.coreRegionAt(x,z).map(WorldPlan.Region::id).orElse("").equals(layout.region))throw new IllegalArgumentException("普通矿口通道越过州域");
-            if(roads.at(x,z)!=null||world.intersectsCity(x,z,x,z)||world.intersectsSettlements(x,z,x,z)||world.intersectsSects(x,z,x,z)||world.reserved(x,low,z)||world.reserved(x,protectedHigh,z))throw new IllegalArgumentException("普通矿口通道触及保留区域");
+            if(roads.at(x,z)!=null||starter.filter(s->s.pathAt(x,z)!=null).isPresent()||world.intersectsCity(x,z,x,z)||world.intersectsSettlements(x,z,x,z)||world.intersectsSects(x,z,x,z)||world.reserved(x,low,z)||world.reserved(x,protectedHigh,z))throw new IllegalArgumentException("普通矿口通道触及保留区域");
             if(cell.z()>=d.depth&&high>world.surfaceY(x,z)-d.caves.cover)throw new IllegalArgumentException("延长通道缺少天然覆盖");
         }
     }
-    public static void requireFootprint(WorldPlan world,RoadLayout roads,StarterMineLayout layout,StarterMineLayout starter,List<RegionalMineSite> others,boolean full){
+    public static void requireFootprint(WorldPlan world,RoadLayout roads,StarterMineLayout layout,Optional<StarterMineLayout> starter,List<RegionalMineSite> others,boolean full){
         var def=world.rules().starterMine;var rules=def.regional;int x0=layout.minX(def),x1=layout.maxX(def),z0=layout.minZ(def),z1=layout.maxZ(def);
         if(world.intersectsCity(x0,z0,x1,z1)||world.intersectsSettlements(x0,z0,x1,z1)||world.intersectsSects(x0,z0,x1,z1))throw new IllegalArgumentException("与城镇或宗门重叠");
-        if(distance(layout,starter)<(long)rules.spacing*rules.spacing||others.stream().anyMatch(s->distance(layout,s.surface())<(long)rules.spacing*rules.spacing))throw new IllegalArgumentException("矿口间距不足");
+        long spacing2=(long)rules.spacing*rules.spacing;
+        if(starter.filter(s->distance(layout,s)<spacing2).isPresent()||others.stream().anyMatch(s->distance(layout,s.surface())<spacing2))throw new IllegalArgumentException("矿口间距不足");
+        if(starter.filter(s->s.path.stream().anyMatch(p->p.x()>=x0&&p.x()<=x1&&p.z()>=z0&&p.z()<=z1)).isPresent())
+            throw new IllegalArgumentException("普通矿口地面覆盖开局矿场支路");
         int low=Integer.MAX_VALUE,high=Integer.MIN_VALUE,step=full?1:8;
         for(int z=0;z<def.depth;z+=step)for(int x=0;x<def.width;x+=step){
             int wx=layout.worldX(x,z),wz=layout.worldZ(x,z),surface=world.surfaceY(wx,wz);

@@ -6,11 +6,13 @@ import com.example.myvillage.worldplan.FrozenRulesEncoding;
 import com.example.myvillage.worldplan.roads.RoadLayout;
 import com.example.myvillage.worldplan.roads.RoadGeneration;
 import com.example.myvillage.worldplan.roads.RoadChunkPlacement;
-import com.example.myvillage.worldplan.mine.StarterMineLayout;
 import com.example.myvillage.worldplan.mine.StarterMineGeneration;
+import com.example.myvillage.worldplan.mine.StarterMineGeneration.Shortfall;
+import com.example.myvillage.worldplan.mine.StarterMineLayout;
 import com.example.myvillage.worldplan.mine.StarterMinePlacement;
 import com.example.myvillage.worldplan.mine.StarterMineCaveCarver;
 import com.example.myvillage.worldplan.mine.RegionalMineSite;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -40,7 +42,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         Codec.STRING.fieldOf("rules").forGetter(g->WorldPlanRules.compressed(g.rules.algorithm) ? FrozenRulesEncoding.encode(g.rules.json()) : g.rules.json()),
         Codec.STRING.optionalFieldOf("plan_hash","").forGetter(PlannedChunkGenerator::savedFingerprint),
         RoadLayout.CODEC.optionalFieldOf("roads").forGetter(g->g.roads.snapshot()),
-        StarterMineLayout.CODEC.optionalFieldOf("starter_mine").forGetter(g->g.starterMine.snapshot()),
+        StarterMineGeneration.CODEC.optionalFieldOf("starter_mine").forGetter(g->g.starterMine.snapshot()),
         RegionalMineSite.CODEC.listOf().optionalFieldOf("regional_mines").forGetter(g->g.starterMine.regionalSnapshot()),
         RegistryOps.retrieveGetter(Registries.NOISE)
     ).apply(i,(source,settings,json,hash,roads,mine,regional,noises)->{
@@ -63,7 +65,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     public PlannedChunkGenerator(BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises){
         this(new PlannedBiomeSource(source,rules),source,settings,rules,expectedFingerprint,noises,Optional.empty(),Optional.empty(),Optional.empty());
     }
-    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises,Optional<RoadLayout> cachedRoads,Optional<StarterMineLayout> cachedMine,Optional<List<RegionalMineSite>> cachedRegional){
+    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises,Optional<RoadLayout> cachedRoads,Optional<Either<StarterMineLayout,Shortfall>> cachedMine,Optional<List<RegionalMineSite>> cachedRegional){
         super(planned);originalSource=source;plannedSource=planned;this.settings=settings;this.rules=rules;this.expectedFingerprint=expectedFingerprint;this.noises=noises;
         // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
@@ -88,13 +90,19 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             if(!expectedFingerprint.isEmpty()&&!expectedFingerprint.equals(p.fingerprint()))throw new IllegalStateException("Saved worldplan fingerprint mismatch; refusing to move existing geography. Restore the matching rules/algorithm version.");
             // ChunkMap supplies dummy noise for custom generators; build the real settings-backed state.
             RandomState state=RandomState.create(settings.value(),noises,seed);
-            terrainState=state;plannedSource.bind(p,state.sampler());plan=p;roads.bind(p);
+            plannedSource.bind(p,state.sampler());
             // 全网校验完成后才允许创建区块，避免在半张布局上开始写入世界。
-            try {starterMine.bind(p,roads.await());
-                starterMine.bindRegional(roads.await(),(x,z)->getBaseColumn(x,z,LevelHeightAccessor.create(getMinY(),getGenDepth()),state));
-                habitats=com.example.myvillage.wilderness.habitat.HabitatLayout.plan(p,roads.await());
+            try {
+                roads.bind(p);
+                var roadLayout=roads.await();
+                starterMine.bind(p,roadLayout);
+                var heightRange=LevelHeightAccessor.create(getMinY(),getGenDepth());
+                starterMine.bindRegional(roadLayout,(x,z)->baseColumn(p,x,z,heightRange,state));
+                habitats=com.example.myvillage.wilderness.habitat.HabitatLayout.plan(p,roadLayout,starterMine);
             }
             catch(RuntimeException failure){roads.close();throw failure;}
+            terrainState=state;
+            plan=p;
         }
         return super.createState(structures,terrainState(),seed);
     }
@@ -168,11 +176,14 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         return Math.max(level.getMinBuildHeight(),Math.min(level.getMaxBuildHeight(),y));
     }
     @Override public NoiseColumn getBaseColumn(int x,int z,LevelHeightAccessor level,RandomState ignored){
-        NoiseColumn nativeColumn=terrain.getBaseColumn(x,z,level,terrainState());
+        return baseColumn(plan(),x,z,level,terrainState());
+    }
+    private NoiseColumn baseColumn(WorldPlan world,int x,int z,LevelHeightAccessor level,RandomState state){
+        NoiseColumn nativeColumn=terrain.getBaseColumn(x,z,level,state);
         int min=Math.max(getMinY(),level.getMinBuildHeight()),max=Math.min(getMinY()+getGenDepth(),level.getMaxBuildHeight());
         int nativeFloor=min;for(int y=max-1;y>=min;y--)if(!nativeColumn.getBlock(y).isAir()&&nativeColumn.getBlock(y).getFluidState().isEmpty()){nativeFloor=y+1;break;}
-        int target=plan().surfaceY(x,z);BlockState[] states=new BlockState[max-min];
-        var capital=plan().capitalTerrainAt(x,z).orElse(null);
+        int target=world.surfaceY(x,z);BlockState[] states=new BlockState[max-min];
+        var capital=world.capitalTerrainAt(x,z).orElse(null);
         var ground=capital==null?null:CapitalGamePlacement.foundation(capital.bundle());
         boolean inside=capital!=null&&capital.contains(x,z,0);
         for(int y=min;y<max;y++)states[y-min]=capital!=null&&y>=min+5

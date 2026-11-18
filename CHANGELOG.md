@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.138.0-fix1
+
+- 修复部分种子因开局矿场选址用尽而无法进入修仙世界的问题。矿场支路可以转弯，沿用既有官道标高，并在陆地和原土方限制内确定入口高度。
+- 东荒生态据点避开矿场和支路。矿场或生态据点确实没有合法位置时，世界继续生成，日志与管理指令显示缺位。
+
 ## 0.138.0
 
 - 品质取物器增加快捷搭建。创造模式可在世界中预览青铜丹炉阵、玄枢炼器鼎、篆纹阵和仙纹图书馆，确认后清空选定区域并搭建。
