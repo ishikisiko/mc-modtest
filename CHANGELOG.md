@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.136.2
+
+- 普通妖兽和雷角山君掉落妖兽皮、妖兽骨及妖丹时，每个抽中的条目按抢夺等级随机多掉材料。数量增量每级 0–1 件。
+
 ## 0.136.1
 
 - 赤甲片、掠锋砂、符纹灵灰、荆骨、寒翎和灯孢囊取消 4 件封顶，按基础数量加抢夺增量结算。

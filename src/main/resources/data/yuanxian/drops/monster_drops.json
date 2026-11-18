@@ -409,7 +409,11 @@
             1600,
             350,
             50
-          ]
+          ],
+          "looting": {
+            "min_per_level": 0,
+            "max_per_level": 1
+          }
         },
         {
           "item": "yuanxian:beast_hide_qi_refining_common",
@@ -426,6 +430,10 @@
           "chance_looting": {
             "per_level": 0.1,
             "max_level": 3
+          },
+          "looting": {
+            "min_per_level": 0,
+            "max_per_level": 1
           }
         },
         {
@@ -443,6 +451,10 @@
           "chance_looting": {
             "per_level": 0.1,
             "max_level": 3
+          },
+          "looting": {
+            "min_per_level": 0,
+            "max_per_level": 1
           }
         }
       ]
@@ -480,7 +492,11 @@
             1600,
             350,
             50
-          ]
+          ],
+          "looting": {
+            "min_per_level": 0,
+            "max_per_level": 1
+          }
         }
       ]
     },
@@ -508,7 +524,11 @@
             3500,
             1400,
             100
-          ]
+          ],
+          "looting": {
+            "min_per_level": 0,
+            "max_per_level": 1
+          }
         },
         {
           "item": "yuanxian:beast_bone_qi_refining_common",
@@ -521,7 +541,11 @@
             3500,
             1400,
             100
-          ]
+          ],
+          "looting": {
+            "min_per_level": 0,
+            "max_per_level": 1
+          }
         }
       ]
     },
@@ -553,7 +577,11 @@
             3500,
             1400,
             100
-          ]
+          ],
+          "looting": {
+            "min_per_level": 0,
+            "max_per_level": 1
+          }
         }
       ]
     }
