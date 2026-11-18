@@ -107,7 +107,8 @@ public final class EnchantingDevice extends BlockEntity {
         for (int i = 0; i < EnchantingStructure.SEAL.size(); i++) {
             var cell = EnchantingStructure.SEAL.get(i);
             var at = EnchantingStructure.offset(worldPosition, front, cell.x(), cell.y(), cell.z());
-            if (!server.setBlock(at, SealMemberBlock.part(i, front), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
+            var member = Block.pushEntitiesUp(server.getBlockState(at), SealMemberBlock.part(i, front), server, at);
+            if (!server.setBlock(at, member, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
                 unform(null);
                 return;
             }
@@ -146,7 +147,8 @@ public final class EnchantingDevice extends BlockEntity {
             var cell = EnchantingStructure.SEAL.get(i);
             var at = EnchantingStructure.offset(worldPosition, front, cell.x(), cell.y(), cell.z());
             if (!at.equals(removed) && server.isLoaded(at) && server.getBlockState(at) == SealMemberBlock.part(i, front)) {
-                server.setBlock(at, EnchantingStructure.rawState(cell), Block.UPDATE_ALL);
+                var raw = Block.pushEntitiesUp(server.getBlockState(at), EnchantingStructure.rawState(cell), server, at);
+                server.setBlock(at, raw, Block.UPDATE_ALL);
             }
         }
         sync();

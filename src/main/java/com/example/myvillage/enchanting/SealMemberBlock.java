@@ -91,7 +91,8 @@ final class SealMemberBlock extends Block {
     @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         var origin = owner(pos, state);
         if (level.isLoaded(origin) && controller(level, origin, state) == null) {
-            level.setBlock(pos, EnchantingStructure.rawState(cell(state)), Block.UPDATE_ALL);
+            var raw = Block.pushEntitiesUp(state, EnchantingStructure.rawState(cell(state)), level, pos);
+            level.setBlock(pos, raw, Block.UPDATE_ALL);
         } else schedule(level, pos);
     }
 
