@@ -79,7 +79,19 @@ def outputs(root=ROOT):
         name('screen.yuanxian.forging.trait.'+trait,m['traitEffect'])
         name('tooltip.yuanxian.forging.'+trait,m['traitEffect'])
         add(f'assets/yuanxian/models/item/{id}_spawn_egg.json',{'parent':'minecraft:item/template_spawn_egg'})
-        add(f'data/yuanxian/loot_table/entities/{id}.json',{'type':'minecraft:entity','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:'+mid,'functions':[{'function':'minecraft:set_count','count':{'type':'minecraft:uniform','min':m['drop_count'][0],'max':m['drop_count'][1]}},{'function':'minecraft:enchanted_count_increase','enchantment':'minecraft:looting','count':{'type':'minecraft:uniform','min':0,'max':1},'limit':4}]}]}]})
+        loot_functions = [
+            {'function': 'minecraft:set_count', 'count': {
+                'type': 'minecraft:uniform', 'min': m['drop_count'][0], 'max': m['drop_count'][1],
+            }},
+            {'function': 'minecraft:enchanted_count_increase', 'enchantment': 'minecraft:looting',
+             'count': {'type': 'minecraft:uniform', 'min': 0, 'max': 1}},
+        ]
+        add(f'data/yuanxian/loot_table/entities/{id}.json', {
+            'type': 'minecraft:entity',
+            'pools': [{'rolls': 1, 'entries': [{
+                'type': 'minecraft:item', 'name': 'yuanxian:' + mid, 'functions': loot_functions,
+            }]}],
+        })
         add(f'data/yuanxian/tags/worldgen/biome/has_{id}.json',{'replace':False,'values':m['biomes']})
         add(f'data/yuanxian/neoforge/biome_modifier/add_{id}_spawns.json',{'type':'neoforge:add_spawns','biomes':'#yuanxian:has_'+id,'spawners':[{'type':'yuanxian:'+id,'weight':m['spawn_weight'],'minCount':m['spawn_group'][0],'maxCount':m['spawn_group'][1]}]})
         formula='formula_'+pill

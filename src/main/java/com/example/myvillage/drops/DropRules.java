@@ -20,7 +20,7 @@ public final class DropRules {
     public record Catalog(Predicate<String> item,Predicate<String> entity,Predicate<String> region,ToIntFunction<RealmKey> realmRank,
                           BiPredicate<String,Integer> quality,Predicate<String> rarity) {}
     public record Context(String entity,Scene scene,String region,Integer realmRank,boolean playerKill,boolean fireCaptured) {}
-    public record Entry(String item,int min,int max,double chance,double lootingMin,double lootingMax,int limit,String factory,Integer quality,String rarity,
+    public record Entry(String item,int min,int max,double chance,double lootingMin,double lootingMax,Integer limit,String factory,Integer quality,String rarity,
                         double chancePerLootingLevel,int chanceLootingCap,List<Integer> materialWeights) {
         public Entry { materialWeights=List.copyOf(materialWeights); }
         public double effectiveChance(int looting){return Math.min(1,chance+chancePerLootingLevel*Math.clamp(looting,0,chanceLootingCap));}
@@ -63,7 +63,7 @@ public final class DropRules {
         for(var e:entries){double chance=e.effectiveChance(looting);if(chance==0||chance<1&&random.nextDouble()>=chance)continue;
             int count=e.min()+random.nextInt(e.max()-e.min()+1);
             if(looting>0&&e.lootingMax()>0)count+=Math.round((float)(looting*(e.lootingMin()+(e.lootingMax()-e.lootingMin())*random.nextDouble())));
-            count=Math.min(count,e.limit());
+            if(e.limit()!=null)count=Math.min(count,e.limit());
             if(e.factory().equals("beast_material")) {
                 // Each physical unit receives its own rarity draw, including all fixed boss units.
                 for(int unit=0;unit<count;unit++) {
@@ -109,9 +109,10 @@ public final class DropRules {
             String q=p+".drops["+i+"]";JsonObject e=asObject(a.get(i),q);fields(e,q,"item","min","max","chance","looting","factory","quality","rarity","chance_looting","rarity_weights");
             String item=string(e,"item",q);id(item,q+".item");if(item.equals("minecraft:air")||!c.item().test(item))throw bad(q+".item","物品不存在或为空气");
             int min=integer(e,"min",q,0,64),max=integer(e,"max",q,min,64);double chance=decimal(e,"chance",q,0,1);
-            double lo=0,hi=0;int limit=64;if(e.has("looting")){
+            double lo=0,hi=0;Integer limit=null;if(e.has("looting")){
                 JsonObject l=object(e,"looting",q);fields(l,q+".looting","min_per_level","max_per_level","limit");
-                lo=decimal(l,"min_per_level",q+".looting",0,64);hi=decimal(l,"max_per_level",q+".looting",lo,64);limit=integer(l,"limit",q+".looting",1,64);
+                lo=decimal(l,"min_per_level",q+".looting",0,64);hi=decimal(l,"max_per_level",q+".looting",lo,64);
+                if(l.has("limit"))limit=integer(l,"limit",q+".looting",1,64);
             }
             String factory=e.has("factory")?string(e,"factory",q):"plain";
             if(!Set.of("plain","beast_fire","beast_material").contains(factory)||factory.equals("beast_fire")&&!item.equals("yuanxian:beast_fire_seed")

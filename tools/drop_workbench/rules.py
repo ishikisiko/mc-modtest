@@ -41,7 +41,11 @@ def validate(data,catalogue):
                 if not isinstance(entry['rarity'],str) or entry['rarity'] not in item_map[entry['item']].get('rarities',[]):raise Invalid(p+'该物品不支持此稀有度')
             if 'quality' in entry and 'rarity' in entry:raise Invalid(p+'品质与原版稀有度不能同时指定')
             if 'looting' in entry:
-                l=entry['looting'];obj(l,p+'.looting',['min_per_level','max_per_level','limit'],['min_per_level','max_per_level','limit']);number(l['min_per_level'],p+'每级抢夺最小增量',0,64);number(l['max_per_level'],p+'每级抢夺最大增量',l['min_per_level'],64);number(l['limit'],p+'抢夺上限',1,64,True)
+                l=entry['looting']
+                obj(l,p+'.looting',['min_per_level','max_per_level','limit'],['min_per_level','max_per_level'])
+                number(l['min_per_level'],p+'每级抢夺最小增量',0,64)
+                number(l['max_per_level'],p+'每级抢夺最大增量',l['min_per_level'],64)
+                if 'limit' in l:number(l['limit'],p+'抢夺上限',1,64,True)
             factory=entry.get('factory','plain')
             if factory not in ['plain','beast_fire','beast_material'] or factory=='beast_fire' and entry['item']!='yuanxian:beast_fire_seed' or factory=='beast_material' and not item_map[entry['item']].get('beast_material'):raise Invalid(p+'特殊物品工厂不匹配')
             if 'chance_looting' in entry:

@@ -44,6 +44,19 @@ class WorkbenchTest(unittest.TestCase):
     def test_special_fire_requires_its_registered_item(self):
         data=self.change();data['entities']['yuanxian:redplate_lizard']['drops'][0]['factory']='beast_fire'
         with self.assertRaises(Invalid):validate(data,self.catalogue)
+    def test_looting_quantity_limit_can_be_omitted_or_saved_explicitly(self):
+        data = self.change()
+        looting = {'min_per_level': 0, 'max_per_level': 1}
+        data['entities']['yuanxian:redplate_lizard']['drops'][0]['looting'] = looting
+        save = self.store.save(data, self.store.read()['revision'])
+        self.assertEqual(data, save['config'])
+        looting['limit'] = 4
+        save = self.store.save(data, save['revision'])
+        self.assertEqual(data, save['config'])
+        looting['limit'] = 0
+        with self.assertRaises(Invalid):
+            self.store.save(data, save['revision'])
+        self.assertEqual(save, self.store.read())
     def test_only_one_concurrent_writer_accepts_the_same_revision(self):
         revision=self.store.read()['revision'];results=[]
         def writer(n):
@@ -107,8 +120,12 @@ class NativeLootAndCategoriesTest(unittest.TestCase):
         rows=self.reader.table('minecraft:entities/creeper')['rows'];discs=[r for r in rows if r['item'].startswith('minecraft:music_disc_')];self.assertEqual(12,len(discs));self.assertTrue(all(r['conditions'] for r in discs));self.assertAlmostEqual(1,sum(r['chance'] for r in discs))
     def test_sheep_color_table_references_meat_without_losing_count(self):
         rows=self.reader.table('minecraft:entities/sheep/white')['rows'];self.assertEqual({'minecraft:white_wool','minecraft:mutton'},{r['item'] for r in rows});mutton=next(r for r in rows if r['item']=='minecraft:mutton');self.assertEqual('1–2',mutton['quantity']);self.assertEqual(1,mutton['chance']);self.assertEqual('minecraft:entities/sheep',mutton['reference'])
-    def test_mod_material_baseline_has_actual_looting_cap(self):
-        row=self.reader.table('yuanxian:entities/redplate_lizard')['rows'][0];self.assertEqual('yuanxian:redplate_scale',row['item']);self.assertEqual('1–2',row['quantity']);self.assertEqual(1,row['chance']);self.assertTrue(any('上限 4' in n for n in row['notes']))
+    def test_mod_material_baseline_displays_looting_without_a_quantity_limit(self):
+        row=self.reader.table('yuanxian:entities/redplate_lizard')['rows'][0]
+        self.assertEqual('yuanxian:redplate_scale',row['item'])
+        self.assertEqual('1–2',row['quantity'])
+        self.assertEqual(1,row['chance'])
+        self.assertEqual(['抢夺每级增加 0–1 个'],row['notes'])
     def test_purpose_category_wins_over_block_or_equipment_word(self):
         from tools.drop_workbench.categories import classify
         ids=['yuanxian:pill_huiling','yuanxian:medium_grade_spirit_stone','yuanxian:spirit_leaf','yuanxian:qingfeng_sword','yuanxian:xuantie_chestplate','yuanxian:workpiece_qingfeng_sword_rough','minecraft:acacia_planks','minecraft:acacia_sign','minecraft:iron_ingot']

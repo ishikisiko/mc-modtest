@@ -67,6 +67,26 @@ class DropRulesTest {
         var fire=DropRules.parse(defaults(),catalog()).resolve(context("minecraft:blaze",DropRules.Scene.NORMAL));
         assertEquals(1,DropRules.roll(fire,0,minimum).size());Random boundary=new Random(){public double nextDouble(){return .035;}};assertTrue(DropRules.roll(fire,0,boundary).isEmpty());
     }
+    @Test void quantityLootingCanExceedAStackWhenTheLimitIsOmitted()throws Exception{
+        var config=json();
+        var policy=diamond("replace");
+        var drop=policy.getAsJsonArray("drops").get(0).getAsJsonObject();
+        drop.addProperty("min",64);
+        drop.addProperty("max",64);
+        var looting=JsonParser.parseString("""
+                {"min_per_level":1,"max_per_level":1}
+                """).getAsJsonObject();
+        drop.add("looting",looting);
+        config.getAsJsonObject("entities").add("yuanxian:demon_wolf",policy);
+        var context=context("yuanxian:demon_wolf",DropRules.Scene.NORMAL);
+        var uncapped=DropRules.parse(config.toString(),catalog()).resolve(context);
+        assertEquals(64,DropRules.roll(uncapped,0,new Random(1)).getFirst().count());
+        assertEquals(74,DropRules.roll(uncapped,10,new Random(1)).getFirst().count());
+
+        looting.addProperty("limit",64);
+        var capped=DropRules.parse(config.toString(),catalog()).resolve(context);
+        assertEquals(64,DropRules.roll(capped,10,new Random(1)).getFirst().count());
+    }
     @Test void duplicateFieldsTrailingDocumentsAndUnknownFieldsFailWithPaths()throws Exception{
         var c=catalog();String text=defaults();assertThrows(IllegalArgumentException.class,()->DropRules.parse(text+" {}",c));
         assertThrows(IllegalArgumentException.class,()->DropRules.parse(text.replace("\"schema\": 1","\"schema\": 1, \"schema\": 1"),c));

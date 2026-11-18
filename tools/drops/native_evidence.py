@@ -203,6 +203,19 @@ class Evidence:
     def looting(self):
         entries=[self.entry(count=2,looting=dict(min_per_level=1,max_per_level=1,limit=4)),self.entry('minecraft:emerald',64,0)]
         self.config(self.entity_policy('replace',entries));self.items({'minecraft:diamond':4},looting=3)
+        self.items({'minecraft:diamond':4},looting=10)
+        entries[0]=self.entry(count=64,looting=dict(min_per_level=1,max_per_level=1))
+        self.config(self.entity_policy('replace',entries));self.items({'minecraft:diamond':74},looting=10)
+        self.bundled()
+        quantities = []
+        for _ in range(10):
+            result = self.kill(entity='yuanxian:redplate_lizard', looting=10)
+            count = result['world_items'].get('yuanxian:redplate_scale', 0)
+            self.check('native_scale_within_theoretical_range', 1 <= count <= 12, count)
+            quantities.append(count)
+            if count > 4:
+                break
+        self.check('native_scale_exceeds_old_limit', max(quantities) > 4, quantities)
     def fire(self):
         data=copy.deepcopy(self.defaults);data['entities']['minecraft:blaze']={'mode':'replace','drops':[]};data['additions'][0]['drops'][0]['chance']=1
         self.config(data);value=self.items({'yuanxian:beast_fire_seed':1},entity='minecraft:blaze')

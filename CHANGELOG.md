@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.136.1
+
+- 赤甲片、掠锋砂、符纹灵灰、荆骨、寒翎和灯孢囊取消 4 件封顶，按基础数量加抢夺增量结算。
+- 统一掉落表可以省略抢夺的总数上限，工作台支持留空。
+
 ## 0.136.0
 
 - 七座州城使用重新规划的街坊。29 座 NPC 院宅分布在城内，各州分别采用本地材料、窗格、屋檐和街面做法。院宅门、实际床位和生活点随城市落位。

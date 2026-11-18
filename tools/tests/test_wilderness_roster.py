@@ -41,4 +41,19 @@ class WildernessRosterTests(unittest.TestCase):
         self.assertFalse(any('/textures/entity/cultivator/' in p or '/textures/entity/demon_wolf/' in p for p in paths))
         self.assertFalse(any('/recipe/pill_' in p for p in paths),'Pills must be brewed, not crafted')
 
+    def test_common_materials_use_looting_without_a_quantity_limit(self):
+        generated = outputs()
+        tables = ROOT / 'src/main/resources/data/yuanxian/loot_table/entities'
+        for mob in catalogue()['mobs']:
+            with self.subTest(mob=mob['id']):
+                table = json.loads(generated[tables / (mob['id'] + '.json')])
+                entry = table['pools'][0]['entries'][0]
+                self.assertEqual('yuanxian:' + mob['material_id'], entry['name'])
+                set_count, looting = entry['functions']
+                self.assertEqual(mob['drop_count'], [set_count['count']['min'], set_count['count']['max']])
+                self.assertEqual({
+                    'function': 'minecraft:enchanted_count_increase', 'enchantment': 'minecraft:looting',
+                    'count': {'type': 'minecraft:uniform', 'min': 0, 'max': 1},
+                }, looting)
+
 if __name__=='__main__':unittest.main()

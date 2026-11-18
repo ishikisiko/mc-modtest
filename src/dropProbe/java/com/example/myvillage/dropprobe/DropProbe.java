@@ -123,7 +123,7 @@ public final class DropProbe {
             .then(Commands.literal("spawn").then(Commands.argument("entity",ResourceLocationArgument.id())
                 .then(Commands.argument("scene",StringArgumentType.word()).then(Commands.argument("stage",IntegerArgumentType.integer(-1,8))
                     .executes(c->spawn(c.getSource(),ResourceLocationArgument.getId(c,"entity").toString(),StringArgumentType.getString(c,"scene"),IntegerArgumentType.getInteger(c,"stage")))))))
-            .then(Commands.literal("finish").then(Commands.argument("looting",IntegerArgumentType.integer(0,3)).then(Commands.argument("captured",BoolArgumentType.bool())
+            .then(Commands.literal("finish").then(Commands.argument("looting",IntegerArgumentType.integer(0,255)).then(Commands.argument("captured",BoolArgumentType.bool())
                 .executes(c->finish(c.getSource(),IntegerArgumentType.getInteger(c,"looting"),BoolArgumentType.getBool(c,"captured"))))))
             .then(Commands.literal("read").executes(c->read(c.getSource())))
             .then(Commands.literal("realm").then(Commands.argument("realm",ResourceLocationArgument.id()).then(Commands.argument("stage",IntegerArgumentType.integer(0,8))
