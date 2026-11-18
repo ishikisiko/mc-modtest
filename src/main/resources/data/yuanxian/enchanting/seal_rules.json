@@ -1,0 +1,32 @@
+{
+  "strength_cap": 50,
+  "copper_strength": 5,
+  "draw_slots": 3,
+  "max_draw_slots": 6,
+  "direction_weight": 4,
+  "pairing_bonus": 2,
+  "treasure_weight": 3,
+  "risky_weight": 5,
+  "ordinary_risk": 5,
+  "treasure_risk": 20,
+  "risky_risk": 35,
+  "prices": [
+    {"through": 15, "stones": 3},
+    {"through": 30, "stones": 30},
+    {"through": 50, "stones": 1}
+  ],
+  "directions": {
+    "mineral": ["minecraft:fortune", "minecraft:silk_touch"],
+    "repair": ["minecraft:mending", "minecraft:unbreaking", "minecraft:efficiency"],
+    "weapon": ["minecraft:sharpness", "minecraft:smite", "minecraft:bane_of_arthropods", "minecraft:sweeping_edge", "minecraft:power", "minecraft:impaling", "minecraft:density", "minecraft:breach", "minecraft:wind_burst"]
+  },
+  "levels": {
+    "minecraft:efficiency": [0, 4, 8, 12, 15, 25, 45],
+    "minecraft:sharpness": [0, 4, 8, 12, 15, 25, 45],
+    "minecraft:power": [0, 4, 8, 12, 15, 25, 45],
+    "minecraft:protection": [0, 4, 8, 12, 30, 50],
+    "minecraft:unbreaking": [0, 6, 12, 25, 45],
+    "minecraft:fortune": [8, 12, 15, 40],
+    "minecraft:looting": [0, 6, 12, 40]
+  }
+}

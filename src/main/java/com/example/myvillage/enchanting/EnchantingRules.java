@@ -27,7 +27,8 @@ public record EnchantingRules(int empty_cap, int shelf_cap, int candidates, int 
         var thresholds = rune == null ? level_thresholds.get(Integer.toString(max)) : rune.thresholds();
         int level = 0;
         for (int i = 0; i < max; i++) {
-            int threshold = thresholds == null ? (int) Math.ceil(i * (double) shelf_cap / (max - 1)) : thresholds.get(i);
+            int threshold = thresholds != null && i < thresholds.size() ? thresholds.get(i)
+                    : max == 1 ? 0 : (int) Math.ceil(i * (double) shelf_cap / (max - 1));
             if (threshold <= strength) level = i + 1;
         }
         return level;

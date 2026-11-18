@@ -4,7 +4,11 @@ import static com.example.myvillage.enchanting.EnchantingRules.RULES;
 import static com.example.myvillage.enchanting.EnchantingRules.key;
 import static com.example.myvillage.enchanting.RuneStorage.*;
 
+import com.example.myvillage.item.ModItems;
+import com.example.myvillage.spiritstone.SpiritStoneSources;
+import com.example.myvillage.spiritstone.SpiritStoneStorage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,6 +20,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -36,22 +41,24 @@ public final class EnchantingMenu extends AbstractContainerMenu {
         Mode(String title) { this.title = title; }
     }
 
-    public static final int LAPIS = 0, XP = 1, WRITE = 2, UPGRADE = 3, WASH = 4,
+    public static final int DRAW = 0, XP = 1, WRITE = 2, UPGRADE = 3, WASH = 4,
             PREVIOUS = 5, NEXT = 6, FOCUS = 7, DEPOSIT = 8, PRINT = 9, REPLACE = 10,
             DRAFT_DOWN = 11, DRAFT_UP = 12, SAVE_SLIP = 13, LOAD_SLIP = 14, RESET = 15,
-            PRESET = 16, LEVEL_DOWN = 17, LEVEL_UP = 18;
-    public static final int SELECT = 24, RAISE = 28, HOLD = 32, LOWER = 36, CATALOGUE_SELECT = 64;
+            PRESET = 16, LEVEL_DOWN = 17, LEVEL_UP = 18, TREASURE = 19;
+    public static final int MAX_DRAW_ROWS = 6;
+    public static final int SELECT = 24, RAISE = 30, HOLD = 36, LOWER = 42, CATALOGUE_SELECT = 64;
     public static final int WIDTH = 304, HEIGHT = 238;
 
     private static final int INPUT = 0, INK = 1, MATERIAL = 2, SLIP = 3, OUTPUT = 4, SLOT_COUNT = 5;
     private static final int MODE = 0, STRENGTH = 1, FORMED = 2, FOCUSED = 3, INDEX = 4, STATUS = 5,
             MASK = 6, LEVELS = 7, TARGET_LEVEL = 8, POINTS = 9, MAX_RECORDED = 10, DRAFT_LEVEL = 11,
-            COST = 12, PREFERENCE = 13, PRESET_INDEX = 14, FEASIBLE = 15, TAKEN = 16, RETURNED = 17, POINTS_HIGH = 18;
+            COST = 12, PREFERENCE = 13, PRESET_INDEX = 14, FEASIBLE = 15, TAKEN = 16, RETURNED = 17, POINTS_HIGH = 18,
+            LEVELS_HIGH = 19, PRICE = 20, TREASURES = 21, RISK = 22, NEGATIVE_INDEX = 23, ACTIVE_DRAW = 24;
     private static final int READY = 0, COMPLETE = 1, INVALID = 2, MATERIALS = 3, STRUCTURE = 4,
-            INCOMPATIBLE = 5, INVENTORY = 6, REQUIREMENTS = 7;
+            INCOMPATIBLE = 5, INVENTORY = 6, REQUIREMENTS = 7, SPIRIT_STONES = 8;
 
     private final SimpleContainer work = new SimpleContainer(SLOT_COUNT);
-    private final SimpleContainerData data = new SimpleContainerData(19);
+    private final SimpleContainerData data = new SimpleContainerData(25);
     private final Player viewer;
     private final BlockPos origin;
     private final EnchantingDevice device;
@@ -60,7 +67,8 @@ public final class EnchantingMenu extends AbstractContainerMenu {
     private final Map<Holder<Enchantment>, Integer> draft = new LinkedHashMap<>();
     private ItemStack previousInput = ItemStack.EMPTY;
     private int mask;
-    private final int[] selectedLevels = new int[4];
+    private final int[] selectedLevels = new int[MAX_DRAW_ROWS];
+    private boolean treasure;
     private int index;
     private int preference = -1;
     private int printLevel = 1;
@@ -79,6 +87,7 @@ public final class EnchantingMenu extends AbstractContainerMenu {
                 .sorted(Comparator.comparing(EnchantingRules::key)).map(h -> (Holder<Enchantment>) h).toList();
         data.set(MODE, mode.ordinal());
         data.set(PREFERENCE, -1);
+        data.set(NEGATIVE_INDEX, -1);
         addDataSlots(data);
         int[][] positions = {{28, 111}, {54, 111}, {80, 111}, {106, 111}, {106, 136}};
         for (int i = 0; i < SLOT_COUNT; i++) {
@@ -87,7 +96,8 @@ public final class EnchantingMenu extends AbstractContainerMenu {
                 @Override public boolean mayPlace(ItemStack stack) { return accepts(slot, stack); }
                 @Override public boolean isActive() {
                     return switch (mode()) {
-                        case TABLE, SEAL -> slot <= MATERIAL;
+                        case TABLE -> slot <= MATERIAL;
+                        case SEAL -> slot <= INK;
                         case STONE -> slot == INPUT || slot == OUTPUT;
                         case LIBRARY -> true;
                     };
@@ -109,7 +119,14 @@ public final class EnchantingMenu extends AbstractContainerMenu {
     public Holder<Enchantment> current() { return catalogue.get(selection()); }
     public ItemStack input() { return work.getItem(INPUT); }
     public int mask() { return data.get(MASK); }
-    public int level(int i) { return (data.get(LEVELS) >>> (i * 4)) & 15; }
+    public int level(int i) { return (data.get(i < 4 ? LEVELS : LEVELS_HIGH) >>> ((i % 4) * 4)) & 15; }
+    public int price() { return data.get(PRICE); }
+    public boolean treasures() { return data.get(TREASURES) != 0; }
+    public int risk() { return data.get(RISK); }
+    public Holder<Enchantment> negative() {
+        int position = data.get(NEGATIVE_INDEX);
+        return position >= 0 && position < catalogue.size() ? catalogue.get(position) : null;
+    }
     public int targetLevel() { return data.get(TARGET_LEVEL); }
     public int points() { return data.get(POINTS) | (data.get(POINTS_HIGH) << 15); }
     public int recorded() { return data.get(MAX_RECORDED); }
@@ -123,7 +140,7 @@ public final class EnchantingMenu extends AbstractContainerMenu {
     public int existing() { return catalogue.isEmpty() ? 0 : effects(input()).getOrDefault(current(), 0); }
     public int heldIndex() { return candidates(input()).indexOf(read(input()).getString(HELD)); }
     public boolean canHold() {
-        return formed() && strength() >= RULES.lock_strength() && !read(input()).getBoolean(REDRAWN);
+        return mode() == Mode.SEAL && formed() && strength() >= RULES.lock_strength() && data.get(ACTIVE_DRAW) != 0;
     }
     public String status() {
         return switch (data.get(STATUS)) {
@@ -134,6 +151,7 @@ public final class EnchantingMenu extends AbstractContainerMenu {
             case INCOMPATIBLE -> "有词条不适用或互斥";
             case INVENTORY -> "库存、收录等级或容量不足";
             case REQUIREMENTS -> "境界、修为或材料不足";
+            case SPIRIT_STONES -> "下品灵石不足";
             default -> "";
         };
     }
@@ -146,7 +164,7 @@ public final class EnchantingMenu extends AbstractContainerMenu {
                     && catalogue.stream().anyMatch(rune -> rune.value().isSupportedItem(stack));
             case INK -> mode() != Mode.STONE && EnchantingContent.isInk(stack);
             case MATERIAL -> mode() == Mode.LIBRARY ? stack.is(Items.BOOK)
-                    : mode() != Mode.STONE && stack.is(Items.LAPIS_LAZULI);
+                    : mode() == Mode.TABLE && stack.is(Items.LAPIS_LAZULI);
             case SLIP -> mode() == Mode.LIBRARY && stack.is(EnchantingContent.SLIP.get());
             default -> false;
         };
@@ -202,8 +220,30 @@ public final class EnchantingMenu extends AbstractContainerMenu {
     }
 
     private List<Holder<Enchantment>> batch() {
-        return candidates(input()).stream().limit(4)
-                .map(name -> catalogue.stream().filter(rune -> key(rune).equals(name)).findFirst().orElse(null)).toList();
+        return candidates(input()).stream().limit(serverMode == Mode.SEAL ? MAX_DRAW_ROWS : 4)
+                .map(this::findRune).toList();
+    }
+
+    private Holder<Enchantment> findRune(String name) {
+        for (var rune : catalogue) if (key(rune).equals(name)) return rune;
+        return null;
+    }
+
+    private String sealSignature(EnchantingStructure.Table table) {
+        return SealRules.signature(table.strength(), treasure, device.discTypes());
+    }
+
+    private boolean activeBatch(EnchantingStructure.Table table, CompoundTag stored) {
+        String seal = stored.getString(SEAL);
+        return serverMode == Mode.SEAL ? table.formed() && seal.equals(sealSignature(table)) : seal.isEmpty();
+    }
+
+    private boolean firstSealDraw(CompoundTag stored) { return stored.getString(SEAL).isEmpty(); }
+
+    private List<Holder<Enchantment>> negatives(Map<Holder<Enchantment>, Integer> current) {
+        if (input().isEmpty()) return List.of();
+        return catalogue.stream().filter(rune -> rune.is(EnchantmentTags.CURSE) && !current.containsKey(rune)
+                && (input().is(Items.BOOK) || rune.value().isSupportedItem(input())) && compatible(rune, current)).toList();
     }
 
     private void refresh() {
@@ -236,23 +276,46 @@ public final class EnchantingMenu extends AbstractContainerMenu {
         data.set(FOCUSED, table.focused() ? 1 : 0);
         data.set(PREFERENCE, preference);
         int packed = 0;
+        int upper = 0;
         int ink = 0;
-        var batch = batch();
+        var stored = read(input());
+        boolean active = activeBatch(table, stored);
+        var batch = active ? batch() : List.<Holder<Enchantment>>of();
         var current = effects(input());
+        data.set(ACTIVE_DRAW, active ? 1 : 0);
+        if (!active) mask = 0;
+        if (serverMode == Mode.SEAL) {
+            var settings = SealRules.RULES.selection(device.discTypes(), firstSealDraw(stored), treasure);
+            data.set(PRICE, table.formed() ? SealRules.RULES.price(table.strength()) : 0);
+            data.set(TREASURES, treasure ? 1 : 0);
+            data.set(RISK, negatives(current).isEmpty() ? 0 : SealRules.RULES.risk(settings));
+            var negative = active ? findRune(stored.getString(NEGATIVE)) : null;
+            data.set(NEGATIVE_INDEX, negative == null ? -1 : catalogue.indexOf(negative));
+        }
         for (int i = 0; i < batch.size(); i++) {
             var rune = batch.get(i);
             int level = rune == null || !canWrite(rune, table.strength(), current) ? 0 : selectedLevel(rune, i, table.strength());
-            packed |= Math.min(15, level) << (4 * i);
+            if (i < 4) packed |= Math.min(15, level) << (4 * i);
+            else upper |= Math.min(15, level) << (4 * (i - 4));
             if (level == 0) mask &= ~(1 << i);
             else if ((mask & (1 << i)) != 0) ink += RULES.ink(rune, 0, level);
         }
         data.set(MASK, mask);
         data.set(LEVELS, packed);
+        data.set(LEVELS_HIGH, upper);
         data.set(COST, ink);
     }
 
+    private int maxLevel(Holder<Enchantment> rune, int strength) {
+        return Math.min(15, serverMode == Mode.SEAL ? SealRules.RULES.level(rune, strength) : RULES.maxLevel(rune, strength));
+    }
+
+    private boolean drawableHere(Holder<Enchantment> rune) {
+        return serverMode == Mode.SEAL ? SealRules.drawable(rune, treasure) : drawable(rune);
+    }
+
     private int selectedLevel(Holder<Enchantment> rune, int i, int strength) {
-        int max = Math.min(15, RULES.maxLevel(rune, strength));
+        int max = maxLevel(rune, strength);
         return selectedLevels[i] == 0 ? max : Math.min(selectedLevels[i], max);
     }
 
@@ -292,29 +355,40 @@ public final class EnchantingMenu extends AbstractContainerMenu {
     }
 
     private boolean canWrite(Holder<Enchantment> rune, int strength, Map<Holder<Enchantment>, Integer> current) {
-        return !input().isEmpty() && !input().is(Items.ENCHANTED_BOOK) && drawable(rune)
-                && !current.containsKey(rune) && RULES.maxLevel(rune, strength) > 0
+        return !input().isEmpty() && !input().is(Items.ENCHANTED_BOOK) && drawableHere(rune)
+                && !current.containsKey(rune) && maxLevel(rune, strength) > 0
                 && (input().is(Items.BOOK) || rune.value().isSupportedItem(input())) && compatible(rune, current);
     }
 
     private int enchant(ServerPlayer player, int button) {
         if (catalogue.isEmpty()) return INVALID;
         var table = table();
-        var batch = batch();
+        boolean seal = serverMode == Mode.SEAL;
+        if (seal && !table.formed()) return STRUCTURE;
+        var stored = read(input());
+        var batch = activeBatch(table, stored) ? batch() : List.<Holder<Enchantment>>of();
         var current = effects(input());
         var rune = catalogue.get(index);
+        if (seal && button == TREASURE) {
+            treasure = !treasure;
+            mask = 0;
+            return READY;
+        }
         if (button == FOCUS) {
             if (!table.focused() || !canWrite(rune, table.strength(), current)) return INVALID;
             preference = preference == index ? -1 : index;
             return READY;
         }
-        if (button == LAPIS || button == XP) return roll(player, button, table, batch, current);
+        if (button == DRAW || button == XP) {
+            if (seal) return button == DRAW ? rollSeal(player, table, batch, current, stored) : INVALID;
+            return roll(player, button, table, current);
+        }
         if (button == UPGRADE || button == WASH) {
             int old = current.getOrDefault(rune, 0);
             if (!supported(rune, old) || input().is(Items.ENCHANTED_BOOK)) return INVALID;
             int next = button == WASH ? 0 : old + 1;
-            if (next > 0 && (!drawable(rune) || !rune.value().isSupportedItem(input())
-                    || next > RULES.maxLevel(rune, table.strength()))) return INVALID;
+            if (next > 0 && (!drawableHere(rune) || !rune.value().isSupportedItem(input())
+                    || next > maxLevel(rune, table.strength()))) return INVALID;
             int fee = next == 0 ? RULES.wash_ink() : RULES.ink(rune, old, next);
             if (!hasInk(fee)) return MATERIALS;
             if (next == 0) current.remove(rune);
@@ -325,7 +399,7 @@ public final class EnchantingMenu extends AbstractContainerMenu {
         if (button == WRITE) {
             int count = Integer.bitCount(mask);
             int max = table.formed() && table.strength() >= RULES.double_strength() ? 2 : 1;
-            if (count < 1 || count > max) return INVALID;
+            if (batch.isEmpty() || count < 1 || count > max) return INVALID;
             int cost = 0;
             for (int i = 0; i < batch.size(); i++) {
                 if ((mask & (1 << i)) == 0) continue;
@@ -335,16 +409,21 @@ public final class EnchantingMenu extends AbstractContainerMenu {
                 current.put(chosen, level);
                 cost += RULES.ink(chosen, 0, level);
             }
+            if (seal && !stored.getString(NEGATIVE).isEmpty()) {
+                var penalty = findRune(stored.getString(NEGATIVE));
+                if (penalty == null || !negatives(current).contains(penalty)) return INCOMPATIBLE;
+                current.put(penalty, 1);
+            }
             if (!hasInk(cost)) return MATERIALS;
             apply(current, cost);
             return COMPLETE;
         }
-        int row = button - SELECT;
-        if (row < 0 || row >= 16 || row % 4 >= batch.size()) return INVALID;
-        int slot = row % 4;
+        int action = button - SELECT;
+        if (action < 0 || action >= 4 * MAX_DRAW_ROWS || action % MAX_DRAW_ROWS >= batch.size()) return INVALID;
+        int slot = action % MAX_DRAW_ROWS;
         var chosen = batch.get(slot);
         if (chosen == null || !canWrite(chosen, table.strength(), current)) return INVALID;
-        if (row < 4) {
+        if (button < RAISE) {
             int next = mask ^ (1 << slot);
             int max = table.formed() && table.strength() >= RULES.double_strength() ? 2 : 1;
             if (max == 1 && (next & (1 << slot)) != 0) next = 1 << slot;
@@ -354,8 +433,8 @@ public final class EnchantingMenu extends AbstractContainerMenu {
                         && !Enchantment.areCompatible(chosen, batch.get(i))) return INCOMPATIBLE;
             }
             mask = next;
-        } else if (row >= 8 && row < 12) {
-            if (!table.formed() || table.strength() < RULES.lock_strength() || read(input()).getBoolean(REDRAWN)) return INVALID;
+        } else if (button >= HOLD && button < LOWER) {
+            if (!seal || table.strength() < RULES.lock_strength()) return INVALID;
             update(input(), tag -> {
                 boolean unset = key(chosen).equals(tag.getString(HELD));
                 tag.putString(HELD, unset ? "" : key(chosen));
@@ -363,9 +442,9 @@ public final class EnchantingMenu extends AbstractContainerMenu {
             });
             previousInput = input().copy();
         } else {
-            int increment = row < 8 ? 1 : -1;
-            selectedLevels[slot] = Math.clamp(selectedLevel(chosen, slot, table.strength()) + increment, 1,
-                    Math.min(15, RULES.maxLevel(chosen, table.strength())));
+            int increment = button < HOLD ? 1 : -1;
+            selectedLevels[slot] = Math.clamp(selectedLevel(chosen, slot, table.strength()) + increment,
+                    1, maxLevel(chosen, table.strength()));
             if (slot == heldIndex()) {
                 update(input(), tag -> tag.putInt(HELD_LEVEL, selectedLevels[slot]));
                 previousInput = input().copy();
@@ -374,19 +453,43 @@ public final class EnchantingMenu extends AbstractContainerMenu {
         return READY;
     }
 
-    private int roll(ServerPlayer player, int source, EnchantingStructure.Table table, List<Holder<Enchantment>> last,
+    private int rollSeal(ServerPlayer player, EnchantingStructure.Table table, List<Holder<Enchantment>> last,
+            Map<Holder<Enchantment>, Integer> current, CompoundTag stored) {
+        var discs = device.discTypes();
+        var selection = SealRules.RULES.selection(discs, firstSealDraw(stored), treasure);
+        var pool = catalogue.stream().filter(rune -> SealRules.drawable(rune, selection.treasure())
+                && canWrite(rune, table.strength(), current)).toList();
+        if (pool.isEmpty()) return INVALID;
+        var locked = findRune(stored.getString(HELD));
+        if (locked != null && (!last.contains(locked) || !pool.contains(locked) || table.strength() < RULES.lock_strength())) locked = null;
+        if (pool.size() == 1 && locked != null) return INVALID;
+
+        var access = SpiritStoneSources.open(player);
+        var copies = access.copies();
+        if (!SpiritStoneStorage.remove(copies, SpiritStoneStorage.ordinary(ModItems.LOW_GRADE_SPIRIT_STONE.toStack()),
+                SealRules.RULES.price(table.strength()))) return SPIRIT_STONES;
+        var result = SealDraw.choose(pool, last, locked, selection, player.getRandom());
+        if (result.isEmpty()) return INVALID;
+        var penalties = negatives(current);
+        String negative = !penalties.isEmpty() && player.getRandom().nextInt(100) < SealRules.RULES.risk(selection)
+                ? key(penalties.get(player.getRandom().nextInt(penalties.size()))) : "";
+        int heldLevel = locked == null ? 0 : Math.clamp(stored.getInt(HELD_LEVEL), 1, maxLevel(locked, table.strength()));
+        var next = input().copy();
+        saveDraw(next, result, locked == null ? "" : key(locked), heldLevel,
+                SealRules.signature(table.strength(), treasure, discs), negative);
+        if (!access.commit(copies)) return SPIRIT_STONES;
+        work.setItem(INPUT, next);
+        syncInput();
+        mask = locked == null ? 0 : 1;
+        device.animate(1);
+        return READY;
+    }
+
+    private int roll(ServerPlayer player, int source, EnchantingStructure.Table table,
             Map<Holder<Enchantment>, Integer> current) {
         var pool = new ArrayList<>(catalogue.stream().filter(rune -> canWrite(rune, table.strength(), current)).toList());
-        var data = read(input());
-        String held = data.getString(HELD);
-        var result = new ArrayList<Holder<Enchantment>>();
-        if (table.formed() && table.strength() >= RULES.lock_strength() && !data.getBoolean(REDRAWN)) {
-            pool.stream().filter(rune -> key(rune).equals(held) && last.contains(rune)).findFirst().ifPresent(result::add);
-        }
-        pool.removeAll(result);
         if (pool.isEmpty()) return INVALID;
-        boolean retained = !result.isEmpty();
-        if (source == LAPIS) {
+        if (source == DRAW) {
             if (work.getItem(MATERIAL).getCount() < RULES.lapis_cost()) return MATERIALS;
             work.getItem(MATERIAL).shrink(RULES.lapis_cost());
         } else {
@@ -395,6 +498,7 @@ public final class EnchantingMenu extends AbstractContainerMenu {
                 return MATERIALS;
             player.giveExperiencePoints(-fee);
         }
+        var result = new ArrayList<Holder<Enchantment>>();
         while (result.size() < table.candidates() && !pool.isEmpty()) {
             int total = pool.stream().mapToInt(rune -> weight(rune, table)).sum();
             int ticket = player.getRandom().nextInt(total);
@@ -406,13 +510,10 @@ public final class EnchantingMenu extends AbstractContainerMenu {
                 }
             }
         }
-        int heldLevel = retained ? data.getInt(HELD_LEVEL) : 0;
-        saveDraw(input(), result, retained ? held : "", heldLevel);
+        saveDraw(input(), result, "", 0);
         previousInput = input().copy();
-        mask = retained ? 1 : 0;
-        java.util.Arrays.fill(selectedLevels, 0);
-        selectedLevels[0] = heldLevel;
-        if (serverMode == Mode.SEAL) device.animate(1);
+        mask = 0;
+        Arrays.fill(selectedLevels, 0);
         return READY;
     }
 

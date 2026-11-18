@@ -10,6 +10,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 public final class EnchantingStructure {
     private static final JsonObject LAYOUT = EnchantingRules.read("structures", JsonObject.class);
@@ -38,20 +41,64 @@ public final class EnchantingStructure {
     }
 
     public static Block blockFor(Cell cell, boolean library) {
+        if (!library && cell.part().equals("minecraft:deepslate_brick_slab")) return Blocks.DEEPSLATE_BRICK_SLAB;
         return EnchantingContent.PARTS.get(library ? "library_" + cell.part() : cell.part()).get();
     }
 
-    static boolean matches(Level level, BlockPos origin, Direction front, boolean library) {
-        for (var cell : library ? LIBRARY : SEAL) {
+    static BlockState rawState(Cell cell) {
+        var block = blockFor(cell, false);
+        return block == Blocks.DEEPSLATE_BRICK_SLAB
+                ? block.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.BOTTOM).setValue(SlabBlock.WATERLOGGED, false)
+                : block.defaultBlockState();
+    }
+
+    /** Unloaded cells suspend operation without treating an unloaded chunk as a broken structure. */
+    record Check(int missing, boolean unloaded) {
+        boolean matched() { return missing == 0 && !unloaded; }
+    }
+
+    static Check checkSeal(Level level, BlockPos origin, Direction front, boolean formed) {
+        int missing = 0;
+        boolean unloaded = false;
+        for (int i = 0; i < SEAL.size(); i++) {
+            var cell = SEAL.get(i);
             var pos = offset(origin, front, cell.x(), cell.y(), cell.z());
-            if (!level.isLoaded(pos) || !level.getBlockState(pos).is(blockFor(cell, library))) return false;
+            if (!level.isLoaded(pos)) {
+                unloaded = true;
+                continue;
+            }
+            var expected = formed ? SealMemberBlock.part(i, front) : rawState(cell);
+            if (level.getBlockState(pos) != expected) missing++;
         }
-        return library || level.getBlockState(origin.below()).is(EnchantingContent.SOCKET.get());
+        var socket = origin.below();
+        if (!level.isLoaded(socket)) unloaded = true;
+        else if (!(level.getBlockEntity(socket) instanceof EnchantingDevice device)
+                || !device.getBlockState().is(EnchantingContent.SOCKET.get())
+                || device.getBlockState().getValue(EnchantingBlock.FORMED) != formed) missing++;
+        return new Check(missing, unloaded);
+    }
+
+    static boolean matches(Level level, BlockPos origin, Direction front, boolean library) {
+        if (!library) return checkSeal(level, origin, front, true).matched();
+        for (var cell : LIBRARY) {
+            var pos = offset(origin, front, cell.x(), cell.y(), cell.z());
+            if (!level.isLoaded(pos) || !level.getBlockState(pos).is(blockFor(cell, true))) return false;
+        }
+        return true;
     }
 
     static Table table(Level level, BlockPos origin, Direction front, boolean seal) {
-        boolean formed = seal && matches(level, origin, front, false);
-        int base = formed ? RULES.seal_candidates() : RULES.candidates();
+        if (seal) {
+            if (!(level.getBlockEntity(origin) instanceof EnchantingDevice device)
+                    || !device.formed() || !checkSeal(level, origin, front, true).matched()) {
+                return new Table(0, 0, false, false);
+            }
+            int base = level.getBlockEntity(origin.below()) instanceof EnchantingDevice socket
+                    ? Math.max(RULES.empty_cap(), socket.stoneStrength()) : RULES.empty_cap();
+            return new Table(SealRules.RULES.strength(base, device.discTypes()),
+                    SealRules.RULES.draw_slots(), false, true);
+        }
+        int base = RULES.candidates();
         int strength = 0;
         int choices = 0;
         boolean focus = false;
@@ -73,6 +120,6 @@ public final class EnchantingStructure {
         if (level.getBlockEntity(origin.below()) instanceof EnchantingDevice device
                 && device.getBlockState().is(EnchantingContent.SOCKET.get())) cap = Math.max(cap, device.stoneStrength());
         return new Table(Math.min(cap, Math.min(strength, RULES.shelf_cap())),
-                Math.min(RULES.maximum_candidates(), base + choices), focus, formed);
+                Math.min(RULES.maximum_candidates(), base + choices), focus, false);
     }
 }

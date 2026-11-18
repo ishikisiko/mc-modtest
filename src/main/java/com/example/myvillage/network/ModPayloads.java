@@ -28,7 +28,8 @@ public final class ModPayloads {
     // 协议71增加测试 NPC 的功法、熟练度和自动施放配置。
     // 协议76增加服务器拥有的洲域、城镇入场报幕。
     // 协议79为取物器增加蓝图选择与搭建确认。
-    public static final String PROTOCOL_VERSION = "79";
+    // 协议80增加篆纹阵投影交互与六行附魔界面。
+    public static final String PROTOCOL_VERSION = "80";
 
     private ModPayloads() {
     }
@@ -39,6 +40,11 @@ public final class ModPayloads {
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToServer(com.example.myvillage.enchanting.SealProjectionIntent.TYPE,
+                com.example.myvillage.enchanting.SealProjectionIntent.STREAM_CODEC,
+                (intent, context) -> context.enqueueWork(() -> {
+                    if (context.player() instanceof ServerPlayer player) intent.handle(player);
+                }));
         registrar.playToClient(com.example.myvillage.arrival.ArrivalPayload.TYPE,
                 com.example.myvillage.arrival.ArrivalPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> com.example.myvillage.arrival.ArrivalPayload.receive(payload)));

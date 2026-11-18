@@ -2,6 +2,8 @@ package com.example.myvillage.client.enchanting;
 
 import com.example.myvillage.enchanting.EnchantingDevice;
 import com.example.myvillage.enchanting.EnchantingRules;
+import com.example.myvillage.enchanting.SealProjection;
+import net.minecraft.client.Minecraft;
 import com.example.myvillage.enchanting.EnchantingStructure;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -53,7 +55,7 @@ public final class EnchantingRenderer implements BlockEntityRenderer<EnchantingD
 
     @Override public void render(EnchantingDevice device, float partial, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         var level = device.getLevel();
-        if (level == null || !device.formed()) return;
+        if (level == null || !device.formed() || !device.library() && !device.seal()) return;
         var motion = motions.computeIfAbsent(device, key -> new Motion());
         float time = (level.getGameTime() % 72000) + partial;
         Direction front = device.front();
@@ -72,13 +74,21 @@ public final class EnchantingRenderer implements BlockEntityRenderer<EnchantingD
                         center.getY() + 7.2, center.getZ() + .5 + 3.4 * Mth.sin(a), 0, .017, 0);
             }
         } else {
-            seal(pose, buffers, light, motion.at(time, device.pose()), time);
+            long started = device.formedAt();
+            float formation = started == Long.MIN_VALUE ? 1
+                    : Mth.clamp((level.getGameTime() - started + partial) / 24F, 0, 1);
+            var player = Minecraft.getInstance().player;
+            var hit = formation > .9f && player != null ? SealProjection.pick(player, device.getBlockPos(), front) : null;
+            CasketRenderer.render(pose, buffers, light, motion.at(time, device.pose()), formation,
+                    device.discTypes(), hit == null ? -1 : hit.slot());
         }
         pose.popPose();
     }
 
     @Override public AABB getRenderBoundingBox(EnchantingDevice device) {
         var pos = device.library() ? EnchantingStructure.libraryCenter(device.getBlockPos(), device.front()) : device.getBlockPos();
+        if (device.seal()) return new AABB(pos.getX() - 7, pos.getY() - 1, pos.getZ() - 7,
+                pos.getX() + 8, pos.getY() + 5, pos.getZ() + 8);
         return new AABB(pos.getX() - 6, pos.getY() - 1, pos.getZ() - 6, pos.getX() + 7, pos.getY() + 14, pos.getZ() + 7);
     }
 
@@ -127,43 +137,6 @@ public final class EnchantingRenderer implements BlockEntityRenderer<EnchantingD
         }
         draw(pose, buffers, vertices, material, light);
     }
-
-    static void seal(PoseStack pose, MultiBufferSource buffers, int light, float phase, float time) {
-        for (int i = 0; i < 4; i++) {
-            float angle = 45 + 90 * i;
-            pose.pushPose();
-            pose.mulPose(Axis.YP.rotationDegrees(-angle));
-            pose.translate(5.25f, 3.60f, 0);
-            pose.mulPose(Axis.YP.rotationDegrees(blend(19, -18, 0, phase)));
-            pose.mulPose(Axis.ZP.rotationDegrees(blend(-41, -13, 13, phase)));
-            float slide = blend(0, .3f, 1.18f, phase);
-            box(pose, buffers, -.52f, -.19f, -.42f, .68f, .37f, .84f, "bronze", light);
-            box(pose, buffers, -1.62f, -.21f, -.52f, 1.25f, .42f, 1.04f, "slate", light);
-            box(pose, buffers, -1.39f, .204f, -.31f, .72f, .11f, .62f, "jade", light);
-            box(pose, buffers, -2.60f - slide, -.13f, -.27f, 1.32f + slide, .26f, .54f, "bronze", light);
-            box(pose, buffers, -2.34f - slide, -.21f, -.54f, .86f, .43f, 1.08f, "jade", light);
-            box(pose, buffers, -3.17f - slide, -.17f, -.43f, .90f, .35f, .86f, "slate", light);
-            for (float side : new float[]{-.47f, .38f})
-                box(pose, buffers, -2.7f - slide, .209f, side, 1.11f, .07f, .09f, "brass", light);
-            box(pose, buffers, -2.32f - slide, .225f, -.25f, .48f, .065f, .5f, "violet", phase > .8f ? FULL_LIGHT : light);
-            pose.popPose();
-        }
-        pose.pushPose();
-        pose.translate(0, blend(4.63f, 3.93f, 2.67f, phase) + .055f * Mth.sin(time / 8), 0);
-        pose.mulPose(Axis.YP.rotationDegrees(blend(-24, -10, 0, phase)));
-        pose.mulPose(Axis.XP.rotationDegrees(blend(26, 13, 0, phase)));
-        box(pose, buffers, -.29f, .42f, -.29f, .58f, .28f, .58f, "brass", light);
-        box(pose, buffers, -.58f, .12f, -.58f, 1.16f, .32f, 1.16f, "slate", light);
-        box(pose, buffers, -.47f, -.16f, -.47f, .94f, .30f, .94f, "violet", phase > .7f ? FULL_LIGHT : light);
-        box(pose, buffers, -.33f, -.27f, -.33f, .66f, .13f, .66f, "glow", FULL_LIGHT);
-        pose.popPose();
-        if (phase > 1.7f) for (int i = 0; i < 4; i++) {
-            float h = 1.08f + i * .33f + .10f * Mth.sin(time * .7f);
-            box(pose, buffers, -.045f, h, -.045f, .09f, .15f, .09f, "glow", FULL_LIGHT);
-        }
-    }
-
-    private static float blend(float a, float b, float c, float t) { return t <= 1 ? Mth.lerp(t, a, b) : Mth.lerp(t - 1, b, c); }
 
     static void box(PoseStack pose, MultiBufferSource buffers, float x, float y, float z,
             float w, float h, float d, String material, int light) {

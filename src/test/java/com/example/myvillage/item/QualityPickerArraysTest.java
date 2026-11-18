@@ -20,7 +20,7 @@ final class QualityPickerArraysTest {
     @Test void everyRotationKeepsTheFloorAndUsesOneRectangularClearance() {
         var floor = new BlockPos(14, 72, -15);
         var sizes = Map.of(ALCHEMY, new int[]{3, 3, 3, 27}, FORGING, new int[]{5, 5, 5, 125},
-                SEAL, new int[]{9, 7, 9, 109}, LIBRARY, new int[]{11, 13, 11, 345});
+                SEAL, new int[]{13, 7, 13, 133}, LIBRARY, new int[]{11, 13, 11, 345});
 
         for (Direction front : Direction.Plane.HORIZONTAL) for (var specimen : sizes.entrySet()) {
             var plan = QualityPickerArrays.blueprint(specimen.getKey(), floor, front);

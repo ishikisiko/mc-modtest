@@ -2,6 +2,7 @@ package com.example.myvillage.enchanting;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -15,23 +16,26 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 final class EnchantingBlock extends Block implements EntityBlock {
+    static final BooleanProperty FORMED = BooleanProperty.create("formed");
     private final String kind;
 
     EnchantingBlock(String kind, Properties properties) {
         super(properties);
         this.kind = kind;
-        registerDefaultState(stateDefinition.any().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.SOUTH));
+        registerDefaultState(stateDefinition.any().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.SOUTH).setValue(FORMED, false));
     }
 
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(BlockStateProperties.HORIZONTAL_FACING);
+        builder.add(BlockStateProperties.HORIZONTAL_FACING, FORMED);
     }
 
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -44,6 +48,10 @@ final class EnchantingBlock extends Block implements EntityBlock {
 
     @Override protected BlockState mirror(BlockState state, Mirror mirror) {
         return rotate(state, mirror.getRotation(state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
+    }
+
+    @Override protected RenderShape getRenderShape(BlockState state) {
+        return state.getValue(FORMED) ? RenderShape.INVISIBLE : RenderShape.MODEL;
     }
 
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new EnchantingDevice(pos, state); }
@@ -67,7 +75,12 @@ final class EnchantingBlock extends Block implements EntityBlock {
         if (player instanceof ServerPlayer server && !server.isSpectator() && level.getBlockEntity(pos) instanceof EnchantingDevice device) {
             switch (kind) {
                 case "enchanting_socket" -> device.exchangeStone(server);
-                case "seal_table" -> EnchantingContent.open(server, EnchantingMenu.Mode.SEAL, pos, device);
+                case "seal_table" -> {
+                    if (device.formed()) {
+                        if (device.verifyStructure()) EnchantingContent.open(server, EnchantingMenu.Mode.SEAL, pos, device);
+                        else server.displayClientMessage(Component.literal("阵台无法核对全部方块。"), true);
+                    } else device.form(server);
+                }
                 case "library_port" -> EnchantingContent.open(server, EnchantingMenu.Mode.LIBRARY, pos, device);
                 default -> throw new IllegalStateException(kind);
             }
@@ -76,9 +89,15 @@ final class EnchantingBlock extends Block implements EntityBlock {
     }
 
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState next, boolean moved) {
-        if (!state.is(next.getBlock()) && !level.isClientSide && kind.equals("enchanting_socket")
+        if (!state.is(next.getBlock()) && level instanceof ServerLevel server
                 && level.getBlockEntity(pos) instanceof EnchantingDevice device) {
-            Block.popResource(level, pos, device.removeStone());
+            if (kind.equals("seal_table")) {
+                device.unform(pos);
+                device.dropDiscs(server);
+            } else if (kind.equals("enchanting_socket")) {
+                if (level.getBlockEntity(pos.above()) instanceof EnchantingDevice seal && seal.seal()) seal.unform(pos);
+                Block.popResource(level, pos, device.removeStone());
+            }
         }
         super.onRemove(state, level, pos, next, moved);
     }

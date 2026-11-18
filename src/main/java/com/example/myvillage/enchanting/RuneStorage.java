@@ -25,7 +25,8 @@ public final class RuneStorage {
     static final String CANDIDATES = "ArrayCandidates";
     static final String HELD = "ArrayHeld";
     static final String HELD_LEVEL = "ArrayHeldLevel";
-    static final String REDRAWN = "ArrayRedrawn";
+    static final String SEAL = "ArraySeal";
+    static final String NEGATIVE = "ArrayNegative";
 
     static CompoundTag read(ItemStack stack) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
@@ -40,7 +41,8 @@ public final class RuneStorage {
             tag.remove(CANDIDATES);
             tag.remove(HELD);
             tag.remove(HELD_LEVEL);
-            tag.remove(REDRAWN);
+            tag.remove(SEAL);
+            tag.remove(NEGATIVE);
         });
     }
 
@@ -49,13 +51,19 @@ public final class RuneStorage {
     }
 
     static void saveDraw(ItemStack stack, List<Holder<Enchantment>> batch, String held, int heldLevel) {
+        saveDraw(stack, batch, held, heldLevel, "", "");
+    }
+
+    static void saveDraw(ItemStack stack, List<Holder<Enchantment>> batch, String held, int heldLevel,
+            String seal, String negative) {
         var list = new ListTag();
         batch.forEach(rune -> list.add(StringTag.valueOf(key(rune))));
         update(stack, tag -> {
             tag.put(CANDIDATES, list);
             tag.putString(HELD, held);
             tag.putInt(HELD_LEVEL, heldLevel);
-            tag.putBoolean(REDRAWN, !held.isEmpty());
+            tag.putString(SEAL, seal);
+            tag.putString(NEGATIVE, negative);
         });
     }
 
@@ -64,7 +72,7 @@ public final class RuneStorage {
     }
 
     static boolean supported(Holder<Enchantment> rune, int level) {
-        return rune.unwrapKey().isPresent() && !rune.is(EnchantmentTags.CURSE) && points(level) > 0 && level <= rune.value().getMaxLevel();
+        return rune.unwrapKey().isPresent() && !rune.is(EnchantmentTags.CURSE) && points(level) > 0 && level <= SealRules.RULES.supportedMax(rune);
     }
 
     static boolean drawable(Holder<Enchantment> rune) {

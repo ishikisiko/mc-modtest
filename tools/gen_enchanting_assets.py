@@ -2,6 +2,8 @@
 import argparse
 import io
 import json
+import re
+from PIL import ImageColor
 from pathlib import Path
 import sys
 
@@ -79,26 +81,69 @@ def form(part, color):
             b([6, 6, 0], [10, 10, 16], "brass"), b([0, 6, 6], [16, 10, 10], "bronze")]
 
 
+def glyph_paths(path):
+    edges, current, start = [], (0, 0), (0, 0)
+    for op, raw in re.findall(r"([MHLVZ])([^MHLVZ]*)", path):
+        values = list(map(float, raw.split()))
+        if op == "M":
+            current = start = tuple(values)
+            continue
+        end = {"H": lambda: (values[0], current[1]), "V": lambda: (current[0], values[0]),
+               "L": lambda: tuple(values), "Z": lambda: start}[op]()
+        edges.append((current, end))
+        current = end
+    return edges
+
+
+def projection(disc):
+    tile = Image.new("RGBA", (96, 144))
+    draw = ImageDraw.Draw(tile)
+    tone = ImageColor.getrgb(disc["color"])
+    def pos(point):
+        return (round(point[0] * .96), round(point[1] * .90))
+    outline = [(29, 13), (71, 13), (71, 19), (81, 19), (81, 27), (85, 27),
+               (85, 123), (77, 123), (77, 135), (23, 135), (23, 128), (15, 128),
+               (15, 28), (20, 28), (20, 20), (29, 20)]
+    draw.polygon([pos(p) for p in outline], fill=(*tone, 42))
+    strokes = [
+        ("M29 14 H71 V20 H81 V30 M19 30 V44 M19 76 V110 H24 V122 M81 44 V90 M81 101 V116 H75", 1, 138),
+        ("M34 25 H64 M33 105 H68 M36 113 H55 M40 119 H61", 1, 105),
+        (disc["motif"], 2, 225), (disc["edge"], 1, 164),
+    ]
+    for path, width, opacity in strokes:
+        for near, far in glyph_paths(path):
+            draw.line([pos(near), pos(far)], fill=(87, 65, 56, opacity // 2), width=width+2)
+            draw.line([pos(near), pos(far)], fill=(*tone, opacity), width=width)
+    if disc["role"] == "empty":
+        tile.putalpha(tile.getchannel("A").point(lambda alpha: alpha * 5 // 9))
+    return tile
+
+
 def diagram(layout, y):
-    colors = {"seal_tile": "#536b70", "seal_rack": "#b08b61", "seal_pivot": "#549888",
-              "seal_table": "#9f77ad", "enchanting_socket": "#c49d5b"}
+    colors = {"seal_tile": ("1", "#536b70"), "enchanting_socket": ("2", "#b08b61"),
+              "seal_pivot": ("3", "#549888"), "seal_table": ("4", "#9f77ad"),
+              "minecraft:deepslate_brick_slab": ("5", "#707c81")}
     cells = {(x, z): part for x, layer, z, part in layout if layer == y}
-    image = Image.new("RGB", (352, 220), "#202e32")
+    image = Image.new("RGB", (482, 256), "#202e32")
     draw = ImageDraw.Draw(image)
-    for x in range(-4, 5):
-        for z in range(-4, 5):
-            part = cells.get((x, z))
-            left, top = 24 + 20 * (x + 4), 12 + 20 * (z + 4)
-            draw.rectangle((left, top, left + 18, top + 18), fill=colors.get(part, "#293b3d"), outline="#70908a")
-            if part:
-                draw.text((left + 5, top + 4), str(list(colors).index(part) + 1), fill="#f6f0df")
-    draw.polygon([(114, 194), (109, 207), (119, 207)], fill="#dfcd9d")
+    for x in range(-6, 7):
+        for z in range(-6, 7):
+            symbol, color = colors.get(cells.get((x, z)), ("", "#293b3d"))
+            left, top = 15 + 16 * (x + 6), 10 + 16 * (z + 6)
+            draw.rectangle((left, top, left + 15, top + 15), fill=color, outline="#70908a")
+            if symbol:
+                draw.text((left + 5, top + 3), symbol, fill="#f6f0df")
+    draw.polygon([(119, 225), (114, 238), (124, 238)], fill="#dfcd9d")
     for x, h, z, part in sorted(layout, key=lambda row: (row[0] + row[2], row[1])):
         if h > y:
             continue
-        a, b = 276 + (x - z) * 8, 167 + (x + z) * 4 - h * 12
-        top = colors[part] if h == y else "#4e5d58"
-        draw.polygon([(a - 8, b), (a, b + 4), (a + 8, b), (a + 8, b + 6), (a, b + 10), (a - 8, b + 6)], fill="#28323a")
+        a, b = 355 + (x - z) * 8, 137 + (x + z) * 4 - h * 12
+        top = colors[part][1] if h == y else "#4e5d58"
+        depth = 4 if part == "minecraft:deepslate_brick_slab" else 8
+        if depth == 4:
+            b += 4
+        draw.polygon([(a - 8, b), (a, b + 4), (a + 8, b), (a + 8, b + depth),
+                      (a, b + 4 + depth), (a - 8, b + depth)], fill="#28323a")
         draw.polygon([(a - 8, b), (a, b - 4), (a + 8, b), (a, b + 4)], fill=top, outline="#9b9b84")
     return image
 
@@ -171,6 +216,9 @@ def outputs(root, namespace):
     data = resource / "data" / namespace
     parts = json.loads((cfg / "parts.json").read_text())
     rules = json.loads((cfg / "rules.json").read_text())
+    casket = json.loads((cfg / "casket.json").read_text())
+    discs = json.loads((cfg / "discs.json").read_text())
+    seal_rules = json.loads((cfg / "seal_rules.json").read_text())
     structures = json.loads((cfg / "structures.json").read_text())
     out = {}
     tr = {}
@@ -212,7 +260,34 @@ def outputs(root, namespace):
             out[data / f"recipe/{name}.json"] = encoded({"type": "minecraft:crafting_shapeless",
                 "ingredients": [{"item": loc(ingredient)} for ingredient in ingredients],
                 "result": {"id": loc(name), "count": count}})
-    for name in ("structures", "rules", "rings"):
+    for name, color in casket["palette"].items():
+        out[asset / f"textures/block/enchanting/casket/{name}.png"] = png(material(name, ImageColor.getrgb(color)))
+    for key, disc in discs.items():
+        imprint = projection(disc)
+        out[asset / f"textures/block/enchanting/projection/{key}.png"] = png(imprint)
+        if key == "empty":
+            continue
+        name = "seal_disc_" + key
+        tr[f"item.{namespace}.{name}"] = disc["name"]
+        icon = Image.new("RGBA", (16, 16))
+        draw = ImageDraw.Draw(icon)
+        draw.polygon([(5, 2), (11, 2), (13, 4), (13, 12), (11, 14), (4, 14),
+                      (3, 12), (3, 4)], fill="#354039", outline=disc["color"])
+        for near, far in glyph_paths(disc["motif"]):
+            pos = lambda point: (round(3 + point[0] / 10), round(2 + point[1] / 9))
+            draw.line([pos(near), pos(far)], fill=disc["color"], width=1)
+        out[asset / f"textures/item/{name}.png"] = png(icon)
+        out[asset / f"models/item/{name}.json"] = encoded({
+            "parent": "minecraft:item/generated", "textures": {"layer0": loc("item/" + name)}})
+        out[data / f"recipe/{name}.json"] = encoded({
+            "type": "minecraft:crafting_shapeless", "ingredients": [{"item": loc(i)} for i in disc["ingredients"]],
+            "result": {"id": loc(name), "count": 1}})
+    hidden = loc("block/seal_member")
+    out[asset / "blockstates/seal_member.json"] = encoded({"variants": {"": {"model": hidden}}})
+    out[asset / "models/block/seal_member.json"] = encoded({
+        "textures": {"particle": loc("block/enchanting/slate")}, "elements": []})
+    out[data / "loot_table/blocks/seal_member.json"] = encoded({"type": "minecraft:block", "pools": []})
+    for name in ("structures", "rules", "rings", "casket", "discs", "seal_rules"):
         out[data / f"enchanting/{name}.json"] = (cfg / f"{name}.json").read_bytes()
     lang = asset / "lang/zh_cn.json"
     prior = load_language(lang.read_text())
@@ -226,13 +301,16 @@ def outputs(root, namespace):
         out[path] = encoded(tag)
     mineable = resource / "data/minecraft/tags/block/mineable/pickaxe.json"
     tag = json.loads(mineable.read_text())
-    tag["values"] = sorted(set(tag["values"]) | {loc(part) for part in parts if part in FRONT or part.startswith(("library_", "seal_"))})
+    tag["values"] = sorted(set(tag["values"]) | {loc("seal_member")}
+                           | {loc(part) for part in parts if part in FRONT or part.startswith(("library_", "seal_"))})
     out[mineable] = encoded(tag)
     layout = structures["seal"] + [[0, -1, 0, "enchanting_socket"], [0, 0, 0, "seal_table"]]
     assert len({tuple(row[:3]) for row in layout}) == len(layout)
     assert len(structures["library"]) == 345 and [0, 1, 5, "port"] in structures["library"]
     assert rules["shelf_cap"] == max(row["strength"] for row in rules["stones"])
-    for y in (-1, 0, 1, 2, 3):
+    assert len(casket["slots"]) == 16 and seal_rules["prices"][-1]["through"] == seal_rules["strength_cap"]
+    assert all(disc["role"] in {"front", "direction", "method", "empty"} for disc in discs.values())
+    for y in (-1, 0, 1):
         out[root / f"guidebook/getting_started/seal_array/placement_{y + 2}.png"] = png(diagram(layout, y))
     for name, image in starter_diagrams(cfg / "starter_placement.json"):
         out[root / f"guidebook/getting_started/enchanting_table/{name}.png"] = png(image)

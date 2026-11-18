@@ -47,7 +47,7 @@ public final class QualityPickerArrays {
     private static final Map<ServerPlayer, Pending> PENDING = new WeakHashMap<>();
     private static long nextTicket;
     private static final int FLAGS = Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS;
-    private static final int SEAL_FRONT = 4;
+    private static final int SEAL_FRONT = 6;
 
     public enum Layout {
         NONE(0, "关闭快捷搭建"),
@@ -79,7 +79,7 @@ public final class QualityPickerArrays {
     public record Build(Layout layout, BlockPos controller, Direction front, List<Cell> cells) {
         public BoundingBox bounds() {
             var box = BoundingBox.encapsulatingPositions(cells.stream().map(Cell::pos).toList()).orElseThrow();
-            // Leave room above the actual components for the folded and extended seal arms.
+            // Leave room above the actual components for the open casket lids and stamp.
             return layout == Layout.SEAL
                     ? new BoundingBox(box.minX(), box.minY(), box.minZ(), box.maxX(), controller.getY() + 5, box.maxZ())
                     : box;

@@ -68,16 +68,29 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
     }
 
     private void table() {
-        for (int i = 0; i < 4; i++) {
+        boolean seal = layout == Mode.SEAL;
+        for (int i = 0; i < (seal ? MAX_DRAW_ROWS : 4); i++) {
             final int row = i;
-            int y = 35 + 17 * i;
+            int y = seal ? 33 + 16 * i : 35 + 17 * i;
             button(136, y, 91, () -> candidate(row), SELECT + i, () -> menu.level(row) > 0, "选中这条附魔");
             button(229, y, 14, "−", LOWER + i, () -> menu.level(row) > 1);
             button(243, y, 14, "＋", RAISE + i, () -> menu.level(row) > 0);
-            button(261, y, 34, () -> menu.heldIndex() == row ? "已留" : "留纹", HOLD + i,
-                    () -> menu.level(row) > 0 && menu.canHold(), "成阵且强度达到 12 时，下一次抽选保留这条");
+            if (seal) button(261, y, 34, () -> menu.heldIndex() == row && menu.canHold() ? "已锁" : "锁定", HOLD + i,
+                    () -> menu.level(row) > 0 && menu.canHold(),
+                    "阵力达到 " + RULES.lock_strength() + " 时可锁定一条。续抽会保留它和选定的等级。");
         }
-        button(136, 104, 48, "青金石", LAPIS, () -> !menu.input().isEmpty());
+        if (seal) {
+            button(136, 131, 61, () -> "抽取 " + menu.price() + "石", DRAW,
+                    () -> menu.formed() && !menu.input().isEmpty(), "每次抽取按当前阵力消耗下品灵石，可从灵石袋支付。");
+            button(199, 131, 48, () -> menu.treasures() ? "宝藏 开" : "宝藏 关", TREASURE, menu::formed,
+                    "开启后，适用的宝藏附魔加入候选，附带负面词条的概率升高。再抽一次即可采用当前设置。");
+            button(249, 131, 46, () -> "刻写 " + menu.cost(), WRITE, () -> menu.mask() != 0, "刻写消耗按钮所示的灵墨。");
+            chooser(10, 131, 113);
+            button(77, 111, 22, () -> "升", UPGRADE, () -> menu.existing() > 0, "将选中的已有附魔升一级。");
+            button(101, 111, 22, () -> "洗", WASH, () -> menu.existing() > 0, "用灵墨洗去选中的已有附魔。");
+            return;
+        }
+        button(136, 104, 48, "青金石", DRAW, () -> !menu.input().isEmpty());
         button(187, 104, 49, "经验 ×3", XP, () -> !menu.input().isEmpty());
         button(239, 104, 56, () -> "刻写 " + menu.cost() + "墨", WRITE, () -> menu.mask() != 0, "");
         button(136, 123, 16, "‹", PREVIOUS, () -> !menu.catalogue().isEmpty());
@@ -111,8 +124,10 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
         button(238, 103, 57, "开炉", WRITE, () -> !menu.input().isEmpty());
     }
 
-    private void chooser(int y) {
-        var button = new EngravedButton(leftPos + 155, topPos + y, 120, 15, Component.empty(), b -> {
+    private void chooser(int y) { chooser(155, y, 120); }
+
+    private void chooser(int x, int y, int width) {
+        var button = new EngravedButton(leftPos + x, topPos + y, width, 15, Component.empty(), b -> {
             if (menu.catalogue().isEmpty()) return;
             choosing = true;
             runePage = menu.selection() / RUNES_PER_PAGE;
@@ -198,7 +213,8 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
 
     private boolean visibleSlot(int slot) {
         return switch (layout) {
-            case TABLE, SEAL -> slot <= 2;
+            case TABLE -> slot <= 2;
+            case SEAL -> slot <= 1;
             case STONE -> slot == 0 || slot == 4;
             case LIBRARY -> true;
         };
@@ -222,11 +238,7 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
                 EnchantingRenderer.box(pose, buffers, side * 3.55f - .3f, 1.85f, -.35f, .6f, 6.4f, .7f, "bronze", FULL_LIGHT);
             EnchantingRenderer.library(pose, buffers, FULL_LIGHT, time);
         } else if (layout == Mode.SEAL) {
-            EnchantingRenderer.box(pose, buffers, -4.5f, -.19f, -4.5f, 9, .19f, 9, "slate", FULL_LIGHT);
-            for (int a : new int[]{-4, 4}) for (int b : new int[]{-4, 4})
-                EnchantingRenderer.box(pose, buffers, a - .34f, 0, b - .34f, .68f, 3.65f, .68f, "jade", FULL_LIGHT);
-            EnchantingRenderer.box(pose, buffers, -.47f, 0, -.47f, .94f, .76f, .94f, "rose", FULL_LIGHT);
-            EnchantingRenderer.seal(pose, buffers, FULL_LIGHT, menu.mask() == 0 ? 1 : 2, time);
+            CasketRenderer.render(pose, buffers, FULL_LIGHT, menu.mask() == 0 ? 1 : 2, 1, List.of(), -1);
         } else {
             EnchantingRenderer.box(pose, buffers, -2.5f, -.3f, -2.5f, 5, .3f, 5, "slate", FULL_LIGHT);
             EnchantingRenderer.box(pose, buffers, -.5f, 0, -.5f, 1, .75f, 1, layout == Mode.STONE ? "bronze" : "rose", FULL_LIGHT);
@@ -241,20 +253,28 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
         g.drawString(font, title, 10, 11, INK, false);
         String info = switch (layout) {
             case TABLE -> "附魔强度 " + menu.strength();
-            case SEAL -> (menu.formed() ? "成阵" : "未成阵") + "   强度 " + menu.strength()
+            case SEAL -> (menu.formed() ? "成阵" : "未成阵") + "   阵力 " + menu.strength() + " / "
+                    + com.example.myvillage.enchanting.SealRules.RULES.strength_cap()
                     + (menu.formed() && menu.strength() >= RULES.double_strength() ? "   可同刻两条" : "");
             case LIBRARY -> menu.formed() ? "阵枢已接通" : "藏纹匣 · 存取附魔书";
             case STONE -> "普通炼器鼎";
         };
         print(g, info, 293 - font.width(info), 11, MUTED);
-        print(g, menu.status(), 10, 144, MUTED);
+        String status = menu.status();
+        if (layout == Mode.SEAL) status = font.plainSubstrByWidth(status, 132);
+        print(g, status, 10, layout == Mode.SEAL ? 150 : 144, MUTED);
         print(g, "行囊", 10, 164, MUTED);
         print(g, layout == Mode.STONE ? "阵材" : "器物", 24, 100, MUTED);
         if (layout != Mode.STONE) {
             print(g, "灵墨", 50, 100, MUTED);
-            print(g, layout == Mode.LIBRARY ? "空书" : "青金石", 76, 100, MUTED);
+            if (layout != Mode.SEAL) print(g, layout == Mode.LIBRARY ? "空书" : "青金石", 76, 100, MUTED);
         }
-        if (layout == Mode.LIBRARY) {
+        if (layout == Mode.SEAL && !choosing) {
+            var curse = menu.negative();
+            String warning = curse == null ? "下次负面概率 " + menu.risk() + "%"
+                    : "本轮附带 " + curse.value().description().getString();
+            print(g, warning, 294 - font.width(warning), 150, curse == null ? MUTED : 0xff8a3b49);
+        } else if (layout == Mode.LIBRARY) {
             print(g, "玉简", 102, 100, MUTED);
             print(g, "出书", 78, 138, MUTED);
             if (choosing) return;

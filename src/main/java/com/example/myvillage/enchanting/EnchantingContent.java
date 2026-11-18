@@ -8,6 +8,7 @@ import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -23,6 +24,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -42,12 +44,22 @@ public final class EnchantingContent {
     private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MyVillageMod.MOD_ID);
     static final Map<String, DeferredBlock<? extends Block>> PARTS = new LinkedHashMap<>();
     static final Map<String, DeferredItem<Item>> STONES = new LinkedHashMap<>();
+    private static final Map<String, DeferredItem<Item>> DISCS = new LinkedHashMap<>();
+    static final DeferredBlock<SealMemberBlock> MEMBER = BLOCKS.register("seal_member",
+            () -> new SealMemberBlock(properties()));
 
     public static final DeferredBlock<EnchantingBlock> SOCKET = device("enchanting_socket");
     public static final DeferredBlock<EnchantingBlock> SEAL = device("seal_table");
     public static final DeferredBlock<EnchantingBlock> PORT = device("library_port");
     public static final DeferredItem<Item> SLIP = ITEMS.registerSimpleItem("loadout_slip", new Item.Properties().stacksTo(1));
     static {
+        for (String key : SealDisc.keys()) {
+            DISCS.put(key, ITEMS.register("seal_disc_" + key, () -> new Item(new Item.Properties().stacksTo(16)) {
+                @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
+                    lines.add(Component.literal(SealDisc.TYPES.get(key).description()));
+                }
+            }));
+        }
         for (var stone : RULES.stones()) {
             STONES.put(stone.id(), ITEMS.registerSimpleItem(stone.id()));
         }
@@ -69,6 +81,7 @@ public final class EnchantingContent {
             .displayItems((params, out) -> {
                 PARTS.values().forEach(part -> out.accept(part.get()));
                 STONES.values().forEach(stone -> out.accept(stone.get()));
+                DISCS.values().forEach(disc -> out.accept(disc.get()));
                 out.accept(SLIP.get());
             }).build());
 

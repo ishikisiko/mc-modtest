@@ -4287,5 +4287,16 @@
   "item.yuanxian.loadout_slip": "配装玉简",
   "item.yuanxian.array_stone": "入门阵石",
   "item.yuanxian.array_stone_refined": "凝纹阵石",
-  "item.yuanxian.array_stone_supreme": "合印阵石"
+  "item.yuanxian.array_stone_supreme": "合印阵石",
+  "item.yuanxian.seal_disc_copper": "铜背篆牒",
+  "item.yuanxian.seal_disc_crystal": "紫晶篆牒",
+  "item.yuanxian.seal_disc_pairing": "搭配篆牒",
+  "item.yuanxian.seal_disc_mineral": "矿产定向篆牒",
+  "item.yuanxian.seal_disc_repair": "养器定向篆牒",
+  "item.yuanxian.seal_disc_weapon": "兵刃定向篆牒",
+  "item.yuanxian.seal_disc_reserve": "保底刻法篆牒",
+  "item.yuanxian.seal_disc_bundle": "成组刻法篆牒",
+  "item.yuanxian.seal_disc_plain": "普通刻法篆牒",
+  "item.yuanxian.seal_disc_treasure": "宝藏刻法篆牒",
+  "item.yuanxian.seal_disc_risky": "险刻篆牒"
 }

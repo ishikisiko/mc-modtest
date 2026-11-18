@@ -1,0 +1,147 @@
+{
+  "copper": {
+    "name": "铜背篆牒",
+    "role": "front",
+    "color": "#e4ce9e",
+    "motif": "M25 35 H75 V45 H60 V61 H49 V78 H64 V87 H37 V71 H39 V53 H25 Z",
+    "edge": "M24 52 H33 M65 55 H75 V70 H66 M48 95 H53",
+    "description": "增加 5 点阵力。",
+    "ingredients": [
+      "minecraft:copper_ingot",
+      "minecraft:paper"
+    ]
+  },
+  "crystal": {
+    "name": "紫晶篆牒",
+    "role": "front",
+    "color": "#d9b5f0",
+    "motif": "M50 32 L72 56 L50 84 L28 56 Z M50 32 V84 M28 56 H72 M41 46 L59 67",
+    "edge": "M23 77 V88 H38 M76 40 V32 H66 M43 94 H57",
+    "description": "首抽多给一条候选。",
+    "ingredients": [
+      "minecraft:amethyst_shard",
+      "minecraft:copper_ingot",
+      "minecraft:paper"
+    ]
+  },
+  "pairing": {
+    "name": "搭配篆牒",
+    "role": "front",
+    "color": "#efae93",
+    "motif": "M32 30 H50 V41 H42 V58 H32 Z M50 53 H69 V68 H62 V85 H50 Z",
+    "edge": "M25 41 V72 H39 V81 M60 42 H76 V72 H69 M33 94 H63",
+    "description": "首抽更容易给出彼此相容的候选。",
+    "ingredients": [
+      "minecraft:gold_ingot",
+      "minecraft:copper_ingot",
+      "minecraft:paper"
+    ]
+  },
+  "mineral": {
+    "name": "矿产定向篆牒",
+    "role": "direction",
+    "color": "#d3b479",
+    "motif": "M50 32 L66 48 L50 62 L34 48 Z M30 61 L42 74 L30 86 L18 74 Z M70 61 L82 74 L70 86 L58 74 Z",
+    "edge": "M24 91 H76 M50 62 V88",
+    "description": "提高矿物掉落类词条的抽取权重。",
+    "ingredients": [
+      "minecraft:raw_gold",
+      "minecraft:paper"
+    ]
+  },
+  "repair": {
+    "name": "养器定向篆牒",
+    "role": "direction",
+    "color": "#bfbd8a",
+    "motif": "M25 40 H75 M31 48 V80 H67 V48 M31 66 H67 M48 30 V58 H58 V86",
+    "edge": "M22 84 H33 M66 84 H77",
+    "description": "提高工具维护类词条的抽取权重。",
+    "ingredients": [
+      "minecraft:iron_ingot",
+      "minecraft:paper"
+    ]
+  },
+  "weapon": {
+    "name": "兵刃定向篆牒",
+    "role": "direction",
+    "color": "#e1a78f",
+    "motif": "M49 32 L58 45 V70 H42 V45 Z M30 72 H69 M49 70 V91",
+    "edge": "M29 48 H37 M68 49 H74 M44 91 H55",
+    "description": "提高武器伤害类词条的抽取权重。",
+    "ingredients": [
+      "minecraft:flint",
+      "minecraft:paper"
+    ]
+  },
+  "reserve": {
+    "name": "保底刻法篆牒",
+    "role": "method",
+    "color": "#cea289",
+    "motif": "M23 37 H77 V50 H65 V80 H35 V50 H23 Z M41 58 H59 V73 H41 Z",
+    "edge": "M51 36 V49 M28 91 H71",
+    "description": "续抽时，除锁定词条外再保留一条备选。",
+    "ingredients": [
+      "minecraft:gold_nugget",
+      "minecraft:paper"
+    ]
+  },
+  "bundle": {
+    "name": "成组刻法篆牒",
+    "role": "method",
+    "color": "#b6c8e9",
+    "motif": "M23 34 H44 V65 H23 Z M56 55 H77 V86 H56 Z M44 51 H65 V55 M35 65 V74 H56",
+    "edge": "M29 43 H38 M29 51 H38 M62 65 H70 M62 73 H70",
+    "description": "抽取时优先给出一对相容候选。",
+    "ingredients": [
+      "minecraft:string",
+      "minecraft:paper"
+    ]
+  },
+  "plain": {
+    "name": "普通刻法篆牒",
+    "role": "method",
+    "color": "#9cc6b6",
+    "motif": "M24 43 H76 M31 58 H69 M40 74 H60",
+    "edge": "M26 82 V91 H74 V82",
+    "description": "这组抽取使用普通词条池。",
+    "ingredients": [
+      "minecraft:polished_deepslate",
+      "minecraft:paper"
+    ]
+  },
+  "treasure": {
+    "name": "宝藏刻法篆牒",
+    "role": "method",
+    "color": "#dcc180",
+    "motif": "M24 40 H76 V79 H24 Z M50 46 L64 59 L50 73 L36 59 Z",
+    "edge": "M50 30 V38 M50 79 V89 M31 92 H69",
+    "description": "开启宝藏后，提高宝藏词条的抽取权重。",
+    "ingredients": [
+      "minecraft:gold_ingot",
+      "minecraft:amethyst_shard",
+      "minecraft:paper"
+    ]
+  },
+  "risky": {
+    "name": "险刻篆牒",
+    "role": "method",
+    "color": "#dd9788",
+    "motif": "M48 33 L28 62 H49 L40 88 L73 52 H54 L63 33 Z",
+    "edge": "M21 79 H31 M70 76 H79 M25 42 H36",
+    "description": "开启宝藏后，进一步提高宝藏权重和附带负面词条的概率。",
+    "ingredients": [
+      "minecraft:redstone",
+      "minecraft:amethyst_shard",
+      "minecraft:paper"
+    ]
+  },
+  "empty": {
+    "name": "空槽",
+    "role": "empty",
+    "color": "#a1b4ae",
+    "motif": "M35 48 V39 H45 M55 39 H65 V48 M35 71 V80 H45 M55 80 H65 V71",
+    "edge": "M50 55 V64 M46 59 H54",
+    "description": "空槽。",
+    "ingredients": []
+  }
+}

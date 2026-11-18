@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.139.0
+
+- 篆纹阵按切角地基、两侧承枢和六段低台搭建，由中央阵台核验成型。印函的十六个小槽对应外侧投影，玩家可通过投影装卸十一种篆牒。
+- 阵力上限提高到 50。首抽可扩大候选，续抽可继续保留一条锁定词条。宝藏开关允许抽取适用的宝藏附魔，同时提高附带负面词条的概率。
+- 篆纹阵抽取改用下品灵石，支持从灵石袋支付。朱砂灵墨仍用于刻写。游戏内指南更新了三层搭法、投影操作和计费。
+
 ## 0.138.0-fix1
 
 - 修复部分种子因开局矿场选址用尽而无法进入修仙世界的问题。矿场支路可以转弯，沿用既有官道标高，并在陆地和原土方限制内确定入口高度。
