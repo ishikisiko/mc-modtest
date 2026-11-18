@@ -12,7 +12,7 @@ navigation:
 
 ## 从正面定位
 
-每张图都从上方俯看，下边是阵器正面。横坐标从左到右为 −5 至 5，纵坐标从后到前为 −5 至 5。第一层贴地。**藏纹匣位于第 2 层前沿中央**，横坐标为 0，纵坐标为 5，匣口朝向站在阵器正面的玩家。
+每张摆放图左边是本层的俯视坐标，下边是阵器正面。横坐标从左到右为 −5 至 5，纵坐标从后到前为 −5 至 5。右边从固定角度显示本层所在的位置，亮色方块是本层要放的部件，灰色方块是已经摆好的下层。第一层贴地。**藏纹匣位于第 2 层前沿中央**，横坐标为 0，纵坐标为 5，匣口朝向站在阵器正面的玩家。
 
 1. 铺第 1 至 3 层石座，在正面留下藏纹匣的位置。从第 2 层起，按图向上搭左右承轴。
 2. 按图从第 3 层起逐步合拢竖阵环，从第 4 层起立中轴。第 6 层开始摆斜阵环，玉芯在第 7 至 9 层围绕中轴展开。
@@ -36,19 +36,37 @@ navigation:
 
 ## 从底到顶逐层摆放
 
-![第 1 至 2 层，石座、承轴起点和藏纹匣](./cangwen_array/layers_01_02.png)
+### 底座与藏纹匣
 
-![第 3 至 4 层，收拢石座并立起竖阵环与中轴](./cangwen_array/layers_03_04.png)
+![第 1 层，铺底层石座](./cangwen_array/placement_01.png)
 
-![第 5 至 6 层，竖阵环继续上升，开始搭斜阵环](./cangwen_array/layers_05_06.png)
+![第 2 层，摆放藏纹匣和承轴起点](./cangwen_array/placement_02.png)
 
-![第 7 至 8 层，安装玉芯、横阵环和共用轴节点](./cangwen_array/layers_07_08.png)
+![第 3 层，收拢石座并接上竖阵环](./cangwen_array/placement_03.png)
 
-![第 9 至 10 层，补齐斜阵环并继续收拢竖阵环](./cangwen_array/layers_09_10.png)
+### 三道阵环与玉芯
 
-![第 11 至 12 层，合拢竖阵环并开始安装轴冠](./cangwen_array/layers_11_12.png)
+![第 4 层，向上立承轴、竖阵环与中轴](./cangwen_array/placement_04.png)
 
-![第 13 层，阵顶正中放上最后一格轴冠](./cangwen_array/layers_13_13.png)
+![第 5 层，继续搭承轴和竖阵环](./cangwen_array/placement_05.png)
+
+![第 6 层，开始搭斜阵环](./cangwen_array/placement_06.png)
+
+![第 7 层，围绕中轴放置玉芯](./cangwen_array/placement_07.png)
+
+![第 8 层，接通横阵环和共用轴节点](./cangwen_array/placement_08.png)
+
+![第 9 层，补上玉芯上层和斜阵环](./cangwen_array/placement_09.png)
+
+![第 10 层，补齐斜阵环并收拢竖阵环](./cangwen_array/placement_10.png)
+
+### 阵顶与轴冠
+
+![第 11 层，接近竖阵环顶部](./cangwen_array/placement_11.png)
+
+![第 12 层，合拢竖阵环并安装下方轴冠](./cangwen_array/placement_12.png)
+
+![第 13 层，正中放置上轴冠](./cangwen_array/placement_13.png)
 
 按设计，藏纹匣可以单独存取附魔。三道阵环接通后，阵器才开放装备调换。玩家从正面放入装备和配装玉简，确认前可以查看将收回和取用的附魔点数，以及本次所需的朱砂灵墨。
 
