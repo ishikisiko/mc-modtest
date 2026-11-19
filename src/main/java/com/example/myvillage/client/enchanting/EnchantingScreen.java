@@ -80,8 +80,8 @@ public final class EnchantingScreen extends AbstractContainerScreen<EnchantingMe
                     "阵力达到 " + RULES.lock_strength() + " 时可锁定一条。续抽会保留它和选定的等级。");
         }
         if (seal) {
-            button(136, 131, 61, () -> "抽取 " + menu.price() + "石", DRAW,
-                    () -> menu.formed() && !menu.input().isEmpty(), "每次抽取按当前阵力消耗下品灵石，可从灵石袋支付。");
+            button(136, 131, 61, () -> "抽取 " + menu.price() + menu.priceGrade(), DRAW,
+                    () -> menu.formed() && !menu.input().isEmpty(), "每次抽取按阵力消耗对应品级的灵石，可从灵石袋支付。");
             button(199, 131, 48, () -> menu.treasures() ? "宝藏 开" : "宝藏 关", TREASURE, menu::formed,
                     "开启后，适用的宝藏附魔加入候选，附带负面词条的概率升高。再抽一次即可采用当前设置。");
             button(249, 131, 46, () -> "刻写 " + menu.cost(), WRITE, () -> menu.mask() != 0, "刻写消耗按钮所示的灵墨。");

@@ -115,6 +115,30 @@ class SpiritStoneBagTest {
         assertFalse(SpiritStoneStorage.remove(inventory, SpiritStoneTags::isLowGrade, 11)); assertEquals(10, count(inventory));
         assertTrue(SpiritStoneStorage.remove(inventory, SpiritStoneTags::isLowGrade, 9)); assertEquals(1, count(inventory));
     }
+    @Test void exactMediumFeePaysFromBagWithoutUsingOtherGrades() {
+        var mediumTag = SpiritStoneDenominations.get().tiers().get(1).tag();
+        BuiltInRegistries.ITEM.bindTags(Map.of(
+                SpiritStoneStorage.BAGS, List.of(Items.BUNDLE.builtInRegistryHolder()),
+                SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, List.of(Items.EMERALD.builtInRegistryHolder()),
+                mediumTag, List.of(Items.DIAMOND.builtInRegistryHolder())));
+        try {
+            var lower = new ItemStack(Items.EMERALD, 64);
+            var medium = new ItemStack(Items.DIAMOND, 2);
+            var wallet = bag(lower, medium);
+            var accepts = SpiritStoneStorage.ordinary(medium);
+            assertTrue(SpiritStoneStorage.remove(List.of(wallet), accepts, 1));
+            assertEquals(BigInteger.ONE, SpiritStoneStorage.count(wallet, accepts));
+            assertEquals(BigInteger.valueOf(64), SpiritStoneStorage.count(wallet, SpiritStoneStorage.ordinary(lower)));
+
+            var lowerOnly = bag(lower);
+            var before = lowerOnly.copy();
+            assertFalse(SpiritStoneStorage.remove(List.of(lowerOnly), accepts, 1));
+            assertTrue(ItemStack.matches(before, lowerOnly));
+        } finally {
+            BuiltInRegistries.ITEM.bindTags(Map.of(mediumTag, List.of()));
+        }
+    }
+
     @Test void purchasesAndRestReadBagFundsAndLeaveOriginalUntouched() {
         var inventory = List.of(bag(new ItemStack(Items.EMERALD, 8)), new ItemStack(Items.EMERALD, 2), ItemStack.EMPTY);
         var plan = CommerceInventory.plan(inventory, "minecraft:emerald", offer("buy", 2, 7));

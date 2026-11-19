@@ -4,7 +4,6 @@ import static com.example.myvillage.enchanting.EnchantingRules.RULES;
 import static com.example.myvillage.enchanting.EnchantingRules.key;
 import static com.example.myvillage.enchanting.RuneStorage.*;
 
-import com.example.myvillage.item.ModItems;
 import com.example.myvillage.spiritstone.SpiritStoneSources;
 import com.example.myvillage.spiritstone.SpiritStoneStorage;
 import java.util.ArrayList;
@@ -53,12 +52,13 @@ public final class EnchantingMenu extends AbstractContainerMenu {
     private static final int MODE = 0, STRENGTH = 1, FORMED = 2, FOCUSED = 3, INDEX = 4, STATUS = 5,
             MASK = 6, LEVELS = 7, TARGET_LEVEL = 8, POINTS = 9, MAX_RECORDED = 10, DRAFT_LEVEL = 11,
             COST = 12, PREFERENCE = 13, PRESET_INDEX = 14, FEASIBLE = 15, TAKEN = 16, RETURNED = 17, POINTS_HIGH = 18,
-            LEVELS_HIGH = 19, PRICE = 20, TREASURES = 21, RISK = 22, NEGATIVE_INDEX = 23, ACTIVE_DRAW = 24;
+            LEVELS_HIGH = 19, PRICE = 20, TREASURES = 21, RISK = 22, NEGATIVE_INDEX = 23, ACTIVE_DRAW = 24,
+            PRICE_GRADE = 25;
     private static final int READY = 0, COMPLETE = 1, INVALID = 2, MATERIALS = 3, STRUCTURE = 4,
             INCOMPATIBLE = 5, INVENTORY = 6, REQUIREMENTS = 7, SPIRIT_STONES = 8;
 
     private final SimpleContainer work = new SimpleContainer(SLOT_COUNT);
-    private final SimpleContainerData data = new SimpleContainerData(25);
+    private final SimpleContainerData data = new SimpleContainerData(26);
     private final Player viewer;
     private final BlockPos origin;
     private final EnchantingDevice device;
@@ -121,6 +121,7 @@ public final class EnchantingMenu extends AbstractContainerMenu {
     public int mask() { return data.get(MASK); }
     public int level(int i) { return (data.get(i < 4 ? LEVELS : LEVELS_HIGH) >>> ((i % 4) * 4)) & 15; }
     public int price() { return data.get(PRICE); }
+    public String priceGrade() { return SealRules.Grade.values()[data.get(PRICE_GRADE)].label(); }
     public boolean treasures() { return data.get(TREASURES) != 0; }
     public int risk() { return data.get(RISK); }
     public Holder<Enchantment> negative() {
@@ -151,7 +152,7 @@ public final class EnchantingMenu extends AbstractContainerMenu {
             case INCOMPATIBLE -> "有词条不适用或互斥";
             case INVENTORY -> "库存、收录等级或容量不足";
             case REQUIREMENTS -> "境界、修为或材料不足";
-            case SPIRIT_STONES -> "下品灵石不足";
+            case SPIRIT_STONES -> priceGrade() + "灵石不足";
             default -> "";
         };
     }
@@ -286,7 +287,9 @@ public final class EnchantingMenu extends AbstractContainerMenu {
         if (!active) mask = 0;
         if (serverMode == Mode.SEAL) {
             var settings = SealRules.RULES.selection(device.discTypes(), firstSealDraw(stored), treasure);
-            data.set(PRICE, table.formed() ? SealRules.RULES.price(table.strength()) : 0);
+            var price = SealRules.RULES.price(table.strength());
+            data.set(PRICE, table.formed() ? price.stones() : 0);
+            data.set(PRICE_GRADE, price.grade().ordinal());
             data.set(TREASURES, treasure ? 1 : 0);
             data.set(RISK, negatives(current).isEmpty() ? 0 : SealRules.RULES.risk(settings));
             var negative = active ? findRune(stored.getString(NEGATIVE)) : null;
@@ -466,8 +469,10 @@ public final class EnchantingMenu extends AbstractContainerMenu {
 
         var access = SpiritStoneSources.open(player);
         var copies = access.copies();
-        if (!SpiritStoneStorage.remove(copies, SpiritStoneStorage.ordinary(ModItems.LOW_GRADE_SPIRIT_STONE.toStack()),
-                SealRules.RULES.price(table.strength()))) return SPIRIT_STONES;
+        var price = SealRules.RULES.price(table.strength());
+        if (!SpiritStoneStorage.remove(copies, SpiritStoneStorage.ordinary(price.grade().item()), price.stones())) {
+            return SPIRIT_STONES;
+        }
         var result = SealDraw.choose(pool, last, locked, selection, player.getRandom());
         if (result.isEmpty()) return INVALID;
         var penalties = negatives(current);

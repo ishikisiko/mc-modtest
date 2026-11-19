@@ -1,12 +1,16 @@
 package com.example.myvillage.enchanting;
 
+import com.example.myvillage.item.ModItems;
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 
 public record SealRules(int strength_cap, int copper_strength, int draw_slots, int max_draw_slots,
@@ -17,15 +21,37 @@ public record SealRules(int strength_cap, int copper_strength, int draw_slots, i
     private static final TagKey<Enchantment> TREASURE = TagKey.create(Registries.ENCHANTMENT,
             ResourceLocation.withDefaultNamespace("treasure"));
 
-    public record Price(int through, int stones) {}
+    public enum Grade {
+        @SerializedName("low") LOW("下品"),
+        @SerializedName("medium") MEDIUM("中品");
+
+        private final String label;
+
+        Grade(String label) { this.label = label; }
+
+        String label() { return label; }
+
+        ItemStack item() {
+            return switch (this) {
+                case LOW -> ModItems.LOW_GRADE_SPIRIT_STONE.toStack();
+                case MEDIUM -> ModItems.MEDIUM_GRADE_SPIRIT_STONE.toStack();
+            };
+        }
+    }
+
+    public record Price(int through, int stones, Grade grade) {
+        public Price {
+            Objects.requireNonNull(grade, "price grade");
+        }
+    }
     record Selection(int slots, String direction, String method, int pairing, boolean treasure, boolean first) {}
 
     public int strength(int base, List<String> discs) {
         return Math.min(strength_cap, base + copper_strength * count(discs, "copper"));
     }
 
-    int price(int strength) {
-        return prices.stream().filter(band -> strength <= band.through()).findFirst().orElse(prices.getLast()).stones();
+    Price price(int strength) {
+        return prices.stream().filter(band -> strength <= band.through()).findFirst().orElse(prices.getLast());
     }
 
     Selection selection(List<String> discs, boolean first, boolean treasure) {

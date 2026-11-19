@@ -11,9 +11,9 @@
   "treasure_risk": 20,
   "risky_risk": 35,
   "prices": [
-    {"through": 15, "stones": 3},
-    {"through": 30, "stones": 30},
-    {"through": 50, "stones": 1}
+    {"through": 15, "stones": 3, "grade": "low"},
+    {"through": 30, "stones": 30, "grade": "low"},
+    {"through": 50, "stones": 1, "grade": "medium"}
   ],
   "directions": {
     "mineral": ["minecraft:fortune", "minecraft:silk_touch"],

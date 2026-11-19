@@ -50,12 +50,15 @@ final class EnchantingTest {
 
     @Test void sealPriceUsesTheInclusiveBoundariesAndCopperCapsAtFifty() {
         var rules = SealRules.RULES;
-        assertEquals(3, rules.price(0));
-        assertEquals(3, rules.price(15));
-        assertEquals(30, rules.price(16));
-        assertEquals(30, rules.price(30));
-        assertEquals(1, rules.price(31));
-        assertEquals(1, rules.price(50));
+        var low = new SealRules.Price(15, 3, SealRules.Grade.LOW);
+        var middle = new SealRules.Price(30, 30, SealRules.Grade.LOW);
+        var high = new SealRules.Price(50, 1, SealRules.Grade.MEDIUM);
+        assertEquals(low, rules.price(0));
+        assertEquals(low, rules.price(15));
+        assertEquals(middle, rules.price(16));
+        assertEquals(middle, rules.price(30));
+        assertEquals(high, rules.price(31));
+        assertEquals(high, rules.price(50));
         assertEquals(50, rules.strength(15, java.util.Collections.nCopies(12, "copper")));
         assertEquals(14, rules.strength(4, java.util.List.of("copper", "crystal", "copper")));
     }

@@ -111,8 +111,8 @@ class CombatPayloadTest {
                 java.util.Arrays.stream(CombatImpactPayload.class.getRecordComponents())
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
-        // Current protocol also carries server-owned regional arrival announcements.
-        assertEquals("79", ModPayloads.PROTOCOL_VERSION);
+        // The seal draw quote now synchronizes the spirit-stone grade.
+        assertEquals("81", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

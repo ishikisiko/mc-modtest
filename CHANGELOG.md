@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.139.0-fix1
+
+- 篆纹阵阵力达到 31–50 时，每次抽取消耗 1 个中品灵石，支持从灵石袋扣除。界面和指南同步显示品级。
+
 ## 0.139.0
 
 - 篆纹阵按切角地基、两侧承枢和六段低台搭建，由中央阵台核验成型。印函的十六个小槽对应外侧投影，玩家可通过投影装卸十一种篆牒。

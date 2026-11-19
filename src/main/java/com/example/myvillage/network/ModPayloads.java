@@ -29,7 +29,8 @@ public final class ModPayloads {
     // 协议76增加服务器拥有的洲域、城镇入场报幕。
     // 协议79为取物器增加蓝图选择与搭建确认。
     // 协议80增加篆纹阵投影交互与六行附魔界面。
-    public static final String PROTOCOL_VERSION = "80";
+    // 协议81在篆纹阵菜单中同步抽取费用的灵石品级。
+    public static final String PROTOCOL_VERSION = "81";
 
     private ModPayloads() {
     }
