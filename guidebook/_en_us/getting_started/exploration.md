@@ -72,7 +72,7 @@ These branches do not gate the main route. Killing a warden is never required fo
 - **Wither** — Golden Core · Middle
   - Before summoning, clear important buildings and allies from the area. Bring sustained healing, ranged and close attacks, and supplies against the wither effect.
   - The summoning blast precedes the fight; attack eligibility changes at low health. Use a separate arena with an exit, away from towns.
-- **Direct warden challenge (optional)** — Golden Core · Late
+- **Direct warden challenge (optional)** — Nascent Soul · Early – Nascent Soul · Late
   - A direct warden fight is optional and never blocks the guide route. Sneak for loot, use wool to control sound and retreat promptly.
   - Warden sonic attacks pass through walls. Armor does not replace distance and an escape plan; a cramped shelter is not a safe zone.
 

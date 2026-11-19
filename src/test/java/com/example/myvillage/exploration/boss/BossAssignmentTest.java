@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BossAssignmentTest {
     private final BossRules rules = BossRules.get();
-    private final BossRules.Profile dragon = rules.forEntity("minecraft:ender_dragon").orElseThrow();
+    private final BossRules.Profile dragon = rules.forEntity("minecraft:ender_dragon").orElseThrow().variants().getFirst();
     private CompoundTag assigned() {
         var data = new CompoundTag();
         data.put(BossAssignment.BIRTH, BossAssignment.birth(dragon));
@@ -48,7 +48,7 @@ class BossAssignmentTest {
     @Test void persistedAssignmentCannotCrossEntityOrRealmAndRequiresExactNbtTypes() {
         assertTrue(BossAssignment.resolve(assigned(), "minecraft:wither", rules).isEmpty());
         var data = assigned();
-        data.getCompound(BossAssignment.REALM).putInt("stage", 2);
+        data.getCompound(BossAssignment.REALM).putInt("stage", 1);
         assertTrue(BossAssignment.resolve(data, dragon.entity(), rules).isEmpty());
         data = assigned();
         data.getCompound(BossAssignment.BIRTH).putDouble("stage", 0);
@@ -63,5 +63,17 @@ class BossAssignmentTest {
         data.getCompound(BossAssignment.BIRTH).putString("dimension", "minecraft:the_end");
         data.getCompound(BossAssignment.BIRTH).putInt("x", 300000);
         assertEquals(dragon, BossAssignment.resolve(data, dragon.entity(), rules).orElseThrow());
+    }
+    @Test void mixedWardenQualitiesSurviveSerializationAndRejectInvalidValues() {
+        var warden = rules.forEntity("minecraft:warden").orElseThrow()
+                .variant(new BossRules.Growth(1, 4, 1, 2)).orElseThrow();
+        var data = new CompoundTag();
+        data.put(BossAssignment.BIRTH, BossAssignment.birth(warden));
+        data.put(BossAssignment.REALM, BossAssignment.realm(warden));
+        assertEquals(warden, BossAssignment.resolve(data.copy(), warden.entity(), rules).orElseThrow());
+        data.getCompound(BossAssignment.BIRTH).putInt("nascent_soul_quality", 4);
+        assertTrue(BossAssignment.resolve(data, warden.entity(), rules).isEmpty());
+        data.getCompound(BossAssignment.BIRTH).putDouble("nascent_soul_quality", 2);
+        assertTrue(BossAssignment.resolve(data, warden.entity(), rules).isEmpty());
     }
 }

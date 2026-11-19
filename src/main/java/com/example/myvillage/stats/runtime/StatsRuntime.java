@@ -386,6 +386,11 @@ public final class StatsRuntime {
         result.put("realm", assignment.isEmpty() ? "unassigned" : assignment.getString("realm"));
         result.put("stage", assignment.isEmpty() ? null : assignment.getInt("stage"));
         result.put("growthModel", "additive");
+        com.example.myvillage.exploration.boss.BossRuntime.profile(entity).ifPresent(profile -> {
+            result.put("foundationQuality", profile.growth().foundation());
+            result.put("goldenCoreQuality", profile.growth().goldenCore());
+            result.put("nascentSoulQuality", profile.growth().nascentSoul());
+        });
         if (entity instanceof ServerPlayer player) {
             var p = CultivationService.getProfile(player);
             result.put("foundationQuality", p.foundationQuality());

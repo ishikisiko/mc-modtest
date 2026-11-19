@@ -18,6 +18,7 @@
     "EstatePlayerTeleportMixin",
     "CombatRulesMixin",
     "LivingDamageContainerAccess",
+    "ExplorationBossHealthMixin",
     "WitherChargeHealingMixin",
     "WorldPlanReservationMixin",
     "WorldPlanOreMixin",

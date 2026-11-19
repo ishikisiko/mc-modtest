@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.139.1
+
+- 远古守卫者、末影龙、凋灵和监守者在首领基础值上叠加修炼成长。它们的最大生命可以超过 1024 点，独立招式按原倍率加上攻击成长。
+- 监守者出生时独立抽取筑基、金丹、元婴品质以及元婴初、中、后期。品质和阶段随个体保存。
+
 ## 0.139.0-fix1
 
 - 篆纹阵阵力达到 31–50 时，每次抽取消耗 1 个中品灵石，支持从灵石袋扣除。界面和指南同步显示品级。

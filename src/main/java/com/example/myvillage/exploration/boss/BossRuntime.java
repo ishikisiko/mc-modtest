@@ -1,5 +1,6 @@
 package com.example.myvillage.exploration.boss;
 
+import com.example.myvillage.stats.runtime.ModStatsAttributes;
 import java.util.Optional;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +27,7 @@ public final class BossRuntime {
     public static final String REALM = BossAssignment.REALM;
     public static final ResourceLocation HEALTH = ResourceLocation.fromNamespaceAndPath("yuanxian", "exploration.boss_health");
     public static final ResourceLocation ATTACK = ResourceLocation.fromNamespaceAndPath("yuanxian", "exploration.boss_attack");
+    private static final ResourceLocation DEFENSE = ResourceLocation.fromNamespaceAndPath("yuanxian", "exploration.boss_defense");
     private BossRuntime() { }
 
     public static void register() {
@@ -52,15 +54,18 @@ public final class BossRuntime {
                 || !BossAssignment.mayAssign(entity.getPersistentData())) return;
         var selected = BossRules.get().forEntity(entityType(entity));
         if (selected.isEmpty()) return;
-        var p = selected.get();
         AttributeInstance health = entity.getAttribute(Attributes.MAX_HEALTH);
         AttributeInstance attack = entity.getAttribute(Attributes.ATTACK_DAMAGE);
+        AttributeInstance defense = entity.getAttribute(ModStatsAttributes.BODY_DEFENSE);
         // An incomplete externally supplied modifier must not be silently replaced.
-        if (health == null || health.hasModifier(HEALTH) || (attack != null && attack.hasModifier(ATTACK))
-                || health.getBaseValue() <= 0 || (p.attributeAttack() != null && (attack == null || attack.getBaseValue() <= 0))) return;
+        if (health == null || health.hasModifier(HEALTH) || defense == null || defense.hasModifier(DEFENSE)
+                || (attack != null && attack.hasModifier(ATTACK)) || health.getBaseValue() <= 0) return;
+        var p = selected.get().sample(entity.getRandom()::nextInt);
+        if (p.attributeAttack() != null && (attack == null || attack.getBaseValue() <= 0)) return;
         float oldHealth = entity.getHealth(), oldMaximum = entity.getMaxHealth();
-        add(health, HEALTH, p.health() / health.getBaseValue());
-        if (p.attributeAttack() != null) add(attack, ATTACK, p.attributeAttack() / attack.getBaseValue());
+        add(health, HEALTH, p.health() - health.getBaseValue());
+        if (p.attributeAttack() != null) add(attack, ATTACK, p.attributeAttack() - attack.getBaseValue());
+        add(defense, DEFENSE, p.bodyDefense());
         entity.setHealth(BossAssignment.adoptedHealth(oldHealth, oldMaximum, entity.getMaxHealth()));
         var birth = BossAssignment.birth(p);
         birth.putString("dimension", entity.level().dimension().location().toString());
@@ -70,8 +75,8 @@ public final class BossRuntime {
         entity.getPersistentData().put(REALM, BossAssignment.realm(p));
         // Saved modifiers restore max health before vanilla reads Health. Never reapply/heal on join.
     }
-    private static void add(AttributeInstance attribute, ResourceLocation id, double factor) {
-        attribute.addPermanentModifier(new AttributeModifier(id, factor - 1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    private static void add(AttributeInstance attribute, ResourceLocation id, double amount) {
+        attribute.addPermanentModifier(new AttributeModifier(id, amount, AttributeModifier.Operation.ADD_VALUE));
     }
     private static void damage(LivingIncomingDamageEvent event) {
         if (event.getEntity().level().isClientSide() || !(event.getSource().getEntity() instanceof LivingEntity attacker)) return;

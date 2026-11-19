@@ -43,7 +43,10 @@ def outputs(root=ROOT):
              if zh else 'These branches do not gate the main route. Killing a warden is never required for End progress; ancient cities can be looted stealthily with a planned retreat.'), ''])
         for route in data['side_routes']:
             boss = bosses[route['entity']]
-            lines.append('- **'+words['exploration.yuanxian.side.'+route['id']]+'** — '+realm(boss))
+            stages = boss['cultivation']['stages']
+            low, high = [realm({'realm': boss['realm'], 'stage': stage}) for stage in (min(stages), max(stages))]
+            band = low if low == high else words['exploration.yuanxian.range'] % (low, high)
+            lines.append('- **'+words['exploration.yuanxian.side.'+route['id']]+'** — '+band)
             for tip in route['tips']:
                 lines.append('  - '+words['exploration.yuanxian.tip.'+tip])
         lines.extend(['', '## '+('可选传送门门槛' if zh else 'Optional Portal Gates'), '',

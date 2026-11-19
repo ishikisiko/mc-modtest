@@ -5,6 +5,7 @@ import com.example.myvillage.combat.runtime.CombatDamageService;
 import com.example.myvillage.combat.session.CombatSession;
 import com.example.myvillage.exploration.boss.BossRules;
 import com.example.myvillage.exploration.boss.BossRuntime;
+import com.example.myvillage.stats.runtime.ModStatsAttributes;
 import com.example.myvillage.wilderness.runtime.VanillaMonsterRealms;
 import com.google.gson.*;
 import com.mojang.authlib.GameProfile;
@@ -46,12 +47,17 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class ExplorationV2Evidence {
   private static final boolean ENABLED =
       "1".equals(System.getenv("MYVILLAGE_EXPLORATION_V2_EVIDENCE"));
+  private static final boolean BOSS_ONLY =
+      "1".equals(System.getenv("MYVILLAGE_EXPLORATION_BOSS_GROWTH_ONLY"));
   private static final Path OUT = Path.of("../reports/exploration-v2-native");
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
   private static final List<Map<String, Object>> CHECKS = new ArrayList<>(),
       DAMAGE = new ArrayList<>();
   private static final List<String> COMPLETED = new ArrayList<>();
-  private static final List<String> INITIAL =
+  private static final List<String> INITIAL = BOSS_ONLY
+      ? List.of("loaded_fixture_regions", "boss_profiles", "dragon_native", "dragon_dying_receipt",
+          "wither_native", "warden_native", "elder_native", "save_fixture", "wither_charge_cycle")
+      :
       List.of(
           "loaded_fixture_regions",
           "end_birth_compatibility",
@@ -66,7 +72,7 @@ public final class ExplorationV2Evidence {
           "end_city_loot",
           "save_fixture",
           "wither_charge_cycle");
-  private static final List<String> RESTART =
+  private static final List<String> RESTART = BOSS_ONLY ? List.of("boss_actual_restart") :
       List.of("boss_actual_restart", "end_actual_restart", "loot_actual_restart");
   private static boolean finished, started;
   private static int ticks;
@@ -246,6 +252,7 @@ public final class ExplorationV2Evidence {
   private static BossRules.Profile profile(Mob mob) {
     var p = BossRuntime.profile(mob).orElseThrow();
     near("profile_health_" + p.id(), mob.getMaxHealth(), p.health());
+    near("profile_defense_" + p.id(), mob.getAttributeValue(ModStatsAttributes.BODY_DEFENSE), p.bodyDefense());
     if (p.attributeAttack() != null)
       near(
           "profile_attack_" + p.id(),
@@ -284,12 +291,7 @@ public final class ExplorationV2Evidence {
             UUID.nameUUIDFromBytes(name.getBytes(java.nio.charset.StandardCharsets.UTF_8)), name));
   }
 
-  private static void initial(MinecraftServer server) throws Exception {
-    var end = server.getLevel(Level.END);
-    var overworld = server.overworld();
-    BlockPos p = new BlockPos(80, 190, 80);
-    end.getChunk(p);
-    overworld.getChunk(p);
+  private static void ordinaryEndFixtures(ServerLevel end, BlockPos p) throws Exception {
     var ordinary = spawn(end, EntityType.ENDERMAN, p, MobSpawnType.NATURAL);
     check(
         "end_new_ordinary_assigned",
@@ -315,10 +317,32 @@ public final class ExplorationV2Evidence {
     done("end_birth_compatibility");
     shulkerReproduction(end);
     done("shulker_native_reproduction");
+  }
+
+  private static void initial(MinecraftServer server) throws Exception {
+    var end = server.getLevel(Level.END);
+    var overworld = server.overworld();
+    BlockPos p = new BlockPos(80, 190, 80);
+    end.getChunk(p);
+    overworld.getChunk(p);
+    if (!BOSS_ONLY) ordinaryEndFixtures(end, p);
     var elder = spawn(overworld, EntityType.ELDER_GUARDIAN, p, MobSpawnType.NATURAL);
     profile(elder);
     var warden = spawn(overworld, EntityType.WARDEN, p.offset(40, 0, 0), MobSpawnType.TRIGGERED);
-    profile(warden);
+    var actualWarden = profile(warden);
+    var combinations = new HashSet<BossRules.Growth>();
+    combinations.add(actualWarden.growth());
+    for (int i = 0; i < 12; i++) {
+      var candidate = spawn(overworld, EntityType.WARDEN, p.offset(40, 0, 0), MobSpawnType.TRIGGERED);
+      combinations.add(profile(candidate).growth());
+      candidate.discard();
+    }
+    check("warden_rolls_distinct_nascent_soul_configurations",
+        "yuanxian:nascent_soul".equals(actualWarden.realm().realmId()) && combinations.size() > 1, combinations);
+    var ordinaryHealth = victim(overworld, p.offset(2, 0, 0));
+    ordinaryHealth.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1200);
+    near("ordinary_entity_keeps_native_health_limit", ordinaryHealth.getMaxHealth(), 1024);
+    ordinaryHealth.discard();
     var wither = EntityType.WITHER.create(overworld);
     wither.moveTo(180, 190, 80, 0, 0);
     wither.makeInvulnerable();
@@ -379,10 +403,12 @@ public final class ExplorationV2Evidence {
     done("warden_native");
     elder(overworld, elder);
     done("elder_native");
-    portal(server);
-    done("portal_policy");
-    loot(end, server);
-    done("end_city_loot");
+    if (!BOSS_ONLY) {
+      portal(server);
+      done("portal_policy");
+      loot(end, server);
+      done("end_city_loot");
+    }
     SAVED.addAll(List.of(elder, warden, wither, dragon));
     var saved = new JsonObject();
     var entities = new JsonArray();
@@ -399,15 +425,16 @@ public final class ExplorationV2Evidence {
       row.addProperty("z", mob.getBlockZ());
       row.addProperty("health", mob.getHealth());
       row.addProperty("max", mob.getMaxHealth());
+      row.addProperty("defense", mob.getAttributeValue(ModStatsAttributes.BODY_DEFENSE));
       row.addProperty(
           "birth",
           mob.getPersistentData()
-              .getCompound(mob == ordinary ? VanillaMonsterRealms.BIRTH : BossRuntime.BIRTH)
+              .getCompound(mob instanceof EnderMan ? VanillaMonsterRealms.BIRTH : BossRuntime.BIRTH)
               .toString());
       entities.add(row);
     }
     saved.add("entities", entities);
-    saved.addProperty(
+    if (!BOSS_ONLY) saved.addProperty(
         "chest",
         ((ChestBlockEntity) end.getBlockEntity(CHEST))
             .saveWithoutMetadata(end.registryAccess())
@@ -883,16 +910,7 @@ public final class ExplorationV2Evidence {
                             || r.get("type").equals("minecraft:player_explosion"))
                         && r.get("victim").equals(targetId))
             .toList();
-    check(
-        "wither_skull_explosion_owned_and_capped",
-        hits.size() == 1
-            && ((Number) hits.getFirst().get("amount")).doubleValue()
-                <= BossRuntime.profile(wither)
-                    .orElseThrow()
-                    .damage()
-                    .get(BossRules.Channel.WITHER_SKULL_EXPLOSION)
-                    .maximum(),
-        hits);
+    check("wither_skull_explosion_owned", hits.size() == 1, hits);
     near(
         "wither_skull_explosion_scaled_once",
         ((Number) hits.getFirst().get("amount")).doubleValue(),
@@ -1144,6 +1162,9 @@ public final class ExplorationV2Evidence {
           "actual_restart_no_rescale_" + mob.getType(),
           mob.getMaxHealth(),
           row.get("max").getAsDouble());
+      near("actual_restart_defense_" + mob.getType(), mob.getAttributeValue(ModStatsAttributes.BODY_DEFENSE),
+          row.get("defense").getAsDouble());
+      if (!(mob instanceof EnderMan)) profile(mob);
       String key = mob instanceof EnderMan ? VanillaMonsterRealms.BIRTH : BossRuntime.BIRTH;
       check(
           "actual_restart_birth_" + mob.getType(),
@@ -1158,6 +1179,7 @@ public final class ExplorationV2Evidence {
             wb.getHealth());
     }
     done("boss_actual_restart");
+    if (BOSS_ONLY) return true;
     done("end_actual_restart");
     var end = server.getLevel(Level.END);
     end.getChunk(CHEST);

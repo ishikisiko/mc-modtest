@@ -24,8 +24,8 @@ public final class CultivationStatsRules {
         }
     }
     private final Body reference;
-    private final List<Body> mortal, qi, foundation, golden;
-    private final Body foundationMinor, goldenMinor, nascentBreakthrough, nascentMinor, spiritBreakthrough, spiritMinor;
+    private final List<Body> mortal, qi, foundation, golden, nascent;
+    private final Body foundationMinor, goldenMinor, nascentMinor, spiritBreakthrough, spiritMinor;
     private final int defaultFoundation, defaultGolden;
     private final double npcProdigyChance, npcUpperQualityChance;
     private final double transition, floor, maximumDefense;
@@ -43,7 +43,7 @@ public final class CultivationStatsRules {
         foundation = bodies(f.get("breakthrough"), 4); golden = bodies(g.get("breakthrough"), 3);
         foundationMinor = body(f.get("minor_increment")); goldenMinor = body(g.get("minor_increment"));
         JsonObject n = root.getAsJsonObject("nascent_soul"); fields(n, "breakthrough", "minor_increment");
-        nascentBreakthrough = body(n.get("breakthrough")); nascentMinor = body(n.get("minor_increment"));
+        nascent = bodies(n.get("breakthrough"), 3); nascentMinor = body(n.get("minor_increment"));
         JsonObject h = root.getAsJsonObject("spirit_transformation"); fields(h, "breakthrough", "minor_increment");
         spiritBreakthrough = body(h.get("breakthrough")); spiritMinor = body(h.get("minor_increment"));
         JsonObject npc = root.getAsJsonObject("npc"); fields(npc, "prodigy_chance", "upper_quality_chance");
@@ -60,8 +60,9 @@ public final class CultivationStatsRules {
         for (int i = 1; i < qi.size(); i++) increasing(qi.get(i - 1), qi.get(i));
         for (int i = 1; i < foundation.size(); i++) increasing(foundation.get(i - 1), foundation.get(i));
         for (int i = 1; i < golden.size(); i++) increasing(golden.get(i - 1), golden.get(i));
-        for (int fQ = 1; fQ <= 4; fQ++) for (int gQ = 1; gQ <= 3; gQ++) {
-            Body b = at(new RealmKey("yuanxian:spirit_transformation", 2), fQ, gQ);
+        for (int i = 1; i < nascent.size(); i++) increasing(nascent.get(i - 1), nascent.get(i));
+        for (int fQ = 1; fQ <= 4; fQ++) for (int gQ = 1; gQ <= 3; gQ++) for (int nQ = 1; nQ <= 3; nQ++) {
+            Body b = at(new RealmKey("yuanxian:spirit_transformation", 2), fQ, gQ, nQ);
             if (b.health + limits.maxBaseHealth() - reference.health > limits.maxHealth()
                     || b.attack + limits.maxBaseAttack() - reference.attack > limits.maxAttack() || b.defense > maximumDefense)
                 throw new IllegalArgumentException("数表超过属性边界");
@@ -97,7 +98,12 @@ public final class CultivationStatsRules {
         return Set.of("yuanxian:mortal", "yuanxian:qi_refining", "yuanxian:foundation_establishment", "yuanxian:golden_core", "yuanxian:nascent_soul", "yuanxian:spirit_transformation").contains(key.realmId());
     }
     public Body at(RealmKey key, int foundationQuality, int goldenQuality) {
-        if (foundationQuality < 0 || foundationQuality > 4 || goldenQuality < 0 || goldenQuality > 3) throw new IllegalArgumentException("非法品质");
+        return at(key, foundationQuality, goldenQuality, 1);
+    }
+
+    public Body at(RealmKey key, int foundationQuality, int goldenQuality, int nascentQuality) {
+        if (foundationQuality < 0 || foundationQuality > 4 || goldenQuality < 0 || goldenQuality > 3
+                || nascentQuality < 0 || nascentQuality > 3) throw new IllegalArgumentException("非法品质");
         int stage = key.stage();
         int maximumStage = key.realmId().equals("yuanxian:qi_refining") ? 9 : key.realmId().equals("yuanxian:mortal") ? 2 : 3;
         if (stage >= maximumStage) throw new IllegalArgumentException("阶段超出数表");
@@ -108,9 +114,9 @@ public final class CultivationStatsRules {
                     .plus(foundationBonus(foundationQuality)).plus(foundationMinor.times(stage));
             case "yuanxian:golden_core" -> qi.getLast().plus(foundationBonus(foundationQuality))
                     .plus(foundationMinor.times(2)).plus(goldenBonus(goldenQuality)).plus(goldenMinor.times(stage));
-            case "yuanxian:nascent_soul" -> at(new RealmKey("yuanxian:golden_core", 2), foundationQuality, goldenQuality)
-                    .plus(nascentBreakthrough).plus(nascentMinor.times(stage));
-            case "yuanxian:spirit_transformation" -> at(new RealmKey("yuanxian:nascent_soul", 2), foundationQuality, goldenQuality)
+            case "yuanxian:nascent_soul" -> at(new RealmKey("yuanxian:golden_core", 2), foundationQuality, goldenQuality, nascentQuality)
+                    .plus(nascent.get(Math.max(1, nascentQuality) - 1)).plus(nascentMinor.times(stage));
+            case "yuanxian:spirit_transformation" -> at(new RealmKey("yuanxian:nascent_soul", 2), foundationQuality, goldenQuality, nascentQuality)
                     .plus(spiritBreakthrough).plus(spiritMinor.times(stage));
             default -> throw new IllegalArgumentException("此境界尚无已确认的加法数表：" + key.realmId());
         };

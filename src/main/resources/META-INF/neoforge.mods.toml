@@ -5,7 +5,7 @@ license = "MIT"
 [[mods]]
 modId = "yuanxian"
 enumExtensions = "META-INF/enumextensions.json"
-version = "0.139.0-fix1"
+version = "0.139.1"
 displayName = "源仙"
 description = '''
 包含修炼、功法、炼丹炼器、宗门与人物生活的修仙世界模组。

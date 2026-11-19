@@ -33,6 +33,22 @@ def _trace(e, target):
 def _data(e, target, path):
     return read_data(e.rc(f'data get entity {target} {path}'))
 
+def _boss_health(profile, birth, growth):
+    realm = profile['realm']
+    stage = birth['stage']
+    foundation = growth['foundation']
+    health = growth['qi_refining'][-1][0] + foundation['breakthrough'][birth['foundation_quality'] - 1][0]
+    health += foundation['minor_increment'][0] * (stage if realm.endswith(':foundation_establishment') else 2)
+    if birth['golden_core_quality']:
+        golden = growth['golden_core']
+        health += golden['breakthrough'][birth['golden_core_quality'] - 1][0]
+        health += golden['minor_increment'][0] * (stage if realm.endswith(':golden_core') else 2)
+    if birth['nascent_soul_quality']:
+        nascent = growth['nascent_soul']
+        health += nascent['breakthrough'][birth['nascent_soul_quality'] - 1][0]
+        health += nascent['minor_increment'][0] * stage
+    return profile['health'] + health - growth['reference'][0]
+
 
 def _platform(e, x, z):
     u = e.s.username
@@ -108,6 +124,7 @@ def run_bosses(e):
     e.rc(f'yuanxian cultivation initiate {e.s.username}')
     profiles = {row['entity']: row for row in json.loads(
         (ROOT/'src/main/resources/data/yuanxian/exploration/bosses.json').read_text())['profiles']}
+    growth = json.loads((ROOT/'src/main/resources/data/yuanxian/stats/progression.json').read_text())
     options = dict(line.split(':', 1) for line in (cs.CLIENT_DIR/'options.txt').read_text().splitlines()
                    if ':' in line)
     e.check('boss_mapped_attack_binding', options.get('key_key.attack') == 'key.mouse.left',
@@ -132,10 +149,14 @@ def run_bosses(e):
             before = e.number(f'data get entity {target} Health')
             maximum = e.number(f'attribute {target} minecraft:generic.max_health get')
             base = e.number(f'attribute {target} minecraft:generic.max_health base get')
-            e.check(short + '_actual_full_profile_health', abs(before - profile['health']) < .01
-                    and abs(maximum - profile['health']) < .01
+            expected_health = _boss_health(profile, birth_before, growth)
+            e.check(short + '_actual_full_profile_health', abs(before - expected_health) < .01
+                    and abs(maximum - expected_health) < .01
                     and birth_before.get('profile') == profile['id']
-                    and realm_before == {'realm': profile['realm'], 'stage': profile['stage']},
+                    and birth_before['stage'] in profile['cultivation']['stages']
+                    and all(birth_before[quality + '_quality'] in profile['cultivation'][quality]
+                            for quality in ('foundation', 'golden_core', 'nascent_soul'))
+                    and realm_before == {'realm': profile['realm'], 'stage': birth_before['stage']},
                     {'health': before, 'maximum': maximum, 'native_base': base,
                      'expected_profile': profile, 'birth': birth_before, 'realm': realm_before})
             e.check(short + '_controlled_no_ai', _data(e, target, 'NoAI') == 1,
@@ -148,7 +169,10 @@ def run_bosses(e):
                 memories = brain.get('memories', {})
                 e.check('warden_no_emerge_or_dig_memory',
                         not any('dig' in key or 'emerg' in key for key in memories), brain)
-            _player(e, profile['realm'], profile['stage'])
+            if profile['realm'] == 'yuanxian:nascent_soul':
+                _player(e, 'yuanxian:golden_core', 2)
+            else:
+                _player(e, profile['realm'], birth_before['stage'])
             row = _hit(e, target, short, before)
             row.update(entity=entity, selector=target, position=[x+.5, 79, z+3.5],
                        birth=birth_before, realm=realm_before, expected_profile=profile['id'])

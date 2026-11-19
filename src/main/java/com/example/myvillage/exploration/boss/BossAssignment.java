@@ -16,8 +16,11 @@ public final class BossAssignment {
     }
     public static CompoundTag birth(BossRules.Profile profile) {
         var birth = new CompoundTag();
-        birth.putInt("schema", 1); birth.putString("profile", profile.id()); birth.putString("entity", profile.entity());
+        birth.putInt("schema", 2); birth.putString("profile", profile.id()); birth.putString("entity", profile.entity());
         birth.putString("realm", profile.realm().realmId()); birth.putInt("stage", profile.realm().stage());
+        birth.putInt("foundation_quality", profile.growth().foundation());
+        birth.putInt("golden_core_quality", profile.growth().goldenCore());
+        birth.putInt("nascent_soul_quality", profile.growth().nascentSoul());
         return birth;
     }
     public static CompoundTag realm(BossRules.Profile profile) {
@@ -28,14 +31,18 @@ public final class BossAssignment {
     public static Optional<BossRules.Profile> resolve(CompoundTag data, String entityType, BossRules rules) {
         if (!data.contains(BIRTH, Tag.TAG_COMPOUND) || !data.contains(REALM, Tag.TAG_COMPOUND)) return Optional.empty();
         var birth = data.getCompound(BIRTH); var realm = data.getCompound(REALM);
-        if (!birth.contains("schema", Tag.TAG_INT) || birth.getInt("schema") != 1
+        if (!birth.contains("schema", Tag.TAG_INT) || birth.getInt("schema") != 2
                 || !birth.contains("profile", Tag.TAG_STRING) || !birth.contains("entity", Tag.TAG_STRING)
                 || !birth.contains("realm", Tag.TAG_STRING) || !birth.contains("stage", Tag.TAG_INT)
+                || !birth.contains("foundation_quality", Tag.TAG_INT) || !birth.contains("golden_core_quality", Tag.TAG_INT)
+                || !birth.contains("nascent_soul_quality", Tag.TAG_INT)
                 || !realm.contains("realm", Tag.TAG_STRING) || !realm.contains("stage", Tag.TAG_INT)) return Optional.empty();
-        return rules.profile(birth.getString("profile")).filter(p -> p.entity().equals(entityType)
-                && p.entity().equals(birth.getString("entity")) && p.realm().realmId().equals(birth.getString("realm"))
-                && p.realm().stage() == birth.getInt("stage") && p.realm().realmId().equals(realm.getString("realm"))
-                && p.realm().stage() == realm.getInt("stage"));
+        var growth = new BossRules.Growth(birth.getInt("stage"), birth.getInt("foundation_quality"),
+                birth.getInt("golden_core_quality"), birth.getInt("nascent_soul_quality"));
+        return rules.profile(birth.getString("profile")).flatMap(set -> set.variant(growth))
+                .filter(p -> p.entity().equals(entityType) && p.entity().equals(birth.getString("entity"))
+                        && p.realm().realmId().equals(birth.getString("realm"))
+                        && p.realm().realmId().equals(realm.getString("realm")) && p.realm().stage() == realm.getInt("stage"));
     }
     /** Used only by the exact native wither charge-heal call site, before vanilla heal processing. */
     public static float chargeHealing(float amount, double effectiveMaximum, double nativeBaseMaximum) {

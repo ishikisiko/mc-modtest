@@ -256,7 +256,11 @@ public final class ExplorationRuntime {
     public static void sideRoutes(ServerPlayer player) {
         for (var route : ExplorationRules.get().sideRoutes()) {
             var boss = BossRules.get().forEntity(route.entity()).orElseThrow();
-            player.sendSystemMessage(Component.translatable("exploration.yuanxian.guide.side", Component.translatable("exploration.yuanxian.side." + route.id()), realmText(boss.realm())));
+            var minimum = boss.minimumRealm();
+            var maximum = boss.maximumRealm();
+            Component range = minimum.equals(maximum) ? realmText(minimum) :
+                    Component.translatable("exploration.yuanxian.range", realmText(minimum), realmText(maximum));
+            player.sendSystemMessage(Component.translatable("exploration.yuanxian.guide.side", Component.translatable("exploration.yuanxian.side." + route.id()), range));
             for (String tip : route.tips()) player.sendSystemMessage(Component.translatable("exploration.yuanxian.guide.tip", Component.translatable("exploration.yuanxian.tip." + tip)));
         }
     }

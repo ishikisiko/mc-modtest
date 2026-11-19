@@ -1,52 +1,52 @@
 {
-  "schema": 1,
+  "schema": 2,
   "profiles": [
     {
       "id": "elder_guardian_v2",
       "entity": "minecraft:elder_guardian",
       "realm": "yuanxian:foundation_establishment",
-      "stage": 1,
+      "cultivation": {"stages": [1], "foundation": [4], "golden_core": [0], "nascent_soul": [0]},
       "health": 240.0,
       "attribute_attack": 24.0,
       "damage": {
-        "guardian_beam": {"factor": 3.0, "maximum": 30.0},
-        "guardian_thorns": {"factor": 3.0, "maximum": 12.0}
+        "guardian_beam": {"factor": 3.0},
+        "guardian_thorns": {"factor": 3.0}
       }
     },
     {
       "id": "ender_dragon_v2",
       "entity": "minecraft:ender_dragon",
       "realm": "yuanxian:golden_core",
-      "stage": 2,
+      "cultivation": {"stages": [2], "foundation": [4], "golden_core": [3], "nascent_soul": [0]},
       "health": 800.0,
       "attribute_attack": null,
       "damage": {
-        "dragon_contact": {"factor": 3.0, "maximum": 60.0},
-        "dragon_breath": {"factor": 4.0, "maximum": 48.0}
+        "dragon_contact": {"factor": 3.0},
+        "dragon_breath": {"factor": 4.0}
       }
     },
     {
       "id": "wither_v2",
       "entity": "minecraft:wither",
       "realm": "yuanxian:golden_core",
-      "stage": 1,
+      "cultivation": {"stages": [1], "foundation": [4], "golden_core": [3], "nascent_soul": [0]},
       "health": 960.0,
       "attribute_attack": null,
       "damage": {
-        "wither_skull": {"factor": 4.0, "maximum": 64.0},
-        "wither_skull_explosion": {"factor": 2.0, "maximum": 48.0},
-        "wither_spawn_explosion": {"factor": 1.0, "maximum": 96.0}
+        "wither_skull": {"factor": 4.0},
+        "wither_skull_explosion": {"factor": 2.0},
+        "wither_spawn_explosion": {"factor": 1.0}
       }
     },
     {
       "id": "warden_v2",
       "entity": "minecraft:warden",
-      "realm": "yuanxian:golden_core",
-      "stage": 2,
+      "realm": "yuanxian:nascent_soul",
+      "cultivation": {"stages": [0, 1, 2], "foundation": [1, 2, 3, 4], "golden_core": [1, 2, 3], "nascent_soul": [1, 2, 3]},
       "health": 1024.0,
       "attribute_attack": 90.0,
       "damage": {
-        "warden_sonic": {"factor": 4.0, "maximum": 80.0}
+        "warden_sonic": {"factor": 4.0}
       }
     }
   ]
