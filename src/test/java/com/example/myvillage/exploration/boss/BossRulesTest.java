@@ -52,9 +52,10 @@ class BossRulesTest {
                 wither.damage().get(BossRules.Channel.WITHER_SKULL_EXPLOSION).factor());
         assertTrue(wither.damage().get(BossRules.Channel.WITHER_SPAWN_EXPLOSION).apply(200) <= 96);
     }
-    @Test void dragonUsesTheMiddleGoldenCoreStage() {
-        assertEquals(new RealmKey("golden_core", 1),
-                BossRules.get().forEntity("minecraft:ender_dragon").orElseThrow().realm());
+    @Test void dragonUsesLateGoldenCoreAndConfiguredHealth() {
+        var dragon = BossRules.get().forEntity("minecraft:ender_dragon").orElseThrow();
+        assertEquals(new RealmKey("golden_core", 2), dragon.realm());
+        assertEquals(800.0, dragon.health());
     }
     @Test void damageCapsNeverCreateDamageFromZeroOrOverflowNormalInputs() {
         for (var p : BossRules.get().profiles()) for (var d : p.damage().values()) {
