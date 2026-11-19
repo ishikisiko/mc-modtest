@@ -824,22 +824,22 @@
       "priority": 0,
       "recommended": {
         "min": {
-          "realm": "yuanxian:qi_refining",
-          "stage": 8
+          "realm": "yuanxian:foundation_establishment",
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         }
       },
       "encounters": {
         "min": {
-          "realm": "yuanxian:qi_refining",
-          "stage": 7
+          "realm": "yuanxian:foundation_establishment",
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         }
       },
       "regional": false,
@@ -860,21 +860,21 @@
       "recommended": {
         "min": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 1
+          "stage": 2
         }
       },
       "encounters": {
         "min": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 1
+          "stage": 2
         }
       },
       "regional": false,
@@ -894,22 +894,22 @@
       "priority": 20,
       "recommended": {
         "min": {
-          "realm": "yuanxian:qi_refining",
-          "stage": 8
+          "realm": "yuanxian:foundation_establishment",
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         }
       },
       "encounters": {
         "min": {
-          "realm": "yuanxian:qi_refining",
-          "stage": 7
+          "realm": "yuanxian:foundation_establishment",
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         }
       },
       "regional": false,
@@ -929,21 +929,21 @@
       "recommended": {
         "min": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 1
+          "stage": 2
         }
       },
       "encounters": {
         "min": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 1
+          "stage": 2
         }
       },
       "regional": false,
@@ -963,7 +963,7 @@
       "recommended": {
         "min": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 1
+          "stage": 2
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
@@ -973,7 +973,7 @@
       "encounters": {
         "min": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 1
+          "stage": 2
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
@@ -995,7 +995,7 @@
       "recommended": {
         "min": {
           "realm": "yuanxian:golden_core",
-          "stage": 0
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:golden_core",
@@ -1005,11 +1005,11 @@
       "encounters": {
         "min": {
           "realm": "yuanxian:golden_core",
-          "stage": 0
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:golden_core",
-          "stage": 0
+          "stage": 1
         }
       },
       "regional": false,
@@ -1032,21 +1032,21 @@
       "recommended": {
         "min": {
           "realm": "yuanxian:golden_core",
-          "stage": 0
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:golden_core",
-          "stage": 1
+          "stage": 2
         }
       },
       "encounters": {
         "min": {
           "realm": "yuanxian:golden_core",
-          "stage": 0
+          "stage": 1
         },
         "max": {
           "realm": "yuanxian:golden_core",
-          "stage": 1
+          "stage": 2
         }
       },
       "regional": false,
@@ -1066,7 +1066,7 @@
       "recommended": {
         "min": {
           "realm": "yuanxian:golden_core",
-          "stage": 1
+          "stage": 2
         },
         "max": {
           "realm": "yuanxian:golden_core",
@@ -1076,7 +1076,7 @@
       "encounters": {
         "min": {
           "realm": "yuanxian:golden_core",
-          "stage": 1
+          "stage": 2
         },
         "max": {
           "realm": "yuanxian:golden_core",

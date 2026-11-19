@@ -190,8 +190,9 @@ public final class ExplorationRules {
         int lo = Math.max(rank(base.min()), rank(floor.min())), hi = Math.max(rank(base.max()), rank(floor.max()));
         return new RealmRange(ladder.get(lo), ladder.get(hi), ladder.subList(lo, hi + 1));
     }
-    public RealmRange vanillaEncounters(RealmRange base, RealmRange regional) {
-        var merged = floor(base, regional);
+    public RealmRange vanillaEncounters(Location location, RealmRange regional) {
+        if (!location.dimension().equals("minecraft:overworld")) return location.encounters();
+        var merged = floor(location.encounters(), regional);
         if (merged == null) return null;
         // Apply last: recommendations retain their local floor while vanilla births may be unranked.
         var minimum = VanillaMonsterRules.bundled().minimumRealm();

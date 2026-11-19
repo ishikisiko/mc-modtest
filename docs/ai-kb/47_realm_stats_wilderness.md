@@ -38,10 +38,9 @@ H → 内视已接入天道筑基和三档金丹正式雷劫；承受指定次�
 生成成本和敌对生物容量不跟随改变；刷怪笼、袭击等独立生成入口不走群系权重。
 该系数改变刷怪池中的相对概率，不承诺实测数量或占比同比下降。
 
-`wilderness/vanilla_monsters.json` 的 `minimum_realm` 单独控制原版普通怪物的下限。
-`ExplorationRules.vanillaEncounters` 先合并地区和结构、维度的原有范围，再使用该下限，
-保留合并后的上限。目前允许无境界，仍按最终离散范围均匀抽取；建议境界、奖励和
-特殊首领配置分别沿用原规则。没有适用范围时仍不虚构境界。
+`wilderness/vanilla_monsters.json` 的 `minimum_realm` 控制主世界原版普通怪物的下限。
+`ExplorationRules.vanillaEncounters` 在主世界先合并地区和结构范围，保留合并后的上限，
+允许抽到无境界。下界和末地按 `exploration/rules.json` 中各地点的完整范围均匀抽取。
 新增妖兽、六种野怪和地域亡灵继续使用 `WildernessRules` 的地区 `beast` 范围，
 最低为炼气一层或当地更高下限。已保存的出生境界不重抽、不随移动改变。
 

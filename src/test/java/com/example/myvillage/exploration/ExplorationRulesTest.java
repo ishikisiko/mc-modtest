@@ -23,13 +23,24 @@ class ExplorationRulesTest {
     }
     @Test void netherAndEndHaveIndependentEncounterBands() {
         var r = ExplorationRules.get();
-        assertFalse(r.location("fortress").regional());
-        assertEquals(new RealmKey("foundation_establishment",0), r.location("fortress").recommended().min());
-        assertEquals(new RealmKey("foundation_establishment",2), r.location("bastion").encounters().max());
-        assertEquals(new RealmKey("golden_core",0),r.location("end").encounters().min());
-        assertEquals(new RealmKey("golden_core",1),r.location("end_outer").encounters().max());
-        assertEquals(new RealmKey("golden_core",2),r.location("end_city").encounters().max());
-        for (var location : r.locations()) if (!location.dimension().equals("minecraft:overworld")) assertFalse(location.regional());
+        var floors = Map.of(
+                "minecraft:the_nether", new RealmKey("foundation_establishment", 1),
+                "minecraft:the_end", new RealmKey("golden_core", 1));
+        var regional = WildernessRules.bundled().region("moyu").orElseThrow().beast();
+        for (var location : r.locations()) {
+            var minimum = floors.get(location.dimension());
+            if (minimum == null) continue;
+            assertFalse(location.regional(), location.id());
+            var encounters = r.vanillaEncounters(location, regional);
+            assertEquals(location.encounters(), encounters, location.id());
+            assertEquals(location.recommended(), encounters, location.id());
+            assertTrue(encounters.values().stream().allMatch(key -> r.rank(key) >= r.rank(minimum)), location.id());
+        }
+        assertEquals(floors.get("minecraft:the_nether"), r.vanillaEncounters(r.location("nether"), null).min());
+        assertEquals(new RealmKey("foundation_establishment", 2), r.location("bastion").encounters().max());
+        assertEquals(floors.get("minecraft:the_end"), r.vanillaEncounters(r.location("end"), null).min());
+        assertEquals(new RealmKey("golden_core", 2), r.location("end_outer").encounters().max());
+        assertEquals(new RealmKey("golden_core", 2), r.location("end_city").encounters().max());
         assertEquals("endgame",r.location("end_city").reward());
         assertEquals("endgame",r.lootTables().get("minecraft:chests/end_city_treasure"));
         assertEquals("endgame",r.rewardPool("endgame",new RealmKey("nascent_soul",2)));

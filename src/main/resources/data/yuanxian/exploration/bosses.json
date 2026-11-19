@@ -17,7 +17,7 @@
       "id": "ender_dragon_v2",
       "entity": "minecraft:ender_dragon",
       "realm": "yuanxian:golden_core",
-      "stage": 0,
+      "stage": 1,
       "health": 800.0,
       "attribute_attack": null,
       "damage": {

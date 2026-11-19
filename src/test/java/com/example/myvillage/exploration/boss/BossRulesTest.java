@@ -1,5 +1,6 @@
 package com.example.myvillage.exploration.boss;
 
+import com.example.myvillage.stats.RealmKey;
 import com.example.myvillage.stats.StatsRules;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -50,6 +51,10 @@ class BossRulesTest {
         assertNotEquals(wither.damage().get(BossRules.Channel.WITHER_SKULL).factor(),
                 wither.damage().get(BossRules.Channel.WITHER_SKULL_EXPLOSION).factor());
         assertTrue(wither.damage().get(BossRules.Channel.WITHER_SPAWN_EXPLOSION).apply(200) <= 96);
+    }
+    @Test void dragonUsesTheMiddleGoldenCoreStage() {
+        assertEquals(new RealmKey("golden_core", 1),
+                BossRules.get().forEntity("minecraft:ender_dragon").orElseThrow().realm());
     }
     @Test void damageCapsNeverCreateDamageFromZeroOrOverflowNormalInputs() {
         for (var p : BossRules.get().profiles()) for (var d : p.damage().values()) {

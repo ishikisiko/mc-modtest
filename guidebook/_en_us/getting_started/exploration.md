@@ -39,13 +39,13 @@ The role remains vacant if local candidates or observed facilities are unavailab
 - **Prepare fire resistance, gold gear and return coordinates, then enter the Nether.** (Foundation Establishment · Early)
   - Realm health does not grant lava or fire immunity.
   - Gold equipment helps with ordinary piglins; do not rely on it against brutes.
-- **Find a Nether fortress and obtain a blaze rod. Early–middle Foundation is advised.** (Foundation Establishment · Early)
+- **Bring fire resistance and supplies, then find a Nether fortress and obtain a blaze rod.** (Foundation Establishment · Early)
   - Block wither skeleton approaches and establish cover before fighting blazes.
   - Craft one spirit copper ingot from a copper ingot, blaze powder and a low-grade spirit stone. Qi infusion remains an alternative.
 - **Craft eyes of ender and locate a stronghold. Prepare a safe return route.** (Foundation Establishment · Early)
   - Eyes of ender combine ender pearls and blaze powder; keep extras for the portal.
   - Write down your portal coordinates and protect the route.
-- **Advance to early Golden Core before your first End expedition.** (Golden Core · Early)
+- **Reach Golden Core and gather supplies for your first End expedition.** (Golden Core · Early)
   - Golden Core is the proposed End stage; improve gear and arts alongside realm.
   - Void falls remain lethal regardless of realm.
 - **Prepare for the dragon: destroy its crystals before fighting the body, then explore the outer islands through a gateway.** (Golden Core · Early)
@@ -108,7 +108,7 @@ Server owners can set `[portal_gates] enabled = true` in the instance’s `confi
 - **Monster room：Qi Refining 1 – Qi Refining 4** — Bring light and keep a retreat route.
 - **Pillager outpost and patrol：Qi Refining 4 – Qi Refining 7** — Bring light and keep a retreat route.
 - **Woodland mansion：Qi Refining 9 – Foundation Establishment · Early** — Prepare for evokers, vexes and axe attacks; avoid pulling several rooms.
-- **Stronghold：Qi Refining 9 – Foundation Establishment · Early** — Bring eyes of ender and an exit. The End is advised at early Golden Core; boss tuning follows later.
+- **Stronghold：Qi Refining 9 – Foundation Establishment · Early** — Bring eyes of ender and leave yourself a way out near the End portal room.
 - **Trial chamber：Qi Refining 7 – Qi Refining 9** — Complete a normal trial first. An ominous bottle deliberately raises the challenge.
 - **Ominous trial：Foundation Establishment · Middle – Foundation Establishment · Late** — Ominous spawners use a separate realm band. Bring supplies and an exit.
 - **Raid：Foundation Establishment · Early – Foundation Establishment · Middle** — Protect villagers. Raiders retain their birth realm when moved.
@@ -118,17 +118,17 @@ Server owners can set `[portal_gates] enabled = true` in the instance’s `confi
 
 ## Nether
 
-- **Nether wastes and forests：Qi Refining 9 – Foundation Establishment · Early** — Early Foundation advised. Bring fire resistance, gold gear and return coordinates; lava remains dangerous.
-- **Soul sand valley and basalt deltas：Foundation Establishment · Early – Foundation Establishment · Middle** — Watch ranged attacks, slowing ground and lava drops; establish a safe route.
-- **Nether landmark：Qi Refining 9 – Foundation Establishment · Early** — Bring light and keep a retreat route.
-- **Nether fortress：Foundation Establishment · Early – Foundation Establishment · Middle** — Bring fire resistance and watch wither skeletons. Blaze powder, copper and spirit stone craft spirit copper.
-- **Bastion remnant：Foundation Establishment · Middle – Foundation Establishment · Late** — Piglin brutes are dangerous. Prepare for late Foundation in treasure areas; stealth remains useful.
+- **Nether wastes and forests：Foundation Establishment · Middle** — Bring fire resistance and gold gear, and note the coordinates of your return portal.
+- **Soul sand valley and basalt deltas：Foundation Establishment · Middle – Foundation Establishment · Late** — Watch ranged attacks, slowing ground and lava drops; establish a safe route.
+- **Nether landmark：Foundation Establishment · Middle** — Bring light and keep a retreat route.
+- **Nether fortress：Foundation Establishment · Middle – Foundation Establishment · Late** — Bring fire resistance and watch wither skeletons. Blaze powder, copper and spirit stone craft spirit copper.
+- **Bastion remnant：Foundation Establishment · Late** — Piglin brutes are dangerous. Prepare for late Foundation in treasure areas; stealth remains useful.
 
 ## End
 
-- **End islands：Golden Core · Early – Golden Core · Middle** — Ordinary island endermen use an independent End band. Bring ranged tools, supplies and safe footing before destroying crystals; the void remains lethal.
-- **End outer islands：Golden Core · Early – Golden Core · Middle** — Bring pearls, blocks and return coordinates. Outer-island mobs do not inherit Overworld region bands; avoid staring at endermen.
-- **End city and ship：Golden Core · Middle – Golden Core · Late** — Plan cover, safe landings and protection against levitation and falls. End ships retain their elytra value.
+- **End islands：Golden Core · Middle** — Ordinary island endermen use an independent End band. Bring ranged tools, supplies and safe footing before destroying crystals; the void remains lethal.
+- **End outer islands：Golden Core · Middle – Golden Core · Late** — Bring pearls, blocks and return coordinates. Outer-island mobs do not inherit Overworld region bands; avoid staring at endermen.
+- **End city and ship：Golden Core · Late** — Plan cover, safe landings and protection against levitation and falls. End ships retain their elytra value.
 
 ## Exploration Rewards
 

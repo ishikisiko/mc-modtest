@@ -63,7 +63,7 @@ class VanillaMonsterRulesTest {
         for (var region : WildernessRules.bundled().regions().entrySet()) {
             var beast = region.getValue().beast();
             assertTrue(exploration.rank(beast.min()) >= exploration.rank(new RealmKey("qi_refining", 0)));
-            var vanilla = exploration.vanillaEncounters(null, beast);
+            var vanilla = exploration.vanillaEncounters(exploration.location("overworld"), beast);
             assertEquals(unranked, vanilla.min()); assertEquals(beast.max(), vanilla.max());
             var reached = new HashSet<RealmKey>();
             for (int i = 0; i < 4096; i++) reached.add(vanilla.sample(42, region.getKey(), i));
@@ -72,19 +72,20 @@ class VanillaMonsterRulesTest {
         }
     }
 
-    @Test void structureAndDimensionMergingKeepsTheUpperEndpointAndUnrankedLowerEndpoint() {
+    @Test void overworldStructuresKeepTheMergedUpperEndpointAndUnrankedLowerEndpoint() {
         var exploration = ExplorationRules.get(); var unranked = new RealmKey("mortal", 0);
         for (var location : exploration.locations()) {
+            if (!location.dimension().equals("minecraft:overworld")) continue;
             var regional = location.regional() ? WildernessRules.bundled().region("moyu").orElseThrow().beast() : null;
             var merged = exploration.floor(location.encounters(), regional);
-            var vanilla = exploration.vanillaEncounters(location.encounters(), regional);
+            var vanilla = exploration.vanillaEncounters(location, regional);
             if (merged == null) assertNull(vanilla);
             else {
                 assertEquals(unranked, vanilla.min(), location.id());
                 assertEquals(merged.max(), vanilla.max(), location.id());
             }
         }
-        assertNull(exploration.vanillaEncounters(null, null));
+        assertNull(exploration.vanillaEncounters(exploration.location("overworld"), null));
     }
 
     @Test void unknownFractionalAndExtraMinimumFieldsAreRejected() throws Exception {
