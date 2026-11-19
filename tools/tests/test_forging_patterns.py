@@ -53,6 +53,13 @@ class ForgingPatternArtTest(unittest.TestCase):
                     if not (x0 <= x < x1 and y0 <= y < y1):
                         self.assertEqual(base.getpixel((x,y)), icon.getpixel((x,y)), recipe['id'])
 
+    def test_xuantie_flying_sword_remains_readable_at_inventory_size(self):
+        icon = self.art.icon('xuantie_flying_sword')
+        icon = icon.resize((16, 16), Image.Resampling.LANCZOS).convert('RGB')
+        # Sample the emblem inside the paper, away from the dark border and seal.
+        dark_pixels = sum(max(icon.getpixel((x, y))) < 128 for x in range(3, 12) for y in range(4, 12))
+        self.assertGreaterEqual(dark_pixels, 12)
+
     def test_quality_changes_only_the_support_and_preserves_the_equipment(self):
         config = self.art.config
         scale = config['texture_size'] // config['grid']

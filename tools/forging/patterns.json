@@ -1,6 +1,10 @@
 {
   "version": 1,
   "views": {
+    "flying_sword": {
+      "rotation": [0, 0, -42],
+      "width_scale": 1.9
+    },
     "leggings": {
       "rotation": [
         10,

@@ -47,6 +47,10 @@ class PatternArt:
         if recipe not in self.emblems:
             faces = self.catalogue.sources[recipe]
             view = self.views.get(self.catalogue.kinds[recipe], {})
+            if 'width_scale' in view:
+                # A pictogram may exaggerate blade and grip width for the 16 px inventory slot.
+                width_scale = view['width_scale']
+                faces = mesh.map_points(faces, lambda point: (8 + (point[0] - 8) * width_scale, point[1], point[2]))
             if view.get('pair_gap'):
                 # Arrange the two existing leg/foot parts as a readable paired emblem.
                 # Only this paper illustration moves them; worn/item geometry stays untouched.
