@@ -14,15 +14,13 @@ python3 -m unittest tools.immortal_equipment.test_exporter
 
 仅使用当前 `art/immortal-armor-atlas/levels/level1.json` 至 `level5.json`、
 `core/engine.js` 和 `effects/catalogue.js`；Node 使用仓库自带 Three r128，
-通过 `buildDesign(spec, {avatar:false})` 与 `buildIngot(spec)` 取得真实三角面、
+衣甲通过 `buildDesign(spec, {avatar:false})` 取得真实三角面、
 世界矩阵、法线、材质分组和 UV，不重写几何算法，不包含预览人台。
 新的造型应在原作者源修改并更新 levels，本导出器没有第二份造型常量。
 
-锭的共同实体轮廓由 `tools/ingot_shape.py` 的 `model()` 提供，沿用旧玄铁锭
-`FLAT_TOP`、`FLAT_FRONT`、`FLAT_SIDE` 的轮廓点。`authors/mc_common.py` 将上下
-轮廓 `profile`、尺寸和 `ingot.gui_rotation` 写入五份 levels；`core/engine.js`
-把两圈轮廓连接并封顶、封底，`buildIngot` 继续组合各作者原有材质和嵌纹。
-锭顶高度保持原值，GUI 以真实网格点计算取景。导出器只提取该实体，不另写锭形。
+十五种锭的作者原稿保存在 `equipment/immortal/ingots/<design>_ingot.png`。
+导出器原样复制 32×32 PNG，并写出以 `minecraft:item/generated` 为父级的物品模型。
+锭旧有的运行时 OBJ 和 MTL 由导出器清理。`buildIngot` 继续供原作者造型预览使用。
 
 四槽GUI按用户指定使用 `equipment/icons/armor.json` 与 `equipment/boots/styles.json` 的
 原创16×16图稿，由统一的 `tools/equipment/armor_icons.py` 调色，
@@ -65,7 +63,7 @@ PNG 自身 alpha 为 255；穿戴材质 opacity 和物品 MTL `Kd r g b a` 各�
 物品包含透明材质时使用 translucent render_type；穿戴由客户端分材质批次选择透明渲染。
 `side` 字段保留原引擎 front/double 材质信息，供客户端选择是否剔除背面。
 
-导出十五份穿戴 JSON、七十五套 OBJ/MTL/物品 JSON、全部像素材质与采样元数据、
+导出十五份穿戴 JSON、六十套衣甲 OBJ/MTL、十五张锭贴图、七十五份物品 JSON、像素材质与采样元数据、
 七十五个中文物品语言键、四槽标签及不可套用原版 trim 的移除列表。
 共享语言和标签仅合并本批 ID，保留旧内容。目录 tiers 直接复制父代理拥有的
 `equipment/immortal/balance.json`，不另设数值、配方或玩法。

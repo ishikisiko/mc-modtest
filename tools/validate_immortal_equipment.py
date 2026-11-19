@@ -339,6 +339,20 @@ def validate_item(root, identity, components):
         require(resource(root, namespace + ':textures/' + name + '.png').is_file(), identity + '：MTL纹理缺失')
 
 
+def validate_ingot(root, identity):
+    model = read_json(resource(root, f'yuanxian:models/item/{identity}.json'))
+    require(model == {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'yuanxian:item/{identity}'}},
+            identity + '：锭必须引用对应的手绘物品贴图')
+    source = root / 'equipment/immortal/ingots' / (identity + '.png')
+    texture = resource(root, f'yuanxian:textures/item/{identity}.png').read_bytes()
+    require(texture == source.read_bytes(), identity + '：锭贴图与作者原稿不一致')
+    rows = decode_png(texture, (32, 32))
+    require({value for row in rows for value in row[3::4]} == {0, 255}, identity + '：锭贴图需要二值透明度')
+    for extension in ('.obj', '.mtl'):
+        require(not resource(root, f'yuanxian:models/immortal_equipment/{identity}{extension}').exists(),
+                identity + '：残留旧锭模型')
+
+
 def validate(root=ROOT, provenance=True):
     designs = source_designs(root)
     manifest_path = root / 'src/main/resources/assets/yuanxian/immortal_equipment/provenance.json'
@@ -366,10 +380,12 @@ def validate(root=ROOT, provenance=True):
             ids.append(item['id'])
             require(item.get('name') and lang.get('item.yuanxian.' + expected) == item['name'], expected + '：中文名未接入')
             require(re.search('[\u4e00-\u9fff]', item['name']), expected + '：名称不是中文')
-            components = spec['ingot']['components'] if 'slot' not in item else [c for c in spec['components'] if c['role'] == ('boots' if item['slot'] == 'feet' else item['slot'])]
-            validate_item(root, expected, components)
             if 'slot' in item:
+                role = 'boots' if item['slot'] == 'feet' else item['slot']
+                validate_item(root, expected, [c for c in spec['components'] if c['role'] == role])
                 validate_gui_icon(root, expected)
+            else:
+                validate_ingot(root, expected)
         model = read_json(resource(root, row['model']))
         validate_mesh(model, spec, effects[identity]);meshes[identity] = model
         validate_bindings(root, identity, model)

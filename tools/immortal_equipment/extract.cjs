@@ -48,7 +48,7 @@ for (let level = 1; level <= 5; level++) {
   for (const spec of specs) {
     if (spec.level !== level || !effects[spec.id]) throw Error('境界或动态来源缺失');
     result.push({id: spec.id, armor: extract(engine.buildDesign(spec, {avatar: false})),
-      ingot: extract(engine.buildIngot(spec)), effects: effects[spec.id]});
+      effects: effects[spec.id]});
   }
 }
 process.stdout.write(JSON.stringify(result));

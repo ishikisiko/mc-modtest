@@ -1,8 +1,6 @@
-"""Canonical flat-ingot silhouette for every 锭 item.
+"""玄铁、赤铜和血灵锭贴图使用的扁锭轮廓，以及五境造型研究的实体底坯。
 
-All ingot items (玄铁锭, 赤铜锭, 血灵锭 and any future 锭) must use these three
-polygons. Shape studies such as bar/cake/block are historical only and must not
-be wired into a shipped ingot.
+游戏内五境锭的像素原稿位于 equipment/immortal/ingots。
 
 Keep this module dependency-free: generators import the constants and draw
 their own palette and surface details.

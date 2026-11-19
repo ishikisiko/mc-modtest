@@ -9,7 +9,7 @@
 ## 身份与资源
 
 - 保留十五个设计ID；每套注册 `<design>_helmet`、`_chestplate`、`_leggings`、`_boots` 和 `_ingot`，namespace为yuanxian。旧玄铁甲、武器与其ID不变。
-- 美术唯一来源仍为 `art/immortal-armor-atlas/authors/` 经minecraft.py生成的levels和effects/catalogue.js；不能用近似立方体、二维图标或预览人台替换真实三角面。
+- 衣甲美术来自 `art/immortal-armor-atlas/authors/` 生成的 levels 和效果目录，穿戴使用真实三角面。十五种锭的美术来自 `equipment/immortal/ingots/` 中的 32×32 PNG，物品模型使用 `minecraft:item/generated`。
 - 新导出器为 `tools/immortal_equipment/`，入口 `python3 -m tools.immortal_equipment build|check`。骨骼绑定输入为 `equipment/immortal/rig.json`；数值输入为 `equipment/immortal/balance.json`。
 - 生成穿戴数据：`assets/yuanxian/immortal_equipment/<design>.json`；PNG：`assets/yuanxian/textures/immortal_equipment/<design>/<material>.png`；物品OBJ/MTL与JSON位于相应models子目录，均由导出器生成。
 - 公共注册目录为 `data/yuanxian/immortal_equipment/catalogue.json`，版本1。结构见下。中文名与槽位标签由导出器维护；现有语言文件只按本批75个ID合并，保留其他所有键。不得手改现有blocks图集，父代理负责接入其原生成器。

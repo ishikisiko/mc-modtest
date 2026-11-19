@@ -2,8 +2,7 @@
 import math
 import unittest
 
-from tools.ingot_shape import FLAT_GUI_ROTATION
-from .exporter import ROOT, item_assets, read, split_triangle, wearing_vertex
+from .exporter import ROOT, armor_item_assets, read, split_triangle, wearing_vertex
 
 
 def area(tri):
@@ -69,15 +68,15 @@ class ExporterBoundaryTest(unittest.TestCase):
                 self.assertAlmostEqual(sum(n*n for n in b[5:]), 1, places=7)
 
     def test_neoforge_mtl_receives_alpha_not_only_ignored_dissolve(self):
-        spec = {'id': 'test', 'materials': {'glass': {'opacity': .64}},
-                'ingot': {'gui_rotation': list(FLAT_GUI_ROTATION)}}
+        spec = read(ROOT / 'art/immortal-armor-atlas/levels/level1.json')[0]
+        spec['materials']['glass'] = {'opacity': .64}
         mesh = {'id': 'crystal', 'material': 'glass', 'vertices':
                 [[0,0,0,0,0,0,0,1],[1,0,0,1,0,0,0,1],[0,1,0,0,1,0,0,1]], 'indices': [0,1,2]}
-        out = item_assets(spec, [mesh], 'ingot', ROOT)
-        mtl = out['models/immortal_equipment/test_ingot.mtl'].decode()
+        out = armor_item_assets(spec, [mesh], 'head', ROOT)
+        mtl = out[f"models/immortal_equipment/{spec['id']}_helmet.mtl"].decode()
         self.assertIn('Kd 1 1 1 0.64\n', mtl)
         self.assertIn('d 0.64\n', mtl)
-        self.assertIn('map_Kd yuanxian:immortal_equipment/test/glass', mtl)
+        self.assertIn(f"map_Kd yuanxian:immortal_equipment/{spec['id']}/glass", mtl)
 
 
 if __name__ == '__main__':

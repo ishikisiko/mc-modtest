@@ -1,4 +1,4 @@
-"""将原作者真实三角面导出为穿戴网格、三维物品和同源像素 PNG。
+"""导出五境衣甲的原作者网格和锭的手绘物品贴图。
 
 这里只拥有导出；游戏数值只复制 balance.json，不计算玩法或配方。
 """
@@ -117,7 +117,7 @@ def folded_mesh(mesh, spec):
                 indices.append(unique[key])
     if not indices:
         raise ValueError("导出后空组件：" + mesh["id"])
-    return {"id": mesh["id"], "slot": ROLES.get(mesh["role"], "ingot"),
+    return {"id": mesh["id"], "slot": ROLES[mesh["role"]],
             "material": mesh["material"], "side": mesh["side"],
             "detail": mesh["detail"], "vertices": vertices, "indices": indices}
 
@@ -173,9 +173,11 @@ def texture_id(design, material):
     return f"yuanxian:immortal_equipment/{design}/{material}"
 
 
-def item_assets(spec, meshes, suffix, root):
+def armor_item_assets(spec, meshes, slot, root):
     """OBJ用于手持和地面；四槽GUI使用对应实际器型的原创像素图稿。"""
+    from tools.equipment.armor_icons import icon
     from tools.equipment.mesh import item_display, gui_icon_model
+    suffix = SLOTS[slot]
     item_id = spec["id"] + "_" + suffix
     base = f"immortal_equipment/{item_id}"
     materials = list(dict.fromkeys(m["material"] for m in meshes))
@@ -207,25 +209,18 @@ def item_assets(spec, meshes, suffix, root):
               [max(v[a] for v in points)*16 for a in range(3)]]
     display = item_display([{"points": bounds}], armor=True, root=root,
                            slot="feet" if suffix == "boots" else None)
-    if suffix == "ingot":
-        # 使用原作者锭的真实投影点与共形取景，不以包围框的两点代替轮廓。
-        display["gui"] = item_display([{"points": [[c*16 for c in v] for v in points]}],
-            armor=True, root=root, gui_rotation=spec["ingot"]["gui_rotation"])["gui"]
     model = {"loader": "neoforge:obj", "model": f"yuanxian:models/{base}.obj",
              "automatic_culling": False, "shade_quads": False, "flip_v": False,
              "emissive_ambient": False, "gui_light": "side",
              "render_type": "minecraft:translucent" if any(spec["materials"][k].get("opacity", 1) < 1 for k in materials) else "minecraft:cutout",
              "textures": {"particle": texture_id(spec["id"], materials[0])},
              "display": display}
-    files = {f"models/{base}.obj": ("\n".join(lines)+"\n").encode(),
-             f"models/{base}.mtl": ("\n".join(mtl).rstrip()+"\n").encode()}
-    if suffix in SLOTS.values():
-        from tools.equipment.armor_icons import icon
-        slot = next(key for key, value in SLOTS.items() if value == suffix)
-        files[f"textures/item/{item_id}.png"] = icon(spec['id'], slot, spec['materials'], root)
-        model = gui_icon_model(model, f"yuanxian:item/{item_id}")
-    files[f"models/item/{item_id}.json"] = json_bytes(model)
-    return files
+    return {
+        f"models/{base}.obj": ("\n".join(lines) + "\n").encode(),
+        f"models/{base}.mtl": ("\n".join(mtl).rstrip() + "\n").encode(),
+        f"textures/item/{item_id}.png": icon(spec["id"], slot, spec["materials"], root),
+        f"models/item/{item_id}.json": json_bytes(gui_icon_model(model, f"yuanxian:item/{item_id}")),
+    }
 
 
 def validate_rig(spec, extracted, rig_set):
@@ -267,13 +262,13 @@ def outputs(root=ROOT):
     resources = root / "src/main/resources"
     assets = resources / "assets/yuanxian"
     out, sets, names, atlas_sources = {}, [], {}, []
+    ingot_inputs = []
     for spec in specs:
         design = spec["id"]
         source = extracted[design]
         rig_set = rig["sets"][design]
         validate_rig(spec, source, rig_set)
         armor = [folded_mesh(mesh, spec) for mesh in source["armor"]]
-        ingot = [folded_mesh(mesh, spec) for mesh in source["ingot"]]
         materials = {}
         for key, material in spec["materials"].items():
             path = f"textures/immortal_equipment/{design}/{key}.png"
@@ -293,10 +288,16 @@ def outputs(root=ROOT):
             role = "boots" if slot == "feet" else slot
             item = {"id": f"yuanxian:{design}_{suffix}", "slot": slot, "name": spec["parts"][role]["name"]}
             entry["armor"].append(item)
-            out.update({assets / path: data for path, data in item_assets(spec, [m for m in armor if m["slot"] == slot], suffix, root).items()})
+            out.update({assets / path: data for path, data in armor_item_assets(spec, [m for m in armor if m["slot"] == slot], slot, root).items()})
             names["item.yuanxian." + design + "_" + suffix] = item["name"]
-        out.update({assets / path: data for path, data in item_assets(spec, ingot, "ingot", root).items()})
-        names["item.yuanxian." + design + "_ingot"] = spec["ingot"]["name"]
+        ingot_id = design + "_ingot"
+        sprite = root / "equipment/immortal/ingots" / (ingot_id + ".png")
+        ingot_inputs.append(sprite)
+        out[assets / f"textures/item/{ingot_id}.png"] = sprite.read_bytes()
+        out[assets / f"models/item/{ingot_id}.json"] = json_bytes({
+            "parent": "minecraft:item/generated", "textures": {"layer0": f"yuanxian:item/{ingot_id}"},
+        })
+        names["item.yuanxian." + ingot_id] = spec["ingot"]["name"]
         sets.append(entry)
     out[resources / "data/yuanxian/immortal_equipment/catalogue.json"] = json_bytes({"version": 1, "tiers": balance["tiers"], "sets": sets})
     # 此清单供 blocks 图集原拥有者合并，绝不直接写共享 blocks.json。
@@ -325,7 +326,7 @@ def outputs(root=ROOT):
     inputs = sorted([*atlas.glob("levels/*.json"), atlas / "core/engine.js", atlas / "effects/catalogue.js",
                      root / "tools/web/three.min.js", root / "equipment/immortal/rig.json",
                      root / "equipment/immortal/balance.json", root / "equipment/poses.json", root / "equipment/display.json",
-                     root / "tools/ingot_shape.py", root / "tools/equipment/mesh.py",
+                     *ingot_inputs, root / "tools/equipment/mesh.py",
                      root / "tools/equipment/boots.py", root / "equipment/boots/styles.json",
                      root / "tools/equipment/armor_icons.py", root / "equipment/icons/armor.json",
                      *atlas.glob("authors/mc_*.py"),
@@ -352,9 +353,10 @@ def write_or_check(root=ROOT, *, check=False, rename_namespace_from=None):
     root = Path(root)
     rendered = outputs(root)
     catalogue = root / "src/main/resources/data/yuanxian/immortal_equipment/catalogue.json"
+    new_sets = json.loads(rendered[catalogue])["sets"]
     if catalogue.exists():
         old_ids = {a["id"] for s in read(catalogue)["sets"] for a in [*s["armor"], s["ingot"]]}
-        new_ids = {a["id"] for s in json.loads(rendered[catalogue])["sets"] for a in [*s["armor"], s["ingot"]]}
+        new_ids = {a["id"] for s in new_sets for a in [*s["armor"], s["ingot"]]}
         validate_retained_ids(old_ids, new_ids, rename_namespace_from)
     changed = []
     for path, data in rendered.items():
@@ -363,4 +365,13 @@ def write_or_check(root=ROOT, *, check=False, rename_namespace_from=None):
             if not check:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(data)
+    legacy_models = root / "src/main/resources/assets/yuanxian/models/immortal_equipment"
+    for entry in new_sets:
+        ingot_id = entry["ingot"]["id"].removeprefix("yuanxian:")
+        for extension in (".obj", ".mtl"):
+            path = legacy_models / (ingot_id + extension)
+            if path.exists():
+                changed.append(str(path.relative_to(root)))
+                if not check:
+                    path.unlink()
     return changed
