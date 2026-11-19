@@ -68,6 +68,9 @@ FIXTURE = (
     validator.BLADE_CUT_PARTICLE,
     validator.BLADE_CUT_TEXTURE,
     "tools/combat_data.py",
+    "tools/combat_preview",
+    "tools/equipment",
+    "equipment/weapons/gauntlets",
     # The fixed generators and the model generator each committed geometry contract names.
     *(script for script, _ in validator.generator_checks(validator.ROOT, _REPOSITORY_DATA)),
 )
@@ -182,7 +185,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_valid_repository_fixture_passes(self) -> None:
         data = validator.combat_data.load(self.root)
-        self.assertEqual(["yuanxian:qingfeng_sword", SPEAR_WEAPON_ID, "yuanxian:xuantie_gauntlet"], list(data.weapons))
+        self.assertEqual(list(_REPOSITORY_DATA.weapons), list(data.weapons))
         self.assertEqual(["yuanxian:basic_sword", "yuanxian:basic_spear", "yuanxian:basic_fist"], list(data.styles))
         self.assertTrue((self.root / ANIMATIONS).is_file() and (self.root / SPEAR_ANIMATIONS).is_file())
         self.assertEqual([], [str(f) for f in self.findings()])

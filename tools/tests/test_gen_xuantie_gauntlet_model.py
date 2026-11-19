@@ -1,112 +1,78 @@
 from __future__ import annotations
 
-import contextlib
-import copy
-import io
+import json
 import math
 import unittest
 
-from tools import gen_qingfeng_sword_model as sword
 from tools import gen_xuantie_gauntlet_model as gen
+from tools.equipment import gauntlet_heat, gauntlet_mesh, geometry, mesh
 
 
-class XuantieGauntletModelTest(unittest.TestCase):
-    def test_committed_outputs_match_the_generator(self) -> None:
-        for path, data in gen.outputs().items():
-            current = path.read_bytes()
-            if path.suffix == ".png":
-                self.assertEqual(sword.decode_png_rgba(data), sword.decode_png_rgba(current), path.name)
-            else:
-                self.assertEqual(data, current, f"{path.name} drifted; run python3 tools/gen_xuantie_gauntlet_model.py")
+class GauntletModelTest(unittest.TestCase):
+    def test_export_matches_authored_models(self) -> None:
+        outputs = gen.outputs()
+        for item in gen.ITEMS:
+            path = gen.ASSETS / f"models/item/{item}_3d.obj"
+            faces = mesh.read_obj(outputs[path], outputs[path.with_suffix(".mtl")])
+            data, texture = gen.source_mesh(item)
+            expected = [gauntlet_mesh.model_point(part["vertices"][i])
+                        for part in data for i in part["indices"]]
+            body = [face for face in faces if not face["texture"].endswith("_heat")]
+            observed = [point for face in body for point in face["points"][:3]]
+            self.assertEqual(len(expected), len(observed), item)
+            self.assertTrue(all(math.dist(a, b) < 1e-6 for a, b in zip(expected, observed)), item)
+            self.assertEqual(outputs[gen.ASSETS / f"textures/item/{item}_model.png"], texture)
+        for path, data in outputs.items():
+            with self.subTest(path=path.name):
+                self.assertEqual(path.read_bytes(), data)
 
-    def test_generator_is_deterministic(self) -> None:
-        self.assertEqual(gen.outputs(), gen.outputs())
-
-    def test_check_mode_passes(self) -> None:
-        with contextlib.redirect_stdout(io.StringIO()):
-            self.assertEqual(0, gen.main(["--check"]))
-
-    def test_self_checks_pass(self) -> None:
+    def test_all_three_use_the_same_worn_pivot_and_visible_palms(self) -> None:
         self.assertEqual([], gen.self_check())
+        base = {key: value for key, value in gen.geometry_contract().items() if key != "model"}
+        for item in gen.ITEMS:
+            doc = gen.build_model_3d(item)
+            self.assertEqual(doc["display"]["thirdperson_righthand"], doc["display"]["thirdperson_lefthand"])
+            self.assertEqual(doc["display"]["firstperson_righthand"], doc["display"]["firstperson_lefthand"])
+            self.assertEqual(base, {key: value for key, value in gen.geometry_contract(item).items() if key != "model"})
+            vertices = [p for part in gen.source_mesh(item)[0] for p in part["vertices"]]
+            self.assertFalse(any(-2 < x < 2 and -4 < y < 3.9 and z < -3.95 for x, y, z in vertices), item)
 
-    def test_textures_have_the_expected_sizes_and_alpha(self) -> None:
-        width, height, raw = sword.decode_png_rgba(gen.outputs()[gen.TEXTURE_PATH])
-        self.assertEqual((128, 128), (width, height))
-        width, height, raw = sword.decode_png_rgba(gen.outputs()[gen.ICON_PATH])
-        self.assertEqual((64, 64), (width, height))
-        alphas = set(raw[3::4])
-        self.assertEqual({0, 255}, alphas, "the icon has binary alpha")
-        # Each logical pixel is a 2x2 block.
-        for y in range(0, 64, 2):
-            for x in range(0, 64, 2):
-                block = {raw[((y + dy) * 64 + x + dx) * 4:((y + dy) * 64 + x + dx) * 4 + 4]
-                         for dy in (0, 1) for dx in (0, 1)}
-                self.assertEqual(1, len(block), (x, y))
+    def test_punch_glow_and_sparks_form_a_four_second_loop(self) -> None:
+        assets = gen.outputs()
+        stem = gen.ASSETS / f"textures/item/{gen.JINWU}_heat.png"
+        w, h, data = geometry.decode_png_rgba(assets[stem])
+        animation = json.loads(assets[stem.with_suffix(".png.mcmeta")])["animation"]
+        frames = animation["frames"]
+        self.assertEqual(animation["frametime"] * len(frames), 80)
+        self.assertEqual(w, animation["width"])
+        self.assertEqual(animation["height"], gauntlet_heat.HEIGHT)
+        self.assertEqual(h % gauntlet_heat.HEIGHT, 0)
+        self.assertEqual(h // gauntlet_heat.HEIGHT, max(frames) + 1)
+        stride = w * gauntlet_heat.HEIGHT * 4
 
-    def test_model_texture_is_painted_not_flat(self) -> None:
-        texture = gen.render_texture()
-        for name, (x0, y0, x1, y1) in gen.REGIONS.items():
-            if (x1 - x0) * (y1 - y0) < 16:
-                continue
-            colours = {texture[y][x] for y in range(y0, y1) for x in range(x0, x1)}
-            self.assertGreater(len(colours), 6, f"{name} is a flat fill")
+        def lit(frame: int, section: gauntlet_heat.Patch) -> list[int]:
+            return [i for i in range(section.columns) for j in range(section.row, section.row + section.rows)
+                    if data[frames[frame] * stride + (j * w + i) * 4 + 3]]
 
-    def test_wrapper_keeps_the_2d_icon_in_the_gui(self) -> None:
-        model = gen.build_model()
-        self.assertEqual("neoforge:separate_transforms", model["loader"])
-        self.assertEqual("front", model["gui_light"])
-        self.assertEqual({"parent": gen.MODEL_3D_ID}, model["base"])
-        self.assertEqual({"gui": {"parent": "minecraft:item/handheld",
-                                  "textures": {"layer0": "yuanxian:item/xuantie_gauntlet"}}}, model["perspectives"])
-        model_3d = gen.build_model_3d()
-        self.assertNotIn("parent", model_3d)
-        self.assertNotIn("gui", model_3d["display"])
-        for context in ("thirdperson_righthand", "thirdperson_lefthand", "firstperson_righthand",
-                        "firstperson_lefthand", "ground", "fixed", "head"):
-            self.assertIn(context, model_3d["display"])
-        for key, ref in model_3d["textures"].items():
-            if key != "particle":
-                self.assertTrue(ref.startswith("yuanxian:item/xuantie_gauntlet_"), ref)
+        # The lit pixels move toward the outside after the centre peaks.
+        centre = lit(7, gauntlet_heat.FRONT)
+        later = lit(14, gauntlet_heat.FRONT)
+        self.assertTrue(centre and later)
+        self.assertGreater(max(abs(i - w / 2) for i in later), max(abs(i - w / 2) for i in centre))
+        self.assertTrue(any(lit(i, gauntlet_heat.EMBERS) for i in range(10, 20)))
+        self.assertFalse(lit(25, gauntlet_heat.FRONT))
+        self.assertFalse(lit(25, gauntlet_heat.EMBERS))
+        self.assertTrue(lit(8, gauntlet_heat.CORE))
 
-    def test_model_stays_within_vanilla_element_limits(self) -> None:
-        elements = gen.build_elements()
-        self.assertEqual([], gen.check_elements(elements))
-        self.assertLess(len(elements), 80)
-        bad = copy.deepcopy(elements)
-        bad[0]["to"][1] = 33.0
-        bad[1]["rotation"] = {"angle": 22.5, "axis": "x", "origin": [8, 8, 8]}
-        errors = gen.check_elements(bad)
-        self.assertTrue(any("outside [-16, 32]" in e for e in errors), errors)
-        self.assertTrue(any("element rotation" in e for e in errors), errors)
-
-    def test_the_gauntlet_wraps_the_fist_without_cutting_into_it(self) -> None:
-        elements = gen.build_elements()
-        self.assertEqual([], gen.fist_clearance_errors(elements))
-        self.assertEqual([], gen.fist_coverage_errors(elements))
-        inside = copy.deepcopy(elements)
-        inside.append(gen.box("probe", (6.0, 6.0, 6.0), (9.0, 9.0, 9.0), {"west": gen.uv("glove")}))
-        self.assertEqual(["probe.west lies inside the arm"], gen.fist_clearance_errors(inside))
-        bare = [e for e in elements if e["name"] not in ("glove", "palm") and not e["name"].endswith("_curl")]
-        self.assertTrue(gen.fist_coverage_errors(bare))
-
-    def test_third_person_puts_the_gauntlet_on_the_fist(self) -> None:
-        fit = gen.fist_fit()
-        self.assertLess(fit["grip_error"], 1e-6)
-        self.assertLess(math.dist(fit["punch_axis_item"], (0.0, 0.0, -1.0)), 1e-6)
-        self.assertLess(math.dist(fit["palm_item"], (-1.0, 0.0, 0.0)), 1e-6)
-        self.assertEqual(gen.build_display()["thirdperson_righthand"], gen.build_display()["thirdperson_lefthand"])
-
-    def test_contract_reads_the_gauntlet_in_format_2_names(self) -> None:
-        geo = gen.geometry_contract()
-        self.assertEqual(2, geo["format"])
-        self.assertEqual("tools/gen_xuantie_gauntlet_model.py", geo["generator"])
-        self.assertEqual([8.0, 8.0, 8.0], geo["grip_center"])
-        self.assertNotIn("off_hand_grip_center", geo)
-        self.assertLess(geo["butt"]["y"][1], geo["head_base"][1])
-        self.assertEqual(geo["collar"]["y"][0], geo["trail"]["base"][1], "the trail starts at the knuckle line")
-        self.assertEqual(geo["head_tip"], geo["trail"]["tip"])
-        self.assertLess(geo["overall_y"][1] - geo["overall_y"][0], 20.0, "a short weapon")
-
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_every_variant_uses_its_ingot_and_existing_fist_style(self) -> None:
+        data = gen.ROOT / "src/main/resources/data/yuanxian"
+        for item in gen.ITEMS:
+            weapon = json.loads((data / f"combat/weapon/{item}.json").read_text())
+            self.assertTrue(weapon["paired"])
+            self.assertEqual(weapon["family"], "fist")
+            self.assertEqual(weapon["style"], "yuanxian:basic_fist")
+            self.assertEqual(weapon["first_person_rig"], "yuanxian:combat/xuantie_gauntlet_first_person.json")
+            recipe = json.loads((data / f"recipe/{item}.json").read_text())
+            self.assertEqual(recipe["pattern"], ["II", "II"])
+            self.assertEqual(recipe["key"]["I"]["item"], "yuanxian:" + item.replace("_gauntlet", "_ingot"))
+            self.assertEqual(recipe["result"], {"id": "yuanxian:" + item, "count": 1})

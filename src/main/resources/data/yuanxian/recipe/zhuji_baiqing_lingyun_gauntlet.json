@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "II",
+    "II"
+  ],
+  "key": {
+    "I": {
+      "item": "yuanxian:zhuji_baiqing_lingyun_ingot"
+    }
+  },
+  "result": {
+    "id": "yuanxian:zhuji_baiqing_lingyun_gauntlet",
+    "count": 1
+  }
+}

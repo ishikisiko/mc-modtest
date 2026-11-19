@@ -144,11 +144,12 @@ class CombatDataTest(unittest.TestCase):
         data = combat_data.load()
         self.assertEqual((), data.issues)
         self.assertEqual(["yuanxian:basic_sword", "yuanxian:basic_spear", "yuanxian:basic_fist"], list(data.styles))
-        self.assertEqual(["yuanxian:qingfeng_sword", "yuanxian:lingxiao_spear", "yuanxian:xuantie_gauntlet", "yuanxian:guiyan_sword", "yuanxian:zhenyue_ruler"],
+        self.assertEqual(["yuanxian:qingfeng_sword", "yuanxian:lingxiao_spear", "yuanxian:xuantie_gauntlet", "yuanxian:guiyan_sword", "yuanxian:zhenyue_ruler",
+                          "yuanxian:zhuji_baiqing_lingyun_gauntlet", "yuanxian:jindan_jinwu_gauntlet"],
                          list(data.weapons))
         self.assertEqual(15, len(list(data.moves())))
-        self.assertEqual(["sword", "spear", "fist", "sword", "sword"], [weapon.get("family") for weapon in data.weapons.values()])
-        self.assertEqual([False, False, True, False, False], [weapon.get("paired", False) for weapon in data.weapons.values()])
+        self.assertEqual(["sword", "spear", "fist", "sword", "sword", "fist", "fist"], [weapon.get("family") for weapon in data.weapons.values()])
+        self.assertEqual([False, False, True, False, False, True, True], [weapon.get("paired", False) for weapon in data.weapons.values()])
         self.assertEqual(combat_data.ROOT / STYLE, data.files["yuanxian:basic_sword"])
         self.assertEqual(combat_data.ROOT / SPEAR_STYLE, data.files["yuanxian:basic_spear"])
 

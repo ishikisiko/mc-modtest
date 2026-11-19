@@ -1,0 +1,19 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/item/zhuji_baiqing_lingyun_gauntlet_3d.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {"particle": "yuanxian:item/zhuji_baiqing_lingyun_gauntlet_model"},
+  "display": {
+    "thirdperson_righthand": {"rotation": [90.0, 0.0, 180.0], "translation": [0.0, -2.0, 2.0], "scale": [0.5, 0.5, 0.5]},
+    "thirdperson_lefthand": {"rotation": [90.0, 0.0, 180.0], "translation": [0.0, -2.0, 2.0], "scale": [0.5, 0.5, 0.5]},
+    "firstperson_righthand": {"rotation": [19.19, 180.0, 0.0], "translation": [1.13, -1.861, -0.712], "scale": [0.7, 0.7, 0.7]},
+    "firstperson_lefthand": {"rotation": [19.19, 180.0, 0.0], "translation": [1.13, -1.861, -0.712], "scale": [0.7, 0.7, 0.7]},
+    "ground": {"rotation": [-90.0, -45.81, -90.0], "translation": [3.166, 3.497, 0.077], "scale": [0.5, 0.5, 0.5]},
+    "head": {"rotation": [-90.0, 45.81, 90.0], "translation": [-3.799, 14.796, 6.907], "scale": [0.6, 0.6, 0.6]},
+    "fixed": {"rotation": [-90.0, 45.81, 90.0], "translation": [-4.749, 2.245, -0.116], "scale": [0.75, 0.75, 0.75]}
+  }
+}

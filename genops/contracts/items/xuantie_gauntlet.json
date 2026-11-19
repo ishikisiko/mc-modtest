@@ -9,7 +9,7 @@
   "creative_tab": {
     "visibility": "visible",
     "tab_id": "yuanxian:main",
-    "ordering": "Immediately after yuanxian:lingxiao_spear and before yuanxian:low_grade_spirit_stone."
+    "ordering": "Immediately after yuanxian:lingxiao_spear and before the Baiqing gauntlet."
   },
   "java_registration": {
     "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
@@ -26,7 +26,9 @@
     "visual_verdict": "pending"
   },
   "data_resources": {
-    "recipes": [],
+    "recipes": [
+      "src/main/resources/data/yuanxian/recipe/xuantie_gauntlet.json"
+    ],
     "tags": [
       "src/main/resources/data/minecraft/tags/item/swords.json"
     ],

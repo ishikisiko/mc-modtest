@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "item": "yuanxian:jindan_jinwu_gauntlet",
+  "family": "fist",
+  "paired": true,
+  "style": "yuanxian:basic_fist",
+  "first_person_rig": "yuanxian:combat/xuantie_gauntlet_first_person.json",
+  "geometry": "yuanxian:combat/jindan_jinwu_gauntlet_geometry.json"
+}

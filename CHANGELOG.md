@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.139.4
+
+- 三款拳套接入游戏。玄铁使用露掌外翼甲，新增白青灵金与日魄乌金。三款共用拳掌动作，各用四块对应锭合成，日魄乌金有拳面蓄光与火星。
+
 ## 0.139.3
 
 - H 面板新增城镇地图。靠近八座省城中的任一座时，可以在地图或列表中选中药铺、铁作坊、客栈和向导亭，追踪所选建筑入口。回到游戏后显示建筑名称、距离和屏外方向。

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "II",
+    "II"
+  ],
+  "key": {
+    "I": {
+      "item": "yuanxian:jindan_jinwu_ingot"
+    }
+  },
+  "result": {
+    "id": "yuanxian:jindan_jinwu_gauntlet",
+    "count": 1
+  }
+}

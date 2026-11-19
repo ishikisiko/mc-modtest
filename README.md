@@ -838,63 +838,63 @@ Confirm the jar contains the structure resources (name the versioned jar:
 `build/libs/` keeps the jars of earlier versions):
 
 ```bash
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/structure"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/blockstates/wall_plaque.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/painting_variant/inscription"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/painting/inscription"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/beast/demon_wolf.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/beast/demon_wolf_model.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/beast/demon_wolf_animations.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/npc/cultivator_model.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/npc/cultivator_animations.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/rideable_flying_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/rideable_flying_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/qingfeng_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/qingfeng_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/qingfeng_first_person.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/lingxiao_spear.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/lingxiao_spear.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/xuantie_gauntlet.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/player_animations/sword_combat.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/player_animations/spear_combat.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/player_animations/fist_combat.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/recipe/qingfeng_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/blockstates/spirit_testing_stele.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/guideme_guides/cultivation.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/guides/yuanxian/cultivation/index.md"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/cultivation_handbook.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/manual_core_huang.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/manual_core_tint.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/structure"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/blockstates/wall_plaque.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/painting_variant/inscription"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/painting/inscription"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/beast/demon_wolf.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/beast/demon_wolf_model.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/beast/demon_wolf_animations.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/npc/cultivator_model.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/npc/cultivator_animations.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/rideable_flying_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/rideable_flying_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/qingfeng_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/qingfeng_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/qingfeng_first_person.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/lingxiao_spear.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/lingxiao_spear.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/xuantie_gauntlet.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/player_animations/sword_combat.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/player_animations/spear_combat.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/player_animations/fist_combat.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/recipe/qingfeng_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/blockstates/spirit_testing_stele.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/guideme_guides/cultivation.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/guides/yuanxian/cultivation/index.md"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/cultivation_handbook.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/manual_core_huang.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/manual_core_tint.png"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/yuanxian-0.139.3.jar
+build/libs/yuanxian-0.139.4.jar
 ```
 
 ## On-Demand Modal Test Runner (default heavy-test workflow)
@@ -1084,61 +1084,61 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/structure"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/mod_block_fallbacks.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/blockstates/wall_plaque.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/block/plaque"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/painting_variant/inscription"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/painting/inscription"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/beast/demon_wolf.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/beast/demon_wolf_model.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/beast/demon_wolf_animations.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/npc/cultivator_model.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/npc/cultivator_animations.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/rideable_flying_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/rideable_flying_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/qingfeng_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/qingfeng_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/qingfeng_first_person.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/lingxiao_spear.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/lingxiao_spear.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/xuantie_gauntlet.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/combat/"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/player_animations/sword_combat.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/player_animations/spear_combat.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/player_animations/fist_combat.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/recipe/qingfeng_sword.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/blockstates/spirit_testing_stele.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "data/yuanxian/yuanxian/realm/qi_refining.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/guideme_guides/cultivation.json"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/guides/yuanxian/cultivation"
-jar tf build/libs/yuanxian-0.139.3.jar | grep "assets/yuanxian/models/item/cultivation_handbook.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/structure"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/mod_block_fallbacks.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/blockstates/wall_plaque.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/block/plaque"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/painting_variant/inscription"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/painting/inscription"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/beast/demon_wolf.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/beast/demon_wolf_model.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/beast/demon_wolf_animations.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/npc/cultivator_model.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/npc/cultivator_animations.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/rideable_flying_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/rideable_flying_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/qingfeng_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/qingfeng_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/qingfeng_first_person.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/lingxiao_spear.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/lingxiao_spear.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/xuantie_gauntlet.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/combat/"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/player_animations/sword_combat.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/player_animations/spear_combat.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/player_animations/fist_combat.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/recipe/qingfeng_sword.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/blockstates/spirit_testing_stele.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "data/yuanxian/yuanxian/realm/qi_refining.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/guideme_guides/cultivation.json"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/guides/yuanxian/cultivation"
+jar tf build/libs/yuanxian-0.139.4.jar | grep "assets/yuanxian/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -1291,7 +1291,7 @@ python3 tools/realm_stats_evidence.py
 python3 tools/realm_armor_evidence.py
 # Independent elemental penetration and save/restart:
 python3 tools/elemental_penetration_evidence.py
-/usr/bin/python3 tools/validate_realm_stats.py --jar build/libs/yuanxian-0.139.3.jar
+/usr/bin/python3 tools/validate_realm_stats.py --jar build/libs/yuanxian-0.139.4.jar
 ```
 
 Run clean stage 1 before the evidence script: it clears `run-acceptance`.
@@ -2867,19 +2867,19 @@ taken. `progress` sorts the existing validators' and tests' findings into the
 steps (`DONE`, `PLACEHOLDER`, `MISSING`, `BLOCKED`, `N/A`) and exits 1 while a
 checked step is open.
 
-### Xuantie Gauntlet (0.39.0)
+### 拳掌拳套
 
-`yuanxian:xuantie_gauntlet` (玄铁拳套) is the 拳掌 (fist) school's weapon: a
-pair of dark-iron gauntlets in one item (the weapon file sets `paired`), the
-third combat weapon. It is
-in `yuanxian:main` after the Lingxiao Spear and has no recipe:
+玄铁拳套、白青灵金拳套和日魄乌金拳套均在主创造栏的凌霄枪之后。
+每副使用四块对应的锭，在工作台摆成 2×2 合成。凝云白青灵金锭和日魄乌金锭可在创造栏领取。
+主手持用时，副手空着会戴上镜像拳套。
 
 ```mcfunction
 /give @s yuanxian:xuantie_gauntlet
+/give @s yuanxian:zhuji_baiqing_lingyun_gauntlet
+/give @s yuanxian:jindan_jinwu_gauntlet
 ```
 
-In vanilla mode it is a diamond-tier sword item with 5 attack damage and 2.2
-attack speed (lighter and faster than the sword). In cultivation mode it runs
+In vanilla mode all three use the same diamond-tier sword attributes, with 5 attack damage and 2.2 attack speed. In cultivation mode each runs
 the `yuanxian:basic_fist` style (`data/yuanxian/combat/style/basic_fist.json`):
 short reach, fast moves with two-tick hit windows, small slides and short
 hit-stops; moves one to four chain at `6/7/7/8`, the fifth cannot chain, and
@@ -2900,26 +2900,16 @@ and the chop, stays up on the palm and the uppercut, and strikes with the right
 on the step-in. The mode entry is a 抱拳礼. In first person the left guard
 hand is drawn while the off-hand slot is empty and moves with the strikes.
 
-0.39.1 (after the owner's first look): one item is a pair. While the off-hand
-slot is empty the same model is drawn mirrored on the left hand, in third
-person by `PairedWeaponLayer` (it follows the PAL left arm) and in first
-person over the guard fist; anything held in the off hand replaces it. The
-model is a slimmer articulated fist (12.5 x 11.0 x 10.25 model px, was
-16.5 x 12.8 x 11.9; still 2 model px per player px) with separate finger
-plates, knuckle caps, overlapping back lames, the thumb across the curled
-fingers and a plain palm, and the inventory icon is an angled three-quarter
-fist. Candidates and before/after sheets: `out/preview/xuantie_gauntlet/v2/index.html`. The
-model, textures, icon, and the contract `combat/xuantie_gauntlet_geometry.json`
-come from `tools/gen_xuantie_gauntlet_model.py`; the poses in
-`player_animations/fist_combat.json` come from `tools/gen_sword_pal_anims.py`
-(`BASIC_FIST`); the first-person rig `combat/xuantie_gauntlet_first_person.json`
-is hand-authored and reloads with `F3+T`. Edit the generators, never their
-outputs:
+第三人称由 `PairedWeaponLayer` 跟随副手臂，修仙战斗第一人称护手使用同一套佩戴坐标。
+三款各有独立的 GLB 作者源位于 `equipment/weapons/gauntlets/`，由
+`tools/gen_xuantie_gauntlet_model.py` 导出模型、贴图和背包图标。
+日魄乌金的日斑、拳面亮弧和火星用全亮材质播放四秒循环。
+三款共用 `fist_combat.json` 的动作与 `xuantie_gauntlet_first_person.json` 的第一人称姿态。
 
 ```bash
 python3 tools/gen_xuantie_gauntlet_model.py            # write the outputs
 python3 tools/gen_xuantie_gauntlet_model.py --check    # fail on drift or a failed self-check
-python3 tools/gen_xuantie_gauntlet_model.py --report   # the derived display and the fist fit
+python3 tools/gen_xuantie_gauntlet_model.py --report   # triangle counts and model bounds
 python3 tools/gen_sword_pal_anims.py --report          # per key, with each fist move's off-hand role and arm clearance
 python3 -m tools.combat_preview fp --weapon yuanxian:xuantie_gauntlet --move all --key-ticks --out out/preview/xuantie_gauntlet/fp.png
 python3 -m tools.combat_capture run --label <label> --weapon yuanxian:xuantie_gauntlet
@@ -4566,7 +4556,7 @@ effect number, health, mana or cooldown. See [KB 48](docs/ai-kb/48_innate_fates.
 /usr/bin/python3 -m unittest tools.tests.test_validate_innate_fates
 ./gradlew test --tests 'com.example.myvillage.cultivation.*' --tests 'com.example.myvillage.client.cultivation.*'
 /usr/bin/python3 tools/release_gate.py
-/usr/bin/python3 tools/validate_innate_fates.py --jar build/libs/yuanxian-0.139.3.jar
+/usr/bin/python3 tools/validate_innate_fates.py --jar build/libs/yuanxian-0.139.4.jar
 python3 tools/run_chunky_acceptance.py --stage 1
 python3 tools/innate_fates_evidence.py --ui-only --out out/preview/stele_awakening
 ```

@@ -1,0 +1,9 @@
+{
+  "loader": "neoforge:separate_transforms",
+  "gui_light": "front",
+  "base": {"parent": "yuanxian:item/zhuji_baiqing_lingyun_gauntlet_3d"},
+  "perspectives": {
+    "gui": {"parent": "minecraft:item/handheld", "textures": {"layer0": "yuanxian:item/zhuji_baiqing_lingyun_gauntlet"}}
+  },
+  "textures": {"particle": "yuanxian:item/zhuji_baiqing_lingyun_gauntlet"}
+}

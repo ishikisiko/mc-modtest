@@ -674,11 +674,22 @@ def validate_weapon_models(root: Path, data: combat_data.CombatData, contracts: 
         display = model.get("display")
         missing = [context for context in WEAPON_HAND_DISPLAYS
                    if not isinstance(display, dict) or not isinstance(display.get(context), dict)]
-        if not isinstance(model.get("elements"), list) or not model["elements"] or missing:
+        has_geometry = isinstance(model.get("elements"), list) and bool(model["elements"])
+        if model.get("loader") == "neoforge:obj":
+            obj_ref = resource_id(model.get("model"))
+            if obj_ref and obj_ref.endswith(".obj"):
+                try:
+                    obj = combat_data.asset_file(root, obj_ref)
+                except ValueError:
+                    has_geometry = False
+                else:
+                    has_geometry = obj.is_file() and obj.with_suffix(".mtl").is_file()
+        if not has_geometry or missing:
+            detail = ", ".join(missing) or "geometry"
             findings.append(Finding(
                 "COMBAT_WEAPON_MODEL_3D",
-                f"{weapon_id}: {model_id} needs elements and display "
-                f"{', '.join(WEAPON_HAND_DISPLAYS)} (missing {', '.join(missing) or 'elements'})"))
+                f"{weapon_id}: {model_id} needs geometry and display "
+                f"{', '.join(WEAPON_HAND_DISPLAYS)} (missing {detail})"))
 
 
 def validate_first_person_rigs(root: Path, data: combat_data.CombatData, contracts: dict[str, dict],

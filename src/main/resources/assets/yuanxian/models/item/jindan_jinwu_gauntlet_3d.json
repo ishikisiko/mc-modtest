@@ -1,0 +1,20 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/item/jindan_jinwu_gauntlet_3d.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": true,
+  "gui_light": "side",
+  "textures": {"particle": "yuanxian:item/jindan_jinwu_gauntlet_model"},
+  "display": {
+    "thirdperson_righthand": {"rotation": [90.0, 0.0, 180.0], "translation": [0.0, -2.0, 2.0], "scale": [0.5, 0.5, 0.5]},
+    "thirdperson_lefthand": {"rotation": [90.0, 0.0, 180.0], "translation": [0.0, -2.0, 2.0], "scale": [0.5, 0.5, 0.5]},
+    "firstperson_righthand": {"rotation": [19.19, 180.0, 0.0], "translation": [1.13, -1.861, -0.712], "scale": [0.7, 0.7, 0.7]},
+    "firstperson_lefthand": {"rotation": [19.19, 180.0, 0.0], "translation": [1.13, -1.861, -0.712], "scale": [0.7, 0.7, 0.7]},
+    "ground": {"rotation": [-90.0, -45.81, -90.0], "translation": [1.722, 2.024, 0.633], "scale": [0.5, 0.5, 0.5]},
+    "head": {"rotation": [-90.0, 45.81, 90.0], "translation": [-2.066, 13.029, 6.241], "scale": [0.6, 0.6, 0.6]},
+    "fixed": {"rotation": [-90.0, 45.81, 90.0], "translation": [-2.583, 0.036, -0.949], "scale": [0.75, 0.75, 0.75]}
+  },
+  "render_type": "minecraft:cutout"
+}

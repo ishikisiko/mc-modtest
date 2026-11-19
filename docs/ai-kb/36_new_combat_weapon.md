@@ -310,3 +310,10 @@ ugly, the gauntlet read as a big ski glove, and one item should be a pair.
   shows the inside of every box. The third-person left hand needs no pose
   change: vanilla's left-hand item frame is the right's mirror image, so
   reflecting the right-hand display transform inside it gives the left glove.
+
+## 0.139.4 三款拳套
+
+玄铁、白青灵金、日魄乌金的穿戴模型归 `equipment/weapons/gauntlets/`。
+`tools/gen_xuantie_gauntlet_model.py` 从三份 GLB 生成 NeoForge OBJ、贴图、图标和几何合同。
+三款通过 `paired` 和 `basic_fist` 共用佩戴、拳法与判定锚点。
+日魄乌金用拳面及日斑的全亮网格播放独立动画贴图。其火星跟随手上的模型。

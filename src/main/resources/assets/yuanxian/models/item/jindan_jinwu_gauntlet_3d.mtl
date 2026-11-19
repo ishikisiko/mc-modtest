@@ -1,0 +1,11 @@
+newmtl gauntlet
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/jindan_jinwu_gauntlet_model
+
+newmtl heat
+Kd 1 1 1
+Ka 1 1 1
+d 1
+map_Kd yuanxian:item/jindan_jinwu_gauntlet_heat

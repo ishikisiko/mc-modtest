@@ -95,6 +95,24 @@ SWORD_CONTRACTS = (
         True,
         GAUNTLET_ATTRIBUTES,
     ),
+    (
+        "zhuji_baiqing_lingyun_gauntlet",
+        "ZHUJI_BAIQING_LINGYUN_GAUNTLET",
+        None,
+        "白青灵金拳套",
+        "zhuji_baiqing_lingyun_gauntlet",
+        True,
+        GAUNTLET_ATTRIBUTES,
+    ),
+    (
+        "jindan_jinwu_gauntlet",
+        "JINDAN_JINWU_GAUNTLET",
+        None,
+        "日魄乌金拳套",
+        "jindan_jinwu_gauntlet",
+        True,
+        GAUNTLET_ATTRIBUTES,
+    ),
 )
 CREATIVE_SWORD_ORDER = (
     "RIDEABLE_FLYING_SWORD",
@@ -104,6 +122,8 @@ CREATIVE_SWORD_ORDER = (
     "QINGXIAO_LIUYUN_SWORD",
     "LINGXIAO_SPEAR",
     "XUANTIE_GAUNTLET",
+    "ZHUJI_BAIQING_LINGYUN_GAUNTLET",
+    "JINDAN_JINWU_GAUNTLET",
     "LOW_GRADE_SPIRIT_STONE",
 )
 
@@ -119,6 +139,8 @@ SWORD_3D_MODELS = {
     "qingfeng_sword": "yuanxian:item/qingfeng_sword_3d",
     "lingxiao_spear": "yuanxian:item/lingxiao_spear_3d",
     "xuantie_gauntlet": "yuanxian:item/xuantie_gauntlet_3d",
+    "zhuji_baiqing_lingyun_gauntlet": "yuanxian:item/zhuji_baiqing_lingyun_gauntlet_3d",
+    "jindan_jinwu_gauntlet": "yuanxian:item/jindan_jinwu_gauntlet_3d",
 }
 
 
@@ -573,7 +595,24 @@ def validate_sword_model(item_id: str, model: Any, error_key: str, errors: list[
     except ValueError:
         errors.append(f"{error_key}_model_3d_json")
         return
-    validate_element_model(model_3d, error_key, errors)
+    if item_id.endswith("_gauntlet") and isinstance(model_3d, dict) and model_3d.get("loader") == "neoforge:obj":
+        obj = path.with_suffix(".obj")
+        mtl = path.with_suffix(".mtl")
+        if model_3d.get("model") != f"yuanxian:models/item/{item_id}_3d.obj" or not obj.is_file() or not mtl.is_file():
+            errors.append(f"{error_key}_model_3d_contract:obj_resources")
+        else:
+            for line in mtl.read_text(encoding="utf-8").splitlines():
+                if line.startswith("map_Kd "):
+                    ref = line.split(maxsplit=1)[1]
+                    tex = texture_path(ref)
+                    if not ref.startswith(f"yuanxian:item/{item_id}_") or tex is None or not tex.is_file():
+                        errors.append(f"{error_key}_model_3d_contract:obj_texture_{ref}")
+        display = model_3d.get("display")
+        for context in ("firstperson_righthand", "firstperson_lefthand", "thirdperson_righthand", "thirdperson_lefthand"):
+            if not isinstance(display, dict) or not isinstance(display.get(context), dict):
+                errors.append(f"{error_key}_model_3d_contract:display_{context}")
+    else:
+        validate_element_model(model_3d, error_key, errors)
     if isinstance(model_3d, dict) and isinstance(model_3d.get("display"), dict):
         if full_gui and "gui" not in model_3d["display"]:errors.append(f"{error_key}_model_3d_contract:missing_gui_transform")
         if not full_gui and "gui" in model_3d["display"]:errors.append(f"{error_key}_model_3d_contract:gui_must_use_2d_icon")
@@ -681,7 +720,7 @@ def validate_swords(items_text: str, lang: dict[str, Any], zh_lang: dict[str, An
         validate_sword_registration(items_text, item_id, holder, error_key, attributes, errors, item_class)
 
         lang_key = f"item.yuanxian.{item_id}"
-        if lang.get(lang_key) != en_name:
+        if en_name is not None and lang.get(lang_key) != en_name:
             errors.append(f"{error_key}_en_us_name")
         if zh_lang.get(lang_key) != zh_name:
             errors.append(f"{error_key}_zh_cn_name")
@@ -726,7 +765,7 @@ def validate_swords(items_text: str, lang: dict[str, Any], zh_lang: dict[str, An
     ]
     if any(position < 0 for position in creative_positions) or creative_positions != sorted(creative_positions):
         errors.append(
-            "sword_creative_order:rideable->qingfeng->xuanyue->chilian->qingxiao->lingxiao->xuantie->spirit_stone")
+            "sword_creative_order:rideable->qingfeng->xuanyue->chilian->qingxiao->lingxiao->xuantie->baiqing->jinwu->spirit_stone")
 
     tag_path = ROOT / "src/main/resources/data/minecraft/tags/item/swords.json"
     if not tag_path.is_file():

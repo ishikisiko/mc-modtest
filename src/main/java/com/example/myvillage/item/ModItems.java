@@ -157,6 +157,18 @@ public final class ModItems {
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F))));
 
+    public static final DeferredItem<SwordItem> ZHUJI_BAIQING_LINGYUN_GAUNTLET =
+            ITEMS.registerItem("zhuji_baiqing_lingyun_gauntlet",
+                    props -> new CombatWeaponItem(
+                            Tiers.DIAMOND,
+                            props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F))));
+
+    public static final DeferredItem<SwordItem> JINDAN_JINWU_GAUNTLET =
+            ITEMS.registerItem("jindan_jinwu_gauntlet",
+                    props -> new CombatWeaponItem(
+                            Tiers.DIAMOND,
+                            props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F))));
+
     public static final DeferredItem<BlockItem> SPIRIT_SOIL = ITEMS.registerItem("spirit_soil",
             props -> new BlockItem(ModBlocks.SPIRIT_SOIL.get(), props));
     public static final DeferredItem<Item> RAW_XUANTIE = ITEMS.registerItem("raw_xuantie",
@@ -416,6 +428,8 @@ public final class ModItems {
                         output.accept(QINGXIAO_LIUYUN_SWORD.get());
                         output.accept(LINGXIAO_SPEAR.get());
                         output.accept(XUANTIE_GAUNTLET.get());
+                        output.accept(ZHUJI_BAIQING_LINGYUN_GAUNTLET.get());
+                        output.accept(JINDAN_JINWU_GAUNTLET.get());
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
                         output.accept(MEDIUM_GRADE_SPIRIT_STONE.get());
                         output.accept(HIGH_GRADE_SPIRIT_STONE.get());
