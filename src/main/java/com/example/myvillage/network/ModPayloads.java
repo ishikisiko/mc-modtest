@@ -4,6 +4,7 @@ import com.example.myvillage.combat.network.CombatPayloads;
 import com.example.myvillage.cultivation.network.CultivationPayloads;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import com.example.myvillage.sim.runtime.net.WorldSimPayloads;
+import com.example.myvillage.worldplan.townmap.TownMapLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -30,7 +31,8 @@ public final class ModPayloads {
     // 协议79为取物器增加蓝图选择与搭建确认。
     // 协议80增加篆纹阵投影交互与六行附魔界面。
     // 协议81在篆纹阵菜单中同步抽取费用的灵石品级。
-    public static final String PROTOCOL_VERSION = "81";
+    // 向玩家同步附近省城的地图身份与实际落点。
+    public static final String PROTOCOL_VERSION = "82";
 
     private ModPayloads() {
     }
@@ -124,6 +126,8 @@ public final class ModPayloads {
         CombatPayloads.register(registrar);
         WorldSimPayloads.register(registrar);
         com.example.myvillage.story.net.StoryPayloads.register(registrar);
+        registrar.playToClient(TownMapLocation.TYPE, TownMapLocation.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> TownMapLocation.receive(payload)));
         LOGGER.info(
                 "Payload handlers registered: flying-sword input, cultivation snapshots (time with month, profile v5)/intents/core-technique switch/status with study progress, combat intents/snapshots/actions, world-sim queries/snapshots, confirmed atlas city travel, and the sect dialogue/intent (protocol {})",
                 PROTOCOL_VERSION);

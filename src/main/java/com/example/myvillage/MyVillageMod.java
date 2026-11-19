@@ -155,6 +155,7 @@ public final class MyVillageMod {
         SectStructures.register(modEventBus);
         com.example.myvillage.regiongen.BayTerracesStructures.register(modEventBus);
         com.example.myvillage.worldplan.runtime.WorldPlanRuntime.register(modEventBus);
+        com.example.myvillage.worldplan.townmap.TownMapRuntime.register();
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         com.example.myvillage.estate.EstateRuntime.register();
         com.example.myvillage.housing.HousingRuntime.register();

@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.139.3
+
+- H 面板新增城镇地图。靠近八座省城中的任一座时，可以在地图或列表中选中药铺、铁作坊、客栈和向导亭，追踪所选建筑入口。回到游戏后显示建筑名称、距离和屏外方向。
+
 ## 0.139.2
 
 - 可骑乘飞剑更名为玄铁飞剑。向药铺商人购买并研读器谱，用玄铁锭在普通炼器鼎自动制作，或手工锻成剑坯后装配。

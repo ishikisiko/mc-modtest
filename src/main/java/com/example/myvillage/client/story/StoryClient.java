@@ -1,6 +1,7 @@
 package com.example.myvillage.client.story;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.client.townmap.ClientTownMap;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.api.distmarker.Dist;
@@ -20,11 +21,13 @@ public final class StoryClient {
 
     public StoryClient(IEventBus modBus) {
         ClientStory.install();
+        ClientTownMap.install();
         NpcDialogueScreen.install();
         modBus.addListener(StoryClient::keys);
         modBus.addListener(StoryTracker::register);
         NeoForge.EVENT_BUS.addListener(ClientStory::tick);
         NeoForge.EVENT_BUS.addListener(ClientStory::logout);
+        NeoForge.EVENT_BUS.addListener(ClientTownMap::logout);
         NeoForge.EVENT_BUS.addListener(StoryMarker::capture);
     }
     private static void keys(RegisterKeyMappingsEvent event) { event.register(TRACKER); event.register(JOURNAL); }

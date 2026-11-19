@@ -2,6 +2,7 @@ package com.example.myvillage.client.story;
 
 import com.example.myvillage.client.cultivation.panel.CultivationInkTheme;
 import com.example.myvillage.client.cultivation.panel.PanelFonts;
+import com.example.myvillage.client.townmap.ClientTownMap;
 import com.example.myvillage.entity.npc.NpcEntity;
 import com.example.myvillage.story.net.StorySnapshotPayload;
 import net.minecraft.client.Minecraft;
@@ -11,19 +12,23 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Vector4f;
 
-/** One current, server-disclosed objective. HUD projection intentionally remains visible through walls. */
+/** Shared projection for a building entrance or the current story objective. */
 final class StoryMarker {
     private static final int GOLD = 0xFFF3D894, LIGHT = 0xFFFFF3C9, OUTLINE = 0xE51A261F;
-    private record Frame(ClientLevel level, StorySnapshotPayload snapshot, float x, float y, float w, double distance) { }
+    private record Frame(ClientLevel level, Object source, float x, float y, float w, double distance) { }
     private static Frame frame;
     private StoryMarker() { }
     static void clear() { frame = null; }
 
-    static boolean eligible(StorySnapshotPayload snapshot) {
+    static boolean gameplayHudVisible() {
         var mc = Minecraft.getInstance();
         return mc.level != null && mc.player != null && mc.player.isAlive() && !mc.player.isSpectator()
-                && mc.screen == null && !mc.options.hideGui && ClientStory.mode() != StoryLayout.TrackerMode.HIDDEN
-                && snapshot != null && snapshot.available() && !snapshot.completed() && !snapshot.dimension().isEmpty()
+                && mc.screen == null && !mc.options.hideGui;
+    }
+
+    private static boolean eligible(StorySnapshotPayload snapshot) {
+        var mc = Minecraft.getInstance();
+        return ClientStory.mode() != StoryLayout.TrackerMode.HIDDEN && snapshot != null && snapshot.available() && !snapshot.completed() && !snapshot.dimension().isEmpty()
                 && snapshot.dimension().equals(mc.level.dimension().location().toString());
     }
 
@@ -46,30 +51,33 @@ final class StoryMarker {
     static void capture(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
         frame = null;
+        if (!gameplayHudVisible()) return;
+        var building = ClientTownMap.targetInWorld();
         var snapshot = ClientStory.snapshot();
-        if (!eligible(snapshot)) return;
+        if (building == null && !eligible(snapshot)) return;
         var mc = Minecraft.getInstance();
         float partial = event.getPartialTick().getGameTimeDeltaPartialTick(false);
-        var position = target(snapshot, partial, true).subtract(event.getCamera().getPosition());
+        Vec3 feet = building == null ? target(snapshot, partial, false) : building.position();
+        Vec3 marker = building == null ? target(snapshot, partial, true) : feet.add(0, 1.7, 0);
+        var position = marker.subtract(event.getCamera().getPosition());
         var clip = new Vector4f((float)position.x, (float)position.y, (float)position.z, 1);
         event.getModelViewMatrix().transform(clip);
         event.getProjectionMatrix().transform(clip);
-        frame = new Frame(mc.level, snapshot, clip.x, clip.y, clip.w,
-                mc.player.position().distanceTo(target(snapshot, partial, false)));
+        frame = new Frame(mc.level, building == null ? snapshot : building, clip.x, clip.y, clip.w,
+                mc.player.position().distanceTo(feet));
     }
 
-    static void render(GuiGraphics g) {
+    static void render(GuiGraphics g, ClientTownMap.Target building, StoryLayout.Rect tracker, int trackerBottom) {
         var snapshot = ClientStory.snapshot();
         var current = frame;
-        if (!eligible(snapshot) || current == null || current.level() != Minecraft.getInstance().level
-                || current.snapshot() != snapshot) return;
+        if (current == null || current.level() != Minecraft.getInstance().level) return;
+        if (building == null && (!eligible(snapshot) || current.source() != snapshot)
+                || building != null && current.source() != building) return;
         var point = StoryMarkerProjection.project(current.x(), current.y(), current.w(), g.guiWidth(), g.guiHeight());
         if (point == null) return;
         int x = (int)Math.round(point.x()), y = (int)Math.round(point.y());
-        var tracker = StoryLayout.tracker(g.guiWidth(), g.guiHeight());
         // Keep the cue outside the text block; an overlap becomes a directional cue toward its true point.
-        int trackerBottom = tracker.y() + (ClientStory.mode() == StoryLayout.TrackerMode.EXPANDED ? 155 : 65);
-        boolean overlapsTracker = x >= tracker.x() - 12 && y >= tracker.y() - 12 && y < trackerBottom;
+        boolean overlapsTracker = trackerBottom > tracker.y() && x >= tracker.x() - 12 && y >= tracker.y() - 12 && y < trackerBottom;
         boolean directional = point.edge() || overlapsTracker;
         double directionX = point.directionX(), directionY = point.directionY();
         if (overlapsTracker) {
@@ -91,15 +99,19 @@ final class StoryMarker {
         } else g.fill(x, y + 7, x + 1, y + 10, GOLD);
 
         String distance = (long)Math.ceil(current.distance()) + " 格";
-        String label = !directional && current.distance() <= 24 && !snapshot.targetLabel().isBlank()
-                ? snapshot.targetLabel() + " · " + distance : distance;
+        String label = distance;
+        if (building != null) {
+            label = building.place().name() + " · " + distance;
+        } else if (!directional && current.distance() <= 24 && !snapshot.targetLabel().isBlank()) {
+            label = snapshot.targetLabel() + " · " + distance;
+        }
         var font = PanelFonts.get();
         int maxWidth = Math.min(126, g.guiWidth() - 40);
         var text = CultivationInkTheme.fit(font, label, maxWidth, false);
         int textWidth = font.width(text);
         int tx = Math.max(8, Math.min(g.guiWidth() - textWidth - 8, x - textWidth / 2));
         int ty = y < 40 ? y + 15 : y - 21;
-        if (tx + textWidth < tracker.x() - 4 || ty < tracker.y() - 12 || ty > trackerBottom)
+        if (trackerBottom <= tracker.y() || tx + textWidth < tracker.x() - 4 || ty < tracker.y() - 12 || ty > trackerBottom)
             g.drawString(font, text, tx, ty, LIGHT, true);
     }
 

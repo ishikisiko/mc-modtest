@@ -3,6 +3,8 @@ package com.example.myvillage.client.story;
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.client.cultivation.panel.CultivationInkTheme;
 import com.example.myvillage.client.cultivation.panel.PanelFonts;
+import com.example.myvillage.client.townmap.ClientTownMap;
+import com.example.myvillage.story.net.StorySnapshotPayload;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,22 +12,45 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
-/** Existing text-only right HUD, with one separate world-target cue. No HUD fill, plate, or texture. */
+/** Right-side story and building readouts share a single world-target cue. */
 final class StoryTracker {
     private StoryTracker() { }
     static void register(RegisterGuiLayersEvent event) {
         event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "story_tracker"), StoryTracker::render);
     }
     private static void render(GuiGraphics g, DeltaTracker delta) {
+        if (!StoryMarker.gameplayHudVisible()) return;
         var mc = Minecraft.getInstance();
         var snapshot = ClientStory.snapshot();
         var mode = ClientStory.mode();
-        if (mc.level == null || mc.player == null || !mc.player.isAlive() || mc.player.isSpectator()
-                || mc.screen != null || mc.options.hideGui || snapshot == null || !snapshot.available()
-                || mode == StoryLayout.TrackerMode.HIDDEN
-                || com.example.myvillage.client.arrival.ArrivalClient.occupiesRightSide()) return;
-        StoryMarker.render(g);
+        var building = ClientTownMap.targetInWorld();
+        boolean arrival = com.example.myvillage.client.arrival.ArrivalClient.occupiesRightSide();
+        boolean story = !arrival && snapshot != null && snapshot.available()
+                && mode != StoryLayout.TrackerMode.HIDDEN;
+        if (!story && building == null) return;
+
         var box = StoryLayout.tracker(g.guiWidth(), g.guiHeight());
+        int bottom = box.y();
+        if (story) bottom = renderStory(g, delta, snapshot, mode, box);
+        if (building != null && !arrival) {
+            int y = story ? bottom + 6 : box.y();
+            if (y + 24 <= box.bottom()) {
+                var font = PanelFonts.get();
+                String distance = (long) Math.ceil(mc.player.position().distanceTo(building.position())) + " 格";
+                g.drawString(font, CultivationInkTheme.book("建筑追踪"), box.x(), y, 0xFFF4E4B4, true);
+                var label = CultivationInkTheme.fit(font, building.place().name() + " · " + distance, box.width(), false);
+                g.drawString(font, label, box.x(), y + 12, 0xFFFFF3C9, true);
+                bottom = y + 24;
+            }
+        } else if (story) {
+            bottom = box.y() + (mode == StoryLayout.TrackerMode.EXPANDED ? 155 : 65);
+        }
+        StoryMarker.render(g, building, box, bottom);
+    }
+
+    private static int renderStory(GuiGraphics g, DeltaTracker delta, StorySnapshotPayload snapshot,
+                                   StoryLayout.TrackerMode mode, StoryLayout.Rect box) {
+        var mc = Minecraft.getInstance();
         var font = PanelFonts.get();
         int y = box.y();
         Component title = CultivationInkTheme.fit(font, snapshot.title(), box.width(), true);
@@ -44,11 +69,14 @@ final class StoryTracker {
         if (mode == StoryLayout.TrackerMode.EXPANDED) {
             y += 3;
             y = lines(g, snapshot.hint(), box, y, 3, 0xFFE4E2CF);
-            if (y + 10 <= box.bottom())
+            if (y + 10 <= box.bottom()) {
                 g.drawString(font, CultivationInkTheme.fit(font, StoryClient.TRACKER.getTranslatedKeyMessage().getString()
                         + " 折叠/展开/隐藏 · " + StoryClient.JOURNAL.getTranslatedKeyMessage().getString() + " 行迹", box.width(), false),
                         box.x(), y, 0xFFC5CDBB, true);
+                y += 12;
+            }
         }
+        return y;
     }
     private static int lines(GuiGraphics g, String text, StoryLayout.Rect box, int y, int maximum, int color) {
         var font = PanelFonts.get();

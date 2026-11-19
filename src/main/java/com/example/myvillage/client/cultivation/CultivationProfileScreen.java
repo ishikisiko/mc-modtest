@@ -73,9 +73,16 @@ public final class CultivationProfileScreen extends Screen {
         WORLD("screen.yuanxian.cultivation.tab.world"),
         FATES("screen.yuanxian.cultivation.tab.fates"),
         CRAFTING("screen.yuanxian.cultivation.tab.crafting"),
-        JOURNEY("");
+        JOURNEY(""),
+        TOWN_MAP("");
 
-        Component title() { return this == JOURNEY ? Component.literal("行迹") : Component.translatable(titleKey); }
+        Component title() {
+            return switch (this) {
+                case JOURNEY -> Component.literal("行迹");
+                case TOWN_MAP -> Component.literal("城镇地图");
+                default -> Component.translatable(titleKey);
+            };
+        }
 
         private final String titleKey;
 
@@ -122,7 +129,11 @@ public final class CultivationProfileScreen extends Screen {
         pages.put(View.CRAFTING, new com.example.myvillage.client.cultivation.panel.CraftingPage());
         pages.put(View.JOURNEY, new com.example.myvillage.client.cultivation.panel.JourneyPage());
 
+        pages.put(View.TOWN_MAP, new com.example.myvillage.client.cultivation.panel.TownMapPage());
+
         int tabY = panelTop + HEADER_HEIGHT + BODY_GAP;
+        int tabCount = View.values().length;
+        int tabHeight = Math.clamp((bodyHeight - TAB_GAP * (tabCount - 1)) / tabCount, 9, TAB_HEIGHT);
         for (View candidate : View.values()) {
             tabs.put(candidate, addPanelWidget(new PanelButton(
                     PanelButton.Style.NAV,
@@ -130,10 +141,10 @@ public final class CultivationProfileScreen extends Screen {
                     panelLeft + 3,
                     tabY,
                     railWidth - 3,
-                    TAB_HEIGHT,
+                    tabHeight,
                     candidate.title(),
                     button -> setView(candidate))));
-            tabY += TAB_HEIGHT + TAB_GAP;
+            tabY += tabHeight + TAB_GAP;
         }
         for (Map.Entry<View, PanelPage> page : pages.entrySet()) {
             docks.put(page.getKey(), page.getValue().init(
@@ -176,7 +187,7 @@ public final class CultivationProfileScreen extends Screen {
             tab.getValue().setInk(true);
             tab.getValue().setIcon(PanelAssets.navigation(switch(tab.getKey()) {
                 case PROFILE -> "profile"; case MEDITATION -> "meditation"; case TECHNIQUES -> "techniques";
-                case SKILLS -> "skills"; case WORLD -> "world"; case FATES -> "fates"; case CRAFTING -> "crafting"; case JOURNEY -> "techniques";
+                case SKILLS -> "skills"; case WORLD -> "world"; case FATES -> "fates"; case CRAFTING -> "crafting"; case JOURNEY -> "techniques"; case TOWN_MAP -> "world";
             }));
             tab.getValue().active = !open;
         }
@@ -319,7 +330,7 @@ public final class CultivationProfileScreen extends Screen {
         if (getFocused() instanceof EditBox field && field.canConsumeInput()) {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
-        if(view==View.SKILLS || view==View.TECHNIQUES || view==View.JOURNEY) {
+        if(view==View.SKILLS || view==View.TECHNIQUES || view==View.JOURNEY || view==View.TOWN_MAP) {
             int current=scrolls.getOrDefault(view,0),maximum=Math.max(0,contentHeight-viewportHeight());
             int next=switch(keyCode) {
                 case org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN -> Math.min(maximum,current+Math.max(1,viewportHeight()-14));
