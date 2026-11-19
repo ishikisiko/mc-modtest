@@ -34,8 +34,10 @@ from pathlib import Path
 
 try:
     from tools import combat_data
+    from tools.validate_mod_items import forged_weapon_registrations
 except ImportError:  # run as a script: tools/ itself is on sys.path
     import combat_data
+    from validate_mod_items import forged_weapon_registrations
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -637,10 +639,11 @@ def validate_paired_weapons(root: Path, data: combat_data.CombatData, contracts:
 def validate_weapon_items(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
     """A weapon's item is registered in Java under its id and has an item model."""
     sources = [content for _, content in java_sources(root, "")]
+    forged = forged_weapon_registrations(root)
     for weapon_id, weapon in data.weapons.items():
         namespace, name = combat_data.split_id(weapon["item"])
         registration = re.compile(rf'\.register(?:Item)?\(\s*"{re.escape(name)}"')
-        if not any(registration.search(content) for content in sources):
+        if name not in forged and not any(registration.search(content) for content in sources):
             findings.append(Finding("COMBAT_WEAPON_ITEM_UNREGISTERED", f"{weapon_id}: {weapon['item']}"))
 
 

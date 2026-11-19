@@ -1,0 +1,150 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/equipment/forging/workpiece_zhuji_baiqing_lingyun_spear_rough.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:equipment/forging/rough"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -6.436318049986283,
+        -9.16829086914176,
+        -0.6145360401871097
+      ],
+      "scale": [
+        0.9427733548281239,
+        0.9427733548281239,
+        0.9427733548281239
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -4.594594594594592,
+        -0.0
+      ],
+      "scale": [
+        0.5405405405405402,
+        0.5405405405405402,
+        0.5405405405405402
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -10.716216216216214,
+        -0.0
+      ],
+      "scale": [
+        0.878378378378378,
+        0.878378378378378,
+        0.878378378378378
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -10.716216216216214,
+        -0.0
+      ],
+      "scale": [
+        0.878378378378378,
+        0.878378378378378,
+        0.878378378378378
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -2.5708884814477745e-16,
+        -5.996192964195421,
+        4.198579514089658
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -2.5708884814477745e-16,
+        -5.996192964195421,
+        4.198579514089658
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -2.0521178724552953e-16,
+        -7.187020751200636,
+        3.3513628156037476
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -2.0521178724552953e-16,
+        -7.187020751200636,
+        3.3513628156037476
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  }
+}

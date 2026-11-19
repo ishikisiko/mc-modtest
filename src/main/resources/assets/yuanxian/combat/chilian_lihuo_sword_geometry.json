@@ -1,0 +1,72 @@
+{
+  "format": 2,
+  "units": "model_pixels",
+  "generator": "tools/gen_forged_arms.py",
+  "model": "yuanxian:item/chilian_lihuo_sword",
+  "axes": {
+    "length": "+y",
+    "flat_normal": "x",
+    "edge": "z",
+    "center_x": 8,
+    "center_z": 8
+  },
+  "grip_center": [
+    8,
+    3.1,
+    8
+  ],
+  "handle": {
+    "y": [
+      0.85,
+      5.15
+    ],
+    "half_width": 0.76,
+    "half_thickness": 0.76
+  },
+  "collar": {
+    "y": [
+      5.15,
+      5.6
+    ],
+    "half_width": 2.92,
+    "half_thickness": 0.77
+  },
+  "butt": {
+    "y": [
+      0,
+      0.85
+    ],
+    "half_width": 0.85,
+    "half_thickness": 0.85
+  },
+  "head": {
+    "half_width": 1.67,
+    "half_thickness": 0.5999999999999996,
+    "ridge_half_thickness": 0.5999999999999996,
+    "taper_start_y": 21.238999999999997
+  },
+  "head_base": [
+    8,
+    5.6,
+    8
+  ],
+  "head_tip": [
+    8.0,
+    25.65,
+    8.0
+  ],
+  "edge_axis": [
+    0,
+    0,
+    1
+  ],
+  "flat_axis": [
+    1,
+    0,
+    0
+  ],
+  "overall_y": [
+    0,
+    25.65
+  ]
+}

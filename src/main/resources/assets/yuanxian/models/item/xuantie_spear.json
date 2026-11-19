@@ -1,0 +1,150 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/item/xuantie_spear_forged.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:item/forged_arms/xuantie/socket_dark"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        1.1570879635159363,
+        1.5526434599668242,
+        0.1242382530281405
+      ],
+      "scale": [
+        0.43379909354213064,
+        0.43379909354213064,
+        0.43379909354213064
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        2.868154158215007,
+        -0.0
+      ],
+      "scale": [
+        0.20283975659229195,
+        0.20283975659229195,
+        0.20283975659229195
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        1.4107505070993862,
+        -0.0
+      ],
+      "scale": [
+        0.3296146044624744,
+        0.3296146044624744,
+        0.3296146044624744
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        1.4107505070993862,
+        -0.0
+      ],
+      "scale": [
+        0.3296146044624744,
+        0.3296146044624744,
+        0.3296146044624744
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        2.199,
+        1.198
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.9
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        2.199,
+        1.198
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.9
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        18.11,
+        6.46,
+        18.97
+      ],
+      "translation": [
+        0.44,
+        0.036,
+        -0.009
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        18.11,
+        6.46,
+        18.97
+      ],
+      "translation": [
+        0.44,
+        0.036,
+        -0.009
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    }
+  }
+}

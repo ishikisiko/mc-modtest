@@ -1,0 +1,226 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "#stone",
+    "bronze": "yuanxian:block/street_furniture/bronze",
+    "stone": "yuanxian:block/street_furniture/stone",
+    "wood": "yuanxian:block/street_furniture/wood",
+    "wood_end": "yuanxian:block/street_furniture/wood_end",
+    "cloth": "yuanxian:block/street_furniture/cloth",
+    "cloth_fold": "yuanxian:block/street_furniture/cloth_fold",
+    "lamp_panel": "yuanxian:block/street_furniture/lamp_panel",
+    "amber_glass": "yuanxian:block/street_furniture/amber_glass",
+    "lamp_roof": "yuanxian:block/street_furniture/lamp_roof"
+  },
+  "elements": [
+    {
+      "name": "石檐",
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        1.25,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        }
+      }
+    },
+    {
+      "name": "帽顶收坡",
+      "from": [
+        4,
+        1.25,
+        4
+      ],
+      "to": [
+        12,
+        3,
+        12
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_roof"
+        }
+      }
+    },
+    {
+      "name": "方形顶脊",
+      "from": [
+        6,
+        3,
+        6
+      ],
+      "to": [
+        10,
+        3.75,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        }
+      }
+    }
+  ]
+}

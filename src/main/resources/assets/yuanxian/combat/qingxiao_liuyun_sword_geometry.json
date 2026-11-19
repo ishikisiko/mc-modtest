@@ -1,0 +1,72 @@
+{
+  "format": 2,
+  "units": "model_pixels",
+  "generator": "tools/gen_forged_arms.py",
+  "model": "yuanxian:item/qingxiao_liuyun_sword",
+  "axes": {
+    "length": "+y",
+    "flat_normal": "x",
+    "edge": "z",
+    "center_x": 8,
+    "center_z": 8
+  },
+  "grip_center": [
+    8,
+    3.15,
+    8
+  ],
+  "handle": {
+    "y": [
+      0.85,
+      4.82
+    ],
+    "half_width": 0.76,
+    "half_thickness": 0.76
+  },
+  "collar": {
+    "y": [
+      4.82,
+      5.619999999999999
+    ],
+    "half_width": 2.8100000000000005,
+    "half_thickness": 0.77
+  },
+  "butt": {
+    "y": [
+      0,
+      0.85
+    ],
+    "half_width": 0.85,
+    "half_thickness": 0.85
+  },
+  "head": {
+    "half_width": 1.2799999999999998,
+    "half_thickness": 0.4800000000000004,
+    "ridge_half_thickness": 0.4800000000000004,
+    "taper_start_y": 21.321400000000004
+  },
+  "head_base": [
+    8,
+    5.619999999999999,
+    8
+  ],
+  "head_tip": [
+    8.0,
+    25.75,
+    8.0
+  ],
+  "edge_axis": [
+    0,
+    0,
+    1
+  ],
+  "flat_axis": [
+    1,
+    0,
+    0
+  ],
+  "overall_y": [
+    0,
+    25.75
+  ]
+}

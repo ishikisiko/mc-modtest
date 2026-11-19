@@ -1,0 +1,83 @@
+newmtl m0
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/ivory
+
+newmtl m1
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/socket
+
+newmtl m2
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/wood
+
+newmtl m3
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/wrap
+
+newmtl m4
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/binding
+
+newmtl m5
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/socket_dark
+
+newmtl m6
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/cloud
+
+newmtl m7
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/edge
+
+newmtl m8
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/shade
+
+newmtl m9
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/face
+
+newmtl m10
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/wall
+
+newmtl m11
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/jade
+
+newmtl m12
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/inset
+
+newmtl m13
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/baiqing/rim

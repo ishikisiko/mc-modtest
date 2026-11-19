@@ -74,6 +74,10 @@ public final class ModItems {
 
     public static final DeferredItem<StreetFurnitureItem> RUNE_LAMP_ITEM =
             ITEMS.registerItem("rune_lamp", props -> new StreetFurnitureItem(ModBlocks.RUNE_LAMP.get(), props));
+    public static final DeferredItem<StreetFurnitureItem> TALL_STREET_LAMP_ITEM =
+            ITEMS.registerItem("tall_street_lamp", props -> new StreetFurnitureItem(ModBlocks.TALL_STREET_LAMP.get(), props));
+    public static final DeferredItem<StreetFurnitureItem> LOW_STREET_LAMP_ITEM =
+            ITEMS.registerItem("low_street_lamp", props -> new StreetFurnitureItem(ModBlocks.LOW_STREET_LAMP.get(), props));
     public static final DeferredItem<StreetFurnitureItem> DRYING_RACK_ITEM =
             ITEMS.registerItem("drying_rack", props -> new StreetFurnitureItem(ModBlocks.DRYING_RACK.get(), props));
 
@@ -129,19 +133,19 @@ public final class ModItems {
 
     public static final DeferredItem<SwordItem> XUANYUE_ZHENSHAN_SWORD =
             ITEMS.registerItem("xuanyue_zhenshan_sword",
-                    props -> new SwordItem(
+                    props -> new CombatWeaponItem(
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
 
     public static final DeferredItem<SwordItem> CHILIAN_LIHUO_SWORD =
             ITEMS.registerItem("chilian_lihuo_sword",
-                    props -> new SwordItem(
+                    props -> new CombatWeaponItem(
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
 
     public static final DeferredItem<SwordItem> QINGXIAO_LIUYUN_SWORD =
             ITEMS.registerItem("qingxiao_liuyun_sword",
-                    props -> new SwordItem(
+                    props -> new CombatWeaponItem(
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
 
@@ -218,7 +222,8 @@ public final class ModItems {
             props -> new com.example.myvillage.forging.WorkshopTools.Hoe(props.attributes(net.minecraft.world.item.HoeItem.createAttributes(Tiers.IRON,-2F,-1.0F))));
     public static final DeferredItem<ForgePatternItem> PATTERN_FORGED_HOE = ITEMS.registerItem("pattern_forged_hoe",
             props -> new ForgePatternItem(props,"forged_hoe"));
-    public static final java.util.Map<String,DeferredItem<ForgePatternItem>> ARMOR_PATTERNS = com.example.myvillage.forging.WorkshopItems.registerArmorPatterns(ITEMS);
+    public static final java.util.List<DeferredItem<CombatWeaponItem>> FORGED_ARMS = ForgedArmsContent.register(ITEMS);
+    public static final java.util.Map<String,DeferredItem<ForgePatternItem>> ADDITIONAL_PATTERNS = com.example.myvillage.forging.WorkshopItems.registerAdditionalPatterns(ITEMS);
     public static final java.util.Map<String,DeferredItem<com.example.myvillage.forging.WorkpieceItem>> WORKPIECES =
             com.example.myvillage.forging.WorkshopItems.register(ITEMS);
 
@@ -404,6 +409,8 @@ public final class ModItems {
                         output.accept(LINLANG_COUNTER_ITEM.get());
                         output.accept(JIANGHU_BOARD_ITEM.get());
                         output.accept(RUNE_LAMP_ITEM.get());
+                        output.accept(TALL_STREET_LAMP_ITEM.get());
+                        output.accept(LOW_STREET_LAMP_ITEM.get());
                         output.accept(com.example.myvillage.decoration.SwordQiDecorationContent.PEDESTAL.get());
                         output.accept(com.example.myvillage.decoration.DemonPactPillarContent.PILLAR.get());
                         output.accept(DRYING_RACK_ITEM.get());
@@ -427,6 +434,7 @@ public final class ModItems {
                         output.accept(CHILIAN_LIHUO_SWORD.get());
                         output.accept(QINGXIAO_LIUYUN_SWORD.get());
                         output.accept(LINGXIAO_SPEAR.get());
+                        FORGED_ARMS.forEach(entry -> output.accept(entry.get()));
                         output.accept(XUANTIE_GAUNTLET.get());
                         output.accept(ZHUJI_BAIQING_LINGYUN_GAUNTLET.get());
                         output.accept(JINDAN_JINWU_GAUNTLET.get());
@@ -451,7 +459,7 @@ public final class ModItems {
                         output.accept(PATTERN_FORGED_SHOVEL.get());
                         output.accept(FORGED_HOE.get());
                         output.accept(PATTERN_FORGED_HOE.get());
-                        ARMOR_PATTERNS.values().forEach(entry -> output.accept(entry.get()));
+                        ADDITIONAL_PATTERNS.values().forEach(entry -> output.accept(entry.get()));
                         WORKPIECES.values().forEach(entry -> {
                             var item = entry.get();
                             output.accept(com.example.myvillage.forging.WorkshopItems.blank(new com.example.myvillage.forging.Workpiece(

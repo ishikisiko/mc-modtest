@@ -1,6 +1,150 @@
 {
-  "parent": "minecraft:item/handheld",
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/item/chilian_lihuo_sword_forged.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
   "textures": {
-    "layer0": "yuanxian:item/chilian_lihuo_sword"
+    "particle": "yuanxian:item/forged_arms/chilian/socket"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -1.6879891802492655,
+        -2.4969042114102975,
+        0.051670425925020594
+      ],
+      "scale": [
+        0.6621297877669172,
+        0.6621297877669172,
+        0.6621297877669172
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        0.4951267056530215,
+        -0.0
+      ],
+      "scale": [
+        0.3118908382066277,
+        0.3118908382066277,
+        0.3118908382066277
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -2.4454191033138404,
+        -0.0
+      ],
+      "scale": [
+        0.5068226120857701,
+        0.5068226120857701,
+        0.5068226120857701
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -2.4454191033138404,
+        -0.0
+      ],
+      "scale": [
+        0.5068226120857701,
+        0.5068226120857701,
+        0.5068226120857701
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        1.85,
+        1.265
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        1.85,
+        1.265
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        0.787,
+        0.209
+      ],
+      "scale": [
+        0.572,
+        0.572,
+        0.572
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        0.787,
+        0.209
+      ],
+      "scale": [
+        0.572,
+        0.572,
+        0.572
+      ]
+    }
   }
 }

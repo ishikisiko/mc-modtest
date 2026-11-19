@@ -1,0 +1,150 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/item/zhuji_baiqing_lingyun_spear_forged.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:item/forged_arms/baiqing/ivory"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        0.5786154878535136,
+        0.751977623633963,
+        0.02127813228578992
+      ],
+      "scale": [
+        0.39218313000944777,
+        0.39218313000944777,
+        0.39218313000944777
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        2.4036697247706416,
+        -0.0
+      ],
+      "scale": [
+        0.18348623853211005,
+        0.18348623853211005,
+        0.18348623853211005
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        0.6559633027522922,
+        -0.0
+      ],
+      "scale": [
+        0.29816513761467883,
+        0.29816513761467883,
+        0.29816513761467883
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        0.6559633027522922,
+        -0.0
+      ],
+      "scale": [
+        0.29816513761467883,
+        0.29816513761467883,
+        0.29816513761467883
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        1.483,
+        1.335
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.9
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        1.483,
+        1.335
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.9
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        18.11,
+        6.46,
+        18.97
+      ],
+      "translation": [
+        0.557,
+        -0.287,
+        -0.129
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        18.11,
+        6.46,
+        18.97
+      ],
+      "translation": [
+        0.557,
+        -0.287,
+        -0.129
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    }
+  }
+}

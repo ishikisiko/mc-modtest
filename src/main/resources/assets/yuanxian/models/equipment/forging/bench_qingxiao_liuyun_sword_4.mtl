@@ -1,0 +1,41 @@
+newmtl m0
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/qingxiao/face
+
+newmtl m1
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/qingxiao/edge
+
+newmtl m2
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/qingxiao/wall
+
+newmtl m3
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/qingxiao/shade
+
+newmtl m4
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/qingxiao/rim
+
+newmtl m5
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/qingxiao/socket
+
+newmtl m6
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/qingxiao/socket_dark

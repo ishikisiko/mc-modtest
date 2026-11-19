@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "roads": {
+    "ximo": [
+      "yuanxian:manor_town_compacted_sand",
+      "yuanxian:manor_town_oasis_flagstone",
+      "yuanxian:manor_town_sand_step",
+      "yuanxian:manor_town_sandstone_edge",
+      "yuanxian:manor_town_sandstone_inlay",
+      "yuanxian:manor_town_sandstone_walk",
+      "yuanxian:manor_town_worn_sand"
+    ],
+    "beiyuan": [
+      "yuanxian:manor_town_ash_lane",
+      "yuanxian:manor_town_cold_edge",
+      "yuanxian:manor_town_cold_setts",
+      "yuanxian:manor_town_gravel_lane",
+      "yuanxian:manor_town_grey_flagstone"
+    ],
+    "lingyue": [
+      "yuanxian:manor_town_ash_lane",
+      "yuanxian:manor_town_gravel_lane",
+      "yuanxian:manor_town_grey_flagstone",
+      "yuanxian:manor_town_grey_setts",
+      "yuanxian:manor_town_oasis_flagstone"
+    ],
+    "donghai": [
+      "yuanxian:manor_town_ash_lane",
+      "yuanxian:manor_town_grey_flagstone",
+      "yuanxian:manor_town_salt_flagstone",
+      "yuanxian:manor_town_shore_edge"
+    ],
+    "nanjiang": [
+      "yuanxian:manor_town_ash_lane",
+      "yuanxian:manor_town_gravel_lane",
+      "yuanxian:manor_town_grey_flagstone",
+      "yuanxian:manor_town_moss_edge",
+      "yuanxian:manor_town_wet_setts"
+    ],
+    "donghuang": [
+      "yuanxian:manor_town_ash_lane",
+      "yuanxian:manor_town_gravel_lane",
+      "yuanxian:manor_town_grey_ashlar",
+      "yuanxian:manor_town_grey_flagstone",
+      "yuanxian:manor_town_oasis_flagstone",
+      "yuanxian:manor_town_warm_setts"
+    ],
+    "moyu": [
+      "yuanxian:manor_town_ash_lane",
+      "yuanxian:manor_town_bronze_inlay",
+      "yuanxian:manor_town_dark_setts",
+      "yuanxian:manor_town_grey_setts"
+    ],
+    "zhongzhou": [
+      "minecraft:stone_bricks"
+    ],
+    "bay_terraces": [
+      "minecraft:gravel"
+    ]
+  },
+  "wide_road_min": 5,
+  "narrow_road_min": 3,
+  "scan_inset": 2,
+  "sky_clearance": 5,
+  "light_clearance": 5
+}

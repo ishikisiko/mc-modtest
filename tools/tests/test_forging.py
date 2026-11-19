@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 import unittest
 from tools import gen_forging_assets as assets
+from tools.forged_arms.assets import specs
+from tools.validate_mod_items import forged_weapon_registrations
 from tools.modal_runner.remote import commands_for
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -15,9 +17,16 @@ class ForgingResourcesTest(unittest.TestCase):
         armor_ids={a['id'] for a in catalogue['items']}
         merchant_patterns=armor_ids|{'yuanxian:rideable_flying_sword'}
         offers=json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/commerce_rules.json').read_text())['offers']
+        forged = {'yuanxian:'+spec['id'] for spec in specs()}
+        new = {'yuanxian:'+ident for ident in forged_weapon_registrations(ROOT)}
         for recipe in rules['recipes']:
-            if recipe['output'] in armor_ids:
-                self.assertIn('WorkshopItems.registerArmorPatterns(ITEMS)',registered)
+            if recipe['output'] in forged:
+                self.assertIn('WorkshopItems.registerAdditionalPatterns(ITEMS)',registered)
+                self.assertTrue(recipe['output'] in new or recipe['output'].split(':')[1] in registered
+                                or recipe['output']=='yuanxian:guiyan_sword')
+                self.assertEqual('yuanxian:pattern_'+recipe['id'],recipe['pattern'])
+            elif recipe['output'] in armor_ids:
+                self.assertIn('WorkshopItems.registerAdditionalPatterns(ITEMS)',registered)
                 craft=next(c for c in json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())['crafts'] if c['recipe']==recipe['id'])
                 self.assertIn(craft['kind'],('helmet','chestplate','leggings','boots'))
                 self.assertEqual('yuanxian:pattern_'+recipe['id'],recipe['pattern'])

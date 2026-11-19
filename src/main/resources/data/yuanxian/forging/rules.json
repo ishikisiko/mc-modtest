@@ -165,6 +165,158 @@
       },
       "traits": [],
       "quality_tier": "yuanxian:qi_refining"
+    },
+    {
+      "id": "xuantie_sword",
+      "pattern": "yuanxian:pattern_xuantie_sword",
+      "output": "yuanxian:xuantie_sword",
+      "costs": {
+        "yuanxian:xuantie_ingot": 4,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:qi_refining"
+    },
+    {
+      "id": "xuantie_spear",
+      "pattern": "yuanxian:pattern_xuantie_spear",
+      "output": "yuanxian:xuantie_spear",
+      "costs": {
+        "yuanxian:xuantie_ingot": 4,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:qi_refining"
+    },
+    {
+      "id": "zhuji_baiqing_lingyun_sword",
+      "pattern": "yuanxian:pattern_zhuji_baiqing_lingyun_sword",
+      "output": "yuanxian:zhuji_baiqing_lingyun_sword",
+      "costs": {
+        "yuanxian:zhuji_baiqing_lingyun_ingot": 4,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:foundation_establishment"
+    },
+    {
+      "id": "zhuji_baiqing_lingyun_spear",
+      "pattern": "yuanxian:pattern_zhuji_baiqing_lingyun_spear",
+      "output": "yuanxian:zhuji_baiqing_lingyun_spear",
+      "costs": {
+        "yuanxian:zhuji_baiqing_lingyun_ingot": 4,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:foundation_establishment"
+    },
+    {
+      "id": "jindan_jinwu_sword",
+      "pattern": "yuanxian:pattern_jindan_jinwu_sword",
+      "output": "yuanxian:jindan_jinwu_sword",
+      "costs": {
+        "yuanxian:jindan_jinwu_ingot": 4,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:golden_core"
+    },
+    {
+      "id": "jindan_jinwu_spear",
+      "pattern": "yuanxian:pattern_jindan_jinwu_spear",
+      "output": "yuanxian:jindan_jinwu_spear",
+      "costs": {
+        "yuanxian:jindan_jinwu_ingot": 4,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:golden_core"
+    },
+    {
+      "id": "xuanyue_zhenshan_sword",
+      "pattern": "yuanxian:pattern_xuanyue_zhenshan_sword",
+      "output": "yuanxian:xuanyue_zhenshan_sword",
+      "costs": {
+        "yuanxian:xuantie_ingot": 5,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:qi_refining"
+    },
+    {
+      "id": "chilian_lihuo_sword",
+      "pattern": "yuanxian:pattern_chilian_lihuo_sword",
+      "output": "yuanxian:chilian_lihuo_sword",
+      "costs": {
+        "yuanxian:chitong_ingot": 4,
+        "#c:spirit_stones/low_grade": 2,
+        "minecraft:blaze_powder": 1
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:qi_refining"
+    },
+    {
+      "id": "qingxiao_liuyun_sword",
+      "pattern": "yuanxian:pattern_qingxiao_liuyun_sword",
+      "output": "yuanxian:qingxiao_liuyun_sword",
+      "costs": {
+        "yuanxian:zhuji_baiqing_lingyun_ingot": 4,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:foundation_establishment"
+    },
+    {
+      "id": "guiyan_sword",
+      "pattern": "yuanxian:pattern_guiyan_sword",
+      "output": "yuanxian:guiyan_sword",
+      "costs": {
+        "minecraft:iron_ingot": 1,
+        "#c:spirit_stones/low_grade": 2,
+        "yuanxian:sword_spirit_core": 1
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ],
+      "quality_tier": "yuanxian:qi_refining"
     }
   ],
   "traits": {

@@ -154,6 +154,96 @@
       "work_experience": 0,
       "forming_points": 400,
       "grade": 3
+    },
+    {
+      "recipe": "xuantie_sword",
+      "kind": "sword",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 420,
+      "grade": 2
+    },
+    {
+      "recipe": "xuantie_spear",
+      "kind": "spear",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 440,
+      "grade": 2
+    },
+    {
+      "recipe": "zhuji_baiqing_lingyun_sword",
+      "kind": "sword",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 510,
+      "grade": 3
+    },
+    {
+      "recipe": "zhuji_baiqing_lingyun_spear",
+      "kind": "spear",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 530,
+      "grade": 3
+    },
+    {
+      "recipe": "jindan_jinwu_sword",
+      "kind": "sword",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 620,
+      "grade": 4
+    },
+    {
+      "recipe": "jindan_jinwu_spear",
+      "kind": "spear",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 640,
+      "grade": 4
+    },
+    {
+      "recipe": "xuanyue_zhenshan_sword",
+      "kind": "sword",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 480,
+      "grade": 2
+    },
+    {
+      "recipe": "chilian_lihuo_sword",
+      "kind": "sword",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 470,
+      "grade": 2
+    },
+    {
+      "recipe": "qingxiao_liuyun_sword",
+      "kind": "sword",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 510,
+      "grade": 3
+    },
+    {
+      "recipe": "guiyan_sword",
+      "kind": "sword",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0,
+      "forming_points": 440,
+      "grade": 2
     }
   ],
   "treatment_attack": 0.15,

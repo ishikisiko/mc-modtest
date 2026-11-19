@@ -18,6 +18,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** 模型与碰撞来自同一份 authored 设施目录，不再把小构件取整为完整方块。 */
 public final class StreetFurnitureCatalog {
+    private static final Set<String> IDS=Set.of("rune_lamp","drying_rack","tall_street_lamp","low_street_lamp");
     public static final String RESOURCE="/data/yuanxian/street_furniture/catalog.json";
 
     public record Box(double x0,double y0,double z0,double x1,double y1,double z1) {
@@ -56,7 +57,7 @@ public final class StreetFurnitureCatalog {
     public record Family(String id,int width,int height,int depth,String sound,float strength,List<Part> parts){
         public Family {
             parts=List.copyOf(parts);
-            if(!Set.of("rune_lamp","drying_rack").contains(id)||width<1||width>2||height!=2||depth!=1||parts.size()!=width*height*depth
+            if(!IDS.contains(id)||width<1||width>2||height<2||height>3||depth!=1||parts.size()!=width*height*depth
                     ||!Set.of("metal","wood").contains(sound)||!Float.isFinite(strength)||strength<=0||strength>20)
                 throw new IllegalArgumentException("街景设施目录不合法");
             for(int i=0;i<parts.size();i++)if(!parts.get(i).offset().equals(new BlockPos(i%width,i/(width*depth),(i/width)%depth)))
@@ -98,7 +99,7 @@ public final class StreetFurnitureCatalog {
                 var family=new Family(f.get("id").getAsString(),integer(size.get(0)),integer(size.get(1)),integer(size.get(2)),f.get("sound").getAsString(),f.get("strength").getAsFloat(),parts);
                 if(result.put(family.id(),family)!=null)throw new IllegalArgumentException("重复街景设施");
             }
-            if(!result.keySet().equals(Set.of("rune_lamp","drying_rack")))throw new IllegalArgumentException("街景设施不齐全");
+            if(!result.keySet().equals(IDS))throw new IllegalArgumentException("街景设施不齐全");
             return Map.copyOf(result);
         }catch(java.io.IOException e){throw new IllegalStateException(e);}
     }

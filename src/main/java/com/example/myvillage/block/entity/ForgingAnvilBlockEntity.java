@@ -191,7 +191,7 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
         if (stack.isEmpty()) { update(WorkshopDisplay.EMPTY); return; }
         var piece = WorkshopItems.valid(stack) ? stack.get(ModDataComponents.WORKPIECE.get()) : null;
         var craft = piece != null ? WorkshopRules.get().craft(piece.recipe()) : WorkshopEquipment.craft(stack).orElse(null);
-        update(craft == null ? WorkshopDisplay.EMPTY : new WorkshopDisplay(craft.kind(), piece == null ? 5 : piece.stage(), heat() > 0, swing.started()));
+        update(craft == null ? WorkshopDisplay.EMPTY : new WorkshopDisplay(craft.modelKey(), piece == null ? 5 : piece.stage(), heat() > 0, swing.started()));
     }
     private void update(WorkshopDisplay next) {
         if (level == null || level.isClientSide() || isRemoved() || !level.getBlockState(worldPosition).is(ModBlocks.FORGING_ANVIL.get())) return;

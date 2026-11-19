@@ -1,5 +1,7 @@
 package com.example.myvillage.client.legacy;
 
+import com.example.myvillage.client.combat.FirstPersonWeaponAnimator;
+
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.legacy.LegacyProjectionEntity;
 import com.example.myvillage.legacy.LegacyRules;
@@ -140,7 +142,7 @@ public final class LegacyVfx {
     private static void sword(Draw draw,LegacyProjectionEntity e,Vec3 at,double age) {
         double yaw=Math.toRadians(e.getYRot()),pitch=Math.toRadians(e.getXRot());
         Vec3 direction=new Vec3(-Math.sin(yaw)*Math.cos(pitch),-Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch));
-        double length=rules().shape("guiyan_sword","tip_y")/16*v("sword_body_scale")*Math.min(1,(age+1)/v("sword_summon_ticks"));
+        double length=FirstPersonWeaponAnimator.modelTip(e.visualStack()).y/16*v("sword_body_scale")*Math.min(1,(age+1)/v("sword_summon_ticks"));
         Vec3 tail=at.subtract(direction.scale(length));
         draw.ribbon(tail,at,v("sword_aura_width"),color("metal"),e.phase()==1?.45:.27);
         draw.ribbon(tail,at,v("sword_aura_width")*.12,color("edge"),.7);

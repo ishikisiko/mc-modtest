@@ -24,6 +24,7 @@ public record WorkshopRules(int version, int shape_percent, int strike_ticks,
         public boolean training(int choice){return choice>=1&&choice<=3&&(!armor()||choice==2);}
         public boolean flyingSword(){return kind.equals("flying_sword");}
         public boolean weapon(){return kind.equals("sword")||kind.equals("spear");}
+        public String modelKey(){return weapon()&&!Set.of("qingfeng_sword","lingxiao_spear").contains(recipe)?recipe:kind;}
     }
     public WorkshopRules {
         operation_ticks=Map.copyOf(operation_ticks);fuel_cost=costs(fuel_cost);
@@ -52,12 +53,12 @@ public record WorkshopRules(int version, int shape_percent, int strike_ticks,
         for(var band:training_bands){if(band.through()<=last||band.through()>1000||band.experience()<1||band.experience()>10000)
             throw new IllegalArgumentException("Invalid training bands");last=band.through();}
         Set<String> ids=new HashSet<>(), kinds=new HashSet<>();
-        for(var craft:crafts){if(!ids.add(craft.recipe())||!kinds.add(craft.kind())||!KINDS.contains(craft.kind())
+        for(var craft:crafts){if(!ids.add(craft.recipe())||!kinds.add(craft.modelKey())||!KINDS.contains(craft.kind())
                 ||craft.max_strikes()<1||craft.max_strikes()>last||craft.max_strikes()*qi_discount_per_strike>=0.5
                 ||craft.work_experience()<0||craft.work_experience()>100||craft.forming_points()<1||craft.forming_points()>1000000
                 ||craft.grade()<1||craft.grade()>10)
             throw new IllegalArgumentException("Invalid workshop craft");}
-        if(crafts.isEmpty()||crafts.size()>20)throw new IllegalArgumentException("Invalid craft count");
+        if(crafts.isEmpty()||crafts.size()>ForgingRules.MAX_RECIPES)throw new IllegalArgumentException("Invalid craft count");
     }
     private static void positive(double value,double max){if(!Double.isFinite(value)||value<=0||value>max)throw new IllegalArgumentException("Invalid workshop tuning");}
     private static Map<String,Integer> costs(Map<String,Integer> input){

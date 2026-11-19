@@ -12,6 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -61,8 +63,15 @@ public final class LegacyRuntime {
     private record Mirror(ItemStack stack,int slot,ResourceLocation dimension,long until,LegacyProjectionEntity view) {}
     public record Plan(LegacyRules.Art art,boolean recast,Vec3 destination,Vec3 origin) {}
     public static boolean legacy(ResourceLocation id) {return rules().art(id).isPresent();}
+    private static final TagKey<Item> MELEE_SWORDS = TagKey.create(Registries.ITEM,
+            ResourceLocation.fromNamespaceAndPath("yuanxian","melee_swords"));
+
     public static boolean allowedItem(ServerPlayer p,ResourceLocation id) {
-        return rules().art(id).filter(a->a.item().isEmpty()||a.item().get().equals(BuiltInRegistries.ITEM.getKey(p.getMainHandItem().getItem()))).isPresent();
+        ItemStack held = p.getMainHandItem();
+        return rules().art(id).filter(art -> {
+            if (art.mode().equals("sword")) return held.is(MELEE_SWORDS);
+            return art.item().isEmpty() || art.item().get().equals(BuiltInRegistries.ITEM.getKey(held.getItem()));
+        }).isPresent();
     }
     public static boolean recast(ServerPlayer p,ResourceLocation id) {
         var art=rules().art(id).orElse(null);if(art==null)return false;

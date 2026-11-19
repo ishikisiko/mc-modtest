@@ -1,0 +1,89 @@
+{
+  "format": 2,
+  "units": "model_pixels",
+  "generator": "tools/gen_forged_arms.py",
+  "model": "yuanxian:item/xuantie_spear",
+  "axes": {
+    "length": "+y",
+    "flat_normal": "x",
+    "edge": "z",
+    "center_x": 8,
+    "center_z": 8
+  },
+  "grip_center": [
+    8,
+    3.25,
+    8
+  ],
+  "handle": {
+    "y": [
+      -14.5,
+      13.45
+    ],
+    "half_width": 0.76,
+    "half_thickness": 0.76
+  },
+  "collar": {
+    "y": [
+      13.45,
+      15.96
+    ],
+    "half_width": 1.7100000000000004,
+    "half_thickness": 0.8900000000000006
+  },
+  "butt": {
+    "y": [
+      -16,
+      -14.5
+    ],
+    "half_width": 0.85,
+    "half_thickness": 0.85
+  },
+  "head": {
+    "half_width": 1.7100000000000004,
+    "half_thickness": 0.6600000000000001,
+    "ridge_half_thickness": 0.6600000000000001,
+    "taper_start_y": 21.79440000000002
+  },
+  "head_base": [
+    8,
+    15.96,
+    8
+  ],
+  "head_tip": [
+    8.0,
+    23.440000000000012,
+    8.0
+  ],
+  "edge_axis": [
+    0,
+    0,
+    1
+  ],
+  "flat_axis": [
+    1,
+    0,
+    0
+  ],
+  "overall_y": [
+    -16,
+    23.440000000000026
+  ],
+  "off_hand_grip_center": [
+    8,
+    12.049999999999999,
+    8
+  ],
+  "trail": {
+    "base": [
+      8,
+      13.45,
+      8
+    ],
+    "tip": [
+      8.0,
+      23.440000000000012,
+      8.0
+    ]
+  }
+}

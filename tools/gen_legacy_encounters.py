@@ -184,12 +184,13 @@ def outputs():
         runtime.append({'id':rid,'school':'yuanxian:legacy','family':'legacy','slot':-1,'qi_cost':a['qi_cost'],'cooldown_ticks':a['cooldown_ticks'],'guard_reduction':0,'guard_arc_degrees':120,'counter_multiplier':1,'requires_ground':False,'interrupt_on_damage':False,'fx_lifetime_ticks':10,'cast_pitch':1,'color':{'sword':[.65,.85,.76],'shadow':[.35,.6,.8],'fire':[1,.42,.15],'ruler':[.65,.7,.45]}[a['mode']],'particle_count':12,'phases':[phase]})
     emit('data/yuanxian/combat/legacy_arts.json',{'schema':1,'arts':runtime})
     for item in c['items']:
+        if item['id']=='guiyan_sword': continue  # 枪剑生成器负责模型与炼器。
         emit(f'assets/yuanxian/models/item/{item["id"]}.json',item_model(item))
         raw(f'assets/yuanxian/textures/item/{item["id"]}.png',texture(item['palette'],item['kind']))
     from tools.legacy_encounters.stone_models import ruler_outputs
     out.update(ruler_outputs())
     combat=json.loads((RES/'data/yuanxian/combat/index.json').read_text())
-    for id in ['guiyan_sword','zhenyue_ruler']:
+    for id in ['zhenyue_ruler']:
         rid='yuanxian:'+id
         if rid not in combat['weapons']:combat['weapons'].append(rid)
         emit(f'data/yuanxian/combat/weapon/{id}.json',{'schema':1,'item':rid,'family':'sword','style':'yuanxian:basic_sword','first_person_rig':'yuanxian:combat/qingfeng_first_person.json','geometry':f'yuanxian:combat/{id}_geometry.json'})
@@ -212,8 +213,7 @@ def outputs():
     for id in ['sword_rubbing','mountain_rubbing']:
         emit(f'assets/yuanxian/models/item/{id}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'yuanxian:item/'+id}})
         raw(f'assets/yuanxian/textures/item/{id}.png',small_icon('rubbing',c['mobs'][0]['palette']))
-    ingredients={'guiyan_sword':['minecraft:iron_ingot','yuanxian:sword_spirit_core','yuanxian:low_grade_spirit_stone'],
-        'zhaoshui_mirror':['minecraft:copper_ingot','minecraft:glass','yuanxian:watermarked_silk','yuanxian:low_grade_spirit_stone'],
+    ingredients={'zhaoshui_mirror':['minecraft:copper_ingot','minecraft:glass','yuanxian:watermarked_silk','yuanxian:low_grade_spirit_stone'],
         'chiyu_gourd':['minecraft:clay_ball','minecraft:glass_bottle','yuanxian:ember_cinnabar','yuanxian:low_grade_spirit_stone'],
         'zhenyue_ruler':['minecraft:stone','minecraft:iron_ingot','yuanxian:stele_stone_heart','yuanxian:low_grade_spirit_stone']}
     for id,values in ingredients.items():
@@ -246,7 +246,7 @@ def outputs():
     guide='---\nnavigation:\n  title: 遗迹传承\n  parent: index.md\n  position: 44\n  icon: yuanxian:guiyan_sword\n---\n# 四组遗迹传承\n\n四门功法都需炼气四层，研读后在 H → 技能中分配，按 R 进入修炼战斗模式。再次按相同技能键可召回飞剑、返回残影或收回镇岳尺；潜行施放伏火诀会引爆已有火种。\n\n'
     for m,a,item in zip(c['mobs'],c['arts'],c['items']):
         guide+=f'## {m["name"]}\n\n{m["role"]}\n\n{a["name"]}：{a["description"]}\n\n{item["name"]}：{item["description"]}\n\n'
-    guide+='剑痕碑与镇岳碑在主世界新生成的森林、平原、草甸和针叶林小遗迹内出现。完成对应守护者试炼后用纸拓印。照影妖出现在沼泽和河岸，水显绢卷在水中右键可得到分影步秘籍。吞火蟾出现在恶地和热带草原，余焰丹砂配书与墨囊可制成伏火诀秘籍。\n\n四种器物的工作台配方如下。\n\n'+''.join('<Recipe id="yuanxian:'+i['id']+'" />\n\n' for i in c['items'])
+    guide+='剑痕碑与镇岳碑在主世界新生成的森林、平原、草甸和针叶林小遗迹内出现。完成对应守护者试炼后用纸拓印。照影妖出现在沼泽和河岸，水显绢卷在水中右键可得到分影步秘籍。吞火蟾出现在恶地和热带草原，余焰丹砂配书与墨囊可制成伏火诀秘籍。\n\n归燕剑可在炼器 JEI 页查询起坯材料。其余三件器物的工作台配方如下。\n\n'+''.join('<Recipe id="yuanxian:'+i['id']+'" />\n\n' for i in c['items'] if i['id']!='guiyan_sword')
     out[ROOT/'guidebook/getting_started/legacy_encounters.md']=(guide.rstrip()+'\n').encode()
     return out
 

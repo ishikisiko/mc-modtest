@@ -32,6 +32,12 @@ import java.util.Optional;
  * slews), and is the item extension registered for each weapon item. Presentation only.
  */
 public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
+    /** Model-space tip of the current weapon for world projections. */
+    public static Vector3f modelTip(ItemStack stack) {
+        return FirstPersonSwingResources.forStack(stack).map(r -> r.swing().weapon().headTip())
+                .orElseGet(() -> new Vector3f(8,24.5F,8));
+    }
+
     public static final FirstPersonWeaponAnimator INSTANCE = new FirstPersonWeaponAnimator();
     private static final Logger LOGGER = LoggerFactory.getLogger(FirstPersonWeaponAnimator.class);
 

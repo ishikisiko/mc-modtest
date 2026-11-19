@@ -28,7 +28,7 @@ import java.util.*;
 public class WorkshopMenu extends AbstractContainerMenu {
     public static final int WIDTH=316,HEIGHT=234;
     public static final int START=0,HEAT=1,STRIKE=2,QUENCH=3,TEMPER=4,GRIND=5,ASSEMBLE=6,INFUSE=7,REPAIR=8,COPPER=9;
-    public static final int RECIPE_BASE=20,TRAIT_BASE=40,PATH_BASE=50,TREATMENT_BASE=60;
+    public static final int RECIPE_BASE=20,TRAIT_BASE=60,PATH_BASE=80,TREATMENT_BASE=90;
     private static final List<String> ACTIONS=List.of("start","heat","strike","quench","temper","grind","assemble","infuse","repair");
     private final Inventory inventory;
     private final boolean infusion;

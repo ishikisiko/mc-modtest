@@ -1,0 +1,29 @@
+newmtl m0
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuanyue/socket
+
+newmtl m1
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuanyue/rim
+
+newmtl m2
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuanyue/wrap
+
+newmtl m3
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuanyue/socket_dark
+
+newmtl m4
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:equipment/forging/hot

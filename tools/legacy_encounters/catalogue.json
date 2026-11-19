@@ -527,7 +527,7 @@
       "id": "huifeng_yujian_jue",
       "name": "回锋御剑诀",
       "mode": "sword",
-      "item": "guiyan_sword",
+      "item": null,
       "grade": 2,
       "element": "metal",
       "qi_cost": 10,
@@ -538,7 +538,7 @@
       "return_speed": 1.25,
       "radius": 0.5,
       "damage": 1.15,
-      "description": "施放整柄飞剑，随后再次按技能键召回；召回沿当前位置返回，换位可改变剑路。飞剑离手时不能近战。"
+      "description": "掷出手中已接入剑式的近战剑，再按技能键召回。召回时剑沿你当前的位置返回，换位会改变剑路。"
     },
     {
       "id": "fenying_bu",
@@ -602,7 +602,7 @@
         "d1e0d4",
         "c9a76a"
       ],
-      "description": "完整的青灰剑身配浅金护手，用回锋御剑诀放出和召回。",
+      "description": "青灰剑身配浅金燕尾护手。用古剑灵核和铁锭起坯，再在炼器工坊制成。",
       "tier": "DIAMOND",
       "attack_damage": 3,
       "attack_speed": -2.4,

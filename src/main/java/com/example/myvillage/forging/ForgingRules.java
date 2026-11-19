@@ -10,6 +10,7 @@ import java.util.*;
 
 /** Bundled production costs and effects, validated once on both sides. */
 public final class ForgingRules {
+    public static final int MAX_RECIPES = 32;
     public static final String RESOURCE = "/data/yuanxian/forging/rules.json";
     public record Recipe(String id, String pattern, String output, Map<String,Integer> costs, List<String> traits, String qualityTier) {
         public Recipe { costs = Map.copyOf(costs); traits = List.copyOf(traits); }
@@ -59,7 +60,7 @@ public final class ForgingRules {
             String tier=string(r,"quality_tier");com.example.myvillage.cultivation.crafting.CraftingQualityRules.get().tier(tier);
             rs.add(new Recipe(id,pattern,output,costs(r.get("costs")),allowed,tier));
         }
-        if (rs.isEmpty() || rs.size()>20) throw invalid("recipes","one through twenty recipes required");
+        if (rs.isEmpty() || rs.size()>MAX_RECIPES) throw invalid("recipes","one through " + MAX_RECIPES + " recipes required");
         recipes=List.copyOf(rs);
         for (var r:recipes) for (String t:r.traits())
             if (costs(r,t).size()>4) throw invalid("costs","at most four combined materials fit the menu");

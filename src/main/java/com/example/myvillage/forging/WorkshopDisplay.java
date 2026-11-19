@@ -8,7 +8,7 @@ public record WorkshopDisplay(String kind, int stage, boolean hot, long strikeSt
         var stack = menu.input().isEmpty() ? menu.output() : menu.input();
         if (stack.isEmpty()) return EMPTY;
         var piece = menu.piece();
-        return new WorkshopDisplay(menu.craft().kind(), piece == null ? 5 : piece.stage(), menu.heat() > 0,
+        return new WorkshopDisplay(menu.craft().modelKey(), piece == null ? 5 : piece.stage(), menu.heat() > 0,
                 menu.action() == WorkshopMenu.STRIKE ? now - (menu.duration(WorkshopMenu.STRIKE) - menu.remaining()) : -1);
     }
     /** 从抬锤到触砧，再收锤；接触帧与服务端同用 contact_tick。 */

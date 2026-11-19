@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /** 从真实施工模板绘制平面，选房和自由留白共用同一块宅地。 */
@@ -66,12 +67,20 @@ public final class HousingScreen extends Screen {
         }
         plan=colors;
     }
-    @Override public void render(GuiGraphics g,int mx,int my,float delta){
+    @Override public void renderBackground(GuiGraphics g,int mx,int my,float delta){
+        super.renderBackground(g,mx,my,delta);
         g.fill(left,top,left+panelWidth,top+panelHeight,0xf224292b);g.fill(left+2,top+2,left+panelWidth-2,top+panelHeight-2,0xffe8dfc8);
         g.drawString(font,title,left+10,top+10,0xff302d28,false);
         int rx=left+listWidth+20,ry=top+31;
+        int column=Math.max(1,(panelWidth-listWidth-42)/2);
+        int previewX=rx+column+12;
+        int previewSize=Math.max(1,Math.min(column,panelHeight-148));
         g.drawString(font,selected().name()+" · "+(cut==3?"一层平面":"上层平面"),rx,ry,0xff302d28,false);
-        double scale=Math.min((panelWidth-listWidth-42.0)/offer.width(),(panelHeight-148.0)/offer.depth());int ox=rx,oz=ry+15;
+        g.drawString(font,"立体预览",previewX,ry,0xff302d28,false);
+        double scale=Math.min((double)column/offer.width(),(double)previewSize/offer.depth());int ox=rx,oz=ry+15;
+        g.fill(previewX-1,oz-1,previewX+previewSize+1,oz+previewSize+1,0xff776c57);
+        var preview=ResourceLocation.fromNamespaceAndPath("yuanxian","textures/gui/housing/"+selected().id()+".png");
+        g.blit(preview,previewX,oz,previewSize,previewSize,0,0,256,256,256,256);
         int pw=(int)Math.ceil(offer.width()*scale),pd=(int)Math.ceil(offer.depth()*scale);
         g.fill(ox-1,oz-1,ox+pw+1,oz+pd+1,0xff776c57);g.fill(ox,oz,ox+pw,oz+pd,0xff94a17b);
         for(var entry:plan.entrySet()){
@@ -90,9 +99,12 @@ public final class HousingScreen extends Screen {
         if(!offer.message().isEmpty()){
             var lines=font.split(Component.literal(offer.message()),panelWidth-listWidth-32);
             for(int i=0;i<Math.min(2,lines.size());i++)g.drawString(font,lines.get(i),rx,top+panelHeight-22+i*9,0xff6c3d28,false);
-            if(mx>=rx&&my>=top+panelHeight-22)g.renderTooltip(font,Component.literal(offer.message()),mx,my);
         }
+    }
+    @Override public void render(GuiGraphics g,int mx,int my,float delta){
         super.render(g,mx,my,delta);
+        if(!offer.message().isEmpty()&&mx>=left+listWidth+20&&my>=top+panelHeight-22)
+            g.renderTooltip(font,Component.literal(offer.message()),mx,my);
     }
     @Override public boolean isPauseScreen(){return false;}
 }

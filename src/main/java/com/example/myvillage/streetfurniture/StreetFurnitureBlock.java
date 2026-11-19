@@ -29,7 +29,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-/** 实际占用两格或四格的独立设施；只有编号 0 的根格掉落一件物品。 */
+/** 实际占用多格的独立设施；只有编号 0 的根格掉落一件物品。 */
 public abstract class StreetFurnitureBlock extends Block implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING=BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty WATERLOGGED=BlockStateProperties.WATERLOGGED;
@@ -43,7 +43,7 @@ public abstract class StreetFurnitureBlock extends Block implements SimpleWaterl
     protected StreetFurnitureBlock(BlockBehaviour.Properties properties){super(properties);registerDefaultState(stateDefinition.any().setValue(FACING,Direction.NORTH).setValue(WATERLOGGED,false).setValue(partProperty(),0));}
     public static BlockBehaviour.Properties properties(String id){
         var f=StreetFurnitureCatalog.get(id);
-        return BlockBehaviour.Properties.of().mapColor(id.equals("rune_lamp")?MapColor.METAL:MapColor.WOOD).strength(f.strength()).noOcclusion()
+        return BlockBehaviour.Properties.of().mapColor(f.sound().equals("metal")?MapColor.METAL:MapColor.WOOD).strength(f.strength()).noOcclusion()
                 .sound(f.sound().equals("metal")?SoundType.LANTERN:SoundType.WOOD).pushReaction(PushReaction.BLOCK)
                 .lightLevel(state->{var b=(StreetFurnitureBlock)state.getBlock();return b.family().part(b.part(state)).light();});
     }

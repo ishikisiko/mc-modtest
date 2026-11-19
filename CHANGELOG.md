@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.140.0
+
+- 新增玄铁、白青灵金和日魄乌金的剑与枪，日魄乌金枪剑带间歇流光。归燕、玄岳镇山、赤炼离火和青霄流云更新持握模型。四把旧剑和六件新枪剑可研读器谱后在炼器鼎制作，也可手工锻造。近战剑共用基础剑招，回锋御剑诀随手中近战剑出招。
+- 修正宅邸选地页的模糊层顺序，为六种宅邸添加由施工模板渲染的立体预览。
+- 新增青檐高街灯和青石矮巷灯。省城与云台聚落的新生成区块按露天街道的宽度布灯，两款灯也可在工作台制作。
+
 ## 0.139.4
 
 - 三款拳套接入游戏。玄铁使用露掌外翼甲，新增白青灵金与日魄乌金。三款共用拳掌动作，各用四块对应锭合成，日魄乌金有拳面蓄光与火星。

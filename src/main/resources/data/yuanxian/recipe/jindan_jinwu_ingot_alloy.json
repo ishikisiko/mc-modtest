@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "yuanxian:xuantie_ingot"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "minecraft:blaze_powder"
+    },
+    {
+      "tag": "c:spirit_stones/high_grade"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:jindan_jinwu_ingot",
+    "count": 1
+  }
+}

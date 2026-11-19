@@ -1,0 +1,35 @@
+newmtl m0
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/jinwu/bronze
+
+newmtl m1
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/jinwu/rim
+
+newmtl m2
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/jinwu/socket_dark
+
+newmtl m3
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/jinwu/wrap
+
+newmtl m4
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/jinwu/socket
+
+newmtl m5
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:equipment/forging/hot

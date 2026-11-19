@@ -1,0 +1,72 @@
+{
+  "format": 2,
+  "units": "model_pixels",
+  "generator": "tools/gen_forged_arms.py",
+  "model": "yuanxian:item/xuantie_sword",
+  "axes": {
+    "length": "+y",
+    "flat_normal": "x",
+    "edge": "z",
+    "center_x": 8,
+    "center_z": 8
+  },
+  "grip_center": [
+    8,
+    2.95,
+    8
+  ],
+  "handle": {
+    "y": [
+      0.85,
+      4.76
+    ],
+    "half_width": 0.76,
+    "half_thickness": 0.76
+  },
+  "collar": {
+    "y": [
+      4.76,
+      5.37
+    ],
+    "half_width": 2.7300000000000004,
+    "half_thickness": 0.7400000000000002
+  },
+  "butt": {
+    "y": [
+      0,
+      0.85
+    ],
+    "half_width": 0.85,
+    "half_thickness": 0.85
+  },
+  "head": {
+    "half_width": 1.4900000000000002,
+    "half_thickness": 0.5683333333333334,
+    "ridge_half_thickness": 0.5683333333333334,
+    "taper_start_y": 18.9342
+  },
+  "head_base": [
+    8,
+    5.37,
+    8
+  ],
+  "head_tip": [
+    8.0,
+    22.759999999999998,
+    8.68
+  ],
+  "edge_axis": [
+    0,
+    0,
+    1
+  ],
+  "flat_axis": [
+    1,
+    0,
+    0
+  ],
+  "overall_y": [
+    0,
+    22.76
+  ]
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "xuantie_sword",
+    "family": "sword",
+    "item_tier": "iron",
+    "attack": 3
+  },
+  {
+    "id": "xuantie_spear",
+    "family": "spear",
+    "item_tier": "iron",
+    "attack": 4
+  },
+  {
+    "id": "zhuji_baiqing_lingyun_sword",
+    "family": "sword",
+    "item_tier": "diamond",
+    "attack": 3
+  },
+  {
+    "id": "zhuji_baiqing_lingyun_spear",
+    "family": "spear",
+    "item_tier": "diamond",
+    "attack": 4
+  },
+  {
+    "id": "jindan_jinwu_sword",
+    "family": "sword",
+    "item_tier": "netherite",
+    "attack": 3
+  },
+  {
+    "id": "jindan_jinwu_spear",
+    "family": "spear",
+    "item_tier": "netherite",
+    "attack": 4
+  }
+]

@@ -488,11 +488,15 @@ tasks.register('generateStreetFurnitureAssets', Exec) {
     executable = pythonExecutable.get()
     args 'tools/street_furniture/generate.py'
     inputs.files(fileTree('blueprints/street_furniture'),
-            files('src/main/resources/assets/yuanxian/font/brush.ttf'),
+            files('src/main/resources/assets/yuanxian/font/brush.ttf',
+                'blueprints/province_capitals/blueprint_plan/road_surfaces.json',
+                'blueprints/province_capitals/central/game-spec.json',
+                'blueprints/regiongen/bay_terraces_v1.json'),
             fileTree('tools/street_furniture') { exclude '**/__pycache__/**', '**/*.pyc' })
     outputs.files(fileTree('src/main/resources/assets/yuanxian/models/block/street_furniture'),
             fileTree('src/main/resources/assets/yuanxian/textures/block/street_furniture'),
-            files('src/main/resources/data/yuanxian/street_furniture/catalog.json'))
+            files('src/main/resources/data/yuanxian/street_furniture/catalog.json',
+                'src/main/resources/data/yuanxian/street_furniture/lighting.json'))
 }
 tasks.register('generateStarterMineAssets', Exec) {
     workingDir projectDir

@@ -1,0 +1,12 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/equipment/forging/bench_zhuji_baiqing_lingyun_sword_0_hot.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:equipment/forging/hot"
+  }
+}

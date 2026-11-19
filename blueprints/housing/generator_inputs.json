@@ -2,6 +2,9 @@
   "tools/housing/__init__.py",
   "tools/housing/generate.py",
   "tools/housing/materialize.py",
+  "tools/housing/preview.py",
+  "tools/preview_structure.py",
+  "tools/block_colors.json",
   "tools/housing/town_plan.py",
   "tools/housing/town_expansion.py"
 ]

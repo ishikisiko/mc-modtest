@@ -3,6 +3,8 @@ package com.example.myvillage.block;
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.streetfurniture.DryingRackBlock;
 import com.example.myvillage.streetfurniture.RuneLampBlock;
+import com.example.myvillage.streetfurniture.TallStreetLampBlock;
+import com.example.myvillage.streetfurniture.LowStreetLampBlock;
 import com.example.myvillage.streetfurniture.StreetFurnitureBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -108,6 +110,10 @@ public final class ModBlocks {
             BLOCKS.registerBlock("scripture_shelf", ScriptureShelfBlock::new, scriptureShelfProperties());
     public static final DeferredBlock<RuneLampBlock> RUNE_LAMP =
             BLOCKS.registerBlock("rune_lamp", RuneLampBlock::new, StreetFurnitureBlock.properties("rune_lamp"));
+    public static final DeferredBlock<TallStreetLampBlock> TALL_STREET_LAMP =
+            BLOCKS.registerBlock("tall_street_lamp", TallStreetLampBlock::new, StreetFurnitureBlock.properties("tall_street_lamp"));
+    public static final DeferredBlock<LowStreetLampBlock> LOW_STREET_LAMP =
+            BLOCKS.registerBlock("low_street_lamp", LowStreetLampBlock::new, StreetFurnitureBlock.properties("low_street_lamp"));
     public static final DeferredBlock<DryingRackBlock> DRYING_RACK =
             BLOCKS.registerBlock("drying_rack", DryingRackBlock::new, StreetFurnitureBlock.properties("drying_rack"));
     public static final DeferredBlock<Block> SPIRIT_STONE_ORE =
@@ -180,6 +186,8 @@ public final class ModBlocks {
             "technique_inheritance_stele",
             "scripture_shelf",
             "rune_lamp",
+            "tall_street_lamp",
+            "low_street_lamp",
             "drying_rack",
             "spirit_stone_ore",
             "deepslate_spirit_stone_ore");

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "yuanxian:chitong_ingot"
+    },
+    {
+      "item": "minecraft:quartz"
+    },
+    {
+      "tag": "c:spirit_stones/medium_grade"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:zhuji_baiqing_lingyun_ingot",
+    "count": 1
+  }
+}

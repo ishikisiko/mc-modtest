@@ -1,5 +1,6 @@
 package com.example.myvillage.client.entity.beast;
 
+import com.example.myvillage.client.combat.FirstPersonWeaponAnimator;
 import com.example.myvillage.legacy.LegacyProjectionEntity;
 import com.example.myvillage.legacy.LegacyRules;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -50,7 +51,8 @@ public final class LegacyProjectionRenderer extends EntityRenderer<LegacyProject
                 float scale=(float)(LegacyRules.get().visual("sword_body_scale")*Math.min(1,(e.age(partial)+1)/LegacyRules.get().visual("sword_summon_ticks")));
                 poses.mulPose(Axis.XP.rotationDegrees(90+e.getXRot()));poses.scale(scale,scale,scale);
                 // The server's swept point is the visible blade tip; the body trails behind it.
-                poses.translate(0,.5-LegacyRules.get().shape("guiyan_sword","tip_y")/16,0);
+                var tip=FirstPersonWeaponAnimator.modelTip(e.visualStack());
+                poses.translate(.5-tip.x/16,.5-tip.y/16,.5-tip.z/16);
             }
             else if(e.kind()==LegacyProjectionEntity.RULER) {
                 float scale=(float)LegacyRules.get().visual("ruler_model_scale");poses.scale(scale,scale,scale);poses.translate(0,.5,0);

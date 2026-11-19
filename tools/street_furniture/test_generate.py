@@ -32,8 +32,10 @@ class FurnitureResourcesTest(unittest.TestCase):
         self.assertTrue(all(e['to'][2]-e['from'][2]<.3 for e in pieces))
 
     def test_only_lamp_head_emits_and_cloth_is_not_a_solid_wall(self):
-        lamp,rack=self.catalog['families']
-        self.assertEqual([0,14],[p['light'] for p in parts(lamp)])
+        families = {f['id']:f for f in self.catalog['families']}
+        for key, expected in {'rune_lamp':[0,14], 'tall_street_lamp':[0,0,15], 'low_street_lamp':[14,0]}.items():
+            self.assertEqual(expected, [p['light'] for p in parts(families[key])])
+        rack=families['drying_rack']
         self.assertEqual([0,0,0,0],[p['light'] for p in parts(rack)])
         for p in parts(rack):
             for box in p['collision']:

@@ -47,7 +47,6 @@
     "yuanxian:road_grey_flagstone_slab",
     "yuanxian:road_grey_setts_slab",
     "yuanxian:road_stone_guardrail",
-    "yuanxian:rune_lamp",
     "yuanxian:seal_member",
     "yuanxian:seal_pivot",
     "yuanxian:seal_rack",
@@ -58,6 +57,9 @@
     "yuanxian:spirit_stone_ore",
     "yuanxian:spirit_testing_stele",
     "yuanxian:technique_inheritance_stele",
-    "yuanxian:xuantie_ore"
+    "yuanxian:xuantie_ore",
+    "yuanxian:rune_lamp",
+    "yuanxian:tall_street_lamp",
+    "yuanxian:low_street_lamp"
   ]
 }

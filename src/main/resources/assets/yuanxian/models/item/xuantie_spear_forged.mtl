@@ -1,0 +1,65 @@
+newmtl m0
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/socket_dark
+
+newmtl m1
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/rim
+
+newmtl m2
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/wood
+
+newmtl m3
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/wrap
+
+newmtl m4
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/binding
+
+newmtl m5
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/socket
+
+newmtl m6
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/edge
+
+newmtl m7
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/shade
+
+newmtl m8
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/face
+
+newmtl m9
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/wall
+
+newmtl m10
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:item/forged_arms/xuantie/rivet

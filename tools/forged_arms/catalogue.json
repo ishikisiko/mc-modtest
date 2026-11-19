@@ -1,0 +1,12 @@
+[
+  {"id":"xuantie_sword","shape":"xuantie_sword","name":"玄铁剑","family":"sword","ingot":"yuanxian:xuantie_ingot","amount":4,"tier":"qi_refining","grade":2,"points":420,"guard":4.76,"new":true,"item_tier":"iron","attack":3},
+  {"id":"xuantie_spear","shape":"xuantie_spear","name":"玄铁枪","family":"spear","ingot":"yuanxian:xuantie_ingot","amount":4,"tier":"qi_refining","grade":2,"points":440,"guard":29.45,"new":true,"item_tier":"iron","attack":4},
+  {"id":"zhuji_baiqing_lingyun_sword","shape":"baiqing_sword","name":"白青灵金剑","family":"sword","ingot":"yuanxian:zhuji_baiqing_lingyun_ingot","amount":4,"tier":"foundation_establishment","grade":3,"points":510,"guard":4.94,"new":true,"item_tier":"diamond","attack":3},
+  {"id":"zhuji_baiqing_lingyun_spear","shape":"baiqing_spear","name":"白青灵金枪","family":"spear","ingot":"yuanxian:zhuji_baiqing_lingyun_ingot","amount":4,"tier":"foundation_establishment","grade":3,"points":530,"guard":28.8,"new":true,"item_tier":"diamond","attack":4},
+  {"id":"jindan_jinwu_sword","shape":"jinwu_sword","name":"日魄乌金剑","family":"sword","ingot":"yuanxian:jindan_jinwu_ingot","amount":4,"tier":"golden_core","grade":4,"points":620,"guard":6.18,"new":true,"item_tier":"netherite","attack":3,"glow":true},
+  {"id":"jindan_jinwu_spear","shape":"jinwu_spear","name":"日魄乌金枪","family":"spear","ingot":"yuanxian:jindan_jinwu_ingot","amount":4,"tier":"golden_core","grade":4,"points":640,"guard":30.0,"new":true,"item_tier":"netherite","attack":4,"glow":true},
+  {"id":"xuanyue_zhenshan_sword","shape":"xuanyue_zhenshan_sword","name":"玄岳镇山剑","family":"sword","ingot":"yuanxian:xuantie_ingot","amount":5,"tier":"qi_refining","grade":2,"points":480,"guard":5.35},
+  {"id":"chilian_lihuo_sword","shape":"chilian_lihuo_sword","name":"赤炼离火剑","family":"sword","ingot":"yuanxian:chitong_ingot","amount":4,"extra":"minecraft:blaze_powder","tier":"qi_refining","grade":2,"points":470,"guard":5.15},
+  {"id":"qingxiao_liuyun_sword","shape":"qingxiao_liuyun_sword","name":"青霄流云剑","family":"sword","ingot":"yuanxian:zhuji_baiqing_lingyun_ingot","amount":4,"tier":"foundation_establishment","grade":3,"points":510,"guard":4.82},
+  {"id":"guiyan_sword","shape":"guiyan_sword","name":"归燕剑","family":"sword","ingot":"minecraft:iron_ingot","amount":1,"extra":"yuanxian:sword_spirit_core","tier":"qi_refining","grade":2,"points":440,"guard":4.48}
+]

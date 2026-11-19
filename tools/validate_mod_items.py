@@ -254,11 +254,28 @@ def png_non_binary_alpha_count(path: Path) -> int:
     return non_binary_alpha
 
 
+def forged_weapon_registrations(root: Path) -> set[str]:
+    """Read the item IDs used by the typed forged-weapon registry."""
+    package=root / "src/main/java/com/example/myvillage/item"
+    registry=package / "ForgedArmsContent.java"
+    catalogue=root / "src/main/resources/data/yuanxian/combat/forged_arms.json"
+    if not registry.is_file() or not catalogue.is_file():
+        return set()
+    source=registry.read_text(encoding="utf-8")
+    wiring=(package / "ModItems.java").read_text(encoding="utf-8")
+    required=('BuiltinResources.open("data/yuanxian/combat/forged_arms.json")',
+              'data.get("id").getAsString()', 'registry.registerItem(id,',
+              'props -> new CombatWeaponItem(tier,')
+    if not all(needle in source for needle in required) or "ForgedArmsContent.register(ITEMS)" not in wiring:
+        return set()
+    return {entry["id"] for entry in load_json(catalogue)}
+
+
 def registered_items() -> set[str]:
     text = MOD_ITEMS.read_text(encoding="utf-8")
     explicit = re.findall(r'ITEMS\.registerItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
     simple = re.findall(r'ITEMS\.registerSimpleItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
-    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | manor_items() | road_items()
+    return set(explicit) | set(simple) | forged_weapon_registrations(ROOT) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | manor_items() | road_items()
 
 
 def road_items() -> set[str]:
@@ -570,6 +587,16 @@ def validate_sword_model(item_id: str, model: Any, error_key: str, errors: list[
                 and isinstance(candidate.get("textures"), dict)
                 and candidate["textures"].get("layer0") == icon)
 
+    if item_id in {"xuanyue_zhenshan_sword", "chilian_lihuo_sword", "qingxiao_liuyun_sword"}:
+        display = model.get("display", {}) if isinstance(model, dict) else {}
+        base = ASSET_ROOT / "models" / "item" / f"{item_id}_forged"
+        if (not isinstance(model, dict) or model.get("loader") != "neoforge:obj"
+                or model.get("model") != f"yuanxian:models/item/{item_id}_forged.obj"
+                or any(not base.with_suffix(suffix).is_file() for suffix in (".obj", ".mtl"))
+                or not {"gui", "firstperson_righthand", "thirdperson_righthand"} <= display.keys()):
+            errors.append(f"{error_key}_model_contract")
+        return
+
     model_3d_id = SWORD_3D_MODELS.get(item_id)
     if model_3d_id is None:
         if not is_icon(model):
@@ -649,7 +676,8 @@ def validate_combat_weapon_items(items_text: str, combat_items: set[str], errors
     legacy_path = ROOT / "src/main/java/com/example/myvillage/legacy/LegacyContent.java"
     legacy_text = legacy_path.read_text(encoding="utf-8") if legacy_path.is_file() else ""
     factory = re.search(r"private\s+static\s+CombatWeaponItem\s+weapon\(Item.Properties p,String id\)\s*\{(.*?)\n    \}", legacy_text, re.DOTALL)
-    for item_id in sorted(combat_items):
+    forged = forged_weapon_registrations(ROOT)
+    for item_id in sorted(combat_items - forged):
         body = registration_body(items_text, item_id)
         direct = body is not None and re.search(rf"new\s+{COMBAT_WEAPON_CLASS}\(", body) is not None
         # This owning registry delegates to a data-driven, typed factory. Verify both

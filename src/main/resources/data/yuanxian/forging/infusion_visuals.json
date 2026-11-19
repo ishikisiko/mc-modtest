@@ -127,6 +127,96 @@
       ],
       "scale": 1.3928571428571428,
       "rotate_z": 0
+    },
+    "xuantie_sword": {
+      "center": [
+        0.5,
+        0.71125,
+        0.5
+      ],
+      "scale": 0.8084358523725833,
+      "rotate_z": 90
+    },
+    "xuantie_spear": {
+      "center": [
+        0.5,
+        0.23250000000000082,
+        0.5
+      ],
+      "scale": 0.46653144016227144,
+      "rotate_z": 90
+    },
+    "zhuji_baiqing_lingyun_sword": {
+      "center": [
+        0.5,
+        0.7768750000000003,
+        0.5
+      ],
+      "scale": 0.7401448109412707,
+      "rotate_z": 90
+    },
+    "zhuji_baiqing_lingyun_spear": {
+      "center": [
+        0.5,
+        0.36250000000000027,
+        0.5
+      ],
+      "scale": 0.4220183486238531,
+      "rotate_z": 90
+    },
+    "jindan_jinwu_sword": {
+      "center": [
+        0.5,
+        0.955,
+        0.5
+      ],
+      "scale": 0.6020942408376964,
+      "rotate_z": 90
+    },
+    "jindan_jinwu_spear": {
+      "center": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "scale": 0.3833333333333333,
+      "rotate_z": 90
+    },
+    "xuanyue_zhenshan_sword": {
+      "center": [
+        0.5,
+        0.8765625000000001,
+        0.5
+      ],
+      "scale": 0.6559714795008911,
+      "rotate_z": 90
+    },
+    "chilian_lihuo_sword": {
+      "center": [
+        0.5,
+        0.8015625,
+        0.5
+      ],
+      "scale": 0.7173489278752436,
+      "rotate_z": 90
+    },
+    "qingxiao_liuyun_sword": {
+      "center": [
+        0.5,
+        0.8046875,
+        0.5
+      ],
+      "scale": 0.7145631067961165,
+      "rotate_z": 90
+    },
+    "guiyan_sword": {
+      "center": [
+        0.5,
+        0.878125,
+        0.5
+      ],
+      "scale": 0.6548042704626333,
+      "rotate_z": 90
     }
   }
 }

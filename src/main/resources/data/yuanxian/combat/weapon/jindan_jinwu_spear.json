@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "item": "yuanxian:jindan_jinwu_spear",
+  "family": "spear",
+  "style": "yuanxian:basic_spear",
+  "first_person_rig": "yuanxian:combat/lingxiao_spear_first_person.json",
+  "geometry": "yuanxian:combat/jindan_jinwu_spear_geometry.json"
+}

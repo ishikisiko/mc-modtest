@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""生成自定义符灯、晒布架资源；实际模型单位为 1/16 格。"""
+"""生成街景设施及城镇照明配置；实际模型单位为 1/16 格。"""
 from __future__ import annotations
 
 import argparse
@@ -14,6 +14,11 @@ ROOT=Path(__file__).resolve().parents[2]
 INPUT=ROOT/'blueprints/street_furniture/catalog.json'
 RESOURCES=ROOT/'src/main/resources'
 SIDES=('north','south','east','west','up','down')
+SIZES={'rune_lamp':[1,2,1], 'drying_rack':[2,2,1],
+       'tall_street_lamp':[1,3,1], 'low_street_lamp':[1,2,1]}
+ROAD_SURFACES=ROOT/'blueprints/province_capitals/blueprint_plan/road_surfaces.json'
+CENTRAL=ROOT/'blueprints/province_capitals/central/game-spec.json'
+BAY=ROOT/'blueprints/regiongen/bay_terraces_v1.json'
 
 
 def read(path):return json.loads(Path(path).read_text())
@@ -25,14 +30,14 @@ def validate(catalog):
     ids=set()
     for family in catalog['families']:
         ident=family['id'];size=family['size']
-        if ident in ids or ident not in {'rune_lamp','drying_rack'}:raise ValueError('未知或重复的设施')
+        if ident in ids or ident not in SIZES:raise ValueError('未知或重复的设施')
         ids.add(ident)
-        if len(size)!=3 or any(type(n) is not int or not 1<=n<=2 for n in size):raise ValueError('设施占地越界')
+        if size!=SIZES[ident]:raise ValueError('设施占地越界')
         if not 0<=family['light']<=15 or not 0<=family['light_part']<size[0]*size[1]*size[2]:raise ValueError('光照配置越界')
         for e in family['elements']:
             if e['texture'] not in catalog['textures'] or e['grain_axis'] not in ('x','y','z'):raise ValueError('未知材质或木纹朝向')
             if any(not 0<=e['from'][i]<e['to'][i]<=size[i]*16 for i in range(3)):raise ValueError('模型超出实际占用体积')
-    if ids!={'rune_lamp','drying_rack'}:raise ValueError('两类设施必须齐全')
+    if ids!=SIZES.keys():raise ValueError('街景设施必须齐全')
 
 
 def face_texture(element,side):
@@ -62,6 +67,7 @@ def crop_element(element,low,high):
         if rotation==90:u0,v0,u1,v1=v0,16-u1,v1,16-u0
         face={'uv':[round(n,6) for n in (u0,v0,u1,v1)],'texture':'#'+tex}
         if rotation:face['rotation']=rotation
+        if tex=='amber_glass':face['neoforge_data']={'block_light':15}
         faces[side]=face
     return {'name':element['name'],'from':[lo[i]-low[i] for i in range(3)],'to':[hi[i]-low[i] for i in range(3)],'faces':faces}
 
@@ -98,6 +104,11 @@ def textures(catalog):
         return tuple(v+n+e for v in cfg['bronze']['base'])
     render('bronze',bronze)
     render('stone',lambda x,y:tuple(v+noise(x,y)*.7 for v in cfg['stone']['base']))
+    render('amber_glass', lambda x,y: tuple(v+max(0,8-abs(x-7)-abs(y-7))*1.8
+        -min(2,abs(x-7))*3-(10 if x in (0,15) or y in (0,15) else 0)+noise(x,y)*.35
+        for v in cfg['amber_glass']['base']))
+    render('lamp_roof', lambda x,y: tuple(v+noise(x,y,4)*.6
+        + (9 if y in (1,8) else -6 if x in (0,7,15) and y>1 else 0) for v in cfg['lamp_roof']['base']))
     def wood(x,y):
         return tuple(v+noise(x//2,y,6)*weight+(light if (x+y//13)%9==2 else dark if x%11==0 else 0)
                      for v,weight,light,dark in zip(cfg['wood']['base'],(.5,.4,.3),(8,6,3),(-10,-7,-5)))
@@ -126,6 +137,14 @@ def textures(catalog):
 def model(elements,family,texture_names):
     return {'parent':'minecraft:block/block','render_type':'minecraft:cutout','ambientocclusion':False,
             'textures':{'particle':'#'+family['particle'],**{n:'yuanxian:block/street_furniture/'+n for n in texture_names}},'elements':elements}
+
+
+def lighting(catalog):
+    roads={region:sorted({block for role,block in kinds.items() if role not in ('name','bridge')})
+           for region,kinds in read(ROAD_SURFACES)['profiles'].items()}
+    roads['zhongzhou']=[read(CENTRAL)['materials']['road']]
+    roads['bay_terraces']=[read(BAY)['materials']['road']]
+    return {'schema':1,'roads':roads,**catalog['placement']}
 
 
 def outputs(catalog):
@@ -160,6 +179,7 @@ def outputs(catalog):
             'conditions':[{'condition':'minecraft:block_state_property','block':'yuanxian:'+ident,'properties':{'part':'0'}},{'condition':'minecraft:survives_explosion'}]}]})
         put(f'data/yuanxian/recipe/{ident}.json',{'type':'minecraft:crafting_shaped','category':'building',**f['recipe'],'result':{'id':'yuanxian:'+ident,'count':1}})
     put('data/yuanxian/street_furniture/catalog.json',runtime)
+    put('data/yuanxian/street_furniture/lighting.json',lighting(catalog))
     for name,data in textures(catalog).items():files[f'assets/yuanxian/textures/block/street_furniture/{name}.png']=data
     return files
 

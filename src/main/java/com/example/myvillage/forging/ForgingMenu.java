@@ -16,7 +16,7 @@ import java.util.*;
 /** Private workbench session. Button intents are bounded; only the server commits costs/results. */
 public final class ForgingMenu extends AbstractContainerMenu {
     public static final int WIDTH=304, HEIGHT=238;
-    public static final int FORGE=0, REPAIR=1, RECIPE_BASE=10, TRAIT_BASE=30, INFUSE=50;
+    public static final int FORGE=0, REPAIR=1, RECIPE_BASE=10, TRAIT_BASE=48, INFUSE=64;
     private final Inventory inventory;
     private final ContainerLevelAccess access;
     private final SimpleContainer work=new SimpleContainer(2);

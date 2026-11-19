@@ -34,9 +34,10 @@ class ForgingTest {
     @Test void everyForgingRecipeUsesAnExplicitConfiguredQualityTier(){
         var rules=ForgingRules.get();var quality=com.example.myvillage.cultivation.crafting.CraftingQualityRules.get();
         for(var recipe:rules.recipes()){
-            assertEquals("yuanxian:qi_refining",recipe.qualityTier());assertNotNull(quality.tier(recipe.qualityTier()));
+            var tier=quality.tier(recipe.qualityTier());
+            int topAptitude=tier.baseline()+(int)tier.span();
             assertEquals(0,quality.roll(0,recipe.qualityTier(),0,()->-1).quality());
-            assertEquals(4,quality.roll(60,recipe.qualityTier(),0,()->3).quality());
+            assertEquals(4,quality.roll(topAptitude,recipe.qualityTier(),0,()->3).quality());
         }
     }
     @Test void malformedConfigurationCannotProduceFreeOrUnregisteredTierWeapons() throws Exception{

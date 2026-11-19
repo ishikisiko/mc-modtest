@@ -42,7 +42,7 @@ class Catalogue:
   self.root=Path(root);self.config=read(self.root/'equipment/workshop/stages.json');self.authored=read(self.root/'equipment/workshop/tools.json')
   self.templates=read(self.root/'equipment/workshop/pickaxe_hoe_shape_templates.json')
   self.sources={};self.tool_sources={};self.heads={};self.kinds={};self.displays={};self.names={};self.material_outputs={}
-  self._tools();self._weapons();self._armor();self._flying_sword()
+  self.series=set();self._tools();self._weapons();self._armor();self._flying_sword();self._series()
  def _tools(self):
   for spec in self.authored['tools']:
    faces=[];head=[]
@@ -70,6 +70,15 @@ class Catalogue:
    selected=set(definition['head_parts']);found={f['part'] for f in faces};assert selected<=found,(rid,selected-found)
    for f in faces:f['metal']=f['part'] in selected
    self.sources[rid]=faces;self.heads[rid]=[f for f in faces if f['metal']];self.kinds[rid]=definition['kind'];self.names[rid]='青锋剑' if rid=='qingfeng_sword' else '凌霄枪';self.displays[rid]=model['display']
+ def _series(self):
+  from tools.forged_arms import assets
+  for spec in assets.specs():
+   rid=spec['id'];faces,grip,_=assets.source(spec);self.series.add(rid)
+   self.sources[rid]=faces;self.heads[rid]=[f for f in faces if f['metal']]
+   self.kinds[rid]=spec['family'];self.names[rid]=spec['name']
+   self.displays[rid]=assets.display(spec,faces,grip,self.root)
+   assert self.heads[rid],rid
+  self.material_outputs.update(assets.textures())
  def _flying_sword(self):
   from tools.gen_flying_swords import model, XUANTIE_NAME
   rid='xuantie_flying_sword'
@@ -108,7 +117,7 @@ class Catalogue:
     w,h=size[:2];thick=max(rough['plate_min_thickness'],min(rough['plate_max_thickness'],size[2]));x=8-w/2+(n%2)*rough['plate_offset'][0];z=8-h/2+(n%2)*rough['plate_offset'][1]
     result+=box(name+'-料片',[x,n*rough['plate_spacing'],z],[x+w,n*rough['plate_spacing']+thick,z+h],PREFIX+'rough')
    return result
-  if rid in self.config['weapons'] or self.kinds[rid]=='flying_sword':
+  if rid in self.config['weapons'] or rid in self.series or self.kinds[rid]=='flying_sword':
    # A stepped billet with the same head length and width as the authored weapon.
    result=[];cx=(lo[0]+hi[0])/2;cz=(lo[2]+hi[2])/2;h=(hi[1]-lo[1])/len(rough['bar_widths'])
    for n,width in enumerate(rough['bar_widths']):
@@ -149,7 +158,7 @@ class Catalogue:
     elif rid in {t['id'] for t in self.authored['tools']}:
      emit(fs,'yuanxian:equipment/forging/'+rid,f'assets/yuanxian/models/item/{rid}.json',self.displays[rid])
     for hot in ([False,True] if stage in (0,1,5) else [False]):
-     key=f'{kind}_{stage}'+('_hot' if hot else '')
+     key=f'{rid if rid in self.series else kind}_{stage}'+('_hot' if hot else '')
      emit(self.bench(rid,self.stage(rid,stage,hot),stage),'yuanxian:equipment/forging/bench_'+key,f'assets/yuanxian/models/block/workshop/{key}.json')
   # OBJ materials still use the vanilla block atlas. Existing direct armor textures
   # and equipment palettes are outside its default item/block directory sources.

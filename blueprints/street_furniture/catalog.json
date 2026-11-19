@@ -281,6 +281,606 @@
         }
       },
       "mineable": "axe"
+    },
+    {
+      "id": "tall_street_lamp",
+      "name": "青檐高街灯",
+      "size": [
+        1,
+        3,
+        1
+      ],
+      "light": 15,
+      "sound": "metal",
+      "strength": 2.0,
+      "description": "石杆托起铜边灯罩，三层青瓦檐盖住暖色灯窗。",
+      "elements": [
+        {
+          "name": "青灰石底座",
+          "from": [
+            3,
+            0,
+            3
+          ],
+          "to": [
+            13,
+            2,
+            13
+          ],
+          "texture": "stone",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "收脚台阶",
+          "from": [
+            4,
+            2,
+            4
+          ],
+          "to": [
+            12,
+            4,
+            12
+          ],
+          "texture": "stone",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "铜箍座",
+          "from": [
+            5.5,
+            4,
+            5.5
+          ],
+          "to": [
+            10.5,
+            6,
+            10.5
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "通长灯杆",
+          "from": [
+            6.5,
+            6,
+            6.5
+          ],
+          "to": [
+            9.5,
+            33,
+            9.5
+          ],
+          "texture": "stone",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "灯杆下箍",
+          "from": [
+            6,
+            10,
+            6
+          ],
+          "to": [
+            10,
+            11.5,
+            10
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "托盘束口",
+          "from": [
+            5.5,
+            31,
+            5.5
+          ],
+          "to": [
+            10.5,
+            33.5,
+            10.5
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "灯座托盘",
+          "from": [
+            3.5,
+            33.5,
+            3.5
+          ],
+          "to": [
+            12.5,
+            35,
+            12.5
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "暖纸灯芯",
+          "from": [
+            4.75,
+            35,
+            4.75
+          ],
+          "to": [
+            11.25,
+            42,
+            11.25
+          ],
+          "texture": "amber_glass",
+          "grain_axis": "y",
+          "collision": false
+        },
+        {
+          "name": "前左角柱",
+          "from": [
+            3.75,
+            35,
+            3.75
+          ],
+          "to": [
+            4.75,
+            42,
+            4.75
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "后左角柱",
+          "from": [
+            3.75,
+            35,
+            11.25
+          ],
+          "to": [
+            4.75,
+            42,
+            12.25
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "前右角柱",
+          "from": [
+            11.25,
+            35,
+            3.75
+          ],
+          "to": [
+            12.25,
+            42,
+            4.75
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "后右角柱",
+          "from": [
+            11.25,
+            35,
+            11.25
+          ],
+          "to": [
+            12.25,
+            42,
+            12.25
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "腰梁横窗框",
+          "from": [
+            3.75,
+            38.2,
+            4.1
+          ],
+          "to": [
+            12.25,
+            38.9,
+            4.75
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": false
+        },
+        {
+          "name": "腰梁背窗框",
+          "from": [
+            3.75,
+            38.2,
+            11.25
+          ],
+          "to": [
+            12.25,
+            38.9,
+            11.9
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": false
+        },
+        {
+          "name": "腰梁左窗框",
+          "from": [
+            4.1,
+            38.2,
+            4.75
+          ],
+          "to": [
+            4.75,
+            38.9,
+            11.25
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": false
+        },
+        {
+          "name": "腰梁右窗框",
+          "from": [
+            11.25,
+            38.2,
+            4.75
+          ],
+          "to": [
+            11.9,
+            38.9,
+            11.25
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": false
+        },
+        {
+          "name": "檐下铜边",
+          "from": [
+            3.25,
+            42,
+            3.25
+          ],
+          "to": [
+            12.75,
+            43,
+            12.75
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "青瓦出檐",
+          "from": [
+            2,
+            43,
+            2
+          ],
+          "to": [
+            14,
+            44,
+            14
+          ],
+          "texture": "lamp_roof",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "瓦檐收坡",
+          "from": [
+            3.5,
+            44,
+            3.5
+          ],
+          "to": [
+            12.5,
+            45.4,
+            12.5
+          ],
+          "texture": "lamp_roof",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "顶脊",
+          "from": [
+            5.75,
+            45.4,
+            5.75
+          ],
+          "to": [
+            10.25,
+            46.65,
+            10.25
+          ],
+          "texture": "lamp_roof",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "铜顶钉",
+          "from": [
+            7.15,
+            46.65,
+            7.15
+          ],
+          "to": [
+            8.85,
+            48,
+            8.85
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        }
+      ],
+      "particle": "stone",
+      "light_part": 2,
+      "recipe": {
+        "pattern": [
+          " I ",
+          " L ",
+          "ISI"
+        ],
+        "key": {
+          "I": {
+            "item": "minecraft:iron_ingot"
+          },
+          "L": {
+            "item": "minecraft:lantern"
+          },
+          "S": {
+            "item": "minecraft:stone_bricks"
+          }
+        }
+      },
+      "mineable": "pickaxe"
+    },
+    {
+      "id": "low_street_lamp",
+      "name": "青石矮巷灯",
+      "size": [
+        1,
+        2,
+        1
+      ],
+      "light": 14,
+      "sound": "metal",
+      "strength": 2.0,
+      "description": "低石座托住内收的灯窗，适合窄巷及院路。",
+      "elements": [
+        {
+          "name": "青石坪座",
+          "from": [
+            2,
+            0,
+            2
+          ],
+          "to": [
+            14,
+            2,
+            14
+          ],
+          "texture": "stone",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "短石座",
+          "from": [
+            3.75,
+            2,
+            3.75
+          ],
+          "to": [
+            12.25,
+            7.5,
+            12.25
+          ],
+          "texture": "stone",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "铜灯盘",
+          "from": [
+            3,
+            7.5,
+            3
+          ],
+          "to": [
+            13,
+            9,
+            13
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "凹窗暖芯",
+          "from": [
+            4.75,
+            9,
+            4.75
+          ],
+          "to": [
+            11.25,
+            15,
+            11.25
+          ],
+          "texture": "amber_glass",
+          "grain_axis": "y",
+          "collision": false
+        },
+        {
+          "name": "前左角柱",
+          "from": [
+            3.25,
+            9,
+            3.25
+          ],
+          "to": [
+            4.25,
+            15,
+            4.25
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "后左角柱",
+          "from": [
+            3.25,
+            9,
+            11.75
+          ],
+          "to": [
+            4.25,
+            15,
+            12.75
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "前右角柱",
+          "from": [
+            11.75,
+            9,
+            3.25
+          ],
+          "to": [
+            12.75,
+            15,
+            4.25
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "后右角柱",
+          "from": [
+            11.75,
+            9,
+            11.75
+          ],
+          "to": [
+            12.75,
+            15,
+            12.75
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "灯罩上沿",
+          "from": [
+            3,
+            15,
+            3
+          ],
+          "to": [
+            13,
+            16,
+            13
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "石檐",
+          "from": [
+            2,
+            16,
+            2
+          ],
+          "to": [
+            14,
+            17.25,
+            14
+          ],
+          "texture": "lamp_roof",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "帽顶收坡",
+          "from": [
+            4,
+            17.25,
+            4
+          ],
+          "to": [
+            12,
+            19,
+            12
+          ],
+          "texture": "lamp_roof",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "方形顶脊",
+          "from": [
+            6,
+            19,
+            6
+          ],
+          "to": [
+            10,
+            19.75,
+            10
+          ],
+          "texture": "stone",
+          "grain_axis": "y",
+          "collision": true
+        }
+      ],
+      "particle": "stone",
+      "light_part": 0,
+      "recipe": {
+        "pattern": [
+          " S ",
+          "CLC",
+          " S "
+        ],
+        "key": {
+          "C": {
+            "item": "minecraft:copper_ingot"
+          },
+          "L": {
+            "item": "minecraft:lantern"
+          },
+          "S": {
+            "item": "minecraft:stone_bricks"
+          }
+        }
+      },
+      "mineable": "pickaxe"
     }
   ],
   "textures": {
@@ -359,6 +959,29 @@
         25,
         28
       ]
+    },
+    "amber_glass": {
+      "resolution": 16,
+      "base": [
+        255,
+        208,
+        121
+      ]
+    },
+    "lamp_roof": {
+      "resolution": 16,
+      "base": [
+        47,
+        64,
+        66
+      ]
     }
+  },
+  "placement": {
+    "wide_road_min": 5,
+    "narrow_road_min": 3,
+    "scan_inset": 2,
+    "sky_clearance": 5,
+    "light_clearance": 5
   }
 }

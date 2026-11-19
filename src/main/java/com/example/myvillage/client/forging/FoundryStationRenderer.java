@@ -22,7 +22,7 @@ public final class FoundryStationRenderer<T extends FoundryBlockEntity> implemen
             if(craft!=null){
                 int stage=piece==null?5:piece.stage();boolean hot=ForgeHeat.get(stack,block.getLevel().getGameTime())>=FoundryRules.get().heat().minimum();
                 boolean hotModel=hot&&(stage==0||stage==1||stage==5);
-                ForgingAnvilRenderer.draw(craft.kind()+"_"+stage+(hotModel?"_hot":""),pose,buffers,hot?0x00F000F0:light,overlay,1,hot&&!hotModel?.55f:1,hot&&!hotModel?.35f:1);
+                ForgingAnvilRenderer.draw(craft.modelKey()+"_"+stage+(hotModel?"_hot":""),pose,buffers,hot?0x00F000F0:light,overlay,1,hot&&!hotModel?.55f:1,hot&&!hotModel?.35f:1);
             }
             pose.popPose();return;
         }else if(block.kind()==FoundryMenu.Kind.PREPARATION){

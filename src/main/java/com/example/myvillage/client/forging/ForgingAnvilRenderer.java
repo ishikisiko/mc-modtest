@@ -18,14 +18,14 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 
 /** 台面器坯与落锤。朝向、工序和时间均读取服务器同步的只读表现。 */
 public final class ForgingAnvilRenderer implements BlockEntityRenderer<ForgingAnvilBlockEntity> {
-    private static final java.util.List<String> KINDS = WorkshopRules.KINDS;
+    private static final java.util.List<String> MODELS = WorkshopRules.get().crafts().stream().map(WorkshopRules.Craft::modelKey).toList();
     public ForgingAnvilRenderer(BlockEntityRendererProvider.Context context) {}
     private static ModelResourceLocation model(String name) {
         return ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "block/workshop/"+name));
     }
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         event.register(model("hammer"));
-        for (String kind : KINDS) for (int stage=0; stage<6; stage++) {
+        for (String kind : MODELS) for (int stage=0; stage<6; stage++) {
             event.register(model(kind+"_"+stage));
             if (stage==0||stage==1||stage==5) event.register(model(kind+"_"+stage+"_hot"));
         }
@@ -44,7 +44,7 @@ public final class ForgingAnvilRenderer implements BlockEntityRenderer<ForgingAn
         // JSON 北向为零；Minecraft 的方位角以南向为零。
         pose.mulPose(Axis.YP.rotationDegrees(180-block.getBlockState().getValue(ForgingAnvilBlock.FACING).toYRot()));
         pose.translate(-.5,0,-.5);
-        if (KINDS.contains(display.kind())) {
+        if (MODELS.contains(display.kind())) {
             pose.pushPose();pose.translate(0,1.005,0);
             boolean hot=display.hot()&&(display.stage()==0||display.stage()==1||display.stage()==5);
             draw(display.kind()+"_"+display.stage()+(hot?"_hot":""),pose,buffers,hot?0x00F000F0:light,overlay,1,1,1);

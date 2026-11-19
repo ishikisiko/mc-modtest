@@ -163,6 +163,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
                 com.example.myvillage.wilderness.habitat.HabitatPlacement.place(habitats(),level,chunk);
                 // Reassert only the current generation chunk after decorators; no live-world updates/drops.
                 RoadChunkPlacement.place(plan(),roads,chunk);
+                StreetLightPlacement.place(plan(),chunk);
             }
         }
     }

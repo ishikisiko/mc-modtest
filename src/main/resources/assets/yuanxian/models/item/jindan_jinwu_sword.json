@@ -1,0 +1,151 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/item/jindan_jinwu_sword_forged.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": true,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:item/forged_arms/jinwu/bronze"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -2.1703322793234676,
+        -3.1687944583151717,
+        -0.008917242699642643
+      ],
+      "scale": [
+        0.5546517869572775,
+        0.5546517869572775,
+        0.5546517869572775
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        0.09424083769633529,
+        -0.0
+      ],
+      "scale": [
+        0.2617801047120419,
+        0.2617801047120419,
+        0.2617801047120419
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -3.096858638743455,
+        -0.0
+      ],
+      "scale": [
+        0.42539267015706805,
+        0.42539267015706805,
+        0.42539267015706805
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -3.096858638743455,
+        -0.0
+      ],
+      "scale": [
+        0.42539267015706805,
+        0.42539267015706805,
+        0.42539267015706805
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        1.497,
+        1.332
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        1.497,
+        1.332
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        0.543,
+        0.125
+      ],
+      "scale": [
+        0.572,
+        0.572,
+        0.572
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        0.543,
+        0.125
+      ],
+      "scale": [
+        0.572,
+        0.572,
+        0.572
+      ]
+    }
+  },
+  "render_type": "minecraft:cutout"
+}

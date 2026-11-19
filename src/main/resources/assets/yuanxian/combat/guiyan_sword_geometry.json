@@ -1,81 +1,72 @@
 {
   "format": 2,
   "units": "model_pixels",
-  "generator": "tools/gen_legacy_encounters.py",
+  "generator": "tools/gen_forged_arms.py",
   "model": "yuanxian:item/guiyan_sword",
   "axes": {
     "length": "+y",
     "flat_normal": "x",
     "edge": "z",
-    "center_x": 8.0,
-    "center_z": 8.0
+    "center_x": 8,
+    "center_z": 8
   },
   "grip_center": [
-    8.0,
-    4.6,
-    8.0
+    8,
+    3.18,
+    8
   ],
   "handle": {
     "y": [
-      1.4,
-      7.4
+      0.85,
+      4.48
     ],
-    "half_width": 0.5,
-    "half_thickness": 0.45,
-    "wrap_y": [
-      1.4,
-      7.4
-    ]
+    "half_width": 0.76,
+    "half_thickness": 0.76
   },
   "collar": {
     "y": [
-      7.4,
-      8.6
+      4.48,
+      5.7
     ],
-    "half_width": 4.5,
-    "half_thickness": 1.2
+    "half_width": 2.92,
+    "half_thickness": 0.77
   },
   "butt": {
     "y": [
       0,
-      1.4
+      0.85
     ],
-    "half_width": 0.8,
-    "half_thickness": 0.8
+    "half_width": 0.85,
+    "half_thickness": 0.85
   },
   "head": {
-    "half_width": 1.5,
-    "half_thickness": 0.45,
-    "ridge_half_thickness": 0.45,
-    "taper_start_y": 28
+    "half_width": 1.3399999999999999,
+    "half_thickness": 0.5,
+    "ridge_half_thickness": 0.5,
+    "taper_start_y": 23.172
   },
   "head_base": [
-    8.0,
-    8.6,
-    8.0
-  ],
-  "head_tip": [
     8,
-    29.5,
+    5.7,
     8
   ],
+  "head_tip": [
+    8.0,
+    28.1,
+    8.0
+  ],
   "edge_axis": [
-    0.0,
-    0.0,
-    1.0
+    0,
+    0,
+    1
   ],
   "flat_axis": [
-    1.0,
-    0.0,
-    0.0
+    1,
+    0,
+    0
   ],
   "overall_y": [
     0,
-    29.5
-  ],
-  "head_root": [
-    8,
-    8.6,
-    8
+    28.1
   ]
 }

@@ -10,7 +10,9 @@
     "wood_end": "yuanxian:block/street_furniture/wood_end",
     "cloth": "yuanxian:block/street_furniture/cloth",
     "cloth_fold": "yuanxian:block/street_furniture/cloth_fold",
-    "lamp_panel": "yuanxian:block/street_furniture/lamp_panel"
+    "lamp_panel": "yuanxian:block/street_furniture/lamp_panel",
+    "amber_glass": "yuanxian:block/street_furniture/amber_glass",
+    "lamp_roof": "yuanxian:block/street_furniture/lamp_roof"
   },
   "elements": [
     {
