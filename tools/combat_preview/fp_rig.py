@@ -926,6 +926,39 @@ def arm_polys(sol, rig, width_px, side, sleeve, inflation, prefix=""):
     return out
 
 
+
+def stock_arm_center(side, width):
+    return np.array((side * (1.0 - width / 2.0), 8.0, 0.0)) / 16.0
+
+
+def worn_item_on_arm(side, width, grip):
+    """WornGauntletPose.itemOnArm. Item input is in blocks."""
+    anchor = stock_arm_center(side, width)
+    if width == 3:
+        anchor[0] += side * .5 / 16
+    return A(t=anchor) @ A(np.diag([side * .5, .5, .5])) @ A(t=-np.asarray(grip) / 16)
+
+
+def worn_arm_at_grip(grip_frame_matrix, weapon_scale, side, width):
+    return grip_frame_matrix @ A(np.eye(3) * (weapon_scale * 2)) @ A(t=-stock_arm_center(side, width))
+
+
+def worn_arm_at_off_hand(item, grip, side, width):
+    return (item @ A(t=np.asarray(grip) / 16) @ A(np.diag([side * 2., 2., 2.]))
+            @ A(t=-stock_arm_center(side, width)))
+
+
+def stock_arm_polys(frame, width, side, sleeve):
+    """Unmodified PlayerModel arm and sleeve UVs in the rigid worn-arm frame."""
+    right = side > 0
+    u, v = ((40, 32) if right else (48, 48)) if sleeve else ((40, 16) if right else (32, 48))
+    x = 1 - width if right else -1
+    ctr = np.array([x + width / 2, 4, 0])
+    for points, uv in cube_polys(u, v, x, -2, -2, width, 12, 4, ("up", "down", *SIDES)):
+        if sleeve:
+            points += np.sign(points - ctr) * SLEEVE_INFLATION_PX
+        yield (points / 16) @ frame[:3, :3].T + frame[:3, 3], uv
+
 def fist_center(sol, rig):
     along = (-FIST_OVERLAP_PX + FIST_LENGTH_PX / 2.0) * rig.thickness / 16.0
     return sol["wrist"] + sol["fist_R"][:, 1] * along
@@ -1229,7 +1262,9 @@ class Scene:
                 loud(f"item model: {msg}")
         self.side = 1.0 if a.main_arm == "right" else -1.0
         # 0.39.1: a paired weapon (one item worn on both hands) also draws its second on the free off hand.
-        self.paired = bool(w["weapon"].get("paired")) and not getattr(a, "no_paired", False)
+        paired = bool(w["weapon"].get("paired"))
+        self.paired = paired and not getattr(a, "no_paired", False)
+        self.worn_gauntlet = paired and w["weapon"].get("family") == "fist"
         self.skin, self.arms, self.skin_label = load_skin(a.skin, a.arms, a.vanilla_jar)
         self.width_px = 3.0 if self.arms == "slim" else 4.0
         self.markers = []
@@ -1262,6 +1297,35 @@ class Scene:
 
     def draw(self, frame, move, tick, lag=True, trail=True):
         pose, sol, G, M = self.state(move, tick, lag)
+        if self.worn_gauntlet:
+            M = self._draw_worn_gauntlet(frame, sol["off"], G)
+        else:
+            self._draw_ik(frame, sol, M)
+        if trail:
+            for P, rgba in trail_quads(self.side, self.rig, self.geo, move, tick):
+                frame.poly(P, rgba, "blend", cull=False)
+        return pose, sol, M
+
+    def _draw_worn_gauntlet(self, frame, off, grip_frame_matrix):
+        side, width = self.side, self.width_px
+        main_arm = worn_arm_at_grip(grip_frame_matrix, self.rig.weapon_scale, side, width)
+
+        def draw_hand(arm_frame, hand, arm_tag, item_tag):
+            for sleeve in (False, True) if self.a.sleeve else (False,):
+                for points, uv in stock_arm_polys(arm_frame, width, hand, sleeve):
+                    mode = "cutout_blend" if sleeve else "solid"
+                    frame.poly(points, np.asarray(uv), mode, self.skin, shade_of(points), arm_tag)
+            fitted_item = arm_frame @ worn_item_on_arm(hand, width, self.geo.grip) @ A(np.eye(3) / 16.)
+            self._draw_item(frame, fitted_item, item_tag)
+            return fitted_item
+
+        if self.paired and off is not None and off.get("free"):
+            item = paired_item_matrix(side, self.rig, self.geo, off)
+            off_arm = worn_arm_at_off_hand(item, self.geo.grip, -side, width)
+            draw_hand(off_arm, -side, TAGS["off_forearm"], TAGS["paired"])
+        return draw_hand(main_arm, side, TAGS["forearm"], TAGS["weapon"])
+
+    def _draw_ik(self, frame, sol, M):
         off = sol["off"]
         if off is not None:
             off_rig = _OffArmRig(self.rig)
@@ -1281,10 +1345,6 @@ class Scene:
         if self.a.sleeve:
             for P, uv, tag in arm_polys(sol, self.rig, self.width_px, self.side, True, SLEEVE_INFLATION_PX):
                 frame.poly(P, np.array(uv), "cutout_blend", self.skin, shade_of(P), TAGS[tag])
-        if trail:
-            for P, rgba in trail_quads(self.side, self.rig, self.geo, move, tick):
-                frame.poly(P, rgba, "blend", cull=False)
-        return pose, sol, M
 
     def _draw_item(self, frame, M, tag):
         flip = np.linalg.det(M[:3, :3]) < 0

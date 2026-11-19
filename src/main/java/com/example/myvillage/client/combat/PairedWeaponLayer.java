@@ -61,6 +61,9 @@ final class PairedWeaponLayer extends RenderLayer<AbstractClientPlayer, PlayerMo
             return;
         }
         HumanoidArm offArm = player.getMainArm().getOpposite();
+        if (WornGauntletRenderer.renderThirdPerson(player, getParentModel(), offArm, stack, poseStack, buffers, packedLight)) {
+            return;
+        }
         boolean mirrored = PairedWeapons.mirrored(offArm);
         poseStack.pushPose();
         // ItemInHandLayer.renderArmWithItem for the off arm.

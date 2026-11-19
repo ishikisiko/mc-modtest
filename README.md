@@ -2900,7 +2900,7 @@ and the chop, stays up on the palm and the uppercut, and strikes with the right
 on the step-in. The mode entry is a 抱拳礼. In first person the left guard
 hand is drawn while the off-hand slot is empty and moves with the strikes.
 
-第三人称由 `PairedWeaponLayer` 跟随副手臂，修仙战斗第一人称护手使用同一套佩戴坐标。
+三款都贴在原版方臂和袖层上，细臂的拳套向臂面移半像素。普通第一人称使用原版抬手，修仙战斗时双手沿拳法握点移动。
 三款各有独立的 GLB 作者源位于 `equipment/weapons/gauntlets/`，由
 `tools/gen_xuantie_gauntlet_model.py` 导出模型、贴图和背包图标。
 日魄乌金的日斑、拳面亮弧和火星用全亮材质播放四秒循环。

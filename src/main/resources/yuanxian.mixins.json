@@ -10,7 +10,9 @@
     "MeditationHeldItemMixin",
     "MeditationCameraAccess",
     "NewWorldPresetMixin",
-    "LegacyHeldItemMixin"
+    "LegacyHeldItemMixin",
+    "GauntletHandRendererAccess",
+    "GauntletItemInHandLayerMixin"
   ],
   "mixins": [
     "EstatePlayerMovementMixin",

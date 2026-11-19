@@ -317,3 +317,8 @@ ugly, the gauntlet read as a big ski glove, and one item should be a pair.
 `tools/gen_xuantie_gauntlet_model.py` 从三份 GLB 生成 NeoForge OBJ、贴图、图标和几何合同。
 三款通过 `paired` 和 `basic_fist` 共用佩戴、拳法与判定锚点。
 日魄乌金用拳面及日斑的全亮网格播放独立动画贴图。其火星跟随手上的模型。
+
+拳套的第一人称和第三人称都由原版手臂局部坐标挂接。宽臂的皮肤模型为 4×12×4 像素，
+细臂为 3×12×4 像素，沿法向朝臂面移动半像素的是拳套。普通第一人称使用
+`ItemInHandRenderer` 的原版手臂姿势，修仙战斗把整段 `PlayerModel` 方臂与袖层
+放到现有握点。左右甲片使用镜像，副手有物品时显示实际物品。

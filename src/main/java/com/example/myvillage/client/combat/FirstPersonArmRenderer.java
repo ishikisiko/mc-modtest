@@ -67,6 +67,13 @@ public final class FirstPersonArmRenderer {
     public static void onRenderHand(RenderHandEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
+        if (player != null && WornGauntletRenderer.renderFirstPerson(event, player)) {
+            // The canceled vanilla item pass would otherwise draw another copy.
+            // Draw the trail here so it still follows the same displayed pose.
+            FirstPersonWeaponTrail.onRenderHand(event);
+            event.setCanceled(true);
+            return;
+        }
         if (player == null
                 || event.getHand() != InteractionHand.MAIN_HAND
                 || player.isInvisible()
