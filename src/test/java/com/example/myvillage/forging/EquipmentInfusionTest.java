@@ -1,6 +1,8 @@
 package com.example.myvillage.forging;
 
 import com.example.myvillage.item.ModDataComponents;
+import com.example.myvillage.item.ModItems;
+import com.example.myvillage.item.RideableFlyingSwordItem;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.SharedConstants;
@@ -41,6 +43,10 @@ class EquipmentInfusionTest {
                 for(var recipe:ForgingRules.get().recipes()) {
                     var id=ResourceLocation.parse(recipe.output());
                     if(!items.containsKey(id)){
+                        if(id.equals(ModItems.RIDEABLE_FLYING_SWORD.getId())){
+                            Registry.register(items,id,new RideableFlyingSwordItem(new Item.Properties().stacksTo(1)));
+                            continue;
+                        }
                         var armor=com.example.myvillage.equipment.EquipmentCatalogue.bundled().stream().filter(a->a.id().equals(id)).findFirst();
                         Registry.register(items,id,armor.<Item>map(a->new com.example.myvillage.equipment.EquipmentArmorItem(new Item.Properties(),a))
                                 .orElseGet(()->new Item(new Item.Properties().durability(250))));

@@ -13,5 +13,10 @@ class InfusionVisualsTest {
         }
         var end=rules.stream(1,1,0);assertEquals(0,Math.hypot(end[0],end[2]),1e-9);
     }
-    @Test void everySupportedCraftHasAnOwnedModelPose(){for(var craft:WorkshopRules.get().crafts())assertNotNull(InfusionVisuals.get().items().get(craft.recipe()),craft.recipe());}
+    @Test void exactlyTheInfusibleCraftsHaveOwnedModelPoses(){
+        var expected=ForgingRules.get().recipes().stream()
+                .filter(recipe->!recipe.traits().isEmpty())
+                .map(ForgingRules.Recipe::id).collect(java.util.stream.Collectors.toSet());
+        assertEquals(expected,InfusionVisuals.get().items().keySet());
+    }
 }
