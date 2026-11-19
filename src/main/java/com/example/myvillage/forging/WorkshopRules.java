@@ -16,12 +16,13 @@ public record WorkshopRules(int version, int shape_percent, int strike_ticks,
         double armor_received_budget_health_multiplier, int damage_receipt_limit,
         double treatment_attack, double treatment_speed, double treatment_durability, int experience_limit, float sound_volume, float sound_pitch_jitter, List<Craft> crafts) {
     public static final String RESOURCE="/data/yuanxian/forging/workshop.json";
-    public static final List<String> KINDS=List.of("sword","spear","pickaxe","axe","shovel","hoe","helmet","chestplate","leggings","boots");
+    public static final List<String> KINDS=List.of("sword","spear","pickaxe","axe","shovel","hoe","helmet","chestplate","leggings","boots","flying_sword");
     public record Band(int through,int experience) {}
     public record Craft(String recipe,String kind,boolean requires_pattern,int max_strikes,int work_experience,int forming_points,int grade) {
         public boolean armor(){return Set.of("helmet","chestplate","leggings","boots").contains(kind);}
         public boolean treatment(int choice){return choice>=0&&choice<=2&&(!armor()||choice==2);}
         public boolean training(int choice){return choice>=1&&choice<=3&&(!armor()||choice==2);}
+        public boolean flyingSword(){return kind.equals("flying_sword");}
         public boolean weapon(){return kind.equals("sword")||kind.equals("spear");}
     }
     public WorkshopRules {

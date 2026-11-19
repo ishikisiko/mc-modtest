@@ -155,6 +155,16 @@
         "tough"
       ],
       "quality_tier": "yuanxian:qi_refining"
+    },
+    {
+      "id": "xuantie_flying_sword",
+      "pattern": "yuanxian:pattern_xuantie_flying_sword",
+      "output": "yuanxian:rideable_flying_sword",
+      "costs": {
+        "#yuanxian:forging_materials/xuantie": 4
+      },
+      "traits": [],
+      "quality_tier": "yuanxian:qi_refining"
     }
   ],
   "traits": {

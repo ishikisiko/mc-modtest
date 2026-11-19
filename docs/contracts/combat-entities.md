@@ -60,7 +60,7 @@
 - 网络仅传前后左右升降/催剑位及空落地意图；服务器从当前 vehicle 推导身份，检查 owner/passenger/维度/存活，决定位置速度朝向。斜向归一化，碰撞覆盖乘客头部；不得主动加载飞行前方区块。
 - 资格、速度、灵力和阶段规则来自飞剑配置；骑剑暂停自然回灵，丹药保持原规则。低灵禁催剑，耗尽只保留有界低速修正并持续下降，不能凭输入或重登恢复巡航。渡劫与起飞互斥。
 - 高空召回先缓降再移除。实体不保存，玩家保存待落地标记；重登恢复只下降的临时载具或有时限的安全兜底。死亡、换维度和普通落地清理标记，不保留永久免摔属性。
-- 两档三维模型/配方由 `gen_flying_swords.py` 拥有，表现参数由 `tools/flying_sword/visuals.json` 生成。服务器同步档次，客户端插值、站姿和尾迹只作展示，不恢复客户端载具坐标权威。
+- 两档三维模型和青霄飞剑配方由 `gen_flying_swords.py` 拥有，表现参数由 `tools/flying_sword/visuals.json` 生成。服务器同步档次，客户端插值、站姿和尾迹只作展示，不恢复客户端载具坐标权威。
 
 入口：[战斗集成](../ai-kb/32_pal_combat_integration.md)、[数据与采集](../ai-kb/34_combat_data_and_capture.md)、[双手枪](../ai-kb/35_lingxiao_spear.md)、[新武器](../ai-kb/36_new_combat_weapon.md)、[妖兽](../ai-kb/38_hostile_beasts.md)、[NPC](../ai-kb/39_humanoid_npcs.md)、[飞剑](../ai-kb/27_rideable_flying_sword.md)、[雷角山君](../ai-kb/61_thunder_tiger.md)。检查依改动选择，旧全量清单不是每次必跑。
 

@@ -9,7 +9,10 @@ ROOT=Path(__file__).resolve().parents[2]
 def outputs(root=ROOT):
  config=json.loads((root/'tools/forging/infusion_visuals.json').read_text());catalogue=Catalogue(root)
  presentation={}
+ rules=json.loads((root/'src/main/resources/data/yuanxian/forging/rules.json').read_text())
+ infusible={recipe['id'] for recipe in rules['recipes'] if recipe['traits']}
  for rid,faces in catalogue.sources.items():
+  if rid not in infusible:continue
   lo,hi=mesh.bounds(faces);center=[(a+b)/32 for a,b in zip(lo,hi)]
   extent=config['armor_extent'] if catalogue.armor(rid) else config['item_extent']
   presentation[rid]={'center':center,'scale':extent*16/max(b-a for a,b in zip(lo,hi)), 'rotate_z':0 if catalogue.armor(rid) else 90}

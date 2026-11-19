@@ -8,7 +8,7 @@
   "entity.yuanxian.simple_fox": "简易狐狸",
   "entity.yuanxian.demon_wolf": "妖狼",
   "entity.yuanxian.cultivator": "修仙者",
-  "item.yuanxian.rideable_flying_sword": "可骑乘飞剑",
+  "item.yuanxian.rideable_flying_sword": "玄铁飞剑",
   "item.yuanxian.qingfeng_sword": "青锋剑",
   "item.yuanxian.xuanyue_zhenshan_sword": "玄岳镇山剑",
   "item.yuanxian.chilian_lihuo_sword": "赤炼离火剑",
@@ -4298,5 +4298,11 @@
   "item.yuanxian.seal_disc_bundle": "成组刻法篆牒",
   "item.yuanxian.seal_disc_plain": "普通刻法篆牒",
   "item.yuanxian.seal_disc_treasure": "宝藏刻法篆牒",
-  "item.yuanxian.seal_disc_risky": "险刻篆牒"
+  "item.yuanxian.seal_disc_risky": "险刻篆牒",
+  "item.yuanxian.pattern_xuantie_flying_sword": "玄铁飞剑器谱",
+  "item.yuanxian.workpiece_xuantie_flying_sword_rough": "玄铁飞剑·粗坯",
+  "item.yuanxian.workpiece_xuantie_flying_sword_shaped": "玄铁飞剑·成形坯",
+  "item.yuanxian.workpiece_xuantie_flying_sword_quenched": "玄铁飞剑·淬火坯",
+  "item.yuanxian.workpiece_xuantie_flying_sword_tempered": "玄铁飞剑·回火坯",
+  "item.yuanxian.workpiece_xuantie_flying_sword_ground": "玄铁飞剑·精磨坯"
 }

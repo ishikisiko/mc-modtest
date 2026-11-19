@@ -11,9 +11,11 @@ class ForgingResourcesTest(unittest.TestCase):
         for path,data in generated.items():self.assertEqual(data,path.read_bytes(),str(path))
         rules=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/rules.json').read_text())
         registered=(ROOT/'src/main/java/com/example/myvillage/item/ModItems.java').read_text()
+        catalogue=json.loads((ROOT/'src/main/resources/data/yuanxian/equipment/catalogue.json').read_text())
+        armor_ids={a['id'] for a in catalogue['items']}
+        merchant_patterns=armor_ids|{'yuanxian:rideable_flying_sword'}
+        offers=json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/commerce_rules.json').read_text())['offers']
         for recipe in rules['recipes']:
-            catalogue=json.loads((ROOT/'src/main/resources/data/yuanxian/equipment/catalogue.json').read_text())
-            armor_ids={a['id'] for a in catalogue['items']}
             if recipe['output'] in armor_ids:
                 self.assertIn('WorkshopItems.registerArmorPatterns(ITEMS)',registered)
                 craft=next(c for c in json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())['crafts'] if c['recipe']==recipe['id'])
@@ -23,9 +25,8 @@ class ForgingResourcesTest(unittest.TestCase):
                 self.assertIn('"'+recipe['output'].split(':')[1]+'"',registered)
                 self.assertIn('"'+recipe['pattern'].split(':')[1]+'"',registered)
             path=ROOT/'src/main/resources/data/yuanxian/recipe'/f"{recipe['pattern'].split(':')[1]}.json"
-            if recipe['output'] in armor_ids:
+            if recipe['output'] in merchant_patterns:
                 self.assertFalse(path.exists())
-                offers=json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/commerce_rules.json').read_text())['offers']
                 matches=[o for o in offers if o['item']==recipe['pattern'] and o['kind']=='buy']
                 self.assertEqual(1,len(matches))
                 self.assertEqual('herbalist',matches[0]['role'])

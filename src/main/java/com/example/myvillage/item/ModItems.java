@@ -172,6 +172,8 @@ public final class ModItems {
             props -> new ForgingMaterialItem(props,"edge_tempering_sand"));
     public static final DeferredItem<BlockItem> FORGING_TABLE = ITEMS.registerItem("forging_table",
             props -> new BlockItem(ModBlocks.FORGING_TABLE.get(), props));
+    public static final DeferredItem<ForgePatternItem> PATTERN_XUANTIE_FLYING_SWORD = ITEMS.registerItem("pattern_xuantie_flying_sword",
+            props -> new ForgePatternItem(props, "xuantie_flying_sword"));
     public static final DeferredItem<ForgePatternItem> PATTERN_QINGFENG_SWORD = ITEMS.registerItem("pattern_qingfeng_sword",
             props -> new ForgePatternItem(props, "qingfeng_sword"));
     public static final DeferredItem<ForgePatternItem> PATTERN_LINGXIAO_SPEAR = ITEMS.registerItem("pattern_lingxiao_spear",
@@ -446,6 +448,7 @@ public final class ModItems {
                         output.accept(CHITONG_INGOT.get());
                         output.accept(BLOOD_SPIRIT_INGOT.get());
                         output.accept(EDGE_TEMPERING_SAND.get());
+                        output.accept(PATTERN_XUANTIE_FLYING_SWORD.get());
                         output.accept(PATTERN_QINGFENG_SWORD.get());
                         output.accept(PATTERN_LINGXIAO_SPEAR.get());
                         output.accept(ALCHEMY_FURNACE.get());

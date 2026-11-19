@@ -140,6 +140,19 @@
       "medicine_cost": 0
     },
     {
+      "id": "buy_pattern_xuantie_flying_sword",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "yuanxian:pattern_xuantie_flying_sword",
+      "quantity": 1,
+      "price": 12,
+      "pool": "unlimited",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 1,
+      "medicine_cost": 0
+    },
+    {
       "id": "sell_spirit_leaf",
       "role": "herbalist",
       "kind": "sell",

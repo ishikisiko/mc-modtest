@@ -64,6 +64,7 @@ public final class ForgingMenu extends AbstractContainerMenu {
         var rules=ForgingRules.get();
         if(button>=RECIPE_BASE&&button<RECIPE_BASE+rules.recipes().size()){
             int i=button-RECIPE_BASE;if(!knows(i))return reject(1);
+            if(rules.recipes().get(i).traits().isEmpty())return reject(6);
             data.set(0,i);if(!recipe().traits().contains(trait()))data.set(1,ForgeMark.TRAITS.indexOf(recipe().traits().getFirst()));
             data.set(2,0);broadcastChanges();return true;
         }

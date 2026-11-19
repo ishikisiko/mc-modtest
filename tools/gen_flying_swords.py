@@ -4,20 +4,23 @@ from pathlib import Path
 import argparse, json, struct, zlib
 ROOT=Path(__file__).resolve().parents[1]
 RES=ROOT/'src/main/resources'
+XUANTIE_NAME='玄铁飞剑'
+RETIRED_RECIPE=RES/'data/yuanxian/recipe/rideable_flying_sword.json'
 COLORS={'jade':'#5aada4','edge':'#b1e4d9','iron':'#293d4a','gold':'#bfa36a','wrap':'#344f60'}
 
 def box(a,b,color):
     return {'from':a,'to':b,'faces':{d:{'texture':'#palette','uv':[i*2+.25,1,i*2+1.75,7]} for d in ('up','down','north','south','west','east') for i in [list(COLORS).index(color)]}}
 
-def model(azure):
-    parts=[box([5.8,0,7],[10.2,21,9],'jade' if azure else 'iron'),
+def model(azure, *, blade_only=False):
+    blade=[box([5.8,0,7],[10.2,21,9],'jade' if azure else 'iron'),
            box([5.1,1,7.4],[5.8,21,8.6],'edge'),box([10.2,1,7.4],[10.9,21,8.6],'edge'),
-           box([7.7,0,6.6],[8.3,26,9.4],'gold' if azure else 'iron'),
-           box([4,-.8,7],[12,.8,9],'iron'),
+           box([7.7,0,6.6],[8.3,26,9.4],'gold' if azure else 'iron')]
+    fittings=[box([4,-.8,7],[12,.8,9],'iron'),
            box([2.8,-.55,7.2],[4,.55,8.8],'jade'),box([12,-.55,7.2],[13.2,.55,8.8],'jade'),
            box([2,-.3,7.5],[2.8,.3,8.5],'gold'),box([13.2,-.3,7.5],[14,.3,8.5],'gold'),
            box([7,-7,7],[9,-.8,9],'wrap'),box([6.6,-9,6.6],[9.4,-7,9.4],'jade'),
            box([7.6,-12,7.6],[8.4,-9,8.4],'gold')]
+    parts=blade if blade_only else blade+fittings
     # Finer, monotonic taper avoids the three broad stair blocks of the first draft.
     for step in range(9):
         inset=6.0+step*.225
@@ -39,10 +42,10 @@ def outputs():
     result={RES/'assets/yuanxian/flying_sword/visuals.json':(ROOT/'tools/flying_sword/visuals.json').read_bytes()}
     for name,azure in [('rideable_flying_sword',False),('azure_cloud_flying_sword',True)]:
         result[RES/f'assets/yuanxian/models/item/{name}.json']=(json.dumps(model(azure),indent=2)+'\n').encode()
-        key={'I':{'item':'minecraft:iron_ingot'},'D':{'item':'minecraft:diamond'},'S':{'item':'minecraft:stick'}}
-        recipe={'type':'minecraft:crafting_shaped','category':'equipment','pattern':['  I',' I ','S  '], 'key':{'I':key['I'],'S':key['S']},'result':{'id':f'yuanxian:{name}','count':1}}
-        if azure: recipe.update(pattern=[' D ','DID',' D '],key={'D':key['D'],'I':{'item':'yuanxian:rideable_flying_sword'}})
-        result[RES/f'data/yuanxian/recipe/{name}.json']=(json.dumps(recipe,indent=2)+'\n').encode()
+    recipe={'type':'minecraft:crafting_shaped','category':'equipment','pattern':[' D ','DID',' D '],
+            'key':{'D':{'item':'minecraft:diamond'},'I':{'item':'yuanxian:rideable_flying_sword'}},
+            'result':{'id':'yuanxian:azure_cloud_flying_sword','count':1}}
+    result[RES/'data/yuanxian/recipe/azure_cloud_flying_sword.json']=(json.dumps(recipe,indent=2)+'\n').encode()
     def chunk(kind,data):
         return struct.pack('>I',len(data))+kind+data+struct.pack('>I',zlib.crc32(kind+data)&0xffffffff)
     pixels=b''.join(bytes.fromhex(c[1:])*4 for c in COLORS.values())+bytes(12*3)
@@ -61,7 +64,7 @@ def preview(out):
     old=Image.open(RES/'assets/yuanxian/textures/item/rideable_flying_sword.png').convert('RGBA').resize((440,440),Image.Resampling.NEAREST)
     sheet.paste(old,(55,100),old);draw.text((30,25),'旧版参考：平面占位图',font=font,fill='#253c41')
     assets=Assets([RES],None)
-    for i,(name,title) in enumerate([('rideable_flying_sword','基础飞剑：厚刃与剑脊'),('azure_cloud_flying_sword','青霄飞剑：青玉、金纹、承托')],1):
+    for i,(name,title) in enumerate([('rideable_flying_sword',XUANTIE_NAME),('azure_cloud_flying_sword','青霄飞剑：青玉、金纹、承托')],1):
         m=ItemModel(assets,'yuanxian:item/'+name)
         if m.messages():raise ValueError(m.messages())
         quads=transform_quads(m.base.quads,affine(rot_xyz(90,0,0)))
@@ -78,6 +81,10 @@ def main():
         if a.check:
             if not path.exists() or path.read_bytes()!=data:errors.append(str(path.relative_to(ROOT)))
         else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
+    if a.check:
+        if RETIRED_RECIPE.exists():errors.append(str(RETIRED_RECIPE.relative_to(ROOT)))
+    else:
+        RETIRED_RECIPE.unlink(missing_ok=True)
     if a.preview:preview(a.preview)
     if errors:raise SystemExit('飞剑生成资源漂移：'+', '.join(errors))
     print('飞剑资源一致')

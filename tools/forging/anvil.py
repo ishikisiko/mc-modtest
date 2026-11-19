@@ -2,7 +2,7 @@
 import json
 from tools.gen_alchemy_assets import png
 
-KINDS = ('sword', 'spear', 'pickaxe', 'axe', 'shovel', 'hoe', 'helmet', 'chestplate', 'leggings', 'boots')
+KINDS = ('sword', 'spear', 'pickaxe', 'axe', 'shovel', 'hoe', 'helmet', 'chestplate', 'leggings', 'boots', 'flying_sword')
 COLORS = {
     'stone': (48, 52, 51), 'wood': (74, 49, 32), 'iron': (102, 113, 111),
     'edge': (169, 180, 171), 'dark': (27, 30, 29), 'copper': (142, 88, 49),

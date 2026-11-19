@@ -1,6 +1,6 @@
 # 御剑飞行
 
-基础 registry ID `yuanxian:rideable_flying_sword`（物品、实体）保持兼容，新增物品「青霄飞剑」`yuanxian:azure_cloud_flying_sword`。完整入口、诊断 schema、生命周期、配置、预览与实际证据边界见[御剑 demo](../features/flying-sword-demo.md)。本次源码实现尚未执行云端编译或游戏验收。
+玄铁飞剑物品 ID 为 `yuanxian:rideable_flying_sword`，青霄飞剑物品 ID 为 `yuanxian:azure_cloud_flying_sword`。玄铁飞剑通过普通鼎或手工炼器成器，青霄飞剑使用玄铁飞剑合成。完整入口、诊断字段、生命周期及配置见[御剑飞行](../features/flying-sword-demo.md)。
 
 ## 实现归属
 
@@ -14,7 +14,8 @@
 | 输入与召回意图 | `FlyingSwordInputFlags`、`FlyingSwordInputPayload`、`FlyingSwordRecallPayload`；协议兼容版本在 `ModPayloads` |
 | 自然回灵暂停 | `SpiritualPowerRuntime` 的骑乘检测；不改丹药回灵 |
 | 表现 | `FlyingSwordClientInput`、`RideableFlyingSwordRenderer`；不用 PAL 覆盖持剑动作 |
-| 两档模型、色板、配方 | `tools/gen_flying_swords.py`；不得手改生成输出 |
+| 飞行模型、色板、青霄合成 | `tools/gen_flying_swords.py` |
+| 玄铁飞剑制作和器谱 | `forging/rules.json`、`forging/workshop.json`、`world_sim/commerce_rules.json`。锻造阶段及器谱图案从飞剑模型派生，由 `gen_forging_assets.py` 生成 |
 
 ## 保持的边界
 

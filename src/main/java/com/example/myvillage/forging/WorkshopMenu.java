@@ -190,7 +190,8 @@ public class WorkshopMenu extends AbstractContainerMenu {
     }
     private static boolean canPay(Player player,Map<String,Integer> costs){return costs.isEmpty()||ForgingCosts.plan(SpiritStoneSources.open(player).copies(),costs).isPresent();}
     private void normalizeSelection(){
-        if(!recipe().traits().contains(trait()))data.set(1,ForgeMark.TRAITS.indexOf(recipe().traits().getFirst()));
+        var traits=recipe().traits();
+        if(!traits.isEmpty()&&!traits.contains(trait()))data.set(1,ForgeMark.TRAITS.indexOf(traits.getFirst()));
         if(!trainingDirection(direction()))data.set(2,craft().armor()?2:1);
         if(!craft().treatment(treatment())&&(piece()==null||piece().stage()<2))data.set(3,2);
     }

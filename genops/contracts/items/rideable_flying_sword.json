@@ -2,8 +2,8 @@
   "item_id": "yuanxian:rideable_flying_sword",
   "kind": "functional_item",
   "display_name": {
-    "en_us": "Rideable Flying Sword",
-    "zh_design_name": "可骑乘飞剑"
+    "en_us": "Black Iron Flying Sword",
+    "zh_design_name": "玄铁飞剑"
   },
   "owner_facing_goal": "右键切换一把归当前玩家唯一拥有、由服务端权威驾驶的基础飞剑载具。",
   "creative_tab": {
@@ -34,7 +34,7 @@
     "server_client_boundary": "Item use, ownership, spawning, mounting, movement, collision, and cleanup run on the logical server. The client sends only a six-key bitset; it sends no position, velocity, entity id, owner id, or look values.",
     "interaction": "Use with no owned sword spawns below the player and mounts them. Use with an owned sword discards it and does not spawn a replacement.",
     "cooldown_or_durability": "No cooldown or durability in v1; max stack size is one.",
-    "data_components": [],
+    "data_components": ["yuanxian:forge_mark"],
     "tests": [
       "payload exposes only six control flags",
       "server accepts input only from the bound current passenger",
@@ -73,7 +73,6 @@
     "special moves",
     "multiple passengers",
     "cross-dimension retention",
-    "GeckoLib",
-    "recipe or survival progression"
+    "GeckoLib"
   ]
 }

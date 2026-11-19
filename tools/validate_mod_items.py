@@ -15,10 +15,10 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 ASSET_ROOT = ROOT / "src" / "main" / "resources" / "assets" / "yuanxian"
-MOD_ITEMS = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian" / "item" / "ModItems.java"
-MOD_BLOCKS = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian" / "block" / "ModBlocks.java"
-ROCKERY_BLOCK = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian" / "block" / "RockeryBlock.java"
-COMBAT_WEAPON_ITEM = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian" / "item" / "CombatWeaponItem.java"
+MOD_ITEMS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "item" / "ModItems.java"
+MOD_BLOCKS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "block" / "ModBlocks.java"
+ROCKERY_BLOCK = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "block" / "RockeryBlock.java"
+COMBAT_WEAPON_ITEM = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "item" / "CombatWeaponItem.java"
 COMBAT_WEAPON_DATA = ROOT / "src" / "main" / "resources" / "data" / "yuanxian" / "combat" / "weapon"
 LANG = ASSET_ROOT / "lang" / "en_us.json"
 ZH_LANG = ASSET_ROOT / "lang" / "zh_cn.json"

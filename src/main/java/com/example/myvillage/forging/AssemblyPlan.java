@@ -19,6 +19,7 @@ public record AssemblyPlan(ItemStack result,ItemStack returned,int reason) {
         }
         if(!(material.getItem() instanceof FoundryMaterialItem part)||part.flame()||material.isEmpty())return invalid(3);
         var handle=part.material();
+        if(craft.flyingSword()&&!handle.equals("wood"))return invalid(9);
         if(piece!=null)return new AssemblyPlan(quality==0?ItemStack.EMPTY:WorkshopEquipment.complete(input,quality,handle),ItemStack.EMPTY,0);
         var mark=input.get(ModDataComponents.FORGE_MARK.get());
         if(mark==null||!FoundryEquipment.valid(input))return invalid(1);

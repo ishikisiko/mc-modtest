@@ -28,13 +28,19 @@ public final class WorkshopEquipment {
         var recipe=ForgingRules.get().recipe(piece.recipe()).orElseThrow();
         var result=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe.output())));
         result.set(ModDataComponents.FORGE_MARK.get(),ForgeMark.uninfused(quality));
+        if(WorkshopRules.get().craft(piece.recipe()).flyingSword())return result;
         result.set(ModDataComponents.TEMPER.get(),new TemperRecord(0,0,0,0,piece.treatment()));
         result.set(ModDataComponents.FORGE_CRAFT.get(),ForgeCraft.EMPTY);
         refresh(result);return result;
     }
     public static ItemStack complete(ItemStack input,int quality,String handle){
         if(!WorkshopItems.valid(input))throw new IllegalArgumentException("Invalid completed blank");
-        var result=complete(input.get(ModDataComponents.WORKPIECE.get()),quality);
+        var piece=input.get(ModDataComponents.WORKPIECE.get());
+        var result=complete(piece,quality);
+        if(WorkshopRules.get().craft(piece.recipe()).flyingSword()){
+            result.set(DataComponents.CUSTOM_NAME,input.get(DataComponents.CUSTOM_NAME));
+            return result;
+        }
         var record=FoundryEquipment.record(input).withHandle(handle);
         result.applyComponents(input.getComponentsPatch());result.remove(ModDataComponents.WORKPIECE.get());
         result.set(ModDataComponents.FORGE_MARK.get(),ForgeMark.uninfused(quality));

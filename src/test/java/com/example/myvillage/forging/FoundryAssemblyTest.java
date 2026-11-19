@@ -25,6 +25,36 @@ class FoundryAssemblyTest {
         }
         assertEquals("wood",FoundryEquipment.record(PreparationBlockEntity.standard(blank,3)).handle());
     }
+    @Test void xuantieFlyingSwordUsesBothFoundryRoutesWithoutEquipmentStats() {
+        String recipeId = "xuantie_flying_sword";
+        var craft = WorkshopRules.get().craft(recipeId);
+        var raw = WorkshopItems.blank(new Workpiece(recipeId, 0, 0, 0));
+        var groundBlank = ground(recipeId, 5000);
+
+        assertTrue(craft.requires_pattern());
+        assertEquals(java.util.Map.of(
+                "#yuanxian:forging_materials/xuantie", 4,
+                "#yuanxian:forging_fuels", 2,
+                "minecraft:water_bucket", 1,
+                "minecraft:flint", 1,
+                "minecraft:stick", 2),
+                PreparationBlockEntity.automaticCosts(raw.get(ModDataComponents.WORKPIECE.get()), true));
+        assertFalse(AssemblyPlan.prepare(raw, handle("wood"), 2).valid());
+        assertFalse(AssemblyPlan.prepare(groundBlank, handle("xuantie"), 2).valid());
+        var manual = AssemblyPlan.prepare(groundBlank, handle("wood"), 2);
+        assertTrue(manual.valid());
+        assertTrue(AssemblyPlan.prepare(groundBlank, handle("wood"), 0).result().isEmpty());
+        assertTrue(PreparationBlockEntity.standard(raw, 0).isEmpty());
+        var automatic = PreparationBlockEntity.standard(raw, 2);
+        assertTrue(automatic.is(ModItems.RIDEABLE_FLYING_SWORD.get()));
+        assertEquals(ForgeMark.uninfused(2), automatic.get(ModDataComponents.FORGE_MARK.get()));
+        assertTrue(ItemStack.matches(automatic, manual.result()));
+        assertFalse(automatic.isDamageableItem());
+        assertFalse(automatic.has(ModDataComponents.WORKPIECE.get()));
+        assertFalse(automatic.has(ModDataComponents.FORGE_CRAFT.get()));
+        assertFalse(EquipmentInfusion.prepare(automatic, "channeling", 4).valid());
+    }
+
     @Test void rehandlingReturnsTheOldPartAndPreservesQualityInfusionWorkAndWear(){
         var original=AssemblyPlan.prepare(ground("qingfeng_sword",6500),handle("chitong"),2).result();
         original=EquipmentInfusion.prepare(original,"sharp",4).result();original.setDamageValue(original.getMaxDamage()/3);

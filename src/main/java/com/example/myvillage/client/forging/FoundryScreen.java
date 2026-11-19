@@ -45,7 +45,13 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
             second.setTooltip(costs(PreparationBlockEntity.automaticCosts(piece,menu.input().isEmpty()),"自动完成标准器物，使用普通木柄；用水后返还空桶。已有手工贡献保留。"));
         }else if(menu.kind()==FoundryMenu.Kind.ASSEMBLY&&first!=null){
             var plan=AssemblyPlan.prepare(menu.input(),menu.material(),1);first.active=first.active&&plan.valid();
-            first.setTooltip(Tooltip.create(Component.literal(plan.valid()?"保留品质、锻造增益、炼灵、附魔和损伤比例。换柄后从右槽返还旧柄。":assemblyStatus(plan.reason()))));
+            String detail=assemblyStatus(plan.reason());
+            if(plan.valid()){
+                detail=WorkshopItems.valid(menu.input())
+                        ?"开始装配时按炼器资质判定成败和品质。"
+                        :"保留品质、锻造增益、炼灵、附魔和损伤比例。换柄后从右槽返还旧柄。";
+            }
+            first.setTooltip(Tooltip.create(Component.literal(detail)));
         }
     }
     private Tooltip costs(Map<String,Integer> costs,String detail){
@@ -74,7 +80,7 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
         }
     }
     private static void slot(GuiGraphics g,int x,int y){StationPanel.slot(g,x,y);}
-    private static String assemblyStatus(int status){return switch(status){case 1->"放入精磨器坯，或需要换柄的成品。";case 2->"器坯尚未完成精磨。";case 3->"放入柄材；护甲装配使用皮革。";case 4->"当前已经使用这种柄材。";case 5->"先取走成品和返还物。";case 6->"正在组装。";case 7->"装配状态异常，请取消并取回原件。";case 8->"组装完成。";default->"放入器坯与柄材，确认预览后组装。";};}
+    private static String assemblyStatus(int status){return switch(status){case 1->"放入精磨器坯，或需要换柄的成品。";case 2->"器坯尚未完成精磨。";case 3->"放入柄材；护甲装配使用皮革。";case 4->"当前已经使用这种柄材。";case 5->"先取走成品和返还物。";case 6->"正在组装。";case 7->"装配状态异常，请取消并取回原件。";case 8->"组装完成。";case 9->"玄铁飞剑使用普通木柄。";default->"放入器坯与柄材，确认预览后组装。";};}
     private String status(){return switch(menu.kind()){
         case ASSEMBLY->assemblyStatus(menu.status());
         case KILN->switch(menu.status()){case 1->"正在加热。";case 2->"火候已足，窑中继续保温。";case 3->"回火完成，可以取出精磨。";case 4->"燃料不足，器坯仍留在窑中。";default->"放入器坯与燃料，自动加热。";};
@@ -94,18 +100,25 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
         }else{
             g.drawString(font,"器坯 / 成品",15,80,INK,false);g.drawString(font,"柄 / 皮革",85,80,INK,false);g.drawString(font,"预览 / 成品",186,80,INK,false);g.drawString(font,"旧柄",255,80,INK,false);
             var plan=AssemblyPlan.prepare(menu.input(),menu.material(),1);
-            if(plan.valid()){
-                var before=baseline();var after=plan.result();var craft=WorkshopEquipment.craft(after).orElseThrow();
-                g.drawString(font,craft.armor()?"护甲装配":FoundryEquipment.handle(after).name(),12,29,JADE,false);
-                g.drawString(font,"伤害 "+number(attack(before))+" → "+number(attack(after))+"　速度 ×"+number(FoundryEquipment.speed(before))+" → ×"+number(FoundryEquipment.speed(after)),12,43,INK,false);
-                g.drawString(font,"耐久 "+before.getMaxDamage()+" → "+after.getMaxDamage()+"　耗灵 "+ForgedEquipment.qiCost(before,100)+" → "+ForgedEquipment.qiCost(after,100),12,56,INK,false);
-                if(craft.armor())g.drawString(font,"护甲防护随手工成形与辅助火改善。",12,68,MUTED,false);
-                else g.drawString(font,"悬停右侧预览器物，查看柄材效果与完整属性。",12,68,MUTED,false);
-            }
+            if(plan.valid())renderAssemblyPreview(g,plan.result());
         }
         var lines=font.split(Component.literal(status()),278);if(!lines.isEmpty())g.drawString(font,lines.getFirst(),10,138,INK);
         g.drawString(font,"熟练度",239,158,MUTED,false);g.drawString(font,menu.skill()+" 级",239,171,JADE,false);
         g.drawString(font,"炼器资质",239,193,MUTED,false);g.drawString(font,Integer.toString(menu.aptitude()),239,207,INK,false);
+    }
+    private void renderAssemblyPreview(GuiGraphics g,ItemStack after){
+        var craft=WorkshopEquipment.craft(after);
+        if(craft.isEmpty()){
+            g.drawString(font,after.getHoverName(),12,29,JADE,false);
+            g.drawString(font,"使用普通木柄装配，成器品质由炼器资质判定。",12,43,INK,false);
+            return;
+        }
+        var before=baseline();
+        g.drawString(font,craft.get().armor()?"护甲装配":FoundryEquipment.handle(after).name(),12,29,JADE,false);
+        g.drawString(font,"伤害 "+number(attack(before))+" → "+number(attack(after))+"　速度 ×"+number(FoundryEquipment.speed(before))+" → ×"+number(FoundryEquipment.speed(after)),12,43,INK,false);
+        g.drawString(font,"耐久 "+before.getMaxDamage()+" → "+after.getMaxDamage()+"　耗灵 "+ForgedEquipment.qiCost(before,100)+" → "+ForgedEquipment.qiCost(after,100),12,56,INK,false);
+        if(craft.get().armor())g.drawString(font,"护甲防护随手工成形与辅助火改善。",12,68,MUTED,false);
+        else g.drawString(font,"悬停右侧预览器物，查看柄材效果与完整属性。",12,68,MUTED,false);
     }
     private static String number(double value){return java.math.BigDecimal.valueOf(value).setScale(2,java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();}
     private static double attack(ItemStack stack){return 1+stack.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).modifiers().stream()

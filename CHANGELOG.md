@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.139.2
+
+- 可骑乘飞剑更名为玄铁飞剑。向药铺商人购买并研读器谱，用玄铁锭在普通炼器鼎自动制作，或手工锻成剑坯后装配。
+- 游戏内指南和炼器 JEI 可查询制作条件。青霄飞剑仍以玄铁飞剑和四颗钻石合成。
+
 ## 0.139.1
 
 - 远古守卫者、末影龙、凋灵和监守者在首领基础值上叠加修炼成长。它们的最大生命可以超过 1024 点，独立招式按原倍率加上攻击成长。

@@ -4,8 +4,10 @@ import com.example.myvillage.cultivation.CultivationAttachments;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.crafting.CraftingAptitudes;
 import com.example.myvillage.entity.npc.NpcEntity;
+import com.example.myvillage.forging.ForgingRules;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import java.util.Map;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -92,10 +94,12 @@ public final class AptitudeRuntime {
                     <= Math.pow(AptitudeRules.get().growth("teaching_range"), 2);
     }
     public static void equipmentCompleted(ServerPlayer player, net.minecraft.world.item.ItemStack result, boolean repair) {
-        var craft = com.example.myvillage.forging.WorkshopEquipment.craft(result);
-        if (craft.isEmpty()) return;
+        if (result.isEmpty()) return;
         var mark = result.get(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get());
-        crafted(player, "forging", repair ? "repair" : craft.orElseThrow().recipe(), mark == null ? 1 : mark.quality(), result);
+        if (mark == null && !result.isDamageableItem()) return;
+        var recipe = ForgingRules.get().forOutput(BuiltInRegistries.ITEM.getKey(result.getItem()).toString());
+        if (recipe.isEmpty()) return;
+        crafted(player, "forging", repair ? "repair" : recipe.orElseThrow().id(), mark == null ? 1 : mark.quality(), result);
     }
     public static void crafted(ServerPlayer player, String profession, String recipe, int quality, net.minecraft.world.item.ItemStack result) {
         if (player == null) return;

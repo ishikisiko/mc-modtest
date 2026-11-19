@@ -1,10 +1,12 @@
 # 御剑飞行 demo
 
-保留基础物品与实体 `yuanxian:rideable_flying_sword`，新增真实物品「青霄飞剑」`yuanxian:azure_cloud_flying_sword`。两档共享飞行规则，档次由服务器同步后选择三维模型；高阶目前提供外形区别，不暗中增加速度或免耗灵。0.96.0 的固定源 Colab 编译、定向测试与真实键鼠范围见[交付记录](../testing/2026-10-27-cultivation-demos.md)。
+玄铁飞剑的物品 ID 为 `yuanxian:rideable_flying_sword`，青霄飞剑为 `yuanxian:azure_cloud_flying_sword`。两者共同使用御剑实体和飞行规则。服务器同步飞剑类型供客户端选择对应的三维模型。0.96.0 的固定源 Colab 编译、定向测试与真实键鼠范围见[交付记录](../testing/2026-10-27-cultivation-demos.md)。
 
 ## 玩家入口
 
-普通合成：铁锭沿右上至左下两格、木棍置左下，得到基础飞剑；基础飞剑放工作台中心，四方各放钻石，升级为青霄飞剑。完整形状见专属生成器产出的 recipe JSON。
+玄铁飞剑经炼器获得。药铺商人出售器谱，研读后可在普通鼎选择自动制作或用玄铁锭起坯。手工路线使用窑、锻器台及淬火水槽处理剑坯，最后在组装台装普通木柄。成器沿用炼器成败与品质判定。操作和耗材见[游戏内御剑指南](../../guidebook/getting_started/flying_swords.md)。
+
+青霄飞剑在工作台合成，玄铁飞剑放中央，上、下、左、右各放一颗钻石。
 
 管理员准备：
 
@@ -52,7 +54,7 @@ FLYING_SWORD_STATUS {"owner":"玩家UUID","active":true,"phase":"CRUISE","tier":
 
 ## 模型、预览与最小检查
 
-专属生成器：`tools/gen_flying_swords.py`，拥有两档模型、共用色板和两张配方；旧占位 PNG 保留作旧版参考。模型由有厚度的长刃、剑脊、分段收尖护手、握柄、尾饰构成；青霄额外有薄玉承足小翼、细金纹。32px 色板的 UV 显式换算为 Minecraft 的 0–16 范围，测试防止采到黑色 padding。表现参数仅由 `tools/flying_sword/visuals.json` 维护，经同一生成器打包，客户端读取 bundled 配置；这些表现参数不改变服务器飞行规则。站姿通过载具 `shouldRiderSit=false` 与独立足底定位，不改 PAL 持剑动作；只施加小幅前倾/转弯倾斜、短云尾、低音量风声与缓变小幅 FOV。
+专属生成器：`tools/gen_flying_swords.py`，拥有两档模型、共用色板和青霄飞剑配方；旧占位 PNG 保留作旧版参考。模型由有厚度的长刃、剑脊、分段收尖护手、握柄、尾饰构成；青霄额外有薄玉承足小翼、细金纹。32px 色板的 UV 显式换算为 Minecraft 的 0–16 范围，测试防止采到黑色 padding。表现参数仅由 `tools/flying_sword/visuals.json` 维护，经同一生成器打包，客户端读取 bundled 配置；这些表现参数不改变服务器飞行规则。站姿通过载具 `shouldRiderSit=false` 与独立足底定位，不改 PAL 持剑动作；只施加小幅前倾/转弯倾斜、短云尾、低音量风声与缓变小幅 FOV。
 
 ```bash
 python3 tools/gen_flying_swords.py --check

@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-JAVA = ROOT / "src" / "main" / "java" / "com" / "example" / "yuanxian"
+JAVA = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage"
 ASSETS = ROOT / "src" / "main" / "resources" / "assets" / "yuanxian"
 
 REQUIRED_FILES = (
@@ -134,7 +134,9 @@ def validate() -> list[str]:
         if "import net.minecraft.client" in text or "import com.example.myvillage.client" in text:
             errors.append(f"client_import_in_common:{path.relative_to(ROOT)}")
 
-    from gen_flying_swords import outputs
+    from gen_flying_swords import RETIRED_RECIPE, XUANTIE_NAME, outputs
+    if RETIRED_RECIPE.exists():
+        errors.append(f"retired_recipe:{RETIRED_RECIPE.relative_to(ROOT)}")
     for path, data in outputs().items():
         if not path.exists() or path.read_bytes() != data:
             errors.append(f"generated_asset_drift:{path.relative_to(ROOT)}")
@@ -145,6 +147,7 @@ def validate() -> list[str]:
             if any(not (-16 <= a < b <= 32) for a,b in zip(element["from"], element["to"])):
                 errors.append(f"invalid_model_volume:{name}")
     lang = json.loads(read(ASSETS / "lang" / "zh_cn.json"))
+    if lang.get("item.yuanxian.rideable_flying_sword") != XUANTIE_NAME: errors.append("missing_xuantie_name")
     if lang.get("item.yuanxian.azure_cloud_flying_sword") != "青霄飞剑": errors.append("missing_azure_name")
 
     for locale in ("en_us", "zh_cn"):

@@ -145,6 +145,15 @@
       "work_experience": 0,
       "forming_points": 400,
       "grade": 3
+    },
+    {
+      "recipe": "xuantie_flying_sword",
+      "kind": "flying_sword",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 0,
+      "forming_points": 400,
+      "grade": 3
     }
   ],
   "treatment_attack": 0.15,

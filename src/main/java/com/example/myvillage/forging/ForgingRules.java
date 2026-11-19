@@ -56,7 +56,6 @@ public final class ForgingRules {
                 if (!traits.containsKey(trait) || allowed.contains(trait)) throw invalid("traits","invalid/duplicate");
                 allowed.add(trait);
             }
-            if (allowed.isEmpty()) throw invalid("traits","empty");
             String tier=string(r,"quality_tier");com.example.myvillage.cultivation.crafting.CraftingQualityRules.get().tier(tier);
             rs.add(new Recipe(id,pattern,output,costs(r.get("costs")),allowed,tier));
         }

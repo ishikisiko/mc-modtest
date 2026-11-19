@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 import unittest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from gen_flying_swords import model, outputs
+from gen_flying_swords import RETIRED_RECIPE, model, outputs
 
 class FlyingSwordAssetsTest(unittest.TestCase):
     def test_outputs_match_committed_resources(self):
@@ -46,6 +46,21 @@ class FlyingSwordAssetsTest(unittest.TestCase):
         upgrade=recipes['azure_cloud_flying_sword']
         self.assertIn({'item':'yuanxian:rideable_flying_sword'},upgrade['key'].values())
         self.assertEqual(1,upgrade['result']['count'])
-        self.assertNotIn({'item':'yuanxian:azure_cloud_flying_sword'},recipes['rideable_flying_sword']['key'].values())
+        self.assertNotIn('rideable_flying_sword', recipes)
+        self.assertFalse(RETIRED_RECIPE.exists())
+
+    def test_the_xuantie_recipe_and_pattern_have_survival_sources(self):
+        data=RETIRED_RECIPE.parents[1]
+        workshop=json.loads((data/'forging/workshop.json').read_text())
+        forging=json.loads((data/'forging/rules.json').read_text())
+        commerce=json.loads((data/'world_sim/commerce_rules.json').read_text())
+        recipe=next(r for r in forging['recipes'] if r['output']=='yuanxian:rideable_flying_sword')
+        craft=next(c for c in workshop['crafts'] if c['recipe']==recipe['id'])
+        self.assertTrue(craft['requires_pattern'])
+        self.assertEqual({'#yuanxian:forging_materials/xuantie':4}, recipe['costs'])
+        offers=[o for o in commerce['offers'] if o['item']==recipe['pattern']]
+        self.assertEqual(1,len(offers))
+        self.assertEqual(12,offers[0]['price'])
+        self.assertEqual(('herbalist','buy','unlimited'), (offers[0]['role'],offers[0]['kind'],offers[0]['pool']))
 
 if __name__=='__main__':unittest.main()

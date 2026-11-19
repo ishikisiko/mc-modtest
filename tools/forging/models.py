@@ -42,7 +42,7 @@ class Catalogue:
   self.root=Path(root);self.config=read(self.root/'equipment/workshop/stages.json');self.authored=read(self.root/'equipment/workshop/tools.json')
   self.templates=read(self.root/'equipment/workshop/pickaxe_hoe_shape_templates.json')
   self.sources={};self.tool_sources={};self.heads={};self.kinds={};self.displays={};self.names={};self.material_outputs={}
-  self._tools();self._weapons();self._armor()
+  self._tools();self._weapons();self._armor();self._flying_sword()
  def _tools(self):
   for spec in self.authored['tools']:
    faces=[];head=[]
@@ -70,6 +70,18 @@ class Catalogue:
    selected=set(definition['head_parts']);found={f['part'] for f in faces};assert selected<=found,(rid,selected-found)
    for f in faces:f['metal']=f['part'] in selected
    self.sources[rid]=faces;self.heads[rid]=[f for f in faces if f['metal']];self.kinds[rid]=definition['kind'];self.names[rid]='青锋剑' if rid=='qingfeng_sword' else '凌霄枪';self.displays[rid]=model['display']
+ def _flying_sword(self):
+  from tools.gen_flying_swords import model, XUANTIE_NAME
+  rid='xuantie_flying_sword'
+  finished=model(False)
+  self.sources[rid]=mesh.elements_mesh(finished)
+  self.heads[rid]=mesh.elements_mesh(model(False, blade_only=True))
+  blade_faces={tuple(map(tuple, face['points'])) for face in self.heads[rid]}
+  for face in self.sources[rid]:
+   face['metal']=tuple(map(tuple, face['points'])) in blade_faces
+  self.kinds[rid]='flying_sword'
+  self.names[rid]=XUANTIE_NAME
+  self.displays[rid]=finished['display']
  def _armor(self):
   from tools.equipment.export import compile_armor
   spec=read(self.root/f"equipment/{self.config['armor']['set']}/equipment.json");materials=read(self.root/'equipment/materials.json')['materials']
@@ -96,7 +108,7 @@ class Catalogue:
     w,h=size[:2];thick=max(rough['plate_min_thickness'],min(rough['plate_max_thickness'],size[2]));x=8-w/2+(n%2)*rough['plate_offset'][0];z=8-h/2+(n%2)*rough['plate_offset'][1]
     result+=box(name+'-料片',[x,n*rough['plate_spacing'],z],[x+w,n*rough['plate_spacing']+thick,z+h],PREFIX+'rough')
    return result
-  if rid in self.config['weapons']:
+  if rid in self.config['weapons'] or self.kinds[rid]=='flying_sword':
    # A stepped billet with the same head length and width as the authored weapon.
    result=[];cx=(lo[0]+hi[0])/2;cz=(lo[2]+hi[2])/2;h=(hi[1]-lo[1])/len(rough['bar_widths'])
    for n,width in enumerate(rough['bar_widths']):

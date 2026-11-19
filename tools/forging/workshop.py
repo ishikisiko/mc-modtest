@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 from tools.gen_alchemy_assets import Canvas,png
+from tools.gen_flying_swords import XUANTIE_NAME
 ROOT=Path(__file__).resolve().parents[2]
 STAGES=('rough','shaped','quenched','tempered','ground')
 NAMES={'qingfeng_sword':('Qingfeng sword','青锋剑'),'lingxiao_spear':('Lingxiao spear','凌霄枪'),
@@ -11,6 +12,8 @@ ARMOR_NAMES={'xuantie_helmet':'玄铁盔','xuantie_chestplate':'玄铁甲','xuan
 ARMOR_EARNED_HINT='穿戴此甲承受敌对生物伤害可积累历练，主动近战收益较少；环境伤害和背包携带不增加历练。'
 STAGE_NAMES=[('Rough billet','粗坯'),('Shaped blank','成形坯'),('Quenched blank','淬火坯'),('Tempered blank','回火坯'),('Ground blank','精磨坯')]
 LANG={
+ 'item.yuanxian.rideable_flying_sword':('Black Iron Flying Sword',XUANTIE_NAME),
+ 'item.yuanxian.pattern_xuantie_flying_sword':(XUANTIE_NAME+'器谱',)*2,
  'workshop.yuanxian.status.15':('Take the implement to a forging ding for spirit infusion.','炼灵须移步炼器鼎，器物可随身带走。'),
  'workshop.yuanxian.strike_gain.attack':('This strike: +%s attack','此锤收益：攻击 +%s'),
  'workshop.yuanxian.strike_gain.speed':('This strike: +%s%% work speed','此锤收益：效率 +%s%%'),
@@ -92,6 +95,9 @@ for recipe,names in NAMES.items():
   LANG['item.yuanxian.pattern_'+recipe]=('Pattern: '+names[0],names[1]+'器谱')
  for stage,stage_names in zip(STAGES,STAGE_NAMES):
   LANG[f'item.yuanxian.workpiece_{recipe}_{stage}']=(names[0]+' · '+stage_names[0],names[1]+'·'+stage_names[1])
+
+for stage,names in zip(STAGES,STAGE_NAMES):
+ LANG[f'item.yuanxian.workpiece_xuantie_flying_sword_{stage}']=(XUANTIE_NAME+'·'+names[1],)*2
 
 
 def panel(infusion=False):

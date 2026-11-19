@@ -3,6 +3,7 @@ package com.example.myvillage.item;
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import com.example.myvillage.entity.flight.*;
+import com.example.myvillage.forging.ForgingQualityDisplay;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.tribulation.TribulationManager;
@@ -21,6 +22,13 @@ public final class RideableFlyingSwordItem extends Item {
     private final boolean azure;
     public RideableFlyingSwordItem(Properties properties) { this(properties, false); }
     public RideableFlyingSwordItem(Properties properties, boolean azure) { super(properties); this.azure = azure; }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, java.util.List<Component> lines,
+                                net.minecraft.world.item.TooltipFlag flag) {
+        int quality = ForgingQualityDisplay.quality(stack);
+        if (quality > 0) lines.add(ForgingQualityDisplay.name(quality));
+    }
 
     @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
