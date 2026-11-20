@@ -141,4 +141,55 @@ class NativeLootAndCategoriesTest(unittest.TestCase):
         for id in ids:self.reader.table(id)
         self.assertEqual(set(),self.reader.unsupported)
 
+class TechniqueDirectoryTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from tools.drop_workbench.techniques import build
+
+        cls.directory = build(ROOT)
+        cls.entries = {entry['id']: entry for entry in cls.directory['techniques']}
+
+    def technique(self, name):
+        return self.entries['yuanxian:' + name]
+
+    def test_all_registered_techniques_are_browsable_under_their_real_category(self):
+        source = ROOT / 'src/main/resources/data/yuanxian/yuanxian/technique'
+        self.assertEqual({f'yuanxian:{path.stem}' for path in source.glob('*.json')}, self.entries.keys())
+        for path in source.glob('*.json'):
+            definition = json.loads(path.read_text())
+            entry = self.technique(path.stem)
+            self.assertEqual(definition['category'], entry['category'])
+            self.assertEqual(definition['grade'], entry['grade'])
+            self.assertTrue(entry['realm'])
+            if definition['category'] == 'body' and 'body' not in definition.get('effects', {}):
+                self.assertEqual({'name': '效果待配置', 'stats': []}, entry['effect'])
+
+    def test_details_use_runtime_effects_and_merged_learning_thresholds(self):
+        sword = self.technique('taibai_jianjing')
+        self.assertEqual('筑基初期', sword['realm'])
+        self.assertIn(('剑类资质', '至少 200 点'), sword['learning'])
+        self.assertIn(('金系资质', '至少 200 点'), sword['learning'])
+        self.assertIn(('前置功法', '《天罡剑典》已学'), sword['learning'])
+        self.assertIn(('锁定距离', '48 格'), sword['effect']['stats'])
+        cone = dict(self.technique('canglang_chong')['effect']['stats'])
+        self.assertEqual('14 格', cone['作用距离'])
+        self.assertNotIn('最远施法距离', cone)
+        self.assertIn(('无敌时间', '0.25 秒（5 tick）'), self.technique('liuyun_bu')['effect']['stats'])
+        self.assertIn(('前置功法', '《青木长春功》圆满并完成参悟'), self.technique('yimu_shenghua_jue')['learning'])
+
+    def test_frontend_builder_exports_a_separate_directory_with_versioned_assets(self):
+        from tools.drop_workbench.catalogue import write_frontend
+
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            base = 'https://assets.ishiki333hhh.win/previews/fixture/'
+            write_frontend(ROOT, output, base)
+            page = (output / 'index.html').read_text()
+            for name in ('app.js', 'style.css', 'techniques.js', 'techniques.css'):
+                self.assertTrue((output / name).is_file())
+                self.assertIn(base + name + '?v=', page)
+            directory = json.loads((output / 'techniques.json').read_text())
+            self.assertEqual(self.entries.keys(), {entry['id'] for entry in directory['techniques']})
+
+
 if __name__=='__main__':unittest.main()

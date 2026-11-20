@@ -138,7 +138,7 @@ above and link the relevant contract. Update only affected documentation.
 
 东荒生态群落：[巢穴、巡猎与巡逻、群体冲突和按月恢复](../features/east-wilderness.md)。
 
-怪物掉落：[默认随模组更新、显式外置覆盖、管理员热重载、场景条件与查询导出](../features/monster-drops.md)。 [网页工作台](../../tools/drop_workbench/README.md)提供生物三视图、用途分类和原生掉落说明，并自动写回源码统一表。
+怪物掉落：[默认随模组更新、显式外置覆盖、管理员热重载、场景条件与查询导出](../features/monster-drops.md)。[源仙工作台](../../tools/drop_workbench/README.md)可编辑统一掉落表，也可按类别查阅功法效果与学习条件。
 
 源仙名称与指令：[正式显示名、统一名称输入、完整与快捷命令入口及权限](../features/yuanxian-name.md)。
 

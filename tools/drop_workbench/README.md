@@ -1,11 +1,13 @@
-# 怪物掉落工作台
+# 源仙工作台
 
-在线入口：<https://assets.ishiki333hhh.win/drop-workbench/>。浏览无需解锁，修改前输入私密访问密码。
+[怪物掉落](https://assets.ishiki333hhh.win/drop-workbench/)和[功法目录](https://assets.ishiki333hhh.win/drop-workbench/#techniques)共用原有工作台。浏览无需解锁，修改掉落前输入私密访问密码。
 
 工作台选择当前 Minecraft 1.21.1 与源仙资源中的物品，编辑后自动写回正式源码仓库的 `src/main/resources/data/yuanxian/drops/monster_drops.json`。下一次编译将这份表打入模组；正在运行的游戏继续使用已加载的规则，游戏中的外置覆盖及热重载见[怪物掉落说明](../../docs/features/monster-drops.md)。
 
 ## 页面功能
 
+- 「功法」按心法、绝技、身法和炼体展示内置目录，可按中文名、ID、流派、五行、品阶和最低境界查找。详情包括学习和研读条件、当前效果以及已接入的修习阶段。缺少炼体效果的条目标为「效果待配置」。
+- 功法目录由当前游戏注册资源、战斗配置、品阶倍率、资质和修习规则生成，切回「怪物掉落」时可继续使用原编辑页面。
 - 生物列表显示模型缩略图；选中后可切换斜前方、正面、斜后方并放大。全部生物图鉴支持按名称或 ID 搜索，提供三视图 ZIP 下载。
 - 图片由当前真实模型和贴图离线生成，显示一种代表性外观。它们用于辨认生物；实际装备、动作、外观变种由游戏状态决定。
 - 物品库按材料、丹药与药水、武器、防具、法器与符箓、秘籍与图样、工具等用途排序；装饰物和方块排在后面。分类、原版／源仙来源、中文名／ID 搜索可以组合。
@@ -29,6 +31,7 @@ python3 -m tools.drop_workbench.portraits
 python3 -m tools.drop_workbench.catalogue --out reports/drop-workbench/site
 python3 -m unittest tools.tests.test_drop_workbench -v
 node --check web/drop-workbench/app.js
+node --check web/drop-workbench/techniques.js
 ```
 
 首次目录生成提供生物清单；`portraits` 读取模组的提交资源，并通过 `BakeVanillaModels.java` 读取原版模型层。原版依赖严格采用 1.21.1 启动器清单中的版本。最后一次目录生成打包图片及 ZIP。更新模型、贴图或模型烘焙代码后，重新运行三步生成命令。

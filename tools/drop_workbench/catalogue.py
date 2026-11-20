@@ -4,6 +4,7 @@ import argparse,hashlib,json,re,shutil,zipfile
 from pathlib import Path
 from .categories import classify
 from .loot import native_loot
+from .techniques import build as build_techniques
 from .variants import attach
 ROOT=Path(__file__).resolve().parents[2]
 ASSETS='https://assets.ishiki333hhh.win/drop-workbench/'
@@ -38,12 +39,14 @@ def scene_groups(root):
 def write_frontend(root, out, asset_base=ASSETS):
     frontend = root / 'web/drop-workbench'
     html = (frontend / 'index.html').read_text()
-    for name in ('app.js', 'style.css'):
+    for name in ('app.js', 'style.css', 'techniques.js', 'techniques.css'):
         source = frontend / name
         digest = hashlib.sha256(source.read_bytes()).hexdigest()[:12]
         html = html.replace(ASSETS + name, asset_base.rstrip('/') + '/' + name + '?v=' + digest)
         shutil.copy2(source, out / name)
     (out / 'index.html').write_text(html)
+    techniques = json.dumps(build_techniques(root), ensure_ascii=False, separators=(',', ':'))
+    (out / 'techniques.json').write_text(techniques + '\n', encoding='utf-8')
 
 
 class Assets:

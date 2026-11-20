@@ -1,6 +1,14 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>掉落工作台 · 源仙</title><meta name="description" content="选择原版与源仙物品，编辑怪物掉落并自动同步到统一掉落表。"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%237ed7b8' d='M8 18 32 5l24 13v28L32 59 8 46z'/%3E%3Cpath fill='%23172022' d='m32 12 17 10-17 10-17-10zm-3 26v13L15 43V30zm6 0 14-8v13l-14 8z'/%3E%3C/svg%3E"><link rel="stylesheet" href="https://assets.ishiki333hhh.win/drop-workbench/style.css"><script defer src="https://assets.ishiki333hhh.win/drop-workbench/app.js"></script></head>
-<body><header class="topbar"><a class="brand" href="#"><span class="brand-mark">源</span><span>源仙<span class="brand-divider">/</span><b>掉落工作台</b></span></a><div class="top-actions"><span id="save-state" class="status"><i></i>正在连接统一掉落表</span><button id="refresh" class="quiet">刷新规则</button><button id="history" class="quiet">历史版本</button><button id="unlock" class="primary">解锁编辑</button></div></header>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>源仙工作台</title><meta name="description" content="查阅源仙的功法和学习条件，浏览并编辑怪物掉落。"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%237ed7b8' d='M8 18 32 5l24 13v28L32 59 8 46z'/%3E%3Cpath fill='%23172022' d='m32 12 17 10-17 10-17-10zm-3 26v13L15 43V30zm6 0 14-8v13l-14 8z'/%3E%3C/svg%3E"><link rel="stylesheet" href="https://assets.ishiki333hhh.win/drop-workbench/style.css"><link rel="stylesheet" href="https://assets.ishiki333hhh.win/drop-workbench/techniques.css"><script defer src="https://assets.ishiki333hhh.win/drop-workbench/app.js"></script><script defer src="https://assets.ishiki333hhh.win/drop-workbench/techniques.js"></script></head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#drops"><span class="brand-mark" aria-hidden="true">源</span><b>源仙工作台</b></a>
+  <nav class="workbench-nav" aria-label="工作台功能">
+    <a id="nav-drops" href="#drops" aria-current="page">怪物掉落</a>
+    <a id="nav-techniques" href="#techniques">功法</a>
+  </nav>
+  <div id="drop-actions" class="top-actions"><span id="save-state" class="status"><i></i>正在连接统一掉落表</span><button id="refresh" class="quiet">刷新规则</button><button id="history" class="quiet">历史版本</button><button id="unlock" class="primary">解锁编辑</button></div></header>
+<div id="drop-view">
 <div class="workspace"><aside class="sidebar"><div class="sidebar-top"><span class="eyebrow">规则目录</span><button id="add-rule" class="small-button" aria-label="新增规则">＋</button></div><nav id="tabs" class="tabs"><button data-tab="entities" class="active">生物</button><button data-tab="overrides">场景</button><button data-tab="additions">追加</button></nav>
 <label id="scene-filter-field" class="field sidebar-scene" hidden>
   <span>场景分类</span>
@@ -16,4 +24,39 @@
 </section>
 <section id="rule-config" class="policy-section"><div class="section-title"><h2>掉落方式</h2><span id="drop-count" class="muted"></span></div><div id="modes" class="mode-grid"></div><p id="mode-help" class="help"></p></section><section id="conditions" class="conditions"></section><section class="drops-section"><div class="section-title"><h2>配置物品</h2><button id="add-item-focus" class="text-button">从物品库添加 ↗</button></div><div id="drops"></div></section><div id="editor-error" class="error-box" hidden></div><footer class="editor-footer"><span>每项物品独立判定概率，可同时掉落。</span><span id="revision" class="mono"></span></footer></main>
 <aside class="library"><div class="library-heading"><div class="eyebrow">物品库</div><h2>选择掉落物品</h2><p>丹药、装备和工具可先选择档位</p></div><label class="search library-search"><span>⌕</span><input id="item-search" placeholder="搜索中文名或物品 ID" aria-label="搜索物品"></label><label class="category-select"><span>物品分类</span><select id="item-category" aria-label="物品分类"><option value="all">全部分类</option></select></label><div id="category-shortcuts" class="category-shortcuts"><button data-category="materials">材料</button><button data-category="pills">丹药</button><button data-category="weapons">武器</button></div><div class="namespace-filters" id="namespace-filters"><button data-ns="all" class="active">全部 <span id="all-count"></span></button><button data-ns="minecraft">原版 <span id="vanilla-count"></span></button><button data-ns="yuanxian">源仙 <span id="mod-count"></span></button></div><div class="library-meta"><span id="item-result-count"></span><span>1.21.1</span></div><div id="items" class="item-grid"></div><button id="more-items" class="quiet full" hidden>加载更多物品</button><div class="library-bottom">物品 ID 与中文名来自当前游戏资源</div></aside></div>
-<div id="toast" role="status" hidden></div><dialog id="modal"><div class="modal-heading"><h2 id="modal-title"></h2><button id="modal-close" class="icon-button" aria-label="关闭弹窗">×</button></div><div id="modal-body"></div></dialog><div id="loading-overlay" class="loading-overlay"><div class="loader"></div><p id="loading-text">正在载入物品与统一规则…</p><button id="retry-load" class="quiet" hidden>重新连接</button></div></body></html>
+<div id="toast" role="status" hidden></div><dialog id="modal"><div class="modal-heading"><h2 id="modal-title"></h2><button id="modal-close" class="icon-button" aria-label="关闭弹窗">×</button></div><div id="modal-body"></div></dialog><div id="loading-overlay" class="loading-overlay"><div class="loader"></div><p id="loading-text">正在载入物品与统一规则…</p><button id="retry-load" class="quiet" hidden>重新连接</button></div>
+</div>
+<main id="technique-view" class="technique-workspace" hidden>
+  <header class="technique-heading">
+    <h1>功法</h1>
+    <p id="technique-status" role="status">正在载入功法目录</p>
+  </header>
+  <button id="technique-retry" class="quiet" type="button" hidden>重新载入</button>
+  <div id="technique-content" hidden>
+    <div id="technique-categories" class="technique-categories" role="group" aria-label="功法分类"></div>
+    <p id="technique-category-description" class="technique-category-description"></p>
+    <div class="technique-browser">
+      <section class="technique-catalogue" aria-label="分类目录">
+        <div class="technique-filters">
+          <label class="field">
+            <span>搜索功法</span>
+            <input id="technique-search" type="search" placeholder="名称、ID、流派或五行">
+          </label>
+          <label class="field">
+            <span>品阶</span>
+            <select id="technique-grade" aria-label="品阶"><option value="">全部</option></select>
+          </label>
+          <label class="field">
+            <span>最低境界</span>
+            <select id="technique-realm" aria-label="最低境界"><option value="">全部</option></select>
+          </label>
+        </div>
+        <p id="technique-results" class="technique-results" role="status"></p>
+        <div id="technique-list" class="technique-list"></div>
+      </section>
+      <section id="technique-detail" class="technique-detail" aria-label="功法详情" tabindex="-1"></section>
+    </div>
+    <p class="technique-source">数值取自模组内置配置。实际效果可受角色境界、装备和修习影响。</p>
+  </div>
+</main>
+</body></html>
