@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CommercePayloadTest {
     @Test void economyIntentPreservesEveryNonceBitAndContainsOnlyBoundedSelection() {
         for (long nonce : new long[]{0, Long.MIN_VALUE, Long.MAX_VALUE}) {
-            var intent = new com.example.myvillage.sim.runtime.economy.EconomyIntentPayload(255, nonce, 30_000, 31);
+            var intent = new com.example.myvillage.sim.runtime.economy.EconomyIntentPayload(255, nonce, 30_000, 31, 800_000);
             var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
             try {
                 com.example.myvillage.sim.runtime.economy.EconomyIntentPayload.STREAM_CODEC.encode(buf, intent);
@@ -23,11 +23,11 @@ class CommercePayloadTest {
             } finally { buf.release(); }
         }
     }
-    @Test void economyIntentRejectsMalformedMenuSequenceAndSelectionDuringDecode() {
-        for (int[] values : new int[][]{{-1,0,0},{256,0,0},{1,-1,0},{1,30_001,0},{1,0,-1},{1,0,32}}) {
+    @Test void economyIntentRejectsMalformedMenuSequenceSelectionAndQuoteDuringDecode() {
+        for (int[] values : new int[][]{{-1,0,0,0},{256,0,0,0},{1,-1,0,0},{1,30_001,0,0},{1,0,-1,0},{1,0,32,0},{1,0,0,-1},{1,0,0,20_000_001}}) {
             var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
             try {
-                buf.writeVarInt(values[0]); buf.writeVarLong(0); buf.writeVarInt(values[1]); buf.writeVarInt(values[2]);
+                buf.writeVarInt(values[0]); buf.writeVarLong(0); buf.writeVarInt(values[1]); buf.writeVarInt(values[2]); buf.writeVarInt(values[3]);
                 assertThrows(IllegalArgumentException.class, () -> com.example.myvillage.sim.runtime.economy.EconomyIntentPayload.STREAM_CODEC.decode(buf));
             } finally { buf.release(); }
         }
@@ -64,7 +64,9 @@ class CommercePayloadTest {
     @Test void openingSnapshotCarriesEveryDisplayedQualityAndItsServerPrice() throws Exception {
         var rules=CommerceRules.parse("test",JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/yuanxian/world_sim/commerce_rules.json"))).getAsJsonObject());
         var offers=rules.offers("herbalist");assertTrue(offers.size()>32);assertTrue(offers.size()<=CommerceRules.MAX_OFFERS);
-        assertTrue(offers.subList(0,6).stream().allMatch(o->o.kind().equals("buy")&&o.restockStock()>0));
+        assertEquals("yuanxian:basic_breathing_manual", offers.getFirst().item());
+        assertTrue(offers.getFirst().unlimited());
+        assertTrue(offers.subList(1,7).stream().allMatch(o->o.kind().equals("buy")&&o.restockStock()>0));
         var buf=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
         try {
             CommerceMenu.writeOpening(buf,123,rules.currency(),rules.stockLimit(),offers);
