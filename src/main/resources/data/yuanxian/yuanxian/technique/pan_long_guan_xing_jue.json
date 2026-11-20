@@ -17,7 +17,8 @@
       "heart": {
         "slot": "attack",
         "direction": "spear",
-        "attack": 15.0,
+        "attack": 11,
+        "flat_penetration": 15,
         "extra": {
           "amount": 9.0
         }

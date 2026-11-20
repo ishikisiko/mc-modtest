@@ -12,7 +12,8 @@
       "heart": {
         "slot": "attack",
         "direction": "general",
-        "attack": 15.0
+        "attack": 17.0,
+        "flat_penetration": 7.0
       },
       "manual_price": 480
     }

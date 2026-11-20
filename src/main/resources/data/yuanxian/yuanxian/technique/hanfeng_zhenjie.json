@@ -18,6 +18,7 @@
         "slot": "attack",
         "direction": "sword",
         "attack": 1.5,
+        "flat_penetration": 2.5,
         "extra": {
           "amount": 2.5,
           "art_only": true

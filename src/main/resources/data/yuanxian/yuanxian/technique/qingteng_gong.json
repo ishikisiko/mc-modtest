@@ -15,7 +15,7 @@
         "slot": "defense",
         "direction": "sword",
         "defense": 0.5,
-        "max_health": 3,
+        "max_health": 11,
         "extra": {
           "amount": 0.25
         }

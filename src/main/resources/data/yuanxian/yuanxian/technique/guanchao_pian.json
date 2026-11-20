@@ -15,7 +15,7 @@
         "slot": "defense",
         "direction": "spell",
         "defense": 0.75,
-        "max_health": 3,
+        "max_health": 7,
         "extra": {
           "amount": 0.5
         }

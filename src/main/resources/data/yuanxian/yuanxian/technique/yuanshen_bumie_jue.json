@@ -12,8 +12,8 @@
       "heart": {
         "slot": "defense",
         "direction": "fist",
-        "defense": 5.0,
-        "max_health": 14
+        "defense": 2.25,
+        "max_health": 54
       },
       "manual_price": 160
     }

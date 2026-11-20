@@ -18,7 +18,7 @@
         "slot": "defense",
         "direction": "fist",
         "defense": 0.75,
-        "max_health": 6,
+        "max_health": 19,
         "extra": {
           "amount": 1.75,
           "guard": "melee"

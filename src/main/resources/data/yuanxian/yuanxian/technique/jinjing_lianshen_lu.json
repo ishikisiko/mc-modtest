@@ -17,9 +17,9 @@
       "heart": {
         "slot": "spirit",
         "direction": "spell",
-        "capacity": 130,
-        "recovery_quarters": 0,
-        "cultivation": 0
+        "capacity": 160,
+        "recovery_quarters": 3,
+        "cultivation": 8
       },
       "manual_price": 120
     }

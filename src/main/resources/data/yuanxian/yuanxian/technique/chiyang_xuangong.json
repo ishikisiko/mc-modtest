@@ -17,7 +17,8 @@
       "heart": {
         "slot": "attack",
         "direction": "fist",
-        "attack": 5.0,
+        "attack": 8,
+        "flat_penetration": 0,
         "extra": {
           "amount": 7.0,
           "art_only": true

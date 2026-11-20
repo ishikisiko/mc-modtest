@@ -59,11 +59,11 @@ public final class HeartTechniques {
                 .map(HeartMethod.Attack.class::cast).orElse(null);
         var defense = equipped(access, profile, Slot.DEFENSE).flatMap(HeartTechniques::method)
                 .map(HeartMethod.Defense.class::cast).orElse(null);
-        return new BaseCombat(attack == null ? 0 : attack.attack(), defense == null ? 0 : defense.defense(),
-                defense == null ? 0 : defense.maxHealth());
+        return new BaseCombat(attack == null ? 0 : attack.attack(), attack == null ? 0 : attack.flatPenetration(),
+                defense == null ? 0 : defense.defense(), defense == null ? 0 : defense.maxHealth());
     }
 
-    public record BaseCombat(double attack, double defense, double maxHealth) { }
+    public record BaseCombat(double attack, double flatPenetration, double defense, double maxHealth) { }
 
     public static double attackExtra(LivingEntity actor, String weapon, DamageType spell, boolean art, boolean paid) {
         if (!(actor instanceof ServerPlayer player)) return 0;

@@ -29,6 +29,18 @@ class BodyDefenseTest {
             assertEquals(a*.05,damage(a,1e14),1e-6);
         }
     }
+    @Test void fixedPenetrationSubtractsAfterPercentageAndClampsAtZero() {
+        var mixed = BodyDefense.calculate(100, 80, .25, 32, rules);
+        assertEquals(32, mixed.flatPenetration());
+        assertEquals(28, mixed.effectiveDefense());
+        assertEquals(72, mixed.afterDefense());
+        var excessive = BodyDefense.calculate(20, 12, 0, 32, rules);
+        assertEquals(0, excessive.effectiveDefense());
+        assertEquals(20, excessive.afterDefense());
+        assertThrows(IllegalArgumentException.class, () -> BodyDefense.calculate(20, 12, 0, -1, rules));
+        assertThrows(IllegalArgumentException.class, () -> BodyDefense.calculate(20, 12, 0, Double.NaN, rules));
+    }
+
     @Test void penetrationOnlyChangesBodyDefenseAndInputsAreBounded() {
         assertEquals(20,BodyDefense.calculate(20,100,1,rules).afterDefense());
         assertEquals(damage(20,50),BodyDefense.calculate(20,100,.5,rules).afterDefense());

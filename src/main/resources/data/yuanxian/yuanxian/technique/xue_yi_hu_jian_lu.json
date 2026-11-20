@@ -17,8 +17,8 @@
       "heart": {
         "slot": "defense",
         "direction": "sword",
-        "defense": 14.0,
-        "max_health": 64,
+        "defense": 16,
+        "max_health": 82,
         "extra": {
           "amount": 6.0
         }

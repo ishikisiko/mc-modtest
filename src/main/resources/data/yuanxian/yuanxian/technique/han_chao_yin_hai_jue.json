@@ -18,6 +18,7 @@
         "slot": "attack",
         "direction": "spell",
         "attack": 7.0,
+        "flat_penetration": 5.0,
         "extra": {
           "amount": 4.0
         }

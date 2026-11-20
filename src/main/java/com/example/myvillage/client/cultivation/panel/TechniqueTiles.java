@@ -141,6 +141,7 @@ final class TechniqueTiles {
         switch (heart) {
             case HeartMethod.Attack attack -> {
                 bonus(lines, "常驻攻击", attack.attack(), " 点");
+                bonus(lines, "常驻固定破防", attack.flatPenetration(), " 点");
                 attack.extra().ifPresent(extra -> {
                     String action = attack.direction() == HeartMethod.Direction.SPELL ? elements + "法术"
                             : attack.direction().weapon() ? attack.direction().title() + "系" : "";

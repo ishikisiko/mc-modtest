@@ -183,10 +183,16 @@ class TechniqueDirectoryTest(unittest.TestCase):
         self.assertEqual('凡人启蒙', self.technique('basic_breathing')['realm'])
         sword = self.technique('zhan_yun_jian_zhang')
         self.assertEqual('元婴', sword['realm'])
-        self.assertEqual([('攻击', '+24 点')], sword['effect']['base'])
+        self.assertEqual([('攻击', '+44 点')], sword['effect']['base'])
         self.assertEqual([('剑系绝技命中时的伤害基数', '+30 点')], sword['effect']['extra'])
+        spear = self.technique('bei_chen_guan_yue_jing')['effect']
+        self.assertEqual([('攻击', '+22 点'), ('固定破防', '+32 点')], spear['base'])
+        self.assertEqual([('枪系绝技命中时的伤害基数', '+30 点')], spear['extra'])
+        spirit = self.technique('ming_jin_yin_ling_lu')['effect']
+        self.assertEqual([('灵力上限', '+360 点'), ('自然回灵', '+7 点/秒'),
+                          ('每批修炼修为', '+70 点')], spirit['base'])
         guard = self.technique('xuan_qiong_shou_jian_jing')['effect']
-        self.assertEqual([('生命上限', '+48 点'), ('肉身防御', '+10 点')], guard['base'])
+        self.assertEqual([('生命上限', '+90 点'), ('肉身防御', '+18 点')], guard['base'])
         self.assertEqual([('持剑受到投射物或五行法术时的肉身防御', '+20 点')], guard['extra'])
 
     def test_frontend_builder_exports_a_separate_directory_with_versioned_assets(self):

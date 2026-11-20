@@ -297,7 +297,7 @@ def heart_problems(heart: Any, where: str) -> list[str]:
 
     slot = heart["slot"]
     required = {
-        "attack": {"attack": 2048},
+        "attack": {"attack": 2048, "flat_penetration": 1024},
         "defense": {"defense": 1024, "max_health": 1024},
         "spirit": {"capacity": 1_000_000, "recovery_quarters": 1_000_000, "cultivation": 1_000_000},
     }[slot]

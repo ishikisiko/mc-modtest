@@ -1076,6 +1076,7 @@
   "hud.yuanxian.qi.seal": "灵",
   "attribute.yuanxian.body_defense": "肉身防御",
   "attribute.yuanxian.defense_penetration": "肉身穿防",
+  "attribute.yuanxian.flat_defense_penetration": "固定破防",
   "attribute.yuanxian.damage_flat": "固定伤害加成",
   "attribute.yuanxian.damage_bonus": "伤害加成",
   "attribute.yuanxian.damage_multiplier": "伤害总倍率",

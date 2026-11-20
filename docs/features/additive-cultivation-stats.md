@@ -31,8 +31,8 @@ NPC 容量使用同一加法数表；扣费、恢复和溢出处理与玩家共�
 
 ## 肉身防御
 
-`yuanxian:body_defense` 是独立的同步属性，`yuanxian:defense_penetration` 只削减肉身防御。
-设攻击为 A，穿防后的防御为 D，转折比例为 t、保底比例为 p，这两个比例只取数表：
+`yuanxian:body_defense` 是独立的同步属性。肉身防御先按 `yuanxian:defense_penetration` 扣除比例，再按 `yuanxian:flat_defense_penetration` 扣除固定点数，结果至少为零。
+设攻击为 A，穿防后的防御为 D，转折比例为 t、保底比例为 p，这两个比例只取数表。
 
 ```text
 A = 0：结果为 0

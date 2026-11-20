@@ -12,8 +12,8 @@
       "heart": {
         "slot": "defense",
         "direction": "spell",
-        "defense": 20.0,
-        "max_health": 96,
+        "defense": 32.25,
+        "max_health": 189,
         "extra": {
           "amount": 40.0
         }

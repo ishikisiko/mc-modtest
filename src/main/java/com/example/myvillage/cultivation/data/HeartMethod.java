@@ -48,10 +48,11 @@ public sealed interface HeartMethod permits HeartMethod.Attack, HeartMethod.Defe
     Slot slot();
     Direction direction();
 
-    record Attack(Direction direction, double attack, Optional<AttackExtra> extra) implements HeartMethod {
+    record Attack(Direction direction, double attack, double flatPenetration, Optional<AttackExtra> extra) implements HeartMethod {
         static final MapCodec<Attack> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
                 DIRECTION_CODEC.fieldOf("direction").forGetter(Attack::direction),
                 Codec.doubleRange(0, 2048).fieldOf("attack").forGetter(Attack::attack),
+                Codec.doubleRange(0, 1024).fieldOf("flat_penetration").forGetter(Attack::flatPenetration),
                 AttackExtra.CODEC.optionalFieldOf("extra").forGetter(Attack::extra)
         ).apply(builder, Attack::new));
 

@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.143.2
+
+- 五境心法按品阶和专长配置常驻属性。攻栏可侧重攻击或固定破防，防守栏可侧重生命或肉身防御，灵力与修炼栏可侧重灵力上限、自然回灵或修为。
+- 固定破防在比例穿防之后扣减有效肉身防御。内视、功法图鉴和源仙工作台显示固定破防点数。
+
 ## 0.143.1
 
 - 功法按大境界学习和查阅。攻、防守和修炼心法的基础加值常驻，武器、法术和灵石修炼等专有加值在条件满足时额外结算。

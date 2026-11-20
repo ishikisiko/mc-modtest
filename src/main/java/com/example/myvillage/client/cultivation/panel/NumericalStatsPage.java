@@ -106,6 +106,7 @@ public final class NumericalStatsPage extends PanelPage {
                 new String[]{"自身基础攻击", base == null ? "数值未配置" : number(base.attack())},
                 new String[]{"当前攻击（含装备）", player == null ? "等待属性同步" : number(player.getAttributeValue(Attributes.ATTACK_DAMAGE))},
                 new String[]{"肉身防御", player == null ? "等待属性同步" : number(player.getAttributeValue(ModStatsAttributes.BODY_DEFENSE))},
+                new String[]{"固定破防", player == null ? "等待属性同步" : number(player.getAttributeValue(ModStatsAttributes.FLAT_DEFENSE_PENETRATION))},
                 new String[]{"装备护甲 / 韧性", player == null ? "等待属性同步" : number(player.getAttributeValue(Attributes.ARMOR)) + " / " + number(player.getAttributeValue(Attributes.ARMOR_TOUGHNESS))},
                 new String[]{"灵力", c.spiritualPowerValue()},
                 new String[]{"筑基来源", CultivationStats.foundationName(profile.foundationQuality())},

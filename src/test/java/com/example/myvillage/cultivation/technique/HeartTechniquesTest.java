@@ -50,13 +50,20 @@ class HeartTechniquesTest {
     void combatHeartKeepsBaseAndOnlyAddsExtraForMatchingEvents() throws IOException {
         var sword = decode("zhan_yun_jian_zhang");
         var attack = (HeartMethod.Attack) HeartTechniques.method(sword).orElseThrow();
-        assertEquals(24, attack.attack());
+        assertEquals(44, attack.attack());
+        assertEquals(0, attack.flatPenetration());
+        var spear = decode("bei_chen_guan_yue_jing");
+        var penetration = (HeartMethod.Attack) HeartTechniques.method(spear).orElseThrow();
+        assertEquals(22, penetration.attack());
+        assertEquals(32, penetration.flatPenetration());
+        assertEquals(30, HeartTechniques.attackExtra(spear, penetration, "spear", null, true, true));
+        assertEquals(0, HeartTechniques.attackExtra(spear, penetration, "sword", null, true, true));
         assertEquals(0, HeartTechniques.attackExtra(sword, attack, "sword", null, false, false));
         assertEquals(30, HeartTechniques.attackExtra(sword, attack, "sword", null, true, true));
         assertEquals(0, HeartTechniques.attackExtra(sword, attack, "fist", null, true, true));
         var spellDef = decode("baidi_shasheng_jing");
         var spell = (HeartMethod.Attack) HeartTechniques.method(spellDef).orElseThrow();
-        assertEquals(11, spell.attack());
+        assertEquals(10, spell.attack());
         assertEquals(15, HeartTechniques.attackExtra(spellDef, spell, "", DamageType.METAL, true, true));
         assertEquals(0, HeartTechniques.attackExtra(spellDef, spell, "", DamageType.FIRE, true, true));
         var common = decode("dari_zhenjing");
@@ -66,8 +73,8 @@ class HeartTechniquesTest {
 
         var guardDef = decode("xuan_qiong_shou_jian_jing");
         var defense = (HeartMethod.Defense) HeartTechniques.method(guardDef).orElseThrow();
-        assertEquals(48, defense.maxHealth());
-        assertEquals(10, defense.defense());
+        assertEquals(90, defense.maxHealth());
+        assertEquals(18, defense.defense());
         assertEquals(20, HeartTechniques.defenseExtra(guardDef, defense, "sword", DamageType.WATER, false, true));
         assertEquals(0, HeartTechniques.defenseExtra(guardDef, defense, "sword", DamageType.PHYSICAL, true, false));
         assertEquals(0, HeartTechniques.defenseExtra(guardDef, defense, "fist", DamageType.WATER, false, true));

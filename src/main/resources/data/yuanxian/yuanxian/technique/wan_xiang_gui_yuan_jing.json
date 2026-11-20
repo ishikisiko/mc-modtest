@@ -12,9 +12,9 @@
       "heart": {
         "slot": "spirit",
         "direction": "general",
-        "capacity": 0,
-        "recovery_quarters": 0,
-        "cultivation": 120,
+        "capacity": 392,
+        "recovery_quarters": 26,
+        "cultivation": 66,
         "stone_extra": 240
       },
       "manual_price": 1200

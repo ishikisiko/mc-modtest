@@ -85,7 +85,7 @@ class GenerationTest(Fixture):
         self.assertNotIn("lineage", core)
         self.assertEqual(core["elements"], [])
         self.assertEqual(core["effects"]["core"]["meditation_route"], "xiaozhoutian")
-        self.assertEqual(core["effects"]["core"]["heart"]["capacity"], 15)
+        self.assertEqual(core["effects"]["core"]["heart"]["capacity"], 28)
         self.assertEqual(core["requirements"], {"minimum_realm": "yuanxian:qi_refining"})
         self.assertEqual(core["study"], {"points": 160, "gates": 0, "gate_stability_cost": 0})
 
@@ -214,7 +214,7 @@ class RowEffectsTest(Fixture):
         self.write()
         self.assertEqual(self.technique("yinqi_jue")["effects"], {"core": {"meditation_route": "dazhoutian"}})
         self.assertEqual(self.technique("tuna_xinfa")["effects"]["core"]["meditation_route"], "xiaozhoutian")
-        self.assertEqual(self.technique("tuna_xinfa")["effects"]["core"]["heart"]["cultivation"], 10)
+        self.assertEqual(self.technique("tuna_xinfa")["effects"]["core"]["heart"]["cultivation"], 12)
 
     def test_merge_is_shallow_per_effect_kind_and_row_wins(self) -> None:
         def defaults(d):

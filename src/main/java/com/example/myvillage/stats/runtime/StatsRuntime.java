@@ -48,6 +48,7 @@ public final class StatsRuntime {
     private static final ResourceLocation HEART_HEALTH = id("stats.heart_health");
     private static final ResourceLocation HEART_ATTACK = id("stats.heart_attack");
     private static final ResourceLocation HEART_DEFENSE = id("stats.heart_defense");
+    private static final ResourceLocation HEART_FLAT_PENETRATION = id("stats.heart_flat_penetration");
     private static final ResourceLocation FOUNDATION_HEALTH=id("stats.foundation_health"), FOUNDATION_ATTACK=id("stats.foundation_attack");
     private static final String REALM_TAG = "yuanxian:stats_realm";
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsRuntime.class);
@@ -176,6 +177,8 @@ public final class StatsRuntime {
             var heart = HeartTechniques.baseCombat(player.registryAccess(), CultivationService.getProfile(player));
             RealmAttributeModifiers.replace(health, HEART_HEALTH, heart.maxHealth());
             RealmAttributeModifiers.replace(attack, HEART_ATTACK, heart.attack());
+            RealmAttributeModifiers.replace(player.getAttribute(ModStatsAttributes.FLAT_DEFENSE_PENETRATION),
+                    HEART_FLAT_PENETRATION, heart.flatPenetration());
             RealmAttributeModifiers.replace(defense, HEART_DEFENSE, heart.defense());
         }
         float current = RealmHealthPolicy.refreshed(oldHealth, oldMax, entity.getMaxHealth());
@@ -202,6 +205,7 @@ public final class StatsRuntime {
         remove(entity.getAttribute(Attributes.MAX_HEALTH), HEART_HEALTH);
         remove(entity.getAttribute(Attributes.ATTACK_DAMAGE), HEART_ATTACK);
         remove(entity.getAttribute(ModStatsAttributes.BODY_DEFENSE), HEART_DEFENSE);
+        remove(entity.getAttribute(ModStatsAttributes.FLAT_DEFENSE_PENETRATION), HEART_FLAT_PENETRATION);
         entity.getPersistentData().remove(REALM_TAG);
         float next = RealmHealthPolicy.refreshed(health, oldMaximum, entity.getMaxHealth());
         if (next != health) {
@@ -272,7 +276,9 @@ public final class StatsRuntime {
         var result = BodyDefense.calculate(attack, value(target, ModStatsAttributes.BODY_DEFENSE)
                 + com.example.myvillage.cultivation.fate.JingangRuntime.defense(target, source)
                 + HeartTechniques.defenseExtra(target, source),
-                attacker==null?0:value(attacker, ModStatsAttributes.DEFENSE_PENETRATION), CultivationStatsRules.bundled());
+                attacker == null ? 0 : value(attacker, ModStatsAttributes.DEFENSE_PENETRATION),
+                attacker == null ? 0 : value(attacker, ModStatsAttributes.FLAT_DEFENSE_PENETRATION),
+                CultivationStatsRules.bundled());
         double incoming = event.getAmount();
         float defended = (float) (incoming * result.retainedFraction());
         event.setAmount(defended);

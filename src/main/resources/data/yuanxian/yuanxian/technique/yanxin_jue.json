@@ -14,7 +14,8 @@
       "heart": {
         "slot": "attack",
         "direction": "general",
-        "attack": 0,
+        "attack": 1.0,
+        "flat_penetration": 0.5,
         "extra": {
           "amount": 2.5,
           "paid_only": true

@@ -68,6 +68,7 @@ def heart_effect(heart, price, elements):
 
     if heart['slot'] == 'attack':
         add(base, '攻击', heart['attack'])
+        add(base, '固定破防', heart['flat_penetration'])
         if trigger:
             if direction == 'spell':
                 action = element + '法术'

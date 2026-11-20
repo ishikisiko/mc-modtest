@@ -32,7 +32,7 @@ public final class ModPayloads {
     // 协议80增加篆纹阵投影交互与六行附魔界面。
     // 协议81在篆纹阵菜单中同步抽取费用的灵石品级。
     // 向玩家同步附近省城的地图身份与实际落点。
-    public static final String PROTOCOL_VERSION = "88";
+    public static final String PROTOCOL_VERSION = "89";
 
     private ModPayloads() {
     }

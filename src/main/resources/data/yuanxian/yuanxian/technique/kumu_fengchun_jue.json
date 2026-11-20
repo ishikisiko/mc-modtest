@@ -17,8 +17,8 @@
       "heart": {
         "slot": "defense",
         "direction": "fist",
-        "defense": 2.0,
-        "max_health": 8,
+        "defense": 1.0,
+        "max_health": 28,
         "extra": {
           "amount": 1.5,
           "guard": "melee"
