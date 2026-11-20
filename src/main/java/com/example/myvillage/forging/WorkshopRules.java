@@ -104,7 +104,7 @@ public record WorkshopRules(int version, int shape_percent, int strike_ticks,
     }
     public Map<String,Integer> blankCosts(ForgingRules.Recipe recipe){var costs=new TreeMap<>(recipe.costs());costs.remove(spirit_ingredient);costs.remove("minecraft:stick");return costs;}
     public Map<String,Integer> infusionCosts(ForgingRules.Recipe recipe,String trait){
-        var result=new TreeMap<>(ForgingRules.get().trait(trait).costs());
+        var result=new TreeMap<>(ForgingRules.get().infusionMaterials(recipe,trait));
         int n=recipe.costs().getOrDefault(spirit_ingredient,0);if(n>0)result.merge(spirit_ingredient,n,Integer::sum);return result;
     }
 }

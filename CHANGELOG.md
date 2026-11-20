@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.141.2
+
+- 炼器镐连采相邻的同种矿石，半径和数量随工具境界提高。炼器斧按境界间隔逐根砍伐整棵树，两种工具都按实际破坏的方块结算耐久。
+- 成品炼灵使用器谱对应的一份主材，另付灵石和所选专长的辅材。
+
 ## 0.141.1
 
 - 精铁、白青灵金和日魄乌金三套镐、斧、铲、锄使用薄型模型，各有粗坯、成形坯、淬火坯、回火坯和精磨坯。

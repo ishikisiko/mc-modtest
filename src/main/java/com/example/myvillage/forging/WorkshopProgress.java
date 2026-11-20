@@ -91,6 +91,7 @@ public final class WorkshopProgress {
         var direction=event.getPistonMoveType().isExtend?event.getDirection():event.getDirection().getOpposite();
         for(var pos:resolver.getToPush()){
             WorkshopHarvestLedger.get(level).claim(pos);WorkshopHarvestLedger.get(level).claim(pos.relative(direction));
+            WorkshopChainHarvest.logMoved(level,pos,pos.relative(direction));
         }
     }
     private static boolean eligiblePlayer(ServerPlayer player){

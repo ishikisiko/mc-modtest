@@ -22,7 +22,8 @@
         "frost_edge",
         "soul_return"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "minecraft:diamond"
     },
     {
       "id": "lingxiao_spear",
@@ -43,7 +44,8 @@
         "frost_edge",
         "soul_return"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "minecraft:diamond"
     },
     {
       "id": "forged_pickaxe",
@@ -57,7 +59,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "minecraft:iron_ingot"
     },
     {
       "id": "forged_axe",
@@ -71,7 +74,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "minecraft:iron_ingot"
     },
     {
       "id": "forged_shovel",
@@ -85,7 +89,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "minecraft:iron_ingot"
     },
     {
       "id": "forged_hoe",
@@ -99,7 +104,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "minecraft:iron_ingot"
     },
     {
       "id": "xuantie_helmet",
@@ -113,7 +119,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "#yuanxian:forging_materials/xuantie"
     },
     {
       "id": "xuantie_chestplate",
@@ -127,7 +134,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "#yuanxian:forging_materials/xuantie"
     },
     {
       "id": "xuantie_leggings",
@@ -141,7 +149,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "#yuanxian:forging_materials/xuantie"
     },
     {
       "id": "xuantie_boots",
@@ -155,7 +164,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "#yuanxian:forging_materials/xuantie"
     },
     {
       "id": "xuantie_flying_sword",
@@ -165,7 +175,8 @@
         "#yuanxian:forging_materials/xuantie": 4
       },
       "traits": [],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "#yuanxian:forging_materials/xuantie"
     },
     {
       "id": "xuantie_sword",
@@ -180,7 +191,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "yuanxian:xuantie_ingot"
     },
     {
       "id": "xuantie_spear",
@@ -195,7 +207,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "yuanxian:xuantie_ingot"
     },
     {
       "id": "zhuji_baiqing_lingyun_sword",
@@ -210,7 +223,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:foundation_establishment"
+      "quality_tier": "yuanxian:foundation_establishment",
+      "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
     },
     {
       "id": "zhuji_baiqing_lingyun_spear",
@@ -225,7 +239,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:foundation_establishment"
+      "quality_tier": "yuanxian:foundation_establishment",
+      "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
     },
     {
       "id": "jindan_jinwu_sword",
@@ -240,7 +255,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:golden_core"
+      "quality_tier": "yuanxian:golden_core",
+      "infusion_material": "yuanxian:jindan_jinwu_ingot"
     },
     {
       "id": "jindan_jinwu_spear",
@@ -255,7 +271,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:golden_core"
+      "quality_tier": "yuanxian:golden_core",
+      "infusion_material": "yuanxian:jindan_jinwu_ingot"
     },
     {
       "id": "xuanyue_zhenshan_sword",
@@ -270,7 +287,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "yuanxian:xuantie_ingot"
     },
     {
       "id": "chilian_lihuo_sword",
@@ -286,7 +304,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "yuanxian:chitong_ingot"
     },
     {
       "id": "qingxiao_liuyun_sword",
@@ -301,7 +320,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:foundation_establishment"
+      "quality_tier": "yuanxian:foundation_establishment",
+      "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
     },
     {
       "id": "guiyan_sword",
@@ -317,7 +337,8 @@
         "channeling",
         "tough"
       ],
-      "quality_tier": "yuanxian:qi_refining"
+      "quality_tier": "yuanxian:qi_refining",
+      "infusion_material": "minecraft:iron_ingot"
     },
     {
       "id": "zhuji_baiqing_lingyun_pickaxe",
@@ -331,7 +352,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:foundation_establishment"
+      "quality_tier": "yuanxian:foundation_establishment",
+      "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
     },
     {
       "id": "zhuji_baiqing_lingyun_axe",
@@ -345,7 +367,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:foundation_establishment"
+      "quality_tier": "yuanxian:foundation_establishment",
+      "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
     },
     {
       "id": "zhuji_baiqing_lingyun_shovel",
@@ -359,7 +382,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:foundation_establishment"
+      "quality_tier": "yuanxian:foundation_establishment",
+      "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
     },
     {
       "id": "zhuji_baiqing_lingyun_hoe",
@@ -373,7 +397,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:foundation_establishment"
+      "quality_tier": "yuanxian:foundation_establishment",
+      "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
     },
     {
       "id": "jindan_jinwu_pickaxe",
@@ -387,7 +412,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:golden_core"
+      "quality_tier": "yuanxian:golden_core",
+      "infusion_material": "yuanxian:jindan_jinwu_ingot"
     },
     {
       "id": "jindan_jinwu_axe",
@@ -401,7 +427,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:golden_core"
+      "quality_tier": "yuanxian:golden_core",
+      "infusion_material": "yuanxian:jindan_jinwu_ingot"
     },
     {
       "id": "jindan_jinwu_shovel",
@@ -415,7 +442,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:golden_core"
+      "quality_tier": "yuanxian:golden_core",
+      "infusion_material": "yuanxian:jindan_jinwu_ingot"
     },
     {
       "id": "jindan_jinwu_hoe",
@@ -429,7 +457,8 @@
       "traits": [
         "tough"
       ],
-      "quality_tier": "yuanxian:golden_core"
+      "quality_tier": "yuanxian:golden_core",
+      "infusion_material": "yuanxian:jindan_jinwu_ingot"
     }
   ],
   "traits": {
@@ -445,9 +474,7 @@
       ]
     },
     "channeling": {
-      "costs": {
-        "#yuanxian:forging_materials/chitong": 1
-      },
+      "costs": {},
       "values": [
         0.1,
         0.15,
@@ -456,9 +483,7 @@
       ]
     },
     "tough": {
-      "costs": {
-        "#yuanxian:forging_materials/xuantie": 1
-      },
+      "costs": {},
       "values": [
         1.5,
         1.75,

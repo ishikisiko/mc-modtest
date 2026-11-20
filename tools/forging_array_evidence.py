@@ -153,6 +153,8 @@ def infusion_costs(rules, workshop, recipe_id, trait):
     if trait not in recipe['traits']:
         raise ValueError('Unsupported recipe trait')
     costs = dict(rules['traits'][trait]['costs'])
+    material = recipe['infusion_material']
+    costs[material] = costs.get(material, 0)+1
     spirit = workshop['spirit_ingredient']
     n = recipe['costs'].get(spirit, 0)
     if n:

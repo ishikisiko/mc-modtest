@@ -57,6 +57,8 @@ class ForgingEvidence(AlchemyEvidence):
     def prepare_materials(self,recipe,trait,user=None,multiplier=1):
         u=user or self.s.username;self.rc(f'clear {u}')
         costs=dict(recipe['costs'])
+        material=recipe['infusion_material']
+        costs[material]+=1
         for item,n in self.rules['traits'][trait]['costs'].items():costs[item]=costs.get(item,0)+n
         tag_items={'#'+m['tag']:'yuanxian:'+m['id'] for m in material_definitions()}
         resolved={}

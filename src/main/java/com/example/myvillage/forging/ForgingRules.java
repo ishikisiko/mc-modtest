@@ -12,7 +12,7 @@ import java.util.*;
 public final class ForgingRules {
     public static final int MAX_RECIPES = 32;
     public static final String RESOURCE = "/data/yuanxian/forging/rules.json";
-    public record Recipe(String id, String pattern, String output, Map<String,Integer> costs, List<String> traits, String qualityTier) {
+    public record Recipe(String id, String pattern, String output, Map<String,Integer> costs, List<String> traits, String qualityTier, String infusionMaterial) {
         public Recipe { costs = Map.copyOf(costs); traits = List.copyOf(traits); }
     }
     public record Trait(Map<String,Integer> costs, List<Double> values) {
@@ -44,12 +44,12 @@ public final class ForgingRules {
                 if (!levels.isEmpty() && n<=levels.getLast()) throw invalid(id,"values must increase");
                 levels.add(n);
             }
-            parsed.put(id,new Trait(costs(t.get("costs")),levels));
+            parsed.put(id,new Trait(costs(t.get("costs"),0),levels));
         }
         traits = Collections.unmodifiableMap(parsed);
         List<Recipe> rs = new ArrayList<>(); Set<String> ids=new HashSet<>(), outputs=new HashSet<>(), patterns=new HashSet<>();
         for (var element : root.getAsJsonArray("recipes")) {
-            var r=object(element,"recipe"); fields(r,"id","pattern","output","costs","traits","quality_tier");
+            var r=object(element,"recipe"); fields(r,"id","pattern","output","costs","traits","quality_tier","infusion_material");
             String id=string(r,"id"), pattern=item(r,"pattern"), output=item(r,"output");
             if (!id.matches("[a-z0-9_]{1,64}") || !ids.add(id) || !outputs.add(output) || !patterns.add(pattern))
                 throw invalid("recipe","invalid or duplicate identity");
@@ -60,18 +60,22 @@ public final class ForgingRules {
                 allowed.add(trait);
             }
             String tier=string(r,"quality_tier");com.example.myvillage.cultivation.crafting.CraftingQualityRules.get().tier(tier);
-            rs.add(new Recipe(id,pattern,output,costs(r.get("costs")),allowed,tier));
+            var ingredients=costs(r.get("costs"),1);
+            String infusionMaterial=ForgingIngredients.validate(string(r,"infusion_material"));
+            if (!ingredients.containsKey(infusionMaterial))
+                throw invalid("infusion_material","must be an ingredient of the recipe");
+            rs.add(new Recipe(id,pattern,output,ingredients,allowed,tier,infusionMaterial));
         }
         if (rs.isEmpty() || rs.size()>MAX_RECIPES) throw invalid("recipes","one through " + MAX_RECIPES + " recipes required");
         recipes=List.copyOf(rs);
         for (var r:recipes) for (String t:r.traits())
             if (costs(r,t).size()>4) throw invalid("costs","at most four combined materials fit the menu");
         var repair=object(root.get("repair"),"repair");fields(repair,"costs","fraction");
-        repairCosts=costs(repair.get("costs"));repairFraction=number(repair,"fraction",0,1);
+        repairCosts=costs(repair.get("costs"),1);repairFraction=number(repair,"fraction",0,1);
     }
-    private static Map<String,Integer> costs(JsonElement input) {
+    private static Map<String,Integer> costs(JsonElement input, int minimum) {
         var o=object(input,"costs");Map<String,Integer> result=new TreeMap<>();
-        if (o.size()<1 || o.size()>8) throw invalid("costs","one through eight entries required");
+        if (o.size()<minimum || o.size()>8) throw invalid("costs","invalid ingredient count");
         for (var e:o.entrySet()) {
             String id=ForgingIngredients.validate(e.getKey());
             result.put(id,integerValue(e.getValue(),"count",1,64));
@@ -100,7 +104,14 @@ public final class ForgingRules {
     public Map<String,Integer> costs(Recipe recipe,String trait){
         if(!recipe.traits().contains(trait))throw invalid("trait","not supported by recipe");
         Map<String,Integer> result=new TreeMap<>(recipe.costs());
-        trait(trait).costs().forEach((id,n)->result.merge(id,n,Integer::sum));return Collections.unmodifiableMap(result);
+        infusionMaterials(recipe,trait).forEach((id,n)->result.merge(id,n,Integer::sum));
+        return Collections.unmodifiableMap(result);
+    }
+    public Map<String,Integer> infusionMaterials(Recipe recipe,String trait){
+        if(!recipe.traits().contains(trait))throw invalid("trait","not supported by recipe");
+        Map<String,Integer> result=new TreeMap<>(trait(trait).costs());
+        result.merge(recipe.infusionMaterial(),1,Integer::sum);
+        return Collections.unmodifiableMap(result);
     }
     public Map<String,Integer> repairCosts(){return repairCosts;}
     public double repairFraction(){return repairFraction;}

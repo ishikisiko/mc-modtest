@@ -166,7 +166,8 @@ def outputs(root=ROOT):
         costs={material:spec['amount'],'#c:spirit_stones/low_grade':2}
         if spec.get('extra'):costs[spec['extra']]=1
         recipes[rid]={'id':rid,'pattern':'yuanxian:pattern_'+rid,'output':'yuanxian:'+rid,'costs':costs,
-                     'traits':['sharp','channeling','tough'],'quality_tier':'yuanxian:'+spec['tier']}
+                     'traits':['sharp','channeling','tough'],'quality_tier':'yuanxian:'+spec['tier'],
+                     'infusion_material':material}
         workshop[rid]={'recipe':rid,'kind':spec['family'],'requires_pattern':True,'max_strikes':60,
                        'work_experience':0,'forming_points':spec['points'],'grade':spec['grade']}
         result[DATA+f'recipe/pattern_{rid}.json']=encoded(

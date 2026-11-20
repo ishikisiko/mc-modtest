@@ -35,7 +35,11 @@ public final class WorkshopTools {
         @Override public boolean shouldCauseReequipAnimation(ItemStack old,ItemStack next,boolean changed){return reequips(old,next);}
         @Override public boolean mineBlock(ItemStack stack,Level level,BlockState state,BlockPos pos,LivingEntity miner){
             boolean result=super.mineBlock(stack,level,state,pos,miner);
-            if(result&&!stack.isEmpty())WorkshopProgress.mined(stack,level,state,pos,miner);return result;
+            if(result&&!stack.isEmpty()){
+                WorkshopProgress.mined(stack,level,state,pos,miner);
+                WorkshopChainHarvest.start(stack,level,state,pos,miner);
+            }
+            return result;
         }
     }
     public static final class Axe extends AxeItem implements WorkshopTool {
@@ -46,7 +50,11 @@ public final class WorkshopTools {
         @Override public boolean shouldCauseReequipAnimation(ItemStack old,ItemStack next,boolean changed){return reequips(old,next);}
         @Override public boolean mineBlock(ItemStack stack,Level level,BlockState state,BlockPos pos,LivingEntity miner){
             boolean result=super.mineBlock(stack,level,state,pos,miner);
-            if(result&&!stack.isEmpty())WorkshopProgress.mined(stack,level,state,pos,miner);return result;
+            if(result&&!stack.isEmpty()){
+                WorkshopProgress.mined(stack,level,state,pos,miner);
+                WorkshopChainHarvest.start(stack,level,state,pos,miner);
+            }
+            return result;
         }
     }
     public static final class Shovel extends ShovelItem implements WorkshopTool {

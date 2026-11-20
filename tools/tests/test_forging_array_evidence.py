@@ -92,16 +92,16 @@ class ParserTests(unittest.TestCase):
             holdings({0: bag})
 
     def test_costs_match_workshop_rule_and_ignore_blank_costs(self):
-        rules = dict(recipes=[dict(id='tool', costs={'iron': 3, '#stone': 2}, traits=['tough'])],
-                     traits={'tough': {'costs': {'#metal': 1}}})
+        rules = dict(recipes=[dict(id='tool', costs={'iron': 3, '#stone': 2}, traits=['tough'], infusion_material='iron')],
+                     traits={'tough': {'costs': {}}})
         workshop = {'spirit_ingredient': '#stone'}
-        self.assertEqual(infusion_costs(rules, workshop, 'tool', 'tough'), {'#metal': 1, '#stone': 2})
+        self.assertEqual(infusion_costs(rules, workshop, 'tool', 'tough'), {'iron': 1, '#stone': 2})
         with self.assertRaises(ValueError):
             infusion_costs(rules, workshop, 'tool', 'sharp')
         live_rules = json.loads((ROOT/'src/main/resources/data/yuanxian/forging/rules.json').read_text())
         live_workshop = json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())
         costs = infusion_costs(live_rules, live_workshop, 'forged_pickaxe', 'tough')
-        self.assertNotIn('minecraft:iron_ingot', costs)
+        self.assertEqual({'minecraft:iron_ingot': 1, '#c:spirit_stones/low_grade': 2}, costs)
         for reference in costs:
             self.assertFalse(ingredient_item(reference).startswith('#'))
 

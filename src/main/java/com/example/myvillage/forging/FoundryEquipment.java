@@ -28,7 +28,7 @@ public final class FoundryEquipment {
         var craft=WorkshopEquipment.craft(stack).orElseThrow();
         var recipe=ForgingRules.get().recipe(craft.recipe()).orElseThrow();
         var refs=new HashSet<>(recipe.costs().keySet());var mark=stack.get(ModDataComponents.FORGE_MARK.get());
-        if(mark!=null&&mark.infused())refs.addAll(ForgingRules.get().trait(mark.trait()).costs().keySet());
+        if(mark!=null&&mark.infused())refs.addAll(ForgingRules.get().infusionMaterials(recipe,mark.trait()).keySet());
         var configured=FoundryRules.get().affinity_items().getOrDefault(fire.affinity(),List.of());
         return fire.affinity().equals("universal")||configured.stream().anyMatch(refs::contains)?FoundryRules.get().fire().affinity_bonus():0;
     }
