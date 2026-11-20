@@ -44,6 +44,7 @@ public final class Danger {
             return;
         }
         if (!rng.chance(d.fleeChance()) && rng.chance(d.deathOnLoss())) {
+            if (NpcNascent.shatter(ctx, p, Deaths.BEAST, -1).isPresent()) return;
             long id = ctx.chronicle.event("death", Deaths.importance(ctx, p)).actors(p.id)
                     .sects(Cultivation.sectIds(p)).region(p.regionId)
                     .say(TextKeys.DEATH_BEAST, Anchor.of(ctx).who(p).age(p).region(p.regionId).add(beast.name()));

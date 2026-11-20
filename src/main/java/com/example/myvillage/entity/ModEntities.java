@@ -23,6 +23,10 @@ public final class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.create(Registries.ENTITY_TYPE, MyVillageMod.MOD_ID);
 
+    public static final DeferredHolder<EntityType<?>, EntityType<NascentDemon>> NASCENT_DEMON =
+            ENTITY_TYPES.register("nascent_demon", id -> EntityType.Builder.of(NascentDemon::new, MobCategory.MISC)
+                    .noSave().noSummon().sized(.6F, 1.8F).eyeHeight(1.62F).clientTrackingRange(6).build(id.toString()));
+
     public static final DeferredHolder<EntityType<?>, EntityType<SimpleFoxEntity>> SIMPLE_FOX =
             ENTITY_TYPES.register("simple_fox", id -> EntityType.Builder
                     .of(SimpleFoxEntity::new, MobCategory.CREATURE)

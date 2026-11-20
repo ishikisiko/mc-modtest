@@ -140,6 +140,23 @@ public final class CultivationService {
         return player.getData(CultivationAttachments.PROFILE.get());
     }
 
+    static void rememberProgress(ServerPlayer player) {
+        CultivationProfile current = getProfile(player);
+        if (!current.awakened()) return;
+        CultivationProfile remembered = CultivationRecovery.remember(player.registryAccess(), current);
+        if (!remembered.equals(current)) player.setData(CultivationAttachments.PROFILE.get(), remembered);
+    }
+
+    static void settleDeath(ServerPlayer player) {
+        CultivationProfile current = getProfile(player);
+        CultivationProfile replacement = CultivationRecovery.death(player.registryAccess(), current);
+        if (replacement.equals(current)) return;
+        long cap = spiritualPowerCap(player.registryAccess(), replacement,
+                com.example.myvillage.cultivation.fate.FateService.state(player));
+        player.setData(CultivationAttachments.PROFILE.get(),
+                replacement.withCurrentSpiritualPower(SpiritualPower.clamp(replacement.currentSpiritualPower(), cap)));
+    }
+
     public static Result replaceProfile(ServerPlayer player, CultivationProfile replacement) {
         Objects.requireNonNull(player, "player");
         CultivationProfile oldProfile = getProfile(player);
@@ -489,6 +506,10 @@ public final class CultivationService {
             CultivationProfile replacement,
             String successMessage) {
         CultivationProfile previous = getProfile(player);
+        if (replacement.awakened() && (!previous.realmId().equals(replacement.realmId())
+                || !previous.stageId().equals(replacement.stageId()))) {
+            replacement = CultivationRecovery.remember(player.registryAccess(), replacement);
+        }
         replacement = replacement.withCurrentSpiritualPower(SpiritualPower.clamp(
                 replacement.currentSpiritualPower(), spiritualPowerCap(player.registryAccess(), replacement,
                         com.example.myvillage.cultivation.fate.FateService.state(player))));
@@ -498,7 +519,8 @@ public final class CultivationService {
         if (!previous.realmId().equals(replacement.realmId())
                 || !previous.stageId().equals(replacement.stageId())
                 || previous.foundationQuality() != replacement.foundationQuality()
-                || previous.goldenCoreQuality() != replacement.goldenCoreQuality()) {
+                || previous.goldenCoreQuality() != replacement.goldenCoreQuality()
+                || previous.memory().nascentQuality() != replacement.memory().nascentQuality()) {
             StatsRuntime.refreshPlayer(player);
         }
         try {

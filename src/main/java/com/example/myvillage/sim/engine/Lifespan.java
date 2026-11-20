@@ -15,9 +15,10 @@ public final class Lifespan {
                 p.injuryEventId = -1;
             }
         }
-        if (ctx.ageYears(p) < ctx.lifespanYears(p)) {
+        if (ctx.ageYears(p) < ctx.lifespanYears(p) || ctx.day() < p.nascentGraceUntil) {
             return;
         }
+        if (NpcNascent.shatter(ctx, p, Deaths.OLD_AGE, -1).isPresent()) return;
         String stage = TextKeys.stage(ctx.realm(p).id(), p.stage);
         long id = ctx.chronicle.event("death", Deaths.importance(ctx, p)).actors(p.id)
                 .sects(Cultivation.sectIds(p)).region(p.regionId)

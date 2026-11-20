@@ -3,6 +3,7 @@ package com.example.myvillage.cultivation;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.cultivation.meditation.MeditationStopReason;
+import com.example.myvillage.cultivation.nascent.NascentTrial;
 import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
 import com.example.myvillage.cultivation.qi.SpiritualPowerRuntime;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
@@ -11,6 +12,7 @@ import com.example.myvillage.stats.runtime.RealmHealthPolicy;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
@@ -37,6 +39,7 @@ public final class CultivationEvents {
     public static void register() {
         com.example.myvillage.cultivation.fate.SteleAwakeningSessions.register();
         com.example.myvillage.cultivation.fate.FateRuntime.register();
+        com.example.myvillage.entity.npc.NpcNascentRuntime.register();
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onServerStarted);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onPlayerLoggedIn);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onStartTracking);
@@ -48,7 +51,7 @@ public final class CultivationEvents {
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onLevelSave);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onLivingJump);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onLivingDamage);
-        NeoForge.EVENT_BUS.addListener(CultivationEvents::onLivingDeath);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, CultivationEvents::onLivingDeath);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onAttackEntity);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onLeftClickBlock);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onRightClickBlock);
@@ -88,11 +91,12 @@ public final class CultivationEvents {
             // Short proc windows never resume after a disconnect/crash; deadlines remain saved.
             com.example.myvillage.cultivation.fate.SwordHeartRuntime.forget(player);
             CultivationService.initializeCraftingAptitudes(player);
+            CultivationService.rememberProgress(player);
             StatsRuntime.refreshPlayer(player);
             SpiritualPowerRuntime.initialize(player);
             CultivationService.syncToClient(player);
             CultivationTimeRuntime.onPlayerLoggedIn(player);
-            MeditationManager.notifyStatus(player);
+            NascentTrial.publish(player);
         }
     }
 
@@ -107,7 +111,7 @@ public final class CultivationEvents {
             CultivationTimeRuntime.onPlayerRespawn(player);
             SpiritualPowerRuntime.initialize(player);
             CultivationService.syncToClient(player);
-            MeditationManager.notifyStatus(player);
+            NascentTrial.publish(player);
         }
     }
 
@@ -127,6 +131,7 @@ public final class CultivationEvents {
             com.example.myvillage.cultivation.fate.FateService.forget(player);
             SpiritualPowerRuntime.forget(player);
             MeditationManager.onPlayerLoggedOut(player);
+            NascentTrial.logout(player);
             CultivationTimeRuntime.onPlayerLoggedOut(player);
         }
     }
@@ -134,6 +139,7 @@ public final class CultivationEvents {
     private static void onServerTick(ServerTickEvent.Post event) {
         CultivationTimeRuntime.tick(event.getServer());
         MeditationManager.tick(event.getServer());
+        event.getServer().getPlayerList().getPlayers().forEach(NascentTrial::tick);
         SpiritualPowerRuntime.tick(event.getServer());
     }
 
@@ -141,6 +147,7 @@ public final class CultivationEvents {
         com.example.myvillage.cultivation.fate.FateService.stop();
         SpiritualPowerRuntime.stop();
         MeditationManager.onServerStopping(event.getServer());
+        NascentTrial.reset();
         com.example.myvillage.cultivation.meditation.MeditationVisuals.reset();
         CultivationTimeRuntime.onServerStopping(event.getServer());
     }
@@ -170,6 +177,9 @@ public final class CultivationEvents {
             SpiritualPowerRuntime.forget(player);
             MeditationManager.requestStop(player, MeditationStopReason.DIED);
             CultivationTimeRuntime.onPlayerDeath(player);
+            CultivationService.settleDeath(player);
+        } else if (event.getEntity() instanceof com.example.myvillage.entity.NascentDemon demon) {
+            NascentTrial.demonDefeated(demon, event.getSource());
         }
     }
 
@@ -192,8 +202,11 @@ public final class CultivationEvents {
 
     private static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         // Holding use through the last eating tick must not cancel the newly started breakthrough.
-        if(event.getEntity() instanceof ServerPlayer player && MeditationManager.foundationAdvancing(player)
-                && event.getItemStack().getItem() instanceof com.example.myvillage.item.FoundationPillItem) {
+        if(event.getEntity() instanceof ServerPlayer player &&
+                (MeditationManager.foundationAdvancing(player)
+                    && event.getItemStack().getItem() instanceof com.example.myvillage.item.FoundationPillItem
+                || NascentTrial.sittingStatus(player).isPresent()
+                    && event.getItemStack().getItem() instanceof com.example.myvillage.item.NascentPillItem)) {
             event.setCanceled(true);event.setCancellationResult(net.minecraft.world.InteractionResult.FAIL);return;
         }
         stopForInteraction(event);

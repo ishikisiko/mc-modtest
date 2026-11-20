@@ -112,6 +112,8 @@ public final class Combat {
             loot(ctx, winner, loser, rng);
         }
         if (rng.chance(kill)) {
+            var survived = NpcNascent.shatter(ctx, loser, Deaths.SLAIN, causeId);
+            if (survived.isPresent()) return new Result(winner, loser, false, survived.getAsLong());
             long id = slay(ctx, winner, loser, kind, causeId, detail, a);
             return new Result(winner, loser, true, id);
         }

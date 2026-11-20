@@ -15,6 +15,8 @@ public final class CultivationPayloads {
     }
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToClient(NascentStatusPayload.TYPE, NascentStatusPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> NascentStatusPayload.receive(payload)));
         registrar.playToServer(TechniqueGrowthIntentPayload.TYPE, TechniqueGrowthIntentPayload.STREAM_CODEC, (payload, context) -> {
             if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
                     com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.intent(player, payload.technique(), payload.action(), payload.revision()));
@@ -98,6 +100,9 @@ public final class CultivationPayloads {
                 case TRIAL_GOLDEN_LOW -> com.example.myvillage.cultivation.tribulation.TribulationManager.start(player, com.example.myvillage.cultivation.tribulation.TribulationKind.GOLDEN_LOW);
                 case TRIAL_GOLDEN_MIDDLE -> com.example.myvillage.cultivation.tribulation.TribulationManager.start(player, com.example.myvillage.cultivation.tribulation.TribulationKind.GOLDEN_MIDDLE);
                 case TRIAL_GOLDEN_HIGH -> com.example.myvillage.cultivation.tribulation.TribulationManager.start(player, com.example.myvillage.cultivation.tribulation.TribulationKind.GOLDEN_HIGH);
+                case NASCENT_REFINE -> com.example.myvillage.cultivation.nascent.NascentTrial.refine(player);
+                case NASCENT_DUEL -> com.example.myvillage.cultivation.nascent.NascentTrial.duel(player);
+                case NASCENT_REFORM -> MeditationManager.requestStart(player, MeditationMode.REFORM);
             }
         });
     }

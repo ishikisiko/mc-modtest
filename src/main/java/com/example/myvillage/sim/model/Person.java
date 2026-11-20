@@ -39,6 +39,9 @@ public final class Person {
     public String fateRuntime = "";
     public int foundationQuality;
     public int goldenCoreQuality;
+    public boolean nascentShattered;
+    public long nascentReformsOn = Long.MAX_VALUE;
+    public long nascentGraceUntil = Long.MIN_VALUE;
     public long spiritualPower;
     public double progress;
     /** Failed great-realm breakthroughs since the last success. */

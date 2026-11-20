@@ -215,6 +215,57 @@ class GoldenCoreProgressionTest {
         return result;
     }
 
+    @Test
+    void deathCanCrossRealmBoundaryAndRetainsTheExactOldQuality() throws Exception {
+        var registry = access(realms());
+        var before = profile("golden_core", "golden_early").withFoundationQuality(4).withGoldenCoreQuality(3)
+                .withCultivationProgress(1800).withStability(1000);
+        var dropped = CultivationRecovery.death(registry, before);
+        assertEquals(id("foundation_middle"), dropped.stageId());
+        assertEquals(0, dropped.cultivationProgress());
+        assertEquals(0, dropped.stability());
+        assertEquals(4, dropped.foundationQuality());
+        assertEquals(3, dropped.goldenCoreQuality());
+        assertTrue(CultivationRecovery.canRestore(registry, dropped));
+        assertTrue(CultivationRecovery.covers(registry, dropped, CultivationRecovery.stage(before)));
+        assertFalse(CultivationRecovery.covers(registry, dropped, new CultivationMemory.Stage(id("golden_core"), id("golden_middle"))));
+        assertEquals(before.learnedTechniques(), dropped.learnedTechniques());
+    }
+
+    @Test
+    void intactSoulProtectsExactlyOneDeathAndReformationRearmsIt() throws Exception {
+        var registry = access(realms());
+        var original = profile("nascent_soul", "nascent_middle").withCultivationProgress(2100).withStability(2000);
+        var reached = CultivationRecovery.remember(registry, original.withMemory(original.memory().form(3)));
+        var firstDeath = CultivationRecovery.death(registry, reached);
+        assertEquals(id("nascent_middle"), firstDeath.stageId());
+        assertEquals(2100, firstDeath.cultivationProgress());
+        assertEquals(2000, firstDeath.stability());
+        assertFalse(firstDeath.memory().intact());
+        assertEquals(3, firstDeath.memory().nascentQuality());
+        var secondDeath = CultivationRecovery.death(registry, firstDeath);
+        assertEquals(id("golden_late"), secondDeath.stageId());
+        assertFalse(CultivationRecovery.canReform(registry, secondDeath));
+        var recovered = CultivationRecovery.remember(registry,
+                secondDeath.withRealmAndStage(id("nascent_soul"), id("nascent_middle")));
+        assertFalse(recovered.memory().intact());
+        assertTrue(CultivationRecovery.canReform(registry, recovered));
+        var memory = recovered.memory().reform(2160, 2160);
+        var reformed = recovered.withMemory(memory);
+        assertEquals(reformed.memory(), CultivationProfile.CODEC.parse(JsonOps.INSTANCE,
+                CultivationProfile.CODEC.encodeStart(JsonOps.INSTANCE, reformed).getOrThrow()).getOrThrow().memory());
+        assertEquals(id("nascent_middle"), CultivationRecovery.death(registry, reformed).stageId());
+    }
+
+    @Test
+    void awakenedCharactersCanRecoverFromTheBottomOfTheLadder() throws Exception {
+        var registry = access(realms());
+        var dropped = CultivationRecovery.death(registry, profile("qi_refining", "qi_refining_1"));
+        assertEquals(id("mortal_qi_sensed"), dropped.stageId());
+        assertTrue(dropped.awakened());
+        assertTrue(CultivationRecovery.canRestore(registry, dropped));
+    }
+
     private static RegistryAccess access(Map<ResourceLocation, RealmDefinition> realms) {
         var registry = new MappedRegistry<>(ModCultivationRegistries.REALMS, Lifecycle.stable());
         realms.forEach((id, definition) -> Registry.registerForHolder(registry, id, definition));

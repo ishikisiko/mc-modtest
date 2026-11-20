@@ -8,7 +8,8 @@ public final class CultivationStats {
     private CultivationStats() { }
     public static CultivationStatsRules.Body base(CultivationProfile profile) {
         var key = StatsRules.bundled().playerKey(profile.realmId().toString(), profile.stageId().toString());
-        return CultivationStatsRules.bundled().at(key, profile.foundationQuality(), profile.goldenCoreQuality());
+        return CultivationStatsRules.bundled().at(key, profile.foundationQuality(), profile.goldenCoreQuality(),
+                profile.memory().nascentQuality());
     }
     public static java.util.Optional<CultivationStatsRules.Body> find(CultivationProfile profile) {
         try { return java.util.Optional.of(base(profile)); }

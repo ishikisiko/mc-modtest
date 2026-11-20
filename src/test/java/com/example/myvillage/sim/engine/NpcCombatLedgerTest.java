@@ -110,6 +110,81 @@ class NpcCombatLedgerTest {
         var restored = StateCodec.fromBytes(StateCodec.toBytes(ctx.state, data.realms()), data.realms());
         assertEquals(PLAYER, restored.tombstones.get(1).killerActor);
     }
+    @Test void nascentBodyShattersOnceAndReprojectionKeepsTheSamePerson() {
+        var ctx = ctx();
+        Person victim = ctx.state.persons.get(1);
+        victim.realm = data.realms().indexOf("nascent_soul");
+        victim.masterId = 2;
+        long oldLease = NpcCombatLedger.claim(ctx, 1, profile(7, 1));
+        assertTrue(NpcCombatLedger.die(ctx, 1, oldLease, PLAYER, "Alice", "player", 40));
+        assertSame(victim, ctx.state.persons.get(1));
+        assertEquals(2, victim.masterId);
+        assertTrue(victim.nascentShattered);
+        assertTrue(ctx.state.tombstones.isEmpty());
+        assertTrue(ctx.state.combat.grievances.isEmpty());
+        assertEquals(7.0, ctx.state.combat.profiles.get(1).health(), .000001);
+        assertNull(ctx.state.combat.profiles.get(1).body());
+        assertFalse(NpcCombatLedger.die(ctx, 1, oldLease, PLAYER, "Alice", "player", 40));
+        long newLease = NpcCombatLedger.claim(ctx, 1, profile(20, 0));
+        assertTrue(newLease > oldLease);
+        assertTrue(NpcCombatLedger.die(ctx, 1, newLease, PLAYER, "Alice", "player", 40));
+        assertFalse(ctx.state.persons.containsKey(1));
+        assertEquals(PLAYER, ctx.state.tombstones.get(1).killerActor);
+    }
+
+    @Test void lotusStatePersistsAndOnlyCompletedReformationRestoresProtection() {
+        var ctx = ctx();
+        Person victim = ctx.state.persons.get(1);
+        victim.realm = data.realms().indexOf("spirit_transformation");
+        victim.foundationQuality = 1;
+        victim.goldenCoreQuality = 1;
+        assertFalse(NpcNascent.startReformation(ctx, victim, "Alice"));
+        assertTrue(NpcNascent.shatter(ctx, victim, Deaths.TRAP, -1).isPresent());
+        long lease = NpcCombatLedger.claim(ctx, 1, profile(7, 0));
+        assertFalse(NpcNascent.give(ctx, 1, lease + 1, "Alice"));
+        assertTrue(NpcNascent.give(ctx, 1, lease, "Alice"));
+        assertFalse(NpcNascent.give(ctx, 1, lease, "Alice"));
+        assertTrue(NpcNascent.shatter(ctx, victim, Deaths.TRAP, -1).isEmpty());
+        var saved = StateCodec.fromBytes(StateCodec.toBytes(ctx.state, data.realms()), data.realms());
+        var loaded = new SimContext(saved, data, graph, 6);
+        Person restored = saved.persons.get(1);
+        assertTrue(restored.nascentShattered);
+        saved.day = restored.nascentReformsOn;
+        loaded.newDay();
+        saved.combat.engaged.add(1);
+        NpcNascent.daily(loaded, restored);
+        assertTrue(restored.nascentShattered);
+        saved.combat.engaged.remove(1);
+        NpcNascent.daily(loaded, restored);
+        assertFalse(restored.nascentShattered);
+        assertTrue(NpcNascent.shatter(loaded, restored, Deaths.BEAST, -1).isPresent());
+    }
+
+    @Test void oldAgeAllowsTimeToFindALotusAndExplorationChecksTheFixedDaySeed() {
+        var ctx = ctx();
+        Person person = ctx.state.persons.get(1);
+        person.realm = data.realms().indexOf("nascent_soul");
+        person.birthDay = -(long) ctx.lifespanYears(person) * ctx.dpy;
+        Lifespan.daily(ctx, person);
+        assertTrue(person.nascentShattered);
+        assertTrue(ctx.alive(person));
+        assertTrue(person.nascentGraceUntil > ctx.day());
+        for (int day = 0; day < 10000; day++) {
+            ctx.state.day = day;
+            ctx.newDay();
+            if (!ctx.rng(person.id, Purpose.NASCENT_LOTUS)
+                    .chance(com.example.myvillage.cultivation.nascent.NascentRules.get().npcLotusChance())) continue;
+            person.status = "at_sect";
+            NpcNascent.explore(ctx, person);
+            assertEquals(Long.MAX_VALUE, person.nascentReformsOn);
+            person.status = "travelling";
+            NpcNascent.explore(ctx, person);
+            assertTrue(person.nascentReformsOn > day && person.nascentReformsOn < Long.MAX_VALUE);
+            return;
+        }
+        fail("Fixture did not reach a seeded lotus find");
+    }
+
     @Test void npcKillUsesExistingConsequencesAndEnvironmentNeverInventsNpcKiller() {
         var ctx = ctx(); long lease = NpcCombatLedger.claim(ctx, 1, profile(7, 1));
         assertTrue(NpcCombatLedger.die(ctx, 1, lease, "npc:2", "npc2", "mob", 40));

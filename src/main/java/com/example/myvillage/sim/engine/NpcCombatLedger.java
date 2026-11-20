@@ -66,6 +66,17 @@ public final class NpcCombatLedger {
                 old.weapon(), old.recoveryUntil(), Math.incrementExact(old.revision()), old.lastAttacker(), old.lastDamageTick(), old.body()));
     }
 
+    static void resetShatteredBody(SimContext ctx, Person person) {
+        long epoch = ctx.state.combat.leases.getOrDefault(person.id, -1L);
+        if (epoch > 0) release(ctx, person.id, epoch);
+        NpcCombatProfile old = ctx.state.combat.profiles.get(person.id);
+        if (old != null) {
+            double health = Math.max(Math.min(1, old.maximumHealth()), old.maximumHealth() * (1 - person.injury / 100.0));
+            ctx.state.combat.profiles.put(person.id, new NpcCombatProfile(health, old.maximumHealth(),
+                    old.weapon(), old.recoveryUntil(), Math.incrementExact(old.revision()), "", 0, null));
+        }
+    }
+
     public static boolean die(SimContext ctx, int id, long epoch, String killer, String killerName,
             String cause, int playerStandingPenalty) {
         if (!owns(ctx, id, epoch)) return false;
@@ -73,6 +84,10 @@ public final class NpcCombatLedger {
             throw new IllegalArgumentException("invalid_combat_death");
         ActorRef actor = killer.startsWith("npc:") || killer.startsWith("player:") ? ActorRef.parse(killer) : null;
         Person victim = ctx.state.persons.get(id);
+        if (NpcNascent.shatter(ctx, victim, cause, -1).isPresent()) {
+            ctx.chronicle.endDay();
+            return true;
+        }
         var message = ctx.chronicle.event("slain", Math.max(2, Deaths.importance(ctx, victim)))
                 .actors(id).region(victim.regionId);
         String causeWord = "@commands.yuanxian.world.cause." + cause;

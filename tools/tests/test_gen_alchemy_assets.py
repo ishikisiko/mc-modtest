@@ -83,7 +83,8 @@ class AlchemyAssetsTest(unittest.TestCase):
 
     def test_formula_acquisition_has_no_ambiguous_ingredient_multisets(self):
         recipes = [json.loads(raw) for path,raw in self.files.items() if path.name.startswith('formula_') and path.parent.name=='recipe']
-        self.assertEqual(8,len(recipes))
+        self.assertEqual({f'yuanxian:{item}' for item in validator.ITEMS if item.startswith('formula_')},
+                         {recipe['result']['id'] for recipe in recipes})
         signatures = [tuple(sorted(json.dumps(i,sort_keys=True) for i in recipe['ingredients'])) for recipe in recipes]
         self.assertEqual(len(recipes),len(set(signatures)))
 
@@ -99,13 +100,14 @@ class AlchemyAssetsTest(unittest.TestCase):
                 self.assertLess(len(filled), width * height * .85)
                 self.assertGreater(len(set(filled)), 5)
 
-    def test_six_herb_silhouettes_and_all_twenty_one_icons_differ(self):
+    def test_herb_silhouettes_and_item_icons_differ(self):
         masks = []
         for herb in validator.HERBS:
             _, _, rows = decode_rgba(self.files[self.assets / f'textures/item/{herb}.png'])
             masks.append(tuple(p[3] for row in rows for p in row))
         self.assertEqual(6, len(set(masks)))
-        self.assertEqual(21, len({self.files[self.assets / f'textures/item/{item}.png'] for item in validator.ITEMS[1:]}))
+        self.assertEqual(len(validator.ITEMS) - 1,
+                         len({self.files[self.assets / f'textures/item/{item}.png'] for item in validator.ITEMS[1:]}))
 
     def test_furnace_parts_and_lit_geometry_keep_same_shape(self):
         normal = json.loads(self.files[self.assets / 'models/block/alchemy_furnace.json'])

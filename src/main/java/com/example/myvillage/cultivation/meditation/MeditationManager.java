@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import com.example.myvillage.cultivation.data.AdvancementDefinition;
 import com.example.myvillage.cultivation.data.AdvancementKind;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
+import com.example.myvillage.cultivation.nascent.NascentTrial;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
@@ -100,12 +101,17 @@ public final class MeditationManager {
         if (rejection == MeditationStopReason.NONE && (resolved == null || resolved.stage().stabilityCap().isEmpty())) {
             rejection = MeditationStopReason.STAGE_NOT_CULTIVATABLE;
         }
+        if (mode == MeditationMode.REFORM && !com.example.myvillage.cultivation.CultivationRecovery
+                .canReform(player.registryAccess(), profile)) {
+            player.displayClientMessage(Component.literal("需要达到元婴境且元婴已碎。"), true);
+            return status(player);
+        }
         if (rejection != MeditationStopReason.NONE) {
             return reject(player, rejection);
         }
 
         MeditationSession session = new MeditationSession(
-                resolved.stage().cultivationCap().isEmpty() ? MeditationMode.NORMAL : mode,
+                mode == MeditationMode.SPIRIT && resolved.stage().cultivationCap().isEmpty() ? MeditationMode.NORMAL : mode,
                 profile.realmId(),
                 profile.stageId(),
                 player.getX(),
@@ -169,6 +175,7 @@ public final class MeditationManager {
     }
 
     public static boolean active(ServerPlayer player) {
+        if (NascentTrial.active(player)) return true;
         Objects.requireNonNull(player, "player");
         return SESSIONS.containsKey(player.getUUID());
     }
@@ -187,6 +194,14 @@ public final class MeditationManager {
     }
 
     public static MeditationStatus requestAdvancement(ServerPlayer player) {
+        if (NascentTrial.active(player)) {
+            NascentTrial.confirm(player);
+            return status(player);
+        }
+        var profile = CultivationService.getProfile(player);
+        if (com.example.myvillage.cultivation.CultivationRecovery.canRestore(player.registryAccess(), profile)) {
+            return requestRestoration(player, profile);
+        }
         if (com.example.myvillage.cultivation.tribulation.TribulationManager.source(CultivationService.getProfile(player))) {
             player.displayClientMessage(Component.literal("请按 H，在内视页选择金丹品质并引劫。"),false);
             return status(player);
@@ -194,8 +209,38 @@ public final class MeditationManager {
         return requestFoundationAdvancement(player,0);
     }
 
+    private static MeditationStatus requestRestoration(ServerPlayer player, CultivationProfile profile) {
+        if (active(player)) return status(player);
+        var rejection = eligibilityFailure(player);
+        if (rejection != MeditationStopReason.NONE) return reject(player, rejection);
+        var current = resolveCurrentStage(player, profile).orElse(null);
+        if (current == null || current.stage().advancement().isEmpty() || current.stage().cultivationCap().isEmpty())
+            return reject(player, MeditationStopReason.ADVANCEMENT_UNAVAILABLE);
+        var advance = current.stage().advancement().orElseThrow();
+        var target = new com.example.myvillage.cultivation.CultivationMemory.Stage(advance.targetRealm(), advance.targetStage());
+        if (!com.example.myvillage.cultivation.CultivationRecovery.covers(player.registryAccess(), profile, target))
+            return reject(player, MeditationStopReason.ADVANCEMENT_TARGET_UNAVAILABLE);
+        if (profile.cultivationProgress() < current.stage().cultivationCap().orElseThrow())
+            return reject(player, MeditationStopReason.ADVANCEMENT_PROGRESS_REQUIRED);
+        var result = CultivationService.replaceProfile(player, profile.withRealmAndStage(target.realm(), target.id())
+                .withCultivationProgress(0).withStability(0));
+        var restored = MeditationStatus.idle(result.success() ? MeditationStopReason.ADVANCEMENT_COMPLETED
+                : MeditationStopReason.ADVANCEMENT_INVALIDATED);
+        if (result.success()) player.sendSystemMessage(Component.literal("已恢复这个小境界，沿用原有突破品级。"));
+        notifyStatus(player, restored);
+        return restored;
+    }
+
     public static MeditationStatus requestFoundationAdvancement(ServerPlayer player,int pillQuality) {
         Objects.requireNonNull(player, "player");
+        if (NascentTrial.source(CultivationService.getProfile(player))) {
+            player.displayClientMessage(Component.literal("在内视中选择服丹、炼灵物或斩心魔结婴。"), true);
+            return status(player);
+        }
+        if (com.example.myvillage.cultivation.CultivationRecovery.canRestore(player.registryAccess(), CultivationService.getProfile(player))) {
+            player.displayClientMessage(Component.literal("补满修为后按 N 恢复原境界。"), true);
+            return status(player);
+        }
         if (com.example.myvillage.cultivation.tribulation.TribulationManager.source(CultivationService.getProfile(player))) {
             if (pillQuality == 0) player.displayClientMessage(Component.literal("请按 H，在内视页选择金丹品质并引劫。"),false);
             return status(player);
@@ -259,6 +304,7 @@ public final class MeditationManager {
     public static boolean requestStop(ServerPlayer player, MeditationStopReason reason) {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(reason, "reason");
+        if (NascentTrial.interrupt(player, reason)) return true;
         if (reason == MeditationStopReason.REQUESTED
                 && com.example.myvillage.cultivation.tribulation.TribulationManager.cancelPreparation(player)) return true;
         MeditationSession removed = SESSIONS.remove(player.getUUID());
@@ -289,8 +335,7 @@ public final class MeditationManager {
     }
 
     public static MeditationStatus status(ServerPlayer player) {
-        Objects.requireNonNull(player, "player");
-        return status(player.getUUID());
+        return NascentTrial.sittingStatus(player).orElseGet(() -> status(player.getUUID()));
     }
 
     public static MeditationStatus status(UUID playerId) {
@@ -423,6 +468,10 @@ public final class MeditationManager {
 
     private static void settleMeditationGuarded(ServerPlayer player, MeditationSession session) {
         CultivationProfile current = CultivationService.getProfile(player);
+        if (session.mode() == MeditationMode.REFORM) {
+            settleReformation(player, current);
+            return;
+        }
         ResolvedStage resolved = resolveCurrentStage(player, current).orElse(null);
         if (resolved == null || resolved.stage().stabilityCap().isEmpty()) {
             requestStop(player, MeditationStopReason.STAGE_NOT_CULTIVATABLE);
@@ -538,6 +587,25 @@ public final class MeditationManager {
         } finally {
             // A notification failure after installation must not refund an earned array bonus.
             gathering.finish(CultivationService.getProfile(player).equals(plan.replacement()));
+        }
+    }
+
+    private static void settleReformation(ServerPlayer player, CultivationProfile current) {
+        if (!com.example.myvillage.cultivation.CultivationRecovery.canReform(player.registryAccess(), current)) {
+            requestStop(player, MeditationStopReason.PROFILE_INVALIDATED);
+            return;
+        }
+        int target = com.example.myvillage.cultivation.nascent.NascentRules.get().value("reformation_target");
+        var heart = HeartTechniques.spirit(player.registryAccess(), current).orElse(null);
+        long gain = Math.max(1, (long) current.spiritualAffinity() + (heart == null ? 0 : heart.normal()));
+        long boosted = Math.round(gain * com.example.myvillage.alchemy.MedicineRuntime.reformationMultiplier(player));
+        int progress = (int) Math.min(target, current.memory().reformation() + boosted);
+        var result = CultivationService.replaceProfile(player, current.withMemory(current.memory().reform(progress, target)));
+        if (!result.success()) {
+            requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
+        } else if (result.profile().memory().intact()) {
+            requestStop(player, MeditationStopReason.REQUESTED);
+            player.sendSystemMessage(Component.literal("元婴已重新凝成，可以再护住一次境界和修为。"));
         }
     }
 
@@ -784,6 +852,7 @@ public final class MeditationManager {
     }
 
     private static MeditationStopReason eligibilityFailure(ServerPlayer player) {
+        if (NascentTrial.active(player)) return MeditationStopReason.ADVANCEMENT_UNAVAILABLE;
         if (com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player)) return MeditationStopReason.NOT_ALIVE;
         if (com.example.myvillage.cultivation.tribulation.TribulationManager.isActive(player)
                 || com.example.myvillage.cultivation.tribulation.TribulationManager.recovering(player))

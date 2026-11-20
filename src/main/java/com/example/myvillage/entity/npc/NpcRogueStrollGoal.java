@@ -9,6 +9,7 @@ import net.minecraft.world.phys.Vec3;
 final class NpcRogueStrollGoal extends WaterAvoidingRandomStrollGoal {
     private final NpcEntity npc;
     private boolean returning;
+    private Vec3 start;
     NpcRogueStrollGoal(NpcEntity npc, double speed) { super(npc, speed); this.npc = npc; }
     @Override public boolean canUse() {
         if (npc.conversationPaused() || npc.getTarget() != null) return false;
@@ -31,6 +32,7 @@ final class NpcRogueStrollGoal extends WaterAvoidingRandomStrollGoal {
         return candidate != null && inside(candidate) ? candidate : null;
     }
     @Override public void start() {
+        start = npc.position();
         if (!npc.isTemporaryRogue()) { super.start(); return; }
         returning = !inside(npc.position());
         npc.getNavigation().stop();
@@ -50,6 +52,13 @@ final class NpcRogueStrollGoal extends WaterAvoidingRandomStrollGoal {
     @Override public boolean canContinueToUse() {
         return !npc.conversationPaused() && npc.getTarget() == null
                 && (!npc.isTemporaryRogue() || returning || inside(npc.position())) && super.canContinueToUse();
+    }
+    @Override public void stop() {
+        boolean explored = start != null && npc.getNavigation().isDone() && npc.getTarget() == null
+                && start.distanceToSqr(npc.position()) >= 16;
+        super.stop();
+        if (explored) NpcNascentRuntime.explored(npc);
+        start = null;
     }
     private double distance(Vec3 pos) {
         return pos.distanceTo(Vec3.atBottomCenterOf(npc.rogueAnchor()));

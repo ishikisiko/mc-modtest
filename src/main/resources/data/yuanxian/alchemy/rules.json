@@ -250,6 +250,50 @@
       "minimum_aptitude": 10,
       "quality_tier": "yuanxian:qi_refining",
       "difficulty": 1
+    },
+    {
+      "id": "ningying",
+      "formula": "yuanxian:formula_ningying",
+      "ingredients": [
+        "yuanxian:ningyuan_fruit_high",
+        "yuanxian:spirit_leaf",
+        "yuanxian:calm_lotus"
+      ],
+      "ingredient_counts": [
+        1,
+        2,
+        2
+      ],
+      "fuel_count": 64,
+      "duration_ticks": 1200,
+      "output": "yuanxian:pill_ningying",
+      "output_count": 1,
+      "minimum_aptitude": 210,
+      "quality_tier": "yuanxian:golden_core",
+      "difficulty": 1,
+      "scroll_quality": 2
+    },
+    {
+      "id": "xuying",
+      "formula": "yuanxian:formula_xuying",
+      "ingredients": [
+        "yuanxian:ningyuan_fruit_low",
+        "yuanxian:spirit_leaf",
+        "yuanxian:calm_lotus"
+      ],
+      "ingredient_counts": [
+        1,
+        2,
+        2
+      ],
+      "fuel_count": 48,
+      "duration_ticks": 1000,
+      "output": "yuanxian:pill_xuying",
+      "output_count": 1,
+      "minimum_aptitude": 200,
+      "quality_tier": "yuanxian:golden_core",
+      "difficulty": 1,
+      "scroll_quality": 2
     }
   ],
   "effects": {

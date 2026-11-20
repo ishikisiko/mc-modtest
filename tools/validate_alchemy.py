@@ -31,7 +31,9 @@ REMOVED_RECIPES = (*HERBS, 'ningyuan_fruit_low', 'ningyuan_fruit_high', 'ningyua
 KINDS = ('huiling', 'yangyuan', 'ningshen')
 EXPEDITION = {m['pill_id']:m for m in json.loads((ROOT/'tools/wilderness_roster/catalogue.json').read_text())['mobs']}
 FOUNDATION = ('zhuji_low','zhuji_middle','zhuji_high','buji_middle','buji_high')
-NEW_ITEMS = ('ningyuan_fruit_low','ningyuan_fruit_high','pill_zhuji','pill_buji', *(f'formula_{k}' for k in FOUNDATION))
+NASCENT = ('ningying', 'xuying')
+NEW_ITEMS = ('ningyuan_fruit_low','ningyuan_fruit_high','pill_zhuji','pill_buji', *(f'formula_{k}' for k in FOUNDATION),
+             *(f'{prefix}_{k}' for k in NASCENT for prefix in ('formula', 'pill')), 'five_color_golden_lotus')
 ITEMS = ('alchemy_furnace', *HERBS, *(f'formula_{k}' for k in KINDS), *(f'pill_{k}' for k in KINDS))
 ITEMS += NEW_ITEMS
 PLANTS = ('fern', 'blue_orchid', 'carrot', 'sweet_berries', 'brown_mushroom', 'lily_pad')
@@ -102,38 +104,42 @@ def check_rules(data, quality_rules=None) -> list[str]:
         if not valid:
             error('ALCHEMY_QUALITY_MULTIPLIERS', 'four finite strength multipliers must start at 1 and strictly increase up to 16')
     recipes = data['recipes']
-    if not isinstance(recipes, list) or len(recipes) < len(KINDS)+len(FOUNDATION) or len(recipes)>len(KINDS)+len(FOUNDATION)+len(EXPEDITION):
-        error('ALCHEMY_RECIPES', 'legacy and foundation brewing recipes required')
+    required = set((*KINDS, *FOUNDATION, *NASCENT))
+    if not isinstance(recipes, list) or not len(required) <= len(recipes) <= len(required) + len(EXPEDITION):
+        error('ALCHEMY_RECIPES', 'legacy, foundation and nascent brewing recipes required')
         recipes = recipes if isinstance(recipes, list) else []
     seen = set()
     for index, recipe in enumerate(recipes):
         where = f'recipes[{index}]'
         foundation = isinstance(recipe,dict) and recipe.get('id') in FOUNDATION
+        nascent = isinstance(recipe,dict) and recipe.get('id') in NASCENT
+        three_herbs = foundation or nascent
         expedition = isinstance(recipe,dict) and recipe.get('id') in EXPEDITION
-        extra = ('ingredient_counts','minimum_aptitude','scroll_quality') if foundation else ('minimum_aptitude',) if expedition else ()
+        extra = ('ingredient_counts','minimum_aptitude','scroll_quality') if three_herbs else ('minimum_aptitude',) if expedition else ()
         if not keys(recipe, ('id', 'formula', 'ingredients', 'fuel_count', 'duration_ticks', 'output', 'output_count', 'quality_tier', 'difficulty', *extra), where):
             continue
         kind = recipe['id']
-        if not isinstance(kind, str) or kind not in (*KINDS,*FOUNDATION,*EXPEDITION) or kind in seen:
+        if not isinstance(kind, str) or (kind not in required and kind not in EXPEDITION) or kind in seen:
             error('ALCHEMY_REFERENCE', f'{where}: duplicate or unknown recipe id')
             continue
         seen.add(kind)
         ingredients = recipe['ingredients']
-        expected_herbs = ({'yuanxian:ningyuan_fruit_'+('high' if kind.endswith('high') else 'low'),'yuanxian:spirit_leaf','yuanxian:calm_lotus'}
-                          if foundation else {'yuanxian:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'yuanxian:{h}' for h in PAIRS[kind]})
+        expected_herbs = ({'yuanxian:ningyuan_fruit_'+('high' if kind.endswith('high') or kind == 'ningying' else 'low'),
+                           'yuanxian:spirit_leaf','yuanxian:calm_lotus'}
+                          if three_herbs else {'yuanxian:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'yuanxian:{h}' for h in PAIRS[kind]})
         if (not isinstance(ingredients,list) or len(ingredients)!=len(expected_herbs) or any(not isinstance(i,str) for i in ingredients) or set(ingredients)!=expected_herbs):
             error('ALCHEMY_REFERENCE',f'{where}: unexpected ingredients')
         output_kind=kind.split('_')[0] if foundation else kind
         if recipe['formula']!=f'yuanxian:formula_{kind}' or recipe['output']!=f'yuanxian:pill_{output_kind}':
             error('ALCHEMY_REFERENCE',f'{where}: formula/pill identity mismatch')
-        if foundation or expedition:
+        if three_herbs or expedition:
             number(recipe,'minimum_aptitude',0,crafting_quality.MAX_SCORE,where,True)
         try:
             crafting_quality.tier(quality_rules,recipe['quality_tier'])
         except ValueError:
             error('ALCHEMY_REFERENCE',f'{where}: unknown quality tier')
         number(recipe,'difficulty',0,quality_rules['maximum_difficulty'],where,True)
-        if foundation:
+        if three_herbs:
             number(recipe,'scroll_quality',0,4,where,True)
             counts=recipe['ingredient_counts']
             if not isinstance(counts,list) or len(counts)!=3 or any(type(n)is not int or not 1<=n<=64 for n in counts):error('ALCHEMY_BOUNDS',f'{where}: invalid ingredient counts')
@@ -141,8 +147,8 @@ def check_rules(data, quality_rules=None) -> list[str]:
         # ContainerData uses a signed short for current/total progress.
         number(recipe, 'duration_ticks', 1, 32767, where, True)
         number(recipe, 'output_count', 1, 16, where, True)
-    if not set((*KINDS,*FOUNDATION)) <= seen or not seen <= set((*KINDS,*FOUNDATION,*EXPEDITION)):
-        error('ALCHEMY_RECIPES', 'recipe identities must cover legacy and foundation medicines once')
+    if not required <= seen or not seen <= required | set(EXPEDITION):
+        error('ALCHEMY_RECIPES', 'recipe identities must cover required medicines once')
     effects = data['effects']
     if not keys(effects, KINDS, 'effects'):
         return errors

@@ -478,6 +478,10 @@ public final class WorldSim {
         if (!tomb.killerName.isEmpty()) return tomb.killerName;
         return person(tomb.killerId).map(PersonView::name).orElse("");
     }
+    public boolean giveReformationLotus(int id, long epoch, String giver) {
+        return com.example.myvillage.sim.engine.NpcNascent.give(ctx, id, epoch, giver);
+    }
+
     public boolean combatDeath(int id, long epoch, String killer, String name, String cause, int standingPenalty) {
         return com.example.myvillage.sim.engine.NpcCombatLedger.die(ctx, id, epoch, killer, name, cause, standingPenalty);
     }

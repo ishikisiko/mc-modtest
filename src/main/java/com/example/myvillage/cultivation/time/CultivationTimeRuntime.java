@@ -204,6 +204,9 @@ public final class CultivationTimeRuntime {
         if (realm == null) {
             return unresolvedStatus(calendarTicks, consumed, scale);
         }
+        if (com.example.myvillage.cultivation.CultivationRecovery.canRestore(player.registryAccess(), profile)) {
+            realm = registry.orElseThrow().get(profile.memory().highest().orElseThrow().realm());
+        }
 
         try {
             int maximumYears = com.example.myvillage.cultivation.fate.EverlastingRules.get().maximumYears(

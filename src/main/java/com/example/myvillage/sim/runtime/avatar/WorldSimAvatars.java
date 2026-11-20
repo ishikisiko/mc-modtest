@@ -18,6 +18,7 @@ import com.example.myvillage.sim.runtime.WorldSimSavedData;
 import com.example.myvillage.sim.runtime.WorldSimServerConfig;
 import com.example.myvillage.sim.runtime.WorldSimText;
 import com.example.myvillage.sim.runtime.life.NpcLifeInteraction;
+import com.example.myvillage.entity.npc.NpcCombatRuntime;
 import com.example.myvillage.sim.runtime.life.NpcLifeSites;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import com.example.myvillage.wilderness.WildernessRules;
@@ -212,7 +213,8 @@ public final class WorldSimAvatars {
         Iterator<Avatar> removed = AVATARS.values().iterator();
         while (removed.hasNext()) {
             Avatar a = removed.next();
-            if (!a.life() && a.entity().isRemoved()) {
+            if (!a.life() && (a.entity().isRemoved() || !NpcCombatRuntime.managed(a.entity()))) {
+                a.entity().discard();
                 removed.remove();
             }
         }
@@ -599,6 +601,7 @@ public final class WorldSimAvatars {
             if (life == null || person == null || site == null || level == null
                     || !life.embodied() || life.epoch() != a.lifeEpoch() || !life.siteId().equals(a.lifeSite())
                     || a.entity().isRemoved() || !a.entity().isAlive() || a.entity().level() != level
+                    || !NpcCombatRuntime.managed(a.entity())
                     || !loadedArea(level, a.entity().getBoundingBox())
                     || nearestLifePlayer(level, a.entity().getX(), a.entity().getY(), a.entity().getZ())
                         > rules.spawnRadius() + rules.withdrawMargin()) {

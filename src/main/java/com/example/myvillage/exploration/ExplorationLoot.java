@@ -52,6 +52,11 @@ public final class ExplorationLoot extends LootModifier {
                 loot.add(stack); break;
             }
         }
+        var nascent = com.example.myvillage.cultivation.nascent.NascentRules.get();
+        if (nascent.isLotusLootTable(context.getQueriedLootTableId().toString())
+                && context.getRandom().nextInt(100) < nascent.value("player_lotus_chest_percent")) {
+            loot.add(new ItemStack(com.example.myvillage.item.ModItems.FIVE_COLOR_GOLDEN_LOTUS.get()));
+        }
         return loot;
     }
 }

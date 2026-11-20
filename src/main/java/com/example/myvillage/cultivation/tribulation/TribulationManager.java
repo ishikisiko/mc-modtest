@@ -90,6 +90,8 @@ public final class TribulationManager {
             return reject(player, previous.clock().phase() == Phase.RECOVERING ? "正在调息，请稍后重新准备。" : "本次雷劫已在进行。");
         if (MeditationManager.active(player)) return reject(player, "请先收功，再选择露天场地引劫。");
         var profile = CultivationService.getProfile(player);
+        if (com.example.myvillage.cultivation.CultivationRecovery.canRestore(player.registryAccess(), profile))
+            return reject(player, "补满修为后按 N 恢复原境界。");
         if (!kind.source(profile)) return reject(player, "当前阶段不能开始" + kind.displayName() + "试炼。");
         if (!player.isAlive() || player.isRemoved() || !player.gameMode.isSurvival()
                 || player.isPassenger() || player.isFallFlying() || player.getAbilities().flying

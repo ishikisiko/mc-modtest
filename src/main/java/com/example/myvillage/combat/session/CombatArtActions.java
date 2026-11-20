@@ -132,6 +132,7 @@ public final class CombatArtActions {
                     target.getX(),target.getY(),target.getZ());
         }
         CombatCaster.message(player,Component.translatable(art.translationKey()),true);
+        if (player instanceof ServerPlayer user) com.example.myvillage.cultivation.nascent.NascentTrial.observeTechnique(user);
         if (art.family().equals("fist") && art.slot()==0) e.disciplineMultiplier=CombatDisciplines.consume(player,"fist");
         LOG.info("ADVANCED_ART player={} result=start art={} cost={}",CombatCaster.name(player),art.id(),cost);
         return Optional.of(beginPhase(player,e));

@@ -24,7 +24,10 @@ MEDICINES = ("huiling", "yangyuan", "ningshen")
 ITEM_IDS = ("alchemy_furnace", *HERBS, *(f"formula_{x}" for x in MEDICINES), *(f"pill_{x}" for x in MEDICINES))
 FOUNDATION_FORMULAS = ('zhuji_low', 'zhuji_middle', 'zhuji_high', 'buji_middle', 'buji_high')
 FOUNDATION_ITEMS = ("ningyuan_fruit_low", "ningyuan_fruit_high", "pill_zhuji", "pill_buji", *("formula_"+x for x in FOUNDATION_FORMULAS))
-ITEM_IDS += FOUNDATION_ITEMS
+NASCENT_FORMULAS = ("ningying", "xuying")
+NASCENT_ITEMS = tuple(f"{prefix}_{kind}" for kind in NASCENT_FORMULAS for prefix in ("pill", "formula"))
+RELICS = ("five_color_golden_lotus",)
+ITEM_IDS += FOUNDATION_ITEMS + NASCENT_ITEMS + RELICS
 NAMES = {
     "alchemy_furnace": ("Bronze Alchemy Furnace", "青铜丹炉"),
     "spirit_leaf": ("Spirit Leaf", "聚灵叶"), "dew_blossom": ("Dew Blossom", "凝露花"),
@@ -100,10 +103,17 @@ LANG = {
 ZH_FOUNDATION = {
     "ningyuan_fruit_low":"下品凝元果", "ningyuan_fruit_high":"上品凝元果",
     "pill_zhuji":"筑基丹", "pill_buji":"补基丹",
+    "pill_ningying":"凝婴丹", "pill_xuying":"续婴丹",
+    "formula_ningying":"凝婴丹方", "formula_xuying":"续婴丹方",
     "formula_zhuji_low":"筑基丹方", "formula_zhuji_middle":"筑基丹方", "formula_zhuji_high":"筑基丹方",
     "formula_buji_middle":"补基丹方", "formula_buji_high":"补基丹方",
 }
 ZH_EXTRA = {"message.yuanxian.cultivation.session.foundation_pill_required":"筑基需要服用筑基丹；手持丹药右键开始","message.yuanxian.cultivation.session.foundation_failed":"筑基失败，需重新巩固稳定度"}
+ZH_EXTRA.update({
+    "tooltip.yuanxian.alchemy.pill_xuying": "重凝元婴速度提高至 %s 倍，持续 %s 秒。",
+    "entity.yuanxian.nascent_demon": "心魔",
+    "item.yuanxian.five_color_golden_lotus": "五彩金莲",
+})
 for _id, _names in NAMES.items():
     LANG[f"{'block' if _id == 'alchemy_furnace' else 'item'}.yuanxian.{_id}"] = _names
 
@@ -201,6 +211,19 @@ def herb_icon(name):
         for pts in ([(15,22),(7,18),(5,11),(12,13)], [(17,22),(24,18),(26,11),(20,13)], [(16,21),(10,15),(12,7),(17,12)], [(16,21),(22,15),(20,7),(15,12)], [(16,21),(13,13),(16,4),(19,13)]):
             c.poly(pts,(155,205,184))
         c.poly([(16,19),(14,13),(16,7),(18,13)],(223,237,200)); c.rect(14,20,18,21,(226,197,111))
+    elif name == "five_color_golden_lotus":
+        c.ellipse(16, 25, 12, 4, dark)
+        c.ellipse(16, 24, 11, 3, (60, 121, 96))
+        c.line(8, 25, 15, 23, (133, 185, 113))
+        c.poly([(16, 23), (7, 21), (4, 14), (12, 15), (18, 21)], (82, 128, 183))
+        c.poly([(16, 23), (25, 20), (28, 13), (21, 15), (14, 21)], (147, 95, 170))
+        c.poly([(15, 21), (8, 15), (8, 8), (15, 13), (19, 20)], (196, 94, 123))
+        c.poly([(17, 22), (24, 14), (23, 7), (17, 12), (13, 21)], (125, 172, 116))
+        c.poly([(16, 23), (12, 17), (16, 4), (21, 16)], (204, 149, 61))
+        c.poly([(16, 20), (14, 15), (16, 8), (19, 15)], (255, 220, 127))
+        c.ellipse(16, 21, 4, 2, (248, 194, 81))
+        for x, y in ((7, 16), (11, 11), (15, 12), (21, 10), (24, 15), (18, 20), (12, 21)):
+            c.put(x, y, (255, 236, 168))
     c.outline()
     return c.rows
 
@@ -308,7 +331,7 @@ def outputs(root=ROOT):
         "firstperson_lefthand":{"rotation":[0,45,0],"translation":[0,2,0],"scale":[.5,.5,.5]},
         "thirdperson_righthand":{"rotation":[75,45,0],"translation":[0,2.5,0],"scale":[.45,.45,.45]}}})
     for item in ITEM_IDS[1:]:
-        rows=fruit_icon(item.endswith("high")) if item.startswith("ningyuan_fruit_") else herb_icon(item) if item in HERBS else formula_icon(item[8:]) if item.startswith("formula_") else pill_icon(item[5:])
+        rows=fruit_icon(item.endswith("high")) if item.startswith("ningyuan_fruit_") else herb_icon(item) if item in (*HERBS, *RELICS) else formula_icon(item[8:]) if item.startswith("formula_") else pill_icon(item[5:])
         result[assets/f"textures/item/{item}.png"]=png(rows)
         result[assets/f"models/item/{item}.json"]=encode({"parent":"minecraft:item/generated","textures":{"layer0":f"yuanxian:item/{item}"}})
     def shapeless(item,ingredients):
@@ -327,6 +350,10 @@ def outputs(root=ROOT):
     for kind in FOUNDATION_FORMULAS:
         sheet, stone = formula_materials[kind]
         shapeless("formula_"+kind,[sheet,"yuanxian:ningyuan_fruit_"+("high" if kind.endswith("high") else "low"),"yuanxian:spirit_leaf","yuanxian:calm_lotus",stone])
+    shapeless("formula_ningying", ["minecraft:book", "yuanxian:ningyuan_fruit_high",
+                                  "yuanxian:spirit_leaf", "yuanxian:calm_lotus", "#c:spirit_stones/low_grade"])
+    shapeless("formula_xuying", ["minecraft:book", "yuanxian:ningyuan_fruit_low",
+                                "yuanxian:spirit_leaf", "yuanxian:calm_lotus", "#c:spirit_stones/low_grade"])
     result[data/"yuanxian/recipe/alchemy_furnace.json"]=encode({"type":"minecraft:crafting_shaped","category":"misc","pattern":["CIC","CFC","C C"],"key":{"C":{"item":"minecraft:copper_ingot"},"I":{"item":"minecraft:iron_ingot"},"F":{"item":"minecraft:furnace"}},"result":{"id":"yuanxian:alchemy_furnace","count":1}})
     result[data/"yuanxian/loot_table/blocks/alchemy_furnace.json"]=encode({"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"yuanxian:alchemy_furnace"}],"conditions":[{"condition":"minecraft:survives_explosion"}]}],"random_sequence":"yuanxian:blocks/alchemy_furnace"})
     return result
@@ -344,7 +371,7 @@ def merged_outputs(root=ROOT):
             obj.update(ZH_EXTRA)
             definitions=json.loads((root/"src/main/resources/data/yuanxian/alchemy/rules.json").read_text())
             for recipe in definitions["recipes"]:
-                if recipe["id"] in (*MEDICINES,*FOUNDATION_FORMULAS):
+                if recipe["id"] in (*MEDICINES,*FOUNDATION_FORMULAS,*NASCENT_FORMULAS):
                     key="item."+recipe["formula"].replace(":",".")
                     base=ZH_FOUNDATION.get("formula_"+recipe["id"],NAMES.get("formula_"+recipe["id"],("",""))[1])
                     obj[key]=f"{base}（难度{recipe['difficulty']}）"

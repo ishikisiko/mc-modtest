@@ -173,6 +173,11 @@ public final class Breakthrough {
         double deathChance = bt.deathChance() * (desperate ? b.desperateDeathFactor() : 1.0);
         SimRng rng = ctx.rng(p.id, Purpose.BREAKTHROUGH_DEATH);
         if (rng.chance(deathChance)) {
+            if (NpcNascent.shatter(ctx, p, Deaths.QI_DEVIATION, woundEvent).isPresent()) {
+                p.failures++;
+                p.progress = Math.max(0.0, p.progress - bt.progressLoss() * current.stage(current.lastStage()).cap());
+                return;
+            }
             int importance = Math.max(Deaths.importance(ctx, p), bt.failureImportance());
             Chronicle.Builder event = ctx.chronicle.event("death", importance).actors(p.id)
                     .sects(Cultivation.sectIds(p)).region(p.regionId);

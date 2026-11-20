@@ -344,6 +344,12 @@ public abstract class NpcEntity extends PathfinderMob {
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (hand == InteractionHand.MAIN_HAND
+                && player.getMainHandItem().is(com.example.myvillage.item.ModItems.FIVE_COLOR_GOLDEN_LOTUS.get())) {
+            if (player instanceof ServerPlayer serverPlayer)
+                NpcNascentRuntime.give(serverPlayer, this, serverPlayer.getMainHandItem());
+            return InteractionResult.sidedSuccess(level().isClientSide());
+        }
         if (combatEngaged()) {
             if (!level().isClientSide()) player.displayClientMessage(
                     net.minecraft.network.chat.Component.translatable("entity.yuanxian.cultivator.in_combat"), true);

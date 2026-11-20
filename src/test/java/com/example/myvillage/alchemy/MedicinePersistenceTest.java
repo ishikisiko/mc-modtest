@@ -57,6 +57,20 @@ class MedicinePersistenceTest {
         }
     }
 
+    @Test void reformationMedicineBeginsPersistsAndTicksWithoutHealing() {
+        var rules = AlchemyRules.get();
+        var reformation = com.example.myvillage.cultivation.nascent.NascentRules.get();
+        var dose = MedicineState.EMPTY.begin("xuying", rules.sharedCooldownTicks(),
+                reformation.value("reformation_pill_ticks"), 4);
+        var loaded = MedicineRuntime.read(MedicineRuntime.write(dose), rules);
+        assertEquals(dose, loaded);
+        var next = loaded.tick(20);
+        assertFalse(next.heal());
+        assertEquals(0, next.next().healingElapsed());
+        assertEquals(loaded.effectTicks() - 1, next.next().effectTicks());
+        assertEquals(3.0, reformation.reformationMultiplier(next.next().quality()));
+    }
+
     @Test void legacyAndCorruptQualityFallBackToBaseline() {
         CompoundTag saved = MedicineRuntime.write(new MedicineState(452, "yangyuan", 52, 8, 4));
         saved.remove("quality");

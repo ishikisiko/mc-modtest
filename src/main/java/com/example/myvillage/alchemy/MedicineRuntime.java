@@ -38,6 +38,7 @@ public final class MedicineRuntime {
         int maximum = switch (effect) {
             case "yangyuan" -> rules.effects().yangyuan().durationTicks();
             case "ningshen" -> rules.effects().ningshen().durationTicks();
+            case "xuying" -> com.example.myvillage.cultivation.nascent.NascentRules.get().value("reformation_pill_ticks");
             default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(effect) ? com.example.myvillage.wilderness.ExpeditionRules.get().medicine(effect).durationTicks(quality) : 0;
         };
         int remaining = bound(tag.getInt("effect_ticks"), maximum);
@@ -78,6 +79,8 @@ public final class MedicineRuntime {
             }
             case "yangyuan" -> player.getHealth() >= player.getMaxHealth() ? MESSAGE + "full_health" : null;
             case "ningshen" -> eligibleForStability(player) ? null : MESSAGE + "ineligible";
+            case "xuying" -> com.example.myvillage.cultivation.CultivationRecovery.canReform(
+                    player.registryAccess(), CultivationService.getProfile(player)) ? null : MESSAGE + "ineligible";
             default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(id) ? null : MESSAGE + "ineligible";
         };
     }
@@ -111,6 +114,7 @@ public final class MedicineRuntime {
         int duration = switch (id) {
             case "yangyuan" -> rules.effects().yangyuan().durationTicks();
             case "ningshen" -> rules.effects().ningshen().durationTicks();
+            case "xuying" -> com.example.myvillage.cultivation.nascent.NascentRules.get().value("reformation_pill_ticks");
             default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(id) ? com.example.myvillage.wilderness.ExpeditionRules.get().medicine(id).durationTicks(quality) : 0;
         };
         if (id.equals("huiling")) {
@@ -136,6 +140,12 @@ public final class MedicineRuntime {
         return current.effect().equals("ningshen") && current.effectTicks() > 0
                 ? MedicineEffects.qualityStabilityMultiplier(AlchemyRules.get().effects().ningshen().stabilityMultiplier(),
                         AlchemyRules.get().qualityMultiplier(current.quality())) : 1.0;
+    }
+
+    public static double reformationMultiplier(ServerPlayer player) {
+        MedicineState current = state(player);
+        return current.effect().equals("xuying") && current.effectTicks() > 0
+                ? com.example.myvillage.cultivation.nascent.NascentRules.get().reformationMultiplier(current.quality()) : 1.0;
     }
 
     @SubscribeEvent

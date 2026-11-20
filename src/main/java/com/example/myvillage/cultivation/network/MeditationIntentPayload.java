@@ -25,6 +25,9 @@ public record MeditationIntentPayload(MeditationIntentAction action) implements 
                         case 5 -> MeditationIntentAction.TRIAL_GOLDEN_LOW;
                         case 6 -> MeditationIntentAction.TRIAL_GOLDEN_MIDDLE;
                         case 7 -> MeditationIntentAction.TRIAL_GOLDEN_HIGH;
+                        case 8 -> MeditationIntentAction.NASCENT_REFINE;
+                        case 9 -> MeditationIntentAction.NASCENT_DUEL;
+                        case 10 -> MeditationIntentAction.NASCENT_REFORM;
                         default -> throw new IllegalArgumentException(
                                 "Unknown meditation intent network id " + networkId);
                     };
@@ -42,6 +45,9 @@ public record MeditationIntentPayload(MeditationIntentAction action) implements 
                         case TRIAL_GOLDEN_LOW -> 5;
                         case TRIAL_GOLDEN_MIDDLE -> 6;
                         case TRIAL_GOLDEN_HIGH -> 7;
+                        case NASCENT_REFINE -> 8;
+                        case NASCENT_DUEL -> 9;
+                        case NASCENT_REFORM -> 10;
                     });
                 }
             };

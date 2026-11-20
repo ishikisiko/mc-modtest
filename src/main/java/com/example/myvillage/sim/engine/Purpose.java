@@ -63,6 +63,7 @@ public final class Purpose {
     public static final int REVENGE_SEEK = 221;
     public static final int TRAVEL_MOVE = 222;
     public static final int ROGUE_JOIN = 223;
+    public static final int NASCENT_LOTUS = 224;
     public static final int SECT_SCHISM = 309;
     public static final int SECT_BATTLE = 310;
     public static final int SECT_TRUCE = 311;

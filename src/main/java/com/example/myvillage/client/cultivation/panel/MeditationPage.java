@@ -97,9 +97,8 @@ public final class MeditationPage extends PanelPage {
                 BUTTON_HEIGHT,
                 label,
                 pressed -> {
-                    var profile=com.example.myvillage.client.cultivation.ClientCultivationState.latest().orElse(null);
-                    if(action==MeditationIntentAction.START_BREAKTHROUGH&&profile!=null
-                            &&com.example.myvillage.cultivation.tribulation.TribulationKind.canChoose(profile))
+                    if(action==MeditationIntentAction.START_BREAKTHROUGH
+                            &&com.example.myvillage.client.cultivation.ClientCultivationEvents.opensBreakthroughChoices())
                         Minecraft.getInstance().setScreen(com.example.myvillage.client.cultivation.CultivationProfileScreen.breakthroughs());
                     else ClientCultivationIntentSender.send(action);
                 });
@@ -123,20 +122,27 @@ public final class MeditationPage extends PanelPage {
         boolean synchronizedStatus = status != null;
         boolean tribulation = com.example.myvillage.client.tribulation.TribulationClient.active();
         boolean recovering = com.example.myvillage.client.tribulation.TribulationClient.recovering();
-        boolean activeSession = tribulation || (synchronizedStatus && status.state().active());
+        var phase = com.example.myvillage.client.cultivation.ClientCultivationEvents.nascent().phase();
+        boolean nascent = phase != com.example.myvillage.cultivation.nascent.NascentTrial.Phase.INACTIVE;
+        boolean restoring = context.profile() != null && com.example.myvillage.cultivation.CultivationRecovery
+                .canRestore(context.registries(), context.profile());
+        boolean activeSession = tribulation || nascent || (synchronizedStatus && status.state().active());
         advancementButton.setMessage(tribulation
                 ? Component.literal("雷劫进行中")
-                : context.profile() != null && com.example.myvillage.cultivation.tribulation.TribulationKind.canChoose(context.profile())
-                ? Component.literal("选择引劫 [" + ClientCultivationKeyMappings.START_ADVANCEMENT.getTranslatedKeyMessage().getString() + "]")
+                : restoring ? Component.literal("恢复原境界")
+                : phase == com.example.myvillage.cultivation.nascent.NascentTrial.Phase.READY ? Component.literal("自行碎丹")
+                : com.example.myvillage.client.cultivation.ClientCultivationEvents.opensBreakthroughChoices()
+                ? Component.literal("选择突破 [" + ClientCultivationKeyMappings.START_ADVANCEMENT.getTranslatedKeyMessage().getString() + "]")
                 : label("screen.yuanxian.cultivation.button.advancement", ClientCultivationKeyMappings.START_ADVANCEMENT));
         boolean eligible = context.profile() != null && context.profile().awakened()
                 && context.profile().learnedTechniques().containsKey(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
                 && context.currentStage().flatMap(RealmStageDefinition::stabilityCap).isPresent();
         normalButton.active = visible && synchronizedStatus && !activeSession && !recovering && eligible;
         spiritButton.active = normalButton.active && context.currentStage().flatMap(RealmStageDefinition::cultivationCap).isPresent();
-        advancementButton.active = normalButton.active && context.progressFull()
+        advancementButton.active = visible && phase == com.example.myvillage.cultivation.nascent.NascentTrial.Phase.READY
+                || normalButton.active && context.progressFull()
                 && context.currentStage().flatMap(RealmStageDefinition::advancement)
-                .map(a -> context.profile().stability() >= a.requiredStability()).orElse(false);
+                .map(a -> restoring || context.profile().stability() >= a.requiredStability()).orElse(false);
         stopButton.active = visible && (tribulation ? com.example.myvillage.client.tribulation.TribulationClient.preparing() : activeSession);
     }
 

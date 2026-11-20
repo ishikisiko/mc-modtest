@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.143.0
+
+- 修士死亡掉两个小境界。修回曾到过的境界只需补足修为，保留原来的筑基、金丹和元婴品级。
+- 首次结婴可服凝婴丹、炼化金丹境及以上的妖丹，或亲手斩灭心魔，分别凝成下品、中品和上品元婴。
+- 完整元婴可以在死亡时碎裂，保住本次的境界、修为和稳定度。打坐可重凝元婴，服续婴丹能加快重凝。
+- 元婴及以上 NPC 可碎婴护命。NPC 探索时有小概率找到五彩金莲，玩家也可将五彩金莲赠给已碎婴的 NPC。
+
 ## 0.142.0
 
 - 开放金丹后期到化神后期的修炼链，接入五境 202 门心法及攻、防守、灵力与修炼三栏。

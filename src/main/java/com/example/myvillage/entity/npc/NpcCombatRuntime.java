@@ -194,8 +194,11 @@ public final class NpcCombatRuntime {
             }
             if (sim.combatDeath(npc.ledgerPersonId(), npc.combatEpoch, killer, name,
                     source.getMsgId(), NpcCombatRules.get().playerKillStandingPenalty())) {
-                LoggerFactory.getLogger(NpcCombatRuntime.class).info("NPC_COMBAT death person={} epoch={} killer={} cause={}",
-                        npc.ledgerPersonId(), npc.combatEpoch, killer, source.getMsgId());
+                boolean survived = sim.person(npc.ledgerPersonId()).map(PersonView::alive).orElse(false);
+                LoggerFactory.getLogger(NpcCombatRuntime.class).info("NPC_COMBAT {} person={} epoch={} killer={} cause={}",
+                        survived ? "shattered" : "death", npc.ledgerPersonId(), npc.combatEpoch, killer, source.getMsgId());
+                if (survived && source.getEntity() instanceof ServerPlayer player)
+                    NpcNascentRuntime.tellShattered(player, npc);
                 dirty(npc);
             }
         });
@@ -228,7 +231,10 @@ public final class NpcCombatRuntime {
     public static void tick(MinecraftServer server) {
         for (NpcEntity npc : BODIES.values().toArray(NpcEntity[]::new)) {
             if (npc.isRemoved()) { leaving(npc); continue; }
-            if(managed(npc)&&canTick(npc))NpcPhoenixRuntime.tick(npc);
+            if (managed(npc) && canTick(npc)) {
+                NpcPhoenixRuntime.tick(npc);
+                NpcNascentRuntime.tickIndependent(npc);
+            }
             if (!canAct(npc) || !canTick(npc)) continue;
             com.example.myvillage.cultivation.fate.EverlastingRuntime.tickNpc(npc);
             com.example.myvillage.cultivation.fate.FateRuntime.refresh(npc);

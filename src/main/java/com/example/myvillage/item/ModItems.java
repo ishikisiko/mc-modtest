@@ -279,6 +279,12 @@ public final class ModItems {
     public static final DeferredItem<FormulaItem> FORMULA_BUJI_HIGH = ITEMS.registerItem("formula_buji_high", props -> new FormulaItem(props, "buji_high"));
     public static final DeferredItem<FoundationPillItem> PILL_ZHUJI = ITEMS.registerItem("pill_zhuji", props -> new FoundationPillItem(props, false));
     public static final DeferredItem<FoundationPillItem> PILL_BUJI = ITEMS.registerItem("pill_buji", props -> new FoundationPillItem(props, true));
+    public static final DeferredItem<FormulaItem> FORMULA_NINGYING = ITEMS.registerItem("formula_ningying", props -> new FormulaItem(props, "ningying"));
+    public static final DeferredItem<FormulaItem> FORMULA_XUYING = ITEMS.registerItem("formula_xuying", props -> new FormulaItem(props, "xuying"));
+    public static final DeferredItem<Item> FIVE_COLOR_GOLDEN_LOTUS = ITEMS.registerItem("five_color_golden_lotus",
+            properties -> new Item(properties.rarity(net.minecraft.world.item.Rarity.EPIC).stacksTo(16)));
+    public static final DeferredItem<NascentPillItem> PILL_NINGYING = ITEMS.registerItem("pill_ningying", NascentPillItem::new);
+    public static final DeferredItem<AlchemyPillItem> PILL_XUYING = ITEMS.registerItem("pill_xuying", props -> new AlchemyPillItem(props, "xuying"));
     public static final DeferredItem<NingyuanFruitItem> NINGYUAN_FRUIT_LOW = ITEMS.registerItem("ningyuan_fruit_low", props -> new NingyuanFruitItem(props, 1));
     public static final DeferredItem<NingyuanFruitItem> NINGYUAN_FRUIT_HIGH = ITEMS.registerItem("ningyuan_fruit_high", props -> new NingyuanFruitItem(props, 3));
 
@@ -522,10 +528,18 @@ public final class ModItems {
                         output.accept(FORMULA_ZHUJI_HIGH.get());
                         output.accept(FORMULA_BUJI_MIDDLE.get());
                         output.accept(FORMULA_BUJI_HIGH.get());
+                        output.accept(FORMULA_NINGYING.get());
+                        output.accept(FORMULA_XUYING.get());
                         output.accept(NINGYUAN_FRUIT_LOW.get());output.accept(NINGYUAN_FRUIT_HIGH.get());
                         for(int quality=1;quality<=4;quality++) {
                             var pill=new net.minecraft.world.item.ItemStack(PILL_ZHUJI.get());com.example.myvillage.alchemy.PillQuality.apply(pill,quality);output.accept(pill);
                             var repair=new net.minecraft.world.item.ItemStack(PILL_BUJI.get());com.example.myvillage.alchemy.PillQuality.apply(repair,quality);output.accept(repair);
+                            var nascent = new net.minecraft.world.item.ItemStack(PILL_NINGYING.get());
+                            com.example.myvillage.alchemy.PillQuality.apply(nascent, quality);
+                            output.accept(nascent);
+                            var reformation = new net.minecraft.world.item.ItemStack(PILL_XUYING.get());
+                            com.example.myvillage.alchemy.PillQuality.apply(reformation, quality);
+                            output.accept(reformation);
                         }
 
 

@@ -8,6 +8,8 @@ import com.example.myvillage.cultivation.network.MeditationStatusReceiver;
 import com.example.myvillage.cultivation.network.MeditationIntentAction;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
 import com.example.myvillage.cultivation.meditation.MeditationStopReason;
+import com.example.myvillage.cultivation.nascent.NascentTrial;
+import com.example.myvillage.cultivation.network.NascentStatusPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
@@ -22,7 +24,10 @@ import java.util.Locale;
         modid = MyVillageMod.MOD_ID,
         value = Dist.CLIENT)
 public final class ClientCultivationEvents {
+    private static NascentStatusPayload nascent = new NascentStatusPayload(NascentTrial.Phase.INACTIVE, 0);
+
     static {
+        NascentStatusPayload.installReceiver(value -> nascent = value);
         CultivationSnapshotReceiver.install(ClientCultivationState::replace);
         CultivationTimeSnapshotReceiver.install(ClientCultivationState::replaceTime);
         MeditationStatusReceiver.install(ClientCultivationEvents::receiveMeditationStatus);
@@ -32,11 +37,22 @@ public final class ClientCultivationEvents {
     /** Eagerly installs owning-client receivers from the actual client mod entry point. */
     public static void initialize() { }
 
+    public static NascentStatusPayload nascent() { return nascent; }
+
+    public static boolean opensBreakthroughChoices() {
+        var level = Minecraft.getInstance().level;
+        var profile = ClientCultivationState.latest().orElse(null);
+        return level != null && profile != null && nascent.phase() == NascentTrial.Phase.INACTIVE
+                && !com.example.myvillage.cultivation.CultivationRecovery.canRestore(level.registryAccess(), profile)
+                && (NascentTrial.source(profile) || com.example.myvillage.cultivation.tribulation.TribulationKind.canChoose(profile));
+    }
+
     private ClientCultivationEvents() {
     }
 
     @SubscribeEvent
     static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        nascent = new NascentStatusPayload(NascentTrial.Phase.INACTIVE, 0);
         ClientCultivationState.clear();
         ClientAwakening.clear();
         ClientWorldSimState.clear();
@@ -75,9 +91,7 @@ public final class ClientCultivationEvents {
             MeditationIntentAction action) {
         while (key.consumeClick()) {
             if (minecraft.player != null && minecraft.screen == null) {
-                var profile=ClientCultivationState.latest().orElse(null);
-                if(action==MeditationIntentAction.START_BREAKTHROUGH&&profile!=null
-                        &&com.example.myvillage.cultivation.tribulation.TribulationKind.canChoose(profile))
+                if(action==MeditationIntentAction.START_BREAKTHROUGH && opensBreakthroughChoices())
                     minecraft.setScreen(CultivationProfileScreen.breakthroughs());
                 else ClientCultivationIntentSender.send(action);
             }

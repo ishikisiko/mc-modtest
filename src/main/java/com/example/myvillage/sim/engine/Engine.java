@@ -39,6 +39,7 @@ public final class Engine {
                 continue;
             }
             if (com.example.myvillage.sim.life.StoryActors.protectedPerson(ctx.state, id)) continue;
+            NpcNascent.daily(ctx, p);
             boolean townResident = People.lifeResident(ctx, p);
             double cultivationShare = LifeEngine.takeCultivationShare(ctx, id);
             if (ctx.state.combat.engaged.contains(id)||com.example.myvillage.sim.fate.NpcFateRoll.suspended(p.fateRuntime)) cultivationShare = 0;

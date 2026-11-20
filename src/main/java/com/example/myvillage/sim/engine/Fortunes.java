@@ -34,6 +34,7 @@ public final class Fortunes {
 
     public static void daily(SimContext ctx, Person p) {
         if (People.lifeResident(ctx, p)) return;
+        NpcNascent.explore(ctx, p);
         Rules.Fortune f = ctx.rules.fortune();
         GenRegion region = ctx.region(p.regionId);
         RegionState rs = ctx.state.regions.get(p.regionId);
@@ -207,7 +208,7 @@ public final class Fortunes {
                 p.injurerId = -1;
             }
             case "death" -> {
-                if (rng.chance(fx.amount())) {
+                if (rng.chance(fx.amount()) && NpcNascent.shatter(ctx, p, Deaths.TRAP, eventId).isEmpty()) {
                     long id = ctx.chronicle.event("death", Deaths.importance(ctx, p)).actors(p.id)
                             .sects(Cultivation.sectIds(p)).region(p.regionId).cause(eventId)
                             .say(TextKeys.DEATH_TRAP, Anchor.of(ctx).who(p).age(p).region(p.regionId));

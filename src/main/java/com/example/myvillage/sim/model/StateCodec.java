@@ -231,6 +231,9 @@ public final class StateCodec {
         o.addProperty("fate_runtime", p.fateRuntime);
         o.addProperty("foundation_quality", p.foundationQuality);
         o.addProperty("golden_core_quality", p.goldenCoreQuality);
+        if (p.nascentShattered) o.addProperty("nascent_shattered", true);
+        if (p.nascentReformsOn != Long.MAX_VALUE) o.addProperty("nascent_reforms_on", p.nascentReformsOn);
+        if (p.nascentGraceUntil != Long.MIN_VALUE) o.addProperty("nascent_grace_until", p.nascentGraceUntil);
         o.addProperty("spiritual_power", p.spiritualPower);
         o.addProperty("progress", p.progress);
         o.addProperty("failures", p.failures);
@@ -572,6 +575,13 @@ public final class StateCodec {
         p.fates.validateRuntime(p.fateRuntime);
         p.foundationQuality = o.integer("foundation_quality");
         p.goldenCoreQuality = o.integer("golden_core_quality");
+        p.nascentShattered = o.optBool("nascent_shattered", false);
+        p.nascentReformsOn = o.optLong("nascent_reforms_on", Long.MAX_VALUE);
+        p.nascentGraceUntil = o.optLong("nascent_grace_until", Long.MIN_VALUE);
+        int nascent = realms.indexOf("nascent_soul");
+        if ((p.nascentShattered || p.nascentGraceUntil != Long.MIN_VALUE) && (nascent < 0 || p.realm < nascent)
+                || p.nascentReformsOn != Long.MAX_VALUE && !p.nascentShattered)
+            throw new SimFormatException("Invalid nascent state for person " + p.id);
         p.spiritualPower = o.lng("spiritual_power");
         com.example.myvillage.sim.engine.NpcCultivation.validate(realms, p,pool);
         p.failures = o.optInt("failures", 0);

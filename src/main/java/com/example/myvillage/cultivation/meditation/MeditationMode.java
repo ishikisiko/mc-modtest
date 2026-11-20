@@ -9,5 +9,6 @@ public enum MeditationMode {
     NORMAL,
     SPIRIT,
     STUDY,
-    PRACTICE
+    PRACTICE,
+    REFORM
 }

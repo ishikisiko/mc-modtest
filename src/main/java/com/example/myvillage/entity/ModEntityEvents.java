@@ -24,6 +24,7 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
+        event.put(ModEntities.NASCENT_DEMON.get(), NascentDemon.createAttributes().build());
         for (var type : com.example.myvillage.legacy.LegacyContent.BEASTS.values())
             event.put(type.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(type.getId())).build());
         for (var type : com.example.myvillage.entity.undead.UndeadEntities.TYPES.values()) {

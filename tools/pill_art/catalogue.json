@@ -9,5 +9,7 @@
   "qingshen": {"name":"轻身丹", "support":"dish", "body":{"base":"598e9a", "light":"e1f5ec", "vein":"b8e6df", "motif":"wind"}},
   "qingzhang": {"name":"清瘴丹", "support":"dish", "body":{"base":"32866c", "light":"d4eec6", "vein":"c0d6ab", "motif":"stream"}},
   "zhuji": {"name":"筑基丹", "support":"casket", "body":{"base":"bd8730", "light":"fff2b5", "vein":"f6d772", "motif":"ring"}},
-  "buji": {"name":"补基丹", "support":"casket", "body":{"base":"467f72", "light":"d5efd2", "vein":"dec786", "motif":"mend"}}
+  "buji": {"name":"补基丹", "support":"casket", "body":{"base":"467f72", "light":"d5efd2", "vein":"dec786", "motif":"mend"}},
+  "ningying": {"name":"凝婴丹", "support":"casket", "body":{"base":"715296", "light":"efe0f7", "vein":"d7a9cf", "motif":"orbit"}},
+  "xuying": {"name":"续婴丹", "support":"dish", "body":{"base":"439579", "light":"d3f0c4", "vein":"b3d17a", "motif":"mend"}}
 }

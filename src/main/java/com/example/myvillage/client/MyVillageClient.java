@@ -43,6 +43,7 @@ public final class MyVillageClient {
 
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ModEntities.NASCENT_DEMON.get(), com.example.myvillage.client.entity.NascentDemonRenderer::new);
         for (var type : com.example.myvillage.entity.undead.UndeadEntities.TYPES.values()) BeastRenderer.register(event, type);
         for (var type : com.example.myvillage.legacy.LegacyContent.BEASTS.values()) event.registerEntityRenderer(type.get(),context->new com.example.myvillage.client.entity.beast.LegacyBeastRenderer(context,type.getId()));
         event.registerEntityRenderer(com.example.myvillage.legacy.LegacyContent.PROJECTION.get(),com.example.myvillage.client.entity.beast.LegacyProjectionRenderer::new);

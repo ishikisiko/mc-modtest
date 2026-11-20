@@ -30,7 +30,7 @@ public record CultivationProfile(
         Optional<SpiritualRoot> spiritualRoot,
         Map<ResourceLocation, TechniqueProgress> learnedTechniques,
         Optional<ResourceLocation> activeCoreTechnique, int foundationQuality, int goldenCoreQuality,
-        CombatHeartLoadout combatHearts) {
+        CombatHeartLoadout combatHearts, CultivationMemory memory) {
     public static final int CURRENT_SCHEMA_VERSION = 6;
     public static final int DEFAULT_SPIRITUAL_AFFINITY = 10;
     public static final ResourceLocation DEFAULT_REALM_ID = ModCultivationRegistries.MORTAL_REALM_ID;
@@ -70,7 +70,8 @@ public record CultivationProfile(
             Codec.intRange(0,4).optionalFieldOf("foundation_quality",0).forGetter(SerializedV6Profile::foundationQuality),
             Codec.intRange(0,3).optionalFieldOf("golden_core_quality",0).forGetter(SerializedV6Profile::goldenCoreQuality),
             CombatHeartLoadout.CODEC.optionalFieldOf("combat_hearts", CombatHeartLoadout.EMPTY)
-                    .forGetter(SerializedV6Profile::combatHearts)
+                    .forGetter(SerializedV6Profile::combatHearts),
+            CultivationMemory.CODEC.optionalFieldOf("memory", CultivationMemory.EMPTY).forGetter(SerializedV6Profile::memory)
     ).apply(instance, SerializedV6Profile::new)).validate(SerializedV6Profile::requireVersion);
 
     public static final Codec<CultivationProfile> CODEC = V6_CODEC.comapFlatMap(
@@ -95,11 +96,11 @@ public record CultivationProfile(
     public CultivationProfile withGoldenCoreQuality(int quality) {
         return new CultivationProfile(schemaVersion, realmId, stageId, cultivationProgress, stability,
                 currentSpiritualPower, spiritualAffinity, lifespanConsumedTicks, meditationQiReserve,
-                spiritualRoot, learnedTechniques, activeCoreTechnique, foundationQuality, quality, combatHearts);
+                spiritualRoot, learnedTechniques, activeCoreTechnique, foundationQuality, quality, combatHearts, memory);
     }
     public CultivationProfile withFoundationQuality(int quality) {
         return new CultivationProfile(schemaVersion,realmId,stageId,cultivationProgress,stability,currentSpiritualPower,
-            spiritualAffinity,lifespanConsumedTicks,meditationQiReserve,spiritualRoot,learnedTechniques,activeCoreTechnique,quality,goldenCoreQuality,combatHearts);
+            spiritualAffinity,lifespanConsumedTicks,meditationQiReserve,spiritualRoot,learnedTechniques,activeCoreTechnique,quality,goldenCoreQuality,combatHearts, memory);
     }
 
     public CultivationProfile(int schemaVersion, ResourceLocation realmId, ResourceLocation stageId,
@@ -111,6 +112,22 @@ public record CultivationProfile(
                 spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, learnedTechniques,
                 activeCoreTechnique, foundationQuality, goldenCoreQuality, CombatHeartLoadout.EMPTY);
     }
+    public CultivationProfile(int schemaVersion, ResourceLocation realmId, ResourceLocation stageId,
+            long cultivationProgress, int stability, long currentSpiritualPower, int spiritualAffinity,
+            long lifespanConsumedTicks, long meditationQiReserve, Optional<SpiritualRoot> spiritualRoot,
+            Map<ResourceLocation, TechniqueProgress> learnedTechniques, Optional<ResourceLocation> activeCoreTechnique,
+            int foundationQuality, int goldenCoreQuality, CombatHeartLoadout combatHearts) {
+        this(schemaVersion, realmId, stageId, cultivationProgress, stability, currentSpiritualPower, spiritualAffinity,
+                lifespanConsumedTicks, meditationQiReserve, spiritualRoot, learnedTechniques, activeCoreTechnique,
+                foundationQuality, goldenCoreQuality, combatHearts, CultivationMemory.EMPTY);
+    }
+
+    public CultivationProfile withMemory(CultivationMemory value) {
+        return new CultivationProfile(schemaVersion, realmId, stageId, cultivationProgress, stability,
+                currentSpiritualPower, spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot,
+                learnedTechniques, activeCoreTechnique, foundationQuality, goldenCoreQuality, combatHearts, value);
+    }
+
     public CultivationProfile {
         if (goldenCoreQuality < 0 || goldenCoreQuality > 3) throw new IllegalArgumentException("Invalid golden core quality");
         if(foundationQuality<0 || foundationQuality>4) throw new IllegalArgumentException("Invalid foundation quality");
@@ -147,6 +164,7 @@ public record CultivationProfile(
         spiritualRoot = Objects.requireNonNull(spiritualRoot, "spiritualRoot");
         learnedTechniques = immutableTechniqueMap(learnedTechniques);
         combatHearts = Objects.requireNonNull(combatHearts, "combatHearts");
+        memory = Objects.requireNonNull(memory, "memory");
         if (!combatHearts.equals(combatHearts.filter(learnedTechniques::containsKey))) {
             throw new IllegalArgumentException("Equipped combat heart technique is not learned");
         }
@@ -244,7 +262,7 @@ public record CultivationProfile(
         return new CultivationProfile(
                 schemaVersion, realmId, stageId, cultivationProgress, stability, currentSpiritualPower,
                 spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, techniques, active,
-                foundationQuality, goldenCoreQuality, combatHearts.filter(techniques::containsKey));
+                foundationQuality, goldenCoreQuality, combatHearts.filter(techniques::containsKey), memory);
     }
 
     /** Sets or clears the running core technique (心法); a present id must already be learned. */
@@ -252,7 +270,7 @@ public record CultivationProfile(
         return new CultivationProfile(
                 schemaVersion, realmId, stageId, cultivationProgress, stability, currentSpiritualPower,
                 spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, learnedTechniques,
-                Objects.requireNonNull(techniqueId, "techniqueId"), foundationQuality, goldenCoreQuality, combatHearts);
+                Objects.requireNonNull(techniqueId, "techniqueId"), foundationQuality, goldenCoreQuality, combatHearts, memory);
     }
 
     public CultivationProfile withActiveCoreTechnique(ResourceLocation techniqueId) {
@@ -271,7 +289,7 @@ public record CultivationProfile(
         return new CultivationProfile(schemaVersion, realmId, stageId, cultivationProgress, stability,
                 currentSpiritualPower, spiritualAffinity, lifespanConsumedTicks, meditationQiReserve,
                 spiritualRoot, learnedTechniques, activeCoreTechnique, foundationQuality, goldenCoreQuality,
-                combatHearts.with(slot, techniqueId));
+                combatHearts.with(slot, techniqueId), memory);
     }
 
     public CultivationProfile learnTechnique(ResourceLocation techniqueId) {
@@ -351,7 +369,7 @@ public record CultivationProfile(
         return new CultivationProfile(
                 schemaVersion, realm, stage, progress, newStability, power,
                 affinity, consumedTicks, reserve, root, techniques, activeCoreTechnique, foundationQuality,
-                goldenCoreQuality, combatHearts);
+                goldenCoreQuality, combatHearts, memory);
     }
 
     private static Map<ResourceLocation, TechniqueProgress> immutableTechniqueMap(
@@ -379,7 +397,7 @@ public record CultivationProfile(
                 meditationQiReserve,
                 spiritualRoot,
                 learnedTechniques,
-                activeCoreTechnique, foundationQuality, goldenCoreQuality, combatHearts);
+                activeCoreTechnique, foundationQuality, goldenCoreQuality, combatHearts, memory);
     }
 
     private record SerializedV6Profile(
@@ -395,7 +413,7 @@ public record CultivationProfile(
             Optional<SpiritualRoot> spiritualRoot,
             Map<ResourceLocation, TechniqueProgress> learnedTechniques,
             Optional<ResourceLocation> activeCoreTechnique, int foundationQuality, int goldenCoreQuality,
-            CombatHeartLoadout combatHearts) {
+            CombatHeartLoadout combatHearts, CultivationMemory memory) {
         private static DataResult<SerializedV6Profile> requireVersion(SerializedV6Profile serialized) {
             return serialized.schemaVersion == CURRENT_SCHEMA_VERSION
                     ? DataResult.success(serialized)
@@ -420,7 +438,7 @@ public record CultivationProfile(
                         learnedTechniques,
                         activeCoreTechnique.filter(id -> learnedTechniques != null
                                 && learnedTechniques.containsKey(id)), foundationQuality, goldenCoreQuality,
-                        combatHearts.filter(learnedTechniques::containsKey)));
+                        combatHearts.filter(learnedTechniques::containsKey), memory));
             } catch (IllegalArgumentException | NullPointerException exception) {
                 return DataResult.error(exception::getMessage);
             }

@@ -25,6 +25,8 @@ public final class FoundationPillItem extends Item {
         if(state.cooldownTicks()>0||state.effectTicks()>0)return "尚未达到下次服药时间";
         var p=CultivationService.getProfile(player);var rules=FoundationRules.get();
         if(repair)return rules.canRepair(p,q)?null:"需已筑基，且补基丹品质高于当前根基；无境界上限";
+        if (com.example.myvillage.cultivation.CultivationRecovery.canRestore(player.registryAccess(), p))
+            return "补满修为后按 N 恢复原境界。";
         return rules.source(p)?null:"筑基丹仅用于炼气九层突破筑基";
     }
     @Override public InteractionResultHolder<ItemStack> use(Level level,Player player,InteractionHand hand){
