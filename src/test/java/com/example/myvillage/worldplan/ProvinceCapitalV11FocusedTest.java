@@ -39,6 +39,16 @@ class ProvinceCapitalV11FocusedTest {
         var restored=new WorldPlan(20261029L,new WorldPlanRules(FrozenRulesEncoding.decode(FrozenRulesEncoding.encode(rules.json()))));
         assertEquals(plan.fingerprint(),restored.fingerprint());assertEquals(plan.manifest(),restored.manifest());assertEquals(8,plan.cities().size());
     }
+    @Test void publicRoadPortsReachTheCurrentExpandedCapitalEdges() throws Exception {
+        var rules = new WorldPlanRules(json(WorldPlanRules.V11_RESOURCE).toString());
+        var plan = new WorldPlan(20261029L, rules);
+        var roads = com.example.myvillage.worldplan.roads.RoadRules.load();
+        for (var city : plan.cities()) {
+            var exit = com.example.myvillage.worldplan.roads.WorldRoadPlanner.exit(plan, roads, city.regionId());
+            assertFalse(city.contains(exit.frame().edgeX(), exit.frame().edgeZ(), 0), city.cityId());
+            assertTrue(exit.existing().stream().allMatch(cell -> city.contains(cell.x(), cell.z(), 0)), city.cityId());
+        }
+    }
     @Test void defaultV11IsUniqueAndEveryTemplateMatchesItsFrozenHash()throws Exception{
         String preset="data/yuanxian/worldgen/world_preset/cultivation.json";assertEquals(1,Collections.list(getClass().getClassLoader().getResources(preset)).size());
         var generator=json("/"+preset).getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
