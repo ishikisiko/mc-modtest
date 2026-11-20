@@ -6,6 +6,7 @@ import com.example.myvillage.cultivation.CultivationRecovery;
 import com.example.myvillage.cultivation.CultivationStats;
 import com.example.myvillage.cultivation.nascent.NascentRules;
 import com.example.myvillage.cultivation.nascent.NascentTrial;
+import com.example.myvillage.cultivation.tribulation.SpiritTrial;
 import com.example.myvillage.cultivation.network.MeditationIntentAction;
 import com.example.myvillage.stats.runtime.ModStatsAttributes;
 import java.util.*;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 public final class NumericalStatsPage extends PanelPage {
     private final List<PanelButton> buttons = new ArrayList<>();
     private PanelButton refine, duel, reform, restore;
+    private List<PanelButton> spirit;
     @Override public int init(int x, int y, int width, int height, Consumer<AbstractWidget> widgets) {
         buttons.clear();
         var actions = new MeditationIntentAction[]{MeditationIntentAction.TRIAL_FOUNDATION_HEAVEN,
@@ -42,10 +44,17 @@ public final class NumericalStatsPage extends PanelPage {
                 "单人斩心魔后自行碎丹。战败或中断损失四分之一修为与一半稳定度。真实死亡按掉境规则结算。",
                 MeditationIntentAction.NASCENT_DUEL);
         reform = button(widgets, x, y + height - 24, cell, "重凝元婴",
-                "独立运功重凝，完成后恢复一次护境。可以先服续婴丹加速。",
+                "婴种散尽后，先炼养婴种。重凝元婴后恢复一次护境。续婴丹可以加快这两段修炼。",
                 MeditationIntentAction.NASCENT_REFORM);
         restore = button(widgets, x + cell + 4, y + height - 24, cell, "恢复原境界",
                 "补满这一段修为，即可按记录恢复境界和品级。", MeditationIntentAction.START_BREAKTHROUGH);
+        spirit = List.of(
+                button(widgets, x, y + height - dock, cell, "下品 · 守婴渡劫",
+                        "完整元婴分担六道雷的伤害。合神时散形，留下婴种。", MeditationIntentAction.SPIRIT_LOW),
+                button(widgets, x + cell + 4, y + height - dock, cell, "中品 · 三雷后散婴",
+                        "第三道雷后按提示散形，第四至六道雷由肉身承受。留下婴种。", MeditationIntentAction.SPIRIT_MIDDLE),
+                button(widgets, x, y + height - 24, cell, "上品 · 散尽渡劫",
+                        "开劫时散尽元婴和婴种。重新获得护境需要先炼养婴种，再重凝元婴。", MeditationIntentAction.SPIRIT_HIGH));
         return dock;
     }
 
@@ -64,6 +73,7 @@ public final class NumericalStatsPage extends PanelPage {
 
     @Override public void setVisible(boolean visible) {
         buttons.forEach(b -> b.visible = visible);
+        spirit.forEach(b -> b.visible = visible);
         for (var b : List.of(refine, duel, reform, restore)) b.visible = visible;
     }
     @Override public void refresh(PanelContext c, boolean visible) {
@@ -71,7 +81,9 @@ public final class NumericalStatsPage extends PanelPage {
         boolean restoring = p != null && CultivationRecovery.canRestore(c.registries(), p);
         boolean choosingNascent = p != null && NascentTrial.canChoose(c.registries(), p);
         var phase = ClientCultivationEvents.nascent().phase();
-        boolean ready = p != null && c.progressFull() && c.currentStage().flatMap(s -> s.advancement())
+        boolean spiritActive = ClientCultivationEvents.spiritTrialActive();
+        boolean choosingSpirit = p != null && SpiritTrial.canChoose(c.registries(), p) && !spiritActive;
+        boolean ready = p != null && !spiritActive && c.progressFull() && c.currentStage().flatMap(s -> s.advancement())
                 .map(a -> p.stability() >= a.requiredStability()).orElse(false)
                 && phase == NascentTrial.Phase.INACTIVE
                 && c.meditation() != null && !c.meditation().state().active()
@@ -82,10 +94,15 @@ public final class NumericalStatsPage extends PanelPage {
             buttons.get(i).visible = visible && applicable && !restoring;
             buttons.get(i).active = buttons.get(i).visible && ready;
         }
+        for (var button : spirit) {
+            button.visible = visible && choosingSpirit;
+            button.active = button.visible && ready;
+        }
         refine.visible = duel.visible = visible && choosingNascent && phase == NascentTrial.Phase.INACTIVE;
         refine.active = duel.active = refine.visible && ready;
-        reform.visible = visible && p != null && CultivationRecovery.canReform(c.registries(), p);
+        reform.visible = visible && p != null && !spiritActive && CultivationRecovery.canReform(c.registries(), p);
         reform.active = reform.visible && c.meditation() != null && !c.meditation().state().active();
+        reform.setMessage(Component.literal(p != null && p.memory().seedLost() ? "炼养婴种" : "重凝元婴"));
         restore.visible = visible && (restoring || phase == NascentTrial.Phase.READY);
         restore.active = restore.visible && (phase == NascentTrial.Phase.READY
                 || c.progressFull() && c.meditation() != null && !c.meditation().state().active());
@@ -100,6 +117,8 @@ public final class NumericalStatsPage extends PanelPage {
             rows.add(new String[]{"下品结婴", "手持凝婴丹长按右键"});
         } else if (CultivationRecovery.canRestore(c.registries(), profile)) {
             rows.add(new String[]{"复境", "补满当前修为后按 N"});
+        } else if (SpiritTrial.source(profile)) {
+            rows.add(new String[]{"化神引劫", profile.memory().intact() ? "达到门槛后选择渡劫路线" : "引劫前需要凝成完整元婴"});
         }
         Collections.addAll(rows,
                 new String[]{"生命", player == null ? "等待属性同步" : number(player.getHealth()) + " / " + number(player.getMaxHealth())},
@@ -115,7 +134,11 @@ public final class NumericalStatsPage extends PanelPage {
         if (memory.nascentQuality() > 0) {
             rows.add(new String[]{"元婴品级", NascentTrial.qualityName(memory.nascentQuality())});
             rows.add(new String[]{"元婴护境", memory.intact() ? "完整，可护境一次"
-                    : "已碎，重凝 " + memory.reformation() + " / " + NascentRules.get().value("reformation_target")});
+                    : (memory.seedLost() ? "炼养婴种 " : "重凝元婴 ")
+                    + memory.reformation() + " / " + NascentRules.get().reformationTarget(memory)});
+        }
+        if (memory.spiritQuality() > 0) {
+            rows.add(new String[]{"化神品级", SpiritTrial.Route.values()[memory.spiritQuality() - 1].title()});
         }
         int height = InkPanelTheme.CARD_TITLE_HEIGHT + 5 + rows.size() * 14;
         InkPanelTheme.card(g, c.font(), x, y, width, height, Component.literal("基础属性与实际面板"));

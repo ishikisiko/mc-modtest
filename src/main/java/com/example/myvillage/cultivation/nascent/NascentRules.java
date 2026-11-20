@@ -52,6 +52,10 @@ public final class NascentRules {
 
     public double npcLotusChance() { return value("npc_lotus_chance_basis_points") / 10_000.0; }
 
+    public int reformationTarget(com.example.myvillage.cultivation.CultivationMemory memory) {
+        return value(memory.seedLost() ? "seed_rebuild_target" : "reformation_target");
+    }
+
     public int pillTicks(int quality) { return choice("pill_ticks", quality).getAsInt(); }
     public double reformationMultiplier(int quality) { return choice("reformation_pill_multipliers", quality).getAsDouble(); }
 

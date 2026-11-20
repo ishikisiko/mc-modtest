@@ -1,6 +1,7 @@
 package com.example.myvillage.cultivation.network;
 
 import com.example.myvillage.cultivation.CultivationService;
+import com.example.myvillage.cultivation.tribulation.SpiritTrial;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.cultivation.meditation.MeditationMode;
@@ -15,6 +16,11 @@ public final class CultivationPayloads {
     }
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToClient(SpiritTrialStatusPayload.TYPE, SpiritTrialStatusPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> SpiritTrialStatusPayload.receive(payload)));
+        registrar.playToServer(SpiritTrialIntentPayload.TYPE, SpiritTrialIntentPayload.STREAM_CODEC, (payload, context) -> {
+            if (context.player() instanceof ServerPlayer player) context.enqueueWork(() -> SpiritTrial.intent(player, payload));
+        });
         registrar.playToClient(NascentStatusPayload.TYPE, NascentStatusPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> NascentStatusPayload.receive(payload)));
         registrar.playToServer(TechniqueGrowthIntentPayload.TYPE, TechniqueGrowthIntentPayload.STREAM_CODEC, (payload, context) -> {
@@ -103,6 +109,9 @@ public final class CultivationPayloads {
                 case NASCENT_REFINE -> com.example.myvillage.cultivation.nascent.NascentTrial.refine(player);
                 case NASCENT_DUEL -> com.example.myvillage.cultivation.nascent.NascentTrial.duel(player);
                 case NASCENT_REFORM -> MeditationManager.requestStart(player, MeditationMode.REFORM);
+                case SPIRIT_LOW -> SpiritTrial.start(player, SpiritTrial.Route.LOW);
+                case SPIRIT_MIDDLE -> SpiritTrial.start(player, SpiritTrial.Route.MIDDLE);
+                case SPIRIT_HIGH -> SpiritTrial.start(player, SpiritTrial.Route.HIGH);
             }
         });
     }

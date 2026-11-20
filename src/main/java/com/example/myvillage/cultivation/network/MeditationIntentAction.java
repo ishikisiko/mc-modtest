@@ -11,5 +11,8 @@ public enum MeditationIntentAction {
     TRIAL_GOLDEN_HIGH,
     NASCENT_REFINE,
     NASCENT_DUEL,
-    NASCENT_REFORM
+    NASCENT_REFORM,
+    SPIRIT_LOW,
+    SPIRIT_MIDDLE,
+    SPIRIT_HIGH
 }

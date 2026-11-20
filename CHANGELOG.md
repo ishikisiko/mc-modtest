@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.144.0
+
+- 元婴后期可在内视选择下品守婴、中品三雷后散婴或上品散尽渡劫。六道雷经过角色的肉身防御、护甲和护盾，积够劫力后由玩家静坐合神。
+- 化神品质提供不同的境界属性增量，复境保留原品质。婴种散尽后先炼养婴种才能重凝元婴，续婴丹可以加快两段修炼。
+
 ## 0.143.2
 
 - 五境心法按品阶和专长配置常驻属性。攻栏可侧重攻击或固定破防，防守栏可侧重生命或肉身防御，灵力与修炼栏可侧重灵力上限、自然回灵或修为。

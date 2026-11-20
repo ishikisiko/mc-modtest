@@ -23,6 +23,20 @@ public final class TribulationCommands {
                 }
                 return count;
             })));
+        for (var route : SpiritTrial.Route.values()) {
+            start.then(Commands.literal(route.id()).then(Commands.argument("targets", EntityArgument.players()).executes(context -> {
+                int count = 0;
+                for (var player : EntityArgument.getPlayers(context, "targets")) {
+                    boolean accepted = SpiritTrial.start(player, route);
+                    if (accepted) count++;
+                    var status = TribulationManager.statusJson(player);
+                    status.addProperty("command", "start");
+                    status.addProperty("accepted", accepted);
+                    context.getSource().sendSuccess(() -> Component.literal("TRIBULATION_STATUS " + status), false);
+                }
+                return count;
+            })));
+        }
         root.then(start);
         for(String action:new String[]{"status","stop"})root.then(Commands.literal(action)
                 .then(Commands.argument("targets",EntityArgument.players()).executes(c->{

@@ -57,8 +57,25 @@ class CultivationStatsRulesTest {
         }
         try(var input=getClass().getResourceAsStream(CultivationStatsRules.RESOURCE)) {
             var root=JsonParser.parseString(new String(input.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
-            root.getAsJsonObject("spirit_transformation").getAsJsonArray("breakthrough").set(0,new JsonPrimitive(2000));
+            root.getAsJsonObject("spirit_transformation").getAsJsonArray("breakthrough")
+                    .get(2).getAsJsonArray().set(0, new JsonPrimitive(2000));
             assertThrows(IllegalArgumentException.class,()->CultivationStatsRules.parse(new StringReader(root.toString())));
+        }
+    }
+
+    @Test void spiritGradesAddTheirOwnBreakthroughToNascentLate() {
+        var nascent = rules.at(new RealmKey("nascent_soul", 2), 4, 3, 3);
+        var increments = new CultivationStatsRules.Body[] {
+                new CultivationStatsRules.Body(120, 48, 12, 480),
+                new CultivationStatsRules.Body(160, 64, 16, 640),
+                new CultivationStatsRules.Body(220, 88, 22, 880)
+        };
+        for (int quality = 1; quality <= increments.length; quality++) {
+            var addition = increments[quality - 1];
+            var early = rules.at(new RealmKey("spirit_transformation", 0), 4, 3, 3, quality);
+            assertEquals(new CultivationStatsRules.Body(nascent.health() + addition.health(),
+                    nascent.attack() + addition.attack(), nascent.defense() + addition.defense(),
+                    nascent.power() + addition.power()), early);
         }
     }
     @Test void invalidDataCannotChangeApprovedStatBoundaries() throws Exception {

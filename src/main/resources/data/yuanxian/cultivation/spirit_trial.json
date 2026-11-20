@@ -1,0 +1,12 @@
+{
+  "preparation_ticks": 120,
+  "strike_interval_ticks": 80,
+  "warning_ticks": 30,
+  "required_power": 4,
+  "damage": [84, 96, 108, 120, 132, 144],
+  "nascent_share_denominator": 3,
+  "block_power_percent": 25,
+  "arena_radius": 12,
+  "vertical_range": 6,
+  "boundary_grace_ticks": 40
+}

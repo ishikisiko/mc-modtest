@@ -44,8 +44,8 @@
       "advancement": {
         "target_realm": "yuanxian:spirit_transformation",
         "target_stage": "yuanxian:spirit_early",
-        "kind": "ordinary",
-        "duration_ticks": 750,
+        "kind": "bottleneck",
+        "duration_ticks": 120,
         "required_stability": 7500,
         "stability_cost": 3750,
         "interruption_stability_loss": 0

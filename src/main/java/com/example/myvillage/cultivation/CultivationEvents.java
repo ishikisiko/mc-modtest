@@ -4,6 +4,7 @@ import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.cultivation.meditation.MeditationStopReason;
 import com.example.myvillage.cultivation.nascent.NascentTrial;
+import com.example.myvillage.cultivation.tribulation.SpiritTrial;
 import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
 import com.example.myvillage.cultivation.qi.SpiritualPowerRuntime;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
@@ -96,6 +97,7 @@ public final class CultivationEvents {
             SpiritualPowerRuntime.initialize(player);
             CultivationService.syncToClient(player);
             CultivationTimeRuntime.onPlayerLoggedIn(player);
+            SpiritTrial.login(player);
             NascentTrial.publish(player);
         }
     }
@@ -139,7 +141,10 @@ public final class CultivationEvents {
     private static void onServerTick(ServerTickEvent.Post event) {
         CultivationTimeRuntime.tick(event.getServer());
         MeditationManager.tick(event.getServer());
-        event.getServer().getPlayerList().getPlayers().forEach(NascentTrial::tick);
+        event.getServer().getPlayerList().getPlayers().forEach(player -> {
+            NascentTrial.tick(player);
+            SpiritTrial.tick(player);
+        });
         SpiritualPowerRuntime.tick(event.getServer());
     }
 

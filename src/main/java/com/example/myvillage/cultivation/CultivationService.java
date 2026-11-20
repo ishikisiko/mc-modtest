@@ -521,7 +521,8 @@ public final class CultivationService {
                 || previous.foundationQuality() != replacement.foundationQuality()
                 || previous.goldenCoreQuality() != replacement.goldenCoreQuality()
                 || !previous.combatHearts().equals(replacement.combatHearts())
-                || previous.memory().nascentQuality() != replacement.memory().nascentQuality()) {
+                || previous.memory().nascentQuality() != replacement.memory().nascentQuality()
+                || previous.memory().spiritQuality() != replacement.memory().spiritQuality()) {
             StatsRuntime.refreshPlayer(player);
         }
         try {

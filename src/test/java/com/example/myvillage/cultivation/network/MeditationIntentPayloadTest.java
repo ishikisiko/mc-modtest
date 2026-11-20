@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 class MeditationIntentPayloadTest {
     @Test
-    void actionSurfaceIsExactlyTheEightBoundedIntents() {
+    void actionSurfaceContainsOnlyTheDefinedIntents() {
         assertEquals(
                 List.of(
                         MeditationIntentAction.START_NORMAL,
@@ -27,7 +27,10 @@ class MeditationIntentPayloadTest {
                         MeditationIntentAction.STOP,
                         MeditationIntentAction.START_BREAKTHROUGH,
                         MeditationIntentAction.TRIAL_FOUNDATION_HEAVEN, MeditationIntentAction.TRIAL_GOLDEN_LOW,
-                        MeditationIntentAction.TRIAL_GOLDEN_MIDDLE, MeditationIntentAction.TRIAL_GOLDEN_HIGH),
+                        MeditationIntentAction.TRIAL_GOLDEN_MIDDLE, MeditationIntentAction.TRIAL_GOLDEN_HIGH,
+                        MeditationIntentAction.NASCENT_REFINE, MeditationIntentAction.NASCENT_DUEL,
+                        MeditationIntentAction.NASCENT_REFORM, MeditationIntentAction.SPIRIT_LOW,
+                        MeditationIntentAction.SPIRIT_MIDDLE, MeditationIntentAction.SPIRIT_HIGH),
                 List.of(MeditationIntentAction.values()));
     }
 

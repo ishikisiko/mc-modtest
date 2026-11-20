@@ -50,7 +50,8 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     vectors(nascent.get('breakthrough'), 3, '元婴突破')
     vectors([nascent.get('minor_increment')], 1, '元婴小阶段')
     spirit = rules.get('spirit_transformation', {})
-    vectors([spirit.get('breakthrough'), spirit.get('minor_increment')], 2, '化神')
+    vectors(spirit.get('breakthrough'), 3, '化神突破')
+    vectors([spirit.get('minor_increment')], 1, '化神小阶段')
     if rules.get('npc') != {'prodigy_chance': .1, 'upper_quality_chance': .5}:
         errors.append('NPC 天骄与突破品质概率不一致')
     combat = checked.get(str(DATA / 'npc_combat/rules.json'), {})

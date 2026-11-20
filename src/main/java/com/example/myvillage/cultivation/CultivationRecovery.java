@@ -42,6 +42,10 @@ public final class CultivationRecovery {
         var best = memory.highest().orElse(null);
         if (best == null || compare(registry, stage(profile), best) > 0) memory = memory.reach(stage(profile));
         if (memory.nascentQuality() == 0 && atLeastNascent(access, profile)) memory = memory.form(1);
+        RealmDefinition current = registry.get(profile.realmId());
+        RealmDefinition spirit = registry.get(ModCultivationRegistries.SPIRIT_TRANSFORMATION_REALM_ID);
+        if (memory.spiritQuality() == 0 && current != null && spirit != null && current.sortOrder() >= spirit.sortOrder())
+            memory = memory.spirit(1);
         return memory.equals(profile.memory()) ? profile : profile.withMemory(memory);
     }
 

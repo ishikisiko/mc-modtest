@@ -30,7 +30,7 @@ PLAYABLE_CHAIN = tuple(stage for stage in STAGE_OWNERS if stage != UNAWAKENED)
 TERMINAL = PLAYABLE_CHAIN[-1]
 TARGETS = dict(zip(PLAYABLE_CHAIN, PLAYABLE_CHAIN[1:]))
 BOTTLENECKS = frozenset({'yuanxian:qi_refining_3', 'yuanxian:qi_refining_6',
-                         'yuanxian:qi_refining_9', 'yuanxian:foundation_late'})
+                         'yuanxian:qi_refining_9', 'yuanxian:foundation_late', 'yuanxian:nascent_late'})
 # Accepted legacy tuning only. New stage tuning is read from authored realm JSON.
 BASELINE_ROWS = (
     ('yuanxian:mortal_qi_sensed', 1000, 1, 'ordinary', 100, 0),
@@ -175,8 +175,10 @@ def validate_progression(root: Path, *, cross_files: bool = False) -> tuple[list
         if rule.get('kind') != expected_kind:
             error(path, 'PROGRESSION_KIND', f'{sid} kind must be {expected_kind}')
         loss = rule.get('interruption_stability_loss')
-        if not integer(loss, 1 if expected_kind == 'bottleneck' else 0, MAX_INT) or (expected_kind == 'ordinary' and loss != 0):
-            error(path, 'PROGRESSION_LOSS', f'{sid} interruption loss must be positive for a bottleneck and zero for ordinary advancement')
+        penalized = expected_kind == 'bottleneck' and sid != 'yuanxian:nascent_late'
+        minimum, maximum = (1, MAX_INT) if penalized else (0, 0)
+        if not integer(loss, minimum, maximum):
+            error(path, 'PROGRESSION_LOSS', f'{sid} interruption loss must be in [{minimum},{maximum}]')
         for key, lo in (('duration_ticks', 1), ('required_stability', 0), ('stability_cost', 0)):
             if not integer(rule.get(key), lo, MAX_INT):
                 error(path, 'PROGRESSION_RULE', f'{sid} {key} must be an integer in [{lo},{MAX_INT}]')

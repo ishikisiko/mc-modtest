@@ -164,10 +164,9 @@
   },
   "spirit_transformation": {
     "breakthrough": [
-      120,
-      48,
-      12,
-      480
+      [120, 48, 12, 480],
+      [160, 64, 16, 640],
+      [220, 88, 22, 880]
     ],
     "minor_increment": [
       40,

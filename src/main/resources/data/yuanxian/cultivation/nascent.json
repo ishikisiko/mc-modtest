@@ -23,6 +23,7 @@
   "demon_warning_ticks": 30,
   "demon_recovery_ticks": 40,
   "reformation_target": 2160,
+  "seed_rebuild_target": 4320,
   "reformation_pill_ticks": 2400,
   "reformation_pill_multipliers": [1.5, 2.0, 2.5, 3.0]
 }

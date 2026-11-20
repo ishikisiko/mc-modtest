@@ -43,6 +43,7 @@ public final class TribulationManager {
     public static void register() {
         if (registered) return;
         registered = true;
+        SpiritTrial.register();
         NeoForge.EVENT_BUS.addListener(TribulationManager::tick);
         NeoForge.EVENT_BUS.addListener(TribulationManager::login);
         NeoForge.EVENT_BUS.addListener(TribulationManager::logout);
@@ -57,7 +58,7 @@ public final class TribulationManager {
     /** 跨模块稳定接口：包括初次/重登准备期；飞剑必须在起飞入口检查。 */
     public static boolean isActive(ServerPlayer player) {
         var attempt = load(player);
-        return attempt != null && attempt.active();
+        return SpiritTrial.active(player) || attempt != null && attempt.active();
     }
     public static boolean recovering(ServerPlayer player) {
         var attempt = load(player);
@@ -153,6 +154,7 @@ public final class TribulationManager {
         return true;
     }
     public static boolean stop(ServerPlayer player, String reason) {
+        if (SpiritTrial.stop(player, reason)) return true;
         var a = load(player);
         if (a == null || !a.active()) return false;
         finish(player, a, reason, false);
@@ -290,20 +292,27 @@ public final class TribulationManager {
         log(player, ended, "success");
     }
     private static boolean loaded(ServerPlayer player, TribulationAttempt a) {
-        int r = (int) Math.ceil(a.rules().arenaRadius());
-        for (int x = ((int) Math.floor(a.x()) - r) >> 4; x <= (((int) Math.floor(a.x()) + r) >> 4); x++)
-            for (int z = ((int) Math.floor(a.z()) - r) >> 4; z <= (((int) Math.floor(a.z()) + r) >> 4); z++)
+        return loaded(player, a.x(), a.z(), a.rules().arenaRadius());
+    }
+    static boolean loaded(ServerPlayer player, double centerX, double centerZ, double radius) {
+        int r = (int) Math.ceil(radius);
+        for (int x = ((int) Math.floor(centerX) - r) >> 4; x <= (((int) Math.floor(centerX) + r) >> 4); x++)
+            for (int z = ((int) Math.floor(centerZ) - r) >> 4; z <= (((int) Math.floor(centerZ) + r) >> 4); z++)
                 if (!player.serverLevel().hasChunk(x, z)) return false;
         return true;
     }
     private static boolean openGround(ServerPlayer player, TribulationAttempt a) {
+        return openGround(player, a.x(), a.y(), a.z(), a.rules().arenaRadius(), a.rules().verticalRange());
+    }
+    static boolean openGround(ServerPlayer player, double centerX, double centerY, double centerZ,
+                              double radius, double verticalRange) {
         var level = player.serverLevel();
         if (!level.canSeeSky(player.blockPosition()) || !level.dimensionType().hasSkyLight()) return false;
-        int spread = (int) Math.floor(a.rules().arenaRadius() / 2);
+        int spread = (int) Math.floor(radius / 2);
         for (int dx : new int[]{-spread, 0, spread}) for (int dz : new int[]{-spread, 0, spread}) {
-            int x = (int) Math.floor(a.x()) + dx, z = (int) Math.floor(a.z()) + dz;
+            int x = (int) Math.floor(centerX) + dx, z = (int) Math.floor(centerZ) + dz;
             int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-            if (Math.abs(y - a.y()) > a.rules().verticalRange() / 2) return false;
+            if (Math.abs(y - centerY) > verticalRange / 2) return false;
             BlockPos pos = new BlockPos(x, y, z);
             if (!level.canSeeSky(pos) || !level.getFluidState(pos).isEmpty()
                     || !level.getFluidState(pos.below()).isEmpty() || level.getBlockState(pos.below()).getCollisionShape(level, pos.below()).isEmpty()) return false;
@@ -351,7 +360,7 @@ public final class TribulationManager {
     /** schema=1；命令行严格使用前缀+单行JSON，运行日志可另附 event。 */
     public static com.google.gson.JsonObject statusJson(ServerPlayer player) {
         var a = load(player);
-        var out = statusJson(a);
+        var out = SpiritTrial.active(player) ? SpiritTrial.status(player) : statusJson(a);
         out.addProperty("player", player.getUUID().toString());
         out.addProperty("player_name", player.getScoreboardName());
         out.addProperty("unreadable", a == null && player.getPersistentData().contains(SAVE_KEY));

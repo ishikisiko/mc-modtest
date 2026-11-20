@@ -103,7 +103,8 @@ class GoldenCoreProgressionTest {
             if (!before.realmId().equals(next.realmId())) {
                 assertTrue(realms.get(next.realmId()).maximumLifespanYears() > sourceRealm.maximumLifespanYears());
                 if (before.realmId().equals(ModCultivationRegistries.QI_REFINING_REALM_ID)
-                        || before.realmId().equals(ModCultivationRegistries.FOUNDATION_ESTABLISHMENT_REALM_ID)) {
+                        || before.realmId().equals(ModCultivationRegistries.FOUNDATION_ESTABLISHMENT_REALM_ID)
+                        || before.realmId().equals(ModCultivationRegistries.NASCENT_SOUL_REALM_ID)) {
                     assertEquals(AdvancementKind.BOTTLENECK, rule.kind());
                 } else {
                     assertEquals(AdvancementKind.ORDINARY, rule.kind());
