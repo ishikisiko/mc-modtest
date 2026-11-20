@@ -60,10 +60,19 @@ class RoadPortsTest(unittest.TestCase):
         for path,value in assets().items():self.assertEqual(path.read_text(),value,str(path))
 
     def test_generated_output_is_current_and_uses_public_doorway(self):
-        self.assertEqual(OUTPUT.read_text(), generate())
-        ports = {p['region']: p for p in json.loads(generate())['ports']}
-        self.assertEqual(ports['nanjiang']['x'], 82)
-        self.assertEqual(ports['ximo']['x'], 98)
+        current = generate()
+        self.assertEqual(OUTPUT.read_text(), current)
+        ports = {p['region']: p for p in json.loads(current)['ports']}
+        capitals = ROOT / 'build/generated/province_capitals_v11/resources/data/yuanxian/capitals/v4'
+        for port in ports.values():
+            city = json.loads((capitals / port['city'] / 'city.json').read_text())
+            self.assertEqual(city['size'], port['dimensions'])
+            x0, z0, x1, z1 = port['bounds']
+            if port['facing'] == 'south':
+                self.assertEqual(((x0 + x1) // 2, z0), (port['x'], port['z']))
+                row = {x for x, z, _ in port['gate_cells'] if z == city['size'][2] - 1}
+                radius = port['port_width'] // 2
+                self.assertTrue(set(range(port['x'] - radius, port['x'] + radius + 1)) <= row)
         self.assertEqual(ports['nanjiang']['port_width'], 3)
         self.assertEqual(ports['ximo']['port_width'], 5)
 
