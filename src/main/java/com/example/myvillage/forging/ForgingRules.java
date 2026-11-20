@@ -40,8 +40,16 @@ public final class ForgingRules {
             List<Double> levels = new ArrayList<>();
             for (var v : values) {
                 JsonObject wrapper = new JsonObject(); wrapper.add("v",v);
-                double n = number(wrapper,"v",id.equals("tough") ? 1 : 0,id.equals("channeling") ? 0.75 : 8);
-                if (!levels.isEmpty() && n<=levels.getLast()) throw invalid(id,"values must increase");
+                double n = switch (id) {
+                    case ForgeMark.SEEK_VEIN -> integer(wrapper,"v",1,12);
+                    case ForgeMark.GRADE_GROUND -> integer(wrapper,"v",1,2);
+                    case ForgeMark.REPLANT_TREE -> integer(wrapper,"v",1,1);
+                    case ForgeMark.HARVEST_HERBS -> number(wrapper,"v",0,1);
+                    default -> number(wrapper,"v",id.equals("tough") ? 1 : 0,id.equals("channeling") ? 0.75 : 8);
+                };
+                if (!levels.isEmpty() && (n<levels.getLast() ||
+                        n==levels.getLast() && !id.equals(ForgeMark.GRADE_GROUND) && !id.equals(ForgeMark.REPLANT_TREE)))
+                    throw invalid(id,"values out of order");
                 levels.add(n);
             }
             parsed.put(id,new Trait(costs(t.get("costs"),0),levels));

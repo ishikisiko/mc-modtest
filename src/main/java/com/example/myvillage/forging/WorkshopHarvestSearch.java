@@ -49,17 +49,22 @@ final class WorkshopHarvestSearch {
         return count;
     }
 
+    record TreePlan(List<BlockPos> roots, List<BlockPos> logs) {
+        private static final TreePlan EMPTY = new TreePlan(List.of(), List.of());
+    }
+
     /** Separate touching crowns by distance to naturally rooted trunks, including 2x2 trunks. */
-    static List<BlockPos> tree(BlockPos origin, Predicate<BlockPos> wood, Predicate<BlockPos> rooted,
+    static TreePlan tree(BlockPos origin, Predicate<BlockPos> wood, Predicate<BlockPos> rooted,
                                Predicate<BlockPos> crown, boolean thickTrunks) {
         Set<BlockPos> logs = connectedWood(origin,wood);
-        if (logs.isEmpty()) return List.of();
+        if (logs.isEmpty()) return TreePlan.EMPTY;
         Map<BlockPos,Ownership> owners = assignOwners(logs,rooted,thickTrunks);
         var owner = owners.get(origin);
-        if (owner == null || owner.root()<0) return List.of();
+        if (owner == null || owner.root()<0) return TreePlan.EMPTY;
         var tree = logs.stream().filter(pos -> owners.get(pos).root()==owner.root()).sorted(BY_POSITION).toList();
-        if (tree.stream().noneMatch(crown)) return List.of();
-        return tree.stream().filter(pos -> !pos.equals(origin)).toList();
+        if (tree.stream().noneMatch(crown)) return TreePlan.EMPTY;
+        List<BlockPos> roots = tree.stream().filter(pos -> owners.get(pos).distance()==0).toList();
+        return new TreePlan(roots,tree.stream().filter(pos -> !pos.equals(origin)).toList());
     }
 
     private static Set<BlockPos> connectedWood(BlockPos origin, Predicate<BlockPos> wood) {

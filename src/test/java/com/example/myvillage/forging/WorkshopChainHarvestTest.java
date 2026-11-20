@@ -46,9 +46,9 @@ class WorkshopChainHarvestTest {
         var forest=Set.of(root,root.above(),root.above(2),branch,bridge,neighborBranch,
                 neighbor,neighbor.above(),neighbor.above(2));
         assertEquals(Set.of(root.above(),root.above(2),branch),Set.copyOf(WorkshopHarvestSearch.tree(root,
-                forest::contains,Set.of(root,neighbor)::contains,p -> p.getY()==2,false)));
+                forest::contains,Set.of(root,neighbor)::contains,p -> p.getY()==2,false).logs()));
         assertEquals(List.of(),WorkshopHarvestSearch.tree(root,forest::contains,
-                Set.of(root,neighbor)::contains,p -> false,false));
+                Set.of(root,neighbor)::contains,p -> false,false).logs());
     }
 
     @Test void giantTreeFellsAllTrunksAndContinuesFromAHighBranch() {
@@ -57,7 +57,9 @@ class WorkshopChainHarvestTest {
         var tree=new HashSet<BlockPos>();
         for (BlockPos root:roots) for(int y=0;y<12;y++) tree.add(root.above(y));
         var first=base.above(11);
-        assertEquals(47,WorkshopHarvestSearch.tree(first,tree::contains,roots::contains,p -> p.getY()==11,true).size());
+        var plan=WorkshopHarvestSearch.tree(first,tree::contains,roots::contains,p -> p.getY()==11,true);
+        assertEquals(47,plan.logs().size());
+        assertEquals(roots,Set.copyOf(plan.roots()));
     }
 
     @Test void infusionUsesOneRecipeMaterialAndKeepsSpecialtyCatalysts() {

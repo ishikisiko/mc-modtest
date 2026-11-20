@@ -2,13 +2,16 @@ package com.example.myvillage.forging;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.block.SpiritSoilBlock;
+import com.example.myvillage.item.ModDataComponents;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -39,6 +43,7 @@ public final class WorkshopChainHarvest {
     private static final Map<ServerLevel,Set<BlockPos>> CHECK_REMOVED_LOGS = new HashMap<>();
 
     private record Target(BlockPos pos,BlockState state) {}
+    private record Replant(BlockItem sapling,List<BlockPos> roots) {}
     private static final class Harvest {
         final ServerLevel level;
         final ItemStack tool;
@@ -48,6 +53,8 @@ public final class WorkshopChainHarvest {
         final TagKey<Block> ore;
         final int interval;
         ArrayDeque<Target> logs;
+        Replant replant;
+        boolean complete = true;
         long nextTick;
 
         Harvest(ServerLevel level,ItemStack tool,BlockPos origin,BlockState initial,int rank,
@@ -69,21 +76,48 @@ public final class WorkshopChainHarvest {
         if (!(level instanceof ServerLevel server) || !(miner instanceof ServerPlayer player)
                 || !canHarvest(player,server,tool) || BREAKING.contains(player.getUUID())
                 || !tool.isCorrectToolForDrops(state)) return;
-        var craft=WorkshopEquipment.craft(tool);
-        if (craft.isEmpty()) return;
-        var recipe=ForgingRules.get().recipe(craft.get().recipe()).orElseThrow();
-        int rank=WorkshopChainConfig.rank(recipe.qualityTier());
+        int rank=rank(tool);
         if (rank<0) return;
 
         TagKey<Block> ore=null;
         if (tool.getItem() instanceof WorkshopTools.Pickaxe){
             ore=oreFamily(state);
-            if (ore==null || WorkshopChainConfig.pickaxe(rank).count()==1) return;
+            if (ore==null || (WorkshopChainConfig.pickaxe(rank).count()==1
+                    && !WorkshopToolSpecialties.has(tool,ForgeMark.SEEK_VEIN))) return;
         } else if (!wood(state) || WorkshopHarvestLedger.get(server).playerPlacedLog(pos)) return;
         var jobs=ACTIVE.computeIfAbsent(player.getUUID(),id -> new ArrayDeque<>());
-        if (ore==null && jobs.stream().anyMatch(job -> job.tool==tool && job.logs!=null
-                && job.logs.stream().anyMatch(target -> target.pos().equals(pos)))) return;
+        if (ore==null && jobs.stream().anyMatch(job -> includes(job,tool,pos))) return;
         jobs.addLast(new Harvest(server,tool,pos,state,rank,ore));
+    }
+
+    private static int rank(ItemStack tool){
+        return WorkshopEquipment.craft(tool).flatMap(craft -> ForgingRules.get().recipe(craft.recipe()))
+                .map(recipe -> WorkshopChainConfig.rank(recipe.qualityTier())).orElse(-1);
+    }
+
+    private static boolean includes(Harvest job,ItemStack tool,BlockPos pos){
+        return job.tool==tool && (job.origin.equals(pos) || job.logs!=null
+                && job.logs.stream().anyMatch(target -> target.pos().equals(pos)));
+    }
+
+    static boolean fellAndReplant(ServerPlayer player,BlockPos pos,BlockState state){
+        var level=player.serverLevel();
+        var tool=player.getMainHandItem();
+        int rank=rank(tool);
+        if (rank<0 || !wood(state) || !canHarvest(player,level,tool)
+                || WorkshopHarvestLedger.get(level).playerPlacedLog(pos)) return false;
+        var jobs=ACTIVE.get(player.getUUID());
+        if (jobs!=null && jobs.stream().anyMatch(job -> includes(job,tool,pos))) return false;
+
+        var job=new Harvest(level,tool,pos,state,rank,null);
+        var plan=tree(job);
+        var sapling=sapling(job,plan);
+        if (sapling==null || !destroy(player,job,pos,state)) return false;
+        job.replant=new Replant(sapling,plan.roots());
+        job.logs=targets(level,plan);
+        if (job.logs.isEmpty()) replant(player,job);
+        else ACTIVE.computeIfAbsent(player.getUUID(),id -> new ArrayDeque<>()).addLast(job);
+        return true;
     }
 
     private static TagKey<Block> oreFamily(BlockState state){
@@ -115,6 +149,8 @@ public final class WorkshopChainHarvest {
                 Harvest job=jobs.getFirst();
                 if (job.level.getGameTime()<job.nextTick) return;
                 if (job.ore!=null){
+                    if (WorkshopToolSpecialties.has(job.tool,ForgeMark.SEEK_VEIN))
+                        job.tool.set(ModDataComponents.LAST_MINED_ORE_FAMILY.get(),job.ore.location());
                     WorkshopHarvestSearch.mine(job.origin,WorkshopChainConfig.pickaxe(job.rank),pos -> {
                         if (!job.level.hasChunkAt(pos)) return false;
                         BlockState state=job.level.getBlockState(pos);
@@ -128,7 +164,10 @@ public final class WorkshopChainHarvest {
                     continue;
                 }
                 long nextTick=job.level.getGameTime()+job.interval;
-                if (job.logs.isEmpty()) jobs.removeFirst();
+                if (job.logs.isEmpty()) {
+                    jobs.removeFirst();
+                    replant(player,job);
+                }
                 if (!jobs.isEmpty()) jobs.getFirst().nextTick=Math.max(jobs.getFirst().nextTick,nextTick);
                 return;
             }
@@ -143,7 +182,7 @@ public final class WorkshopChainHarvest {
         // The mining hook runs before removal. Begin only after the first block has actually changed.
         if (!job.level.hasChunkAt(job.origin) || job.level.getBlockState(job.origin)==job.initial) return false;
         if (job.ore!=null) return true;
-        job.logs=tree(job);
+        job.logs=targets(job.level,tree(job));
         return !job.logs.isEmpty();
     }
 
@@ -152,14 +191,15 @@ public final class WorkshopChainHarvest {
         while (!job.logs.isEmpty() && canHarvest(player,job.level,job.tool)){
             Target target=job.logs.removeFirst();
             if (!ledger.playerPlacedLog(target.pos()) && destroy(player,job,target.pos(),target.state())) return true;
+            job.complete=false;
         }
         return false;
     }
 
     private static boolean destroy(ServerPlayer player,Harvest job,BlockPos pos,BlockState state){
         var level=job.level;
-        if (!canHarvest(player,level,job.tool) || !level.hasChunkAt(pos) || level.getBlockState(pos)!=state
-                || !job.tool.isCorrectToolForDrops(state) || !level.mayInteract(player,pos)) return false;
+        if (!canHarvest(player,level,job.tool) || !WorkshopToolWork.accessible(player,pos)
+                || level.getBlockState(pos)!=state || !job.tool.isCorrectToolForDrops(state)) return false;
         UUID id=player.getUUID();
         BREAKING.add(id);
         try {
@@ -169,14 +209,14 @@ public final class WorkshopChainHarvest {
         }
     }
 
-    private static ArrayDeque<Target> tree(Harvest job){
+    private static WorkshopHarvestSearch.TreePlan tree(Harvest job){
         var level=job.level;
         var ledger=WorkshopHarvestLedger.get(level);
         BlockState trunk=job.initial;
         boolean mangrove=trunk.is(Blocks.MANGROVE_LOG);
         boolean fungus=trunk.is(Blocks.CRIMSON_STEM) || trunk.is(Blocks.WARPED_STEM);
         boolean thick=trunk.is(Blocks.DARK_OAK_LOG) || trunk.is(Blocks.SPRUCE_LOG) || trunk.is(Blocks.JUNGLE_LOG);
-        var points=WorkshopHarvestSearch.tree(job.origin,pos -> {
+        return WorkshopHarvestSearch.tree(job.origin,pos -> {
             if (!level.hasChunkAt(pos) || ledger.playerPlacedLog(pos)) return false;
             return level.getBlockState(pos).is(trunk.getBlock());
         },pos -> {
@@ -186,9 +226,48 @@ public final class WorkshopChainHarvest {
                     || below.getBlock() instanceof SpiritSoilBlock || mangrove && (below.is(Blocks.MANGROVE_ROOTS)
                             || below.is(Blocks.MUDDY_MANGROVE_ROOTS));
         },pos -> hasCrown(level,pos,fungus),thick);
+    }
+
+    private static ArrayDeque<Target> targets(ServerLevel level,WorkshopHarvestSearch.TreePlan plan){
         var result=new ArrayDeque<Target>();
-        for (BlockPos pos : points) result.addLast(new Target(pos,level.getBlockState(pos)));
+        for (BlockPos pos : plan.logs()) result.addLast(new Target(pos,level.getBlockState(pos)));
         return result;
+    }
+
+    private static BlockItem sapling(Harvest job,WorkshopHarvestSearch.TreePlan plan){
+        if (plan.roots().isEmpty()) return null;
+        var log=BuiltInRegistries.BLOCK.getKey(job.initial.getBlock());
+        var choices=WorkshopSpecialtyRules.get().saplings().stream().filter(s -> s.log().equals(log)).toList();
+        if (choices.isEmpty()) return null;
+        var choice=choices.getFirst();
+        if (choices.size()>1){
+            var wood=new ArrayDeque<>(plan.logs());
+            wood.addFirst(job.origin);
+            var visited=new HashSet<BlockPos>();
+            var counts=new HashMap<ResourceLocation,Integer>();
+            for (BlockPos trunk : wood) for (BlockPos pos : BlockPos.betweenClosed(trunk.offset(-1,-1,-1),trunk.offset(1,1,1))){
+                if (!job.level.hasChunkAt(pos) || !visited.add(pos.immutable())) continue;
+                var state=job.level.getBlockState(pos);
+                if (state.is(BlockTags.LEAVES) && state.hasProperty(BlockStateProperties.PERSISTENT)
+                        && !state.getValue(BlockStateProperties.PERSISTENT))
+                    counts.merge(BuiltInRegistries.BLOCK.getKey(state.getBlock()),1,Integer::sum);
+            }
+            choice=choices.stream().max(java.util.Comparator.comparingInt(s -> s.crown().stream()
+                    .mapToInt(leaf -> counts.getOrDefault(leaf,0)).sum())).orElseThrow();
+        }
+        return BuiltInRegistries.ITEM.get(choice.plant()) instanceof BlockItem seed ? seed : null;
+    }
+
+    private static void replant(ServerPlayer player,Harvest job){
+        var plan=job.replant;
+        if (plan==null || !job.complete || player.serverLevel()!=job.level || !player.isAlive()) return;
+        var seed=new ItemStack(plan.sapling());
+        var seedState=plan.sapling().getBlock().defaultBlockState();
+        for (BlockPos pos : plan.roots()){
+            if (!WorkshopToolWork.accessible(player,pos) || !job.level.getBlockState(pos).isAir()
+                    || !seedState.canSurvive(job.level,pos)) return;
+        }
+        for (BlockPos pos : plan.roots()) WorkshopToolWork.placeOne(player,pos,seed);
     }
 
     private static boolean hasCrown(ServerLevel level,BlockPos pos,boolean fungus){

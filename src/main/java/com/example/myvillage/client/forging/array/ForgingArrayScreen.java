@@ -2,6 +2,7 @@ package com.example.myvillage.client.forging.array;
 
 import com.example.myvillage.forging.*;
 import com.example.myvillage.forging.array.*;
+import com.example.myvillage.item.ModDataComponents;
 import java.util.*;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -17,7 +18,7 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
     private static final String[] SYMBOLS={"·","枢","基","壁","火","柱"};
     private static final int[] COLORS={0xFFCDC6B0,0xFFA88750,0xFF969889,0xFF64716D,0xFFB67A4C,0xFF4D9688};
     private static final String[] STATUS={"放入成品，选择专长后开炉","炉心炼灵中","阵体不完整，修复后续炼","成品槽占用，炼制暂停","炼灵完成，请取出成品","请放入尚未炼灵的成品","请先觉醒并获得炼器资质","背包或灵石袋材料不足","已有炉次正在进行","该器物不支持此专长","仅开炉者可以撤炉退料","炉次需恢复，请撤炉取回材料","辅助火不可用，请检查火种与地火泉眼距离","操作者灵力不足，真火炼制暂停","温养材料不足，或火种已成熟","火种温养完成","熟练度不足，暂不能凝练真火"};
-    private Button start,cancel,nurture,trueFire;private final List<Button> traits=new ArrayList<>();
+    private Button start,cancel,nurture,trueFire,nextTraits;private final List<Button> traits=new ArrayList<>();
     private int layer=-1,traitPage;
     public ForgingArrayScreen(ForgingArrayMenu menu,Inventory player,Component title){super(menu,player,title);imageWidth=ForgingArrayMenu.WIDTH;imageHeight=ForgingArrayMenu.HEIGHT;}
     private void send(int action){if(minecraft!=null&&minecraft.gameMode!=null)minecraft.gameMode.handleInventoryButtonClick(menu.containerId,action);}
@@ -25,9 +26,14 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
     @Override protected void init(){
         super.init();traits.clear();
         button(10,26,22,"‹",b->layer=layer==-1?3:layer-1);button(111,26,22,"›",b->layer=layer==3?-1:layer+1);
-        button(263,73,43,"换页",b->traitPage=(traitPage+1)%((ForgeMark.TRAITS.size()+2)/3));
+        nextTraits=button(263,73,43,"换页",b->traitPage=(traitPage+1)%pages(traitChoices()));
         for(int i=0;i<3;i++){
-            int index=i;var b=button(144+i*55,94,52,"",v->send(10+traitPage*3+index));traits.add(b);
+            int cell=i;
+            traits.add(button(144+i*55,94,52,"",v->{
+                var choices=traitChoices();
+                int index=traitPage*3+cell;
+                if(index<choices.size())send(10+ForgeMark.TRAITS.indexOf(choices.get(index)));
+            }));
         }
         start=button(144,119,84,"引火炼灵",b->send(0));cancel=button(232,119,74,"撤炉退料",b->send(1));
         cancel.setTooltip(Tooltip.create(Component.literal("仅开炉者可撤炉。原器物留在槽内，暂存材料退回背包；满背包则掉落。")));
@@ -35,6 +41,15 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
         button(87,202,46,"储物袋",b->send(com.example.myvillage.storagebag.StorageBagForgeMenu.OPEN_BUTTON));
         updateButtons();
     }
+    private List<String> traitChoices(){
+        var input=menu.input();
+        if(input.isEmpty())return List.of();
+        var mark=input.get(ModDataComponents.FORGE_MARK.get());
+        if(mark!=null&&mark.infused())return List.of(mark.trait());
+        return WorkshopEquipment.craft(input).flatMap(c->ForgingRules.get().recipe(c.recipe()))
+                .map(ForgingRules.Recipe::traits).orElseGet(List::of);
+    }
+    private static int pages(List<String> choices){return Math.max(1,(choices.size()+2)/3);}
     private void updateButtons(){
         var p=AuxiliaryRefining.prepare(menu.input(),menu.fire(),ForgeMark.TRAITS.get(menu.traitIndex()),menu.qualityCap());
         start.active=!menu.active()&&menu.formed()&&menu.output().isEmpty()&&p.valid();cancel.active=menu.active();
@@ -47,9 +62,13 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
         var costs=Component.literal("材料从当前操作者背包或灵石袋转入鼎内，完成后消耗。\n");
         if(p.valid())p.costs().forEach((key,n)->costs.append(ForgingIngredients.description(key)).append(" ×"+n+"\n"));
         start.setTooltip(Tooltip.create(costs));
+        var choices=traitChoices();
+        int pages=pages(choices);
+        traitPage=Math.min(traitPage,pages-1);
+        nextTraits.visible=pages>1;
         for(int i=0;i<traits.size();i++){
-            int index=traitPage*3+i;var b=traits.get(i);b.visible=index<ForgeMark.TRAITS.size();if(!b.visible)continue;String trait=ForgeMark.TRAITS.get(index);
-            b.setMessage(Component.literal(menu.traitIndex()==index?"◆":"").append(Component.translatable("forging.yuanxian.trait."+trait)));
+            int index=traitPage*3+i;var b=traits.get(i);b.visible=index<choices.size();if(!b.visible)continue;String trait=choices.get(index);
+            b.setMessage(Component.literal(menu.traitIndex()==ForgeMark.TRAITS.indexOf(trait)?"◆":"").append(Component.translatable("forging.yuanxian.trait."+trait)));
             b.active=!menu.active()&&(menu.input().isEmpty()||AuxiliaryRefining.prepare(menu.input(),menu.fire(),trait,Math.max(1,menu.qualityCap())).valid());
             b.setTooltip(Tooltip.create(Component.translatable("screen.yuanxian.forging.trait."+trait)));
         }

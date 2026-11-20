@@ -65,6 +65,10 @@ public final class ModDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.spiritstone.SpiritStoneLedger>> SPIRIT_STONE_BALANCE =
             DATA_COMPONENTS.register("spirit_stone_balance", () -> com.example.myvillage.spiritstone.SpiritStoneLedger.TYPE);
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> LAST_MINED_ORE_FAMILY =
+            DATA_COMPONENTS.registerComponentType("last_mined_ore_family", builder -> builder
+                    .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC));
+
     private ModDataComponents() {
     }
 

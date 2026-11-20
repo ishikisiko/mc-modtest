@@ -30,8 +30,8 @@ SCREEN={
  'forge_hint':('Forge one weapon. Quality is rolled within your aptitude cap. Take the output before forging again.','每次炼制一件，随机品质不超过资质上限。取走产物后才能再次炼制。'),
  'repair_hint':('Put a damaged sword or spear in the left slot. Repair preserves quality, name and enchantments. Costs per use:','将受损剑枪放入左槽。维修保留品质、命名与附魔。每次消耗：'),
  'trait.sharp':('Edge-tempering sand increases attack damage. Quality improves the bonus.','淬锋砂提高攻击伤害，品质越高加成越大。'),
- 'trait.channeling':('Spirit copper reduces learned Sword Qi costs. Does not grant the skill.','赤铜锭降低已学剑气的耗灵，不会直接授予剑气。'),
- 'trait.tough':('Dark iron increases durability and repair yield.','玄铁提高最大耐久和单次维修量。'),
+ 'trait.channeling':('Reduces the spiritual power cost of learned Sword Qi.','降低已学剑气的耗灵。'),
+ 'trait.tough':('Increases durability and repair yield.','提高最大耐久和单次维修量。'),
  'unsupported':('This weapon has no matching Qi skill yet.','此武器暂时没有对应的耗灵主动技。'),
  'status.0':('Choose a pattern and trait.','选择器谱和专长。'),'status.1':('Pattern not learned.','尚未学会器谱。'),
  'status.2':('Awaken first.','请先觉醒。'),'status.3':('Take the output first.','请先取走产物。'),
@@ -52,6 +52,27 @@ for key, value in {
  'overview':'普通鼎起坯或自动制作；手工使用窑、锻台和组装台，成品在多方块鼎炼灵。',
  'auxiliaries':'仅列起坯主材；煤炭、燧石、淬火用水和后续炼灵材料另备。',
 }.items():LANG['jei.yuanxian.forging.'+key]=(value,value)
+for key, value in {
+    'message.yuanxian.life.reason.harvest_herbs': '药材已熟，该去收获入库了。',
+    'forging.yuanxian.trait.seek_vein': '寻脉',
+    'forging.yuanxian.trait.replant_tree': '补种',
+    'forging.yuanxian.trait.grade_ground': '挖高补低',
+    'forging.yuanxian.trait.harvest_herbs': '留茬采药',
+    'screen.yuanxian.forging.trait.seek_vein': '挖矿后记住矿种。潜行右键敲击洞壁，消耗灵力寻找同种矿石。品质提高搜索距离。',
+    'screen.yuanxian.forging.trait.replant_tree': '潜行右键砍伐天然树。伐完后在树根的位置补种同种树苗。',
+    'screen.yuanxian.forging.trait.grade_ground': '潜行右键地面取高度，再潜行右键选择施工区。将挖出的泥土用来填低处。',
+    'screen.yuanxian.forging.trait.harvest_herbs': '右键收获成熟灵植并留根，植株回到生长期。品质越高，额外收获的机会越大。',
+    'workshop.yuanxian.specialty.seek_sample': '先用这把镐挖一种矿石。',
+    'workshop.yuanxian.specialty.seek_qi': '灵力不足，无法寻脉。',
+    'workshop.yuanxian.specialty.seek_empty': '附近的岩石没有传来同种矿石的回响。',
+    'workshop.yuanxian.specialty.seek_direct': '岩壁正后方有同种矿石。',
+    'workshop.yuanxian.specialty.seek_found': '附近有同种矿石，留意岩壁上的光点。',
+    'workshop.yuanxian.specialty.tree_unavailable': '这棵树暂时无法伐后补种。',
+    'workshop.yuanxian.specialty.grade_height': '已记下高度 %s，潜行右键选择施工地面。',
+    'workshop.yuanxian.specialty.grade_result': '挖掉 %s 格，回填 %s 格。',
+    'workshop.yuanxian.specialty.grade_empty': '这片地面没有可以处理的土方。请重新选取高度。',
+    'workshop.yuanxian.specialty.herbs_bonus': '额外收获 %s 份药材。',
+}.items():LANG[key]=(value,value)
 def encoded(value):return (json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode()
 def language_outputs(root=ROOT):
     files={}

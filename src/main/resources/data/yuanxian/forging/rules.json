@@ -57,7 +57,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "seek_vein"
       ],
       "quality_tier": "yuanxian:qi_refining",
       "infusion_material": "minecraft:iron_ingot"
@@ -72,7 +73,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "replant_tree"
       ],
       "quality_tier": "yuanxian:qi_refining",
       "infusion_material": "minecraft:iron_ingot"
@@ -87,7 +89,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "grade_ground"
       ],
       "quality_tier": "yuanxian:qi_refining",
       "infusion_material": "minecraft:iron_ingot"
@@ -102,7 +105,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "harvest_herbs"
       ],
       "quality_tier": "yuanxian:qi_refining",
       "infusion_material": "minecraft:iron_ingot"
@@ -350,7 +354,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "seek_vein"
       ],
       "quality_tier": "yuanxian:foundation_establishment",
       "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
@@ -365,7 +370,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "replant_tree"
       ],
       "quality_tier": "yuanxian:foundation_establishment",
       "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
@@ -380,7 +386,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "grade_ground"
       ],
       "quality_tier": "yuanxian:foundation_establishment",
       "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
@@ -395,7 +402,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "harvest_herbs"
       ],
       "quality_tier": "yuanxian:foundation_establishment",
       "infusion_material": "yuanxian:zhuji_baiqing_lingyun_ingot"
@@ -410,7 +418,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "seek_vein"
       ],
       "quality_tier": "yuanxian:golden_core",
       "infusion_material": "yuanxian:jindan_jinwu_ingot"
@@ -425,7 +434,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "replant_tree"
       ],
       "quality_tier": "yuanxian:golden_core",
       "infusion_material": "yuanxian:jindan_jinwu_ingot"
@@ -440,7 +450,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "grade_ground"
       ],
       "quality_tier": "yuanxian:golden_core",
       "infusion_material": "yuanxian:jindan_jinwu_ingot"
@@ -455,7 +466,8 @@
         "#c:spirit_stones/low_grade": 2
       },
       "traits": [
-        "tough"
+        "tough",
+        "harvest_herbs"
       ],
       "quality_tier": "yuanxian:golden_core",
       "infusion_material": "yuanxian:jindan_jinwu_ingot"
@@ -555,6 +567,42 @@
         0.03,
         0.04,
         0.05
+      ]
+    },
+    "seek_vein": {
+      "costs": {},
+      "values": [
+        4,
+        5,
+        6,
+        8
+      ]
+    },
+    "replant_tree": {
+      "costs": {},
+      "values": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "grade_ground": {
+      "costs": {},
+      "values": [
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    "harvest_herbs": {
+      "costs": {},
+      "values": [
+        0.15,
+        0.25,
+        0.35,
+        0.5
       ]
     }
   },

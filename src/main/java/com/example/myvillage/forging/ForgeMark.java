@@ -9,7 +9,10 @@ import java.util.List;
 
 /** Quality is fixed on completion; an empty trait denotes a finished, uninfused item. */
 public record ForgeMark(String trait, int quality) {
-    public static final List<String> TRAITS=List.of("sharp","channeling","tough","breach","warding","riposte","carapace","frost_edge","soul_return");
+    public static final String SEEK_VEIN = "seek_vein", REPLANT_TREE = "replant_tree",
+            GRADE_GROUND = "grade_ground", HARVEST_HERBS = "harvest_herbs";
+    public static final List<String> TRAITS=List.of("sharp","channeling","tough","breach","warding","riposte","carapace","frost_edge","soul_return",
+            SEEK_VEIN,REPLANT_TREE,GRADE_GROUND,HARVEST_HERBS);
     public static final Codec<ForgeMark> CODEC=RecordCodecBuilder.create(i->i.group(
             Codec.STRING.validate(s->s.isEmpty()||TRAITS.contains(s)?com.mojang.serialization.DataResult.success(s):
                     com.mojang.serialization.DataResult.error(()->"Invalid forging trait")).fieldOf("trait").forGetter(ForgeMark::trait),

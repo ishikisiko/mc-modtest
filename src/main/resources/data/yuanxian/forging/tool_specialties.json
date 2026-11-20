@@ -1,0 +1,21 @@
+{
+  "seek_qi": 3,
+  "seek_cooldown_ticks": 30,
+  "grade_depth": 3,
+  "herbs_retained": 1,
+  "herbs_bonus": 2,
+  "saplings": [
+    {"log": "minecraft:oak_log", "plant": "minecraft:azalea", "crown": ["minecraft:azalea_leaves", "minecraft:flowering_azalea_leaves"]},
+    {"log": "minecraft:oak_log", "plant": "minecraft:oak_sapling", "crown": ["minecraft:oak_leaves"]},
+    {"log": "minecraft:spruce_log", "plant": "minecraft:spruce_sapling"},
+    {"log": "minecraft:birch_log", "plant": "minecraft:birch_sapling"},
+    {"log": "minecraft:jungle_log", "plant": "minecraft:jungle_sapling"},
+    {"log": "minecraft:acacia_log", "plant": "minecraft:acacia_sapling"},
+    {"log": "minecraft:dark_oak_log", "plant": "minecraft:dark_oak_sapling"},
+    {"log": "minecraft:cherry_log", "plant": "minecraft:cherry_sapling"},
+    {"log": "minecraft:mangrove_log", "plant": "minecraft:mangrove_propagule"},
+    {"log": "minecraft:crimson_stem", "plant": "minecraft:crimson_fungus"},
+    {"log": "minecraft:warped_stem", "plant": "minecraft:warped_fungus"},
+    {"log": "yuanxian:ningyuan_log", "plant": "yuanxian:ningyuan_sapling"}
+  ]
+}

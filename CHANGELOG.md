@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.141.3
+
+- 炼器镐可寻脉，斧伐完后可补种同种树苗，铲可用挖出的土回填低处，锄可右键留茬采药并有机会额外收获。
+
 ## 0.141.2
 
 - 炼器镐连采相邻的同种矿石，半径和数量随工具境界提高。炼器斧按境界间隔逐根砍伐整棵树，两种工具都按实际破坏的方块结算耐久。

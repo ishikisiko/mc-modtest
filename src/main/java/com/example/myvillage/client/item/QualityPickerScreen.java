@@ -118,7 +118,11 @@ public final class QualityPickerScreen extends Screen {
                     .withUnderlined(quality == value)));
         }
         for (int t = 0; t < traits.size(); t++) {
-            String id = ForgeMark.TRAITS.get(traitPage*3+t); var button = traits.get(t);
+            int index = traitPage*3+t;
+            var button = traits.get(t);
+            button.visible = index < ForgeMark.TRAITS.size();
+            if (!button.visible) continue;
+            String id = ForgeMark.TRAITS.get(index);
             button.active = quality > 0 && QualityPicker.traits(selected).contains(id);
             button.setMessage(Component.translatable("forging.yuanxian.trait." + id).withStyle(style -> style.withUnderlined(id.equals(ForgeMark.TRAITS.get(trait)) && button.active)));
         }
