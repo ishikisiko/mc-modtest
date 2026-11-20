@@ -7,11 +7,12 @@ navigation:
 item_ids:
   - yuanxian:spirit_testing_stele
   - yuanxian:technique_inheritance_stele
+  - yuanxian:basic_breathing_manual
 ---
 
 # 入门仪式
 
-测灵与传功必须分开完成，并按顺序分别右键两块石碑。
+先测灵觉醒，再使用传功碑或《基础吐纳诀》秘籍。
 
 普通生存玩家可以从修仙面板进入个人阡镇秘境，在药庐院内使用这两块碑。打开面板：<KeyBind id="key.yuanxian.open_cultivation_profile" /> →「行迹」→「进入阡镇秘境」。详细入口见[开局与阡镇学徒](./first_steps.md)。进入秘境不会自动接受任务。
 
@@ -31,6 +32,8 @@ item_ids:
 ## 第二步：传功
 
 觉醒后，右键 <ItemLink id="yuanxian:technique_inheritance_stele" />。满足当前定义要求时，你会习得《基础吐纳诀》，初始熟练度为 `0`。
+
+城镇药铺、铁匠铺和客栈的购买页也长期出售 <ItemLink id="yuanxian:basic_breathing_manual" />，每册 10 枚下品灵石。觉醒灵根后，拿在手里右键即可学习。生存模式下，学会时消耗一册。
 
 再次使用传功碑只会报告已学会，**不会把已有熟练度重置为 `0`**。传功本身也不会执行吐纳、增加修为或直接晋层。
 

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.144.1
+
+- 城镇药铺、铁匠铺和客栈的购买页出售《基础吐纳诀》。测灵后可右键秘籍学习，也可继续使用传功碑。
+- 灵岳及其他六州的普通原版怪物与本模组野怪共用当地出生境界，东荒原版怪物保留凡人档。灾厄试炼和新接远征使用各州的高阶境界，中州远征首领可达化神后期。
+- 铁匠回收妖兽皮、骨和妖丹时，按整笔价格优先支付上品与中品灵石，余额用下品灵石付清。
+
 ## 0.144.0
 
 - 元婴后期可在内视选择下品守婴、中品三雷后散婴或上品散尽渡劫。六道雷经过角色的肉身防御、护甲和护盾，积够劫力后由玩家静坐合神。

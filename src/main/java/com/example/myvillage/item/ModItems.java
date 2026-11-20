@@ -314,6 +314,9 @@ public final class ModItems {
             ITEMS.registerItem("deepslate_spirit_stone_ore",
                     props -> new BlockItem(ModBlocks.DEEPSLATE_SPIRIT_STONE_ORE.get(), props));
 
+    public static final DeferredItem<BasicBreathingManualItem> BASIC_BREATHING_MANUAL =
+            ITEMS.registerItem("basic_breathing_manual", BasicBreathingManualItem::new);
+
     // Technique manuals (秘籍): one item per category x grade (黄 玄 地 天); the technique is a data
     // component (ModDataComponents.TECHNIQUE). Order: category (core, active, movement, body), then grade.
     public static final DeferredItem<TechniqueManualItem> MANUAL_CORE_HUANG =
@@ -547,6 +550,7 @@ public final class ModItems {
                         output.accept(XUANTIE_ORE_ITEM.get());
                         output.accept(EDGE_TEMPERING_SAND_DEPOSIT_ITEM.get());
                         output.accept(DEEPSLATE_SPIRIT_STONE_ORE_ITEM.get());
+                        output.accept(BASIC_BREATHING_MANUAL.get());
                         for (DeferredItem<TechniqueManualItem> manual : MANUALS) {
                             output.accept(manual.get());
                         }

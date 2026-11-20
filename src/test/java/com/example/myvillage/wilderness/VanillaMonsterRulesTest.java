@@ -55,7 +55,7 @@ class VanillaMonsterRulesTest {
                 """));
     }
 
-    @Test void everyRegionAllowsUnrankedVanillaBirthsWithoutLoweringTheNewMonsterFloor() {
+    @Test void onlyDonghuangAllowsMortalBirthsAndOtherRegionsShareTheBeastPool() {
         var rules = VanillaMonsterRules.bundled(); var exploration = ExplorationRules.get();
         var unranked = new RealmKey("mortal", 0);
         assertEquals(unranked, rules.minimumRealm());
@@ -63,28 +63,31 @@ class VanillaMonsterRulesTest {
         for (var region : WildernessRules.bundled().regions().entrySet()) {
             var beast = region.getValue().beast();
             assertTrue(exploration.rank(beast.min()) >= exploration.rank(new RealmKey("qi_refining", 0)));
-            var vanilla = exploration.vanillaEncounters(exploration.location("overworld"), beast);
-            assertEquals(unranked, vanilla.min()); assertEquals(beast.max(), vanilla.max());
+            var vanilla = exploration.vanillaEncounters(exploration.location("overworld"), region.getValue());
+            boolean east = region.getKey().equals("donghuang");
+            assertEquals(east ? unranked : beast.min(), vanilla.min());
+            assertEquals(beast.max(), vanilla.max());
+            if (!east) assertEquals(beast, vanilla);
             var reached = new HashSet<RealmKey>();
             for (int i = 0; i < 4096; i++) reached.add(vanilla.sample(42, region.getKey(), i));
-            assertTrue(reached.contains(unranked)); assertTrue(reached.contains(beast.max()));
+            assertEquals(east, reached.contains(unranked));
+            assertTrue(reached.contains(beast.max()));
             assertEquals(new HashSet<>(vanilla.values()), reached);
         }
     }
 
-    @Test void overworldStructuresKeepTheMergedUpperEndpointAndUnrankedLowerEndpoint() {
-        var exploration = ExplorationRules.get(); var unranked = new RealmKey("mortal", 0);
+    @Test void overworldStructuresUseDailyRealmsAndOminousTrialsUseTheEliteBand() {
+        var exploration = ExplorationRules.get();
+        var regional = WildernessRules.bundled().region("zhongzhou").orElseThrow();
         for (var location : exploration.locations()) {
             if (!location.dimension().equals("minecraft:overworld")) continue;
-            var regional = location.regional() ? WildernessRules.bundled().region("moyu").orElseThrow().beast() : null;
-            var merged = exploration.floor(location.encounters(), regional);
             var vanilla = exploration.vanillaEncounters(location, regional);
-            if (merged == null) assertNull(vanilla);
-            else {
-                assertEquals(unranked, vanilla.min(), location.id());
-                assertEquals(merged.max(), vanilla.max(), location.id());
-            }
+            var expected = location.id().equals("ominous_trial") ? regional.eliteEncounters() : regional.beast();
+            assertEquals(expected, vanilla, location.id());
         }
+        assertEquals(java.util.List.of(new RealmKey("spirit_transformation", 0), new RealmKey("spirit_transformation", 1)),
+                regional.eliteEncounters().values());
+        assertEquals(new RealmKey("spirit_transformation", 2), regional.encounterMax());
         assertNull(exploration.vanillaEncounters(exploration.location("overworld"), null));
     }
 

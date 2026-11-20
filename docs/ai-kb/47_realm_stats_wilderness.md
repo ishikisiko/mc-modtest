@@ -38,11 +38,9 @@ H → 内视已接入天道筑基和三档金丹正式雷劫；承受指定次�
 生成成本和敌对生物容量不跟随改变；刷怪笼、袭击等独立生成入口不走群系权重。
 该系数改变刷怪池中的相对概率，不承诺实测数量或占比同比下降。
 
-`wilderness/vanilla_monsters.json` 的 `minimum_realm` 控制主世界原版普通怪物的下限。
-`ExplorationRules.vanillaEncounters` 在主世界先合并地区和结构范围，保留合并后的上限，
-允许抽到无境界。下界和末地按 `exploration/rules.json` 中各地点的完整范围均匀抽取。
-新增妖兽、六种野怪和地域亡灵继续使用 `WildernessRules` 的地区 `beast` 范围，
-最低为炼气一层或当地更高下限。已保存的出生境界不重抽、不随移动改变。
+0.144.1 起，主世界普通原版怪物、妖兽和地域亡灵使用各州的 `beast` 范围均匀抽取境界。东荒的 `mortal_vanilla` 启用原版怪物专用的凡人下限，取值来自 `vanilla_monsters.json`。下界和末地按探索地点的范围抽取。
+
+地区配置的 `encounter_max` 用于群落和江湖榜远征首领。灾厄试炼使用高于日常上限的境界，其中有多档时最高一档留给首领。中州因此在灾厄试炼出现化神初、中期，并在新接远征中出现化神后期首领。怪物在出生时保存抽到的境界，之后跨州移动或重载继续使用该境界。
 
 `data/yuanxian/wilderness/rules.json` maps region IDs to inclusive beast and
 rogue realm-stage ranges. Region IDs, generated region tiers and realm indices

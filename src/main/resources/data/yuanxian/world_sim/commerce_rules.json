@@ -7,6 +7,7 @@
   "rest_cooldown_ticks": 2400,
   "rest_health_fraction": 0.25,
   "rest_qi_fraction": 0.25,
+  "starter_manual": {"item": "yuanxian:basic_breathing_manual", "price": 10},
   "offers": [
     {"id": "buy_pill_ningying", "role": "herbalist", "kind": "buy", "item": "yuanxian:pill_ningying", "quantity": 1, "price": 240, "pool": "items", "units": 1, "initial_stock": 2, "capacity": 4, "medicine_cost": 0},
     {"id": "buy_formula_ningying", "role": "herbalist", "kind": "buy", "item": "yuanxian:formula_ningying", "quantity": 1, "price": 160, "pool": "items", "units": 1, "initial_stock": 3, "capacity": 6, "medicine_cost": 0},

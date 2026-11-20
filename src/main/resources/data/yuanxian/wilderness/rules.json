@@ -31,6 +31,11 @@
           "realm": "yuanxian:golden_core",
           "stage": 0
         }
+      },
+      "mortal_vanilla": false,
+      "encounter_max": {
+        "realm": "yuanxian:golden_core",
+        "stage": 2
       }
     },
     "donghai": {
@@ -53,6 +58,11 @@
           "realm": "yuanxian:golden_core",
           "stage": 0
         }
+      },
+      "mortal_vanilla": false,
+      "encounter_max": {
+        "realm": "yuanxian:golden_core",
+        "stage": 2
       }
     },
     "nanjiang": {
@@ -75,6 +85,11 @@
           "realm": "yuanxian:nascent_soul",
           "stage": 1
         }
+      },
+      "mortal_vanilla": false,
+      "encounter_max": {
+        "realm": "yuanxian:nascent_soul",
+        "stage": 2
       }
     },
     "beiyuan": {
@@ -85,7 +100,7 @@
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         }
       },
       "rogue": {
@@ -95,8 +110,13 @@
         },
         "max": {
           "realm": "yuanxian:foundation_establishment",
-          "stage": 0
+          "stage": 1
         }
+      },
+      "mortal_vanilla": false,
+      "encounter_max": {
+        "realm": "yuanxian:foundation_establishment",
+        "stage": 2
       }
     },
     "donghuang": {
@@ -119,6 +139,11 @@
           "realm": "yuanxian:qi_refining",
           "stage": 8
         }
+      },
+      "mortal_vanilla": true,
+      "encounter_max": {
+        "realm": "yuanxian:foundation_establishment",
+        "stage": 0
       }
     },
     "lingyue": {
@@ -128,8 +153,8 @@
           "stage": 2
         },
         "max": {
-          "realm": "yuanxian:qi_refining",
-          "stage": 8
+          "realm": "yuanxian:foundation_establishment",
+          "stage": 0
         }
       },
       "rogue": {
@@ -138,9 +163,14 @@
           "stage": 2
         },
         "max": {
-          "realm": "yuanxian:qi_refining",
-          "stage": 8
+          "realm": "yuanxian:foundation_establishment",
+          "stage": 0
         }
+      },
+      "mortal_vanilla": false,
+      "encounter_max": {
+        "realm": "yuanxian:foundation_establishment",
+        "stage": 1
       }
     },
     "moyu": {
@@ -163,6 +193,11 @@
           "realm": "yuanxian:nascent_soul",
           "stage": 1
         }
+      },
+      "mortal_vanilla": false,
+      "encounter_max": {
+        "realm": "yuanxian:nascent_soul",
+        "stage": 2
       }
     },
     "zhongzhou": {
@@ -185,6 +220,11 @@
           "realm": "yuanxian:nascent_soul",
           "stage": 2
         }
+      },
+      "mortal_vanilla": false,
+      "encounter_max": {
+        "realm": "yuanxian:spirit_transformation",
+        "stage": 2
       }
     }
   }

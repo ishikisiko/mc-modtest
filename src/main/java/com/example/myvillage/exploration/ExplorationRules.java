@@ -2,6 +2,7 @@ package com.example.myvillage.exploration;
 
 import com.example.myvillage.stats.RealmKey;
 import com.example.myvillage.stats.StatsRules;
+import com.example.myvillage.wilderness.WildernessRules;
 import com.example.myvillage.wilderness.WildernessRules.RealmRange;
 import com.example.myvillage.wilderness.VanillaMonsterRules;
 import com.google.gson.*;
@@ -190,15 +191,15 @@ public final class ExplorationRules {
         int lo = Math.max(rank(base.min()), rank(floor.min())), hi = Math.max(rank(base.max()), rank(floor.max()));
         return new RealmRange(ladder.get(lo), ladder.get(hi), ladder.subList(lo, hi + 1));
     }
-    public RealmRange vanillaEncounters(Location location, RealmRange regional) {
-        if (!location.dimension().equals("minecraft:overworld")) return location.encounters();
-        var merged = floor(location.encounters(), regional);
-        if (merged == null) return null;
-        // Apply last: recommendations retain their local floor while vanilla births may be unranked.
+    public RealmRange vanillaEncounters(Location location, WildernessRules.Region regional) {
+        if (!location.regional() || regional == null) return location.encounters();
+        if (location.id().equals("ominous_trial")) return regional.eliteEncounters();
+        var daily = regional.beast();
+        if (!regional.mortalVanilla()) return daily;
         var minimum = VanillaMonsterRules.bundled().minimumRealm();
-        int first = rank(minimum), last = rank(merged.max());
+        int first = rank(minimum), last = rank(daily.max());
         if (first > last) throw invalid("vanilla minimum exceeds local maximum");
-        return new RealmRange(minimum, merged.max(), ladder.subList(first, last + 1));
+        return new RealmRange(minimum, daily.max(), ladder.subList(first, last + 1));
     }
     public String rewardPool(String baseline, RealmKey maximum) {
         requirePool(baseline);

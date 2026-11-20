@@ -112,7 +112,7 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
             b.active=count>0&&pending!=menu.sequence()&&!locked;
             b.setMessage(locked?Component.literal("未解锁"):Component.translatable(KEY+offer.kind()));
             b.setTooltip(Tooltip.create(locked?Component.literal("需要江湖声望 "+menu.reputationRequired(index)+"，当前 "+menu.reputation())
-                    :Component.translatable(KEY+"total_price",(long)offer.price()*count)));
+                    :recycling(index)&&count>0?recyclingDetail(offer.price()*count):Component.translatable(KEY+"total_price",(long)offer.price()*count)));
         }
         if(previous!=null) {
             previous.active=page>0;next.active=(page+1)*ROWS<visibleOffers.size();
@@ -121,6 +121,16 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
             quantity.setEditable(goods);quantity.active=goods;
             minus.active=goods&&amount()>1;plus.active=goods&&amount()<menu.maxQuantity();
         }
+    }
+    private boolean recycling(int index) {
+        return selling&&menu.stock(index)==-1;
+    }
+    private Component recyclingDetail(int price) {
+        var amounts=new StringJoiner(" + ");
+        for(var payout:CommerceInventory.recyclingPayout(menu.currency(),price)) {
+            amounts.add(payout.count()+" 枚"+CommerceInventory.item(payout.item()).getDescription().getString());
+        }
+        return Component.translatable(KEY+"recycling_payout",amounts.toString());
     }
     @Override protected void renderBg(GuiGraphics g,float delta,int mx,int my) {
         int x=leftPos,y=topPos;
@@ -140,7 +150,7 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
             }
             var material=com.example.myvillage.drops.BeastMaterialRules.bundled().find(o.item());
             g.drawString(font,font.plainSubstrByWidth(name,205),x+30,yy+1,material.map(v->0xFF000000|v.color()).orElse(0xFFDFE8D7),false);
-            String detail=menu.stock(index)==-1
+            String detail=recycling(index)&&count>0?recyclingDetail(o.price()*count).getString():menu.stock(index)==-1
                     ?Component.translatable(KEY+(material.isPresent()?"batch_detail_recycling":"batch_detail_unlimited"),(long)o.price()*count).getString()
                     :Component.translatable(KEY+"batch_detail",(long)o.price()*count,menu.stock(index)).getString();
             if(menu.reputationRequired(index)>0)detail="声望 "+menu.reputationRequired(index)+(menu.reputation()<menu.reputationRequired(index)?"（未解锁）":"（已解锁）")+"；"+detail;

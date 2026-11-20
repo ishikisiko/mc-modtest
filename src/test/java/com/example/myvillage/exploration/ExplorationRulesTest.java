@@ -26,7 +26,7 @@ class ExplorationRulesTest {
         var floors = Map.of(
                 "minecraft:the_nether", new RealmKey("foundation_establishment", 1),
                 "minecraft:the_end", new RealmKey("golden_core", 1));
-        var regional = WildernessRules.bundled().region("moyu").orElseThrow().beast();
+        var regional = WildernessRules.bundled().region("moyu").orElseThrow();
         for (var location : r.locations()) {
             var minimum = floors.get(location.dimension());
             if (minimum == null) continue;

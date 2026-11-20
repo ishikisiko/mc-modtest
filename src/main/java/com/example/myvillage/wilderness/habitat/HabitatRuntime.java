@@ -123,7 +123,7 @@ public final class HabitatRuntime {
         mob.moveTo(point.getX()+.5,point.getY(),point.getZ()+.5,0,0);mob.setUUID(member.id);mob.setPersistenceRequired();
         var identity=new CompoundTag();identity.putString("site",site.id());identity.putLong("generation",round.generation);identity.putInt("slot",member.slot);mob.getPersistentData().put(TAG,identity);
         var region=WildernessRules.bundled().region(layout.rules().region).orElseThrow();var range=layout.rules().kind(site.kind()).faction().equals("bandit")?region.rogue():region.beast();
-        var realm=member.slot==0&&layout.rules().flag("leader_use_range_max")?range.max():range.sample(level.getSeed(),site.id(),member.id.getMostSignificantBits());
+        var realm=member.slot==0&&layout.rules().flag("leader_use_range_max")?region.encounterMax():range.sample(level.getSeed(),site.id(),member.id.getMostSignificantBits());
         if(mob instanceof BeastEntity beast)beast.assignWildernessBirth(new BeastBirth(realm,layout.rules().region,point.getX(),point.getY(),point.getZ(),false));
         else StatsRuntime.applyRealm(mob,realm.realmId(),realm.stage());
         mob.setHealth(mob.getMaxHealth());

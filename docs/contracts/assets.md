@@ -44,7 +44,7 @@
 - 当前构建可通过 `tools/runtime_resources` 把完整拥有者输出转换为共享几何及无损分组。所有逻辑模型和结构路径、模型原始字节及NBT摘要必须可恢复；不能将展开副本同时装入JAR。服务器读取器不引用客户端类型。
 - 模型与结构的普通消费者使用 `ResourceManager`，用户资源包保持原路径覆盖。内置固定数据确需绕过覆盖时使用 `BuiltinResources` 并保留调用方原有摘要检查；开发工具读取打包构建输出时使用 `DirectoryResources`。缓存限制由打包配置维护，资源包关闭时释放所属缓存。
 - 共享语言文件保持UTF-8、两格缩进及末尾换行；生成器更新既有键时保留其位置，仅清理自己拥有的过期键，再追加新键。清理后重建键表的入口经 `tools/language_assets.py` 合并；禁止为统一排序重排其他模块的条目。构建在资源复制前校验语言结构，在JAR写出后逐字节核对当前源文件；顺序漂移也应失败并给出分类。
-- 灵石矿工具等级、Silk Touch/Fortune、掉落和 Overworld 分层以资源 JSON 为准。普通灵石保持普通物品；修炼、炼丹等消费者拥有自己的扣除事务。高阶石通过主动兑换获取；不新增矿石冶炼链。
+- 灵石矿工具等级、Silk Touch/Fortune、掉落和 Overworld 分层以资源 JSON 为准。普通灵石保持普通物品，修炼、炼丹等消费者拥有自己的扣除事务。玩家可用主动兑换获取高阶灵石，铁匠也会在妖兽材料回收时按品级结算。
 - 炼器矿材由 `tools/forging/acquisition.py` 生成资源；自然矿脉/砂层的参数来自 `forging/acquisition.json`。玄铁锭使用原 registry ID，挖掘产物为 `raw_xuantie` 并在熔炉/高炉加工成锭；天然获取只在新生成区块接入，采集与精准采集不能造成材料重复掉落。
 - 两块入门石碑分别注册、分别交互，不拥有玩家档案的 BlockEntity；获取方法与自然生成状态按当前实现说明。
 - 经架是上下两格、下格唯一归属根；两格交互均回到该根。拆除最多掉落一次，修复不覆盖障碍，也不丢弃仍有合法归属的旧下格。
@@ -78,7 +78,7 @@
 - 灵石袋持久余额归原物品 `yuanxian:spirit_stone_balance` 组件，按精确物品/组件身份聚合并用 BigInteger 记数，无固定容量上限；不额外复制死亡数据。旧 container 幂等迁移，不丢弃失去标签资格的物品。袋子不嵌套，缺款/满背包失败不丢失或重复物品。
 - 袋和散装灵石由 `SpiritStoneSources` / `SpiritStoneStorage` 统一暴露。修炼、供奉、炼器、丹炉补料和交易使用其原有服务器事务；交易继续核对具体普通货币，不能按宽泛标签兑换。
 - 自动入袋仅服务器执行；额外装备/饰品来源必须提供稳定、去重且可原子替换的槽位，普通产物不能插入这些位置。未接入饰品模组时只承诺物品栏/副手。
-- 扫描间隔以 `spirit_stones/bag.json`、品级整数量级以 `spirit_stones/denominations.json` 为唯一来源；已配置下品、中品和上品，不自动兑换。主动兑换经 `/灵石`，仅接受配置的普通物品且完整事务提交；资源归 `tools/gen_spirit_stone_bag.py` 和 `tools/gen_spirit_stone_grades.py`；用法和扩展接口见 [KB59](../ai-kb/59_spirit_stone_bag.md)。
+- 扫描间隔以 `spirit_stones/bag.json`、品级整数量级以 `spirit_stones/denominations.json` 为唯一来源。袋内已有余额按原品级保存。主动兑换经 `/灵石`，仅接受配置的普通物品且完整事务提交。资源归 `tools/gen_spirit_stone_bag.py` 和 `tools/gen_spirit_stone_grades.py`。 [用法和扩展接口](../ai-kb/59_spirit_stone_bag.md)
 
 ## 装饰块、匾额与书籍
 

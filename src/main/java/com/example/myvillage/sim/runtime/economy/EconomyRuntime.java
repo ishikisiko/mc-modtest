@@ -83,8 +83,8 @@ public final class EconomyRuntime {
                 for (String id : com.example.myvillage.quest.QuestRules.get().maps()) {
                     var map = com.example.myvillage.quest.QuestMap.get(id);
                     rows.add(new EconomyMenu.Row("expedition/" + id, map.name(), "minecraft:iron_sword", 1, 0, 0,
-                            "1至4人；守敌" + com.example.myvillage.quest.QuestRuntime.rangeLabel(source.regionId(), map.realmPool())
-                            + "；接取后从行迹菜单进入。 奖励：下品灵石 " + map.stones() + "、江湖声望 " + map.reputation() + "。"));
+                            "1至4人。 " + com.example.myvillage.quest.QuestRuntime.rangeLabel(source.regionId(), map.realmPool())
+                            + "。接取后从行迹菜单进入。完成后获得下品灵石 " + map.stones() + "、江湖声望 " + map.reputation() + "。"));
                 }
             }
         }

@@ -17,6 +17,17 @@ class WorldSimCommerceTest {
     static final int DAY=24_000;
     static final String A="00000000-0000-0000-0000-00000000000a",B="00000000-0000-0000-0000-00000000000b";
     static final String SITE="shop_town",PILL="yuanxian:pill_huiling",BUY="buy_pill_huiling";
+    @Test void everyTownMerchantSellsTheStarterManualWithoutDrawingFromStock() {
+        var sim=fresh();var stock=market(sim).items();
+        for(var role:CommerceRules.ROLES) {
+            var offer=sim.commerceRules().offers(role).getFirst();
+            assertEquals("yuanxian:basic_breathing_manual",offer.item());
+            assertEquals("buy",offer.kind());assertTrue(offer.unlimited());
+            var quote=quote(sim,offer.id(),A);
+            assertTrue(quote.ready());assertEquals(10,quote.price());
+            assertTrue(sim.commitCommerce(quote,A));assertEquals(stock,market(sim).items());
+        }
+    }
     @Test void beastRecyclingNeverFillsWarehouseAndUsesSingleUsePersistentReceipts() {
         var sim=fresh();String id="recycle_beast_core_spirit_transformation_legendary";
         assertEquals(56,sim.commerceRules().offers().stream().filter(CommerceRules.Offer::recycling).count());
@@ -269,7 +280,7 @@ class WorldSimCommerceTest {
         assertFalse(sim.commitCommerce(old,A));assertEquals(before,market(sim));
     }
     @Test void innCooldownSurvivesNormalSaveAndIsSharedPerPlayer() {
-        var sim=fresh();String rest=sim.commerceRules().offers("innkeeper").getFirst().id();
+        var sim=fresh();String rest=sim.commerceRules().offers("innkeeper").stream().filter(o->o.kind().equals("rest")).findFirst().orElseThrow().id();
         assertTrue(sim.commitCommerce(quote(sim,rest,A),A));assertEquals("rest_cooldown",quote(sim,rest,A).result());
         var loaded=reload(sim);assertEquals("rest_cooldown",quote(loaded,rest,A).result());
         assertTrue(quote(loaded,rest,B).ready());

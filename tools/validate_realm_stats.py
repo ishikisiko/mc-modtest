@@ -256,8 +256,14 @@ def check_wilderness(data: Any, rules: Any, region_ids: set[str]) -> list[str]:
     realm_list = rules.get('realms', []) if isinstance(rules, dict) else []
     realms = {r['id']: r for r in realm_list if isinstance(r, dict) and isinstance(r.get('id'), str)} if isinstance(realm_list, list) else {}
     for rid, region in regions.items():
-        if not fields(region, {'beast', 'rogue'}, f'regions.{rid}', errors):
+        if not fields(region, {'beast', 'rogue', 'mortal_vanilla', 'encounter_max'}, f'regions.{rid}', errors):
             continue
+        if type(region['mortal_vanilla']) is not bool:
+            errors.append(f'WILDERNESS_REGION:regions.{rid}.mortal_vanilla:expected boolean')
+        cap_path = f'regions.{rid}.encounter_max'
+        cap = region['encounter_max']
+        fields(cap, {'realm', 'stage'}, cap_path, errors)
+        cap_rank = check_endpoint(cap, realms, cap_path, errors)
         for kind in ('beast', 'rogue'):
             span = region.get(kind)
             path = f'regions.{rid}.{kind}'
@@ -270,6 +276,8 @@ def check_wilderness(data: Any, rules: Any, region_ids: set[str]) -> list[str]:
                 endpoints.append(check_endpoint(endpoint, realms, f'{path}.{key}', errors))
             if all(e is not None for e in endpoints) and endpoints[0] > endpoints[1]:
                 errors.append(f'WILDERNESS_RANGE_ORDER:{path}:min exceeds max')
+            if cap_rank is not None and endpoints[1] is not None and cap_rank <= endpoints[1]:
+                errors.append(f'WILDERNESS_RANGE_ORDER:{cap_path}:must exceed {kind}.max')
     return errors
 
 

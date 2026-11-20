@@ -53,7 +53,8 @@ public final class WildernessRules {
             return values.get((int) Math.floorMod(h, (long) values.size()));
         }
     }
-    public record Region(RealmRange beast, RealmRange rogue) { }
+    public record Region(RealmRange beast, RealmRange rogue, boolean mortalVanilla,
+                         RealmRange eliteEncounters, RealmKey encounterMax) { }
     public record Rogues(int intervalTicks, int spawnRadius, int withdrawRadius, int minDistance,
                          int maxPerRegion, int maxTotal, int attemptsPerPass, int probesPerPerson) { }
     private static volatile WildernessRules bundled;
@@ -109,9 +110,20 @@ public final class WildernessRules {
         for (String id : table.keySet()) {
             if (!id.matches("[a-z0-9_]+")) throw new IllegalArgumentException("Invalid region " + id);
             JsonObject row = table.getAsJsonObject(id);
-            fields(row, id, "beast", "rogue");
-            regions.put(id, new Region(range(row.getAsJsonObject("beast"), stats, ladder),
-                    range(row.getAsJsonObject("rogue"), stats, ladder)));
+            fields(row, id, "beast", "rogue", "mortal_vanilla", "encounter_max");
+            var beast = range(row.getAsJsonObject("beast"), stats, ladder);
+            var rogue = range(row.getAsJsonObject("rogue"), stats, ladder);
+            var mortal = row.get("mortal_vanilla");
+            if (!mortal.isJsonPrimitive() || !mortal.getAsJsonPrimitive().isBoolean())
+                throw new IllegalArgumentException("mortal_vanilla must be a boolean");
+            var encounterMax = key(row.getAsJsonObject("encounter_max"), stats);
+            int firstElite = 1 + Math.max(ladder.indexOf(beast.max()), ladder.indexOf(rogue.max()));
+            int cap = ladder.indexOf(encounterMax);
+            if (cap < firstElite) throw new IllegalArgumentException("Encounter cap must exceed daily range: " + id);
+            // Reserve the top stage for a leader when the province has multiple higher stages.
+            int lastElite = Math.max(firstElite, cap - 1);
+            var elites = new RealmRange(ladder.get(firstElite), ladder.get(lastElite), ladder.subList(firstElite, lastElite + 1));
+            regions.put(id, new Region(beast, rogue, mortal.getAsBoolean(), elites, encounterMax));
         }
         try {
             String hash = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.getBytes(StandardCharsets.UTF_8)));

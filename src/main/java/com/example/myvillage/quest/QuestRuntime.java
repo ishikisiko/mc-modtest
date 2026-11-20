@@ -168,10 +168,11 @@ public final class QuestRuntime {
     }
     public static String rangeLabel(String region,String pool){
         var r=WildernessRules.bundled().region(region).orElseThrow(()->new IllegalArgumentException("签发地没有境界配置"));
-        var range=pool.equals("rogue")?r.rogue():r.beast();return label(range.min())+"至"+label(range.max());
+        var range=pool.equals("rogue")?r.rogue():r.beast();
+        return "守敌 "+label(range.min())+"至"+label(range.max())+"，首领 "+label(r.encounterMax());
     }
     private static String label(com.example.myvillage.stats.RealmKey key){
-        String name=switch(key.realmId()){case "yuanxian:qi_refining"->"炼气";case "yuanxian:foundation_establishment"->"筑基";case "yuanxian:golden_core"->"金丹";case "yuanxian:nascent_soul"->"元婴";default->key.realmId();};
+        String name=switch(key.realmId()){case "yuanxian:qi_refining"->"炼气";case "yuanxian:foundation_establishment"->"筑基";case "yuanxian:golden_core"->"金丹";case "yuanxian:nascent_soul"->"元婴";case "yuanxian:spirit_transformation"->"化神";default->key.realmId();};
         return key.realmId().equals("yuanxian:qi_refining")?name+(key.stage()+1)+"层":name+List.of("初期","中期","后期").get(Math.min(2,key.stage()));
     }
     public static void atBoard(ServerPlayer p,BlockPos board,String site,String mapId){
@@ -181,9 +182,9 @@ public final class QuestRuntime {
         var sim=WorldSimRuntime.sim().orElseThrow();var source=sim.lifeSite(site).orElseThrow();
         var def=QuestMap.get(mapId);var region=WildernessRules.bundled().region(source.regionId()).orElseThrow(()->new IllegalArgumentException("unavailable"));
         var range=def.realmPool().equals("rogue")?region.rogue():region.beast();
-        var run=state(p.getServer()).issue(p.getUUID(),mapId,site,source.name(),source.regionId(),p.getServer().overworld().getRandom().nextLong(),range,def,rules().hash(mapId));
+        var run=state(p.getServer()).issue(p.getUUID(),mapId,site,source.name(),source.regionId(),p.getServer().overworld().getRandom().nextLong(),range,region.encounterMax(),def,rules().hash(mapId));
         member(p).outside=location(p);save(p.getServer());p.closeContainer();
-        say(p,"已接取"+def.name()+"，签发地："+source.name()+"；守敌境界："+rangeLabel(run.region,def.realmPool())+"。可以单人进入，或先邀请附近队友。");status(p);
+        say(p,"已接取"+def.name()+"，签发地："+source.name()+"。"+rangeLabel(run.region,def.realmPool())+"。可以单人进入，或先邀请附近队友。");status(p);
     }
     private static boolean enter(ServerPlayer p){
         var r=current(p);var m=member(p);
@@ -243,7 +244,7 @@ public final class QuestRuntime {
         var r=current(p);var m=member(p);
         if(m!=null&&m.pendingReward){say(p,"远征已完成，报酬尚未领取。请到任一登记的千机阁江湖榜办理远征。");button(p,"领取报酬","/expedition claim");return;}
         if(r==null){say(p,"尚未接取远征。可到千机阁江湖榜第二页选择山寨清剿或兽巢讨伐。");return;}
-        say(p,QuestMap.get(r.map).name()+"；签发地："+r.sourceName+"；境界："+rangeLabel(r.region,QuestMap.get(r.map).realmPool())+"；队伍 "+r.party.size()+"人；救援余量 "+Math.max(0,rules().integer("rescue_count")-m.rescues)+"；"+stateLabel(r.state));
+        say(p,QuestMap.get(r.map).name()+"，签发地："+r.sourceName+"。"+rangeLabel(r.region,QuestMap.get(r.map).realmPool())+"。队伍 "+r.party.size()+" 人，剩余救援 "+Math.max(0,rules().integer("rescue_count")-m.rescues)+" 次。"+stateLabel(r.state));
         if(!realm(p.serverLevel()))button(p,r.state.equals("FORMING")?"开始远征":"继续远征","/expedition enter");
         else {button(p,"暂离并保留","/expedition leave");if(r.state.equals("GOAL"))button(p,"出口验核","/expedition finish");}
         button(p,"放弃本轮","/expedition abandon");
@@ -467,7 +468,7 @@ public final class QuestRuntime {
     private static void invite(ServerPlayer p,ServerPlayer other){
         var r=current(p);if(r==null||!r.state.equals("FORMING")||!r.leader.equals(p.getUUID())||r.party.size()>=rules().integer("max_party")){say(p,"只有尚未开始且未满员的队伍可以由接单者邀请。");return;}
         if(other==p||other.level()!=p.level()||p.distanceToSqr(other)>Math.pow(rules().integer("invite_range"),2)){say(p,"请邀请附近的玩家。");return;}
-        INVITES.put(other.getUUID(),new Invitation(r.id,System.currentTimeMillis()+rules().integer("invite_seconds")*1000L));say(other,p.getGameProfile().getName()+"邀请你参加"+QuestMap.get(r.map).name()+"；守敌境界 "+rangeLabel(r.region,QuestMap.get(r.map).realmPool())+"。");button(other,"加入远征","/expedition accept");say(p,"邀请已发出。");
+        INVITES.put(other.getUUID(),new Invitation(r.id,System.currentTimeMillis()+rules().integer("invite_seconds")*1000L));say(other,p.getGameProfile().getName()+"邀请你参加"+QuestMap.get(r.map).name()+"。"+rangeLabel(r.region,QuestMap.get(r.map).realmPool())+"。");button(other,"加入远征","/expedition accept");say(p,"邀请已发出。");
     }
     private static void accept(ServerPlayer p){
         var invitation=INVITES.remove(p.getUUID());var r=invitation==null?null:state(p.getServer()).instances.get(invitation.instance);var old=member(p);

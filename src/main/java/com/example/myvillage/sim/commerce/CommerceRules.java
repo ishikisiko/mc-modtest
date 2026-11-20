@@ -40,7 +40,7 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
         try {
             fields(root,"schema","currency","stock_limit","interaction_range","station_range","rest_cooldown_ticks",
                     "rest_safe_ticks","action_interval_ticks","rest_health_fraction","rest_qi_fraction","offers","staff",
-                    "pill_trading","herb_restock");
+                    "pill_trading","herb_restock","starter_manual");
             integer(root,"schema",1,1);
             int limit=integer(root,"stock_limit",1,20_000);
             List<Offer> offers=new ArrayList<>(); Set<String> ids=new HashSet<>();
@@ -110,9 +110,19 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
                 if(!ids.add(id)||material.price()>MAX_PRICE)throw new IllegalArgumentException("Invalid recycling offer");
                 offers.add(new Offer(id,"smith","sell",material.id(),1,material.price(),"recycle",1,0,1,0,0,0,0));
             }
-            if(offers.isEmpty()||offers.size()>MAX_OFFERS) throw new IllegalArgumentException("Offer limit");
             // Recurring starter supplies occupy the first pages of the purchase tab.
             offers.sort(Comparator.comparingInt(o->o.restockStock()>0?0:1));
+            var manual=root.getAsJsonObject("starter_manual");
+            fields(manual,"item","price");
+            String manualItem=resource(manual,"item");
+            if(manualItem.equals("minecraft:air"))throw new IllegalArgumentException("Invalid starter manual");
+            int manualPrice=integer(manual,"price",1,10_000);
+            for(String role:ROLES.stream().sorted().toList()) {
+                String id="buy_starter_manual_"+role;
+                if(!ids.add(id))throw new IllegalArgumentException("Duplicate starter offer "+id);
+                offers.addFirst(new Offer(id,role,"buy",manualItem,1,manualPrice,"unlimited",1,0,1,0,0,0,0));
+            }
+            if(offers.size()>MAX_OFFERS)throw new IllegalArgumentException("Offer limit");
             // One warehouse entry per item; buy/sell definitions must agree about its bounds and startup stock.
             Map<String,Offer> stocks=new HashMap<>();
             Integer herbCapacity=null;

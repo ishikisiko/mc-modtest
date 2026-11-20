@@ -21,7 +21,7 @@
 
 ## 境界、光照与刷怪
 
-签发设施必须通过既有江湖榜的位置、距离、视线和命簿登记核验。服务器从该设施的`LifeSite.regionId`读取[wilderness/rules.json](../../src/main/resources/data/yuanxian/wilderness/rules.json)：山寨使用`rogue`范围，兽巢使用`beast`范围。普通守敌逐个抽取，首领取范围上限；接取时冻结全部境界、UUID和签发地。玩家修为、传送位置、队长在线状态和重登均不重新决定难度。缺少地区配置时不提供远征行。
+签发设施必须通过既有江湖榜的位置、距离、视线和命簿登记核验。服务器按设施的 `LifeSite.regionId` 读取地区境界配置。山寨普通守敌使用 `rogue` 范围，兽巢普通守敌使用 `beast` 范围，两类远征首领使用 `encounter_max`。接取时冻结全部境界、UUID 和签发地。缺少地区配置时不提供远征行。 [地区配置](../../src/main/resources/data/yuanxian/wilderness/rules.json)
 
 正式场景由[两关作者输入](combat-quest-models.md)经[game.py](../../tools/quest_realms/game.py)导出。Minecraft方块、原生楼梯、可见灯具和无碰撞补光均由该生成器负责。通路、节点、交战面与出生点具有亮度检查点；服务器等待光照传播，实测达到[runtime.json](../../blueprints/quest_realms/runtime.json)的下限后开放入口。环境亮度不代替实际方块光检查。
 

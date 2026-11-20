@@ -1,6 +1,9 @@
 package com.example.myvillage.sim.runtime.commerce;
 
 import com.example.myvillage.sim.commerce.CommerceRules;
+import com.example.myvillage.spiritstone.SpiritStoneDenominations;
+import com.example.myvillage.spiritstone.SpiritStoneStorage;
+import java.math.BigInteger;
 import java.util.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +15,7 @@ import com.example.myvillage.item.ModDataComponents;
 /** Copy-plan-commit: a full backpack can never consume money or lose a sold item. */
 public final class CommerceInventory {
     public record Plan(String result,List<ItemStack> items) { public boolean ready(){return result.equals("ok");} }
+    public record Payout(String item, int count) { }
     private CommerceInventory() { }
     public static Item item(String id) {
         ResourceLocation key=ResourceLocation.parse(id);
@@ -36,13 +40,27 @@ public final class CommerceInventory {
         ItemStack money=new ItemStack(item(currency));
         if(offer.kind().equals("sell")) {
             if(!remove(copies.subList(0,storageSlots),stack(offer,qualityType),count,offer.pillQuality(),qualityType))return new Plan("missing_items",List.of());
-            if(!insert(copies,money,price,storageSlots,!offer.recycling()))return new Plan("inventory_full",List.of());
+            if(offer.recycling()) {
+                for(var payout:recyclingPayout(currency,price)) {
+                    if(!insert(copies,new ItemStack(item(payout.item())),payout.count(),storageSlots,false))
+                        return new Plan("inventory_full",List.of());
+                }
+            } else if(!insert(copies,money,price,storageSlots))return new Plan("inventory_full",List.of());
         } else {
-            if(!com.example.myvillage.spiritstone.SpiritStoneStorage.remove(copies,com.example.myvillage.spiritstone.SpiritStoneStorage.ordinary(money),price))return new Plan("insufficient_funds",List.of());
+            if(!SpiritStoneStorage.remove(copies,SpiritStoneStorage.ordinary(money),price))return new Plan("insufficient_funds",List.of());
             if(offer.kind().equals("buy")&&!insert(copies,stack(offer,qualityType),count,storageSlots))
                 return new Plan("inventory_full",List.of());
         }
         return new Plan("ok",List.copyOf(copies));
+    }
+    /** Convert the entire quote, with the same exact denominations used by the exchange command. */
+    public static List<Payout> recyclingPayout(String currency, int price) {
+        var denominations=SpiritStoneDenominations.get();
+        if(!denominations.tiers().getFirst().item().toString().equals(currency))
+            return List.of(new Payout(currency,price));
+        return denominations.decompose(BigInteger.valueOf(price)).entrySet().stream()
+                .map(e->new Payout(denominations.tier(e.getKey()).item().toString(),e.getValue().intValueExact()))
+                .toList();
     }
     public static ItemStack stack(CommerceRules.Offer offer) {
         return stack(offer,offer.pillQuality()>0?ModDataComponents.PILL_QUALITY.get():null);
@@ -67,16 +85,16 @@ public final class CommerceInventory {
         }
         return count==0;
     }
-    public static java.math.BigInteger balance(List<ItemStack> inventory,String currency) {
+    public static BigInteger balance(List<ItemStack> inventory,String currency) {
         ItemStack type=new ItemStack(item(currency));
-        return inventory.stream().map(stack->com.example.myvillage.spiritstone.SpiritStoneStorage.count(
-                stack,com.example.myvillage.spiritstone.SpiritStoneStorage.ordinary(type))).reduce(java.math.BigInteger.ZERO,java.math.BigInteger::add);
+        return inventory.stream().map(stack->SpiritStoneStorage.count(
+                stack,SpiritStoneStorage.ordinary(type))).reduce(BigInteger.ZERO,BigInteger::add);
     }
     private static boolean insert(List<ItemStack> inventory,ItemStack type,int count,int storageSlots) {
         return insert(inventory,type,count,storageSlots,true);
     }
     private static boolean insert(List<ItemStack> inventory,ItemStack type,int count,int storageSlots,boolean requireAutomatic) {
-        int remaining=com.example.myvillage.spiritstone.SpiritStoneStorage.insertBags(inventory,type,count,requireAutomatic);
-        return com.example.myvillage.spiritstone.SpiritStoneStorage.insertLoose(inventory,type,remaining,storageSlots)==0;
+        int remaining=SpiritStoneStorage.insertBags(inventory,type,count,requireAutomatic);
+        return SpiritStoneStorage.insertLoose(inventory,type,remaining,storageSlots)==0;
     }
 }

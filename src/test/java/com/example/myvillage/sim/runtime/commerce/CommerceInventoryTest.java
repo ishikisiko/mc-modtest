@@ -16,6 +16,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CommerceInventoryTest {
+    @Test void recyclingSplitsTheWholeBatchAndKeepsTheRemainder() {
+        var currency="yuanxian:low_grade_spirit_stone";
+        assertEquals(List.of(new CommerceInventory.Payout("yuanxian:medium_grade_spirit_stone",1),
+                        new CommerceInventory.Payout(currency,20)),
+                CommerceInventory.recyclingPayout(currency,40*3));
+        assertEquals(List.of(new CommerceInventory.Payout("yuanxian:high_grade_spirit_stone",2),
+                        new CommerceInventory.Payout("yuanxian:medium_grade_spirit_stone",56)),
+                CommerceInventory.recyclingPayout(currency,25_600));
+    }
+
     @BeforeAll static void bootstrap() {
         if(LoadingModList.get()==null)LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
         SharedConstants.tryDetectVersion();Bootstrap.bootStrap();

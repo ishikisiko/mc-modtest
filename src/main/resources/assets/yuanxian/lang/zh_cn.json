@@ -4596,5 +4596,7 @@
   "item.yuanxian.formula_xuying": "续婴丹方（难度1）",
   "tooltip.yuanxian.alchemy.pill_xuying": "重凝元婴速度提高至 %s 倍，持续 %s 秒。",
   "entity.yuanxian.nascent_demon": "心魔",
-  "item.yuanxian.five_color_golden_lotus": "五彩金莲"
+  "item.yuanxian.five_color_golden_lotus": "五彩金莲",
+  "item.yuanxian.basic_breathing_manual": "《基础吐纳诀》",
+  "screen.yuanxian.commerce.recycling_payout": "实收 %s"
 }

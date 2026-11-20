@@ -8,18 +8,21 @@ import static org.junit.jupiter.api.Assertions.*;
 class QuestStateTest {
     private QuestState.Instance issue(QuestState state,String map,String region,UUID player){
         var definition=QuestMap.get(map);var source=WildernessRules.bundled().region(region).orElseThrow();
-        return state.issue(player,map,"board_"+region,"签发地",region,723,definition.realmPool().equals("rogue")?source.rogue():source.beast(),definition,QuestRules.get().hash(map));
+        return state.issue(player,map,"board_"+region,"签发地",region,723,definition.realmPool().equals("rogue")?source.rogue():source.beast(),source.encounterMax(),definition,QuestRules.get().hash(map));
     }
     @Test void eightIssuingRegionsFreezeEveryGuardAndBossThroughReload(){
         for(String map:QuestRules.get().maps())for(String region:WildernessRules.bundled().regions().keySet()){
             var state=new QuestState();var r=issue(state,map,region,UUID.randomUUID());
-            var range=map.equals("bandit_stronghold")?WildernessRules.bundled().region(region).orElseThrow().rogue():WildernessRules.bundled().region(region).orElseThrow().beast();
-            assertTrue(r.slots.stream().allMatch(s->range.contains(s.key())));
+            var rules=WildernessRules.bundled().region(region).orElseThrow();
+            var definition=QuestMap.get(map);
+            var range=definition.realmPool().equals("rogue")?rules.rogue():rules.beast();
             var restored=QuestState.decode(state.encode()).instances.get(r.id);
             assertEquals(region,restored.region);assertEquals(r.sourceName,restored.sourceName);
             for(int i=0;i<r.slots.size();i++){assertEquals(r.slots.get(i).id,restored.slots.get(i).id);assertEquals(r.slots.get(i).key(),restored.slots.get(i).key());}
-            for(var g:QuestMap.get(map).groups())for(int i=0;i<g.actors().size();i++)if(g.actors().get(i).boss()){
-                final int index=i;assertEquals(range.max(),r.slots.stream().filter(s->s.group.equals(g.id())&&s.index==index).findFirst().orElseThrow().key());
+            for(var slot:r.slots){
+                var group=definition.groups().stream().filter(g->g.id().equals(slot.group)).findFirst().orElseThrow();
+                if(group.actors().get(slot.index).boss())assertEquals(rules.encounterMax(),slot.key());
+                else assertTrue(range.contains(slot.key()));
             }
         }
     }

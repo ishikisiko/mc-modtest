@@ -102,11 +102,12 @@ public final class ExplorationRuntime {
         }
         if (location == null) return Optional.empty();
         var profile = location.regional() ? WildernessRuntime.regionAt(world.getLevel(), pos) : Optional.<String>empty();
-        var regional = profile.flatMap(p -> WildernessRules.bundled().region(p)).map(WildernessRules.Region::beast).orElse(null);
+        var regional = profile.flatMap(p -> WildernessRules.bundled().region(p)).orElse(null);
         String region = profile.orElse("");
         if (profile.isPresent()) region = WorldPlanRuntime.context(world.getLevel(), pos.getX(), pos.getZ()).map(c -> c.regionId()).orElse(region);
-        RealmRange recommended = rules.floor(location.recommended(), regional);
         RealmRange encounters = rules.vanillaEncounters(location, regional);
+        RealmRange recommended = regional != null && location.id().equals("ominous_trial") ? encounters
+                : rules.floor(location.recommended(), regional == null ? null : regional.beast());
         return Optional.of(new Context(location, region, profile.orElse(""), recommended, encounters,
                 location.reward().equals("none") ? "none" : rules.rewardPool(location.reward(), recommended.max())));
     }

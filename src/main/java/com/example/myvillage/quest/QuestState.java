@@ -39,7 +39,7 @@ public final class QuestState {
         try{return Optional.of(UUID.fromString(key.substring("yuanxian:expedition/".length())));}catch(IllegalArgumentException ignored){return Optional.empty();}
     }
     public static boolean reserved(String key){return key.equals("yuanxian:expedition_template")||key.startsWith("yuanxian:expedition/");}
-    public Instance issue(UUID leader,String map,String site,String sourceName,String region,long seed,WildernessRules.RealmRange range,QuestMap definition,String hash){
+    public Instance issue(UUID leader,String map,String site,String sourceName,String region,long seed,WildernessRules.RealmRange range,RealmKey encounterMax,QuestMap definition,String hash){
         var existing=members.get(leader);
         if(existing!=null&&(existing.pendingReward||existing.claiming||instances.containsKey(existing.instance)&&existing.result.equals("ACTIVE")))throw new IllegalArgumentException("你还有未结束的远征或待领报酬。");
         var run=new Instance();run.id=UUID.randomUUID();run.leader=leader;run.map=map;run.site=site;run.sourceName=sourceName;run.region=region;run.seed=seed;run.hash=hash;run.party.add(leader);
@@ -47,7 +47,7 @@ public final class QuestState {
             run.encounters.put(group.id(),new Encounter());
             for(int i=0;i<group.actors().size();i++){
                 var actor=group.actors().get(i);UUID uuid=UUID.randomUUID();
-                RealmKey key=actor.boss()?range.max():range.sample(seed,region,uuid.getLeastSignificantBits());
+                RealmKey key=actor.boss()?encounterMax:range.sample(seed,region,uuid.getLeastSignificantBits());
                 run.slots.add(new Slot(uuid,group.id(),i,key));
             }
         }
@@ -75,7 +75,9 @@ public final class QuestState {
             for(var slot:r.slots){
                 if(slot==null||slot.id==null||slot.group==null||slot.index<0||!guards.add(slot.id)||!r.encounters.containsKey(slot.group)||slot.dead&&!slot.spawned)throw new IllegalStateException("远征守敌身份无效");
                 var group=map.groups().stream().filter(g->g.id().equals(slot.group)).findFirst().orElseThrow(()->new IllegalStateException("远征守敌分组无效"));
-                if(slot.index>=group.actors().size()||!positions.add(slot.group+":"+slot.index)||!range.contains(slot.key())||group.actors().get(slot.index).boss()&&!slot.key().equals(range.max()))throw new IllegalStateException("远征守敌位置或境界无效");
+                if(slot.index>=group.actors().size()||!positions.add(slot.group+":"+slot.index))throw new IllegalStateException("远征守敌位置无效");
+                boolean leader=group.actors().get(slot.index).boss();
+                if(!range.contains(slot.key())&&!(leader&&slot.key().equals(region.encounterMax())))throw new IllegalStateException("远征守敌境界无效");
             }
             for(var e:r.encounters.values())if(e==null||!Set.of("WAITING","NOTICE","ACTIVE","DONE").contains(e.state))throw new IllegalStateException("远征遭遇状态无效");
         }
