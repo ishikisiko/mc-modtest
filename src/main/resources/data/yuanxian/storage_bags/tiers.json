@@ -1,0 +1,58 @@
+{
+  "tiers": [
+    {
+      "realm": "yuanxian:qi_refining",
+      "name": "炼气",
+      "rows": 3,
+      "station": "ding",
+      "costs": {
+        "minecraft:leather": 4,
+        "minecraft:string": 2,
+        "minecraft:copper_ingot": 1,
+        "#c:spirit_stones/low_grade": 2
+      }
+    },
+    {
+      "realm": "yuanxian:foundation_establishment",
+      "name": "筑基",
+      "rows": 5,
+      "station": "ding",
+      "costs": {
+        "yuanxian:xuantie_ingot": 2,
+        "#c:spirit_stones/low_grade": 8
+      }
+    },
+    {
+      "realm": "yuanxian:golden_core",
+      "name": "金丹",
+      "rows": 7,
+      "station": "array",
+      "costs": {
+        "minecraft:amethyst_shard": 4,
+        "#c:spirit_stones/low_grade": 24
+      }
+    },
+    {
+      "realm": "yuanxian:nascent_soul",
+      "name": "元婴",
+      "rows": 9,
+      "station": "array",
+      "costs": {
+        "minecraft:amethyst_shard": 8,
+        "yuanxian:chitong_ingot": 2,
+        "#c:spirit_stones/low_grade": 48
+      }
+    },
+    {
+      "realm": "yuanxian:spirit_transformation",
+      "name": "化神",
+      "rows": 11,
+      "station": "array",
+      "costs": {
+        "minecraft:amethyst_shard": 12,
+        "yuanxian:chitong_ingot": 4,
+        "#c:spirit_stones/low_grade": 96
+      }
+    }
+  ]
+}

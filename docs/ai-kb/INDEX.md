@@ -80,6 +80,7 @@ impact-based checks in the workflow.
 | 69 | [功法成长样例](69_technique_growth_sample.md) | 四门真实功法的五阶段修习、互斥参悟、青帝木脉承接、旧法学习帮助、轻量活卷 UI 与固定源 Colab 检查。 |
 | 70 | [装备制作基础与玄铁甲](70_equipment_authoring.md) | 五境十五套衣甲与锭的模型接入、同源三角网格／透明动效与创造栏试穿；旧玄铁甲 authored 目录、宽／细臂、UV／OBJ、实体工具与同源器坯。 |
 | 71 | [出生省城的 NPC 入门](71_capital_opening.md) | 四个普通命簿居民的固定身份、主动交谈、药铺试种与吐纳教学、个人回执和开发者检查边界。 |
+| 72 | [储物袋](../features/storage-bags.md) | 材料、通用和秘籍三类五档，合法掉落自动入袋、材料标签增补、按箱子已有材料卸货和炼器扩容。 |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 

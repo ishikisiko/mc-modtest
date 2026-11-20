@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.141.0
+
+- 新增材料袋、通用储物袋和秘籍袋。每种袋子有五档，炼气档 27 格，每升一档扩展两行。材料袋根据物品标签自动收纳正常拾取的本模组原料，潜行右键箱子可按箱子已有材料卸货。普通炼器鼎制作炼气袋和筑基袋，完整玄枢炼器鼎用于金丹及以上扩容。
+
 ## 0.140.0
 
 - 新增玄铁、白青灵金和日魄乌金的剑与枪，日魄乌金枪剑带间歇流光。归燕、玄岳镇山、赤炼离火和青霄流云更新持握模型。四把旧剑和六件新枪剑可研读器谱后在炼器鼎制作，也可手工锻造。近战剑共用基础剑招，回锋御剑诀随手中近战剑出招。

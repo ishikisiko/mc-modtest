@@ -43,6 +43,9 @@ public final class PreparationBlockEntity extends FoundryBlockEntity {
     }
     @Override public boolean action(ServerPlayer player,FoundryMenu menu,int button){
         if(!actor(player,menu))return false;
+        if(button==com.example.myvillage.storagebag.StorageBagForgeMenu.OPEN_BUTTON&&!active()){
+            return com.example.myvillage.storagebag.StorageBagForgeMenu.open(player,this);
+        }
         if(button>=20&&button<20+WorkshopRules.get().crafts().size()){
             if(active()||!items.get(0).isEmpty())return refuse(1);
             recipe=button-20;status=0;setChanged();return true;

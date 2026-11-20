@@ -110,6 +110,8 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
             event.register(ForgingMenus.PREPARATION.get(),FoundryScreen::new);
             event.register(ForgingMenus.KILN.get(),FoundryScreen::new);
             event.register(ForgingMenus.ASSEMBLY.get(),FoundryScreen::new);
+            event.register(com.example.myvillage.storagebag.StorageBagContent.BAG_MENU.get(), StorageBagScreen::new);
+            event.register(com.example.myvillage.storagebag.StorageBagContent.FORGE_MENU.get(), StorageBagForgeScreen::new);
         }
     }
 }

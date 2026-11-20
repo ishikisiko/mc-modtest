@@ -711,6 +711,14 @@ tasks.register('generateBeastMaterials', Exec) {
 tasks.named('compileJava') { dependsOn 'generateBeastMaterials' }
 tasks.named('processResources') { dependsOn 'generateBeastMaterials' }
 
+tasks.register('generateStorageBags', Exec) {
+    dependsOn 'generateAllStructures', 'generateBeastMaterials'
+    workingDir projectDir
+    executable pythonExecutable.get()
+    args '-m', 'tools.gen_storage_bags'
+}
+tasks.named('processResources') { dependsOn 'generateStorageBags' }
+
 // 生成器完成后校验实际语言源，打包完成后严格核对JAR字节。
 def languageInputSnapshot = layout.buildDirectory.file('language-assets/before-generation.json')
 tasks.register('captureLanguageAssets', Exec) {

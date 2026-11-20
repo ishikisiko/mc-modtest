@@ -32,6 +32,7 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
         start=button(144,119,84,"引火炼灵",b->send(0));cancel=button(232,119,74,"撤炉退料",b->send(1));
         cancel.setTooltip(Tooltip.create(Component.literal("仅开炉者可撤炉。原器物留在槽内，暂存材料退回背包；满背包则掉落。")));
         nurture=button(10,156,123,"温养火种",b->send(2));trueFire=button(10,181,123,"凝练三昧真火",b->send(3));
+        button(87,202,46,"储物袋",b->send(com.example.myvillage.storagebag.StorageBagForgeMenu.OPEN_BUTTON));
         updateButtons();
     }
     private void updateButtons(){

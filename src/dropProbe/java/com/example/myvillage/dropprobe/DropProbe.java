@@ -33,7 +33,7 @@ public final class DropProbe {
     private static AABB area;
     private static JsonObject last=new JsonObject();
     private static final Gson JSON=new Gson();
-    public DropProbe(){BrandProbe.register();NamespaceProbe.register();MaterialProbe.register();DoorProbe.register();HousingProbe.register();NpcHousingProbe.register();NeoForge.EVENT_BUS.addListener(DropProbe::commands);NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,DropProbe::drops);}
+    public DropProbe(){BrandProbe.register();NamespaceProbe.register();MaterialProbe.register();DoorProbe.register();HousingProbe.register();NpcHousingProbe.register();StorageBagProbe.register();NeoForge.EVENT_BUS.addListener(DropProbe::commands);NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,DropProbe::drops);}
     private static void reply(CommandSourceStack source){source.sendSuccess(()->Component.literal("DROP_PROBE "+last),false);}
     private static void drops(LivingDropsEvent e){if(target!=null&&target.equals(e.getEntity().getUUID())){
         Map<String,Integer> items=new TreeMap<>();for(var drop:e.getDrops())items.merge(BuiltInRegistries.ITEM.getKey(drop.getItem().getItem()).toString(),drop.getItem().getCount(),Integer::sum);

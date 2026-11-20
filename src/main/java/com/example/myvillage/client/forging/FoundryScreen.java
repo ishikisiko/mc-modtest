@@ -15,18 +15,19 @@ import java.util.*;
 /** Paper/bronze panels show actual requirements and preview the same server-owned assembly plan. */
 public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
     private static final int INK=0xFF353B32,PAPER=0xFFE1D6B9,GOLD=0xFF9B7B49,JADE=0xFF397C6F,MUTED=0xFF766B55;
-    private Button first,second,cancel,stone;
+    private Button first,second,cancel,stone,bag;
     public FoundryScreen(FoundryMenu menu,Inventory player,Component title){super(menu,player,title);imageWidth=FoundryMenu.WIDTH;imageHeight=FoundryMenu.HEIGHT;}
     private void send(int action){if(minecraft!=null&&minecraft.gameMode!=null)minecraft.gameMode.handleInventoryButtonClick(menu.containerId,action);}
     private Button button(int x,int y,int width,String label,int action){return addRenderableWidget(new WorkshopScreen.InkButton(leftPos+x,topPos+y,width,18,Component.literal(label),b->send(action),()->false));}
     @Override protected void init(){
-        super.init();first=second=cancel=stone=null;
+        super.init();first=second=cancel=stone=bag=null;
         switch(menu.kind()){
             case PREPARATION->{
                 addRenderableWidget(new WorkshopScreen.InkButton(leftPos+10,topPos+28,22,18,Component.literal("‹"),b->send(20+Math.floorMod(menu.recipeIndex()-1,WorkshopRules.get().crafts().size())),()->false));
                 addRenderableWidget(new WorkshopScreen.InkButton(leftPos+123,topPos+28,22,18,Component.literal("›"),b->send(20+(menu.recipeIndex()+1)%WorkshopRules.get().crafts().size()),()->false));
                 first=button(153,28,57,"只起坯",0);second=button(217,28,72,"自动制作",1);
                 button(10,57,72,"赤铜灌灵",2);stone=button(90,57,72,"炼制阵石",4);cancel=button(217,57,72,"撤炉退料",3);
+                bag=button(167,57,46,"储物袋",com.example.myvillage.storagebag.StorageBagForgeMenu.OPEN_BUTTON);
             }
             case ASSEMBLY->{first=button(118,117,78,"组装 / 换柄",0);cancel=button(205,117,78,"取消",1);}
             case KILN->{}
@@ -37,6 +38,7 @@ public final class FoundryScreen extends AbstractContainerScreen<FoundryMenu> {
         if(first!=null)first.active=!menu.active()&&menu.output().isEmpty()&&(menu.kind()!=FoundryMenu.Kind.PREPARATION||menu.input().isEmpty()&&menu.knows(menu.recipeIndex()));
         if(second!=null)second.active=!menu.active()&&menu.output().isEmpty()&&menu.knows(menu.recipeIndex());
         if(stone!=null)stone.active=!menu.active();
+        if(bag!=null)bag.active=!menu.active();
         if(cancel!=null)cancel.active=menu.active();
         if(menu.kind()==FoundryMenu.Kind.PREPARATION){
             var craft=WorkshopRules.get().crafts().get(menu.recipeIndex());var recipe=ForgingRules.get().recipe(craft.recipe()).orElseThrow();

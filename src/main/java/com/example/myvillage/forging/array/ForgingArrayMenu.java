@@ -51,6 +51,9 @@ public final class ForgingArrayMenu extends AbstractContainerMenu {
     @Override public boolean stillValid(Player player){return inventory.stillValid(player);}
     @Override public boolean clickMenuButton(Player player,int button){
         if(!(player instanceof ServerPlayer server)||!(inventory instanceof ForgingArrayBlockEntity root)||player.containerMenu!=this)return false;
+        if(button==com.example.myvillage.storagebag.StorageBagForgeMenu.OPEN_BUTTON){
+            return com.example.myvillage.storagebag.StorageBagForgeMenu.open(server,root);
+        }
         return button==0?root.start(server,this):button==1?root.cancel(server,this):button==2?root.nurture(server,this):button==3?root.createTrueFire(server,this):button>=10&&button<10+ForgeMark.TRAITS.size()&&root.select(server,this,button-10);
     }
     @Override public void clicked(int slot,int button,ClickType type,Player player){if(active()&&(slot==0||slot==2||slot==3))return;super.clicked(slot,button,type,player);}

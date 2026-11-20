@@ -133,6 +133,7 @@ public final class MyVillageMod {
         com.example.myvillage.worldplan.roads.RoadContent.register(modEventBus);
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
         com.example.myvillage.aptitude.AptitudeContent.bootstrap();
+        com.example.myvillage.storagebag.StorageBagContent.register(modEventBus);
         ModItems.register(modEventBus);
         com.example.myvillage.item.BeastMaterialContent.register(modEventBus);
         com.example.myvillage.equipment.EquipmentContent.register(modEventBus);
