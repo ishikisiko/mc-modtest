@@ -6,15 +6,22 @@
     "yuanxian:metal"
   ],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early",
+    "minimum_realm": "yuanxian:golden_core",
+    "minimum_stage": "yuanxian:golden_middle",
     "minimum_element_aptitude": {
       "yuanxian:metal": 200
     }
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "spell",
+        "basic": 26.0,
+        "art": 26.0
+      },
+      "manual_price": 400
     }
   },
   "study": {

@@ -45,11 +45,11 @@ ELEMENTS_OR_NONE = ELEMENTS + ("none",)
 SCHOOL_KINDS = ("weapon", "special")
 SCHOOL_RUNTIMES = ("flying_sword", "spell", "talisman")
 GRADE_RANGE = range(1, 5)
-HERITAGE_LENGTH = range(2, 5)
+HERITAGE_LENGTH = range(2, 7)
 ID = re.compile(r"[a-z0-9_]+")
 LANG_SECTIONS = ("technique", "school", "heritage")
 STUDY_FIELDS = ("points", "gates", "gate_stability_cost")
-CATALOGUE_FIELDS = ("id", "zh", "category", "grade", "element", "school", "previous", "effects")
+CATALOGUE_FIELDS = ("id", "zh", "category", "grade", "element", "school", "previous", "effects", "learning")
 COMBAT_REL = Path("src/main/resources/data/yuanxian/combat")
 ACTIVE_FIELDS = ("skill", "qi_cost", "slots")
 MOVEMENT_FIELDS = ("dash_distance", "invulnerable_ticks", "qi_cost", "cooldown_ticks")
@@ -218,6 +218,18 @@ def validate_sources(s: Sources) -> list[str]:
             problems.append(f"{where}: unknown fields {sorted(unknown)}")
         if "effects" in row and row.get("category") in CATEGORIES:
             problems.extend(effects_problems(row["effects"], row["category"], f"{where}: effects"))
+        if "learning" in row:
+            learning = row["learning"]
+            if (not isinstance(learning, dict) or not {"realm", "stage"} <= learning.keys()
+                    or learning.keys() - {"realm", "stage", "affinity"}
+                    or any(not isinstance(learning[k], str)
+                           or re.fullmatch(rf"{s.namespace}:[a-z0-9_]+", learning[k]) is None
+                           for k in ("realm", "stage"))):
+                problems.append(f"{where}: learning needs a realm and one of its stages")
+            elif "affinity" in learning and (not _is_int(learning["affinity"])
+                    or learning["affinity"] < 0 or learning["affinity"] > JAVA_INT_MAX
+                    or row["element"] == "none"):
+                problems.append(f"{where}: learning.affinity needs an element and a non-negative integer")
     problems.extend(lineage_cycles({t: r.get("previous") for t, r in techniques.items()}, "catalogue.json"))
 
     heritages = _check_ids(s.heritages, "heritages.json", problems)
@@ -231,7 +243,7 @@ def validate_sources(s: Sources) -> list[str]:
             problems.append(f"{where}: exclusive must be true or false")
         chain = row.get("techniques")
         if not isinstance(chain, list) or len(chain) not in HERITAGE_LENGTH:
-            problems.append(f"{where}: techniques must list 2 to 4 ids")
+            problems.append(f"{where}: techniques must list 2 to 6 ids")
             continue
         missing = [t for t in chain if t not in techniques]
         if missing:
@@ -418,13 +430,37 @@ def resolve_requirements(root: Path, s: Sources) -> dict[int, tuple[str, str]]:
     return out
 
 
+def validate_learning_stages(root: Path, s: Sources) -> None:
+    stages: dict[str, set[str]] = {}
+    problems: list[str] = []
+    for row in s.techniques:
+        learning = row.get("learning")
+        if learning is None:
+            continue
+        realm, stage = learning["realm"], learning["stage"]
+        if realm not in stages:
+            path = root / REALM_REL / (realm.split(":", 1)[1] + ".json")
+            try:
+                stages[realm] = {entry["id"] for entry in _read_json(path)["stages"]}
+            except (OSError, ValueError, KeyError, TypeError) as exc:
+                stages[realm] = set()
+                problems.append(f"{path}: unreadable learning realm ({exc})")
+        if stage not in stages[realm]:
+            problems.append(f"catalogue.json: {row['id']}: {stage} does not belong to {realm}")
+    if problems:
+        raise CatalogueError(problems)
+
+
 def technique_doc(row: dict, s: Sources, requirements: dict[int, tuple[str, str]]) -> dict:
     grade = row["grade"]
     element = row["element"]
-    realm, stage = requirements[grade]
+    learning = row.get("learning")
+    realm, stage = (learning["realm"], learning["stage"]) if learning else requirements[grade]
     req: dict[str, Any] = {"minimum_realm": realm, "minimum_stage": stage}
     affinity = s.rules["requirements"]["element_affinity"]
-    if element != "none" and grade >= affinity["minimum_grade"]:
+    if learning and "affinity" in learning:
+        req["minimum_element_aptitude"] = {s.rid(element): learning["affinity"]}
+    elif element != "none" and grade >= affinity["minimum_grade"]:
         req["minimum_element_aptitude"] = {s.rid(element): s.aptitudes["learning_requirements"][str(grade)]}
     doc: dict[str, Any] = {
         "translation_key": f"cultivation.technique.{s.namespace}.{row['id']}",
@@ -530,6 +566,7 @@ def plan(root: Path = ROOT, source_dir: Path = SOURCE_DIR) -> Plan:
     s = load_sources(source_dir)
     validate_skill_references(root, s)
     requirements = resolve_requirements(root, s)
+    validate_learning_stages(root, s)
     result = Plan()
     hand_written = set(s.rules["hand_written_techniques"])
     owned = (

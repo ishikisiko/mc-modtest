@@ -1,0 +1,34 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.ming_jin_yin_ling_lu",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_middle",
+    "minimum_element_aptitude": {
+      "yuanxian:metal": 200
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "spell",
+        "capacity": 320,
+        "recovery_quarters": 26,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 1200
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

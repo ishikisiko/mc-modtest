@@ -6,5 +6,18 @@
   "requirements": {
     "minimum_realm": "yuanxian:mortal",
     "minimum_stage": "yuanxian:mortal_qi_sensed"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "general",
+        "capacity": 0,
+        "recovery_quarters": 0,
+        "normal": 2,
+        "stone": 5
+      }
+    }
   }
 }

@@ -1,0 +1,32 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.chang_sheng_fu_long_jing",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "yuanxian:wood"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:golden_core",
+    "minimum_stage": "yuanxian:golden_middle",
+    "minimum_element_aptitude": {
+      "yuanxian:wood": 200
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "spell",
+        "basic": 26.0,
+        "art": 26.0
+      },
+      "manual_price": 400
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

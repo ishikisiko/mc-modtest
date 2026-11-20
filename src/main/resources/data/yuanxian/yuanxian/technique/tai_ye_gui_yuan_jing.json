@@ -1,0 +1,34 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.tai_ye_gui_yuan_jing",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:water"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_early",
+    "minimum_element_aptitude": {
+      "yuanxian:water": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "spell",
+        "capacity": 125,
+        "recovery_quarters": 9,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 480
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

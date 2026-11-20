@@ -1,0 +1,34 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.long_xiang_hai_xi_pian",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_early",
+    "minimum_element_aptitude": {
+      "yuanxian:earth": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "fist",
+        "capacity": 0,
+        "recovery_quarters": 32,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 1600
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

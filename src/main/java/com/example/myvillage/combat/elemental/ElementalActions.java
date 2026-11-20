@@ -24,15 +24,17 @@ public final class ElementalActions {
         final Entity target;
         final int charges;
         final double base;
+        final double directBonus;
         int pulse;
         boolean charged;
         boolean masteryAwarded;
-        Cast(Vec3 eye,Vec3 anchor,Vec3 direction,Entity target,int charges,double base) {
+        Cast(Vec3 eye,Vec3 anchor,Vec3 direction,Entity target,int charges,double base,double directBonus) {
             this.eye=eye;this.anchor=anchor;this.direction=direction;this.target=target;this.charges=charges;this.base=base;
+            this.directBonus=directBonus;
         }
     }
     private ElementalActions() {}
-    public static Cast begin(LivingEntity p,CombatSession session,ElementalSpell spell) {
+    public static Cast begin(LivingEntity p,CombatSession session,ElementalSpell spell,boolean paid) {
         Vec3 eye=p.getEyePosition(),look=p.getLookAngle();
         Entity target=spell.shape().equals("self")?null:CombatCaster.level(p).getEntities(p,p.getBoundingBox().inflate(spell.range()),
                 e->CombatHitResolver.legalTarget(p,e,session)).stream()
@@ -47,9 +49,11 @@ public final class ElementalActions {
         Vec3 direction=target==null?look:target.getBoundingBox().getCenter().subtract(eye).normalize();
         int charges=spell.consumes()?ElementalEffects.consume(p,spell.element()):0;
         double base=ElementalEffects.base(p,spell.element());
+        double directBonus = com.example.myvillage.cultivation.technique.HeartTechniques.attack(
+                p, "", spell.element(), true, paid);
         LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} t={} result=cast element={} role={} charges={} base={}",
                 CombatCaster.name(p),CombatCaster.level(p).getGameTime(),spell.element().id(),spell.role(),charges,base);
-        return new Cast(eye,anchor,direction,target,charges,base);
+        return new Cast(eye,anchor,direction,target,charges,base,directBonus);
     }
     public static Vec3 origin(LivingEntity player,ElementalSpell spell,Cast cast) {
         return spell.casterCentered()?player.position():cast.anchor;
@@ -73,7 +77,7 @@ public final class ElementalActions {
         for(var target:targets(p,session,spell,cast)) {
             double harvest=spell.harvest()?ElementalEffects.harvestDamage(p,target,spell.element()):0;
             // Harvest is folded into this one hit, so defenses and i-frames are resolved exactly once.
-            double base=cast.base*scale+harvest/Math.max(.01,move.damageMultiplier());
+            double base=(cast.base+cast.directBonus)*scale+harvest/Math.max(.01,move.damageMultiplier());
             var result=CombatDamageService.applyElemental(p,target,move,session,ElementalRules.source(p,spell.element()),base);
             if(!session.hasActiveAction() || !p.isAlive())break;
             if(result.successful() && result.actualDamage()>0) {

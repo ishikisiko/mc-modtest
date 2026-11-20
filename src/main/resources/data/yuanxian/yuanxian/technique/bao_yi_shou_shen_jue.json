@@ -1,0 +1,26 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.bao_yi_shou_shen_jue",
+  "category": "core",
+  "grade": 3,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_early"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "base": 7.0
+      },
+      "manual_price": 480
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

@@ -30,7 +30,13 @@
     {"id": "yuanxian:foundation_late", "realm": "yuanxian:foundation_establishment", "stage": 2},
     {"id": "yuanxian:golden_early", "realm": "yuanxian:golden_core", "stage": 0},
     {"id": "yuanxian:golden_middle", "realm": "yuanxian:golden_core", "stage": 1},
-    {"id": "yuanxian:golden_late", "realm": "yuanxian:golden_core", "stage": 2}
+    {"id": "yuanxian:golden_late", "realm": "yuanxian:golden_core", "stage": 2},
+    {"id": "yuanxian:nascent_early", "realm": "yuanxian:nascent_soul", "stage": 0},
+    {"id": "yuanxian:nascent_middle", "realm": "yuanxian:nascent_soul", "stage": 1},
+    {"id": "yuanxian:nascent_late", "realm": "yuanxian:nascent_soul", "stage": 2},
+    {"id": "yuanxian:spirit_early", "realm": "yuanxian:spirit_transformation", "stage": 0},
+    {"id": "yuanxian:spirit_middle", "realm": "yuanxian:spirit_transformation", "stage": 1},
+    {"id": "yuanxian:spirit_late", "realm": "yuanxian:spirit_transformation", "stage": 2}
   ],
   "damage_types": ["physical", "metal", "wood", "water", "fire", "earth"],
   "limits": {

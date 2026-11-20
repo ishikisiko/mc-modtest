@@ -7,14 +7,22 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early",
+    "minimum_stage": "yuanxian:foundation_late",
     "minimum_element_aptitude": {
       "yuanxian:earth": 100
     }
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "fist",
+        "base": 2.0,
+        "guard": "ranged",
+        "reaction": 6.0
+      },
+      "manual_price": 120
     }
   },
   "study": {

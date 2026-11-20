@@ -1,0 +1,34 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.zhou_tian_cang_feng_lu",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_early",
+    "minimum_element_aptitude": {
+      "yuanxian:metal": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "sword",
+        "capacity": 500,
+        "recovery_quarters": 0,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 1600
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

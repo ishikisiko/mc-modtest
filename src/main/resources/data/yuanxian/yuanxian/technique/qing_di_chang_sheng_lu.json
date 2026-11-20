@@ -1,0 +1,37 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.qing_di_chang_sheng_lu",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "yuanxian:wood"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_early",
+    "minimum_element_aptitude": {
+      "yuanxian:wood": 400
+    }
+  },
+  "lineage": {
+    "previous": "yuanxian:qing_di_yang_ying_pian"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "general",
+        "capacity": 0,
+        "recovery_quarters": 0,
+        "normal": 250,
+        "stone": 800
+      },
+      "manual_price": 4000
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

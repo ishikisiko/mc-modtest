@@ -1,0 +1,26 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.wu_xing_gui_bi_jing",
+  "category": "core",
+  "grade": 4,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_late"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "spell",
+        "base": 30.0
+      },
+      "manual_price": 1200
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

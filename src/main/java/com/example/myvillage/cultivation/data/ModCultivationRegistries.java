@@ -40,6 +40,8 @@ public final class ModCultivationRegistries {
     public static final ResourceLocation QI_REFINING_REALM_ID = id("qi_refining");
     public static final ResourceLocation FOUNDATION_ESTABLISHMENT_REALM_ID = id("foundation_establishment");
     public static final ResourceLocation GOLDEN_CORE_REALM_ID = id("golden_core");
+    public static final ResourceLocation NASCENT_SOUL_REALM_ID = id("nascent_soul");
+    public static final ResourceLocation SPIRIT_TRANSFORMATION_REALM_ID = id("spirit_transformation");
 
     public static final ResourceLocation MORTAL_UNAWAKENED_STAGE_ID = id("mortal_unawakened");
     public static final ResourceLocation MORTAL_QI_SENSED_STAGE_ID = id("mortal_qi_sensed");
@@ -82,7 +84,9 @@ public final class ModCultivationRegistries {
             MORTAL_REALM_ID,
             QI_REFINING_REALM_ID,
             FOUNDATION_ESTABLISHMENT_REALM_ID,
-            GOLDEN_CORE_REALM_ID));
+            GOLDEN_CORE_REALM_ID,
+            NASCENT_SOUL_REALM_ID,
+            SPIRIT_TRANSFORMATION_REALM_ID));
     public static final Set<ResourceLocation> REQUIRED_ELEMENT_IDS = orderedSet(List.of(
             METAL_ELEMENT_ID,
             WOOD_ELEMENT_ID,
@@ -178,6 +182,8 @@ public final class ModCultivationRegistries {
         validateNextRealm(realms, MORTAL_REALM_ID, QI_REFINING_REALM_ID, errors);
         validateNextRealm(realms, QI_REFINING_REALM_ID, FOUNDATION_ESTABLISHMENT_REALM_ID, errors);
         validateNextRealm(realms, FOUNDATION_ESTABLISHMENT_REALM_ID, GOLDEN_CORE_REALM_ID, errors);
+        validateNextRealm(realms, GOLDEN_CORE_REALM_ID, NASCENT_SOUL_REALM_ID, errors);
+        validateNextRealm(realms, NASCENT_SOUL_REALM_ID, SPIRIT_TRANSFORMATION_REALM_ID, errors);
 
         if (!errors.isEmpty()) {
             errors.sort(String::compareTo);
@@ -364,6 +370,10 @@ public final class ModCultivationRegistries {
         result.put(GOLDEN_EARLY_STAGE_ID, GOLDEN_CORE_REALM_ID);
         result.put(GOLDEN_MIDDLE_STAGE_ID, GOLDEN_CORE_REALM_ID);
         result.put(GOLDEN_LATE_STAGE_ID, GOLDEN_CORE_REALM_ID);
+        for (String stage : List.of("early", "middle", "late")) {
+            result.put(id("nascent_" + stage), NASCENT_SOUL_REALM_ID);
+            result.put(id("spirit_" + stage), SPIRIT_TRANSFORMATION_REALM_ID);
+        }
         return Collections.unmodifiableMap(result);
     }
 

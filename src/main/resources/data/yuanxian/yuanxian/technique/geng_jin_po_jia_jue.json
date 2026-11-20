@@ -1,0 +1,32 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.geng_jin_po_jia_jue",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_early",
+    "minimum_element_aptitude": {
+      "yuanxian:metal": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "spell",
+        "basic": 24.0,
+        "art": 24.0
+      },
+      "manual_price": 480
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

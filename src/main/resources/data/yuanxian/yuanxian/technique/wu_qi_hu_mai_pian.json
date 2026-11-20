@@ -1,0 +1,26 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.wu_qi_hu_mai_pian",
+  "category": "core",
+  "grade": 3,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_early"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "spell",
+        "base": 10.0
+      },
+      "manual_price": 480
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

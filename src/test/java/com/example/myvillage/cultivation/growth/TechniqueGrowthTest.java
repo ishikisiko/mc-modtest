@@ -108,12 +108,13 @@ class TechniqueGrowthTest {
     @Test void respecReplacesRatherThanStacksAndRejectsStaleRevision() {
         var p = mastered(profile(), BASIC);
         var first = TechniqueGrowth.choose(RULES, BASIC, 0, 0, p, TECHNIQUES::get).orElseThrow();
-        assertEquals(12500, TechniqueGrowth.multiplier(RULES, BASIC, first.replacement(), Effect.CULTIVATION));
+        assertEquals(5, TechniqueGrowth.bonus(RULES, BASIC, first.replacement(), Effect.FLAT_NORMAL));
+        assertEquals(16, TechniqueGrowth.bonus(RULES, BASIC, first.replacement(), Effect.FLAT_STONE));
         assertTrue(TechniqueGrowth.choose(RULES, BASIC, 1, 0, first.replacement(), TECHNIQUES::get).isEmpty());
         var second = TechniqueGrowth.choose(RULES, BASIC, 1, 1, first.replacement(), TECHNIQUES::get).orElseThrow();
         assertEquals(RULES.respecStones(), second.stoneCost()); assertEquals(0, second.insightCost());
-        assertEquals(11500, TechniqueGrowth.multiplier(RULES, BASIC, second.replacement(), Effect.CULTIVATION));
-        assertEquals(13500, TechniqueGrowth.multiplier(RULES, BASIC, second.replacement(), Effect.RECOVERY));
+        assertEquals(3, TechniqueGrowth.bonus(RULES, BASIC, second.replacement(), Effect.FLAT_NORMAL));
+        assertEquals(7, TechniqueGrowth.bonus(RULES, BASIC, second.replacement(), Effect.RECOVERY_QUARTERS));
         assertEquals(2, second.replacement().learnedTechniques().get(BASIC).insightSpent());
         assertTrue(TechniqueGrowth.choose(RULES, BASIC, 2, 2, second.replacement(), TECHNIQUES::get).isEmpty());
     }

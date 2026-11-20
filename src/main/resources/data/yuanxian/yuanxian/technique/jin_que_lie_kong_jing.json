@@ -1,0 +1,32 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.jin_que_lie_kong_jing",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_middle",
+    "minimum_element_aptitude": {
+      "yuanxian:metal": 200
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "spell",
+        "basic": 54.0,
+        "art": 54.0
+      },
+      "manual_price": 1200
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

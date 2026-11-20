@@ -1,0 +1,26 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.tai_xu_hu_shen_pian",
+  "category": "core",
+  "grade": 3,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_early"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "base": 14.0
+      },
+      "manual_price": 1600
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

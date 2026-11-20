@@ -28,36 +28,44 @@
         "hit_gain": 0,
         "potential": "完整基础功法，圆满即为上限。吐纳知识可帮助学习青木长春功。",
         "bonuses": {
-          "cultivation": [
+          "flat_normal": [
             0,
-            300,
-            600,
-            1000,
-            1500
+            0,
+            1,
+            2,
+            3
           ],
-          "recovery": [
+          "flat_stone": [
             0,
-            300,
-            600,
-            1000,
-            1500
+            0,
+            3,
+            6,
+            10
+          ],
+          "recovery_quarters": [
+            0,
+            1,
+            1,
+            2,
+            3
           ]
         },
         "insights": [
           {
             "id": "flow",
             "name": "调息",
-            "description": "侧重吐纳，加快修为积累。",
+            "description": "每批普通打坐增加 2 点修为，灵石打坐增加 6 点修为。",
             "bonuses": {
-              "cultivation": 1000
+              "flat_normal": 2,
+              "flat_stone": 6
             }
           },
           {
             "id": "steady",
             "name": "守息",
-            "description": "侧重恢复，提高灵力恢复效率。",
+            "description": "每秒额外恢复 1 点灵力。",
             "bonuses": {
-              "recovery": 2000
+              "recovery_quarters": 4
             }
           }
         ],
@@ -78,36 +86,44 @@
         "potential": "青帝木脉的基础篇。圆满并参悟后，可研读乙木生华诀，承接修习与参悟方向。",
         "next": "yuanxian:yimu_shenghua_jue",
         "bonuses": {
-          "cultivation": [
+          "flat_normal": [
             0,
-            400,
-            800,
-            1200,
-            1800
+            0,
+            1,
+            2,
+            3
           ],
-          "recovery": [
+          "flat_stone": [
             0,
-            400,
-            800,
-            1200,
-            1800
+            0,
+            3,
+            6,
+            10
+          ],
+          "recovery_quarters": [
+            0,
+            1,
+            1,
+            2,
+            3
           ]
         },
         "insights": [
           {
             "id": "flow",
             "name": "调息",
-            "description": "侧重吐纳，加快修为积累。",
+            "description": "每批普通打坐增加 2 点修为，灵石打坐增加 6 点修为。",
             "bonuses": {
-              "cultivation": 1500
+              "flat_normal": 2,
+              "flat_stone": 6
             }
           },
           {
             "id": "steady",
             "name": "守息",
-            "description": "侧重恢复，提高灵力恢复效率。",
+            "description": "每秒额外恢复 1 点灵力。",
             "bonuses": {
-              "recovery": 2500
+              "recovery_quarters": 4
             }
           }
         ],
@@ -137,36 +153,44 @@
         "require_previous_insight": true,
         "potential": "青帝木脉第二篇。本次开放至乙木圆满；原有后续秘籍仍按原规则学习，尚未接入成长样例。",
         "bonuses": {
-          "cultivation": [
+          "flat_normal": [
             0,
-            500,
-            1000,
-            1500,
-            2200
+            0,
+            1,
+            2,
+            3
           ],
-          "recovery": [
+          "flat_stone": [
             0,
-            500,
-            1000,
-            1500,
-            2200
+            0,
+            3,
+            6,
+            10
+          ],
+          "recovery_quarters": [
+            0,
+            1,
+            1,
+            2,
+            3
           ]
         },
         "insights": [
           {
             "id": "flow",
             "name": "调息",
-            "description": "侧重吐纳，加快修为积累。",
+            "description": "每批普通打坐增加 2 点修为，灵石打坐增加 6 点修为。",
             "bonuses": {
-              "cultivation": 1500
+              "flat_normal": 2,
+              "flat_stone": 6
             }
           },
           {
             "id": "steady",
             "name": "守息",
-            "description": "侧重恢复，提高灵力恢复效率。",
+            "description": "每秒额外恢复 1 点灵力。",
             "bonuses": {
-              "recovery": 2500
+              "recovery_quarters": 4
             }
           }
         ],

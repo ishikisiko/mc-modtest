@@ -13,14 +13,16 @@ REALMS = Path('src/main/resources/data/yuanxian/yuanxian/realm')
 STATS = Path('src/main/resources/data/yuanxian/stats/rules.json')
 SIM_REALMS = Path('src/main/resources/data/yuanxian/world_sim/realms.json')
 MAX_INT = 2 ** 31 - 1
-MAX_LONG = 2 ** 63 - 1
 REALM_LIFESPANS = {'yuanxian:mortal': 80, 'yuanxian:qi_refining': 120,
-                   'yuanxian:foundation_establishment': 240, 'yuanxian:golden_core': 500}
+                   'yuanxian:foundation_establishment': 240, 'yuanxian:golden_core': 500,
+                   'yuanxian:nascent_soul': 1000, 'yuanxian:spirit_transformation': 2000}
 REALM_STAGE_IDS = {
     'yuanxian:mortal': ('yuanxian:mortal_unawakened', 'yuanxian:mortal_qi_sensed'),
     'yuanxian:qi_refining': tuple(f'yuanxian:qi_refining_{i}' for i in range(1, 10)),
     'yuanxian:foundation_establishment': ('yuanxian:foundation_early', 'yuanxian:foundation_middle', 'yuanxian:foundation_late'),
     'yuanxian:golden_core': ('yuanxian:golden_early', 'yuanxian:golden_middle', 'yuanxian:golden_late'),
+    'yuanxian:nascent_soul': ('yuanxian:nascent_early', 'yuanxian:nascent_middle', 'yuanxian:nascent_late'),
+    'yuanxian:spirit_transformation': ('yuanxian:spirit_early', 'yuanxian:spirit_middle', 'yuanxian:spirit_late'),
 }
 STAGE_OWNERS = {stage: realm for realm, stages in REALM_STAGE_IDS.items() for stage in stages}
 UNAWAKENED = 'yuanxian:mortal_unawakened'
@@ -44,9 +46,6 @@ BASELINE_ADVANCEMENTS = {
             'stability_cost': cap // 2 - (cap // 2) // 2, 'interruption_stability_loss': loss}
     for stage, cap, _cost, kind, duration, loss in BASELINE_ROWS
 }
-BASELINE_POWER_CAPS = {UNAWAKENED: 0, 'yuanxian:mortal_qi_sensed': 20,
-                       **{f'yuanxian:qi_refining_{i}': 20 + 10 * i for i in range(1, 10)},
-                       'yuanxian:foundation_early': 200}
 ADVANCEMENT_FIELDS = frozenset(next(iter(BASELINE_ADVANCEMENTS.values())))
 
 
@@ -130,22 +129,18 @@ def validate_progression(root: Path, *, cross_files: bool = False) -> tuple[list
 
     edges: dict[str, str] = {}
     sinks = []
-    last_power = 0
     for sid in (UNAWAKENED, *PLAYABLE_CHAIN):
         entry = stage_values.get(sid)
         if entry is None:
             error(REALMS, 'PROGRESSION_STAGE', f'missing required stage {sid}')
             continue
         path, stage = entry
-        power = stage.get('spiritual_power_cap')
-        if not integer(power, 0 if sid == UNAWAKENED else 1, MAX_LONG):
-            error(path, 'PROGRESSION_POWER', f'{sid} spiritual_power_cap must be an explicit bounded integer')
-        else:
-            if power < last_power:
-                error(path, 'PROGRESSION_POWER', f'{sid} power capacity must not decrease across the release ladder')
-            last_power = power
-            if sid in BASELINE_POWER_CAPS and power != BASELINE_POWER_CAPS[sid]:
-                error(path, 'PROGRESSION_POWER', f'{sid} must preserve existing power capacity {BASELINE_POWER_CAPS[sid]}')
+        if 'spiritual_power_cap' in stage:
+            error(path, 'PROGRESSION_POWER', f'{sid} spiritual_power_cap belongs only in the shared additive stats table')
+        if sid == TERMINAL and not integer(stage.get('consolidation_cap'), 1, MAX_INT):
+            error(path, 'PROGRESSION_STABILITY', f'{sid} must allow terminal consolidation for later study')
+        if sid != TERMINAL and 'consolidation_cap' in stage:
+            error(path, 'PROGRESSION_STABILITY', f'{sid} derives stability from cultivation_cap')
         rule = stage.get('advancement')
         cap = stage.get('cultivation_cap')
         if sid in {UNAWAKENED, TERMINAL}:

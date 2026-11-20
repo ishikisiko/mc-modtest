@@ -280,10 +280,6 @@ class CultivationValidator:
                     stage, "sort_order", stage_location, 0
                 )
 
-                qi_cap = self.required_integer(stage, "spiritual_power_cap", stage_location, 0)
-                if qi_cap is not None and qi_cap > 2**63 - 1:
-                    self.error(stage_location, "spiritual_power_cap exceeds Java long range")
-
                 cultivation_cap: int | None = None
                 if "cultivation_cap" in stage:
                     cultivation_cap = self.required_integer(
@@ -739,10 +735,10 @@ def main() -> int:
         f"elements={result.element_count}, techniques={result.technique_count}"
     )
     print(
-        "complete release ladder present: mortal -> qi_refining -> foundation_establishment -> golden_core; "
+        "complete release ladder present: mortal -> qi_refining -> foundation_establishment -> golden_core -> nascent_soul -> spirit_transformation; "
         f"transitions={len(PLAYABLE_CHAIN) - 1}; endpoint={TERMINAL}; "
         "legacy first-four baseline preserved; deterministic half retention; "
-        "stage aliases, power capacities, ledger lifespans and en_us/zh_cn translations checked"
+        "stage aliases, ledger lifespans and en_us/zh_cn translations checked"
     )
     return 0
 

@@ -79,12 +79,13 @@ class GenerationTest(Fixture):
         self.assertEqual(doc["study"], {"points": 36000, "gates": 2, "gate_stability_cost": 100})
         self.assertEqual(doc["requirements"], {
             "minimum_realm": "yuanxian:foundation_establishment", "minimum_stage": "yuanxian:foundation_early",
-            "minimum_element_affinity": {"yuanxian:metal": 1500}})
+            "minimum_element_aptitude": {"yuanxian:metal": 100}})
         core = json.loads((self.root / generator.TECHNIQUE_REL / "yinqi_jue.json").read_text("utf-8"))
         self.assertNotIn("school", core)
         self.assertNotIn("lineage", core)
         self.assertEqual(core["elements"], [])
-        self.assertEqual(core["effects"], {"core": {"meditation_route": "xiaozhoutian"}})
+        self.assertEqual(core["effects"]["core"]["meditation_route"], "xiaozhoutian")
+        self.assertEqual(core["effects"]["core"]["heart"]["capacity"], 15)
         self.assertEqual(core["requirements"], {"minimum_realm": "yuanxian:qi_refining",
                                                 "minimum_stage": "yuanxian:qi_refining_1"})
         self.assertEqual(core["study"], {"points": 160, "gates": 0, "gate_stability_cost": 0})
@@ -213,7 +214,8 @@ class RowEffectsTest(Fixture):
         self.edit_row("yinqi_jue", lambda r: r.update(effects={"core": {"meditation_route": "dazhoutian"}}))
         self.write()
         self.assertEqual(self.technique("yinqi_jue")["effects"], {"core": {"meditation_route": "dazhoutian"}})
-        self.assertEqual(self.technique("tuna_xinfa")["effects"], {"core": {"meditation_route": "xiaozhoutian"}})
+        self.assertEqual(self.technique("tuna_xinfa")["effects"]["core"]["meditation_route"], "xiaozhoutian")
+        self.assertEqual(self.technique("tuna_xinfa")["effects"]["core"]["heart"]["normal"], 10)
 
     def test_merge_is_shallow_per_effect_kind_and_row_wins(self) -> None:
         def defaults(d):
@@ -379,8 +381,10 @@ class ClassificationTest(unittest.TestCase):
         sim = json.loads((generator.ROOT / generator.WORLD_SIM_REL / "techniques.json").read_text("utf-8"))
         seeded = importer.rows_from_world_sim(sim, self.rules)
         catalogue = json.loads((generator.SOURCE_DIR / "catalogue.json").read_text("utf-8"))["techniques"]
-        fields = ("id", "zh", "category", "grade", "element")
+        fields = ("id", "zh", "grade", "element")
         self.assertEqual([{k: r[k] for k in fields} for r in catalogue], [{k: r[k] for k in fields} for r in seeded])
+        for authored, imported in zip(catalogue, seeded):
+            self.assertEqual(authored["category"], "core" if "learning" in authored else imported["category"])
         self.assertEqual(importer.catalogue_text(catalogue),
                          (generator.SOURCE_DIR / "catalogue.json").read_text("utf-8"))
 

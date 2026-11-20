@@ -1,25 +1,33 @@
 {
   "translation_key": "cultivation.technique.yuanxian.zhuque_yanjue",
   "category": "core",
-  "grade": 2,
+  "grade": 3,
   "elements": [
     "yuanxian:fire"
   ],
   "requirements": {
-    "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_4",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_middle",
     "minimum_element_aptitude": {
-      "yuanxian:fire": 40
+      "yuanxian:fire": 100
     }
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "spear",
+        "base": 2.0,
+        "guard": "melee",
+        "reaction": 6.0
+      },
+      "manual_price": 120
     }
   },
   "study": {
-    "points": 12000,
-    "gates": 1,
-    "gate_stability_cost": 50
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
   }
 }

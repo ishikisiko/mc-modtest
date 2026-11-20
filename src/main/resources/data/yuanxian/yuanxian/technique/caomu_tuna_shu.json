@@ -11,7 +11,16 @@
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "fist",
+        "capacity": 0,
+        "recovery_quarters": 0,
+        "normal": 4,
+        "stone": 12
+      },
+      "manual_price": 8
     }
   },
   "study": {

@@ -1,25 +1,32 @@
 {
   "translation_key": "cultivation.technique.yuanxian.jinwu_fentian_lu",
   "category": "core",
-  "grade": 3,
+  "grade": 4,
   "elements": [
     "yuanxian:fire"
   ],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early",
+    "minimum_realm": "yuanxian:golden_core",
+    "minimum_stage": "yuanxian:golden_middle",
     "minimum_element_aptitude": {
-      "yuanxian:fire": 100
+      "yuanxian:fire": 200
     }
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "sword",
+        "basic": 11.0,
+        "art": 26.0
+      },
+      "manual_price": 400
     }
   },
   "study": {
-    "points": 36000,
-    "gates": 2,
-    "gate_stability_cost": 100
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
   }
 }

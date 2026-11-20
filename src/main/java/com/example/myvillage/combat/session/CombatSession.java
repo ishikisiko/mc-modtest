@@ -12,6 +12,7 @@ import java.util.Set;
 public final class CombatSession {
     private CombatStyleDefinition style;
     private AttackMoveDefinition externalMove;
+    private boolean paidArt;
     private final Set<Integer> attemptedEntityIds = new HashSet<>();
 
     private int nextMoveIndex;
@@ -259,8 +260,14 @@ public final class CombatSession {
     /** A single external skill action shares revision, hit bookkeeping and interruption; never chains. */
     public StartEvent startExternal(AttackMoveDefinition move, long tick, ResourceLocation weapon,
                                     ResourceLocation world, float yaw) {
+        return startExternal(move, tick, weapon, world, yaw, false);
+    }
+
+    public StartEvent startExternal(AttackMoveDefinition move, long tick, ResourceLocation weapon,
+                                    ResourceLocation world, float yaw, boolean paidArt) {
         if (hasActiveAction()) throw new IllegalStateException("Action already owned");
         externalMove = Objects.requireNonNull(move);
+        this.paidArt = paidArt;
         resetCombo(CombatStopReason.COMPLETED);
         return start(0, tick, weapon, world, yaw);
     }
@@ -275,6 +282,7 @@ public final class CombatSession {
     }
 
     public boolean isExternal() { return externalMove != null; }
+    public boolean paidArt() { return isExternal() && paidArt; }
 
     public boolean isFinisher() { return hasActiveAction() && !isExternal() && currentMoveIndex == style.moves().size() - 1; }
 
@@ -309,6 +317,7 @@ public final class CombatSession {
     private void clearAction() {
         currentMoveIndex = -1;
         externalMove = null;
+        paidArt = false;
         bufferedIntent = false;
         attemptedEntityIds.clear();
         durabilityCharged = false;

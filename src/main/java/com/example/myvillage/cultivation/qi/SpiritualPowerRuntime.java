@@ -6,6 +6,8 @@ import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
 import com.example.myvillage.cultivation.technique.CoreTechniqueFactor;
+import com.example.myvillage.cultivation.technique.HeartTechniques;
+import com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
@@ -100,14 +102,24 @@ public final class SpiritualPowerRuntime {
             QiRegeneration timer = TIMERS.get(player.getUUID());
             MeditationStatus status = MeditationManager.status(player);
             boolean meditating = status.state().meditating() && status.study().isEmpty() && status.practice().isEmpty();
-            int coreFactor = player.registryAccess().registry(ModCultivationRegistries.TECHNIQUES)
-                    .map(registry -> CoreTechniqueFactor.progressBasisPoints(profile, registry::get,
-                            WorldSimRuntime.data().map(data -> data.rules())))
-                    .orElse(CoreTechniqueFactor.UNIT_BASIS_POINTS);
-            int growthFactor = profile.activeCoreTechnique().map(id -> com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(
-                    player, id, com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.RECOVERY)).orElse(CoreTechniqueFactor.UNIT_BASIS_POINTS);
-            coreFactor = (int) Math.min(Integer.MAX_VALUE, (long) coreFactor * growthFactor / CoreTechniqueFactor.UNIT_BASIS_POINTS);
-            long recovered = timer.tick(currentRules, coreFactor, meditating, profile.currentSpiritualPower() >= cap);
+            int coreFactor = CoreTechniqueFactor.UNIT_BASIS_POINTS;
+            int recoveryQuarters = 0;
+            if (HeartTechniques.usesFixedSpirit(player.registryAccess(), profile)) {
+                recoveryQuarters = HeartTechniques.spirit(player.registryAccess(), profile)
+                        .map(heart -> heart.recoveryQuarters() + HeartTechniques.growth(profile, Effect.RECOVERY_QUARTERS))
+                        .orElse(0);
+            } else {
+                coreFactor = player.registryAccess().registry(ModCultivationRegistries.TECHNIQUES)
+                        .map(registry -> CoreTechniqueFactor.progressBasisPoints(profile, registry::get,
+                                WorldSimRuntime.data().map(data -> data.rules())))
+                        .orElse(CoreTechniqueFactor.UNIT_BASIS_POINTS);
+                int growthFactor = profile.activeCoreTechnique().map(id -> com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(
+                        player, id, Effect.RECOVERY)).orElse(CoreTechniqueFactor.UNIT_BASIS_POINTS);
+                coreFactor = (int) Math.min(Integer.MAX_VALUE,
+                        (long) coreFactor * growthFactor / CoreTechniqueFactor.UNIT_BASIS_POINTS);
+            }
+            long recovered = timer.tick(currentRules, coreFactor, recoveryQuarters, meditating,
+                    profile.currentSpiritualPower() >= cap);
             if (recovered > 0) CultivationService.recoverSpiritualPower(player, recovered);
         }
     }

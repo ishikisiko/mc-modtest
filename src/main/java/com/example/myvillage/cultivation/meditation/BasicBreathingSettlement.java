@@ -64,9 +64,18 @@ public final class BasicBreathingSettlement {
             boolean spiritStonesAvailable,
             int progressFactorBasisPoints,
             double stabilityMultiplier) {
+        return plan(current, cultivationCap, mode, accrual, spiritStonesAvailable,
+                progressFactorBasisPoints, stabilityMultiplier, 0, 0);
+    }
+
+    public static Plan plan(
+            CultivationProfile current, long cultivationCap, MeditationMode mode, Accrual accrual,
+            boolean spiritStonesAvailable, int progressFactorBasisPoints, double stabilityMultiplier,
+            int normalBonus, int spiritBonus) {
         Objects.requireNonNull(current, "current");
         Objects.requireNonNull(mode, "mode");
         Objects.requireNonNull(accrual, "accrual");
+        if (normalBonus < 0 || spiritBonus < 0) throw new IllegalArgumentException("Fixed cultivation bonus must be non-negative");
         if (cultivationCap <= 0) {
             throw new IllegalArgumentException("Cultivation cap must be positive");
         }
@@ -89,7 +98,8 @@ public final class BasicBreathingSettlement {
         long requestedProgress = spiritBatch
                 ? SPIRIT_PROGRESS_PER_SETTLEMENT
                 : current.spiritualAffinity();
-        long scaledProgress = CoreTechniqueFactor.apply(requestedProgress, progressFactorBasisPoints);
+        long scaledProgress = CultivationTimeMath.saturatingAdd(
+                CoreTechniqueFactor.apply(requestedProgress, progressFactorBasisPoints), spiritBatch ? spiritBonus : normalBonus);
         long progressApplied = Math.min(scaledProgress, remainingCapacity);
         long finalProgress = current.cultivationProgress();
         if (current.cultivationProgress() <= cultivationCap) {
@@ -118,6 +128,16 @@ public final class BasicBreathingSettlement {
                         ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID,
                         finalMastery);
         return new Plan(replacement, spiritBatch, downgrade, progressApplied, stabilityApplied);
+    }
+
+    /** Final-realm consolidation leaves progress and resources untouched while replenishing stability. */
+    public static Plan consolidate(CultivationProfile current, int cap, Accrual accrual, double stabilityMultiplier) {
+        var basic = ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID;
+        long gain = MedicineEffects.stabilityGain(current.spiritualAffinity(),
+                Math.max(0L, (long) cap - current.stability()), stabilityMultiplier);
+        long mastery = CultivationTimeMath.saturatingAdd(current.learnedTechniques().get(basic).masteryPoints(), accrual.masteryDue());
+        var replacement = current.withStability(current.stability() + (int) gain).withTechniqueMastery(basic, mastery);
+        return new Plan(replacement, false, false, 0, gain);
     }
 
     private static Due due(long remainder, int rate, int activeTicks, long denominator) {

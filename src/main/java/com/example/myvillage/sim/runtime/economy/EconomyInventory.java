@@ -31,6 +31,15 @@ public final class EconomyInventory {
         var access = SpiritStoneSources.open(player); var copies = access.copies();
         return new Prepared(access, copies, insert(copies, stack, count, false) ? "ok" : "inventory_full");
     }
+    public static Prepared buyWithLowStones(ServerPlayer player, ItemStack goods, int cost) {
+        var access = SpiritStoneSources.open(player);
+        var copies = access.copies();
+        if (cost <= 0 || goods.isEmpty()) return new Prepared(access, copies, "invalid_offer");
+        if (!SpiritStoneStorage.remove(copies, stack -> stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE), cost)) {
+            return new Prepared(access, copies, "missing_items");
+        }
+        return new Prepared(access, copies, insert(copies, goods, 1, false) ? "ok" : "inventory_full");
+    }
     static boolean insert(List<ItemStack> copies, ItemStack stack, int count, boolean bags) {
         int left = bags ? SpiritStoneStorage.insertBags(copies, stack, count, true) : count;
         return SpiritStoneStorage.insertLoose(copies, stack, left, 36) == 0;

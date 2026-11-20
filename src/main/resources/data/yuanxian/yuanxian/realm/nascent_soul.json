@@ -1,0 +1,56 @@
+{
+  "translation_key": "cultivation.realm.yuanxian.nascent_soul",
+  "sort_order": 4,
+  "maximum_lifespan_years": 1000,
+  "stages": [
+    {
+      "id": "yuanxian:nascent_early",
+      "translation_key": "cultivation.stage.yuanxian.nascent_early",
+      "sort_order": 0,
+      "cultivation_cap": 10400,
+      "spirit_stone_cost": 70,
+      "advancement": {
+        "target_realm": "yuanxian:nascent_soul",
+        "target_stage": "yuanxian:nascent_middle",
+        "kind": "ordinary",
+        "duration_ticks": 520,
+        "required_stability": 5200,
+        "stability_cost": 2600,
+        "interruption_stability_loss": 0
+      }
+    },
+    {
+      "id": "yuanxian:nascent_middle",
+      "translation_key": "cultivation.stage.yuanxian.nascent_middle",
+      "sort_order": 1,
+      "cultivation_cap": 12480,
+      "spirit_stone_cost": 84,
+      "advancement": {
+        "target_realm": "yuanxian:nascent_soul",
+        "target_stage": "yuanxian:nascent_late",
+        "kind": "ordinary",
+        "duration_ticks": 624,
+        "required_stability": 6240,
+        "stability_cost": 3120,
+        "interruption_stability_loss": 0
+      }
+    },
+    {
+      "id": "yuanxian:nascent_late",
+      "translation_key": "cultivation.stage.yuanxian.nascent_late",
+      "sort_order": 2,
+      "cultivation_cap": 15000,
+      "spirit_stone_cost": 100,
+      "advancement": {
+        "target_realm": "yuanxian:spirit_transformation",
+        "target_stage": "yuanxian:spirit_early",
+        "kind": "ordinary",
+        "duration_ticks": 750,
+        "required_stability": 7500,
+        "stability_cost": 3750,
+        "interruption_stability_loss": 0
+      }
+    }
+  ],
+  "next_realm": "yuanxian:spirit_transformation"
+}

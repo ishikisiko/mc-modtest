@@ -1,0 +1,33 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.zi_yuan_zhen_zhen_jing",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "yuanxian:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_middle",
+    "minimum_element_aptitude": {
+      "yuanxian:earth": 200
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "spear",
+        "base": 20.0,
+        "guard": "ranged",
+        "reaction": 60.0
+      },
+      "manual_price": 4000
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

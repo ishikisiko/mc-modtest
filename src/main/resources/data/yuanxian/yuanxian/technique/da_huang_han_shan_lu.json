@@ -1,0 +1,32 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.da_huang_han_shan_lu",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_early",
+    "minimum_element_aptitude": {
+      "yuanxian:earth": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "fist",
+        "basic": 48.0,
+        "art": 48.0
+      },
+      "manual_price": 1600
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

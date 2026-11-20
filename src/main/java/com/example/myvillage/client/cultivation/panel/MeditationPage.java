@@ -131,9 +131,9 @@ public final class MeditationPage extends PanelPage {
                 : label("screen.yuanxian.cultivation.button.advancement", ClientCultivationKeyMappings.START_ADVANCEMENT));
         boolean eligible = context.profile() != null && context.profile().awakened()
                 && context.profile().learnedTechniques().containsKey(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
-                && context.currentStage().flatMap(RealmStageDefinition::cultivationCap).isPresent();
+                && context.currentStage().flatMap(RealmStageDefinition::stabilityCap).isPresent();
         normalButton.active = visible && synchronizedStatus && !activeSession && !recovering && eligible;
-        spiritButton.active = normalButton.active;
+        spiritButton.active = normalButton.active && context.currentStage().flatMap(RealmStageDefinition::cultivationCap).isPresent();
         advancementButton.active = normalButton.active && context.progressFull()
                 && context.currentStage().flatMap(RealmStageDefinition::advancement)
                 .map(a -> context.profile().stability() >= a.requiredStability()).orElse(false);
@@ -173,13 +173,12 @@ public final class MeditationPage extends PanelPage {
             Optional<RealmStageDefinition> stage,
             String unavailable) {
         if (stage.isEmpty()
-                || stage.orElseThrow().cultivationCap().isEmpty()
                 || stage.orElseThrow().stabilityCap().isEmpty()) {
             return unavailable;
         }
         RealmStageDefinition definition = stage.orElseThrow();
         CultivationProfile profile = context.profile();
-        if (profile.cultivationProgress() < definition.cultivationCap().orElseThrow()) {
+        if (profile.cultivationProgress() < definition.cultivationCap().orElse(0L)) {
             return context.text("screen.yuanxian.cultivation.stability_locked");
         }
         if (profile.stability() >= definition.stabilityCap().orElseThrow()) {

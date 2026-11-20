@@ -1,0 +1,32 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.bei_chen_guan_yue_jing",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "yuanxian:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_middle",
+    "minimum_element_aptitude": {
+      "yuanxian:earth": 200
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "spear",
+        "basic": 24.0,
+        "art": 54.0
+      },
+      "manual_price": 1200
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

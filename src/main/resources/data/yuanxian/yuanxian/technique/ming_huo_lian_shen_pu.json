@@ -1,0 +1,34 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.ming_huo_lian_shen_pu",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "yuanxian:fire"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_middle",
+    "minimum_element_aptitude": {
+      "yuanxian:fire": 200
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "spell",
+        "capacity": 640,
+        "recovery_quarters": 48,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 4000
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

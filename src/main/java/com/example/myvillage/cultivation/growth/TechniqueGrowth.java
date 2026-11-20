@@ -99,7 +99,7 @@ public final class TechniqueGrowth {
             CultivationProfile profile, Function<ResourceLocation, TechniqueDefinition> lookup) {
         TechniqueDefinition definition = lookup.apply(id);
         if (definition == null) throw new IllegalArgumentException("Unregistered technique");
-        var learned = profile.learnTechnique(id, definition.category());
+        var learned = profile.learnTechnique(id, definition);
         var spec = definition(rules, id, lookup).orElse(null);
         var support = support(rules, id, profile, lookup).orElse(null);
         if (spec == null || support == null || !definition.previous().equals(Optional.of(support.source()))) return learned;
@@ -109,11 +109,15 @@ public final class TechniqueGrowth {
     }
 
     public static int multiplier(TechniqueGrowthRules rules, ResourceLocation id, CultivationProfile profile, Effect effect) {
+        return TechniqueGrowthRules.UNIT + bonus(rules, id, profile, effect);
+    }
+
+    public static int bonus(TechniqueGrowthRules rules, ResourceLocation id, CultivationProfile profile, Effect effect) {
         var spec = rules.find(id).orElse(null);
         var progress = profile.learnedTechniques().get(id);
-        if (spec == null || progress == null) return TechniqueGrowthRules.UNIT;
+        if (spec == null || progress == null) return 0;
         int insight = spec.insight(progress.insight()).map(i -> i.bonuses().getOrDefault(effect, 0)).orElse(0);
-        return TechniqueGrowthRules.UNIT + spec.bonus(effect, progress.masteryPoints()) + insight;
+        return spec.bonus(effect, progress.masteryPoints()) + insight;
     }
 
     /** Costs round up, remain positive, and overflow fails before any payment is made. */

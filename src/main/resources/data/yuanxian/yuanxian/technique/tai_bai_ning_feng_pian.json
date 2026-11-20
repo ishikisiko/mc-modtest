@@ -1,0 +1,32 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.tai_bai_ning_feng_pian",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_early",
+    "minimum_element_aptitude": {
+      "yuanxian:metal": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "spell",
+        "basic": 48.0,
+        "art": 48.0
+      },
+      "manual_price": 1600
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

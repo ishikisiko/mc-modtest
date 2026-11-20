@@ -6,6 +6,7 @@ import com.example.myvillage.cultivation.crafting.CraftingGenerator;
 import com.example.myvillage.cultivation.crafting.CraftingRules;
 
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
+import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
@@ -13,6 +14,7 @@ import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
 import com.example.myvillage.cultivation.qi.SpiritualPower;
 import com.example.myvillage.cultivation.qi.SpiritualPowerRuntime;
 import com.example.myvillage.cultivation.technique.CoreTechniqueSwitch;
+import com.example.myvillage.cultivation.technique.HeartTechniques;
 import com.example.myvillage.cultivation.time.CultivationTimeMath;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
@@ -339,7 +341,7 @@ public final class CultivationService {
         return constructAndCommit(
                 player,
                 oldProfile,
-                profile -> profile.learnTechnique(techniqueId, definition.category()),
+                profile -> profile.learnTechnique(techniqueId, definition),
                 "learned technique " + techniqueId);
     }
 
@@ -358,6 +360,20 @@ public final class CultivationService {
                 player.registryAccess().registry(ModCultivationRegistries.TECHNIQUES);
         if (registry.isEmpty()) {
             return Result.failure("Cultivation technique registry is unavailable", oldProfile);
+        }
+        Slot slot = HeartTechniques.slot(registry.get().get(techniqueId));
+        if (slot != Slot.SPIRIT) {
+            if (!oldProfile.learnedTechniques().containsKey(techniqueId)) {
+                return Result.failure("尚未学会这门心法", oldProfile);
+            }
+            if (oldProfile.equippedHeart(slot).filter(techniqueId::equals).isPresent()) {
+                return Result.success("这门心法已经装备", oldProfile);
+            }
+            if (com.example.myvillage.combat.session.CombatSessionManager.hudBusy(player)
+                    || com.example.myvillage.cultivation.meditation.MeditationManager.active(player)) {
+                return Result.failure("请结束当前招式或修炼，再更换心法", oldProfile);
+            }
+            return replaceProfile(player, oldProfile.withCombatHeart(slot, techniqueId));
         }
         int lossBasisPoints = WorldSimRuntime.data()
                 .map(data -> CoreTechniqueSwitch.basisPoints(data.rules().techniques().switchProgressLoss()))
@@ -538,6 +554,14 @@ public final class CultivationService {
                     .registryOrThrow(ModCultivationRegistries.TECHNIQUES).get(activeId);
             if (active == null || !active.isCore()) {
                 return Optional.of("Technique is not a core technique: " + activeId);
+            }
+        }
+
+        for (Slot slot : java.util.List.of(Slot.ATTACK, Slot.DEFENSE)) {
+            var equipped = replacement.equippedHeart(slot);
+            if (equipped.isPresent() && !equipped.equals(oldProfile.equippedHeart(slot))) {
+                var definition = ModCultivationRegistries.technique(registryAccess, equipped.get()).orElse(null);
+                if (HeartTechniques.slot(definition) != slot) return Optional.of("心法与装备栏位不匹配");
             }
         }
 

@@ -1,0 +1,32 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.jin_lun_jue",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:golden_core",
+    "minimum_stage": "yuanxian:golden_early",
+    "minimum_element_aptitude": {
+      "yuanxian:metal": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "spell",
+        "basic": 11.0,
+        "art": 11.0
+      },
+      "manual_price": 160
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

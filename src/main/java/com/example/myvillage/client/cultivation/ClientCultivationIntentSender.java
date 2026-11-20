@@ -1,6 +1,7 @@
 package com.example.myvillage.client.cultivation;
 
 import com.example.myvillage.cultivation.network.CoreTechniqueSwitchPayload;
+import com.example.myvillage.cultivation.network.HeartManualRequestPayload;
 import com.example.myvillage.cultivation.network.MeditationIntentAction;
 import com.example.myvillage.cultivation.network.MeditationIntentPayload;
 import net.minecraft.client.Minecraft;
@@ -56,6 +57,13 @@ public final class ClientCultivationIntentSender {
             return false;
         }
         PacketDistributor.sendToServer(new CoreTechniqueSwitchPayload(techniqueId));
+        return true;
+    }
+
+    public static boolean requestHeartManual(ResourceLocation techniqueId) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null || minecraft.getConnection() == null) return false;
+        PacketDistributor.sendToServer(new HeartManualRequestPayload(techniqueId));
         return true;
     }
 }

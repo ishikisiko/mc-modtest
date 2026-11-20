@@ -4,12 +4,21 @@
   "grade": 2,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_4"
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early"
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "general",
+        "capacity": 55,
+        "recovery_quarters": 0,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 48
     }
   },
   "study": {

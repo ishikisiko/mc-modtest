@@ -15,7 +15,6 @@ import com.example.myvillage.cultivation.meditation.MeditationMode;
 import com.example.myvillage.cultivation.qi.SpiritualPower;
 import com.example.myvillage.cultivation.technique.TechniqueRequirementEvaluator;
 import com.example.myvillage.cultivation.time.CultivationTimeMath;
-import com.example.myvillage.stats.RealmStats;
 import com.example.myvillage.stats.StatsRules;
 import com.example.myvillage.stats.runtime.RealmHealthPolicy;
 import com.google.gson.JsonParser;
@@ -52,23 +51,23 @@ class GoldenCoreProgressionTest {
     }
 
     @Test
-    void requiredBaselineMatchesAllFourRealmsAndSeventeenStages() throws Exception {
+    void requiredBaselineMatchesSixRealmsAndTwentyThreeStages() throws Exception {
         Map<ResourceLocation, RealmDefinition> realms = realms();
         assertEquals(ModCultivationRegistries.REQUIRED_REALM_IDS, realms.keySet());
-        assertEquals(4, realms.size());
-        assertEquals(17, ModCultivationRegistries.REQUIRED_STAGE_OWNERS.size());
+        assertEquals(6, realms.size());
+        assertEquals(23, ModCultivationRegistries.REQUIRED_STAGE_OWNERS.size());
         for (var owner : ModCultivationRegistries.REQUIRED_STAGE_OWNERS.entrySet()) {
             assertTrue(realms.get(owner.getValue()).containsStage(owner.getKey()), owner.toString());
         }
-        assertEquals(17, realms.values().stream().mapToInt(realm -> realm.stages().size()).sum());
-        assertFalse(realms.containsKey(id("nascent_soul")));
+        assertEquals(23, realms.values().stream().mapToInt(realm -> realm.stages().size()).sum());
+        assertTrue(realms.containsKey(id("nascent_soul")));
+        assertTrue(realms.containsKey(id("spirit_transformation")));
     }
 
     @Test
-    void allFifteenTransitionsPreserveUnrelatedStateAndUseTheExistingStatsPolicy() throws Exception {
+    void allTransitionsPreserveUnrelatedStateAndUseTheExistingStatsPolicy() throws Exception {
         Map<ResourceLocation, RealmDefinition> realms = realms();
         RegistryAccess access = access(realms);
-        StatsRules rules = StatsRules.bundled();
         CultivationProfile current = profile("mortal", "mortal_qi_sensed");
         List<ResourceLocation> reached = new ArrayList<>();
         var seen = new LinkedHashSet<ResourceLocation>();
@@ -97,27 +96,32 @@ class GoldenCoreProgressionTest {
             long targetPowerCap = CultivationService.spiritualPowerCap(access, next);
             assertEquals(next.currentSpiritualPower(), SpiritualPower.clamp(next.currentSpiritualPower(), targetPowerCap));
             assertTrue(next.currentSpiritualPower() < targetPowerCap, "No automatic refill");
-            var oldStats = RealmStats.derived(rules, rules.playerKey(before.realmId().toString(), before.stageId().toString()), 20, 2);
-            var newStats = RealmStats.derived(rules, rules.playerKey(next.realmId().toString(), next.stageId().toString()), 20, 2);
+            var oldStats = CultivationStats.base(before);
+            var newStats = CultivationStats.base(next);
             woundedHealth = RealmHealthPolicy.refreshed(woundedHealth, (float) oldStats.health(), (float) newStats.health());
             assertEquals(11, woundedHealth, "Advancement must not heal");
             if (!before.realmId().equals(next.realmId())) {
                 assertTrue(realms.get(next.realmId()).maximumLifespanYears() > sourceRealm.maximumLifespanYears());
-                if (!before.realmId().equals(ModCultivationRegistries.MORTAL_REALM_ID)) {
+                if (before.realmId().equals(ModCultivationRegistries.QI_REFINING_REALM_ID)
+                        || before.realmId().equals(ModCultivationRegistries.FOUNDATION_ESTABLISHMENT_REALM_ID)) {
                     assertEquals(AdvancementKind.BOTTLENECK, rule.kind());
+                } else {
+                    assertEquals(AdvancementKind.ORDINARY, rule.kind());
                 }
             }
             reached.add(next.stageId());
             current = next;
-            assertTrue(reached.size() <= 15, "Unexpected future-stage transition");
+            assertTrue(reached.size() <= 21, "Unexpected future-stage transition");
         }
         List<ResourceLocation> expected = new ArrayList<>(ModCultivationRegistries.QI_REFINING_STAGE_IDS);
         expected.addAll(List.of(id("foundation_early"), id("foundation_middle"), id("foundation_late"),
-                id("golden_early"), id("golden_middle"), id("golden_late")));
+                id("golden_early"), id("golden_middle"), id("golden_late"),
+                id("nascent_early"), id("nascent_middle"), id("nascent_late"),
+                id("spirit_early"), id("spirit_middle"), id("spirit_late")));
         assertEquals(expected, reached);
-        assertEquals(id("golden_core"), current.realmId());
-        assertEquals(id("golden_late"), current.stageId());
-        assertEquals(6.6, rules.growth(rules.playerKey(current.realmId().toString(), current.stageId().toString())), 1e-12);
+        assertEquals(id("spirit_transformation"), current.realmId());
+        assertEquals(id("spirit_late"), current.stageId());
+        assertEquals(1600, CultivationStats.base(current).power());
     }
 
     @Test
@@ -148,7 +152,7 @@ class GoldenCoreProgressionTest {
                 checked++;
             }
         }
-        assertEquals(15, checked);
+        assertEquals(21, checked);
     }
 
     @Test
@@ -169,23 +173,25 @@ class GoldenCoreProgressionTest {
     }
 
     @Test
-    void goldenLateIsTheOnlyCeilingAndKeepsItsPowerCapacityAndProfileWireVersion() throws Exception {
+    void spiritLateIsTheOnlyCeilingAndKeepsItsPowerCapacityAndProfileWireVersion() throws Exception {
         Map<ResourceLocation, RealmDefinition> realms = realms();
         for (var realm : realms.values()) {
             for (var stage : realm.stages()) {
-                assertEquals(stage.id().equals(id("golden_late")), PanelReadouts.releaseCeiling(realm, stage.id()));
+                assertEquals(stage.id().equals(id("spirit_late")), PanelReadouts.releaseCeiling(realm, stage.id()));
             }
         }
         RealmDefinition golden = realms.get(id("golden_core"));
-        RealmStageDefinition late = stage(golden, id("golden_late"));
-        assertTrue(golden.nextRealm().isEmpty());
+        RealmDefinition spirit = realms.get(id("spirit_transformation"));
+        RealmStageDefinition late = stage(spirit, id("spirit_late"));
+        assertTrue(spirit.nextRealm().isEmpty());
+        assertEquals(id("nascent_soul"), golden.nextRealm().orElseThrow());
         assertTrue(late.cultivationCap().isEmpty());
         assertTrue(late.advancement().isEmpty());
         assertTrue(late.spiritStoneCost().isEmpty());
         assertEquals(0, late.spiritualPowerCap(), "容量只由 progression 数表提供");
         CultivationProfile original = profile("golden_core", "golden_late").withFoundationQuality(4).withGoldenCoreQuality(3).withCurrentSpiritualPower(413);
         var encoded = CultivationProfile.CODEC.encodeStart(JsonOps.INSTANCE, original).getOrThrow();
-        assertEquals(5, encoded.getAsJsonObject().get("schema_version").getAsInt());
+        assertEquals(6, encoded.getAsJsonObject().get("schema_version").getAsInt());
         assertEquals(original, CultivationProfile.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow());
         assertEquals(560, CultivationService.spiritualPowerCap(access(realms), original));
         assertEquals(413, original.currentSpiritualPower());
@@ -202,7 +208,7 @@ class GoldenCoreProgressionTest {
 
     private static Map<ResourceLocation, RealmDefinition> realms() throws Exception {
         Map<ResourceLocation, RealmDefinition> result = new LinkedHashMap<>();
-        for (String id : List.of("mortal", "qi_refining", "foundation_establishment", "golden_core")) {
+        for (String id : List.of("mortal", "qi_refining", "foundation_establishment", "golden_core", "nascent_soul", "spirit_transformation")) {
             result.put(id(id), RealmDefinition.CODEC.parse(JsonOps.INSTANCE,
                     JsonParser.parseString(Files.readString(DEFINITIONS.resolve("realm/" + id + ".json")))).getOrThrow());
         }

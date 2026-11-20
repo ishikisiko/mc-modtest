@@ -1,0 +1,33 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.xuan_qiong_shou_jian_jing",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "yuanxian:water"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_middle",
+    "minimum_element_aptitude": {
+      "yuanxian:water": 200
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "sword",
+        "base": 10.0,
+        "guard": "ranged",
+        "reaction": 30.0
+      },
+      "manual_price": 1200
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

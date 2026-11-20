@@ -12,7 +12,11 @@ import java.util.*;
 public record TechniqueGrowthRules(int practiceTicks, int insightUnlockStage, int insightPerStage,
         int insightCost, int respecStones, List<String> stageNames, Map<ResourceLocation, Technique> techniques, int defaultActiveHitGain) {
     public static final int UNIT = 10_000;
-    public enum Effect { CULTIVATION, RECOVERY, DAMAGE, QI_COST }
+    public enum Effect {
+        CULTIVATION, RECOVERY, DAMAGE, QI_COST, FLAT_NORMAL, FLAT_STONE, RECOVERY_QUARTERS;
+        public boolean combat() { return this == DAMAGE || this == QI_COST; }
+        public boolean fixed() { return this == FLAT_NORMAL || this == FLAT_STONE || this == RECOVERY_QUARTERS; }
+    }
 
     public record Insight(String id, String name, String description, Map<Effect, Integer> bonuses) {
         public Insight { bonuses = Map.copyOf(bonuses); }
@@ -95,7 +99,7 @@ public record TechniqueGrowthRules(int practiceTicks, int insightUnlockStage, in
                 for (var value : stageBonuses.getAsJsonArray(effect)) {
                     if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber()) throw new IllegalArgumentException("bonus type");
                     int bonus = value.getAsBigDecimal().intValueExact();
-                    if (bonus < -8000 || bonus > 20000) throw new IllegalArgumentException("stage bonus out of bounds");
+                    if (bonus < (parsed.fixed() ? 0 : -8000) || bonus > 20000) throw new IllegalArgumentException("stage bonus out of bounds");
                     values.add(bonus);
                 }
                 if (values.size() != 5 || values.getFirst() != 0) throw new IllegalArgumentException("five stage bonuses, starting at zero");
@@ -109,7 +113,10 @@ public record TechniqueGrowthRules(int practiceTicks, int insightUnlockStage, in
                 if (!id.matches("[a-z_]{1,32}") || !ids.add(id)) throw new IllegalArgumentException("insight id");
                 var map = new EnumMap<Effect, Integer>(Effect.class);
                 var values = insight.getAsJsonObject("bonuses");
-                for (String effect : values.keySet()) map.put(effect(effect, category), number(values, effect, -8000, 20000));
+                for (String effect : values.keySet()) {
+                    Effect parsed = effect(effect, category);
+                    map.put(parsed, number(values, effect, parsed.fixed() ? 0 : -8000, 20000));
+                }
                 insights.add(new Insight(id, string(insight, "name"), string(insight, "description"), map));
             }
             if (insights.size() != 2) throw new IllegalArgumentException("sample has two exclusive insights");
@@ -154,8 +161,8 @@ public record TechniqueGrowthRules(int practiceTicks, int insightUnlockStage, in
     }
     private static Effect effect(String name, TechniqueCategory category) {
         Effect effect = Effect.valueOf(name.toUpperCase(Locale.ROOT));
-        if (category == TechniqueCategory.CORE && (effect == Effect.DAMAGE || effect == Effect.QI_COST)
-                || category == TechniqueCategory.ACTIVE && (effect == Effect.CULTIVATION || effect == Effect.RECOVERY))
+        if (category == TechniqueCategory.CORE && effect.combat()
+                || category == TechniqueCategory.ACTIVE && !effect.combat())
             throw new IllegalArgumentException("effect category mismatch");
         return effect;
     }

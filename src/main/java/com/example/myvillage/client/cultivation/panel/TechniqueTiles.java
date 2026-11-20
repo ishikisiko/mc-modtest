@@ -3,6 +3,7 @@ package com.example.myvillage.client.cultivation.panel;
 import com.example.myvillage.client.combat.ClientSkillBindings;
 import com.example.myvillage.combat.SkillBindingRules;
 import com.example.myvillage.combat.art.ArtDefinition;
+import com.example.myvillage.cultivation.data.HeartMethod;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.SchoolDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
@@ -10,6 +11,8 @@ import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityDefinition;
 import com.example.myvillage.cultivation.observation.ObservationRules;
 import com.example.myvillage.cultivation.qi.SpiritualPower;
+import com.example.myvillage.cultivation.technique.HeartManualExchange;
+import com.example.myvillage.cultivation.technique.HeartTechniques;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +46,10 @@ final class TechniqueTiles {
         return PanelAssets.technique(id,c.technique(id).map(TechniqueDefinition::category).orElse(null));
     }
     static void draw(GuiGraphics g, PanelContext c, Hit hit, boolean selected, boolean hovered) {
+        draw(g, c, hit, selected, hovered, true);
+    }
+
+    static void draw(GuiGraphics g, PanelContext c, Hit hit, boolean selected, boolean hovered, boolean learned) {
         var f = c.font();var d = c.technique(hit.id()).orElse(null);var p = palette(c,hit.id());
         int x=hit.x(), y=hit.y(), w=hit.width(), h=hit.height();
         g.fillGradient(x,y,x+w,y+h,0xFFF1EBDD,p.wash());
@@ -62,7 +69,10 @@ final class TechniqueTiles {
         String bound="";var config=ClientSkillBindings.current();
         if(config!=null)for(int i=0;i<config.slots().size();i++)if(config.slots().get(i).equals(hit.id()))
             bound=com.example.myvillage.client.combat.ClientCombatKeyMappings.SKILL_KEYS.get(i).getTranslatedKeyMessage().getString();
-        if(c.profile().activeCoreTechnique().filter(hit.id()::equals).isPresent())bound="主修";
+        if (!learned) bound = "未学";
+        else if (d != null && d.isCore() && c.profile().equippedHeart(HeartTechniques.slot(d)).filter(hit.id()::equals).isPresent()) {
+            bound = HeartTechniques.slot(d) == HeartMethod.Slot.SPIRIT ? "主修" : "已装备";
+        }
         if(!bound.isEmpty())g.drawString(f,InkPanelTheme.fit(f,bound,Math.max(1,w-chipWidth-5)),x+3,y+2,InkPanelTheme.JADE,false);
         String title=InkPanelTheme.fit(f,name(c,hit.id()),w-8);
         g.drawString(f,title,x+(w-f.width(title))/2,y+h-13,p.text(),false);
@@ -113,6 +123,9 @@ final class TechniqueTiles {
                 .map(stage->c.stageName(realm,stage).getString()).orElse(c.realmName(realm).getString())));
         d.requirements().minimumElementAptitudes().forEach((element,points)->conditions.add(c.elementName(element).getString()+String.format(Locale.ROOT," ≥ %.1f%%",points/100.0)));
         lines.add(Component.literal("修习条件："+(conditions.isEmpty()?"无":String.join(" · ",conditions))));
+        HeartTechniques.method(d).ifPresent(heart -> heartDetails(lines, c, d, heart));
+        int price = HeartManualExchange.price(d);
+        if (price > 0 && progress == null) lines.add(Component.literal("换取秘籍需要 " + price + " 颗下品灵石"));
         ArtDefinition.find(id).ifPresent(art->{
             lines.add(Component.translatable("combat."+id.getNamespace()+".art."+id.getPath()+".description"));
             lines.add(Component.literal("灵力 "+art.qiCost()+" · 冷却 "+String.format(Locale.ROOT,"%.1f",art.cooldownTicks()/20.0)+" 秒"));
@@ -120,5 +133,45 @@ final class TechniqueTiles {
         if(!d.isCore() && SkillBindingRules.kind(id,d)==SkillBindingRules.Kind.NONE)
             lines.add(Component.literal("此功法没有主动施放入口"));
         return lines;
+    }
+
+    private static void heartDetails(List<Component> lines, PanelContext c, TechniqueDefinition definition, HeartMethod heart) {
+        lines.add(Component.literal("栏位 " + heart.slot().title() + " · " + heart.direction().title()));
+        String elements = definition.elements().isEmpty() ? "五行"
+                : String.join("、", definition.elements().stream().map(id -> c.elementName(id).getString()).toList());
+        switch (heart) {
+            case HeartMethod.Attack attack -> {
+                if (attack.direction() == HeartMethod.Direction.SPELL) {
+                    bonus(lines, elements + "法术直接伤害基数", attack.art(), " 点");
+                } else if (attack.paidOnly()) {
+                    bonus(lines, "耗灵绝技直接伤害基数", attack.art(), " 点");
+                } else if (attack.art() == attack.basic()) {
+                    bonus(lines, "对应招式基础伤害", attack.basic(), " 点");
+                } else {
+                    bonus(lines, "对应武器普攻基础伤害", attack.basic(), " 点");
+                    bonus(lines, "对应绝技基础伤害", attack.art(), " 点");
+                }
+            }
+            case HeartMethod.Defense defense -> {
+                String scope = defense.direction().weapon() ? "手持对应武器时" : defense.direction() == HeartMethod.Direction.SPELL
+                        ? "受到" + elements + "伤害时" : "";
+                bonus(lines, scope + "肉身防御", defense.base(), " 点");
+                if (defense.guard() != HeartMethod.Guard.NONE) {
+                    String source = defense.guard() == HeartMethod.Guard.MELEE ? "近战攻击" : "投射物或五行法术";
+                    bonus(lines, "手持对应武器并受到" + source + "时本书加值", defense.reaction(), " 点");
+                }
+            }
+            case HeartMethod.Spirit spirit -> {
+                bonus(lines, "灵力上限", spirit.capacity(), " 点");
+                bonus(lines, "自然回灵", spirit.recoveryQuarters() / 4.0, " 点/秒");
+                bonus(lines, "每批普通打坐修为", spirit.normal(), " 点");
+                bonus(lines, "每批灵石打坐修为", spirit.stone(), " 点");
+            }
+        }
+    }
+
+    private static void bonus(List<Component> lines, String label, double value, String unit) {
+        if (value > 0) lines.add(Component.literal(label + " +" + java.math.BigDecimal.valueOf(value)
+                .stripTrailingZeros().toPlainString() + unit));
     }
 }

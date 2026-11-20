@@ -55,10 +55,10 @@ class CultivationProgressionContractTest(unittest.TestCase):
             if 'advancement' not in stages[sid]:
                 break
             sid = stages[sid]['advancement']['target_stage']
-        self.assertEqual(16, len(route))
-        self.assertEqual('yuanxian:golden_late', route[-1])
+        self.assertEqual(22, len(route))
+        self.assertEqual('yuanxian:spirit_late', route[-1])
         self.assertEqual(set(stages) - {'yuanxian:mortal_unawakened'}, set(route))
-        self.assertEqual(15, sum('advancement' in s for s in stages.values()))
+        self.assertEqual(21, sum('advancement' in s for s in stages.values()))
 
     def test_every_missing_edge_is_a_premature_terminal(self):
         for sid in contract.PLAYABLE_CHAIN[:-1]:
@@ -95,8 +95,8 @@ class CultivationProgressionContractTest(unittest.TestCase):
                 path.write_text(original)
 
     def test_terminal_cannot_gain_or_advance_to_a_supported_stats_only_realm(self):
-        self.mutate_stage('yuanxian:golden_late', lambda s: s.update(cultivation_cap=8400, advancement={
-            'target_realm': 'yuanxian:nascent_soul', 'target_stage': 'yuanxian:nascent_early'}))
+        self.mutate_stage('yuanxian:spirit_late', lambda s: s.update(cultivation_cap=25000, advancement={
+            'target_realm': 'yuanxian:spirit_transformation', 'target_stage': 'yuanxian:spirit_early'}))
         self.assert_code('PROGRESSION_TERMINAL', self.errors())
 
     def test_deleted_duplicated_reordered_or_wrong_owner_stage_is_rejected(self):
@@ -176,10 +176,10 @@ class CultivationProgressionContractTest(unittest.TestCase):
         self.mutate_stage('yuanxian:qi_refining_2', lambda s: s['advancement'].update(duration_ticks=121))
         self.assert_code('PROGRESSION_BASELINE', self.errors())
 
-    def test_power_is_explicit_nonnegative_bounded_and_preserves_old_capacities(self):
+    def test_power_capacity_belongs_only_in_shared_stats(self):
         path = self.root / contract.REALMS / 'golden_core.json'
         original = path.read_text()
-        for value in (None, -1, 0, True, 600.5, float('inf'), contract.MAX_LONG + 1):
+        for value in (None, -1, 0, True, 600.5, float('inf'), 2**63):
             path.write_text(original)
             self.mutate_stage('yuanxian:golden_middle', lambda s: s.update(spiritual_power_cap=value))
             self.assert_code('PROGRESSION_POWER', self.errors())

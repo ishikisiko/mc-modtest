@@ -4,7 +4,9 @@
     "yuanxian:qingmu_changchun_gong",
     "yuanxian:yimu_shenghua_jue",
     "yuanxian:jiayi_changsheng_jing",
-    "yuanxian:qingdi_daozang"
+    "yuanxian:qingdi_daozang",
+    "yuanxian:qing_di_yang_ying_pian",
+    "yuanxian:qing_di_chang_sheng_lu"
   ],
   "exclusive": true
 }

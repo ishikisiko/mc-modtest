@@ -1,0 +1,34 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.xuan_yuan_xing_qi_pu",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:wood"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul",
+    "minimum_stage": "yuanxian:nascent_early",
+    "minimum_element_aptitude": {
+      "yuanxian:wood": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "fist",
+        "capacity": 0,
+        "recovery_quarters": 18,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 480
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

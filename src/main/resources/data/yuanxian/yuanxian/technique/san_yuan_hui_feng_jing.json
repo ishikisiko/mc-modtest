@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.san_yuan_hui_feng_jing",
+  "category": "core",
+  "grade": 3,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_early"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "general",
+        "basic": 30.0,
+        "art": 30.0
+      },
+      "manual_price": 1600
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

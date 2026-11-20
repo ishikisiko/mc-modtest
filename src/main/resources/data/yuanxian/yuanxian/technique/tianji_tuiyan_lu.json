@@ -1,20 +1,29 @@
 {
   "translation_key": "cultivation.technique.yuanxian.tianji_tuiyan_lu",
   "category": "core",
-  "grade": 3,
+  "grade": 4,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early"
+    "minimum_realm": "yuanxian:golden_core",
+    "minimum_stage": "yuanxian:golden_middle"
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "general",
+        "capacity": 0,
+        "recovery_quarters": 0,
+        "normal": 55,
+        "stone": 165
+      },
+      "manual_price": 400
     }
   },
   "study": {
-    "points": 36000,
-    "gates": 2,
-    "gate_stability_cost": 100
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
   }
 }

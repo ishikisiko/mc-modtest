@@ -76,8 +76,8 @@ class CultivationCoreValidationTest(unittest.TestCase):
         result = self.validate()
 
         self.assertEqual((), result.errors)
-        self.assertEqual(4, result.realm_count)
-        self.assertEqual(17, result.stage_count)
+        self.assertEqual(6, result.realm_count)
+        self.assertEqual(23, result.stage_count)
         self.assertEqual(5, result.element_count)
         shipped = len(list((ROOT / RESOURCE_ROOT / "technique").glob("*.json")))
         self.assertEqual(shipped, result.technique_count)
@@ -177,11 +177,11 @@ class CultivationCoreValidationTest(unittest.TestCase):
         )
 
     def test_release_ceiling_rejects_extra_stage_cap(self) -> None:
-        path = RESOURCE_ROOT / "realm/golden_core.json"
+        path = RESOURCE_ROOT / "realm/spirit_transformation.json"
         realm = self.load_json(path)
-        realm["stages"][2]["cultivation_cap"] = 8400
+        realm["stages"][2]["cultivation_cap"] = 25000
         self.write_json(path, realm)
-        self.assert_error_contains(self.validate(), "yuanxian:golden_late must omit cultivation_cap and advancement")
+        self.assert_error_contains(self.validate(), "yuanxian:spirit_late must omit cultivation_cap and advancement")
 
     def test_cultivatable_stage_requires_positive_spirit_stone_cost(self) -> None:
         path = RESOURCE_ROOT / "realm/qi_refining.json"

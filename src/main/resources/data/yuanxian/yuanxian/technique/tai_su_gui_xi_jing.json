@@ -1,0 +1,29 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.tai_su_gui_xi_jing",
+  "category": "core",
+  "grade": 4,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_late"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "general",
+        "capacity": 0,
+        "recovery_quarters": 96,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 4000
+    }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
+  }
+}

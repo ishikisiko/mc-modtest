@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.142.0
+
+- 开放金丹后期到化神后期的修炼链，接入五境 202 门心法及攻、防守、灵力与修炼三栏。
+- H 功法图鉴可按境界和心法栏位查看已学、未学功法。达到研读条件后，可在图鉴用下品灵石换取心法秘籍。
+
 ## 0.141.3
 
 - 炼器镐可寻脉，斧伐完后可补种同种树苗，铲可用挖出的土回填低处，锄可右键留茬采药并有机会额外收获。

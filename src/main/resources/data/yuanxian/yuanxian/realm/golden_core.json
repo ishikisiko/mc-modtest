@@ -38,7 +38,19 @@
     {
       "id": "yuanxian:golden_late",
       "translation_key": "cultivation.stage.yuanxian.golden_late",
-      "sort_order": 2
+      "sort_order": 2,
+      "cultivation_cap": 8640,
+      "spirit_stone_cost": 58,
+      "advancement": {
+        "target_realm": "yuanxian:nascent_soul",
+        "target_stage": "yuanxian:nascent_early",
+        "kind": "ordinary",
+        "duration_ticks": 432,
+        "required_stability": 4320,
+        "stability_cost": 2160,
+        "interruption_stability_loss": 0
+      }
     }
-  ]
+  ],
+  "next_realm": "yuanxian:nascent_soul"
 }

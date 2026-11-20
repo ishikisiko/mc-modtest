@@ -9,7 +9,14 @@
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "general",
+        "basic": 1.0,
+        "art": 1.0
+      },
+      "manual_price": 8
     }
   },
   "study": {

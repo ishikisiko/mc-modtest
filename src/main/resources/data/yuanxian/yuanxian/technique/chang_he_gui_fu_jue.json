@@ -1,0 +1,34 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.chang_he_gui_fu_jue",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:water"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_early",
+    "minimum_element_aptitude": {
+      "yuanxian:water": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "spear",
+        "capacity": 0,
+        "recovery_quarters": 0,
+        "normal": 100,
+        "stone": 350
+      },
+      "manual_price": 1600
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

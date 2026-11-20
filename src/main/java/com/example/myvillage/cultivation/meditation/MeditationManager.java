@@ -16,6 +16,8 @@ import com.example.myvillage.cultivation.study.ManualStacks;
 import com.example.myvillage.cultivation.study.StudyMessages;
 import com.example.myvillage.cultivation.study.StudyStep;
 import com.example.myvillage.cultivation.technique.CoreTechniqueFactor;
+import com.example.myvillage.cultivation.technique.HeartTechniques;
+import com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect;
 import com.example.myvillage.cultivation.time.CultivationServerConfig;
 import com.example.myvillage.cultivation.time.CultivationTimeMath;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
@@ -93,19 +95,17 @@ public final class MeditationManager {
         }
 
         MeditationStopReason rejection = eligibilityFailure(player);
-        if (rejection == MeditationStopReason.NONE
-                && resolveCurrentStage(player, CultivationService.getProfile(player))
-                .flatMap(resolved -> resolved.stage().cultivationCap())
-                .isEmpty()) {
+        CultivationProfile profile = CultivationService.getProfile(player);
+        var resolved = resolveCurrentStage(player, profile).orElse(null);
+        if (rejection == MeditationStopReason.NONE && (resolved == null || resolved.stage().stabilityCap().isEmpty())) {
             rejection = MeditationStopReason.STAGE_NOT_CULTIVATABLE;
         }
         if (rejection != MeditationStopReason.NONE) {
             return reject(player, rejection);
         }
 
-        CultivationProfile profile = CultivationService.getProfile(player);
         MeditationSession session = new MeditationSession(
-                mode,
+                resolved.stage().cultivationCap().isEmpty() ? MeditationMode.NORMAL : mode,
                 profile.realmId(),
                 profile.stageId(),
                 player.getX(),
@@ -424,13 +424,13 @@ public final class MeditationManager {
     private static void settleMeditationGuarded(ServerPlayer player, MeditationSession session) {
         CultivationProfile current = CultivationService.getProfile(player);
         ResolvedStage resolved = resolveCurrentStage(player, current).orElse(null);
-        if (resolved == null || resolved.stage().cultivationCap().isEmpty()) {
+        if (resolved == null || resolved.stage().stabilityCap().isEmpty()) {
             requestStop(player, MeditationStopReason.STAGE_NOT_CULTIVATABLE);
             return;
         }
 
         BasicBreathingSettlement.Accrual accrual;
-        long cap = resolved.stage().cultivationCap().orElseThrow();
+        long cap = resolved.stage().cultivationCap().orElse(0L);
         int spiritStoneCost = 0;
         boolean spiritStonesAvailable = false;
         if (session.mode() == MeditationMode.SPIRIT && current.cultivationProgress() < cap) {
@@ -449,14 +449,20 @@ public final class MeditationManager {
                     session.settlementRemainders(),
                     BasicBreathingSettlement.SETTLEMENT_INTERVAL_TICKS,
                     CultivationServerConfig.scale().ticksPerYear());
-            basePlan = BasicBreathingSettlement.plan(
+            var heart = HeartTechniques.spirit(player.registryAccess(), current).orElse(null);
+            int normal = heart == null ? 0 : heart.normal() + HeartTechniques.growth(current, Effect.FLAT_NORMAL);
+            int stone = heart == null ? 0 : heart.stone() + HeartTechniques.growth(current, Effect.FLAT_STONE);
+            double recovery = com.example.myvillage.alchemy.MedicineRuntime.stabilityMultiplier(player);
+            basePlan = cap == 0
+                    ? BasicBreathingSettlement.consolidate(current, resolved.stage().stabilityCap().orElseThrow(), accrual, recovery)
+                    : BasicBreathingSettlement.plan(
                     current,
                     cap,
                     session.mode(),
                     accrual,
                     spiritStonesAvailable,
                     progressFactorBasisPoints(player, current),
-                    com.example.myvillage.alchemy.MedicineRuntime.stabilityMultiplier(player));
+                    recovery, normal, stone);
             basePlan = new BasicBreathingSettlement.Plan(com.example.myvillage.cultivation.fate.SchoolInsightRuntime.boost(player,current,
                     com.example.myvillage.cultivation.growth.TechniqueGrowth.meditationMastery(
                     com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled(), current, basePlan.replacement(),
@@ -855,7 +861,7 @@ public final class MeditationManager {
         if (session.state().meditating()
                 && !session.studying()
                 && session.practiceTarget().isEmpty()
-                && (resolved == null || resolved.stage().cultivationCap().isEmpty())) {
+                && (resolved == null || resolved.stage().stabilityCap().isEmpty())) {
             return MeditationStopReason.STAGE_NOT_CULTIVATABLE;
         }
         if (session.practiceTarget().isPresent() && (!com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.eligible(player,
@@ -879,10 +885,11 @@ public final class MeditationManager {
      * basis points.
      */
     private static int progressFactorBasisPoints(ServerPlayer player, CultivationProfile profile) {
-        int core = coreTechniqueFactor(player, profile);
+        boolean fixed = HeartTechniques.usesFixedSpirit(player.registryAccess(), profile);
+        int core = fixed ? CoreTechniqueFactor.UNIT_BASIS_POINTS : coreTechniqueFactor(player, profile);
         int master = WorldSimPlayers.masterGuidanceBasisPoints(player);
         double fate = 1 + com.example.myvillage.cultivation.fate.FateService.effect(player, "gain");
-        double growth = profile.activeCoreTechnique().map(id -> com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(
+        double growth = fixed ? 1.0 : profile.activeCoreTechnique().map(id -> com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(
                 player, id, com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.CULTIVATION) / 10000.0).orElse(1.0);
         return (int) Math.min(Integer.MAX_VALUE,
                 Math.round(core * (double) master / CoreTechniqueFactor.UNIT_BASIS_POINTS * fate * growth));

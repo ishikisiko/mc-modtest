@@ -6,15 +6,24 @@
     "yuanxian:fire"
   ],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early",
+    "minimum_realm": "yuanxian:golden_core",
+    "minimum_stage": "yuanxian:golden_middle",
     "minimum_element_aptitude": {
       "yuanxian:fire": 200
     }
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "spell",
+        "capacity": 320,
+        "recovery_quarters": 0,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 400
     }
   },
   "study": {

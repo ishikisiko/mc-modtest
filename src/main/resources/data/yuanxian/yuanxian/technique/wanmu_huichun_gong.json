@@ -6,15 +6,21 @@
     "yuanxian:wood"
   ],
   "requirements": {
-    "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_4",
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
       "yuanxian:wood": 40
     }
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "spell",
+        "base": 3.5
+      },
+      "manual_price": 48
     }
   },
   "study": {

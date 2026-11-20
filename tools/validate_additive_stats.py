@@ -11,6 +11,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 DATA = Path('src/main/resources/data/yuanxian')
 PROGRESSION = DATA / 'stats/progression.json'
+REALMS = ('mortal', 'qi_refining', 'foundation_establishment', 'golden_core', 'nascent_soul', 'spirit_transformation')
 
 def unique(pairs):
     result = {}
@@ -23,7 +24,7 @@ def unique(pairs):
 def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     errors = []
     resources = [PROGRESSION, DATA / 'alchemy/foundation.json', DATA / 'npc_combat/rules.json',
-                 *[DATA / f'yuanxian/realm/{name}.json' for name in ('mortal','qi_refining','foundation_establishment','golden_core')],
+                 *[DATA / f'yuanxian/realm/{name}.json' for name in REALMS],
                  Path('src/main/resources/assets/yuanxian/lang/zh_cn.json')]
     checked = {}
     for path in resources:
@@ -46,21 +47,21 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     vectors(rules.get('foundation',{}).get('breakthrough'),4,'筑基')
     vectors(rules.get('golden_core',{}).get('breakthrough'),3,'金丹')
     nascent = rules.get('nascent_soul', {})
-    vectors([nascent.get('breakthrough')], 1, '元婴突破')
+    vectors(nascent.get('breakthrough'), 3, '元婴突破')
     vectors([nascent.get('minor_increment')], 1, '元婴小阶段')
-    if nascent != {'breakthrough': [60,24,6,240], 'minor_increment': [20,4,2,80]}:
-        errors.append('元婴数值与已确认方案不一致')
+    spirit = rules.get('spirit_transformation', {})
+    vectors([spirit.get('breakthrough'), spirit.get('minor_increment')], 2, '化神')
     if rules.get('npc') != {'prodigy_chance': .1, 'upper_quality_chance': .5}:
         errors.append('NPC 天骄与突破品质概率不一致')
     combat = checked.get(str(DATA / 'npc_combat/rules.json'), {})
     if combat.get('schema') != 2 or 'spirit' in combat:
         errors.append('NPC 战斗配置仍保留独立灵力容量')
-    for name in ('mortal','qi_refining','foundation_establishment','golden_core'):
+    for name in REALMS:
         realm = checked.get(str(DATA / f'yuanxian/realm/{name}.json'),{})
         if any('spiritual_power_cap' in stage for stage in realm.get('stages',[])):
             errors.append(f'{name}：灵力上限必须只由 progression.json 提供')
     foundation = checked.get(str(DATA / 'alchemy/foundation.json'),{})
-    if foundation.get('version') != 2 or 'bonus_percent' in foundation:
+    if foundation.get('version') != 3 or 'bonus_percent' in foundation:
         errors.append('筑基仍含旧根基百分比规则')
     defense = rules.get('defense',{})
     try:

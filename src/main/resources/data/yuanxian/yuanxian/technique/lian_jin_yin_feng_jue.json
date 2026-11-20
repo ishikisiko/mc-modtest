@@ -1,0 +1,32 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.lian_jin_yin_feng_jue",
+  "category": "core",
+  "grade": 2,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_stage": "yuanxian:foundation_early",
+    "minimum_element_aptitude": {
+      "yuanxian:metal": 40
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "attack",
+        "direction": "spell",
+        "basic": 5.0,
+        "art": 5.0
+      },
+      "manual_price": 48
+    }
+  },
+  "study": {
+    "points": 12000,
+    "gates": 1,
+    "gate_stability_cost": 50
+  }
+}

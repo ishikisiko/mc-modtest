@@ -39,6 +39,7 @@ public final class CombatArtActions {
         final int slot;
         final ResourceLocation dimension;
         final CombatSession session;
+        final boolean paidArt;
         int phase;
         boolean counter;
         boolean masteryAwarded;
@@ -49,9 +50,10 @@ public final class CombatArtActions {
         Vec3 lockAnchor;
         int nextStrike;
         ElementalActions.Cast elementalCast;
-        Entry(LivingEntity player,ArtDefinition art,CombatSession session) {
+        Entry(LivingEntity player,ArtDefinition art,CombatSession session,boolean paidArt) {
             this.art=art;this.held=player.getMainHandItem();this.slot=CombatCaster.slot(player);
             this.dimension=player.level().dimension().location();this.session=session;
+            this.paidArt=paidArt;
         }
     }
     private static long clock(LivingEntity player) { return CombatCaster.level(player).getServer().overworld().getGameTime(); }
@@ -110,10 +112,10 @@ public final class CombatArtActions {
         if(legacyPlan.isEmpty()||!legacyPlan.get().recast())COOLDOWNS.start(player.getUUID(),art.id().toString(),clock(player),art.cooldownTicks());
         if (player instanceof com.example.myvillage.entity.npc.NpcEntity npc)
             com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc, art.id(), clock(player) + art.cooldownTicks());
-        Entry e=new Entry(player,art,session);ENTRIES.put(player.getUUID(),e);
+        Entry e=new Entry(player,art,session,cost>0);ENTRIES.put(player.getUUID(),e);
         if(art.elemental().isPresent()) {
             var spell=art.elemental().get();
-            e.elementalCast=ElementalActions.begin(player,session,spell);e.lockAnchor=e.elementalCast.anchor;
+            e.elementalCast=ElementalActions.begin(player,session,spell,e.paidArt);e.lockAnchor=e.elementalCast.anchor;
             if(spell.role().equals("ward")) {
                 int shared=ElementalRules.integer("ward_shared_cooldown_ticks",20,1200);
                 COOLDOWNS.start(player.getUUID(),"elemental_ward",clock(player),shared);
@@ -137,7 +139,7 @@ public final class CombatArtActions {
     private static CombatSession.StartEvent beginPhase(LivingEntity player,Entry e) {
         AttackMoveDefinition move=e.art.move(e.phase,1);
         var start=e.session.startExternal(move,CombatCaster.level(player).getGameTime(),
-                BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,player.getYRot());
+                BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,player.getYRot(),e.paidArt);
         send(player,e,CombatArtStatePayload.START,e.lockAnchor==null?player.position():e.lockAnchor);
         return start;
     }

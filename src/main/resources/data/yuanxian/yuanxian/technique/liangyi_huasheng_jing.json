@@ -5,11 +5,20 @@
   "elements": [],
   "requirements": {
     "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early"
+    "minimum_stage": "yuanxian:foundation_late"
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "general",
+        "capacity": 0,
+        "recovery_quarters": 0,
+        "normal": 24,
+        "stone": 80
+      },
+      "manual_price": 120
     }
   },
   "study": {

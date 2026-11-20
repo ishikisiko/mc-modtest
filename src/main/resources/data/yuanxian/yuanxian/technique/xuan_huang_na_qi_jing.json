@@ -1,0 +1,34 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.xuan_huang_na_qi_jing",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "yuanxian:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation",
+    "minimum_stage": "yuanxian:spirit_early",
+    "minimum_element_aptitude": {
+      "yuanxian:earth": 100
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "spirit",
+        "direction": "spell",
+        "capacity": 250,
+        "recovery_quarters": 16,
+        "normal": 0,
+        "stone": 0
+      },
+      "manual_price": 1600
+    }
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
+  }
+}

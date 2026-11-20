@@ -150,7 +150,7 @@ public final class CombatSkillActions {
                         state.skill().releaseMove(CombatStyles.bundled(), state.chargeLevel()),
                         com.example.myvillage.combat.runtime.CombatDisciplines.consume(player, "sword") * state.growthDamageMultiplier(), 0), now,
                 net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),
-                e.dimension(), player.getYRot());
+                e.dimension(), player.getYRot(), cost > 0);
         // Metadata precedes START so the client can use skill timing for the ordinary release clip.
         send(player, state, Phase.RELEASED, state.origin(), state.direction());
         LOGGER.info("SWORD_QI player={} t={} result=released skill={} revision={} charge={} cost={}",

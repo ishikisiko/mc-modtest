@@ -90,10 +90,14 @@ final class TechniqueGrowthPage extends PanelPage {
             var bonuses = spec == null ? java.util.Map.<Effect,Integer>of() : spec.insights().get(i).bonuses();
             Effect first = bonuses.keySet().stream().sorted().findFirst().orElse(null);
             String effectName = first == null ? "" : switch (first) {
-                case CULTIVATION -> "修为"; case RECOVERY -> "回气"; case DAMAGE -> "伤害"; case QI_COST -> "耗灵";
+                case CULTIVATION, FLAT_NORMAL, FLAT_STONE -> "修为";
+                case RECOVERY, RECOVERY_QUARTERS -> "回气";
+                case DAMAGE -> "伤害";
+                case QI_COST -> "耗灵";
             };
             int bonus = first == null ? 0 : bonuses.get(first);
-            choices[i].insight(label, effectName, first == null ? "" : (bonus >= 0 ? "+" : "−") + compactPercent(bonus), chosen);
+            choices[i].insight(label, effectName, first == null ? "" : (bonus >= 0 ? "+" : "−")
+                    + (first.fixed() ? fixedValue(first, bonus) : compactPercent(bonus)), chosen);
             choices[i].insightFeedback(motion.insightAge());
             choices[i].active = ready && !active && !chosen && TechniqueGrowth.choose(rules, selected, i,
                     progress.revision(), c.profile(), id -> c.technique(id).orElse(null)).isPresent();
@@ -216,7 +220,7 @@ final class TechniqueGrowthPage extends PanelPage {
     static String currentEffects(PanelContext c, ResourceLocation id) {
         var rules = TechniqueGrowthRules.bundled(); var map = new java.util.EnumMap<Effect, Integer>(Effect.class);
         for (Effect effect : Effect.values()) {
-            int bonus = TechniqueGrowth.multiplier(rules, id, c.profile(), effect) - TechniqueGrowthRules.UNIT;
+            int bonus = TechniqueGrowth.bonus(rules, id, c.profile(), effect);
             if (bonus != 0) map.put(effect, bonus);
         }
         return map.isEmpty() ? "保持功法原有效果" : effectText(map);
@@ -225,10 +229,24 @@ final class TechniqueGrowthPage extends PanelPage {
         var lines = new ArrayList<String>();
         for (Effect effect : Effect.values()) if (values.getOrDefault(effect, 0) != 0) {
             int value = values.get(effect);
-            String name = switch (effect) { case CULTIVATION -> "修为获取"; case RECOVERY -> "灵力恢复"; case DAMAGE -> "伤害"; case QI_COST -> "耗灵"; };
-            lines.add(name + (value > 0 ? " +" : " −") + percent(Math.abs(value)));
+            String name = switch (effect) {
+                case CULTIVATION -> "修为获取";
+                case RECOVERY -> "灵力恢复";
+                case DAMAGE -> "伤害";
+                case QI_COST -> "耗灵";
+                case FLAT_NORMAL -> "每批普通修为";
+                case FLAT_STONE -> "每批灵石修为";
+                case RECOVERY_QUARTERS -> "自然回灵";
+            };
+            String amount = effect.fixed() ? fixedValue(effect, value) : percent(Math.abs(value));
+            lines.add(name + (value > 0 ? " +" : " −") + amount);
         }
-        return String.join("；", lines);
+        return String.join("，", lines);
+    }
+    static String fixedValue(Effect effect, int value) {
+        return effect == Effect.RECOVERY_QUARTERS
+                ? java.math.BigDecimal.valueOf(value).divide(java.math.BigDecimal.valueOf(4)).stripTrailingZeros().toPlainString() + " 点/秒"
+                : value + " 点";
     }
     static String percent(int bp) { return String.format(Locale.ROOT, "%.1f%%", bp / 100.0); }
 }

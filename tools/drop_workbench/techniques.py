@@ -7,7 +7,7 @@ from math import ceil
 from pathlib import Path
 
 CATEGORIES = {
-    'core': '主修心法影响打坐获得的修为和自然回灵。',
+    'core': '攻、防守和灵力与修炼各装备一门，按心法记录的固定点数生效。',
     'active': '学会绝技后可在技能页分配按键，实际效果取决于招式。',
     'movement': '身法决定闪避的位移距离、无敌时间、耗灵和冷却。',
     'body': '炼体功法的效果字段包括属性加值和抗硬直。',
@@ -17,7 +17,10 @@ SHAPES = {
     'line': '直线', 'fan': '扇形', 'ring': '环形', 'bolt': '单体', 'ray': '射线',
     'self': '自身护体', 'burst': '落点爆发', 'cone': '前方扇形', 'field': '落点领域',
 }
-GROWTH_EFFECTS = {'cultivation': '修为', 'recovery': '回灵', 'damage': '伤害', 'qi_cost': '耗灵'}
+GROWTH_EFFECTS = {'cultivation': '修为', 'recovery': '回灵', 'damage': '伤害', 'qi_cost': '耗灵',
+                  'flat_normal': '每批普通修为', 'flat_stone': '每批灵石修为', 'recovery_quarters': '自然回灵'}
+HEART_SLOTS = {'attack': '攻', 'defense': '防守', 'spirit': '灵力与修炼'}
+HEART_DIRECTIONS = {'sword': '剑', 'spear': '枪', 'fist': '拳掌', 'spell': '法术', 'general': '通用'}
 
 
 def read_json(path):
@@ -52,6 +55,33 @@ def element_name(labels, id):
 
 
 def core_stats(definition, effects, world_rules, element_names):
+    if (heart := effects.get('heart')) is not None:
+        stats = [('装备栏位', HEART_SLOTS[heart['slot']]), ('适用方向', HEART_DIRECTIONS[heart['direction']])]
+        def add(label, value, unit='点'):
+            if value:
+                stats.append((label, f'{value:+g} {unit}'))
+        if heart['slot'] == 'attack':
+            if heart['direction'] == 'spell':
+                add('、'.join(element_names) + '系法术直接伤害基数', heart['art'])
+            else:
+                add('对应普攻基础伤害', heart['basic'])
+                add('耗灵绝技基础伤害' if heart.get('paid_only') else '对应绝技基础伤害', heart['art'])
+        elif heart['slot'] == 'defense':
+            scope = '持对应武器时' if heart['direction'] in ('sword', 'spear', 'fist') else ''
+            if heart['direction'] == 'spell':
+                scope = '受到' + ('、'.join(element_names) or '任意五行') + '伤害时'
+            add(scope + '肉身防御', heart['base'])
+            if (guard := heart.get('guard')) in ('melee', 'ranged'):
+                incoming = '直接近战攻击' if guard == 'melee' else '投射物或五行法术'
+                add('持对应武器且受到' + incoming + '时本书加值', heart['reaction'])
+        else:
+            add('灵力上限', heart['capacity'])
+            add('自然回灵', heart['recovery_quarters'] / 4, '点/秒')
+            add('每批普通打坐修为', heart['normal'])
+            add('每批灵石打坐修为', heart['stone'])
+        if effects.get('manual_price'):
+            stats.append(('游戏内换取秘籍', f"{effects['manual_price']:,} 颗下品灵石"))
+        return stats
     grade = definition['grade']
     rules = world_rules['techniques']
     base = rules['grades'][CORE_GRADES[grade]]['cultivation'] if grade else 1
@@ -259,8 +289,18 @@ def learning_stats(definition, labels, schools, aptitudes, names, growth):
 def growth_details(growth, stage_names):
     stages = []
     for i, name in enumerate(stage_names):
-        bonuses = [f'{GROWTH_EFFECTS[key]} +{percent(values[i] / 100)}'
-                   for key, values in growth['bonuses'].items() if values[i]]
+        bonuses = []
+        for key, values in growth['bonuses'].items():
+            value = values[i]
+            if value == 0:
+                continue
+            if key == 'recovery_quarters':
+                amount = f'{value / 4:+g} 点/秒'
+            elif key in ('flat_normal', 'flat_stone'):
+                amount = f'{value:+g} 点'
+            else:
+                amount = f'{value / 100:+.4g}%'
+            bonuses.append(f'{GROWTH_EFFECTS[key]} {amount}')
         threshold = f"{growth['thresholds'][i]} 点修习"
         stages.append((name, ' · '.join([threshold, *bonuses])))
     return {
@@ -321,7 +361,7 @@ def build(root: Path):
             'learning': learning_stats(definition, labels, schools, aptitudes, names, specialized),
         }
         if category == 'core':
-            effect = {'name': '主修效果', 'stats': core_stats(definition, effects.get('core', {}), world_rules, elements)}
+            effect = {'name': '心法效果', 'stats': core_stats(definition, effects.get('core', {}), world_rules, elements)}
         elif category == 'movement':
             stats = movement_stats(effects.get('movement'))
             effect = {'name': '闪避效果' if stats else '效果待配置', 'stats': stats}

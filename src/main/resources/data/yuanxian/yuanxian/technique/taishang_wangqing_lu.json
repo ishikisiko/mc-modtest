@@ -4,12 +4,18 @@
   "grade": 4,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early"
+    "minimum_realm": "yuanxian:golden_core",
+    "minimum_stage": "yuanxian:golden_early"
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "base": 8.0
+      },
+      "manual_price": 400
     }
   },
   "study": {

@@ -6,15 +6,23 @@
     "yuanxian:water"
   ],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early",
+    "minimum_realm": "yuanxian:golden_core",
+    "minimum_stage": "yuanxian:golden_middle",
     "minimum_element_aptitude": {
       "yuanxian:water": 100
     }
   },
   "effects": {
     "core": {
-      "meditation_route": "xiaozhoutian"
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "sword",
+        "base": 5.0,
+        "guard": "melee",
+        "reaction": 8.0
+      },
+      "manual_price": 160
     }
   },
   "study": {

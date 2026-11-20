@@ -75,14 +75,29 @@ public record TechniqueEffects(
         }
     }
 
-    /** 心法: {@code {"meditation_route": "xiaozhoutian"}}; the route only selects the meridian path shown. */
-    public record Core(String meditationRoute) {
-        public static final Codec<Core> CODEC = Codec.STRING.fieldOf("meditation_route").codec()
-                .comapFlatMap(route -> construct(() -> new Core(route)), Core::meditationRoute);
+    /** The route selects the meridian presentation, while the heart method supplies player effects. */
+    public record Core(String meditationRoute, Optional<HeartMethod> heart, int manualPrice) {
+        private record Raw(String route, Optional<HeartMethod> heart, int price) {}
+        private static final Codec<Raw> SERIALIZED = RecordCodecBuilder.create(builder -> builder.group(
+                Codec.STRING.fieldOf("meditation_route").forGetter(Raw::route),
+                HeartMethod.CODEC.optionalFieldOf("heart").forGetter(Raw::heart),
+                Codec.intRange(0, 1_000_000).optionalFieldOf("manual_price", 0).forGetter(Raw::price)
+        ).apply(builder, Raw::new));
+        public static final Codec<Core> CODEC = SERIALIZED.comapFlatMap(
+                raw -> construct(() -> new Core(raw.route(), raw.heart(), raw.price())),
+                core -> new Raw(core.meditationRoute(), core.heart(), core.manualPrice()));
+
+        public Core(String meditationRoute) {
+            this(meditationRoute, Optional.empty(), 0);
+        }
 
         public Core {
             if (meditationRoute == null || meditationRoute.isBlank()) {
                 throw new IllegalArgumentException("effects.core.meditation_route must not be blank");
+            }
+            Objects.requireNonNull(heart, "effects.core.heart");
+            if (manualPrice < 0 || manualPrice > 1_000_000 || (manualPrice > 0 && heart.isEmpty())) {
+                throw new IllegalArgumentException("effects.core.manual_price requires a heart method and a bounded cost");
             }
         }
     }
