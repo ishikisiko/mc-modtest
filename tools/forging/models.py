@@ -4,7 +4,7 @@ import copy
 import json
 from pathlib import Path
 from tools.equipment import mesh
-from tools.forging.mesh_profiles import tool_faces
+from tools.forging.tool_models import ToolModels
 from tools.equipment.geometry import encode_png
 ROOT=Path(__file__).resolve().parents[2]
 PREFIX='yuanxian:equipment/forging/'
@@ -40,29 +40,17 @@ def palette_texture(name,colors):
 class Catalogue:
  def __init__(self,root=ROOT):
   self.root=Path(root);self.config=read(self.root/'equipment/workshop/stages.json');self.authored=read(self.root/'equipment/workshop/tools.json')
-  self.templates=read(self.root/'equipment/workshop/pickaxe_hoe_shape_templates.json')
-  self.sources={};self.tool_sources={};self.heads={};self.kinds={};self.displays={};self.names={};self.material_outputs={}
+  self.sources={};self.heads={};self.kinds={};self.displays={};self.names={};self.material_outputs={}
   self.series=set();self._tools();self._weapons();self._armor();self._flying_sword();self._series()
  def _tools(self):
-  for spec in self.authored['tools']:
-   faces=[];head=[]
-   for part in spec['boxes']:
-    if part['material'] not in self.authored['palette']:raise ValueError('Unknown tool material')
-    el={'name':part['name'],'from':part['from'],'to':part['to'],'faces':{s:{'texture':'#m','uv':[0,0,16,16]} for s in mesh.FACE_VERTS}}
-    if 'rotation' in part:el['rotation']=part['rotation']
-    fs=mesh.elements_mesh({'elements':[el],'textures':{'m':PREFIX+part['material']}})
-    for f in fs:f['metal']=part['role'] in ('head','edge')
-    faces.extend(fs)
-    if part['role'] in ('head','edge'):head.extend(fs)
-   rid=spec['id']
-   self.tool_sources[rid]=faces
-   self.heads[rid]=head
+  self.tools=ToolModels(self.root,self.authored,self.config['states'],palette_texture)
+  self.material_outputs.update(self.tools.textures)
+  for rid,(spec,_,name,_) in self.tools.models.items():
+   self.sources[rid]=self.tools.faces(rid,5)
+   self.heads[rid]=self.tools.faces(rid,4)
    self.kinds[rid]=spec['kind']
-   self.names[rid]=spec['name']
-   templated=rid in self.templates['模板']
-   self.sources[rid]=tool_faces(self.templates,rid,5,faces) if templated else faces
-   grip=self.templates['坐标']['握点'] if templated else spec['grip']
-   self.displays[rid]=mesh.item_display(self.sources[rid],grip=grip,root=self.root)
+   self.names[rid]=name
+   self.displays[rid]=mesh.item_display(self.sources[rid],grip=spec['grip'],root=self.root)
  def _weapons(self):
   from tools import gen_qingfeng_sword_model as q,gen_lingxiao_spear_model as s
   for rid,gen in [('qingfeng_sword',q),('lingxiao_spear',s)]:
@@ -103,6 +91,7 @@ class Catalogue:
    rid=item['id'].split(':')[1];self.sources[rid]=faces;self.heads[rid]=[f for f in faces if f['part'] in selected];self.kinds[rid]={'head':'helmet','chest':'chestplate','legs':'leggings','feet':'boots'}[item['slot']];self.names[rid]=item['name'];self.displays[rid]=mesh.item_display(faces,armor=True)
  def armor(self,rid):return self.kinds[rid] in ('helmet','chestplate','leggings','boots')
  def coarse(self,rid):
+  if rid in self.tools.models:return self.tools.faces(rid,0)
   head=self.heads[rid];lo,hi=mesh.bounds(head);rough=self.config['rough']
   if self.armor(rid):
    # Loose plates retain dimensions of the actual shell panels instead of sharing a metal ingot icon.
@@ -124,18 +113,15 @@ class Catalogue:
     thick=max(hi[0]-lo[0],rough['min_thickness'])*rough['thickness_scale'];wide=(hi[2]-lo[2])*width
     result+=box('料坯段'+str(n),[cx-thick/2,lo[1]+n*h,cz-wide/2],[cx+thick/2,lo[1]+(n+1)*h,cz+wide/2],PREFIX+'rough')
    return result
-  # Tool head blanks are taken from their actual head blocks; bevels and fittings come later.
-  spec=next(s for s in self.authored['tools'] if s['id']==rid);core={b['name'] for b in spec['boxes'] if b['role']=='head'}
-  return surface([f for f in head if f['part'] in core],'rough')
+  raise ValueError(f'No rough geometry for {rid}')
  def stage(self,rid,stage,hot=False):
-  templated=rid in self.templates['模板']
-  if stage==5:faces=copy.deepcopy(self.tool_sources[rid] if templated else self.sources[rid])
+  if rid in self.tools.models:return self.tools.faces(rid,stage,hot)
+  if stage==5:faces=copy.deepcopy(self.sources[rid])
   elif stage==0:faces=self.coarse(rid)
   else:
    faces=copy.deepcopy(self.heads[rid]);material=self.config['states'][stage]['surface']
    if material:faces=surface(faces,material)
   if hot:faces=surface(faces,'hot',metal_only=stage==5)
-  if templated:return tool_faces(self.templates,rid,stage,faces)
   return faces
  def bench(self,rid,faces,stage=5):
   # Put the broad face on the anvil, keeping the complete item's part proportions.
@@ -144,22 +130,30 @@ class Catalogue:
   return mesh.map_points(f,lambda p:(8+(p[0]-(lo[0]+hi[0])/2)*s,(p[1]-lo[1])*s,8+(p[2]-(lo[2]+hi[2])/2)*s))
  def outputs(self):
   base=self.root/'src/main/resources';out={};atlas=set()
+  out.update({base/path:data for path,data in self.tools.textures.items()})
   for name,colors in self.authored['palette'].items():out[base/f'assets/yuanxian/textures/equipment/forging/{name}.png']=palette_texture(name,colors)
-  def emit(faces,ref,path,display=None):
+  def emit(faces,ref,path,rid,stage,display=None,bench=False,hot=False):
    atlas.update(f['texture'] for f in faces if not f['texture'].split(':',1)[1].startswith(('item/','block/')))
-   assets,model=mesh.obj_assets(faces,ref,display)
-   out.update({base/p:data for p,data in assets.items()});out[base/path]=encoded(model)
+   if rid in self.tools.models:
+    assets,model=self.tools.export(faces,rid,stage,bench,hot,display)
+   else:
+    assets,model=mesh.obj_assets(faces,ref,display)
+   for name,data in assets.items():
+    if out.setdefault(base/name,data)!=data:raise ValueError(f'Conflicting OBJ assets: {name}')
+   out[base/path]=encoded(model)
   for rid,kind in self.kinds.items():
    for stage in range(6):
     fs=self.stage(rid,stage)
     if stage<5:
      sid=self.config['states'][stage]['id'];name=f'workpiece_{rid}_{sid}'
-     emit(fs,'yuanxian:equipment/forging/'+name,f'assets/yuanxian/models/item/{name}.json',mesh.item_display(fs,armor=self.armor(rid)))
-    elif rid in {t['id'] for t in self.authored['tools']}:
-     emit(fs,'yuanxian:equipment/forging/'+rid,f'assets/yuanxian/models/item/{rid}.json',self.displays[rid])
+     emit(fs,'yuanxian:equipment/forging/'+name,f'assets/yuanxian/models/item/{name}.json',rid,stage,mesh.item_display(fs,armor=self.armor(rid)))
+    elif rid in self.tools.models:
+     emit(fs,'yuanxian:equipment/forging/'+rid,f'assets/yuanxian/models/item/{rid}.json',rid,stage,self.displays[rid])
     for hot in ([False,True] if stage in (0,1,5) else [False]):
-     key=f'{rid if rid in self.series else kind}_{stage}'+('_hot' if hot else '')
-     emit(self.bench(rid,self.stage(rid,stage,hot),stage),'yuanxian:equipment/forging/bench_'+key,f'assets/yuanxian/models/block/workshop/{key}.json')
+     model_key=self.tools.models[rid][3] if rid in self.tools.models else rid if rid in self.series else kind
+     key=f'{model_key}_{stage}'+('_hot' if hot else '')
+     emit(self.bench(rid,self.stage(rid,stage,hot),stage),'yuanxian:equipment/forging/bench_'+key,
+          f'assets/yuanxian/models/block/workshop/{key}.json',rid,stage,bench=True,hot=hot)
   # OBJ materials still use the vanilla block atlas. Existing direct armor textures
   # and equipment palettes are outside its default item/block directory sources.
   sources={ref:{'type':'minecraft:single','resource':ref} for ref in atlas}

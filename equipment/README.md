@@ -86,7 +86,7 @@ python3 -m tools.equipment preview xuantie_armor --weapon qingfeng_sword --out r
 旧剑枪图标只保留为粒子资源；16套防具四槽通过独立GUI分支使用原创16像素图稿。该GUI例外不改变武器和工坊的同源几何归属。
 
 - `display.json`：共用 GUI 取景、工具握持与普通物品展示参数。
-- `workshop/tools.json`：镐、斧、铲、锄的实体部件、角色、材质色表与握点。
+- `workshop/tools.json`：镐、斧、铲、锄的粗坯、刃面和握柄轮廓、厚度与握点。`workshop/tool_textures/` 保存各套工具的像素贴图，炼器生成器由同一轮廓导出工序与成品模型。
 - `workshop/stages.json`：剑枪锻造主体、防具甲片选择、粗坯参数和阶段表面。
 - `tools/equipment/mesh.py`：保持原坐标和 UV 的 quad/OBJ/MTL 导出；使用 NeoForge 自带 OBJ loader，不增加自定义 Java 渲染器。
 - `tools/forging/models.py`：同一部件来源派生工件、成品工具及锻台／水槽模型；只用整体旋转、缩放和居中适配台面。

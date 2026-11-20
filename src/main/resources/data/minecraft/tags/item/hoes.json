@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "yuanxian:forged_hoe"
+    "yuanxian:forged_hoe",
+    "yuanxian:zhuji_baiqing_lingyun_hoe",
+    "yuanxian:jindan_jinwu_hoe"
   ]
 }

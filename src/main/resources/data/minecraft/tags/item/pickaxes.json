@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "yuanxian:forged_pickaxe"
+    "yuanxian:forged_pickaxe",
+    "yuanxian:zhuji_baiqing_lingyun_pickaxe",
+    "yuanxian:jindan_jinwu_pickaxe"
   ]
 }

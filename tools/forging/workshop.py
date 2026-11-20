@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from tools.gen_alchemy_assets import Canvas,png
 from tools.gen_flying_swords import XUANTIE_NAME
+from tools.forging.tool_models import added_tools
 ROOT=Path(__file__).resolve().parents[2]
 STAGES=('rough','shaped','quenched','tempered','ground')
 NAMES={'qingfeng_sword':('Qingfeng sword','青锋剑'),'lingxiao_spear':('Lingxiao spear','凌霄枪'),
@@ -132,6 +133,15 @@ def retired_paths(root=ROOT):
             for recipe in ARMOR_NAMES]
 
 
+def tool_language(root):
+    lang={}
+    for rid,_,name,_ in added_tools(root):
+        lang[f'item.yuanxian.{rid}']=name
+        lang[f'item.yuanxian.pattern_{rid}']=name+'器谱'
+        for stage,(_,label) in zip(STAGES,STAGE_NAMES):
+            lang[f'item.yuanxian.workpiece_{rid}_{stage}']=name+'·'+label
+    return lang
+
 def outputs(root=ROOT):
     base=root/'src/main/resources';out={};encode=lambda o:(json.dumps(o,ensure_ascii=False,indent=2)+'\n').encode()
     def add(path,obj):out[base/path]=encode(obj)
@@ -146,6 +156,18 @@ def outputs(root=ROOT):
         if recipe.startswith('forged_'):
             pattern='pattern_'+recipe
             add(f'data/yuanxian/recipe/{pattern}.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:book'},{'item':'minecraft:iron_ingot'}],'result':{'id':'yuanxian:'+pattern}})
+    tool_tags={}
+    for rid,kind,_,material in added_tools(root):
+        pattern='pattern_'+rid
+        add(f'data/yuanxian/recipe/{pattern}.json',{'type':'minecraft:crafting_shapeless','category':'equipment',
+            'ingredients':[{'item':'minecraft:book'},{'item':material['ingot']},{'tag':'c:spirit_stones/low_grade'}],
+            'result':{'id':'yuanxian:'+pattern,'count':1}})
+        tool_tags.setdefault(kind,[]).append('yuanxian:'+rid)
+    for kind,items in tool_tags.items():
+        path=f'data/minecraft/tags/item/{kind}s.json'
+        tag=json.loads((base/path).read_text())
+        tag['values']=list(dict.fromkeys(tag['values']+items))
+        add(path,tag)
     for name,rows in [('panel',panel()),('anvil',anvil_sprite()),('hammer',hammer_sprite())]:out[base/f'assets/yuanxian/textures/gui/workshop_{name}.png']=png(rows)
     add('data/yuanxian/tags/item/forging_fuels.json',{'replace':False,'values':['minecraft:coal','minecraft:charcoal']})
     from tools.forging import anvil

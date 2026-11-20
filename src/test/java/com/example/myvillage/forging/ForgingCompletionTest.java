@@ -5,6 +5,7 @@ import com.example.myvillage.item.QualityDisplay;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -97,6 +98,30 @@ class ForgingCompletionTest {
             assertEquals(mark,ForgeMark.CODEC.parse(JsonOps.INSTANCE,ForgeMark.CODEC.encodeStart(JsonOps.INSTANCE,mark).getOrThrow()).getOrThrow());
             var bytes=Unpooled.buffer();try{ForgeMark.STREAM_CODEC.encode(bytes,mark);assertEquals(mark,ForgeMark.STREAM_CODEC.decode(bytes));assertFalse(bytes.isReadable());}finally{bytes.release();}
             assertTrue(ItemStack.matches(item,ItemStack.parse(registries,item.save(registries)).orElseThrow()));
+        }
+    }
+    @Test void advancedToolsUseTheMaterialBaseSpeedAndASeparateWorkpieceModelKey() {
+        var speedByMaterial = Map.of("zhuji_baiqing_lingyun", 7.0F, "jindan_jinwu", 8.5F);
+        var stone = Blocks.STONE.defaultBlockState();
+        var materials = WorkshopToolSets.materials();
+        assertEquals(speedByMaterial.size(),materials.size());
+        for (var material : materials) {
+            float baseSpeed = speedByMaterial.get(material.prefix());
+            for (String kind : WorkshopRules.TOOL_KINDS) {
+                String recipe = material.prefix() + "_" + kind;
+                var craft = WorkshopRules.get().craft(recipe);
+                assertEquals(recipe, craft.modelKey());
+                assertTrue(craft.requires_pattern());
+                for (int quality = 1; quality <= 4; quality++) {
+                    var result = WorkshopEquipment.complete(piece(recipe,2),quality);
+                    var tool = result.get(DataComponents.TOOL);
+                    assertNotNull(tool);
+                    assertEquals(baseSpeed, tool.rules().stream().flatMap(r -> r.speed().stream()).findFirst().orElseThrow());
+                    result.set(DataComponents.TOOL, new Tool(List.of(Tool.Rule.minesAndDrops(List.of(Blocks.STONE),baseSpeed)),1,1));
+                    assertEquals(baseSpeed + (quality == 1 ? 0 : .5F),
+                            WorkshopTool.qualityMiningSpeed(result, stone, result.getDestroySpeed(stone)));
+                }
+            }
         }
     }
     @Test void temperingRepairAndRefreshPreserveUninfusedQuality(){

@@ -1,0 +1,151 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/pickaxe_finished.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:equipment/forging/tools/jinwu/pickaxe_head"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -2.268033612733223,
+        -1.4147047836180486,
+        -0.2412941965974728
+      ],
+      "scale": [
+        0.793514744898244,
+        0.793514744898244,
+        0.793514744898244
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        1.5664621676891615,
+        -0.0
+      ],
+      "scale": [
+        0.4089979550102249,
+        0.4089979550102249,
+        0.4089979550102249
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -0.7044989775051127,
+        -0.0
+      ],
+      "scale": [
+        0.6646216768916154,
+        0.6646216768916154,
+        0.6646216768916154
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -0.7044989775051127,
+        -0.0
+      ],
+      "scale": [
+        0.6646216768916154,
+        0.6646216768916154,
+        0.6646216768916154
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        -0.232,
+        1.662
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        -0.232,
+        1.662
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        -0.326,
+        -0.178
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        -0.326,
+        -0.178
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/jindan_jinwu_pickaxe_finished.mtl"
+}

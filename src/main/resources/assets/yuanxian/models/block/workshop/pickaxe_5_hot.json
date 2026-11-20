@@ -1,6 +1,6 @@
 {
   "loader": "neoforge:obj",
-  "model": "yuanxian:models/equipment/forging/bench_pickaxe_5_hot.obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/pickaxe_finished_bench.obj",
   "automatic_culling": false,
   "shade_quads": true,
   "flip_v": false,
@@ -8,5 +8,6 @@
   "gui_light": "side",
   "textures": {
     "particle": "yuanxian:equipment/forging/hot"
-  }
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/forged_pickaxe_finished_hot.mtl"
 }

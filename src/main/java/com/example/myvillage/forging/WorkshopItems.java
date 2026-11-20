@@ -11,7 +11,8 @@ public final class WorkshopItems {
     private WorkshopItems(){}
     public static Map<String,DeferredItem<com.example.myvillage.item.ForgePatternItem>> registerAdditionalPatterns(DeferredRegister.Items register){
         var result=new LinkedHashMap<String,DeferredItem<com.example.myvillage.item.ForgePatternItem>>();
-        for(var craft:WorkshopRules.get().crafts())if(craft.armor()||craft.weapon()&&!Set.of("qingfeng_sword","lingxiao_spear").contains(craft.recipe())){
+        for(var craft:WorkshopRules.get().crafts())if(craft.armor()||craft.tool()&&craft.requires_pattern()
+                ||craft.weapon()&&!Set.of("qingfeng_sword","lingxiao_spear").contains(craft.recipe())){
             var recipe=ForgingRules.get().recipe(craft.recipe()).orElseThrow();
             var id=net.minecraft.resources.ResourceLocation.parse(recipe.pattern()).getPath();
             result.put(id,register.registerItem(id,p->new com.example.myvillage.item.ForgePatternItem(p,recipe.id())));

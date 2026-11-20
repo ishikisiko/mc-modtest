@@ -318,6 +318,118 @@
         "tough"
       ],
       "quality_tier": "yuanxian:qi_refining"
+    },
+    {
+      "id": "zhuji_baiqing_lingyun_pickaxe",
+      "pattern": "yuanxian:pattern_zhuji_baiqing_lingyun_pickaxe",
+      "output": "yuanxian:zhuji_baiqing_lingyun_pickaxe",
+      "costs": {
+        "yuanxian:zhuji_baiqing_lingyun_ingot": 3,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ],
+      "quality_tier": "yuanxian:foundation_establishment"
+    },
+    {
+      "id": "zhuji_baiqing_lingyun_axe",
+      "pattern": "yuanxian:pattern_zhuji_baiqing_lingyun_axe",
+      "output": "yuanxian:zhuji_baiqing_lingyun_axe",
+      "costs": {
+        "yuanxian:zhuji_baiqing_lingyun_ingot": 3,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ],
+      "quality_tier": "yuanxian:foundation_establishment"
+    },
+    {
+      "id": "zhuji_baiqing_lingyun_shovel",
+      "pattern": "yuanxian:pattern_zhuji_baiqing_lingyun_shovel",
+      "output": "yuanxian:zhuji_baiqing_lingyun_shovel",
+      "costs": {
+        "yuanxian:zhuji_baiqing_lingyun_ingot": 1,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ],
+      "quality_tier": "yuanxian:foundation_establishment"
+    },
+    {
+      "id": "zhuji_baiqing_lingyun_hoe",
+      "pattern": "yuanxian:pattern_zhuji_baiqing_lingyun_hoe",
+      "output": "yuanxian:zhuji_baiqing_lingyun_hoe",
+      "costs": {
+        "yuanxian:zhuji_baiqing_lingyun_ingot": 2,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ],
+      "quality_tier": "yuanxian:foundation_establishment"
+    },
+    {
+      "id": "jindan_jinwu_pickaxe",
+      "pattern": "yuanxian:pattern_jindan_jinwu_pickaxe",
+      "output": "yuanxian:jindan_jinwu_pickaxe",
+      "costs": {
+        "yuanxian:jindan_jinwu_ingot": 3,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ],
+      "quality_tier": "yuanxian:golden_core"
+    },
+    {
+      "id": "jindan_jinwu_axe",
+      "pattern": "yuanxian:pattern_jindan_jinwu_axe",
+      "output": "yuanxian:jindan_jinwu_axe",
+      "costs": {
+        "yuanxian:jindan_jinwu_ingot": 3,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ],
+      "quality_tier": "yuanxian:golden_core"
+    },
+    {
+      "id": "jindan_jinwu_shovel",
+      "pattern": "yuanxian:pattern_jindan_jinwu_shovel",
+      "output": "yuanxian:jindan_jinwu_shovel",
+      "costs": {
+        "yuanxian:jindan_jinwu_ingot": 1,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ],
+      "quality_tier": "yuanxian:golden_core"
+    },
+    {
+      "id": "jindan_jinwu_hoe",
+      "pattern": "yuanxian:pattern_jindan_jinwu_hoe",
+      "output": "yuanxian:jindan_jinwu_hoe",
+      "costs": {
+        "yuanxian:jindan_jinwu_ingot": 2,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ],
+      "quality_tier": "yuanxian:golden_core"
     }
   ],
   "traits": {

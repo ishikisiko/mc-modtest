@@ -1,0 +1,13 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/shovel_head_bench.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:equipment/forging/tools/baiqing/shovel_formed"
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/zhuji_baiqing_lingyun_shovel_shaped.mtl"
+}

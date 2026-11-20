@@ -27,7 +27,7 @@ public final class QuenchingTroughBlockEntity extends BlockEntity {
     public boolean owns(WorkshopMenu menu) { return operator==menu&&!isRemoved(); }
     public boolean reserve(WorkshopMenu menu) {
         if(level==null||level.isClientSide()||!available()||!filled()) return false;
-        operator=menu;kind=menu.craft().kind();started=level.getGameTime();sync();return true;
+        operator=menu;kind=menu.craft().modelKey();started=level.getGameTime();sync();return true;
     }
     public boolean consume(WorkshopMenu menu) {
         if(!owns(menu)||!filled()||level==null) return false;

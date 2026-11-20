@@ -55,9 +55,10 @@ for key, value in {
 def encoded(value):return (json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode()
 def language_outputs(root=ROOT):
     files={}
+    names=workshop.tool_language(root)
     for lang,i in [('en_us',0),('zh_cn',1)]:
         path=root/f'src/main/resources/assets/yuanxian/lang/{lang}.json'
-        current=json.loads(path.read_text());current.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(current)
+        current=json.loads(path.read_text());current.update({k:v[i] for k,v in LANG.items()});current.update(names);files[path]=encoded(current)
     return files
 def outputs(root=ROOT):
     files={}
@@ -102,9 +103,10 @@ def outputs(root=ROOT):
     files.update(foundry.outputs(root))
     # Workshop reads the on-disk lang, so re-apply the authored base strings last;
     # otherwise stale material names can overwrite the current ones.
+    names=workshop.tool_language(root)
     for lang,i in [('en_us',0),('zh_cn',1)]:
         path=root/f'src/main/resources/assets/yuanxian/lang/{lang}.json'
-        data=json.loads(files[path]);data.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(data)
+        data=json.loads(files[path]);data.update({k:v[i] for k,v in LANG.items()});data.update(names);files[path]=encoded(data)
     return files
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--lang-only',action='store_true',help='Only update/check the authored forging language keys');p.add_argument('--preview',action='store_true');p.add_argument('--materials-preview',action='store_true');a=p.parse_args();stale=[]
@@ -112,7 +114,8 @@ def main():
         if a.check:
             if not path.exists() or path.read_bytes()!=data:stale.append(str(path.relative_to(ROOT)))
         else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
-    retired=[] if a.lang_only else list(materials.retired_paths(ROOT))+workshop.retired_paths(ROOT)
+    from tools.forging.tool_models import retired_tool_meshes
+    retired=[] if a.lang_only else list(materials.retired_paths(ROOT))+workshop.retired_paths(ROOT)+list(retired_tool_meshes(ROOT))
     crafts=json.loads((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())['crafts']
     for craft in ([] if a.lang_only else crafts):
         rid=craft['recipe']

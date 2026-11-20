@@ -50,28 +50,100 @@
     "forged_axe": {
       "center": [
         0.5,
-        0.6625,
-        0.634375
+        0.659375,
+        0.6525000000000001
       ],
-      "scale": 0.8679245283018867,
+      "scale": 0.872037914691943,
       "rotate_z": 90
     },
     "forged_shovel": {
       "center": [
         0.5,
-        0.74375,
+        0.7475,
         0.5
       ],
-      "scale": 0.7731092436974789,
+      "scale": 0.7692307692307692,
       "rotate_z": 90
     },
     "forged_hoe": {
       "center": [
         0.5,
-        0.545625,
-        0.6446875
+        0.5484375,
+        0.645625
       ],
-      "scale": 1.0538373424971361,
+      "scale": 1.0484330484330484,
+      "rotate_z": 90
+    },
+    "zhuji_baiqing_lingyun_pickaxe": {
+      "center": [
+        0.5,
+        0.56625,
+        0.5
+      ],
+      "scale": 0.9406952965235172,
+      "rotate_z": 90
+    },
+    "zhuji_baiqing_lingyun_axe": {
+      "center": [
+        0.5,
+        0.659375,
+        0.6525000000000001
+      ],
+      "scale": 0.872037914691943,
+      "rotate_z": 90
+    },
+    "zhuji_baiqing_lingyun_shovel": {
+      "center": [
+        0.5,
+        0.7475,
+        0.5
+      ],
+      "scale": 0.7692307692307692,
+      "rotate_z": 90
+    },
+    "zhuji_baiqing_lingyun_hoe": {
+      "center": [
+        0.5,
+        0.5484375,
+        0.645625
+      ],
+      "scale": 1.0484330484330484,
+      "rotate_z": 90
+    },
+    "jindan_jinwu_pickaxe": {
+      "center": [
+        0.5,
+        0.56625,
+        0.5
+      ],
+      "scale": 0.9406952965235172,
+      "rotate_z": 90
+    },
+    "jindan_jinwu_axe": {
+      "center": [
+        0.5,
+        0.659375,
+        0.6525000000000001
+      ],
+      "scale": 0.872037914691943,
+      "rotate_z": 90
+    },
+    "jindan_jinwu_shovel": {
+      "center": [
+        0.5,
+        0.7475,
+        0.5
+      ],
+      "scale": 0.7692307692307692,
+      "rotate_z": 90
+    },
+    "jindan_jinwu_hoe": {
+      "center": [
+        0.5,
+        0.5484375,
+        0.645625
+      ],
+      "scale": 1.0484330484330484,
       "rotate_z": 90
     },
     "qingfeng_sword": {

@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.blockentity.*;
 public final class QuenchingTroughRenderer implements BlockEntityRenderer<QuenchingTroughBlockEntity> {
     public QuenchingTroughRenderer(BlockEntityRendererProvider.Context context) {}
     @Override public void render(QuenchingTroughBlockEntity block,float partialTick,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
-        if(block.getLevel()==null||block.started()<0||!WorkshopRules.KINDS.contains(block.kind())) return;
+        if(block.getLevel()==null||block.started()<0||!ForgingAnvilRenderer.hasModel(block.kind())) return;
         float progress=(block.getLevel().getGameTime()-block.started()+partialTick)/WorkshopRules.get().operation_ticks().get("quench");
         if(progress<0||progress>=1) return;
         pose.pushPose();pose.translate(.5,0,.5);

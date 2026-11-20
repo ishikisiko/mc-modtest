@@ -5,6 +5,7 @@ import com.example.myvillage.item.ModItems;
 import com.example.myvillage.item.RideableFlyingSwordItem;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
@@ -37,6 +39,8 @@ class EquipmentInfusionTest {
         // Exercise the public API against the real authored recipe IDs. Standalone unit tests
         // bootstrap vanilla only, so provide damageable fixtures in bounded registry windows.
         var items=(MappedRegistry<Item>)BuiltInRegistries.ITEM;
+        var toolMaterials=WorkshopToolSets.materials().stream()
+                .collect(Collectors.toMap(WorkshopToolSets.Material::prefix, WorkshopToolSets.Material::tier));
         synchronized(items) {
             items.unfreeze();
             try {
@@ -48,15 +52,10 @@ class EquipmentInfusionTest {
                             continue;
                         }
                         var kind = WorkshopRules.get().forOutput(id.toString()).map(WorkshopRules.Craft::kind).orElse("");
-                        var tool = switch (kind) {
-                            case "pickaxe" -> new WorkshopTools.Pickaxe(new Item.Properties());
-                            case "axe" -> new WorkshopTools.Axe(new Item.Properties());
-                            case "shovel" -> new WorkshopTools.Shovel(new Item.Properties());
-                            case "hoe" -> new WorkshopTools.Hoe(new Item.Properties());
-                            default -> null;
-                        };
-                        if (tool != null) {
-                            Registry.register(items, id, tool);
+                        if (WorkshopRules.TOOL_KINDS.contains(kind)) {
+                            int end = recipe.id().lastIndexOf('_');
+                            var tier = toolMaterials.getOrDefault(recipe.id().substring(0,end), Tiers.IRON);
+                            Registry.register(items, id, WorkshopToolSets.create(kind,tier,new Item.Properties()));
                             continue;
                         }
                         var armor=com.example.myvillage.equipment.EquipmentCatalogue.bundled().stream().filter(a->a.id().equals(id)).findFirst();

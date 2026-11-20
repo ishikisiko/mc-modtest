@@ -1,12 +1,13 @@
 {
   "loader": "neoforge:obj",
-  "model": "yuanxian:models/equipment/forging/bench_axe_1.obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/axe_head_bench.obj",
   "automatic_culling": false,
   "shade_quads": true,
   "flip_v": false,
   "emissive_ambient": false,
   "gui_light": "side",
   "textures": {
-    "particle": "yuanxian:equipment/forging/formed"
-  }
+    "particle": "yuanxian:equipment/forging/tools/iron/axe_formed"
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/forged_axe_shaped.mtl"
 }

@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "yuanxian:forged_axe"
+    "yuanxian:forged_axe",
+    "yuanxian:zhuji_baiqing_lingyun_axe",
+    "yuanxian:jindan_jinwu_axe"
   ]
 }

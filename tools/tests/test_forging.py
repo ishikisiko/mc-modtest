@@ -3,7 +3,7 @@ from pathlib import Path
 import unittest
 from tools import gen_forging_assets as assets
 from tools.forged_arms.assets import specs
-from tools.validate_mod_items import forged_weapon_registrations
+from tools.validate_mod_items import forged_weapon_registrations, registered_items
 from tools.modal_runner.remote import commands_for
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -19,11 +19,17 @@ class ForgingResourcesTest(unittest.TestCase):
         offers=json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/commerce_rules.json').read_text())['offers']
         forged = {'yuanxian:'+spec['id'] for spec in specs()}
         new = {'yuanxian:'+ident for ident in forged_weapon_registrations(ROOT)}
+        from tools.forging.tool_models import added_tools
+        variants = {'yuanxian:'+rid for rid,_,_,_ in added_tools(ROOT)}
         for recipe in rules['recipes']:
             if recipe['output'] in forged:
                 self.assertIn('WorkshopItems.registerAdditionalPatterns(ITEMS)',registered)
                 self.assertTrue(recipe['output'] in new or recipe['output'].split(':')[1] in registered
                                 or recipe['output']=='yuanxian:guiyan_sword')
+                self.assertEqual('yuanxian:pattern_'+recipe['id'],recipe['pattern'])
+            elif recipe['output'] in variants:
+                self.assertIn(recipe['id'],registered_items())
+                self.assertIn('WorkshopItems.registerAdditionalPatterns(ITEMS)',registered)
                 self.assertEqual('yuanxian:pattern_'+recipe['id'],recipe['pattern'])
             elif recipe['output'] in armor_ids:
                 self.assertIn('WorkshopItems.registerAdditionalPatterns(ITEMS)',registered)
@@ -130,12 +136,15 @@ class MaterialResourcesTest(unittest.TestCase):
         import tempfile
         from unittest.mock import patch
         from tools.forging import materials
+        from tools.forging.tool_models import retired_tool_meshes
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp)
-            retired=list(materials.retired_paths(root))+assets.workshop.retired_paths(root)
             config=root/'src/main/resources/data/yuanxian/forging/workshop.json'
             config.parent.mkdir(parents=True,exist_ok=True)
             config.write_text((ROOT/'src/main/resources/data/yuanxian/forging/workshop.json').read_text())
+            tool_sets=config.with_name('tool_sets.json')
+            tool_sets.write_text((ROOT/tool_sets.relative_to(root)).read_text())
+            retired=list(materials.retired_paths(root))+assets.workshop.retired_paths(root)+list(retired_tool_meshes(root))
             for path in retired:path.parent.mkdir(parents=True,exist_ok=True);path.write_text('{}')
             other=retired[0].with_name('unrelated.json');other.write_text('{}')
             with patch.object(assets,'ROOT',root),patch.object(assets,'outputs',return_value={}):

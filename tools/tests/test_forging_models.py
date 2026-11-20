@@ -50,12 +50,34 @@ class SharedForgingModelsTest(unittest.TestCase):
    self.assertTrue(all(positions(fs)==positions(stages[0]) for fs in stages))
    self.assertEqual(4,len({tuple(f['texture'] for f in fs) for fs in stages}))
  def test_tools_have_actual_head_volume_and_assembly_adds_the_wooden_handle(self):
-  for spec in self.c.authored['tools']:
-   rid=spec['id'];head=self.c.stage(rid,4);finished=self.c.stage(rid,5)
+  shared=set()
+  base=ROOT/'src/main/resources/assets/yuanxian'
+  def resolved(path):
+   model=json.loads(self.outputs[path])
+   obj,mtl=(base/ref.split(':',1)[1] for ref in (model['model'],model['mtl_override']))
+   shared.add(obj)
+   faces=mesh.read_obj(self.outputs[obj],self.outputs[mtl])
+   return obj,tuple(f['texture'] for f in faces)
+  for rid,(spec,_,_,key) in self.c.tools.models.items():
+   head=self.c.stage(rid,4);finished=self.c.stage(rid,5)
    self.assertFalse(any('wood' in f['texture'] for f in head))
    self.assertTrue(any('wood' in f['texture'] for f in finished))
-   lo,hi=mesh.bounds(head);self.assertGreater(min(hi[i]-lo[i] for i in range(3)),1)
+   self.assertEqual(head,finished[:len(head)])
+   lo,hi=mesh.bounds(head);self.assertAlmostEqual(hi[0]-lo[0],spec['head_depth'])
+   self.assertGreater(hi[0],lo[0])
+   self.assertLessEqual(hi[0]-lo[0],1.03)
+   self.assertNotEqual(self.c.stage(rid,0)[0]['points'],head[0]['points'])
    self.assertGreater(len(finished),len(head))
+   item=[resolved(base/f'models/item/workpiece_{rid}_{s}.json') for s in ('rough','shaped','quenched','tempered','ground')]
+   self.assertEqual(1,len({obj for obj,_ in item[1:]}))
+   self.assertEqual(4,len({maps for _,maps in item[1:]}))
+   resolved(base/f'models/item/{rid}.json')
+   for stage in range(6):
+    cold=resolved(base/f'models/block/workshop/{key}_{stage}.json')
+    if stage in (0,1,5):
+     hot=resolved(base/f'models/block/workshop/{key}_{stage}_hot.json')
+     self.assertEqual(cold[0],hot[0])
+  self.assertEqual(24,len(shared))
  def test_bench_and_trough_meshes_fit_the_same_authored_volume(self):
   for rid in self.c.sources:
    for stage in range(6):

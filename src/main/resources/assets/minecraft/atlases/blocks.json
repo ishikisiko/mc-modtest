@@ -2,23 +2,11 @@
   "sources": [
     {
       "type": "minecraft:single",
-      "resource": "yuanxian:equipment/forging/copper"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "yuanxian:equipment/forging/edge"
-    },
-    {
-      "type": "minecraft:single",
       "resource": "yuanxian:equipment/forging/formed"
     },
     {
       "type": "minecraft:single",
       "resource": "yuanxian:equipment/forging/hot"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "yuanxian:equipment/forging/leather"
     },
     {
       "type": "minecraft:single",
@@ -30,15 +18,319 @@
     },
     {
       "type": "minecraft:single",
-      "resource": "yuanxian:equipment/forging/steel"
-    },
-    {
-      "type": "minecraft:single",
       "resource": "yuanxian:equipment/forging/tempered"
     },
     {
       "type": "minecraft:single",
-      "resource": "yuanxian:equipment/forging/wood"
+      "resource": "yuanxian:equipment/forging/tools/baiqing/axe_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/axe_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/axe_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/axe_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/axe_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/hoe_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/hoe_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/hoe_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/hoe_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/hoe_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/metal_edge"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/metal_edge_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/metal_edge_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/metal_edge_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/pickaxe_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/pickaxe_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/pickaxe_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/pickaxe_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/pickaxe_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/rough"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/shovel_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/shovel_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/shovel_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/shovel_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/shovel_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/baiqing/wood_edge"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/axe_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/axe_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/axe_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/axe_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/axe_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/hoe_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/hoe_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/hoe_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/hoe_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/hoe_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/metal_edge"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/metal_edge_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/metal_edge_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/metal_edge_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/pickaxe_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/pickaxe_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/pickaxe_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/pickaxe_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/pickaxe_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/rough"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/shovel_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/shovel_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/shovel_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/shovel_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/shovel_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/iron/wood_edge"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/axe_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/axe_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/axe_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/axe_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/axe_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/hoe_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/hoe_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/hoe_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/hoe_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/hoe_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/metal_edge"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/metal_edge_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/metal_edge_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/metal_edge_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/pickaxe_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/pickaxe_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/pickaxe_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/pickaxe_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/pickaxe_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/rough"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/shovel_formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/shovel_head"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/shovel_quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/shovel_tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/shovel_wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "yuanxian:equipment/forging/tools/jinwu/wood_edge"
     },
     {
       "type": "minecraft:single",

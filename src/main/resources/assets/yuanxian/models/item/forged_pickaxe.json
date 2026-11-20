@@ -1,13 +1,13 @@
 {
   "loader": "neoforge:obj",
-  "model": "yuanxian:models/equipment/forging/forged_pickaxe.obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/pickaxe_finished.obj",
   "automatic_culling": false,
   "shade_quads": true,
   "flip_v": false,
   "emissive_ambient": false,
   "gui_light": "side",
   "textures": {
-    "particle": "yuanxian:equipment/forging/edge"
+    "particle": "yuanxian:equipment/forging/tools/iron/pickaxe_head"
   },
   "display": {
     "gui": {
@@ -17,14 +17,14 @@
         -67.39953537600312
       ],
       "translation": [
-        -2.2168184490266962,
-        -1.3970561642175794,
-        -0.24073321503260464
+        -2.268033612733223,
+        -1.4147047836180486,
+        -0.2412941965974728
       ],
       "scale": [
-        0.791669913362235,
-        0.791669913362235,
-        0.791669913362235
+        0.793514744898244,
+        0.793514744898244,
+        0.793514744898244
       ]
     },
     "ground": {
@@ -146,5 +146,6 @@
         0.65
       ]
     }
-  }
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/forged_pickaxe_finished.mtl"
 }

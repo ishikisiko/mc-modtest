@@ -1,0 +1,23 @@
+newmtl m0
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:equipment/forging/tools/iron/axe_head
+
+newmtl m1
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:equipment/forging/tools/iron/metal_edge
+
+newmtl m2
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:equipment/forging/tools/iron/axe_wood
+
+newmtl m3
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd yuanxian:equipment/forging/tools/iron/wood_edge

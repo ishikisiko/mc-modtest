@@ -17,6 +17,7 @@ public record WorkshopRules(int version, int shape_percent, int strike_ticks,
         double treatment_attack, double treatment_speed, double treatment_durability, int experience_limit, float sound_volume, float sound_pitch_jitter, List<Craft> crafts) {
     public static final String RESOURCE="/data/yuanxian/forging/workshop.json";
     public static final List<String> KINDS=List.of("sword","spear","pickaxe","axe","shovel","hoe","helmet","chestplate","leggings","boots","flying_sword");
+    public static final List<String> TOOL_KINDS=List.of("pickaxe","axe","shovel","hoe");
     public record Band(int through,int experience) {}
     public record Craft(String recipe,String kind,boolean requires_pattern,int max_strikes,int work_experience,int forming_points,int grade) {
         public boolean armor(){return Set.of("helmet","chestplate","leggings","boots").contains(kind);}
@@ -24,7 +25,11 @@ public record WorkshopRules(int version, int shape_percent, int strike_ticks,
         public boolean training(int choice){return choice>=1&&choice<=3&&(!armor()||choice==2);}
         public boolean flyingSword(){return kind.equals("flying_sword");}
         public boolean weapon(){return kind.equals("sword")||kind.equals("spear");}
-        public String modelKey(){return weapon()&&!Set.of("qingfeng_sword","lingxiao_spear").contains(recipe)?recipe:kind;}
+        public boolean tool(){return TOOL_KINDS.contains(kind);}
+        public String modelKey(){
+            if(tool())return recipe.equals("forged_"+kind)?kind:recipe;
+            return weapon()&&!Set.of("qingfeng_sword","lingxiao_spear").contains(recipe)?recipe:kind;
+        }
     }
     public WorkshopRules {
         operation_ticks=Map.copyOf(operation_ticks);fuel_cost=costs(fuel_cost);

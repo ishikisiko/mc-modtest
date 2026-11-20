@@ -222,6 +222,8 @@ public final class ModItems {
             props -> new com.example.myvillage.forging.WorkshopTools.Hoe(props.attributes(net.minecraft.world.item.HoeItem.createAttributes(Tiers.IRON,-2F,-1.0F))));
     public static final DeferredItem<ForgePatternItem> PATTERN_FORGED_HOE = ITEMS.registerItem("pattern_forged_hoe",
             props -> new ForgePatternItem(props,"forged_hoe"));
+    public static final java.util.List<DeferredItem<Item>> FORGED_TOOL_SETS =
+            com.example.myvillage.forging.WorkshopToolSets.register(ITEMS);
     public static final java.util.List<DeferredItem<CombatWeaponItem>> FORGED_ARMS = ForgedArmsContent.register(ITEMS);
     public static final java.util.Map<String,DeferredItem<ForgePatternItem>> ADDITIONAL_PATTERNS = com.example.myvillage.forging.WorkshopItems.registerAdditionalPatterns(ITEMS);
     public static final java.util.Map<String,DeferredItem<com.example.myvillage.forging.WorkpieceItem>> WORKPIECES =
@@ -460,6 +462,7 @@ public final class ModItems {
                         output.accept(PATTERN_FORGED_SHOVEL.get());
                         output.accept(FORGED_HOE.get());
                         output.accept(PATTERN_FORGED_HOE.get());
+                        FORGED_TOOL_SETS.forEach(entry -> output.accept(entry.get()));
                         ADDITIONAL_PATTERNS.values().forEach(entry -> output.accept(entry.get()));
                         WORKPIECES.values().forEach(entry -> {
                             var item = entry.get();

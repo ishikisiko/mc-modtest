@@ -244,6 +244,78 @@
       "work_experience": 0,
       "forming_points": 440,
       "grade": 2
+    },
+    {
+      "recipe": "zhuji_baiqing_lingyun_pickaxe",
+      "kind": "pickaxe",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 3,
+      "forming_points": 383,
+      "grade": 3
+    },
+    {
+      "recipe": "zhuji_baiqing_lingyun_axe",
+      "kind": "axe",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 2,
+      "forming_points": 383,
+      "grade": 3
+    },
+    {
+      "recipe": "zhuji_baiqing_lingyun_shovel",
+      "kind": "shovel",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 1,
+      "forming_points": 128,
+      "grade": 3
+    },
+    {
+      "recipe": "zhuji_baiqing_lingyun_hoe",
+      "kind": "hoe",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 1,
+      "forming_points": 255,
+      "grade": 3
+    },
+    {
+      "recipe": "jindan_jinwu_pickaxe",
+      "kind": "pickaxe",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 3,
+      "forming_points": 465,
+      "grade": 4
+    },
+    {
+      "recipe": "jindan_jinwu_axe",
+      "kind": "axe",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 2,
+      "forming_points": 465,
+      "grade": 4
+    },
+    {
+      "recipe": "jindan_jinwu_shovel",
+      "kind": "shovel",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 1,
+      "forming_points": 155,
+      "grade": 4
+    },
+    {
+      "recipe": "jindan_jinwu_hoe",
+      "kind": "hoe",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 1,
+      "forming_points": 310,
+      "grade": 4
     }
   ],
   "treatment_attack": 0.15,

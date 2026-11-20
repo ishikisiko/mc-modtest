@@ -1,0 +1,151 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/axe_rough.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:equipment/forging/tools/jinwu/rough"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -4.348052195683573,
+        -10.646760108861185,
+        -1.5749650119168825
+      ],
+      "scale": [
+        1.2849456040894596,
+        1.2849456040894596,
+        1.2849456040894596
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -3.198999999999999,
+        -1.2449999999999994
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -2.541142108230757e-16,
+        -8.665,
+        2.0749999999999993
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -2.541142108230757e-16,
+        -8.665,
+        2.0749999999999993
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -1.2449999999999997,
+        -4.258771478258468,
+        2.982023892589088
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -1.2449999999999997,
+        -4.258771478258468,
+        2.982023892589088
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -1.34875,
+        -5.104552033537171,
+        2.3802917046890544
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -1.34875,
+        -5.104552033537171,
+        2.3802917046890544
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/jinwu_rough.mtl"
+}

@@ -28,7 +28,8 @@ public final class WorkshopTools {
         a.setDamageValue(0);b.setDamageValue(0);return !ItemStack.isSameItemSameComponents(a,b);
     }
     public static final class Pickaxe extends PickaxeItem implements WorkshopTool {
-        public Pickaxe(Properties properties){super(Tiers.IRON,properties);}
+        public Pickaxe(Properties properties){this(Tiers.IRON,properties);}
+        Pickaxe(Tier tier,Properties properties){super(tier,properties);}
         @Override public Component getName(ItemStack stack){return name(super.getName(stack),stack);}
         @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){super.appendHoverText(stack,context,lines,flag);tooltip(stack,lines);}
         @Override public boolean shouldCauseReequipAnimation(ItemStack old,ItemStack next,boolean changed){return reequips(old,next);}
@@ -38,7 +39,8 @@ public final class WorkshopTools {
         }
     }
     public static final class Axe extends AxeItem implements WorkshopTool {
-        public Axe(Properties properties){super(Tiers.IRON,properties);}
+        public Axe(Properties properties){this(Tiers.IRON,properties);}
+        Axe(Tier tier,Properties properties){super(tier,properties);}
         @Override public Component getName(ItemStack stack){return name(super.getName(stack),stack);}
         @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){super.appendHoverText(stack,context,lines,flag);tooltip(stack,lines);}
         @Override public boolean shouldCauseReequipAnimation(ItemStack old,ItemStack next,boolean changed){return reequips(old,next);}
@@ -48,7 +50,8 @@ public final class WorkshopTools {
         }
     }
     public static final class Shovel extends ShovelItem implements WorkshopTool {
-        public Shovel(Properties properties){super(Tiers.IRON,properties);}
+        public Shovel(Properties properties){this(Tiers.IRON,properties);}
+        Shovel(Tier tier,Properties properties){super(tier,properties);}
         @Override public Component getName(ItemStack stack){return name(super.getName(stack),stack);}
         @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){super.appendHoverText(stack,context,lines,flag);tooltip(stack,lines);}
         @Override public boolean shouldCauseReequipAnimation(ItemStack old,ItemStack next,boolean changed){return reequips(old,next);}
@@ -58,7 +61,8 @@ public final class WorkshopTools {
         }
     }
     public static final class Hoe extends HoeItem implements WorkshopTool {
-        public Hoe(Properties properties){super(Tiers.IRON,properties);}
+        public Hoe(Properties properties){this(Tiers.IRON,properties);}
+        Hoe(Tier tier,Properties properties){super(tier,properties);}
         @Override public Component getName(ItemStack stack){return name(super.getName(stack),stack);}
         @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){super.appendHoverText(stack,context,lines,flag);tooltip(stack,lines);}
         @Override public boolean shouldCauseReequipAnimation(ItemStack old,ItemStack next,boolean changed){return reequips(old,next);}

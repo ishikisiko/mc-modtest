@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "yuanxian:forged_shovel"
+    "yuanxian:forged_shovel",
+    "yuanxian:zhuji_baiqing_lingyun_shovel",
+    "yuanxian:jindan_jinwu_shovel"
   ]
 }

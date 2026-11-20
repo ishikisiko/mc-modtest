@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.141.1
+
+- 精铁、白青灵金和日魄乌金三套镐、斧、铲、锄使用薄型模型，各有粗坯、成形坯、淬火坯、回火坯和精磨坯。
+- 白青灵金与日魄乌金工具的基础挖掘速度分别为 7.0 和 8.5，两套工具随器谱进入现有炼器工序。
+
 ## 0.141.0
 
 - 新增材料袋、通用储物袋和秘籍袋。每种袋子有五档，炼气档 27 格，每升一档扩展两行。材料袋根据物品标签自动收纳正常拾取的本模组原料，潜行右键箱子可按箱子已有材料卸货。普通炼器鼎制作炼气袋和筑基袋，完整玄枢炼器鼎用于金丹及以上扩容。

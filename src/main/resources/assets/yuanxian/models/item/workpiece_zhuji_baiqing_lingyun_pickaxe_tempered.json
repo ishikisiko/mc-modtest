@@ -1,0 +1,151 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/pickaxe_head.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:equipment/forging/tools/baiqing/pickaxe_tempered"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -2.6463868297477204,
+        -4.104449560874734,
+        -0.2705284705921141
+      ],
+      "scale": [
+        0.8896539301677588,
+        0.8896539301677588,
+        0.8896539301677588
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -1.057259713701432,
+        -0.0
+      ],
+      "scale": [
+        0.4089979550102249,
+        0.4089979550102249,
+        0.4089979550102249
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -4.968047034764826,
+        -0.0
+      ],
+      "scale": [
+        0.6646216768916154,
+        0.6646216768916154,
+        0.6646216768916154
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -4.968047034764826,
+        -0.0
+      ],
+      "scale": [
+        0.6646216768916154,
+        0.6646216768916154,
+        0.6646216768916154
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -1.342191561261839e-16,
+        -3.130450680501132,
+        2.191965164480608
+      ],
+      "scale": [
+        0.5112474437627811,
+        0.5112474437627811,
+        0.5112474437627811
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -1.342191561261839e-16,
+        -3.130450680501132,
+        2.191965164480608
+      ],
+      "scale": [
+        0.5112474437627811,
+        0.5112474437627811,
+        0.5112474437627811
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -1.0878378040899577e-16,
+        -3.8098751425914386,
+        1.7765739556047553
+      ],
+      "scale": [
+        0.5623721881390592,
+        0.5623721881390592,
+        0.5623721881390592
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -1.0878378040899577e-16,
+        -3.8098751425914386,
+        1.7765739556047553
+      ],
+      "scale": [
+        0.5623721881390592,
+        0.5623721881390592,
+        0.5623721881390592
+      ]
+    }
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/zhuji_baiqing_lingyun_pickaxe_tempered.mtl"
+}

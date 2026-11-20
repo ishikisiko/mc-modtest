@@ -1,12 +1,13 @@
 {
   "loader": "neoforge:obj",
-  "model": "yuanxian:models/equipment/forging/bench_hoe_5.obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/hoe_finished_bench.obj",
   "automatic_culling": false,
   "shade_quads": true,
   "flip_v": false,
   "emissive_ambient": false,
   "gui_light": "side",
   "textures": {
-    "particle": "yuanxian:equipment/forging/steel"
-  }
+    "particle": "yuanxian:equipment/forging/tools/iron/hoe_head"
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/forged_hoe_finished.mtl"
 }

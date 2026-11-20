@@ -272,10 +272,12 @@ def forged_weapon_registrations(root: Path) -> set[str]:
 
 
 def registered_items() -> set[str]:
+    from tools.forging.tool_models import added_tools
     text = MOD_ITEMS.read_text(encoding="utf-8")
     explicit = re.findall(r'ITEMS\.registerItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
     simple = re.findall(r'ITEMS\.registerSimpleItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
-    return set(explicit) | set(simple) | forged_weapon_registrations(ROOT) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | manor_items() | road_items()
+    tools = {rid for rid,_,_,_ in added_tools(ROOT)} if 'WorkshopToolSets.register(ITEMS)' in text else set()
+    return set(explicit) | set(simple) | tools | forged_weapon_registrations(ROOT) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | manor_items() | road_items()
 
 
 def road_items() -> set[str]:
@@ -445,7 +447,7 @@ def validate_obj_model(model: dict, path: Path, errors: list[str]) -> None:
         obj=resource(model.get("model"),".obj");data=obj.read_bytes()
         libraries=[line.split()[1] for line in data.decode().splitlines() if line.startswith("mtllib ")]
         if len(libraries)!=1:raise ValueError("exactly one material library required")
-        mtl=resource(libraries[0],".mtl")
+        mtl=resource(model.get("mtl_override",libraries[0]),".mtl")
         faces=read_obj(data,mtl.read_bytes())
         if not faces:raise ValueError("empty mesh")
         atlas_path=ASSET_ROOT.parent/'minecraft/atlases/blocks.json'

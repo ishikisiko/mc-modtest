@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "yuanxian:zhuji_baiqing_lingyun_ingot"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:pattern_zhuji_baiqing_lingyun_axe",
+    "count": 1
+  }
+}

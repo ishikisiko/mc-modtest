@@ -1,0 +1,18 @@
+[
+  {
+    "key": "baiqing",
+    "prefix": "zhuji_baiqing_lingyun",
+    "name": "白青灵金",
+    "ingot": "yuanxian:zhuji_baiqing_lingyun_ingot",
+    "item_tier": "diamond",
+    "base_speed": 7.0
+  },
+  {
+    "key": "jinwu",
+    "prefix": "jindan_jinwu",
+    "name": "日魄乌金",
+    "ingot": "yuanxian:jindan_jinwu_ingot",
+    "item_tier": "netherite",
+    "base_speed": 8.5
+  }
+]

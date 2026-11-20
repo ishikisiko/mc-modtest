@@ -1,0 +1,151 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/hoe_finished.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:equipment/forging/tools/jinwu/hoe_head"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -0.7185207858892929,
+        -1.0703791453473919,
+        -0.7596337894202312
+      ],
+      "scale": [
+        0.8348676366355192,
+        0.8348676366355192,
+        0.8348676366355192
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        1.6467236467236466,
+        -1.0621082621082623
+      ],
+      "scale": [
+        0.45584045584045585,
+        0.45584045584045585,
+        0.45584045584045585
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -2.113649660750617e-16,
+        -0.5740740740740743,
+        1.7259259259259259
+      ],
+      "scale": [
+        0.7407407407407407,
+        0.7407407407407407,
+        0.7407407407407407
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -2.113649660750617e-16,
+        -0.5740740740740743,
+        1.7259259259259259
+      ],
+      "scale": [
+        0.7407407407407407,
+        0.7407407407407407,
+        0.7407407407407407
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        -0.232,
+        1.662
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        -0.232,
+        1.662
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        -0.326,
+        -0.178
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        -0.326,
+        -0.178
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/jindan_jinwu_hoe_finished.mtl"
+}

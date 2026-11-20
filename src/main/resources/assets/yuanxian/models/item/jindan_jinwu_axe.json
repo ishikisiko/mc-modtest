@@ -1,0 +1,151 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/equipment/forging/tool_geometry/axe_finished.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:equipment/forging/tools/jinwu/axe_head"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -1.1918590184663131,
+        -2.4565555743244847,
+        -0.8668775307347573
+      ],
+      "scale": [
+        0.6435526766231303,
+        0.6435526766231303,
+        0.6435526766231303
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        1.0331753554502368,
+        -0.9251184834123227
+      ],
+      "scale": [
+        0.3791469194312796,
+        0.3791469194312796,
+        0.3791469194312796
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -1.8410330080073015e-16,
+        -1.571090047393365,
+        1.5033175355450243
+      ],
+      "scale": [
+        0.6161137440758293,
+        0.6161137440758293,
+        0.6161137440758293
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -1.8410330080073015e-16,
+        -1.571090047393365,
+        1.5033175355450243
+      ],
+      "scale": [
+        0.6161137440758293,
+        0.6161137440758293,
+        0.6161137440758293
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        -0.232,
+        1.662
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        -0.232,
+        1.662
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        -0.326,
+        -0.178
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        -0.326,
+        -0.178
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  },
+  "mtl_override": "yuanxian:models/equipment/forging/tool_materials/jindan_jinwu_axe_finished.mtl"
+}
