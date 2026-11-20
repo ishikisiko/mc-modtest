@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Locale;
+import java.util.Optional;
 
 /** Fixed effects carried by the synchronized definition of a single heart technique. */
 public sealed interface HeartMethod permits HeartMethod.Attack, HeartMethod.Defense, HeartMethod.Spirit {
@@ -47,36 +48,50 @@ public sealed interface HeartMethod permits HeartMethod.Attack, HeartMethod.Defe
     Slot slot();
     Direction direction();
 
-    record Attack(Direction direction, double basic, double art, boolean paidOnly) implements HeartMethod {
+    record Attack(Direction direction, double attack, Optional<AttackExtra> extra) implements HeartMethod {
         static final MapCodec<Attack> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
                 DIRECTION_CODEC.fieldOf("direction").forGetter(Attack::direction),
-                Codec.doubleRange(0, 2048).fieldOf("basic").forGetter(Attack::basic),
-                Codec.doubleRange(0, 2048).fieldOf("art").forGetter(Attack::art),
-                Codec.BOOL.optionalFieldOf("paid_only", false).forGetter(Attack::paidOnly)
+                Codec.doubleRange(0, 2048).fieldOf("attack").forGetter(Attack::attack),
+                AttackExtra.CODEC.optionalFieldOf("extra").forGetter(Attack::extra)
         ).apply(builder, Attack::new));
 
         @Override public Slot slot() { return Slot.ATTACK; }
     }
 
-    record Defense(Direction direction, double base, Guard guard, double reaction) implements HeartMethod {
+    record AttackExtra(double amount, boolean artOnly, boolean paidOnly) {
+        static final Codec<AttackExtra> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+                Codec.doubleRange(0, 2048).fieldOf("amount").forGetter(AttackExtra::amount),
+                Codec.BOOL.optionalFieldOf("art_only", false).forGetter(AttackExtra::artOnly),
+                Codec.BOOL.optionalFieldOf("paid_only", false).forGetter(AttackExtra::paidOnly)
+        ).apply(builder, AttackExtra::new));
+    }
+
+    record Defense(Direction direction, double defense, double maxHealth, Optional<DefenseExtra> extra) implements HeartMethod {
         static final MapCodec<Defense> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
                 DIRECTION_CODEC.fieldOf("direction").forGetter(Defense::direction),
-                Codec.doubleRange(0, 1024).fieldOf("base").forGetter(Defense::base),
-                StringRepresentable.fromEnum(Guard::values).optionalFieldOf("guard", Guard.NONE).forGetter(Defense::guard),
-                Codec.doubleRange(0, 1024).optionalFieldOf("reaction", 0.0).forGetter(Defense::reaction)
+                Codec.doubleRange(0, 1024).fieldOf("defense").forGetter(Defense::defense),
+                Codec.doubleRange(0, 1024).fieldOf("max_health").forGetter(Defense::maxHealth),
+                DefenseExtra.CODEC.optionalFieldOf("extra").forGetter(Defense::extra)
         ).apply(builder, Defense::new));
 
         @Override public Slot slot() { return Slot.DEFENSE; }
     }
 
+    record DefenseExtra(double amount, Guard guard) {
+        static final Codec<DefenseExtra> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+                Codec.doubleRange(0, 1024).fieldOf("amount").forGetter(DefenseExtra::amount),
+                StringRepresentable.fromEnum(Guard::values).optionalFieldOf("guard", Guard.NONE).forGetter(DefenseExtra::guard)
+        ).apply(builder, DefenseExtra::new));
+    }
+
     /** Recovery is measured in quarters of one point per second. */
-    record Spirit(Direction direction, int capacity, int recoveryQuarters, int normal, int stone) implements HeartMethod {
+    record Spirit(Direction direction, int capacity, int recoveryQuarters, int cultivation, int stoneExtra) implements HeartMethod {
         static final MapCodec<Spirit> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
                 DIRECTION_CODEC.fieldOf("direction").forGetter(Spirit::direction),
                 Codec.intRange(0, 1_000_000).fieldOf("capacity").forGetter(Spirit::capacity),
                 Codec.intRange(0, 1_000_000).fieldOf("recovery_quarters").forGetter(Spirit::recoveryQuarters),
-                Codec.intRange(0, 1_000_000).fieldOf("normal").forGetter(Spirit::normal),
-                Codec.intRange(0, 1_000_000).fieldOf("stone").forGetter(Spirit::stone)
+                Codec.intRange(0, 1_000_000).fieldOf("cultivation").forGetter(Spirit::cultivation),
+                Codec.intRange(0, 1_000_000).optionalFieldOf("stone_extra", 0).forGetter(Spirit::stoneExtra)
         ).apply(builder, Spirit::new));
 
         @Override public Slot slot() { return Slot.SPIRIT; }

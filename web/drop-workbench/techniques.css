@@ -99,6 +99,12 @@
     gap: 9px;
     padding: 14px 14px 8px;
 }
+#technique-slot-field[hidden] {
+    display: none;
+}
+.technique-filters:has(#technique-slot-field:not([hidden])) > :first-child {
+    grid-column: 1 / -1;
+}
 .technique-results {
     margin: 4px 14px 9px;
     color: var(--muted);

@@ -27,7 +27,7 @@ class TechniqueCatalogueDefinitionTest {
                   "grade": 2,
                   "elements": ["yuanxian:metal"],
                   "school": "yuanxian:sword",
-                  "requirements": { "minimum_realm": "yuanxian:qi_refining", "minimum_stage": "yuanxian:qi_refining_3" },
+                  "requirements": { "minimum_realm": "yuanxian:qi_refining" },
                   "lineage": { "previous": "yuanxian:gengjin_tuna_shu" },
                   "effects": { "core": { "meditation_route": "xiaozhoutian" } }
                 }

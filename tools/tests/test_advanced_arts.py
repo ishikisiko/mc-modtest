@@ -64,7 +64,7 @@ class AdvancedArtsDataTests(unittest.TestCase):
             manual=json.loads(output[gen.DATA/f'yuanxian/technique/{rid}.json'])
             self.assertEqual(art['qi_cost'],manual['effects']['active']['qi_cost'])
             self.assertEqual(art['id'],manual['effects']['active']['skill'])
-            self.assertEqual(art['minimum_stage'],manual['requirements']['minimum_stage'])
+            self.assertNotIn('minimum_stage', manual['requirements'])
             self.assertEqual(600,manual['study']['points'])
             for lang in ('zh_cn','en_us'):
                 self.assertIn(manual['translation_key'],json.loads(output[gen.ASSETS/f'lang/{lang}.json']))

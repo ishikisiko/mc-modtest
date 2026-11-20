@@ -78,7 +78,7 @@ class GenerationTest(Fixture):
         self.assertGreater(doc["effects"]["active"]["qi_cost"], 0)
         self.assertEqual(doc["study"], {"points": 36000, "gates": 2, "gate_stability_cost": 100})
         self.assertEqual(doc["requirements"], {
-            "minimum_realm": "yuanxian:foundation_establishment", "minimum_stage": "yuanxian:foundation_early",
+            "minimum_realm": "yuanxian:foundation_establishment",
             "minimum_element_aptitude": {"yuanxian:metal": 100}})
         core = json.loads((self.root / generator.TECHNIQUE_REL / "yinqi_jue.json").read_text("utf-8"))
         self.assertNotIn("school", core)
@@ -86,8 +86,7 @@ class GenerationTest(Fixture):
         self.assertEqual(core["elements"], [])
         self.assertEqual(core["effects"]["core"]["meditation_route"], "xiaozhoutian")
         self.assertEqual(core["effects"]["core"]["heart"]["capacity"], 15)
-        self.assertEqual(core["requirements"], {"minimum_realm": "yuanxian:qi_refining",
-                                                "minimum_stage": "yuanxian:qi_refining_1"})
+        self.assertEqual(core["requirements"], {"minimum_realm": "yuanxian:qi_refining"})
         self.assertEqual(core["study"], {"points": 160, "gates": 0, "gate_stability_cost": 0})
 
     def test_every_generated_technique_carries_the_study_block_of_its_grade(self) -> None:
@@ -173,7 +172,7 @@ class RowEffectsTest(Fixture):
         technique = self.technique("jianqi_jue")
         self.assertEqual(technique["effects"], {"active": {"skill": "yuanxian:jianqi_jue", "qi_cost": 8, "slots": 1}})
         self.assertEqual(technique["grade"], 1)
-        self.assertEqual(technique["requirements"]["minimum_stage"], "yuanxian:qi_refining_1")
+        self.assertEqual(technique["requirements"]["minimum_realm"], "yuanxian:qi_refining")
         self.assertNotIn("lineage", technique)
         self.assertNotIn("minimum_element_affinity", technique["requirements"])
 
@@ -215,7 +214,7 @@ class RowEffectsTest(Fixture):
         self.write()
         self.assertEqual(self.technique("yinqi_jue")["effects"], {"core": {"meditation_route": "dazhoutian"}})
         self.assertEqual(self.technique("tuna_xinfa")["effects"]["core"]["meditation_route"], "xiaozhoutian")
-        self.assertEqual(self.technique("tuna_xinfa")["effects"]["core"]["heart"]["normal"], 10)
+        self.assertEqual(self.technique("tuna_xinfa")["effects"]["core"]["heart"]["cultivation"], 10)
 
     def test_merge_is_shallow_per_effect_kind_and_row_wins(self) -> None:
         def defaults(d):

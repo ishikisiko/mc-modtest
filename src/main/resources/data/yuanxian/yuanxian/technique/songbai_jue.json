@@ -6,8 +6,7 @@
     "yuanxian:wood"
   ],
   "requirements": {
-    "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_7"
+    "minimum_realm": "yuanxian:qi_refining"
   },
   "effects": {
     "core": {
@@ -15,9 +14,12 @@
       "heart": {
         "slot": "defense",
         "direction": "sword",
-        "base": 0.75,
-        "guard": "ranged",
-        "reaction": 1.25
+        "defense": 0.75,
+        "max_health": 3,
+        "extra": {
+          "amount": 0.5,
+          "guard": "ranged"
+        }
       },
       "manual_price": 8
     }

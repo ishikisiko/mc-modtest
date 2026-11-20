@@ -8,7 +8,6 @@
   "school": "yuanxian:sword",
   "requirements": {
     "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_4",
     "minimum_element_aptitude": {
       "yuanxian:metal": 40
     }

@@ -31,10 +31,8 @@ class ElementalArtsTest(unittest.TestCase):
     def test_growth_has_playable_early_kit_and_later_area(self):
         for e in g.ELEMENTS:
             kit={a['role']:a for a in self.doc['arts'] if a['element']==e}
-            self.assertEqual('qi_refining_1',kit['basic']['minimum_stage'])
-            self.assertEqual('qi_refining_1',kit['ward']['minimum_stage'])
-            self.assertEqual('qi_refining_4',kit['burst']['minimum_stage'])
-            self.assertEqual('foundation_early',kit['field']['minimum_stage'])
+            self.assertEqual(['qi_refining'] * 3 + ['foundation_establishment'],
+                             [kit[role]['minimum_realm'] for role in ('basic', 'ward', 'burst', 'field')])
             self.assertEqual(kit['basic']['id'],kit['burst']['previous'])
             self.assertEqual(kit['burst']['id'],kit['field']['previous'])
 

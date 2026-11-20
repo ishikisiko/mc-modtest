@@ -17,11 +17,11 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path('tools/advanced_arts/arts.json')
 DATA = Path('src/main/resources/data/yuanxian')
 ASSETS = Path('src/main/resources/assets/yuanxian')
-ART_FIELDS = set('id name_zh name_en description_zh description_en family school slot qi_cost cooldown_ticks grade minimum_realm minimum_stage study guard_reduction guard_arc_degrees counter_multiplier color particle_count phases requires_ground interrupt_on_damage fx_lifetime_ticks cast_pitch'.split())
+ART_FIELDS = set('id name_zh name_en description_zh description_en family school slot qi_cost cooldown_ticks grade minimum_realm study guard_reduction guard_arc_degrees counter_multiplier color particle_count phases requires_ground interrupt_on_damage fx_lifetime_ticks cast_pitch'.split())
 PHASE_FIELDS = set('move shape reach arc_degrees width height half_height damage_multiplier maximum_targets step_distance reaction fx'.split())
 STUDY_FIELDS = {'points', 'gates', 'gate_stability_cost'}
 REACTION_FIELDS = {'hitstun_ticks', 'slide_distance', 'lift', 'lateral_bias'}
-META_FIELDS = set('name_zh name_en description_zh description_en grade minimum_realm minimum_stage study'.split())
+META_FIELDS = set('name_zh name_en description_zh description_en grade minimum_realm study'.split())
 SHAPES = {'line', 'fan', 'ring'}
 FX = {'arc', 'helix', 'ring', 'lotus', 'shock'}
 
@@ -94,8 +94,7 @@ def validate(root: Path, doc: dict) -> None:
         if art['family'] not in families: raise ValueError('unknown weapon family')
         school = read(root / DATA / 'yuanxian/school' / (art['school'].split(':')[1]+'.json'))
         if school.get('weapon_family') != art['family']: raise ValueError('school/family mismatch')
-        realm = read(root / DATA / 'yuanxian/realm' / (art['minimum_realm'].split(':')[1]+'.json'))
-        if art['minimum_stage'] not in {s['id'] for s in realm['stages']}: raise ValueError('unknown stage')
+        read(root / DATA / 'yuanxian/realm' / (art['minimum_realm'].split(':')[1]+'.json'))
         exact(art['study'], STUDY_FIELDS, 'study')
         number(art['study'],'points',1,1000000,True)
         number(art['study'],'gates',0,10,True)
@@ -149,7 +148,7 @@ def plan(root: Path = ROOT) -> dict[Path, str]:
         translation = f'cultivation.technique.yuanxian.{rid}'
         output[DATA / f'yuanxian/technique/{rid}.json'] = dump({
             'translation_key':translation, 'category':'active', 'grade':art['grade'], 'elements':[],
-            'school':art['school'], 'requirements':{'minimum_realm':art['minimum_realm'], 'minimum_stage':art['minimum_stage']},
+            'school':art['school'], 'requirements':{'minimum_realm':art['minimum_realm']},
             'effects':{'active':{'skill':art['id'], 'qi_cost':art['qi_cost'], 'slots':1}}, 'study':art['study']})
         for lang,suffix in [('zh_cn','zh'),('en_us','en')]:
             keys[lang][translation] = art[f'name_{suffix}']

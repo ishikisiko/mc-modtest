@@ -161,8 +161,8 @@ final class TechniqueGrowthPage extends PanelPage {
             var next = spec.next().get(); var nextDef = c.technique(next).orElse(null);
             y = text(g, c, x, y + 4, width, "后篇：" + TechniqueTiles.name(c, next) + " · 前篇圆满并参悟后，持秘籍右键研读。", InkPanelTheme.JADE);
             if (nextDef != null) {
-                String requirement = nextDef.requirements().minimumRealm().map(realm -> nextDef.requirements().minimumStage()
-                        .map(s -> c.stageName(realm, s).getString()).orElse(c.realmName(realm).getString())).orElse("无境界门槛");
+                String requirement = nextDef.requirements().minimumRealm().map(realm -> c.realmName(realm).getString())
+                        .orElse("无境界门槛");
                 y = text(g, c, x, y, width, "后篇条件：" + requirement, InkPanelTheme.MUTED);
                 for (var entry : nextDef.requirements().minimumElementAptitudes().entrySet())
                     y = text(g, c, x, y, width, c.elementName(entry.getKey()).getString() + "亲和 ≥ " + percent(entry.getValue()), InkPanelTheme.MUTED);

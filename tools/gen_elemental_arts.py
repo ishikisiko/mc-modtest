@@ -11,7 +11,7 @@ SOURCE = Path('tools/elemental_arts/arts.json')
 DATA = Path('src/main/resources/data/yuanxian')
 ELEMENTS = {'metal', 'wood', 'water', 'fire', 'earth'}
 ROLES = {'basic', 'ward', 'burst', 'field'}
-META = {'name', 'description', 'grade', 'minimum_realm', 'minimum_stage', 'study_points', 'previous'}
+META = {'name', 'description', 'grade', 'minimum_realm', 'study_points', 'previous'}
 
 
 def dump(value):
@@ -100,7 +100,7 @@ navigation:
                 'reaction':{'hitstun_ticks':0,'slide_distance':0,'lift':0,'lateral_bias':0},'fx':'ring'}]})
         technique={'translation_key':'cultivation.technique.yuanxian.'+ident,'category':'active','grade':a['grade'],
             'elements':['yuanxian:'+a['element']],'school':'yuanxian:'+a['element']+'_arts',
-            'requirements':{'minimum_realm':'yuanxian:'+a['minimum_realm'],'minimum_stage':'yuanxian:'+a['minimum_stage']},
+            'requirements':{'minimum_realm':'yuanxian:'+a['minimum_realm']},
             'effects':{'active':{'skill':rid,'qi_cost':a['qi_cost'],'slots':1}},
             'study':{'points':a['study_points'],'gates':0,'gate_stability_cost':0}}
         if a['previous']:technique['lineage']={'previous':'yuanxian:'+a['previous']}

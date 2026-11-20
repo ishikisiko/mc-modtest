@@ -47,25 +47,34 @@ class HeartTechniquesTest {
     }
 
     @Test
-    void combatHeartAddsOnlyTheMatchingFixedValue() throws IOException {
-        var fist = decode("taiyue_zhenjing");
-        var attack = (HeartMethod.Attack) HeartTechniques.method(fist).orElseThrow();
-        assertEquals(11, HeartTechniques.attackBonus(fist, attack, "fist", null, false, false));
-        assertEquals(26, HeartTechniques.attackBonus(fist, attack, "fist", null, true, true));
-        assertEquals(0, HeartTechniques.attackBonus(fist, attack, "sword", null, true, true));
+    void combatHeartKeepsBaseAndOnlyAddsExtraForMatchingEvents() throws IOException {
+        var sword = decode("zhan_yun_jian_zhang");
+        var attack = (HeartMethod.Attack) HeartTechniques.method(sword).orElseThrow();
+        assertEquals(24, attack.attack());
+        assertEquals(0, HeartTechniques.attackExtra(sword, attack, "sword", null, false, false));
+        assertEquals(30, HeartTechniques.attackExtra(sword, attack, "sword", null, true, true));
+        assertEquals(0, HeartTechniques.attackExtra(sword, attack, "fist", null, true, true));
         var spellDef = decode("baidi_shasheng_jing");
         var spell = (HeartMethod.Attack) HeartTechniques.method(spellDef).orElseThrow();
-        assertEquals(26, HeartTechniques.attackBonus(spellDef, spell, "fist", DamageType.METAL, true, true));
-        assertEquals(0, HeartTechniques.attackBonus(spellDef, spell, "", DamageType.FIRE, true, true));
+        assertEquals(11, spell.attack());
+        assertEquals(15, HeartTechniques.attackExtra(spellDef, spell, "", DamageType.METAL, true, true));
+        assertEquals(0, HeartTechniques.attackExtra(spellDef, spell, "", DamageType.FIRE, true, true));
         var common = decode("dari_zhenjing");
         var paid = (HeartMethod.Attack) HeartTechniques.method(common).orElseThrow();
-        assertEquals(17, HeartTechniques.attackBonus(common, paid, "", DamageType.FIRE, true, true));
-        assertEquals(0, HeartTechniques.attackBonus(common, paid, "fist", null, true, false));
-        var guardDef = decode("liu_li_jin_shen_jing");
+        assertEquals(17, HeartTechniques.attackExtra(common, paid, "", DamageType.FIRE, true, true));
+        assertEquals(0, HeartTechniques.attackExtra(common, paid, "fist", null, true, false));
+
+        var guardDef = decode("xuan_qiong_shou_jian_jing");
         var defense = (HeartMethod.Defense) HeartTechniques.method(guardDef).orElseThrow();
-        assertEquals(60, HeartTechniques.defenseBonus(guardDef, defense, "fist", DamageType.PHYSICAL, true, false));
-        assertEquals(20, HeartTechniques.defenseBonus(guardDef, defense, "fist", DamageType.WATER, false, true));
-        assertEquals(0, HeartTechniques.defenseBonus(guardDef, defense, "sword", DamageType.PHYSICAL, true, false));
+        assertEquals(48, defense.maxHealth());
+        assertEquals(10, defense.defense());
+        assertEquals(20, HeartTechniques.defenseExtra(guardDef, defense, "sword", DamageType.WATER, false, true));
+        assertEquals(0, HeartTechniques.defenseExtra(guardDef, defense, "sword", DamageType.PHYSICAL, true, false));
+        assertEquals(0, HeartTechniques.defenseExtra(guardDef, defense, "fist", DamageType.WATER, false, true));
+
+        var spirit = (HeartMethod.Spirit) HeartTechniques.method(decode("basic_breathing")).orElseThrow();
+        assertEquals(2, spirit.cultivation());
+        assertEquals(3, spirit.stoneExtra());
     }
 
     @Test

@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:spirit_transformation",
-    "minimum_stage": "yuanxian:spirit_middle",
     "minimum_element_aptitude": {
       "yuanxian:metal": 200
     }
@@ -18,9 +17,12 @@
       "heart": {
         "slot": "defense",
         "direction": "fist",
-        "base": 20.0,
-        "guard": "melee",
-        "reaction": 60.0
+        "defense": 20.0,
+        "max_health": 96,
+        "extra": {
+          "amount": 40.0,
+          "guard": "melee"
+        }
       },
       "manual_price": 4000
     }

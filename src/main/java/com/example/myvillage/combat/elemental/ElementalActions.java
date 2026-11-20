@@ -48,8 +48,9 @@ public final class ElementalActions {
         Vec3 anchor=spell.casterCentered()?p.position():target==null?endpoint:target.position();
         Vec3 direction=target==null?look:target.getBoundingBox().getCenter().subtract(eye).normalize();
         int charges=spell.consumes()?ElementalEffects.consume(p,spell.element()):0;
-        double base=ElementalEffects.base(p,spell.element());
-        double directBonus = com.example.myvillage.cultivation.technique.HeartTechniques.attack(
+        double base=ElementalEffects.base(p,spell.element())
+                + com.example.myvillage.stats.runtime.StatsRuntime.heartAttackAddition(p);
+        double directBonus = com.example.myvillage.cultivation.technique.HeartTechniques.attackExtra(
                 p, "", spell.element(), true, paid);
         LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} t={} result=cast element={} role={} charges={} base={}",
                 CombatCaster.name(p),CombatCaster.level(p).getGameTime(),spell.element().id(),spell.role(),charges,base);

@@ -7,7 +7,7 @@ from math import ceil
 from pathlib import Path
 
 CATEGORIES = {
-    'core': '攻、防守和灵力与修炼各装备一门，按心法记录的固定点数生效。',
+    'core': '攻、防守和灵力与修炼各装备一门。详情列出常驻加值和额外效果的触发条件。',
     'active': '学会绝技后可在技能页分配按键，实际效果取决于招式。',
     'movement': '身法决定闪避的位移距离、无敌时间、耗灵和冷却。',
     'body': '炼体功法的效果字段包括属性加值和抗硬直。',
@@ -54,34 +54,50 @@ def element_name(labels, id):
     return labels['cultivation.element.' + id.replace(':', '.')]
 
 
-def core_stats(definition, effects, world_rules, element_names):
-    if (heart := effects.get('heart')) is not None:
-        stats = [('装备栏位', HEART_SLOTS[heart['slot']]), ('适用方向', HEART_DIRECTIONS[heart['direction']])]
-        def add(label, value, unit='点'):
-            if value:
-                stats.append((label, f'{value:+g} {unit}'))
-        if heart['slot'] == 'attack':
-            if heart['direction'] == 'spell':
-                add('、'.join(element_names) + '系法术直接伤害基数', heart['art'])
+def heart_effect(heart, price, elements):
+    base, extra, stats = [], [], []
+    direction = heart['direction']
+    school = HEART_DIRECTIONS[direction]
+    element = '、'.join(elements) or '五行'
+    weapon = direction in ('sword', 'spear', 'fist')
+    trigger = heart.get('extra')
+
+    def add(rows, label, value, unit='点'):
+        if value:
+            rows.append((label, f'{value:+g} {unit}'))
+
+    if heart['slot'] == 'attack':
+        add(base, '攻击', heart['attack'])
+        if trigger:
+            if direction == 'spell':
+                action = element + '法术'
+            elif trigger.get('paid_only'):
+                action = (school + '系' if weapon else '') + '耗灵绝技'
+            elif trigger.get('art_only'):
+                action = (school + '系' if weapon else '') + '绝技'
             else:
-                add('对应普攻基础伤害', heart['basic'])
-                add('耗灵绝技基础伤害' if heart.get('paid_only') else '对应绝技基础伤害', heart['art'])
-        elif heart['slot'] == 'defense':
-            scope = '持对应武器时' if heart['direction'] in ('sword', 'spear', 'fist') else ''
-            if heart['direction'] == 'spell':
-                scope = '受到' + ('、'.join(element_names) or '任意五行') + '伤害时'
-            add(scope + '肉身防御', heart['base'])
-            if (guard := heart.get('guard')) in ('melee', 'ranged'):
-                incoming = '直接近战攻击' if guard == 'melee' else '投射物或五行法术'
-                add('持对应武器且受到' + incoming + '时本书加值', heart['reaction'])
-        else:
-            add('灵力上限', heart['capacity'])
-            add('自然回灵', heart['recovery_quarters'] / 4, '点/秒')
-            add('每批普通打坐修为', heart['normal'])
-            add('每批灵石打坐修为', heart['stone'])
-        if effects.get('manual_price'):
-            stats.append(('游戏内换取秘籍', f"{effects['manual_price']:,} 颗下品灵石"))
-        return stats
+                action = (school + '系' if weapon else '') + '攻击'
+            add(extra, action + '命中时的伤害基数', trigger['amount'])
+    elif heart['slot'] == 'defense':
+        add(base, '生命上限', heart['max_health'])
+        add(base, '肉身防御', heart['defense'])
+        if trigger:
+            incoming = element + '伤害' if direction == 'spell' else {
+                'melee': '近战攻击', 'ranged': '投射物或五行法术', 'none': '攻击',
+            }[trigger.get('guard', 'none')]
+            hold = '持' + school if weapon else ''
+            add(extra, hold + '受到' + incoming + '时的肉身防御', trigger['amount'])
+    else:
+        add(base, '灵力上限', heart['capacity'])
+        add(base, '自然回灵', heart['recovery_quarters'] / 4, '点/秒')
+        add(base, '每批修炼修为', heart['cultivation'])
+        add(extra, '每批灵石修炼额外修为', heart.get('stone_extra', 0))
+    if price:
+        stats.append(('游戏内换取秘籍', f'{price:,} 颗下品灵石'))
+    return {'name': '秘籍', 'stats': stats, 'base': base, 'extra': extra}
+
+
+def legacy_core_stats(definition, effects, world_rules, element_names):
     grade = definition['grade']
     rules = world_rules['techniques']
     base = rules['grades'][CORE_GRADES[grade]]['cultivation'] if grade else 1
@@ -318,12 +334,8 @@ def build(root: Path):
     schools = registry(data, 'school')
     realms = registry(data, 'realm')
     realm_names = {id: labels[realm['translation_key']] for id, realm in realms.items()}
-    stages = {}
-    for id, realm in realms.items():
-        realm_name = realm_names[id]
-        for stage in realm['stages']:
-            name = labels[stage['translation_key']]
-            stages[stage['id']] = name if name.startswith(realm_name) else f'{realm_name} · {name}'
+    realm_names['yuanxian:mortal'] = '凡人启蒙'
+    realm_order = sorted(realms, key=lambda key: realms[key]['sort_order'])
 
     heritage_names = defaultdict(list)
     for heritage in registry(data, 'heritage').values():
@@ -353,15 +365,20 @@ def build(root: Path):
         effects = definition.get('effects', {})
         specialized = growth['techniques'].get(id, {})
         minimum = definition['requirements']
-        realm = stages.get(minimum.get('minimum_stage')) or realm_names.get(minimum.get('minimum_realm'), '不限')
+        realm = minimum.get('minimum_realm')
         entry = {
             'id': id, 'name': names[id], 'grade': grade, 'category': category, 'elements': elements,
-            'realm': realm, 'school': school_name,
+            'realm': realm_names.get(realm, '不限'), 'realm_id': realm, 'school': school_name,
             'heritages': heritage_names[id],
             'learning': learning_stats(definition, labels, schools, aptitudes, names, specialized),
         }
         if category == 'core':
-            effect = {'name': '心法效果', 'stats': core_stats(definition, effects.get('core', {}), world_rules, elements)}
+            core = effects.get('core', {})
+            if (heart := core.get('heart')) is not None:
+                entry['heart'] = {'slot': HEART_SLOTS[heart['slot']], 'direction': HEART_DIRECTIONS[heart['direction']]}
+                effect = heart_effect(heart, core.get('manual_price'), elements)
+            else:
+                effect = {'name': '心法效果', 'stats': legacy_core_stats(definition, core, world_rules, elements)}
         elif category == 'movement':
             stats = movement_stats(effects.get('movement'))
             effect = {'name': '闪避效果' if stats else '效果待配置', 'stats': stats}
@@ -388,5 +405,6 @@ def build(root: Path):
             for key, text in CATEGORIES.items()
         ],
         'grades': [labels[f'screen.yuanxian.cultivation.grade_name.{i}'] for i in range(len(CORE_GRADES))],
+        'realms': [[id, realm_names[id]] for id in realm_order],
         'techniques': sorted(entries, key=lambda row: (row['grade'], row['id'])),
     }

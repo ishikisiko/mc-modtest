@@ -4,8 +4,7 @@
   "grade": 0,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:mortal",
-    "minimum_stage": "yuanxian:mortal_qi_sensed"
+    "minimum_realm": "yuanxian:mortal"
   },
   "effects": {
     "core": {
@@ -15,8 +14,8 @@
         "direction": "general",
         "capacity": 0,
         "recovery_quarters": 0,
-        "normal": 2,
-        "stone": 5
+        "cultivation": 2,
+        "stone_extra": 3
       }
     }
   }

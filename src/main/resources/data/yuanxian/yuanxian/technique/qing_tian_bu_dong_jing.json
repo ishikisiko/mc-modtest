@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:nascent_soul",
-    "minimum_stage": "yuanxian:nascent_middle",
     "minimum_element_aptitude": {
       "yuanxian:earth": 200
     }
@@ -18,9 +17,12 @@
       "heart": {
         "slot": "defense",
         "direction": "spear",
-        "base": 10.0,
-        "guard": "melee",
-        "reaction": 30.0
+        "defense": 10.0,
+        "max_health": 48,
+        "extra": {
+          "amount": 20.0,
+          "guard": "melee"
+        }
       },
       "manual_price": 1200
     }

@@ -520,6 +520,7 @@ public final class CultivationService {
                 || !previous.stageId().equals(replacement.stageId())
                 || previous.foundationQuality() != replacement.foundationQuality()
                 || previous.goldenCoreQuality() != replacement.goldenCoreQuality()
+                || !previous.combatHearts().equals(replacement.combatHearts())
                 || previous.memory().nascentQuality() != replacement.memory().nascentQuality()) {
             StatsRuntime.refreshPlayer(player);
         }

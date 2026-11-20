@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:spirit_transformation",
-    "minimum_stage": "yuanxian:spirit_early",
     "minimum_element_aptitude": {
       "yuanxian:earth": 100
     }
@@ -20,8 +19,7 @@
         "direction": "fist",
         "capacity": 0,
         "recovery_quarters": 32,
-        "normal": 0,
-        "stone": 0
+        "cultivation": 0
       },
       "manual_price": 1600
     }

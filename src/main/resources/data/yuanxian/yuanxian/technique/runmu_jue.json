@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_4",
     "minimum_element_aptitude": {
       "yuanxian:wood": 40
     }
@@ -20,8 +19,7 @@
         "direction": "spell",
         "capacity": 0,
         "recovery_quarters": 6,
-        "normal": 0,
-        "stone": 0
+        "cultivation": 0
       },
       "manual_price": 24
     }

@@ -12,7 +12,6 @@
       "cooldown_ticks": 160,
       "grade": 2,
       "minimum_realm": "yuanxian:qi_refining",
-      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -104,7 +103,6 @@
       "cooldown_ticks": 180,
       "grade": 2,
       "minimum_realm": "yuanxian:qi_refining",
-      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -177,7 +175,6 @@
       "cooldown_ticks": 180,
       "grade": 2,
       "minimum_realm": "yuanxian:qi_refining",
-      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -269,7 +266,6 @@
       "cooldown_ticks": 200,
       "grade": 2,
       "minimum_realm": "yuanxian:qi_refining",
-      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -342,7 +338,6 @@
       "cooldown_ticks": 160,
       "grade": 2,
       "minimum_realm": "yuanxian:qi_refining",
-      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,
@@ -415,7 +410,6 @@
       "cooldown_ticks": 200,
       "grade": 2,
       "minimum_realm": "yuanxian:qi_refining",
-      "minimum_stage": "yuanxian:qi_refining_4",
       "study": {
         "points": 600,
         "gates": 0,

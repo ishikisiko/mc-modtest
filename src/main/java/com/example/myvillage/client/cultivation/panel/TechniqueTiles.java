@@ -119,8 +119,7 @@ final class TechniqueTiles {
         for(var heritage:ModCultivationRegistries.heritagesContaining(c.registries(),id))
             lines.add(Component.literal(c.text(heritage.getValue().translationKey())+" "+TechniqueShelf.chainPosition(heritage.getValue().indexOf(id),heritage.getValue().techniques().size())));
         var conditions=new ArrayList<String>();
-        d.requirements().minimumRealm().ifPresent(realm->conditions.add(d.requirements().minimumStage()
-                .map(stage->c.stageName(realm,stage).getString()).orElse(c.realmName(realm).getString())));
+        d.requirements().minimumRealm().ifPresent(realm -> conditions.add(c.realmName(realm).getString()));
         d.requirements().minimumElementAptitudes().forEach((element,points)->conditions.add(c.elementName(element).getString()+String.format(Locale.ROOT," ≥ %.1f%%",points/100.0)));
         lines.add(Component.literal("修习条件："+(conditions.isEmpty()?"无":String.join(" · ",conditions))));
         HeartTechniques.method(d).ifPresent(heart -> heartDetails(lines, c, d, heart));
@@ -141,31 +140,33 @@ final class TechniqueTiles {
                 : String.join("、", definition.elements().stream().map(id -> c.elementName(id).getString()).toList());
         switch (heart) {
             case HeartMethod.Attack attack -> {
-                if (attack.direction() == HeartMethod.Direction.SPELL) {
-                    bonus(lines, elements + "法术直接伤害基数", attack.art(), " 点");
-                } else if (attack.paidOnly()) {
-                    bonus(lines, "耗灵绝技直接伤害基数", attack.art(), " 点");
-                } else if (attack.art() == attack.basic()) {
-                    bonus(lines, "对应招式基础伤害", attack.basic(), " 点");
-                } else {
-                    bonus(lines, "对应武器普攻基础伤害", attack.basic(), " 点");
-                    bonus(lines, "对应绝技基础伤害", attack.art(), " 点");
-                }
+                bonus(lines, "常驻攻击", attack.attack(), " 点");
+                attack.extra().ifPresent(extra -> {
+                    String action = attack.direction() == HeartMethod.Direction.SPELL ? elements + "法术"
+                            : attack.direction().weapon() ? attack.direction().title() + "系" : "";
+                    action += extra.paidOnly() ? "耗灵绝技" : extra.artOnly() ? "绝技"
+                            : attack.direction().weapon() ? "攻击" : "";
+                    bonus(lines, action + "命中额外伤害基数", extra.amount(), " 点");
+                });
             }
             case HeartMethod.Defense defense -> {
-                String scope = defense.direction().weapon() ? "手持对应武器时" : defense.direction() == HeartMethod.Direction.SPELL
-                        ? "受到" + elements + "伤害时" : "";
-                bonus(lines, scope + "肉身防御", defense.base(), " 点");
-                if (defense.guard() != HeartMethod.Guard.NONE) {
-                    String source = defense.guard() == HeartMethod.Guard.MELEE ? "近战攻击" : "投射物或五行法术";
-                    bonus(lines, "手持对应武器并受到" + source + "时本书加值", defense.reaction(), " 点");
-                }
+                bonus(lines, "常驻生命上限", defense.maxHealth(), " 点");
+                bonus(lines, "常驻肉身防御", defense.defense(), " 点");
+                defense.extra().ifPresent(extra -> {
+                    String hold = defense.direction().weapon() ? "持" + defense.direction().title() + "受到" : "受到";
+                    String incoming = defense.direction() == HeartMethod.Direction.SPELL ? elements + "伤害" : switch (extra.guard()) {
+                        case NONE -> "攻击";
+                        case MELEE -> "近战攻击";
+                        case RANGED -> "投射物或五行法术";
+                    };
+                    bonus(lines, hold + incoming + "时额外防御", extra.amount(), " 点");
+                });
             }
             case HeartMethod.Spirit spirit -> {
-                bonus(lines, "灵力上限", spirit.capacity(), " 点");
-                bonus(lines, "自然回灵", spirit.recoveryQuarters() / 4.0, " 点/秒");
-                bonus(lines, "每批普通打坐修为", spirit.normal(), " 点");
-                bonus(lines, "每批灵石打坐修为", spirit.stone(), " 点");
+                bonus(lines, "常驻灵力上限", spirit.capacity(), " 点");
+                bonus(lines, "常驻自然回灵", spirit.recoveryQuarters() / 4.0, " 点/秒");
+                bonus(lines, "每批基础修为", spirit.cultivation(), " 点");
+                bonus(lines, "灵石修炼每批额外修为", spirit.stoneExtra(), " 点");
             }
         }
     }

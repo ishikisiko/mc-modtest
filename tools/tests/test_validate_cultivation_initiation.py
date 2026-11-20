@@ -67,7 +67,6 @@ class CultivationInitiationValidationTest(unittest.TestCase):
                 "elements": [],
                 "requirements": {
                     "minimum_realm": "yuanxian:mortal",
-                    "minimum_stage": "yuanxian:mortal_qi_sensed",
                 },
             },
         )
@@ -199,8 +198,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             public final class TechniqueRequirementEvaluator {
                 public static boolean evaluate(Profile profile, Requirements requirements) {
                     return requirements.minimumRealm() != null
-                            && requirements.minimumStage() != null
-                            && requirements.minimumElementAffinity() != null;
+                            && requirements.minimumElementAptitude() != null;
                 }
             }
             """,
@@ -710,7 +708,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
 
         result = self.validate()
 
-        self.assert_error_contains(result, "minimum_stage must be yuanxian:mortal_qi_sensed")
+        self.assert_error_contains(result, "basic_breathing requirements use the mortal realm only")
 
     def test_readme_jar_version_drift_is_rejected(self) -> None:
         path = self.root / "README.md"

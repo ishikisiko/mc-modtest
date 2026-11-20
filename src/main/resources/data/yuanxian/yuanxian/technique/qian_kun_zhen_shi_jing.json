@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:spirit_transformation",
-    "minimum_stage": "yuanxian:spirit_late",
     "minimum_element_aptitude": {
       "yuanxian:earth": 200
     }
@@ -18,8 +17,10 @@
       "heart": {
         "slot": "attack",
         "direction": "spell",
-        "basic": 108.0,
-        "art": 108.0
+        "attack": 48.0,
+        "extra": {
+          "amount": 60.0
+        }
       },
       "manual_price": 4000
     }

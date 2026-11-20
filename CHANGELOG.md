@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.143.1
+
+- 功法按大境界学习和查阅。攻、防守和修炼心法的基础加值常驻，武器、法术和灵石修炼等专有加值在条件满足时额外结算。
+- 防守心法同时增加生命上限和肉身防御。源仙工作台同步显示各门功法的大境界、常驻数值和额外效果。
+
 ## 0.143.0
 
 - 修士死亡掉两个小境界。修回曾到过的境界只需补足修为，保留原来的筑基、金丹和元婴品级。

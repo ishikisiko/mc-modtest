@@ -4,8 +4,7 @@
   "grade": 3,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:golden_core",
-    "minimum_stage": "yuanxian:golden_early"
+    "minimum_realm": "yuanxian:golden_core"
   },
   "effects": {
     "core": {
@@ -13,7 +12,8 @@
       "heart": {
         "slot": "defense",
         "direction": "fist",
-        "base": 5.0
+        "defense": 5.0,
+        "max_health": 14
       },
       "manual_price": 160
     }

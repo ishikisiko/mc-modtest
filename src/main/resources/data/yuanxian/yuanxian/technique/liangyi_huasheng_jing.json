@@ -4,8 +4,7 @@
   "grade": 3,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_late"
+    "minimum_realm": "yuanxian:foundation_establishment"
   },
   "effects": {
     "core": {
@@ -15,8 +14,8 @@
         "direction": "general",
         "capacity": 0,
         "recovery_quarters": 0,
-        "normal": 24,
-        "stone": 80
+        "cultivation": 24,
+        "stone_extra": 56
       },
       "manual_price": 120
     }

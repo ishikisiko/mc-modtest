@@ -166,7 +166,7 @@ class TechniqueDirectoryTest(unittest.TestCase):
 
     def test_details_use_runtime_effects_and_merged_learning_thresholds(self):
         sword = self.technique('taibai_jianjing')
-        self.assertEqual('筑基初期', sword['realm'])
+        self.assertEqual('筑基', sword['realm'])
         self.assertIn(('剑类资质', '至少 200 点'), sword['learning'])
         self.assertIn(('金系资质', '至少 200 点'), sword['learning'])
         self.assertIn(('前置功法', '《天罡剑典》已学'), sword['learning'])
@@ -176,6 +176,18 @@ class TechniqueDirectoryTest(unittest.TestCase):
         self.assertNotIn('最远施法距离', cone)
         self.assertIn(('无敌时间', '0.25 秒（5 tick）'), self.technique('liuyun_bu')['effect']['stats'])
         self.assertIn(('前置功法', '《青木长春功》圆满并完成参悟'), self.technique('yimu_shenghua_jue')['learning'])
+
+    def test_major_realms_and_heart_details(self):
+        self.assertEqual(['凡人启蒙', '炼气', '筑基', '金丹', '元婴', '化神'],
+                         [name for _, name in self.directory['realms']])
+        self.assertEqual('凡人启蒙', self.technique('basic_breathing')['realm'])
+        sword = self.technique('zhan_yun_jian_zhang')
+        self.assertEqual('元婴', sword['realm'])
+        self.assertEqual([('攻击', '+24 点')], sword['effect']['base'])
+        self.assertEqual([('剑系绝技命中时的伤害基数', '+30 点')], sword['effect']['extra'])
+        guard = self.technique('xuan_qiong_shou_jian_jing')['effect']
+        self.assertEqual([('生命上限', '+48 点'), ('肉身防御', '+10 点')], guard['base'])
+        self.assertEqual([('持剑受到投射物或五行法术时的肉身防御', '+20 点')], guard['extra'])
 
     def test_frontend_builder_exports_a_separate_directory_with_versioned_assets(self):
         from tools.drop_workbench.catalogue import write_frontend

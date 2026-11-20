@@ -14,14 +14,12 @@ import java.util.Optional;
 
 public record TechniqueRequirements(
         Optional<ResourceLocation> minimumRealm,
-        Optional<ResourceLocation> minimumStage,
         Map<ResourceLocation, Integer> minimumElementAptitude) {
     private static final Codec<Map<ResourceLocation, Integer>> AFFINITIES_CODEC =
             Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT);
 
     private static final Codec<SerializedRequirements> SERIALIZED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.optionalFieldOf("minimum_realm").forGetter(SerializedRequirements::minimumRealm),
-            ResourceLocation.CODEC.optionalFieldOf("minimum_stage").forGetter(SerializedRequirements::minimumStage),
             AFFINITIES_CODEC.optionalFieldOf("minimum_element_aptitude", Map.of())
                     .forGetter(SerializedRequirements::minimumElementAptitude)
     ).apply(instance, SerializedRequirements::new));
@@ -31,10 +29,6 @@ public record TechniqueRequirements(
 
     public TechniqueRequirements {
         minimumRealm = Objects.requireNonNull(minimumRealm, "minimumRealm");
-        minimumStage = Objects.requireNonNull(minimumStage, "minimumStage");
-        if (minimumStage.isPresent() && minimumRealm.isEmpty()) {
-            throw new IllegalArgumentException("minimum_stage requires minimum_realm");
-        }
 
         Objects.requireNonNull(minimumElementAptitude, "minimumElementAptitude");
         LinkedHashMap<ResourceLocation, Integer> sorted = new LinkedHashMap<>();
@@ -53,7 +47,7 @@ public record TechniqueRequirements(
     }
 
     public static TechniqueRequirements none() {
-        return new TechniqueRequirements(Optional.empty(), Optional.empty(), Map.of());
+        return new TechniqueRequirements(Optional.empty(), Map.of());
     }
 
     public Map<ResourceLocation, Integer> minimumElementAptitudes() {
@@ -61,17 +55,16 @@ public record TechniqueRequirements(
     }
 
     private SerializedRequirements serialize() {
-        return new SerializedRequirements(minimumRealm, minimumStage, minimumElementAptitude);
+        return new SerializedRequirements(minimumRealm, minimumElementAptitude);
     }
 
     private record SerializedRequirements(
             Optional<ResourceLocation> minimumRealm,
-            Optional<ResourceLocation> minimumStage,
             Map<ResourceLocation, Integer> minimumElementAptitude) {
         private DataResult<TechniqueRequirements> decode() {
             try {
                 return DataResult.success(new TechniqueRequirements(
-                        minimumRealm, minimumStage, minimumElementAptitude));
+                        minimumRealm, minimumElementAptitude));
             } catch (IllegalArgumentException | NullPointerException exception) {
                 return DataResult.error(exception::getMessage);
             }

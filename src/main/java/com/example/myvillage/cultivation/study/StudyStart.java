@@ -84,7 +84,7 @@ public final class StudyStart {
         switch (status) {
             case SATISFIED -> {
             }
-            case REALM_TOO_LOW, STAGE_TOO_LOW -> {
+            case REALM_TOO_LOW -> {
                 return Optional.of(Refusal.REALM_TOO_LOW);
             }
             case AFFINITY_TOO_LOW, ROOT_REQUIRED -> {

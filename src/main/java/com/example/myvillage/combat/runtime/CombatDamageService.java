@@ -114,7 +114,7 @@ public final class CombatDamageService {
         String aptitudeFamily = com.example.myvillage.combat.definition.CombatStyles.bundled().weapon(weapon)
                 .flatMap(definition -> definition.family()).orElse("");
         double heartBonus = !elemental && !derived
-                ? com.example.myvillage.cultivation.technique.HeartTechniques.attack(attacker, aptitudeFamily, null,
+                ? com.example.myvillage.cultivation.technique.HeartTechniques.attackExtra(attacker, aptitudeFamily, null,
                         session.isExternal(), session.paidArt()) : 0;
         double aptitudeMultiplier = elemental ? 1 : com.example.myvillage.aptitude.AptitudeRuntime.weaponMultiplier(attacker, aptitudeFamily);
         float damage = StatsRuntime.outgoing(attacker, attributeDamage + heartBonus, move.damageMultiplier() * aptitudeMultiplier * streak * expedition * (!derived&&attacker instanceof ServerPlayer p?com.example.myvillage.forging.FoundryHandleRuntime.multiplier(p,session):1));

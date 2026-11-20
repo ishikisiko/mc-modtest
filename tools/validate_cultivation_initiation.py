@@ -382,10 +382,10 @@ class CultivationInitiationValidator:
                         technique_path,
                         "minimum_realm must be yuanxian:mortal",
                     )
-                if requirements.get("minimum_stage") != "yuanxian:mortal_qi_sensed":
+                if "minimum_stage" in requirements:
                     self.error(
                         technique_path,
-                        "minimum_stage must be yuanxian:mortal_qi_sensed",
+                        "basic_breathing requirements use the mortal realm only",
                     )
                 affinity = requirements.get("minimum_element_aptitude")
                 if affinity not in (None, {}):
@@ -686,7 +686,7 @@ class CultivationInitiationValidator:
                 self.error(path, "inheritance eligibility must come from the technique definition")
         if evaluator is not None:
             path, source = evaluator
-            for token in ("minimumRealm", "minimumStage", "minimumElementAffinity"):
+            for token in ("minimumRealm", "minimumElementAptitude"):
                 if token not in source:
                     self.error(path, f"requirements evaluator does not inspect {token}")
 

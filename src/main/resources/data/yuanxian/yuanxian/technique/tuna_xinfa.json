@@ -4,8 +4,7 @@
   "grade": 2,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_7"
+    "minimum_realm": "yuanxian:qi_refining"
   },
   "effects": {
     "core": {
@@ -15,8 +14,8 @@
         "direction": "general",
         "capacity": 0,
         "recovery_quarters": 0,
-        "normal": 10,
-        "stone": 30
+        "cultivation": 10,
+        "stone_extra": 20
       },
       "manual_price": 24
     }

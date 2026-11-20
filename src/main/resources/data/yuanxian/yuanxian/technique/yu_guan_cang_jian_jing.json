@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:nascent_soul",
-    "minimum_stage": "yuanxian:nascent_early",
     "minimum_element_aptitude": {
       "yuanxian:metal": 100
     }
@@ -20,8 +19,7 @@
         "direction": "sword",
         "capacity": 250,
         "recovery_quarters": 0,
-        "normal": 0,
-        "stone": 0
+        "cultivation": 0
       },
       "manual_price": 480
     }

@@ -1,6 +1,7 @@
 package com.example.myvillage.stats.runtime;
 
 import com.example.myvillage.cultivation.CultivationService;
+import com.example.myvillage.cultivation.technique.HeartTechniques;
 import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.stats.DamageMath;
@@ -44,6 +45,9 @@ public final class StatsRuntime {
     public static final ResourceLocation REALM_HEALTH = id("stats.realm_health");
     public static final ResourceLocation REALM_ATTACK = id("stats.realm_attack");
     public static final ResourceLocation REALM_DEFENSE = id("stats.realm_defense");
+    private static final ResourceLocation HEART_HEALTH = id("stats.heart_health");
+    private static final ResourceLocation HEART_ATTACK = id("stats.heart_attack");
+    private static final ResourceLocation HEART_DEFENSE = id("stats.heart_defense");
     private static final ResourceLocation FOUNDATION_HEALTH=id("stats.foundation_health"), FOUNDATION_ATTACK=id("stats.foundation_attack");
     private static final String REALM_TAG = "yuanxian:stats_realm";
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsRuntime.class);
@@ -166,7 +170,14 @@ public final class StatsRuntime {
         remove(health, FOUNDATION_HEALTH); remove(attack, FOUNDATION_ATTACK);
         RealmAttributeModifiers.replace(health, REALM_HEALTH, healthAddition);
         RealmAttributeModifiers.replace(attack, REALM_ATTACK, attackAddition);
-        RealmAttributeModifiers.replace(entity.getAttribute(ModStatsAttributes.BODY_DEFENSE), REALM_DEFENSE, defenseAddition);
+        AttributeInstance defense = entity.getAttribute(ModStatsAttributes.BODY_DEFENSE);
+        RealmAttributeModifiers.replace(defense, REALM_DEFENSE, defenseAddition);
+        if (entity instanceof ServerPlayer player) {
+            var heart = HeartTechniques.baseCombat(player.registryAccess(), CultivationService.getProfile(player));
+            RealmAttributeModifiers.replace(health, HEART_HEALTH, heart.maxHealth());
+            RealmAttributeModifiers.replace(attack, HEART_ATTACK, heart.attack());
+            RealmAttributeModifiers.replace(defense, HEART_DEFENSE, heart.defense());
+        }
         float current = RealmHealthPolicy.refreshed(oldHealth, oldMax, entity.getMaxHealth());
         if (current != oldHealth) {
             entity.setHealth(current);
@@ -188,6 +199,9 @@ public final class StatsRuntime {
         remove(entity.getAttribute(Attributes.MAX_HEALTH), REALM_HEALTH);
         remove(entity.getAttribute(Attributes.ATTACK_DAMAGE), REALM_ATTACK);
         remove(entity.getAttribute(ModStatsAttributes.BODY_DEFENSE), REALM_DEFENSE);
+        remove(entity.getAttribute(Attributes.MAX_HEALTH), HEART_HEALTH);
+        remove(entity.getAttribute(Attributes.ATTACK_DAMAGE), HEART_ATTACK);
+        remove(entity.getAttribute(ModStatsAttributes.BODY_DEFENSE), HEART_DEFENSE);
         entity.getPersistentData().remove(REALM_TAG);
         float next = RealmHealthPolicy.refreshed(health, oldMaximum, entity.getMaxHealth());
         if (next != health) {
@@ -257,7 +271,7 @@ public final class StatsRuntime {
         if (!(attack > 0)) attack = event.getAmount();
         var result = BodyDefense.calculate(attack, value(target, ModStatsAttributes.BODY_DEFENSE)
                 + com.example.myvillage.cultivation.fate.JingangRuntime.defense(target, source)
-                + com.example.myvillage.cultivation.technique.HeartTechniques.defense(target, source),
+                + HeartTechniques.defenseExtra(target, source),
                 attacker==null?0:value(attacker, ModStatsAttributes.DEFENSE_PENETRATION), CultivationStatsRules.bundled());
         double incoming = event.getAmount();
         float defended = (float) (incoming * result.retainedFraction());
@@ -266,8 +280,16 @@ public final class StatsRuntime {
     }
 
     public static double realmAttackAddition(LivingEntity entity) {
+        return attackAddition(entity, REALM_ATTACK);
+    }
+
+    public static double heartAttackAddition(LivingEntity entity) {
+        return attackAddition(entity, HEART_ATTACK);
+    }
+
+    private static double attackAddition(LivingEntity entity, ResourceLocation id) {
         var attribute = entity.getAttribute(Attributes.ATTACK_DAMAGE);
-        var modifier = attribute == null ? null : attribute.getModifier(REALM_ATTACK);
+        var modifier = attribute == null ? null : attribute.getModifier(id);
         return modifier == null ? 0 : modifier.amount();
     }
 

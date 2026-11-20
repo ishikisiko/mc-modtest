@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:golden_core",
-    "minimum_stage": "yuanxian:golden_early",
     "minimum_element_aptitude": {
       "yuanxian:wood": 100
     }
@@ -20,8 +19,7 @@
         "direction": "sword",
         "capacity": 0,
         "recovery_quarters": 10,
-        "normal": 0,
-        "stone": 0
+        "cultivation": 0
       },
       "manual_price": 160
     }

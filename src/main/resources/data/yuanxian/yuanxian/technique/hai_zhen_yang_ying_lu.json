@@ -4,8 +4,7 @@
   "grade": 4,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:nascent_soul",
-    "minimum_stage": "yuanxian:nascent_middle"
+    "minimum_realm": "yuanxian:nascent_soul"
   },
   "effects": {
     "core": {
@@ -15,8 +14,7 @@
         "direction": "general",
         "capacity": 0,
         "recovery_quarters": 52,
-        "normal": 0,
-        "stone": 0
+        "cultivation": 0
       },
       "manual_price": 1200
     }

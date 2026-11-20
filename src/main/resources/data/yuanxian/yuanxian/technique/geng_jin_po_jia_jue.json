@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:nascent_soul",
-    "minimum_stage": "yuanxian:nascent_early",
     "minimum_element_aptitude": {
       "yuanxian:metal": 100
     }
@@ -18,8 +17,10 @@
       "heart": {
         "slot": "attack",
         "direction": "spell",
-        "basic": 24.0,
-        "art": 24.0
+        "attack": 15.0,
+        "extra": {
+          "amount": 9.0
+        }
       },
       "manual_price": 480
     }

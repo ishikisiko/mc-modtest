@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
       "yuanxian:water": 100
     }
@@ -18,7 +17,11 @@
       "heart": {
         "slot": "defense",
         "direction": "spell",
-        "base": 6.0
+        "defense": 2.0,
+        "max_health": 12,
+        "extra": {
+          "amount": 4.0
+        }
       },
       "manual_price": 120
     }

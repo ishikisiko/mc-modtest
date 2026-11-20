@@ -37,7 +37,6 @@ final class StudyFixtures {
             List.of(METAL),
             new TechniqueRequirements(
                     Optional.of(ModCultivationRegistries.QI_REFINING_REALM_ID),
-                    Optional.of(ModCultivationRegistries.QI_REFINING_1_STAGE_ID),
                     Map.of()),
             Optional.empty(),
             Optional.empty(),
@@ -50,7 +49,6 @@ final class StudyFixtures {
             List.of(METAL),
             new TechniqueRequirements(
                     Optional.of(ModCultivationRegistries.QI_REFINING_REALM_ID),
-                    Optional.of(ModCultivationRegistries.QI_REFINING_1_STAGE_ID),
                     Map.of(METAL, 1_500)),
             Optional.empty(),
             Optional.of(new TechniqueLineage(HUANG)),

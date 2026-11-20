@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:nascent_soul",
-    "minimum_stage": "yuanxian:nascent_early",
     "minimum_element_aptitude": {
       "yuanxian:wood": 300
     }
@@ -23,8 +22,8 @@
         "direction": "general",
         "capacity": 0,
         "recovery_quarters": 0,
-        "normal": 120,
-        "stone": 360
+        "cultivation": 120,
+        "stone_extra": 240
       },
       "manual_price": 1200
     }

@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_4",
     "minimum_element_aptitude": {
       "yuanxian:earth": 40
     }
@@ -18,7 +17,11 @@
       "heart": {
         "slot": "defense",
         "direction": "spell",
-        "base": 2.5
+        "defense": 0.75,
+        "max_health": 6,
+        "extra": {
+          "amount": 1.75
+        }
       },
       "manual_price": 24
     }

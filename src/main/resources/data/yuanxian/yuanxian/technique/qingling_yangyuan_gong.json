@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
       "yuanxian:wood": 40
     }
@@ -20,8 +19,7 @@
         "direction": "fist",
         "capacity": 0,
         "recovery_quarters": 5,
-        "normal": 0,
-        "stone": 0
+        "cultivation": 0
       },
       "manual_price": 48
     }

@@ -247,6 +247,7 @@ public final class CultivationEvents {
     private static void onDatapackSync(OnDatapackSyncEvent event) {
         if (event.getPlayer() == null) {
             SpiritualPowerRuntime.reload(event.getPlayerList().getServer());
+            event.getPlayerList().getPlayers().forEach(StatsRuntime::refreshPlayer);
             MeditationManager.cancelAllAdministrative(
                     event.getPlayerList().getServer(),
                     MeditationStopReason.DEFINITION_RELOADED);

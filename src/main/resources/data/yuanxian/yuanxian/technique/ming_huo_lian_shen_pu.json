@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:spirit_transformation",
-    "minimum_stage": "yuanxian:spirit_middle",
     "minimum_element_aptitude": {
       "yuanxian:fire": 200
     }
@@ -20,8 +19,7 @@
         "direction": "spell",
         "capacity": 640,
         "recovery_quarters": 48,
-        "normal": 0,
-        "stone": 0
+        "cultivation": 0
       },
       "manual_price": 4000
     }

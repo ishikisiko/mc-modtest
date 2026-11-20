@@ -28,8 +28,6 @@ class TechniqueRequirementEvaluatorTest {
         TechniqueDefinition definition = basicBreathing();
         assertEquals(Optional.of(ModCultivationRegistries.MORTAL_REALM_ID),
                 definition.requirements().minimumRealm());
-        assertEquals(Optional.of(ModCultivationRegistries.MORTAL_QI_SENSED_STAGE_ID),
-                definition.requirements().minimumStage());
         assertTrue(definition.requirements().minimumElementAptitude().isEmpty());
 
         for (int count = 1; count <= 5; count++) {
@@ -39,13 +37,16 @@ class TechniqueRequirementEvaluatorTest {
     }
 
     @Test
-    void lowerStageAndAmbiguousRealmOrderingFailClosed() {
-        CultivationProfile unawakenedStage = CultivationProfile.defaultProfile()
-                .withSpiritualRoot(root(1));
-        assertEquals(
-                TechniqueRequirementEvaluator.Status.STAGE_TOO_LOW,
-                TechniqueRequirementEvaluator.evaluate(
-                        unawakenedStage, basicBreathing(), REALMS::get).status());
+    void majorRealmRequirementAndAmbiguousRealmOrdering() {
+        ResourceLocation qi = ModCultivationRegistries.QI_REFINING_REALM_ID;
+        TechniqueDefinition technique = new TechniqueDefinition("technique.qi", TechniqueCategory.CORE,
+                0, List.of(), new TechniqueRequirements(Optional.of(qi), Map.of()));
+        var sensed = sensedProfile(root(1));
+        assertEquals(TechniqueRequirementEvaluator.Status.REALM_TOO_LOW,
+                TechniqueRequirementEvaluator.evaluate(sensed, technique, REALMS::get).status());
+        assertTrue(TechniqueRequirementEvaluator.evaluate(
+                sensed.withRealmAndStage(qi, ModCultivationRegistries.QI_REFINING_1_STAGE_ID),
+                technique, REALMS::get).satisfied());
 
         ResourceLocation ambiguousId = id("ambiguous");
         Map<ResourceLocation, RealmDefinition> ambiguous = new LinkedHashMap<>(REALMS);
@@ -74,7 +75,7 @@ class TechniqueRequirementEvaluatorTest {
                 0,
                 List.of(),
                 new TechniqueRequirements(
-                        Optional.empty(), Optional.empty(), Map.of(id("fire"), 6_000)));
+                        Optional.empty(), Map.of(id("fire"), 6_000)));
         CultivationProfile low = sensedProfile(new SpiritualRoot(Map.of(id("fire"), 5_999, id("water"), 4_001)));
         CultivationProfile enough = sensedProfile(new SpiritualRoot(Map.of(id("fire"), 6_000, id("water"), 4_000)));
 
@@ -95,16 +96,14 @@ class TechniqueRequirementEvaluatorTest {
     }
 
     @Test
-    void higherRealmStillRejectsAMissingMinimumStageDefinition() {
-        ResourceLocation missingStage = id("missing_stage");
+    void unknownMinimumRealmFailsClosed() {
         TechniqueDefinition invalid = new TechniqueDefinition(
-                "technique.invalid_stage",
+                "technique.invalid_realm",
                 TechniqueCategory.CORE,
                 0,
                 List.of(),
                 new TechniqueRequirements(
-                        Optional.of(ModCultivationRegistries.MORTAL_REALM_ID),
-                        Optional.of(missingStage),
+                        Optional.of(id("missing_realm")),
                         Map.of()));
         CultivationProfile higherRealm = new CultivationProfile(
                 CultivationProfile.CURRENT_SCHEMA_VERSION,
@@ -134,7 +133,7 @@ class TechniqueRequirementEvaluatorTest {
                 0,
                 List.of(),
                 new TechniqueRequirements(
-                        Optional.empty(), Optional.empty(), Map.of(id("fire"), 1)));
+                        Optional.empty(), Map.of(id("fire"), 1)));
         CultivationProfile profile = sensedProfile(
                 new SpiritualRoot(Map.of(id("fire"), 10_000)));
 
@@ -152,7 +151,6 @@ class TechniqueRequirementEvaluatorTest {
                 List.of(),
                 new TechniqueRequirements(
                         Optional.of(ModCultivationRegistries.MORTAL_REALM_ID),
-                        Optional.of(ModCultivationRegistries.MORTAL_QI_SENSED_STAGE_ID),
                         Map.of()));
     }
 

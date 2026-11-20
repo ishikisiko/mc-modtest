@@ -3,7 +3,6 @@ package com.example.myvillage.cultivation.technique;
 import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.SpiritualRoot;
 import com.example.myvillage.cultivation.data.RealmDefinition;
-import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.data.TechniqueRequirements;
 import net.minecraft.core.RegistryAccess;
@@ -70,22 +69,6 @@ public final class TechniqueRequirementEvaluator {
                     && !currentRealmId.equals(minimumRealmId)) {
                 return new Evaluation(Status.AMBIGUOUS_REALM_ORDER);
             }
-            if (requirements.minimumStage().isPresent()) {
-                Optional<RealmStageDefinition> minimumStage = stage(
-                        minimumRealm, requirements.minimumStage().orElseThrow());
-                if (minimumStage.isEmpty()) {
-                    return new Evaluation(Status.DEFINITION_UNAVAILABLE);
-                }
-                if (currentRealmId.equals(minimumRealmId)) {
-                    Optional<RealmStageDefinition> currentStage = stage(currentRealm, profile.stageId());
-                    if (currentStage.isEmpty()) {
-                        return new Evaluation(Status.CURRENT_STAGE_UNAVAILABLE);
-                    }
-                    if (currentStage.get().sortOrder() < minimumStage.get().sortOrder()) {
-                        return new Evaluation(Status.STAGE_TOO_LOW);
-                    }
-                }
-            }
         }
 
         if (!requirements.minimumElementAptitude().isEmpty()) {
@@ -106,19 +89,12 @@ public final class TechniqueRequirementEvaluator {
         return new Evaluation(Status.SATISFIED);
     }
 
-    private static Optional<RealmStageDefinition> stage(
-            RealmDefinition realm,
-            ResourceLocation stageId) {
-        return realm.stages().stream().filter(stage -> stage.id().equals(stageId)).findFirst();
-    }
-
     public enum Status {
         SATISFIED,
         DEFINITION_UNAVAILABLE,
         CURRENT_STAGE_UNAVAILABLE,
         REALM_TOO_LOW,
         AMBIGUOUS_REALM_ORDER,
-        STAGE_TOO_LOW,
         ROOT_REQUIRED,
         AFFINITY_TOO_LOW
     }

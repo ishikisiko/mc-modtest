@@ -4,8 +4,7 @@
   "grade": 4,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:spirit_transformation",
-    "minimum_stage": "yuanxian:spirit_late"
+    "minimum_realm": "yuanxian:spirit_transformation"
   },
   "effects": {
     "core": {
@@ -15,8 +14,7 @@
         "direction": "general",
         "capacity": 1280,
         "recovery_quarters": 0,
-        "normal": 0,
-        "stone": 0
+        "cultivation": 0
       },
       "manual_price": 4000
     }

@@ -4,8 +4,7 @@
   "grade": 1,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_1"
+    "minimum_realm": "yuanxian:qi_refining"
   },
   "study": {
     "points": 160,

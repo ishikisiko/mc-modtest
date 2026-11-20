@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:spirit_transformation",
-    "minimum_stage": "yuanxian:spirit_early",
     "minimum_element_aptitude": {
       "yuanxian:earth": 100
     }
@@ -18,7 +17,11 @@
       "heart": {
         "slot": "defense",
         "direction": "fist",
-        "base": 20.0
+        "defense": 14.0,
+        "max_health": 64,
+        "extra": {
+          "amount": 6.0
+        }
       },
       "manual_price": 1600
     }

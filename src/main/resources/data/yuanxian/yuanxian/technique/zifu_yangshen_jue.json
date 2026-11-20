@@ -4,8 +4,7 @@
   "grade": 2,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_late"
+    "minimum_realm": "yuanxian:foundation_establishment"
   },
   "effects": {
     "core": {
@@ -13,9 +12,12 @@
       "heart": {
         "slot": "defense",
         "direction": "sword",
-        "base": 2.0,
-        "guard": "ranged",
-        "reaction": 3.5
+        "defense": 2.0,
+        "max_health": 8,
+        "extra": {
+          "amount": 1.5,
+          "guard": "ranged"
+        }
       },
       "manual_price": 48
     }

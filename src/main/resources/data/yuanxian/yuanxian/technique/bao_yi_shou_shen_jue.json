@@ -4,8 +4,7 @@
   "grade": 3,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:nascent_soul",
-    "minimum_stage": "yuanxian:nascent_early"
+    "minimum_realm": "yuanxian:nascent_soul"
   },
   "effects": {
     "core": {
@@ -13,7 +12,8 @@
       "heart": {
         "slot": "defense",
         "direction": "general",
-        "base": 7.0
+        "defense": 7.0,
+        "max_health": 32
       },
       "manual_price": 480
     }

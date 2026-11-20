@@ -6,8 +6,7 @@
     "yuanxian:water"
   ],
   "requirements": {
-    "minimum_realm": "yuanxian:qi_refining",
-    "minimum_stage": "yuanxian:qi_refining_1"
+    "minimum_realm": "yuanxian:qi_refining"
   },
   "effects": {
     "core": {
@@ -15,8 +14,10 @@
       "heart": {
         "slot": "attack",
         "direction": "spear",
-        "basic": 1.5,
-        "art": 1.5
+        "attack": 1.0,
+        "extra": {
+          "amount": 0.5
+        }
       },
       "manual_price": 8
     }

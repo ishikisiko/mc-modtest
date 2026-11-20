@@ -3,10 +3,14 @@ package com.example.myvillage.cultivation.technique;
 import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.TechniqueProgress;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
+import com.example.myvillage.cultivation.data.TechniqueCategory;
+import com.example.myvillage.cultivation.data.TechniqueDefinition;
+import com.example.myvillage.cultivation.data.TechniqueRequirements;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,13 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TechniqueInheritanceServiceTest {
     @Test
-    void unawakenedAndWrongStageFailWithoutCommit() {
+    void unawakenedAndBelowMinimumRealmFailWithoutCommit() {
         AtomicInteger commits = new AtomicInteger();
         TechniqueInheritanceService.Outcome unawakened = inherit(
                 CultivationProfile.defaultProfile(), commits, true);
-        CultivationProfile wrongStage = CultivationProfile.defaultProfile()
-                .withSpiritualRoot(TechniqueRequirementEvaluatorTest.root(1));
-        TechniqueInheritanceService.Outcome wrong = inherit(wrongStage, commits, true);
+        var mortal = TechniqueRequirementEvaluatorTest.sensedProfile(TechniqueRequirementEvaluatorTest.root(1));
+        var gated = new TechniqueDefinition("technique.test", TechniqueCategory.CORE, 0, List.of(),
+                new TechniqueRequirements(Optional.of(ModCultivationRegistries.QI_REFINING_REALM_ID), Map.of()));
+        var wrong = TechniqueInheritanceService.inheritBasicBreathing(
+                mortal, gated, TechniqueRequirementEvaluatorTest::realm, replacement -> {
+                    commits.incrementAndGet();
+                    return true;
+                });
 
         assertEquals(TechniqueInheritanceService.Status.NOT_AWAKENED, unawakened.status());
         assertEquals(TechniqueInheritanceService.Status.REQUIREMENTS_NOT_MET, wrong.status());

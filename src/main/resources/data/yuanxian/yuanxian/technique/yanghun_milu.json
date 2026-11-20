@@ -4,8 +4,7 @@
   "grade": 2,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_middle"
+    "minimum_realm": "yuanxian:foundation_establishment"
   },
   "effects": {
     "core": {
@@ -15,8 +14,7 @@
         "direction": "fist",
         "capacity": 55,
         "recovery_quarters": 0,
-        "normal": 0,
-        "stone": 0
+        "cultivation": 0
       },
       "manual_price": 48
     }

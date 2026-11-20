@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_middle",
     "minimum_element_aptitude": {
       "yuanxian:wood": 40
     }
@@ -18,9 +17,12 @@
       "heart": {
         "slot": "defense",
         "direction": "fist",
-        "base": 2.0,
-        "guard": "melee",
-        "reaction": 3.5
+        "defense": 2.0,
+        "max_health": 8,
+        "extra": {
+          "amount": 1.5,
+          "guard": "melee"
+        }
       },
       "manual_price": 48
     }

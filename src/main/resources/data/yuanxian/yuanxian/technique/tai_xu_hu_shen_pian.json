@@ -4,8 +4,7 @@
   "grade": 3,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:spirit_transformation",
-    "minimum_stage": "yuanxian:spirit_early"
+    "minimum_realm": "yuanxian:spirit_transformation"
   },
   "effects": {
     "core": {
@@ -13,7 +12,8 @@
       "heart": {
         "slot": "defense",
         "direction": "general",
-        "base": 14.0
+        "defense": 14.0,
+        "max_health": 64
       },
       "manual_price": 1600
     }

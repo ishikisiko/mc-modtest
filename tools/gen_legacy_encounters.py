@@ -177,7 +177,7 @@ def outputs():
     for a in c['arts']:
         rid='yuanxian:'+a['id'];key='cultivation.technique.yuanxian.'+a['id']
         raw(f'assets/yuanxian/textures/gui/advanced_arts/{a["id"]}.png',hud_icon(a['mode']))
-        emit(f'data/yuanxian/yuanxian/technique/{a["id"]}.json',{'translation_key':key,'category':'active','grade':a['grade'],'elements':['yuanxian:'+a['element']],'school':'yuanxian:legacy','requirements':{'minimum_realm':'yuanxian:qi_refining','minimum_stage':'yuanxian:qi_refining_4'},'effects':{'active':{'skill':rid,'qi_cost':a['qi_cost'],'slots':1}},'study':{'points':c['runtime']['study_points'],'gates':0,'gate_stability_cost':0}})
+        emit(f'data/yuanxian/yuanxian/technique/{a["id"]}.json',{'translation_key':key,'category':'active','grade':a['grade'],'elements':['yuanxian:'+a['element']],'school':'yuanxian:legacy','requirements':{'minimum_realm':'yuanxian:qi_refining'},'effects':{'active':{'skill':rid,'qi_cost':a['qi_cost'],'slots':1}},'study':{'points':c['runtime']['study_points'],'gates':0,'gate_stability_cost':0}})
         phase={'move':'yuanxian:qingfeng_cut','shape':'ring','reach':2,'arc_degrees':360,'width':1,'height':1,'half_height':1,'damage_multiplier':1,'maximum_targets':8,'step_distance':0,'reaction':{'hitstun_ticks':0,'slide_distance':0,'lift':0,'lateral_bias':0},'fx':'ring'}
         # Use the first existing sword move, preserving its PAL and first-person pose ownership.
         phase['move']=json.loads((RES/'data/yuanxian/combat/style/basic_sword.json').read_text())['moves'][0]['id']

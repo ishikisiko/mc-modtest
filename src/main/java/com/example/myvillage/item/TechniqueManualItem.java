@@ -3,7 +3,6 @@ package com.example.myvillage.item;
 import com.example.myvillage.cultivation.data.HeritageDefinition;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
-import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import com.example.myvillage.cultivation.data.SchoolDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueCategory;
@@ -365,20 +364,13 @@ public class TechniqueManualItem extends Item {
         return name;
     }
 
-    /** As the 功法 page states it: realm · stage, then each element affinity as {@code 金 ≥ 15.0%}. */
+    /** As the 功法 page states it: major realm, then each element affinity as {@code 金 ≥ 15.0%}. */
     private static Component requirementText(TechniqueRequirements requirements, Catalog catalog) {
         List<Component> parts = new ArrayList<>();
         requirements.minimumRealm().ifPresent(realmId -> {
             Optional<RealmDefinition> realm = catalog.realm(realmId);
             MutableComponent text = realm.<MutableComponent>map(definition -> Component.translatable(definition.translationKey()))
                     .orElseGet(() -> Component.literal(realmId.toString()));
-            requirements.minimumStage().ifPresent(stageId -> text.append(" · ").append(realm
-                    .flatMap(definition -> definition.stages().stream()
-                            .filter(stage -> stage.id().equals(stageId))
-                            .findFirst())
-                    .map(RealmStageDefinition::translationKey)
-                    .<Component>map(Component::translatable)
-                    .orElseGet(() -> Component.literal(stageId.toString()))));
             parts.add(text);
         });
         requirements.minimumElementAptitudes().forEach((elementId, basisPoints) -> parts.add(

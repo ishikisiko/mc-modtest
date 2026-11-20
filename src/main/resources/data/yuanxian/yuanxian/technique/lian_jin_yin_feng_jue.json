@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
       "yuanxian:metal": 40
     }
@@ -18,8 +17,10 @@
       "heart": {
         "slot": "attack",
         "direction": "spell",
-        "basic": 5.0,
-        "art": 5.0
+        "attack": 3.0,
+        "extra": {
+          "amount": 2.0
+        }
       },
       "manual_price": 48
     }

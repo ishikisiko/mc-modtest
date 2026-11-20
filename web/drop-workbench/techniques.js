@@ -7,6 +7,7 @@
     const search = get('technique-search');
     const grade = get('technique-grade');
     const realm = get('technique-realm');
+    const slot = get('technique-slot');
     const list = get('technique-list');
     const detail = get('technique-detail');
     const status = get('technique-status');
@@ -49,12 +50,17 @@
             return;
         }
         const metadata = [['最低境界', entry.realm], ['五行', entry.elements.join('、') || '无']];
+        if (entry.heart) metadata.push(['栏位', entry.heart.slot], ['方向', entry.heart.direction]);
         if (entry.school) metadata.push(['流派', entry.school]);
         if (entry.heritages.length) metadata.push(['传承', entry.heritages.join('、')]);
 
         const {effect, growth} = entry;
-        const effectBody = effect.stats.length ? facts(effect.stats) : '<p>当前效果待配置。</p>';
         const note = effect.note ? `<p>${escape(effect.note)}</p>` : '';
+        const section = (title, body) => `<section><h3>${escape(title)}</h3>${body}</section>`;
+        const base = effect.base?.length ? section('基础加值', facts(effect.base)) : '';
+        const extra = effect.extra?.length ? section('额外结算', facts(effect.extra)) : '';
+        const other = effect.stats.length || note ? section(effect.name, note + facts(effect.stats)) : '';
+        const effects = base + extra + other || section('效果', '<p>当前效果待配置。</p>');
         const phases = effect.phases ? `<section><h3>招式分段</h3>${facts(effect.phases)}</section>` : '';
         const practice = growth ? `
             <section>
@@ -70,11 +76,7 @@
             </div>
             <p class="technique-id mono">${escape(entry.id)}</p>
             ${facts(metadata)}
-            <section>
-                <h3>${effect.stats.length ? escape(effect.name) : '效果'}</h3>
-                ${note}
-                ${effectBody}
-            </section>
+            ${effects}
             ${phases}
             <section><h3>学习条件</h3>${facts(entry.learning)}</section>
             ${practice}`;
@@ -92,9 +94,10 @@
         const query = search.value.trim().toLowerCase();
         const entries = categoryEntries();
         const filtered = entries.filter(row => {
-            const keywords = [row.name, row.id, row.school, ...row.elements, ...row.heritages].join(' ').toLowerCase();
+            const keywords = [row.name, row.id, row.school, row.heart?.direction, ...row.elements, ...row.heritages].join(' ').toLowerCase();
             return (!grade.value || row.grade === Number(grade.value))
-                && (!realm.value || row.realm === realm.value)
+                && (!realm.value || row.realm_id === realm.value)
+                && (!slot.value || row.heart?.slot === slot.value)
                 && keywords.includes(query);
         });
 
@@ -118,9 +121,12 @@
 
         const entries = categoryEntries();
         const grades = [...new Set(entries.map(row => row.grade))];
-        const realms = [...new Set(entries.map(row => row.realm))];
+        const realms = new Set(entries.map(row => row.realm_id));
+        const slots = [...new Set(entries.filter(row => row.heart).map(row => row.heart.slot))];
         options(grade, grades.map(number => [number, catalogue.grades[number]]));
-        options(realm, realms.map(name => [name, name]));
+        options(realm, catalogue.realms.filter(([id]) => realms.has(id)));
+        get('technique-slot-field').hidden = slots.length === 0;
+        options(slot, slots.map(name => [name, name]));
         search.value = '';
         list.scrollTop = 0;
         renderResults();
@@ -177,6 +183,7 @@
     search.addEventListener('input', renderResults);
     grade.addEventListener('change', renderResults);
     realm.addEventListener('change', renderResults);
+    slot.addEventListener('change', renderResults);
     retry.addEventListener('click', loadCatalogue);
     window.addEventListener('hashchange', updateView);
     updateView();

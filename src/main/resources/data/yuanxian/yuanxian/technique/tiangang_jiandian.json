@@ -8,7 +8,6 @@
   "school": "yuanxian:sword",
   "requirements": {
     "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early",
     "minimum_element_aptitude": {
       "yuanxian:metal": 100
     }

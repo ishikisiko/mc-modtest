@@ -220,12 +220,11 @@ def validate_sources(s: Sources) -> list[str]:
             problems.extend(effects_problems(row["effects"], row["category"], f"{where}: effects"))
         if "learning" in row:
             learning = row["learning"]
-            if (not isinstance(learning, dict) or not {"realm", "stage"} <= learning.keys()
-                    or learning.keys() - {"realm", "stage", "affinity"}
-                    or any(not isinstance(learning[k], str)
-                           or re.fullmatch(rf"{s.namespace}:[a-z0-9_]+", learning[k]) is None
-                           for k in ("realm", "stage"))):
-                problems.append(f"{where}: learning needs a realm and one of its stages")
+            if (not isinstance(learning, dict) or "realm" not in learning
+                    or learning.keys() - {"realm", "affinity"}
+                    or not isinstance(learning["realm"], str)
+                    or re.fullmatch(rf"{s.namespace}:[a-z0-9_]+", learning["realm"]) is None):
+                problems.append(f"{where}: learning needs a major realm and may specify an affinity")
             elif "affinity" in learning and (not _is_int(learning["affinity"])
                     or learning["affinity"] < 0 or learning["affinity"] > JAVA_INT_MAX
                     or row["element"] == "none"):
@@ -277,6 +276,8 @@ def effects_problems(effects: Any, category: str, where: str) -> list[str]:
             problems.append(f"{where}: a {kind} block is only accepted on a {kind} technique, not {category}")
         elif not isinstance(block, dict):
             problems.append(f"{where}.{kind} must be an object")
+        elif kind == "core" and "heart" in block:
+            problems.extend(heart_problems(block["heart"], f"{where}.core.heart"))
         elif kind == "active":
             problems.extend(active_problems(block, f"{where}.active"))
         elif kind == "movement":
@@ -286,6 +287,46 @@ def effects_problems(effects: Any, category: str, where: str) -> list[str]:
 
 def _is_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
+
+
+def heart_problems(heart: Any, where: str) -> list[str]:
+    if not isinstance(heart, dict) or heart.get("slot") not in ("attack", "defense", "spirit"):
+        return [f"{where}: expected an attack, defense or spirit heart"]
+    if heart.get("direction") not in ("general", "sword", "spear", "fist", "spell"):
+        return [f"{where}: unknown direction"]
+
+    slot = heart["slot"]
+    required = {
+        "attack": {"attack": 2048},
+        "defense": {"defense": 1024, "max_health": 1024},
+        "spirit": {"capacity": 1_000_000, "recovery_quarters": 1_000_000, "cultivation": 1_000_000},
+    }[slot]
+    optional = "stone_extra" if slot == "spirit" else "extra"
+    if heart.keys() - (required.keys() | {"slot", "direction", optional}) or required.keys() - heart.keys():
+        return [f"{where}: invalid {slot} fields"]
+
+    numeric = (int,) if slot == "spirit" else (int, float)
+    for key, limit in required.items():
+        if type(heart[key]) not in numeric or not 0 <= heart[key] <= limit:
+            return [f"{where}.{key}: expected a value from 0 to {limit}"]
+    if slot == "spirit":
+        additional = heart.get("stone_extra", 0)
+        return [] if _is_int(additional) and 0 <= additional <= 1_000_000 else [f"{where}: invalid stone_extra"]
+    if "extra" not in heart:
+        return []
+
+    extra = heart["extra"]
+    if not isinstance(extra, dict) or type(extra.get("amount")) not in (int, float):
+        return [f"{where}.extra: expected a numeric amount"]
+    if not 0 < extra["amount"] <= (2048 if slot == "attack" else 1024):
+        return [f"{where}.extra: amount is out of range"]
+    if slot == "attack":
+        if extra.keys() - {"amount", "art_only", "paid_only"} or any(
+                type(extra.get(key, False)) is not bool for key in ("art_only", "paid_only")):
+            return [f"{where}.extra: invalid attack trigger"]
+    elif extra.keys() - {"amount", "guard"} or extra.get("guard", "none") not in ("none", "melee", "ranged"):
+        return [f"{where}.extra: invalid defense trigger"]
+    return []
 
 
 def active_problems(block: dict, where: str) -> list[str]:
@@ -407,56 +448,30 @@ def dump(doc: Any) -> str:
     return json.dumps(doc, ensure_ascii=False, indent=2) + "\n"
 
 
-def resolve_requirements(root: Path, s: Sources) -> dict[int, tuple[str, str]]:
-    """Grade -> (realm id, stage id), the stage taken by position from the player realm file."""
-    out: dict[int, tuple[str, str]] = {}
+def resolve_requirements(root: Path, s: Sources) -> dict[int, str]:
+    """Resolve the default major realm per grade and check authored overrides."""
+    realms = {s.rid(path.stem) for path in (root / REALM_REL).glob("*.json")}
+    out: dict[int, str] = {}
     problems: list[str] = []
-    for grade_key, spec in sorted(s.rules["requirements"]["by_grade"].items()):
-        realm = spec.get("realm")
-        number = spec.get("stage_number")
-        path = root / REALM_REL / f"{realm}.json"
-        try:
-            doc = _read_json(path)
-        except (OSError, ValueError) as exc:
-            problems.append(f"rules.json: requirements.by_grade.{grade_key}: realm {realm!r} unreadable ({exc})")
-            continue
-        stages = sorted(doc.get("stages") or [], key=lambda st: st.get("sort_order", 0))
-        if not isinstance(number, int) or not 1 <= number <= len(stages):
-            problems.append(f"rules.json: requirements.by_grade.{grade_key}: realm {realm} has no stage {number!r}")
-            continue
-        out[int(grade_key)] = (s.rid(realm), stages[number - 1]["id"])
+    for grade, spec in sorted(s.rules["requirements"]["by_grade"].items()):
+        if not isinstance(spec, dict) or set(spec) != {"realm"} or s.rid(spec["realm"]) not in realms:
+            problems.append(f"rules.json: requirements.by_grade.{grade}: expected a registered major realm")
+        else:
+            out[int(grade)] = s.rid(spec["realm"])
+    for row in s.techniques:
+        if (learning := row.get("learning")) is not None and learning["realm"] not in realms:
+            problems.append(f"catalogue.json: {row['id']}: unknown realm {learning['realm']}")
     if problems:
         raise CatalogueError(problems)
     return out
 
 
-def validate_learning_stages(root: Path, s: Sources) -> None:
-    stages: dict[str, set[str]] = {}
-    problems: list[str] = []
-    for row in s.techniques:
-        learning = row.get("learning")
-        if learning is None:
-            continue
-        realm, stage = learning["realm"], learning["stage"]
-        if realm not in stages:
-            path = root / REALM_REL / (realm.split(":", 1)[1] + ".json")
-            try:
-                stages[realm] = {entry["id"] for entry in _read_json(path)["stages"]}
-            except (OSError, ValueError, KeyError, TypeError) as exc:
-                stages[realm] = set()
-                problems.append(f"{path}: unreadable learning realm ({exc})")
-        if stage not in stages[realm]:
-            problems.append(f"catalogue.json: {row['id']}: {stage} does not belong to {realm}")
-    if problems:
-        raise CatalogueError(problems)
-
-
-def technique_doc(row: dict, s: Sources, requirements: dict[int, tuple[str, str]]) -> dict:
+def technique_doc(row: dict, s: Sources, requirements: dict[int, str]) -> dict:
     grade = row["grade"]
     element = row["element"]
     learning = row.get("learning")
-    realm, stage = (learning["realm"], learning["stage"]) if learning else requirements[grade]
-    req: dict[str, Any] = {"minimum_realm": realm, "minimum_stage": stage}
+    realm = learning["realm"] if learning else requirements[grade]
+    req: dict[str, Any] = {"minimum_realm": realm}
     affinity = s.rules["requirements"]["element_affinity"]
     if learning and "affinity" in learning:
         req["minimum_element_aptitude"] = {s.rid(element): learning["affinity"]}
@@ -566,7 +581,6 @@ def plan(root: Path = ROOT, source_dir: Path = SOURCE_DIR) -> Plan:
     s = load_sources(source_dir)
     validate_skill_references(root, s)
     requirements = resolve_requirements(root, s)
-    validate_learning_stages(root, s)
     result = Plan()
     hand_written = set(s.rules["hand_written_techniques"])
     owned = (

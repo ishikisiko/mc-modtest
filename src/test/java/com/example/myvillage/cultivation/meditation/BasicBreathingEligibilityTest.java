@@ -29,7 +29,7 @@ class BasicBreathingEligibilityTest {
                 ModCultivationRegistries.QI_REFINING_REALM_ID,
                 ModCultivationRegistries.QI_REFINING_1_STAGE_ID);
 
-        assertFalse(BasicBreathingEligibility.requirementsSatisfied(
+        assertTrue(BasicBreathingEligibility.requirementsSatisfied(
                 CultivationProfile.defaultProfile(), breathing, realms::get, ignored -> true));
         assertTrue(BasicBreathingEligibility.requirementsSatisfied(
                 sensed, breathing, realms::get, ignored -> true));
@@ -47,7 +47,6 @@ class BasicBreathingEligibilityTest {
                 List.of(),
                 new TechniqueRequirements(
                         Optional.of(ModCultivationRegistries.MORTAL_REALM_ID),
-                        Optional.of(ModCultivationRegistries.MORTAL_QI_SENSED_STAGE_ID),
                         Map.of()));
     }
 

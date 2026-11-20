@@ -220,7 +220,6 @@ class CultivationDefinitionTest {
         affinities.put(id("fire"), 4_000);
         TechniqueRequirements requirements = new TechniqueRequirements(
                 Optional.of(id("qi_refining")),
-                Optional.of(id("qi_refining_1")),
                 affinities);
 
         affinities.clear();
@@ -253,7 +252,6 @@ class CultivationDefinitionTest {
     void techniqueDefinitionCodecRoundTripsNestedRequirementsAndCategory() {
         TechniqueRequirements requirements = new TechniqueRequirements(
                 Optional.of(id("qi_refining")),
-                Optional.of(id("qi_refining_1")),
                 Map.of(id("fire"), 2_500));
         TechniqueDefinition technique = new TechniqueDefinition(
                 "cultivation.technique.yuanxian.flame_step",
@@ -282,7 +280,6 @@ class CultivationDefinitionTest {
                 .getOrThrow();
 
         assertEquals(Optional.of(id("mortal")), definition.requirements().minimumRealm());
-        assertEquals(Optional.of(id("mortal_qi_sensed")), definition.requirements().minimumStage());
         assertTrue(definition.requirements().minimumElementAptitude().isEmpty());
         assertTrue(definition.elements().isEmpty());
     }
@@ -400,14 +397,7 @@ class CultivationDefinitionTest {
                 IllegalArgumentException.class,
                 () -> new TechniqueRequirements(
                         Optional.empty(),
-                        Optional.of(id("qi_refining_1")),
-                        Map.of()));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new TechniqueRequirements(
-                        Optional.empty(),
-                        Optional.empty(),
-                        Map.of(fire, 10_001)));
+                        Map.of(fire, -1)));
     }
 
     private static ResourceLocation id(String path) {

@@ -4,8 +4,7 @@
   "grade": 2,
   "elements": [],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_early"
+    "minimum_realm": "yuanxian:foundation_establishment"
   },
   "effects": {
     "core": {
@@ -13,8 +12,7 @@
       "heart": {
         "slot": "attack",
         "direction": "general",
-        "basic": 3.0,
-        "art": 3.0
+        "attack": 3.0
       },
       "manual_price": 48
     }

@@ -41,7 +41,7 @@ class AdvancedArtsTest {
             assertEquals(Optional.of(art.school()),technique.school());
             if(art.lock().isPresent() || art.elemental().isPresent())continue;
             assertEquals(2,technique.grade());
-            assertEquals("yuanxian:qi_refining_4",json.getAsJsonObject().getAsJsonObject("requirements").get("minimum_stage").getAsString());
+            assertEquals("yuanxian:qi_refining",json.getAsJsonObject().getAsJsonObject("requirements").get("minimum_realm").getAsString());
         }
     }
     @Test void phasesShareAuthorityAndPreserveAuthoredBaselineAnimation() {

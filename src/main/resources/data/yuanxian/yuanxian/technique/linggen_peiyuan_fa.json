@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:foundation_establishment",
-    "minimum_stage": "yuanxian:foundation_middle",
     "minimum_element_aptitude": {
       "yuanxian:wood": 40
     }
@@ -20,8 +19,8 @@
         "direction": "general",
         "capacity": 28,
         "recovery_quarters": 0,
-        "normal": 5,
-        "stone": 16
+        "cultivation": 5,
+        "stone_extra": 11
       },
       "manual_price": 48
     }

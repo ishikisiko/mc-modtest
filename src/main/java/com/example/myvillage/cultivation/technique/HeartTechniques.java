@@ -54,51 +54,67 @@ public final class HeartTechniques {
                 TechniqueGrowthRules.bundled(), id, profile, effect)).orElse(0);
     }
 
-    public static double attack(LivingEntity actor, String weapon, DamageType spell, boolean art, boolean paid) {
+    public static BaseCombat baseCombat(RegistryAccess access, CultivationProfile profile) {
+        var attack = equipped(access, profile, Slot.ATTACK).flatMap(HeartTechniques::method)
+                .map(HeartMethod.Attack.class::cast).orElse(null);
+        var defense = equipped(access, profile, Slot.DEFENSE).flatMap(HeartTechniques::method)
+                .map(HeartMethod.Defense.class::cast).orElse(null);
+        return new BaseCombat(attack == null ? 0 : attack.attack(), defense == null ? 0 : defense.defense(),
+                defense == null ? 0 : defense.maxHealth());
+    }
+
+    public record BaseCombat(double attack, double defense, double maxHealth) { }
+
+    public static double attackExtra(LivingEntity actor, String weapon, DamageType spell, boolean art, boolean paid) {
         if (!(actor instanceof ServerPlayer player)) return 0;
         return equipped(player.registryAccess(), CultivationService.getProfile(player), Slot.ATTACK)
-                .map(definition -> attackBonus(definition, (HeartMethod.Attack) method(definition).orElseThrow(),
+                .map(definition -> attackExtra(definition, (HeartMethod.Attack) method(definition).orElseThrow(),
                         weapon, spell, art, paid)).orElse(0.0);
     }
 
-    public static double attackBonus(TechniqueDefinition definition, HeartMethod.Attack method, String weapon,
+    static double attackExtra(TechniqueDefinition definition, HeartMethod.Attack method, String weapon,
             DamageType spell, boolean art, boolean paid) {
-        if (method.paidOnly() && (!art || !paid)) return 0;
+        var extra = method.extra().orElse(null);
+        if (extra == null || extra.artOnly() && !art || extra.paidOnly() && (!art || !paid)) return 0;
         boolean matches = switch (method.direction()) {
-            case GENERAL -> spell != null || !weapon.isEmpty();
+            case GENERAL -> true;
             case SPELL -> matchesElement(definition, spell);
             default -> spell == null && method.direction().matchesWeapon(weapon);
         };
-        return matches ? (art ? method.art() : method.basic()) : 0;
+        return matches ? extra.amount() : 0;
     }
 
-    public static double defense(LivingEntity entity, DamageSource source) {
+    public static double defenseExtra(LivingEntity entity, DamageSource source) {
         if (!(entity instanceof ServerPlayer player)) return 0;
         return equipped(player.registryAccess(), CultivationService.getProfile(player), Slot.DEFENSE)
                 .map(definition -> {
                     var method = (HeartMethod.Defense) method(definition).orElseThrow();
+                    if (method.extra().isEmpty()) return 0.0;
                     String weapon = method.direction().weapon() ? CombatStyles.bundled().weapon(player.getMainHandItem())
                             .flatMap(w -> w.family()).orElse("") : "";
                     boolean melee = source.getEntity() == source.getDirectEntity()
                             && (source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)
                                 || source.is(DamageTypes.MOB_ATTACK_NO_AGGRO) || source.is(DamageTypes.STING));
                     boolean ranged = source.is(DamageTypeTags.IS_PROJECTILE) || ElementalRules.type(source).isPresent();
-                    return defenseBonus(definition, method, weapon, StatsRuntime.mappedType(source).orElse(null), melee, ranged);
+                    return defenseExtra(definition, method, weapon, StatsRuntime.mappedType(source).orElse(null), melee, ranged);
                 }).orElse(0.0);
     }
 
-    public static double defenseBonus(TechniqueDefinition definition, HeartMethod.Defense method, String weapon,
+    static double defenseExtra(TechniqueDefinition definition, HeartMethod.Defense method, String weapon,
             DamageType incoming, boolean melee, boolean ranged) {
-        if (method.direction() == HeartMethod.Direction.GENERAL) return method.base();
-        if (method.direction() == HeartMethod.Direction.SPELL) {
-            return matchesElement(definition, incoming) ? method.base() : 0;
-        }
-        if (!method.direction().matchesWeapon(weapon)) return 0;
-        return switch (method.guard()) {
-            case NONE -> method.base();
-            case MELEE -> melee ? method.reaction() : method.base();
-            case RANGED -> ranged ? method.reaction() : method.base();
+        var extra = method.extra().orElse(null);
+        if (extra == null) return 0;
+        boolean directionMatches = switch (method.direction()) {
+            case GENERAL -> true;
+            case SPELL -> matchesElement(definition, incoming);
+            default -> method.direction().matchesWeapon(weapon);
         };
+        boolean guardMatches = switch (extra.guard()) {
+            case NONE -> true;
+            case MELEE -> melee;
+            case RANGED -> ranged;
+        };
+        return directionMatches && guardMatches ? extra.amount() : 0;
     }
 
     private static boolean matchesElement(TechniqueDefinition definition, DamageType damage) {

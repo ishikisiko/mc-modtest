@@ -7,7 +7,6 @@
   ],
   "requirements": {
     "minimum_realm": "yuanxian:golden_core",
-    "minimum_stage": "yuanxian:golden_early",
     "minimum_element_aptitude": {
       "yuanxian:earth": 100
     }
@@ -18,8 +17,10 @@
       "heart": {
         "slot": "attack",
         "direction": "spear",
-        "basic": 11.0,
-        "art": 11.0
+        "attack": 7.0,
+        "extra": {
+          "amount": 4.0
+        }
       },
       "manual_price": 160
     }

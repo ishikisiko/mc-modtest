@@ -499,8 +499,8 @@ public final class MeditationManager {
                     BasicBreathingSettlement.SETTLEMENT_INTERVAL_TICKS,
                     CultivationServerConfig.scale().ticksPerYear());
             var heart = HeartTechniques.spirit(player.registryAccess(), current).orElse(null);
-            int normal = heart == null ? 0 : heart.normal() + HeartTechniques.growth(current, Effect.FLAT_NORMAL);
-            int stone = heart == null ? 0 : heart.stone() + HeartTechniques.growth(current, Effect.FLAT_STONE);
+            int normal = heart == null ? 0 : heart.cultivation() + HeartTechniques.growth(current, Effect.FLAT_NORMAL);
+            int stone = heart == null ? 0 : heart.cultivation() + heart.stoneExtra() + HeartTechniques.growth(current, Effect.FLAT_STONE);
             double recovery = com.example.myvillage.alchemy.MedicineRuntime.stabilityMultiplier(player);
             basePlan = cap == 0
                     ? BasicBreathingSettlement.consolidate(current, resolved.stage().stabilityCap().orElseThrow(), accrual, recovery)
@@ -597,7 +597,7 @@ public final class MeditationManager {
         }
         int target = com.example.myvillage.cultivation.nascent.NascentRules.get().value("reformation_target");
         var heart = HeartTechniques.spirit(player.registryAccess(), current).orElse(null);
-        long gain = Math.max(1, (long) current.spiritualAffinity() + (heart == null ? 0 : heart.normal()));
+        long gain = Math.max(1, (long) current.spiritualAffinity() + (heart == null ? 0 : heart.cultivation()));
         long boosted = Math.round(gain * com.example.myvillage.alchemy.MedicineRuntime.reformationMultiplier(player));
         int progress = (int) Math.min(target, current.memory().reformation() + boosted);
         var result = CultivationService.replaceProfile(player, current.withMemory(current.memory().reform(progress, target)));

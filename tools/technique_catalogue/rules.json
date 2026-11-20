@@ -43,20 +43,16 @@
   "requirements": {
     "by_grade": {
       "1": {
-        "realm": "qi_refining",
-        "stage_number": 1
+        "realm": "qi_refining"
       },
       "2": {
-        "realm": "qi_refining",
-        "stage_number": 4
+        "realm": "qi_refining"
       },
       "3": {
-        "realm": "foundation_establishment",
-        "stage_number": 1
+        "realm": "foundation_establishment"
       },
       "4": {
-        "realm": "foundation_establishment",
-        "stage_number": 1
+        "realm": "foundation_establishment"
       }
     },
     "element_affinity": {
