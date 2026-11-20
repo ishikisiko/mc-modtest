@@ -51,6 +51,7 @@ class ForgingResourcesTest(unittest.TestCase):
             else:
                 self.assertEqual(recipe['pattern'],json.loads(path.read_text())['result']['id'])
             for trait in recipe['traits']:
+                self.assertIn(recipe['infusion_material'], recipe['costs'])
                 self.assertLessEqual(len(set(recipe['costs'])|set(rules['traits'][trait]['costs'])),4)
         self.assertNotIn('channeling',next(r for r in rules['recipes'] if r['id']=='lingxiao_spear')['traits'])
     def test_localized_keys_and_placeholders_match(self):
@@ -103,7 +104,13 @@ class MaterialResourcesTest(unittest.TestCase):
         generated=materials.outputs()
         registry=(ROOT/'src/main/java/com/example/myvillage/item/ModItems.java').read_text()
         for m in materials.load():
-            rid='yuanxian:'+m['id'];self.assertEqual({'#'+m['tag']:1},rules['traits'][m['trait']]['costs'])
+            rid='yuanxian:'+m['id']
+            reference='#'+m['tag']
+            if m['trait'] in ('tough','channeling'):
+                self.assertEqual({},rules['traits'][m['trait']]['costs'])
+                self.assertTrue(any(r['infusion_material'] in (reference,rid) for r in rules['recipes']))
+            else:
+                self.assertEqual({reference:1},rules['traits'][m['trait']]['costs'])
             namespace,tag=m['tag'].split(':')
             self.assertEqual({'replace':False,'values':[rid]},json.loads(generated[ROOT/f'src/main/resources/data/{namespace}/tags/item/{tag}.json']))
             self.assertIn('"'+m['id']+'"',registry)
