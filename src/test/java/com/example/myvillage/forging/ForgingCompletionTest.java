@@ -11,6 +11,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.Tool;
+import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,6 +60,34 @@ class ForgingCompletionTest {
         ForgingCompletion.stamp(raw,2);var before=raw.copy();ForgingCompletion.stamp(raw,4);
         assertTrue(ItemStack.matches(before,raw));assertEquals(ForgeMark.uninfused(2),raw.get(ModDataComponents.FORGE_MARK.get()));
         var vanilla=new ItemStack(Items.IRON_PICKAXE);ForgingCompletion.stamp(vanilla,4);assertFalse(vanilla.has(ModDataComponents.FORGE_MARK.get()));
+    }
+    @Test void toolQualityAddsFlatBaseSpeedForMatchingBlocksBeforeAndAfterInfusion() {
+        var effective = Blocks.STONE.defaultBlockState();
+        var ineffective = Blocks.GLASS.defaultBlockState();
+        // Standalone bootstrap does not load vanilla block tags.
+        var tool = new Tool(List.of(Tool.Rule.minesAndDrops(List.of(Blocks.STONE), 6.0F)), 1.0F, 1);
+        for (String recipe : List.of("forged_pickaxe", "forged_axe", "forged_shovel", "forged_hoe")) {
+            for (int quality = 1; quality <= 4; quality++) {
+                var result = WorkshopEquipment.complete(piece(recipe, 2), quality);
+                result.set(DataComponents.TOOL, tool);
+                float expected = quality == 1 ? 6.0F : 6.5F;
+                assertEquals(expected, WorkshopTool.qualityMiningSpeed(result, effective, result.getDestroySpeed(effective)));
+                assertEquals(1.0F, WorkshopTool.qualityMiningSpeed(result, ineffective, result.getDestroySpeed(ineffective)));
+                var infused = EquipmentInfusion.prepare(result, "tough", 1);
+                assertTrue(infused.valid());
+                assertEquals(expected, WorkshopTool.qualityMiningSpeed(infused.result(), effective, infused.result().getDestroySpeed(effective)));
+            }
+        }
+        var raw = new ItemStack(Items.IRON_PICKAXE);
+        raw.set(DataComponents.TOOL, tool);
+        raw.set(ModDataComponents.FORGE_MARK.get(), ForgeMark.uninfused(4));
+        assertEquals(6.0F, WorkshopTool.qualityMiningSpeed(raw, effective, raw.getDestroySpeed(effective)));
+
+        var differentMaterial = WorkshopEquipment.complete(piece("forged_pickaxe", 2), 4);
+        differentMaterial.set(DataComponents.TOOL, new Tool(List.of(Tool.Rule.minesAndDrops(List.of(Blocks.STONE), 9.0F)), 1.0F, 1));
+        assertEquals(9.5F, WorkshopTool.qualityMiningSpeed(differentMaterial, effective, differentMaterial.getDestroySpeed(effective)));
+        differentMaterial.remove(ModDataComponents.FORGE_MARK.get());
+        assertEquals(9.0F, WorkshopTool.qualityMiningSpeed(differentMaterial, effective, differentMaterial.getDestroySpeed(effective)));
     }
     @Test void qualityOnlyMetadataSurvivesItemPersistenceAndWireRoundTrip(){
         var registries=RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);

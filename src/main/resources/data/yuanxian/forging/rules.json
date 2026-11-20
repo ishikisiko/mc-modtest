@@ -1,5 +1,6 @@
 {
   "version": 3,
+  "tool_mining_speed_bonus": 0.5,
   "recipes": [
     {
       "id": "qingfeng_sword",

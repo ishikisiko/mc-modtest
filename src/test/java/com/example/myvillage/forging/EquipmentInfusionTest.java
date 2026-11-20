@@ -47,6 +47,18 @@ class EquipmentInfusionTest {
                             Registry.register(items,id,new RideableFlyingSwordItem(new Item.Properties().stacksTo(1)));
                             continue;
                         }
+                        var kind = WorkshopRules.get().forOutput(id.toString()).map(WorkshopRules.Craft::kind).orElse("");
+                        var tool = switch (kind) {
+                            case "pickaxe" -> new WorkshopTools.Pickaxe(new Item.Properties());
+                            case "axe" -> new WorkshopTools.Axe(new Item.Properties());
+                            case "shovel" -> new WorkshopTools.Shovel(new Item.Properties());
+                            case "hoe" -> new WorkshopTools.Hoe(new Item.Properties());
+                            default -> null;
+                        };
+                        if (tool != null) {
+                            Registry.register(items, id, tool);
+                            continue;
+                        }
                         var armor=com.example.myvillage.equipment.EquipmentCatalogue.bundled().stream().filter(a->a.id().equals(id)).findFirst();
                         Registry.register(items,id,armor.<Item>map(a->new com.example.myvillage.equipment.EquipmentArmorItem(new Item.Properties(),a))
                                 .orElseGet(()->new Item(new Item.Properties().durability(250))));

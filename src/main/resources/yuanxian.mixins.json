@@ -19,6 +19,7 @@
     "EstatePhysicalMovementMixin",
     "EstatePlayerTeleportMixin",
     "CombatRulesMixin",
+    "WorkshopToolMiningSpeedMixin",
     "LivingDamageContainerAccess",
     "ExplorationBossHealthMixin",
     "WitherChargeHealingMixin",

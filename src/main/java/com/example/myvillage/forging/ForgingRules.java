@@ -23,9 +23,11 @@ public final class ForgingRules {
     private final Map<String,Trait> traits;
     private final Map<String,Integer> repairCosts;
     private final double repairFraction;
+    private final float toolMiningSpeedBonus;
     private ForgingRules(JsonObject root) {
-        fields(root, "version", "recipes", "traits", "repair");
+        fields(root, "version", "recipes", "traits", "repair", "tool_mining_speed_bonus");
         integer(root,"version",3,3);
+        toolMiningSpeedBonus = (float) number(root, "tool_mining_speed_bonus", 0, Float.MAX_VALUE);
         JsonObject definitions = object(root.get("traits"),"traits");
         for (String key : definitions.keySet()) ForgeMark.requireTrait(key);
         for (String key : java.util.List.of("sharp","channeling","tough")) if (!definitions.has(key)) throw invalid("traits", "missing legacy trait");
@@ -102,6 +104,7 @@ public final class ForgingRules {
     }
     public Map<String,Integer> repairCosts(){return repairCosts;}
     public double repairFraction(){return repairFraction;}
+    public float toolMiningSpeedBonus() { return toolMiningSpeedBonus; }
     private static void fields(JsonObject o, String... expected) {
         Set<String> names = Set.of(expected);
         for (String name : o.keySet()) if (!names.contains(name)) throw invalid(name, "unknown field");
