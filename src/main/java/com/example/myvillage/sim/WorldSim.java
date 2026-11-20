@@ -420,6 +420,8 @@ public final class WorldSim {
     public boolean failLife(int id, long epoch, long revision, String reason) {
         return LifeEngine.fail(ctx, id, epoch, revision, reason);
     }
+    public boolean visitAuction(int id, String site, String seat) { return LifeEngine.visitAuction(ctx, id, site, seat); }
+    public boolean leaveAuction(int id, String site) { return LifeEngine.leaveAuction(ctx, id, site); }
     public boolean pauseLife(int id, long ticks) { return LifeEngine.pause(ctx, id, ticks); }
     public boolean setLifeObserved(int id, boolean observed) { return LifeEngine.observed(ctx, id, observed); }
 

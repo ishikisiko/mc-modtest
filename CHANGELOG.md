@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.145.0
+
+- 八座州城新增天衡殿街坊，城镇地图标出入口。三种院型分别设置琳琅阁和封顶的内厅拍卖场。
+- 功法面板展示已学功法。公开秘籍由州城琳琅阁和拍卖厅供货，宗门传承沿原有藏经阁途径获取。
+- 拍卖厅每城每日可开一场，依次竞拍秘籍与材料。地方居民按偏好和预算出价，成交物与退款由本城柜台发放。
+- 新档从命簿第 0 天开始。主宗生成化神宗主，总舵生成元婴初期宗主，分宗在筑基后期与金丹中期之间按 9 比 1 抽取。
+
 ## 0.144.1
 
 - 城镇药铺、铁匠铺和客栈的购买页出售《基础吐纳诀》。测灵后可右键秘籍学习，也可继续使用传功碑。

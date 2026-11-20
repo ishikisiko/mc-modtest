@@ -23,6 +23,7 @@ SERVICES = {
     "smith": ("铁作坊", "smith_entry"),
     "inn": ("客栈", "inn_entry"),
     "guide": ("向导亭", "guide_entry"),
+    "tianheng": ("天衡殿", "tianheng_entry"),
 }
 AIR = {"minecraft:air", "minecraft:cave_air", "minecraft:void_air"}
 
@@ -47,6 +48,11 @@ def services(city: dict) -> list[dict]:
 
 
 def ink(block: str, elevated: bool) -> tuple[int, int, int]:
+    if block.startswith("yuanxian:tianheng_"):
+        role = block.removeprefix("yuanxian:tianheng_")
+        if role in ("roof", "ridge", "ink_jade", "slate"):
+            return (58, 106, 101)
+        return (155, 129, 99) if elevated else (204, 190, 161)
     if block == "minecraft:water":
         return (133, 167, 164)
     if block == "minecraft:lava":

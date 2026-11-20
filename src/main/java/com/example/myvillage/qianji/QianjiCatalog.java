@@ -33,11 +33,13 @@ public final class QianjiCatalog {
         }
         if(mm.isEmpty()||bb.isEmpty()||bb.size()>2048)throw new IllegalArgumentException("千机阁构件规模无效");materials=List.copyOf(mm);banks=List.copyOf(bb);
     }
-    private static final class Holder {static final QianjiCatalog INSTANCE=read();}
+    private static final class Holder {static final QianjiCatalog INSTANCE=read("qianji");}
+    private static final class TianhengHolder {static final QianjiCatalog INSTANCE=read("tianheng");}
     public static QianjiCatalog get(){return Holder.INSTANCE;}
-    private static QianjiCatalog read(){
-        try(var in=QianjiCatalog.class.getResourceAsStream("/data/yuanxian/qianji/components/catalog.json")){
-            if(in==null)throw new IllegalStateException("缺少千机阁构件目录");return new QianjiCatalog(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());
+    public static QianjiCatalog tianheng(){return TianhengHolder.INSTANCE;}
+    private static QianjiCatalog read(String place){
+        try(var in=QianjiCatalog.class.getResourceAsStream("/data/yuanxian/"+place+"/components/catalog.json")){
+            if(in==null)throw new IllegalStateException("缺少建筑构件目录 "+place);return new QianjiCatalog(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());
         }catch(java.io.IOException e){throw new IllegalStateException(e);}
     }
 }

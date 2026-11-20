@@ -6,6 +6,7 @@ import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.runtime.*;
 import com.example.myvillage.sim.runtime.avatar.GateRealizations;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
+import com.example.myvillage.worldplan.runtime.WorldPlanRuntime;
 import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -21,8 +22,13 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 /** 实体柜台与命簿的适配层，不在靠近或交互时营造建筑。 */
 public final class EconomyRuntime {
     public record Context(boolean linlang, String site, int sect, String title) { }
+    static final int TOWN_STORE = -2;
+    static final int AUCTION = -3;
     private EconomyRuntime() { }
-    public static void register() { NeoForge.EVENT_BUS.addListener(EconomyRuntime::death); }
+    public static void register() {
+        NeoForge.EVENT_BUS.addListener(EconomyRuntime::death);
+        NeoForge.EVENT_BUS.addListener(TianhengAuctions::tick);
+    }
     public static long day(ServerPlayer player) { return WorldSimRuntime.calendarDay(player.getServer()); }
     public static void dirty(ServerPlayer player) { WorldSimSavedData.get(player.getServer().overworld()).setDirty(); }
     public static Optional<Context> resolve(ServerPlayer player, BlockPos pos) {
@@ -30,6 +36,19 @@ public final class EconomyRuntime {
         if (sim == null || level.dimension() != Level.OVERWORLD || !level.isLoaded(pos)) return Optional.empty();
         var state = level.getBlockState(pos);
         if (state.is(ModBlocks.LINLANG_COUNTER.get())) {
+            var plan = WorldPlanRuntime.generator(level).map(g -> g.plan()).orElse(null);
+            if (plan != null) for (var city : plan.cities()) {
+                var site = sim.lifeSite(city.cityId()).orElse(null);
+                if (site == null || !site.dimension().equals(level.dimension().location().toString())) continue;
+                for (String facility : List.of(TianhengMarkets.STORE, TianhengMarkets.AUCTION)) {
+                    var place = site.place(facility).orElse(null);
+                    if (place == null || !place.block().equals("yuanxian:linlang_counter")
+                            || !new BlockPos(place.blockX(), place.blockY(), place.blockZ()).equals(pos)) continue;
+                    boolean store = facility.equals(TianhengMarkets.STORE);
+                    return Optional.of(new Context(true, site.id(), store ? TOWN_STORE : AUCTION,
+                            site.name() + (store ? " · 琳琅阁" : " · 天衡殿拍卖厅")));
+                }
+            }
             for (var gate : GateRealizations.get(level).all()) {
                 var sect = sim.sect(gate.sectId()).orElse(null);
                 if (sect == null || !sect.state().equals("active") || !sect.gateRealized() || sect.gateX() != gate.anchor().getX()
@@ -64,7 +83,22 @@ public final class EconomyRuntime {
         }
         var sim = WorldSimRuntime.sim().orElseThrow(); String owner = player.getUUID().toString(); long day = day(player);
         var rows = new ArrayList<EconomyMenu.Row>();
-        if (context.linlang()) {
+        final long today = day;
+        List<String> bidders = List.of();
+        if (context.sect() == TOWN_STORE) {
+            var site = sim.lifeSite(context.site()).orElseThrow();
+            TianhengMarkets.stock(player.registryAccess(), site.regionId(), day, sim.commerceRules())
+                    .forEach(goods -> rows.add(goods.row()));
+            if (rows.isEmpty()) {
+                player.displayClientMessage(Component.literal("琳琅阁今日没有可售秘籍。"), true);
+                return;
+            }
+        } else if (context.sect() == AUCTION) {
+            var opening = TianhengAuctions.opening(player, context.site());
+            rows.addAll(opening.rows());
+            bidders = opening.bidders();
+            day = opening.run();
+        } else if (context.linlang()) {
             if (sim.playerMember(owner).filter(m -> m.sectId() == context.sect()).isEmpty()) { player.displayClientMessage(Component.literal("琳琅阁只向本宗弟子开放。"), true); return; }
             for (var offer : sim.playerEconomyRules().linlang()) rows.add(new EconomyMenu.Row(offer.id(), offer.name(), offer.item(), offer.quantity(), offer.pillQuality(), offer.cost(),
                     "需" + switch (offer.rank()) { case "outer" -> "外门"; case "inner" -> "内门"; default -> "长老"; } + "身份；花费宗门贡献 " + offer.cost() + "。"));
@@ -74,7 +108,7 @@ public final class EconomyRuntime {
                 player.displayClientMessage(Component.literal("你还有其他城镇的事务，请先回" + sim.lifeSite(active.get().siteId()).map(s -> s.name()).orElse(active.get().siteId()) + "江湖榜交付。远征可另行办理。"), false);
             }
             for (var task : sim.playerEconomyRules().townTasks()) {
-                var assignment = active.filter(a -> a.taskId().equals(task.id())).orElseGet(() -> sim.townTaskOffer(owner, context.site(), task.id(), day));
+                var assignment = active.filter(a -> a.taskId().equals(task.id())).orElseGet(() -> sim.townTaskOffer(owner, context.site(), task.id(), today));
                 rows.add(new EconomyMenu.Row(task.id(), task.name(), task.item(), task.count(), 0, 0,
                         task.brief() + " 奖励：" + EconomyInventory.describe(assignment.reward()) + "。"));
             }
@@ -89,8 +123,10 @@ public final class EconomyRuntime {
             }
         }
         long token = UUID.randomUUID().getLeastSignificantBits();
-        player.openMenu(new SimpleMenuProvider((id, inventory, p) -> new EconomyMenu(id, inventory, pos, context.linlang(), context.site(), context.sect(), day, token, rows), Component.literal(context.title())),
-                buf -> EconomyMenu.writeOpening(buf, pos, context.linlang(), context.site(), context.sect(), day, token, rows));
+        long openingId = day;
+        List<String> openingBidders = bidders;
+        player.openMenu(new SimpleMenuProvider((id, inventory, p) -> new EconomyMenu(id, inventory, pos, context.linlang(), context.site(), context.sect(), openingId, token, rows, openingBidders), Component.literal(context.title())),
+                buf -> EconomyMenu.writeOpening(buf, pos, context.linlang(), context.site(), context.sect(), openingId, token, rows, openingBidders));
     }
     private static void death(LivingDeathEvent event) {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)

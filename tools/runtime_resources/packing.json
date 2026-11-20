@@ -4,7 +4,8 @@
   "namespace": "yuanxian",
   "catalogs": [
     "data/yuanxian/lord_manors/catalog.json",
-    "data/yuanxian/qianji/components/catalog.json"
+    "data/yuanxian/qianji/components/catalog.json",
+    "data/yuanxian/tianheng/components/catalog.json"
   ],
   "models_per_group": 32,
   "templates_per_group": 128,

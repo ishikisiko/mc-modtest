@@ -511,12 +511,24 @@ tasks.named('processResources') { dependsOn 'generateStarterMineAssets' }
 
 def housingGeneratorInputs = new groovy.json.JsonSlurper().parse(file('blueprints/housing/generator_inputs.json'))
 
+tasks.register('generateTianhengAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args '-m', 'tools.tianheng.components', '--out', 'build/generated/tianheng/resources'
+    inputs.files(fileTree('blueprints/tianheng'), fileTree('tools/tianheng') { exclude '**/__pycache__/**', '**/*.pyc' },
+            fileTree('tools/lord_manors') { exclude '**/__pycache__/**', '**/*.pyc' })
+    outputs.dir(layout.buildDirectory.dir('generated/tianheng/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/tianheng/resources'))
+tasks.named('processResources') { dependsOn 'generateTianhengAssets' }
+
 tasks.register('generateProvinceCapitalV11Assets', Exec) {
     dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets', 'verifyQianjiAssets', 'generateSectBlueprintAssets', 'generateStarterMineAssets', 'generateHousingAssets'
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
-    inputs.files(files('tools/player_economy_sites.py','blueprints/economy/town_boards.json'))
+    inputs.files(files('tools/player_economy_sites.py','blueprints/economy/town_boards.json'),
+            fileTree('blueprints/tianheng'),fileTree('tools/tianheng') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('blueprints/wilderness'),fileTree('tools/wilderness_habitats'),fileTree('src/main/resources/data/yuanxian/worldgen/region_profile'))
     inputs.files(fileTree('blueprints/qianji'), fileTree('tools/qianji') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('blueprints/player_estates'), fileTree('tools/player_estates') { exclude '**/__pycache__/**', '**/*.pyc' })

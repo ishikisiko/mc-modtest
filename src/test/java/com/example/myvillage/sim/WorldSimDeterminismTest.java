@@ -44,11 +44,10 @@ class WorldSimDeterminismTest {
 
     @ParameterizedTest(name = "{0} days per year")
     @ValueSource(ints = {24, 6})
-    void genesisRunsThePrehistory(int dpy) {
+    void genesisStartsAtEraWithoutPrehistory(int dpy) {
         WorldSim sim = SimFixtures.genesis(3, "small", dpy);
-        long prehistory = (long) SimFixtures.data().rules().time().prehistoryYears() * dpy;
-        assertEquals(prehistory, sim.day());
-        assertEquals(prehistory, sim.prehistoryDays());
+        assertEquals(0, sim.day());
+        assertEquals(0, sim.prehistoryDays());
         SimDate date = sim.date(dpy);
         assertFalse(date.beforeEra());
         assertEquals(1, date.year());
@@ -76,11 +75,9 @@ class WorldSimDeterminismTest {
         assertEquals(new SimDate(606, false, 2, 0), SimDate.of(606, 600, 6));
     }
 
-    /** 24 days per year, the default: 100 prehistory years are 2400 days. */
+    /** An explicitly supplied historical timeline still uses the given era offset. */
     @Test
     void eraDatesAtTwentyFourDaysPerYear() {
-        long prehistory = (long) SimFixtures.data().rules().time().prehistoryYears() * 24;
-        assertEquals(2400, prehistory);
         assertEquals(new SimDate(0, true, 100, 0), SimDate.of(0, 2400, 24));
         assertEquals(new SimDate(23, true, 100, 23), SimDate.of(23, 2400, 24));
         assertEquals(new SimDate(24, true, 99, 0), SimDate.of(24, 2400, 24));

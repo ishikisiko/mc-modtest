@@ -14,6 +14,8 @@ public final class LifeEngine {
     public static final Set<String> FAILURES = Set.of("facility_missing", "target_blocked", "path_unavailable",
             "path_timeout", "stuck", "target_unloaded", "too_far", "stale_target");
 
+    private static final String AUCTION_VISIT = "tianheng_auction";
+
     private LifeEngine() { }
 
     public static void observeDaylight(SimContext ctx, double fraction) {
@@ -44,7 +46,7 @@ public final class LifeEngine {
     /** Changing the sun changes intentions, never elapsed work or a paid recovery cooldown. */
     private static void reconcileShift(SimContext ctx, LifeResident r, long at) {
         if (StoryActors.protectedPerson(ctx.state, r.personId)) return;
-        if (!onDuty(ctx, r) || "waiting".equals(r.phase)) return;
+        if (!onDuty(ctx, r) || "waiting".equals(r.phase) || AUCTION_VISIT.equals(r.reason)) return;
         boolean day = merchantDaytime(ctx, at);
         String activity = day ? dutyActivity(r) : "rest", target = day ? r.workId : r.homeId;
         if (r.activity.equals(activity) && r.targetId.equals(target)) return;
@@ -269,6 +271,32 @@ public final class LifeEngine {
         if (r == null || r.revision != revision || "waiting".equals(r.phase)) return false;
         if (!FAILURES.contains(reason)) throw new IllegalArgumentException("invalid_failure_reason");
         fail(ctx, r, reason, Math.max(0, ctx.state.life.clockTicks));
+        return true;
+    }
+
+    public static boolean visitAuction(SimContext ctx, int id, String siteId, String placeId) {
+        LifeResident resident = ctx.state.life.residents.get(id);
+        if (resident == null || !resident.siteId.equals(siteId) || resident.pauseTicks > 0
+                || !ctx.state.persons.containsKey(id) || ctx.state.combat.engaged.contains(id)
+                || StoryActors.protectedPerson(ctx.state, id) || "brew".equals(resident.activity)) return false;
+        if (!placeId.equals("tianheng_seat_0") && !placeId.equals("tianheng_seat_1")) return false;
+        var seat = requireSite(ctx, siteId).place(placeId).orElse(null);
+        if (seat == null || !seat.kind().equals("social")) return false;
+        double dx = resident.x - (double) seat.x(), dz = resident.z - (double) seat.z();
+        double distance = rules(ctx).maxPathDistance();
+        return dx * dx + dz * dz <= distance * distance && begin(ctx, resident, "social", seat, AUCTION_VISIT);
+    }
+
+    public static boolean leaveAuction(SimContext ctx, int id, String siteId) {
+        LifeResident resident = ctx.state.life.residents.get(id);
+        if (resident == null || !resident.siteId.equals(siteId) || !AUCTION_VISIT.equals(resident.reason)) return false;
+        resident.revision = Math.incrementExact(resident.revision);
+        resident.phase = "waiting";
+        resident.targetId = "";
+        resident.progressTicks = 0;
+        resident.requiredTicks = 0;
+        resident.retryAfter = Math.max(0, ctx.state.life.clockTicks);
+        resident.reason = "auction_ended";
         return true;
     }
 
@@ -500,7 +528,8 @@ public final class LifeEngine {
 
     private static boolean beginKind(SimContext ctx, LifeResident r, String activity, String kind, String reason) {
         for (LifePlace place : requireSite(ctx, r.siteId).places()) {
-            if (place.kind().equals(kind) && begin(ctx, r, activity, place, reason)) return true;
+            if (place.kind().equals(kind) && !place.id().startsWith("tianheng_seat_")
+                    && begin(ctx, r, activity, place, reason)) return true;
         }
         return false;
     }
@@ -554,6 +583,11 @@ public final class LifeEngine {
         if (!physicalReceipt && Set.of("plant", "tend", "harvest").contains(r.activity)) {
             var garden = ctx.state.life.gardens.get(LifeState.placeKey(r.siteId, r.targetId));
             if (garden != null && garden.physical) return;
+        }
+        if (AUCTION_VISIT.equals(r.reason)) {
+            r.progressTicks = 0;
+            r.requiredTicks = rules(ctx).duration("social");
+            return;
         }
         if (StoryActors.protectedPerson(ctx.state, r.personId)) {
             // Fixed reception is neither employment nor an invisible source of resources/fatigue.

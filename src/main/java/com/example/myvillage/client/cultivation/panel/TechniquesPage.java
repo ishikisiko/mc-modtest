@@ -7,7 +7,6 @@ import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRules;
-import com.example.myvillage.cultivation.technique.HeartManualExchange;
 import com.example.myvillage.cultivation.technique.HeartTechniques;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,12 +17,11 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/** A shared view of learned techniques and the synchronized technique catalogue. */
+/** Player-facing view of learned techniques. */
 public final class TechniquesPage extends PanelPage {
     private static final int FILTER_HEIGHT = 42;
     private static final int DOCK_HEIGHT = TechniqueGrowthPage.DOCK;
@@ -34,9 +32,8 @@ public final class TechniquesPage extends PanelPage {
         detail = false;
         scrollToTop = true;
     });
-    private PanelButton action, growthButton, modeButton, realmButton, slotButton;
+    private PanelButton action, growthButton, realmButton, slotButton;
     private boolean detail, visible, scrollToTop;
-    private boolean learnedOnly = true;
     private TechniqueCategory filter;
     private ResourceLocation realm, selected, hovered;
     private List<ResourceLocation> realms = List.of();
@@ -64,16 +61,12 @@ public final class TechniquesPage extends PanelPage {
                 resetSelection();
             }, widgets));
         }
-        modeButton = filterButton(0, 3, y + 20, "已学功法", () -> {
-            learnedOnly = !learnedOnly;
-            resetSelection();
-        }, widgets);
-        realmButton = filterButton(1, 3, y + 20, "全部境界", () -> {
+        realmButton = filterButton(0, 2, y + 20, "全部境界", () -> {
             int next = realm == null ? 0 : realms.indexOf(realm) + 1;
             realm = next < realms.size() ? realms.get(next) : null;
             resetSelection();
         }, widgets);
-        slotButton = filterButton(2, 3, y + 20, "全部栏位", () -> {
+        slotButton = filterButton(1, 2, y + 20, "全部栏位", () -> {
             int next = slot == null ? 0 : slot.ordinal() + 1;
             slot = next < Slot.values().length ? Slot.values()[next] : null;
             resetSelection();
@@ -111,9 +104,8 @@ public final class TechniquesPage extends PanelPage {
         var context = PanelContext.capture(Minecraft.getInstance(), PanelFonts.get());
         if (selected == null || context.profile() == null) return;
         context.technique(selected).ifPresent(definition -> {
-            if (!context.profile().learnedTechniques().containsKey(selected)) {
-                if (HeartManualExchange.price(definition) > 0) ClientCultivationIntentSender.requestHeartManual(selected);
-            } else if (definition.isCore()) {
+            if (!context.profile().learnedTechniques().containsKey(selected)) return;
+            if (definition.isCore()) {
                 ClientCultivationIntentSender.sendCoreSwitch(selected);
             } else if (SkillBindingRules.kind(selected, definition) != SkillBindingRules.Kind.NONE) {
                 openSkills.accept(selected);
@@ -130,7 +122,7 @@ public final class TechniquesPage extends PanelPage {
         visible = value;
         boolean listing = value && !detail;
         filters.forEach(button -> button.visible = listing);
-        modeButton.visible = realmButton.visible = slotButton.visible = listing;
+        realmButton.visible = slotButton.visible = listing;
         action.visible = growthButton.visible = listing;
         growth.setVisible(value && detail);
     }
@@ -169,8 +161,6 @@ public final class TechniquesPage extends PanelPage {
                 .sorted(Comparator.comparingInt(id -> Optional.ofNullable(registry.get(id))
                         .map(RealmDefinition::sortOrder).orElse(Integer.MAX_VALUE))).toList()).orElse(List.of());
         if (realm != null && !realms.contains(realm)) realm = null;
-        modeButton.setMessage(Component.literal(learnedOnly ? "已学功法" : "功法图鉴"));
-        modeButton.setTooltip(Tooltip.create(Component.literal(learnedOnly ? "点击查看全部功法，包括未学的条目" : "点击仅显示已学功法")));
         realmButton.setMessage(realm == null ? Component.literal("全部境界") : context.realmName(realm));
         realmButton.setTooltip(Tooltip.create(Component.literal("按最低学习境界筛选，点击切换")));
         slotButton.setMessage(Component.literal(slot == null ? "全部栏位" : slot == Slot.SPIRIT ? "灵力与修炼" : slot.title()));
@@ -183,12 +173,9 @@ public final class TechniquesPage extends PanelPage {
         boolean equipped = equippable && context.profile().equippedHeart(HeartTechniques.slot(definition))
                 .filter(selected::equals).isPresent();
         boolean cast = definition != null && SkillBindingRules.kind(selected, definition) != SkillBindingRules.Kind.NONE;
-        int price = !learned ? HeartManualExchange.price(definition) : 0;
-        action.active = price > 0 || learned && (equippable && !equipped || cast);
-        action.setMessage(Component.literal(definition == null ? "未选择"
-                : !learned ? price > 0 ? "换取秘籍" : "尚未学会"
+        action.active = learned && (equippable && !equipped || cast);
+        action.setMessage(Component.literal(!learned ? "未选择"
                 : equippable ? equipped ? "已装备" : "装备心法" : cast ? "分配按键" : "无需施放"));
-        action.setTooltip(price > 0 ? Tooltip.create(Component.literal("消耗 " + price + " 颗下品灵石，需满足研读条件")) : null);
         growthButton.active = learned && TechniqueGrowthRules.bundled().find(selected).isPresent();
     }
 
@@ -196,10 +183,7 @@ public final class TechniquesPage extends PanelPage {
         if (detail) return growth.render(graphics, context, x, y, width, viewport);
         hits.clear();
         hovered = null;
-        var known = context.profile().learnedTechniques().keySet();
-        var ids = new LinkedHashSet<>(known);
-        if (!learnedOnly) context.registries().registry(ModCultivationRegistries.TECHNIQUES)
-                .ifPresent(registry -> ids.addAll(registry.keySet()));
+        var ids = context.profile().learnedTechniques().keySet();
         var items = new ArrayList<TechniqueShelf.Item>();
         for (var id : ids) {
             var definition = context.technique(id).orElse(null);
@@ -214,7 +198,7 @@ public final class TechniquesPage extends PanelPage {
             selected = ordered.isEmpty() ? null : ordered.getFirst().id();
         }
         if (ordered.isEmpty()) {
-            CultivationInkTheme.text(graphics, context.font(), learnedOnly ? "当前筛选下暂无已学功法" : "当前筛选下暂无功法",
+            CultivationInkTheme.text(graphics, context.font(), "当前筛选下暂无已学功法",
                     x + 8, y + 12, width - 16, InkPanelTheme.MUTED);
             return 38;
         }
@@ -229,7 +213,7 @@ public final class TechniquesPage extends PanelPage {
             hits.add(hit);
             boolean over = py >= visibleTop && py < visibleTop + viewport && hit.contains(px, py);
             if (over) hovered = id;
-            TechniqueTiles.draw(graphics, context, hit, id.equals(selected), over, known.contains(id));
+            TechniqueTiles.draw(graphics, context, hit, id.equals(selected), over);
         }
         return grid.height();
     }

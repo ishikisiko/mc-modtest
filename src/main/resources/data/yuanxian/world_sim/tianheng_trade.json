@@ -1,0 +1,24 @@
+{
+  "regions": {
+    "donghuang": "qi_refining",
+    "lingyue": "foundation_establishment",
+    "beiyuan": "foundation_establishment",
+    "donghai": "golden_core",
+    "ximo": "golden_core",
+    "nanjiang": "nascent_soul",
+    "moyu": "nascent_soul",
+    "zhongzhou": "spirit_transformation"
+  },
+  "realms": {
+    "qi_refining":              {"shop_grade": 1, "fallback_price": 8, "herb": "yuanxian:calm_lotus", "ore": "yuanxian:xuantie_ore", "material_price": 12},
+    "foundation_establishment": {"shop_grade": 2, "fallback_price": 48, "herb": "yuanxian:lantern_spore", "ore": "yuanxian:redplate_scale", "material_price": 36},
+    "golden_core":              {"shop_grade": 3, "fallback_price": 160, "herb": "yuanxian:formula_buji_high", "ore": "yuanxian:frost_plume", "material_price": 90},
+    "nascent_soul":             {"shop_grade": 3, "fallback_price": 480, "herb": "yuanxian:formula_ningying", "ore": "yuanxian:frost_plume", "material_price": 160},
+    "spirit_transformation":   {"shop_grade": 3, "fallback_price": 1600, "herb": "yuanxian:five_color_golden_lotus", "ore": "yuanxian:redplate_scale", "material_price": 420}
+  },
+  "shelf_per_realm": 6,
+  "preview_seconds": 15,
+  "lot_seconds": 35,
+  "bid_step_percent": 10,
+  "npc_budget_percent": 130
+}

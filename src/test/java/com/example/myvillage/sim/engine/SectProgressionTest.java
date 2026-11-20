@@ -90,9 +90,10 @@ class SectProgressionTest {
         assertEquals("outer", low.rank, "分宗称号不能代替主宗的任职境界");
         assertEquals(main.id, low.sectId);
     }
-    @Test void openingMasterProfilesRemainValidAfterTheActualHundredYearPrehistory() {
+    @Test void openingMastersAreSetAtGenesisWithoutPrehistory() {
         var sim = WorldSim.genesis(20261109, graph, data, "small", 24);
-        assertEquals(2400, sim.day());
+        assertEquals(0, sim.day());
+        assertEquals(0, sim.prehistoryDays());
         for (var sect : sim.sects(false)) {
             var head = sim.person(sect.masterId()).orElseThrow();
             var tier = data.rules().sectProgression().tier(sect.tierId());
@@ -129,15 +130,17 @@ class SectProgressionTest {
     }
     @Test void branchMasterRarityAndHigherRealmBodiesAreActualData() {
         var rules = data.rules().sectProgression();
-        assertEquals(99, rules.tier("branch").masters().getFirst().weight());
-        assertEquals(1, rules.tier("branch").masters().getLast().weight());
+        assertEquals(90, rules.tier("branch").masters().getFirst().weight());
+        assertEquals(10, rules.tier("branch").masters().getLast().weight());
         int rare = 0;
         for (int i = 0; i < 2000; i++) {
             var m = rules.tier("branch").master(SimRng.at(123, 0, i, Purpose.SECT_TIER_MASTER));
             if (m.realm().equals("golden_core")) { rare++; assertEquals(1, m.minimumStage()); }
             else { assertEquals("foundation_establishment", m.realm()); assertEquals(2, m.minimumStage()); }
         }
-        assertTrue(rare > 0 && rare < 80, "固定种子稀有抽取必须低于4%");
+        assertTrue(rare > 140 && rare < 260, "固定种子稀有抽取应接近一成");
+        assertEquals(List.of("nascent_soul"), rules.tier("headquarters").masters().stream().map(m -> m.realm()).toList());
+        assertEquals(List.of("spirit_transformation"), rules.tier("main").masters().stream().map(m -> m.realm()).toList());
         assertEquals(2000, data.realms().byId("spirit_transformation").lifespanYears());
         var body = CultivationStatsRules.bundled();
         var before = body.at(new RealmKey("nascent_soul", 2), 1, 1);

@@ -19,13 +19,20 @@ public final class QianjiContent {
     private static final DeferredRegister<BlockEntityType<?>> ENTITIES=DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE,MyVillageMod.MOD_ID);
     public static final Map<String,DeferredBlock<?>> MATERIALS=new LinkedHashMap<>();
     static {
-        var c=QianjiCatalog.get();
+        registerArchitecture(QianjiCatalog.get());
+        registerArchitecture(QianjiCatalog.tianheng());
+    }
+    private static void registerArchitecture(QianjiCatalog c){
         for(var m:c.materials){var b=BLOCKS.register(m.id(),()->new Block(material(m)));MATERIALS.put(m.id(),b);ITEMS.registerSimpleBlockItem(b);}
         for(var bank:c.banks){var b=BLOCKS.register(bank.id(),()->new QianjiComponentBlock(bank,properties().lightLevel(s->bank.lights().get(s.getValue(QianjiComponentBlock.SHAPE)))));ITEMS.registerSimpleBlockItem(b);}
     }
     public static final DeferredBlock<QianjiAtmosphereBlock> ANCHOR=BLOCKS.register("qianji_atmosphere_anchor",()->new QianjiAtmosphereBlock(properties()));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<QianjiAtmosphereEntity>> ENTITY=ENTITIES.register("qianji_atmosphere_anchor",()->BlockEntityType.Builder.of(QianjiAtmosphereEntity::new,ANCHOR.get()).build(null));
-    public static final DeferredHolder<CreativeModeTab,CreativeModeTab> TAB=TABS.register("qianji",()->CreativeModeTab.builder().title(Component.translatable("itemGroup.yuanxian.qianji")).icon(()->new ItemStack(MATERIALS.get("qianji_tile").get())).displayItems((p,out)->MATERIALS.values().forEach(b->out.accept(b.get()))).build());
+    public static final DeferredHolder<CreativeModeTab,CreativeModeTab> TAB=TABS.register("qianji",()->CreativeModeTab.builder().title(Component.translatable("itemGroup.yuanxian.qianji")).icon(()->new ItemStack(MATERIALS.get("qianji_tile").get())).displayItems((p,out)->MATERIALS.forEach((id,b)->{if(id.startsWith("qianji_"))out.accept(b.get());})).build());
+    public static final DeferredHolder<CreativeModeTab,CreativeModeTab> TIANHENG_TAB=TABS.register("tianheng",
+            ()->CreativeModeTab.builder().title(Component.translatable("itemGroup.yuanxian.tianheng"))
+                    .icon(()->new ItemStack(MATERIALS.get("tianheng_jade").get()))
+                    .displayItems((p,out)->MATERIALS.forEach((id,b)->{if(id.startsWith("tianheng_"))out.accept(b.get());})).build());
     private static BlockBehaviour.Properties properties(){var c=QianjiCatalog.get();return BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GRAY).strength(c.strength,c.resistance).sound(SoundType.STONE);}
     private static BlockBehaviour.Properties material(QianjiCatalog.Material m){var p=properties().sound(switch(m.sound()){case "wood"->SoundType.WOOD;case "glass"->SoundType.GLASS;case "grass"->SoundType.GRASS;default->SoundType.STONE;}).lightLevel(s->m.light());if(!m.opaque())p.noOcclusion();if(!m.collides())p.noCollission();return p;}
     public static void register(IEventBus bus){BLOCKS.register(bus);ITEMS.register(bus);TABS.register(bus);ENTITIES.register(bus);}

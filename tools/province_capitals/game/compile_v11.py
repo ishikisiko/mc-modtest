@@ -55,6 +55,9 @@ def apply_region_progression(frozen, policy):
 def aggregate(out:Path,source:Path,*,refresh_current=False):
     from player_economy_sites import place_capital_boards
     place_capital_boards(out)
+    sys.path.insert(0,str(ROOT))
+    from tools.tianheng.runtime import integrate as place_tianheng
+    place_tianheng(out)
     if out.resolve()==source.resolve() and not refresh_current:raise ValueError('V11 不能覆盖 V10 资源')
     spec=json.loads(RULES.read_text());path=source/('data/yuanxian/worldplan/frozen_v11.json' if refresh_current else 'data/yuanxian/worldplan/frozen_v10.json');original=old.read_bounded(path,4*1024*1024);base=json.loads(original)
     if (spec.get('schema'),spec.get('algorithm'),spec.get('base'),base['algorithm'])!=(1,'yuanxian:worldplan_v11','frozen_v10.json','yuanxian:worldplan_v11' if refresh_current else 'yuanxian:worldplan_v10'):raise ValueError('V11 必须继承完整 V10')

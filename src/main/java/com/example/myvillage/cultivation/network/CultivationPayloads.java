@@ -66,10 +66,6 @@ public final class CultivationPayloads {
                 CoreTechniqueSwitchPayload.TYPE,
                 CoreTechniqueSwitchPayload.STREAM_CODEC,
                 CultivationPayloads::handleCoreTechniqueSwitch);
-        registrar.playToServer(HeartManualRequestPayload.TYPE, HeartManualRequestPayload.STREAM_CODEC, (payload, context) -> {
-            if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
-                    com.example.myvillage.cultivation.technique.HeartManualExchange.request(player, payload.techniqueId()));
-        });
     }
 
     private static void handleSnapshot(

@@ -4,6 +4,7 @@ import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.data.HeartMethod;
 import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
+import com.example.myvillage.cultivation.data.TechniqueEffects;
 import com.example.myvillage.cultivation.meditation.BasicBreathingSettlement;
 import com.example.myvillage.cultivation.meditation.MeditationMode;
 import com.example.myvillage.cultivation.qi.QiRegeneration;
@@ -36,7 +37,9 @@ class HeartTechniquesTest {
                 assertTrue(HeartTechniques.method(definition).isPresent(), path.toString());
                 var realm = definition.requirements().minimumRealm().orElseThrow();
                 counts.merge(realm.getPath(), 1, Integer::sum);
-                assertEquals(definition.grade() > 0, HeartManualExchange.price(definition) > 0, path.toString());
+                int price = definition.effects().flatMap(TechniqueEffects::core)
+                        .map(TechniqueEffects.Core::manualPrice).orElse(0);
+                assertEquals(definition.grade() > 0, price > 0, path.toString());
                 var serialized = TechniqueDefinition.CODEC.encodeStart(JsonOps.INSTANCE, definition).getOrThrow();
                 assertEquals(HeartTechniques.method(definition), HeartTechniques.method(
                         TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE, serialized).getOrThrow()));

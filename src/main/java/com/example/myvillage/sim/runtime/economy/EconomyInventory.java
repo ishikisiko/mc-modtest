@@ -2,6 +2,7 @@ package com.example.myvillage.sim.runtime.economy;
 
 import com.example.myvillage.sim.economy.TaskReward;
 import com.example.myvillage.spiritstone.*;
+import java.math.BigInteger;
 import com.example.myvillage.item.SpiritStoneTags;
 import java.util.*;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,15 +32,61 @@ public final class EconomyInventory {
         var access = SpiritStoneSources.open(player); var copies = access.copies();
         return new Prepared(access, copies, insert(copies, stack, count, false) ? "ok" : "inventory_full");
     }
-    public static Prepared buyWithLowStones(ServerPlayer player, ItemStack goods, int cost) {
+    static Prepared tianhengPayment(ServerPlayer player, int cost, ItemStack goods) {
         var access = SpiritStoneSources.open(player);
         var copies = access.copies();
-        if (cost <= 0 || goods.isEmpty()) return new Prepared(access, copies, "invalid_offer");
-        if (!SpiritStoneStorage.remove(copies, stack -> stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE), cost)) {
-            return new Prepared(access, copies, "missing_items");
-        }
-        return new Prepared(access, copies, insert(copies, goods, 1, false) ? "ok" : "inventory_full");
+        String result = collectStones(copies, cost);
+        if (result.equals("ok") && !goods.isEmpty() && !insert(copies, goods, goods.getCount(), false))
+            result = "inventory_full";
+        return new Prepared(access, copies, result);
     }
+
+    static Prepared tianhengReceipt(ServerPlayer player, long refund, ItemStack award) {
+        var access = SpiritStoneSources.open(player);
+        var copies = access.copies();
+        boolean ready = returnStones(copies, BigInteger.valueOf(refund));
+        if (ready && !award.isEmpty()) ready = insert(copies, award, award.getCount(), false);
+        return new Prepared(access, copies, ready ? "ok" : "inventory_full");
+    }
+
+    private static String collectStones(List<ItemStack> copies, int cost) {
+        if (cost <= 0) throw new IllegalArgumentException("invalid_offer");
+        var remaining = BigInteger.valueOf(cost);
+        var tiers = SpiritStoneDenominations.get().tiers();
+        for (var tier : tiers.reversed()) {
+            var money = new ItemStack(CommerceInventory.item(tier.item().toString()));
+            var accepts = SpiritStoneStorage.ordinary(money);
+            var count = copies.stream().map(stack -> SpiritStoneStorage.count(stack, accepts))
+                    .reduce(BigInteger.ZERO, BigInteger::add).min(remaining.divide(tier.units()));
+            if (count.signum() == 0) continue;
+            if (!SpiritStoneStorage.remove(copies, accepts, count)) throw new IllegalStateException("灵石支付副本改变");
+            remaining = remaining.subtract(count.multiply(tier.units()));
+        }
+        if (remaining.signum() == 0) return "ok";
+        for (var tier : tiers) {
+            if (tier.units().compareTo(remaining) <= 0) continue;
+            var money = new ItemStack(CommerceInventory.item(tier.item().toString()));
+            if (SpiritStoneStorage.remove(copies, SpiritStoneStorage.ordinary(money), 1))
+                return returnStones(copies, tier.units().subtract(remaining)) ? "ok" : "inventory_full";
+        }
+        return "missing_items";
+    }
+
+    private static boolean returnStones(List<ItemStack> copies, BigInteger value) {
+        var denominations = SpiritStoneDenominations.get();
+        for (var change : denominations.decompose(value).entrySet()) {
+            var money = new ItemStack(CommerceInventory.item(denominations.tier(change.getKey()).item().toString()));
+            var left = change.getValue();
+            for (var stack : copies) {
+                if (left.signum() == 0) break;
+                left = SpiritStoneStorage.insert(stack, money, left, false);
+            }
+            if (left.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0
+                    || SpiritStoneStorage.insertLoose(copies, money, left.intValueExact(), 36) > 0) return false;
+        }
+        return true;
+    }
+
     static boolean insert(List<ItemStack> copies, ItemStack stack, int count, boolean bags) {
         int left = bags ? SpiritStoneStorage.insertBags(copies, stack, count, true) : count;
         return SpiritStoneStorage.insertLoose(copies, stack, left, 36) == 0;

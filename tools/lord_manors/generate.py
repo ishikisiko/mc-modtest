@@ -207,19 +207,19 @@ def base_resources(writer,m,cfg,names):
     names['block.yuanxian.'+ident]=m['name']
 
 
-def bank_resources(writer,bank,definitions,city,names,model_factory=model):
+def bank_resources(writer,bank,definitions,city,names,model_factory=model,*,asset_root=ASSET,data_root=DATA):
     ident=bank['id'];states={};overrides=[];children=[]
     for i,profile in enumerate(bank['profiles']):
         part=f'{ident}/shape_{i}'
-        writer.json(ASSET/f'models/block/{part}.json',model_factory(profile,definitions,city))
+        writer.json(asset_root/f'models/block/{part}.json',model_factory(profile,definitions,city))
         for turn,facing in enumerate(FACINGS):states[f'facing={facing},shape={i}']={'model':'yuanxian:block/'+part,'y':turn*90}
         overrides.append({'predicate':{'custom_model_data':i+1},'model':'yuanxian:block/'+part})
         children.append({'type':'minecraft:item','name':'yuanxian:'+ident,
             'conditions':[{'condition':'minecraft:block_state_property','block':'yuanxian:'+ident,'properties':{'shape':str(i)}}],
             'functions':[{'function':'minecraft:set_components','components':{'minecraft:block_state':{'shape':str(i)},'minecraft:custom_model_data':i+1}}]})
-    writer.json(ASSET/f'blockstates/{ident}.json',{'variants':states})
-    writer.json(ASSET/f'models/item/{ident}.json',{'parent':f'yuanxian:block/{ident}/shape_0','overrides':overrides})
-    writer.json(DATA/f'loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:alternatives','children':children}]}]})
+    writer.json(asset_root/f'blockstates/{ident}.json',{'variants':states})
+    writer.json(asset_root/f'models/item/{ident}.json',{'parent':f'yuanxian:block/{ident}/shape_0','overrides':overrides})
+    writer.json(data_root/f'loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:alternatives','children':children}]}]})
     names['block.yuanxian.'+ident]=bank['name']
 
 

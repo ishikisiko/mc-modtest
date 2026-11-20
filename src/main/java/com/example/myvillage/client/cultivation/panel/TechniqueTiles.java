@@ -11,7 +11,6 @@ import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityDefinition;
 import com.example.myvillage.cultivation.observation.ObservationRules;
 import com.example.myvillage.cultivation.qi.SpiritualPower;
-import com.example.myvillage.cultivation.technique.HeartManualExchange;
 import com.example.myvillage.cultivation.technique.HeartTechniques;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +45,6 @@ final class TechniqueTiles {
         return PanelAssets.technique(id,c.technique(id).map(TechniqueDefinition::category).orElse(null));
     }
     static void draw(GuiGraphics g, PanelContext c, Hit hit, boolean selected, boolean hovered) {
-        draw(g, c, hit, selected, hovered, true);
-    }
-
-    static void draw(GuiGraphics g, PanelContext c, Hit hit, boolean selected, boolean hovered, boolean learned) {
         var f = c.font();var d = c.technique(hit.id()).orElse(null);var p = palette(c,hit.id());
         int x=hit.x(), y=hit.y(), w=hit.width(), h=hit.height();
         g.fillGradient(x,y,x+w,y+h,0xFFF1EBDD,p.wash());
@@ -66,11 +61,18 @@ final class TechniqueTiles {
         String label=ObservationRules.ID.equals(hit.id())?"基础":FateAbilityDefinition.find(hit.id()).isPresent()?"天命":grade(c,d);int chipWidth=Math.min(w-4,f.width(label)+4);
         g.fill(x+w-chipWidth-2,y+2,x+w-2,y+12,p.color());
         g.drawString(f,InkPanelTheme.fit(f,label,chipWidth-3),x+w-chipWidth,y+2,p.label(),false);
-        String bound="";var config=ClientSkillBindings.current();
-        if(config!=null)for(int i=0;i<config.slots().size();i++)if(config.slots().get(i).equals(hit.id()))
-            bound=com.example.myvillage.client.combat.ClientCombatKeyMappings.SKILL_KEYS.get(i).getTranslatedKeyMessage().getString();
-        if (!learned) bound = "未学";
-        else if (d != null && d.isCore() && c.profile().equippedHeart(HeartTechniques.slot(d)).filter(hit.id()::equals).isPresent()) {
+        String bound = "";
+        var config = ClientSkillBindings.current();
+        if (config != null) {
+            for (int i = 0; i < config.slots().size(); i++) {
+                if (config.slots().get(i).equals(hit.id())) {
+                    bound = com.example.myvillage.client.combat.ClientCombatKeyMappings.SKILL_KEYS.get(i).getTranslatedKeyMessage().getString();
+                    break;
+                }
+            }
+        }
+        if (bound.isEmpty() && d != null && d.isCore()
+                && c.profile().equippedHeart(HeartTechniques.slot(d)).filter(hit.id()::equals).isPresent()) {
             bound = HeartTechniques.slot(d) == HeartMethod.Slot.SPIRIT ? "主修" : "已装备";
         }
         if(!bound.isEmpty())g.drawString(f,InkPanelTheme.fit(f,bound,Math.max(1,w-chipWidth-5)),x+3,y+2,InkPanelTheme.JADE,false);
@@ -123,8 +125,6 @@ final class TechniqueTiles {
         d.requirements().minimumElementAptitudes().forEach((element,points)->conditions.add(c.elementName(element).getString()+String.format(Locale.ROOT," ≥ %.1f%%",points/100.0)));
         lines.add(Component.literal("修习条件："+(conditions.isEmpty()?"无":String.join(" · ",conditions))));
         HeartTechniques.method(d).ifPresent(heart -> heartDetails(lines, c, d, heart));
-        int price = HeartManualExchange.price(d);
-        if (price > 0 && progress == null) lines.add(Component.literal("换取秘籍需要 " + price + " 颗下品灵石"));
         ArtDefinition.find(id).ifPresent(art->{
             lines.add(Component.translatable("combat."+id.getNamespace()+".art."+id.getPath()+".description"));
             lines.add(Component.literal("灵力 "+art.qiCost()+" · 冷却 "+String.format(Locale.ROOT,"%.1f",art.cooldownTicks()/20.0)+" 秒"));

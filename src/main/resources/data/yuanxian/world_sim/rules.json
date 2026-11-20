@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "time": {"prehistory_years": 100, "default_days_per_year": 24},
+  "time": {"prehistory_years": 0, "default_days_per_year": 24},
   "tiers": {
     "small": {"population": 80, "sects": 5, "rogue_share": 0.2},
     "medium": {"population": 300, "sects": 10, "rogue_share": 0.2},
@@ -258,13 +258,13 @@
             "realm": "foundation_establishment",
             "minimum_stage": 2,
             "maximum_stage": 2,
-            "weight": 99
+            "weight": 90
           },
           {
             "realm": "golden_core",
             "minimum_stage": 1,
             "maximum_stage": 1,
-            "weight": 1
+            "weight": 10
           }
         ],
         "stone": "low",
@@ -282,12 +282,6 @@
           "stage": 0
         },
         "masters": [
-          {
-            "realm": "golden_core",
-            "minimum_stage": 2,
-            "maximum_stage": 2,
-            "weight": 4
-          },
           {
             "realm": "nascent_soul",
             "minimum_stage": 0,
@@ -322,12 +316,6 @@
           "stage": 0
         },
         "masters": [
-          {
-            "realm": "nascent_soul",
-            "minimum_stage": 0,
-            "maximum_stage": 2,
-            "weight": 4
-          },
           {
             "realm": "spirit_transformation",
             "minimum_stage": 0,

@@ -17,7 +17,8 @@ public record TownMapData(String name, int width, int depth, int textureWidth, i
         APOTHECARY("药", "药铺", "可交易药材与丹药，也可向药铺伙计询问试种。"),
         SMITH("锻", "铁作坊", "找铁匠查看铁作坊提供的交易。"),
         INN("宿", "客栈", "找客栈当值者交谈，查看客栈提供的交易。"),
-        GUIDE("引", "向导亭", "向导会介绍城里的客栈、药铺和铁匠。");
+        GUIDE("引", "向导亭", "向导会介绍城里的客栈、药铺和铁匠。"),
+        TIANHENG("衡", "天衡殿", "琳琅阁购买秘籍，拍卖厅竞拍珍材和功法。");
 
         public final String glyph;
         public final String label;
