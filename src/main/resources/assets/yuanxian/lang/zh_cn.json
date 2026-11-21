@@ -1289,7 +1289,7 @@
   "fate.yuanxian.everlasting_embryo.description": "寿元上限增加50%。从炼气起，随自然寿元积累生命上限、肉身防御和自身攻击；每攒满0.5点入账。成长速度按大境界决定，突破、死亡和退出均保留已得属性及未满进度。",
   "fate.yuanxian.sacred_earth_embryo": "厚土圣胎（占位）",
   "fate.yuanxian.sacred_earth_embryo.description": "占位天命，暂无实际效果。身如山岳，万军难撼。",
-  "fate.yuanxian.flawless_dao_heart": "无垢道心（占位）",
+  "fate.yuanxian.flawless_dao_heart": "琉璃无垢体（占位）",
   "fate.yuanxian.flawless_dao_heart.description": "占位天命，暂无实际效果。看破虚妄，也看见刀锋间的空隙。",
   "tooltip.yuanxian.alchemy.formula_learn": "右键永久学习，消耗一份丹方；已学不消耗",
   "message.yuanxian.alchemy.formula_learned": "已永久习得：%s",
