@@ -29,7 +29,7 @@ class GoldenCoreArtsTest {
             assertEquals(3, definition.grade());
             assertEquals("golden_core", definition.requirements().minimumRealm().orElseThrow().getPath());
             assertTrue(definition.previous().isPresent());
-            assertEquals(4800, definition.study().orElseThrow().points());
+            assertEquals(4800, definition.study().points());
             assertTrue(SkillBindingRules.assignable(art.id(), Set.of(art.id()), definition));
             assertEquals(-1, art.slot());
             assertEquals(spec.element().isPresent(), art.family().equals("elemental"));
