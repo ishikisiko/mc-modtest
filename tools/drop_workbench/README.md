@@ -64,3 +64,26 @@ systemctl --user status myvillage-drop-workbench.service
 规则语义的固定样例位于 `src/test/resources/drops/rules_fixture.json`。Java和网页存储单元测试保留原来的精确断言，通过该样例验证，避免把用户可编辑的掉落方式和概率固定成编译要求。真实包内表仍由网页写回校验和原生服务器启动检查；原生 `item_variants` 场景读取根目录的 `drop-workbench-catalogue.json` 作为本次生成目录的检查副本，构建采集器负责准备它。
 
 0.135.0的妖兽材料由正式目录提供56种固定身份，普通、不凡、罕见、传说保持各自名称和价格。选择具体材料可配置固定掉落；材料工厂可按目标境界生成，并编辑四档稀有度权重及已有的抢夺概率增量。参数语义与作者入口见[妖兽材料说明](../../docs/features/beast-materials.md)。
+
+## 按境界批量生成掉落
+
+[普通妖兽的妖丹样例](examples/beast-cores-by-realm.json)把掉落模板展开成统一表已有的「追加」规则。填写共用掉落和适用的生物，就能按每种生物、每个大境界预览结果。
+
+- `realms` 列出要生成的大境界，每条生成规则会覆盖当境的全部阶段。物种可以另填 `realms`，从共用范围中选择适用境界。
+- `template` 以掉落项名称区分条目。`min`、`max`、`chance` 可用固定值，也可填写 `base` 和 `per_realm`。最低的共用境界使用基值，每高一个大境界加一次增量。
+- `entities` 中可在 `drops` 里按名称覆盖共用条目，新增本物种的专属条目，或用 `by_realm` 针对一境调整。`null` 会取消对应条目。各物种同一境界的掉落完全相同时，会合成一条规则。
+- `replace_additions` 列出要从候选表移除的现有规则 ID。样例替换普通兽类原有的共用妖丹规则，首领妖丹仍由自己的追加规则结算。
+
+用工作台目录校验生成结果。`preview` 输出候选 JSON、可打开的 HTML 和统一表版本，`apply` 使用该版本写入已查看的候选表。保存后的条目可以在工作台的「追加」页继续编辑。
+
+```bash
+python3 -m tools.drop_workbench.realm_drops \
+  --catalogue reports/drop-workbench/site/catalogue.json \
+  preview tools/drop_workbench/examples/beast-cores-by-realm.json \
+  --out reports/drop-workbench/beast-cores-candidate.json \
+  --html reports/drop-workbench/beast-cores-preview.html
+
+python3 -m tools.drop_workbench.realm_drops \
+  --catalogue reports/drop-workbench/site/catalogue.json \
+  apply reports/drop-workbench/beast-cores-candidate.json --revision '预览输出的版本'
+```

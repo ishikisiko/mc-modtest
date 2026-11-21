@@ -1,0 +1,40 @@
+{
+  "id": "beast_cores_by_realm",
+  "realms": [
+    "yuanxian:foundation_establishment",
+    "yuanxian:golden_core",
+    "yuanxian:nascent_soul",
+    "yuanxian:spirit_transformation"
+  ],
+  "when": {
+    "scenes": ["normal", "habitat", "battle_ruin"]
+  },
+  "replace_additions": ["beast_cores"],
+  "template": {
+    "core": {
+      "item": "yuanxian:beast_core_foundation_establishment_common",
+      "factory": "beast_material",
+      "min": 1,
+      "max": 1,
+      "chance": {"base": 0.2, "per_realm": 0.05},
+      "rarity_weights": [8000, 1600, 350, 50],
+      "looting": {"min_per_level": 0, "max_per_level": 1}
+    }
+  },
+  "entities": {
+    "yuanxian:redplate_lizard": {
+      "drops": {
+        "core": {
+          "by_realm": {
+            "yuanxian:golden_core": {"chance": 0.4}
+          }
+        }
+      }
+    },
+    "yuanxian:demon_wolf": {},
+    "yuanxian:thornback_badger": {},
+    "yuanxian:frostplume_pheasant": {},
+    "yuanxian:ember_toad": {},
+    "yuanxian:lantern_sporeling": {}
+  }
+}
