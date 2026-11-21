@@ -301,7 +301,7 @@ public final class EarlyRealmEffects {
         GUARDS.remove(caster);
     }
 
-    static void clear() { FIELDS.clear(); GUARDS.clear(); }
+    static void clearAll() { FIELDS.clear(); GUARDS.clear(); }
 
     private static Key key(LivingEntity caster, ArtDefinition art) { return new Key(caster.getUUID(), art.id()); }
 

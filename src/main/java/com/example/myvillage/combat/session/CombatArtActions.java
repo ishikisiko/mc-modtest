@@ -343,7 +343,7 @@ public final class CombatArtActions {
         LOG.info("ADVANCED_ART player={} result=stop art={} reason={}",CombatCaster.name(player),e.art.id(),reason);
     }
     static void remove(UUID player) { ENTRIES.remove(player);LAST_REQUEST.remove(player); GoldenCoreActions.forget(player); EarlyRealmEffects.forget(player); }
-    static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); GoldenCoreActions.clear(); EarlyRealmEffects.clear(); }
+    static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); GoldenCoreActions.clear(); EarlyRealmEffects.clearAll(); }
     static void prune(long now) { COOLDOWNS.prune(now); }
     public static int cooldownRemaining(LivingEntity player,ArtDefinition art) {
         if ((art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art))
