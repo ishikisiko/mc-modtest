@@ -166,17 +166,21 @@ class TechniqueDirectoryTest(unittest.TestCase):
     def technique(self, name):
         return self.entries['yuanxian:' + name]
 
-    def test_all_registered_techniques_are_browsable_under_their_real_category(self):
+    def test_registered_techniques_in_workbench_categories_are_browsable(self):
         source = ROOT / 'src/main/resources/data/yuanxian/yuanxian/technique'
-        self.assertEqual({f'yuanxian:{path.stem}' for path in source.glob('*.json')}, self.entries.keys())
+        categories = ['core', 'active', 'movement']
+        self.assertEqual(categories, [category['id'] for category in self.directory['categories']])
+        expected_ids = set()
         for path in source.glob('*.json'):
             definition = json.loads(path.read_text())
+            if definition['category'] not in categories:
+                continue
+            expected_ids.add('yuanxian:' + path.stem)
             entry = self.technique(path.stem)
             self.assertEqual(definition['category'], entry['category'])
             self.assertEqual(definition['grade'], entry['grade'])
             self.assertTrue(entry['realm'])
-            if definition['category'] == 'body' and 'body' not in definition.get('effects', {}):
-                self.assertEqual({'name': '效果待配置', 'stats': []}, entry['effect'])
+        self.assertEqual(expected_ids, self.entries.keys())
 
     def test_details_use_runtime_effects_and_merged_learning_thresholds(self):
         sword = self.technique('taibai_jianjing')

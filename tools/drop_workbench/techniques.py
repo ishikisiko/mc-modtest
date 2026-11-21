@@ -10,7 +10,6 @@ CATEGORIES = {
     'core': '攻、防守和灵力与修炼各装备一门。详情列出常驻加值和额外效果的触发条件。',
     'active': '学会绝技后可在技能页分配按键，实际效果取决于招式。',
     'movement': '身法决定闪避的位移距离、无敌时间、耗灵和冷却。',
-    'body': '炼体功法的效果字段包括属性加值和抗硬直。',
 }
 CORE_GRADES = ('mortal', 'huang', 'xuan', 'di', 'tian')
 SHAPES = {
@@ -375,8 +374,10 @@ def build(root: Path):
     legacy = {f"yuanxian:{row['id']}": row for row in read_json(data / 'legacy/encounters.json')['arts']}
     entries = []
     for id, definition in definitions.items():
-        grade = definition['grade']
         category = definition['category']
+        if category not in CATEGORIES:
+            continue
+        grade = definition['grade']
         elements = [element_name(labels, element) for element in definition['elements']]
         school = schools.get(definition.get('school'))
         school_name = labels[school['translation_key']] if school else None
@@ -400,16 +401,9 @@ def build(root: Path):
         elif category == 'movement':
             stats = movement_stats(effects.get('movement'))
             effect = {'name': '闪避效果' if stats else '效果待配置', 'stats': stats}
-        elif category == 'active':
+        else:
             weapon_name = f'{school_name}类' if school and school.get('weapon_family') else '不限'
             effect = active_effect(id, effects, arts, waves, legacy, elemental['rules'], labels, weapon_name)
-        else:
-            body = effects.get('body', {})
-            stats = [(labels.get(f"attribute.name.{key.split(':')[1]}", key), f'{amount:+g}')
-                     for key, amount in body.get('attributes', {}).items()]
-            if 'stagger_resistance' in body:
-                stats.append(('抗硬直值', f"{body['stagger_resistance']:g}"))
-            effect = {'name': '炼体配置' if stats else '效果待配置', 'stats': stats}
         entry['effect'] = effect
         if specialized:
             entry['growth'] = growth_details(specialized, growth['stage_names'])
