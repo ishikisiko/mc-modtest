@@ -1,6 +1,6 @@
 package com.example.myvillage.combat.art;
 
-import com.example.myvillage.cultivation.technique.TechniqueDefinition;
+import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import java.nio.file.Files;
