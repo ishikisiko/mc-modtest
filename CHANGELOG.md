@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.145.0-fix1
+
+- 八座州城的天衡殿改设在原城内街坊。院门接入已有街道，城镇地图更新入口。
+- 西漠重排南坊街道，将坡台石木宅迁到绿洲东侧，原有住户继续使用该宅院。
+
 ## 0.145.0
 
 - 八座州城新增天衡殿街坊，城镇地图标出入口。三种院型分别设置琳琅阁和封顶的内厅拍卖场。

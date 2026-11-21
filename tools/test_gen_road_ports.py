@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from shutil import copyfile
 import tempfile
 import unittest
 
@@ -85,12 +86,21 @@ class RoadPortsTest(unittest.TestCase):
             target = root/'config/roads/prototype.json'
             target.parent.mkdir(parents=True)
             target.write_text(json.dumps(config))
-            layout = json.loads((ROOT/config['ports'][0]['layout']).read_text())
-            passage = next(p for p in layout['public_passages'] if p['id'] == config['ports'][0]['passage'])
-            passage['bounds'][2] = passage['bounds'][0]+3
-            target = root/config['ports'][0]['layout']
+            binding = config['ports'][0]
+            layout = root / binding['layout']
+            layout.parent.mkdir(parents=True)
+            copyfile(ROOT / binding['layout'], layout)
+            resources = Path('build/generated/province_capitals_v11/resources')
+            city_path = resources / f"data/yuanxian/capitals/v4/capital_{binding['region']}/city.json"
+            city = json.loads((ROOT / city_path).read_text())
+            passage = next(p for p in city['blueprint']['public_passages'] if p['id'] == binding['passage'])
+            passage['bounds'][2] = passage['bounds'][0] + 3
+            target = root / city_path
             target.parent.mkdir(parents=True)
-            target.write_text(json.dumps(layout))
+            target.write_text(json.dumps(city))
+            terrain = resources / ('data/' + city['terrain']['resource'].replace(':', '/', 1))
+            (root / terrain).parent.mkdir(parents=True, exist_ok=True)
+            copyfile(ROOT / terrain, root / terrain)
             with self.assertRaisesRegex(ValueError, '完整路幅'):
                 generate(root)
 
