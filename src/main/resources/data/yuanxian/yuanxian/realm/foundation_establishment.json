@@ -8,7 +8,7 @@
       "translation_key": "cultivation.stage.yuanxian.foundation_early",
       "sort_order": 0,
       "cultivation_cap": 3000,
-      "spirit_stone_cost": 20,
+      "spirit_stone_cost": 4,
       "advancement": {
         "target_realm": "yuanxian:foundation_establishment",
         "target_stage": "yuanxian:foundation_middle",
@@ -24,7 +24,7 @@
       "translation_key": "cultivation.stage.yuanxian.foundation_middle",
       "sort_order": 1,
       "cultivation_cap": 3600,
-      "spirit_stone_cost": 24,
+      "spirit_stone_cost": 5,
       "advancement": {
         "target_realm": "yuanxian:foundation_establishment",
         "target_stage": "yuanxian:foundation_late",
@@ -40,7 +40,7 @@
       "translation_key": "cultivation.stage.yuanxian.foundation_late",
       "sort_order": 2,
       "cultivation_cap": 4200,
-      "spirit_stone_cost": 28,
+      "spirit_stone_cost": 6,
       "advancement": {
         "target_realm": "yuanxian:golden_core",
         "target_stage": "yuanxian:golden_early",

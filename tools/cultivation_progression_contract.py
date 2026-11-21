@@ -35,8 +35,8 @@ BOTTLENECKS = frozenset({'yuanxian:qi_refining_3', 'yuanxian:qi_refining_6',
 BASELINE_ROWS = (
     ('yuanxian:mortal_qi_sensed', 1000, 1, 'ordinary', 100, 0),
     ('yuanxian:qi_refining_1', 1100, 1, 'ordinary', 100, 0),
-    ('yuanxian:qi_refining_2', 1200, 2, 'ordinary', 120, 0),
-    ('yuanxian:qi_refining_3', 1300, 3, 'bottleneck', 200, 5),
+    ('yuanxian:qi_refining_2', 1200, 1, 'ordinary', 120, 0),
+    ('yuanxian:qi_refining_3', 1300, 1, 'bottleneck', 200, 5),
 )
 BASELINE_CAPS = {row[0]: row[1] for row in BASELINE_ROWS}
 BASELINE_COSTS = {row[0]: row[2] for row in BASELINE_ROWS}

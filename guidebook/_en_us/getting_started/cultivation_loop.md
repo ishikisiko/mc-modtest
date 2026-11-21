@@ -37,19 +37,19 @@ After preparation, one batch settles every `10` continuously eligible ticks:
 |---|---:|---:|
 | Qi-Sensing Mortal | 1 | 50 |
 | Qi Refining I | 1 | 50 |
-| Qi Refining II | 2 | 50 |
-| Qi Refining III | 3 | 50 |
-| Qi Refining IV | 4 | 50 |
-| Qi Refining V | 5 | 50 |
-| Qi Refining VI | 6 | 50 |
-| Qi Refining VII | 7 | 50 |
-| Qi Refining VIII | 8 | 50 |
-| Qi Refining IX | 9 | 50 |
-| Early Foundation | 20 | 50 |
-| Middle Foundation | 24 | 50 |
-| Late Foundation | 28 | 50 |
-| Early Golden Core | 40 | 50 |
-| Middle Golden Core | 48 | 50 |
+| Qi Refining II | 1 | 50 |
+| Qi Refining III | 1 | 50 |
+| Qi Refining IV | 1 | 50 |
+| Qi Refining V | 1 | 50 |
+| Qi Refining VI | 2 | 50 |
+| Qi Refining VII | 2 | 50 |
+| Qi Refining VIII | 2 | 50 |
+| Qi Refining IX | 2 | 50 |
+| Early Foundation | 4 | 50 |
+| Middle Foundation | 5 | 50 |
+| Late Foundation | 6 | 50 |
+| Early Golden Core | 8 | 50 |
+| Middle Golden Core | 10 | 50 |
 
 A nonempty final batch pays the full current-stage cost from the table before progress is clamped to its cap; a stage already at its progress cap costs no stone. If inventory is short, nothing is consumed, the due normal-affinity result is applied, and the session downgrades directly to normal meditation without another preparation period.
 

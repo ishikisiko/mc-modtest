@@ -196,7 +196,7 @@ class CultivationCoreValidationTest(unittest.TestCase):
         )
         self.assert_error_contains(
             result,
-            "stage yuanxian:qi_refining_2 spirit_stone_cost must be 2",
+            "stage yuanxian:qi_refining_2 spirit_stone_cost must be 1",
         )
 
     def test_advancement_target_owner_drift_is_rejected(self) -> None:

@@ -24,7 +24,7 @@
       "translation_key": "cultivation.stage.yuanxian.qi_refining_2",
       "sort_order": 1,
       "cultivation_cap": 1200,
-      "spirit_stone_cost": 2,
+      "spirit_stone_cost": 1,
       "advancement": {
         "target_realm": "yuanxian:qi_refining",
         "target_stage": "yuanxian:qi_refining_3",
@@ -40,7 +40,7 @@
       "translation_key": "cultivation.stage.yuanxian.qi_refining_3",
       "sort_order": 2,
       "cultivation_cap": 1300,
-      "spirit_stone_cost": 3,
+      "spirit_stone_cost": 1,
       "advancement": {
         "target_realm": "yuanxian:qi_refining",
         "target_stage": "yuanxian:qi_refining_4",
@@ -55,7 +55,7 @@
       "id": "yuanxian:qi_refining_4",
       "translation_key": "cultivation.stage.yuanxian.qi_refining_4",
       "sort_order": 3,
-      "spirit_stone_cost": 4,
+      "spirit_stone_cost": 1,
       "cultivation_cap": 1400,
       "advancement": {
         "target_realm": "yuanxian:qi_refining",
@@ -71,7 +71,7 @@
       "id": "yuanxian:qi_refining_5",
       "translation_key": "cultivation.stage.yuanxian.qi_refining_5",
       "sort_order": 4,
-      "spirit_stone_cost": 5,
+      "spirit_stone_cost": 1,
       "cultivation_cap": 1500,
       "advancement": {
         "target_realm": "yuanxian:qi_refining",
@@ -87,7 +87,7 @@
       "id": "yuanxian:qi_refining_6",
       "translation_key": "cultivation.stage.yuanxian.qi_refining_6",
       "sort_order": 5,
-      "spirit_stone_cost": 6,
+      "spirit_stone_cost": 2,
       "cultivation_cap": 1600,
       "advancement": {
         "target_realm": "yuanxian:qi_refining",
@@ -103,7 +103,7 @@
       "id": "yuanxian:qi_refining_7",
       "translation_key": "cultivation.stage.yuanxian.qi_refining_7",
       "sort_order": 6,
-      "spirit_stone_cost": 7,
+      "spirit_stone_cost": 2,
       "cultivation_cap": 1700,
       "advancement": {
         "target_realm": "yuanxian:qi_refining",
@@ -119,7 +119,7 @@
       "id": "yuanxian:qi_refining_8",
       "translation_key": "cultivation.stage.yuanxian.qi_refining_8",
       "sort_order": 7,
-      "spirit_stone_cost": 8,
+      "spirit_stone_cost": 2,
       "cultivation_cap": 1800,
       "advancement": {
         "target_realm": "yuanxian:qi_refining",
@@ -135,7 +135,7 @@
       "id": "yuanxian:qi_refining_9",
       "translation_key": "cultivation.stage.yuanxian.qi_refining_9",
       "sort_order": 8,
-      "spirit_stone_cost": 9,
+      "spirit_stone_cost": 2,
       "cultivation_cap": 1900,
       "advancement": {
         "target_realm": "yuanxian:foundation_establishment",

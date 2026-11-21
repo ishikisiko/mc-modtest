@@ -319,10 +319,10 @@ class CultivationDefinitionTest {
                         1100, 1, id("qi_refining"), id("qi_refining_2"),
                         AdvancementKind.ORDINARY, 100, 550, 275, 0),
                 id("qi_refining_2"), new ExpectedAdvancement(
-                        1200, 2, id("qi_refining"), id("qi_refining_3"),
+                        1200, 1, id("qi_refining"), id("qi_refining_3"),
                         AdvancementKind.ORDINARY, 120, 600, 300, 0),
                 id("qi_refining_3"), new ExpectedAdvancement(
-                        1300, 3, id("qi_refining"), id("qi_refining_4"),
+                        1300, 1, id("qi_refining"), id("qi_refining_4"),
                         AdvancementKind.BOTTLENECK, 200, 650, 325, 5));
 
         for (Map.Entry<ResourceLocation, ExpectedAdvancement> entry : expected.entrySet()) {
@@ -340,9 +340,10 @@ class CultivationDefinitionTest {
             assertEquals(rule.cost(), advancement.stabilityCost());
             assertEquals(rule.interruptionLoss(), advancement.interruptionStabilityLoss());
         }
-        for (int level = 4; level <= 9; level++) {
-            RealmStageDefinition stage = stages.get(id("qi_refining_" + level));
-            assertEquals(Optional.of(level), stage.spiritStoneCost());
+        int[] qiCosts = {1, 1, 2, 2, 2, 2};
+        for (int index = 0; index < qiCosts.length; index++) {
+            RealmStageDefinition stage = stages.get(id("qi_refining_" + (index + 4)));
+            assertEquals(Optional.of(qiCosts[index]), stage.spiritStoneCost());
         }
     }
 

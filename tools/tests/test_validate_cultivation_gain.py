@@ -283,12 +283,12 @@ class CultivationGainValidationTest(unittest.TestCase):
             / "src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json"
         )
         realm = json.loads(path.read_text(encoding="utf-8"))
-        realm["stages"][1]["spirit_stone_cost"] = 1
+        realm["stages"][1]["spirit_stone_cost"] = 2
         path.write_text(json.dumps(realm, indent=2) + "\n", encoding="utf-8")
 
         result = self.validate()
 
-        self.assert_error_contains(result, "PROGRESSION_BASELINE: stage yuanxian:qi_refining_2 spirit_stone_cost must be 2")
+        self.assert_error_contains(result, "PROGRESSION_BASELINE: stage yuanxian:qi_refining_2 spirit_stone_cost must be 1")
 
     def test_legacy_reserve_use_is_rejected(self) -> None:
         path = self.find_java(r"class\s+BasicBreathingSettlement")

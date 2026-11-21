@@ -182,8 +182,8 @@ the positive `spirit_stone_cost` authored by the source stage:
 |---|---:|---:|
 | qi-sensed mortal | 1 | 50 |
 | Qi I | 1 | 50 |
-| Qi II | 2 | 50 |
-| Qi III | 3 | 50 |
+| Qi II | 1 | 50 |
+| Qi III | 1 | 50 |
 
 A nonempty final spirit batch pays the full cost and clamps output at the cap;
 an already capped stage costs nothing. Insufficient ordinary inventory consumes

@@ -8,7 +8,7 @@
       "translation_key": "cultivation.stage.yuanxian.spirit_early",
       "sort_order": 0,
       "cultivation_cap": 18000,
-      "spirit_stone_cost": 120,
+      "spirit_stone_cost": 24,
       "advancement": {
         "target_realm": "yuanxian:spirit_transformation",
         "target_stage": "yuanxian:spirit_middle",
@@ -24,7 +24,7 @@
       "translation_key": "cultivation.stage.yuanxian.spirit_middle",
       "sort_order": 1,
       "cultivation_cap": 21600,
-      "spirit_stone_cost": 144,
+      "spirit_stone_cost": 29,
       "advancement": {
         "target_realm": "yuanxian:spirit_transformation",
         "target_stage": "yuanxian:spirit_late",
