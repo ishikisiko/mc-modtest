@@ -146,11 +146,18 @@ class ModItemsValidatorTest(unittest.TestCase):
         self.assertIn("qingfeng_registration_drift:new CombatWeaponItem", errors)
 
     def test_companion_sword_inherits_combat_reequip_behavior(self) -> None:
-        path = self.root / "src/main/java/com/example/myvillage/item/CompanionSwordItem.java"
+        package = self.root / "src/main/java/com/example/myvillage/item"
+        path = package / "CompanionSwordItem.java"
         original = path.read_text(encoding="utf-8")
-        self.assertNotIn("combat_weapon_not_CombatWeaponItem:primordial_companion_sword", self.errors())
-        path.write_text(original.replace("extends CombatWeaponItem", "extends SwordItem"), encoding="utf-8")
-        self.assertIn("combat_weapon_not_CombatWeaponItem:primordial_companion_sword", self.errors())
+        wiring = (package / "ModItems.java").read_text(encoding="utf-8")
+        item = "primordial_companion_sword"
+        with patch.multiple(validator, ROOT=self.root, COMBAT_WEAPON_ITEM=package / "CombatWeaponItem.java"):
+            errors = []
+            validator.validate_combat_weapon_items(wiring, {item}, errors)
+            self.assertEqual([], errors)
+            path.write_text(original.replace("extends CombatWeaponItem", "extends SwordItem"), encoding="utf-8")
+            validator.validate_combat_weapon_items(wiring, {item}, errors)
+            self.assertIn(f"combat_weapon_not_CombatWeaponItem:{item}", errors)
 
     def test_plain_sword_as_combat_weapon_item_is_named(self) -> None:
         self.replace_in_registration("XUANYUE_ZHENSHAN_SWORD", "new SwordItem(", "new CombatWeaponItem(")
