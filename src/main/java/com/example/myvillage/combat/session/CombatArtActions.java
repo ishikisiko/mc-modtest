@@ -185,11 +185,11 @@ public final class CombatArtActions {
                 && e.dimension.equals(player.level().dimension().location())
                 && CombatCaster.inventoryFree(player) && authorized(player,e.art));
     }
-    static void resolve(LivingEntity player,CombatSession session,Optional<CombatHitResolver.StepSweep> step) {
+    static void resolve(LivingEntity player,CombatSession session,Optional<CombatHitResolver.StepSweep> step, int frame) {
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
         if(e.art.family().equals("legacy"))return;
         if (e.goldenCast != null) {
-            GoldenCoreActions.resolve(e.goldenCast, session.actionTick(CombatCaster.level(player).getGameTime()));
+            GoldenCoreActions.resolve(e.goldenCast, frame);
             return;
         }
         if(e.art.elemental().isPresent()) {

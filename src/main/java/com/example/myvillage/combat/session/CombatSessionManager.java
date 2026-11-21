@@ -331,7 +331,7 @@ public final class CombatSessionManager {
                     if (CombatArtActions.has(player)) {
                         Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(actor.getUUID()))
                                 .filter(record -> record.revision() == session.revision()).map(StepRecord::sweep);
-                        CombatArtActions.resolve(player, session, sweep);
+                        CombatArtActions.resolve(player, session, sweep, frame);
                     } else {
                         CombatSkillActions.resolve(player, session);
                     }
