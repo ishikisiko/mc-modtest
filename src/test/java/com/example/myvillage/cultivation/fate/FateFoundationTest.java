@@ -50,9 +50,9 @@ class FateFoundationTest {
         for (String id : List.of("earth_spirit_body", "water_spirit_body", "flawless_dao_heart")) {
             try (var in = FateFoundationTest.class.getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/" + id + ".json")) {
                 assertNotNull(in);
-                var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,
-                        JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))).getOrThrow();
-                assertFalse(definition.placeholder());
+                var document = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
+                assertFalse(document.has("placeholder") && document.get("placeholder").getAsBoolean());
+                var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE, document).getOrThrow();
                 String primary = switch (id) {
                     case "earth_spirit_body" -> "reflect_chance";
                     case "water_spirit_body" -> "dissolve_chance";
