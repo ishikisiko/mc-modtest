@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.149.3
+
+- 人形怪物和野外邪修的灵石数量按实际大境界增长。工作台可查看换算后的数量，并为灵石条目选择固定数量或境界倍率。
+
 ## 0.149.2
 
 - 怪物掉落工作台支持按生物和大境界编辑掉落。游戏读取对应境界的独立配置，可沿用、追加、替换或禁用物品掉落。

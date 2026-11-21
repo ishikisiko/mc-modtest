@@ -37,4 +37,14 @@ class DropItemVariantsTest {
         assertThrows(IllegalArgumentException.class,()->DropItemVariants.apply(stack,1,"rare"));
         assertTrue(ItemStack.isSameItemSameComponents(original,stack));
     }
+
+    @Test void splitStacksPreservesAllItemsAboveOneStack() {
+        var source = new ItemStack(Items.EMERALD);
+        source.set(DataComponents.RARITY, Rarity.RARE);
+        var stacks = new java.util.ArrayList<ItemStack>();
+        DropRuntime.splitStacks(source, 192, stacks::add);
+        assertEquals(List.of(64, 64, 64), stacks.stream().map(ItemStack::getCount).toList());
+        assertTrue(stacks.stream().allMatch(stack -> ItemStack.isSameItemSameComponents(source, stack)));
+        assertEquals(1, source.getCount());
+    }
 }

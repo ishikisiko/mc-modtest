@@ -3,7 +3,11 @@ from __future__ import annotations
 import json,math,re
 MAX_BYTES=1024*1024
 SCENES={'normal','habitat','quest_realm','sect_trial','aptitude_trial','battle_ruin'}
+SPIRIT_STONES={f'yuanxian:{grade}_grade_spirit_stone' for grade in ('low','medium','high')}
 class Invalid(ValueError):pass
+
+def quantity_limit(item, scaled):
+    return 2048 if isinstance(item, str) and item in SPIRIT_STONES and not scaled else 64
 
 def decode(raw):
     if len(raw)>MAX_BYTES:raise Invalid('配置超过1 MiB')
@@ -31,9 +35,13 @@ def validate(data,catalogue):
     def drops(v,path):
         array(v,path,64)
         for n,entry in enumerate(v):
-            p=path+f'[{n}]';obj(entry,p,['item','min','max','chance','looting','factory','quality','rarity','chance_looting','rarity_weights'],['item','min','max','chance'])
+            p=path+f'[{n}]';obj(entry,p,['item','min','max','chance','looting','factory','quality','rarity','chance_looting','rarity_weights','scale_by_realm'],['item','min','max','chance'])
             if not isinstance(entry['item'],str) or entry['item'] not in items or entry['item']=='minecraft:air':raise Invalid(p+'物品不存在，请从物品库选择')
-            number(entry['min'],p+'最少数量',0,64,True);number(entry['max'],p+'最多数量',entry['min'],64,True);number(entry['chance'],p+'概率',0,1)
+            scaled = entry.get('scale_by_realm', False)
+            if 'scale_by_realm' in entry and (not isinstance(scaled, bool) or entry['item'] not in SPIRIT_STONES):
+                raise Invalid(p+'境界数量倍率仅适用于灵石，须为布尔值')
+            limit = quantity_limit(entry['item'], scaled)
+            number(entry['min'],p+'最少数量',0,limit,True);number(entry['max'],p+'最多数量',entry['min'],limit,True);number(entry['chance'],p+'概率',0,1)
             if 'quality' in entry:
                 number(entry['quality'],p+'品质',0,4,True)
                 if entry['quality'] not in item_map[entry['item']].get('qualities',[]):raise Invalid(p+'该物品不支持此品质')

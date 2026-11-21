@@ -112,8 +112,15 @@ public final class DropRuntime {
             var stack=reward.factory().equals("beast_fire")?FireCaptureItem.seed("beast",0,level.dimension().location().toString(),entity.blockPosition())
                     :new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item)));
             DropItemVariants.apply(stack,reward.quality(),reward.rarity());
-            int remaining=reward.count();while(remaining>0){int count=Math.min(remaining,stack.getMaxStackSize());var part=stack.copyWithCount(count);remaining-=count;
-                event.getDrops().add(new ItemEntity(level,entity.getX(),entity.getY(),entity.getZ(),part));}
+            splitStacks(stack,reward.count(),part->event.getDrops().add(new ItemEntity(level,entity.getX(),entity.getY(),entity.getZ(),part)));
+        }
+    }
+
+    public static void splitStacks(ItemStack prototype,int count,java.util.function.Consumer<ItemStack> output){
+        while(count>0){
+            int size=Math.min(count,prototype.getMaxStackSize());
+            output.accept(prototype.copyWithCount(size));
+            count-=size;
         }
     }
     private static JsonObject describe(MinecraftServer server,DropConfigStore.Snapshot snapshot,DropRules.Context context,ResourceKey<LootTable> tableId){

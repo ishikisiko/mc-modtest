@@ -7,6 +7,7 @@ const NAMES={
     beast_body_materials:'妖兽皮与妖兽骨', beast_cores:'妖丹',
     beast_boss_body:'首领妖兽皮与妖兽骨', beast_boss_core:'首领妖丹',
     beast_fire:'烈焰人兽火',
+    humanoid_spirit_stones:'人形怪物灵石',
 };
 const SCENES={normal:'普通场景',habitat:'主世界群落',quest_realm:'委托秘境',sect_trial:'宗门考核',aptitude_trial:'资质试炼',battle_ruin:'战斗遗迹'};
 const RULE_TYPES={entities:'生物掉落规则',overrides:'场景覆盖规则',additions:'额外追加规则',defaults:'默认掉落规则'};
@@ -17,6 +18,19 @@ const REALM_MODES = {
     replace: ['替换', '仅抽取下方物品', '这个境界只抽取下方配置的物品。原生掉落、场景配置物品和共享追加都跳过。'],
     disabled: ['禁用', '关闭物品掉落', '这个境界关闭物品掉落。经验继续按原规则结算。'],
 };
+const SPIRIT_STONES = new Set(['low', 'medium', 'high'].map(grade => `yuanxian:${grade}_grade_spirit_stone`));
+const STONE_FORMULA = '炼气时下限用基础值，上限乘 2。此后每升一大境界，两端各翻一倍。凡人沿用基础范围。';
+
+function quantityLimit(drop) {
+    return SPIRIT_STONES.has(drop.item) && !drop.scale_by_realm ? 2048 : 64;
+}
+
+function spiritStoneQuantity(min, max, realm) {
+    const level = realm ? realm.order + 1 : 0;
+    const least = min * 2 ** Math.max(0, level - 1);
+    const most = max * 2 ** Math.max(0, level);
+    return least === most ? String(least) : `${least}–${most}`;
+}
 const KEY='yuanxian-drops:'+location.pathname;
 const S={catalog:null,config:null,saved:null,revision:'',tab:'entities',key:'yuanxian:redplate_lizard',realm:'',ns:'all',category:'all',inspectEntity:'yuanxian:redplate_lizard',angle:'quarter',page:0,api:'',dirty:false,saving:false,version:0,conflict:false,newRule:null,token:sessionStorage.getItem(KEY+':token')||'',authenticated:false,invalid:new Set()};
 let saveTimer,toastTimer,booting=false;
@@ -68,13 +82,13 @@ function valid() {
     const realmPolicies = Object.values(S.config.realm_entities || {}).flatMap(realms => Object.values(realms));
     const policies = [S.config.defaults, ...Object.values(S.config.entities), ...realmPolicies, ...S.config.overrides, ...S.config.additions];
     return policies.every(policy => policy.drops.every(drop =>
-        Number.isInteger(drop.min) && Number.isInteger(drop.max) && drop.min >= 0 && drop.max <= 64 && drop.min <= drop.max
+        Number.isInteger(drop.min) && Number.isInteger(drop.max) && drop.min >= 0 && drop.max <= quantityLimit(drop) && drop.min <= drop.max
         && Number.isFinite(drop.chance) && drop.chance >= 0 && drop.chance <= 1
         && !('quality' in drop && 'rarity' in drop)
         && (!('quality' in drop) || item(drop.item).qualities?.includes(drop.quality))
         && (!('rarity' in drop) || item(drop.item).rarities?.includes(drop.rarity))));
 }
-async function save(){if(!S.dirty||S.saving||S.conflict||S.newRule)return;if(!S.authenticated){status('草稿尚未保存，请解锁编辑','pending');return}if(!valid()){status('输入未完成，尚未保存','error');error('请检查数量和概率。数量应为0至64的整数，最少数量不能超过最多数量。');return}S.saving=true;const version=S.version,payload=clone(S.config);status('正在写回统一表','pending');try{let data;try{data=await api('/api/save',{method:'POST',headers:{'If-Match':S.revision},body:JSON.stringify(payload)})}catch(e){if(e.status===409){const current=await api('/api/state');if(JSON.stringify(current.config)===JSON.stringify(payload))data=current;else throw e}else throw e}S.revision=data.revision;S.saved=clone(data.config);$('revision').textContent='版本 '+S.revision.slice(0,8);if(version===S.version){S.dirty=false;try{localStorage.removeItem(KEY+':draft')}catch(_){}status('已同步 · '+new Date(data.saved_at*1000).toLocaleTimeString('zh-CN',{hour12:false}));error()}else{status('正在同步后续修改','pending');cacheDraft()}}catch(e){if(e.status===401){S.authenticated=false;renderUnlock();status('请重新解锁，草稿已保留','error');if(dropViewActive())login()}else if(e.status===409){S.conflict=true;status('版本冲突，草稿已保留','error');error(e.message,true)}else{status('尚未同步，草稿已保留','error');error(e.message)}}finally{S.saving=false;if(S.dirty&&!S.conflict&&S.authenticated&&version!==S.version)saveTimer=setTimeout(save,180)}}
+async function save(){if(!S.dirty||S.saving||S.conflict||S.newRule)return;if(!S.authenticated){status('草稿尚未保存，请解锁编辑','pending');return}if(!valid()){status('输入未完成，尚未保存','error');error('请检查数量和概率。数量须为输入框范围内的整数，最少数量不能超过最多数量。');return}S.saving=true;const version=S.version,payload=clone(S.config);status('正在写回统一表','pending');try{let data;try{data=await api('/api/save',{method:'POST',headers:{'If-Match':S.revision},body:JSON.stringify(payload)})}catch(e){if(e.status===409){const current=await api('/api/state');if(JSON.stringify(current.config)===JSON.stringify(payload))data=current;else throw e}else throw e}S.revision=data.revision;S.saved=clone(data.config);$('revision').textContent='版本 '+S.revision.slice(0,8);if(version===S.version){S.dirty=false;try{localStorage.removeItem(KEY+':draft')}catch(_){}status('已同步 · '+new Date(data.saved_at*1000).toLocaleTimeString('zh-CN',{hour12:false}));error()}else{status('正在同步后续修改','pending');cacheDraft()}}catch(e){if(e.status===401){S.authenticated=false;renderUnlock();status('请重新解锁，草稿已保留','error');if(dropViewActive())login()}else if(e.status===409){S.conflict=true;status('版本冲突，草稿已保留','error');error(e.message,true)}else{status('尚未同步，草稿已保留','error');error(e.message)}}finally{S.saving=false;if(S.dirty&&!S.conflict&&S.authenticated&&version!==S.version)saveTimer=setTimeout(save,180)}}
 function renderUnlock(){$('unlock').textContent=S.authenticated?'已解锁 ✓':'解锁编辑';$('unlock').classList.toggle('quiet',S.authenticated)}
 function login(){modal('解锁编辑',`<p class="modal-copy">输入你设置的工作台访问密码。解锁后，修改会自动写回统一掉落表。</p><form id="login-form"><label class="field"><span>访问密码</span><input id="login-password" type="password" required autocomplete="current-password" placeholder="输入访问密码" autofocus></label><p id="login-error" class="error-box" hidden></p><div class="modal-actions"><button type="button" class="quiet" id="login-cancel">暂时浏览</button><button class="primary" type="submit">解锁并继续</button></div></form>`);$('login-password').focus();$('login-cancel').onclick=()=>$('modal').close();$('login-form').onsubmit=async e=>{e.preventDefault();const p=$('login-password').value;$('login-password').value='';try{const r=await api('/api/session',{method:'POST',body:JSON.stringify({password:p})});S.token=r.token;sessionStorage.setItem(KEY+':token',r.token);S.authenticated=true;renderUnlock();$('modal').close();toast('已解锁，修改将自动同步');if(S.dirty)save();else status('已连接，修改自动同步')}catch(e){$('login-error').hidden=false;$('login-error').textContent=e.message}}}
 function setupSceneFilter() {
@@ -246,7 +260,33 @@ function setMode(mode) {
 }
 
 function renderConditions(){if(S.realm){$('conditions').innerHTML='<p class="help">使用生物在游戏中的实际境界。关闭掉落的场景及通用规则仍然优先。</p>';return}if(['entities','defaults'].includes(S.tab)){$('conditions').innerHTML=S.tab==='entities'?'<p class="help">生物规则用于未命中场景覆盖的情况。群落与试炼掉落可在“场景”中调整。</p>':'';return}const w=selected().when;const chips=[...(w.scenes||[]).map(s=>SCENES[s]),...(w.regions||[]).map(r=>S.catalog.regions.find(v=>v.id===r)?.name||r),...(w.entities||[]).map(id=>entity(id).name),...(w.min_realm?['有最低境界']:[]),...(w.max_realm?['有最高境界']:[]),...('player_kill'in w?[w.player_kill?'玩家击杀':'非玩家击杀']:[]),...('fire_captured'in w?[w.fire_captured?'已捕火':'未捕火']:[])];$('conditions').innerHTML=`<div class="section-title"><h2>匹配条件</h2>${S.tab==='overrides'?'<span class="muted">从上向下，第一条匹配生效</span>':''}</div><div class="condition-line">${chips.length?chips.map(s=>`<span class="chip">${esc(s)}</span>`).join(''):'<span class="muted">匹配所有场景</span>'}<button id="edit-conditions" class="text-button">编辑条件</button></div>${S.tab==='overrides'?'<div class="modal-actions" style="margin-top:8px"><button class="quiet" id="move-up">↑ 上移</button><button class="quiet" id="move-down">↓ 下移</button></div>':''}`;$('edit-conditions').onclick=conditionsModal;for(const [id,dir]of[['move-up',-1],['move-down',1]])if($(id))$(id).onclick=()=>{if(!guard())return;const a=S.config.overrides,i=a.findIndex(v=>v.id===S.key),j=i+dir;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];dirty();renderList();renderConditions()}}
-function renderDrops(){const r=selected() || {mode:'inherit',drops:[]};$('drops').innerHTML=r.drops.length?r.drops.map((d,i)=>{const v=item(d.item);return `<article class="drop-card" data-index="${i}"><div class="drop-header">${icon(v)}<div class="drop-label"><strong>${esc(v.name)}${variantBadge(d)}</strong><div class="mono">${esc(d.item)}</div></div><button class="icon-button remove-drop" data-index="${i}" aria-label="移除${esc(v.name)}">×</button></div>${variantControl(d,i)}${materialControl(d,i)}<div class="drop-inputs"><label class="field"><span>最少数量</span><input type="number" min="0" max="64" step="1" data-index="${i}" data-field="min" value="${d.min}" aria-label="${esc(v.name)}最少数量"></label><label class="field"><span>最多数量</span><input type="number" min="0" max="64" step="1" data-index="${i}" data-field="max" value="${d.max}" aria-label="${esc(v.name)}最多数量"></label><label class="field"><span>掉落概率</span><div class="number-with-unit"><input type="number" min="0" max="100" step="any" data-index="${i}" data-field="chance" value="${+(d.chance*100).toFixed(8)}" aria-label="${esc(v.name)}掉落概率"><b>%</b></div></label></div><details class="drop-extra"><summary>抢夺附魔与物品设置${d.looting?' · 已启用抢夺':''}</summary><label class="check"><input type="checkbox" class="toggle-looting" data-index="${i}" ${d.looting?'checked':''}>应用抢夺附魔增量</label>${d.looting?`<div class="drop-inputs looting-fields">${[['min_per_level','每级最少'],['max_per_level','每级最多'],['limit','总数上限（可留空）']].map(([f,l])=>`<label class="field"><span>${l}</span><input type="number" min="${f==='limit'?1:0}" max="64" step="${f==='limit'?1:'any'}" data-index="${i}" data-field="looting.${f}" value="${d.looting[f]??''}" ${f==='limit'?'placeholder="不限"':''}></label>`).join('')}</div>`:''}${d.item==='yuanxian:beast_fire_seed'?`<label class="field"><span>兽火来源信息</span><select class="factory" data-index="${i}"><option value="beast_fire" ${d.factory==='beast_fire'?'selected':''}>生成带种类、成熟度和来源的兽火</option><option value="plain" ${d.factory!=='beast_fire'?'selected':''}>普通物品堆叠</option></select></label>`:''}</details></article>`}).join(''):`<div class="empty-drops"><div class="empty-symbol">◇</div><h3>${r.mode==='disabled'?'当前已关闭物品掉落':r.mode==='inherit'?(S.realm?'当前境界沿用已有规则':'当前沿用基础掉落'):'还没有配置物品'}</h3><p>${r.mode==='inherit'?'从右侧物品库选择物品，工作台会切换为追加模式。':'从物品库点击添加，再设置数量与概率。'}</p></div>`;
+function spiritStoneScaleControl(drop, index) {
+    if (!SPIRIT_STONES.has(drop.item)) return '';
+    return `<div class="drop-extra">
+        <label class="check"><input type="checkbox" class="stone-realm-scale" data-index="${index}"
+            ${drop.scale_by_realm ? 'checked' : ''}>按境界计算灵石数量</label>
+        ${drop.scale_by_realm ? `<p class="native-footnote">${STONE_FORMULA}</p>` : ''}
+    </div>`;
+}
+
+function renderDrops(){const r=selected() || {mode:'inherit',drops:[]};$('drops').innerHTML=r.drops.length?r.drops.map((d,i)=>{const v=item(d.item);return `<article class="drop-card" data-index="${i}"><div class="drop-header">${icon(v)}<div class="drop-label"><strong>${esc(v.name)}${variantBadge(d)}</strong><div class="mono">${esc(d.item)}</div></div><button class="icon-button remove-drop" data-index="${i}" aria-label="移除${esc(v.name)}">×</button></div>${variantControl(d,i)}${materialControl(d,i)}${spiritStoneScaleControl(d,i)}<div class="drop-inputs"><label class="field"><span>${d.scale_by_realm?'基础':''}最少数量</span><input type="number" min="0" max="${quantityLimit(d)}" step="1" data-index="${i}" data-field="min" value="${d.min}" aria-label="${esc(v.name)}最少数量"></label><label class="field"><span>${d.scale_by_realm?'基础':''}最多数量</span><input type="number" min="0" max="${quantityLimit(d)}" step="1" data-index="${i}" data-field="max" value="${d.max}" aria-label="${esc(v.name)}最多数量"></label><label class="field"><span>掉落概率</span><div class="number-with-unit"><input type="number" min="0" max="100" step="any" data-index="${i}" data-field="chance" value="${+(d.chance*100).toFixed(8)}" aria-label="${esc(v.name)}掉落概率"><b>%</b></div></label></div><details class="drop-extra"><summary>抢夺附魔与物品设置${d.looting?' · 已启用抢夺':''}</summary><label class="check"><input type="checkbox" class="toggle-looting" data-index="${i}" ${d.looting?'checked':''}>应用抢夺附魔增量</label>${d.looting?`<div class="drop-inputs looting-fields">${[['min_per_level','每级最少'],['max_per_level','每级最多'],['limit','总数上限（可留空）']].map(([f,l])=>`<label class="field"><span>${l}</span><input type="number" min="${f==='limit'?1:0}" max="64" step="${f==='limit'?1:'any'}" data-index="${i}" data-field="looting.${f}" value="${d.looting[f]??''}" ${f==='limit'?'placeholder="不限"':''}></label>`).join('')}</div>`:''}${d.item==='yuanxian:beast_fire_seed'?`<label class="field"><span>兽火来源信息</span><select class="factory" data-index="${i}"><option value="beast_fire" ${d.factory==='beast_fire'?'selected':''}>生成带种类、成熟度和来源的兽火</option><option value="plain" ${d.factory!=='beast_fire'?'selected':''}>普通物品堆叠</option></select></label>`:''}</details></article>`}).join(''):`<div class="empty-drops"><div class="empty-symbol">◇</div><h3>${r.mode==='disabled'?'当前已关闭物品掉落':r.mode==='inherit'?(S.realm?'当前境界沿用已有规则':'当前沿用基础掉落'):'还没有配置物品'}</h3><p>${r.mode==='inherit'?'从右侧物品库选择物品，工作台会切换为追加模式。':'从物品库点击添加，再设置数量与概率。'}</p></div>`;
+    $('drops').querySelectorAll('.stone-realm-scale').forEach(control => control.onchange = () => {
+        const drop = selected().drops[Number(control.dataset.index)];
+        if (!guard() || S.invalid.size) {
+            control.checked = Boolean(drop.scale_by_realm);
+            if (S.invalid.size) toast('请先补齐当前数量');
+            return;
+        }
+        if (control.checked && drop.max > 64) {
+            control.checked = false;
+            toast('启用境界倍率时，基础数量最多 64');
+            return;
+        }
+        if (control.checked) drop.scale_by_realm = true;
+        else delete drop.scale_by_realm;
+        dirty();
+        renderDrops();
+    });
 $('drops').querySelectorAll('.drop-variant').forEach(input=>input.onchange=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+input.dataset.index];delete d.quality;delete d.rarity;Object.assign(d,decodeVariant(input.value));dirty();renderDrops()});$('drops').querySelectorAll('[data-field]').forEach(input=>input.oninput=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+input.dataset.index],f=input.dataset.field,key=[S.tab,S.key,S.realm,input.dataset.index,f].join('|'),n=Number(input.value);if(f==='looting.limit'&&input.value===''&&!input.validity.badInput){S.invalid.delete(key);delete d.looting.limit;dirty();return}if(input.value.trim()===''||!Number.isFinite(n)){S.invalid.add(key);status('输入未完成，尚未保存','error');return}S.invalid.delete(key);if(f.startsWith('looting.'))d.looting[f.split('.')[1]]=n;else if(f.startsWith('chance_looting.'))d.chance_looting[f.split('.')[1]]=f.endsWith('per_level')?n/100:n;else if(f.startsWith('rarity_weights.'))d.rarity_weights[+f.split('.')[1]]=n;else d[f]=f==='chance'?n/100:n;dirty()});$('drops').querySelectorAll('.remove-drop').forEach(b=>b.onclick=()=>{if(!guard())return;selected().drops.splice(+b.dataset.index,1);S.invalid.clear();dirty();renderList();renderEditor()});$('drops').querySelectorAll('.toggle-looting').forEach(b=>b.onchange=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+b.dataset.index];if(b.checked)d.looting={min_per_level:0,max_per_level:1};else delete d.looting;dirty();renderDrops()});$('drops').querySelectorAll('.material-factory').forEach(b=>b.onchange=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+b.dataset.index];d.factory=b.value;if(b.value==='beast_material'){d.rarity_weights=[...S.catalog.variants.material_weights_default];delete d.quality;delete d.rarity}else delete d.rarity_weights;dirty();renderDrops()});$('drops').querySelectorAll('.factory').forEach(b=>b.onchange=()=>{if(!guard())return;selected().drops[+b.dataset.index].factory=b.value;dirty()})}
 function addItem(id, variant = null) {
     if (!guard() || (!selected() && (S.tab !== 'entities' || !S.key))) return;
@@ -294,16 +334,18 @@ function formatChance(chance) {
 function evilCultivatorLoot(drops) {
     if (!drops) return '';
     const grades = ['黄阶', '玄阶', '地阶', '天阶'];
+    const realm = S.catalog.realms.find(row => row.id === S.realm);
     const tierRows = drops.tiers.map(tier => {
         const [min, max] = tier.spirit_stones;
-        const stones = min === max ? String(min) : `${min}–${max}`;
+        const stones = spiritStoneQuantity(min, max, realm);
         const allowed = grades.filter((_, i) => tier.grade_weights[i] > 0).join('、');
-        return `<li><strong>${esc(tier.name)}邪修</strong>掉落 ${esc(stones)} 枚下品灵石。秘籍掉落率为 ` +
+        return `<li><strong>${esc(tier.name)}邪修</strong>${realm ? '掉落' : '的基础掉落为'} ${esc(stones)} 块下品灵石。秘籍掉落率为 ` +
             `${formatChance(tier.manual_chance)}，候选品阶为${esc(allowed)}。</li>`;
     }).join('');
     return `<div class="native-policy">
         <p>邪修出生时有 ${formatChance(drops.prodigy_chance)} 概率成为天骄。</p>
         <ul>${tierRows}</ul>
+        <p>${STONE_FORMULA}</p>
         <p>掉落秘籍时，根据致死一击判定流派。以剑击为例，${formatChance(drops.manual_preference)} 从剑法和通用心法中抽取，剩余概率从其他可流通功法中抽取。</p>
     </div>`;
 }
@@ -356,8 +398,10 @@ function overviewDrop(drop) {
     const familyNames = {beast_hide: '妖兽皮', beast_bone: '妖兽骨', beast_core: '妖丹'};
     const material = drop.factory === 'beast_material' && familyNames[info.beast_material?.family];
     const name = material ? material + '（按妖兽境界）' : info.name;
-    const count = drop.min === drop.max ? drop.min : drop.min + '–' + drop.max;
+    const realm = S.catalog.realms.find(row => row.id === S.realm);
+    const count = spiritStoneQuantity(drop.min, drop.max, drop.scale_by_realm ? realm : null);
     const notes = [];
+    if (drop.scale_by_realm) notes.push(realm ? '已按' + realm.name + '境界计算' : '基础数量，按实际境界计算');
     if (drop.chance_looting?.per_level) {
         const points = (drop.chance_looting.per_level * 100).toLocaleString('zh-CN', {maximumFractionDigits: 3});
         notes.push('抢夺每级增加 ' + points + ' 个百分点，最多计 ' + drop.chance_looting.max_level + ' 级');

@@ -356,7 +356,8 @@
           "item": "yuanxian:low_grade_spirit_stone",
           "min": 1,
           "max": 3,
-          "chance": 1
+          "chance": 1,
+          "scale_by_realm": true
         }
       ]
     }
@@ -582,6 +583,68 @@
             "min_per_level": 0,
             "max_per_level": 1
           }
+        }
+      ]
+    },
+    {
+      "id": "humanoid_spirit_stones",
+      "when": {
+        "entities": [
+          "minecraft:bogged",
+          "minecraft:drowned",
+          "minecraft:enderman",
+          "minecraft:evoker",
+          "minecraft:giant",
+          "minecraft:husk",
+          "minecraft:illusioner",
+          "minecraft:piglin",
+          "minecraft:piglin_brute",
+          "minecraft:pillager",
+          "minecraft:skeleton",
+          "minecraft:stray",
+          "minecraft:vex",
+          "minecraft:vindicator",
+          "minecraft:warden",
+          "minecraft:witch",
+          "minecraft:wither_skeleton",
+          "minecraft:zombie",
+          "minecraft:zombie_villager",
+          "minecraft:zombified_piglin",
+          "yuanxian:ash_talismanist",
+          "yuanxian:beiyuan_bone_archer",
+          "yuanxian:beiyuan_corpse",
+          "yuanxian:bone_archer",
+          "yuanxian:donghai_bone_archer",
+          "yuanxian:donghai_corpse",
+          "yuanxian:donghuang_bone_archer",
+          "yuanxian:donghuang_corpse",
+          "yuanxian:lingyue_bone_archer",
+          "yuanxian:lingyue_corpse",
+          "yuanxian:mirror_wraith",
+          "yuanxian:moyu_bone_archer",
+          "yuanxian:moyu_corpse",
+          "yuanxian:nanjiang_bone_archer",
+          "yuanxian:nanjiang_corpse",
+          "yuanxian:ridge_reaver",
+          "yuanxian:stele_guardian",
+          "yuanxian:wandering_corpse",
+          "yuanxian:ximo_bone_archer",
+          "yuanxian:ximo_corpse",
+          "yuanxian:zhongzhou_bone_archer",
+          "yuanxian:zhongzhou_corpse"
+        ],
+        "scenes": [
+          "normal",
+          "battle_ruin"
+        ]
+      },
+      "drops": [
+        {
+          "item": "yuanxian:low_grade_spirit_stone",
+          "min": 1,
+          "max": 3,
+          "chance": 1,
+          "scale_by_realm": true
         }
       ]
     }

@@ -11,13 +11,13 @@ from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 
-from .rules import Invalid, MAX_BYTES, decode, validate
+from .rules import Invalid, MAX_BYTES, decode, quantity_limit, validate
 from .server import Conflict, Store
 
 
 ROOT = Path(__file__).resolve().parents[2]
 NUMERIC_FIELDS = ('min', 'max', 'chance')
-DROP_FIELDS = {*NUMERIC_FIELDS, 'item', 'factory', 'looting', 'chance_looting', 'rarity_weights', 'quality', 'rarity'}
+DROP_FIELDS = {*NUMERIC_FIELDS, 'item', 'factory', 'looting', 'chance_looting', 'rarity_weights', 'quality', 'rarity', 'scale_by_realm'}
 SCOPES = {'scenes', 'regions', 'player_kill', 'fire_captured'}
 MATERIAL_NAMES = {'beast_core': '妖丹', 'beast_hide': '妖兽皮', 'beast_bone': '妖兽骨'}
 
@@ -76,13 +76,12 @@ def merge_drop(shared, individual, realm):
     return drop
 
 
-def evaluate_formula(value, offset, field, path):
+def evaluate_formula(value, offset, upper, path):
     params = fields(value, path, {'base', 'per_realm'}, ('base', 'per_realm'))
     if any(type(number) not in (int, float) or not Decimal(str(number)).is_finite()
            for number in params.values()):
         raise Invalid(f'{path}的基值和每境增量应为有限数值')
     result = Decimal(str(params['base'])) + offset * Decimal(str(params['per_realm']))
-    upper = 1 if field == 'chance' else 64
     if not 0 <= result <= upper:
         raise Invalid(f'{path}的计算结果应在 0 至 {upper} 之间')
     return int(result) if result == result.to_integral_value() else float(result)
@@ -125,7 +124,8 @@ def compile_plan(config, blueprint, catalogue):
                     continue
                 formulas = {key: drop[key] for key in NUMERIC_FIELDS if isinstance(drop.get(key), dict)}
                 for key, value in formulas.items():
-                    drop[key] = evaluate_formula(value, rank['order'] - first_order, key, f'{entity}.{slot}.{realm}.{key}')
+                    upper = 1 if key == 'chance' else quantity_limit(drop.get('item'), drop.get('scale_by_realm', False))
+                    drop[key] = evaluate_formula(value, rank['order'] - first_order, upper, f'{entity}.{slot}.{realm}.{key}')
                 drops.append(drop)
                 authored = patch.keys() - {'by_realm'} or realm in patch.get('by_realm', {})
                 source = '单独配置' if authored else '共用公式' if formulas else '共用模板'

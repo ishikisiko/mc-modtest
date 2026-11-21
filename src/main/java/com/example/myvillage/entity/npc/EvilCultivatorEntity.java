@@ -1,6 +1,9 @@
 package com.example.myvillage.entity.npc;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.drops.DropRules;
+import com.example.myvillage.drops.DropRuntime;
+import com.example.myvillage.drops.SpiritStoneAmounts;
 import com.example.myvillage.exploration.ExplorationRuntime;
 import com.example.myvillage.item.ModItems;
 import com.example.myvillage.stats.RealmKey;
@@ -150,8 +153,10 @@ public final class EvilCultivatorEntity extends NpcEntity implements Enemy {
     @Override protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean recentPlayerHit) {
         super.dropCustomDeathLoot(level, source, recentPlayerHit);
         var stones = EvilCultivatorRules.get().tier(prodigy()).spiritStones();
-        int count = getRandom().nextIntBetweenInclusive(stones.getFirst(), stones.getLast());
-        spawnAtLocation(new ItemStack(ModItems.LOW_GRADE_SPIRIT_STONE.get(), count));
+        Integer realmRank = StatsRuntime.assignedRealm(this).map(DropRuntime::realmRank).orElse(null);
+        var bounds = SpiritStoneAmounts.forRealm(stones.getFirst(), stones.getLast(), DropRules.realmLevel(realmRank));
+        int count = getRandom().nextIntBetweenInclusive(bounds.min(), bounds.max());
+        DropRuntime.splitStacks(new ItemStack(ModItems.LOW_GRADE_SPIRIT_STONE.get()), count, this::spawnAtLocation);
         var manual = EvilCultivatorTechniques.manual(this, source);
         if (!manual.isEmpty()) spawnAtLocation(manual);
     }

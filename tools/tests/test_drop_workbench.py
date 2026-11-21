@@ -103,6 +103,25 @@ class WorkbenchTest(unittest.TestCase):
         by={v['id']:v for v in self.catalogue['items']}
         self.assertEqual([1,2,3,4],by['yuanxian:pill_huiling']['qualities']);self.assertEqual([0,1,2,3,4],by['yuanxian:guiyan_sword']['qualities']);self.assertEqual([0,1,2,3,4],by['yuanxian:zhenyue_ruler']['qualities']);self.assertEqual([],by['minecraft:diamond']['qualities']);self.assertEqual(['common','uncommon','rare','epic'],by['yuanxian:huashen_dari_helmet']['rarities'])
 
+    def test_spirit_stone_scaling_and_large_fixed_quantities_save_independently(self):
+        data = self.change()
+        rule = data['entities']['yuanxian:redplate_lizard']
+        drop = rule['drops'][0]
+        drop.update(item='yuanxian:low_grade_spirit_stone', min=1, max=3, scale_by_realm=True)
+        scaled = self.store.save(data, self.store.read()['revision'])
+        self.assertEqual(data, scaled['config'])
+        drop.update(max=96)
+        with self.assertRaises(Invalid):
+            self.store.save(data, scaled['revision'])
+        drop.pop('scale_by_realm')
+        fixed = self.store.save(data, scaled['revision'])
+        self.assertEqual(data, fixed['config'])
+        for item, scale in [('minecraft:diamond', True), ('yuanxian:low_grade_spirit_stone', 1)]:
+            drop.update(item=item, max=3, scale_by_realm=scale)
+            with self.assertRaises(Invalid):
+                self.store.save(data, fixed['revision'])
+            self.assertEqual(fixed, self.store.read())
+
 class HttpTest(WorkbenchTest):
     def setUp(self):
         super().setUp();self.http=App(('127.0.0.1',0),self.store,b'fixture-password');self.thread=threading.Thread(target=self.http.serve_forever,daemon=True);self.thread.start();self.base='http://127.0.0.1:'+str(self.http.server_port)

@@ -22,9 +22,16 @@ public final class DropRules {
                           BiPredicate<String,Integer> quality,Predicate<String> rarity) {}
     public record Context(String entity,Scene scene,String region,Integer realmRank,boolean playerKill,boolean fireCaptured) {}
     public record Entry(String item,int min,int max,double chance,double lootingMin,double lootingMax,Integer limit,String factory,Integer quality,String rarity,
-                        double chancePerLootingLevel,int chanceLootingCap,List<Integer> materialWeights) {
+                        double chancePerLootingLevel,int chanceLootingCap,List<Integer> materialWeights,boolean scaleByRealm) {
         public Entry { materialWeights=List.copyOf(materialWeights); }
         public double effectiveChance(int looting){return Math.min(1,chance+chancePerLootingLevel*Math.clamp(looting,0,chanceLootingCap));}
+
+        private Entry atRealm(int level) {
+            if (!scaleByRealm) return this;
+            var bounds = SpiritStoneAmounts.forRealm(min, max, level);
+            return new Entry(item,bounds.min(),bounds.max(),chance,lootingMin,lootingMax,limit,factory,quality,rarity,
+                    chancePerLootingLevel,chanceLootingCap,materialWeights,false);
+        }
     }
     public record Policy(Mode mode,List<Entry> drops) {public Policy{drops=List.copyOf(drops);}}
     public record Match(Set<String> entities,Set<Scene> scenes,Set<String> regions,Integer minRealm,Integer maxRealm,Boolean playerKill,Boolean fireCaptured) {
@@ -54,24 +61,39 @@ public final class DropRules {
     }
     public JsonObject json(){return json.deepCopy();}
     public Set<String> entities(){return configuredEntities;}
+    public static int realmLevel(Integer rank){return rank==null?0:Math.floorDiv(rank,REALM_RANK_STRIDE)+1;}
     public Resolution resolve(Context c){
         Policy selected=entities.getOrDefault(c.entity(),defaults);String origin=entities.containsKey(c.entity())?"entities."+c.entity():"defaults";
         for(var rule:overrides)if(rule.when().matches(c)){selected=rule.policy();origin="overrides."+rule.id();break;}
         if(selected.mode()==Mode.DISABLED)return new Resolution(origin,selected,List.of());
+        int level=realmLevel(c.realmRank());
         var perRealm=realmEntities.get(c.entity());
         if(perRealm!=null&&c.realmRank()!=null){
-            var match=perRealm.get(Math.floorDiv(c.realmRank(),REALM_RANK_STRIDE));
+            var match=perRealm.get(level-1);
             if(match!=null){
                 origin="realm_entities."+c.entity()+"."+match.realm();
                 Policy specific=match.policy();
-                if(specific.mode()!=Mode.APPEND)return new Resolution(origin,specific,List.of());
+                if(specific.mode()!=Mode.APPEND)return new Resolution(origin,policyAtRealm(specific,level),List.of());
                 var combined=new ArrayList<>(selected.drops());
                 combined.addAll(specific.drops());
                 selected=new Policy(selected.mode()==Mode.REPLACE?Mode.REPLACE:Mode.APPEND,combined);
             }
         }
-        List<Addition> extra=additions.stream().filter(a->a.when().matches(c)).toList();
-        return new Resolution(origin,selected,extra);
+        List<Addition> extra=additions.stream().filter(a->a.when().matches(c)).map(a->{
+            var drops=entriesAtRealm(a.drops(),level);
+            return drops==a.drops()?a:new Addition(a.id(),a.when(),drops);
+        }).toList();
+        return new Resolution(origin,policyAtRealm(selected,level),extra);
+    }
+
+    private static Policy policyAtRealm(Policy policy,int level){
+        var drops=entriesAtRealm(policy.drops(),level);
+        return drops==policy.drops()?policy:new Policy(policy.mode(),drops);
+    }
+
+    private static List<Entry> entriesAtRealm(List<Entry> drops,int level){
+        if (level<=0||drops.stream().noneMatch(Entry::scaleByRealm)) return drops;
+        return drops.stream().map(entry->entry.atRealm(level)).toList();
     }
     public static List<Reward> roll(Resolution result,int looting,RandomGenerator random){
         if(result.policy().mode()==Mode.DISABLED)return List.of();
@@ -155,9 +177,14 @@ public final class DropRules {
     private static List<Entry> entries(JsonObject o,String p,Catalog c){
         JsonArray a=array(o,"drops",p,64);List<Entry> out=new ArrayList<>();
         for(int i=0;i<a.size();i++){
-            String q=p+".drops["+i+"]";JsonObject e=asObject(a.get(i),q);fields(e,q,"item","min","max","chance","looting","factory","quality","rarity","chance_looting","rarity_weights");
+            String q=p+".drops["+i+"]";JsonObject e=asObject(a.get(i),q);fields(e,q,"item","min","max","chance","looting","factory","quality","rarity","chance_looting","rarity_weights","scale_by_realm");
             String item=string(e,"item",q);id(item,q+".item");if(item.equals("minecraft:air")||!c.item().test(item))throw bad(q+".item","物品不存在或为空气");
-            int min=integer(e,"min",q,0,64),max=integer(e,"max",q,min,64);double chance=decimal(e,"chance",q,0,1);
+            Boolean scaling=optionalBoolean(e,"scale_by_realm",q);
+            boolean stones=SpiritStoneAmounts.isStone(item);
+            if(scaling!=null&&!stones)throw bad(q+".scale_by_realm","境界数量倍率仅适用于灵石");
+            boolean scaleByRealm=Boolean.TRUE.equals(scaling);
+            int quantityLimit=stones&&!scaleByRealm?SpiritStoneAmounts.MAX_FIXED_COUNT:64;
+            int min=integer(e,"min",q,0,quantityLimit),max=integer(e,"max",q,min,quantityLimit);double chance=decimal(e,"chance",q,0,1);
             double lo=0,hi=0;Integer limit=null;if(e.has("looting")){
                 JsonObject l=object(e,"looting",q);fields(l,q+".looting","min_per_level","max_per_level","limit");
                 lo=decimal(l,"min_per_level",q+".looting",0,64);hi=decimal(l,"max_per_level",q+".looting",lo,64);
@@ -187,7 +214,7 @@ public final class DropRules {
                 }
                 if(total==0)throw bad(q+".rarity_weights","总权重必须大于零");
             } else if(e.has("rarity_weights"))throw bad(q+".rarity_weights","仅妖兽材料工厂使用权重");
-            out.add(new Entry(item,min,max,chance,lo,hi,limit,factory,quality,rarity,chancePerLevel,chanceCap,weights));
+            out.add(new Entry(item,min,max,chance,lo,hi,limit,factory,quality,rarity,chancePerLevel,chanceCap,weights,scaleByRealm));
         }
         return List.copyOf(out);
     }
