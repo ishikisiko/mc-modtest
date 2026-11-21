@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.ninghai_bingdi",
+  "category": "active",
+  "grade": 4,
+  "elements": [
+    "yuanxian:water"
+  ],
+  "school": "yuanxian:water_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:ninghai_bingdi",
+      "qi_cost": 64,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 16800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:shuiren_shu"
+  }
+}

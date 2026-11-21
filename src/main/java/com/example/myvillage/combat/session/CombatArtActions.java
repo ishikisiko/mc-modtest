@@ -52,6 +52,7 @@ public final class CombatArtActions {
         ElementalActions.Cast elementalCast;
         GoldenCoreActions.Cast goldenCast;
         EarlyRealmActions.Cast earlyCast;
+        AscendantArts.Cast ascendantCast;
         Entry(LivingEntity player,ArtDefinition art,CombatSession session,boolean paidArt) {
             this.art=art;this.held=player.getMainHandItem();this.slot=CombatCaster.slot(player);
             this.dimension=player.level().dimension().location();this.session=session;
@@ -104,7 +105,9 @@ public final class CombatArtActions {
         }
         var goldenAim = art.goldenCore().isPresent() ? GoldenCoreActions.prepare(player, session, art) : null;
         var earlyAim = art.earlyRealm().isPresent() ? EarlyRealmActions.prepare(player, session, art) : null;
-        if ((art.goldenCore().isPresent() && goldenAim == null) || (art.earlyRealm().isPresent() && earlyAim == null)) {
+        var ascendantAim = art.ascendant().isPresent() ? AscendantArts.prepare(player, session, art) : null;
+        if ((art.goldenCore().isPresent() && goldenAim == null) || (art.earlyRealm().isPresent() && earlyAim == null)
+                || (art.ascendant().isPresent() && ascendantAim == null)) {
             refuse(player, "no_target", Component.empty());
             return Optional.empty();
         }
@@ -128,6 +131,10 @@ public final class CombatArtActions {
         if (earlyAim != null) {
             e.earlyCast = new EarlyRealmActions.Cast(player, art, session, earlyAim, cost > 0);
             e.lockAnchor = earlyAim.anchor();
+        }
+        if (ascendantAim != null) {
+            e.ascendantCast = new AscendantArts.Cast(player, art, session, ascendantAim, cost > 0);
+            e.lockAnchor = ascendantAim.anchor();
         }
         if(art.elemental().isPresent()) {
             var spell=art.elemental().get();
@@ -157,11 +164,13 @@ public final class CombatArtActions {
         AttackMoveDefinition move=e.art.move(e.phase,1);
         float facing = player.getYRot();
         Vec3 direction = e.goldenCast != null ? e.goldenCast.aim.direction()
-                : e.earlyCast != null ? e.earlyCast.aim.forward() : null;
+                : e.earlyCast != null ? e.earlyCast.aim.forward()
+                : e.ascendantCast != null ? e.ascendantCast.aim.forward() : null;
         if (direction != null) facing = (float) Math.toDegrees(Math.atan2(-direction.x, direction.z));
         var start=e.session.startExternal(move,CombatCaster.level(player).getGameTime(),
                 BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,facing,e.paidArt);
         if (e.earlyCast != null) e.earlyCast.revision = e.session.revision();
+        if (e.ascendantCast != null) e.ascendantCast.revision = e.session.revision();
         send(player,e,CombatArtStatePayload.START,e.lockAnchor==null?player.position():e.lockAnchor);
         return start;
     }
@@ -200,6 +209,10 @@ public final class CombatArtActions {
         }
         if (e.earlyCast != null) {
             EarlyRealmActions.resolve(e.earlyCast, frame);
+            return;
+        }
+        if (e.ascendantCast != null) {
+            AscendantArts.resolve(e.ascendantCast, frame);
             return;
         }
         if(e.art.elemental().isPresent()) {
@@ -306,6 +319,7 @@ public final class CombatArtActions {
     public static void guard(LivingIncomingDamageEvent event) {
         ElementalEffects.guard(event);
         EarlyRealmEffects.guard(event);
+        AscendantWards.stance(event);
         LivingEntity player=event.getEntity();
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
         e.guardedSource=null;
@@ -342,12 +356,23 @@ public final class CombatArtActions {
         send(player,e,CombatArtStatePayload.STOP,player.position());
         LOG.info("ADVANCED_ART player={} result=stop art={} reason={}",CombatCaster.name(player),e.art.id(),reason);
     }
-    static void remove(UUID player) { ENTRIES.remove(player);LAST_REQUEST.remove(player); GoldenCoreActions.forget(player); EarlyRealmEffects.forget(player); }
-    static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); GoldenCoreActions.clear(); EarlyRealmEffects.clearAll(); }
+    static AscendantArts.Cast ascendant(LivingEntity actor) {
+        Entry entry = ENTRIES.get(actor.getUUID());
+        return entry == null ? null : entry.ascendantCast;
+    }
+    static void remove(UUID player) {
+        ENTRIES.remove(player);LAST_REQUEST.remove(player); GoldenCoreActions.forget(player); EarlyRealmEffects.forget(player);
+        AscendantFields.forget(player); AscendantWards.forget(player);
+    }
+    static void clear() {
+        ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); GoldenCoreActions.clear(); EarlyRealmEffects.clearAll();
+        AscendantFields.clearAll(); AscendantWards.clearAll();
+    }
     static void prune(long now) { COOLDOWNS.prune(now); }
     public static int cooldownRemaining(LivingEntity player,ArtDefinition art) {
         if ((art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art))
-                || (art.earlyRealm().isPresent() && EarlyRealmEffects.recastReady(player, art))) return 0;
+                || (art.earlyRealm().isPresent() && EarlyRealmEffects.recastReady(player, art))
+                || (art.ascendant().isPresent() && AscendantFields.recastReady(player, art))) return 0;
         if(art.family().equals("legacy") && player instanceof ServerPlayer user && LegacyRuntime.recast(user,art.id()))return 0;
         int own=COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
         if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)own=Math.max(own,com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,art.id()));
@@ -360,7 +385,8 @@ public final class CombatArtActions {
     public static long cost(LivingEntity player,ArtDefinition art) {
         if(art.family().equals("legacy"))return player instanceof ServerPlayer user && LegacyRuntime.recast(user,art.id())?0:art.qiCost();
         if ((art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art))
-                || (art.earlyRealm().isPresent() && EarlyRealmEffects.recastReady(player, art))) return 0;
+                || (art.earlyRealm().isPresent() && EarlyRealmEffects.recastReady(player, art))
+                || (art.ascendant().isPresent() && AscendantFields.recastReady(player, art))) return 0;
         return art.elementType().isPresent()?art.qiCost():ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
     }
     public static void syncCooldowns(LivingEntity player) {

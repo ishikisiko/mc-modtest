@@ -16,7 +16,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
         int qiCost, int cooldownTicks, double guardReduction, double guardArc,
         double counterMultiplier, boolean requiresGround, boolean interruptOnDamage, int fxLifetimeTicks, float castPitch,
         float red, float green, float blue, int particleCount,
-        List<Phase> phases, Optional<LockedSwordDefinition> lock, Optional<ElementalSpell> elemental, Optional<GoldenCoreArt> goldenCore, Optional<EarlyRealmArt> earlyRealm) {
+        List<Phase> phases, Optional<LockedSwordDefinition> lock, Optional<ElementalSpell> elemental, Optional<GoldenCoreArt> goldenCore, Optional<EarlyRealmArt> earlyRealm, Optional<AscendantArt> ascendant) {
     public ArtDefinition { phases = List.copyOf(phases); }
     /** The locked sword timeline is shared by server resolution and client animation. */
     public AttackMoveDefinition move(int phase, double scale) {
@@ -26,13 +26,18 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                 base.bufferStartTick(),base.chainTick(),base.reaction(),base.animation(),base.hitbox(),Optional.empty(),base.feedback(),base.camera(),base.trail());
         if (goldenCore.isPresent()) return goldenCore.orElseThrow().move(base);
         if (earlyRealm.isPresent()) return earlyRealm.orElseThrow().move(base);
+        if (ascendant.isPresent()) return ascendant.orElseThrow().move(base);
         return elemental.map(e -> e.move(base)).orElseGet(() -> lock.map(l -> l.move(base)).orElse(base));
     }
     public Optional<com.example.myvillage.stats.DamageType> elementType() {
         return elemental.map(ElementalSpell::element).or(() -> goldenCore.flatMap(GoldenCoreArt::element))
-                .or(() -> earlyRealm.flatMap(EarlyRealmArt::element));
+                .or(() -> earlyRealm.flatMap(EarlyRealmArt::element)).or(() -> ascendant.flatMap(AscendantArt::element));
     }
-    public boolean usesServerParticleMarks() { return goldenCore.isPresent() || earlyRealm.isPresent(); }
+    public boolean usesServerParticleMarks() { return goldenCore.isPresent() || earlyRealm.isPresent() || ascendant.isPresent(); }
+    public Optional<Double> realmRange() {
+        return goldenCore.map(GoldenCoreArt::range).or(() -> earlyRealm.map(EarlyRealmArt::range))
+                .or(() -> ascendant.map(spec -> spec.geometry().range()));
+    }
     public String translationKey() { return "cultivation.technique." + id.getNamespace() + "." + id.getPath(); }
     public record Phase(ResourceLocation moveId, String shape, double reach, double arc,
             double width, double height, double halfHeight, double damage,
@@ -75,6 +80,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
             rows.addAll(com.example.myvillage.legacy.LegacyRules.artsDocument().getAsJsonArray("arts"));
             rows.addAll(GoldenCoreArt.document().getAsJsonArray("arts"));
             rows.addAll(EarlyRealmArt.document().getAsJsonArray("arts"));
+            rows.addAll(AscendantArt.document().getAsJsonArray("arts"));
             if (rows.isEmpty() || rows.size() > 128) throw new IllegalArgumentException("Art count 1..128");
             for (var element : rows) {
                 var r = element.getAsJsonObject();
@@ -88,8 +94,11 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                         : Optional.<GoldenCoreArt>empty();
                 var early = r.has("early_realm") ? Optional.of(EarlyRealmArt.parse(r.getAsJsonObject("early_realm"), family))
                         : Optional.<EarlyRealmArt>empty();
-                boolean realmArt = golden.isPresent() || early.isPresent();
-                if (realmArt && (lock.isPresent() || elemental.isPresent() || (golden.isPresent() && early.isPresent())))
+                var ascendant = r.has("ascendant") ? Optional.of(AscendantArt.parse(r.getAsJsonObject("ascendant"), family))
+                        : Optional.<AscendantArt>empty();
+                long realmExecutors = java.util.stream.Stream.of(golden, early, ascendant).filter(Optional::isPresent).count();
+                boolean realmArt = realmExecutors > 0;
+                if (realmExecutors > 1 || (realmArt && (lock.isPresent() || elemental.isPresent())))
                     throw new IllegalArgumentException("绝技的执行器重复 " + id);
                 if(elemental.isPresent() && (lock.isPresent() || !family.equals("elemental"))) throw new IllegalArgumentException("Elemental executor mismatch");
                 int slot = integer(r, "slot", lock.isPresent() || elemental.isPresent() || realmArt || family.equals("legacy") ? -1 : 0, 1);
@@ -104,7 +113,8 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                     ResourceLocation moveId = ResourceLocation.parse(string(p, "move"));
                     var ref = styles.move(moveId).orElseThrow(() -> new IllegalArgumentException("Unknown move " + moveId));
                     if (elemental.isEmpty() && golden.flatMap(GoldenCoreArt::element).isEmpty()
-                            && early.flatMap(EarlyRealmArt::element).isEmpty() && !family.equals("legacy") && styles.weapons().stream().noneMatch(w -> w.style().equals(ref.style().id())
+                            && early.flatMap(EarlyRealmArt::element).isEmpty()
+                            && ascendant.flatMap(AscendantArt::element).isEmpty() && !family.equals("legacy") && styles.weapons().stream().noneMatch(w -> w.style().equals(ref.style().id())
                             && w.family().equals(Optional.of(family)))) throw new IllegalArgumentException("Wrong move family " + id);
                     var reaction = p.getAsJsonObject("reaction");
                     String shape = string(p, "shape"), fx = string(p, "fx");
@@ -133,7 +143,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                         integer(r,"cooldown_ticks",20,1200), number(r,"guard_reduction",0,.85),
                         number(r,"guard_arc_degrees",1,180), number(r,"counter_multiplier",1,2),
                         bool(r,"requires_ground"),bool(r,"interrupt_on_damage"),integer(r,"fx_lifetime_ticks",1,40),
-                        (float)number(r,"cast_pitch",.1,2),rgb[0],rgb[1],rgb[2],integer(r,"particle_count",8,64), phases, lock, elemental, golden, early));
+                        (float)number(r,"cast_pitch",.1,2),rgb[0],rgb[1],rgb[2],integer(r,"particle_count",8,64), phases, lock, elemental, golden, early, ascendant));
             }
             return List.copyOf(result);
         } catch (Exception e) { throw new IllegalStateException("Invalid bundled advanced arts: " + path, e); }

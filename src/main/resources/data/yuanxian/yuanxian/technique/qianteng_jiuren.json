@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.qianteng_jiuren",
+  "category": "active",
+  "grade": 3,
+  "elements": [
+    "yuanxian:wood"
+  ],
+  "school": "yuanxian:wood_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:qianteng_jiuren",
+      "qi_cost": 42,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 9000,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:lingzhong_shu"
+  }
+}

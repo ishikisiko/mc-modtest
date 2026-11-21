@@ -1,0 +1,25 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.yiqiang_pingguan",
+  "category": "active",
+  "grade": 4,
+  "elements": [],
+  "school": "yuanxian:spear",
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:yiqiang_pingguan",
+      "qi_cost": 84,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 16800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:canglong_chushui"
+  }
+}

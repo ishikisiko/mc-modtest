@@ -198,6 +198,11 @@ public final class CombatSessionManager {
             LAST_INTENT_TICKS.put(player.getUUID(), tick);
             return true;
         }
+        if (art.ascendant().isPresent() && AscendantFields.recastReady(player, art)) {
+            if (!AscendantFields.recast(player, session, art)) return false;
+            LAST_INTENT_TICKS.put(player.getUUID(), tick);
+            return true;
+        }
         Optional<CombatSession.StartEvent> start = CombatArtActions.start(player, session, art);
         if (start.isEmpty()) return false;
         if (art.elementType().isPresent() && player instanceof ServerPlayer user) com.example.myvillage.wilderness.ExpeditionCombat.cast(user);
@@ -261,8 +266,10 @@ public final class CombatSessionManager {
         if (source != null && !source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)
                 && com.example.myvillage.combat.foundation.ControlService.isPoised(player)) return;
         if (CombatSkillActions.has(player)
-                || (CombatArtActions.has(player) && CombatArtActions.damageInterrupts(player, source)))
-            interruptCaster(player, CombatStopReason.CHARGE_CANCELLED, true);
+                || (CombatArtActions.has(player) && CombatArtActions.damageInterrupts(player, source))) {
+            if (!AscendantWards.preventInterrupt(player, source))
+                interruptCaster(player, CombatStopReason.CHARGE_CANCELLED, true);
+        }
     }
 
     public static void tick(MinecraftServer server) {
@@ -306,6 +313,8 @@ public final class CombatSessionManager {
         }
         GoldenCoreActions.tick(server);
         EarlyRealmEffects.tick(server);
+        AscendantFields.tick(server);
+        AscendantWards.tick(server);
         CombatArtActions.prune(server.overworld().getGameTime());
         BLOCKED_UNTIL_TICKS.entrySet().removeIf(entry -> {
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
@@ -349,11 +358,10 @@ public final class CombatSessionManager {
                             actor, session, move, actionTick, sweep);
                     List<CombatHitResolver.TargetContact> successfulContacts = new ArrayList<>();
                     for (CombatHitResolver.TargetContact contact : resolution.contacts()) {
-                        if (session.markAttempted(CombatTargets.hitId(contact.target()))
-                                && CombatDamageService.apply(
-                                actor, contact.target(), move, session).successful()) {
-                            successfulContacts.add(contact);
-                        }
+                        if (!session.markAttempted(CombatTargets.hitId(contact.target()))) continue;
+                        var damage = CombatDamageService.apply(actor, contact.target(), move, session);
+                        if (damage.successful()) successfulContacts.add(contact);
+                        if (damage.actualDamage() > 0) AscendantFields.swordHit(actor, contact.target());
                     }
                     CombatFeedbackService.hit(actor, move, session.revision(), successfulContacts);
                     if (actor instanceof ServerPlayer player) CombatDebugService.render(player, resolution, successfulContacts);

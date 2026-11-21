@@ -195,7 +195,7 @@ public final class NpcSkillRuntime {
     }
     public static boolean charging(NpcEntity npc) { return CombatSessionManager.charging(npc); }
     private static double range(ArtDefinition art) {
-        return art.goldenCore().map(g -> g.range()).or(() -> art.earlyRealm().map(e -> e.range())).or(() -> art.elemental().map(e -> e.range())).orElseGet(()->art.lock().map(l->l.range())
+        return art.realmRange().or(() -> art.elemental().map(e -> e.range())).orElseGet(()->art.lock().map(l->l.range())
                 .orElseGet(()->art.phases().stream().mapToDouble(p->p.reach()+p.stepDistance()).max().orElse(0)));
     }
     private static boolean readyOffense(NpcEntity npc,LivingEntity target,NpcSkillLoadout.Learned row) {

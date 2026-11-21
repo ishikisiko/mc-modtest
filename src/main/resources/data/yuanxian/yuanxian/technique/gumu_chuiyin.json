@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.gumu_chuiyin",
+  "category": "active",
+  "grade": 4,
+  "elements": [
+    "yuanxian:wood"
+  ],
+  "school": "yuanxian:wood_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:gumu_chuiyin",
+      "qi_cost": 78,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 16800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:lingzhong_shu"
+  }
+}

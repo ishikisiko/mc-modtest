@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.liejia_tianqian",
+  "category": "active",
+  "grade": 4,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "school": "yuanxian:metal_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:spirit_transformation"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:liejia_tianqian",
+      "qi_cost": 86,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 16800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:jinmang_shu"
+  }
+}

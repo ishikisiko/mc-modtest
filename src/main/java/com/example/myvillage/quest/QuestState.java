@@ -1,5 +1,7 @@
 package com.example.myvillage.quest;
 
+import com.example.myvillage.combat.art.AscendantArt;
+
 import com.example.myvillage.stats.RealmKey;
 import com.example.myvillage.wilderness.WildernessRules;
 import com.google.gson.Gson;
@@ -31,7 +33,7 @@ public final class QuestState {
     }
     public static final class Member {
         public UUID instance;public Place outside,inside;public String result="ACTIVE";
-        public int rescues,stones,reputation;public boolean participated,pendingReward,claiming,claimed;
+        public int rescues,stones,reputation;public boolean participated,pendingReward,claiming,claimed,ascendantManual;
     }
     public static String dimension(UUID id){return "yuanxian:expedition/"+id;}
     public static Optional<UUID> identity(String key){
@@ -58,6 +60,14 @@ public final class QuestState {
         for(var slot:run.slots)if(slot.id.equals(guard)&&slot.spawned&&!slot.dead){slot.dead=true;return true;}return false;
     }
     public boolean goal(Instance run,QuestMap map){return map.groups().stream().filter(QuestMap.Group::required).allMatch(g->run.slots.stream().filter(s->s.group.equals(g.id())).allMatch(s->s.dead));}
+    boolean earnsAscendantManual(Instance run, QuestMap map) {
+        if (!AscendantArt.expeditionRegion().equals(run.region) || !goal(run, map)) return false;
+        return run.slots.stream().anyMatch(slot -> slot.spawned && slot.dead
+                && slot.realm.equals("yuanxian:spirit_transformation")
+                && map.groups().stream().anyMatch(group -> group.id().equals(slot.group)
+                        && group.actors().get(slot.index).boss()));
+    }
+
     public String encode(){return JSON.toJson(this);}
     public static QuestState decode(String value){var result=JSON.fromJson(value,QuestState.class);result.validate();return result;}
     public void validate(){
@@ -83,7 +93,7 @@ public final class QuestState {
         }
         for(var e:members.entrySet()){
             var m=e.getValue();if(e.getKey()==null||m==null||m.instance==null||m.rescues<0||m.stones<0||m.reputation<0||m.outside!=null&&(!m.outside.valid()||reserved(m.outside.dimension))||m.inside!=null&&!m.inside.valid())throw new IllegalStateException("远征玩家记录无效");
-            if(!Set.of("ACTIVE","SUCCESS","FAILED","ABANDONED").contains(m.result)||m.claimed&&(m.pendingReward||m.claiming)||m.claiming&&(!m.pendingReward||!m.result.equals("SUCCESS")))throw new IllegalStateException("远征回执无效");
+            if(!Set.of("ACTIVE","SUCCESS","FAILED","ABANDONED").contains(m.result)||m.claimed&&(m.pendingReward||m.claiming)||m.claiming&&(!m.pendingReward||!m.result.equals("SUCCESS"))||m.ascendantManual&&!m.pendingReward&&!m.claimed)throw new IllegalStateException("远征回执无效");
         }
     }
 }

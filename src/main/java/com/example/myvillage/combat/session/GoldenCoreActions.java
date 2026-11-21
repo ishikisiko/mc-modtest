@@ -490,6 +490,7 @@ public final class GoldenCoreActions {
         Fuse fuse = FUSES.get(caster.getUUID());
         if (fuse != null && CombatTargets.hitId(fuse.victim()) == CombatTargets.hitId(actualTarget)
                 && FUSES.remove(caster.getUUID(), fuse)) detonate(fuse, fuse.cast().spec.bonus());
+        AscendantFields.fireHit(caster, actualTarget);
     }
 
     private static void detonate(Fuse fuse, double multiplier) {

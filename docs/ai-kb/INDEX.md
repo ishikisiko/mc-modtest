@@ -110,7 +110,7 @@ above and link the relevant contract. Update only affected documentation.
 
 五行法修基础：[五系独立招式、成长、秘籍与技能栏](../features/elemental-arts.md)。
 
-境界绝技：[炼气与筑基十八招](../../guidebook/getting_started/early_realm_arts.md)，[金丹十六招](../../guidebook/getting_started/golden_core_arts.md)。
+境界绝技：[炼气与筑基十八招](../../guidebook/getting_started/early_realm_arts.md)，[金丹十六招](../../guidebook/getting_started/golden_core_arts.md)，[元婴与化神三十二招](../../guidebook/getting_started/ascendant_arts.md)。
 
 野外敌人与战利品：[六种普通敌人、战备丹药、互斥炼器专长与实际验收边界](../features/wilderness-roster.md)。
 

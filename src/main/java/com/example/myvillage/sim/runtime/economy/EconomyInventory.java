@@ -17,6 +17,9 @@ public final class EconomyInventory {
     }
     private EconomyInventory() { }
     public static Prepared reward(ServerPlayer player, TaskReward reward, ItemStack required, int count, boolean tribute) {
+        return reward(player, reward, required, count, tribute, ItemStack.EMPTY);
+    }
+    public static Prepared reward(ServerPlayer player, TaskReward reward, ItemStack required, int count, boolean tribute, ItemStack award) {
         var access = SpiritStoneSources.open(player); var copies = access.copies();
         if (tribute) {
             if (!SpiritStoneStorage.remove(copies, s -> s.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE), count)) return new Prepared(access, copies, "missing_items");
@@ -26,6 +29,8 @@ public final class EconomyInventory {
             if (!insert(copies, new ItemStack(CommerceInventory.item("yuanxian:" + id + "_spirit_stone")), e.getValue(), true))
                 return new Prepared(access, copies, "inventory_full");
         }
+        if (!award.isEmpty() && !insert(copies, award, award.getCount(), false))
+            return new Prepared(access, copies, "inventory_full");
         return new Prepared(access, copies, "ok");
     }
     public static Prepared goods(ServerPlayer player, ItemStack stack, int count) {

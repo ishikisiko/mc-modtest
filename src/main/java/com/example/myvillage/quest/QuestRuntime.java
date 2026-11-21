@@ -1,6 +1,9 @@
 package com.example.myvillage.quest;
 
 import com.example.myvillage.command.ModCommands;
+import com.example.myvillage.combat.art.ArtDefinition;
+import com.example.myvillage.combat.art.AscendantArt;
+import com.example.myvillage.item.TechniqueManualItem;
 
 import com.example.myvillage.mixin.RealmServerAccess;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
@@ -17,6 +20,7 @@ import java.util.*;
 import net.minecraft.Util;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.*;
@@ -440,6 +444,7 @@ public final class QuestRuntime {
         var r=current(p);var m=member(p);if(r==null||m==null||!realm(p.serverLevel())||!m.result.equals("ACTIVE")||!state(p.getServer()).goal(r,QuestMap.get(r.map))){say(p,"本轮必经守敌尚未全部清除。");return;}
         var map=QuestMap.get(r.map);if(p.distanceToSqr(Vec3.atCenterOf(pos(map,map.exit())))>Math.pow(rules().integer("exit_range"),2)){say(p,"请到出口磁石附近验核。");return;}
         if(!m.participated){say(p,"尚无本轮参战记录，无法登记报酬。");return;}
+        m.ascendantManual = state(p.getServer()).earnsAscendantManual(r, map);
         m.stones=map.stones();m.reputation=map.reputation();m.pendingReward=true;save(p.getServer());leaveNow(p,"SUCCESS");
     }
     private static boolean nearBoard(ServerPlayer p){
@@ -448,17 +453,54 @@ public final class QuestRuntime {
         for(var site:sim.lifeSites())for(var place:site.places())if(place.id().equals("jianghu_board")&&EconomyRuntime.valid(p,new BlockPos(place.blockX(),place.blockY(),place.blockZ()),false,site.id(),-1))return true;
         return false;
     }
-    private static void claim(ServerPlayer p){
+    private static void claim(ServerPlayer p) { claim(p, null); }
+
+    private static void offerAscendantManuals(ServerPlayer p) {
+        say(p, "请选择一本化神绝技秘籍，与本轮报酬一并领取。");
+        var choices = ArtDefinition.all().stream()
+                .filter(art -> art.ascendant().filter(AscendantArt::spiritTransformation).isPresent()).toList();
+        for (int start = 0; start < choices.size(); start += 4) {
+            var row = Component.empty();
+            for (var art : choices.subList(start, Math.min(start + 4, choices.size()))) {
+                var link = Component.literal("【").append(Component.translatable(art.translationKey())).append("】")
+                        .withStyle(s -> s.withColor(0x83C9AE)
+                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/expedition claim " + art.id())));
+                row.append(link).append(" ");
+            }
+            p.sendSystemMessage(row);
+        }
+    }
+
+    private static void claim(ServerPlayer p, ResourceLocation selected){
         var m=member(p);if(m==null||!m.pendingReward||m.claimed){say(p,"没有待领的远征报酬。");return;}
         if(m.claiming){say(p,"此笔报酬的提交记录尚待核对，已停止再次发放。请保留存档和日志。");return;}
         if(!m.result.equals("SUCCESS")||!nearBoard(p)){say(p,"请到登记的千机阁江湖榜前领取报酬。");return;}
-        var reward=new TaskReward(0,m.reputation,Map.of("low",m.stones));var plan=EconomyInventory.reward(p,reward,ItemStack.EMPTY,0,false);
+        if (m.ascendantManual && selected == null) {
+            offerAscendantManuals(p);
+            return;
+        }
+        ItemStack manual = ItemStack.EMPTY;
+        if (selected != null) {
+            if (!m.ascendantManual || ArtDefinition.find(selected).flatMap(ArtDefinition::ascendant)
+                    .filter(AscendantArt::spiritTransformation).isEmpty()) {
+                say(p, "此笔远征报酬无法领取这本秘籍。");
+                return;
+            }
+            manual = TechniqueManualItem.manualFor(p.registryAccess(), selected);
+            if (manual.isEmpty()) {
+                say(p, "秘籍暂无法发放，报酬仍保留在江湖榜。");
+                return;
+            }
+        }
+        var reward = new TaskReward(0, m.reputation, Map.of("low", m.stones));
+        var plan = EconomyInventory.reward(p, reward, ItemStack.EMPTY, 0, false, manual);
         if(!plan.ready()){say(p,"背包空间不足，报酬仍保留在江湖榜。");return;}
         m.claiming=true;save(p.getServer());
         var sim=WorldSimRuntime.sim().orElseThrow();
         if(!sim.rewardExpedition(p.getUUID().toString(),p.getGameProfile().getName(),reward,plan::commit)){m.claiming=false;save(p.getServer());say(p,"物品发生变化，请重新办理。");return;}
         EconomyRuntime.dirty(p);p.getServer().overworld().getDataStorage().save();net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();p.getServer().getPlayerList().saveAll();
         m.pendingReward=false;m.claiming=false;m.claimed=true;save(p.getServer());say(p,"已领取远征报酬：下品灵石 "+m.stones+"，江湖声望 "+m.reputation+"。");
+        if (!manual.isEmpty()) p.sendSystemMessage(Component.literal("已领取").append(manual.getHoverName()).append("。"));
     }
     private static void requestLeave(ServerPlayer p,boolean abandon){
         var m=member(p);if(m==null||!m.result.equals("ACTIVE")){say(p,"当前没有进行中的远征。");return;}
@@ -501,7 +543,10 @@ public final class QuestRuntime {
                 .then(Commands.literal("leave").executes(c->{requestLeave(c.getSource().getPlayerOrException(),false);return 1;}))
                 .then(Commands.literal("abandon").executes(c->{requestLeave(c.getSource().getPlayerOrException(),true);return 1;}))
                 .then(Commands.literal("finish").executes(c->{finish(c.getSource().getPlayerOrException());return 1;}))
-                .then(Commands.literal("claim").executes(c->{claim(c.getSource().getPlayerOrException());return 1;}))
+                .then(Commands.literal("claim").executes(c->{claim(c.getSource().getPlayerOrException());return 1;})
+                        .then(Commands.argument("manual", ResourceLocationArgument.id()).executes(c -> {
+                            claim(c.getSource().getPlayerOrException(), ResourceLocationArgument.getId(c, "manual"));return 1;
+                        })))
                 .then(Commands.literal("accept").executes(c->{accept(c.getSource().getPlayerOrException());return 1;}))
                 .then(Commands.literal("invite").then(Commands.argument("player",EntityArgument.player()).executes(c->{invite(c.getSource().getPlayerOrException(),EntityArgument.getPlayer(c,"player"));return 1;}))));
         e.getDispatcher().register(ModCommands.adminRoot().then(Commands.literal("quest").then(Commands.literal("status").then(Commands.argument("player",EntityArgument.player()).executes(c->{

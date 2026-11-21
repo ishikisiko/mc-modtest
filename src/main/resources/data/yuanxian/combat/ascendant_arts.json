@@ -1,0 +1,1810 @@
+{
+  "schema": 1,
+  "shelf_regions": [
+    "nanjiang",
+    "moyu"
+  ],
+  "expedition_region": "zhongzhou",
+  "arts": [
+    {
+      "id": "yuanxian:liangyi_lijian",
+      "school": "yuanxian:sword",
+      "family": "sword",
+      "slot": -1,
+      "qi_cost": 48,
+      "cooldown_ticks": 480,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.64,
+        0.88,
+        1.0
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_sword_01_thrust",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 4,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 17.5,
+        "length": 7.5,
+        "width": 2.8,
+        "reach": 6.3,
+        "delay": 12,
+        "targets": 4,
+        "damage": 1.55,
+        "secondary": 2.1,
+        "mechanic": "twin_blade",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8
+      }
+    },
+    {
+      "id": "yuanxian:huiying_xiefeng",
+      "school": "yuanxian:sword",
+      "family": "sword",
+      "slot": -1,
+      "qi_cost": 46,
+      "cooldown_ticks": 460,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.64,
+        0.88,
+        1.0
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_sword_02_horizontal_cut",
+          "shape": "line",
+          "reach": 7.5,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 7.5,
+        "arc": 130,
+        "duration": 36,
+        "delay": 4,
+        "targets": 6,
+        "damage": 1.3,
+        "mechanic": "evade_echo",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8
+      }
+    },
+    {
+      "id": "yuanxian:fengshan_jianguan",
+      "school": "yuanxian:sword",
+      "family": "sword",
+      "slot": -1,
+      "qi_cost": 64,
+      "cooldown_ticks": 640,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.64,
+        0.88,
+        1.0
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_sword_02_horizontal_cut",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 21,
+        "length": 21,
+        "width": 3.2,
+        "duration": 100,
+        "targets": 8,
+        "damage": 2.05,
+        "control": 0.35,
+        "status_ticks": 24,
+        "mechanic": "sword_gate",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9
+      }
+    },
+    {
+      "id": "yuanxian:wanjian_guifeng",
+      "school": "yuanxian:sword",
+      "family": "sword",
+      "slot": -1,
+      "qi_cost": 82,
+      "cooldown_ticks": 780,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.64,
+        0.88,
+        1.0
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_sword_04_diagonal_cut",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 24.5,
+        "reach": 35,
+        "width": 3,
+        "duration": 100,
+        "delay": 8,
+        "count": 3,
+        "targets": 8,
+        "damage": 1.35,
+        "bonus": 0.8,
+        "mechanic": "sword_points",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9
+      }
+    },
+    {
+      "id": "yuanxian:duifeng_qiang",
+      "school": "yuanxian:spear",
+      "family": "spear",
+      "slot": -1,
+      "qi_cost": 50,
+      "cooldown_ticks": 520,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.48,
+        0.83,
+        0.98
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_spear_01_mid_thrust",
+          "shape": "line",
+          "reach": 14,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 14,
+        "length": 6.3,
+        "width": 2.8,
+        "targets": 6,
+        "damage": 1.55,
+        "secondary": 2.1,
+        "mechanic": "opposing_spears",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8
+      }
+    },
+    {
+      "id": "yuanxian:dingjun_sanzhuang",
+      "school": "yuanxian:spear",
+      "family": "spear",
+      "slot": -1,
+      "qi_cost": 44,
+      "cooldown_ticks": 480,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": true,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.48,
+        0.83,
+        0.98
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_spear_01_mid_thrust",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 3,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 18,
+        "length": 6.3,
+        "width": 2.4,
+        "gap": 3.4,
+        "duration": 80,
+        "count": 3,
+        "targets": 3,
+        "damage": 1.85,
+        "mechanic": "spear_posts",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8
+      }
+    },
+    {
+      "id": "yuanxian:yiqiang_pingguan",
+      "school": "yuanxian:spear",
+      "family": "spear",
+      "slot": -1,
+      "qi_cost": 84,
+      "cooldown_ticks": 760,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": true,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.48,
+        0.83,
+        0.98
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_spear_05_dragon_lunge",
+          "shape": "line",
+          "reach": 12.3,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 4,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 12.3,
+        "length": 6.3,
+        "width": 3.2,
+        "step": 6,
+        "targets": 4,
+        "damage": 4.8,
+        "secondary": 1.8,
+        "mechanic": "cleaving_charge",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9
+      }
+    },
+    {
+      "id": "yuanxian:simen_qiangzhen",
+      "school": "yuanxian:spear",
+      "family": "spear",
+      "slot": -1,
+      "qi_cost": 68,
+      "cooldown_ticks": 660,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.48,
+        0.83,
+        0.98
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_spear_01_mid_thrust",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 21,
+        "length": 9,
+        "width": 3,
+        "interval": 8,
+        "count": 4,
+        "targets": 8,
+        "per_target": 2,
+        "damage": 2.05,
+        "mechanic": "spear_array",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9
+      }
+    },
+    {
+      "id": "yuanxian:hushen_jinying",
+      "school": "yuanxian:fist",
+      "family": "fist",
+      "slot": -1,
+      "qi_cost": 48,
+      "cooldown_ticks": 520,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.98,
+        0.78,
+        0.5
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 14,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 1,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 14,
+        "duration": 80,
+        "count": 2,
+        "targets": 1,
+        "control": 0.35,
+        "budget": 0.1,
+        "mechanic": "guarding_echo",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8
+      }
+    },
+    {
+      "id": "yuanxian:geshan_toujin",
+      "school": "yuanxian:fist",
+      "family": "fist",
+      "slot": -1,
+      "qi_cost": 52,
+      "cooldown_ticks": 500,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.98,
+        0.78,
+        0.5
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_01_straight_punch",
+          "shape": "line",
+          "reach": 3.75,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 2,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 3.75,
+        "length": 12.25,
+        "width": 3,
+        "delay": 8,
+        "targets": 2,
+        "damage": 2.65,
+        "secondary": 2.1,
+        "mechanic": "piercing_fist",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8
+      }
+    },
+    {
+      "id": "yuanxian:fulong_zhenshen",
+      "school": "yuanxian:fist",
+      "family": "fist",
+      "slot": -1,
+      "qi_cost": 78,
+      "cooldown_ticks": 740,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.98,
+        0.78,
+        0.5
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 9,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 9,
+        "arc": 130,
+        "duration": 24,
+        "targets": 6,
+        "damage": 3.1,
+        "secondary": 4.1,
+        "bonus": 0.25,
+        "control": 0.4,
+        "budget": 0.03,
+        "mechanic": "dragon_stance",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9
+      }
+    },
+    {
+      "id": "yuanxian:tayun_zhuiyue",
+      "school": "yuanxian:fist",
+      "family": "fist",
+      "slot": -1,
+      "qi_cost": 86,
+      "cooldown_ticks": 800,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.98,
+        0.78,
+        0.5
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_04_chop",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "windup": 7,
+        "range": 16,
+        "radius": 10.5,
+        "inner": 4,
+        "height": 9,
+        "delay": 7,
+        "duration": 48,
+        "targets": 8,
+        "damage": 3.9,
+        "secondary": 1.7,
+        "mechanic": "falling_palm",
+        "tier": "spirit_transformation",
+        "recovery": 9
+      }
+    },
+    {
+      "id": "yuanxian:jingjin_zheguang",
+      "school": "yuanxian:metal_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 45,
+      "cooldown_ticks": 500,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.92,
+        0.82,
+        0.43
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 3,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 18,
+        "length": 21,
+        "width": 2.8,
+        "duration": 60,
+        "delay": 6,
+        "targets": 3,
+        "damage": 3.45,
+        "mechanic": "gold_mirror",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "metal"
+      }
+    },
+    {
+      "id": "yuanxian:suijia_feixing",
+      "school": "yuanxian:metal_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 53,
+      "cooldown_ticks": 520,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.92,
+        0.82,
+        0.43
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 1,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 38.5,
+        "targets": 1,
+        "damage": 3.15,
+        "secondary": 4.2,
+        "mechanic": "armor_star",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "metal"
+      }
+    },
+    {
+      "id": "yuanxian:jincheng_zhujia",
+      "school": "yuanxian:metal_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 60,
+      "cooldown_ticks": 640,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.92,
+        0.82,
+        0.43
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 9,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 3,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 9,
+        "radius": 9,
+        "duration": 120,
+        "targets": 3,
+        "budget": 0.08,
+        "mechanic": "gold_plates",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "metal"
+      }
+    },
+    {
+      "id": "yuanxian:liejia_tianqian",
+      "school": "yuanxian:metal_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 86,
+      "cooldown_ticks": 800,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.92,
+        0.82,
+        0.43
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 48,
+        "radius": 5.25,
+        "inner": 2.6,
+        "targets": 8,
+        "damage": 4.25,
+        "secondary": 1.6,
+        "bonus": 0.2,
+        "control": 0.3,
+        "status_ticks": 100,
+        "mechanic": "armor_stamp",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "metal"
+      }
+    },
+    {
+      "id": "yuanxian:shuangzhu_liangen",
+      "school": "yuanxian:wood_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 48,
+      "cooldown_ticks": 500,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.35,
+        0.75,
+        0.42
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 21,
+        "length": 15,
+        "width": 3.2,
+        "duration": 100,
+        "window": 60,
+        "targets": 8,
+        "count": 3,
+        "damage": 2.1,
+        "budget": 0.04,
+        "mechanic": "linked_roots",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "wood"
+      }
+    },
+    {
+      "id": "yuanxian:qianteng_jiuren",
+      "school": "yuanxian:wood_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 42,
+      "cooldown_ticks": 440,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.35,
+        0.75,
+        0.42
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 1,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 21,
+        "duration": 40,
+        "status_ticks": 60,
+        "targets": 1,
+        "step": 3.5,
+        "budget": 0.06,
+        "mechanic": "rescue_vine",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "wood"
+      }
+    },
+    {
+      "id": "yuanxian:baimu_chengchun",
+      "school": "yuanxian:wood_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 64,
+      "cooldown_ticks": 680,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.35,
+        0.75,
+        0.42
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 36,
+        "radius": 10.5,
+        "targets": 6,
+        "count": 3,
+        "damage": 0.7,
+        "secondary": 0.6,
+        "control": 0.08,
+        "budget": 0.18,
+        "mechanic": "wood_harvest",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "wood"
+      }
+    },
+    {
+      "id": "yuanxian:gumu_chuiyin",
+      "school": "yuanxian:wood_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 78,
+      "cooldown_ticks": 760,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.35,
+        0.75,
+        0.42
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 30,
+        "radius": 9,
+        "duration": 100,
+        "delay": 40,
+        "targets": 8,
+        "damage": 3.2,
+        "secondary": 4,
+        "mechanic": "ancient_shade",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "wood"
+      }
+    },
+    {
+      "id": "yuanxian:shuangchao_jiaohui",
+      "school": "yuanxian:water_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 49,
+      "cooldown_ticks": 500,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.35,
+        0.68,
+        0.94
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 32,
+        "length": 10.5,
+        "width": 4.5,
+        "radius": 4.375,
+        "delay": 10,
+        "targets": 8,
+        "push": 2,
+        "damage": 0.85,
+        "secondary": 2.8,
+        "mechanic": "meeting_tides",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "water"
+      }
+    },
+    {
+      "id": "yuanxian:shunchao_huxing",
+      "school": "yuanxian:water_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 42,
+      "cooldown_ticks": 460,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.35,
+        0.68,
+        0.94
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 10,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 18,
+        "length": 18,
+        "width": 5.25,
+        "duration": 100,
+        "targets": 10,
+        "control": 0.3,
+        "bonus": 0.25,
+        "mechanic": "flow_lane",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "water"
+      }
+    },
+    {
+      "id": "yuanxian:canghai_guixu",
+      "school": "yuanxian:water_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 80,
+      "cooldown_ticks": 780,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.35,
+        0.68,
+        0.94
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 33,
+        "radius": 12,
+        "inner": 6,
+        "width": 7,
+        "length": 21,
+        "duration": 28,
+        "targets": 8,
+        "push": 2,
+        "damage": 1.3,
+        "secondary": 3,
+        "bonus": 1.4,
+        "mechanic": "returning_sea",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "water"
+      }
+    },
+    {
+      "id": "yuanxian:ninghai_bingdi",
+      "school": "yuanxian:water_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 64,
+      "cooldown_ticks": 640,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.35,
+        0.68,
+        0.94
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 28,
+        "length": 28,
+        "width": 14,
+        "height": 3.6,
+        "interval": 1,
+        "reach": 1.4,
+        "duration": 80,
+        "targets": 8,
+        "damage": 1.9,
+        "control": 0.45,
+        "status_ticks": 30,
+        "mechanic": "freezing_crest",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "water"
+      }
+    },
+    {
+      "id": "yuanxian:shuanglu_lianyan",
+      "school": "yuanxian:fire_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 53,
+      "cooldown_ticks": 520,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.95,
+        0.39,
+        0.15
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 18,
+        "length": 10.5,
+        "width": 3.2,
+        "duration": 80,
+        "delay": 9,
+        "targets": 6,
+        "damage": 1.65,
+        "mechanic": "paired_furnaces",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "fire"
+      }
+    },
+    {
+      "id": "yuanxian:huoyi_tuoshen",
+      "school": "yuanxian:fire_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 44,
+      "cooldown_ticks": 460,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.95,
+        0.39,
+        0.15
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 7,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 7,
+        "radius": 7,
+        "duration": 50,
+        "delay": 13,
+        "targets": 8,
+        "damage": 2,
+        "control": 0.2,
+        "status_ticks": 24,
+        "mechanic": "fire_escape",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "fire"
+      }
+    },
+    {
+      "id": "yuanxian:lihuo_weichang",
+      "school": "yuanxian:fire_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 67,
+      "cooldown_ticks": 680,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.95,
+        0.39,
+        0.15
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 10,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 30,
+        "radius": 9,
+        "width": 2.8,
+        "gap": 4.5,
+        "arc": 45,
+        "duration": 100,
+        "delay": 13,
+        "targets": 10,
+        "damage": 2.15,
+        "mechanic": "fire_enclosure",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "fire"
+      }
+    },
+    {
+      "id": "yuanxian:fentian_yizhu",
+      "school": "yuanxian:fire_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 88,
+      "cooldown_ticks": 820,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.95,
+        0.39,
+        0.15
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 48,
+        "radius": 8.75,
+        "targets": 8,
+        "damage": 3.7,
+        "secondary": 2.3,
+        "bonus": 1.15,
+        "control": 0.55,
+        "mechanic": "fire_harvest",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "fire"
+      }
+    },
+    {
+      "id": "yuanxian:yiyan_diebi",
+      "school": "yuanxian:earth_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 48,
+      "cooldown_ticks": 500,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.77,
+        0.53,
+        0.32
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 18,
+        "width": 6,
+        "height": 3.75,
+        "step": 7.5,
+        "duration": 80,
+        "count": 3,
+        "targets": 8,
+        "damage": 2,
+        "push": 2,
+        "mechanic": "moving_wall",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "earth"
+      }
+    },
+    {
+      "id": "yuanxian:fuyue_hutai",
+      "school": "yuanxian:earth_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 46,
+      "cooldown_ticks": 520,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.77,
+        0.53,
+        0.32
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 3,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 21,
+        "radius": 6.75,
+        "duration": 100,
+        "targets": 3,
+        "control": 0.5,
+        "mechanic": "steady_platform",
+        "tier": "nascent_soul",
+        "windup": 15,
+        "recovery": 8,
+        "element": "earth"
+      }
+    },
+    {
+      "id": "yuanxian:dimai_helong",
+      "school": "yuanxian:earth_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 82,
+      "cooldown_ticks": 780,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": true,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.77,
+        0.53,
+        0.32
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 10,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 27,
+        "length": 27,
+        "width": 10.5,
+        "inner": 4,
+        "delay": 22,
+        "targets": 10,
+        "damage": 1.15,
+        "secondary": 2.85,
+        "push": 2,
+        "mechanic": "folding_earth",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "earth"
+      }
+    },
+    {
+      "id": "yuanxian:budong_shancheng",
+      "school": "yuanxian:earth_arts",
+      "family": "elemental",
+      "slot": -1,
+      "qi_cost": 69,
+      "cooldown_ticks": 700,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 90,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 12,
+      "cast_pitch": 1.04,
+      "color": [
+        0.77,
+        0.53,
+        0.32
+      ],
+      "particle_count": 20,
+      "phases": [
+        {
+          "move": "yuanxian:basic_fist_02_horizontal_palm",
+          "shape": "line",
+          "reach": 16,
+          "arc_degrees": 60,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 3,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        }
+      ],
+      "ascendant": {
+        "range": 21,
+        "radius": 7.5,
+        "duration": 120,
+        "targets": 3,
+        "control": 0.4,
+        "budget": 0.18,
+        "mechanic": "mountain_shell",
+        "tier": "spirit_transformation",
+        "windup": 19,
+        "recovery": 9,
+        "element": "earth"
+      }
+    }
+  ]
+}

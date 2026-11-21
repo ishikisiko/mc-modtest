@@ -246,11 +246,16 @@ def active_effect(id, effects, arts, waves, legacy, elemental_rules, labels, wea
         if wave is None:
             return {'name': '效果待配置', 'stats': []}
         return {'name': '蓄力剑气', 'stats': [('施放武器', weapon_name), *wave_stats(wave, cost)]}
-    if 'golden_core' in art or 'early_realm' in art:
-        spec = art.get('golden_core', art.get('early_realm'))
-        name = {'qi_refining': '炼气绝技', 'foundation_establishment': '筑基绝技'}.get(spec.get('tier'), '金丹绝技')
+    spec = next((art[key] for key in ('golden_core', 'early_realm', 'ascendant') if key in art), None)
+    if spec is not None:
+        name = {'qi_refining': '炼气绝技', 'foundation_establishment': '筑基绝技',
+                'nascent_soul': '元婴绝技', 'spirit_transformation': '化神绝技'}.get(spec.get('tier'), '金丹绝技')
         areas = (('length', '攻击长度'), ('width', '命中宽度'), ('radius', '作用半径'),
-                 ('inner', '重击内圈半径'), ('secondary_range', '二次命中距离'), ('height', '高度'))
+                 ('height', '高度'), ('secondary_range', '二次命中距离'))
+        if 'ascendant' in art:
+            areas += (('inner', '内圈或中心线尺寸'), ('reach', '延伸距离'), ('step', '位移距离'))
+        else:
+            areas += (('inner', '重击内圈半径'),)
         return {
             'name': name, 'note': labels[f"combat.yuanxian.art.{id.split(':', 1)[1]}.description"],
             'stats': [('施放武器', weapon_name), *weapon_stats(art, cost),
@@ -363,7 +368,7 @@ def build(root: Path):
     arts = {art['id']: art for art in elemental['arts']}
     arts.update({
         art['id']: art
-        for filename in ('advanced_arts', 'locked_sword_arts', 'legacy_arts', 'golden_core_arts', 'early_realm_arts')
+        for filename in ('advanced_arts', 'locked_sword_arts', 'legacy_arts', 'golden_core_arts', 'early_realm_arts', 'ascendant_arts')
         for art in read_json(data / f'combat/{filename}.json')['arts']
     })
     waves = {row['id']: row for row in map(read_json, (data / 'combat/skill').glob('*.json'))}

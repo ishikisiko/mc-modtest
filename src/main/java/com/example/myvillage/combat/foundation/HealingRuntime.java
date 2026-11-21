@@ -65,6 +65,10 @@ public final class HealingRuntime {
         return heal(target, amount, source, HealingRules.get().maximumHealingPerCall());
     }
 
+    public static float healCapped(LivingEntity target, float amount, ResourceLocation source) {
+        return heal(target, amount, source, amount);
+    }
+
     private static float heal(LivingEntity target, float amount, ResourceLocation source, double finalLimit) {
         if (!serverTarget(target) || source == null || !Float.isFinite(amount) || amount <= 0
                 || !Double.isFinite(finalLimit) || finalLimit <= 0) return 0;

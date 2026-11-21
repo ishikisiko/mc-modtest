@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.149.0
+
+- 新增元婴和化神绝技各 16 招，剑、枪、拳掌和五行每条路线在每个境界各新增两招。招式含范围较宽的剑线、枪阵和五行法阵，多数招式可朝目标方向直接施放。
+- 南疆、魔域州城琳琅阁常备元婴秘籍。中州江湖榜签发的远征在击败化神首领并完成验核后，参战成员领取报酬时可自选一本化神秘籍。
+
 ## 0.148.0
 
 - 新增炼气八招、筑基十招。炼气秘籍可在工作台制作，筑基秘籍在灵岳和北原州城琳琅阁常备。

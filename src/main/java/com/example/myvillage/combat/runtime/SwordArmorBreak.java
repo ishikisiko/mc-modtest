@@ -20,6 +20,11 @@ public final class SwordArmorBreak {
         if(entry.effects().apply(fraction,ticks,now,com.example.myvillage.combat.foundation.ControlRules.get().maximumSources()))
             refresh(entry,now);
     }
+    public static boolean active(LivingEntity target) {
+        var entry = ACTIVE.get(target.getUUID());
+        return entry != null && entry.entity() == target && entry.effects().strongest(target.getServer().overworld().getGameTime()) > 0;
+    }
+
     public static void tick(MinecraftServer server) {
         long now=server.overworld().getGameTime();
         for(var id:List.copyOf(ACTIVE.keySet())) {

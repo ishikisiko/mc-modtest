@@ -1,6 +1,7 @@
 package com.example.myvillage.sim.runtime.economy;
 
 import com.example.myvillage.combat.art.ArtDefinition;
+import com.example.myvillage.combat.art.AscendantArt;
 import com.example.myvillage.combat.art.EarlyRealmArt;
 import com.example.myvillage.combat.art.GoldenCoreArt;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
@@ -70,7 +71,9 @@ final class TianhengMarkets {
             var art = realmArts.get(manual.id());
             if (art == null || !manual.realm().equals(regionalRealm) || manual.definition().grade() > regionalBand.shopGrade()) continue;
             boolean stocked = art.goldenCore().isPresent() && GoldenCoreArt.rules().shelfRegions().contains(region)
-                    || art.earlyRealm().filter(EarlyRealmArt::foundation).isPresent() && EarlyRealmArt.shelfRegions().contains(region);
+                    || art.earlyRealm().filter(EarlyRealmArt::foundation).isPresent() && EarlyRealmArt.shelfRegions().contains(region)
+                    || art.ascendant().filter(spec -> !spec.spiritTransformation()).isPresent()
+                        && AscendantArt.shelfRegions().contains(region);
             if (stocked) result.add(goods(registry, manual, price(manual, regionalBand)));
         }
         int limit = realmOrder(registry, ResourceLocation.parse("yuanxian:" + ceiling));
@@ -194,8 +197,9 @@ final class TianhengMarkets {
             int budget = json.get("npc_budget_percent").getAsInt();
             long golden = ArtDefinition.all().stream().filter(art -> art.goldenCore().isPresent()).count();
             long foundation = ArtDefinition.all().stream().filter(art -> art.earlyRealm().filter(EarlyRealmArt::foundation).isPresent()).count();
+            long nascent = ArtDefinition.all().stream().filter(art -> art.ascendant().filter(spec -> !spec.spiritTransformation()).isPresent()).count();
             if (bands.size() != 5 || regions.size() != 8 || perRealm < 1
-                    || 1 + bands.size() * perRealm + Math.max(golden, foundation) > EconomyMenu.MAX_ROWS
+                    || 1 + bands.size() * perRealm + Math.max(nascent, Math.max(golden, foundation)) > EconomyMenu.MAX_ROWS
                     || preview < 1 || preview > 60 || lot < 10 || lot > 180 || step < 1 || step > 100
                     || budget <= 100 || budget > 300) throw new IllegalArgumentException("天衡殿交易规则无效");
             return new Rules(Map.copyOf(regions), java.util.Collections.unmodifiableMap(bands),

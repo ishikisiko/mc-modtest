@@ -5,6 +5,7 @@ import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.runtime.CombatDamageService;
 import com.example.myvillage.combat.runtime.CombatDodgeService;
 import com.example.myvillage.combat.runtime.CombatReactionService;
+import com.example.myvillage.combat.session.AscendantWards;
 import com.example.myvillage.combat.session.CombatSessionManager;
 import com.example.myvillage.combat.session.CombatStopReason;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -110,6 +111,7 @@ public final class CombatEvents {
     }
 
     private static void onLivingDamage(LivingDamageEvent.Post event) {
+        AscendantWards.tookDamage(event.getEntity(), event.getSource(), event.getNewDamage());
         if (event.getNewDamage() > 0 && (event.getEntity() instanceof ServerPlayer
                 || event.getEntity() instanceof com.example.myvillage.entity.npc.NpcEntity)) {
             CombatSessionManager.onSkillDamage(event.getEntity(), event.getSource());
@@ -152,6 +154,9 @@ public final class CombatEvents {
     private static void onLivingKnockBack(LivingKnockBackEvent event) {
         if (CombatDamageService.isResolvingHit(event.getEntity())) {
             event.setCanceled(true);
+        } else {
+            double factor = AscendantWards.knockbackFactor(event.getEntity());
+            if (factor < 1) event.setStrength((float) (event.getStrength() * factor));
         }
     }
 

@@ -303,6 +303,7 @@ public final class CombatDodgeService {
             return;
         }
         event.setCanceled(true);
+        com.example.myvillage.combat.session.AscendantFields.dodged(player, source, event.getAmount());
         DodgeState state = STATES.get(player.getUUID());
         SwordHeartRuntime.onDodgedAttack(player, source, event.getAmount(), state.startTick());
         LOGGER.info(cancelledLine(

@@ -33,6 +33,34 @@ class QuestStateTest {
         assertTrue(state.goal(r,map));assertTrue(r.slots.stream().filter(s->s.group.equals("side_optional")).noneMatch(s->s.dead));
         var restored=QuestState.decode(state.encode());assertTrue(restored.goal(restored.instances.get(r.id),map));
     }
+    @Test void ascendantManualRequiresAZhongzhouBossReceiptAndSurvivesInstanceReclaim() {
+        for (String name : QuestRules.get().maps()) {
+            for (String region : List.of("zhongzhou", "ximo")) {
+                var state = new QuestState();
+                var player = UUID.randomUUID();
+                var run = issue(state, name, region, player);
+                var map = QuestMap.get(name);
+                var boss = run.slots.stream().filter(slot -> map.groups().stream().anyMatch(group ->
+                        group.id().equals(slot.group) && group.actors().get(slot.index).boss())).findFirst().orElseThrow();
+                for (var slot : run.slots) {
+                    if (slot == boss) continue;
+                    slot.spawned = true;
+                    assertTrue(state.killed(run.id, slot.id));
+                }
+                assertFalse(state.earnsAscendantManual(run, map));
+                boss.spawned = true;
+                assertTrue(state.killed(run.id, boss.id));
+                assertEquals(region.equals("zhongzhou"), state.earnsAscendantManual(run, map));
+                var member = state.members.get(player);
+                member.result = "SUCCESS";
+                member.pendingReward = true;
+                member.ascendantManual = state.earnsAscendantManual(run, map);
+                state.instances.remove(run.id);
+                assertEquals(member.ascendantManual, QuestState.decode(state.encode()).members.get(player).ascendantManual);
+            }
+        }
+    }
+
     @Test void aPlayerCannotReplaceAnActiveRunOrPendingReceipt(){
         var state=new QuestState();var p=UUID.randomUUID();var r=issue(state,"bandit_stronghold","ximo",p);
         assertThrows(IllegalArgumentException.class,()->issue(state,"beast_den","zhongzhou",p));

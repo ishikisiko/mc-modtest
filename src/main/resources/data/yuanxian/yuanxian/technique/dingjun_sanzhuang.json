@@ -1,0 +1,25 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.dingjun_sanzhuang",
+  "category": "active",
+  "grade": 3,
+  "elements": [],
+  "school": "yuanxian:spear",
+  "requirements": {
+    "minimum_realm": "yuanxian:nascent_soul"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:dingjun_sanzhuang",
+      "qi_cost": 44,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 9000,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:canglong_chushui"
+  }
+}

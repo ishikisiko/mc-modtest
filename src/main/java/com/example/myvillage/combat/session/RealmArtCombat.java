@@ -54,6 +54,7 @@ final class RealmArtCombat {
 
     static double displacementFactor(LivingEntity caster, LivingEntity target) {
         double pvp = caster instanceof ServerPlayer && target instanceof ServerPlayer ? GoldenCoreArt.rules().pvpDisplacement() : 1;
-        return pvp * (1 - Math.clamp(target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE), 0, 1));
+        return pvp * (1 - Math.clamp(target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE), 0, 1))
+                * AscendantWards.knockbackFactor(target);
     }
 }
