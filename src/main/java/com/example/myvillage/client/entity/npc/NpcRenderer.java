@@ -277,7 +277,7 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
     static BeastModelFile readModel(ResourceManager resources, ResourceLocation npcId, String look) {
         ResourceLocation location = modelFile(npcId, look);
         String path = assetPath(location);
-        return BeastModelFile.parse(path, npcId, NpcResourceReference.resolve(location, id -> readJson(resources, id)));
+        return BeastModelFile.parseNpc(path, npcId, NpcResourceReference.resolve(location, id -> readJson(resources, id)));
     }
 
     private static com.google.gson.JsonObject readJson(ResourceManager resources, ResourceLocation location) {

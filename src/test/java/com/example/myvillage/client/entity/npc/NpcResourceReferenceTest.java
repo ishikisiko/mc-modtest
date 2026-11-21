@@ -41,7 +41,7 @@ class NpcResourceReferenceTest {
             JsonObject resolved=NpcResourceReference.resolve(id,NpcResourceReferenceTest::classpath);
             assertEquals(JsonParser.parseString(original),resolved,p.toString());
             var entity=ResourceLocation.parse(resolved.get("id").getAsString());
-            if(p.toString().endsWith("_model.json")) BeastModelFile.parse(id.toString(),entity,resolved);
+            if(p.toString().endsWith("_model.json")) BeastModelFile.parseNpc(id.toString(),entity,resolved);
             else BeastAnimationFile.parse(id.toString(),entity,resolved);
         }
         assertTrue(aliases>100,"The actual processResources output must be compact, not the authoring tree");

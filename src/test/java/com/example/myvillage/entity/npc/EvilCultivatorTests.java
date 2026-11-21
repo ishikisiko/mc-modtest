@@ -7,13 +7,14 @@ import com.example.myvillage.cultivation.data.SchoolKind;
 import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.data.TechniqueRequirements;
+import com.example.myvillage.entity.beast.BeastJson;
 import com.example.myvillage.stats.CultivationStatsRules;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,8 @@ class EvilCultivatorTests {
     void approvedMaskParsesAsAnAdditiveHeadSurface() throws Exception {
         String modelPath = "assets/yuanxian/npc/evil_cultivator_model.json";
         try (var modelReader = resource(modelPath)) {
-            var model = BeastModelFile.parse(modelPath, ResourceLocation.parse("yuanxian:evil_cultivator"), modelReader);
+            var model = BeastModelFile.parseNpc(modelPath, ResourceLocation.parse("yuanxian:evil_cultivator"),
+                    BeastJson.parseStrict(modelPath, modelReader));
             assertEquals(ResourceLocation.parse("yuanxian:npc/evil_cultivator_surface.json"), model.surfaceMesh());
             String surface = "assets/yuanxian/npc/evil_cultivator_surface.json";
             try (var maskReader = resource(surface)) {

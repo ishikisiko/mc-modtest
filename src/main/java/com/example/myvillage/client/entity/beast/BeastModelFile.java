@@ -33,8 +33,8 @@ import net.minecraft.resources.ResourceLocation;
  * is authored in units of 1/32 block and its texture is twice as fine. Parsing is pure and strict:
  * unknown or missing fields, unknown parents, repeated names and UVs outside the texture throw a
  * {@link BeastDataException} naming the file and field. An optional {@code surface_mesh} names a
- * bounded bone-local triangle mesh. In that case these cubes remain bind/gait bounds while the
- * surface replaces their visible draw; the same bone hierarchy and clips drive both.
+ * bounded bone-local triangle mesh. Beast renderers draw it in place of the cuboids, and NPC
+ * renderers draw it over the cuboids. Both use the model's bone hierarchy and clips.
  */
 public record BeastModelFile(
         ResourceLocation id,
@@ -85,6 +85,15 @@ public record BeastModelFile(
     }
 
     public static BeastModelFile parse(String file, ResourceLocation expectedId, JsonObject json) {
+        return parse(file, expectedId, json, "beast/");
+    }
+
+    /** Parses an NPC model whose optional surface is stored with the NPC assets. */
+    public static BeastModelFile parseNpc(String file, ResourceLocation expectedId, JsonObject json) {
+        return parse(file, expectedId, json, "npc/");
+    }
+
+    private static BeastModelFile parse(String file, ResourceLocation expectedId, JsonObject json, String surfaceDirectory) {
         BeastJson.Fields root = new BeastJson.Fields(file, "", json, ROOT_FIELDS);
         root.schema();
         ResourceLocation id = root.id("id");
@@ -97,7 +106,6 @@ public record BeastModelFile(
         float shadow = (float) root.nonNegativeNumber("shadow_radius");
         float scale = json.has("scale") ? (float) root.positiveNumber("scale") : 1.0F;
         ResourceLocation surfaceMesh = json.has("surface_mesh") ? root.id("surface_mesh") : null;
-        String surfaceDirectory = file.startsWith("assets/" + id.getNamespace() + "/npc/") ? "npc/" : "beast/";
         if (surfaceMesh != null && (!surfaceMesh.getNamespace().equals(id.getNamespace())
                 || !surfaceMesh.getPath().startsWith(surfaceDirectory) || !surfaceMesh.getPath().endsWith(".json"))) {
             throw root.error("surface_mesh", "must name a " + surfaceDirectory + " JSON in the entity namespace");
