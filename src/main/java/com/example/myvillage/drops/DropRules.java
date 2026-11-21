@@ -12,6 +12,7 @@ import java.util.random.RandomGenerator;
 /** Immutable server drop rules. The normal loot table remains the inherited input. */
 public final class DropRules {
     public static final int MAX_BYTES=1024*1024;
+    static final int REALM_RANK_STRIDE=16;
     public enum Mode { INHERIT, APPEND, REPLACE, DISABLED }
     public enum Scene { NORMAL, HABITAT, QUEST_REALM, SECT_TRIAL, APTITUDE_TRIAL, BATTLE_RUIN;
         public String id(){return name().toLowerCase(Locale.ROOT);}
@@ -34,23 +35,42 @@ public final class DropRules {
     }
     public record Override(String id,Match when,Policy policy) {}
     public record Addition(String id,Match when,List<Entry> drops) {public Addition{drops=List.copyOf(drops);}}
+    private record RealmPolicy(String realm,Policy policy) {}
     public record Resolution(String origin,Policy policy,List<Addition> additions) {public Resolution{additions=List.copyOf(additions);}}
     public record Reward(String item,int count,String factory,Integer quality,String rarity,String materialRarity) {}
     private final Policy defaults;
     private final Map<String,Policy> entities;
+    private final Map<String,Map<Integer,RealmPolicy>> realmEntities;
+    private final Set<String> configuredEntities;
     private final List<Override> overrides;
     private final List<Addition> additions;
     private final JsonObject json;
-    private DropRules(Policy defaults,Map<String,Policy> entities,List<Override> overrides,List<Addition> additions,JsonObject json){
-        this.defaults=defaults;this.entities=Collections.unmodifiableMap(new LinkedHashMap<>(entities));this.overrides=List.copyOf(overrides);
+    private DropRules(Policy defaults,Map<String,Policy> entities,Map<String,Map<Integer,RealmPolicy>> realmEntities,
+                      List<Override> overrides,List<Addition> additions,JsonObject json){
+        this.defaults=defaults;this.entities=Map.copyOf(entities);this.realmEntities=Map.copyOf(realmEntities);this.overrides=List.copyOf(overrides);
+        var configured=new HashSet<>(entities.keySet());configured.addAll(realmEntities.keySet());
+        this.configuredEntities=Set.copyOf(configured);
         this.additions=List.copyOf(additions);this.json=json.deepCopy();
     }
     public JsonObject json(){return json.deepCopy();}
-    public Set<String> entities(){return entities.keySet();}
+    public Set<String> entities(){return configuredEntities;}
     public Resolution resolve(Context c){
         Policy selected=entities.getOrDefault(c.entity(),defaults);String origin=entities.containsKey(c.entity())?"entities."+c.entity():"defaults";
         for(var rule:overrides)if(rule.when().matches(c)){selected=rule.policy();origin="overrides."+rule.id();break;}
-        List<Addition> extra=selected.mode()==Mode.DISABLED?List.of():additions.stream().filter(a->a.when().matches(c)).toList();
+        if(selected.mode()==Mode.DISABLED)return new Resolution(origin,selected,List.of());
+        var perRealm=realmEntities.get(c.entity());
+        if(perRealm!=null&&c.realmRank()!=null){
+            var match=perRealm.get(Math.floorDiv(c.realmRank(),REALM_RANK_STRIDE));
+            if(match!=null){
+                origin="realm_entities."+c.entity()+"."+match.realm();
+                Policy specific=match.policy();
+                if(specific.mode()!=Mode.APPEND)return new Resolution(origin,specific,List.of());
+                var combined=new ArrayList<>(selected.drops());
+                combined.addAll(specific.drops());
+                selected=new Policy(selected.mode()==Mode.REPLACE?Mode.REPLACE:Mode.APPEND,combined);
+            }
+        }
+        List<Addition> extra=additions.stream().filter(a->a.when().matches(c)).toList();
         return new Resolution(origin,selected,extra);
     }
     public static List<Reward> roll(Resolution result,int looting,RandomGenerator random){
@@ -76,7 +96,7 @@ public final class DropRules {
     }
     public static DropRules parse(String input,Catalog catalog){
         if(input.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>MAX_BYTES)throw bad("$","文件超过1 MiB");
-        JsonObject root=strict(input);fields(root,"$","schema","defaults","entities","overrides","additions");
+        JsonObject root=strict(input);fields(root,"$","schema","defaults","entities","overrides","additions","realm_entities");
         if(integer(root,"schema","$",1,1)!=1)throw bad("$.schema","未知格式");
         Policy defaults=policy(object(root,"defaults","$"),"$.defaults",catalog);
         JsonObject entityData=object(root,"entities","$");if(entityData.size()>512)throw bad("$.entities","最多512个实体");
@@ -94,7 +114,36 @@ public final class DropRules {
             String p="$.additions["+i+"]";JsonObject o=asObject(ads.get(i),p);fields(o,p,"id","when","drops");
             additions.add(new Addition(ruleId(o,p,ids),match(object(o,"when",p),p+".when",catalog),entries(o,p,catalog)));
         }
-        return new DropRules(defaults,entities,overrides,additions,root);
+        return new DropRules(defaults,entities,realmEntities(root,catalog),overrides,additions,root);
+    }
+    private static Map<String,Map<Integer,RealmPolicy>> realmEntities(JsonObject root,Catalog catalog){
+        if(!root.has("realm_entities"))return Map.of();
+        String path="$.realm_entities";
+        JsonObject rows=object(root,"realm_entities","$");
+        if(rows.size()>512)throw bad(path,"最多512个实体");
+        Map<String,Map<Integer,RealmPolicy>> result=new HashMap<>();
+        for(var entity:rows.entrySet()){
+            String p=path+"."+entity.getKey();
+            id(entity.getKey(),p);
+            if(!catalog.entity().test(entity.getKey()))throw bad(p,"实体不存在");
+            JsonObject realms=asObject(entity.getValue(),p);
+            if(realms.isEmpty())throw bad(p,"至少需要一个境界规则");
+            Map<Integer,RealmPolicy> policies=new HashMap<>();
+            for(var realm:realms.entrySet()){
+                String q=p+"."+realm.getKey();
+                id(realm.getKey(),q);
+                int order;
+                try{order=Math.floorDiv(catalog.realmRank().applyAsInt(new RealmKey(realm.getKey(),0)),REALM_RANK_STRIDE);}
+                catch(IllegalArgumentException error){throw bad(q,error.getMessage());}
+                var data=asObject(realm.getValue(),q);
+                fields(data,q,"mode","drops");
+                Policy policy=policy(data,q,catalog);
+                if(policy.mode()==Mode.INHERIT)throw bad(q+".mode","沿用其他规则时应移除此境界配置");
+                if(policies.putIfAbsent(order,new RealmPolicy(realm.getKey(),policy))!=null)throw bad(q,"境界重复");
+            }
+            result.put(entity.getKey(),Map.copyOf(policies));
+        }
+        return result;
     }
     private static String ruleId(JsonObject o,String p,Set<String> ids){String id=string(o,"id",p);if(!id.matches("[a-z0-9_]{1,64}")||!ids.add(id))throw bad(p+".id","规则名非法或重复");return id;}
     private static Policy policy(JsonObject o,String p,Catalog c){

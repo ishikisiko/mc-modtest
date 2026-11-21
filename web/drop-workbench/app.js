@@ -11,8 +11,14 @@ const NAMES={
 const SCENES={normal:'普通场景',habitat:'主世界群落',quest_realm:'委托秘境',sect_trial:'宗门考核',aptitude_trial:'资质试炼',battle_ruin:'战斗遗迹'};
 const RULE_TYPES={entities:'生物掉落规则',overrides:'场景覆盖规则',additions:'额外追加规则',defaults:'默认掉落规则'};
 const MODES={inherit:['继承','保留原有掉落','保留生物本来的物品掉落，并执行匹配的额外追加规则。'],append:['追加','原有基础上添加','保留原有物品，再独立抽取下方配置的物品。'],replace:['替换','使用配置物品','清除原有物品，抽取下方配置；匹配的额外追加规则仍会执行。'],disabled:['禁用','关闭物品掉落','清空物品掉落，也跳过额外追加规则；经验继续按原规则处理。']};
+const REALM_MODES = {
+    inherit: ['沿用', '使用现有规则', '这个境界使用现有的生物、场景和额外追加规则。'],
+    append: ['追加', '加到现有掉落', '保留这个境界的现有掉落，再独立抽取下方的物品。'],
+    replace: ['替换', '仅抽取下方物品', '这个境界只抽取下方配置的物品。原生掉落、场景配置物品和共享追加都跳过。'],
+    disabled: ['禁用', '关闭物品掉落', '这个境界关闭物品掉落。经验继续按原规则结算。'],
+};
 const KEY='yuanxian-drops:'+location.pathname;
-const S={catalog:null,config:null,saved:null,revision:'',tab:'entities',key:'yuanxian:redplate_lizard',ns:'all',category:'all',inspectEntity:'yuanxian:redplate_lizard',angle:'quarter',page:0,api:'',dirty:false,saving:false,version:0,conflict:false,newRule:null,token:sessionStorage.getItem(KEY+':token')||'',authenticated:false,invalid:new Set()};
+const S={catalog:null,config:null,saved:null,revision:'',tab:'entities',key:'yuanxian:redplate_lizard',realm:'',ns:'all',category:'all',inspectEntity:'yuanxian:redplate_lizard',angle:'quarter',page:0,api:'',dirty:false,saving:false,version:0,conflict:false,newRule:null,token:sessionStorage.getItem(KEY+':token')||'',authenticated:false,invalid:new Set()};
 let saveTimer,toastTimer,booting=false;
 let pendingDraft;
 const dropViewActive=()=>location.hash!=='#techniques';
@@ -25,7 +31,30 @@ const ruleName=id=>Object.hasOwn(NAMES,id)?NAMES[id]:id;
 const icon=v=>v.icon?`<img class="item-icon" loading="lazy" src="${esc(v.icon)}" alt="">`:`<span class="item-fallback">${esc(v.name[0])}</span>`;
 function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,2600)}
 function status(text,kind=''){$('save-state').className='status '+kind;$('save-state').innerHTML='<i></i>'+esc(text)}
-function selected(){if(S.tab==='defaults')return S.config.defaults;if(S.tab==='entities')return S.config.entities[S.key];return S.config[S.tab].find(v=>v.id===S.key)}
+function selected() {
+    if (S.tab === 'defaults') return S.config.defaults;
+    if (S.tab === 'entities') {
+        return S.realm ? S.config.realm_entities?.[S.key]?.[S.realm] : S.config.entities[S.key];
+    }
+    return S.config[S.tab].find(v => v.id === S.key);
+}
+
+function editPolicy(mode) {
+    const current = selected();
+    if (current || S.tab !== 'entities' || !S.key) return current;
+    if (!S.realm) return S.config.entities[S.key] = {mode, drops: []};
+    const entities = S.config.realm_entities ??= {};
+    const realms = entities[S.key] ??= {};
+    return realms[S.realm] = {mode, drops: []};
+}
+
+function removeRealmPolicy() {
+    const entities = S.config.realm_entities;
+    const realms = entities[S.key];
+    delete realms[S.realm];
+    if (!Object.keys(realms).length) delete entities[S.key];
+    if (!Object.keys(entities).length) delete S.config.realm_entities;
+}
 function title(){return S.tab==='defaults'?'所有未单独配置的生物':S.tab==='entities'?entity(S.key).name:ruleName(S.key)}
 function error(text='',conflict=false){$('editor-error').hidden=!text;$('editor-error').innerHTML=esc(text)+(conflict?' <button id="conflict-refresh">载入最新规则</button> <button id="draft-download">下载当前草稿</button>':'');$('conflict-refresh')?.addEventListener('click',()=>refresh(true));$('draft-download')?.addEventListener('click',downloadDraft)}
 function modal(title,html){$('modal-title').textContent=title;$('modal-body').innerHTML=html;if(!$('modal').open)$('modal').showModal()}
@@ -34,7 +63,17 @@ async function connection(){const r=await fetch(new URL('connection.json',locati
 async function api(path,options={}){if(!S.api)await connection();const headers={...(options.body?{'Content-Type':'application/json'}:{}),...(S.token?{Authorization:'Bearer '+S.token}:{}),...options.headers};let r;try{r=await fetch(S.api+path,{...options,headers})}catch(e){await connection();r=await fetch(S.api+path,{...options,headers})}const data=await r.json();if(!r.ok){const e=Error(data.error||'请求未完成');e.status=r.status;throw e}return data}
 function cacheDraft(){try{localStorage.setItem(KEY+':draft',JSON.stringify({revision:S.revision,config:S.config}))}catch(_){}}
 function dirty(){S.dirty=true;S.version++;cacheDraft();if(shownCreature)renderRuleOverview(shownCreature);if(S.conflict){status('版本冲突，草稿已保留','error');return}error();status('修改待同步','pending');clearTimeout(saveTimer);saveTimer=setTimeout(save,850)}
-function valid(){for(const p of [S.config.defaults,...Object.values(S.config.entities),...S.config.overrides,...S.config.additions])for(const d of p.drops)if(!Number.isInteger(d.min)||!Number.isInteger(d.max)||d.min<0||d.max>64||d.min>d.max||!Number.isFinite(d.chance)||d.chance<0||d.chance>1)return false;return !S.invalid.size&&[S.config.defaults,...Object.values(S.config.entities),...S.config.overrides,...S.config.additions].every(p=>p.drops.every(d=>!('quality'in d&&'rarity'in d)&&(!('quality'in d)||item(d.item).qualities?.includes(d.quality))&&(!('rarity'in d)||item(d.item).rarities?.includes(d.rarity))))}
+function valid() {
+    if (S.invalid.size) return false;
+    const realmPolicies = Object.values(S.config.realm_entities || {}).flatMap(realms => Object.values(realms));
+    const policies = [S.config.defaults, ...Object.values(S.config.entities), ...realmPolicies, ...S.config.overrides, ...S.config.additions];
+    return policies.every(policy => policy.drops.every(drop =>
+        Number.isInteger(drop.min) && Number.isInteger(drop.max) && drop.min >= 0 && drop.max <= 64 && drop.min <= drop.max
+        && Number.isFinite(drop.chance) && drop.chance >= 0 && drop.chance <= 1
+        && !('quality' in drop && 'rarity' in drop)
+        && (!('quality' in drop) || item(drop.item).qualities?.includes(drop.quality))
+        && (!('rarity' in drop) || item(drop.item).rarities?.includes(drop.rarity))));
+}
 async function save(){if(!S.dirty||S.saving||S.conflict||S.newRule)return;if(!S.authenticated){status('草稿尚未保存，请解锁编辑','pending');return}if(!valid()){status('输入未完成，尚未保存','error');error('请检查数量和概率。数量应为0至64的整数，最少数量不能超过最多数量。');return}S.saving=true;const version=S.version,payload=clone(S.config);status('正在写回统一表','pending');try{let data;try{data=await api('/api/save',{method:'POST',headers:{'If-Match':S.revision},body:JSON.stringify(payload)})}catch(e){if(e.status===409){const current=await api('/api/state');if(JSON.stringify(current.config)===JSON.stringify(payload))data=current;else throw e}else throw e}S.revision=data.revision;S.saved=clone(data.config);$('revision').textContent='版本 '+S.revision.slice(0,8);if(version===S.version){S.dirty=false;try{localStorage.removeItem(KEY+':draft')}catch(_){}status('已同步 · '+new Date(data.saved_at*1000).toLocaleTimeString('zh-CN',{hour12:false}));error()}else{status('正在同步后续修改','pending');cacheDraft()}}catch(e){if(e.status===401){S.authenticated=false;renderUnlock();status('请重新解锁，草稿已保留','error');if(dropViewActive())login()}else if(e.status===409){S.conflict=true;status('版本冲突，草稿已保留','error');error(e.message,true)}else{status('尚未同步，草稿已保留','error');error(e.message)}}finally{S.saving=false;if(S.dirty&&!S.conflict&&S.authenticated&&version!==S.version)saveTimer=setTimeout(save,180)}}
 function renderUnlock(){$('unlock').textContent=S.authenticated?'已解锁 ✓':'解锁编辑';$('unlock').classList.toggle('quiet',S.authenticated)}
 function login(){modal('解锁编辑',`<p class="modal-copy">输入你设置的工作台访问密码。解锁后，修改会自动写回统一掉落表。</p><form id="login-form"><label class="field"><span>访问密码</span><input id="login-password" type="password" required autocomplete="current-password" placeholder="输入访问密码" autofocus></label><p id="login-error" class="error-box" hidden></p><div class="modal-actions"><button type="button" class="quiet" id="login-cancel">暂时浏览</button><button class="primary" type="submit">解锁并继续</button></div></form>`);$('login-password').focus();$('login-cancel').onclick=()=>$('modal').close();$('login-form').onsubmit=async e=>{e.preventDefault();const p=$('login-password').value;$('login-password').value='';try{const r=await api('/api/session',{method:'POST',body:JSON.stringify({password:p})});S.token=r.token;sessionStorage.setItem(KEY+':token',r.token);S.authenticated=true;renderUnlock();$('modal').close();toast('已解锁，修改将自动同步');if(S.dirty)save();else status('已连接，修改自动同步')}catch(e){$('login-error').hidden=false;$('login-error').textContent=e.message}}}
@@ -64,11 +103,15 @@ function isSceneTab(tab) {
 
 function defaultRuleKey(tab) {
     if (tab === 'defaults') return 'defaults';
-    if (tab === 'entities') return Object.keys(S.config.entities)[0];
+    if (tab === 'entities') return S.entityMap.has(S.inspectEntity) ? S.inspectEntity : S.catalog.entities[0]?.id;
     return S.config[tab].find(rule => matchesScene(rule.when))?.id;
 }
 
 function restoreSelection() {
+    if (S.tab === 'entities') {
+        if (!S.entityMap.has(S.key)) S.key = defaultRuleKey(S.tab);
+        return;
+    }
     const rule = selected();
     if (!rule || (isSceneTab(S.tab) && !matchesScene(rule.when))) S.key = defaultRuleKey(S.tab);
 }
@@ -92,7 +135,7 @@ function renderList() {
     const q = $('rule-search').value.trim().toLowerCase();
     let entries = [];
     if (S.tab === 'entities') {
-        entries = Object.entries(S.config.entities).map(([key, rule]) => ({key, label:entity(key).name, rule}));
+        entries = S.catalog.entities.map(({id: key, name: label}) => ({key, label, rule: S.config.entities[key]}));
     } else if (sceneTab) {
         entries = S.config[S.tab].filter(rule => matchesScene(rule.when))
             .map(rule => ({key:rule.id, label:ruleName(rule.id), rule}));
@@ -101,52 +144,131 @@ function renderList() {
         .map(({key, label, rule}) => {
             const portrait = S.tab === 'entities' && entity(key).portrait;
             const mark = portrait ? `<img src="${esc(portrait.views[0].url)}" loading="lazy" alt="">` : esc(label[0]);
-            const badge = rule.drops.length || S.tab === 'additions' ? rule.drops.length + '项' : MODES[rule.mode]?.[0] || '';
+            const realmCount = S.tab === 'entities' ? Object.keys(S.config.realm_entities?.[key] || {}).length : 0;
+            let badge = rule?.drops.length || S.tab === 'additions' ? rule.drops.length + '项' : MODES[rule?.mode]?.[0] || '默认';
+            if (realmCount) badge = realmCount + '个境界已配置';
             const active = key === S.key ? 'active' : '';
-            const custom = rule.mode && rule.mode !== 'inherit' ? 'custom' : '';
+            const custom = realmCount || (rule?.mode && rule.mode !== 'inherit') ? 'custom' : '';
             return `<button class="rule-button ${active}" data-rule="${esc(key)}"><span class="entity-mark">${mark}</span><span class="rule-name">${esc(label)}</span><span class="rule-badge ${custom}">${badge}</span></button>`;
         }).join('') || (S.tab === 'defaults' ? '' : '<p class="help">没有匹配的规则</p>');
     $('rule-list').querySelectorAll('[data-rule]').forEach(b => b.onclick = () => navigate(S.tab, b.dataset.rule));
 }
 
-function navigate(tab, key) {
+function navigate(tab, key, realm = tab === 'entities' && S.tab === tab ? S.realm : '') {
     if (S.config && !valid()) {
         toast('请先修正当前规则的数量或概率');
         return;
     }
     S.tab = tab;
     S.key = key || defaultRuleKey(tab);
+    S.realm = realm;
     if (tab === 'entities' && S.key) S.inspectEntity = S.key;
     renderList();
     renderEditor();
 }
+
+function renderRealmScope() {
+    const section = $('realm-scope');
+    section.hidden = S.tab !== 'entities' || !S.key;
+    if (section.hidden) return;
+    const rules = S.config.realm_entities?.[S.key];
+    const choices = [{id: '', name: '通用规则'}, ...S.catalog.realms];
+    $('realm-choices').innerHTML = choices.map(({id, name}) => {
+        const label = id ? REALM_MODES[rules?.[id]?.mode || 'inherit'][0] : '各境界共用';
+        return `<button type="button" class="mode realm-choice ${id && rules?.[id] ? 'configured' : ''}"
+            data-realm="${esc(id)}" aria-pressed="${id === S.realm}"><strong>${esc(name)}</strong><small>${label}</small></button>`;
+    }).join('');
+    $('realm-scope-help').textContent = S.realm
+        ? '配置只应用于这种生物的当前大境界，包含该境界的所有阶段。'
+        : '点选境界可单独设置掉落。未单独设置的境界沿用已有规则。';
+}
+
 function renderEditor() {
-    const rule = selected();
+    const configured = selected();
+    const rule = configured || (S.tab === 'entities' && S.key ? {mode: 'inherit', drops: []} : null);
+    const realm = S.catalog.realms.find(row => row.id === S.realm);
+    const modes = realm ? REALM_MODES : MODES;
     document.querySelector('.editor').classList.toggle('no-rule', !rule);
-    $('rule-type').textContent = RULE_TYPES[S.tab];
+    $('rule-type').textContent = realm ? '生物境界掉落规则' : RULE_TYPES[S.tab];
     $('rule-title').textContent = rule ? title() : '没有匹配的规则';
     $('rule-id').textContent = S.tab === 'defaults' ? '适用于未单独配置的生物' : rule ? S.key : '';
     $('revision').textContent = '版本 ' + S.revision.slice(0, 8);
+    renderRealmScope();
+    const fields = $('rule-edit-fields');
+    const next = realm ? $('creature-preview') : document.querySelector('.editor-footer');
+    if (fields.nextElementSibling !== next) next.before(fields);
     renderCreature();
     if (!rule) return;
 
-    $('delete-rule').hidden = S.tab === 'defaults';
+    $('delete-rule').hidden = S.tab === 'defaults' || !configured;
+    $('mode-title').textContent = realm ? realm.name + '的掉落方式' : '掉落方式';
     $('drop-count').textContent = rule.drops.length + ' 项配置';
     $('modes').innerHTML = S.tab === 'additions'
         ? '<span class="chip">额外追加</span>'
-        : Object.entries(MODES).map(([id, v]) => `<button class="mode ${rule.mode === id ? 'active' : ''}" data-mode="${id}"><strong>${v[0]}</strong><small>${v[1]}</small></button>`).join('');
+        : Object.entries(modes).map(([id, v]) => `<button class="mode ${rule.mode === id ? 'active' : ''}" data-mode="${id}" aria-pressed="${rule.mode === id}"><strong>${v[0]}</strong><small>${v[1]}</small></button>`).join('');
     $('mode-help').textContent = S.tab === 'additions'
         ? '各物品独立判定概率。禁用物品掉落的场景会跳过追加规则。'
-        : MODES[rule.mode][2];
+        : S.tab === 'entities' && !realm && !configured ? '该生物沿用默认规则。选一种掉落方式即可设置通用规则。' : modes[rule.mode][2];
     $('modes').querySelectorAll('[data-mode]').forEach(b => b.onclick = () => setMode(b.dataset.mode));
     renderConditions();
     renderDrops();
 }
-function setMode(mode){if(!guard())return;const r=selected();if(r.mode===mode)return;const apply=()=>{r.mode=mode;if(['inherit','disabled'].includes(mode))r.drops=[];dirty();renderList();renderEditor();$('modal').close()};if(r.drops.length&&['inherit','disabled'].includes(mode)){modal('切换掉落方式',`<p class="modal-copy">${MODES[mode][0]}模式不配置额外物品。切换后将移除本规则的 ${r.drops.length} 项配置；已保存的版本可以从历史版本恢复。</p><div class="modal-actions"><button class="quiet" id="cancel-mode">取消</button><button class="primary" id="confirm-mode">切换为${MODES[mode][0]}</button></div>`);$('cancel-mode').onclick=()=>$('modal').close();$('confirm-mode').onclick=apply}else apply()}
-function renderConditions(){if(['entities','defaults'].includes(S.tab)){$('conditions').innerHTML=S.tab==='entities'?'<p class="help">生物规则用于未命中场景覆盖的情况。群落与试炼掉落可在“场景”中调整。</p>':'';return}const w=selected().when;const chips=[...(w.scenes||[]).map(s=>SCENES[s]),...(w.regions||[]).map(r=>S.catalog.regions.find(v=>v.id===r)?.name||r),...(w.entities||[]).map(id=>entity(id).name),...(w.min_realm?['有最低境界']:[]),...(w.max_realm?['有最高境界']:[]),...('player_kill'in w?[w.player_kill?'玩家击杀':'非玩家击杀']:[]),...('fire_captured'in w?[w.fire_captured?'已捕火':'未捕火']:[])];$('conditions').innerHTML=`<div class="section-title"><h2>匹配条件</h2>${S.tab==='overrides'?'<span class="muted">从上向下，第一条匹配生效</span>':''}</div><div class="condition-line">${chips.length?chips.map(s=>`<span class="chip">${esc(s)}</span>`).join(''):'<span class="muted">匹配所有场景</span>'}<button id="edit-conditions" class="text-button">编辑条件</button></div>${S.tab==='overrides'?'<div class="modal-actions" style="margin-top:8px"><button class="quiet" id="move-up">↑ 上移</button><button class="quiet" id="move-down">↓ 下移</button></div>':''}`;$('edit-conditions').onclick=conditionsModal;for(const [id,dir]of[['move-up',-1],['move-down',1]])if($(id))$(id).onclick=()=>{if(!guard())return;const a=S.config.overrides,i=a.findIndex(v=>v.id===S.key),j=i+dir;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];dirty();renderList();renderConditions()}}
-function renderDrops(){const r=selected();$('drops').innerHTML=r.drops.length?r.drops.map((d,i)=>{const v=item(d.item);return `<article class="drop-card" data-index="${i}"><div class="drop-header">${icon(v)}<div class="drop-label"><strong>${esc(v.name)}${variantBadge(d)}</strong><div class="mono">${esc(d.item)}</div></div><button class="icon-button remove-drop" data-index="${i}" aria-label="移除${esc(v.name)}">×</button></div>${variantControl(d,i)}${materialControl(d,i)}<div class="drop-inputs"><label class="field"><span>最少数量</span><input type="number" min="0" max="64" step="1" data-index="${i}" data-field="min" value="${d.min}" aria-label="${esc(v.name)}最少数量"></label><label class="field"><span>最多数量</span><input type="number" min="0" max="64" step="1" data-index="${i}" data-field="max" value="${d.max}" aria-label="${esc(v.name)}最多数量"></label><label class="field"><span>掉落概率</span><div class="number-with-unit"><input type="number" min="0" max="100" step="any" data-index="${i}" data-field="chance" value="${+(d.chance*100).toFixed(8)}" aria-label="${esc(v.name)}掉落概率"><b>%</b></div></label></div><details class="drop-extra"><summary>抢夺附魔与物品设置${d.looting?' · 已启用抢夺':''}</summary><label class="check"><input type="checkbox" class="toggle-looting" data-index="${i}" ${d.looting?'checked':''}>应用抢夺附魔增量</label>${d.looting?`<div class="drop-inputs looting-fields">${[['min_per_level','每级最少'],['max_per_level','每级最多'],['limit','总数上限（可留空）']].map(([f,l])=>`<label class="field"><span>${l}</span><input type="number" min="${f==='limit'?1:0}" max="64" step="${f==='limit'?1:'any'}" data-index="${i}" data-field="looting.${f}" value="${d.looting[f]??''}" ${f==='limit'?'placeholder="不限"':''}></label>`).join('')}</div>`:''}${d.item==='yuanxian:beast_fire_seed'?`<label class="field"><span>兽火来源信息</span><select class="factory" data-index="${i}"><option value="beast_fire" ${d.factory==='beast_fire'?'selected':''}>生成带种类、成熟度和来源的兽火</option><option value="plain" ${d.factory!=='beast_fire'?'selected':''}>普通物品堆叠</option></select></label>`:''}</details></article>`}).join(''):`<div class="empty-drops"><div class="empty-symbol">◇</div><h3>${r.mode==='disabled'?'当前已关闭物品掉落':r.mode==='inherit'?'当前继承生物原有掉落':'还没有配置物品'}</h3><p>${r.mode==='inherit'?'从右侧物品库选择物品，工作台会切换为追加模式。':'从物品库点击添加，再设置数量与概率。'}</p></div>`;
-$('drops').querySelectorAll('.drop-variant').forEach(input=>input.onchange=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+input.dataset.index];delete d.quality;delete d.rarity;Object.assign(d,decodeVariant(input.value));dirty();renderDrops()});$('drops').querySelectorAll('[data-field]').forEach(input=>input.oninput=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+input.dataset.index],f=input.dataset.field,key=S.tab+S.key+input.dataset.index+f,n=Number(input.value);if(f==='looting.limit'&&input.value===''&&!input.validity.badInput){S.invalid.delete(key);delete d.looting.limit;dirty();return}if(input.value.trim()===''||!Number.isFinite(n)){S.invalid.add(key);status('输入未完成，尚未保存','error');return}S.invalid.delete(key);if(f.startsWith('looting.'))d.looting[f.split('.')[1]]=n;else if(f.startsWith('chance_looting.'))d.chance_looting[f.split('.')[1]]=f.endsWith('per_level')?n/100:n;else if(f.startsWith('rarity_weights.'))d.rarity_weights[+f.split('.')[1]]=n;else d[f]=f==='chance'?n/100:n;dirty()});$('drops').querySelectorAll('.remove-drop').forEach(b=>b.onclick=()=>{if(!guard())return;selected().drops.splice(+b.dataset.index,1);S.invalid.clear();dirty();renderList();renderEditor()});$('drops').querySelectorAll('.toggle-looting').forEach(b=>b.onchange=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+b.dataset.index];if(b.checked)d.looting={min_per_level:0,max_per_level:1};else delete d.looting;dirty();renderDrops()});$('drops').querySelectorAll('.material-factory').forEach(b=>b.onchange=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+b.dataset.index];d.factory=b.value;if(b.value==='beast_material'){d.rarity_weights=[...S.catalog.variants.material_weights_default];delete d.quality;delete d.rarity}else delete d.rarity_weights;dirty();renderDrops()});$('drops').querySelectorAll('.factory').forEach(b=>b.onchange=()=>{if(!guard())return;selected().drops[+b.dataset.index].factory=b.value;dirty()})}
-function addItem(id,variant=null){if(!guard())return;const r=selected();if(!r)return;if(variant===null&&variantOptions(item(id)).length){pickVariant(id);return}if(r.drops.length>=64){toast('每条规则最多配置64项物品');return}if(r.mode==='inherit'||r.mode==='disabled')r.mode='append';const d={item:id,min:1,max:1,chance:1};if(variant)Object.assign(d,variant);if(id==='yuanxian:beast_fire_seed')d.factory='beast_fire';r.drops.push(d);dirty();renderList();renderEditor();toast('已添加 '+item(id).name)}
+function setMode(mode) {
+    if (!guard()) return;
+    const rule = selected();
+    if (rule?.mode === mode || (S.realm && !rule && mode === 'inherit')) return;
+    const clearsDrops = mode === 'inherit' || mode === 'disabled';
+    const apply = () => {
+        if (S.realm && mode === 'inherit') {
+            removeRealmPolicy();
+        } else {
+            const next = editPolicy(mode);
+            next.mode = mode;
+            if (clearsDrops) next.drops = [];
+        }
+        if (clearsDrops) S.invalid.clear();
+        $('modal').close();
+        dirty();
+        renderList();
+        renderEditor();
+    };
+    if (clearsDrops && rule?.drops.length) {
+        const label = (S.realm ? REALM_MODES : MODES)[mode][0];
+        modal('切换掉落方式', '<p class="modal-copy">将移除此规则的 ' + rule.drops.length
+            + ' 项物品配置。已保存的版本可以从历史版本恢复。</p>'
+            + '<div class="modal-actions"><button class="quiet" id="cancel-mode">取消</button>'
+            + '<button class="primary" id="confirm-mode">切换为' + label + '</button></div>');
+        $('cancel-mode').onclick = () => $('modal').close();
+        $('confirm-mode').onclick = apply;
+    } else {
+        apply();
+    }
+}
+
+function renderConditions(){if(S.realm){$('conditions').innerHTML='<p class="help">使用生物在游戏中的实际境界。关闭掉落的场景及通用规则仍然优先。</p>';return}if(['entities','defaults'].includes(S.tab)){$('conditions').innerHTML=S.tab==='entities'?'<p class="help">生物规则用于未命中场景覆盖的情况。群落与试炼掉落可在“场景”中调整。</p>':'';return}const w=selected().when;const chips=[...(w.scenes||[]).map(s=>SCENES[s]),...(w.regions||[]).map(r=>S.catalog.regions.find(v=>v.id===r)?.name||r),...(w.entities||[]).map(id=>entity(id).name),...(w.min_realm?['有最低境界']:[]),...(w.max_realm?['有最高境界']:[]),...('player_kill'in w?[w.player_kill?'玩家击杀':'非玩家击杀']:[]),...('fire_captured'in w?[w.fire_captured?'已捕火':'未捕火']:[])];$('conditions').innerHTML=`<div class="section-title"><h2>匹配条件</h2>${S.tab==='overrides'?'<span class="muted">从上向下，第一条匹配生效</span>':''}</div><div class="condition-line">${chips.length?chips.map(s=>`<span class="chip">${esc(s)}</span>`).join(''):'<span class="muted">匹配所有场景</span>'}<button id="edit-conditions" class="text-button">编辑条件</button></div>${S.tab==='overrides'?'<div class="modal-actions" style="margin-top:8px"><button class="quiet" id="move-up">↑ 上移</button><button class="quiet" id="move-down">↓ 下移</button></div>':''}`;$('edit-conditions').onclick=conditionsModal;for(const [id,dir]of[['move-up',-1],['move-down',1]])if($(id))$(id).onclick=()=>{if(!guard())return;const a=S.config.overrides,i=a.findIndex(v=>v.id===S.key),j=i+dir;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];dirty();renderList();renderConditions()}}
+function renderDrops(){const r=selected() || {mode:'inherit',drops:[]};$('drops').innerHTML=r.drops.length?r.drops.map((d,i)=>{const v=item(d.item);return `<article class="drop-card" data-index="${i}"><div class="drop-header">${icon(v)}<div class="drop-label"><strong>${esc(v.name)}${variantBadge(d)}</strong><div class="mono">${esc(d.item)}</div></div><button class="icon-button remove-drop" data-index="${i}" aria-label="移除${esc(v.name)}">×</button></div>${variantControl(d,i)}${materialControl(d,i)}<div class="drop-inputs"><label class="field"><span>最少数量</span><input type="number" min="0" max="64" step="1" data-index="${i}" data-field="min" value="${d.min}" aria-label="${esc(v.name)}最少数量"></label><label class="field"><span>最多数量</span><input type="number" min="0" max="64" step="1" data-index="${i}" data-field="max" value="${d.max}" aria-label="${esc(v.name)}最多数量"></label><label class="field"><span>掉落概率</span><div class="number-with-unit"><input type="number" min="0" max="100" step="any" data-index="${i}" data-field="chance" value="${+(d.chance*100).toFixed(8)}" aria-label="${esc(v.name)}掉落概率"><b>%</b></div></label></div><details class="drop-extra"><summary>抢夺附魔与物品设置${d.looting?' · 已启用抢夺':''}</summary><label class="check"><input type="checkbox" class="toggle-looting" data-index="${i}" ${d.looting?'checked':''}>应用抢夺附魔增量</label>${d.looting?`<div class="drop-inputs looting-fields">${[['min_per_level','每级最少'],['max_per_level','每级最多'],['limit','总数上限（可留空）']].map(([f,l])=>`<label class="field"><span>${l}</span><input type="number" min="${f==='limit'?1:0}" max="64" step="${f==='limit'?1:'any'}" data-index="${i}" data-field="looting.${f}" value="${d.looting[f]??''}" ${f==='limit'?'placeholder="不限"':''}></label>`).join('')}</div>`:''}${d.item==='yuanxian:beast_fire_seed'?`<label class="field"><span>兽火来源信息</span><select class="factory" data-index="${i}"><option value="beast_fire" ${d.factory==='beast_fire'?'selected':''}>生成带种类、成熟度和来源的兽火</option><option value="plain" ${d.factory!=='beast_fire'?'selected':''}>普通物品堆叠</option></select></label>`:''}</details></article>`}).join(''):`<div class="empty-drops"><div class="empty-symbol">◇</div><h3>${r.mode==='disabled'?'当前已关闭物品掉落':r.mode==='inherit'?(S.realm?'当前境界沿用已有规则':'当前沿用基础掉落'):'还没有配置物品'}</h3><p>${r.mode==='inherit'?'从右侧物品库选择物品，工作台会切换为追加模式。':'从物品库点击添加，再设置数量与概率。'}</p></div>`;
+$('drops').querySelectorAll('.drop-variant').forEach(input=>input.onchange=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+input.dataset.index];delete d.quality;delete d.rarity;Object.assign(d,decodeVariant(input.value));dirty();renderDrops()});$('drops').querySelectorAll('[data-field]').forEach(input=>input.oninput=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+input.dataset.index],f=input.dataset.field,key=[S.tab,S.key,S.realm,input.dataset.index,f].join('|'),n=Number(input.value);if(f==='looting.limit'&&input.value===''&&!input.validity.badInput){S.invalid.delete(key);delete d.looting.limit;dirty();return}if(input.value.trim()===''||!Number.isFinite(n)){S.invalid.add(key);status('输入未完成，尚未保存','error');return}S.invalid.delete(key);if(f.startsWith('looting.'))d.looting[f.split('.')[1]]=n;else if(f.startsWith('chance_looting.'))d.chance_looting[f.split('.')[1]]=f.endsWith('per_level')?n/100:n;else if(f.startsWith('rarity_weights.'))d.rarity_weights[+f.split('.')[1]]=n;else d[f]=f==='chance'?n/100:n;dirty()});$('drops').querySelectorAll('.remove-drop').forEach(b=>b.onclick=()=>{if(!guard())return;selected().drops.splice(+b.dataset.index,1);S.invalid.clear();dirty();renderList();renderEditor()});$('drops').querySelectorAll('.toggle-looting').forEach(b=>b.onchange=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+b.dataset.index];if(b.checked)d.looting={min_per_level:0,max_per_level:1};else delete d.looting;dirty();renderDrops()});$('drops').querySelectorAll('.material-factory').forEach(b=>b.onchange=()=>{if(!guard()){renderDrops();return}const d=selected().drops[+b.dataset.index];d.factory=b.value;if(b.value==='beast_material'){d.rarity_weights=[...S.catalog.variants.material_weights_default];delete d.quality;delete d.rarity}else delete d.rarity_weights;dirty();renderDrops()});$('drops').querySelectorAll('.factory').forEach(b=>b.onchange=()=>{if(!guard())return;selected().drops[+b.dataset.index].factory=b.value;dirty()})}
+function addItem(id, variant = null) {
+    if (!guard() || (!selected() && (S.tab !== 'entities' || !S.key))) return;
+    if (variant === null && variantOptions(item(id)).length) {
+        pickVariant(id);
+        return;
+    }
+    const rule = editPolicy('append');
+    if (rule.drops.length >= 64) {
+        toast('每条规则最多配置64项物品');
+        return;
+    }
+    if (rule.mode === 'inherit' || rule.mode === 'disabled') rule.mode = 'append';
+    const drop = {item: id, min: 1, max: 1, chance: 1, ...variant};
+    if (id === 'yuanxian:beast_fire_seed') drop.factory = 'beast_fire';
+    rule.drops.push(drop);
+    dirty();
+    renderList();
+    renderEditor();
+    toast('已添加 ' + item(id).name);
+}
+
 function renderItems(){const q=$('item-search').value.trim().toLowerCase();const matches=S.catalog.items.filter(v=>(S.ns==='all'||v.namespace===S.ns)&&(S.category==='all'||v.category===S.category)&&(v.name+' '+v.id).toLowerCase().includes(q));const limit=(S.page+1)*72;let last='';const names=new Map(S.catalog.categories.map(v=>[v.id,v.name]));$('item-result-count').textContent=matches.length+' 个物品';$('items').innerHTML=matches.slice(0,limit).map(v=>{const heading=v.category!==last?`<div class="item-group">${esc(names.get(v.category))}</div>`:'';last=v.category;return heading+`<button class="item-tile" data-item="${esc(v.id)}" data-category="${esc(v.category)}" title="${esc(v.name+' · '+v.id)}" aria-label="添加${esc(v.name)}">${icon(v)}<span>${esc(v.name)}</span></button>`}).join('')||'<p class="help">没有匹配的物品</p>';$('more-items').hidden=matches.length<=limit;$('items').querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>addItem(b.dataset.item));$('item-category').value=S.category;document.querySelectorAll('#category-shortcuts button').forEach(b=>b.classList.toggle('active',b.dataset.category===S.category))}
 function chooseCategory(id){S.category=id;S.page=0;renderItems();$('items').scrollTop=0}
 function previewEntities() {
@@ -248,7 +370,7 @@ function overviewDrop(drop) {
     </li>`;
 }
 
-function overviewRule(rule, label, tab, key, state = '') {
+function overviewRule(rule, label, tab, key, state = '', realm = '') {
     const conditions = overviewConditions(rule.when);
     const mode = rule.mode ? MODES[rule.mode][0] : '';
     return `<article class="overview-rule">
@@ -256,36 +378,54 @@ function overviewRule(rule, label, tab, key, state = '') {
             <strong>${esc(label)}</strong>
             ${mode ? `<span class="chip">${mode}</span>` : ''}
             ${state ? `<span class="muted">${state}</span>` : ''}
-            <button class="text-button overview-open" data-overview-tab="${tab}" data-overview-rule="${esc(key)}" aria-label="查看${esc(label)}的配置">查看配置</button>
+            <button class="text-button overview-open" data-overview-tab="${tab}" data-overview-rule="${esc(key)}" data-overview-realm="${esc(realm)}" aria-label="查看${esc(label)}的配置">查看配置</button>
         </div>
         ${conditions.length ? `<p class="overview-conditions">${conditions.map(esc).join(' · ')}</p>` : ''}
         ${rule.drops.length ? `<ul class="overview-drops">${rule.drops.map(overviewDrop).join('')}</ul>` : ''}
     </article>`;
 }
 
+function realmRelation(when, realm) {
+    if (!when.min_realm && !when.max_realm) return 'all';
+    if (!realm) return 'some';
+    const rank = limit => S.catalog.realms.find(row => row.id === limit.realm).order * 16 + limit.stage;
+    const min = when.min_realm ? rank(when.min_realm) : -Infinity;
+    const max = when.max_realm ? rank(when.max_realm) : Infinity;
+    const first = realm.order * 16;
+    const last = first + realm.stages - 1;
+    if (min > last || max < first) return 'none';
+    return min <= first && max >= last ? 'all' : 'some';
+}
+
 function renderRuleOverview(creature) {
     const scene = sceneOptions.get(sceneFilter);
+    const realm = S.catalog.realms.find(row => row.id === S.realm);
     const inRoster = !scene?.entities || scene.entities.includes(creature.id);
     const related = rules => inRoster ? rules.filter(rule => matchesScene(rule.when)
-        && (!rule.when.entities || rule.when.entities.includes(creature.id))) : [];
+        && (!rule.when.entities || rule.when.entities.includes(creature.id))
+        && realmRelation(rule.when, realm) !== 'none') : [];
     const creatureRule = S.config.entities[creature.id];
     const base = creatureRule || S.config.defaults;
+    const realmRules = S.config.realm_entities?.[creature.id] || {};
+    const realmMode = realm && realmRules[realm.id]?.mode;
+    const realmCards = (realm ? [realm] : S.catalog.realms).filter(row => realmRules[row.id]);
     const overrides = related(S.config.overrides);
     const additions = related(S.config.additions);
 
     // Only assert a winner when the preview settles every condition needed by the first candidate.
     const first = overrides[0];
-    const needsContext = first?.when && ['regions', 'min_realm', 'max_realm', 'player_kill', 'fire_captured']
-        .some(field => field in first.when);
+    const needsContext = first && (realmRelation(first.when, realm) === 'some'
+        || ['regions', 'player_kill', 'fire_captured'].some(field => field in first.when));
     const effective = scene && inRoster && !needsContext ? first || base : null;
-    const disabled = effective?.mode === 'disabled';
-    const nativeState = effective && {
+    const disabled = effective?.mode === 'disabled' || realmMode === 'disabled';
+    const nativeMode = disabled ? 'disabled' : realmMode === 'replace' ? 'replace' : effective?.mode;
+    const nativeState = nativeMode && {
         inherit: '当前场景保留原生掉落', append: '当前场景保留原生掉落',
-        replace: '当前场景替换原生掉落', disabled: '当前场景关闭物品掉落',
-    }[effective.mode];
+        replace: '所选规则替换原生掉落', disabled: '所选规则关闭物品掉落',
+    }[nativeMode];
 
     $('rule-overview-title').textContent = creature.name + '的掉落规则';
-    $('rule-overview-scene').textContent = scene?.name || '全部场景';
+    $('rule-overview-scene').textContent = [scene?.name || '全部场景', realm?.name].filter(Boolean).join(' · ');
     $('overview-native-status').textContent = nativeState || '';
     $('overview-config').innerHTML = `
         <section class="overview-group">
@@ -293,6 +433,13 @@ function renderRuleOverview(creature) {
             ${overviewRule(base, creatureRule ? '生物规则' : '默认规则',
                 creatureRule ? 'entities' : 'defaults', creatureRule ? creature.id : 'defaults',
                 first && effective === first ? '当前场景由覆盖规则结算' : '无场景覆盖匹配时使用')}
+        </section>
+        <section class="overview-group">
+            <div class="section-title"><h3>生物境界配置</h3></div>
+            ${realmCards.length ? realmCards.map(row =>
+                overviewRule(realmRules[row.id], row.name, 'entities', creature.id,
+                    effective?.mode === 'disabled' ? '当前场景关闭掉落' : '', row.id)).join('')
+                : '<p class="help">' + (realm ? '这个境界沿用已有规则。' : '该生物尚未单独设置境界掉落。') + '</p>'}
         </section>
         <section class="overview-group">
             <div class="section-title"><h3>场景覆盖</h3></div>
@@ -303,7 +450,8 @@ function renderRuleOverview(creature) {
         </section>
         <section class="overview-group">
             <div class="section-title"><h3>额外追加</h3></div>
-            ${disabled ? '<p class="help">当前场景关闭物品掉落，满足条件的追加规则也会跳过。</p>'
+            ${disabled ? '<p class="help">物品掉落已关闭，满足条件的追加规则也会跳过。</p>'
+                : realmMode === 'replace' ? '<p class="help">该境界设为替换，下面的共享追加规则会跳过。</p>'
                 : '<p class="help">允许掉落时，所有满足条件的追加规则都会参与结算。</p>'}
             ${additions.length ? additions.map(rule => overviewRule(rule, ruleName(rule.id), 'additions', rule.id)).join('')
                 : '<p class="help">没有适用的额外追加。</p>'}
@@ -328,7 +476,25 @@ async function addRule(){if(!guard())return;if(S.invalid.size){toast('请先补�
     }
 }
 
-function deleteRule(){if(!guard()||S.tab==='defaults')return;modal('删除规则',`<p class="modal-copy">删除“${esc(title())}”后，该生物或场景将按其余匹配规则结算。已保存的配置会保留在历史版本中。</p><div class="modal-actions"><button class="quiet" id="cancel-delete">取消</button><button class="primary" id="confirm-delete">删除此规则</button></div>`);$('cancel-delete').onclick=()=>$('modal').close();$('confirm-delete').onclick=()=>{if(S.tab==='entities')delete S.config.entities[S.key];else S.config[S.tab]=S.config[S.tab].filter(v=>v.id!==S.key);$('modal').close();S.invalid.clear();dirty();navigate(S.tab)}}
+function deleteRule() {
+    if (!guard() || S.tab === 'defaults' || !selected()) return;
+    const realm = S.catalog.realms.find(row => row.id === S.realm);
+    const label = esc(title() + (realm ? ' · ' + realm.name : ''));
+    modal('删除规则', '<p class="modal-copy">删除“' + label + '”后将沿用其余匹配规则。已保存的版本可从历史版本恢复。</p>'
+        + '<div class="modal-actions"><button class="quiet" id="cancel-delete">取消</button>'
+        + '<button class="primary" id="confirm-delete">删除此规则</button></div>');
+    $('cancel-delete').onclick = () => $('modal').close();
+    $('confirm-delete').onclick = () => {
+        if (realm) removeRealmPolicy();
+        else if (S.tab === 'entities') delete S.config.entities[S.key];
+        else S.config[S.tab] = S.config[S.tab].filter(rule => rule.id !== S.key);
+        $('modal').close();
+        S.invalid.clear();
+        dirty();
+        navigate(S.tab, S.tab === 'entities' ? S.key : undefined);
+    };
+}
+
 async function history(){if(!guard())return;try{const data=await api('/api/history');modal('历史版本','<p class="modal-copy">每次写回前自动备份。恢复前仍会检查统一表是否被其他地方修改。</p>'+data.records.map(v=>`<div class="history-row"><div>${new Date(v.saved_at*1000).toLocaleString('zh-CN')}<div class="mono">${v.id.split('-')[1]}</div></div><button class="quiet" data-restore="${v.id}">恢复此版本</button></div>`).join('')+(data.records.length?'':'<p class="help">还没有历史版本</p>'));document.querySelectorAll('[data-restore]').forEach(b=>b.onclick=async()=>{if(!confirm('恢复此版本的全部掉落规则？当前统一表会先备份。'))return;try{const r=await api('/api/restore',{method:'POST',headers:{'If-Match':S.revision},body:JSON.stringify({id:b.dataset.restore})});adopt(r);$('modal').close();toast('已恢复历史版本')}catch(e){toast(e.message)}})}catch(e){toast(e.message)}}
 function downloadDraft(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S.config,null,2)+'\n'],{type:'application/json'}));a.download='monster_drops.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function adopt(data,clearDraft=true){S.config=data.config;S.saved=clone(data.config);S.revision=data.revision;S.dirty=false;S.conflict=false;S.invalid.clear();error();if(clearDraft)try{localStorage.removeItem(KEY+':draft')}catch(_){}restoreSelection();renderList();renderEditor();status('已同步 · '+new Date(data.saved_at*1000).toLocaleTimeString('zh-CN',{hour12:false}))}
@@ -337,9 +503,13 @@ async function boot(){if(booting)return;booting=true;try{$('retry-load').hidden=
 $('overview-config').onclick = event => {
     const button = event.target.closest('[data-overview-tab]');
     if (!button) return;
-    const {overviewTab: tab, overviewRule: key} = button.dataset;
-    navigate(tab, key);
-    if (S.tab === tab && S.key === key) $('rule-config').scrollIntoView({block: 'start'});
+    const {overviewTab: tab, overviewRule: key, overviewRealm: realm} = button.dataset;
+    navigate(tab, key, realm);
+    if (S.tab === tab && S.key === key && S.realm === realm) $('rule-config').scrollIntoView({block: 'start'});
+};
+$('realm-choices').onclick = event => {
+    const choice = event.target.closest('[data-realm]');
+    if (choice) navigate('entities', S.key, choice.dataset.realm);
 };
 $('scene-filter').onchange = event => {
     if (!valid()) {

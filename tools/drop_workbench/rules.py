@@ -77,11 +77,25 @@ def validate(data,catalogue):
         if len(ranks)==2 and ranks['min_realm']>ranks['max_realm']:raise Invalid(path+'最低境界高于最高境界')
         for key in ['player_kill','fire_captured']:
             if key in v and not isinstance(v[key],bool):raise Invalid(path+'.'+key+'应为布尔值')
-    obj(data,'统一表',['schema','defaults','entities','overrides','additions'],['schema','defaults','entities','overrides','additions'])
+    obj(data,'统一表',['schema','defaults','entities','overrides','additions','realm_entities'],['schema','defaults','entities','overrides','additions'])
     number(data['schema'],'schema',1,1,True);policy(data['defaults'],'默认规则')
     obj(data['entities'],'生物规则',entities)
     if len(data['entities'])>512:raise Invalid('生物规则最多512项')
     for id,entry in data['entities'].items():policy(entry,id)
+    if 'realm_entities' in data:
+        realm_entities = data['realm_entities']
+        obj(realm_entities, '生物境界规则', entities)
+        if len(realm_entities) > 512:
+            raise Invalid('生物境界规则最多配置512种生物')
+        for entity_id, entries in realm_entities.items():
+            obj(entries, entity_id + '的境界规则', realms)
+            if not entries:
+                raise Invalid(entity_id + '至少需要一个境界规则')
+            for realm_id, entry in entries.items():
+                path = entity_id + ' · ' + realm_id
+                policy(entry, path)
+                if entry['mode'] == 'inherit':
+                    raise Invalid(path + '沿用其他规则时应移除此境界配置')
     ids=set()
     for key,limit in [('overrides',256),('additions',64)]:
         array(data[key],key,limit)

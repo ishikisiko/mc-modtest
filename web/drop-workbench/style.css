@@ -15,7 +15,9 @@
 }
 .sidebar-scene[hidden],
 .sidebar-scene-note[hidden],
-.no-rule > :is(.policy-section, .conditions, .drops-section, .editor-footer),
+#realm-scope[hidden],
+#delete-rule[hidden],
+.no-rule > :is(#rule-edit-fields, .editor-footer),
 .no-rule .heading-actions {
     display: none;
 }
@@ -24,6 +26,33 @@
     .sidebar-scene-note {
         margin-inline: 0;
     }
+}
+
+.realm-scope {
+    margin-bottom: 30px;
+}
+.realm-scope h2 {
+    margin: 0 0 10px;
+    font-size: 15px;
+}
+.realm-choices {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+    gap: 6px;
+}
+.realm-choice.configured small {
+    color: var(--green);
+}
+.realm-choice[aria-pressed="true"] {
+    border-color: var(--green);
+    background: var(--green-dim);
+    color: var(--green);
+}
+.realm-scope .help {
+    margin-bottom: 0;
+}
+#realm-scope + #rule-edit-fields {
+    margin-bottom: 36px;
 }
 
 .rule-overview {

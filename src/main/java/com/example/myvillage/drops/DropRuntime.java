@@ -52,7 +52,7 @@ public final class DropRuntime {
         NeoForge.EVENT_BUS.addListener(DropRuntime::commands);
         NeoForge.EVENT_BUS.addListener((OnDatapackSyncEvent e)->{if(e.getPlayer()==null&&STORES.containsKey(e.getPlayerList().getServer()))exportQuietly(e.getPlayerList().getServer());});
     }
-    public static int realmRank(RealmKey key){var rules=StatsRules.bundled();rules.definition(key);return rules.definition(key).order()*16+key.stage();}
+    public static int realmRank(RealmKey key){return StatsRules.bundled().definition(key).order()*DropRules.REALM_RANK_STRIDE+key.stage();}
     private static DropRules.Catalog catalog(MinecraftServer server){
         var regions=RegionCatalogLoader.loadFromResourceManager(server.getResourceManager(),"yuanxian").catalog().stream().map(p->p.id()).collect(java.util.stream.Collectors.toSet());
         return new DropRules.Catalog(id->BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(id)),

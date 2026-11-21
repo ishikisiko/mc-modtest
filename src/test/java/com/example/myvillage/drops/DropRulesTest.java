@@ -21,6 +21,66 @@ class DropRulesTest {
     }
     static DropRules.Context context(String entity,DropRules.Scene scene){return new DropRules.Context(entity,scene,"donghuang",null,true,false);}
     static JsonObject diamond(String mode){return JsonParser.parseString("{\"mode\":\""+mode+"\",\"drops\":[{\"item\":\"minecraft:diamond\",\"min\":2,\"max\":3,\"chance\":1}]}").getAsJsonObject();}
+    @Test void realmPolicyIsSpecificToTheCreatureAndMatchesEveryStage() throws Exception {
+        var config = json();
+        var lizard = new JsonObject();
+        lizard.add("yuanxian:qi_refining", diamond("replace"));
+        lizard.add("yuanxian:foundation_establishment", diamond("append"));
+        lizard.add("yuanxian:mortal", JsonParser.parseString("{\"mode\":\"disabled\",\"drops\":[]}"));
+        var rows = new JsonObject();
+        rows.add("yuanxian:redplate_lizard", lizard);
+        config.add("realm_entities", rows);
+        var catalog = catalog();
+        var rules = DropRules.parse(config.toString(), catalog);
+        var baseline = DropRules.parse(defaults(), catalog);
+        for (var scene : List.of(DropRules.Scene.NORMAL, DropRules.Scene.HABITAT, DropRules.Scene.BATTLE_RUIN)) {
+            for (int stage : List.of(0, 8)) {
+                int rank = catalog.realmRank().applyAsInt(new RealmKey("qi_refining", stage));
+                var context = new DropRules.Context("yuanxian:redplate_lizard", scene, "donghuang", rank, true, false);
+                var result = rules.resolve(context);
+                assertEquals("realm_entities.yuanxian:redplate_lizard.yuanxian:qi_refining", result.origin());
+                assertEquals(DropRules.Mode.REPLACE, result.policy().mode());
+                assertTrue(result.additions().isEmpty());
+                assertEquals(List.of("minecraft:diamond"), DropRules.roll(result, 0, new Random(1)).stream().map(DropRules.Reward::item).toList());
+            }
+        }
+        int foundation = catalog.realmRank().applyAsInt(new RealmKey("foundation_establishment", 0));
+        var supported = new DropRules.Context("yuanxian:redplate_lizard", DropRules.Scene.NORMAL, "donghuang", foundation, true, false);
+        assertEquals(DropRules.Mode.APPEND, rules.resolve(supported).policy().mode());
+        assertEquals(baseline.resolve(supported).additions(), rules.resolve(supported).additions());
+        for (var scene : List.of(DropRules.Scene.QUEST_REALM, DropRules.Scene.SECT_TRIAL, DropRules.Scene.APTITUDE_TRIAL)) {
+            var trial = new DropRules.Context("yuanxian:redplate_lizard", scene, "donghuang", foundation, true, false);
+            assertEquals(baseline.resolve(trial), rules.resolve(trial));
+        }
+        int mortal = catalog.realmRank().applyAsInt(new RealmKey("mortal", 1));
+        assertEquals(DropRules.Mode.DISABLED, rules.resolve(new DropRules.Context(
+                "yuanxian:redplate_lizard", DropRules.Scene.NORMAL, "donghuang", mortal, true, false)).policy().mode());
+        for (var unchanged : List.of(context("yuanxian:redplate_lizard", DropRules.Scene.NORMAL),
+                new DropRules.Context("yuanxian:demon_wolf", DropRules.Scene.NORMAL, "donghuang", foundation, true, false))) {
+            assertEquals(baseline.resolve(unchanged), rules.resolve(unchanged));
+        }
+    }
+
+    @Test void realmAppendKeepsSceneReplacementAndAcceptsEntitiesWithoutGenericRules() throws Exception {
+        var config = json();
+        config.getAsJsonObject("entities").remove("minecraft:blaze");
+        var realms = new JsonObject();
+        realms.add("yuanxian:qi_refining", diamond("append"));
+        var overrides = new JsonObject();
+        overrides.add("minecraft:blaze", realms);
+        config.add("realm_entities", overrides);
+        var catalog = catalog();
+        var rules = DropRules.parse(config.toString(), catalog);
+        var context = new DropRules.Context("minecraft:blaze", DropRules.Scene.HABITAT, "donghuang", 0, true, false);
+        var resolved = rules.resolve(context);
+        assertTrue(rules.entities().contains("minecraft:blaze"));
+        assertEquals(DropRules.Mode.REPLACE, resolved.policy().mode());
+        assertEquals(List.of("yuanxian:low_grade_spirit_stone", "minecraft:diamond"),
+                resolved.policy().drops().stream().map(DropRules.Entry::item).toList());
+        assertEquals(List.of("beast_fire"), resolved.additions().stream().map(DropRules.Addition::id).toList());
+        realms.add("yuanxian:unknown", diamond("append"));
+        assertThrows(IllegalArgumentException.class, () -> DropRules.parse(config.toString(), catalog));
+    }
     @Test void defaultsPreserveNativeTablesAndExplicitSceneOverrides()throws Exception{
         var r=DropRules.parse(defaults(),catalog());assertEquals(71,r.entities().size());
         for(var entity:r.entities())assertEquals(DropRules.Mode.INHERIT,r.resolve(context(entity,DropRules.Scene.NORMAL)).policy().mode());

@@ -6,7 +6,6 @@
   <nav class="workbench-nav" aria-label="工作台功能">
     <a id="nav-drops" href="#drops" aria-current="page">怪物掉落</a>
     <a id="nav-techniques" href="#techniques">功法</a>
-    <a href="https://assets.ishiki333hhh.win/previews/realm-drop-generator-20261121/" target="_blank" rel="noopener">境界掉落预览</a>
   </nav>
   <div id="drop-actions" class="top-actions"><span id="save-state" class="status"><i></i>正在连接统一掉落表</span><button id="refresh" class="quiet">刷新规则</button><button id="history" class="quiet">历史版本</button><button id="unlock" class="primary">解锁编辑</button></div></header>
 <div id="drop-view">
@@ -17,13 +16,25 @@
 </label>
 <p id="scene-filter-note" class="help sidebar-scene-note" hidden></p>
 <label class="search sidebar-search"><span>⌕</span><input id="rule-search" placeholder="搜索生物或规则" aria-label="搜索生物或规则"></label><div id="rule-list" class="rule-list"></div><button id="default-rule" class="default-button"><span>默认规则</span><span>→</span></button><div class="source-note"><span class="connection-dot"></span><div><b>统一掉落表</b><small>自动写回源码，下次编译时使用</small></div></div></aside>
-<main class="editor"><section class="editor-heading"><div><div class="eyebrow" id="rule-type">生物掉落规则</div><h1 id="rule-title">正在载入</h1><div id="rule-id" class="mono"></div></div><div class="heading-actions"><button id="copy-rule" class="quiet" title="复制当前规则JSON">复制 JSON</button><button id="delete-rule" class="icon-button" title="删除当前规则" aria-label="删除当前规则">⌫</button></div></section><section id="creature-preview" class="creature-preview"></section>
+<main class="editor"><section class="editor-heading"><div><div class="eyebrow" id="rule-type">生物掉落规则</div><h1 id="rule-title">正在载入</h1><div id="rule-id" class="mono"></div></div><div class="heading-actions"><button id="copy-rule" class="quiet" title="复制当前规则JSON">复制 JSON</button><button id="delete-rule" class="icon-button" title="删除当前规则" aria-label="删除当前规则">⌫</button></div></section>
+<section id="realm-scope" class="realm-scope" aria-labelledby="realm-scope-title" hidden>
+  <h2 id="realm-scope-title">按境界配置</h2>
+  <div id="realm-choices" class="realm-choices" role="group" aria-label="配置境界"></div>
+  <p class="help" id="realm-scope-help"></p>
+</section>
+<section id="creature-preview" class="creature-preview"></section>
 <section id="rule-overview" class="rule-overview" aria-labelledby="rule-overview-title">
   <div class="section-title overview-heading"><h2 id="rule-overview-title">掉落规则</h2><span id="rule-overview-scene" class="muted"></span></div>
   <section id="native-loot" class="native-loot overview-group"></section>
   <div id="overview-config"></div>
 </section>
-<section id="rule-config" class="policy-section"><div class="section-title"><h2>掉落方式</h2><span id="drop-count" class="muted"></span></div><div id="modes" class="mode-grid"></div><p id="mode-help" class="help"></p></section><section id="conditions" class="conditions"></section><section class="drops-section"><div class="section-title"><h2>配置物品</h2><button id="add-item-focus" class="text-button">从物品库添加 ↗</button></div><div id="drops"></div></section><div id="editor-error" class="error-box" hidden></div><footer class="editor-footer"><span>每项物品独立判定概率，可同时掉落。</span><span id="revision" class="mono"></span></footer></main>
+<div id="rule-edit-fields">
+  <section id="rule-config" class="policy-section"><div class="section-title"><h2 id="mode-title">掉落方式</h2><span id="drop-count" class="muted"></span></div><div id="modes" class="mode-grid"></div><p id="mode-help" class="help"></p></section>
+  <section id="conditions" class="conditions"></section>
+  <section class="drops-section"><div class="section-title"><h2>配置物品</h2><button id="add-item-focus" class="text-button">从物品库添加 ↗</button></div><div id="drops"></div></section>
+  <div id="editor-error" class="error-box" hidden></div>
+</div>
+<footer class="editor-footer"><span>每项物品独立判定概率，可同时掉落。</span><span id="revision" class="mono"></span></footer></main>
 <aside class="library"><div class="library-heading"><div class="eyebrow">物品库</div><h2>选择掉落物品</h2><p>丹药、装备和工具可先选择档位</p></div><label class="search library-search"><span>⌕</span><input id="item-search" placeholder="搜索中文名或物品 ID" aria-label="搜索物品"></label><label class="category-select"><span>物品分类</span><select id="item-category" aria-label="物品分类"><option value="all">全部分类</option></select></label><div id="category-shortcuts" class="category-shortcuts"><button data-category="materials">材料</button><button data-category="pills">丹药</button><button data-category="weapons">武器</button></div><div class="namespace-filters" id="namespace-filters"><button data-ns="all" class="active">全部 <span id="all-count"></span></button><button data-ns="minecraft">原版 <span id="vanilla-count"></span></button><button data-ns="yuanxian">源仙 <span id="mod-count"></span></button></div><div class="library-meta"><span id="item-result-count"></span><span>1.21.1</span></div><div id="items" class="item-grid"></div><button id="more-items" class="quiet full" hidden>加载更多物品</button><div class="library-bottom">物品 ID 与中文名来自当前游戏资源</div></aside></div>
 <div id="toast" role="status" hidden></div><dialog id="modal"><div class="modal-heading"><h2 id="modal-title"></h2><button id="modal-close" class="icon-button" aria-label="关闭弹窗">×</button></div><div id="modal-body"></div></dialog><div id="loading-overlay" class="loading-overlay"><div class="loader"></div><p id="loading-text">正在载入物品与统一规则…</p><button id="retry-load" class="quiet" hidden>重新连接</button></div>
 </div>

@@ -38,6 +38,28 @@ class WorkbenchTest(unittest.TestCase):
             with self.assertRaises(Invalid):validate(data,self.catalogue)
         data=self.change();data['overrides'][0]['when'].update(min_realm={'realm':'yuanxian:golden_core','stage':0},max_realm={'realm':'yuanxian:qi_refining','stage':8})
         with self.assertRaises(Invalid):validate(data,self.catalogue)
+    def test_independent_realm_policies_save_for_every_catalogue_slot(self):
+        data = copy.deepcopy(self.data)
+        # Include creatures with no explicit generic policy, as in the live catalogue.
+        self.catalogue['entities'].extend({'id': f'yuanxian:test_{i}'} for i in range(46))
+        data['realm_entities'] = {
+            entity['id']: {
+                realm['id']: {'mode': 'append', 'drops': [
+                    {'item': 'minecraft:diamond', 'min': 1, 'max': 1, 'chance': (ei + 1) * (ri + 1) / 1000}
+                ]}
+                for ri, realm in enumerate(self.catalogue['realms'])
+            }
+            for ei, entity in enumerate(self.catalogue['entities'])
+        }
+        saved = self.store.save(data, self.store.read()['revision'])
+        self.assertEqual(702, sum(map(len, saved['config']['realm_entities'].values())))
+        self.assertEqual(data, saved['config'])
+        self.assertEqual(self.data['overrides'], saved['config']['overrides'])
+        self.assertEqual(self.data['additions'], saved['config']['additions'])
+        data['realm_entities']['yuanxian:test_0']['yuanxian:unknown'] = {'mode': 'disabled', 'drops': []}
+        with self.assertRaises(Invalid):
+            self.store.save(data, saved['revision'])
+        self.assertEqual(saved, self.store.read())
     def test_duplicate_keys_invalid_utf8_and_nonfinite_values_rejected(self):
         for value in [b'{"schema":1,"schema":1}',b'\xff',b'{"chance":NaN}']:
             with self.assertRaises(Invalid):decode(value)
