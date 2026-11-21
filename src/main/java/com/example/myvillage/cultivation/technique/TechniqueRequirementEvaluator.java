@@ -59,8 +59,14 @@ public final class TechniqueRequirementEvaluator {
             if (currentRealm == null || minimumRealm == null) {
                 return new Evaluation(Status.DEFINITION_UNAVAILABLE);
             }
-            if (!currentRealm.containsStage(profile.stageId())) {
+            var currentStage = currentRealm.stage(profile.stageId()).orElse(null);
+            if (currentStage == null) {
                 return new Evaluation(Status.CURRENT_STAGE_UNAVAILABLE);
+            }
+            ResourceLocation requiredStageId = requirements.minimumStage().orElse(null);
+            var requiredStage = requiredStageId == null ? null : minimumRealm.stage(requiredStageId).orElse(null);
+            if (requiredStageId != null && requiredStage == null) {
+                return new Evaluation(Status.DEFINITION_UNAVAILABLE);
             }
             if (currentRealm.sortOrder() < minimumRealm.sortOrder()) {
                 return new Evaluation(Status.REALM_TOO_LOW);
@@ -68,6 +74,10 @@ public final class TechniqueRequirementEvaluator {
             if (currentRealm.sortOrder() == minimumRealm.sortOrder()
                     && !currentRealmId.equals(minimumRealmId)) {
                 return new Evaluation(Status.AMBIGUOUS_REALM_ORDER);
+            }
+            if (currentRealmId.equals(minimumRealmId) && requiredStage != null
+                    && currentStage.sortOrder() < requiredStage.sortOrder()) {
+                return new Evaluation(Status.REALM_TOO_LOW);
             }
         }
 

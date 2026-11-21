@@ -221,10 +221,13 @@ def validate_sources(s: Sources) -> list[str]:
         if "learning" in row:
             learning = row["learning"]
             if (not isinstance(learning, dict) or "realm" not in learning
-                    or learning.keys() - {"realm", "affinity"}
+                    or learning.keys() - {"realm", "stage", "affinity"}
                     or not isinstance(learning["realm"], str)
                     or re.fullmatch(rf"{s.namespace}:[a-z0-9_]+", learning["realm"]) is None):
-                problems.append(f"{where}: learning needs a major realm and may specify an affinity")
+                problems.append(f"{where}: learning needs a major realm and may specify a stage or affinity")
+            elif "stage" in learning and (not isinstance(learning["stage"], str)
+                    or re.fullmatch(rf"{s.namespace}:[a-z0-9_]+", learning["stage"]) is None):
+                problems.append(f"{where}: learning.stage needs a namespaced stage id")
             elif "affinity" in learning and (not _is_int(learning["affinity"])
                     or learning["affinity"] < 0 or learning["affinity"] > JAVA_INT_MAX
                     or row["element"] == "none"):
@@ -301,8 +304,12 @@ def heart_problems(heart: Any, where: str) -> list[str]:
         "defense": {"defense": 1024, "max_health": 1024},
         "spirit": {"capacity": 1_000_000, "recovery_quarters": 1_000_000, "cultivation": 1_000_000},
     }[slot]
-    optional = "stone_extra" if slot == "spirit" else "extra"
-    if heart.keys() - (required.keys() | {"slot", "direction", optional}) or required.keys() - heart.keys():
+    optional = {
+        "attack": {"extra"},
+        "defense": {"extra", "attributes", "shield"},
+        "spirit": {"stone_extra"},
+    }[slot]
+    if heart.keys() - (required.keys() | {"slot", "direction"} | optional) or required.keys() - heart.keys():
         return [f"{where}: invalid {slot} fields"]
 
     numeric = (int,) if slot == "spirit" else (int, float)
@@ -312,6 +319,24 @@ def heart_problems(heart: Any, where: str) -> list[str]:
     if slot == "spirit":
         additional = heart.get("stone_extra", 0)
         return [] if _is_int(additional) and 0 <= additional <= 1_000_000 else [f"{where}: invalid stone_extra"]
+    if slot == "defense":
+        limits = {"armor": 30, "armor_toughness": 20, "knockback_resistance": 1, "physical_resistance": 0.8}
+        attributes = heart.get("attributes", {})
+        if not isinstance(attributes, dict):
+            return [f"{where}.attributes: expected an object"]
+        for key, value in attributes.items():
+            if key not in limits or type(value) not in (int, float) or not 0 <= value <= limits[key]:
+                return [f"{where}.attributes.{key}: invalid defense attribute"]
+        if "shield" in heart:
+            shield = heart["shield"]
+            if (not isinstance(shield, dict)
+                    or shield.keys() != {"health_threshold", "amount", "duration_ticks", "cooldown_ticks"}
+                    or type(shield["health_threshold"]) not in (int, float)
+                    or not 0.0001 <= shield["health_threshold"] <= 0.9999
+                    or type(shield["amount"]) not in (int, float) or not 0.01 <= shield["amount"] <= 2048
+                    or not _is_int(shield["duration_ticks"]) or not 1 <= shield["duration_ticks"] <= 12000
+                    or not _is_int(shield["cooldown_ticks"]) or not 1 <= shield["cooldown_ticks"] <= JAVA_INT_MAX):
+                return [f"{where}.shield: invalid health threshold, amount, duration or cooldown"]
     if "extra" not in heart:
         return []
 
@@ -449,8 +474,8 @@ def dump(doc: Any) -> str:
 
 
 def resolve_requirements(root: Path, s: Sources) -> dict[int, str]:
-    """Resolve the default major realm per grade and check authored overrides."""
-    realms = {s.rid(path.stem) for path in (root / REALM_REL).glob("*.json")}
+    """Resolve default realms and check the realm or stage of each authored override."""
+    realms = {s.rid(path.stem): path for path in (root / REALM_REL).glob("*.json")}
     out: dict[int, str] = {}
     problems: list[str] = []
     for grade, spec in sorted(s.rules["requirements"]["by_grade"].items()):
@@ -459,8 +484,14 @@ def resolve_requirements(root: Path, s: Sources) -> dict[int, str]:
         else:
             out[int(grade)] = s.rid(spec["realm"])
     for row in s.techniques:
-        if (learning := row.get("learning")) is not None and learning["realm"] not in realms:
+        if (learning := row.get("learning")) is None:
+            continue
+        if learning["realm"] not in realms:
             problems.append(f"catalogue.json: {row['id']}: unknown realm {learning['realm']}")
+        elif "stage" in learning:
+            realm = json.loads(realms[learning["realm"]].read_text(encoding="utf-8"))
+            if not any(stage["id"] == learning["stage"] for stage in realm["stages"]):
+                problems.append(f"catalogue.json: {row['id']}: unknown stage {learning['stage']} in {learning['realm']}")
     if problems:
         raise CatalogueError(problems)
     return out
@@ -472,6 +503,8 @@ def technique_doc(row: dict, s: Sources, requirements: dict[int, str]) -> dict:
     learning = row.get("learning")
     realm = learning["realm"] if learning else requirements[grade]
     req: dict[str, Any] = {"minimum_realm": realm}
+    if learning and "stage" in learning:
+        req["minimum_stage"] = learning["stage"]
     affinity = s.rules["requirements"]["element_affinity"]
     if learning and "affinity" in learning:
         req["minimum_element_aptitude"] = {s.rid(element): learning["affinity"]}

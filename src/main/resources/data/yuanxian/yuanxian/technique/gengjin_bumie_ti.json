@@ -1,6 +1,6 @@
 {
   "translation_key": "cultivation.technique.yuanxian.gengjin_bumie_ti",
-  "category": "body",
+  "category": "core",
   "grade": 3,
   "elements": [
     "yuanxian:metal"
@@ -13,6 +13,21 @@
   },
   "lineage": {
     "previous": "yuanxian:jinlin_cuiti_jue"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "defense": 1.75,
+        "max_health": 0,
+        "attributes": {
+          "knockback_resistance": 0.15
+        }
+      },
+      "manual_price": 120
+    }
   },
   "study": {
     "points": 36000,

@@ -1,5 +1,6 @@
 package com.example.myvillage.client.cultivation.panel;
 
+import com.example.myvillage.cultivation.technique.DefenseHeartText;
 import com.example.myvillage.client.combat.ClientSkillBindings;
 import com.example.myvillage.combat.SkillBindingRules;
 import com.example.myvillage.combat.art.ArtDefinition;
@@ -121,7 +122,8 @@ final class TechniqueTiles {
         for(var heritage:ModCultivationRegistries.heritagesContaining(c.registries(),id))
             lines.add(Component.literal(c.text(heritage.getValue().translationKey())+" "+TechniqueShelf.chainPosition(heritage.getValue().indexOf(id),heritage.getValue().techniques().size())));
         var conditions=new ArrayList<String>();
-        d.requirements().minimumRealm().ifPresent(realm -> conditions.add(c.realmName(realm).getString()));
+        d.requirements().minimumRealm().ifPresent(realm -> conditions.add(d.requirements().minimumStage()
+                .map(stage -> c.stageName(realm, stage)).orElseGet(() -> c.realmName(realm)).getString()));
         d.requirements().minimumElementAptitudes().forEach((element,points)->conditions.add(c.elementName(element).getString()+String.format(Locale.ROOT," ≥ %.1f%%",points/100.0)));
         lines.add(Component.literal("修习条件："+(conditions.isEmpty()?"无":String.join(" · ",conditions))));
         HeartTechniques.method(d).ifPresent(heart -> heartDetails(lines, c, d, heart));
@@ -151,8 +153,7 @@ final class TechniqueTiles {
                 });
             }
             case HeartMethod.Defense defense -> {
-                bonus(lines, "常驻生命上限", defense.maxHealth(), " 点");
-                bonus(lines, "常驻肉身防御", defense.defense(), " 点");
+                DefenseHeartText.appendBonuses(lines, defense);
                 defense.extra().ifPresent(extra -> {
                     String hold = defense.direction().weapon() ? "持" + defense.direction().title() + "受到" : "受到";
                     String incoming = defense.direction() == HeartMethod.Direction.SPELL ? elements + "伤害" : switch (extra.guard()) {

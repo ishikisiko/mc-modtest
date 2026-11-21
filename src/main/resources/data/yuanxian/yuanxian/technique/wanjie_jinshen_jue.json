@@ -1,18 +1,39 @@
 {
   "translation_key": "cultivation.technique.yuanxian.wanjie_jinshen_jue",
-  "category": "body",
+  "category": "core",
   "grade": 4,
   "elements": [
     "yuanxian:metal"
   ],
   "requirements": {
-    "minimum_realm": "yuanxian:foundation_establishment",
+    "minimum_realm": "yuanxian:golden_core",
     "minimum_element_aptitude": {
       "yuanxian:metal": 200
     }
   },
   "lineage": {
     "previous": "yuanxian:gengjin_bumie_ti"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "defense": 3.5,
+        "max_health": 0,
+        "attributes": {
+          "knockback_resistance": 0.2
+        },
+        "shield": {
+          "health_threshold": 0.3,
+          "amount": 10,
+          "duration_ticks": 120,
+          "cooldown_ticks": 1200
+        }
+      },
+      "manual_price": 400
+    }
   },
   "study": {
     "points": 96000,

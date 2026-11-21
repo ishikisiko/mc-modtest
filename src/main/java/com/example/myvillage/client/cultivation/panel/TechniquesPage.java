@@ -35,6 +35,7 @@ public final class TechniquesPage extends PanelPage {
     private PanelButton action, growthButton, realmButton, slotButton;
     private boolean detail, visible, scrollToTop;
     private TechniqueCategory filter;
+    private List<TechniqueCategory> filterCategories = TechniqueShelf.ORDER;
     private ResourceLocation realm, selected, hovered;
     private List<ResourceLocation> realms = List.of();
     private Slot slot;
@@ -51,11 +52,19 @@ public final class TechniquesPage extends PanelPage {
         top = y;
         dockY = y + height - DOCK_HEIGHT;
         filters.clear();
-        for (int i = 0; i < 5; i++) {
-            TechniqueCategory category = i == 0 ? null : TechniqueShelf.ORDER.get(i - 1);
+        var registry = PanelContext.capture(Minecraft.getInstance(), PanelFonts.get())
+                .registries().registry(ModCultivationRegistries.TECHNIQUES);
+        boolean hasBody = registry.map(techniques -> techniques.stream()
+                .anyMatch(definition -> definition.category() == TechniqueCategory.BODY)).orElse(false);
+        filterCategories = TechniqueShelf.ORDER.stream()
+                .filter(category -> category != TechniqueCategory.BODY || hasBody).toList();
+        if (filter != null && !filterCategories.contains(filter)) filter = null;
+        int filterCount = filterCategories.size() + 1;
+        for (int i = 0; i < filterCount; i++) {
+            TechniqueCategory category = i == 0 ? null : filterCategories.get(i - 1);
             String label = i == 0 ? "全部" : Component.translatable(
                     "screen.yuanxian.cultivation.category." + category.serializedName()).getString();
-            filters.add(filterButton(i, 5, y, label, () -> {
+            filters.add(filterButton(i, filterCount, y, label, () -> {
                 filter = category;
                 if (category != null && category != TechniqueCategory.CORE) slot = null;
                 resetSelection();
@@ -153,7 +162,7 @@ public final class TechniquesPage extends PanelPage {
         }
         if (!shown || context.profile() == null) return;
         for (int i = 0; i < filters.size(); i++) {
-            TechniqueCategory category = i == 0 ? null : TechniqueShelf.ORDER.get(i - 1);
+            TechniqueCategory category = i == 0 ? null : filterCategories.get(i - 1);
             filters.get(i).setSelected(category == filter);
             filters.get(i).setIcon(i == 0 ? PanelAssets.navigation("techniques") : PanelAssets.category(category));
         }

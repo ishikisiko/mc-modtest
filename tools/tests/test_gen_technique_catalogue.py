@@ -365,10 +365,10 @@ class ClassificationTest(unittest.TestCase):
     def test_names_classify_by_their_fragments(self) -> None:
         cases = {
             "庚金剑诀": ("active", "sword"), "天罡剑典": ("active", "sword"), "太白剑经": ("active", "sword"),
-            "某某剑章": ("active", "sword"), "锻体诀": ("body", None), "金鳞淬体诀": ("body", None),
-            "金罡护体功": ("body", None), "庚金不灭体": ("body", None), "万劫金身诀": ("body", None),
-            "铁骨功": ("body", None), "金刚功": ("body", None), "磐石功": ("body", None), "岩甲诀": ("body", None),
-            "石甲玄功": ("body", None), "元神不灭诀": ("core", None), "青木长春功": ("core", None),
+            "某某剑章": ("active", "sword"), "锻体诀": ("core", None), "金鳞淬体诀": ("core", None),
+            "金罡护体功": ("core", None), "庚金不灭体": ("core", None), "万劫金身诀": ("core", None),
+            "铁骨功": ("core", None), "金刚功": ("core", None), "磐石功": ("core", None), "岩甲诀": ("core", None),
+            "石甲玄功": ("core", None), "元神不灭诀": ("core", None), "青木长春功": ("core", None),
             "白虎锻金功": ("core", None), "七杀金章": ("core", None),
             "流云步": ("movement", None), "踏雪无痕": ("movement", None), "某某身法": ("movement", None),
             "土遁诀": ("movement", None),

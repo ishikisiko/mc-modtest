@@ -1,12 +1,27 @@
 {
   "translation_key": "cultivation.technique.yuanxian.jingang_gong",
-  "category": "body",
+  "category": "core",
   "grade": 1,
   "elements": [
     "yuanxian:metal"
   ],
   "requirements": {
     "minimum_realm": "yuanxian:qi_refining"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "defense": 0,
+        "max_health": 0,
+        "attributes": {
+          "physical_resistance": 0.1
+        }
+      },
+      "manual_price": 8
+    }
   },
   "study": {
     "points": 160,

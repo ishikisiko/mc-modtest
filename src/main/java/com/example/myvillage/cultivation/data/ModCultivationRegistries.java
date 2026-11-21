@@ -270,8 +270,13 @@ public final class ModCultivationRegistries {
 
             TechniqueRequirements requirements = technique.requirements();
             requirements.minimumRealm().ifPresent(minimumRealm -> {
-                if (!realms.containsKey(minimumRealm)) {
+                var realm = realms.get(minimumRealm);
+                if (realm == null) {
                     errors.add("technique " + techniqueId + " references missing minimum_realm " + minimumRealm);
+                } else {
+                    requirements.minimumStage().filter(stage -> !realm.containsStage(stage)).ifPresent(stage ->
+                            errors.add("technique " + techniqueId + " references missing minimum_stage " + stage
+                                    + " in " + minimumRealm));
                 }
             });
         }

@@ -88,6 +88,31 @@ class TechniqueRequirementEvaluatorTest {
     }
 
     @Test
+    void minimumStageAppliesWithinItsOwnRealm() {
+        ResourceLocation qi = id("qi_refining");
+        ResourceLocation fourth = id("qi_refining_4");
+        ResourceLocation fifth = id("qi_refining_5");
+        ResourceLocation foundation = id("foundation_establishment");
+        ResourceLocation early = id("foundation_early");
+        var definitions = new LinkedHashMap<>(REALMS);
+        definitions.put(qi, new RealmDefinition("realm.qi", 1, 100, List.of(
+                new RealmStageDefinition(fourth, "stage.fourth", 3),
+                new RealmStageDefinition(fifth, "stage.fifth", 4)), Optional.of(foundation)));
+        definitions.put(foundation, new RealmDefinition("realm.foundation", 2, 200,
+                List.of(new RealmStageDefinition(early, "stage.foundation", 0)), Optional.empty()));
+        var technique = new TechniqueDefinition("technique.guard", TechniqueCategory.CORE, 2, List.of(),
+                new TechniqueRequirements(Optional.of(qi), Optional.of(fifth), Map.of()));
+        var profile = sensedProfile(root(1)).withRealmAndStage(qi, fourth);
+
+        assertEquals(TechniqueRequirementEvaluator.Status.REALM_TOO_LOW,
+                TechniqueRequirementEvaluator.evaluate(profile, technique, definitions::get).status());
+        assertTrue(TechniqueRequirementEvaluator.evaluate(
+                profile.withRealmAndStage(qi, fifth), technique, definitions::get).satisfied());
+        assertTrue(TechniqueRequirementEvaluator.evaluate(
+                profile.withRealmAndStage(foundation, early), technique, definitions::get).satisfied());
+    }
+
+    @Test
     void missingRealmDefinitionFailsClosed() {
         assertEquals(
                 TechniqueRequirementEvaluator.Status.DEFINITION_UNAVAILABLE,

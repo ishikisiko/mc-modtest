@@ -186,7 +186,7 @@ final class TechniqueManualItemTest {
         sorted.sort(null);
         assertEquals(sorted, sortKeys);
         assertEquals(TechniqueCategory.CORE, shipped.get(variants.get(0)).category());
-        assertEquals(TechniqueCategory.BODY, shipped.get(variants.get(variants.size() - 1)).category());
+        assertEquals(TechniqueCategory.MOVEMENT, shipped.get(variants.get(variants.size() - 1)).category());
     }
 
     private static String key(Component component) {

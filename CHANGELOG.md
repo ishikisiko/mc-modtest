@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.145.1
+
+- 十门炼体目录条目归入防守心法。研读后可在 H → 功法 → 防守装备，获得生命、肉身防御、护甲、抗性或万劫金身护盾。
+- 五门黄阶防守秘籍开放藏经阁公共领取。三门玄阶从炼气五层起可研读，庚金不灭体和万劫金身诀分别从筑基、金丹起可研读。
+
 ## 0.145.0-fix2
 
 - 灵舟双埠的水道两端以石岸收口，避免渠水流到相邻街坊和坡面。

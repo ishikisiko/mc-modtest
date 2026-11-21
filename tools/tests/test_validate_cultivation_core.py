@@ -96,7 +96,7 @@ class CultivationCoreValidationTest(unittest.TestCase):
             "references missing element yuanxian:missing_element",
         )
 
-    def test_minor_realm_requirement_is_rejected(self) -> None:
+    def test_minimum_stage_must_belong_to_the_minimum_realm(self) -> None:
         path = RESOURCE_ROOT / "technique/basic_breathing.json"
         technique = self.load_json(path)
         technique["requirements"] = {
@@ -109,7 +109,7 @@ class CultivationCoreValidationTest(unittest.TestCase):
 
         self.assert_error_contains(
             result,
-            "technique requirements use major realms only",
+            "minimum stage yuanxian:qi_refining_1 must belong to yuanxian:mortal",
         )
 
     def test_invalid_number_is_rejected(self) -> None:

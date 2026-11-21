@@ -147,6 +147,10 @@ class WorldSimScriptureTest {
             sim.joinSect(player, player, sect.id(), PLAIN, true);
             assertTrue(sim.borrowable(player).contains("jianqi_jue"), sect.name());
             assertEquals(1, sim.borrowable(player).stream().filter("jianqi_jue"::equals).count());
+            for (String defense : List.of("duanti_jue", "tiegu_gong", "jingang_gong", "panshi_gong", "yanjia_jue")) {
+                assertTrue(sim.borrowable(player).contains(defense), sect.name());
+                assertEquals(0, sim.manualContributionCost(defense), defense);
+            }
             sim.recordBorrow(player, player, "jianqi_jue");
             assertTrue(reload(sim).hasBorrowed(player, "jianqi_jue"));
             assertEquals("already_borrowed", assertThrows(IllegalArgumentException.class,

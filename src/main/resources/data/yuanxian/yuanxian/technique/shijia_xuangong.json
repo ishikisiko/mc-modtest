@@ -1,14 +1,31 @@
 {
   "translation_key": "cultivation.technique.yuanxian.shijia_xuangong",
-  "category": "body",
+  "category": "core",
   "grade": 2,
   "elements": [
     "yuanxian:earth"
   ],
   "requirements": {
     "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_5",
     "minimum_element_aptitude": {
       "yuanxian:earth": 40
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "defense": 0,
+        "max_health": 0,
+        "attributes": {
+          "armor": 3,
+          "armor_toughness": 1
+        }
+      },
+      "manual_price": 24
     }
   },
   "study": {

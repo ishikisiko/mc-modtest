@@ -1,18 +1,34 @@
 {
   "translation_key": "cultivation.technique.yuanxian.jinlin_cuiti_jue",
-  "category": "body",
+  "category": "core",
   "grade": 2,
   "elements": [
     "yuanxian:metal"
   ],
   "requirements": {
     "minimum_realm": "yuanxian:qi_refining",
+    "minimum_stage": "yuanxian:qi_refining_5",
     "minimum_element_aptitude": {
       "yuanxian:metal": 40
     }
   },
   "lineage": {
     "previous": "yuanxian:tiegu_gong"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "defense": 1,
+        "max_health": 0,
+        "attributes": {
+          "knockback_resistance": 0.1
+        }
+      },
+      "manual_price": 24
+    }
   },
   "study": {
     "points": 12000,

@@ -516,6 +516,9 @@ public final class CultivationService {
         if (!previous.realmId().equals(replacement.realmId()) || !previous.stageId().equals(replacement.stageId()))
             com.example.myvillage.cultivation.tribulation.TribulationManager.stop(player, "境界已改变，管理终止");
         player.setData(CultivationAttachments.PROFILE.get(), replacement);
+        if (!previous.equippedHeart(Slot.DEFENSE).equals(replacement.equippedHeart(Slot.DEFENSE))) {
+            HeartTechniques.clearDefenseShield(player);
+        }
         if (!previous.realmId().equals(replacement.realmId())
                 || !previous.stageId().equals(replacement.stageId())
                 || previous.foundationQuality() != replacement.foundationQuality()

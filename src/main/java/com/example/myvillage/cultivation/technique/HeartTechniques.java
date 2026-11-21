@@ -1,7 +1,10 @@
 package com.example.myvillage.cultivation.technique;
 
+import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.elemental.ElementalRules;
+import com.example.myvillage.combat.foundation.ShieldRuntime;
+import com.example.myvillage.combat.runtime.CombatActors;
 import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.HeartMethod;
@@ -9,11 +12,13 @@ import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.data.TechniqueEffects;
+import com.example.myvillage.cultivation.fate.ability.FateAbilityCooldowns;
 import com.example.myvillage.cultivation.growth.TechniqueGrowth;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRules;
 import com.example.myvillage.stats.DamageType;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -24,6 +29,9 @@ import net.minecraft.world.entity.LivingEntity;
 import java.util.Optional;
 
 public final class HeartTechniques {
+    private static final ResourceLocation DEFENSE_SHIELD =
+            ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "defense_heart_shield");
+
     private HeartTechniques() { }
 
     public static Optional<HeartMethod> method(TechniqueDefinition definition) {
@@ -60,10 +68,40 @@ public final class HeartTechniques {
         var defense = equipped(access, profile, Slot.DEFENSE).flatMap(HeartTechniques::method)
                 .map(HeartMethod.Defense.class::cast).orElse(null);
         return new BaseCombat(attack == null ? 0 : attack.attack(), attack == null ? 0 : attack.flatPenetration(),
-                defense == null ? 0 : defense.defense(), defense == null ? 0 : defense.maxHealth());
+                defense == null ? 0 : defense.defense(), defense == null ? 0 : defense.maxHealth(),
+                defense == null ? HeartMethod.DefenseAttributes.NONE : defense.attributes());
     }
 
-    public record BaseCombat(double attack, double flatPenetration, double defense, double maxHealth) { }
+    public record BaseCombat(double attack, double flatPenetration, double defense, double maxHealth,
+            HeartMethod.DefenseAttributes defenseAttributes) { }
+
+    /** Receives the actual health change from the shared damage container after the hit settles. */
+    public static void afterHealthLoss(ServerPlayer player, DamageSource source, double before, double after) {
+        if (!(after > 0 && after < before)) {
+            return;
+        }
+        var definition = equipped(player.registryAccess(), CultivationService.getProfile(player), Slot.DEFENSE).orElse(null);
+        var shield = method(definition).map(HeartMethod.Defense.class::cast).flatMap(HeartMethod.Defense::shield).orElse(null);
+        if (shield == null || !shield.crossesThreshold(before, after, player.getMaxHealth())
+                || ShieldRuntime.bypassesShields(source)
+                || !(source.getEntity() instanceof LivingEntity attacker) || !CombatActors.mayHarm(attacker, player)) {
+            return;
+        }
+
+        var overworld = player.getServer().overworld();
+        var cooldowns = FateAbilityCooldowns.get(overworld);
+        long now = overworld.getGameTime();
+        if (cooldowns.remaining(player.getUUID(), DEFENSE_SHIELD, now) == 0
+                && ShieldRuntime.grant(player, DEFENSE_SHIELD, shield.amount(), shield.durationTicks())) {
+            cooldowns.start(player.getUUID(), DEFENSE_SHIELD, now, shield.cooldownTicks());
+            player.displayClientMessage(Component.translatable(definition.translationKey())
+                    .append("的护盾已生效"), true);
+        }
+    }
+
+    public static void clearDefenseShield(ServerPlayer player) {
+        ShieldRuntime.removeSource(player, DEFENSE_SHIELD);
+    }
 
     public static double attackExtra(LivingEntity actor, String weapon, DamageType spell, boolean art, boolean paid) {
         if (!(actor instanceof ServerPlayer player)) return 0;

@@ -1,5 +1,6 @@
 package com.example.myvillage.stats.runtime;
 
+import com.example.myvillage.cultivation.data.HeartMethod.DefenseAttributes;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.technique.HeartTechniques;
 import com.example.myvillage.combat.runtime.CombatTargets;
@@ -49,6 +50,10 @@ public final class StatsRuntime {
     private static final ResourceLocation HEART_ATTACK = id("stats.heart_attack");
     private static final ResourceLocation HEART_DEFENSE = id("stats.heart_defense");
     private static final ResourceLocation HEART_FLAT_PENETRATION = id("stats.heart_flat_penetration");
+    private static final ResourceLocation HEART_ARMOR = id("stats.heart_armor");
+    private static final ResourceLocation HEART_ARMOR_TOUGHNESS = id("stats.heart_armor_toughness");
+    private static final ResourceLocation HEART_KNOCKBACK_RESISTANCE = id("stats.heart_knockback_resistance");
+    private static final ResourceLocation HEART_PHYSICAL_RESISTANCE = id("stats.heart_physical_resistance");
     private static final ResourceLocation FOUNDATION_HEALTH=id("stats.foundation_health"), FOUNDATION_ATTACK=id("stats.foundation_attack");
     private static final String REALM_TAG = "yuanxian:stats_realm";
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsRuntime.class);
@@ -180,6 +185,7 @@ public final class StatsRuntime {
             RealmAttributeModifiers.replace(player.getAttribute(ModStatsAttributes.FLAT_DEFENSE_PENETRATION),
                     HEART_FLAT_PENETRATION, heart.flatPenetration());
             RealmAttributeModifiers.replace(defense, HEART_DEFENSE, heart.defense());
+            applyHeartDefenseAttributes(player, heart.defenseAttributes());
         }
         float current = RealmHealthPolicy.refreshed(oldHealth, oldMax, entity.getMaxHealth());
         if (current != oldHealth) {
@@ -206,6 +212,7 @@ public final class StatsRuntime {
         remove(entity.getAttribute(Attributes.ATTACK_DAMAGE), HEART_ATTACK);
         remove(entity.getAttribute(ModStatsAttributes.BODY_DEFENSE), HEART_DEFENSE);
         remove(entity.getAttribute(ModStatsAttributes.FLAT_DEFENSE_PENETRATION), HEART_FLAT_PENETRATION);
+        applyHeartDefenseAttributes(entity, DefenseAttributes.NONE);
         entity.getPersistentData().remove(REALM_TAG);
         float next = RealmHealthPolicy.refreshed(health, oldMaximum, entity.getMaxHealth());
         if (next != health) {
@@ -217,6 +224,16 @@ public final class StatsRuntime {
         if (attribute != null) {
             attribute.removeModifier(id);
         }
+    }
+
+    private static void applyHeartDefenseAttributes(LivingEntity entity, DefenseAttributes attributes) {
+        RealmAttributeModifiers.replace(entity.getAttribute(Attributes.ARMOR), HEART_ARMOR, attributes.armor());
+        RealmAttributeModifiers.replace(entity.getAttribute(Attributes.ARMOR_TOUGHNESS),
+                HEART_ARMOR_TOUGHNESS, attributes.armorToughness());
+        RealmAttributeModifiers.replace(entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE),
+                HEART_KNOCKBACK_RESISTANCE, attributes.knockbackResistance());
+        RealmAttributeModifiers.replace(entity.getAttribute(ModStatsAttributes.PHYSICAL_RESISTANCE),
+                HEART_PHYSICAL_RESISTANCE, attributes.physicalResistance());
     }
 
     public static float outgoing(LivingEntity attacker, double base, double move) {
@@ -347,6 +364,9 @@ public final class StatsRuntime {
                         net.neoforged.neoforge.common.damagesource.DamageContainer.Reduction.ABSORPTION),
                 (double) event.getNewDamage(), (double) Math.max(0, trace.healthBefore() - healthAfter),
                 trace.healthBefore(), (double) healthAfter, trace.ruleHash(), trace.armor(), trace.bodyDefense()));
+        if (event.getEntity() instanceof ServerPlayer player) {
+            HeartTechniques.afterHealthLoss(player, event.getSource(), trace.healthBefore(), healthAfter);
+        }
     }
 
     /** Only explicitly mapped attack/fire sources participate; environmental/unknown damage does not. */

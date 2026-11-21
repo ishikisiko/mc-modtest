@@ -67,15 +67,44 @@ public sealed interface HeartMethod permits HeartMethod.Attack, HeartMethod.Defe
         ).apply(builder, AttackExtra::new));
     }
 
-    record Defense(Direction direction, double defense, double maxHealth, Optional<DefenseExtra> extra) implements HeartMethod {
+    record Defense(Direction direction, double defense, double maxHealth, Optional<DefenseExtra> extra,
+            DefenseAttributes attributes, Optional<DefenseShield> shield) implements HeartMethod {
         static final MapCodec<Defense> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
                 DIRECTION_CODEC.fieldOf("direction").forGetter(Defense::direction),
                 Codec.doubleRange(0, 1024).fieldOf("defense").forGetter(Defense::defense),
                 Codec.doubleRange(0, 1024).fieldOf("max_health").forGetter(Defense::maxHealth),
-                DefenseExtra.CODEC.optionalFieldOf("extra").forGetter(Defense::extra)
+                DefenseExtra.CODEC.optionalFieldOf("extra").forGetter(Defense::extra),
+                DefenseAttributes.CODEC.optionalFieldOf("attributes", DefenseAttributes.NONE).forGetter(Defense::attributes),
+                DefenseShield.CODEC.optionalFieldOf("shield").forGetter(Defense::shield)
         ).apply(builder, Defense::new));
 
         @Override public Slot slot() { return Slot.DEFENSE; }
+    }
+
+    record DefenseAttributes(double armor, double armorToughness, double knockbackResistance, double physicalResistance) {
+        public static final DefenseAttributes NONE = new DefenseAttributes(0, 0, 0, 0);
+        static final Codec<DefenseAttributes> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+                Codec.doubleRange(0, 30).optionalFieldOf("armor", 0.0).forGetter(DefenseAttributes::armor),
+                Codec.doubleRange(0, 20).optionalFieldOf("armor_toughness", 0.0).forGetter(DefenseAttributes::armorToughness),
+                Codec.doubleRange(0, 1).optionalFieldOf("knockback_resistance", 0.0)
+                        .forGetter(DefenseAttributes::knockbackResistance),
+                Codec.doubleRange(0, 0.8).optionalFieldOf("physical_resistance", 0.0)
+                        .forGetter(DefenseAttributes::physicalResistance)
+        ).apply(builder, DefenseAttributes::new));
+    }
+
+    record DefenseShield(double healthThreshold, float amount, int durationTicks, int cooldownTicks) {
+        static final Codec<DefenseShield> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+                Codec.doubleRange(0.0001, 0.9999).fieldOf("health_threshold").forGetter(DefenseShield::healthThreshold),
+                Codec.floatRange(0.01F, 2048).fieldOf("amount").forGetter(DefenseShield::amount),
+                Codec.intRange(1, 12000).fieldOf("duration_ticks").forGetter(DefenseShield::durationTicks),
+                Codec.intRange(1, Integer.MAX_VALUE).fieldOf("cooldown_ticks").forGetter(DefenseShield::cooldownTicks)
+        ).apply(builder, DefenseShield::new));
+
+        public boolean crossesThreshold(double healthBefore, double healthAfter, double maxHealth) {
+            double threshold = maxHealth * healthThreshold;
+            return healthBefore > threshold && healthAfter > 0 && healthAfter <= threshold;
+        }
     }
 
     record DefenseExtra(double amount, Guard guard) {

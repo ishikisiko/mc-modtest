@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,8 +46,41 @@ class HeartTechniquesTest {
                         TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE, serialized).getOrThrow()));
             }
         }
-        assertEquals(Map.of("mortal", 1, "qi_refining", 43, "foundation_establishment", 44,
-                "golden_core", 44, "nascent_soul", 35, "spirit_transformation", 35), counts);
+        assertEquals(Map.of("mortal", 1, "qi_refining", 51, "foundation_establishment", 45,
+                "golden_core", 45, "nascent_soul", 35, "spirit_transformation", 35), counts);
+    }
+
+    @Test
+    void repurposedManualsAllUseTheExistingDefenseSlot() throws IOException {
+        for (String name : List.of("duanti_jue", "tiegu_gong", "jingang_gong", "panshi_gong", "yanjia_jue",
+                "jinlin_cuiti_jue", "jingang_huti_gong", "shijia_xuangong", "gengjin_bumie_ti", "wanjie_jinshen_jue")) {
+            var definition = decode(name);
+            assertTrue(definition.isCore(), name);
+            assertEquals(Slot.DEFENSE, HeartTechniques.slot(definition), name);
+            if (definition.grade() == 2) {
+                assertEquals(id("qi_refining_5"), definition.requirements().minimumStage().orElseThrow(), name);
+            }
+        }
+        assertEquals(4, defense("duanti_jue").maxHealth());
+        assertEquals(0.25, defense("panshi_gong").attributes().knockbackResistance());
+        assertEquals(0.15, defense("jingang_huti_gong").attributes().physicalResistance());
+        assertEquals(3, defense("shijia_xuangong").attributes().armor());
+        assertEquals(1, defense("shijia_xuangong").attributes().armorToughness());
+    }
+
+    @Test
+    void shieldRequiresASurvivingHitThatCrossesTheConfiguredThreshold() throws IOException {
+        var definition = decode("wanjie_jinshen_jue");
+        assertEquals(id("golden_core"), definition.requirements().minimumRealm().orElseThrow());
+        assertEquals(id("gengjin_bumie_ti"), definition.previous().orElseThrow());
+        var shield = defense("wanjie_jinshen_jue").shield().orElseThrow();
+        assertEquals(10, shield.amount());
+        assertEquals(120, shield.durationTicks());
+        assertEquals(1200, shield.cooldownTicks());
+        assertTrue(shield.crossesThreshold(31, 30, 100));
+        assertFalse(shield.crossesThreshold(31, 30.01, 100));
+        assertFalse(shield.crossesThreshold(30, 20, 100));
+        assertFalse(shield.crossesThreshold(31, 0, 100));
     }
 
     @Test
@@ -133,6 +167,10 @@ class HeartTechniquesTest {
 
     private static TechniqueDefinition decode(String path) throws IOException {
         return decode(DEFINITIONS.resolve(path + ".json"));
+    }
+
+    private static HeartMethod.Defense defense(String path) throws IOException {
+        return (HeartMethod.Defense) HeartTechniques.method(decode(path)).orElseThrow();
     }
 
     private static TechniqueDefinition decode(Path path) throws IOException {

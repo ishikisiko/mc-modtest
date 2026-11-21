@@ -206,9 +206,11 @@ def check_rules(rules: Any, realms: dict[str, dict], report: Report) -> dict:
         return out
     time = require(rules, "time", f, "", report)
     if isinstance(time, dict):
-        for key in ("prehistory_years", "default_days_per_year"):
-            if not positive_int(time.get(key)):
-                report.error("data", f, f"time.{key} must be a positive integer")
+        prehistory = time.get("prehistory_years")
+        if not is_int(prehistory) or prehistory < 0:
+            report.error("data", f, "time.prehistory_years must be a non-negative integer")
+        if not positive_int(time.get("default_days_per_year")):
+            report.error("data", f, "time.default_days_per_year must be a positive integer")
     tiers = require(rules, "tiers", f, "", report)
     if isinstance(tiers, dict):
         out["tiers"] = list(tiers)

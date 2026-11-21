@@ -1,5 +1,8 @@
 package com.example.myvillage.item;
 
+import com.example.myvillage.cultivation.data.HeartMethod;
+import com.example.myvillage.cultivation.technique.DefenseHeartText;
+import com.example.myvillage.cultivation.technique.HeartTechniques;
 import com.example.myvillage.cultivation.data.HeritageDefinition;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
@@ -303,6 +306,12 @@ public class TechniqueManualItem extends Item {
         }
         tooltip.add(Component.translatable(TOOLTIP_KEY + "requirement", requirementText(definition.requirements(), catalog))
                 .withStyle(ChatFormatting.GRAY));
+        HeartTechniques.method(definition).ifPresent(method -> {
+            if (method instanceof HeartMethod.Defense defense) {
+                tooltip.add(Component.literal("装备栏位 防守").withStyle(ChatFormatting.GRAY));
+                DefenseHeartText.appendBonuses(tooltip, defense);
+            }
+        });
         Integer comprehension = stack.get(ModDataComponents.COMPREHENSION.get());
         if (comprehension != null && comprehension > 0) {
             tooltip.add(Component.translatable(TOOLTIP_KEY + "comprehension",
@@ -364,12 +373,14 @@ public class TechniqueManualItem extends Item {
         return name;
     }
 
-    /** As the 功法 page states it: major realm, then each element affinity as {@code 金 ≥ 15.0%}. */
+    /** As the 功法 page states it: realm or stage, then each element aptitude. */
     private static Component requirementText(TechniqueRequirements requirements, Catalog catalog) {
         List<Component> parts = new ArrayList<>();
         requirements.minimumRealm().ifPresent(realmId -> {
             Optional<RealmDefinition> realm = catalog.realm(realmId);
-            MutableComponent text = realm.<MutableComponent>map(definition -> Component.translatable(definition.translationKey()))
+            MutableComponent text = realm.<MutableComponent>map(definition -> Component.translatable(
+                            requirements.minimumStage().flatMap(definition::stage)
+                                    .map(stage -> stage.translationKey()).orElse(definition.translationKey())))
                     .orElseGet(() -> Component.literal(realmId.toString()));
             parts.add(text);
         });

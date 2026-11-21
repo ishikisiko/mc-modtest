@@ -65,8 +65,12 @@ public record RealmDefinition(
     }
 
     public boolean hasStage(ResourceLocation stageId) {
+        return stage(stageId).isPresent();
+    }
+
+    public Optional<RealmStageDefinition> stage(ResourceLocation stageId) {
         Objects.requireNonNull(stageId, "stageId");
-        return stages.stream().anyMatch(stage -> stage.id().equals(stageId));
+        return stages.stream().filter(stage -> stage.id().equals(stageId)).findFirst();
     }
 
     public boolean containsStage(ResourceLocation stageId) {

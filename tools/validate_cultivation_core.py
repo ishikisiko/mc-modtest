@@ -71,6 +71,7 @@ class TechniqueReferences:
     location: str
     elements: tuple[str, ...]
     minimum_realm: str | None
+    minimum_stage: str | None
     affinity_elements: tuple[str, ...]
 
 
@@ -513,6 +514,7 @@ class CultivationValidator:
                     elements.append(element)
 
             minimum_realm: str | None = None
+            minimum_stage: str | None = None
             affinity_elements: list[str] = []
             if "requirements" not in value:
                 self.error(location, "missing required field 'requirements'")
@@ -524,8 +526,9 @@ class CultivationValidator:
                 minimum_realm = self.optional_resource_location(
                     requirements, "minimum_realm", requirement_location
                 )
-                if "minimum_stage" in requirements:
-                    self.error(requirement_location, "technique requirements use major realms only")
+                minimum_stage = self.optional_resource_location(
+                    requirements, "minimum_stage", requirement_location
+                )
 
                 if "minimum_element_aptitude" in requirements:
                     affinities = requirements["minimum_element_aptitude"]
@@ -564,6 +567,7 @@ class CultivationValidator:
                     location,
                     tuple(elements),
                     minimum_realm,
+                    minimum_stage,
                     tuple(affinity_elements),
                 )
             )
@@ -593,6 +597,12 @@ class CultivationValidator:
                     f"technique {technique.identifier} references missing minimum realm "
                     f"{technique.minimum_realm}",
                 )
+            if technique.minimum_stage is not None:
+                if technique.minimum_realm is None:
+                    self.error(technique.location, "minimum_stage requires minimum_realm")
+                elif technique.minimum_stage not in self.realm_stages.get(technique.minimum_realm, set()):
+                    self.error(technique.location, f"minimum stage {technique.minimum_stage} must belong to "
+                               f"{technique.minimum_realm}")
 
     def validate_required_foundation(self) -> None:
         for realm in sorted(REQUIRED_REALMS - self.realm_ids):

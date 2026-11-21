@@ -1,10 +1,22 @@
 {
   "translation_key": "cultivation.technique.yuanxian.duanti_jue",
-  "category": "body",
+  "category": "core",
   "grade": 1,
   "elements": [],
   "requirements": {
     "minimum_realm": "yuanxian:qi_refining"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "defense": 0,
+        "max_health": 4
+      },
+      "manual_price": 8
+    }
   },
   "study": {
     "points": 160,

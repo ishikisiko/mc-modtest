@@ -45,13 +45,14 @@ class SimDataLoaderTest {
 
     @Test
     void publicScriptureReferencesAreValidatedAndMayBeDisabled() {
+        String publicTechniques = "(\"public_techniques\":\\s*)\\[[^]]*]";
         SimDataException unknown = assertThrows(SimDataException.class, () -> WorldSim.loadData(
-                patched(SimDataLoader.RULES, t -> t.replace("[\"jianqi_jue\"]", "[\"missing_art\"]"))));
+                patched(SimDataLoader.RULES, t -> t.replaceFirst(publicTechniques, "$1[\"missing_art\"]"))));
         assertEquals("player.scripture_hall.public_techniques", unknown.field());
         assertThrows(SimDataException.class, () -> WorldSim.loadData(
-                patched(SimDataLoader.RULES, t -> t.replace("[\"jianqi_jue\"]", "[\"jianqi_jue\", \"jianqi_jue\"]"))));
+                patched(SimDataLoader.RULES, t -> t.replaceFirst(publicTechniques, "$1[\"jianqi_jue\", \"jianqi_jue\"]"))));
         assertTrue(WorldSim.loadData(patched(SimDataLoader.RULES,
-                t -> t.replace("[\"jianqi_jue\"]", "[]"))).rules().player().scriptureHall().publicTechniques().isEmpty());
+                t -> t.replaceFirst(publicTechniques, "$1[]"))).rules().player().scriptureHall().publicTechniques().isEmpty());
     }
 
     @Test
