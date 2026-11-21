@@ -65,7 +65,7 @@ public final class CultivationService {
 
     /** 先完整复核，再一次提交天命与所选流派，客户端仅收到提交后的快照。 */
     public static void confirmFates(ServerPlayer player, com.example.myvillage.cultivation.fate.FateState replacement,
-            com.example.myvillage.cultivation.fate.SchoolInsightState school) {
+            com.example.myvillage.cultivation.fate.SchoolInsightState school, int openingWeapon) {
         if (com.example.myvillage.cultivation.fate.FateService.state(player).confirmed() || !replacement.confirmed())
             throw new IllegalArgumentException("confirmed");
         com.example.myvillage.cultivation.fate.SchoolInsight.confirm(replacement.selected(),
@@ -73,6 +73,8 @@ public final class CultivationService {
                 com.example.myvillage.cultivation.fate.SchoolInsightRuntime.schools(player.registryAccess()).keySet());
         replaceFates(player,replacement,false);
         player.setData(CultivationAttachments.SCHOOL_INSIGHT.get(),school);
+        if (openingWeapon >= 0)
+            replaceFateExtras(player, com.example.myvillage.cultivation.fate.FateExtras.of(player).choose(openingWeapon));
         com.example.myvillage.cultivation.fate.FateRuntime.refresh(player);
         syncToClient(player); CultivationTimeRuntime.notifyStatus(player);
     }

@@ -134,8 +134,8 @@ public final class FateService {
                 if (action==2) {
                     OpeningGift.validate(replacement, weapon);
                     CultivationService.confirmFates(player,replacement,
-                            SchoolInsight.confirm(replacement.selected(),pool,school,SchoolInsightRuntime.schools(player.registryAccess()).keySet()));
-                    if (weapon >= 0) CultivationService.replaceFateExtras(player, FateExtras.of(player).choose(weapon));
+                            SchoolInsight.confirm(replacement.selected(),pool,school,SchoolInsightRuntime.schools(player.registryAccess()).keySet()),
+                            weapon);
                     OpeningGift.claim(player);
                     CompanionSwordRuntime.claim(player);
                     SacredHeart.apply(player);
