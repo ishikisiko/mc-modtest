@@ -110,6 +110,8 @@ above and link the relevant contract. Update only affected documentation.
 
 五行法修基础：[五系独立招式、成长、秘籍与技能栏](../features/elemental-arts.md)。
 
+金丹绝技：[十六招的玩家指南和生存获取](../../guidebook/getting_started/golden_core_arts.md)。
+
 野外敌人与战利品：[六种普通敌人、战备丹药、互斥炼器专长与实际验收边界](../features/wilderness-roster.md)。
 
 四组遗迹传承：[游剑妖、照影妖、吞火蟾、守碑石灵与秘籍、器物、原生遗迹](../features/legacy-encounters.md)。

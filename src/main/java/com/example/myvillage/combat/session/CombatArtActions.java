@@ -50,6 +50,7 @@ public final class CombatArtActions {
         Vec3 lockAnchor;
         int nextStrike;
         ElementalActions.Cast elementalCast;
+        GoldenCoreActions.Cast goldenCast;
         Entry(LivingEntity player,ArtDefinition art,CombatSession session,boolean paidArt) {
             this.art=art;this.held=player.getMainHandItem();this.slot=CombatCaster.slot(player);
             this.dimension=player.level().dimension().location();this.session=session;
@@ -59,10 +60,10 @@ public final class CombatArtActions {
     private static long clock(LivingEntity player) { return CombatCaster.level(player).getServer().overworld().getGameTime(); }
     public static boolean has(LivingEntity player) { return ENTRIES.containsKey(player.getUUID()); }
     public static boolean elemental(LivingEntity player) {
-        Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.elemental().isPresent();
+        Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.elementType().isPresent();
     }
     public static boolean unrestricted(LivingEntity player) {
-        Entry e=ENTRIES.get(player.getUUID());return e!=null && (e.art.elemental().isPresent()||e.art.family().equals("legacy"));
+        Entry e=ENTRIES.get(player.getUUID());return e!=null && (e.art.elementType().isPresent()||e.art.family().equals("legacy"));
     }
     public static boolean locked(LivingEntity player) {
         Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.lock().isPresent();
@@ -100,6 +101,11 @@ public final class CombatArtActions {
             target=LockedSwordTargets.acquire(player,session,art.lock().get()).orElse(null);
             if(target==null) {refuse(player,"no_target",Component.empty());return Optional.empty();}
         }
+        var goldenAim = art.goldenCore().isPresent() ? GoldenCoreActions.prepare(player, session, art) : null;
+        if (art.goldenCore().isPresent() && goldenAim == null) {
+            refuse(player, "no_target", Component.empty());
+            return Optional.empty();
+        }
         long cost=cost(player,art);
         // All validation precedes the single atomic spend. Interrupted casts are not refunded.
         if (!CombatCaster.spend(player,cost)) {
@@ -113,6 +119,10 @@ public final class CombatArtActions {
         if (player instanceof com.example.myvillage.entity.npc.NpcEntity npc)
             com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc, art.id(), clock(player) + art.cooldownTicks());
         Entry e=new Entry(player,art,session,cost>0);ENTRIES.put(player.getUUID(),e);
+        if (goldenAim != null) {
+            e.goldenCast = new GoldenCoreActions.Cast(player, art, goldenAim, session, cost > 0);
+            e.lockAnchor = goldenAim.anchor();
+        }
         if(art.elemental().isPresent()) {
             var spell=art.elemental().get();
             e.elementalCast=ElementalActions.begin(player,session,spell,e.paidArt);e.lockAnchor=e.elementalCast.anchor;
@@ -139,8 +149,13 @@ public final class CombatArtActions {
     }
     private static CombatSession.StartEvent beginPhase(LivingEntity player,Entry e) {
         AttackMoveDefinition move=e.art.move(e.phase,1);
+        float facing = player.getYRot();
+        if (e.goldenCast != null) {
+            Vec3 direction = e.goldenCast.aim.direction();
+            facing = (float) Math.toDegrees(Math.atan2(-direction.x, direction.z));
+        }
         var start=e.session.startExternal(move,CombatCaster.level(player).getGameTime(),
-                BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,player.getYRot(),e.paidArt);
+                BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,facing,e.paidArt);
         send(player,e,CombatArtStatePayload.START,e.lockAnchor==null?player.position():e.lockAnchor);
         return start;
     }
@@ -154,10 +169,10 @@ public final class CombatArtActions {
                 && technique.get().school().equals(Optional.of(art.school()))
                 && (art.family().equals("legacy") ? player instanceof ServerPlayer user && LegacyRuntime.allowedItem(user,art.id())
                     && ModCultivationRegistries.school(player.registryAccess(),art.school()).flatMap(s->s.runtime()).equals(Optional.of(com.example.myvillage.cultivation.data.SchoolRuntime.SPELL))
-                    : art.elemental().isPresent()
+                    : art.elementType().isPresent()
                     ? ModCultivationRegistries.school(player.registryAccess(),art.school())
                         .filter(s -> s.runtime().equals(Optional.of(com.example.myvillage.cultivation.data.SchoolRuntime.SPELL))
-                            && s.elementLean().contains(ResourceLocation.parse("yuanxian:"+art.elemental().get().element().id()))).isPresent()
+                            && s.elementLean().contains(ResourceLocation.parse("yuanxian:"+art.elementType().orElseThrow().id()))).isPresent()
                     : family.equals(Optional.of(art.family())) && ModCultivationRegistries.school(player.registryAccess(),art.school())
                         .flatMap(s -> s.weaponFamily()).equals(family))
                 && technique.get().effects().flatMap(e -> e.active())
@@ -173,6 +188,10 @@ public final class CombatArtActions {
     static void resolve(LivingEntity player,CombatSession session,Optional<CombatHitResolver.StepSweep> step) {
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
         if(e.art.family().equals("legacy"))return;
+        if (e.goldenCast != null) {
+            GoldenCoreActions.resolve(e.goldenCast, session.actionTick(CombatCaster.level(player).getGameTime()));
+            return;
+        }
         if(e.art.elemental().isPresent()) {
             int age=session.actionTick(CombatCaster.level(player).getGameTime());
             var spell=e.art.elemental().get();
@@ -311,10 +330,11 @@ public final class CombatArtActions {
         send(player,e,CombatArtStatePayload.STOP,player.position());
         LOG.info("ADVANCED_ART player={} result=stop art={} reason={}",CombatCaster.name(player),e.art.id(),reason);
     }
-    static void remove(UUID player) { ENTRIES.remove(player);LAST_REQUEST.remove(player); }
-    static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); }
+    static void remove(UUID player) { ENTRIES.remove(player);LAST_REQUEST.remove(player); GoldenCoreActions.forget(player); }
+    static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); GoldenCoreActions.clear(); }
     static void prune(long now) { COOLDOWNS.prune(now); }
     public static int cooldownRemaining(LivingEntity player,ArtDefinition art) {
+        if (art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art)) return 0;
         if(art.family().equals("legacy") && player instanceof ServerPlayer user && LegacyRuntime.recast(user,art.id()))return 0;
         int own=COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
         if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)own=Math.max(own,com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,art.id()));
@@ -326,7 +346,8 @@ public final class CombatArtActions {
     }
     public static long cost(LivingEntity player,ArtDefinition art) {
         if(art.family().equals("legacy"))return player instanceof ServerPlayer user && LegacyRuntime.recast(user,art.id())?0:art.qiCost();
-        return art.elemental().isPresent()?art.qiCost():ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
+        if (art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art)) return 0;
+        return art.elementType().isPresent()?art.qiCost():ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
     }
     public static void syncCooldowns(LivingEntity player) {
         for (var art:ArtDefinition.all()) sendCooldown(player,art,COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player)));

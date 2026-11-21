@@ -246,6 +246,16 @@ def active_effect(id, effects, arts, waves, legacy, elemental_rules, labels, wea
         if wave is None:
             return {'name': '效果待配置', 'stats': []}
         return {'name': '蓄力剑气', 'stats': [('施放武器', weapon_name), *wave_stats(wave, cost)]}
+    if 'golden_core' in art:
+        spec = art['golden_core']
+        areas = (('length', '攻击长度'), ('width', '命中宽度'), ('radius', '作用半径'),
+                 ('inner', '重击内圈半径'), ('secondary_range', '二次命中距离'))
+        return {
+            'name': '金丹绝技', 'note': labels[f"combat.yuanxian.art.{id.split(':', 1)[1]}.description"],
+            'stats': [('施放武器', weapon_name), *weapon_stats(art, cost),
+                      ('最远作用距离', blocks(spec['range'])), ('基础伤害倍率', multiplier(spec['damage'])),
+                      *[(label, blocks(spec[key])) for key, label in areas if key in spec]],
+        }
     if 'elemental' in art:
         return {
             'name': '五行法术',
@@ -351,7 +361,7 @@ def build(root: Path):
     arts = {art['id']: art for art in elemental['arts']}
     arts.update({
         art['id']: art
-        for filename in ('advanced_arts', 'locked_sword_arts', 'legacy_arts')
+        for filename in ('advanced_arts', 'locked_sword_arts', 'legacy_arts', 'golden_core_arts')
         for art in read_json(data / f'combat/{filename}.json')['arts']
     })
     waves = {row['id']: row for row in map(read_json, (data / 'combat/skill').glob('*.json'))}

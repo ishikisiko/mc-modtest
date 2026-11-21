@@ -1,0 +1,121 @@
+{
+  "schema": 1,
+  "rules": {
+    "aim_arc": 48,
+    "line_assist_arc": 36,
+    "windup": 12,
+    "recovery": 7,
+    "spear_tip_min": 2.0,
+    "spear_tip_max": 6.3,
+    "pvp_damage": 0.75,
+    "pvp_displacement": 0.5,
+    "shelf_regions": ["donghai", "ximo"]
+  },
+  "study": {"points": 4800, "gates": 0, "gate_stability_cost": 0},
+  "routes": {
+    "sword": {"previous": "jianqi_jue", "move": "basic_sword_01_thrust", "color": [0.64, 0.88, 1.0]},
+    "spear": {"previous": "canglong_chushui", "move": "basic_spear_01_mid_thrust", "color": [0.48, 0.83, 0.98]},
+    "fist": {"previous": "bengshan_jin", "move": "basic_fist_01_straight_punch", "color": [0.98, 0.78, 0.5]},
+    "metal": {"previous": "jinmang_shu", "move": "basic_fist_02_horizontal_palm", "color": [0.92, 0.82, 0.43]},
+    "wood": {"previous": "lingzhong_shu", "move": "basic_fist_02_horizontal_palm", "color": [0.35, 0.75, 0.42]},
+    "water": {"previous": "shuiren_shu", "move": "basic_fist_02_horizontal_palm", "color": [0.35, 0.68, 0.94]},
+    "fire": {"previous": "linghuo_shu", "move": "basic_fist_02_horizontal_palm", "color": [0.95, 0.39, 0.15]},
+    "earth": {"previous": "yandan_shu", "move": "basic_fist_02_horizontal_palm", "color": [0.77, 0.53, 0.32]}
+  },
+  "arts": [
+    {
+      "id": "chuanyun_yijian", "name": "穿云一剑", "route": "sword", "mechanic": "piercing_sword",
+      "qi": 32, "cooldown": 16, "range": 14, "length": 14, "width": 2, "targets": 1,
+      "damage": 2.8, "bonus": 0.3,
+      "description": "朝前刺出剑光，命中线路上的第一个敌人。每消耗一层剑意，伤害倍率增加 0.3，满三层时为 3.7 倍。"
+    },
+    {
+      "id": "jiaofeng_jianzhen", "name": "交锋剑阵", "route": "sword", "mechanic": "crossing_traces",
+      "move": "basic_sword_02_horizontal_cut", "qi": 36, "cooldown": 22, "range": 15, "length": 10.5,
+      "width": 2.4, "targets": 6, "damage": 1.35, "bonus": 0.55, "duration": 50, "interval": 9,
+      "description": "先在地面留一道剑痕。2.5 秒内换角度再按同一键可留第二道，短暂预警后同时斩出，交会处伤害更高。到期时若只有一道，便由这一道斩出。"
+    },
+    {
+      "id": "pocheng_yiqiang", "name": "破城一枪", "route": "spear", "mechanic": "tip_charge",
+      "move": "basic_spear_05_dragon_lunge", "qi": 38, "cooldown": 21, "range": 9.3, "length": 6.3,
+      "width": 2.2, "step": 3, "targets": 1, "damage": 3.6, "secondary": 1.8,
+      "description": "循地前冲至多 3 格，向最前面的敌人出枪。枪锋命中时为 3.6 倍伤害，贴身命中时为 1.8 倍。"
+    },
+    {
+      "id": "huima_qiang", "name": "回马枪", "route": "spear", "mechanic": "retreating_thrust",
+      "qi": 30, "cooldown": 17, "range": 9, "length": 9, "width": 2.8,
+      "step": 3, "interval": 7, "targets": 1, "damage": 1.7, "bonus": 0.8,
+      "description": "沿安全地面后撤，稍候再刺回原方向。第一名敌人若在这期间追入你刚退开的地带，伤害倍率另加 0.8。"
+    },
+    {
+      "id": "kaibei_cunjin", "name": "开碑寸劲", "route": "fist", "mechanic": "stored_punch",
+      "qi": 36, "cooldown": 17, "range": 3.3, "length": 3.3, "width": 2.5, "targets": 1,
+      "damage": 3.2, "bonus": 0.8,
+      "description": "向身前第一名敌人打出一记 3.2 倍重拳。有蓄劲时消耗这一层，伤害升到 4 倍。"
+    },
+    {
+      "id": "tadi_huizhen", "name": "踏地回震", "route": "fist", "mechanic": "ground_rings",
+      "move": "basic_fist_04_chop", "qi": 32, "cooldown": 20, "range": 9, "radius": 9,
+      "interval": 7, "targets": 8, "damage": 2.2, "push": 1,
+      "description": "震浪沿相连地面分三圈向外扩张，每名落地敌人至多受到一击，并被向外推开。"
+    },
+    {
+      "id": "jiejia_jinsuo", "name": "解甲金锁", "route": "metal", "mechanic": "armor_lock",
+      "qi": 29, "cooldown": 17, "range": 44, "targets": 1, "damage": 1.65,
+      "status": 0.28, "status_ticks": 80,
+      "description": "命中一名敌人后，降低其护甲 28%，持续 4 秒。同类削甲取较强的一份。"
+    },
+    {
+      "id": "mingjin_lianji", "name": "鸣金连击", "route": "metal", "mechanic": "metal_chain",
+      "qi": 37, "cooldown": 22, "range": 44, "secondary_range": 10.5, "width": 2.4,
+      "targets": 3, "damage": 3.2, "secondary": 1.85, "bonus": 1.35,
+      "description": "金锥先打中一敌，再朝前偏转两次。每次可命中至多 10.5 格内一名尚未被本招伤到的敌人。"
+    },
+    {
+      "id": "yihua_jiemu", "name": "移花接木", "route": "wood", "mechanic": "wood_transfer",
+      "qi": 30, "cooldown": 17, "range": 36, "radius": 8.75, "targets": 3, "damage": 2.55,
+      "description": "击中一敌，若它带着你施加的侵蚀，剩余伤害均分给附近最多三名尚未寄种的敌人，沿用原到期时刻。没有合适目标时，原侵蚀继续生效。"
+    },
+    {
+      "id": "pangen_suo", "name": "盘根索", "route": "wood", "mechanic": "wood_trail",
+      "qi": 36, "cooldown": 23, "range": 36, "length": 12, "width": 2.4, "targets": 6,
+      "damage": 1.85, "duration": 80, "interval": 120, "status": 0.3, "status_ticks": 40,
+      "description": "选中带有自己侵蚀的敌人，在它接下来走过的地面留下藤径。藤径存留 4 秒，其他敌人首次踏上时受到伤害并减速 2 秒。"
+    },
+    {
+      "id": "huilang_songke", "name": "回浪送客", "route": "water", "mechanic": "side_tide",
+      "qi": 30, "cooldown": 17, "range": 24.5, "length": 24.5, "width": 5.25, "targets": 6,
+      "damage": 2.4, "push": 2,
+      "description": "沿瞄准方向冲出潮带，把命中的敌人拨向左侧。潜行施放改向右侧。"
+    },
+    {
+      "id": "suishuang_ci", "name": "碎霜刺", "route": "water", "mechanic": "frost_shatter",
+      "qi": 35, "cooldown": 19, "range": 44, "targets": 1, "damage": 2.6, "secondary": 4.05,
+      "description": "一击刺向选中的敌人。若它仍受你用水法留下的迟滞，本次伤害升到 4.05 倍，并在有效命中后消去自己的这份迟滞。"
+    },
+    {
+      "id": "rongxin_jian", "name": "熔心箭", "route": "fire", "mechanic": "fire_fuse",
+      "qi": 36, "cooldown": 19, "range": 40, "targets": 1, "damage": 1.1,
+      "secondary": 2.35, "bonus": 3.5, "duration": 32,
+      "description": "在一名敌人身上留下 1.6 秒引信。到期爆炸为 2.35 倍。期间用另一门火法直接击中该敌，可提前引爆为 3.5 倍。"
+    },
+    {
+      "id": "feihuo_liaoyuan", "name": "飞火燎原", "route": "fire", "mechanic": "fire_rows",
+      "qi": 39, "cooldown": 22, "range": 24, "length": 22.5, "radius": 5.6, "targets": 6,
+      "damage": 1.5, "interval": 8,
+      "description": "沿瞄准方向分三处点燃地面。每名敌人最多受到两次火浪伤害，首次有效命中时附上灼痕。"
+    },
+    {
+      "id": "dimai_fanzhe", "name": "地脉翻折", "route": "earth", "mechanic": "earth_rows",
+      "qi": 34, "cooldown": 19, "range": 19.5, "length": 19.5, "width": 4, "targets": 6,
+      "damage": 1.55, "interval": 5,
+      "description": "地脉沿相连地面分三段抬起，每名敌人最多承受两段震击。路径遇到墙体、深坑或地面断处时会停止。"
+    },
+    {
+      "id": "luopan_yin", "name": "落磐印", "route": "earth", "mechanic": "stone_stamp",
+      "qi": 39, "cooldown": 23, "range": 36, "radius": 6.125, "inner": 2.5, "targets": 6,
+      "damage": 4.05, "secondary": 1.55, "windup": 17,
+      "description": "定下石印，预警 0.85 秒后砸落。内圈最靠中心的一名落地敌人承受重击，其余敌人承受外圈伤害。"
+    }
+  ]
+}

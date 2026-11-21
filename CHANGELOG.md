@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.147.0
+
+- 新增金丹绝技十六招，剑、枪、拳和五行各两招。东海和西漠州城的琳琅阁常备相应秘籍，研读后可在 H 的技能页分配快捷键。
+- 新绝技扩大了射程和判定宽度。单体法术优先选中准星上的敌人，准星偏开时也可选取正面范围内的可见敌人。交锋剑阵二次布痕、盘根索和熔心箭均由服务器推进和结算。
+- 天衡殿交易菜单支持更多书目，客户端和服务端网络协议更新为 94。
+
 ## 0.146.0
 
 - 命簿修士可研读心法，在攻、防守、灵力与修炼三栏各装备一门。近场战斗与玩家共用心法属性、命中效果和护盾结算。

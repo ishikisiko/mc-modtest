@@ -42,7 +42,7 @@ final class CombatHotbarHud {
                     state==CHARGING || state==RECOVERING?0xFFE2C779:state==COOLDOWN?0xFF777064:0xFFBBA77A;
             g.fill(x-1,y-1,x+size+1,y+size+1,0xB5000000);
             g.fill(x,y,x+size,y+size,edge);g.fill(x+1,y+1,x+size-1,y+size-1,0xFF15221F);
-            var elemental=value.technique().flatMap(com.example.myvillage.combat.art.ArtDefinition::find).flatMap(a->a.elemental());
+            var elemental=value.technique().flatMap(com.example.myvillage.combat.art.ArtDefinition::find).flatMap(com.example.myvillage.combat.art.ArtDefinition::elementType);
             if(kind==com.example.myvillage.combat.SkillBindingRules.Kind.FATE || kind==com.example.myvillage.combat.SkillBindingRules.Kind.UTILITY) {
                 PanelAssets.draw(g,PanelAssets.category(TechniqueCategory.ACTIVE),x+2,y+2,size-4);
             } else if(elemental.isPresent()) {
@@ -50,7 +50,7 @@ final class CombatHotbarHud {
                 var palette=PanelAssets.grade(ModCultivationRegistries.technique(mc.level.registryAccess(),id).map(d->d.grade()).orElse(1));
                 g.fill(x+2,y+2,x+size-2,y+size-2,palette.wash());
                 PanelAssets.draw(g,PanelAssets.technique(id,TechniqueCategory.ACTIVE),x+2,y+2,size-4);
-                g.drawString(mc.font,Component.translatable("combat.yuanxian.elemental."+elemental.get().element().id()+".symbol"),
+                g.drawString(mc.font,Component.translatable("combat.yuanxian.elemental."+elemental.orElseThrow().id()+".symbol"),
                         x+size-10,y+size-10,palette.text(),false);
             } else {
             var texture=kind==com.example.myvillage.combat.SkillBindingRules.Kind.WAVE || index==2?icon("wave"):

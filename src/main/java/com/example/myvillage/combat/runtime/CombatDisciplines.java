@@ -72,6 +72,17 @@ public final class CombatDisciplines {
         }
         return multiplier;
     }
+    public static int consumeStacks(LivingEntity player, String family) {
+        Entry entry = current(player);
+        if (entry == null || !entry.family.equals(family)) return 0;
+        int spent = entry.pool.consumeStacks(now(player));
+        if (spent > 0) {
+            CombatCaster.message(player, Component.literal((family.equals("sword") ? "消耗剑意 " : "消耗蓄劲 ") + spent), true);
+            log(player, "consume", family, spent);
+        }
+        return spent;
+    }
+
     public static boolean spearTip(LivingEntity p, Entity target) {
         Entry e = current(p);
         // Nearest surface, not centre: large bodies cannot fake the spear-tip spacing.

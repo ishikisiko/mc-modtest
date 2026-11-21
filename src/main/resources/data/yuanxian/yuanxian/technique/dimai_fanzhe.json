@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.dimai_fanzhe",
+  "category": "active",
+  "grade": 3,
+  "elements": [
+    "yuanxian:earth"
+  ],
+  "school": "yuanxian:earth_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:golden_core"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:dimai_fanzhe",
+      "qi_cost": 34,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 4800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:yandan_shu"
+  }
+}

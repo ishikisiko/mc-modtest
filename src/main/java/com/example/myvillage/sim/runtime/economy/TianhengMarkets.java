@@ -1,5 +1,7 @@
 package com.example.myvillage.sim.runtime.economy;
 
+import com.example.myvillage.combat.art.ArtDefinition;
+import com.example.myvillage.combat.art.GoldenCoreArt;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.data.TechniqueEffects;
@@ -59,11 +61,20 @@ final class TianhengMarkets {
                 result.add(new Goods(BREATHING.toString(), NpcDialogueText.of(Component.translatable(definition.translationKey())),
                         "凡品 · 心法", "manual", new ItemStack(ModItems.BASIC_BREATHING_MANUAL.get()),
                         starter.price())));
+        var goldenArts = ArtDefinition.all().stream().filter(art -> art.goldenCore().isPresent())
+                .map(ArtDefinition::id).collect(java.util.stream.Collectors.toSet());
+        if (GoldenCoreArt.rules().shelfRegions().contains(region)) {
+            var golden = rules().bands().get(ceiling);
+            manuals.stream().filter(manual -> goldenArts.contains(manual.id())
+                    && manual.realm().equals(ResourceLocation.parse("yuanxian:" + ceiling))
+                    && manual.definition().grade() <= golden.shopGrade())
+                    .forEach(manual -> result.add(goods(registry, manual, price(manual, golden))));
+        }
         int limit = realmOrder(registry, ResourceLocation.parse("yuanxian:" + ceiling));
         for (var band : rules().bands().entrySet()) {
             ResourceLocation realm = ResourceLocation.parse("yuanxian:" + band.getKey());
             if (realmOrder(registry, realm) > limit) continue;
-            var pool = manuals.stream().filter(m -> m.realm().equals(realm)
+            var pool = manuals.stream().filter(m -> m.realm().equals(realm) && !goldenArts.contains(m.id())
                     && m.definition().grade() > 0 && m.definition().grade() <= band.getValue().shopGrade()).toList();
             if (pool.isEmpty()) continue;
             int offset = Math.floorMod(day + region.hashCode(), pool.size());
@@ -178,7 +189,7 @@ final class TianhengMarkets {
             int lot = json.get("lot_seconds").getAsInt();
             int step = json.get("bid_step_percent").getAsInt();
             int budget = json.get("npc_budget_percent").getAsInt();
-            if (bands.size() != 5 || regions.size() != 8 || perRealm < 1 || 1 + bands.size() * perRealm > 32
+            if (bands.size() != 5 || regions.size() != 8 || perRealm < 1 || 1 + bands.size() * perRealm > EconomyMenu.MAX_ROWS - ArtDefinition.all().stream().filter(art -> art.goldenCore().isPresent()).count()
                     || preview < 1 || preview > 60 || lot < 10 || lot > 180 || step < 1 || step > 100
                     || budget <= 100 || budget > 300) throw new IllegalArgumentException("天衡殿交易规则无效");
             return new Rules(Map.copyOf(regions), java.util.Collections.unmodifiableMap(bands),

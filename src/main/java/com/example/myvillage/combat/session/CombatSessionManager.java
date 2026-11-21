@@ -173,7 +173,7 @@ public final class CombatSessionManager {
     }
 
     private static boolean startArt(LivingEntity player, com.example.myvillage.combat.art.ArtDefinition art) {
-        boolean unrestricted=art.elemental().isPresent()||art.family().equals("legacy");
+        boolean unrestricted=art.elementType().isPresent()||art.family().equals("legacy");
         if ((player instanceof ServerPlayer user && com.example.myvillage.legacy.LegacyRuntime.weaponAway(user))&&!art.family().equals("legacy"))return false;
         if (casterFailure(player, null, unrestricted) != null || CombatDodgeService.isDodging(player)) return false;
         long tick = CombatCaster.level(player).getGameTime();
@@ -188,9 +188,14 @@ public final class CombatSessionManager {
                 style.minimumIntentIntervalTicks())) return false;
         session = SESSIONS.computeIfAbsent(player.getUUID(), ignored -> new CombatSession(style));
         session.useStyle(style);
+        if (art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art)) {
+            if (!GoldenCoreActions.recast(player, session, art)) return false;
+            LAST_INTENT_TICKS.put(player.getUUID(), tick);
+            return true;
+        }
         Optional<CombatSession.StartEvent> start = CombatArtActions.start(player, session, art);
         if (start.isEmpty()) return false;
-        if (art.elemental().isPresent() && player instanceof ServerPlayer user) com.example.myvillage.wilderness.ExpeditionCombat.cast(user);
+        if (art.elementType().isPresent() && player instanceof ServerPlayer user) com.example.myvillage.wilderness.ExpeditionCombat.cast(user);
         LAST_INTENT_TICKS.put(player.getUUID(), tick);
         beginAction(player, start.get());
         return true;
@@ -294,6 +299,7 @@ public final class CombatSessionManager {
                 else clearCommitment(player);
             }
         }
+        GoldenCoreActions.tick(server);
         CombatArtActions.prune(server.overworld().getGameTime());
         BLOCKED_UNTIL_TICKS.entrySet().removeIf(entry -> {
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());

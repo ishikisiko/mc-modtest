@@ -79,13 +79,13 @@ public final class CombatDamageService {
 
     private static DamageResult apply(LivingEntity attacker, Entity target,
             AttackMoveDefinition move, CombatSession session, float reactionYaw, boolean derived, double fraction) {
-        return apply(attacker,target,move,session,reactionYaw,derived,fraction,null,0);
+        return apply(attacker,target,move,session,reactionYaw,derived,fraction,null,0,true);
     }
 
     /** Typed spell hits retain multipart routing and the one vanilla mitigation path, without weapon bonuses. */
     public static DamageResult applyElemental(LivingEntity attacker,Entity target,AttackMoveDefinition move,
             CombatSession session,DamageSource source,double base) {
-        return apply(attacker,target,move,session,session.facingYaw(),false,1,source,base);
+        return apply(attacker,target,move,session,session.facingYaw(),false,1,source,base,true);
     }
 
     private static DamageResult apply(LivingEntity attacker, Entity target,
@@ -102,7 +102,7 @@ public final class CombatDamageService {
             return DamageResult.rejected();
         }
 
-        boolean spearTip = !elemental && !derived && CombatDisciplines.spearTip(attacker, target);
+        boolean spearTip = automaticSpearTip && !elemental && !derived && CombatDisciplines.spearTip(attacker, target);
         if (spearTip) move = CombatDisciplines.scale(move, DisciplineRules.get().spearDamage(), DisciplineRules.get().spearStun());
         ServerLevel level = (ServerLevel) attacker.level();
         ItemStack weapon = attacker.getMainHandItem();

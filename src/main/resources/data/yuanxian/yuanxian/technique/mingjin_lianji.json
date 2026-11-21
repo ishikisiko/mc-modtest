@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.mingjin_lianji",
+  "category": "active",
+  "grade": 3,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "school": "yuanxian:metal_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:golden_core"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:mingjin_lianji",
+      "qi_cost": 37,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 4800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:jinmang_shu"
+  }
+}

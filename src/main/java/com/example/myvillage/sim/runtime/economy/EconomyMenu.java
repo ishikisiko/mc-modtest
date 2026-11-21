@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 /** 无临时物品槽；每个菜单拥有独立 nonce 和一次性请求序号。 */
 public final class EconomyMenu extends AbstractContainerMenu {
+    static final int MAX_ROWS = 48;
     public record Row(String id, String name, String item, int count, int quality, int cost, String detail) {
         public Row { if (id.length() > 96 || name.length() > 96 || item.length() > 160 || detail.length() > 320 || count < 0 || count > 10000 || quality < 0 || quality > 4 || cost < 0) throw new IllegalArgumentException("兑换行越界"); }
     }
@@ -35,7 +36,7 @@ public final class EconomyMenu extends AbstractContainerMenu {
     public EconomyMenu(int id, Inventory inventory, BlockPos pos, boolean linlang, String site, int sectId, long day, long token, List<Row> rows, List<String> bidders) {
         super(com.example.myvillage.sim.runtime.commerce.CommerceMenus.ECONOMY.get(), id);
         this.inventory = inventory; this.pos = pos.immutable(); this.linlang = linlang; this.site = site; this.sectId = sectId; this.day = day; this.token = token; this.rows = List.copyOf(rows);
-        if (rows.size() > 32 || rows.isEmpty() || site.length() > 96 || day < 0) throw new IllegalArgumentException("兑换菜单无效");
+        if (rows.size() > MAX_ROWS || rows.isEmpty() || site.length() > 96 || day < 0) throw new IllegalArgumentException("兑换菜单无效");
         this.bidders = List.copyOf(bidders);
         if (bidders.size() > 2 || auction() && rows.size() > 4) throw new IllegalArgumentException("拍卖菜单无效");
         data = new SimpleContainerData(BASE_SLOTS + (auction() ? QUOTE_SLOTS * rows.size() : 0));
@@ -151,7 +152,7 @@ public final class EconomyMenu extends AbstractContainerMenu {
         return bidders;
     }
     private static List<Row> readRows(RegistryFriendlyByteBuf buf) {
-        int size = buf.readVarInt(); if (size < 1 || size > 32) throw new IllegalArgumentException("兑换行数越界"); var rows = new ArrayList<Row>();
+        int size = buf.readVarInt(); if (size < 1 || size > MAX_ROWS) throw new IllegalArgumentException("兑换行数越界"); var rows = new ArrayList<Row>();
         for (int i = 0; i < size; i++) rows.add(new Row(buf.readUtf(96), buf.readUtf(96), buf.readUtf(160), buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readUtf(320)));
         return rows;
     }

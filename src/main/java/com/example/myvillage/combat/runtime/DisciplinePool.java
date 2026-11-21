@@ -17,8 +17,11 @@ public final class DisciplinePool {
         return true;
     }
     public double consume(long now, DisciplineRules.Pool rules) {
-        double multiplier = 1 + stacks(now) * rules.bonus();
+        return 1 + consumeStacks(now) * rules.bonus();
+    }
+    int consumeStacks(long now) {
+        int spent = stacks(now);
         stacks = 0;
-        return multiplier;
+        return spent;
     }
 }

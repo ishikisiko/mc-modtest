@@ -89,13 +89,17 @@ public final class ElementalActions {
                 if(spell.dot())ElementalEffects.seed(p,target,spell.element(),cast.base);
                 var owner=CombatTargets.owner(target);
                 if(owner instanceof LivingEntity living) {
-                    if(spell.slowTicks()>0) {
+                    if (spell.element() == com.example.myvillage.stats.DamageType.WATER && spell.slowTicks() > 0) {
+                        ElementalEffects.waterChill(p, living, spell.slowTicks(), 0.15 * (spell.slowAmplifier() + 1));
+                    } else if(spell.slowTicks()>0) {
                         living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,spell.slowTicks(),spell.slowAmplifier(),false,false,true),p);
                         com.example.myvillage.combat.foundation.ControlService.refreshSlow(living);
                     }
                     if(spell.armorBreak()>0)SwordArmorBreak.apply(living,spell.armorBreak(),spell.armorTicks());
                 }
                 if(spell.push()>0)push(p,target,spell.push());
+                if (spell.element() == com.example.myvillage.stats.DamageType.FIRE)
+                    com.example.myvillage.combat.session.GoldenCoreActions.onDirectFire(p, target);
             }
             LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} t={} result=hit art={} pulse={} target={} element={} charges={} harvest={} success={} damage={}",
                     CombatCaster.name(p),CombatCaster.level(p).getGameTime(),art.id(),pulse,target.getId(),spell.element().id(),cast.charges,harvest,result.successful(),result.actualDamage());

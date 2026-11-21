@@ -1,6 +1,8 @@
 package com.example.myvillage.combat.elemental;
 
 import com.example.myvillage.combat.CombatMode;
+import com.example.myvillage.combat.foundation.ControlService;
+import com.example.myvillage.combat.foundation.ControlState;
 import com.example.myvillage.combat.CombatService;
 import com.example.myvillage.combat.runtime.*;
 import com.example.myvillage.cultivation.CultivationService;
@@ -24,12 +26,16 @@ import java.util.*;
 /** Server-owned, bounded combat-only state; no saved player profile fields and no client authority. */
 public final class ElementalEffects {
     private static final ResourceLocation SPEED=ResourceLocation.parse("yuanxian:elemental_flow");
+    private static final ResourceLocation WATER_CHILL = ResourceLocation.parse("yuanxian:elemental_water_chill");
     private record DotKey(UUID caster,UUID target,DamageType element) {}
     private static final class Dot {
         final LivingEntity caster;final Entity target;final DamageType element;final double damage;final long until;long next;
         Dot(LivingEntity p,Entity t,DamageType e,double d,long now) {
-            caster=p;target=t;element=e;damage=d;
-            until=now+ElementalRules.integer("dot_lifetime_ticks",1,400);next=now+interval();
+            this(p, t, e, d, now + ElementalRules.integer("dot_lifetime_ticks", 1, 400), now + interval());
+        }
+        Dot(LivingEntity p, Entity t, DamageType e, double d, long until, long next) {
+            caster = p; target = t; element = e; damage = d;
+            this.until = until; this.next = next;
         }
         double remaining(long now) {
             long first=Math.max(next,now);return first>until?0:(1+(until-first)/interval())*damage;
@@ -78,6 +84,43 @@ public final class ElementalEffects {
                 >=ElementalRules.integer("maximum_dots_per_caster",1,48))return;
         DOTS.put(k,new Dot(p,target,element,base*ElementalRules.number("dot_multiplier",.01,2),clock(p)));
     }
+    /** Transfer only future pulses with the original expiration and schedule. */
+    public static int transferWood(LivingEntity caster, Entity from, List<Entity> nearby, int maximum) {
+        DotKey root = key(caster, from, DamageType.WOOD);
+        Dot original = DOTS.get(root);
+        if (original == null || original.remaining(clock(caster)) <= 0) return 0;
+        int capacity = ElementalRules.integer("maximum_dots_per_caster", 1, 48);
+        long active = DOTS.keySet().stream().filter(k -> k.caster().equals(caster.getUUID())).count();
+        int limit = Math.min(maximum, capacity - (int) active + 1);
+        if (limit <= 0) return 0;
+        Map<DotKey, Entity> recipients = new LinkedHashMap<>();
+        for (Entity other : nearby) {
+            DotKey candidate = key(caster, other, DamageType.WOOD);
+            if (!DOTS.containsKey(candidate)) recipients.putIfAbsent(candidate, other);
+            if (recipients.size() >= limit) break;
+        }
+        if (recipients.isEmpty()) return 0;
+        DOTS.remove(root);
+        double share = original.damage / recipients.size();
+        recipients.forEach((id, entity) -> DOTS.put(id,
+                new Dot(caster, entity, DamageType.WOOD, share, original.until, original.next)));
+        return recipients.size();
+    }
+
+    public static void waterChill(LivingEntity caster, LivingEntity target, int ticks, double fraction) {
+        ControlService.slow(caster, target, WATER_CHILL, ticks, fraction);
+    }
+
+    public static boolean hasWaterChill(LivingEntity caster, LivingEntity target) {
+        return ControlService.snapshot(target).sources().stream().anyMatch(source ->
+                source.kind() == ControlState.Kind.SLOW && source.caster().equals(caster.getUUID())
+                        && source.effect().equals(WATER_CHILL.toString()));
+    }
+
+    public static void consumeWaterChill(LivingEntity caster, LivingEntity target) {
+        ControlService.revoke(caster, target, WATER_CHILL);
+    }
+
     public static void ward(LivingEntity p,ElementalSpell spell,int charge,float red,float green,float blue) {
         removeWard(p.getUUID());
         WARDS.put(p.getUUID(),new Ward(p,clock(p)+spell.wardTicks()+(long)spell.wardPerCharge()*charge,spell.wardFraction(),red,green,blue));
