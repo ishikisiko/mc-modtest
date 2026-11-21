@@ -185,9 +185,15 @@ class FateFoundationTest {
         var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
         try {
             var intent = new FateIntentPayload((byte) 2, 50, (byte) 7, 9);
-            // 协议68追加流派字符串，空字符串的长度占1字节。
-            FateIntentPayload.STREAM_CODEC.encode(buffer, intent); assertEquals(5, buffer.readableBytes());
+            // 协议 95 的空流派占 1 字节，开局武器索引占 1 字节。
+            FateIntentPayload.STREAM_CODEC.encode(buffer, intent); assertEquals(6, buffer.readableBytes());
             assertEquals(intent, FateIntentPayload.STREAM_CODEC.decode(buffer));
+            var weaponChoice = new FateIntentPayload((byte) 2, 50, (byte) 7, 9, "", (byte) 1);
+            FateIntentPayload.STREAM_CODEC.encode(buffer, weaponChoice);
+            assertEquals(6, buffer.readableBytes());
+            assertEquals(weaponChoice, FateIntentPayload.STREAM_CODEC.decode(buffer));
+            assertThrows(IllegalArgumentException.class,
+                    () -> new FateIntentPayload((byte) 2, 50, (byte) 7, 9, "", (byte) 127));
             var open = new AwakeningOpenPayload(new BlockPos(-32, 80, 64), 9);
             AwakeningOpenPayload.STREAM_CODEC.encode(buffer, open);
             assertEquals(open, AwakeningOpenPayload.STREAM_CODEC.decode(buffer));

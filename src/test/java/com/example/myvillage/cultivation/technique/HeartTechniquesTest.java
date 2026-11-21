@@ -40,13 +40,20 @@ class HeartTechniquesTest {
                 counts.merge(realm.getPath(), 1, Integer::sum);
                 int price = definition.effects().flatMap(TechniqueEffects::core)
                         .map(TechniqueEffects.Core::manualPrice).orElse(0);
-                assertEquals(definition.grade() > 0, price > 0, path.toString());
+                boolean companion = path.getFileName().toString().equals("sacred_earth_heart.json");
+                if (companion) {
+                    assertEquals(4, definition.grade());
+                    assertEquals(Slot.DEFENSE, HeartTechniques.slot(definition));
+                    assertEquals(0, price, "伴生心法没有秘籍价格");
+                } else {
+                    assertEquals(definition.grade() > 0, price > 0, path.toString());
+                }
                 var serialized = TechniqueDefinition.CODEC.encodeStart(JsonOps.INSTANCE, definition).getOrThrow();
                 assertEquals(HeartTechniques.method(definition), HeartTechniques.method(
                         TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE, serialized).getOrThrow()));
             }
         }
-        assertEquals(Map.of("mortal", 1, "qi_refining", 51, "foundation_establishment", 45,
+        assertEquals(Map.of("mortal", 1, "qi_refining", 52, "foundation_establishment", 45,
                 "golden_core", 45, "nascent_soul", 35, "spirit_transformation", 35), counts);
     }
 

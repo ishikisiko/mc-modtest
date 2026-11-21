@@ -30,6 +30,7 @@ public record FateAbilityDefinition(ResourceLocation id, ResourceLocation requir
                 || name == null || name.isBlank() || description == null || description.isBlank()
                 || cooldownTicks < 1 || cooldownTicks > 12000
                 || !Double.isFinite(costFraction) || costFraction < 0 || costFraction > 1
+                || costFraction == 0 && !FateReworkRules.SWORD_ART.equals(id)
                 || minimumCost < 1 || !Double.isFinite(radius) || radius <= 0 || radius > 32) {
             throw new IllegalArgumentException("天命主动能力配置越界");
         }
