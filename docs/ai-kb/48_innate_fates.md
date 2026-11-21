@@ -1,20 +1,15 @@
 # Innate Fates (先天气运)
 
-当前有 28 项已实现天命、6 项可选占位，另有 4 项仅设计候选，见[38 项目录](../innate-fates-design.json)。
+当前 38 项先天天命均有正式玩法，见[天命目录](../innate-fates-design.json)。
 
-十项新增或调整的玩法和数值整理在[先天天命改版方案](../innate-fates-rework.md)。
+0.150.0 上线十项新增或调整的天命。实际入口、概率、冷却和五境数值见[先天天命改版](../innate-fates-rework.md)。
 
 0.123.1新增普通天命“乡野药识”：玩家有效破坏植物后，在正式 `BlockDropsEvent` 原掉落中以2%概率追加1件炼丹材料。草、所有生长阶段作物、花、树苗、水生植物和生长型藤蔓按植物基类识别；树木、仙人掌等由 `herbal_lore_plants` 方块标签补齐，其他模组可追加标签。材料池取 `AlchemyRules` 全部丹方的去重原料，当前14种均等概率，含凝元果和妖兽材料。成熟度、工具和时运不改变这次独立抽取。创造、旁观、自动破坏以及取消的破坏/掉落不产生额外药材。
 0.123.2新增蓝色天命“流派悟性”，测灵碑最终确认前从服务器已注册且有功法归属的流派中选择一个；研读与熟练获取各提高40%，选择与熟练小数随玩家保存。详见[流派悟性](../features/school-insight.md)。
 
 0.127.0新增蓝色炼丹奇才、炼器奇才（各3点）及普通土块（1点），分别固定对应开局资质60，以及使制作曲线均值−5、方差×4。三项可同时选择，详见[开局技艺天赋](../features/crafting-opening-talents.md)。定义新增 `npc_eligible`，默认true；这三项设为false，仅进入玩家池。NPC静态池、注册表池及生效入口共同过滤。网络协议75。
 
-Placeholders use explicit `placeholder: true`, empty effects and bilingual no-effect
-labels. They keep tier costs and exclusive groups but temporarily omit root gates.
-All tier weights are equal; the two ordinary guarantees still bias the final draft.
-Restart and explicitly reroll to use the new pool; existing saved choices are preserved.
-The normative contract is [innate-fates](../contracts/cultivation.md#innate-fates).
-The browser prototype remains a design playground; it is not the game's registry.
+天命由注册表和服务器候选池驱动。重开测灵碑时显示已有候选，重抽后采用当前候选池与权重。天命、一次性物资、伴生剑和奖励箱的判定进度均由服务器保存。见[修炼技术约束](../contracts/cultivation.md#h-面板与天命)。
 
 四项元素亲和在0.122.1接入普通候选池，具体命中、叠加与冷却规则见[五行亲和](../features/elemental-affinity-fates.md)。
 

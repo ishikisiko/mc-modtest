@@ -7,6 +7,7 @@ import com.example.myvillage.cultivation.time.CultivationServerConfig;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import java.util.*;
 
@@ -22,7 +23,7 @@ public final class FateService {
     public static boolean has(net.minecraft.world.entity.LivingEntity actor, String id) {
         var fates = state(actor);
         if (!fates.confirmed() || !fates.selected().contains(id)) return false;
-        var key = net.minecraft.resources.ResourceLocation.parse(id);
+        var key = ResourceLocation.parse(id);
         return actor.registryAccess().registry(ModCultivationRegistries.INNATE_FATES)
                 .flatMap(registry -> registry.getOptional(key))
                 .filter(def -> actor instanceof ServerPlayer player ? def.active(CultivationService.getProfile(player).spiritualRoot())
@@ -105,8 +106,12 @@ public final class FateService {
         return diagnosticIntent(source,player,action,revision,value,"");
     }
     public static boolean diagnosticIntent(CommandSourceStack source,ServerPlayer player,int action,long revision,int value,String school) {
+        return diagnosticIntent(source, player, action, revision, value, school, -1);
+    }
+    public static boolean diagnosticIntent(CommandSourceStack source, ServerPlayer player, int action,
+            long revision, int value, String school, int weapon) {
         if (!source.hasPermission(2)) return false;
-        return request(player, action, revision, value, true,school,-1);
+        return request(player, action, revision, value, true, school, weapon);
     }
 
     private static boolean request(ServerPlayer player, int action, long revision, int value, boolean authorized,String school,int weapon) {

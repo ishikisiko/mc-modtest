@@ -167,7 +167,7 @@ public final class TemperedBonesRuntime {
             if (player == null || !player.isAlive() || FateActors.level(player) != pulse.level()) continue;
             var area = player.getBoundingBox().move(pulse.center().subtract(player.position())).inflate(pulse.radius());
             for (LivingEntity target : pulse.level().getEntitiesOfClass(LivingEntity.class, area,
-                    entity -> entity.isAlive() && enemy(entity, player)
+                    entity -> entity.isAlive() && !FateDefenses.immune(entity) && enemy(entity, player)
                             && entity.position().distanceToSqr(pulse.center()) <= pulse.radius() * pulse.radius())) {
                 Vec3 away = target.position().subtract(pulse.center());
                 if (away.horizontalDistanceSqr() == 0) away = player.getLookAngle();

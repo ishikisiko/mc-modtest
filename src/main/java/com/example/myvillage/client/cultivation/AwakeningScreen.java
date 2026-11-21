@@ -200,7 +200,7 @@ public final class AwakeningScreen extends Screen {
         reroll.visible=lock.visible=proceed.visible=false;
         confirm.visible=true;
         confirm.active=rules.weaponChoice(weapon);
-        confirm.setMessage(Component.translatable("fate.yuanxian.school_accept"));
+        confirm.setMessage(Component.translatable("fate.yuanxian.weapon_accept"));
     }
     private void refreshSchools() {
         var options=schools();int pages=Math.max(1,(options.size()+5)/6);schoolPage=Math.max(0,Math.min(schoolPage,pages-1));
@@ -372,7 +372,7 @@ public final class AwakeningScreen extends Screen {
         @Override protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
             com.example.myvillage.client.cultivation.panel.FateCardRenderer.draw(g, font,
                     getX(), getY(), getWidth(), getHeight(), definition, getMessage(), available,
-                    chosen, locked, isHoveredOrFocused(), schoolStep);
+                    chosen, locked, isHoveredOrFocused(), schoolStep || weaponStep);
         }
     }
 }

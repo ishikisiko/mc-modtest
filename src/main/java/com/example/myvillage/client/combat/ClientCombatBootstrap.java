@@ -53,16 +53,7 @@ public final class ClientCombatBootstrap {
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            CombatAnimationController.registerFactory();
-            net.minecraft.client.renderer.item.ItemProperties.register(
-                    com.example.myvillage.item.ModItems.PRIMORDIAL_COMPANION_SWORD.get(),
-                    net.minecraft.resources.ResourceLocation.parse("yuanxian:companion_form"),
-                    (stack, level, entity, seed) -> {
-                        var mark = com.example.myvillage.item.CompanionSwordItem.mark(stack);
-                        return mark == null ? 0 : mark.form() / 4.0F;
-                    });
-        });
+        event.enqueueWork(CombatAnimationController::registerFactory);
     }
 
     private static void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {

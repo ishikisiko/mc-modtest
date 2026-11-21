@@ -5,14 +5,17 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import sys
 from pathlib import Path
 from zipfile import ZipFile
 
 from PIL import Image
 
-from tools.equipment import mesh
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.equipment import mesh
 SOURCE = ROOT / "equipment/weapons/companion_sword_meshes.zip"
 RESOURCE = ROOT / "src/main/resources"
 ITEM = "primordial_companion_sword"
@@ -64,6 +67,7 @@ def geometry(faces: list[dict], model: str) -> dict:
         "head": {"half_width": 1.5, "half_thickness": .57, "ridge_half_thickness": .65,
                  "taper_start_y": tip[1] - 2},
         "head_base": [8, 4.66, 8], "head_tip": tip,
+        "edge_axis": [0, 0, 1], "flat_axis": [1, 0, 0], "overall_y": [0, tip[1]],
         "trail": {"base": [8, 4.66, 8], "tip": [8, tip[1], 8]},
     }
 

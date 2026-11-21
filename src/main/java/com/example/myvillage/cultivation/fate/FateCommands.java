@@ -2,10 +2,13 @@ package com.example.myvillage.cultivation.fate;
 
 import com.example.myvillage.cultivation.CultivationService;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -25,17 +28,9 @@ public final class FateCommands {
                 .then(Commands.argument("slot", IntegerArgumentType.integer(0, 6))
                         .executes(c -> act(c.getSource().getPlayerOrException(), 1, slot(IntegerArgumentType.getInteger(c, "slot"))))));
         for (String alias : new String[]{"confirm", "queren"}) root.then(Commands.literal(alias)
-                .then(Commands.argument("mask", IntegerArgumentType.integer(0, 63))
-                        .executes(c -> act(c.getSource().getPlayerOrException(), 2, IntegerArgumentType.getInteger(c, "mask")))
-                        .then(Commands.argument("school",net.minecraft.commands.arguments.ResourceLocationArgument.id())
-                                .executes(c -> act(c.getSource().getPlayerOrException(),2,IntegerArgumentType.getInteger(c,"mask"),
-                                        net.minecraft.commands.arguments.ResourceLocationArgument.getId(c,"school").toString()))))
-                .then(Commands.argument("player", EntityArgument.player()).requires(s -> s.hasPermission(2))
-                        .then(Commands.argument("mask", IntegerArgumentType.integer(0, 63))
-                                .executes(c -> diagnostic(c.getSource(), EntityArgument.getPlayer(c, "player"), 2, IntegerArgumentType.getInteger(c, "mask")))
-                                .then(Commands.argument("school",net.minecraft.commands.arguments.ResourceLocationArgument.id())
-                                        .executes(c -> diagnostic(c.getSource(),EntityArgument.getPlayer(c,"player"),2,IntegerArgumentType.getInteger(c,"mask"),
-                                                net.minecraft.commands.arguments.ResourceLocationArgument.getId(c,"school").toString()))))));
+                .then(confirmMask(false))
+                .then(Commands.argument("player", EntityArgument.player()).requires(source -> source.hasPermission(2))
+                        .then(confirmMask(true))));
         for (String alias : new String[]{"reset", "qingchu"}) root.then(Commands.literal(alias).requires(s -> s.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.player()).executes(c -> {
                     ServerPlayer p = EntityArgument.getPlayer(c, "player");
@@ -47,6 +42,33 @@ public final class FateCommands {
                     return info(c.getSource(), p);
                 })));
         return root;
+    }
+    private static RequiredArgumentBuilder<CommandSourceStack, Integer> confirmMask(boolean diagnostic) {
+        return Commands.argument("mask", IntegerArgumentType.integer(0, 63))
+                .executes(c -> confirm(c, diagnostic, false, false))
+                .then(Commands.literal("weapon").then(Commands.argument("item", ResourceLocationArgument.id())
+                        .executes(c -> confirm(c, diagnostic, false, true))))
+                .then(Commands.argument("school", ResourceLocationArgument.id())
+                        .executes(c -> confirm(c, diagnostic, true, false))
+                        .then(Commands.literal("weapon").then(Commands.argument("item", ResourceLocationArgument.id())
+                                .executes(c -> confirm(c, diagnostic, true, true)))));
+    }
+
+    private static int confirm(CommandContext<CommandSourceStack> context, boolean diagnostic, boolean schoolChoice,
+            boolean weaponChoice) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        var source = context.getSource();
+        var player = diagnostic ? EntityArgument.getPlayer(context, "player") : source.getPlayerOrException();
+        String school = schoolChoice ? ResourceLocationArgument.getId(context, "school").toString() : "";
+        int weapon = weaponChoice ? FateReworkRules.get().weapons().indexOf(ResourceLocationArgument.getId(context, "item")) : -1;
+        if (weaponChoice && weapon < 0) {
+            source.sendFailure(Component.translatable("fate.yuanxian.error.weapon"));
+            return 0;
+        }
+        long revision = FateService.state(player).revision();
+        int mask = IntegerArgumentType.getInteger(context, "mask");
+        boolean result = diagnostic ? FateService.diagnosticIntent(source, player, 2, revision, mask, school, weapon)
+                : FateService.intent(player, 2, revision, mask, SteleAwakeningSessions.currentToken(player), school, weapon);
+        return result ? 1 : 0;
     }
     private static int slot(int value) { return value == 0 ? 255 : value - 1; }
     private static int act(ServerPlayer p, int action, int value) {

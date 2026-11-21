@@ -2650,6 +2650,7 @@
   "fate.yuanxian.gift_pending": "背包没有放下全套开局物资的空间。腾出空间后再打开测灵碑领取。",
   "fate.yuanxian.gift_received": "已领取薄有家资的开局物资。",
   "fate.yuanxian.weapon_choose": "选择薄有家资赠送的武器",
+  "fate.yuanxian.weapon_accept": "确认武器",
   "fate.yuanxian.weapon_hint": "两把武器均为中品，确认天命时发放所选武器。",
   "fate.yuanxian.weapon_selected": "开局武器 %s",
   "fate.yuanxian.hearing_hint": "耳聪目明感知到%s有敌人",

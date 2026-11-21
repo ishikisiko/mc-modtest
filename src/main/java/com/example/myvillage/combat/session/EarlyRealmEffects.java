@@ -243,7 +243,8 @@ public final class EarlyRealmEffects {
 
     public static void projectile(EntityTickEvent.Pre event) {
         if (FIELDS.isEmpty() || !(event.getEntity() instanceof Projectile shot) || shot.level().isClientSide()
-                || !(shot instanceof Arrow || shot instanceof SpectralArrow || shot instanceof SmallFireball)
+                || !(shot instanceof Arrow || shot instanceof SpectralArrow || shot instanceof SmallFireball
+                    || shot instanceof com.example.myvillage.entity.undead.UndeadArrowEntity undead && undead.directShot())
                 || !(shot.getOwner() instanceof LivingEntity attacker)) return;
         Vec3 from = shot.position();
         Vec3 velocity = shot.getDeltaMovement();
