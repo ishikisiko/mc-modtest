@@ -413,5 +413,11 @@
     "layer": "minecraft:zombified_piglin#main",
     "texture": "minecraft:textures/entity/piglin/zombified_piglin.png",
     "source": "net/minecraft/client/renderer/entity/PiglinRenderer.java"
+  },
+  "yuanxian:nascent_demon": {
+    "layer": "minecraft:player#main",
+    "texture": "minecraft:textures/entity/player/wide/steve.png",
+    "source": "com/example/myvillage/client/entity/NascentDemonRenderer.java",
+    "note": "心魔在游戏中使用对应玩家的皮肤。这里用默认玩家皮肤展示模型。"
   }
 }

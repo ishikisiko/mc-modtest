@@ -44,10 +44,16 @@ def model_quads(root,reader,id):
     model=base/'beast'/f'{n}_model.json'
     if not model.exists():model=base/'npc'/f'{n}_model.json'
     doc=json.loads(model.read_text());m=cuboid.model_from_json(doc);inputs=[model]
+    texid=f'{ns}:textures/entity/{n}/{n}.png';tex,sha=texture(reader,texid)
+    eyes=base/'textures/entity'/n/f'{n}_eyes.png'
+    glow=texture(reader,f'{ns}:textures/entity/{n}/{n}_eyes.png')[0] if eyes.exists() else None
+    pose=anim.posed_matrices(m,{},look=None)
+    quads=[]
     if 'surface_mesh' in doc:
+        if model.parent.name == 'npc':
+            quads.extend(Mesh(m,tex,glow,scale=m.scale).world(pose))
         sns,sname=doc['surface_mesh'].split(':',1);path=root/'src/main/resources/assets'/sns/sname;m.surface=json.loads(path.read_text());inputs.append(path)
-    texid=f'{ns}:textures/entity/{n}/{n}.png';tex,sha=texture(reader,texid);eyes=base/'textures/entity'/n/f'{n}_eyes.png';glow=texture(reader,f'{ns}:textures/entity/{n}/{n}_eyes.png')[0] if eyes.exists() else None
-    quads=Mesh(m,tex,glow,scale=m.scale).world(anim.posed_matrices(m,{},look=None))
+    quads.extend(Mesh(m,tex,glow,scale=m.scale).world(pose))
     return quads,{'model':str(model.relative_to(root/'src/main/resources')),'texture':texid,'texture_sha256':sha,'model_sha256':hashlib.sha256(b''.join(p.read_bytes() for p in inputs)).hexdigest()}
 
 def frame_for(quads,direction,width=384,height=320):
@@ -61,8 +67,8 @@ def build(root=ROOT,client=None):
     extra={'sheep':[('minecraft:sheep#fur','minecraft:textures/entity/sheep/sheep_fur.png')],'stray':[('minecraft:stray#outer','minecraft:textures/entity/skeleton/stray_overlay.png')],'bogged':[('minecraft:bogged#outer','minecraft:textures/entity/skeleton/bogged_overlay.png')],'drowned':[('minecraft:drowned#outer','minecraft:textures/entity/zombie/drowned_outer_layer.png')],'breeze':[('minecraft:breeze_wind#main','minecraft:textures/entity/breeze/breeze_wind.png')]}
     for i,e in enumerate(entities):
         id=e['id'];ns,n=id.split(':',1)
-        if ns=='minecraft' or id=='yuanxian:simple_fox':
-            spec=source[id] if ns=='minecraft' else {**source['minecraft:fox'],'texture':'yuanxian:textures/entity/simple_fox/simple_fox.png'}
+        if ns=='minecraft' or id in source or id=='yuanxian:simple_fox':
+            spec=source[id] if id!='yuanxian:simple_fox' else {**source['minecraft:fox'],'texture':'yuanxian:textures/entity/simple_fox/simple_fox.png'}
             quads,sha=vanilla(reader,layers,spec);provenance={**spec,'texture_sha256':sha}
             for layer,tex in extra.get(n,[]):
                 q,_=vanilla(reader,layers,{'layer':layer,'texture':tex});quads+=q
@@ -72,7 +78,8 @@ def build(root=ROOT,client=None):
         for key,label,direction in VIEWS:
             file=f'{ns}-{n}-{key}.png';im=render(quads,frame_for(quads,direction),bg=(35,48,48),ground=False,cull=False);im.save(folder/'entities'/file,optimize=True)
             views.append({'id':key,'name':label,'url':ASSETS+'entities/'+file})
-        manifest[id]={'views':views,'kind':'offline_model','note':'当前模型与贴图的离线3D预览；显示一种代表性外观，装备与动作会随游戏状态变化。','source':provenance}
+        note=provenance.get('note','当前模型与贴图的离线3D预览。装备与动作会随游戏状态变化。')
+        manifest[id]={'views':views,'kind':'offline_model','note':note,'source':provenance}
         if (i+1)%10==0:print(f'已生成 {i+1}/{len(entities)} 种生物',flush=True)
     (folder/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n');print('三视图完成：'+str(len(manifest)*3),flush=True)
 

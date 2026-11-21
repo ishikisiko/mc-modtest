@@ -126,6 +126,20 @@ class NativeLootAndCategoriesTest(unittest.TestCase):
         self.assertEqual('1–2',row['quantity'])
         self.assertEqual(1,row['chance'])
         self.assertEqual(['抢夺每级增加 0–1 个'],row['notes'])
+    def test_evil_cultivator_lists_runtime_drops_alongside_its_loot_table(self):
+        from tools.drop_workbench.loot import native_loot
+
+        entity_id = 'yuanxian:evil_cultivator'
+        entities = {entity_id: {'id': entity_id}}
+        native_loot(self.assets, self.reader.langs, entities)
+        loot = entities[entity_id]['native_loot']
+        self.assertEqual([], loot['raw']['pools'])
+        info = loot['evil_cultivator_drops']
+        rules = json.loads(self.assets.read('data/yuanxian/wilderness/evil_cultivator.json'))
+        self.assertEqual(rules['manual_preference'], info['manual_preference'])
+        for name, tier in zip(('ordinary', 'prodigy'), info['tiers'], strict=True):
+            for key in ('spirit_stones', 'manual_chance', 'grade_weights'):
+                self.assertEqual(rules[name][key], tier[key])
     def test_purpose_category_wins_over_block_or_equipment_word(self):
         from tools.drop_workbench.categories import classify
         ids=['yuanxian:pill_huiling','yuanxian:medium_grade_spirit_stone','yuanxian:spirit_leaf','yuanxian:qingfeng_sword','yuanxian:xuantie_chestplate','yuanxian:workpiece_qingfeng_sword_rough','minecraft:acacia_planks','minecraft:acacia_sign','minecraft:iron_ingot']

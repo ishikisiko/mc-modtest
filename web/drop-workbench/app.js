@@ -161,7 +161,7 @@ function renderCreature(){
         : choices.find(e => e.id === S.inspectEntity) || choices[0] || entity(S.inspectEntity);
     const views = v.portrait?.views || [];
     const view = views.find(x => x.id === S.angle) || views[0];
-    $('creature-preview').innerHTML=`${S.tab!=='entities'?`<label class="inspect-select"><span>选择要查看掉落的生物</span><select id="inspect-entity">${choices.map(e=>`<option value="${esc(e.id)}" ${e.id===v.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></label>`:''}<div class="portrait-layout"><button id="enlarge-creature" class="portrait-image" aria-label="放大${esc(v.name)}模型预览">${view?`<img src="${esc(view.url)}" alt="${esc(v.name+' '+view.name+'3D预览')}">`:'<span>暂无模型预览</span>'}<span class="enlarge-label">点击放大 ↗</span></button><div class="portrait-description"><span class="eyebrow">生物模型 · 3D</span><strong>${esc(v.name)}</strong><div class="view-buttons">${views.map(x=>`<button class="${x.id===view.id?'active':''}" data-view="${x.id}">${x.name}</button>`).join('')}</div><p>使用当前真实模型和贴图生成的离线预览。外观变种、装备和动作会随游戏状态变化。</p><button id="open-bestiary" class="text-button bestiary-link">查看全部生物图鉴 ↗</button></div></div>`;$('inspect-entity')?.addEventListener('change',e=>{S.inspectEntity=e.target.value;S.angle='quarter';renderCreature()});document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{S.angle=b.dataset.view;renderCreature()});$('enlarge-creature').onclick=()=>{if(!view)return;modal(v.name+' · '+view.name,`<img class="large-portrait" src="${esc(view.url)}" alt="${esc(v.name)}"><p class="modal-copy">${esc(v.portrait.note)}</p><div class="modal-actions">${views.map(x=>`<a class="quiet" target="_blank" rel="noopener" href="${esc(x.url)}">${x.name}原图 ↗</a>`).join('')}</div>`)};$('open-bestiary').onclick=openBestiary;renderNativeLoot(v);
+    $('creature-preview').innerHTML=`${S.tab!=='entities'?`<label class="inspect-select"><span>选择要查看掉落的生物</span><select id="inspect-entity">${choices.map(e=>`<option value="${esc(e.id)}" ${e.id===v.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></label>`:''}<div class="portrait-layout"><button id="enlarge-creature" class="portrait-image" aria-label="放大${esc(v.name)}模型预览">${view?`<img src="${esc(view.url)}" alt="${esc(v.name+' '+view.name+'3D预览')}">`:'<span>暂无模型预览</span>'}<span class="enlarge-label">点击放大 ↗</span></button><div class="portrait-description"><span class="eyebrow">生物模型 · 3D</span><strong>${esc(v.name)}</strong><div class="view-buttons">${views.map(x=>`<button class="${x.id===view.id?'active':''}" data-view="${x.id}">${x.name}</button>`).join('')}</div><p>${esc(v.portrait?.note || '使用当前模型和贴图生成的离线预览。')}</p><button id="open-bestiary" class="text-button bestiary-link">查看全部生物图鉴 ↗</button></div></div>`;$('inspect-entity')?.addEventListener('change',e=>{S.inspectEntity=e.target.value;S.angle='quarter';renderCreature()});document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{S.angle=b.dataset.view;renderCreature()});$('enlarge-creature').onclick=()=>{if(!view)return;modal(v.name+' · '+view.name,`<img class="large-portrait" src="${esc(view.url)}" alt="${esc(v.name)}"><p class="modal-copy">${esc(v.portrait.note)}</p><div class="modal-actions">${views.map(x=>`<a class="quiet" target="_blank" rel="noopener" href="${esc(x.url)}">${x.name}原图 ↗</a>`).join('')}</div>`)};$('open-bestiary').onclick=openBestiary;renderNativeLoot(v);
     shownCreature = v;
     renderRuleOverview(v);
 }
@@ -169,9 +169,27 @@ function formatChance(chance) {
     return (chance * 100).toLocaleString('zh-CN', {maximumFractionDigits: 3}) + '%';
 }
 
+function evilCultivatorLoot(drops) {
+    if (!drops) return '';
+    const grades = ['黄阶', '玄阶', '地阶', '天阶'];
+    const tierRows = drops.tiers.map(tier => {
+        const [min, max] = tier.spirit_stones;
+        const stones = min === max ? String(min) : `${min}–${max}`;
+        const allowed = grades.filter((_, i) => tier.grade_weights[i] > 0).join('、');
+        return `<li><strong>${esc(tier.name)}邪修</strong>掉落 ${esc(stones)} 枚下品灵石。秘籍掉落率为 ` +
+            `${formatChance(tier.manual_chance)}，候选品阶为${esc(allowed)}。</li>`;
+    }).join('');
+    return `<div class="native-policy">
+        <p>邪修出生时有 ${formatChance(drops.prodigy_chance)} 概率成为天骄。</p>
+        <ul>${tierRows}</ul>
+        <p>掉落秘籍时，根据致死一击判定流派。以剑击为例，${formatChance(drops.manual_preference)} 从剑法和通用心法中抽取，剩余概率从其他可流通功法中抽取。</p>
+    </div>`;
+}
+
 function renderNativeLoot(creature) {
     const loot = creature.native_loot;
     const rows = loot?.rows || [];
+    const runtimeDrops = evilCultivatorLoot(loot?.evil_cultivator_drops);
     $('native-loot').innerHTML = `
         <div class="section-title"><h3>原生战利品</h3><span id="overview-native-status" class="muted"></span></div>
         ${loot?.variant_note ? `<p class="native-footnote">${esc(loot.variant_note)}</p>` : ''}
@@ -187,7 +205,8 @@ function renderNativeLoot(creature) {
                 ${row.notes.length ? `<div class="native-note">${row.notes.map(esc).join('；')}</div>` : ''}
                 ${row.reference ? `<div class="mono">引用 ${esc(row.reference)}</div>` : ''}
             </div></div>`;
-        }).join('')}</div>` : `<p class="native-empty">${loot?.status === 'missing' ? '资源中没有此生物的战利品表。' : '原生战利品表没有物品条目。'}</p>`}
+        }).join('')}</div>` : runtimeDrops ? '' : `<p class="native-empty">${loot?.status === 'missing' ? '资源中没有此生物的战利品表。' : '原生战利品表没有物品条目。'}</p>`}
+        ${runtimeDrops}
         ${rows.length ? '<p class="native-footnote">概率按无抢夺和单次抽取显示。游戏中的数据包可修改原生表。</p>' : ''}
         <details class="native-raw"><summary>查看原始战利品表</summary><div class="mono">${esc(loot?.table || creature.id)}</div><pre>${esc(JSON.stringify(loot?.raw ?? {}, null, 2))}</pre></details>`;
 }

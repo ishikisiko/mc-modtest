@@ -144,6 +144,19 @@ class LootReader:
         chance=gates*choice*positive if choice is not None else None
         rows.append({'item':id if t=='item' else None,'name':self.label(id) if t=='item' else '标签 #'+id,'quantity':quantity,'chance':chance,'pool_chance':gates,'selection':'按满足条件的条目抽取' if choice is None else ('等权或按权重抽取 '+percent(choice) if choice<1 else ''),'conditions':labels,'notes':notes,'rolls':amount(rolls),'pool':pool})
 
+def evil_cultivator_drops(reader):
+    rules = json.loads(reader.read('data/yuanxian/wilderness/evil_cultivator.json'))
+    progression = json.loads(reader.read('data/yuanxian/stats/progression.json'))
+    return {
+        'prodigy_chance': progression['npc']['prodigy_chance'],
+        'manual_preference': rules['manual_preference'],
+        'tiers': [
+            {'name': name, **{key: rules[tier][key] for key in ('spirit_stones', 'manual_chance', 'grade_weights')}}
+            for tier, name in (('ordinary', '普通'), ('prodigy', '天骄'))
+        ],
+    }
+
+
 def native_loot(reader,langs,entities):
     parser=LootReader(reader,langs)
     for v in entities.values():
@@ -154,4 +167,6 @@ def native_loot(reader,langs,entities):
             for row in loot['rows']:
                 if row['item']=='minecraft:white_wool':row['conditions'].append('未剪毛；羊毛颜色为白色')
             v['native_loot']=loot
+        if v['id'] == 'yuanxian:evil_cultivator':
+            v['native_loot']['evil_cultivator_drops'] = evil_cultivator_drops(reader)
     return sorted(parser.unsupported)
