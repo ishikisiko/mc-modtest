@@ -295,7 +295,7 @@
           28
         ]
       ],
-      "city_sha256": "5d1e4aa4615bbf290b50ebb416c05310454a512bf71990a8705f16b1a645daf6",
+      "city_sha256": "b629642554aa2744300fb3cdb0163cf37154e4ac0fa9476e64dc5f26e943b204",
       "gate_source_templates": {
         "yuanxian:province_capitals/v4/capital_nanjiang/tile_7_22": "f31af8f9f267d1b32e6a1bec2023ee58c95165272997d279bd3e437c03896c92",
         "yuanxian:province_capitals/v4/capital_nanjiang/tile_8_22": "614e8cd75f45bbc99520c8064a709e9823dc31ef5a73ea110f489e62d5775497"
@@ -800,7 +800,7 @@
           26
         ]
       ],
-      "city_sha256": "65ccdc4d70da12a92814fe6865bf5a70c59f1f77bd2b5e5741c3d38c9b444338",
+      "city_sha256": "ff2ace2f4d295921f16f9c2ec6a6ee0fd61d235353982fd399aaabb029c1fed9",
       "gate_source_templates": {
         "yuanxian:province_capitals/v4/capital_ximo/tile_9_20": "bca93e8c840d376de1e7b555bf86d178dd203b44007ba63affe4e6c82ea6fc3c",
         "yuanxian:province_capitals/v4/capital_ximo/tile_9_21": "aba5306f0dddf1df7253e4abe39be6f9b63cfaad027191583d1c47df41b74b0d"
@@ -1115,7 +1115,7 @@
           28
         ]
       ],
-      "city_sha256": "7c3bd37b45181d7f7a79d837e78ee28a191a0f774eedddeb30409af2a1a9f5c8",
+      "city_sha256": "62ed211a8185cedfd0a1ef7ddda498b7eea2026240a33be6bc8fb2c850518642",
       "gate_source_templates": {
         "yuanxian:province_capitals/v4/capital_beiyuan/tile_10_19": "3838007347b142fece5aaa533e8b0b6b7cd3c15ec6b6d45317a3cadddb491d1c",
         "yuanxian:province_capitals/v4/capital_beiyuan/tile_10_20": "321f98da79166baa4a957325b3dafcd2ef85017b459851668b4fc8121617df07",
@@ -1372,7 +1372,7 @@
           32
         ]
       ],
-      "city_sha256": "5c7e215635fe1ebdfcc5c975258651d081dfaff1b8605dfeb40fadff765c1003",
+      "city_sha256": "bac3ba1e7633cdd4cd33a8af6095548486b104f479835087887f79824924a68c",
       "gate_source_templates": {
         "yuanxian:province_capitals/v4/capital_donghuang/tile_7_27": "f040af1faa0bf7fbf1a8309f8ce0923cedc392f705d85dd2ec36649069c13d59"
       }
@@ -1596,7 +1596,7 @@
           28
         ]
       ],
-      "city_sha256": "9558bba25ec602bbd3b5d5eb09492e6c2ced890931e786c1ebcb2128a186c68a",
+      "city_sha256": "80d729ff615ffbc796fbc173faaa8491a2fb0f5282b0e7ceb5d86daa6866257e",
       "gate_source_templates": {
         "yuanxian:province_capitals/v4/capital_lingyue/tile_12_22": "d4e1a5e8fcd8b829699c93d13d1f6f6efd70b1ce0d892ca2abedf1bb808f5d3f"
       }
@@ -1950,7 +1950,7 @@
           36
         ]
       ],
-      "city_sha256": "e3df9bb5beb0035f46a01837678b21bddfbcf5ac0809a8b30aa36d056d1ecc58",
+      "city_sha256": "e423dd8c80fd3f33e9a95a53157c8501b4e5fe829426895c405900b8047f1d24",
       "gate_source_templates": {
         "yuanxian:province_capitals/v4/capital_moyu/tile_7_22": "42fb8c22b4661312724501213ede0ec824c745a5c04fda1e45bab023bf0d0da9"
       }
@@ -2404,7 +2404,7 @@
           16
         ]
       ],
-      "city_sha256": "56e5767febc30a46cd9aa139c0e5d631f3cd8bd091ef84689acfd0ca95d64690",
+      "city_sha256": "da64047482405ac634790213aa78eabfa7f71365b5f449786171c4698c0ce6b6",
       "gate_source_templates": {
         "yuanxian:province_capitals/v4/capital_donghai/tile_1_17": "f72a6e6d097653ef1f448f6ba37d12fc7ca00d8a329f0d9232a887b6786936a3",
         "yuanxian:province_capitals/v4/capital_donghai/tile_0_17": "bd52e2088ef1e3a3c10232ba91de2860f7079a0873fd013064f986775164495f"
@@ -5654,7 +5654,7 @@
           138
         ]
       ],
-      "city_sha256": "01d1d28ca879e63dba0f4a554f7e1b9de50862f85f274fd87634b9a27c41a299",
+      "city_sha256": "38dbec24d706cca9612ba1907cfea58fbbab3172db3496b406200a5f02a2f5de",
       "gate_source_templates": {
         "yuanxian:province_capitals/v4/capital_zhongzhou/tile_35_77": "394ffd27bb984c9498624d001eae272009e2a5d6b63b69574a269418690d3b18",
         "yuanxian:province_capitals/v4/capital_zhongzhou/tile_36_77": "a1970cfdc4ffc2bc26e6b59303649691fa1a63a2778057c248f87aef346ceb8c",

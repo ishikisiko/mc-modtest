@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.145.0-fix2
+
+- 灵舟双埠的水道两端以石岸收口，避免渠水流到相邻街坊和坡面。
+
 ## 0.145.0-fix1
 
 - 八座州城的天衡殿改设在原城内街坊。院门接入已有街道，城镇地图更新入口。

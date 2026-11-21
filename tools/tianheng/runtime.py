@@ -92,8 +92,13 @@ def province_lot(scheme, source, voxels, shapes, roles):
         # Remove the wider canal's island before laying the compact receiving
         # bridge. The east auction building and its two galleries are intact.
         assembled[2:,11:40,39:46] = 0
-        assembled[1,11:40,39:46] = roles.index('water')
+        water = roles.index('water')
+        assembled[1,11:40,39:46] = water
         assembled[2,74:77,35:51] = roles.index('deck')
+        # The shortened canal meets streets or steep ground at its new ends.
+        for edge in (0,-1):
+            bank = assembled[1,edge]
+            bank[bank==water] = roles.index('stone')
     return plan, assembled, mapped
 
 
