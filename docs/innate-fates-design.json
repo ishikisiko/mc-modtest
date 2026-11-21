@@ -1,5 +1,5 @@
 {
-  "status": "28项已实现，7项可选占位，4项仅设计候选",
+  "status": "28项已实现，6项可选占位，4项仅设计候选",
   "source": "https://xiantian-fates-36.h905382624.chatgpt.site",
   "revision": "2.4",
   "tiers": [
@@ -557,22 +557,6 @@
       "maxRoots": 3,
       "focus": "战斗",
       "runtime_id": "yuanxian:primordial_sword_bone",
-      "implementation": "selectable_placeholder"
-    },
-    {
-      "id": "fate-33",
-      "name": "九幽冥体",
-      "tier": 5,
-      "kind": "体质",
-      "flavor": "身在此处，杀机已渡幽水。",
-      "effect": "开局：可化冥水穿过敌群，短暂不可被选中。觉醒冥身：留下替身承受下一击，并瞬移至先前落点。",
-      "tradeoff": "冥行持续 1 秒、冷却 15 秒；替身回溯仅位移，不恢复生命或资源；不可穿越封印与保护区。",
-      "group": "体质",
-      "element": 2,
-      "min": 80,
-      "maxRoots": 3,
-      "focus": "战斗 · 探索",
-      "runtime_id": "yuanxian:nether_body",
       "implementation": "selectable_placeholder"
     },
     {
