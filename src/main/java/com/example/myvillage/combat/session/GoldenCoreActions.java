@@ -43,6 +43,7 @@ import static com.example.myvillage.combat.session.GoldenCoreGeometry.*;
 public final class GoldenCoreActions {
     private static final Logger LOG = LoggerFactory.getLogger(GoldenCoreActions.class);
     private static final double SUPPORT_SAMPLE = 0.5;
+    private static final double TIP_CONTACT_EPSILON = 0.0001;
     private static final double TRACE_MIN_ANGLE = 18;
     private static final int PULSE_COUNT = 3;
     private static final int TELEGRAPH_INTERVAL = 4;
@@ -115,7 +116,7 @@ public final class GoldenCoreActions {
         }
     }
 
-    private record TrailPart(Strip strip, long until) {}
+    private record TrailPart(Strip strip, long starts, long until) {}
     private static final class Trail {
         final Cast cast;
         final List<TrailPart> parts = new ArrayList<>();
@@ -180,7 +181,7 @@ public final class GoldenCoreActions {
             CombatCaster.message(caster, net.minecraft.network.chat.Component.literal("请选择可见的地面布下第二道剑痕"), true);
             return false;
         }
-        Strip next = trace(aim, trace.cast.spec);
+        Strip next = trace(caster, aim, trace.cast.spec);
         if (Math.abs(trace.first.forward().dot(next.forward())) > Math.cos(Math.toRadians(TRACE_MIN_ANGLE))) {
             CombatCaster.message(caster, net.minecraft.network.chat.Component.literal("转动朝向后再布第二道剑痕"), true);
             return false;
@@ -215,7 +216,7 @@ public final class GoldenCoreActions {
     private static void warn(Cast cast) {
         var spec = cast.spec;
         switch (spec.mechanic()) {
-            case CROSSING_TRACES -> markStrip(cast.caster, cast.art, trace(cast.aim, spec), true);
+            case CROSSING_TRACES -> markStrip(cast.caster, cast.art, trace(cast.caster, cast.aim, spec), true);
             case STONE_STAMP -> {
                 markRing(cast.caster, cast.art, cast.aim.anchor(), spec.radius(), true);
                 markRing(cast.caster, cast.art, cast.aim.anchor(), spec.inner(), true);
@@ -228,7 +229,12 @@ public final class GoldenCoreActions {
                     if (point != null) markRing(cast.caster, cast.art, point, spec.radius(), true);
                 }
             }
-            case PIERCING_SWORD, STORED_PUNCH, TIP_CHARGE, RETREATING_THRUST, SIDE_TIDE, EARTH_ROWS ->
+            case TIP_CHARGE -> markStrip(cast.caster, cast.art, line(cast, cast.origin, spec.range()), true);
+            case EARTH_ROWS -> {
+                var path = lane(cast);
+                if (path.size() > 1) markStrip(cast.caster, cast.art, new Strip(path.getFirst(), path.getLast(), spec.width()), true);
+            }
+            case PIERCING_SWORD, STORED_PUNCH, RETREATING_THRUST, SIDE_TIDE ->
                     markStrip(cast.caster, cast.art, line(cast, cast.origin, spec.length()), true);
             default -> {
                 var target = liveTarget(cast);
@@ -238,12 +244,15 @@ public final class GoldenCoreActions {
     }
 
     private static Strip line(Cast cast, Vec3 origin, double length) {
-        return new Strip(origin, origin.add(cast.aim.direction().scale(length)), cast.spec.width());
+        Vec3 end = unobstructedEnd(cast.caster, origin, origin.add(cast.aim.direction().scale(length)));
+        return new Strip(origin, end, cast.spec.width());
     }
 
-    private static Strip trace(Aim aim, GoldenCoreArt spec) {
+    private static Strip trace(LivingEntity caster, Aim aim, GoldenCoreArt spec) {
         Vec3 half = aim.direction().scale(spec.length() / 2);
-        return new Strip(aim.anchor().subtract(half), aim.anchor().add(half), spec.width());
+        var anchor = aim.anchor();
+        return new Strip(unobstructedEnd(caster, anchor, anchor.subtract(half)),
+                unobstructedEnd(caster, anchor, anchor.add(half)), spec.width());
     }
 
     private static void strike(Cast cast) {
@@ -254,7 +263,7 @@ public final class GoldenCoreActions {
             case CROSSING_TRACES -> {
                 if (available(cast.caster, cast.aim.anchor(), spec.range())) {
                     cast.detach();
-                    TRACES.put(cast.caster.getUUID(), new Trace(cast, trace(cast.aim, spec)));
+                    TRACES.put(cast.caster.getUUID(), new Trace(cast, trace(cast.caster, cast.aim, spec)));
                 }
             }
             case SIDE_TIDE -> tide(cast);
@@ -283,7 +292,7 @@ public final class GoldenCoreActions {
         markStrip(caster, cast.art, strip, false);
         first(inStrip(caster, cast.session, strip)).ifPresent(victim -> {
             double edge = Math.sqrt(victim.getBoundingBox().distanceToSqr(caster.position()));
-            boolean tip = edge >= GoldenCoreArt.rules().spearTipMin() && edge <= GoldenCoreArt.rules().spearTipMax();
+            boolean tip = edge >= GoldenCoreArt.rules().spearTipMin() && edge <= GoldenCoreArt.rules().spearTipMax() + TIP_CONTACT_EPSILON;
             if (hit(cast, victim, tip ? spec.damage() : spec.secondary(), 1) && tip) {
                 CombatCaster.message(caster, net.minecraft.network.chat.Component.literal("枪锋命中"), true);
             }
@@ -396,9 +405,9 @@ public final class GoldenCoreActions {
             return;
         }
         var path = lane(cast);
-        var edge = phasePoint(cast, path, index + 1);
-        if (edge == null) return;
         if (cast.spec.mechanic() == GoldenCoreArt.Mechanic.FIRE_ROWS) {
+            var edge = phasePoint(cast, path, index + 1);
+            if (edge == null) return;
             markRing(cast.caster, cast.art, edge, cast.spec.radius(), false);
             for (var target : distinct(inArea(cast.caster, cast.session, edge, cast.spec.radius()), cast.spec.targets())) {
                 boolean first = !cast.contacts.containsKey(CombatTargets.hitId(target));
@@ -407,7 +416,10 @@ public final class GoldenCoreActions {
             }
         } else {
             var start = index == 0 ? cast.origin : phasePoint(cast, path, index);
-            if (start == null) return;
+            if (start == null || path.isEmpty()) return;
+            var boundary = phasePoint(cast, path, index + 1);
+            var edge = boundary == null ? path.getLast() : boundary;
+            if (horizontalDistance(start, edge) < 0.01) return;
             // Adjacent segments overlap slightly. Each enemy may take damage from at most two segments.
             Vec3 before = index == 0 ? start : start.subtract(cast.aim.direction().scale(SUPPORT_SAMPLE));
             var strip = new Strip(before, edge, cast.spec.width());
@@ -485,7 +497,7 @@ public final class GoldenCoreActions {
 
     private static void displace(Cast cast, Entity entity, Vec3 direction) {
         if (!(entity instanceof LivingEntity target) || CombatTargets.owner(target) != target || !target.isAlive()
-                || CombatDodgeService.isDodging(target) || StaggerResistant.resists(target)
+                || CombatDodgeService.isDodging(target) || ControlService.isRooted(target) || StaggerResistant.resists(target)
                 || !ControlService.canControl(cast.caster, target)) return;
         double resistance = Math.clamp(target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE), 0, 1);
         double scale = pvp(cast.caster, target) < 1 ? GoldenCoreArt.rules().pvpDisplacement() : 1;
@@ -573,11 +585,12 @@ public final class GoldenCoreActions {
                 if (!cast.valid()) return false;
                 markStrip(cast.caster, cast.art, part.strip(), true);
                 int limit = cast.spec.targets() - cast.contacts.size();
-                if (limit <= 0) continue;
+                if (limit <= 0 || now < part.starts()) continue;
                 int ignored = CombatTargets.hitId(cast.aim.target());
                 var candidates = inStrip(cast.caster, cast.session, part.strip()).stream().filter(target -> {
                     int hitId = CombatTargets.hitId(target);
-                    return hitId != ignored && !cast.contacts.containsKey(hitId) && isGrounded(target);
+                    return hitId != ignored && !cast.contacts.containsKey(hitId)
+                            && followsGround(cast.caster, part.strip().lineOrigin(target).add(0, -0.8, 0), target);
                 }).toList();
                 for (var target : distinct(candidates, limit)) {
                     if (hit(cast, target, cast.spec.damage(), 1) && CombatTargets.owner(target) instanceof LivingEntity living)
@@ -599,7 +612,7 @@ public final class GoldenCoreActions {
         var path = groundPath(trail.cast.caster, trail.last, horizontal(displacement), Math.min(distance, trail.left));
         if (path.size() < 2) return;
         var strip = new Strip(path.getFirst(), path.getLast(), trail.cast.spec.width());
-        trail.parts.add(new TrailPart(strip, now + trail.cast.spec.duration()));
+        trail.parts.add(new TrailPart(strip, now + TELEGRAPH_INTERVAL, now + trail.cast.spec.duration()));
         trail.left -= strip.length();
         trail.last = strip.end();
     }

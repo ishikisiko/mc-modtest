@@ -96,7 +96,8 @@ final class GoldenCoreGeometry {
         var hit = clip(caster, from, to);
         var target = acquire(caster, session, range, arc, true, e -> true);
         if (target != null && rayIntersects(target, from, to)) {
-            var underTarget = ground(caster, target.getBoundingBox().getCenter().with(Direction.Axis.Y, target.getBoundingBox().minY));
+            var center = point(target);
+            var underTarget = ground(caster, new Vec3(center.x, target.getBoundingBox().minY, center.z));
             if (underTarget != null) return underTarget;
         }
         if (hit != null && hit.getType() == HitResult.Type.BLOCK && hit.getDirection() == Direction.UP)
@@ -176,6 +177,12 @@ final class GoldenCoreGeometry {
 
     static Vec3 point(Entity target) { return target.getBoundingBox().getCenter(); }
 
+    static Vec3 unobstructedEnd(LivingEntity caster, Vec3 from, Vec3 to) {
+        var hit = clip(caster, from.add(0, 0.8, 0), to.add(0, 0.8, 0));
+        if (hit == null) return from;
+        return hit.getType() == HitResult.Type.BLOCK ? hit.getLocation().add(0, -0.8, 0) : to;
+    }
+
     static boolean clear(LivingEntity caster, Vec3 from, Vec3 to) {
         var hit = clip(caster, from, to);
         return hit != null && (hit.getType() != HitResult.Type.BLOCK
@@ -196,7 +203,7 @@ final class GoldenCoreGeometry {
 
     static double step(LivingEntity entity, Vec3 direction, double requested) {
         if (requested <= 0 || direction.horizontalDistanceSqr() < 0.5 || !entity.onGround()) return 0;
-        double safe = CombatStepService.safeDistance(entity, direction, requested, 0.65);
+        double safe = CombatStepService.supportedGroundDistance(entity, direction, requested, 0.65);
         if (safe <= 0) return 0;
         Vec3 start = entity.position();
         entity.move(MoverType.SELF, direction.scale(safe));

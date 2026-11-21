@@ -70,8 +70,7 @@ public final class CombatStepService {
         }
         double safeDistance = player instanceof ServerPlayer
                 ? safeDistance(player, forward, planned, step.supportDepth())
-                : chooseSupportedPath(planned, SAMPLE_INCREMENT,
-                        distance -> isSafeDestination(player, forward.scale(distance), step.supportDepth()));
+                : supportedGroundDistance(player, forward, planned, step.supportDepth());
         if (safeDistance <= 0.0) {
             return Optional.empty();
         }
@@ -101,6 +100,13 @@ public final class CombatStepService {
                 maximumDistance,
                 SAMPLE_INCREMENT,
                 distance -> isSafeDestination(player, forward.scale(distance), supportDepth));
+    }
+
+    /** Every part of this step needs support, including the ground before the destination. */
+    public static double supportedGroundDistance(LivingEntity actor, Vec3 forward, double maximumDistance,
+            double supportDepth) {
+        return chooseSupportedPath(maximumDistance, SAMPLE_INCREMENT,
+                distance -> isSafeDestination(actor, forward.scale(distance), supportDepth));
     }
 
     /**
