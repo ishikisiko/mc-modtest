@@ -7,14 +7,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 import java.util.UUID;
 
-public final class CompanionSwordItem extends SwordItem {
+public final class CompanionSwordItem extends CombatWeaponItem {
     public record Mark(UUID owner, UUID sword, int form, List<String> victories) {
         public static final Codec<Mark> CODEC = RecordCodecBuilder.create(i -> i.group(
                 UUIDUtil.CODEC.fieldOf("owner").forGetter(Mark::owner),
@@ -31,6 +30,9 @@ public final class CompanionSwordItem extends SwordItem {
     public static Mark mark(ItemStack stack) {
         return stack.is(ModItems.PRIMORDIAL_COMPANION_SWORD.get()) ? stack.get(ModDataComponents.COMPANION_SWORD.get()) : null;
     }
+
+    @Override
+    public Component getName(ItemStack stack) { return Component.translatable(getDescriptionId(stack)); }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {

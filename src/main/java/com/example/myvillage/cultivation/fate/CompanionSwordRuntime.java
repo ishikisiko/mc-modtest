@@ -114,11 +114,14 @@ public final class CompanionSwordRuntime {
         if (flight != null && !valid(player, flight)) forget(player);
     }
 
+    public static boolean permitsStrike(LivingEntity actor) {
+        if (!actor.getMainHandItem().is(ModItems.PRIMORDIAL_COMPANION_SWORD.get())) return true;
+        return actor instanceof ServerPlayer player && realm(player) >= 0 && !armed(player)
+                && owns(player, CompanionSwordItem.mark(player.getMainHandItem()));
+    }
+
     private static void attack(AttackEntityEvent event) {
-        if (!event.getEntity().getMainHandItem().is(ModItems.PRIMORDIAL_COMPANION_SWORD.get())
-                || event.getEntity().level().isClientSide()) return;
-        if (!(event.getEntity() instanceof ServerPlayer player) || !owns(player, CompanionSwordItem.mark(player.getMainHandItem()))
-                || realm(player) < 0 || armed(player)) event.setCanceled(true);
+        if (!event.getEntity().level().isClientSide() && !permitsStrike(event.getEntity())) event.setCanceled(true);
     }
 
     public static double damageMultiplier(LivingEntity actor, LivingEntity target, DamageSource source) {

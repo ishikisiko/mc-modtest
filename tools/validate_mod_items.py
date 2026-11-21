@@ -681,7 +681,14 @@ def validate_combat_weapon_items(items_text: str, combat_items: set[str], errors
     forged = forged_weapon_registrations(ROOT)
     for item_id in sorted(combat_items - forged):
         body = registration_body(items_text, item_id)
-        direct = body is not None and re.search(rf"new\s+{COMBAT_WEAPON_CLASS}\(", body) is not None
+        constructor = re.search(r"->\s*new\s+(\w+)\(", body or "")
+        direct = False
+        if constructor:
+            name = constructor.group(1)
+            subclass = COMBAT_WEAPON_ITEM.with_name(name + ".java")
+            direct = name == COMBAT_WEAPON_CLASS or (subclass.is_file() and bool(re.search(
+                rf"\bclass\s+{re.escape(name)}\s+extends\s+{COMBAT_WEAPON_CLASS}\b",
+                subclass.read_text(encoding="utf-8"))))
         # This owning registry delegates to a data-driven, typed factory. Verify both
         # the exact forwarded id and its constructor; a holder's generic type alone
         # is insufficient evidence of the actual registered item.

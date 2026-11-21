@@ -20,6 +20,7 @@ class ModItemsValidatorTest(unittest.TestCase):
         for relative in (
                 "src/main/java/com/example/myvillage/item/ModItems.java",
                 "src/main/java/com/example/myvillage/item/CombatWeaponItem.java",
+                "src/main/java/com/example/myvillage/item/CompanionSwordItem.java",
                 "src/main/java/com/example/myvillage/legacy/LegacyContent.java",
                 "src/main/java/com/example/myvillage/MyVillageMod.java",
                 "src/main/java/com/example/myvillage/decoration/SwordQiDecorationContent.java",
@@ -143,6 +144,13 @@ class ModItemsValidatorTest(unittest.TestCase):
         errors = self.errors()
         self.assertIn("combat_weapon_not_CombatWeaponItem:qingfeng_sword", errors)
         self.assertIn("qingfeng_registration_drift:new CombatWeaponItem", errors)
+
+    def test_companion_sword_inherits_combat_reequip_behavior(self) -> None:
+        path = self.root / "src/main/java/com/example/myvillage/item/CompanionSwordItem.java"
+        original = path.read_text(encoding="utf-8")
+        self.assertNotIn("combat_weapon_not_CombatWeaponItem:primordial_companion_sword", self.errors())
+        path.write_text(original.replace("extends CombatWeaponItem", "extends SwordItem"), encoding="utf-8")
+        self.assertIn("combat_weapon_not_CombatWeaponItem:primordial_companion_sword", self.errors())
 
     def test_plain_sword_as_combat_weapon_item_is_named(self) -> None:
         self.replace_in_registration("XUANYUE_ZHENSHAN_SWORD", "new SwordItem(", "new CombatWeaponItem(")

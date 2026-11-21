@@ -92,6 +92,10 @@ public final class FateRuntime {
     private static void incoming(LivingIncomingDamageEvent event) {
         if (event.getEntity().level().isClientSide() || event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
         var source = event.getSource(); double damage = event.getAmount();
+        if (FateDefenses.directMelee(source) && !CompanionSwordRuntime.permitsStrike((LivingEntity) source.getEntity())) {
+            event.setCanceled(true);
+            return;
+        }
         if (source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile shot && FateDefenses.reflected(shot)) {
             damage = FateDefenses.reflectedDamage(shot);
         } else if (source.getEntity() instanceof LivingEntity attacker
