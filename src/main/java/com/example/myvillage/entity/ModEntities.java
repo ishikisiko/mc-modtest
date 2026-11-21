@@ -2,6 +2,7 @@ package com.example.myvillage.entity;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.entity.npc.RidgeReaverEntity;
+import com.example.myvillage.entity.npc.EvilCultivatorEntity;
 import com.example.myvillage.entity.beast.AshTalismanistEntity;
 import com.example.myvillage.entity.beast.ThornbackBadgerEntity;
 import com.example.myvillage.entity.beast.RedplateLizardEntity;
@@ -76,6 +77,11 @@ public final class ModEntities {
                     .eyeHeight(1.67F)
                     .clientTrackingRange(10)
                     .build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EvilCultivatorEntity>> EVIL_CULTIVATOR =
+            ENTITY_TYPES.register("evil_cultivator", id -> EntityType.Builder.of(EvilCultivatorEntity::new, MobCategory.MONSTER)
+                    .sized(0.6F, 1.9F).eyeHeight(1.67F)
+                    .clientTrackingRange(10).updateInterval(1).build(id.toString()));
 
     public static final DeferredHolder<EntityType<?>, EntityType<RidgeReaverEntity>> RIDGE_REAVER =
             ENTITY_TYPES.register("ridge_reaver", id -> EntityType.Builder.of(RidgeReaverEntity::new, MobCategory.MONSTER)

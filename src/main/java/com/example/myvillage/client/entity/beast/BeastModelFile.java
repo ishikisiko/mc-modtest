@@ -97,9 +97,10 @@ public record BeastModelFile(
         float shadow = (float) root.nonNegativeNumber("shadow_radius");
         float scale = json.has("scale") ? (float) root.positiveNumber("scale") : 1.0F;
         ResourceLocation surfaceMesh = json.has("surface_mesh") ? root.id("surface_mesh") : null;
+        String surfaceDirectory = file.startsWith("assets/" + id.getNamespace() + "/npc/") ? "npc/" : "beast/";
         if (surfaceMesh != null && (!surfaceMesh.getNamespace().equals(id.getNamespace())
-                || !surfaceMesh.getPath().startsWith("beast/") || !surfaceMesh.getPath().endsWith(".json"))) {
-            throw root.error("surface_mesh", "must name a beast JSON in the entity namespace");
+                || !surfaceMesh.getPath().startsWith(surfaceDirectory) || !surfaceMesh.getPath().endsWith(".json"))) {
+            throw root.error("surface_mesh", "must name a " + surfaceDirectory + " JSON in the entity namespace");
         }
 
         JsonArray bonesJson = root.array("bones");

@@ -1,0 +1,27 @@
+{
+  "attributes": {
+    "health": 30,
+    "attack": 3,
+    "armor": 2,
+    "speed": 0.27,
+    "follow_range": 24,
+    "stroll_speed": 0.65,
+    "experience": 5
+  },
+  "manual_preference": 0.5,
+  "fallback_realm": "yuanxian:qi_refining",
+  "ordinary": {
+    "spirit_stones": [1, 3],
+    "manual_chance": 0.15,
+    "grade_weights": [80, 17, 3, 0],
+    "learned_max_grade": 1,
+    "starting_mastery": 0
+  },
+  "prodigy": {
+    "spirit_stones": [3, 6],
+    "manual_chance": 0.35,
+    "grade_weights": [0, 72, 24, 4],
+    "learned_max_grade": 4,
+    "starting_mastery": 120
+  }
+}

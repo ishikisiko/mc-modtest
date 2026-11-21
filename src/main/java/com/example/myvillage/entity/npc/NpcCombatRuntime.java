@@ -99,6 +99,7 @@ public final class NpcCombatRuntime {
         if (!npc.isLedgerAvatar()) {
             if (!npc.combatInitialized) equipInitial(npc);
             BODIES.put(npc.getUUID(), npc);
+            if (npc instanceof EvilCultivatorEntity evil) evil.initializeEncounter();
             NpcCultivationRuntime.joined(npc);
             NpcSkillRuntime.joined(npc);
         }

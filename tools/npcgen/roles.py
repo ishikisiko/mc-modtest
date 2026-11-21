@@ -89,6 +89,9 @@ def _hair_index(t, colour, decode):
 def export(built):
     """The role map of a built look (`build.Built`), as RGBA rows."""
     d = built.d
+    if getattr(d, "FIXED_PALETTE", False):
+        w, h = built.model.texture_size
+        return [[KEEP] * w for _ in range(h)]
     if _rgb(d.EYE_WHITE) != _rgb(EYE_WHITE):
         raise RoleMapError(f"{d.NAME}: EYE_WHITE {d.EYE_WHITE} is not the composer's {EYE_WHITE}")
     base = _paint(built)

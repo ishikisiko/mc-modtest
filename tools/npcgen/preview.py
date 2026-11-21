@@ -9,6 +9,7 @@ does in game.
 """
 from __future__ import annotations
 
+from copy import copy
 import json
 import math
 
@@ -66,7 +67,13 @@ class Npc:
         self.stale = [str(p.relative_to(REPO)) for p in stale]
         self.model = cuboid.model_from_json(self.built.model_doc)
         self.clips = anim.clips_from_json(json.loads(json.dumps(self.built.anim_doc)))
-        self.mesh = Mesh(self.model, rows_to_array(self.built.texture), None, scale=self.model.scale)
+        texture = rows_to_array(self.built.texture)
+        self.mesh = Mesh(self.model, texture, None, scale=self.model.scale)
+        self.overlay = None
+        if self.built.surface_doc is not None:
+            overlay_model = copy(self.model)
+            overlay_model.surface = self.built.surface_doc
+            self.overlay = Mesh(overlay_model, texture, None, scale=self.model.scale)
 
     def quads(self, clip=None, seconds=0.0, look=None, clip2=None, seconds2=0.0):
         offsets = {}
@@ -74,7 +81,9 @@ class Npc:
             if name:
                 length, loop, chans = self.clips[name]
                 anim.clip_offsets(chans, length, loop, at, into=offsets)
-        return self.mesh.world(anim.posed_matrices(self.model, offsets, look))
+        pose = anim.posed_matrices(self.model, offsets, look)
+        quads = self.mesh.world(pose)
+        return quads + self.overlay.world(pose) if self.overlay is not None else quads
 
     def stamp(self):
         w, h = self.model.texture_size

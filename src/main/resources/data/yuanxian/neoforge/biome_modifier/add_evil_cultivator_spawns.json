@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#yuanxian:has_evil_cultivator",
+  "spawners": [
+    {
+      "type": "yuanxian:evil_cultivator",
+      "weight": 2,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

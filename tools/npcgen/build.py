@@ -15,7 +15,7 @@ from . import roles, combat, catalog, male_catalog
 # One definition per look: `defs/<name>.py` declares ENTITY (the entity's texture directory), NAME
 # (the files' name prefix) and LOOK (NpcEntity's look id), so several looks of one entity type share
 # its texture directory.
-DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept", "ridge_reaver") + catalog.definitions() + male_catalog.definitions()
+DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept", "ridge_reaver", "evil_cultivator") + catalog.definitions() + male_catalog.definitions()
 
 
 def definition(name):
@@ -56,6 +56,7 @@ class Built:
         if problems:
             raise SystemExit("model problems:\n  " + "\n  ".join(problems))
         cuboid.pack(self.model)
+        self.surface_doc = self.d.surface(self.model) if hasattr(self.d, "surface") else None
         # NPC painters shade from tools/npcgen/shade.py, so the crease distance is skipped for every cube.
         self.texels = paint.texels(self.model, {c.name for _, c in self.model.cubes()})
         self.texture = paint.image(self.model, self.d.painter(self.model), self.texels)
@@ -64,16 +65,22 @@ class Built:
             self.texture = self.d.authored_texture(self.model, self.texture)
         self.clips = self.d.clips(self.model) + combat.clips(self.model)
         self.model_doc = cuboid.model_json(self.model)
+        if self.surface_doc is not None:
+            self.model_doc["surface_mesh"] = f"yuanxian:npc/{self.d.NAME}_surface.json"
         self.anim_doc = anim.clips_json(self.model.id, self.clips)
 
     def outputs(self):
         p = paths(self.name)
-        return {
+        outputs = {
             p["model"]: (dumps(self.model_doc) + "\n").encode("utf-8"),
             p["animations"]: (dumps(self.anim_doc) + "\n").encode("utf-8"),
             p["texture"]: pngio.encode_png(self.texture),
             p["roles"]: pngio.encode_png(self.roles),
         }
+        if self.surface_doc is not None:
+            surface = p["model"].with_name(f"{self.d.NAME}_surface.json")
+            outputs[surface] = (dumps(self.surface_doc) + "\n").encode("utf-8")
+        return outputs
 
 
 def run(name, check=False):

@@ -1,0 +1,129 @@
+schema_version: 1
+project:
+  mod_id: yuanxian
+  java_package: com.example.myvillage
+  minecraft_version: 1.21.1
+  neoforge_version: 21.1.233
+data_sources:
+  model: assets/yuanxian/npc/evil_cultivator_model.json
+  animations: assets/yuanxian/npc/evil_cultivator_animations.json
+  texture: assets/yuanxian/textures/entity/evil_cultivator/evil_cultivator.png
+  art_generator: tools/npcgen/defs/evil_cultivator.py
+entity:
+  id: evil_cultivator
+  resource_location: yuanxian:evil_cultivator
+  display_name:
+    zh_cn: 邪修
+    en_us: 邪修
+  kind: npc
+  base_class: com.example.myvillage.entity.npc.NpcEntity
+  java_class: com.example.myvillage.entity.npc.EvilCultivatorEntity
+  mob_category: monster
+  temperament: hostile
+physical:
+  width: 0.6
+  height: 1.9
+  eye_height: 1.67
+  shadow_radius: 0.4
+  client_tracking_range: 10
+  saveable: true
+  summonable: true
+attributes:
+  source: data/yuanxian/wilderness/evil_cultivator.json
+behavior:
+  goals:
+    - priority: 1
+      id: npc_combat_intents_and_movement
+    - priority: 5
+      id: water_avoiding_random_stroll
+  target_goals:
+    - priority: 1
+      id: hurt_by_target
+    - priority: 2
+      id: nearest_attackable_player
+  combat:
+    mode: shared_sword_and_techniques
+    server_authoritative: true
+state:
+  synced:
+    - id: combat_action
+      type: compound_tag
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_COMBAT
+    - id: ledger_person_id
+      type: int
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_LEDGER_PERSON
+    - id: look
+      type: string
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_LOOK
+    - id: ledger_role
+      type: string
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_LEDGER_ROLE
+    - id: colours
+      type: int
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_COLOURS
+    - id: prodigy
+      type: boolean
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_PRODIGY
+  persisted:
+    - id: yuanxian:evil_cultivator_birth
+      type: compound_tag
+      source: com.example.myvillage.entity.npc.EvilCultivatorEntity#BIRTH
+  identity_source: NpcCultivationRuntime
+  learned_source: NpcSkillRuntime
+  regional_birth_source: EvilCultivatorEntity
+rendering:
+  route: vanilla
+  model_layer: yuanxian:evil_cultivator#main
+  geo: yuanxian:npc/evil_cultivator_model.json
+  animation: yuanxian:npc/evil_cultivator_animations.json
+  base_texture: yuanxian:textures/entity/evil_cultivator/evil_cultivator.png
+  surface: yuanxian:npc/evil_cultivator_surface.json
+  look_bone: head
+  final_texture_size:
+    source: assets/yuanxian/npc/evil_cultivator_model.json#texture
+  bones:
+    source: assets/yuanxian/npc/evil_cultivator_model.json#bones
+  animations:
+    - id: idle
+    - id: walk
+looks:
+  - id: default
+    model: assets/yuanxian/npc/evil_cultivator_model.json
+    animations: assets/yuanxian/npc/evil_cultivator_animations.json
+    texture: assets/yuanxian/textures/entity/evil_cultivator/evil_cultivator.png
+    definition: tools/npcgen/defs/evil_cultivator.py
+    model_layer: yuanxian:evil_cultivator#main
+items:
+  spawn_egg:
+    enabled: true
+    id: evil_cultivator_spawn_egg
+    primary_color: '#29262D'
+    secondary_color: '#762434'
+    creative_tab: yuanxian:main
+sound:
+  strategy: vanilla_defaults
+  custom_sound_resources: false
+loot:
+  table: data/yuanxian/loot_table/entities/evil_cultivator.json
+  pools: []
+  source: data/yuanxian/wilderness/evil_cultivator.json
+spawn:
+  natural: true
+  authority: ordinary_entity
+  biome_modifier: yuanxian:add_evil_cultivator_spawns
+  spawn_biome_tag: yuanxian:has_evil_cultivator
+  spawn_placement: ON_GROUND
+  heightmap: MOTION_BLOCKING_NO_LEAVES
+  spawn_predicate: EvilCultivatorEntity::checkSpawn
+acceptance:
+  build: true
+  dedicated_server_start: true
+  summon_test: true
+  save_reload_test: true
+  human_verdict_required: true
+  human_verdict_status: not_verified
+  human_verdict_note: 用户已确认黑红长衫和全脸面具预览，游戏内效果另行核对。
+assumptions:
+  - 生成占比低于荒岭劫修，限定主世界有散修境界范围的野外地表。
+  - 复用 NPC 天骄与突破品质规则，使用现有书卷物品。
+  - 在秘籍掉落成功后按实际致死攻击流派定向分池。

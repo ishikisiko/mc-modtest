@@ -60,6 +60,7 @@ public final class MyVillageClient {
         event.registerEntityRenderer(
                 ModEntities.RIDEABLE_FLYING_SWORD.get(),
                 RideableFlyingSwordRenderer::new);
+        NpcRenderer.register(event, ModEntities.EVIL_CULTIVATOR);
         NpcRenderer.register(event, ModEntities.RIDGE_REAVER, RidgeReaverEntity.LOOKS);
         BeastRenderer.register(event, ModEntities.ASH_TALISMANIST);
         BeastRenderer.register(event, ModEntities.THORNBACK_BADGER);
@@ -80,6 +81,7 @@ public final class MyVillageClient {
     static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         for (var type : com.example.myvillage.entity.undead.UndeadEntities.TYPES.values()) BeastRenderer.registerLayer(event, type.getId());
         for (var type : com.example.myvillage.legacy.LegacyContent.BEASTS.values()) BeastRenderer.registerLayer(event,type.getId());
+        NpcRenderer.registerLayer(event, ModEntities.EVIL_CULTIVATOR.getId());
         NpcRenderer.registerLayer(event, ModEntities.RIDGE_REAVER.getId(), RidgeReaverEntity.LOOKS);
         BeastRenderer.registerLayer(event, ModEntities.ASH_TALISMANIST.getId());
         BeastRenderer.registerLayer(event, ModEntities.THORNBACK_BADGER.getId());

@@ -76,23 +76,9 @@ public class BeastModel<T extends BeastEntity> extends HierarchicalModel<T> {
             poses.pushPose();
             root.translateAndRotate(poses);
             for (ModelPart bone : chain) bone.translateAndRotate(poses);
-            for (var triangle : part.triangles()) {
-                surfaceVertex(poses, out, triangle.a(), triangle, light, overlay, color);
-                surfaceVertex(poses, out, triangle.b(), triangle, light, overlay, color);
-                surfaceVertex(poses, out, triangle.c(), triangle, light, overlay, color);
-                // Vanilla entity buffers consume quads; repeat C to make the second triangle degenerate.
-                surfaceVertex(poses, out, triangle.c(), triangle, light, overlay, color);
-            }
+            part.render(poses, out, light, overlay, color);
             poses.popPose();
         }
-    }
-
-    private static void surfaceVertex(PoseStack poses, VertexConsumer out, BeastSurfaceMesh.Vertex vertex,
-            BeastSurfaceMesh.Triangle triangle, int light, int overlay, int color) {
-        out.addVertex(poses.last(), vertex.x() / 16, vertex.y() / 16, vertex.z() / 16)
-                .setColor((color >> 16) & 255, (color >> 8) & 255, color & 255, (color >>> 24) & 255)
-                .setUv(vertex.u(), vertex.v()).setOverlay(overlay).setLight(light)
-                .setNormal(poses.last(), triangle.nx(), triangle.ny(), triangle.nz());
     }
 
     @Override

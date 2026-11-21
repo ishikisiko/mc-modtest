@@ -245,6 +245,9 @@ public final class ModItems {
     public static final DeferredItem<ExpeditionMaterialItem> REAVER_GRIT = ITEMS.registerItem("reaver_grit", props -> new ExpeditionMaterialItem(props, "reaver_grit"));
     public static final DeferredItem<FormulaItem> FORMULA_POZHANG = ITEMS.registerItem("formula_pozhang", props -> new FormulaItem(props, "pozhang"));
     public static final DeferredItem<AlchemyPillItem> PILL_POZHANG = ITEMS.registerItem("pill_pozhang", props -> new AlchemyPillItem(props, "pozhang"));
+    public static final DeferredItem<net.neoforged.neoforge.common.DeferredSpawnEggItem> EVIL_CULTIVATOR_SPAWN_EGG =
+            ITEMS.registerItem("evil_cultivator_spawn_egg", props ->
+                    new net.neoforged.neoforge.common.DeferredSpawnEggItem(ModEntities.EVIL_CULTIVATOR, 0x29262D, 0x762434, props));
     public static final DeferredItem<net.neoforged.neoforge.common.DeferredSpawnEggItem> RIDGE_REAVER_SPAWN_EGG = ITEMS.registerItem("ridge_reaver_spawn_egg", props -> new net.neoforged.neoforge.common.DeferredSpawnEggItem(ModEntities.RIDGE_REAVER, 0x26354B, 0xA34F37, props));
     public static final DeferredItem<ExpeditionMaterialItem> TALISMAN_ASH = ITEMS.registerItem("talisman_ash", props -> new ExpeditionMaterialItem(props, "talisman_ash"));
     public static final DeferredItem<FormulaItem> FORMULA_DINGSHEN = ITEMS.registerItem("formula_dingshen", props -> new FormulaItem(props, "dingshen"));
@@ -502,6 +505,7 @@ public final class ModItems {
                         output.accept(REAVER_GRIT.get());
                         output.accept(FORMULA_POZHANG.get());
                         output.accept(PILL_POZHANG.get());
+                        output.accept(EVIL_CULTIVATOR_SPAWN_EGG.get());
                         output.accept(RIDGE_REAVER_SPAWN_EGG.get());
                         output.accept(TALISMAN_ASH.get());
                         output.accept(FORMULA_DINGSHEN.get());

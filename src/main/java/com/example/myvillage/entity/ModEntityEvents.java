@@ -1,5 +1,6 @@
 package com.example.myvillage.entity;
 
+import com.example.myvillage.entity.npc.EvilCultivatorEntity;
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.entity.beast.BeastDefinitions;
 import com.example.myvillage.entity.beast.BeastEntity;
@@ -31,6 +32,7 @@ public final class ModEntityEvents {
             event.put(type.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(type.getId())).build());
         }
         com.example.myvillage.wilderness.ExpeditionRules.get();
+        event.put(ModEntities.EVIL_CULTIVATOR.get(), EvilCultivatorEntity.createAttributes().build());
         event.put(ModEntities.RIDGE_REAVER.get(), com.example.myvillage.entity.npc.RidgeReaverEntity.createAttributes().build());
         event.put(ModEntities.ASH_TALISMANIST.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(com.example.myvillage.entity.beast.AshTalismanistEntity.ID)).build());
         event.put(ModEntities.THORNBACK_BADGER.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(com.example.myvillage.entity.beast.ThornbackBadgerEntity.ID)).build());
@@ -59,6 +61,9 @@ public final class ModEntityEvents {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     com.example.myvillage.entity.undead.UndeadSpawns::check, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
+        event.register(ModEntities.EVIL_CULTIVATOR.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EvilCultivatorEntity::checkSpawn,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(ModEntities.RIDGE_REAVER.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, com.example.myvillage.wilderness.WildernessRosterRuntime::checkSpawn,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);

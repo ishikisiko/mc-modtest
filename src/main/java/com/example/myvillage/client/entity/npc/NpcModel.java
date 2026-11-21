@@ -1,6 +1,10 @@
 package com.example.myvillage.client.entity.npc;
 
 import com.example.myvillage.client.entity.beast.BeastModelFile;
+import com.example.myvillage.client.entity.beast.BeastSurfaceMesh;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.jetbrains.annotations.Nullable;
 import com.example.myvillage.entity.npc.NpcEntity;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +19,7 @@ public class NpcModel<T extends NpcEntity> extends HierarchicalModel<T> {
     static final float WALK_SCALE = 2.5F;
 
     private final ModelPart root;
+    @Nullable private final BeastSurfaceMesh surface;
     private final Map<String, ModelPart> bones;
     private final ModelPart lookBone;
     private final float maxYawDegrees;
@@ -29,8 +34,9 @@ public class NpcModel<T extends NpcEntity> extends HierarchicalModel<T> {
 
     /** {@code walkRate}: the {@code animateWalk} rate that keeps the walk clip's planted foot still. */
     public NpcModel(ModelPart root, BeastModelFile modelFile, AnimationDefinition idle, AnimationDefinition walk,
-            float walkRate, Map<String, AnimationDefinition> combatClips) {
+            float walkRate, Map<String, AnimationDefinition> combatClips, @Nullable BeastSurfaceMesh surface) {
         this.root = root;
+        this.surface = surface;
         this.bones = modelFile.bonesOf(root);
         this.lookBone = bones.get(modelFile.look().bone());
         this.maxYawDegrees = modelFile.look().maxYaw();
@@ -51,6 +57,19 @@ public class NpcModel<T extends NpcEntity> extends HierarchicalModel<T> {
         if (parent != null && !parent.isEmpty()) applyGrip(poses, parent);
         ModelPart part = bones.get(name);
         if (part != null) part.translateAndRotate(poses);
+    }
+
+    @Override
+    public void renderToBuffer(PoseStack poses, VertexConsumer out, int light, int overlay, int color) {
+        super.renderToBuffer(poses, out, light, overlay, color);
+        if (surface == null || !root.visible) return;
+        for (var part : surface.parts()) {
+            poses.pushPose();
+            root.translateAndRotate(poses);
+            applyGrip(poses, part.bone());
+            part.render(poses, out, light, overlay, color);
+            poses.popPose();
+        }
     }
 
     @Override

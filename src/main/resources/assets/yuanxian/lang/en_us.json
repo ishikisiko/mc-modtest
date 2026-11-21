@@ -2021,6 +2021,8 @@
   "item.yuanxian.reaver_grit": "掠锋砂",
   "item.yuanxian.pill_pozhang": "破障丹",
   "item.yuanxian.formula_pozhang": "破障丹方（难度1）",
+  "entity.yuanxian.evil_cultivator": "邪修",
+  "item.yuanxian.evil_cultivator_spawn_egg": "邪修刷怪蛋",
   "entity.yuanxian.ridge_reaver": "荒岭劫修",
   "item.yuanxian.ridge_reaver_spawn_egg": "荒岭劫修刷怪蛋",
   "tooltip.yuanxian.alchemy.pill_pozhang": "短时提高物理穿透，针对护甲较厚的敌人。 强度：%s；持续 %s 秒。",

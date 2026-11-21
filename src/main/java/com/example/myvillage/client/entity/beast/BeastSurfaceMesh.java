@@ -4,6 +4,8 @@ import com.example.myvillage.entity.beast.BeastDataException;
 import com.example.myvillage.entity.beast.BeastJson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,6 +23,24 @@ public record BeastSurfaceMesh(List<Part> parts) {
     public record Triangle(Vertex a, Vertex b, Vertex c, float nx, float ny, float nz) { }
     public record Part(String bone, List<Triangle> triangles) {
         public Part { triangles = List.copyOf(triangles); }
+
+        public void render(PoseStack poses, VertexConsumer out, int light, int overlay, int color) {
+            for (var triangle : triangles) {
+                surfaceVertex(poses, out, triangle.a(), triangle, light, overlay, color);
+                surfaceVertex(poses, out, triangle.b(), triangle, light, overlay, color);
+                surfaceVertex(poses, out, triangle.c(), triangle, light, overlay, color);
+                // The entity buffer takes quads; repeating C preserves the original triangle.
+                surfaceVertex(poses, out, triangle.c(), triangle, light, overlay, color);
+            }
+        }
+    }
+
+    private static void surfaceVertex(PoseStack poses, VertexConsumer out, Vertex vertex,
+            Triangle triangle, int light, int overlay, int color) {
+        out.addVertex(poses.last(), vertex.x() / 16, vertex.y() / 16, vertex.z() / 16)
+                .setColor((color >> 16) & 255, (color >> 8) & 255, color & 255, (color >>> 24) & 255)
+                .setUv(vertex.u(), vertex.v()).setOverlay(overlay).setLight(light)
+                .setNormal(poses.last(), triangle.nx(), triangle.ny(), triangle.nz());
     }
 
     public static BeastSurfaceMesh parse(String file, BeastModelFile model, Reader source) {

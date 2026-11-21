@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.149.1
+
+- 新增戴全脸黑铁面具、穿黑红长衫的野外邪修。邪修低权重单只出生，避开城镇和村庄。
+- 邪修有普通和天骄两档，出生后保存档位、境界、突破品质和所学功法。击败后掉落下品灵石，并按档位和致死攻击流派抽取秘籍。
+
+
 ## 0.149.0
 
 - 新增元婴和化神绝技各 16 招，剑、枪、拳掌和五行每条路线在每个境界各新增两招。招式含范围较宽的剑线、枪阵和五行法阵，多数招式可朝目标方向直接施放。

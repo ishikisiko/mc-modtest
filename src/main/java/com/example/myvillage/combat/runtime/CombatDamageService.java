@@ -33,10 +33,14 @@ public final class CombatDamageService {
     private static final ThreadLocal<PrimaryAttribution> PRIMARY = new ThreadLocal<>();
     private static final class PrimaryAttribution {
         private final Entity target;
+        private final DamageSource source;
+        private final String weaponFamily;
         private final HealingRuntime.PrimaryReceipt healing;
         private double fraction = 1;
-        private PrimaryAttribution(Entity target, DamageSource source, boolean derived) {
+        private PrimaryAttribution(Entity target, DamageSource source, boolean derived, String weaponFamily) {
             this.target = target;
+            this.source = source;
+            this.weaponFamily = weaponFamily;
             this.healing = !derived && target instanceof LivingEntity living
                     ? new HealingRuntime.PrimaryReceipt(target, source, RealmArmorRuntime.containerDepth(living) + 1)
                     : null;
@@ -148,7 +152,10 @@ public final class CombatDamageService {
         Entity previousAffinityTarget = ELEMENTAL_AFFINITY_TARGET.get();
         Entity previousDerived = DERIVED_TARGET.get();
         PrimaryAttribution previousAttribution = PRIMARY.get();
-        PrimaryAttribution attribution = new PrimaryAttribution(owner, source, derived);
+        var hitWeapon = session.weaponId();
+        String hitFamily = hitWeapon == null ? aptitudeFamily : com.example.myvillage.combat.definition.CombatStyles
+                .bundled().weapon(hitWeapon).flatMap(definition -> definition.family()).orElse(aptitudeFamily);
+        PrimaryAttribution attribution = new PrimaryAttribution(owner, source, derived, hitFamily);
         PRIMARY.set(attribution);
         if (derived) DERIVED_TARGET.set(owner); else DERIVED_TARGET.remove();
         RESOLVING_TARGET.set(owner);
@@ -247,6 +254,13 @@ public final class CombatDamageService {
     private static boolean dragonDying(Entity owner) {
         return owner instanceof EnderDragon dragon
                 && dragon.getPhaseManager().getCurrentPhase().getPhase() == EnderDragonPhase.DYING;
+    }
+
+    /** The authorized strike's weapon at damage time, scoped to the exact source and victim. */
+    public static java.util.Optional<String> weaponFamilyForHit(Entity target, DamageSource source) {
+        var hit = PRIMARY.get();
+        return hit != null && hit.target == target && hit.source == source
+                ? java.util.Optional.of(hit.weaponFamily) : java.util.Optional.empty();
     }
 
     /** A bonus-damage listener annotates only the exact synchronous primary hit. */

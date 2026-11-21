@@ -127,6 +127,17 @@ public final class NpcSkillRuntime {
     }
     public static void configure(NpcEntity npc, NpcSkillLoadout state) {
         validate(npc, state);
+        apply(npc, state);
+    }
+
+    /** Wild births own this one-time state; the test editor still uses its original authorization. */
+    static boolean initializeWild(EvilCultivatorEntity npc) {
+        if (npc.getPersistentData().contains(TAG)) return false;
+        apply(npc, EvilCultivatorTechniques.birthLoadout(npc));
+        return true;
+    }
+
+    private static void apply(NpcEntity npc, NpcSkillLoadout state) {
         CombatSessionManager.interruptNpc(npc, com.example.myvillage.combat.session.CombatStopReason.DISALLOWED, true);
         com.example.myvillage.combat.runtime.CombatDodgeService.clear(npc.getUUID());
         clearBody(npc, get(npc));

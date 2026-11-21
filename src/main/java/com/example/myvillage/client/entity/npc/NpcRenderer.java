@@ -3,6 +3,7 @@ package com.example.myvillage.client.entity.npc;
 import com.example.myvillage.client.entity.beast.BeastAnimationFile;
 import com.example.myvillage.client.entity.beast.BeastGait;
 import com.example.myvillage.client.entity.beast.BeastModelFile;
+import com.example.myvillage.client.entity.beast.BeastSurfaceMesh;
 import com.example.myvillage.entity.beast.BeastDataException;
 import com.example.myvillage.entity.beast.BeastJson;
 import com.example.myvillage.entity.npc.NpcEntity;
@@ -264,8 +265,11 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
         float walkRate = walkRate(footSpeed);
         LOGGER.info("NPC {} look {}: scale {}, walk rate {} (planted foot {} blocks per clip second)",
                 npcId, look, modelFile.scale(), walkRate, Math.round(footSpeed * 1000.0) / 1000.0);
+        var surfaceId = modelFile.surfaceMesh();
+        var surface = surfaceId == null ? null : read(resources, surfaceId,
+                reader -> BeastSurfaceMesh.parse(assetPath(surfaceId), modelFile, reader));
         NpcModel<T> model = new NpcModel<>(context.bakeLayer(layer(npcId, look)), modelFile,
-                clips.get(NpcEntity.IDLE_CLIP), clips.get(NpcEntity.WALK_CLIP), walkRate, clips);
+                clips.get(NpcEntity.IDLE_CLIP), clips.get(NpcEntity.WALK_CLIP), walkRate, clips, surface);
         return new Loaded<>(look, model, modelFile.shadowRadius(), modelFile.scale(), texture(npcId, look));
     }
 

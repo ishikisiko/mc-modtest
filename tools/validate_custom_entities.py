@@ -1344,8 +1344,25 @@ def check_npc_look(root: Path, entity_id: str, look: str, look_bone: str | None,
     model = require_json(resources / files["model"], found)
     bones: set[str] = set()
     if model:
-        model_errors, bones = check_beast_model(model, entity_id)
+        skeleton = {key: value for key, value in model.items() if key != "surface_mesh"}
+        model_errors, bones = check_beast_model(skeleton, entity_id)
         found.extend(f"npc_model:{look}:{problem}" for problem in model_errors)
+        if "surface_mesh" in model:
+            namespace, _ = split_id(entity_id)
+            surface = model["surface_mesh"]
+            if (not isinstance(surface, str) or not ID_PATTERN.fullmatch(surface)
+                    or not surface.startswith(f"{namespace}:npc/") or not surface.endswith(".json")
+                    or ".." in surface):
+                found.append(f"npc_surface_invalid:{look}")
+            else:
+                data = require_json(resources / f"assets/{namespace}/{surface.split(':', 1)[1]}", found)
+                if (not isinstance(data, dict) or data.get("schema") != 1 or data.get("id") != entity_id
+                        or not isinstance(data.get("parts"), list) or not data["parts"]):
+                    found.append(f"npc_surface_missing_parts:{look}")
+                elif any(not isinstance(part, dict) or part.get("bone") not in bones
+                         or not isinstance(part.get("triangles"), list) or not part["triangles"]
+                         for part in data["parts"]):
+                    found.append(f"npc_surface_invalid_part:{look}")
         bone = model.get("look", {}).get("bone") if isinstance(model.get("look"), dict) else None
         if look_bone is not None and bone != look_bone:
             found.append(f"npc_look_bone_differs_from_contract:{look}:{bone}!={look_bone}")
