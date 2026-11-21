@@ -24,11 +24,16 @@ import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.entity.projectile.SpectralArrow;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public final class FateDefenses {
     private static final ResourceLocation REFLECT = ResourceLocation.parse("yuanxian:earth_spirit_reflect");
@@ -36,11 +41,13 @@ public final class FateDefenses {
     private static final ResourceLocation EARTH = ResourceLocation.parse("yuanxian:fate_earth_resistance");
     private static final ResourceLocation WATER = ResourceLocation.parse("yuanxian:fate_water_resistance");
     private static final String REFLECTED_DAMAGE = "yuanxian_reflected_damage";
+    private static final Map<Projectile, Vec3> RETURN_MOTION = new WeakHashMap<>();
 
     private FateDefenses() { }
 
     public static void register() {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, FateDefenses::impact);
+        NeoForge.EVENT_BUS.addListener(FateDefenses::finishBounce);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, FateDefenses::effect);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, FateDefenses::dissolve);
     }
@@ -125,12 +132,26 @@ public final class FateDefenses {
         }
         shot.getPersistentData().putFloat(REFLECTED_DAMAGE, (float) returned);
         shot.setOwner(defender);
-        var reversed = shot.getDeltaMovement().scale(-1);
-        shot.setPos(hit.getLocation().add(reversed.normalize().scale(.04)));
-        shot.setDeltaMovement(reversed);
-        shot.hasImpulse = true;
+        Vec3 incoming = shot.getDeltaMovement();
+        Vec3 reversed = incoming.scale(-1);
+        Vec3 origin = shot.position();
+        // Vanilla projectile hits may store the feet of the target instead of the contact point.
+        Vec3 contact = defender.getBoundingBox().inflate(.3).clip(origin, origin.add(incoming)).orElse(origin);
+        shot.setPos(contact.add(reversed.normalize().scale(.04)));
+        // Finish the impact tick at contact so the next tick sweeps for blocks on the return path.
+        shot.setDeltaMovement(Vec3.ZERO);
+        RETURN_MOTION.put(shot, reversed);
         event.setCanceled(true);
         feedback(defender);
+    }
+
+    private static void finishBounce(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof Projectile shot) || shot.level().isClientSide()) return;
+        Vec3 motion = RETURN_MOTION.remove(shot);
+        if (motion != null && !shot.isRemoved()) {
+            shot.setDeltaMovement(motion);
+            shot.hasImpulse = true;
+        }
     }
 
     public static boolean reflected(Projectile arrow) { return arrow.getPersistentData().contains(REFLECTED_DAMAGE); }
