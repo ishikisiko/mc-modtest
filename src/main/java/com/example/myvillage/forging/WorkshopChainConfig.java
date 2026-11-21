@@ -25,6 +25,7 @@ public final class WorkshopChainConfig {
                 .defineListAllowEmpty("ore_families", List.of("c:ores/spirit_stone", "c:ores/xuantie",
                         "c:ores/coal", "c:ores/copper", "c:ores/iron", "c:ores/gold", "c:ores/redstone",
                         "c:ores/lapis", "c:ores/diamond", "c:ores/emerald", "c:ores/quartz", "c:ores/netherite_scrap"),
+                        () -> "c:ores/<矿种>",
                         element -> element instanceof String id && ResourceLocation.tryParse(id) != null);
         b.pop();
         b.push("axe");

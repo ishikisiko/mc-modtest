@@ -35,6 +35,7 @@ public final class WaystonesPricingConfig {
                 .worldRestart().defineListAllowEmpty("realm_multipliers", List.of(
                         "yuanxian:mortal=1", "yuanxian:qi_refining=1",
                         "yuanxian:foundation_establishment=3", "yuanxian:golden_core=10"),
+                        () -> "yuanxian:",
                         WaystonesPricingConfig::validRealmEntry);
         builder.pop();
         SPEC = builder.build();

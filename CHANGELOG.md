@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.149.4
+
+- 源仙的模组配置页列出八个模块入口，支持修改本机仙衣动效和本地单人世界的服务器设置，并可打开本机的怪物掉落配置目录。
+
 ## 0.149.3-fix1
 
 - 开局矿洞内新刷出的原版普通怪物固定为凡人境，模组怪物沿用各自的境界规则。
