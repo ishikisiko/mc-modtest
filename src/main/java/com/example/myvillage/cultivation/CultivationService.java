@@ -77,6 +77,10 @@ public final class CultivationService {
         syncToClient(player); CultivationTimeRuntime.notifyStatus(player);
     }
 
+    public static void replaceFateExtras(ServerPlayer player, com.example.myvillage.cultivation.fate.FateExtras replacement) {
+        player.setData(CultivationAttachments.FATE_EXTRAS.get(), Objects.requireNonNull(replacement));
+    }
+
     /** 长生累计状态的唯一写入口；进度持久化，只有入账时同步面板。 */
     public static void replaceEverlasting(ServerPlayer player,
             com.example.myvillage.cultivation.fate.EverlastingState replacement, boolean synchronize) {
@@ -348,6 +352,9 @@ public final class CultivationService {
         if (registryError.isPresent()) {
             return Result.failure(registryError.get(), oldProfile);
         }
+        if (com.example.myvillage.cultivation.fate.FateReworkRules.HEART_ID.equals(techniqueId)
+                && !com.example.myvillage.cultivation.fate.FateService.has(player, com.example.myvillage.cultivation.fate.SacredHeart.FATE))
+            return Result.failure("这门心法由厚土圣胎传承", oldProfile);
         if (oldProfile.learnedTechniques().containsKey(techniqueId)) {
             return Result.failure("Technique is already learned: " + techniqueId, oldProfile);
         }
@@ -380,6 +387,10 @@ public final class CultivationService {
         }
         Slot slot = HeartTechniques.slot(registry.get().get(techniqueId));
         if (slot != Slot.SPIRIT) {
+            if (com.example.myvillage.cultivation.fate.FateReworkRules.HEART_ID.equals(techniqueId)
+                    && (com.example.myvillage.cultivation.fate.SacredHeart.stage(oldProfile) == null
+                    || !com.example.myvillage.cultivation.fate.FateService.has(player, com.example.myvillage.cultivation.fate.SacredHeart.FATE)))
+                return Result.failure("厚土圣胎传承的心法须入炼气后装备", oldProfile);
             if (!oldProfile.learnedTechniques().containsKey(techniqueId)) {
                 return Result.failure("尚未学会这门心法", oldProfile);
             }
@@ -426,6 +437,8 @@ public final class CultivationService {
         if (registryError.isPresent()) {
             return Result.failure(registryError.get(), oldProfile);
         }
+        if (com.example.myvillage.cultivation.fate.FateReworkRules.HEART_ID.equals(techniqueId))
+            return Result.failure("伴生心法随厚土圣胎传承", oldProfile);
         if (!oldProfile.learnedTechniques().containsKey(techniqueId)) {
             return Result.failure("Technique is not learned: " + techniqueId, oldProfile);
         }

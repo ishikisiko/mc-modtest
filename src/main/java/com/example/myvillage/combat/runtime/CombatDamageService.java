@@ -213,7 +213,7 @@ public final class CombatDamageService {
         // A multipart box is not an independently movable body. Keep the part's true contact
         // receipt, but never move/freeze its parent to imitate an ordinary mob reaction.
         if (!elemental && target instanceof LivingEntity living) {
-            CombatReactionService.onHit(living, move, feedbackFreezeTicks(move), impulse);
+            CombatReactionService.onHit(living, move, feedbackFreezeTicks(move), impulse, source, session.isExternal());
         } else if (!elemental && owner == target && target.isPushable() && impulse.horizontalDistanceSqr() > 0.0) {
             target.push(impulse.x, Math.max(0.1, impulse.y), impulse.z);
         }

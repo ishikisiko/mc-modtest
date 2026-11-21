@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.yuanxian.sect_kinship",
+  "description_key": "fate.yuanxian.sect_kinship.description",
+  "tier": 0,
+  "cost": 1,
+  "group": "sect_kinship",
+  "effects": {
+    "sect_kinship": 1
+  },
+  "npc_eligible": false
+}

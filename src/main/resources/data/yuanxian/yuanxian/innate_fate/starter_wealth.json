@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.yuanxian.starter_wealth",
+  "description_key": "fate.yuanxian.starter_wealth.description",
+  "tier": 0,
+  "cost": 1,
+  "group": "starter_wealth",
+  "effects": {
+    "opening_gift": 1
+  },
+  "npc_eligible": false
+}

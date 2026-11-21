@@ -1,0 +1,22 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.sacred_earth_heart",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "yuanxian:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "yuanxian:qi_refining"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian",
+      "heart": {
+        "slot": "defense",
+        "direction": "general",
+        "defense": 0,
+        "max_health": 0
+      }
+    }
+  }
+}

@@ -13,7 +13,8 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
         String group, boolean enabled, Map<String, Double> effects,
         Optional<ResourceLocation> element, int minimumAptitude, int maximumRoots, Optional<ResourceLocation> derivedSkill,
         boolean npcEligible) {
-    public static final Set<String> EFFECTS = Set.of("alchemy_initial_aptitude","forging_initial_aptitude","crafting_mean_shift","crafting_variance_multiplier","school_study", "school_mastery", "herbal_find_chance", "metal_bonus", "wood_bonus", "water_bonus", "earth_bonus",
+    public static final Set<String> EFFECTS = Set.of("hearing_range","opening_gift","treasure_range","treasure_chance","treasure_ticks","sect_kinship","wall_fraction","wall_ticks","wall_stun_ticks","wall_cooldown","reflect_chance","reflect_fraction","reflect_cooldown","earth_resistance","dissolve_chance","dissolve_cooldown","water_resistance","harm_immunity","companion_sword","sacred_heart",
+            "alchemy_initial_aptitude","forging_initial_aptitude","crafting_mean_shift","crafting_variance_multiplier","school_study", "school_mastery", "herbal_find_chance", "metal_bonus", "wood_bonus", "water_bonus", "earth_bonus",
             "metal_armor_break_fraction", "metal_armor_break_ticks", "water_slow_fraction", "water_slow_ticks", "water_slow_cooldown", "ground_knockback",
             "everlasting", "body_health_bonus", "body_defense_bonus", "healing_bonus", "jingang_adaptation", "phoenix", "health", "speed", "knockback", "fall_reduction",
             "gain", "study", "lifesteal_fraction", "lifesteal_cap_fraction", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
@@ -73,6 +74,8 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
                 if (v < 1 || v != Math.rint(v)) throw new IllegalArgumentException("Invalid tick count " + k);
             } else if ((k.equals("sword_max_stacks") || k.equals("fire_burst_hits"))) {
                 if (v < 1 || v > 64 || v != Math.rint(v)) throw new IllegalArgumentException("Invalid stack cap");
+            } else if (k.endsWith("_range")) {
+                if (v <= 0 || v > 32) throw new IllegalArgumentException("Invalid fate detection range " + k);
             } else if (k.equals("bones_knockback_radius")) {
                 if (v <= 0 || v > 16) throw new IllegalArgumentException("Invalid bounded radius " + k);
             } else if (v > 1 || (v < 0 && !k.equals("health"))) {

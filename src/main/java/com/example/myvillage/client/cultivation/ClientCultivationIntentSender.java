@@ -24,9 +24,12 @@ public final class ClientCultivationIntentSender {
         return sendFate(action,revision,value,sessionToken,"");
     }
     public static boolean sendFate(int action,long revision,int value,long sessionToken,String school) {
+        return sendFate(action,revision,value,sessionToken,school,-1);
+    }
+    public static boolean sendFate(int action,long revision,int value,long sessionToken,String school,int weapon) {
         Minecraft minecraft = Minecraft.getInstance();
         if (sessionToken <= 0 || minecraft.player == null || minecraft.getConnection() == null) return false;
-        PacketDistributor.sendToServer(new com.example.myvillage.cultivation.network.FateIntentPayload((byte) action, revision, (byte) value, sessionToken,school));
+        PacketDistributor.sendToServer(new com.example.myvillage.cultivation.network.FateIntentPayload((byte) action, revision, (byte) value, sessionToken,school,(byte)weapon));
         return true;
     }
     public static boolean sendAwakeningClose(long sessionToken) {

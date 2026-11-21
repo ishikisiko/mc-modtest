@@ -125,6 +125,12 @@ public final class ModItems {
             ITEMS.registerItem("rideable_flying_sword",
                     props -> new RideableFlyingSwordItem(props.stacksTo(1)));
 
+    public static final DeferredItem<CompanionSwordItem> PRIMORDIAL_COMPANION_SWORD =
+            ITEMS.registerItem("primordial_companion_sword", props -> new CompanionSwordItem(props
+                    .attributes(SwordItem.createAttributes(Tiers.IRON, 3, -2.4F))
+                    .component(net.minecraft.core.component.DataComponents.UNBREAKABLE,
+                            new net.minecraft.world.item.component.Unbreakable(false))));
+
     public static final DeferredItem<SwordItem> QINGFENG_SWORD =
             ITEMS.registerItem("qingfeng_sword",
                     props -> new CombatWeaponItem(

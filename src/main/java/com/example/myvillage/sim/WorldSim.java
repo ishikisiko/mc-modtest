@@ -830,7 +830,11 @@ public final class WorldSim {
      * {@code player_leave} event. The join standing, snapshot and {@code player_join} event apply.
      */
     public SimEvent joinSect(String playerId, String playerName, int sectId, PlayerQualification q, boolean force) {
-        SimEvent event = PlayerAffairs.join(ctx, playerId, playerName, sectId, q, force);
+        return joinSect(playerId,playerName,sectId,q,force,false);
+    }
+
+    public SimEvent joinSect(String playerId, String playerName, int sectId, PlayerQualification q, boolean force, boolean kinship) {
+        SimEvent event = PlayerAffairs.join(ctx, playerId, playerName, sectId, q, force, kinship);
         SocialEngine.backfillMembers(ctx.state.social, ctx.state);
         return event;
     }

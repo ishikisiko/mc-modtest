@@ -19,6 +19,15 @@ public final class FateService {
                 : actor instanceof com.example.myvillage.entity.npc.NpcEntity npc
                     ? com.example.myvillage.entity.npc.NpcFateRuntime.state(npc) : FateState.empty();
     }
+    public static boolean has(net.minecraft.world.entity.LivingEntity actor, String id) {
+        var fates = state(actor);
+        if (!fates.confirmed() || !fates.selected().contains(id)) return false;
+        var key = net.minecraft.resources.ResourceLocation.parse(id);
+        return actor.registryAccess().registry(ModCultivationRegistries.INNATE_FATES)
+                .flatMap(registry -> registry.getOptional(key))
+                .filter(def -> actor instanceof ServerPlayer player ? def.active(CultivationService.getProfile(player).spiritualRoot())
+                        : def.enabled() && def.npcEligible()).isPresent();
+    }
     public static int budget() { return CultivationServerConfig.fateBudget(); }
     public static Map<String, FateDefinition> definitions(RegistryAccess registries) {
         Map<String, FateDefinition> result = new TreeMap<>();
@@ -47,16 +56,20 @@ public final class FateService {
         return result;
     }
     public static double effect(net.minecraft.world.entity.LivingEntity actor, String effect) {
-        if (actor instanceof ServerPlayer player) return effect(player,effect);
-        var state=state(actor);if(!state.confirmed())return 0;
-        var definitions=active(actor);
-        return state.selected().stream().map(definitions::get).filter(Objects::nonNull).mapToDouble(d->d.effect(effect)).sum();
-    }
-    public static double effect(ServerPlayer player, String effect) {
-        FateState state = state(player); if (!state.confirmed()) return 0;
-        var definitions = active(player);
-        return state.selected().stream().map(definitions::get).filter(Objects::nonNull)
-                .mapToDouble(d -> d.effect(effect)).sum();
+        if (!FateActors.supported(actor) || actor.level().isClientSide()) return 0;
+        var state = state(actor);
+        if (!state.confirmed()) return 0;
+        var registry = actor.registryAccess().registry(ModCultivationRegistries.INNATE_FATES).orElse(null);
+        if (registry == null) return 0;
+        double amount = 0;
+        for (String id : state.selected()) {
+            var definition = registry.get(ResourceLocation.parse(id));
+            if (definition == null || !definition.enabled()) continue;
+            if (actor instanceof ServerPlayer player
+                    ? definition.active(CultivationService.getProfile(player).spiritualRoot()) : definition.npcEligible())
+                amount += definition.effect(effect);
+        }
+        return "earth_bonus".equals(effect) ? amount + SacredHeart.earthDamage(actor) : amount;
     }
     /** Only the server-side stele interaction initializes a missing draft, never an existing one. */
     public static void initializeDraft(ServerPlayer player) {
@@ -75,10 +88,14 @@ public final class FateService {
 
     /** A server chooses all values; value is only a slot, unlock sentinel or six-bit mask. */
     public static boolean intent(ServerPlayer player, int action, long revision, int value, long sessionToken) {
-        return request(player,action,revision,value,SteleAwakeningSessions.valid(player,sessionToken),"");
+        return request(player,action,revision,value,SteleAwakeningSessions.valid(player,sessionToken),"",-1);
     }
     public static boolean intent(ServerPlayer player,int action,long revision,int value,long sessionToken,String school) {
-        return request(player, action, revision, value, SteleAwakeningSessions.valid(player, sessionToken),school);
+        return request(player, action, revision, value, SteleAwakeningSessions.valid(player, sessionToken),school,-1);
+    }
+
+    public static boolean intent(ServerPlayer player,int action,long revision,int value,long token,String school,int weapon) {
+        return request(player,action,revision,value,SteleAwakeningSessions.valid(player,token),school,weapon);
     }
 
     /** Explicit permission-checked administrator fixture path; never called by a network handler. */
@@ -89,10 +106,10 @@ public final class FateService {
     }
     public static boolean diagnosticIntent(CommandSourceStack source,ServerPlayer player,int action,long revision,int value,String school) {
         if (!source.hasPermission(2)) return false;
-        return request(player, action, revision, value, true,school);
+        return request(player, action, revision, value, true,school,-1);
     }
 
-    private static boolean request(ServerPlayer player, int action, long revision, int value, boolean authorized,String school) {
+    private static boolean request(ServerPlayer player, int action, long revision, int value, boolean authorized,String school,int weapon) {
         long now = player.getServer().overworld().getGameTime();
         long next = REQUESTS.getOrDefault(player.getUUID(), Long.MIN_VALUE);
         if (now < next) return false;
@@ -109,16 +126,22 @@ public final class FateService {
                 Map<String, FateDefinition> pool = eligible(player);
                 FateState replacement = FateSelection.transition(current, action, revision, value,
                         pool, budget(), FateRules.bundled(), random(player, current));
-                if (action==2) CultivationService.confirmFates(player,replacement,
-                        SchoolInsight.confirm(replacement.selected(),pool,school,SchoolInsightRuntime.schools(player.registryAccess()).keySet()));
-                else {
-                    if(!school.isEmpty())throw new IllegalArgumentException("school");
+                if (action==2) {
+                    OpeningGift.validate(replacement, weapon);
+                    CultivationService.confirmFates(player,replacement,
+                            SchoolInsight.confirm(replacement.selected(),pool,school,SchoolInsightRuntime.schools(player.registryAccess()).keySet()));
+                    if (weapon >= 0) CultivationService.replaceFateExtras(player, FateExtras.of(player).choose(weapon));
+                    OpeningGift.claim(player);
+                    CompanionSwordRuntime.claim(player);
+                    SacredHeart.apply(player);
+                } else {
+                    if(!school.isEmpty() || weapon != -1)throw new IllegalArgumentException("intent");
                     CultivationService.replaceFates(player, replacement, true);
                 }
                 return true;
             }
         } catch (IllegalArgumentException | ArithmeticException e) {
-            error = Set.of("school", "confirmed", "stale", "count", "budget", "exclusive", "intent", "locked", "unavailable")
+            error = Set.of("school", "weapon", "confirmed", "stale", "count", "budget", "exclusive", "intent", "locked", "unavailable")
                     .contains(String.valueOf(e.getMessage())) ? e.getMessage() : "unavailable";
         }
         player.displayClientMessage(Component.translatable("fate.yuanxian.error." + error), false);
@@ -133,6 +156,8 @@ public final class FateService {
     }
     public static void forget(ServerPlayer player) {
         REQUESTS.remove(player.getUUID());
+        FateSenses.forget(player);
+        CompanionSwordRuntime.forget(player);
         TemperedBonesRuntime.forget(player);
         SwordObsessionRuntime.forget(player);
         SwordHeartRuntime.forget(player);
@@ -140,6 +165,6 @@ public final class FateService {
         FireSpiritRuntime.forget(player);
         SteleAwakeningSessions.forget(player);
     }
-    public static void stop() { REQUESTS.clear(); TemperedBonesRuntime.stop(); SwordObsessionRuntime.clear();
+    public static void stop() { REQUESTS.clear(); FateSenses.clear(); HeavyHandRuntime.clear(); CompanionSwordRuntime.clear(); TemperedBonesRuntime.stop(); SwordObsessionRuntime.clear();
         SwordHeartRuntime.stop(); WindStepRuntime.clearAll(); FireSpiritRuntime.clear(); }
 }

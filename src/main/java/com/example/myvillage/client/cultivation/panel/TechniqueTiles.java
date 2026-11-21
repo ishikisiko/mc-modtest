@@ -126,7 +126,11 @@ final class TechniqueTiles {
                 .map(stage -> c.stageName(realm, stage)).orElseGet(() -> c.realmName(realm)).getString()));
         d.requirements().minimumElementAptitudes().forEach((element,points)->conditions.add(c.elementName(element).getString()+String.format(Locale.ROOT," ≥ %.1f%%",points/100.0)));
         lines.add(Component.literal("修习条件："+(conditions.isEmpty()?"无":String.join(" · ",conditions))));
-        HeartTechniques.method(d).ifPresent(heart -> heartDetails(lines, c, d, heart));
+        if (com.example.myvillage.cultivation.fate.FateReworkRules.HEART_ID.equals(id)) {
+            heartDetails(lines, c, d, com.example.myvillage.cultivation.fate.SacredHeart.defense(c.profile()));
+        } else {
+            HeartTechniques.method(d).ifPresent(heart -> heartDetails(lines, c, d, heart));
+        }
         ArtDefinition.find(id).ifPresent(art->{
             lines.add(Component.translatable("combat."+id.getNamespace()+".art."+id.getPath()+".description"));
             art.realmRange().ifPresent(reach -> {

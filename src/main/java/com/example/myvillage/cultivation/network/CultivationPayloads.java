@@ -30,7 +30,7 @@ public final class CultivationPayloads {
         registrar.playToServer(FateIntentPayload.TYPE, FateIntentPayload.STREAM_CODEC, (payload, context) -> {
             if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
                     com.example.myvillage.cultivation.fate.FateService.intent(player, Byte.toUnsignedInt(payload.action()),
-                            payload.revision(), Byte.toUnsignedInt(payload.value()), payload.sessionToken(),payload.school()));
+                            payload.revision(), Byte.toUnsignedInt(payload.value()), payload.sessionToken(),payload.school(),payload.weapon()));
         });
         registrar.playToClient(AwakeningOpenPayload.TYPE, AwakeningOpenPayload.STREAM_CODEC, (payload, context) ->
                 context.enqueueWork(() -> AwakeningScreenReceiver.receive(payload)));

@@ -13,6 +13,7 @@ public final class SwordArmorBreak {
     private static final Map<UUID,Entry> ACTIVE=new HashMap<>();
     private SwordArmorBreak() {}
     public static void apply(LivingEntity target,double fraction,int ticks) {
+        if (com.example.myvillage.cultivation.fate.FateDefenses.immune(target)) return;
         if(target.level().isClientSide() || fraction<=0 || ticks<=0)return;
         var armor=target.getAttribute(Attributes.ARMOR);if(armor==null)return;
         long now=target.getServer().overworld().getGameTime();

@@ -58,8 +58,12 @@ public final class CombatReactionService {
     }
 
     /** Registers a hit's reaction. Called by CombatDamageService after a successful hurt. */
-    static void onHit(LivingEntity target, AttackMoveDefinition move, int freezeTicks, Vec3 impulse) {
+    static void onHit(LivingEntity target, AttackMoveDefinition move, int freezeTicks, Vec3 impulse, net.minecraft.world.damagesource.DamageSource source, boolean art) {
         if (target.level().isClientSide()) {
+            return;
+        }
+        if (com.example.myvillage.cultivation.fate.FateDefenses.immune(target)) {
+            if (!art && !StaggerResistant.resists(target)) applyControlAwareImpulse(target, impulse.multiply(1, 0, 1), source);
             return;
         }
         long now = target.level().getGameTime();
@@ -79,11 +83,12 @@ public final class CombatReactionService {
             reaction.freezeUntil = Math.max(reaction.freezeUntil, now + freezeTicks);
             if (plan.impulse()) {
                 reaction.pendingImpulse = impulse;
+                reaction.pendingSource = source;
                 Vec3 motion = target.getDeltaMovement();
                 target.setDeltaMovement(0.0, Math.min(0.0, motion.y), 0.0);
             }
         } else if (plan.impulse()) {
-            applyControlAwareImpulse(target, impulse);
+            applyControlAwareImpulse(target, impulse, source);
         }
 
         int baseStun = move.reaction().hitstunTicks();
@@ -133,7 +138,8 @@ public final class CombatReactionService {
             }
             long now = target.level().getGameTime();
             if (reaction.pendingImpulse != null && now >= reaction.freezeUntil) {
-                applyControlAwareImpulse(target, reaction.pendingImpulse);
+                applyControlAwareImpulse(target, reaction.pendingImpulse, reaction.pendingSource);
+                reaction.pendingSource = null;
                 reaction.pendingImpulse = null;
             }
             if (reaction.stunUntil != Long.MIN_VALUE && now >= reaction.stunUntil) {
@@ -277,7 +283,8 @@ public final class CombatReactionService {
 
     /** 控制模块复用旧硬直的首领分类，不按新增阈值改变旧武器反应。 */
     public static boolean isControlImmune(LivingEntity target) {
-        return excludedType(target.getClass()) || target.isMultipartEntity();
+        return excludedType(target.getClass()) || target.isMultipartEntity()
+                || com.example.myvillage.cultivation.fate.FateDefenses.immune(target);
     }
 
     /** 仅清除此服务拥有的硬直、击停和待发冲量，不碰其他属性或药水。 */
@@ -294,12 +301,23 @@ public final class CombatReactionService {
         return active;
     }
 
-    private static void applyControlAwareImpulse(LivingEntity target, Vec3 impulse) {
+    public static void wallStun(LivingEntity target, int ticks) {
+        if (ticks <= 0 || !target.isAlive() || isControlImmune(target) || StaggerResistant.resists(target)
+                || com.example.myvillage.combat.foundation.ControlService.isPoised(target)) return;
+        int stun = CombatReactionMath.stunTicks(ticks, 0, target.getMaxHealth());
+        if (stun <= 0) return;
+        Reaction reaction = REACTIONS.compute(target.getId(), (id, old) -> old != null && old.target == target ? old : new Reaction(target));
+        reaction.stunUntil = Math.max(reaction.stunUntil, target.level().getGameTime() + stun);
+        if (stunSlows(target.getClass())) setPlayerStun(target, true);
+    }
+
+    private static void applyControlAwareImpulse(LivingEntity target, Vec3 impulse, net.minecraft.world.damagesource.DamageSource source) {
         impulse = impulse.scale(com.example.myvillage.cultivation.fate.FateRuntime.groundKnockbackFactor(target));
         double factor = com.example.myvillage.combat.session.AscendantWards.knockbackFactor(target);
         if (factor < 1) impulse = impulse.multiply(factor, 1, factor);
         com.example.myvillage.combat.foundation.ControlService.allowImpulse(target, impulse);
         CombatDamageService.applyImpulse(target, impulse);
+        com.example.myvillage.cultivation.fate.HeavyHandRuntime.launched(target, impulse, source);
     }
 
     /** The Ender Dragon, Wither and Warden are never frozen or stunned. */
@@ -326,6 +344,7 @@ public final class CombatReactionService {
         private long lastStunTick = Long.MIN_VALUE;
         private int stunStacks;
         private Vec3 pendingImpulse;
+        private net.minecraft.world.damagesource.DamageSource pendingSource;
 
         private Reaction(LivingEntity target) {
             this.target = target;

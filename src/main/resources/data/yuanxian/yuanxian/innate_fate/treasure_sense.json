@@ -1,0 +1,13 @@
+{
+  "translation_key": "fate.yuanxian.treasure_sense",
+  "description_key": "fate.yuanxian.treasure_sense.description",
+  "tier": 0,
+  "cost": 1,
+  "group": "treasure_sense",
+  "effects": {
+    "treasure_range": 24,
+    "treasure_chance": 0.25,
+    "treasure_ticks": 40
+  },
+  "npc_eligible": false
+}

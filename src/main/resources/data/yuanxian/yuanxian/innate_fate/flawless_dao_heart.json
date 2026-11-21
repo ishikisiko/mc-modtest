@@ -4,6 +4,7 @@
   "tier": 5,
   "cost": 6,
   "group": "dao_heart",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "harm_immunity": 1
+  }
 }

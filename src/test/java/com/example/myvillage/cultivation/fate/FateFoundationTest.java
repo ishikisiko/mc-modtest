@@ -45,14 +45,20 @@ class FateFoundationTest {
             assertTrue(FateSelection.hasTriple(ids, defs, budget));
         }
     }
-    @Test void highTierPlaceholdersDecodeSelectAndHaveNoEffects() throws Exception {
+    @Test void completedHighTierFatesDecodeAndRemainSelectable() throws Exception {
         Map<String, FateDefinition> pool = new TreeMap<>(defs);
         for (String id : List.of("earth_spirit_body", "water_spirit_body", "flawless_dao_heart")) {
             try (var in = FateFoundationTest.class.getResourceAsStream("/data/yuanxian/yuanxian/innate_fate/" + id + ".json")) {
                 assertNotNull(in);
                 var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,
                         JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))).getOrThrow();
-                assertTrue(definition.effects().isEmpty());
+                assertFalse(definition.placeholder());
+                String primary = switch (id) {
+                    case "earth_spirit_body" -> "reflect_chance";
+                    case "water_spirit_body" -> "dissolve_chance";
+                    default -> "harm_immunity";
+                };
+                assertTrue(definition.effect(primary) > 0);
                 assertTrue(definition.eligible(root(2500, 2500, 2500, 2500)));
                 pool.put("yuanxian:" + id, definition);
             }

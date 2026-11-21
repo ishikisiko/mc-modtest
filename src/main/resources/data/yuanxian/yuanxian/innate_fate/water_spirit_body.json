@@ -4,6 +4,10 @@
   "tier": 4,
   "cost": 5,
   "group": "spirit_body",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "dissolve_chance": 0.2,
+    "dissolve_cooldown": 40,
+    "water_bonus": 0.25,
+    "water_resistance": 0.2
+  }
 }

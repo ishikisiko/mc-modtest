@@ -113,7 +113,7 @@ public final class FireSpiritRuntime {
         long now = clock(attacker.getServer());
         LOGGER.info("FIRE_SPIRIT_HIT owner={} target={} tick={} primary={} weapon_damage={}",
                 attacker.getUUID(), target.getUUID(), now, actualPrimaryHealthLoss, weaponAttackAttribute);
-        tracked.state().burn(now, actualPrimaryHealthLoss, fraction, duration, interval);
+        if (!FateDefenses.immune(target)) tracked.state().burn(now, actualPrimaryHealthLoss, fraction, duration, interval);
         FateState latest = FateService.state(attacker);
         FireSpiritCooldownState saved = latest.fireSpirit();
         if (tracked.state().hit(required, saved.canRecord(FateActors.identity(target), now), weaponAttackAttribute, multiplier)) {

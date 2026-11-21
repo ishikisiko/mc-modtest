@@ -1,6 +1,7 @@
 package com.example.myvillage.cultivation.fate.ability;
 
 import com.example.myvillage.cultivation.fate.FateState;
+import com.example.myvillage.cultivation.fate.FateReworkRules;
 import com.example.myvillage.cultivation.fate.FateDefinition;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.google.gson.JsonObject;
@@ -28,7 +29,7 @@ public record FateAbilityDefinition(ResourceLocation id, ResourceLocation requir
                 || id.equals(ResourceLocation.parse("yuanxian:unassigned"))
                 || name == null || name.isBlank() || description == null || description.isBlank()
                 || cooldownTicks < 1 || cooldownTicks > 12000
-                || !Double.isFinite(costFraction) || costFraction <= 0 || costFraction > 1
+                || !Double.isFinite(costFraction) || costFraction < 0 || costFraction > 1
                 || minimumCost < 1 || !Double.isFinite(radius) || radius <= 0 || radius > 32) {
             throw new IllegalArgumentException("天命主动能力配置越界");
         }
@@ -81,10 +82,18 @@ public record FateAbilityDefinition(ResourceLocation id, ResourceLocation requir
         Map<ResourceLocation, FateAbilityDefinition> result = new LinkedHashMap<>();
         for (var element : rows) {
             var row = element.getAsJsonObject();
-            var definition = new FateAbilityDefinition(ResourceLocation.parse(string(row, "id")),
-                    ResourceLocation.parse(string(row, "required_fate")), string(row, "name"),
-                    string(row, "description"), (int) integer(row, "cooldown_ticks", 1, 12000),
-                    number(row, "cost_fraction"), integer(row, "minimum_cost", 1, Long.MAX_VALUE), number(row, "radius"));
+            var id = ResourceLocation.parse(string(row, "id"));
+            var fate = ResourceLocation.parse(string(row, "required_fate"));
+            String name = string(row, "name"), description = string(row, "description");
+            FateAbilityDefinition definition;
+            if (FateReworkRules.SWORD_ART.equals(id)) {
+                var stage = FateReworkRules.get().stages().getFirst();
+                definition = new FateAbilityDefinition(id, fate, name, description,
+                        stage.cooldown(), 0, stage.power(), stage.reach());
+            } else {
+                definition = new FateAbilityDefinition(id, fate, name, description, (int) integer(row, "cooldown_ticks", 1, 12000),
+                        number(row, "cost_fraction"), integer(row, "minimum_cost", 1, Long.MAX_VALUE), number(row, "radius"));
+            }
             if (result.putIfAbsent(definition.id(), definition) != null)
                 throw new IllegalArgumentException("主动能力 ID 重复：" + definition.id());
         }

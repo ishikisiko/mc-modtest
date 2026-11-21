@@ -1,0 +1,176 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/item/primordial_companion_sword.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:item/primordial_companion_sword/qi_refining"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -0.17389381184454955,
+        -0.7245432883948516,
+        0.1545355250631
+      ],
+      "scale": [
+        0.9159695704508484,
+        0.9159695704508484,
+        0.9159695704508484
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        1.5320088300220749,
+        -0.0
+      ],
+      "scale": [
+        0.44150110375275936,
+        0.44150110375275936,
+        0.44150110375275936
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -0.7604856512141284,
+        -0.0
+      ],
+      "scale": [
+        0.717439293598234,
+        0.717439293598234,
+        0.717439293598234
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -0.7604856512141284,
+        -0.0
+      ],
+      "scale": [
+        0.717439293598234,
+        0.717439293598234,
+        0.717439293598234
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        2.01,
+        1.234
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        2.01,
+        1.234
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        1.62,
+        0.5
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        1.62,
+        0.5
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "yuanxian:companion_form": 0.25
+      },
+      "model": "yuanxian:item/primordial_companion_sword_foundation"
+    },
+    {
+      "predicate": {
+        "yuanxian:companion_form": 0.5
+      },
+      "model": "yuanxian:item/primordial_companion_sword_golden_core"
+    },
+    {
+      "predicate": {
+        "yuanxian:companion_form": 0.75
+      },
+      "model": "yuanxian:item/primordial_companion_sword_nascent_soul"
+    },
+    {
+      "predicate": {
+        "yuanxian:companion_form": 1.0
+      },
+      "model": "yuanxian:item/primordial_companion_sword_spirit_transformation"
+    }
+  ]
+}

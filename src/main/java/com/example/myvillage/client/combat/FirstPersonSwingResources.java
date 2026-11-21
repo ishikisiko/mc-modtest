@@ -32,6 +32,9 @@ final class FirstPersonSwingResources implements ResourceManagerReloadListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FirstPersonSwingResources.class);
     private static Map<ResourceLocation, WeaponRig> rigs = Map.of();
+    private static Map<Integer, WeaponRig> companionRigs = Map.of();
+    private static final ResourceLocation COMPANION = ResourceLocation.parse("yuanxian:primordial_companion_sword");
+    private static final java.util.List<String> COMPANION_SHAPES = java.util.List.of("foundation", "golden_core", "nascent_soul", "spirit_transformation");
 
     private FirstPersonSwingResources() {
     }
@@ -45,6 +48,8 @@ final class FirstPersonSwingResources implements ResourceManagerReloadListener {
         if (stack.isEmpty()) {
             return Optional.empty();
         }
+        var mark = com.example.myvillage.item.CompanionSwordItem.mark(stack);
+        if (mark != null && companionRigs.containsKey(mark.form())) return Optional.of(companionRigs.get(mark.form()));
         return forItem(BuiltInRegistries.ITEM.getKey(stack.getItem()));
     }
 
@@ -54,7 +59,21 @@ final class FirstPersonSwingResources implements ResourceManagerReloadListener {
 
     @Override
     public void onResourceManagerReload(ResourceManager resourceManager) {
-        rigs = loadAll(CombatStyles.bundled(), (weapon, location) -> read(resourceManager, weapon, location));
+        AssetReader reader = (weapon, location) -> read(resourceManager, weapon, location);
+        rigs = loadAll(CombatStyles.bundled(), reader);
+        var base = rigs.get(COMPANION);
+        if (base == null) {
+            companionRigs = Map.of();
+            return;
+        }
+        Map<Integer, WeaponRig> forms = new HashMap<>();
+        for (int index = 0; index < COMPANION_SHAPES.size(); index++) {
+            int form = index + 1;
+            var geometry = ResourceLocation.parse("yuanxian:combat/primordial_companion_sword_"
+                    + COMPANION_SHAPES.get(index) + "_geometry.json");
+            load(reader, base.weapon(), base.style(), geometry).ifPresent(rig -> forms.put(form, rig));
+        }
+        companionRigs = Map.copyOf(forms);
     }
 
     /** Reads one asset of a weapon; empty (after logging why) when it is missing or unreadable. */
@@ -80,8 +99,12 @@ final class FirstPersonSwingResources implements ResourceManagerReloadListener {
             AssetReader reader,
             WeaponDefinition weapon,
             CombatStyleDefinition style) {
+        return load(reader, weapon, style, weapon.geometry());
+    }
+
+    private static Optional<WeaponRig> load(AssetReader reader, WeaponDefinition weapon, CombatStyleDefinition style,
+            ResourceLocation geometryLocation) {
         ResourceLocation rigLocation = weapon.firstPersonRig();
-        ResourceLocation geometryLocation = weapon.geometry();
         Optional<JsonObject> geometryJson = reader.read(weapon, geometryLocation);
         Optional<JsonObject> rigJson = reader.read(weapon, rigLocation);
         if (geometryJson.isEmpty() || rigJson.isEmpty()) {

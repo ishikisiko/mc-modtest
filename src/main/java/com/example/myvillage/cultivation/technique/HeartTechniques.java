@@ -95,11 +95,16 @@ public final class HeartTechniques {
 
     public record Recovery(int basisPoints, int quarters) { }
 
-    public static BaseCombat baseCombat(RegistryAccess access, CultivationProfile profile) {
+    public static BaseCombat baseCombat(LivingEntity entity, CultivationProfile profile) {
+        RegistryAccess access = entity.registryAccess();
         var attack = equipped(access, profile, Slot.ATTACK).flatMap(HeartTechniques::method)
                 .map(HeartMethod.Attack.class::cast).orElse(null);
         var defense = equipped(access, profile, Slot.DEFENSE).flatMap(HeartTechniques::method)
                 .map(HeartMethod.Defense.class::cast).orElse(null);
+        if (profile.equippedHeart(Slot.DEFENSE).filter(com.example.myvillage.cultivation.fate.FateReworkRules.HEART_ID::equals).isPresent()) {
+            defense = com.example.myvillage.cultivation.fate.FateService.has(entity, com.example.myvillage.cultivation.fate.SacredHeart.FATE)
+                    ? com.example.myvillage.cultivation.fate.SacredHeart.defense(profile) : null;
+        }
         return new BaseCombat(attack == null ? 0 : attack.attack(), attack == null ? 0 : attack.flatPenetration(),
                 defense == null ? 0 : defense.defense(), defense == null ? 0 : defense.maxHealth(),
                 defense == null ? HeartMethod.DefenseAttributes.NONE : defense.attributes());

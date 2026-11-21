@@ -47,10 +47,10 @@ class FateValidatorTest(unittest.TestCase):
         self.assertTrue(any('EVERLASTING_PERSISTENCE' in x for x in validate(self.root)))
 
     def test_placeholder_cannot_hide_real_effects(self):
-        self.edit('earth_spirit_body',lambda d:d['effects'].update(health=.2))
+        self.edit('earth_spirit_body',lambda d:d.update(placeholder=True))
         self.assertTrue(any('PLACEHOLDER_EFFECTS' in x for x in validate(self.root)))
     def test_placeholder_must_disclose_absent_effects(self):
-        self.edit('earth_spirit_body',lambda d:d.update(description_key='fate.yuanxian.robust.description'))
+        self.edit('earth_spirit_body',lambda d:d.update(placeholder=True,effects={},description_key='fate.yuanxian.robust.description'))
         self.assertTrue(any('PLACEHOLDER_LABEL' in x for x in validate(self.root)))
     def test_implemented_spirit_cannot_retain_placeholder_name(self):
         p=self.root/'src/main/resources/assets/yuanxian/lang/zh_cn.json';d=json.loads(p.read_text())

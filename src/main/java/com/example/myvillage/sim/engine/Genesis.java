@@ -98,7 +98,7 @@ public final class Genesis {
         List<GenRegion> peripheral = eligible.stream().filter(r -> !r.role().equals("anchor"))
                 .sorted(java.util.Comparator.comparingInt(GenRegion::tier).thenComparing(GenRegion::id)).toList();
         // Seven eligible core states: the two weakest include the initial state even when 东海 is excluded.
-        for (var region : peripheral.stream().limit(ctx.rules.sectProgression().entryStates()).toList()) {
+        for (var region : entryRegions(ctx)) {
             if (out.size() >= count) break;
             out.add(region.id()); placed[eligible.indexOf(region)]++;
         }
@@ -138,6 +138,13 @@ public final class Genesis {
             given++;
         }
         return sizes;
+    }
+
+    static List<GenRegion> entryRegions(SimContext ctx) {
+        return ctx.graph.regions().stream().filter(SimContext::admitsSects)
+                .filter(region -> !region.role().equals("anchor"))
+                .sorted(java.util.Comparator.comparingInt(GenRegion::tier).thenComparing(GenRegion::id))
+                .limit(ctx.rules.sectProgression().entryStates()).toList();
     }
 
     private static Sect foundSect(SimContext ctx, int rank, String regionId, Set<String> signatureUsed,

@@ -176,6 +176,8 @@ public final class MyVillageMod {
         // Aegis consumes damage after typed resistance, without altering vanilla absorption.
         com.example.myvillage.cultivation.fate.PillAegisRuntime.register();
         com.example.myvillage.combat.foundation.FoundationRuntime.register();
+        com.example.myvillage.cultivation.fate.FateDefenses.register();
+        com.example.myvillage.cultivation.fate.HeavyHandRuntime.register();
         com.example.myvillage.cultivation.fate.TemperedBonesRuntime.register();
         com.example.myvillage.cultivation.fate.SwordHeartRuntime.register();
         com.example.myvillage.cultivation.fate.FireSpiritRuntime.register();

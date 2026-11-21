@@ -34,13 +34,17 @@ class FateAbilityDefinitionTest {
                 Map.of(), Optional.empty(), 0, 5);
     }
 
-    @Test void bundledAbilityIsSeparateFromTechniquesAndOtherPlaceholders() {
+    @Test void bundledAbilitiesStaySeparateFromTechniques() {
         var ability = FateAbilityDefinition.find(id("wood_root")).orElseThrow();
         assertEquals(id("wood_spirit_body"), ability.requiredFate());
         assertEquals(400, ability.cooldownTicks());
         assertEquals(5, ability.radius());
         assertEquals(10, ability.cost(100));
-        assertEquals(List.of(ability), FateAbilityDefinition.all());
+        var pursuit = FateAbilityDefinition.find(id("companion_sword_pursuit")).orElseThrow();
+        assertEquals(id("primordial_sword_bone"), pursuit.requiredFate());
+        var first = com.example.myvillage.cultivation.fate.FateReworkRules.get().stages().getFirst();
+        assertEquals(first.power(), pursuit.cost(10000));
+        assertEquals(List.of(ability, pursuit), FateAbilityDefinition.all());
         assertTrue(FateAbilityDefinition.find(id("metal_spirit_body")).isEmpty());
         assertFalse(ability.name().isBlank());
         assertFalse(ability.description().isBlank());

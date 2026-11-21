@@ -79,6 +79,7 @@ public final class ElementalEffects {
     }
     public static void harvest(LivingEntity p,Entity target,DamageType element){DOTS.remove(key(p,target,element));}
     public static void seed(LivingEntity p,Entity target,DamageType element,double base) {
+        if (CombatTargets.owner(target) instanceof LivingEntity living && com.example.myvillage.cultivation.fate.FateDefenses.immune(living)) return;
         var k=key(p,target,element);
         if(!DOTS.containsKey(k) && DOTS.keySet().stream().filter(d->d.caster().equals(p.getUUID())).count()
                 >=ElementalRules.integer("maximum_dots_per_caster",1,48))return;
@@ -95,6 +96,7 @@ public final class ElementalEffects {
         if (limit <= 0) return 0;
         Map<DotKey, Entity> recipients = new LinkedHashMap<>();
         for (Entity other : nearby) {
+            if (CombatTargets.owner(other) instanceof LivingEntity living && com.example.myvillage.cultivation.fate.FateDefenses.immune(living)) continue;
             DotKey candidate = key(caster, other, DamageType.WOOD);
             if (!DOTS.containsKey(candidate)) recipients.putIfAbsent(candidate, other);
             if (recipients.size() >= limit) break;

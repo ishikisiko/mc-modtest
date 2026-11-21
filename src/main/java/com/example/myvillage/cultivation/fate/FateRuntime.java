@@ -26,6 +26,7 @@ public final class FateRuntime {
         PhoenixRuntime.register();
         com.example.myvillage.entity.npc.NpcPhoenixRuntime.register();
         SpiritBodyRuntime.register();
+        CompanionSwordRuntime.register();
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, FateRuntime::incoming);
         NeoForge.EVENT_BUS.addListener(FateRuntime::damaged);
         NeoForge.EVENT_BUS.addListener(FateRuntime::drops);
@@ -46,6 +47,7 @@ public final class FateRuntime {
         float oldHealth = player.getHealth();
         replace(player.getAttribute(Attributes.MAX_HEALTH), HEALTH, FateService.effect(player, "health"));
         SpiritBodyAttributes.refresh(player);
+        FateDefenses.refresh(player);
         EverlastingRuntime.refresh(player);
         PhoenixRuntime.refresh(player);
         double speed = FateService.effect(player, "speed");
@@ -60,6 +62,7 @@ public final class FateRuntime {
         float oldHealth=actor.getHealth();
         replace(actor.getAttribute(Attributes.MAX_HEALTH),HEALTH,FateService.effect(actor,"health"));
         SpiritBodyAttributes.refresh(actor);
+        FateDefenses.refresh(actor);
         EverlastingRuntime.refresh(actor);
         double speed=FateService.effect(actor,"speed");
         if(FateEffects.low(actor.getHealth(),actor.getMaxHealth(),FateService.effect(actor,"low_speed_threshold")))
@@ -75,19 +78,26 @@ public final class FateRuntime {
                 || (source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile projectile
                     && projectile.getOwner() == player);
     }
+    static double attackFactor(LivingEntity attacker, LivingEntity target, net.minecraft.world.damagesource.DamageSource source) {
+        if (!FateActors.supported(attacker)) return 1;
+        boolean direct = personallyCaused(source, attacker);
+        return FateEffects.damageFactor(direct ? FateService.effect(attacker, "damage_bonus") : 0,
+                FateEffects.elementBonus(com.example.myvillage.stats.runtime.StatsRuntime.mappedType(source)
+                                .map(type -> type.id()).orElse(""), source.is(DamageTypeTags.IS_FIRE),
+                        com.example.myvillage.combat.runtime.CombatDamageService.isResolvingElementalAffinity(target),
+                        effect -> FateService.effect(attacker, effect)),
+                direct && hostile(target, attacker) ? FateService.effect(attacker, "hunter_bonus") : 0);
+    }
+
     private static void incoming(LivingIncomingDamageEvent event) {
         if (event.getEntity().level().isClientSide() || event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
         var source = event.getSource(); double damage = event.getAmount();
-        if (source.getEntity() instanceof LivingEntity attacker && FateActors.supported(attacker)
+        if (source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile shot && FateDefenses.reflected(shot)) {
+            damage = FateDefenses.reflectedDamage(shot);
+        } else if (source.getEntity() instanceof LivingEntity attacker
                 && !com.example.myvillage.combat.runtime.CombatDamageService.isDerivedHit(event.getEntity())) {
-            // Authored attacks/projectiles only; environmental fire has no player source.
-            boolean direct = personallyCaused(source, attacker);
-            damage *= FateEffects.damageFactor(direct ? FateService.effect(attacker, "damage_bonus") : 0,
-                    FateEffects.elementBonus(com.example.myvillage.stats.runtime.StatsRuntime.mappedType(source)
-                            .map(type -> type.id()).orElse(""), source.is(DamageTypeTags.IS_FIRE),
-                            com.example.myvillage.combat.runtime.CombatDamageService.isResolvingElementalAffinity(event.getEntity()),
-                            effect -> FateService.effect(attacker,effect)),
-                    direct && hostile(event.getEntity(), attacker) ? FateService.effect(attacker, "hunter_bonus") : 0);
+            damage *= attackFactor(attacker, event.getEntity(), source);
+            damage *= CompanionSwordRuntime.damageMultiplier(attacker, event.getEntity(), source);
         }
         if (FateActors.supported(event.getEntity())) {
             LivingEntity target=event.getEntity();
@@ -143,6 +153,7 @@ public final class FateRuntime {
     }
     public static void respawn(ServerPlayer player) {
         SwordObsessionRuntime.forget(player);
+        CompanionSwordRuntime.forget(player);
         FateState s = FateService.state(player);
         CultivationService.replaceFates(player, s.afterDeath(), false);
     }
@@ -151,6 +162,8 @@ public final class FateRuntime {
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
             refresh(player);
             tickActor(player);
+            FateSenses.tick(player);
+            CompanionSwordRuntime.tick(player);
         }
     }
     public static void tickActor(LivingEntity actor) {

@@ -8,6 +8,7 @@ import com.example.myvillage.cultivation.fate.FateDefinition;
 import com.example.myvillage.cultivation.fate.FateSelection;
 import com.example.myvillage.cultivation.fate.FateState;
 import com.example.myvillage.cultivation.fate.SchoolInsight;
+import com.example.myvillage.cultivation.fate.FateReworkRules;
 import com.example.myvillage.cultivation.fate.SchoolInsightRuntime;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -42,6 +43,8 @@ public final class AwakeningScreen extends Screen {
     private boolean schoolStep;
     private int schoolPage;
     private String chosenSchool = "";
+    private boolean weaponStep;
+    private int weapon = -1;
 
     public AwakeningScreen(BlockPos stelePos, long sessionToken) {
         super(Component.translatable("awakening.yuanxian.title"));
@@ -92,15 +95,21 @@ public final class AwakeningScreen extends Screen {
         return def==null?Component.literal(id):Component.translatable(def.translationKey());
     }
     private void confirmChoice() {
-        if(schoolStep){schoolStep=false;confirming=true;refresh();return;}
-        if(confirming){send(2,selection);return;}
-        if(SchoolInsight.requiresSchool(picks(context().fates()),context().fateDefinitions())){schoolStep=true;schoolPage=0;}
-        else confirming=true;
+        if (confirming) { send(2, selection); return; }
+        schoolStep = false;
+        weaponStep = false;
+        var picked = picks(context().fates());
+        if (chosenSchool.isEmpty() && SchoolInsight.requiresSchool(picked,context().fateDefinitions())) {
+            schoolStep = true;
+            schoolPage = 0;
+        } else if (weapon < 0 && picked.contains(FateReworkRules.GIFT_ID)) {
+            weaponStep = true;
+        } else confirming = true;
         refresh();
     }
     private void send(int action, int value) {
         if (closed || awaiting || rootStep) return;
-        if (ClientCultivationIntentSender.sendFate(action, revision, value, sessionToken,action==2?chosenSchool:"")) {
+        if (ClientCultivationIntentSender.sendFate(action, revision, value, sessionToken,action==2?chosenSchool:"",action==2?weapon:-1)) {
             awaiting = true;
             pendingTicks = 40;
             confirming = false;
@@ -114,9 +123,10 @@ public final class AwakeningScreen extends Screen {
     private void select(int slot) {
         if (awaiting || rootStep || ClientCultivationState.fates().confirmed()) return;
         if(schoolStep){var options=schools();int index=schoolPage*6+slot;if(index<options.size())chosenSchool=options.get(index).getKey();refresh();return;}
+        if (weaponStep) { if (FateReworkRules.get().weaponChoice(slot)) weapon = slot; refresh(); return; }
         focused = slot;
         selection ^= 1 << slot;
-        chosenSchool="";
+        chosenSchool=""; weapon=-1;
         confirming = false;
         refresh();
     }
@@ -126,9 +136,10 @@ public final class AwakeningScreen extends Screen {
         var state = c.fates();
         if (state.revision() != revision) {
             revision = state.revision(); selection = 0; focused = -1; confirming = false; awaiting = false;
-            schoolStep=false;schoolPage=0;chosenSchool="";
+            schoolStep=false;schoolPage=0;chosenSchool="";weaponStep=false;weapon=-1;
         }
         if(schoolStep){refreshSchools();return;}
+        if (weaponStep) { refreshWeapons(); return; }
         var definitions = c.fateDefinitions();
         var eligible = eligible(c);
         List<String> shown = state.confirmed() ? state.selected() : state.candidates();
@@ -175,6 +186,22 @@ public final class AwakeningScreen extends Screen {
             logRect("close", layout.close());
         }
     }
+    private void refreshWeapons() {
+        var rules = FateReworkRules.get();
+        for (int i=0;i<cards.size();i++) {
+            var card = cards.get(i);
+            card.definition=null; card.locked=false; card.chosen=i==weapon;
+            card.visible=card.available=card.active=rules.weaponChoice(i);
+            if (card.visible) {
+                card.setMessage(rules.weaponName(i));
+                card.tooltipLines=List.of(card.getMessage(),Component.translatable("fate.yuanxian.weapon_hint"));
+            }
+        }
+        reroll.visible=lock.visible=proceed.visible=false;
+        confirm.visible=true;
+        confirm.active=rules.weaponChoice(weapon);
+        confirm.setMessage(Component.translatable("fate.yuanxian.school_accept"));
+    }
     private void refreshSchools() {
         var options=schools();int pages=Math.max(1,(options.size()+5)/6);schoolPage=Math.max(0,Math.min(schoolPage,pages-1));
         for(int i=0;i<cards.size();i++){
@@ -218,7 +245,7 @@ public final class AwakeningScreen extends Screen {
         else {
             renderRootBand(g, c);
             var state = c.fates();
-            Component heading = Component.translatable(schoolStep ? "fate.yuanxian.school_choose" : state.confirmed() ? "fate.yuanxian.fixed"
+            Component heading = Component.translatable(weaponStep ? "fate.yuanxian.weapon_choose" : schoolStep ? "fate.yuanxian.school_choose" : state.confirmed() ? "fate.yuanxian.fixed"
                     : confirming ? "awakening.yuanxian.permanent_short" : "awakening.yuanxian.choose");
             g.drawString(font, PanelTheme.fit(font, heading.getString(), layout.grid().width()),
                     layout.grid().x(), layout.grid().y() - 14, confirming ? PanelTheme.GOLD_BRIGHT : PanelTheme.MUTED, false);
@@ -233,6 +260,9 @@ public final class AwakeningScreen extends Screen {
             String school=state.confirmed()?ClientCultivationState.snapshot().map(p -> p.schoolInsight().school()).orElse(""):chosenSchool;
             if(schoolStep && school.isEmpty())summary=Component.translatable("fate.yuanxian.school_choice_hint");
             else if(!school.isEmpty())summary=Component.translatable("fate.yuanxian.school_selected",schoolName(school));
+            if (weaponStep) summary=Component.translatable("fate.yuanxian.weapon_hint");
+            else if (!state.confirmed() && weapon >= 0 && !schoolStep)
+                summary=Component.translatable("fate.yuanxian.weapon_selected",FateReworkRules.get().weaponName(weapon));
             g.drawString(font, PanelTheme.fit(font, summary.getString(), layout.summary().width()),
                     layout.summary().x(), layout.summary().y(), PanelTheme.GOLD_BRIGHT, false);
         }

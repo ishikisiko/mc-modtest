@@ -7,6 +7,8 @@ import com.example.myvillage.combat.runtime.CombatHotbarService;
 import com.example.myvillage.combat.session.CombatSessionManager;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.fate.FateService;
+import com.example.myvillage.cultivation.fate.CompanionSwordRuntime;
+import com.example.myvillage.cultivation.fate.FateReworkRules;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,15 +56,17 @@ public final class FateAbilityRuntime {
     }
 
     public static boolean available(LivingEntity player, ResourceLocation id) {
-        return EXECUTORS.containsKey(id) && FateAbilityDefinition.find(id)
+        return (EXECUTORS.containsKey(id) || FateReworkRules.SWORD_ART.equals(id) && player instanceof ServerPlayer) && FateAbilityDefinition.find(id)
                 .filter(definition -> definition.granted(FateService.state(player), player.registryAccess())).isPresent();
     }
 
     public static long cost(LivingEntity player, ResourceLocation id) {
+        if (FateReworkRules.SWORD_ART.equals(id)) return CompanionSwordRuntime.cost(player);
         return FateAbilityDefinition.find(id).map(definition -> definition.cost(CombatCaster.capacity(player))).orElse(0L);
     }
 
     public static int cooldownRemaining(LivingEntity player, ResourceLocation id) {
+        if (FateReworkRules.SWORD_ART.equals(id) && CompanionSwordRuntime.armed(player)) return 0;
         return (int) Math.min(Integer.MAX_VALUE, cooldowns(player).remaining(player.getUUID(), id, now(player)));
     }
 
@@ -71,6 +75,7 @@ public final class FateAbilityRuntime {
         if (!player.getServer().isSameThread() || !available(player, id) || blocked(player)
                 || !CASTING.add(player.getUUID())) return false;
         try {
+            if (FateReworkRules.SWORD_ART.equals(id)) return player instanceof ServerPlayer owner && CompanionSwordRuntime.cast(owner);
             var definition = FateAbilityDefinition.find(id).orElseThrow();
             long current = Math.min(CombatCaster.power(player),
                     CombatCaster.capacity(player));

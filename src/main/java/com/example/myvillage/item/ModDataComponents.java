@@ -69,6 +69,9 @@ public final class ModDataComponents {
             DATA_COMPONENTS.registerComponentType("last_mined_ore_family", builder -> builder
                     .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CompanionSwordItem.Mark>> COMPANION_SWORD =
+            DATA_COMPONENTS.registerComponentType("companion_sword", builder -> builder.persistent(CompanionSwordItem.Mark.CODEC));
+
     private ModDataComponents() {
     }
 

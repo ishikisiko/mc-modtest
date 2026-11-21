@@ -10,6 +10,12 @@
       "cost_fraction": 0.1,
       "minimum_cost": 1,
       "radius": 5.0
+    },
+    {
+      "id": "yuanxian:companion_sword_pursuit",
+      "required_fate": "yuanxian:primordial_sword_bone",
+      "name": "追剑斩",
+      "description": "持伴生灵剑瞄准地面施放。两秒内再按一次，沿地面追向剑并斩过沿途敌人。耗灵和冷却随剑的形态变化。"
     }
   ]
 }

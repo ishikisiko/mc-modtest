@@ -199,7 +199,8 @@ public class TechniqueManualItem extends Item {
      */
     public static List<ResourceLocation> creativeVariants(Map<ResourceLocation, TechniqueDefinition> techniques) {
         return techniques.entrySet().stream()
-                .filter(entry -> entry.getValue().grade() >= MIN_GRADE && entry.getValue().grade() <= MAX_GRADE)
+                .filter(entry -> entry.getValue().grade() >= MIN_GRADE && entry.getValue().grade() <= MAX_GRADE
+                        && !com.example.myvillage.cultivation.fate.FateReworkRules.HEART_ID.equals(entry.getKey()))
                 .sorted(Comparator
                         .<Map.Entry<ResourceLocation, TechniqueDefinition>>comparingInt(
                                 entry -> entry.getValue().category().ordinal())
@@ -227,6 +228,7 @@ public class TechniqueManualItem extends Item {
     }
 
     private static ItemStack manualFor(Catalog catalog, ResourceLocation techniqueId) {
+        if (com.example.myvillage.cultivation.fate.FateReworkRules.HEART_ID.equals(techniqueId)) return ItemStack.EMPTY;
         Optional<TechniqueDefinition> definition = catalog.technique(techniqueId);
         if (definition.isEmpty() || definition.get().grade() < MIN_GRADE || definition.get().grade() > MAX_GRADE) {
             return ItemStack.EMPTY;

@@ -4,6 +4,11 @@
   "tier": 4,
   "cost": 5,
   "group": "spirit_body",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "reflect_chance": 0.35,
+    "reflect_fraction": 0.6,
+    "reflect_cooldown": 30,
+    "earth_bonus": 0.25,
+    "earth_resistance": 0.2
+  }
 }

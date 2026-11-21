@@ -21,7 +21,8 @@ public final class FatePresentation {
         lines.add(Component.translatable(def.translationKey()));
         lines.add(Component.translatable(def.descriptionKey()));
         for (var e : new TreeMap<>(def.effects()).entrySet()) {
-            if(e.getKey().equals("jingang_adaptation")||e.getKey().equals("phoenix")||e.getKey().equals("everlasting")) {
+            if(e.getKey().equals("jingang_adaptation")||e.getKey().equals("phoenix")||e.getKey().equals("everlasting")
+                    || java.util.Set.of("opening_gift", "sect_kinship", "harm_immunity", "companion_sword", "sacred_heart").contains(e.getKey())) {
                 lines.add(Component.translatable("fate.yuanxian.effect."+e.getKey()).append("：已启用"));continue;
             }
             boolean ticks = e.getKey().endsWith("ticks") || e.getKey().endsWith("cooldown");
@@ -29,6 +30,7 @@ public final class FatePresentation {
             String value = e.getKey().endsWith("initial_aptitude")?number+" 点"
                     : e.getKey().equals("crafting_mean_shift")?(e.getValue()>0?"+":"")+number
                     : e.getKey().equals("crafting_variance_multiplier")?"×"+number
+                    : e.getKey().endsWith("_range") ? number + " 格"
                     : ticks ? String.format(Locale.ROOT, "%.1fs", e.getValue() / 20)
                     : (e.getKey().endsWith("stacks") || e.getKey().endsWith("hits") || e.getKey().equals("air_dodge")) ? String.format(Locale.ROOT, "%.0f", e.getValue())
                     : e.getKey().endsWith("radius") ? String.format(Locale.ROOT, "%.1f", e.getValue())

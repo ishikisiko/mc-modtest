@@ -216,7 +216,8 @@ public final class WorldSimPlayers {
         PlayerQualification q = qualification(player);
         sim.updatePlayerQualification(id, name, q);
         try {
-            sim.joinSect(id, name, sectId, q, force);
+            sim.joinSect(id, name, sectId, q, force,
+                    com.example.myvillage.cultivation.fate.FateService.has(player,"yuanxian:sect_kinship"));
         } catch (IllegalArgumentException ex) {
             return logged(name, "JOIN", sectId, new Result(false, reasonOf(ex)));
         }

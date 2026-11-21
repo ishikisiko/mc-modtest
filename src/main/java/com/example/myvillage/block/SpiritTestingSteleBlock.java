@@ -65,6 +65,8 @@ public final class SpiritTestingSteleBlock extends Block {
                 playSuccessEffects((ServerLevel) level, pos);
             }
             FateService.initializeDraft(serverPlayer);
+            com.example.myvillage.cultivation.fate.OpeningGift.claim(serverPlayer);
+            com.example.myvillage.cultivation.fate.CompanionSwordRuntime.claim(serverPlayer);
             CultivationService.syncToClient(serverPlayer);
             PacketDistributor.sendToPlayer(serverPlayer, new AwakeningOpenPayload(pos, token));
         }

@@ -93,7 +93,7 @@ public final class HealingRuntime {
 
     /** 正值增疗、负值减疗；同源覆盖并刷新期限，容量不足拒绝新增而不挤掉其他来源。 */
     public static boolean modifier(LivingEntity target, ResourceLocation source, double fraction, int durationTicks) {
-        if (!serverTarget(target) || source == null) return false;
+        if (!serverTarget(target) || source == null || fraction < 0 && com.example.myvillage.cultivation.fate.FateDefenses.immune(target)) return false;
         var state = state(target, true);
         if (state == null) return false;
         boolean accepted = state.modifiers().modifier(source.toString(), fraction, durationTicks, clock(target), HealingRules.get());

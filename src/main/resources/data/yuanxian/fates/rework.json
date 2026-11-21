@@ -1,0 +1,19 @@
+{
+  "opening": {
+    "armor": ["yuanxian:xuantie_helmet", "yuanxian:xuantie_chestplate", "yuanxian:xuantie_leggings", "yuanxian:xuantie_boots"],
+    "weapons": ["yuanxian:xuantie_sword", "yuanxian:xuantie_spear"],
+    "quality": 2,
+    "pills": 5,
+    "stones": 32
+  },
+  "sword_window_ticks": 40,
+  "sword_trial_fraction": 0.20,
+  "sword_trial_idle_ticks": 600,
+  "stages": [
+    {"realm":"yuanxian:qi_refining", "sword_bonus":0.08,"reach":5,"targets":1,"power":10,"cooldown":200,"strike":1.6,"health":20,"defense":4.5,"earth_bonus":0.10,"earth_resistance":0.08},
+    {"realm":"yuanxian:foundation_establishment", "sword_bonus":0.12,"reach":7,"targets":2,"power":18,"cooldown":280,"strike":2.1,"health":40,"defense":10,"earth_bonus":0.15,"earth_resistance":0.12},
+    {"realm":"yuanxian:golden_core", "sword_bonus":0.16,"reach":9,"targets":3,"power":34,"cooldown":400,"strike":2.6,"health":85,"defense":22,"earth_bonus":0.20,"earth_resistance":0.18},
+    {"realm":"yuanxian:nascent_soul", "sword_bonus":0.20,"reach":11,"targets":3,"power":48,"cooldown":520,"strike":3.1,"health":130,"defense":38,"earth_bonus":0.25,"earth_resistance":0.24},
+    {"realm":"yuanxian:spirit_transformation", "sword_bonus":0.25,"reach":14,"targets":4,"power":72,"cooldown":680,"strike":3.6,"health":230,"defense":64,"earth_bonus":0.30,"earth_resistance":0.30}
+  ]
+}

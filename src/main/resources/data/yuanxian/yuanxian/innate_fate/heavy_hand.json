@@ -1,0 +1,13 @@
+{
+  "translation_key": "fate.yuanxian.heavy_hand",
+  "description_key": "fate.yuanxian.heavy_hand.description",
+  "tier": 3,
+  "cost": 4,
+  "group": "heavy_hand",
+  "effects": {
+    "wall_fraction": 0.75,
+    "wall_ticks": 10,
+    "wall_stun_ticks": 16,
+    "wall_cooldown": 120
+  }
+}

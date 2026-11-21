@@ -145,7 +145,7 @@ public final class CombatWorldTrails {
             boolean firstPersonSelf = entity == minecraft.player && !camera.isDetached();
             if (!firstPersonSelf) {
                 render(consumer, entity, action, move, tick, partialTick, cameraPosition,
-                        trailSize(minecraft, action.weaponItem()));
+                        trailSize(minecraft, action.weaponItem(), entity));
             }
             return false;
         });
@@ -270,15 +270,15 @@ public final class CombatWorldTrails {
     }
 
     /** The drawn trail size for the weapon an action started with; the fallback without a rig. */
-    private static TrailSize trailSize(Minecraft minecraft, ResourceLocation weaponItem) {
+    private static TrailSize trailSize(Minecraft minecraft, ResourceLocation weaponItem, Entity actor) {
         if (weaponItem == null) {
             return FALLBACK_SIZE;
         }
-        Optional<FirstPersonSwingResources.WeaponRig> rig = FirstPersonSwingResources.forItem(weaponItem);
-        if (rig.isEmpty()) {
-            return FALLBACK_SIZE;
-        }
         ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(weaponItem));
+        if (actor instanceof net.minecraft.world.entity.LivingEntity living && living.getMainHandItem().is(stack.getItem()))
+            stack = living.getMainHandItem();
+        var rig = FirstPersonSwingResources.forStack(stack);
+        if (rig.isEmpty()) return FALLBACK_SIZE;
         return trailSize(Optional.of(rig.get().swing().weapon()), thirdPersonScale(minecraft, stack));
     }
 

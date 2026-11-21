@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.yuanxian.keen_senses",
+  "description_key": "fate.yuanxian.keen_senses.description",
+  "tier": 0,
+  "cost": 1,
+  "group": "keen_senses",
+  "effects": {
+    "hearing_range": 8
+  },
+  "npc_eligible": false
+}

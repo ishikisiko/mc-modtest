@@ -1,0 +1,150 @@
+{
+  "loader": "neoforge:obj",
+  "model": "yuanxian:models/item/primordial_companion_sword_golden_core.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "textures": {
+    "particle": "yuanxian:item/primordial_companion_sword/golden_core"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -1.4455439598843718,
+        -2.204695457325811,
+        0.14092883541047846
+      ],
+      "scale": [
+        0.6918732887258815,
+        0.6918732887258815,
+        0.6918732887258815
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        0.6261797291752154,
+        -0.0
+      ],
+      "scale": [
+        0.3282724661469019,
+        0.3282724661469019,
+        0.3282724661469019
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -2.232457940090275,
+        -0.0
+      ],
+      "scale": [
+        0.5334427574887156,
+        0.5334427574887156,
+        0.5334427574887156
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -2.232457940090275,
+        -0.0
+      ],
+      "scale": [
+        0.5334427574887156,
+        0.5334427574887156,
+        0.5334427574887156
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        2.01,
+        1.234
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        2.01,
+        1.234
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        1.62,
+        0.5
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        1.62,
+        0.5
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  }
+}

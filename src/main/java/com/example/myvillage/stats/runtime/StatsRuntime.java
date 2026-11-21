@@ -197,7 +197,7 @@ public final class StatsRuntime {
         if (entity instanceof com.example.myvillage.entity.npc.NpcEntity npc)
             com.example.myvillage.entity.npc.NpcSkillRuntime.defenseRefreshed(npc,
                     profile.equippedHeart(com.example.myvillage.cultivation.data.HeartMethod.Slot.DEFENSE));
-        var heart = HeartTechniques.baseCombat(entity.registryAccess(), profile);
+        var heart = HeartTechniques.baseCombat(entity, profile);
         RealmAttributeModifiers.replace(entity.getAttribute(Attributes.MAX_HEALTH), HEART_HEALTH, heart.maxHealth());
         RealmAttributeModifiers.replace(entity.getAttribute(Attributes.ATTACK_DAMAGE), HEART_ATTACK, heart.attack());
         RealmAttributeModifiers.replace(entity.getAttribute(ModStatsAttributes.FLAT_DEFENSE_PENETRATION),
@@ -289,7 +289,8 @@ public final class StatsRuntime {
                 && scope.containerDepth() == RealmArmorRuntime.containerDepth(target) ? scope.calculation() : null;
         // 以主击实际损血为基数的火灵衍生伤害已经经历攻防，不能递归扣一次肉身防御。
         // 有独立 outgoing 收据的剑气/元素持续伤害仍按自己的攻击计算一次。
-        if (trace == null && com.example.myvillage.combat.runtime.CombatDamageService.isDerivedHit(target)) return;
+        if (trace == null && com.example.myvillage.combat.runtime.CombatDamageService.isDerivedHit(target)
+                && !source.is(com.example.myvillage.cultivation.fate.HeavyHandRuntime.DAMAGE)) return;
         double attack;
         if (tribulation) attack=event.getContainer().getOriginalDamage();
         else if (trace != null) attack = trace.afterFlat() * (1 + trace.bonusSum());
@@ -380,7 +381,9 @@ public final class StatsRuntime {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return Optional.empty();
         }
-        if(com.example.myvillage.cultivation.tribulation.TribulationDamage.tribulation(source))return Optional.of(DamageType.PHYSICAL);
+        if (com.example.myvillage.cultivation.tribulation.TribulationDamage.tribulation(source)
+                || source.is(com.example.myvillage.cultivation.fate.HeavyHandRuntime.DAMAGE)
+                || source.is(com.example.myvillage.cultivation.fate.CompanionSwordRuntime.DAMAGE)) return Optional.of(DamageType.PHYSICAL);
         var elemental = com.example.myvillage.combat.elemental.ElementalRules.type(source);
         if(elemental.isPresent()) return elemental;
         if (source.is(DamageTypeTags.IS_FIRE)) {

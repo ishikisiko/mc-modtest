@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.150.0
+
+- 测灵碑新增耳聪目明、薄有家资、探宝灵觉和宗门旧缘，分别提供敌情提示、一次性中品玄铁装备和物资、奖励箱提示及首次拜入开局分宗的内门身份。
+- 重手替代寻龙望气，基础近战将敌人击退撞上方块时追加物理伤害和硬直。玄黄灵体可反弹箭矢和小火球，玄水灵体可化解直击近战，琉璃无垢体免疫有害状态及招式控制。
+- 太初剑骨发放认主的伴生灵剑。通过试剑解锁五境外观与追剑斩。厚土圣胎授予天阶《厚土镇岳经》，防守心法和土行属性随境界提升。
+
 ## 0.149.4
 
 - 源仙的模组配置页列出八个模块入口，支持修改本机仙衣动效和本地单人世界的服务器设置，并可打开本机的怪物掉落配置目录。

@@ -105,6 +105,11 @@ public final class PlayerAffairs {
      */
     public static SimEvent join(SimContext ctx, String playerId, String playerName, int sectId,
                                 PlayerQualification q, boolean force) {
+        return join(ctx,playerId,playerName,sectId,q,force,false);
+    }
+
+    public static SimEvent join(SimContext ctx, String playerId, String playerName, int sectId,
+                                PlayerQualification q, boolean force, boolean kinship) {
         Sect sect = ctx.sect(sectId);
         PlayerMember m = ctx.state.playerMembers.get(playerId);
         if (force) {
@@ -128,9 +133,10 @@ public final class PlayerAffairs {
             m.playerId = playerId;
             ctx.state.playerMembers.put(playerId, m);
         }
+        boolean firstInner = kinship && !force && m.joinedDay < 0 && initialSect(ctx,sect);
         m.playerName = playerName;
         m.sectId = sectId;
-        m.rank = OUTER;
+        m.rank = firstInner ? INNER : OUTER;
         m.joinedDay = ctx.day();
         m.stipend.throughMonth = Math.max(m.stipend.throughMonth, ctx.state.sectStipendMonth);
         m.elderTrial = null;
@@ -141,6 +147,11 @@ public final class PlayerAffairs {
         long id = ctx.chronicle.event("player_join", 2).sects(sectId).region(sect.homeRegionId)
                 .say(TextKeys.PLAYER_JOIN, playerName, sect.name);
         return closeDay(ctx, id);
+    }
+
+    private static boolean initialSect(SimContext ctx, Sect sect) {
+        return sect.foundedDay < 0 && sect.tierId.equals("branch")
+                && Genesis.entryRegions(ctx).stream().anyMatch(region -> region.id().equals(sect.homeRegionId));
     }
 
     /**

@@ -15,7 +15,8 @@ from tools.validate_cultivation_initiation import _strip_java_comments, _method_
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = 'src/main/java/com/example/myvillage/'
 DATA = 'src/main/resources/data/yuanxian/yuanxian/innate_fate'
-EFFECTS = {'alchemy_initial_aptitude','forging_initial_aptitude','crafting_mean_shift','crafting_variance_multiplier','school_study','school_mastery','herbal_find_chance','metal_bonus','wood_bonus','water_bonus','earth_bonus','metal_armor_break_fraction','metal_armor_break_ticks','water_slow_fraction','water_slow_ticks','water_slow_cooldown','ground_knockback','everlasting','body_health_bonus','body_defense_bonus','healing_bonus','jingang_adaptation','phoenix','health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
+EFFECTS = {'hearing_range','opening_gift','treasure_range','treasure_chance','treasure_ticks','sect_kinship','wall_fraction','wall_ticks','wall_stun_ticks','wall_cooldown','reflect_chance','reflect_fraction','reflect_cooldown','earth_resistance','dissolve_chance','dissolve_cooldown','water_resistance','harm_immunity','companion_sword','sacred_heart',
+           'alchemy_initial_aptitude','forging_initial_aptitude','crafting_mean_shift','crafting_variance_multiplier','school_study','school_mastery','herbal_find_chance','metal_bonus','wood_bonus','water_bonus','earth_bonus','metal_armor_break_fraction','metal_armor_break_ticks','water_slow_fraction','water_slow_ticks','water_slow_cooldown','ground_knockback','everlasting','body_health_bonus','body_defense_bonus','healing_bonus','jingang_adaptation','phoenix','health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
            'recovery_threshold','recovery_fraction','recovery_ticks','recovery_cooldown','hunter_bonus',
            'hunter_recovery','hunter_cooldown','low_threshold','low_reduction','low_knockback','damage_bonus',
            'low_speed','low_speed_threshold','power_cap_bonus','skill_refund_fraction',
@@ -64,6 +65,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
             elif k.endswith(('ticks','cooldown')):valid=valid and v==int(v) and 1<=v<=24000
             elif k in ('sword_max_stacks','fire_burst_hits'):valid=valid and v==int(v) and 1<=v<=64
             elif k=='bones_knockback_radius':valid=valid and 0<v<=16
+            elif k.endswith('_range'):valid=valid and 0<v<=32
             else:valid=valid and (-.9 if k=='health' else 0)<=v<=1
             need(valid,'FATE_EFFECT_VALUE: '+name+' '+k)
             need(all('fate.yuanxian.effect.'+k in lang for lang in langs),'FATE_EFFECT_LANG: '+k)
@@ -118,7 +120,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
     attachment=read(JAVA+'cultivation/CultivationAttachments.java')
     need('FateState.CODEC).copyOnDeath()' in attachment,'FATE_PERSISTENCE: copyOnDeath required')
     payload=read(JAVA+'cultivation/network/FateIntentPayload.java')
-    need(bool(re.search(r'record\s+FateIntentPayload\s*\(\s*byte action,\s*long revision,\s*byte value,\s*long sessionToken,\s*String school\s*\)', _strip_java_comments(payload))), 'FATE_INTENT: only action/revision/value/sessionToken/bounded school fields allowed')
+    need(bool(re.search(r'record\s+FateIntentPayload\s*\(\s*byte action,\s*long revision,\s*byte value,\s*long sessionToken,\s*String school,\s*byte weapon\s*\)', _strip_java_comments(payload))), 'FATE_INTENT: only action/revision/value/sessionToken/bounded school and weapon fields allowed')
     runtime=read(JAVA+'cultivation/fate/FateRuntime.java')
     for token in ('BYPASSES_INVULNERABILITY','LivingDropsEvent','FateActors.recoverPower','replaceFates','addPermanentModifier'):
         need(token in runtime,'FATE_RUNTIME: '+token)
@@ -158,13 +160,14 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
     network=_strip_java_comments(read(JAVA+'cultivation/network/CultivationPayloads.java'))
     need('diagnosticIntent' not in network, 'FATE_DIAGNOSTIC_NETWORK: network cannot call fixture bypass')
     for p in (root/(JAVA+'cultivation')).rglob('*.java'):
-        need(not re.search(r'import\s+(?:net\.minecraft\.client|com\.example\.yuanxian\.client)\.', _strip_java_comments(p.read_text())), 'FATE_CLIENT_IMPORT: '+p.name)
+        need(not re.search(r'import\s+(?:net\.minecraft\.client|com\.example\.myvillage\.client)\.', _strip_java_comments(p.read_text())), 'FATE_CLIENT_IMPORT: '+p.name)
     if jar:
         try:
             with zipfile.ZipFile(jar) as z:
-                files=[*sorted((root/DATA).glob('*.json')),root/'src/main/resources/data/yuanxian/fates/rules.json']
+                files=[*sorted((root/DATA).glob('*.json')),root/'src/main/resources/data/yuanxian/fates/rules.json',root/'src/main/resources/data/yuanxian/fates/rework.json',
+                       root/'src/main/resources/data/yuanxian/combat/fate_abilities.json']
                 for p in files:need(z.read(p.relative_to(root/'src/main/resources').as_posix())==p.read_bytes(),'FATE_JAR_RESOURCE: '+p.name)
-                for name in ('FateState','FateService','FateRuntime','FateSelection','SteleAwakeningSessions'):
+                for name in ('FateState','FateService','FateRuntime','FateSelection','SteleAwakeningSessions','FateExtras','FateDefenses','HeavyHandRuntime','CompanionSwordRuntime','SacredHeart'):
                     need(f'com/example/myvillage/cultivation/fate/{name}.class' in z.namelist(),'FATE_JAR_CLASS: '+name)
                 for name in ('AwakeningOpenPayload','AwakeningClosePayload'):
                     need(f'com/example/myvillage/cultivation/network/{name}.class' in z.namelist(), 'FATE_JAR_CLASS: '+name)

@@ -30,6 +30,10 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
     private long nextWaveAt;
     public BattleCacheBlockEntity(BlockPos p,BlockState s){super(ModBlockEntities.BATTLE_CACHE.get(),p,s);}
     private BattleRules rules(){return BattleRules.get(kind);}
+    public boolean hasTreasureHint() {
+        return !isSummonedTrial() && progress.state() != BattleProgress.State.DORMANT
+                && (progress.state() != BattleProgress.State.REWARDED || !isEmpty());
+    }
     public boolean isSummonedTrial(){return getBlockState().is(ModBlocks.DEMON_TRIAL_CORE.get());}
     /** Server-only initialization. Existing encounters, inventories and guards can never be reset. */
     public boolean summonTrial(){
