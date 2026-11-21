@@ -2,7 +2,6 @@ package com.example.myvillage.combat.session;
 
 import com.example.myvillage.combat.art.ArtDefinition;
 import com.example.myvillage.combat.art.AscendantArt.Mechanic;
-import com.example.myvillage.combat.art.GoldenCoreArt;
 import com.example.myvillage.combat.elemental.ElementalEffects;
 import com.example.myvillage.combat.foundation.ControlService;
 import com.example.myvillage.combat.foundation.ShieldRuntime;
@@ -130,8 +129,9 @@ public final class AscendantFields {
             }
             case SPEAR_ARRAY -> field.next = field.born + cast.time.interval();
             case RESCUE_VINE -> {
-                field.sneak = cast.aim.ally().isShiftKeyDown();
-                cast.aim.ally().sendSystemMessage(Component.literal(CombatCaster.name(cast.actor)
+                ServerPlayer ally = (ServerPlayer) cast.aim.ally();
+                field.sneak = ally.isShiftKeyDown();
+                ally.sendSystemMessage(Component.literal(CombatCaster.name(cast.actor)
                         + "以牵藤救人相援。2 秒内按潜行可接受。"));
             }
             case MEETING_TIDES -> startTides(field);
@@ -323,9 +323,8 @@ public final class AscendantFields {
         long now = cast.now();
         switch (f.kind()) {
             case SWORD_POINTS, GOLD_MIRROR -> {
-                Vec3 aiming = groundAim(actor, session, cast.shape.range(), GoldenCoreArt.rules().aimArc());
-                if (f.kind() == Mechanic.SWORD_POINTS && (aiming == null || !cast.anchored(aiming))) return false;
-                if (aiming == null) aiming = actor.getEyePosition().add(actor.getLookAngle().scale(cast.shape.range()));
+                Vec3 aiming = placement(actor, session, cast.shape.range(), forward);
+                if (aiming == null) return false;
                 List<Vec3> sources = f.kind() == Mechanic.SWORD_POINTS ? List.copyOf(f.points) : List.of(f.center);
                 var lines = new ArrayList<Passage>();
                 for (Vec3 from : sources) {
@@ -341,7 +340,7 @@ public final class AscendantFields {
                 f.expires = now + cast.time.delay();
             }
             case LINKED_ROOTS -> {
-                Vec3 second = groundAim(actor, session, cast.shape.range(), GoldenCoreArt.rules().aimArc());
+                Vec3 second = placement(actor, session, cast.shape.range(), forward);
                 if (second == null || horizontalDistance(f.center, second) < 1 || horizontalDistance(f.center, second) > cast.shape.length()
                         || !cast.anchored(second) || !clear(actor, f.center.add(0,.8,0), second.add(0,.8,0))) return false;
                 f.other = second;
@@ -486,7 +485,7 @@ public final class AscendantFields {
 
     private static boolean rescue(Field f) {
         var cast = f.cast;
-        ServerPlayer ally = cast.aim.ally();
+        ServerPlayer ally = (ServerPlayer) cast.aim.ally();
         if (!friend(cast.actor, ally) || !visible(cast.actor, ally) || !inReach(cast.actor, ally, cast.shape.range())) return true;
         boolean pressed = ally.isShiftKeyDown() && !f.sneak;
         f.sneak = ally.isShiftKeyDown();

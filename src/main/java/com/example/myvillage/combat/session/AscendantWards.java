@@ -203,8 +203,8 @@ public final class AscendantWards {
         if (!friend(c.actor, victim) || !withinRadius(field.center, victim.getBoundingBox(), c.shape.radius())
                 || !clear(c.actor, field.center.add(0, .8, 0), point(victim))) return false;
         for (var ally : friends(c.actor, field.center, c.shape.radius())) {
-            if (field.points.size() >= c.limits.targets()) break;
-            if (field.contacts.putIfAbsent(ally.getId(), 1) == null) field.points.add(ally.position());
+            if (field.contacts.size() >= c.limits.targets()) break;
+            field.contacts.putIfAbsent(ally.getId(), 1);
         }
         return field.contacts.containsKey(victim.getId());
     }

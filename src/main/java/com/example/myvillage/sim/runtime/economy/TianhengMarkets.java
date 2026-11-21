@@ -110,7 +110,9 @@ final class TianhengMarkets {
         var random = new Random(seed);
         var realm = ResourceLocation.parse("yuanxian:" + ceiling);
         var eligible = catalogue(registry).stream().filter(manual -> manual.realm().equals(realm)
-                && manual.definition().grade() > band.shopGrade()).toList();
+                && manual.definition().grade() > band.shopGrade()
+                && ArtDefinition.find(manual.id()).flatMap(ArtDefinition::ascendant)
+                        .filter(AscendantArt::spiritTransformation).isEmpty()).toList();
         var lots = new ArrayList<Goods>();
         if (!eligible.isEmpty()) {
             var manual = eligible.get(random.nextInt(eligible.size()));

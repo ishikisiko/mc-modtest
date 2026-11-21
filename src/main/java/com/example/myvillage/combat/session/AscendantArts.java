@@ -40,7 +40,7 @@ final class AscendantArts {
 
     private AscendantArts() {}
 
-    record Aim(Vec3 position, Vec3 forward, Vec3 anchor, Entity target, ServerPlayer ally) {}
+    record Aim(Vec3 position, Vec3 forward, Vec3 anchor, Entity target, LivingEntity ally) {}
     record Hit(Entity target, double multiplier) {}
 
     static final class Cast {
@@ -113,7 +113,7 @@ final class AscendantArts {
         Vec3 from = actor.position();
         Vec3 forward = horizontal(Vec3.directionFromRotation(0, actor.getYRot()));
         Entity target = null;
-        ServerPlayer ally = null;
+        LivingEntity ally = null;
         Vec3 anchor = null;
         switch (spec.mechanic()) {
             case TWIN_BLADE, ARMOR_STAR -> {
@@ -128,7 +128,7 @@ final class AscendantArts {
             case GUARDING_ECHO, RESCUE_VINE -> {
                 boolean rescue = spec.mechanic() == AscendantArt.Mechanic.RESCUE_VINE;
                 if (rescue && !(actor instanceof ServerPlayer)) return null;
-                ally = aimedFriend(actor, range);
+                ally = aimedFriend(actor, range, rescue);
                 if (rescue && ally == null) return null;
             }
             case FALLING_PALM -> {
@@ -143,8 +143,8 @@ final class AscendantArts {
             case SWORD_GATE, OPPOSING_SPEARS, SPEAR_POSTS, SPEAR_ARRAY, GOLD_MIRROR, ARMOR_STAMP,
                     LINKED_ROOTS, WOOD_HARVEST, ANCIENT_SHADE, MEETING_TIDES, RETURNING_SEA,
                     PAIRED_FURNACES, FIRE_ENCLOSURE, FIRE_HARVEST, MOVING_WALL, STEADY_PLATFORM, MOUNTAIN_SHELL -> {
-                anchor = groundAim(actor, session, range, arc);
-                if (anchor == null || !available(actor, anchor, range)) return null;
+                anchor = placement(actor, session, range, forward);
+                if (anchor == null) return null;
             }
             case FLOW_LANE, FREEZING_CREST, FOLDING_EARTH -> {
                 anchor = ground(actor, from);
@@ -157,6 +157,16 @@ final class AscendantArts {
             case EVADE_ECHO, SWORD_POINTS, DRAGON_STANCE, GOLD_PLATES, FIRE_ESCAPE -> { }
         }
         return new Aim(from, forward, anchor, target, ally);
+    }
+
+    static Vec3 placement(LivingEntity actor, CombatSession session, double range, Vec3 forward) {
+        Vec3 aimed = groundAim(actor, session, range, GoldenCoreArt.rules().aimArc());
+        if (aimed != null && available(actor, aimed, range)) return aimed;
+        var path = groundPath(actor, actor.position(), forward, range / 2);
+        for (Vec3 candidate : path.reversed()) {
+            if (available(actor, candidate, range)) return candidate;
+        }
+        return null;
     }
 
     static void resolve(Cast cast, int frame) {
@@ -449,16 +459,16 @@ final class AscendantArts {
         return healed;
     }
 
-    private static ServerPlayer aimedFriend(LivingEntity source, double range) {
+    private static LivingEntity aimedFriend(LivingEntity source, double range, boolean playersOnly) {
         var eye = source.getEyePosition();
         var look = source.getLookAngle();
         var end = eye.add(look.scale(range));
         double minimum = Math.cos(Math.toRadians(GoldenCoreArt.rules().aimArc() / 2));
-        return friends(source, source.position(), range).stream().filter(e -> e != source && e instanceof ServerPlayer)
-                .map(ServerPlayer.class::cast)
+        return friends(source, source.position(), range).stream()
+                .filter(e -> e != source && (!playersOnly || e instanceof ServerPlayer))
                 .filter(e -> inReach(source, e, range) && visible(source, e))
                 .filter(e -> e.getBoundingBox().clip(eye, end).isPresent() || point(e).subtract(eye).normalize().dot(look) >= minimum)
-                .min(Comparator.<ServerPlayer>comparingInt(e -> e.getBoundingBox().clip(eye, end).isPresent() ? 0 : 1)
+                .min(Comparator.<LivingEntity>comparingInt(e -> e.getBoundingBox().clip(eye, end).isPresent() ? 0 : 1)
                         .thenComparingDouble(e -> -point(e).subtract(eye).normalize().dot(look))
                         .thenComparingDouble(e -> e.distanceToSqr(source)).thenComparingInt(Entity::getId)).orElse(null);
     }
