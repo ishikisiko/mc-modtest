@@ -27,7 +27,7 @@ public final class CombatTargets {
     }
 
     /** Contacts are already ordered by actual contact distance before applying the owner budget. */
-    static <T> List<T> firstDistinct(List<T> contacts, ToIntFunction<T> ownerId, int maximum) {
+    public static <T> List<T> firstDistinct(List<T> contacts, ToIntFunction<T> ownerId, int maximum) {
         if (maximum <= 0) return List.of();
         var owners = new HashSet<Integer>();
         var result = new ArrayList<T>();

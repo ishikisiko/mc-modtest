@@ -377,7 +377,7 @@ public final class GoldenCoreActions {
             var next = first(inArea(cast.caster, cast.session, origin, cast.spec.secondaryRange()).stream()
                     .filter(e -> !cast.contacts.containsKey(CombatTargets.hitId(e))
                             && horizontal(point(e).subtract(origin)).dot(forward) >= 0.4
-                            && clear(cast.caster, origin, point(e))).toList()).orElse(null);
+                            && GoldenCoreGeometry.clear(cast.caster, origin, point(e))).toList()).orElse(null);
             if (next == null) return;
             previous = point(next);
             markLine(cast.caster, cast.art, origin, previous, false, 22);

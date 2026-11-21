@@ -88,9 +88,15 @@ public final class CombatDamageService {
         return apply(attacker,target,move,session,session.facingYaw(),false,1,source,base,true);
     }
 
+    /** This batch provides its own spacing multiplier and uses the existing damage transaction. */
+    public static DamageResult applyGoldenCore(LivingEntity attacker, Entity target, AttackMoveDefinition move,
+            CombatSession session, double fraction, DamageSource source, double base) {
+        return apply(attacker, target, move, session, session.facingYaw(), false, fraction, source, base, false);
+    }
+
     private static DamageResult apply(LivingEntity attacker, Entity target,
             AttackMoveDefinition move, CombatSession session, float reactionYaw, boolean derived, double fraction,
-            DamageSource elementalSource,double elementalBase) {
+            DamageSource elementalSource, double elementalBase, boolean automaticSpearTip) {
         boolean elemental=elementalSource!=null;
         if (!Float.isFinite(reactionYaw)) throw new IllegalArgumentException("Non-finite reaction yaw");
         Entity owner = CombatTargets.owner(target);
