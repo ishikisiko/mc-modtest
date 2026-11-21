@@ -35,6 +35,14 @@ class VanillaMonsterRulesTest {
         assertFalse(rules.includes("minecraft:cow", false));
         assertFalse(rules.includes("yuanxian:demon_wolf", true));
     }
+    @Test void starterMineRealmPreservesVanillaBaseCombatStats() {
+        var realm = VanillaMonsterRules.bundled().starterMineRealm();
+        assertEquals(new RealmKey("mortal", 0), realm);
+        var stats = com.example.myvillage.stats.RealmStats.vanillaDerived(StatsRules.bundled(), realm, 20, 3);
+        assertEquals(20, stats.health());
+        assertEquals(3, stats.attack());
+        assertEquals(0, stats.defense());
+    }
     @Test void explicitSpawnAndDamagePoliciesDoNotDoubleScaleMeleeOrConvertByLocation() {
         var rules = VanillaMonsterRules.bundled();
         assertTrue(rules.spawnReasons().contains("NATURAL"));

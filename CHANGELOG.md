@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.149.3-fix1
+
+- 开局矿洞内新刷出的原版普通怪物固定为凡人境，模组怪物沿用各自的境界规则。
+
 ## 0.149.3
 
 - 人形怪物和野外邪修的灵石掉落区间随实际大境界增长，化神普通档掉 1,000–10,000 块，天骄档掉 3,000–20,000 块。工作台可查看换算后的数量，并为灵石条目选择固定数量或境界倍率。

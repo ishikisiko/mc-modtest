@@ -6,8 +6,13 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.chunk.ChunkAccess;
 
 /** 矿场在区块生成前确定，存档保留已验证的布局或选址耗尽的结果。 */
 public final class StarterMineGeneration {
@@ -42,6 +47,7 @@ public final class StarterMineGeneration {
     private Either<StarterMineLayout,Shortfall> selection;
     private WorldPlan world;
     private StarterMineCavePlan caves;
+    private final Map<Long,Set<BlockPos>> caveAirByChunk=new ConcurrentHashMap<>();
     private List<RegionalMineSite> regional=List.of();
 
     public StarterMineGeneration(Optional<Either<StarterMineLayout,Shortfall>> cached,Optional<List<RegionalMineSite>> regional){
@@ -113,6 +119,20 @@ public final class StarterMineGeneration {
     public StarterMineCavePlan caves(){
         if(caves==null)throw new IllegalStateException("当前世界没有开局矿场洞穴");
         return caves;
+    }
+
+    /** Reuse the carved shape so nearby natural caves and the surface keep their regional rules. */
+    public boolean containsCaveAir(BlockPos pos,Supplier<ChunkAccess> loadedChunk){
+        if(world==null||caves==null)return false;
+        var layout=layout().orElseThrow();
+        var def=definition();
+        if(pos.getY()<layout.y+def.caves.minY||!layout.inside(def,pos.getX(),pos.getZ()))return false;
+        long key=ChunkPos.asLong(pos.getX()>>4,pos.getZ()>>4);
+        var air=caveAirByChunk.computeIfAbsent(key,ignored->{
+            var chunk=loadedChunk.get();
+            return chunk==null?null:StarterMineCaveCarver.shape(world,this,chunk).air();
+        });
+        return air!=null&&air.contains(pos);
     }
 
     public List<StarterMineLayout> surfaces(){

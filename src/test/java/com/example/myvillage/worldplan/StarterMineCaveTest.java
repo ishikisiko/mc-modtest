@@ -113,6 +113,37 @@ class StarterMineCaveTest {
             if(base.is(Blocks.WATER))for(var e:writes(chunks).entrySet())if(e.getValue().isAir())for(var direction:Direction.values())assertTrue(at(chunks,e.getKey().relative(direction)).getFluidState().isEmpty(),e.getKey()+" "+direction);
         }
     }
+    @Test void birthBoundaryFollowsTheCarvedAccessRoomAndBranches()throws Exception{
+        for(boolean horizontal:new boolean[]{false,true}){
+            var f=fixture(20261105,horizontal);
+            var layout=f.mine.layout().orElseThrow();
+            var def=f.mine.definition();
+            var plan=f.mine.caves();
+            var entrance=layout.position(def.entry);
+            var entry=new BlockPos(entrance.x(),entrance.y(),entrance.z());
+            assertFalse(f.mine.containsCaveAir(entry,()->null));
+            var chunks=generate(f,Blocks.AIR.defaultBlockState(),false);
+            assertTrue(f.mine.containsCaveAir(entry,()->chunks.get(new ChunkPos(entry).toLong())));
+            assertTrue(f.mine.containsCaveAir(entry,()->fail("洞体边界应按区块复用")));
+            var actual=writes(chunks);
+            assertTrue(actual.keySet().stream().anyMatch(pos->{
+                int x=layout.localX(pos.getX(),pos.getZ()),z=layout.localZ(pos.getX(),pos.getZ());
+                return plan.coreAir(def,x,pos.getY()-layout.y,z)&&actual.get(pos).isAir();
+            }));
+            assertTrue(actual.keySet().stream().anyMatch(pos->{
+                int x=layout.localX(pos.getX(),pos.getZ()),z=layout.localZ(pos.getX(),pos.getZ());
+                return plan.at(x,z)==null&&(Math.abs(x-def.entry.x())>plan.radius+2||Math.abs(z-plan.endZ)>plan.radius+2)
+                        &&actual.get(pos).isAir();
+            }),"测试洞体应包含延伸出主洞的分支");
+            actual.forEach((pos,state)->assertEquals(state.isAir(),
+                    f.mine.containsCaveAir(pos,()->chunks.get(new ChunkPos(pos).toLong())),pos.toString()));
+            for(int y:new int[]{layout.y+plan.floorY,entrance.y()+def.height}){
+                var nearbyAir=new BlockPos(layout.worldX(0,0),y,layout.worldZ(0,0));
+                assertTrue(at(chunks,nearbyAir).isAir());
+                assertFalse(f.mine.containsCaveAir(nearbyAir,()->chunks.get(new ChunkPos(nearbyAir).toLong())));
+            }
+        }
+    }
     @Test void fullyGeneratedChunksCannotBeRecarvedOrHaveMinedBlocksRefilled()throws Exception{
         var f=fixture(42,false);var entry=f.mine.layout().orElseThrow().position(f.mine.definition().entry);var c=new TerrainChunk(new ChunkPos(entry.x()>>4,entry.z()>>4),Blocks.AIR.defaultBlockState());c.setPersistedStatus(ChunkStatus.FULL);
         assertThrows(IllegalStateException.class,()->StarterMineCaveCarver.carve(f.world,f.mine,c));assertThrows(IllegalStateException.class,()->StarterMineCaveCarver.finishAccess(f.world,f.mine,c));assertTrue(c.writes.isEmpty());

@@ -1,10 +1,8 @@
 package com.example.myvillage.wilderness.runtime;
 
 import com.example.myvillage.stats.StatsRules;
-import com.example.myvillage.stats.runtime.RealmArmorRuntime;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import com.example.myvillage.wilderness.VanillaMonsterRules;
-import com.example.myvillage.wilderness.WildernessRules;
 import com.example.myvillage.worldplan.runtime.WorldPlanRuntime;
 import com.example.myvillage.exploration.ExplorationRules;
 import com.example.myvillage.exploration.ExplorationRuntime;
@@ -59,7 +57,9 @@ public final class VanillaMonsterRealms {
         var selected = ExplorationRuntime.at(event.getLevel(), mob.blockPosition(), special);
         if (selected.isEmpty() || selected.get().encounters() == null) return;
         var context = selected.get(); String region = context.region();
-        var realm = context.encounters().sample(level.getSeed(), region + "/" + context.location().id(), mob.getRandom().nextLong());
+        var realm = WorldPlanRuntime.inStarterMineCave(event.getLevel(), mob.blockPosition())
+                ? VanillaMonsterRules.bundled().starterMineRealm()
+                : context.encounters().sample(level.getSeed(), region + "/" + context.location().id(), mob.getRandom().nextLong());
         CompoundTag birth = new CompoundTag();
         birth.putString("realm", realm.realmId()); birth.putInt("stage", realm.stage());
         birth.putString("region", region); birth.putString("profile", context.profile());

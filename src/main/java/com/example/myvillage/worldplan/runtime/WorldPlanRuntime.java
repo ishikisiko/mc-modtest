@@ -10,8 +10,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
@@ -45,6 +47,13 @@ public final class WorldPlanRuntime {
         return level.dimension().equals(Level.OVERWORLD)&&level.getChunkSource().getGenerator() instanceof PlannedChunkGenerator g?Optional.of(g):Optional.empty();
     }
     public static Optional<WorldPlan.Context> context(ServerLevel level,int x,int z){return generator(level).map(g->g.plan().sample(x,z));}
+    public static boolean inStarterMineCave(ServerLevelAccessor world,BlockPos pos){
+        var level=world.getLevel();
+        if(!level.getServer().getWorldData().worldGenOptions().generateStructures())return false;
+        var generator=generator(level).orElse(null);
+        return generator!=null&&generator.starterMine().containsCaveAir(pos,
+            ()->world.getChunk(pos.getX()>>4,pos.getZ()>>4,ChunkStatus.STRUCTURE_REFERENCES,false));
+    }
     public static Path directory(ServerLevel level){return level.getServer().getWorldPath(LevelResource.ROOT).resolve("data/yuanxian/worldplan");}
     public static void export(ServerLevel level,int resolution)throws IOException{
         WorldPlan plan=generator(level).orElseThrow(()->new IllegalArgumentException("Not a cultivation world")).plan();
