@@ -252,17 +252,24 @@ def _outfit(module, kind, motion_cover=True):
                                  'skirt_corner_right_front', 'skirt_corner_right_back',
                                  'skirt_corner_left_front', 'skirt_corner_left_back'):
                     bone.cubes.clear()
-            _box(b, 'body', 'trouser_waist', -7, 24, -4, 14, 8, 8)
+            # 腰封、裤腰和两条大腿总宽统一为 15，腰线不再比腿窄。
+            change('band', (15, 2, 10), (-7.5, band.origin[1], band.origin[2]))
+            _box(b, 'body', 'trouser_waist', -7.5, 24, -4, 15, 8, 8)
             extras['trouser_waist'] = 'pants'
             for side in ('right', 'left'):
                 # 腰块跟随 body，腿跟随 root；内藏搭接覆盖两套骨骼摆动的接缝。
                 overlap = 2 if motion_cover else 0
-                change('leg_inner_' + side, (6, 13 + overlap, 6), (-3, -overlap, -3))
+                sign = -1 if side == 'right' else 1
+                # 7 宽/深大腿 + 6 宽/深小腿 + 6 宽鞋：对齐方身人物的腿宽比例，裤管不再像细棍。
+                change('leg_inner_' + side, (7, 13 + overlap, 7), (-3.5, -overlap, -3.5))
                 name = 'trouser_calf_' + side
-                b.box_local('leg_' + side, name, (-2.5, 12, -2.5), (5, 9, 5))
+                b.box_local('leg_' + side, name, (-3, 12, -3), (6, 9, 6))
                 extras[name] = 'pants'
                 shoe = result.cube('shoe_' + side)[1]
-                change('shoe_' + side, (5, 3, 8), (shoe.origin[0], shoe.origin[1], -5))
+                change('shoe_' + side, (6, 3, 8), (-3, shoe.origin[1], -5))
+                # 两条 7 宽大腿之间留 1 单位缝，避免内侧面共面闪烁，也保留两腿分界。
+                leg = result.bone('leg_' + side)
+                leg.pivot = (sign * 4.0, leg.pivot[1], leg.pivot[2])
         return result
 
     class Paint(original_painter):
