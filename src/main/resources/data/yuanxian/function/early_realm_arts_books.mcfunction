@@ -1,0 +1,19 @@
+# 发放空进度秘籍。玩家按各自条件研读。
+yuanxian cultivation manual @s yuanxian:cuobu_zhan
+yuanxian cultivation manual @s yuanxian:juma_qiang
+yuanxian cultivation manual @s yuanxian:tiejian_kao
+yuanxian cultivation manual @s yuanxian:jieshi_huan
+yuanxian cultivation manual @s yuanxian:yinman_shu
+yuanxian cultivation manual @s yuanxian:shouchao_shu
+yuanxian cultivation manual @s yuanxian:fuyan_xian
+yuanxian cultivation manual @s yuanxian:dileng_shu
+yuanxian cultivation manual @s yuanxian:liufeng_zhan
+yuanxian cultivation manual @s yuanxian:tafeng_huanwei
+yuanxian cultivation manual @s yuanxian:huiying_bozhen
+yuanxian cultivation manual @s yuanxian:guojian_shuai
+yuanxian cultivation manual @s yuanxian:chenzhuang_hubei
+yuanxian cultivation manual @s yuanxian:chuanjia_jinxian
+yuanxian cultivation manual @s yuanxian:huichun_zhi
+yuanxian cultivation manual @s yuanxian:zhelang_shu
+yuanxian cultivation manual @s yuanxian:yanhuo_jue
+yuanxian cultivation manual @s yuanxian:qishi_ping

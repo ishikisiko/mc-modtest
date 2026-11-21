@@ -74,7 +74,11 @@ public record GoldenCoreArt(Mechanic mechanic, Optional<DamageType> element, int
     }
 
     AttackMoveDefinition move(AttackMoveDefinition template) {
-        int end = lastStrike();
+        return timedMove(template, windup, lastStrike(), recovery, range, damage, targets);
+    }
+
+    static AttackMoveDefinition timedMove(AttackMoveDefinition template, int windup, int end, int recovery,
+                                          double range, double damage, int targets) {
         int total = end + 1 + recovery;
         return new AttackMoveDefinition(template.id(), template.displayKey(), template.kind(), total, windup, end,
                 damage, targets, range, end + 1, total, ReactionDefinition.NONE,
@@ -103,14 +107,14 @@ public record GoldenCoreArt(Mechanic mechanic, Optional<DamageType> element, int
                 number(row, "pvp_displacement", 0.5, 0, 1), regions);
     }
 
-    private static double number(JsonObject row, String key, double fallback, double min, double max) {
+    static double number(JsonObject row, String key, double fallback, double min, double max) {
         double value = row.has(key) ? row.get(key).getAsDouble() : fallback;
         if (!Double.isFinite(value) || value < min || value > max)
             throw new IllegalArgumentException("金丹绝技数值越界 " + key);
         return value;
     }
 
-    private static int integer(JsonObject row, String key, int fallback, int min, int max) {
+    static int integer(JsonObject row, String key, int fallback, int min, int max) {
         double value = number(row, key, fallback, min, max);
         if (value != Math.rint(value)) throw new IllegalArgumentException("金丹绝技需要整数 " + key);
         return (int) value;

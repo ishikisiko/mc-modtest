@@ -2,6 +2,7 @@ package com.example.myvillage.combat.art;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.session.CombatArtActions;
+import com.example.myvillage.combat.session.EarlyRealmEffects;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,6 +17,9 @@ public final class AdvancedArtEvents {
     @SubscribeEvent public static void startup(ServerStartedEvent event) { ArtDefinition.all(); }
     @SubscribeEvent(priority=EventPriority.LOWEST)
     public static void damage(LivingIncomingDamageEvent event) { CombatArtActions.guard(event); }
+    @SubscribeEvent public static void projectile(net.neoforged.neoforge.event.tick.EntityTickEvent.Pre event) {
+        EarlyRealmEffects.projectile(event);
+    }
     @SubscribeEvent public static void login(PlayerEvent.PlayerLoggedInEvent event) {
         if(event.getEntity() instanceof ServerPlayer p) CombatArtActions.syncCooldowns(p);
     }

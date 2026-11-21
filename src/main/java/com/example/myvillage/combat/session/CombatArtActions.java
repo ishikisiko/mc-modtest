@@ -51,6 +51,7 @@ public final class CombatArtActions {
         int nextStrike;
         ElementalActions.Cast elementalCast;
         GoldenCoreActions.Cast goldenCast;
+        EarlyRealmActions.Cast earlyCast;
         Entry(LivingEntity player,ArtDefinition art,CombatSession session,boolean paidArt) {
             this.art=art;this.held=player.getMainHandItem();this.slot=CombatCaster.slot(player);
             this.dimension=player.level().dimension().location();this.session=session;
@@ -102,7 +103,8 @@ public final class CombatArtActions {
             if(target==null) {refuse(player,"no_target",Component.empty());return Optional.empty();}
         }
         var goldenAim = art.goldenCore().isPresent() ? GoldenCoreActions.prepare(player, session, art) : null;
-        if (art.goldenCore().isPresent() && goldenAim == null) {
+        var earlyAim = art.earlyRealm().isPresent() ? EarlyRealmActions.prepare(player, session, art) : null;
+        if ((art.goldenCore().isPresent() && goldenAim == null) || (art.earlyRealm().isPresent() && earlyAim == null)) {
             refuse(player, "no_target", Component.empty());
             return Optional.empty();
         }
@@ -122,6 +124,10 @@ public final class CombatArtActions {
         if (goldenAim != null) {
             e.goldenCast = new GoldenCoreActions.Cast(player, art, goldenAim, session, cost > 0);
             e.lockAnchor = goldenAim.anchor();
+        }
+        if (earlyAim != null) {
+            e.earlyCast = new EarlyRealmActions.Cast(player, art, session, earlyAim, cost > 0);
+            e.lockAnchor = earlyAim.anchor();
         }
         if(art.elemental().isPresent()) {
             var spell=art.elemental().get();
@@ -150,12 +156,12 @@ public final class CombatArtActions {
     private static CombatSession.StartEvent beginPhase(LivingEntity player,Entry e) {
         AttackMoveDefinition move=e.art.move(e.phase,1);
         float facing = player.getYRot();
-        if (e.goldenCast != null) {
-            Vec3 direction = e.goldenCast.aim.direction();
-            facing = (float) Math.toDegrees(Math.atan2(-direction.x, direction.z));
-        }
+        Vec3 direction = e.goldenCast != null ? e.goldenCast.aim.direction()
+                : e.earlyCast != null ? e.earlyCast.aim.forward() : null;
+        if (direction != null) facing = (float) Math.toDegrees(Math.atan2(-direction.x, direction.z));
         var start=e.session.startExternal(move,CombatCaster.level(player).getGameTime(),
                 BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,facing,e.paidArt);
+        if (e.earlyCast != null) e.earlyCast.revision = e.session.revision();
         send(player,e,CombatArtStatePayload.START,e.lockAnchor==null?player.position():e.lockAnchor);
         return start;
     }
@@ -190,6 +196,10 @@ public final class CombatArtActions {
         if(e.art.family().equals("legacy"))return;
         if (e.goldenCast != null) {
             GoldenCoreActions.resolve(e.goldenCast, frame);
+            return;
+        }
+        if (e.earlyCast != null) {
+            EarlyRealmActions.resolve(e.earlyCast, frame);
             return;
         }
         if(e.art.elemental().isPresent()) {
@@ -295,6 +305,7 @@ public final class CombatArtActions {
     /** Called for every incoming hit, before the existing positive-damage interruption hook. */
     public static void guard(LivingIncomingDamageEvent event) {
         ElementalEffects.guard(event);
+        EarlyRealmEffects.guard(event);
         LivingEntity player=event.getEntity();
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
         e.guardedSource=null;
@@ -314,6 +325,7 @@ public final class CombatArtActions {
     }
     /** Match the exact source and tick, so another simultaneous hit cannot borrow a guard. */
     static boolean damageInterrupts(LivingEntity player,net.minecraft.world.damagesource.DamageSource source) {
+        if (source != null && EarlyRealmEffects.confirmGuard(player, source)) return false;
         Entry e=ENTRIES.get(player.getUUID());
         if(e==null) return false;
         if(source!=null && e.guardedSource==source && e.guardedTick==CombatCaster.level(player).getGameTime()) {
@@ -330,11 +342,12 @@ public final class CombatArtActions {
         send(player,e,CombatArtStatePayload.STOP,player.position());
         LOG.info("ADVANCED_ART player={} result=stop art={} reason={}",CombatCaster.name(player),e.art.id(),reason);
     }
-    static void remove(UUID player) { ENTRIES.remove(player);LAST_REQUEST.remove(player); GoldenCoreActions.forget(player); }
-    static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); GoldenCoreActions.clear(); }
+    static void remove(UUID player) { ENTRIES.remove(player);LAST_REQUEST.remove(player); GoldenCoreActions.forget(player); EarlyRealmEffects.forget(player); }
+    static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); GoldenCoreActions.clear(); EarlyRealmEffects.clear(); }
     static void prune(long now) { COOLDOWNS.prune(now); }
     public static int cooldownRemaining(LivingEntity player,ArtDefinition art) {
-        if (art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art)) return 0;
+        if ((art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art))
+                || (art.earlyRealm().isPresent() && EarlyRealmEffects.recastReady(player, art))) return 0;
         if(art.family().equals("legacy") && player instanceof ServerPlayer user && LegacyRuntime.recast(user,art.id()))return 0;
         int own=COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
         if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)own=Math.max(own,com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,art.id()));
@@ -346,7 +359,8 @@ public final class CombatArtActions {
     }
     public static long cost(LivingEntity player,ArtDefinition art) {
         if(art.family().equals("legacy"))return player instanceof ServerPlayer user && LegacyRuntime.recast(user,art.id())?0:art.qiCost();
-        if (art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art)) return 0;
+        if ((art.goldenCore().isPresent() && GoldenCoreActions.recastReady(player, art))
+                || (art.earlyRealm().isPresent() && EarlyRealmEffects.recastReady(player, art))) return 0;
         return art.elementType().isPresent()?art.qiCost():ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
     }
     public static void syncCooldowns(LivingEntity player) {

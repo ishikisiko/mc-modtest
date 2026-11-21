@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.fuyan_xian",
+  "category": "active",
+  "grade": 1,
+  "elements": [
+    "yuanxian:fire"
+  ],
+  "school": "yuanxian:fire_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:qi_refining"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:fuyan_xian",
+      "qi_cost": 10,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 600,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:linghuo_shu"
+  }
+}

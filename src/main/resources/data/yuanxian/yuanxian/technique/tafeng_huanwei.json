@@ -1,0 +1,25 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.tafeng_huanwei",
+  "category": "active",
+  "grade": 2,
+  "elements": [],
+  "school": "yuanxian:spear",
+  "requirements": {
+    "minimum_realm": "yuanxian:foundation_establishment"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:tafeng_huanwei",
+      "qi_cost": 16,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 1800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:canglong_chushui"
+  }
+}

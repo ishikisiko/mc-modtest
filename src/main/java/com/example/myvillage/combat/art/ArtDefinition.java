@@ -16,7 +16,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
         int qiCost, int cooldownTicks, double guardReduction, double guardArc,
         double counterMultiplier, boolean requiresGround, boolean interruptOnDamage, int fxLifetimeTicks, float castPitch,
         float red, float green, float blue, int particleCount,
-        List<Phase> phases, Optional<LockedSwordDefinition> lock, Optional<ElementalSpell> elemental, Optional<GoldenCoreArt> goldenCore) {
+        List<Phase> phases, Optional<LockedSwordDefinition> lock, Optional<ElementalSpell> elemental, Optional<GoldenCoreArt> goldenCore, Optional<EarlyRealmArt> earlyRealm) {
     public ArtDefinition { phases = List.copyOf(phases); }
     /** The locked sword timeline is shared by server resolution and client animation. */
     public AttackMoveDefinition move(int phase, double scale) {
@@ -25,11 +25,14 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                 base.totalTicks(),base.activeStartTick(),base.activeEndTick(),base.damageMultiplier(),base.maximumTargets(),base.range(),
                 base.bufferStartTick(),base.chainTick(),base.reaction(),base.animation(),base.hitbox(),Optional.empty(),base.feedback(),base.camera(),base.trail());
         if (goldenCore.isPresent()) return goldenCore.orElseThrow().move(base);
+        if (earlyRealm.isPresent()) return earlyRealm.orElseThrow().move(base);
         return elemental.map(e -> e.move(base)).orElseGet(() -> lock.map(l -> l.move(base)).orElse(base));
     }
     public Optional<com.example.myvillage.stats.DamageType> elementType() {
-        return elemental.map(ElementalSpell::element).or(() -> goldenCore.flatMap(GoldenCoreArt::element));
+        return elemental.map(ElementalSpell::element).or(() -> goldenCore.flatMap(GoldenCoreArt::element))
+                .or(() -> earlyRealm.flatMap(EarlyRealmArt::element));
     }
+    public boolean usesServerParticleMarks() { return goldenCore.isPresent() || earlyRealm.isPresent(); }
     public String translationKey() { return "cultivation.technique." + id.getNamespace() + "." + id.getPath(); }
     public record Phase(ResourceLocation moveId, String shape, double reach, double arc,
             double width, double height, double halfHeight, double damage,
@@ -71,7 +74,8 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
             rows.addAll(ElementalRules.document().getAsJsonArray("arts"));
             rows.addAll(com.example.myvillage.legacy.LegacyRules.artsDocument().getAsJsonArray("arts"));
             rows.addAll(GoldenCoreArt.document().getAsJsonArray("arts"));
-            if (rows.isEmpty() || rows.size() > 64) throw new IllegalArgumentException("Art count 1..64");
+            rows.addAll(EarlyRealmArt.document().getAsJsonArray("arts"));
+            if (rows.isEmpty() || rows.size() > 128) throw new IllegalArgumentException("Art count 1..128");
             for (var element : rows) {
                 var r = element.getAsJsonObject();
                 ResourceLocation id = ResourceLocation.parse(string(r, "id"));
@@ -82,12 +86,15 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                 var elemental = r.has("elemental") ? Optional.of(ElementalSpell.parse(r.getAsJsonObject("elemental"))) : Optional.<ElementalSpell>empty();
                 var golden = r.has("golden_core") ? Optional.of(GoldenCoreArt.parse(r.getAsJsonObject("golden_core"), family))
                         : Optional.<GoldenCoreArt>empty();
-                if (golden.isPresent() && (lock.isPresent() || elemental.isPresent()))
-                    throw new IllegalArgumentException("金丹绝技的执行器重复 " + id);
+                var early = r.has("early_realm") ? Optional.of(EarlyRealmArt.parse(r.getAsJsonObject("early_realm"), family))
+                        : Optional.<EarlyRealmArt>empty();
+                boolean realmArt = golden.isPresent() || early.isPresent();
+                if (realmArt && (lock.isPresent() || elemental.isPresent() || (golden.isPresent() && early.isPresent())))
+                    throw new IllegalArgumentException("绝技的执行器重复 " + id);
                 if(elemental.isPresent() && (lock.isPresent() || !family.equals("elemental"))) throw new IllegalArgumentException("Elemental executor mismatch");
-                int slot = integer(r, "slot", lock.isPresent() || elemental.isPresent() || golden.isPresent() || family.equals("legacy") ? -1 : 0, 1);
+                int slot = integer(r, "slot", lock.isPresent() || elemental.isPresent() || realmArt || family.equals("legacy") ? -1 : 0, 1);
                 if(family.equals("legacy") && (slot!=-1 || com.example.myvillage.legacy.LegacyRules.get().art(id).isEmpty()))throw new IllegalArgumentException("Unknown legacy art");
-                if((elemental.isPresent() || golden.isPresent()) && slot!=-1)throw new IllegalArgumentException("Elemental arts require explicit bindings");
+                if((elemental.isPresent() || realmArt) && slot!=-1)throw new IllegalArgumentException("Elemental arts require explicit bindings");
                 if (!ids.add(id) || (slot >= 0 && !slots.add(family + ":" + slot))) throw new IllegalArgumentException("Duplicate art/slot " + id);
                 if (lock.isPresent() && (!family.equals("sword") || slot != -1))
                     throw new IllegalArgumentException("Locked swords are explicitly bound sword arts");
@@ -96,7 +103,8 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                     var p = pe.getAsJsonObject();
                     ResourceLocation moveId = ResourceLocation.parse(string(p, "move"));
                     var ref = styles.move(moveId).orElseThrow(() -> new IllegalArgumentException("Unknown move " + moveId));
-                    if (elemental.isEmpty() && golden.flatMap(GoldenCoreArt::element).isEmpty() && !family.equals("legacy") && styles.weapons().stream().noneMatch(w -> w.style().equals(ref.style().id())
+                    if (elemental.isEmpty() && golden.flatMap(GoldenCoreArt::element).isEmpty()
+                            && early.flatMap(EarlyRealmArt::element).isEmpty() && !family.equals("legacy") && styles.weapons().stream().noneMatch(w -> w.style().equals(ref.style().id())
                             && w.family().equals(Optional.of(family)))) throw new IllegalArgumentException("Wrong move family " + id);
                     var reaction = p.getAsJsonObject("reaction");
                     String shape = string(p, "shape"), fx = string(p, "fx");
@@ -119,13 +127,13 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                     rgb[i] = c.get(i).getAsFloat();
                     if (!Float.isFinite(rgb[i]) || rgb[i]<0 || rgb[i]>1) throw new IllegalArgumentException("Art color");
                 }
-                if ((lock.isPresent() || elemental.isPresent() || golden.isPresent()) && phases.size() != 1) throw new IllegalArgumentException("Locked sword has one timeline");
+                if ((lock.isPresent() || elemental.isPresent() || realmArt) && phases.size() != 1) throw new IllegalArgumentException("Locked sword has one timeline");
                 int cost = lock.isPresent() ? LockedSwordDefinition.techniqueCost(id) : integer(r,"qi_cost",1,1000);
                 result.add(new ArtDefinition(id, school, family, slot, cost,
                         integer(r,"cooldown_ticks",20,1200), number(r,"guard_reduction",0,.85),
                         number(r,"guard_arc_degrees",1,180), number(r,"counter_multiplier",1,2),
                         bool(r,"requires_ground"),bool(r,"interrupt_on_damage"),integer(r,"fx_lifetime_ticks",1,40),
-                        (float)number(r,"cast_pitch",.1,2),rgb[0],rgb[1],rgb[2],integer(r,"particle_count",8,64), phases, lock, elemental, golden));
+                        (float)number(r,"cast_pitch",.1,2),rgb[0],rgb[1],rgb[2],integer(r,"particle_count",8,64), phases, lock, elemental, golden, early));
             }
             return List.copyOf(result);
         } catch (Exception e) { throw new IllegalStateException("Invalid bundled advanced arts: " + path, e); }

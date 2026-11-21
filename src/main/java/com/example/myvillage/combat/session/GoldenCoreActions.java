@@ -9,14 +9,10 @@ import com.example.myvillage.combat.foundation.ControlService;
 import com.example.myvillage.combat.runtime.CombatCaster;
 import com.example.myvillage.combat.runtime.CombatDamageService;
 import com.example.myvillage.combat.runtime.CombatDisciplines;
-import com.example.myvillage.combat.runtime.CombatDodgeService;
-import com.example.myvillage.combat.runtime.CombatFeedbackService;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatTargets;
-import com.example.myvillage.combat.runtime.StaggerResistant;
 import com.example.myvillage.combat.runtime.SwordArmorBreak;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime;
-import com.example.myvillage.cultivation.technique.HeartTechniques;
 import com.example.myvillage.stats.DamageType;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import java.util.ArrayList;
@@ -28,10 +24,8 @@ import java.util.UUID;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -85,8 +79,7 @@ public final class GoldenCoreActions {
                 case PIERCING_SWORD, STORED_PUNCH -> CombatDisciplines.consumeStacks(caster, art.family());
                 default -> 0;
             };
-            base = spec.element().map(element -> ElementalEffects.base(caster, element)
-                    + StatsRuntime.heartAttackAddition(caster) + HeartTechniques.attackExtra(caster, "", element, true, paid)).orElse(0.0);
+            base = spec.element().map(element -> RealmArtCombat.base(caster, element, paid)).orElse(0.0);
         }
 
         boolean valid() {
@@ -412,7 +405,7 @@ public final class GoldenCoreActions {
             for (var target : distinct(inArea(cast.caster, cast.session, edge, cast.spec.radius()), cast.spec.targets())) {
                 boolean first = !cast.contacts.containsKey(CombatTargets.hitId(target));
                 if (hit(cast, target, cast.spec.damage(), 2) && first && CombatTargets.owner(target).isAlive())
-                    ElementalEffects.seed(cast.caster, target, DamageType.FIRE, cast.base * pvp(cast.caster, target));
+                    ElementalEffects.seed(cast.caster, target, DamageType.FIRE, cast.base * RealmArtCombat.pvpDamage(cast.caster, target));
             }
         } else {
             var start = index == 0 ? cast.origin : phasePoint(cast, path, index);
@@ -460,32 +453,19 @@ public final class GoldenCoreActions {
                 && inReach(cast.caster, target, cast.spec.range()) && visible(cast.caster, target) ? target : null;
     }
 
-    private static double pvp(LivingEntity caster, Entity victim) {
-        return caster instanceof ServerPlayer && CombatTargets.owner(victim) instanceof ServerPlayer
-                ? GoldenCoreArt.rules().pvpDamage() : 1;
-    }
-
     private static boolean hit(Cast cast, Entity target, double multiplier, int maximum) {
         int key = CombatTargets.hitId(target);
         int count = cast.contacts.getOrDefault(key, 0);
         if (count >= maximum || !cast.valid() || !CombatHitResolver.legalTarget(cast.caster, target, cast.session)) return false;
         cast.contacts.put(key, count + 1);
-        var template = cast.art.move(0, 1);
-        var move = CombatDisciplines.scale(template, multiplier / template.damageMultiplier(), 0);
         var element = cast.spec.element().orElse(null);
-        var source = element == null ? null : ElementalRules.source(cast.caster, element);
-        var result = CombatDamageService.applyGoldenCore(cast.caster, target, move, cast.session,
-                pvp(cast.caster, target), source, cast.base);
-        if (result.successful()) {
-            CombatFeedbackService.hit(cast.caster, move, cast.session.revision(), List.of(new CombatHitResolver.TargetContact(
-                    target, target.distanceToSqr(cast.caster), point(target))));
-        }
-        if (result.actualDamage() <= 0 || !cast.valid()) return false;
+        float damage = RealmArtCombat.hit(cast.caster, target, cast.art, cast.session, multiplier, cast.base);
+        if (!(damage > 0) || !cast.valid()) return false;
         award(cast);
         if (element == DamageType.FIRE && cast.spec.mechanic() != GoldenCoreArt.Mechanic.FIRE_FUSE)
             onDirectFire(cast.caster, target);
         LOG.info("GOLDEN_CORE actor={} art={} event=hit target={} multiplier={} damage={}", CombatCaster.name(cast.caster),
-                cast.art.id(), target.getId(), multiplier, result.actualDamage());
+                cast.art.id(), target.getId(), multiplier, damage);
         return true;
     }
 
@@ -496,12 +476,8 @@ public final class GoldenCoreActions {
     }
 
     private static void displace(Cast cast, Entity entity, Vec3 direction) {
-        if (!(entity instanceof LivingEntity target) || CombatTargets.owner(target) != target || !target.isAlive()
-                || CombatDodgeService.isDodging(target) || ControlService.isRooted(target) || StaggerResistant.resists(target)
-                || !ControlService.canControl(cast.caster, target)) return;
-        double resistance = Math.clamp(target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE), 0, 1);
-        double scale = pvp(cast.caster, target) < 1 ? GoldenCoreArt.rules().pvpDisplacement() : 1;
-        step(target, direction, cast.spec.push() * (1 - resistance) * scale);
+        if (!(entity instanceof LivingEntity target) || !RealmArtCombat.canDisplace(cast.caster, target)) return;
+        step(target, direction, cast.spec.push() * RealmArtCombat.displacementFactor(cast.caster, target));
     }
 
     private static java.util.Optional<Entity> first(List<Entity> contacts) { return contacts.stream().findFirst(); }
@@ -522,7 +498,7 @@ public final class GoldenCoreActions {
         if (liveTarget(cast) == null || !cast.valid()) return;
         markRing(cast.caster, cast.art, victim.position(), Math.max(0.75, victim.getBbWidth()), false);
         var source = ElementalRules.source(cast.caster, DamageType.FIRE);
-        float damage = StatsRuntime.outgoing(cast.caster, cast.base, multiplier * pvp(cast.caster, victim));
+        float damage = StatsRuntime.outgoing(cast.caster, cast.base, multiplier * RealmArtCombat.pvpDamage(cast.caster, victim));
         if (CombatDamageService.hurtElementalTick(cast.caster, victim, source, damage)) {
             LOG.info("GOLDEN_CORE actor={} art={} event=fuse target={} multiplier={}", CombatCaster.name(cast.caster),
                     cast.art.id(), victim.getId(), multiplier);

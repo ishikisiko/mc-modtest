@@ -193,6 +193,11 @@ public final class CombatSessionManager {
             LAST_INTENT_TICKS.put(player.getUUID(), tick);
             return true;
         }
+        if (art.earlyRealm().isPresent() && EarlyRealmEffects.recastReady(player, art)) {
+            if (!EarlyRealmEffects.recast(player, art)) return false;
+            LAST_INTENT_TICKS.put(player.getUUID(), tick);
+            return true;
+        }
         Optional<CombatSession.StartEvent> start = CombatArtActions.start(player, session, art);
         if (start.isEmpty()) return false;
         if (art.elementType().isPresent() && player instanceof ServerPlayer user) com.example.myvillage.wilderness.ExpeditionCombat.cast(user);
@@ -300,6 +305,7 @@ public final class CombatSessionManager {
             }
         }
         GoldenCoreActions.tick(server);
+        EarlyRealmEffects.tick(server);
         CombatArtActions.prune(server.overworld().getGameTime());
         BLOCKED_UNTIL_TICKS.entrySet().removeIf(entry -> {
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());

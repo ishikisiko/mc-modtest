@@ -123,7 +123,7 @@ public final class ClientAdvancedArts {
                         SoundSource.PLAYERS,.5F,art.castPitch(),false);
             if(p.phase()!=0 || (art.guardReduction()<=0 && art.lock().isEmpty() && art.elemental().isEmpty())) return;
         }
-        if (art.goldenCore().isPresent()) return;
+        if (art.usesServerParticleMarks()) return;
         if(mc.level.getEntity(p.entityId())==null || p.origin().distanceToSqr(mc.player.position())>64*64) return;
         boolean ward=p.kind()==CombatArtStatePayload.WARD || p.kind()==CombatArtStatePayload.START;
         double life=ward && art.elemental().isPresent()?com.example.myvillage.combat.elemental.ElementalRules.integer("telegraph_interval_ticks",1,20)+1:ward && art.lock().isPresent()?art.lock().get().telegraphInterval()+1:ward?Math.max(0,phase.move(CombatStyles.bundled(),1).activeStartTick()-p.age()

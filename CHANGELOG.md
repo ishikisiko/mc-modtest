@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.148.0
+
+- 新增炼气八招、筑基十招。炼气秘籍可在工作台制作，筑基秘籍在灵岳和北原州城琳琅阁常备。
+- 加长新招距离和判定范围，单体技支持偏离准星选敌。折浪可沿实墙反弹，截矢环和起石屏可拦投射物，延火诀保留同键点火与到时自动点火。
+
 ## 0.147.0
 
 - 新增金丹绝技十六招，剑、枪、拳和五行各两招。东海和西漠州城的琳琅阁常备相应秘籍，研读后可在 H 的技能页分配快捷键。

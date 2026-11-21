@@ -88,8 +88,8 @@ public final class CombatDamageService {
         return apply(attacker,target,move,session,session.facingYaw(),false,1,source,base,true);
     }
 
-    /** This batch provides its own spacing multiplier and uses the existing damage transaction. */
-    public static DamageResult applyGoldenCore(LivingEntity attacker, Entity target, AttackMoveDefinition move,
+    /** Realm arts provide their own spacing multipliers and uses the existing damage transaction. */
+    public static DamageResult applyRealmArt(LivingEntity attacker, Entity target, AttackMoveDefinition move,
             CombatSession session, double fraction, DamageSource source, double base) {
         return apply(attacker, target, move, session, session.facingYaw(), false, fraction, source, base, false);
     }

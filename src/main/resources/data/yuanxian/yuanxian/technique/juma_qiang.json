@@ -1,0 +1,25 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.juma_qiang",
+  "category": "active",
+  "grade": 1,
+  "elements": [],
+  "school": "yuanxian:spear",
+  "requirements": {
+    "minimum_realm": "yuanxian:qi_refining"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:juma_qiang",
+      "qi_cost": 10,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 600,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:canglong_chushui"
+  }
+}

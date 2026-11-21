@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.chuanjia_jinxian",
+  "category": "active",
+  "grade": 2,
+  "elements": [
+    "yuanxian:metal"
+  ],
+  "school": "yuanxian:metal_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:foundation_establishment"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:chuanjia_jinxian",
+      "qi_cost": 19,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 1800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:jinmang_shu"
+  }
+}

@@ -64,6 +64,46 @@ final class GoldenCoreGeometry {
         }
     }
 
+    record Fan(Vec3 center, Vec3 forward, double radius, double arc) {
+        boolean intersects(AABB box) {
+            if (!withinRadius(center, box, radius)) return false;
+            Vec3 delta = box.getCenter().subtract(center);
+            if (delta.horizontalDistanceSqr() < .0001) return true;
+            // Use the center angle cushioned by the nearer side of the collision box.
+            double angularPadding = Math.atan2(Math.min(box.getXsize(), box.getZsize()) / 2,
+                    Math.sqrt(delta.horizontalDistanceSqr()));
+            return horizontal(delta).dot(forward) >= Math.cos(Math.toRadians(arc / 2) + angularPadding);
+        }
+    }
+
+    static List<Entity> inFan(LivingEntity caster, CombatSession session, Fan fan) {
+        var bounds = new AABB(fan.center(), fan.center()).inflate(fan.radius() + .1, HIT_ABOVE, fan.radius() + .1);
+        return candidates(caster, session, bounds, fan.center(),
+                e -> fan.intersects(e.getBoundingBox()) && clear(caster, fan.center().add(0, .8, 0), point(e)));
+    }
+
+    static List<Entity> alongRay(LivingEntity caster, CombatSession session, Strip strip) {
+        if (strip.length() < .01) return List.of();
+        Vec3 rayOrigin = strip.start().add(0, .8, 0);
+        return candidates(caster, session, strip.bounds(), strip.start(),
+                e -> strip.intersects(e.getBoundingBox()) && clear(caster, rayOrigin, point(e)), false);
+    }
+
+    static Vec3 reflectedDirection(Vec3 incident, Vec3 normal) {
+        return horizontal(incident.subtract(normal.scale(2 * incident.dot(normal))));
+    }
+
+    static double screenCrossing(Vec3 center, Vec3 normal, double width, double height, Vec3 from, Vec3 to) {
+        Vec3 motion = to.subtract(from);
+        double speed = motion.dot(normal);
+        if (Math.abs(speed) < 1e-7) return Double.POSITIVE_INFINITY;
+        double t = center.subtract(from).dot(normal) / speed;
+        if (t < 0 || t > 1) return Double.POSITIVE_INFINITY;
+        Vec3 hit = from.lerp(to, t).subtract(center);
+        return hit.y >= 0 && hit.y <= height && Math.abs(hit.dot(lateral(normal))) <= width / 2
+                ? t : Double.POSITIVE_INFINITY;
+    }
+
     static Vec3 horizontal(Vec3 vector) { return new Vec3(vector.x, 0, vector.z).normalize(); }
     static Vec3 lateral(Vec3 vector) { return new Vec3(vector.z, 0, -vector.x); }
     static double horizontalDistance(Vec3 a, Vec3 b) { return Math.sqrt(a.subtract(b).horizontalDistanceSqr()); }
@@ -161,8 +201,13 @@ final class GoldenCoreGeometry {
 
     static List<Entity> candidates(LivingEntity caster, CombatSession session, AABB bounds, Vec3 orderOrigin,
                                    Predicate<Entity> filter) {
+        return candidates(caster, session, bounds, orderOrigin, filter, true);
+    }
+
+    private static List<Entity> candidates(LivingEntity caster, CombatSession session, AABB bounds, Vec3 orderOrigin,
+                                           Predicate<Entity> filter, boolean casterVisibility) {
         return level(caster).getEntities(caster, bounds, e -> CombatHitResolver.legalTarget(caster, e, session)).stream()
-                .filter(e -> !CombatTargets.owner(e).isAlliedTo(caster) && filter.test(e) && visible(caster, e))
+                .filter(e -> !CombatTargets.owner(e).isAlliedTo(caster) && filter.test(e) && (!casterVisibility || visible(caster, e)))
                 .sorted(Comparator.<Entity>comparingDouble(e -> e.getBoundingBox().distanceToSqr(orderOrigin))
                         .thenComparingInt(Entity::getId)).toList();
     }
@@ -194,7 +239,7 @@ final class GoldenCoreGeometry {
                 && clear(caster, caster.getEyePosition(), anchor.add(0, 0.35, 0));
     }
 
-    private static BlockHitResult clip(LivingEntity caster, Vec3 from, Vec3 to) {
+    static BlockHitResult clip(LivingEntity caster, Vec3 from, Vec3 to) {
         var world = level(caster);
         if (!world.hasChunksAt(BlockPos.containing(Math.min(from.x, to.x), Math.min(from.y, to.y), Math.min(from.z, to.z)),
                 BlockPos.containing(Math.max(from.x, to.x), Math.max(from.y, to.y), Math.max(from.z, to.z)))) return null;
@@ -210,6 +255,35 @@ final class GoldenCoreGeometry {
         if (entity instanceof ServerPlayer player && player.position().distanceToSqr(start) > 0.001)
             player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
         return horizontalDistance(start, entity.position());
+    }
+
+    static void markFan(LivingEntity caster, ArtDefinition art, Fan fan, boolean warning) {
+        int steps = Math.clamp((int) Math.ceil(fan.radius() * Math.toRadians(fan.arc()) / .7), 3, 24);
+        Vec3 side = lateral(fan.forward());
+        Vec3 first = null;
+        Vec3 last = null;
+        for (int i = 0; i <= steps; i++) {
+            double theta = Math.toRadians(fan.arc() * ((double) i / steps - .5));
+            Vec3 edge = fan.center().add(fan.forward().scale(Math.cos(theta) * fan.radius()))
+                    .add(side.scale(Math.sin(theta) * fan.radius()));
+            Vec3 point = unobstructedEnd(caster, fan.center(), edge);
+            if (i == 0) first = point;
+            last = point;
+            particle(caster, dust(art, warning), point.add(0, .17, 0));
+        }
+        markLine(caster, art, fan.center(), first, warning, 8);
+        markLine(caster, art, fan.center(), last, warning, 8);
+    }
+
+    static void markScreen(LivingEntity caster, ArtDefinition art, Vec3 center, Vec3 normal, double width,
+                           double height, boolean warning) {
+        Vec3 offset = lateral(normal).scale(width / 2);
+        Vec3 left = center.subtract(offset);
+        Vec3 right = center.add(offset);
+        markLine(caster, art, left, right, warning, 12);
+        markLine(caster, art, left.add(0, height, 0), right.add(0, height, 0), warning, 12);
+        markLine(caster, art, left, left.add(0, height, 0), warning, 8);
+        markLine(caster, art, right, right.add(0, height, 0), warning, 8);
     }
 
     static void markStrip(LivingEntity caster, ArtDefinition art, Strip strip, boolean warning) {

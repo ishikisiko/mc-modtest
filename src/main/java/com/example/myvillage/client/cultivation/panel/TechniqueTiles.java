@@ -129,8 +129,8 @@ final class TechniqueTiles {
         HeartTechniques.method(d).ifPresent(heart -> heartDetails(lines, c, d, heart));
         ArtDefinition.find(id).ifPresent(art->{
             lines.add(Component.translatable("combat."+id.getNamespace()+".art."+id.getPath()+".description"));
-            art.goldenCore().ifPresent(spec -> {
-                String range = "距离 " + String.format(Locale.ROOT, "%g", spec.range()).replaceFirst("\\.?0+$", "") + " 格";
+            art.goldenCore().map(spec -> spec.range()).or(() -> art.earlyRealm().map(spec -> spec.range())).ifPresent(reach -> {
+                String range = "距离 " + String.format(Locale.ROOT, "%g", reach).replaceFirst("\\.?0+$", "") + " 格";
                 lines.add(Component.literal(range));
             });
             lines.add(Component.literal("灵力 "+art.qiCost()+" · 冷却 "+String.format(Locale.ROOT,"%.1f",art.cooldownTicks()/20.0)+" 秒"));

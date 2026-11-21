@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.huichun_zhi",
+  "category": "active",
+  "grade": 2,
+  "elements": [
+    "yuanxian:wood"
+  ],
+  "school": "yuanxian:wood_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:foundation_establishment"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:huichun_zhi",
+      "qi_cost": 18,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 1800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:lingzhong_shu"
+  }
+}

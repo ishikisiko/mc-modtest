@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    },
+    {
+      "item": "minecraft:clay_ball"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:manual_active_huang",
+    "count": 1,
+    "components": {
+      "yuanxian:technique": "yuanxian:dileng_shu"
+    }
+  }
+}

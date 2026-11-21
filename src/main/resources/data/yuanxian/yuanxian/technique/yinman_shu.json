@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.yinman_shu",
+  "category": "active",
+  "grade": 1,
+  "elements": [
+    "yuanxian:wood"
+  ],
+  "school": "yuanxian:wood_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:qi_refining"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:yinman_shu",
+      "qi_cost": 8,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 600,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:lingzhong_shu"
+  }
+}

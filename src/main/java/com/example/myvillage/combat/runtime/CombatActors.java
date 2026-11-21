@@ -20,14 +20,19 @@ public final class CombatActors {
     public static boolean mayHarm(LivingEntity actor, Entity target) {
         if (com.example.myvillage.cultivation.fate.PhoenixRuntime.active(actor)) return false;
         if (actor == target || actor.level() != target.level() || !actor.isAlive() || !target.isAlive()
-                || target.isSpectator() || actor.isAlliedTo(target) || target.isAlliedTo(actor)) return false;
+                || target.isSpectator() || allied(actor, target)) return false;
         if (target instanceof Player player && player.isCreative()) return false;
         if (actor instanceof Player player && target instanceof Player other && !player.canHarmPlayer(other)) return false;
         if (Boolean.FALSE.equals(com.example.myvillage.item.TestUnitRuntime.relation(actor, target))) return false;
+        return true;
+    }
+
+    public static boolean allied(LivingEntity actor, Entity target) {
+        if (actor == target || actor.isAlliedTo(target) || target.isAlliedTo(actor)) return true;
         var sim = WorldSimRuntime.sim().orElse(null);
-        if (sim == null) return true;
-        int a = sect(actor, sim), b = sect(target, sim);
-        return a < 0 || a != b;
+        if (sim == null) return false;
+        int sourceSect = sect(actor, sim);
+        return sourceSect >= 0 && sourceSect == sect(target, sim);
     }
 
     private static int sect(Entity entity, com.example.myvillage.sim.WorldSim sim) {

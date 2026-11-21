@@ -1,0 +1,27 @@
+{
+  "translation_key": "cultivation.technique.yuanxian.qishi_ping",
+  "category": "active",
+  "grade": 2,
+  "elements": [
+    "yuanxian:earth"
+  ],
+  "school": "yuanxian:earth_arts",
+  "requirements": {
+    "minimum_realm": "yuanxian:foundation_establishment"
+  },
+  "effects": {
+    "active": {
+      "skill": "yuanxian:qishi_ping",
+      "qi_cost": 20,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 1800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "yuanxian:yandan_shu"
+  }
+}
