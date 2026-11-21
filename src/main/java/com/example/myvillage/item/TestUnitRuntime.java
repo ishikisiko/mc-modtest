@@ -223,8 +223,10 @@ public final class TestUnitRuntime {
                     net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
         }
         if (mob instanceof NpcEntity npc) com.example.myvillage.cultivation.fate.FateRuntime.refresh(npc);
-        if (mob instanceof NpcEntity npc) NpcCultivationRuntime.fillTestPower(npc, config.power());
-        if(mob instanceof NpcEntity npc)com.example.myvillage.entity.npc.NpcSkillRuntime.configure(npc,config.skills());
+        if (mob instanceof NpcEntity npc) {
+            com.example.myvillage.entity.npc.NpcSkillRuntime.configure(npc, config.skills());
+            NpcCultivationRuntime.fillTestPower(npc, config.power());
+        }
         else if(!config.skills().equals(com.example.myvillage.entity.npc.NpcSkillLoadout.EMPTY))throw new IllegalArgumentException("功法技能编辑目前适用于修士 NPC");
         mob.setHealth(mob.getMaxHealth()); mob.setPersistenceRequired(); mob.setNoAi(config.paused());
         if (!config.name().isBlank()) { mob.setCustomName(Component.literal(config.name())); mob.setCustomNameVisible(true); }

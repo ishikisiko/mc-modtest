@@ -2,6 +2,7 @@ package com.example.myvillage.entity.npc;
 
 import com.example.myvillage.cultivation.qi.QiRegeneration;
 import com.example.myvillage.cultivation.qi.SpiritualPowerRuntime;
+import com.example.myvillage.cultivation.technique.HeartTechniques;
 import com.example.myvillage.sim.PersonView;
 import com.example.myvillage.sim.cultivation.SpiritualPowerMath;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
@@ -91,9 +92,7 @@ public final class NpcCultivationRuntime {
         else if (npc.foundationQuality == 0) npc.foundationQuality = quality(npc);
         if (!golden) npc.goldenCoreQuality = 0;
         else if (npc.goldenCoreQuality == 0) npc.goldenCoreQuality = quality(npc);
-        long cap = npc.testConfigured && npc.testPowerCap >= 0 ? npc.testPowerCap : com.example.myvillage.cultivation.qi.OpenMeridians.capacity(
-                rules.at(realm, npc.foundationQuality, npc.goldenCoreQuality).power(),
-                com.example.myvillage.cultivation.fate.FateService.effect(npc,"power_cap_bonus"));
+        long cap = ownCap(npc, realm);
         // 仅首次出生赋予起始灵力。之后改变境界只改变容量，不补满。
         npc.spiritualPower = fresh ? cap : SpiritualPowerMath.clamp(npc.spiritualPower, cap);
     }
@@ -109,10 +108,20 @@ public final class NpcCultivationRuntime {
     public static long cap(NpcEntity npc) {
         if (npc.isLedgerAvatar()) return WorldSimRuntime.sim().flatMap(s -> s.person(npc.ledgerPersonId()))
                 .map(PersonView::spiritualPowerCap).orElse(0L);
-        if (npc.testConfigured && npc.testPowerCap >= 0) return npc.testPowerCap;
-        return com.example.myvillage.cultivation.qi.OpenMeridians.capacity(
-                CultivationStatsRules.bundled().at(realm(npc), npc.foundationQuality, npc.goldenCoreQuality).power(),
-                com.example.myvillage.cultivation.fate.FateService.effect(npc,"power_cap_bonus"));
+        return ownCap(npc, realm(npc));
+    }
+
+    private static long ownCap(NpcEntity npc, RealmKey realm) {
+        var skills = NpcSkillRuntime.get(npc);
+        int bonus = skills.core().isEmpty() ? 0 : HeartTechniques.spiritCapacity(npc.registryAccess(),
+                NpcSkillRuntime.profile(npc, realm, skills));
+        if (npc.testConfigured && npc.testPowerCap >= 0) return SpiritualPowerMath.capacity(npc.testPowerCap, 0, bonus);
+        return SpiritualPowerMath.capacity(CultivationStatsRules.bundled().at(realm, npc.foundationQuality, npc.goldenCoreQuality).power(),
+                com.example.myvillage.cultivation.fate.FateService.effect(npc, "power_cap_bonus"), bonus);
+    }
+
+    static void clamp(NpcEntity npc) {
+        if (!npc.isLedgerAvatar()) npc.spiritualPower = SpiritualPowerMath.clamp(npc.spiritualPower, cap(npc));
     }
 
     public static long current(NpcEntity npc) {
@@ -164,16 +173,24 @@ public final class NpcCultivationRuntime {
         if (!TIMERS.containsKey(npc.getUUID())) reset(npc);
         int tick = ((ServerLevel) npc.level()).getServer().getTickCount();
         if (RESET_TICKS.getOrDefault(npc.getUUID(), Integer.MIN_VALUE) == tick) return;
-        int factor = 10_000;
-        if(!npc.isLedgerAvatar()&&!NpcSkillRuntime.get(npc).learned().isEmpty())factor=NpcSkillRuntime.recoveryFactor(npc);
+        var sim = WorldSimRuntime.sim();
+        long cap = cap(npc);
+        boolean full = current(npc) >= cap;
+        var recovery = new HeartTechniques.Recovery(10_000, 0);
         boolean meditating = false;
         if (npc.isLedgerAvatar()) {
-            var sim = WorldSimRuntime.sim().orElseThrow();
-            factor = sim.spiritualPowerRecoveryFactor(npc.ledgerPersonId());
-            meditating = sim.life(npc.ledgerPersonId()).map(l -> l.activity().equals("cultivate")
+            var ledger = sim.orElseThrow();
+            recovery = new HeartTechniques.Recovery(ledger.spiritualPowerRecoveryFactor(npc.ledgerPersonId()), 0);
+            meditating = ledger.life(npc.ledgerPersonId()).map(l -> l.activity().equals("cultivate")
                     && l.phase().equals("working") && !npc.combatEngaged()).orElse(false);
         }
-        long recovered = TIMERS.get(npc.getUUID()).tick(SpiritualPowerRuntime.rules(), factor, meditating, current(npc) >= cap(npc));
+        boolean equipped = npc.isLedgerAvatar()
+                ? sim.flatMap(s -> s.npcHearts(npc.ledgerPersonId())).filter(hearts -> !hearts.spirit().isEmpty()).isPresent()
+                : !NpcSkillRuntime.get(npc).core().isEmpty();
+        if (!full && equipped) recovery = HeartTechniques.recovery(npc.registryAccess(), NpcSkillRuntime.profile(npc),
+                WorldSimRuntime.data().map(com.example.myvillage.sim.SimData::rules));
+        long recovered = TIMERS.get(npc.getUUID()).tick(SpiritualPowerRuntime.rules(),
+                recovery.basisPoints(), recovery.quarters(), meditating, full);
         if (recovered > 0) recover(npc, recovered);
     }
 

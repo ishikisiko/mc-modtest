@@ -74,6 +74,8 @@ public final class Person {
     public final List<Relation> relations = new ArrayList<>();
 
     public String techniqueId = "";
+    public com.example.myvillage.sim.cultivation.NpcHeartLoadout hearts =
+            com.example.myvillage.sim.cultivation.NpcHeartLoadout.EMPTY;
     /** Fortune event that granted the current technique, or -1 (taught by a sect or bought). */
     public long techniqueEventId = -1;
     /** Artifacts and pending pills. */

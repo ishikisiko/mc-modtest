@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.146.0
+
+- 命簿修士可研读心法，在攻、防守、灵力与修炼三栏各装备一门。近场战斗与玩家共用心法属性、命中效果和护盾结算。
+- 取物器测试修士可分别配置三栏心法，灵力上限及自然回复读取同一功法定义。
+
 ## 0.145.1
 
 - 十门炼体目录条目归入防守心法。研读后可在 H → 功法 → 防守装备，获得生命、肉身防御、护甲、抗性或万劫金身护盾。

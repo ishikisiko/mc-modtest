@@ -13,6 +13,13 @@ class NpcSkillLoadoutTest {
                 skill("core",1800,false,0),skill("jianqi_jue",1200,true,10),skill("huifeng_jianzhen",50,false,1)));
         assertEquals(state,NpcSkillLoadout.parse(state.json()));
     }
+    @Test void roundTripPreservesEachEquippedHeart() {
+        var state = new NpcSkillLoadout("", "yuanxian:spirit", "yuanxian:attack", "yuanxian:defense",
+                List.of(skill("spirit", 1800, false, 0), skill("attack", 900, false, 0), skill("defense", 30, false, 0)));
+        assertEquals(state, NpcSkillLoadout.parse(state.json()));
+        assertThrows(IllegalArgumentException.class, () -> new NpcSkillLoadout("", "", "yuanxian:attack", "", List.of()));
+        assertThrows(IllegalArgumentException.class, () -> new NpcSkillLoadout("", "", "", "yuanxian:defense", List.of()));
+    }
     @Test void prioritiesAreStableAndDisabledAbilitiesAreExcluded() {
         var state=new NpcSkillLoadout("","",List.of(skill("z",0,true,3),skill("b",0,true,0),skill("a",0,true,0),skill("disabled",999,false,0)));
         assertEquals(List.of("yuanxian:a","yuanxian:b","yuanxian:z"),state.automatic().stream().map(NpcSkillLoadout.Learned::id).toList());

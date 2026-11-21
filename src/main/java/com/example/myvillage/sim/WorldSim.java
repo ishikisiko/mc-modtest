@@ -123,7 +123,7 @@ public final class WorldSim {
 
     /** Restores a saved world. Throws SimFormatException on a bad or newer-format payload. */
     public static WorldSim fromBytes(byte[] saved, RegionGraph graph, SimData data) {
-        WorldState state = StateCodec.fromBytes(saved, data.realms(),data.npcFates());
+        WorldState state = StateCodec.fromBytes(saved, data.realms(), data.npcFates(), data.npcHearts());
         if (!data.rules().tiers().containsKey(state.tierId)) {
             throw new SimFormatException("tier \"" + state.tierId + "\" is not in the loaded rules");
         }
@@ -452,6 +452,11 @@ public final class WorldSim {
     }
     public int spiritualPowerRecoveryFactor(int id) {
         return com.example.myvillage.sim.engine.NpcCultivation.recoveryFactor(ctx, id);
+    }
+
+    public Optional<com.example.myvillage.sim.cultivation.NpcHeartLoadout> npcHearts(int id) {
+        Person person = ctx.state.persons.get(id);
+        return person == null ? Optional.empty() : Optional.of(person.hearts);
     }
     public boolean checkpointCombat(int id, long epoch, com.example.myvillage.sim.combat.NpcCombatProfile profile) {
         return com.example.myvillage.sim.engine.NpcCombatLedger.checkpoint(ctx, id, epoch, profile);

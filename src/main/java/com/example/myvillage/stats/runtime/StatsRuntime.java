@@ -178,25 +178,33 @@ public final class StatsRuntime {
         RealmAttributeModifiers.replace(attack, REALM_ATTACK, attackAddition);
         AttributeInstance defense = entity.getAttribute(ModStatsAttributes.BODY_DEFENSE);
         RealmAttributeModifiers.replace(defense, REALM_DEFENSE, defenseAddition);
-        if (entity instanceof ServerPlayer player) {
-            var heart = HeartTechniques.baseCombat(player.registryAccess(), CultivationService.getProfile(player));
-            RealmAttributeModifiers.replace(health, HEART_HEALTH, heart.maxHealth());
-            RealmAttributeModifiers.replace(attack, HEART_ATTACK, heart.attack());
-            RealmAttributeModifiers.replace(player.getAttribute(ModStatsAttributes.FLAT_DEFENSE_PENETRATION),
-                    HEART_FLAT_PENETRATION, heart.flatPenetration());
-            RealmAttributeModifiers.replace(defense, HEART_DEFENSE, heart.defense());
-            applyHeartDefenseAttributes(player, heart.defenseAttributes());
-        }
-        float current = RealmHealthPolicy.refreshed(oldHealth, oldMax, entity.getMaxHealth());
-        if (current != oldHealth) {
-            entity.setHealth(current);
-        }
         CompoundTag assignment = new CompoundTag();
         assignment.putString("realm", key.realmId());
         assignment.putInt("stage", key.stage());
         entity.getPersistentData().put(REALM_TAG, assignment);
+        if (HeartTechniques.supports(entity)) applyHeartModifiers(entity);
+        float current = RealmHealthPolicy.refreshed(oldHealth, oldMax, entity.getMaxHealth());
+        if (current != oldHealth) {
+            entity.setHealth(current);
+        }
         if(entity instanceof com.example.myvillage.entity.npc.NpcEntity npc)
             com.example.myvillage.cultivation.fate.FateRuntime.refresh(npc);
+    }
+
+    public static void applyHeartModifiers(LivingEntity entity) {
+        requireServer(entity);
+        var profile = com.example.myvillage.combat.runtime.CombatCaster.profile(entity);
+        if (entity instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+            com.example.myvillage.entity.npc.NpcSkillRuntime.defenseRefreshed(npc,
+                    profile.equippedHeart(com.example.myvillage.cultivation.data.HeartMethod.Slot.DEFENSE));
+        var heart = HeartTechniques.baseCombat(entity.registryAccess(), profile);
+        RealmAttributeModifiers.replace(entity.getAttribute(Attributes.MAX_HEALTH), HEART_HEALTH, heart.maxHealth());
+        RealmAttributeModifiers.replace(entity.getAttribute(Attributes.ATTACK_DAMAGE), HEART_ATTACK, heart.attack());
+        RealmAttributeModifiers.replace(entity.getAttribute(ModStatsAttributes.FLAT_DEFENSE_PENETRATION),
+                HEART_FLAT_PENETRATION, heart.flatPenetration());
+        RealmAttributeModifiers.replace(entity.getAttribute(ModStatsAttributes.BODY_DEFENSE), HEART_DEFENSE, heart.defense());
+        applyHeartDefenseAttributes(entity, heart.defenseAttributes());
+        if (entity.getHealth() > entity.getMaxHealth()) entity.setHealth(entity.getMaxHealth());
     }
 
     public static void clearRealm(LivingEntity entity) {
@@ -364,9 +372,7 @@ public final class StatsRuntime {
                         net.neoforged.neoforge.common.damagesource.DamageContainer.Reduction.ABSORPTION),
                 (double) event.getNewDamage(), (double) Math.max(0, trace.healthBefore() - healthAfter),
                 trace.healthBefore(), (double) healthAfter, trace.ruleHash(), trace.armor(), trace.bodyDefense()));
-        if (event.getEntity() instanceof ServerPlayer player) {
-            HeartTechniques.afterHealthLoss(player, event.getSource(), trace.healthBefore(), healthAfter);
-        }
+        HeartTechniques.afterHealthLoss(event.getEntity(), event.getSource(), trace.healthBefore(), healthAfter);
     }
 
     /** Only explicitly mapped attack/fire sources participate; environmental/unknown damage does not. */

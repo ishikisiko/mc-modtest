@@ -177,6 +177,7 @@ public final class Fortunes {
             case "progress" -> p.progress += fx.amount() * Cultivation.yearlyRate(ctx, p);
             case "technique" -> {
                 ContentTables.Technique current = ctx.technique(p);
+                if (technique != null) NpcHeartTraining.found(ctx, p, technique.id());
                 if (technique != null && (current == null || technique.gradeRank() > current.gradeRank())) {
                     p.techniqueId = technique.id();
                     p.techniqueEventId = eventId;
@@ -186,6 +187,7 @@ public final class Fortunes {
                 // The manual of a lost heritage: taken up even when it is no stronger than what the
                 // finder knows, since it is the only way back to the heritage (heritageTechnique).
                 if (technique != null) {
+                    NpcHeartTraining.found(ctx, p, technique.id());
                     p.techniqueId = technique.id();
                     p.techniqueEventId = eventId;
                 }

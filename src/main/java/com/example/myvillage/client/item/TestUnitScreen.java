@@ -1,5 +1,8 @@
 package com.example.myvillage.client.item;
 
+import com.example.myvillage.cultivation.data.HeartMethod.Slot;
+import com.example.myvillage.cultivation.technique.HeartTechniques;
+
 import com.example.myvillage.aptitude.AptitudeRules;
 import com.example.myvillage.aptitude.AptitudeRuntime;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
@@ -70,6 +73,7 @@ public final class TestUnitScreen extends Screen {
     private String skillUnitName="";
     private int skillPage, skillCategory;
     private String skillSearch="", selectedSkill="", runningCore="", weapon="";
+    private String attackHeart = "", defenseHeart = "";
     private final Map<String, SkillDraft> skillDrafts=new LinkedHashMap<>();
     private static final class SkillDraft {
         String mastery="0", priority="0";
@@ -266,7 +270,12 @@ public final class TestUnitScreen extends Screen {
     }
     private static String category(SkillOption option) {
         if(option.fate()!=null)return "天赋能力";
-        return switch(option.definition().category()){case CORE->"心法";case ACTIVE->"绝技";case MOVEMENT->"身法";case BODY->"炼体";};
+        return switch(option.definition().category()){
+            case CORE -> "心法 · " + HeartTechniques.slot(option.definition()).title();
+            case ACTIVE -> "绝技";
+            case MOVEMENT -> "身法";
+            case BODY -> "炼体";
+        };
     }
     private boolean autoAllowed(SkillOption option) {
         return NpcSkillRuntime.executable(ResourceLocation.parse(option.id()),option.definition())
@@ -306,16 +315,23 @@ public final class TestUnitScreen extends Screen {
         var selected=options.stream().filter(o->o.id().equals(selectedSkill)).findFirst().orElse(null);if(selected==null)return;
         label(selected.name(),col,94,rw);
         var draft=skillDrafts.get(selected.id());
-        boolean core=selected.definition()!=null&&selected.definition().isCore();
-        button(draft==null?"添加到已学":"移除功法",col,107,core&&draft!=null?rw/2-2:rw,()->{
-            if(skillDrafts.remove(selected.id())!=null){if(runningCore.equals(selected.id()))runningCore="";}
+        Slot slot = selected.definition() != null && selected.definition().isCore()
+                ? HeartTechniques.slot(selected.definition()) : null;
+        button(draft==null?"添加到已学":"移除功法",col,107,slot!=null&&draft!=null?rw/2-2:rw,()->{
+            if (skillDrafts.remove(selected.id()) != null) {
+                if (slot != null && equippedHeart(slot).equals(selected.id())) setHeart(slot, "");
+            }
             else if(skillDrafts.size()<NpcSkillLoadout.LIMIT)skillDrafts.put(selected.id(),new SkillDraft(autoAllowed(selected)));
             else message="已学功法数量达到上限。";
             rebuild();
         });
         if(draft==null){label("添加后可编辑熟练度和自动施放。",col,135,rw);return;}
-        if(core)button(runningCore.equals(selected.id())?"运行中":"运行心法",col+rw/2,107,rw-rw/2,
-                ()->{runningCore=runningCore.equals(selected.id())?"":selected.id();rebuild();});
+        if (slot != null) {
+            boolean equipped = equippedHeart(slot).equals(selected.id());
+            button(equipped ? "卸下心法" : "装备心法", col+rw/2,107,rw-rw/2,
+                    () -> { setHeart(slot, equipped ? "" : selected.id()); rebuild(); })
+                    .setTooltip(Tooltip.create(Component.literal(slot.title() + "栏")));
+        }
         label("熟练度点数",col,130,rw/2);
         box(draft.mastery,"非负整数",col+rw/2,127,rw-rw/2,19,v->draft.mastery=v);
         button("自动施放："+mark(draft.automatic),col,149,rw,()->{draft.automatic=!draft.automatic;rebuild();}).active=autoAllowed(selected);
@@ -323,11 +339,27 @@ public final class TestUnitScreen extends Screen {
         box(draft.priority,"小数值优先",col+rw/2,169,rw-rw/2,3,v->draft.priority=v)
                 .setTooltip(Tooltip.create(Component.literal("0～999，数值越小越先尝试；同优先级按技能 ID 排序。")));
     }
+    private String equippedHeart(Slot slot) {
+        return switch (slot) {
+            case ATTACK -> attackHeart;
+            case DEFENSE -> defenseHeart;
+            case SPIRIT -> runningCore;
+        };
+    }
+
+    private void setHeart(Slot slot, String id) {
+        switch (slot) {
+            case ATTACK -> attackHeart = id;
+            case DEFENSE -> defenseHeart = id;
+            case SPIRIT -> runningCore = id;
+        }
+    }
+
     private NpcSkillLoadout loadout() {
         var rows=new ArrayList<NpcSkillLoadout.Learned>();
         for(var e:skillDrafts.entrySet())rows.add(new NpcSkillLoadout.Learned(e.getKey(),Long.parseLong(e.getValue().mastery),
                 e.getValue().automatic,Integer.parseInt(e.getValue().priority)));
-        return new NpcSkillLoadout(weapon,runningCore,rows);
+        return new NpcSkillLoadout(weapon, runningCore, attackHeart, defenseHeart, rows);
     }
     private void applySkills() {
         try {
@@ -419,6 +451,7 @@ public final class TestUnitScreen extends Screen {
             var state=NpcSkillLoadout.parse(data.get("skills").toString());skillUnit=UUID.fromString(data.get("skill_unit").getAsString());
             skillUnitName=data.get("skill_name").getAsString();
             skillDrafts.clear();weapon=state.weapon();runningCore=state.core();
+            attackHeart = state.attack(); defenseHeart = state.defense();
             for(var row:state.learned()){var draft=new SkillDraft(row.automatic());draft.mastery=Long.toString(row.mastery());draft.priority=Integer.toString(row.priority());skillDrafts.put(row.id(),draft);}
             tab=4;rebuild();return;
         }

@@ -19,6 +19,7 @@ public final class Engine {
     /** Populates a fresh world on day 0 (the caller then runs the prehistory with {@link #step}). */
     public static void genesis(SimContext ctx) {
         Genesis.populate(ctx);
+        ctx.state.persons.values().forEach(p -> NpcHeartTraining.study(ctx, p));
         ctx.chronicle.endDay();
     }
 

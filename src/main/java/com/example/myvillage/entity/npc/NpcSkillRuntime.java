@@ -10,8 +10,14 @@ import com.example.myvillage.combat.session.CombatArtActions;
 import com.example.myvillage.combat.session.CombatSkillActions;
 import com.example.myvillage.cultivation.*;
 import com.example.myvillage.cultivation.data.*;
+import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityDefinition;
 import com.example.myvillage.cultivation.growth.*;
+import com.example.myvillage.cultivation.technique.HeartTechniques;
+import com.example.myvillage.cultivation.technique.TechniqueRequirementEvaluator;
+import com.example.myvillage.sim.cultivation.NpcHeartLoadout;
+import com.example.myvillage.sim.runtime.WorldSimRuntime;
+import com.example.myvillage.stats.RealmKey;
 import com.example.myvillage.stats.StatsRules;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import java.util.*;
@@ -26,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 public final class NpcSkillRuntime {
     private static final String TAG = "yuanxian:npc_skills", CDS = "yuanxian:npc_skill_cooldowns";
     private static final Map<NpcEntity, NpcSkillLoadout> CACHE = new WeakHashMap<>();
+    private static final Map<NpcEntity, Optional<ResourceLocation>> DEFENSE = new WeakHashMap<>();
     private NpcSkillRuntime() { }
     public static NpcSkillLoadout get(NpcEntity npc) {
         return CACHE.computeIfAbsent(npc, n -> n.getPersistentData().contains(TAG)
@@ -42,19 +49,46 @@ public final class NpcSkillRuntime {
         return new RealmDefinition("cultivation.realm." + id.getPath(), numerical.order() + 1, Integer.MAX_VALUE, stages, Optional.empty());
     }
     public static CultivationProfile profile(NpcEntity npc) {
-        var key = StatsRuntime.assignedRealm(npc).orElse(new com.example.myvillage.stats.RealmKey("yuanxian:mortal", 1));
+        var key = StatsRuntime.assignedRealm(npc).orElse(new RealmKey("yuanxian:mortal", 1));
+        return profile(npc, key, get(npc));
+    }
+
+    static CultivationProfile profile(NpcEntity npc, RealmKey key, NpcSkillLoadout state) {
         var realmId = ResourceLocation.parse(key.realmId());
         var root = new LinkedHashMap<ResourceLocation, Integer>();
         for (String id : AptitudeRules.get().elements()) root.put(ResourceLocation.parse("yuanxian:" + id), AptitudeRuntime.score(npc, id));
         var learned = new LinkedHashMap<ResourceLocation, TechniqueProgress>();
-        for (var row : get(npc).learned()) if (ModCultivationRegistries.technique(npc.registryAccess(), ResourceLocation.parse(row.id())).isPresent())
+        for (var row : state.learned()) if (ModCultivationRegistries.technique(npc.registryAccess(), ResourceLocation.parse(row.id())).isPresent())
             learned.put(ResourceLocation.parse(row.id()), new TechniqueProgress(row.mastery()));
-        return new CultivationProfile(CultivationProfile.CURRENT_SCHEMA_VERSION, realmId,
+        var ledger = npc.isLedgerAvatar()
+                ? WorldSimRuntime.sim().flatMap(s -> s.npcHearts(npc.ledgerPersonId())).orElse(NpcHeartLoadout.EMPTY)
+                : NpcHeartLoadout.EMPTY;
+        for (String id : ledger.learned()) {
+            var keyId = ResourceLocation.fromNamespaceAndPath("yuanxian", id);
+            if (ModCultivationRegistries.technique(npc.registryAccess(), keyId).isPresent()) learned.put(keyId, TechniqueProgress.ZERO);
+        }
+        var base = new CultivationProfile(CultivationProfile.CURRENT_SCHEMA_VERSION, realmId,
                 realm(npc, realmId).stages().get(key.stage()).id(), 0, 0, NpcCultivationRuntime.current(npc),
                 CultivationProfile.DEFAULT_SPIRITUAL_AFFINITY, 0, 0, Optional.of(new SpiritualRoot(root)), learned,
-                get(npc).core().isEmpty() ? Optional.empty() : Optional.of(ResourceLocation.parse(get(npc).core())),
+                Optional.empty(),
                 npc.foundationQuality(), npc.goldenCoreQuality());
+        for (var slot : Slot.values()) {
+            String id = npc.isLedgerAvatar() ? ledger.equipped(slot.getSerializedName()) : state.equipped(slot);
+            if (id.isEmpty()) continue;
+            ResourceLocation equipped = npc.isLedgerAvatar()
+                    ? ResourceLocation.fromNamespaceAndPath("yuanxian", id) : ResourceLocation.parse(id);
+            var definition = ModCultivationRegistries.technique(npc.registryAccess(), equipped).orElse(null);
+            if (!learned.containsKey(equipped) || definition == null || !definition.isCore()
+                    || HeartTechniques.slot(definition) != slot) continue;
+            // 正式人物的装备资格在命簿换心法时结算，化身与命簿灵力容量使用同一份结果。
+            if (!npc.isLedgerAvatar() && !TechniqueRequirementEvaluator.evaluate(base, definition, idKey -> realm(npc, idKey)).satisfied())
+                continue;
+            base = slot == Slot.SPIRIT
+                    ? base.withActiveCoreTechnique(equipped) : base.withCombatHeart(slot, equipped);
+        }
+        return base;
     }
+
     public static boolean executable(ResourceLocation id, TechniqueDefinition technique) {
         if (FateAbilityDefinition.find(id).isPresent()) return true;
         if (technique == null) return false;
@@ -84,8 +118,12 @@ public final class NpcSkillRuntime {
                     && technique.category() != TechniqueCategory.ACTIVE && technique.category() != TechniqueCategory.MOVEMENT))
                 throw new IllegalArgumentException("这门功法没有 NPC 主动施放入口：" + id);
         }
-        if (!state.core().isEmpty() && ModCultivationRegistries.technique(npc.registryAccess(), ResourceLocation.parse(state.core()))
-                .filter(TechniqueDefinition::isCore).isEmpty()) throw new IllegalArgumentException("运行心法必须选择心法类功法");
+        var key = StatsRuntime.assignedRealm(npc).orElseThrow();
+        var candidate = profile(npc, key, state);
+        for (var slot : Slot.values()) {
+            if (!state.equipped(slot).isEmpty() && candidate.equippedHeart(slot).isEmpty())
+                throw new IllegalArgumentException(slot.title() + "栏的心法不符合境界、资质或栏位条件");
+        }
     }
     public static void configure(NpcEntity npc, NpcSkillLoadout state) {
         validate(npc, state);
@@ -98,6 +136,8 @@ public final class NpcSkillRuntime {
             npc.setDropChance(EquipmentSlot.MAINHAND, 0);
         }
         refreshBody(npc);
+        StatsRuntime.applyHeartModifiers(npc);
+        NpcCultivationRuntime.clamp(npc);
     }
     private static ResourceLocation modifier(String id) {
         var key = ResourceLocation.parse(id); return ResourceLocation.parse("yuanxian:npc_technique/" + key.getNamespace() + "/" + key.getPath());
@@ -144,16 +184,8 @@ public final class NpcSkillRuntime {
                     : TechniqueGrowth.gain(spec,progress,amount);
             rows.add(new NpcSkillLoadout.Learned(row.id(),next.masteryPoints(),row.automatic(),row.priority()));
         }
-        var next = new NpcSkillLoadout(old.weapon(),old.core(),rows);
+        var next = new NpcSkillLoadout(old.weapon(), old.core(), old.attack(), old.defense(), rows);
         CACHE.put(npc,next);npc.getPersistentData().putString(TAG,next.json());
-    }
-    public static int recoveryFactor(NpcEntity npc) {
-        var profile = profile(npc);
-        int base = com.example.myvillage.cultivation.technique.CoreTechniqueFactor.progressBasisPoints(profile,
-                id -> ModCultivationRegistries.technique(npc.registryAccess(), id).orElse(null),
-                com.example.myvillage.sim.runtime.WorldSimRuntime.data().map(data -> data.rules()));
-        int growth = profile.activeCoreTechnique().map(id -> multiplier(npc, id, TechniqueGrowthRules.Effect.RECOVERY)).orElse(TechniqueGrowthRules.UNIT);
-        return (int) Math.min(Integer.MAX_VALUE, (long) base * growth / TechniqueGrowthRules.UNIT);
     }
     public static void cooldown(NpcEntity npc, ResourceLocation id, long until) {
         var tag = npc.getPersistentData().getCompound(CDS); tag.putLong(id.toString(), until); npc.getPersistentData().put(CDS, tag);
@@ -249,6 +281,17 @@ public final class NpcSkillRuntime {
         npc.setYRot(yaw);npc.setYHeadRot(yaw);npc.setYBodyRot(yaw);
         npc.setXRot((float)-Math.toDegrees(Math.atan2(delta.y,Math.sqrt(delta.horizontalDistanceSqr()))));
     }
-    public static void joined(NpcEntity npc) { if (npc.getPersistentData().contains(TAG)) { validate(npc, get(npc)); refreshBody(npc); } }
-    public static void forget(NpcEntity npc) { CACHE.remove(npc); }
+    public static void defenseRefreshed(NpcEntity npc, Optional<ResourceLocation> defense) {
+        var previous = DEFENSE.put(npc, defense);
+        if (previous != null && !previous.equals(defense)) HeartTechniques.clearDefenseShield(npc);
+    }
+
+    public static void joined(NpcEntity npc) {
+        if (!npc.getPersistentData().contains(TAG)) return;
+        refreshBody(npc);
+        StatsRuntime.applyHeartModifiers(npc);
+        NpcCultivationRuntime.clamp(npc);
+    }
+
+    public static void forget(NpcEntity npc) { CACHE.remove(npc); DEFENSE.remove(npc); }
 }

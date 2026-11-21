@@ -4,6 +4,7 @@ import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.fate.FateState;
 import com.example.myvillage.cultivation.technique.HeartTechniques;
+import com.example.myvillage.sim.cultivation.SpiritualPowerMath;
 import net.minecraft.core.RegistryAccess;
 
 import java.util.OptionalLong;
@@ -14,7 +15,8 @@ public final class SpiritualPower {
 
     /** Baseline stage capacity for callers without an owning fate attachment. */
     public static long cap(RegistryAccess registries, CultivationProfile profile) {
-        return stageCapacity(registries, profile) + heartCapacity(registries, profile);
+        return SpiritualPowerMath.capacity(stageCapacity(registries, profile),
+                0, HeartTechniques.spiritCapacity(registries, profile));
     }
 
     private static long stageCapacity(RegistryAccess registries, CultivationProfile profile) {
@@ -34,23 +36,20 @@ public final class SpiritualPower {
                         .filter(java.util.Objects::nonNull)
                         .filter(definition -> definition.active(profile.spiritualRoot()))
                         .mapToDouble(definition -> definition.effect("power_cap_bonus")).sum()).orElse(0.0) : 0;
-        return OpenMeridians.capacity(stageCapacity(registries, profile), bonus) + heartCapacity(registries, profile);
-    }
-
-    private static int heartCapacity(RegistryAccess registries, CultivationProfile profile) {
-        return HeartTechniques.spirit(registries, profile).map(heart -> heart.capacity()).orElse(0);
+        return SpiritualPowerMath.capacity(stageCapacity(registries, profile),
+                bonus, HeartTechniques.spiritCapacity(registries, profile));
     }
 
     public static long clamp(long current, long cap) {
-        return com.example.myvillage.sim.cultivation.SpiritualPowerMath.clamp(current, cap);
+        return SpiritualPowerMath.clamp(current, cap);
     }
 
     /** Refusal has no replacement value, so the caller cannot accidentally commit a partial cost. */
     public static OptionalLong spend(long current, long cap, long cost) {
-        return com.example.myvillage.sim.cultivation.SpiritualPowerMath.spend(current, cap, cost);
+        return SpiritualPowerMath.spend(current, cap, cost);
     }
 
     public static long recover(long current, long cap, long amount) {
-        return com.example.myvillage.sim.cultivation.SpiritualPowerMath.recover(current, cap, amount);
+        return SpiritualPowerMath.recover(current, cap, amount);
     }
 }

@@ -203,7 +203,10 @@ public final class PlayerAffairs {
         if (m == null || !m.inSect()) {
             return List.of();
         }
-        Sect sect = ctx.sect(m.sectId);
+        return borrowable(ctx, ctx.sect(m.sectId), m.rank);
+    }
+
+    static List<String> borrowable(SimContext ctx, Sect sect, String rank) {
         if (sect == null || !sect.active()) {
             return List.of();
         }
@@ -211,7 +214,7 @@ public final class PlayerAffairs {
         ContentTables.Heritage heritage = ctx.data.heritage(sect.heritageId);
         if (heritage != null) {
             List<String> chain = heritage.techniques();
-            int n = switch (m.rank) {
+            int n = switch (rank) {
                 case OUTER -> 1;
                 case INNER -> 2;
                 default -> chain.size();
@@ -219,7 +222,7 @@ public final class PlayerAffairs {
             raw.addAll(chain.subList(0, Math.min(n, chain.size())));
         } else {
             raw.add(sect.basicTechniqueId);
-            if (!m.rank.equals(OUTER)) {
+            if (!rank.equals(OUTER)) {
                 raw.add(sect.signatureTechniqueId);
             }
         }

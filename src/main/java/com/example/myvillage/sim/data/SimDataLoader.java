@@ -79,10 +79,17 @@ public final class SimDataLoader {
             throw new SimDataException(economyFile, "manual_overrides", "未知功法 " + id);
         for (String id : economy.offerReputation().keySet()) if (commerceRules.offer(id) == null)
             throw new SimDataException(economyFile, "offer_reputation", "未知商铺商品 " + id);
-        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules, commerceRules, professionRules, npcFates, economy);
+        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules,
+                commerceRules, professionRules, npcFates, economy, NpcHeartCatalogue.load(opener, techniques, realms));
     }
 
     private static JsonObject read(SimData.ResourceOpener opener, String file) {
+        JsonObject result = readOptional(opener, file);
+        if (result == null) throw new SimDataException(file, "<file>", "is missing");
+        return result;
+    }
+
+    static JsonObject readOptional(SimData.ResourceOpener opener, String file) {
         InputStream stream;
         try {
             stream = opener.open(file);
@@ -90,7 +97,7 @@ public final class SimDataLoader {
             throw new SimDataException(file, "<file>", "cannot open: " + exception.getMessage(), exception);
         }
         if (stream == null) {
-            throw new SimDataException(file, "<file>", "is missing");
+            return null;
         }
         try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return SimJson.parseStrict(file, reader);

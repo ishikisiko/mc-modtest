@@ -264,6 +264,19 @@ public final class StateCodec {
         o.add("relations", rel);
         o.addProperty("technique", p.techniqueId);
         o.addProperty("technique_event", p.techniqueEventId);
+        if (!p.hearts.equals(com.example.myvillage.sim.cultivation.NpcHeartLoadout.EMPTY)) {
+            JsonObject hearts = new JsonObject();
+            JsonArray found = new JsonArray();
+            p.hearts.found().forEach(found::add);
+            JsonArray learned = new JsonArray();
+            p.hearts.learned().forEach(learned::add);
+            hearts.add("found", found);
+            hearts.add("learned", learned);
+            hearts.addProperty("attack", p.hearts.attack());
+            hearts.addProperty("defense", p.hearts.defense());
+            hearts.addProperty("spirit", p.hearts.spirit());
+            o.add("hearts", hearts);
+        }
         JsonArray boons = new JsonArray();
         for (Boon b : p.boons) {
             JsonArray ba = new JsonArray();
@@ -352,6 +365,11 @@ public final class StateCodec {
     }
 
     public static WorldState fromBytes(byte[] bytes, RealmTable realms,com.example.myvillage.sim.fate.NpcFatePool pool) {
+        return fromBytes(bytes, realms, pool, com.example.myvillage.sim.data.NpcHeartCatalogue.bundled());
+    }
+
+    public static WorldState fromBytes(byte[] bytes, RealmTable realms, com.example.myvillage.sim.fate.NpcFatePool pool,
+            com.example.myvillage.sim.data.NpcHeartCatalogue hearts) {
         if (bytes == null || bytes.length == 0) {
             throw new SimFormatException("empty payload");
         }
@@ -379,14 +397,15 @@ public final class StateCodec {
             throw new SimFormatException("invalid format version " + version);
         }
         try {
-            return read(o, realms,pool);
+            return read(o, realms, pool, hearts);
         } catch (IllegalArgumentException | IllegalStateException | ClassCastException
                  | UnsupportedOperationException | IndexOutOfBoundsException e) {
             throw new SimFormatException("malformed payload: " + e.getMessage(), e);
         }
     }
 
-    private static WorldState read(Obj o, RealmTable realms,com.example.myvillage.sim.fate.NpcFatePool pool) {
+    private static WorldState read(Obj o, RealmTable realms, com.example.myvillage.sim.fate.NpcFatePool pool,
+            com.example.myvillage.sim.data.NpcHeartCatalogue hearts) {
         WorldState s = new WorldState();
         s.seed = o.lng("seed");
         s.tierId = o.str("tier");
@@ -432,7 +451,7 @@ public final class StateCodec {
         if (o.integer("version") >= 6 && !o.has("commerce")) throw new SimFormatException("version 6 requires commerce state");
         s.commerce = com.example.myvillage.sim.commerce.CommerceCodec.read(o.has("commerce") ? o.obj("commerce").json : null, s);
         for (Obj po : o.objects("persons")) {
-            Person p = readPerson(po, realms,pool);
+            Person p = readPerson(po, realms, pool, hearts);
             s.persons.put(p.id, p);
         }
         for (Obj to : o.objects("tombstones")) {
@@ -550,7 +569,8 @@ public final class StateCodec {
         return s;
     }
 
-    private static Person readPerson(Obj o, RealmTable realms,com.example.myvillage.sim.fate.NpcFatePool pool) {
+    private static Person readPerson(Obj o, RealmTable realms, com.example.myvillage.sim.fate.NpcFatePool pool,
+            com.example.myvillage.sim.data.NpcHeartCatalogue catalogue) {
         Person p = new Person();
         p.id = o.integer("id");
         readStipend(o.obj("stipend"), p.stipend);
@@ -583,7 +603,21 @@ public final class StateCodec {
                 || p.nascentReformsOn != Long.MAX_VALUE && !p.nascentShattered)
             throw new SimFormatException("Invalid nascent state for person " + p.id);
         p.spiritualPower = o.lng("spiritual_power");
-        com.example.myvillage.sim.engine.NpcCultivation.validate(realms, p,pool);
+        if (o.has("hearts")) {
+            var hearts = o.obj("hearts");
+            p.hearts = new com.example.myvillage.sim.cultivation.NpcHeartLoadout(hearts.strings("found"),
+                    hearts.strings("learned"), hearts.str("attack"), hearts.str("defense"), hearts.str("spirit"));
+            for (String id : p.hearts.learned()) if (catalogue.get(id) == null)
+                throw new SimFormatException("person " + p.id + " has unknown learned heart " + id);
+            for (String id : p.hearts.found()) if (catalogue.get(id) == null)
+                throw new SimFormatException("person " + p.id + " has unknown heart manual " + id);
+            for (String slot : List.of("attack", "defense", "spirit")) {
+                String id = p.hearts.equipped(slot);
+                if (!id.isEmpty() && !catalogue.get(id).slot().equals(slot))
+                    throw new SimFormatException("person " + p.id + " has a heart in the wrong slot " + id);
+            }
+        }
+        com.example.myvillage.sim.engine.NpcCultivation.validate(realms, p, pool, catalogue.capacity(p.hearts.spirit()));
         p.failures = o.optInt("failures", 0);
         p.bonusLifespanYears = o.optInt("bonus_lifespan", 0);
         p.lifespanEventId = o.optLong("lifespan_event", -1);
@@ -812,6 +846,18 @@ public final class StateCodec {
                 throw bad(key, "a list");
             }
             return e.getAsJsonArray();
+        }
+
+        List<String> strings(String key) {
+            JsonArray values = arr(key);
+            if (values.size() > 1024) throw bad(key, "a list of at most 1024 strings");
+            var strings = new ArrayList<String>(values.size());
+            for (var value : values) {
+                if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString())
+                    throw bad(key, "a list of strings");
+                strings.add(value.getAsString());
+            }
+            return strings;
         }
 
         Obj obj(String key) {

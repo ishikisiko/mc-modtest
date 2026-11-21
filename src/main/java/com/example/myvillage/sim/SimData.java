@@ -2,6 +2,7 @@ package com.example.myvillage.sim;
 
 import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.EncounterTable;
+import com.example.myvillage.sim.data.NpcHeartCatalogue;
 import com.example.myvillage.sim.data.RealmTable;
 import com.example.myvillage.sim.data.Rules;
 import com.example.myvillage.sim.life.LifeRules;
@@ -26,7 +27,18 @@ public record SimData(
         LifeRules lifeRules, com.example.myvillage.sim.commerce.CommerceRules commerceRules,
         com.example.myvillage.sim.profession.ProfessionRules professionRules,
         com.example.myvillage.sim.fate.NpcFatePool npcFates,
-        com.example.myvillage.sim.economy.PlayerEconomyRules playerEconomy) {
+        com.example.myvillage.sim.economy.PlayerEconomyRules playerEconomy,
+        NpcHeartCatalogue npcHearts) {
+    public SimData(Rules rules, RealmTable realms, EncounterTable encounters, ContentTables.Names names,
+            List<ContentTables.Technique> techniques, ContentTables.Lore lore, List<ContentTables.Heritage> heritages,
+            List<ContentTables.SectTask> sectTasks, LifeRules lifeRules,
+            com.example.myvillage.sim.commerce.CommerceRules commerceRules,
+            com.example.myvillage.sim.profession.ProfessionRules professionRules,
+            com.example.myvillage.sim.fate.NpcFatePool npcFates,
+            com.example.myvillage.sim.economy.PlayerEconomyRules playerEconomy) {
+        this(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules, commerceRules,
+                professionRules, npcFates, playerEconomy, NpcHeartCatalogue.bundled());
+    }
     public SimData(Rules rules, RealmTable realms, EncounterTable encounters, ContentTables.Names names,
             List<ContentTables.Technique> techniques, ContentTables.Lore lore,
             List<ContentTables.Heritage> heritages, List<ContentTables.SectTask> sectTasks, LifeRules lifeRules,

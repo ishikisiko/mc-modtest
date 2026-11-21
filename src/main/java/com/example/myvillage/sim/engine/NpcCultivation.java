@@ -22,7 +22,8 @@ public final class NpcCultivation {
         return CultivationStatsRules.bundled().at(key(ctx, p), p.foundationQuality, p.goldenCoreQuality);
     }
     public static long powerCap(SimContext ctx,Person p) {
-        return SpiritualPowerMath.capacity(body(ctx,p).power(),ctx.data.npcFates().effect(p.fates,"power_cap_bonus"));
+        return SpiritualPowerMath.capacity(body(ctx,p).power(), ctx.data.npcFates().effect(p.fates,"power_cap_bonus"),
+                ctx.data.npcHearts().capacity(p.hearts.spirit()));
     }
 
     public static RealmKey key(SimContext ctx, Person p) {
@@ -49,11 +50,18 @@ public final class NpcCultivation {
     /** 境界只增加自身贡献，战斗档案中的装备生命贡献仍然保留。 */
     public static void advanced(SimContext ctx, Person p, CultivationStatsRules.Body previous) {
         reached(ctx, p);
+        resizeCombatHealth(ctx, p, body(ctx, p).health() - previous.health(), true);
+        NpcHeartTraining.study(ctx, p);
+    }
+
+    static void resizeCombatHealth(SimContext ctx, Person p, double delta, boolean realmChange) {
+        if (delta == 0) return;
         var old = ctx.state.combat.profiles.get(p.id);
         if (old == null) return;
-        double maximum = Math.min(CultivationStatsRules.bundled().maximumHealth(),
-                old.maximumHealth() + (body(ctx, p).health() - previous.health())
-                    *(1+ctx.data.npcFates().effect(p.fates,"health")+ctx.data.npcFates().effect(p.fates,"body_health_bonus")));
+        double healthBonus = ctx.data.npcFates().effect(p.fates, "health");
+        if (realmChange) healthBonus += ctx.data.npcFates().effect(p.fates, "body_health_bonus");
+        double maximum = Math.clamp(old.maximumHealth() + delta * (1 + healthBonus), 1,
+                CultivationStatsRules.bundled().maximumHealth());
         if (maximum != old.maximumHealth()) ctx.state.combat.profiles.put(p.id,
                 new NpcCombatProfile(Math.min(old.health(), maximum), maximum, old.weapon(), old.recoveryUntil(),
                         Math.incrementExact(old.revision()), old.lastAttacker(), old.lastDamageTick(), old.body()));
@@ -89,6 +97,10 @@ public final class NpcCultivation {
         validate(realms,p,com.example.myvillage.sim.fate.NpcFatePool.bundled());
     }
     public static void validate(com.example.myvillage.sim.data.RealmTable realms, Person p,com.example.myvillage.sim.fate.NpcFatePool pool) {
+        validate(realms, p, pool, 0);
+    }
+    public static void validate(com.example.myvillage.sim.data.RealmTable realms, Person p,
+            com.example.myvillage.sim.fate.NpcFatePool pool, int heartCapacity) {
         boolean foundation = p.realm >= realms.indexOf("foundation_establishment");
         boolean golden = p.realm >= realms.indexOf("golden_core");
         if (!(foundation ? validQuality(p.prodigy, p.foundationQuality) : p.foundationQuality == 0)
@@ -96,7 +108,7 @@ public final class NpcCultivation {
             throw new com.example.myvillage.sim.SimFormatException("person " + p.id + " has invalid cultivation qualities");
         long cap = CultivationStatsRules.bundled().at(new RealmKey("yuanxian:" + realms.get(p.realm).id(), p.stage),
                 p.foundationQuality, p.goldenCoreQuality).power();
-        cap=SpiritualPowerMath.capacity(cap,pool.effect(p.fates,"power_cap_bonus"));
+        cap=SpiritualPowerMath.capacity(cap,pool.effect(p.fates,"power_cap_bonus"),heartCapacity);
         if (p.spiritualPower < 0 || p.spiritualPower > cap)
             throw new com.example.myvillage.sim.SimFormatException("person " + p.id + " has invalid spiritual power");
     }

@@ -6,8 +6,14 @@ import java.util.OptionalLong;
 public final class SpiritualPowerMath {
     public static long capacity(long baseCap,double bonus) {
         if(baseCap<0||!Double.isFinite(bonus)||bonus<0)throw new IllegalArgumentException("Invalid spiritual-power capacity bonus");
+        if (bonus == 0) return baseCap;
         return java.math.BigDecimal.valueOf(baseCap).multiply(java.math.BigDecimal.ONE.add(java.math.BigDecimal.valueOf(bonus)))
                 .min(java.math.BigDecimal.valueOf(Long.MAX_VALUE)).setScale(0,java.math.RoundingMode.DOWN).longValueExact();
+    }
+    public static long capacity(long baseCap, double bonus, int fixedBonus) {
+        if (fixedBonus < 0) throw new IllegalArgumentException("Invalid fixed spiritual-power capacity bonus");
+        long scaled = capacity(baseCap, bonus);
+        return scaled + Math.min(fixedBonus, Long.MAX_VALUE - scaled);
     }
     private SpiritualPowerMath() { }
     public static long clamp(long current, long cap) {

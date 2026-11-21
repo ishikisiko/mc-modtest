@@ -5,8 +5,8 @@ import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.elemental.ElementalRules;
 import com.example.myvillage.combat.foundation.ShieldRuntime;
 import com.example.myvillage.combat.runtime.CombatActors;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import com.example.myvillage.cultivation.CultivationProfile;
-import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.HeartMethod;
 import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
@@ -15,6 +15,9 @@ import com.example.myvillage.cultivation.data.TechniqueEffects;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityCooldowns;
 import com.example.myvillage.cultivation.growth.TechniqueGrowth;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRules;
+import com.example.myvillage.entity.npc.NpcCombatRuntime;
+import com.example.myvillage.entity.npc.NpcEntity;
+import com.example.myvillage.sim.data.Rules;
 import com.example.myvillage.stats.DamageType;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import net.minecraft.core.RegistryAccess;
@@ -27,6 +30,8 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Optional;
+import java.util.UUID;
+import java.nio.charset.StandardCharsets;
 
 public final class HeartTechniques {
     private static final ResourceLocation DEFENSE_SHIELD =
@@ -40,6 +45,10 @@ public final class HeartTechniques {
 
     public static Slot slot(TechniqueDefinition definition) {
         return method(definition).map(HeartMethod::slot).orElse(Slot.SPIRIT);
+    }
+
+    public static boolean supports(LivingEntity entity) {
+        return entity instanceof ServerPlayer || entity instanceof NpcEntity;
     }
 
     private static Optional<TechniqueDefinition> equipped(RegistryAccess access, CultivationProfile profile, Slot slot) {
@@ -62,6 +71,30 @@ public final class HeartTechniques {
                 TechniqueGrowthRules.bundled(), id, profile, effect)).orElse(0);
     }
 
+    public static int spiritCapacity(RegistryAccess access, CultivationProfile profile) {
+        return spirit(access, profile).map(HeartMethod.Spirit::capacity).orElse(0);
+    }
+
+    public static Recovery recovery(RegistryAccess access, CultivationProfile profile, Optional<Rules> rules) {
+        int unit = CoreTechniqueFactor.UNIT_BASIS_POINTS;
+        if (usesFixedSpirit(access, profile)) {
+            int quarters = spirit(access, profile)
+                    .map(heart -> heart.recoveryQuarters() + growth(profile, TechniqueGrowthRules.Effect.RECOVERY_QUARTERS))
+                    .orElse(0);
+            return new Recovery(unit, quarters);
+        }
+        int base = access.registry(ModCultivationRegistries.TECHNIQUES)
+                .map(registry -> CoreTechniqueFactor.progressBasisPoints(profile, registry::get, rules)).orElse(unit);
+        int growth = profile.activeCoreTechnique()
+                .filter(id -> TechniqueGrowth.definition(TechniqueGrowthRules.bundled(), id,
+                        key -> ModCultivationRegistries.technique(access, key).orElse(null)).isPresent())
+                .map(id -> TechniqueGrowth.multiplier(TechniqueGrowthRules.bundled(), id, profile,
+                        TechniqueGrowthRules.Effect.RECOVERY)).orElse(unit);
+        return new Recovery((int) Math.min(Integer.MAX_VALUE, (long) base * growth / unit), 0);
+    }
+
+    public record Recovery(int basisPoints, int quarters) { }
+
     public static BaseCombat baseCombat(RegistryAccess access, CultivationProfile profile) {
         var attack = equipped(access, profile, Slot.ATTACK).flatMap(HeartTechniques::method)
                 .map(HeartMethod.Attack.class::cast).orElse(null);
@@ -76,36 +109,40 @@ public final class HeartTechniques {
             HeartMethod.DefenseAttributes defenseAttributes) { }
 
     /** Receives the actual health change from the shared damage container after the hit settles. */
-    public static void afterHealthLoss(ServerPlayer player, DamageSource source, double before, double after) {
-        if (!(after > 0 && after < before)) {
+    public static void afterHealthLoss(LivingEntity target, DamageSource source, double before, double after) {
+        if (!(after > 0 && after < before) || !supports(target)
+                || target instanceof NpcEntity npc && !NpcCombatRuntime.managed(npc)) {
             return;
         }
-        var definition = equipped(player.registryAccess(), CultivationService.getProfile(player), Slot.DEFENSE).orElse(null);
+        var definition = equipped(target.registryAccess(), CombatCaster.profile(target), Slot.DEFENSE).orElse(null);
         var shield = method(definition).map(HeartMethod.Defense.class::cast).flatMap(HeartMethod.Defense::shield).orElse(null);
-        if (shield == null || !shield.crossesThreshold(before, after, player.getMaxHealth())
+        if (shield == null || !shield.crossesThreshold(before, after, target.getMaxHealth())
                 || ShieldRuntime.bypassesShields(source)
-                || !(source.getEntity() instanceof LivingEntity attacker) || !CombatActors.mayHarm(attacker, player)) {
+                || !(source.getEntity() instanceof LivingEntity attacker) || !CombatActors.mayHarm(attacker, target)) {
             return;
         }
 
-        var overworld = player.getServer().overworld();
+        var overworld = target.getServer().overworld();
         var cooldowns = FateAbilityCooldowns.get(overworld);
         long now = overworld.getGameTime();
-        if (cooldowns.remaining(player.getUUID(), DEFENSE_SHIELD, now) == 0
-                && ShieldRuntime.grant(player, DEFENSE_SHIELD, shield.amount(), shield.durationTicks())) {
-            cooldowns.start(player.getUUID(), DEFENSE_SHIELD, now, shield.cooldownTicks());
-            player.displayClientMessage(Component.translatable(definition.translationKey())
-                    .append("的护盾已生效"), true);
+        // 命簿人物离开近场时会更换实体，冷却继续使用同一人物身份。
+        UUID owner = target instanceof NpcEntity npc && npc.isLedgerAvatar()
+                ? UUID.nameUUIDFromBytes(("yuanxian:heart/" + npc.ledgerPersonId()).getBytes(StandardCharsets.UTF_8))
+                : target.getUUID();
+        if (cooldowns.remaining(owner, DEFENSE_SHIELD, now) == 0
+                && ShieldRuntime.grant(target, DEFENSE_SHIELD, shield.amount(), shield.durationTicks())) {
+            cooldowns.start(owner, DEFENSE_SHIELD, now, shield.cooldownTicks());
+            CombatCaster.message(target, Component.translatable(definition.translationKey()).append("的护盾已生效"));
         }
     }
 
-    public static void clearDefenseShield(ServerPlayer player) {
-        ShieldRuntime.removeSource(player, DEFENSE_SHIELD);
+    public static void clearDefenseShield(LivingEntity entity) {
+        ShieldRuntime.removeSource(entity, DEFENSE_SHIELD);
     }
 
     public static double attackExtra(LivingEntity actor, String weapon, DamageType spell, boolean art, boolean paid) {
-        if (!(actor instanceof ServerPlayer player)) return 0;
-        return equipped(player.registryAccess(), CultivationService.getProfile(player), Slot.ATTACK)
+        if (!supports(actor)) return 0;
+        return equipped(actor.registryAccess(), CombatCaster.profile(actor), Slot.ATTACK)
                 .map(definition -> attackExtra(definition, (HeartMethod.Attack) method(definition).orElseThrow(),
                         weapon, spell, art, paid)).orElse(0.0);
     }
@@ -123,12 +160,12 @@ public final class HeartTechniques {
     }
 
     public static double defenseExtra(LivingEntity entity, DamageSource source) {
-        if (!(entity instanceof ServerPlayer player)) return 0;
-        return equipped(player.registryAccess(), CultivationService.getProfile(player), Slot.DEFENSE)
+        if (!supports(entity)) return 0;
+        return equipped(entity.registryAccess(), CombatCaster.profile(entity), Slot.DEFENSE)
                 .map(definition -> {
                     var method = (HeartMethod.Defense) method(definition).orElseThrow();
                     if (method.extra().isEmpty()) return 0.0;
-                    String weapon = method.direction().weapon() ? CombatStyles.bundled().weapon(player.getMainHandItem())
+                    String weapon = method.direction().weapon() ? CombatStyles.bundled().weapon(entity.getMainHandItem())
                             .flatMap(w -> w.family()).orElse("") : "";
                     boolean melee = source.getEntity() == source.getDirectEntity()
                             && (source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)

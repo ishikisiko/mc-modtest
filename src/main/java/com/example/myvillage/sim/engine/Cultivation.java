@@ -23,9 +23,14 @@ public final class Cultivation {
     /** Life residents earn only the share of a day spent cultivating; other people keep their rate. */
     public static void daily(SimContext ctx, Person p, double share) {
         if (!Double.isFinite(share) || share < 0 || share > 1) throw new IllegalArgumentException("cultivation share");
-        if (share > 0) NpcAptitudes.practice(ctx, p);
-        p.progress += Rates.linear(yearlyRate(ctx, p), ctx.dpy) * share;
         RealmTable.Realm realm = ctx.realm(p);
+        if (share > 0) {
+            NpcAptitudes.practice(ctx, p);
+            if (p.hearts.learned().isEmpty() || Math.floorMod(ctx.day() + p.id, ctx.dpy) == 0)
+                NpcHeartTraining.study(ctx, p);
+            double heart = ctx.data.npcHearts().cultivation(p.hearts.spirit(), realm, p.stage);
+            p.progress += (Rates.linear(yearlyRate(ctx, p), ctx.dpy) + heart) * share;
+        }
         var opening = ctx.prehistoryCeiling(p);
         int lastStage = opening == null || p.realm < ctx.realms.indexOf(opening.realm()) ? realm.lastStage()
                 : Math.min(realm.lastStage(), p.realm == ctx.realms.indexOf(opening.realm()) ? opening.stage() : p.stage);
