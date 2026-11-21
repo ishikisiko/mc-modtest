@@ -67,7 +67,7 @@ class EvilCultivatorTests {
     void approvedMaskParsesAsAnAdditiveHeadSurface() throws Exception {
         String modelPath = "assets/yuanxian/npc/evil_cultivator_model.json";
         try (var modelReader = resource(modelPath)) {
-            var model = BeastModelFile.parse(modelPath, EvilCultivatorEntity.ID, modelReader);
+            var model = BeastModelFile.parse(modelPath, ResourceLocation.parse("yuanxian:evil_cultivator"), modelReader);
             assertEquals(ResourceLocation.parse("yuanxian:npc/evil_cultivator_surface.json"), model.surfaceMesh());
             String surface = "assets/yuanxian/npc/evil_cultivator_surface.json";
             try (var maskReader = resource(surface)) {
