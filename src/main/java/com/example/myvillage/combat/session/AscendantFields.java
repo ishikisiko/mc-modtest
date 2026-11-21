@@ -76,9 +76,14 @@ public final class AscendantFields {
 
         boolean valid() {
             if (!cast.valid() || !cast.loaded(center)) return false;
+            if (kind() == Mechanic.MOVING_WALL && continued) return relocatedWallInReach(center);
             if (cast.aim.anchor() == null || kind() == Mechanic.FALLING_PALM || kind() == Mechanic.FREEZING_CREST
                     || kind() == Mechanic.FLOW_LANE || kind() == Mechanic.FOLDING_EARTH) return true;
             return cast.anchored(center);
+        }
+
+        boolean relocatedWallInReach(Vec3 point) {
+            return available(cast.actor, point, cast.shape.range() + cast.shape.step() + .12);
         }
     }
 
@@ -104,6 +109,7 @@ public final class AscendantFields {
     static void place(Cast cast) {
         if (!cast.valid()) return;
         Vec3 center = cast.aim.anchor() == null ? cast.actor.position() : cast.aim.anchor();
+        if (cast.spec.mechanic() == Mechanic.EVADE_ECHO) center = cast.aim.position();
         if (cast.aim.anchor() != null && !cast.anchored(center)) return;
         int life = cast.time.duration();
         switch (cast.spec.mechanic()) {
@@ -363,7 +369,7 @@ public final class AscendantFields {
         var cast = f.cast;
         Vec3 old = f.center;
         Strip swept = groundRay(cast, old, to, cast.shape.step(), cast.shape.width());
-        if (swept.length() < .25 || !cast.anchored(swept.end())) return false;
+        if (swept.length() < .25 || !f.relocatedWallInReach(swept.end())) return false;
         f.center = swept.end();
         mark(cast, swept, false);
         for (Entity target : strip(cast, swept, true))
