@@ -9,6 +9,9 @@ from .variants import attach
 ROOT=Path(__file__).resolve().parents[2]
 ASSETS='https://assets.ishiki333hhh.win/drop-workbench/'
 
+def spirit_stone_curve(root):
+    return json.loads((root / 'src/main/resources/data/yuanxian/drops/spirit_stone_curve.json').read_text())
+
 def scene_groups(root):
     habitats = json.loads((root / 'blueprints/wilderness/habitats.json').read_text())
     beasts = sorted({
@@ -47,6 +50,13 @@ def write_frontend(root, out, asset_base=ASSETS):
     (out / 'index.html').write_text(html)
     techniques = json.dumps(build_techniques(root), ensure_ascii=False, separators=(',', ':'))
     (out / 'techniques.json').write_text(techniques + '\n', encoding='utf-8')
+    catalogue = out / 'catalogue.json'
+    if catalogue.is_file():
+        contents = json.loads(catalogue.read_text())
+        curve = spirit_stone_curve(root)
+        if contents.get('spirit_stone_curve') != curve:
+            contents['spirit_stone_curve'] = curve
+            catalogue.write_text(json.dumps(contents, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
 
 
 class Assets:
@@ -152,6 +162,7 @@ def build(root=ROOT,client=None,assets_cache=None,out=None,asset_base=ASSETS):
     result={'version':2,'minecraft_version':'1.21.1','items':items,'categories':categories,'entities':sorted(entities.values(),key=lambda v:(v['namespace'],v['id'])),'regions':[{'id':id,'name':name} for id,name in [('donghuang','东荒'),('lingyue','灵岳'),('beiyuan','北原'),('donghai','东海'),('ximo','西漠'),('nanjiang','南疆'),('moyu','魔域'),('zhongzhou','中州')]],'realms':[],'provenance':{'minecraft_client_sha256':hashlib.file_digest(client.open('rb'),'sha256').hexdigest(),'minecraft_language_sha1':entry['hash'],'mod_language_sha256':hashlib.sha256((root/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_bytes()).hexdigest(),'selection':'当前物品模型及其物品名称、BlockItem父方块名称','loot_unrecognized':unsupported}}
     result['variants']=variants
     result['scene_groups']=scene_groups(root)
+    result['spirit_stone_curve']=spirit_stone_curve(root)
     realm_names={'mortal':'凡人','qi_refining':'炼气','foundation_establishment':'筑基','golden_core':'金丹','nascent_soul':'元婴','spirit_transformation':'化神'}
     for value in json.loads((root/'src/main/resources/data/yuanxian/stats/rules.json').read_text())['realms']:
         id=value['id'];name=id.split(':')[1]

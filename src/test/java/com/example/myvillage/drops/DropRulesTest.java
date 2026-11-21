@@ -21,7 +21,7 @@ class DropRulesTest {
     }
     static DropRules.Context context(String entity,DropRules.Scene scene){return new DropRules.Context(entity,scene,"donghuang",null,true,false);}
     static JsonObject diamond(String mode){return JsonParser.parseString("{\"mode\":\""+mode+"\",\"drops\":[{\"item\":\"minecraft:diamond\",\"min\":2,\"max\":3,\"chance\":1}]}").getAsJsonObject();}
-    @Test void spiritStoneBoundsDoubleFromQiRefiningAndUseTheTargetMajorRealm() throws Exception {
+    @Test void spiritStoneBoundsUseTheSameCurveForEntireRealmsAndGiftedDrops() throws Exception {
         var config = json();
         var drop = JsonParser.parseString("""
                 {"item":"yuanxian:low_grade_spirit_stone","min":1,"max":3,"chance":1,"scale_by_realm":true}
@@ -36,9 +36,13 @@ class DropRulesTest {
 
         var catalog = catalog();
         var rules = DropRules.parse(config.toString(), catalog);
-        int[][] expected = {{1,3},{1,6},{2,12},{4,24},{8,48},{16,96}};
+        int[][] expected = {{1,3},{1,6},{6,38},{32,245},{178,1565},{1000,10000}};
+        int[][] gifted = {{3,6},{3,12},{17,77},{95,490},{533,3130},{3000,20000}};
         for (var realm : StatsRules.bundled().realms()) {
-            var bounds = expected[realm.order()+1];
+            int level = realm.order()+1;
+            var bounds = expected[level];
+            assertEquals(new SpiritStoneAmounts.Bounds(gifted[level][0], gifted[level][1]),
+                    SpiritStoneAmounts.forRealm(3, 6, level));
             for (int stage : List.of(0, realm.stages()-1)) {
                 int rank = catalog.realmRank().applyAsInt(new RealmKey(realm.id(), stage));
                 var ordinary = new DropRules.Context("minecraft:zombie", DropRules.Scene.NORMAL, "donghuang", rank, true, false);
@@ -54,21 +58,21 @@ class DropRulesTest {
             }
         }
         assertEquals(3, rules.resolve(context("minecraft:zombie", DropRules.Scene.NORMAL)).additions().getFirst().drops().getFirst().max());
-        assertEquals(new SpiritStoneAmounts.Bounds(48, 192), SpiritStoneAmounts.forRealm(3, 6, 5));
+        assertEquals(new SpiritStoneAmounts.Bounds(20000, 20000), SpiritStoneAmounts.forRealm(64, 64, 5));
         var trial = new DropRules.Context("minecraft:zombie", DropRules.Scene.QUEST_REALM, "donghuang", 64, true, false);
         assertTrue(DropRules.roll(rules.resolve(trial), 0, new Random(1)).isEmpty());
         assertTrue(rules.resolve(context("minecraft:creeper", DropRules.Scene.NORMAL)).additions().isEmpty());
 
         var zombie = new JsonObject();
         var fixed = JsonParser.parseString("""
-                {"mode":"replace","drops":[{"item":"yuanxian:low_grade_spirit_stone","min":96,"max":120,"chance":1}]}
+                {"mode":"replace","drops":[{"item":"yuanxian:low_grade_spirit_stone","min":7000,"max":20000,"chance":1}]}
                 """);
         zombie.add("yuanxian:spirit_transformation", fixed);
         var rows = new JsonObject(); rows.add("minecraft:zombie", zombie); config.add("realm_entities", rows);
         var overridden = DropRules.parse(config.toString(), catalog).resolve(
                 new DropRules.Context("minecraft:zombie", DropRules.Scene.NORMAL, "donghuang", 64, true, false));
         assertTrue(overridden.additions().isEmpty());
-        assertEquals(120, overridden.policy().drops().getFirst().max());
+        assertEquals(20000, overridden.policy().drops().getFirst().max());
         fixed.getAsJsonObject().getAsJsonArray("drops").get(0).getAsJsonObject().addProperty("scale_by_realm", true);
         assertThrows(IllegalArgumentException.class, () -> DropRules.parse(config.toString(), catalog));
     }

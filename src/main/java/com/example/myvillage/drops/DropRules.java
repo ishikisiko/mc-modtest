@@ -183,7 +183,7 @@ public final class DropRules {
             boolean stones=SpiritStoneAmounts.isStone(item);
             if(scaling!=null&&!stones)throw bad(q+".scale_by_realm","境界数量倍率仅适用于灵石");
             boolean scaleByRealm=Boolean.TRUE.equals(scaling);
-            int quantityLimit=stones&&!scaleByRealm?SpiritStoneAmounts.MAX_FIXED_COUNT:64;
+            int quantityLimit=stones&&!scaleByRealm?SpiritStoneAmounts.countLimit():64;
             int min=integer(e,"min",q,0,quantityLimit),max=integer(e,"max",q,min,quantityLimit);double chance=decimal(e,"chance",q,0,1);
             double lo=0,hi=0;Integer limit=null;if(e.has("looting")){
                 JsonObject l=object(e,"looting",q);fields(l,q+".looting","min_per_level","max_per_level","limit");

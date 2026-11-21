@@ -124,7 +124,7 @@ def compile_plan(config, blueprint, catalogue):
                     continue
                 formulas = {key: drop[key] for key in NUMERIC_FIELDS if isinstance(drop.get(key), dict)}
                 for key, value in formulas.items():
-                    upper = 1 if key == 'chance' else quantity_limit(drop.get('item'), drop.get('scale_by_realm', False))
+                    upper = 1 if key == 'chance' else quantity_limit(drop.get('item'), drop.get('scale_by_realm', False), catalogue)
                     drop[key] = evaluate_formula(value, rank['order'] - first_order, upper, f'{entity}.{slot}.{realm}.{key}')
                 drops.append(drop)
                 authored = patch.keys() - {'by_realm'} or realm in patch.get('by_realm', {})

@@ -19,17 +19,26 @@ const REALM_MODES = {
     disabled: ['禁用', '关闭物品掉落', '这个境界关闭物品掉落。经验继续按原规则结算。'],
 };
 const SPIRIT_STONES = new Set(['low', 'medium', 'high'].map(grade => `yuanxian:${grade}_grade_spirit_stone`));
-const STONE_FORMULA = '炼气时下限用基础值，上限乘 2。此后每升一大境界，两端各翻一倍。凡人沿用基础范围。';
+const STONE_FORMULA = '从炼气到化神，最少数量和最多数量分别按固定倍率逐境增长。凡人与未分配境界的生物使用基础数量。';
 
 function quantityLimit(drop) {
-    return SPIRIT_STONES.has(drop.item) && !drop.scale_by_realm ? 2048 : 64;
+    return SPIRIT_STONES.has(drop.item) && !drop.scale_by_realm ? S.catalog.spirit_stone_curve.count_limit : 64;
 }
 
 function spiritStoneQuantity(min, max, realm) {
-    const level = realm ? realm.order + 1 : 0;
-    const least = min * 2 ** Math.max(0, level - 1);
-    const most = max * 2 ** Math.max(0, level);
-    return least === most ? String(least) : `${least}–${most}`;
+    if (realm && realm.order >= 0) {
+        const curve = S.catalog.spirit_stone_curve;
+        const target = S.catalog.realms.find(row => row.id === curve.target_realm);
+        const progress = Math.min(1, realm.order / target.order);
+        const scale = (base, bound) => {
+            const first = curve.at_qi_refining[bound], last = curve.at_target[bound];
+            return Math.min(curve.count_limit, Math.round(base / curve.reference[bound] * first * (last / first) ** progress));
+        };
+        min = scale(min, 'min');
+        max = scale(max, 'max');
+    }
+    const least = min.toLocaleString('zh-CN');
+    return min === max ? least : `${least}–${max.toLocaleString('zh-CN')}`;
 }
 const KEY='yuanxian-drops:'+location.pathname;
 const S={catalog:null,config:null,saved:null,revision:'',tab:'entities',key:'yuanxian:redplate_lizard',realm:'',ns:'all',category:'all',inspectEntity:'yuanxian:redplate_lizard',angle:'quarter',page:0,api:'',dirty:false,saving:false,version:0,conflict:false,newRule:null,token:sessionStorage.getItem(KEY+':token')||'',authenticated:false,invalid:new Set()};

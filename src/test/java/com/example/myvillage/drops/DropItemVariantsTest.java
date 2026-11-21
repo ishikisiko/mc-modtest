@@ -42,8 +42,10 @@ class DropItemVariantsTest {
         var source = new ItemStack(Items.EMERALD);
         source.set(DataComponents.RARITY, Rarity.RARE);
         var stacks = new java.util.ArrayList<ItemStack>();
-        DropRuntime.splitStacks(source, 192, stacks::add);
-        assertEquals(List.of(64, 64, 64), stacks.stream().map(ItemStack::getCount).toList());
+        DropRuntime.splitStacks(source, 20_000, stacks::add);
+        assertEquals(313, stacks.size());
+        assertEquals(20_000, stacks.stream().mapToInt(ItemStack::getCount).sum());
+        assertTrue(stacks.stream().allMatch(stack -> stack.getCount() >= 1 && stack.getCount() <= 64));
         assertTrue(stacks.stream().allMatch(stack -> ItemStack.isSameItemSameComponents(source, stack)));
         assertEquals(1, source.getCount());
     }
