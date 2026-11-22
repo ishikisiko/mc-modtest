@@ -40,6 +40,7 @@ public final class ClientStory {
         snapshotPlayer = null;
         level = null;
         StoryMarker.clear();
+        OpeningGuidePreview.clear();
         var mc = Minecraft.getInstance();
         if (mc.screen instanceof StoryDialogueScreen dialogue) dialogue.dismiss();
         else if (mc.screen instanceof com.example.myvillage.client.cultivation.CultivationProfileScreen panel && panel.journeyOpen()) mc.setScreen(null);
@@ -98,12 +99,15 @@ public final class ClientStory {
         if (mc.screen instanceof StoryDialogueScreen open && !valid(open)) open.dismiss();
         while (StoryClient.TRACKER.consumeClick()) {
             if (mc.screen == null) {
+                if (OpeningGuidePreview.cycleTracker()) continue;
                 mode = mode.next();
                 LOGGER.info("QIANZHEN_STORY_TRACKER mode={}", mode);
             }
         }
         while (StoryClient.JOURNAL.consumeClick()) {
-            if (mc.screen == null && mc.player.isAlive()) mc.setScreen(com.example.myvillage.client.cultivation.CultivationProfileScreen.journey());
+            if (mc.screen == null && mc.player.isAlive() && !OpeningGuidePreview.reopenTracker()) {
+                mc.setScreen(com.example.myvillage.client.cultivation.CultivationProfileScreen.journey());
+            }
         }
     }
 }

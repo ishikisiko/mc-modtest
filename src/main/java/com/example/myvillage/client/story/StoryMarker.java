@@ -52,7 +52,8 @@ final class StoryMarker {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
         frame = null;
         if (!gameplayHudVisible()) return;
-        var building = ClientTownMap.targetInWorld();
+        var building = OpeningGuidePreview.previewTarget();
+        if (building == null) building = ClientTownMap.targetInWorld();
         var snapshot = ClientStory.snapshot();
         if (building == null && !eligible(snapshot)) return;
         var mc = Minecraft.getInstance();

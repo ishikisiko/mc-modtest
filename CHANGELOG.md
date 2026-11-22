@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.150.1
+
+- 修仙面板的「行迹」加入游戏内入门教学预览。可在实景显示提示、演练店铺对话、补料炼回灵丹与两种精铁镐制作路线。操作与结果记在本次预览。
+
 ## 0.150.0
 
 - 测灵碑新增耳聪目明、薄有家资、探宝灵觉和宗门旧缘，分别提供敌情提示、一次性中品玄铁装备和物资、奖励箱提示及首次拜入开局分宗的内门身份。

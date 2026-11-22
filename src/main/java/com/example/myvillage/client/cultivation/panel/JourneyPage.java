@@ -2,6 +2,7 @@ package com.example.myvillage.client.cultivation.panel;
 
 import com.example.myvillage.client.story.ClientStory;
 import com.example.myvillage.client.story.JourneyView;
+import com.example.myvillage.client.story.OpeningGuidePreview;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,6 +12,7 @@ import net.minecraft.network.chat.Component;
 /** H -> 行迹. Text scrolls independently of the fixed, server-validated realm travel button. */
 public final class JourneyPage extends PanelPage {
     private PanelButton travel;
+    private PanelButton tutorial;
     private PanelButton questStatus,questTravel;
     private boolean questRealm(){var mc=Minecraft.getInstance();return mc.level!=null&&mc.level.dimension().location().toString().startsWith("yuanxian:expedition/");}
     private static void command(String command){var mc=Minecraft.getInstance();if(mc.getConnection()!=null)mc.getConnection().sendCommand(command);if(mc.screen!=null)mc.screen.onClose();}
@@ -22,7 +24,16 @@ public final class JourneyPage extends PanelPage {
                 mc.level==null?"":mc.level.dimension().location().toString());
     }
     @Override public boolean requiresProfile(){return false;}
+    @Override public int topInset(){return 24;}
     @Override public int init(int x,int y,int width,int height,Consumer<AbstractWidget> widgets) {
+        tutorial = new PanelButton(PanelButton.Style.ACTION, CultivationInkTheme.JADE, x, y + 1, width, 19,
+                Component.literal("入门教学预览"), button -> {
+                    var minecraft = Minecraft.getInstance();
+                    OpeningGuidePreview.open(minecraft.screen);
+                });
+        tutorial.setInk(true);
+        tutorial.setPrimary(true);
+        widgets.accept(tutorial);
         travel=new PanelButton(PanelButton.Style.ACTION,CultivationInkTheme.JADE,x,y+height-22,width,20,
                 Component.empty(),button -> {
                     if(questRealm()){command("expedition finish");return;}
@@ -40,6 +51,7 @@ public final class JourneyPage extends PanelPage {
     }
     @Override public void setVisible(boolean value) {
         if(!value){reported=null;reportedQuest=null;}
+        if(tutorial!=null)tutorial.visible=value;
         if(travel!=null)travel.visible=value && model().travel()!=JourneyView.Travel.NONE;
         if(questStatus!=null){questStatus.visible=value;questTravel.visible=value;}
     }

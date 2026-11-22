@@ -25,11 +25,19 @@ final class StoryTracker {
         var mode = ClientStory.mode();
         var building = ClientTownMap.targetInWorld();
         boolean arrival = com.example.myvillage.client.arrival.ArrivalClient.occupiesRightSide();
+        var box = StoryLayout.tracker(g.guiWidth(), g.guiHeight());
+        if (!arrival) {
+            int tutorialBottom = OpeningGuidePreview.drawTracker(g, box);
+            if (tutorialBottom > box.y()) {
+                var previewTarget = OpeningGuidePreview.previewTarget();
+                if (previewTarget != null) StoryMarker.render(g, previewTarget, box, tutorialBottom);
+                return;
+            }
+        }
         boolean story = !arrival && snapshot != null && snapshot.available()
                 && mode != StoryLayout.TrackerMode.HIDDEN;
         if (!story && building == null) return;
 
-        var box = StoryLayout.tracker(g.guiWidth(), g.guiHeight());
         int bottom = box.y();
         if (story) bottom = renderStory(g, delta, snapshot, mode, box);
         if (building != null && !arrival) {
