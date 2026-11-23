@@ -4,10 +4,10 @@ import argparse,json,sys,time,subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.wilderness_roster_evidence import RosterEvidence
-from tools.alchemy_quality_evidence import read_data,inventory_point,QualityEvidence
+from tools.alchemy_quality_evidence import read_data,inventory_point
 
 class QingzhangEvidence(RosterEvidence):
-    def med(self):return QualityEvidence.med(self)
+    def qingzhang(self):return self.med('qingzhang')
     def poison(self):return 'minecraft:poison' in self.rc(f'data get entity {self.s.username} active_effects')
     def run(self):
         self.start(reuse=not self.attach)
@@ -18,22 +18,22 @@ class QingzhangEvidence(RosterEvidence):
         base=self.roster['medicines']['qingzhang']['duration_ticks']
         for quality,factor in enumerate(self.rules['quality']['strength_multipliers'],1):
             expected=round(base*factor)
-            self.rc('tick sprint 1300t');time.sleep(1);self.poll(self.med,lambda s:s['effect_ticks']==0 and s['cooldown_ticks']==0,10,'old dose expires')
+            self.rc('tick sprint 1300t');time.sleep(1);self.poll(self.qingzhang,lambda s:s['effect_ticks']==0 and s['cooldown_ticks']==0,10,'old dose expires')
             self.rc(f'clear {u}');self.rc(f'effect give {u} minecraft:poison 60 0 true')
-            self.check('poison_fixture_'+str(quality),self.poison(),self.med())
+            self.check('poison_fixture_'+str(quality),self.poison(),self.qingzhang())
             before_tick=self.number('time query gametime');self.use_pill('yuanxian:pill_qingzhang',quality)
-            state=self.med();after_tick=self.number('time query gametime')
+            state=self.qingzhang();after_tick=self.number('time query gametime')
             self.check('mapped_duration_quality_'+str(quality),state['effect']=='qingzhang' and state['quality']==quality and expected-(after_tick-before_tick)<=state['effect_ticks']<=expected and self.count('yuanxian:pill_qingzhang')==1,{'expected':expected,'elapsed_ticks':after_tick-before_tick,'state':state})
             self.check('clears_existing_poison_'+str(quality),not self.poison(),state)
             self.rc(f'effect give {u} minecraft:poison 60 0 true');self.poll(self.poison,lambda p:not p,3,'sustained poison removal')
-            self.check('removes_reapplied_poison_'+str(quality),True,self.med())
+            self.check('removes_reapplied_poison_'+str(quality),True,self.qingzhang())
             if quality==4:
-                self.rc('tick freeze');before=self.med();self.rc('save-all flush');self.stop();self.start(reuse=True);self.rc('tick freeze');after=self.med()
+                self.rc('tick freeze');before=self.qingzhang();self.rc('save-all flush');self.stop();self.start(reuse=True);self.rc('tick freeze');after=self.qingzhang()
                 self.check('quality4_restart_not_clipped_to_baseline',after['quality']==4 and base<after['effect_ticks']<=before['effect_ticks'],{'before':before,'after':after})
                 self.rc('tick unfreeze');self.done('restart')
-            self.rc(f'tick sprint {expected+10}t');time.sleep(1);self.poll(self.med,lambda s:s['effect_ticks']==0,10,'dose expired')
+            self.rc(f'tick sprint {expected+10}t');time.sleep(1);self.poll(self.qingzhang,lambda s:s['effect_ticks']==0,10,'dose expired')
             self.rc(f'effect give {u} minecraft:poison 60 0 true');time.sleep(.3)
-            self.check('poison_returns_after_expiry_'+str(quality),self.poison(),self.med());self.rc(f'effect clear {u} minecraft:poison')
+            self.check('poison_returns_after_expiry_'+str(quality),self.poison(),self.qingzhang());self.rc(f'effect clear {u} minecraft:poison')
         self.done('four_qualities')
         self.tooltips();self.rc('save-all flush');self.stop()
     def tooltips(self):

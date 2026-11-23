@@ -16,12 +16,13 @@ import net.minecraft.world.level.Level;
 public final class FoundationPillItem extends Item {
     private final boolean repair;
     public FoundationPillItem(Properties props,boolean repair){super(props.stacksTo(16));this.repair=repair;}
+    private String medicineId(){return repair?"buji":"zhuji";}
     public boolean allows(int q){return q>=1&&q<=4;}
     private String rejection(ServerPlayer player,int q){
         if(!allows(q))return "此丹品质不适用";
         if(!player.isAlive()||player.isSpectator()||!CultivationService.getProfile(player).awakened())return "需存活并已觉醒灵根";
         if(MeditationManager.active(player))return "请先结束当前修炼或突破";
-        var state=MedicineRuntime.state(player);
+        var state=MedicineRuntime.state(player,medicineId());
         if(state.cooldownTicks()>0||state.effectTicks()>0)return "尚未达到下次服药时间";
         var p=CultivationService.getProfile(player);var rules=FoundationRules.get();
         if(repair)return rules.canRepair(p,q)?null:"需已筑基，且补基丹品质高于当前根基；无境界上限";
@@ -44,7 +45,7 @@ public final class FoundationPillItem extends Item {
         boolean accepted;
         if(repair){accepted=CultivationService.replaceProfile(p,CultivationService.getProfile(p).withFoundationQuality(FoundationRules.get().pillFoundationQuality(q))).success();}
         else {accepted=MeditationManager.requestFoundationAdvancement(p,FoundationRules.get().pillFoundationQuality(q)).reason()==MeditationStopReason.ADVANCEMENT_ACCEPTED;}
-        if(accepted){if(!p.getAbilities().instabuild)stack.shrink(1);MedicineRuntime.beginFoundationCooldown(p);
+        if(accepted){if(!p.getAbilities().instabuild)stack.shrink(1);MedicineRuntime.beginCooldown(p,medicineId());
             p.displayClientMessage(Component.literal(repair?"根基已补全至":"服丹开始筑基：").append(PillQuality.name(q)),false);}
         return stack;
     }
@@ -60,6 +61,6 @@ public final class FoundationPillItem extends Item {
         lines.add(Component.literal((repair ? "目标根基总增量：生命 +" : "筑基增量：生命 +") + reward.health() + "、攻击 +" + reward.attack()
                 + "、肉身防御 +" + reward.defense() + "、灵力 +" + reward.power()));
         lines.add(Component.literal(repair?"只补当前根基与目标根基的差额，不增加修为，不回满生命或灵力":"失败消耗丹药，修为保留、稳定度减半；中断不返还丹药"));
-        lines.add(Component.literal("共用服药间隔："+AlchemyRules.get().sharedCooldownTicks()/20+" 秒"));
+        lines.add(Component.translatable("tooltip.yuanxian.alchemy.interval",AlchemyRules.get().cooldownTicks()/20));
     }
 }

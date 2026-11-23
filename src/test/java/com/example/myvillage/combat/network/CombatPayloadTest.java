@@ -112,7 +112,7 @@ class CombatPayloadTest {
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
         // The seal draw quote now synchronizes the spirit-stone grade.
-        assertEquals("81", ModPayloads.PROTOCOL_VERSION);
+        assertEquals("96", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

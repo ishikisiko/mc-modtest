@@ -93,14 +93,9 @@
   lower; ordinary new lower pills omit it and stack with legacy pills. Explicit
   component1 has baseline strength but vanilla component equality still controls
   stacking. Invalid data rejects or safely falls back to lower, never higher.
-- `MedicineRuntime` / `MedicineState` / `MedicineEffects` own consumption,
-  eligibility and online counters in `NeoForgeData.yuanxian_medicine`, including
-  sustained-effect `quality`. Recovery and each healing tick multiply base
-  strength by quality. Ningshen scales only the bonus above1:
-  `1 + (baseStabilityMultiplier - 1) * qualityMultiplier`. Duration, interval,
-  eligibility and interruption rules remain; missing saved quality is lower.
-  Death clears benefits but keeps interval; non-death clone/logout/restart retain
-  remaining counters/quality. Vanilla cooldown shading is presentation only.
+- 服用时间和各丹药的基础冷却从 `alchemy/rules.json` 读取。`MedicineRuntime` 在 `NeoForgeData.yuanxian_medicine` 下为每种丹药记录剩余在线冷却、药效和品质。冷却和药效同时计时，同种丹药要等两者都结束才可再用。离线暂停计时，死亡清除持续药效并保留冷却。
+- 回灵与每次养元治疗按品质调整强度。凝神只把稳定度倍率高于 1 的部分乘以品质倍率。养元受到有效伤害时只清除自己的治疗效果。
+- 物品上的钟面遮罩读取服务器同步的可再次服用时间。持续药效开始、结束、中断和玩家重新进入时，服务器向本人同步活动药效，生命条上方用通用状态栏绘制对应丹药图标。
 - Power replacement stays behind `CultivationService`. Ningshen affects only
   post-cap normal/spirit meditation stability, never progress, study, mastery or
   advancement. Profile remains v4. This alchemy wire layout was introduced in protocol22; current builds require protocol25.

@@ -190,7 +190,8 @@ class CultivationGainValidator:
         runtime_path = JAVA / "alchemy/MedicineRuntime.java"
         runtime = self.read(runtime_path)
         if runtime is not None and re.search(
-            r'return\s+current\.effect\(\)\.equals\("ningshen"\)\s*&&\s*current\.effectTicks\(\)\s*>\s*0\s*'
+            r'MedicineState\s+current\s*=\s*state\(player,\s*"ningshen"\);\s*'
+            r'return\s+current\.effectTicks\(\)\s*>\s*0\s*'
             r'\?\s*MedicineEffects\.qualityStabilityMultiplier\(\s*'
             r'AlchemyRules\.get\(\)\.effects\(\)\.ningshen\(\)\.stabilityMultiplier\(\)\s*,\s*'
             r'AlchemyRules\.get\(\)\.qualityMultiplier\(\s*current\.quality\(\)\s*\)\s*\)\s*:\s*1\.0\s*;',

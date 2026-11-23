@@ -94,8 +94,8 @@ public final class AlchemyPillItem extends Item {
             default -> {var e=com.example.myvillage.wilderness.ExpeditionRules.get().medicine(effectId);yield e==null?new Object[0]:new Object[]{number(e.strengthForQuality(quality)*100)+"%",number(e.durationTicks(quality)/20.0)};}
         };
         lines.add(Component.translatable("tooltip.yuanxian.alchemy.pill_" + effectId, arguments).withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("tooltip.yuanxian.alchemy.shared_interval",
-                number(rules.sharedCooldownTicks() / 20.0)).withStyle(ChatFormatting.DARK_GRAY));
+        lines.add(Component.translatable("tooltip.yuanxian.alchemy.interval",
+                number(rules.cooldownTicks() / 20.0)).withStyle(ChatFormatting.DARK_GRAY));
     }
     private static String number(double value) {
         return BigDecimal.valueOf(value).stripTrailingZeros().toPlainString();

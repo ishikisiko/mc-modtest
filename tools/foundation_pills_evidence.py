@@ -87,9 +87,9 @@ class FoundationEvidence(ArrayEvidence):
         self.open();self.capture('array-three-ingredients.png');self.click(193,148,label='array_start_hopper_fed_batch');self.poll(self.saved,lambda d:'Batch'in d,5,'second array batch');self.click(305,148,label='stop_second_array_batch');self.close_menu()
         final=self.poll(self.saved,lambda d:'Batch'not in d and sum(s['count'] for k,s in saved_items(d).items() if 3<=k<7 and s['id']==r['output'])==2,40,'second array product')
         self.check('array_third_ingredient_consumed_once',7 not in saved_items(final),final);self.done('array_third_ingredient_port')
-    def cooldown(self):
+    def cooldown(self, pill):
         self.rc('tick sprint 650t');time.sleep(1)
-        self.poll(self.med,lambda d:d['cooldown_ticks']==0 and d['effect_ticks']==0,10,'medicine interval')
+        self.poll(lambda: self.med(pill),lambda d:d['cooldown_ticks']==0 and d['effect_ticks']==0,10,'medicine interval')
     def use_pill(self,item,q):
         u=self.s.username;spec=item+('[yuanxian:pill_quality='+str(q)+']' if q>1 else '')
         self.close_menu();self.rc(f'tp {u} .5 -60 .5 180 -60');self.rc(f'item replace entity {u} hotbar.0 with {spec} 2');self.s.game.key('1');time.sleep(.4)
@@ -98,7 +98,7 @@ class FoundationEvidence(ArrayEvidence):
         finally:self.s.game.xdo('mouseup','3')
         self.report['mapped_input'].append({'kind':'held_pill_use','item':item,'quality':q,'seconds':2});self.save()
     def setup_qi(self):
-        u=self.s.username;self.rc(f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_9');self.rc(f'yuanxian cultivation setprogress {u} 1900');self.rc(f'yuanxian cultivation setstability {u} 950');self.cooldown()
+        u=self.s.username;self.rc(f'yuanxian cultivation setrealm {u} yuanxian:qi_refining yuanxian:qi_refining_9');self.rc(f'yuanxian cultivation setprogress {u} 1900');self.rc(f'yuanxian cultivation setstability {u} 950');self.cooldown('zhuji')
     def breakthrough(self):
         u=self.s.username;self.rc('tick rate 20');self.setup_qi();self.s.game.key('n');time.sleep(1)
         self.check('normal_advance_cannot_bypass_pill',self.raw_profile()['stage_id']=='yuanxian:qi_refining_9',self.raw_profile())
@@ -129,7 +129,7 @@ class FoundationEvidence(ArrayEvidence):
             self.check(f'observed_success_q{q}',success,{'attempts':attempt+1})
         self.check('observed_failed_attempt',saw_failure,{});self.done('breakthrough')
     def repair(self):
-        u=self.s.username;self.cooldown();before=self.number(f'data get entity {u} Health');self.use_pill('yuanxian:pill_buji',2)
+        u=self.s.username;self.cooldown('buji');before=self.number(f'data get entity {u} Health');self.use_pill('yuanxian:pill_buji',2)
         self.check('middle_repair_consumed_once',self.count('yuanxian:pill_buji')==1,self.inventory());self.check('middle_root',self.quality()==2,self.raw_profile())
         middle_health=self.number(f'attribute {u} minecraft:generic.max_health get')
         self.check('middle_cap',abs(middle_health-67.2)<.001,{'health':middle_health,'profile':self.raw_profile()})
@@ -137,7 +137,7 @@ class FoundationEvidence(ArrayEvidence):
         self.check('middle_attack',abs(middle_attack-3.36)<.001,middle_attack)
         self.check('middle_power',self.profile()['power_cap']==224,self.profile())
         self.check('repair_does_not_heal',abs(self.number(f'data get entity {u} Health')-before)<.001,{})
-        self.cooldown();self.use_pill('yuanxian:pill_buji',2);self.check('same_grade_rejected_without_cost',self.count('yuanxian:pill_buji')==2,self.inventory())
+        self.cooldown('buji');self.use_pill('yuanxian:pill_buji',2);self.check('same_grade_rejected_without_cost',self.count('yuanxian:pill_buji')==2,self.inventory())
         self.rc(f'yuanxian cultivation setrealm {u} yuanxian:golden_core yuanxian:golden_early');self.use_pill('yuanxian:pill_buji',3)
         self.check('repair_after_golden_core',self.quality()==3 and self.count('yuanxian:pill_buji')==1,self.raw_profile())
         self.check('golden_health_cap',abs(self.number(f'attribute {u} minecraft:generic.max_health get')-144)<.001,self.raw_profile())
@@ -146,7 +146,7 @@ class FoundationEvidence(ArrayEvidence):
         self.check('golden_attack',abs(golden_attack-7.2)<.001,golden_attack)
         for i in range(3):self.rc(f'yuanxian cultivation setstability {u} {100+i}')
         self.check('ordinary_profile_updates_do_not_stack',abs(self.number(f'attribute {u} minecraft:generic.max_health get')-144)<.001,self.raw_profile())
-        self.cooldown();self.use_pill('yuanxian:pill_buji',2);self.check('downgrade_rejected_without_cost',self.count('yuanxian:pill_buji')==2,self.inventory())
+        self.cooldown('buji');self.use_pill('yuanxian:pill_buji',2);self.check('downgrade_rejected_without_cost',self.count('yuanxian:pill_buji')==2,self.inventory())
         self.done('repair')
     def persistence_and_visual(self):
         u=self.s.username

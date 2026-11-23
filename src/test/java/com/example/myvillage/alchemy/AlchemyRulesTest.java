@@ -37,7 +37,7 @@ class AlchemyRulesTest {
     @Test void rejectsUnknownMissingDuplicateFractionalAndMisTypedData() throws Exception {
         rejects(j -> j.addProperty("extra", 1)); rejects(j -> j.remove("effects"));
         rejects(j -> j.addProperty("use_ticks", true)); rejects(j -> j.addProperty("use_ticks", "32"));
-        rejects(j -> j.addProperty("use_ticks", 1.2)); rejects(j -> j.addProperty("shared_cooldown_ticks", 0));
+        rejects(j -> j.addProperty("use_ticks", 1.2)); rejects(j -> j.addProperty("cooldown_ticks", 0));
         assertThrows(IllegalArgumentException.class, () -> AlchemyRules.parse(new StringReader(source().replaceFirst("\\{", "{\"version\":1,"))));
         assertThrows(IllegalArgumentException.class, () -> AlchemyRules.parse(new StringReader(source() + "{}")));
     }

@@ -221,16 +221,16 @@ class CultivationGainValidationTest(unittest.TestCase):
     def test_quality_multiplier_requires_ningshen_effect(self):
         result = self.mutate_medicine_source(
             "alchemy/MedicineRuntime.java",
-            'return current.effect().equals("ningshen") && current.effectTicks() > 0',
-            'return current.effectTicks() > 0',
+            'MedicineState current = state(player, "ningshen");',
+            'MedicineState current = state(player, "yangyuan");',
         )
         self.assert_error_contains(result, "only active ningshen may supply the authored multiplier")
 
     def test_quality_multiplier_requires_positive_remaining_effect_ticks(self):
         result = self.mutate_medicine_source(
             "alchemy/MedicineRuntime.java",
-            'return current.effect().equals("ningshen") && current.effectTicks() > 0',
-            'return current.effect().equals("ningshen")',
+            'return current.effectTicks() > 0',
+            'return current.cooldownTicks() > 0',
         )
         self.assert_error_contains(result, "only active ningshen may supply the authored multiplier")
 

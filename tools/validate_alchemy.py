@@ -82,13 +82,13 @@ def check_rules(data, quality_rules=None) -> list[str]:
             valid = False
         if not valid:
             error('ALCHEMY_BOUNDS', f'{where}.{key}: invalid number {value!r}')
-    if not keys(data, ('version', 'use_ticks', 'shared_cooldown_ticks', 'recipes', 'effects', 'quality'), 'rules'):
+    if not keys(data, ('version', 'use_ticks', 'cooldown_ticks', 'recipes', 'effects', 'quality'), 'rules'):
         return errors
     if type(data['version']) is not int or data['version'] != 3:
         error('ALCHEMY_VERSION', 'rules version must be integer 3')
     quality_rules = quality_rules if quality_rules is not None else crafting_quality.load()
     number(data, 'use_ticks', 1, 72000, 'rules', True)
-    number(data, 'shared_cooldown_ticks', 1, 1200000, 'rules', True)
+    number(data, 'cooldown_ticks', 1, 1200000, 'rules', True)
     quality = data['quality']
     if keys(quality, ('strength_multipliers',), 'quality'):
         multipliers = quality['strength_multipliers']

@@ -71,21 +71,18 @@ def stacks(reply: str) -> dict[int, dict]:
     return found
 
 
-def medicine(reply: str) -> dict:
+def medicine(reply: str, pill: str) -> dict:
     if "Found no elements matching" in reply:
-        return {'cooldown_ticks': 0, 'effect': '', 'effect_ticks': 0, 'healing_elapsed': 0}
+        return {'cooldown_ticks': 0, 'effect': '', 'effect_ticks': 0, 'healing_elapsed': 0, 'quality': 1}
     if 'data: ' not in reply:
         raise ValueError('Missing medicine readback: ' + reply)
     result = {}
-    for key in ('cooldown_ticks', 'effect_ticks', 'healing_elapsed'):
+    for key in ('cooldown_ticks', 'effect_ticks', 'healing_elapsed', 'quality'):
         match = re.search(r'\b' + key + r':\s*(\d+)', reply)
         if not match:
             raise ValueError('Missing medicine counter: ' + key)
         result[key] = int(match.group(1))
-    effect = re.search(r'\beffect:\s*"([a-z]*)"', reply)
-    if not effect:
-        raise ValueError('Missing medicine effect')
-    result['effect'] = effect.group(1)
+    result['effect'] = pill if result['effect_ticks'] > 0 else ''
     return result
 
 
@@ -131,8 +128,8 @@ class AlchemyEvidence(Evidence):
     def inventory(self):
         return stacks(self.rc(f'data get entity {self.s.username} Inventory'))
 
-    def med(self):
-        return medicine(self.rc(f'data get entity {self.s.username} {MEDICINE}'))
+    def med(self, pill):
+        return medicine(self.rc(f'data get entity {self.s.username} {MEDICINE}.{pill}'), pill)
 
     def profile(self):
         return parse_profile(self.rc(f'yuanxian cultivation info {self.s.username}'))
@@ -265,10 +262,10 @@ class AlchemyEvidence(Evidence):
         time.sleep(.2)
         return self.inventory().get(0, {}).get('count', 0)
 
-    def wait_medication(self):
+    def wait_medication(self, pill):
         self.rc('tick rate 100')
         try:
-            return self.poll(self.med, lambda s: s['cooldown_ticks'] == 0 and s['effect_ticks'] == 0, 40, 'medicine interval')
+            return self.poll(lambda: self.med(pill), lambda s: s['cooldown_ticks'] == 0 and s['effect_ticks'] == 0, 40, 'medicine interval')
         finally:
             self.rc('tick rate 20')
 
@@ -276,36 +273,36 @@ class AlchemyEvidence(Evidence):
         started = time.monotonic(); user = self.s.username
         self.rc(f'yuanxian cultivation qi fill {user}')
         count = self.held_pill('huiling')
-        self.check('full_power_rejects_without_item_or_interval', count == 2 and self.med()['cooldown_ticks'] == 0, self.med())
+        self.check('full_power_rejects_without_item_or_interval', count == 2 and self.med('huiling')['cooldown_ticks'] == 0, self.med('huiling'))
         self.rc(f'yuanxian cultivation qi set {user} 0')
         before = self.profile()
         count = self.held_pill('huiling')
-        after = self.profile(); med = self.med()
+        after = self.profile(); med = self.med('huiling')
         expected = max(1, math.floor(before['power_cap']*self.rules['effects']['huiling']['power_fraction']))
         self.check('mapped_huiling_recovers_and_spends_one', count == 1 and expected <= after['power'] <= before['power_cap']
                    and med['cooldown_ticks'] > 0, {'before': before['power'], 'after': after['power'], 'expected_min': expected, 'medicine': med})
+        count = self.held_pill('huiling')
+        self.check('same_pill_on_cooldown', count == 2 and self.med('huiling')['cooldown_ticks'] > 0, self.med('huiling'))
         self.rc(f'damage {user} 6 minecraft:generic')
-        count = self.held_pill('yangyuan')
-        self.check('cross_pill_shared_interval', count == 2 and self.med()['effect'] == '', self.med())
-        self.wait_medication()
         before_hp = self.number(f'data get entity {user} Health')
         count = self.held_pill('yangyuan')
         self.poll(lambda: self.number(f'data get entity {user} Health'), lambda hp: hp > before_hp, 5, 'gradual healing')
-        self.check('mapped_yangyuan_heals_gradually', count == 1 and self.med()['effect'] == 'yangyuan', self.med())
+        yangyuan, huiling = self.med('yangyuan'), self.med('huiling')
+        self.check('other_pill_starts_and_heals_during_huiling_cooldown', count == 1 and yangyuan['effect_ticks'] > 0
+                   and 0 < huiling['cooldown_ticks'] < yangyuan['cooldown_ticks'], {'huiling': huiling, 'yangyuan': yangyuan})
         self.rc(f'damage {user} 1 minecraft:generic')
-        stopped = self.poll(self.med, lambda s: s['effect'] == '', 5, 'damage cancels medicine')
+        stopped = self.poll(lambda: self.med('yangyuan'), lambda s: s['effect'] == '', 5, 'damage cancels medicine')
         hp = self.number(f'data get entity {user} Health'); time.sleep(1.3)
         self.check('damage_stops_healing_preserves_interval', stopped['cooldown_ticks'] > 0 and
                    close(self.number(f'data get entity {user} Health'), hp), stopped)
-        self.wait_medication()
         self.rc(f'yuanxian cultivation setprogress {user} 0')
         count = self.held_pill('ningshen')
-        self.check('ningshen_rejects_before_progress_cap', count == 2 and self.med()['cooldown_ticks'] == 0, self.med())
+        self.check('ningshen_rejects_before_progress_cap', count == 2 and self.med('ningshen')['cooldown_ticks'] == 0, self.med('ningshen'))
         stage = json.loads((ROOT/'src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json').read_text())['stages'][0]
         self.rc(f'yuanxian cultivation setprogress {user} {stage["cultivation_cap"]}')
         self.rc(f'yuanxian cultivation setstability {user} 0')
         count = self.held_pill('ningshen')
-        self.check('mapped_ningshen_starts', count == 1 and self.med()['effect'] == 'ningshen', self.med())
+        self.check('mapped_ningshen_starts', count == 1 and self.med('ningshen')['effect'] == 'ningshen', self.med('ningshen'))
         self.s.game.key('v')
         boosted = self.poll(self.profile, lambda p: p['stability'] > 0, 15, 'boosted stability settlement')
         self.s.game.key('x')
@@ -320,11 +317,11 @@ class AlchemyEvidence(Evidence):
         self.open_furnace(); self.menu_click(98, 105); self.close_menu()
         self.poll(self.progress, lambda p: p >= 40, 10, 'restart partial brew')
         self.slot(4, recipe['output'], 16)  # pause through the entire restart, no admin input after load
-        self.report['before_restart'] = {'items': self.block_items(), 'progress': self.progress(), 'medicine': self.med()}
+        self.report['before_restart'] = {'items': self.block_items(), 'progress': self.progress(), 'medicine': self.med('ningshen')}
         self.rc('save-all flush'); self.save()
 
     def after_restart(self):
-        before = self.report['before_restart']; actual = {'items': self.block_items(), 'progress': self.progress(), 'medicine': self.med()}
+        before = self.report['before_restart']; actual = {'items': self.block_items(), 'progress': self.progress(), 'medicine': self.med('ningshen')}
         # JSON round-trip makes slot keys strings; normalize the fixture for the comparison.
         expected_items = {int(k): v for k, v in before['items'].items()}
         self.check('restart_preserves_inventory_and_paused_progress', actual['items'] == expected_items and actual['progress'] == before['progress'], actual)

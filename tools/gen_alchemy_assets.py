@@ -56,15 +56,14 @@ LANG = {
     "alchemy.yuanxian.huiling_hint": ("Restores spiritual power", "恢复灵力"),
     "alchemy.yuanxian.yangyuan_hint": ("Slowly restores health; damage interrupts recovery", "缓慢恢复生命；受到伤害会中断药效"),
     "alchemy.yuanxian.ningshen_hint": ("Assists stability meditation after reaching the stage cap", "修为达到当前上限后，辅助打坐巩固稳定度"),
-    "alchemy.yuanxian.shared_cooldown": ("Medicines share a cooldown", "丹药共用服药间隔"),
     "tooltip.yuanxian.alchemy.formula_learn": ("Use to learn permanently; consumes one copy", "右键永久学习，消耗一份丹方；已学不消耗"),
     "tooltip.yuanxian.alchemy.ingredient": ("%s ×1", "%s ×1"),
     "tooltip.yuanxian.alchemy.pill_huiling": ("Restore %s%% of maximum spiritual power", "恢复最大灵力的 %s%%"),
     "tooltip.yuanxian.alchemy.pill_yangyuan": ("Heal %s%% maximum health every %ss for %ss; damage stops recovery", "每次恢复最大生命的 %s%%，间隔 %s 秒，持续 %s 秒；受伤中断"),
     "tooltip.yuanxian.alchemy.pill_ningshen": ("%s× stability consolidation for %ss; only after cultivation cap", "稳定度巩固效率 %s 倍，持续 %s 秒；仅限修为达到当前上限后"),
-    "tooltip.yuanxian.alchemy.shared_interval": ("Shared medicine interval: %s s", "共用服药间隔：%s 秒"),
-    "message.yuanxian.alchemy.cooldown": ("Wait for the medication interval", "尚未达到下次服药时间"),
-    "message.yuanxian.alchemy.active": ("Another medicine is still active", "已有丹药正在生效"),
+    "tooltip.yuanxian.alchemy.interval": ("Cooldown for this pill: %s s", "本丹冷却：%s 秒"),
+    "message.yuanxian.alchemy.cooldown": ("This pill is on cooldown", "这类丹药还在冷却"),
+    "message.yuanxian.alchemy.active": ("This pill is still active", "这类丹药仍在生效"),
     "message.yuanxian.alchemy.full_power": ("Spiritual power is full", "灵力已满"),
     "message.yuanxian.alchemy.full_health": ("Health is full", "生命已满"),
     "message.yuanxian.alchemy.ineligible": ("Cannot use this medicine in the current cultivation state", "当前修炼状态无法服用此丹药"),
@@ -365,6 +364,8 @@ def merged_outputs(root=ROOT):
     for n,language in enumerate(("en_us","zh_cn")):
         path=root/f"src/main/resources/assets/yuanxian/lang/{language}.json"
         obj=json.loads(path.read_text()) if path.exists() else {}
+        obj.pop("alchemy.yuanxian.shared_cooldown", None)
+        obj.pop("tooltip.yuanxian.alchemy.shared_interval", None)
         obj.update({key:value[n] for key,value in LANG.items()})
         if language=="zh_cn":
             obj.update({"item.yuanxian."+key:value for key,value in ZH_FOUNDATION.items()})

@@ -1277,15 +1277,13 @@
   "alchemy.yuanxian.huiling_hint": "Restores spiritual power",
   "alchemy.yuanxian.yangyuan_hint": "Slowly restores health; damage interrupts recovery",
   "alchemy.yuanxian.ningshen_hint": "Assists stability meditation after reaching the stage cap",
-  "alchemy.yuanxian.shared_cooldown": "Medicines share a cooldown",
   "tooltip.yuanxian.alchemy.formula_reusable": "Reusable formula; retained after brewing",
   "tooltip.yuanxian.alchemy.ingredient": "%s ×1",
   "tooltip.yuanxian.alchemy.pill_huiling": "Restore %s%% of maximum spiritual power",
   "tooltip.yuanxian.alchemy.pill_yangyuan": "Heal %s%% maximum health every %ss for %ss; damage stops recovery",
   "tooltip.yuanxian.alchemy.pill_ningshen": "%s× stability consolidation for %ss; only after cultivation cap",
-  "tooltip.yuanxian.alchemy.shared_interval": "Shared medicine interval: %s s",
-  "message.yuanxian.alchemy.cooldown": "Wait for the medication interval",
-  "message.yuanxian.alchemy.active": "Another medicine is still active",
+  "message.yuanxian.alchemy.cooldown": "This pill is on cooldown",
+  "message.yuanxian.alchemy.active": "This pill is still active",
   "message.yuanxian.alchemy.full_power": "Spiritual power is full",
   "message.yuanxian.alchemy.full_health": "Health is full",
   "message.yuanxian.alchemy.ineligible": "Cannot use this medicine in the current cultivation state",
@@ -2697,5 +2695,6 @@
   "fate.yuanxian.sect_kinship": "宗门旧缘",
   "fate.yuanxian.sect_kinship.description": "首次按正常条件拜入开局分宗时，成为内门弟子。",
   "fate.yuanxian.heavy_hand": "重手",
-  "fate.yuanxian.heavy_hand.description": "用基础近战把怪物击退撞墙时，追加减伤前伤害的 75%，产生 0.8 秒基础硬直。同一目标冷却 6 秒。"
+  "fate.yuanxian.heavy_hand.description": "用基础近战把怪物击退撞墙时，追加减伤前伤害的 75%，产生 0.8 秒基础硬直。同一目标冷却 6 秒。",
+  "tooltip.yuanxian.alchemy.interval": "Cooldown for this pill: %s s"
 }

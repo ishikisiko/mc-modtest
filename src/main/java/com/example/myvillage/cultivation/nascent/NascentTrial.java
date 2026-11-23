@@ -92,14 +92,14 @@ public final class NascentTrial {
     public static boolean swallow(ServerPlayer player, ItemStack stack, int quality) {
         String reason = rejection(player);
         if (reason != null) { tell(player, reason); return false; }
-        var medicine = MedicineRuntime.state(player);
+        var medicine = MedicineRuntime.state(player, "ningying");
         if (medicine.cooldownTicks() > 0 || medicine.effectTicks() > 0) {
             tell(player, "尚未达到下次服药时间。");
             return false;
         }
         store(player, Attempt.start(player, Phase.CONDENSING, 1, NascentRules.get().pillTicks(quality)));
         if (!player.getAbilities().instabuild) stack.shrink(1);
-        MedicineRuntime.beginFoundationCooldown(player);
+        MedicineRuntime.beginCooldown(player, "ningying");
         publish(player);
         tell(player, "凝婴丹已护住神魂。请保持静坐，直至下品元婴成形。");
         return true;

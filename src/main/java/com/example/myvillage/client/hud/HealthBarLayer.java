@@ -1,17 +1,31 @@
 package com.example.myvillage.client.hud;
 
+import com.example.myvillage.network.MedicineEffectsPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.common.NeoForge;
+
+import java.util.List;
 
 /** Replaces only the player's hearts. Values remain vanilla server-synchronized health. */
 public final class HealthBarLayer {
     private static int reservedHeight;
+    private static List<ItemStack> medicineIcons = List.of();
     private HealthBarLayer() {}
+
+    public static void install() {
+        MedicineEffectsPayload.installReceiver(payload -> medicineIcons = payload.pills().stream()
+                .map(BuiltInRegistries.ITEM::get).map(ItemStack::new).filter(stack -> !stack.isEmpty()).toList());
+        NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> medicineIcons = List.of());
+    }
 
     public static void register(RegisterGuiLayersEvent event) {
         event.replaceLayer(VanillaGuiLayers.PLAYER_HEALTH, HealthBarLayer::render);
@@ -40,6 +54,10 @@ public final class HealthBarLayer {
         var box = HealthBarLayout.at(g.guiWidth(), g.guiHeight(), Math.max(mc.gui.leftHeight, mc.gui.rightHeight));
         reservedHeight = box.reservedHeight();
         double health = player.getHealth(), maximum = player.getMaxHealth(), absorption = player.getAbsorptionAmount();
+        if (player == mc.player && player.isAlive()) {
+            int iconBottom = (absorption > 0 ? box.headerY() : box.y()) - 2;
+            reservedHeight += HudStatusIcons.render(g, medicineIcons, box.x(), iconBottom, box.width());
+        }
         boolean low = HealthBarLayout.ratio(health, maximum) <= .25;
         int dark = 0xFF7E292B, light = 0xFFC56251;
         if (player.hasEffect(MobEffects.WITHER)) { dark=0xFF3E3946;light=0xFF998499; }

@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.150.2
+
+- 服用丹药需要长按 10 tick。各类丹药独立冷却，同一种的各品质共用计时。冷却在物品上以暗色钟面显示，持续药效在生命条上方显示丹药图标。
+
 ## 0.150.1
 
 - 修仙面板的「行迹」加入游戏内入门教学预览。可在实景显示提示、演练店铺对话、补料炼回灵丹与两种精铁镐制作路线。操作与结果记在本次预览。

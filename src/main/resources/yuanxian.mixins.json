@@ -12,7 +12,8 @@
     "NewWorldPresetMixin",
     "LegacyHeldItemMixin",
     "GauntletHandRendererAccess",
-    "GauntletItemInHandLayerMixin"
+    "GauntletItemInHandLayerMixin",
+    "PillCooldownOverlayMixin"
   ],
   "mixins": [
     "EstatePlayerMovementMixin",

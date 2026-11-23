@@ -78,7 +78,7 @@ class AtomicHealingTest(unittest.TestCase):
         custom_name = json.dumps(json.dumps({'text': 'quote " and line\nnext'}))
         reply = ('Player has the following entity data: {Health:12.5f, UUID:[I;1,-2,3,-4], '
                  'CustomName:'+custom_name+', unused:NaNf, NeoForgeData:{yuanxian_medicine:'
-                 '{effect:"yangyuan",effect_ticks:173,healing_elapsed:7,quality:4,cooldown_ticks:573}}}')
+                 '{ningshen:{effect_ticks:900},yangyuan:{effect_ticks:173,healing_elapsed:7,quality:4,cooldown_ticks:573}}}}')
         snapshot = healing_snapshot(reply)
         self.assertEqual(snapshot['health'], 12.5)
         self.assertEqual(snapshot['medicine']['healing_elapsed'], 7)

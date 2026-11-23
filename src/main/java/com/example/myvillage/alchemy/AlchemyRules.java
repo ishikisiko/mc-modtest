@@ -48,13 +48,13 @@ public final class AlchemyRules {
     public record Ningshen(int durationTicks, double stabilityMultiplier) {}
     public record Effects(Huiling huiling, Yangyuan yangyuan, Ningshen ningshen) {}
     private final int useTicks;
-    private final int sharedCooldownTicks;
+    private final int cooldownTicks;
     private final List<Recipe> recipes;
     private final Effects effects;
     private final double[] qualityMultipliers = new double[4];
 
     private AlchemyRules(JsonObject root) {
-        fields(root, "version", "use_ticks", "shared_cooldown_ticks", "recipes", "effects", "quality");
+        fields(root, "version", "use_ticks", "cooldown_ticks", "recipes", "effects", "quality");
         if (integer(root, "version", 3, 3) != 3) throw invalid("version", "unsupported");
         JsonObject quality = object(root.get("quality"), "quality");
         fields(quality, "strength_multipliers");
@@ -68,7 +68,7 @@ public final class AlchemyRules {
             qualityMultipliers[i]=multiplier;
         }
         useTicks = integer(root, "use_ticks", 1, 72000);
-        sharedCooldownTicks = integer(root, "shared_cooldown_ticks", 1, 1200000);
+        cooldownTicks = integer(root, "cooldown_ticks", 1, 1200000);
         if (!root.get("recipes").isJsonArray()) throw invalid("recipes", "array required");
         List<Recipe> result = new ArrayList<>();
         Set<String> ids = new HashSet<>(), formulas = new HashSet<>();
@@ -145,7 +145,7 @@ public final class AlchemyRules {
         }
     }
     public int useTicks() { return useTicks; }
-    public int sharedCooldownTicks() { return sharedCooldownTicks; }
+    public int cooldownTicks() { return cooldownTicks; }
     public List<Recipe> recipes() { return recipes; }
     public Effects effects() { return effects; }
     public double qualityMultiplier(int quality) { return qualityMultipliers[requireQuality(quality) - 1]; }

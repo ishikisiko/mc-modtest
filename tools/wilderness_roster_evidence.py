@@ -133,7 +133,7 @@ class RosterEvidence(FoundationEvidence):
             self.capture(r['id']+'-brewed.png');self.fc(268,46,shift=True,label='take_medicine');self.close_menu()
         self.rc('tick rate 20')
         for r in self.recipes:
-            self.cooldown();self.rc(f'clear {u}');self.use_pill(r['output'],2);state=self.med()
+            self.rc(f'clear {u}');self.use_pill(r['output'],2);state=self.med(r['id'])
             self.check('actual_pill_use_'+r['id'],state['effect']==r['id'] and state['effect_ticks']>0 and self.count(r['output'])==1,{'medicine':state,'inventory':self.inventory()})
             self.report.setdefault('medicine_attributes',{})[r['id']]=self.rc(f'yuanxian stats info {u}')
         # One array batch reuses exactly the same new three-ingredient recipe.
@@ -199,7 +199,7 @@ class RosterEvidence(FoundationEvidence):
         self.check('soul_return_actual_attributed_kill',status()['cooldowns']['soul_return']>0,status());self.capture('trait-soul-return.png')
         self.report['effect_boundary_fixtures']='Carapace and guard incoming hit use attributed /damage for an exact timing boundary; guard cast and counter are mapped input. Soul-return lethal fixture uses assigned wolf at Health=1 and a mapped sword kill.'
     def restart(self):
-        u=self.s.username;self.cooldown();self.use_pill('yuanxian:pill_qingshen',3);self.rc('tick freeze');before=self.med();inventory=self.inventory();self.rc('save-all flush');self.stop();self.start(reuse=True);self.rc('tick freeze');after=self.med()
+        u=self.s.username;self.wait_medication('qingshen');self.use_pill('yuanxian:pill_qingshen',3);self.rc('tick freeze');before=self.med('qingshen');inventory=self.inventory();self.rc('save-all flush');self.stop();self.start(reuse=True);self.rc('tick freeze');after=self.med('qingshen')
         self.check('medicine_survives_real_restart',after['effect']=='qingshen' and 0<after['effect_ticks']<=before['effect_ticks'],{'before':before,'after':after})
         self.check('equipment_inventory_survives_restart',self.inventory()==inventory,self.inventory())
         if 'natural_persist' in self.report:

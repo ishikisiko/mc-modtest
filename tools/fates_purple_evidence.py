@@ -230,7 +230,7 @@ class PurpleEvidence(FateEvidence):
         def ready():
             state = self.state(); aegis = {**{'cooldown_ready_at':0}, **state.get('pill_aegis',{})}
             medicine = read_data(self.rc(f'data get entity {self.s.username}'))
-            current = medicine.get('NeoForgeData',{}).get('yuanxian_medicine',{})
+            current = medicine.get('NeoForgeData',{}).get('yuanxian_medicine',{}).get('yangyuan',{})
             return (state['now'] >= aegis['cooldown_ready_at'] and current.get('cooldown_ticks',0)==0
                     and current.get('effect_ticks',0)==0)
         self.poll(ready,bool,timeout=38,label='medicine and shield cooldown')

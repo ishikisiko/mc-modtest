@@ -7,7 +7,7 @@ class MedicineStateTest {
     @Test void healingHasTenIntervalsAndCooldownOutlastsBenefit() {
         var rules = AlchemyRules.get();
         var healing = rules.effects().yangyuan();
-        MedicineState state = MedicineState.EMPTY.begin("yangyuan", rules.sharedCooldownTicks(), healing.durationTicks());
+        MedicineState state = MedicineState.EMPTY.begin("yangyuan", rules.cooldownTicks(), healing.durationTicks());
         int heals = 0;
         for (int i = 0; i < healing.durationTicks(); i++) {
             var tick = state.tick(healing.intervalTicks());
@@ -17,21 +17,21 @@ class MedicineStateTest {
         assertEquals(healing.durationTicks() / healing.intervalTicks(), heals);
         assertEquals("", state.effect());
         assertFalse(state.available());
-        assertEquals(rules.sharedCooldownTicks() - healing.durationTicks(), state.cooldownTicks());
+        assertEquals(rules.cooldownTicks() - healing.durationTicks(), state.cooldownTicks());
         while (state.cooldownTicks() > 0) state = state.tick(healing.intervalTicks()).next();
         assertEquals(MedicineState.EMPTY, state);
     }
 
     @Test void longStabilityEffectStillRejectsStackingAfterSharedIntervalExpires() {
         var rules = AlchemyRules.get();
-        MedicineState state = MedicineState.EMPTY.begin("ningshen", rules.sharedCooldownTicks(),
+        MedicineState state = MedicineState.EMPTY.begin("ningshen", rules.cooldownTicks(),
                 rules.effects().ningshen().durationTicks());
-        for (int i = 0; i < rules.sharedCooldownTicks(); i++)
+        for (int i = 0; i < rules.cooldownTicks(); i++)
             state = state.tick(rules.effects().yangyuan().intervalTicks()).next();
         assertEquals(0, state.cooldownTicks());
         assertFalse(state.available());
         MedicineState active = state;
-        assertThrows(IllegalStateException.class, () -> active.begin("huiling", rules.sharedCooldownTicks(), 0));
+        assertThrows(IllegalStateException.class, () -> active.begin("huiling", rules.cooldownTicks(), 0));
     }
 
     @Test void deathAndDamageClearBenefitButPreserveRemainingInterval() {
@@ -41,7 +41,7 @@ class MedicineStateTest {
     }
 
     @Test void instantMedicineBeginsOnlySharedInterval() {
-        MedicineState state = MedicineState.EMPTY.begin("huiling", AlchemyRules.get().sharedCooldownTicks(), 0);
+        MedicineState state = MedicineState.EMPTY.begin("huiling", AlchemyRules.get().cooldownTicks(), 0);
         assertEquals("", state.effect());
         assertFalse(state.available());
         assertThrows(IllegalStateException.class, () -> state.begin("huiling", 1, 0));
@@ -57,7 +57,7 @@ class MedicineStateTest {
         var rules = AlchemyRules.get();
         var healing = rules.effects().yangyuan();
         for (int quality = 1; quality <= 4; quality++) {
-            MedicineState state = MedicineState.EMPTY.begin("yangyuan", rules.sharedCooldownTicks(), healing.durationTicks(), quality);
+            MedicineState state = MedicineState.EMPTY.begin("yangyuan", rules.cooldownTicks(), healing.durationTicks(), quality);
             int heals = 0;
             for (int i = 0; i < healing.durationTicks(); i++) {
                 assertEquals(quality, state.quality());
@@ -66,7 +66,7 @@ class MedicineStateTest {
                 state = tick.next();
             }
             assertEquals(healing.durationTicks() / healing.intervalTicks(), heals);
-            assertEquals(new MedicineState(rules.sharedCooldownTicks() - healing.durationTicks(), "", 0, 0), state);
+            assertEquals(new MedicineState(rules.cooldownTicks() - healing.durationTicks(), "", 0, 0), state);
         }
         assertThrows(IllegalArgumentException.class, () -> MedicineState.EMPTY.begin("yangyuan", 600, 200, 0));
         assertThrows(IllegalArgumentException.class, () -> new MedicineState(600, "", 0, 0, 4));

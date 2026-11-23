@@ -27,7 +27,7 @@ public final class NascentPillItem extends Item {
         var stack = player.getItemInHand(hand);
         if (player instanceof ServerPlayer server) {
             String reason = NascentTrial.rejection(server);
-            var medicine = MedicineRuntime.state(server);
+            var medicine = MedicineRuntime.state(server, "ningying");
             if (reason == null && (medicine.cooldownTicks() > 0 || medicine.effectTicks() > 0))
                 reason = "尚未达到下次服药时间。";
             if (reason != null) {
@@ -63,5 +63,6 @@ public final class NascentPillItem extends Item {
         lines.add(Component.literal("护住神魂，静坐 " + NascentRules.get().pillTicks(PillQuality.get(stack)) / 20
                 + " 秒可结下品元婴。"));
         lines.add(Component.literal("开始碎丹时消耗一枚。中断则丹药耗尽，损失四分之一稳定度。"));
+        lines.add(Component.translatable("tooltip.yuanxian.alchemy.interval", AlchemyRules.get().cooldownTicks() / 20));
     }
 }

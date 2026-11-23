@@ -29,9 +29,9 @@ class AlchemyEvidenceTest(unittest.TestCase):
             with self.assertRaises(ValueError): stacks(value)
 
     def test_medicine_readback_distinguishes_empty_from_error(self):
-        self.assertEqual(medicine('Found no elements matching NeoForgeData.yuanxian_medicine')['cooldown_ticks'], 0)
-        self.assertEqual(medicine('Player has the following entity data: {effect: "ningshen", cooldown_ticks: 483, effect_ticks: 1083, healing_elapsed: 0}')['effect_ticks'], 1083)
-        for value in ('No entity was found', 'data: {effect:"ningshen",effect_ticks:900}'):
-            with self.assertRaises(ValueError): medicine(value)
+        self.assertEqual(medicine('Found no elements matching NeoForgeData.yuanxian_medicine.ningshen', 'ningshen')['cooldown_ticks'], 0)
+        self.assertEqual(medicine('Player has the following entity data: {cooldown_ticks: 483, effect_ticks: 1083, healing_elapsed: 0, quality: 1}', 'ningshen')['effect_ticks'], 1083)
+        for value in ('No entity was found', 'data: {effect_ticks:900}'):
+            with self.assertRaises(ValueError): medicine(value, 'ningshen')
 
 if __name__ == '__main__': unittest.main()

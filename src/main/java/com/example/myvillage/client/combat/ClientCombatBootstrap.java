@@ -4,6 +4,7 @@ import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.CombatParticles;
 import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.definition.WeaponDefinition;
+import com.example.myvillage.client.hud.HealthBarLayer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
@@ -33,7 +34,8 @@ public final class ClientCombatBootstrap {
         modEventBus.addListener(ClientCombatBootstrap::onRegisterParticleProviders);
         modEventBus.addListener(PairedWeaponLayer::onAddLayers);
         modEventBus.addListener(com.example.myvillage.client.cultivation.QiBarLayer::register);
-        modEventBus.addListener(com.example.myvillage.client.hud.HealthBarLayer::register);
+        modEventBus.addListener(HealthBarLayer::register);
+        HealthBarLayer.install();
         ClientSwordQi.install();
         // The arm is drawn first so the translucent 剑光 blends over it.
         NeoForge.EVENT_BUS.addListener(FirstPersonArmRenderer::onRenderHand);

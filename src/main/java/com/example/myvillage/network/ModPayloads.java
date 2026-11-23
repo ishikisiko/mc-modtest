@@ -32,7 +32,8 @@ public final class ModPayloads {
     // 协议80增加篆纹阵投影交互与六行附魔界面。
     // 协议81在篆纹阵菜单中同步抽取费用的灵石品级。
     // 向玩家同步附近省城的地图身份与实际落点。
-    public static final String PROTOCOL_VERSION = "95";
+    // 协议96增加服务器同步的药效图标。
+    public static final String PROTOCOL_VERSION = "96";
 
     private ModPayloads() {
     }
@@ -43,6 +44,8 @@ public final class ModPayloads {
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToClient(MedicineEffectsPayload.TYPE, MedicineEffectsPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> MedicineEffectsPayload.receive(payload)));
         registrar.playToServer(com.example.myvillage.enchanting.SealProjectionIntent.TYPE,
                 com.example.myvillage.enchanting.SealProjectionIntent.STREAM_CODEC,
                 (intent, context) -> context.enqueueWork(() -> {

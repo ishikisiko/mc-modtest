@@ -88,16 +88,23 @@ public final class ExpeditionCombat {
         event.getDispatcher().register(ModCommands.adminRoot().then(net.minecraft.commands.Commands.literal("expedition").then(net.minecraft.commands.Commands.literal("status").then(net.minecraft.commands.Commands.argument("player",net.minecraft.commands.arguments.EntityArgument.player()).executes(c->{var p=net.minecraft.commands.arguments.EntityArgument.getPlayer(c,"player");c.getSource().sendSuccess(()->net.minecraft.network.chat.Component.literal("EXPEDITION "+new com.google.gson.Gson().toJson(status(p))),false);return 1;})))));
     }
     private static void feedback(ServerPlayer p,String text){p.displayClientMessage(net.minecraft.network.chat.Component.literal(text),true);}
-    private static double medicine(ServerPlayer p,String id){var m=MedicineRuntime.state(p);var r=ExpeditionRules.get().medicine(id);return r!=null&&m.effect().equals(id)&&m.effectTicks()>0?r.strengthForQuality(m.quality()):0;}
+    private static double medicine(ServerPlayer p, String id) {
+        var dose = MedicineRuntime.state(p, id);
+        return dose.effectTicks() > 0 ? ExpeditionRules.get().medicine(id).strengthForQuality(dose.quality()) : 0;
+    }
+    private static double medicineSecondary(ServerPlayer p, String id) {
+        var dose = MedicineRuntime.state(p, id);
+        return dose.effectTicks() > 0 ? ExpeditionRules.get().medicine(id).secondary() * AlchemyRules.get().qualityMultiplier(dose.quality()) : 0;
+    }
     private static void modifier(ServerPlayer p,Holder<Attribute> attr,ResourceLocation id,double amount,AttributeModifier.Operation op){var a=p.getAttribute(attr);if(a==null)return;if(amount==0){a.removeModifier(id);return;}var old=a.getModifier(id);if(old==null||old.amount()!=amount||old.operation()!=op)a.addOrUpdateTransientModifier(new AttributeModifier(id,amount,op));}
     public static void refresh(ServerPlayer p){
-        var m=MedicineRuntime.state(p);var spec=ExpeditionRules.get().medicine(m.effect());double f=AlchemyRules.get().qualityMultiplier(m.quality());
         modifier(p,Attributes.MOVEMENT_SPEED,MED,medicine(p,"qingshen"),AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-        modifier(p,Attributes.KNOCKBACK_RESISTANCE,MED,m.effect().equals("humai")&&spec!=null?Math.min(.8,spec.secondary()*f):0,AttributeModifier.Operation.ADD_VALUE);
+        modifier(p,Attributes.KNOCKBACK_RESISTANCE,MED,Math.min(.8,medicineSecondary(p,"humai")),AttributeModifier.Operation.ADD_VALUE);
+        double physical = medicine(p, "humai"), elemental = medicine(p, "dingshen"), fire = medicine(p, "yuyan");
         State s=STATES.get(p.getUUID());
         for(var type:DamageType.values()){
-            double amount=type==DamageType.PHYSICAL?medicine(p,"humai"):medicine(p,"dingshen");
-            if(type==DamageType.FIRE)amount+=medicine(p,"yuyan");
+            double amount=type==DamageType.PHYSICAL?physical:elemental;
+            if(type==DamageType.FIRE)amount+=fire;
             modifier(p,StatsRuntime.resistance(type),MED,amount,AttributeModifier.Operation.ADD_VALUE);
             modifier(p,StatsRuntime.resistance(type),WARD,type!=DamageType.PHYSICAL&&s!=null&&s.ward>0?value(p,"warding"):0,AttributeModifier.Operation.ADD_VALUE);
         }
@@ -118,7 +125,12 @@ public final class ExpeditionCombat {
         s.quiet=0;
     }
     @SubscribeEvent public static void damage(LivingDamageEvent.Post e){if(e.getEntity() instanceof ServerPlayer p&&e.getNewDamage()>0)state(p).quiet=0;}
-    @SubscribeEvent public static void fall(LivingFallEvent e){if(e.getEntity() instanceof ServerPlayer p&&medicine(p,"qingshen")>0){var r=ExpeditionRules.get().medicine("qingshen");e.setDamageMultiplier((float)(e.getDamageMultiplier()*(1-Math.min(.7,r.secondary()*AlchemyRules.get().qualityMultiplier(MedicineRuntime.state(p).quality())))));}}
+    @SubscribeEvent public static void fall(LivingFallEvent e) {
+        if (e.getEntity() instanceof ServerPlayer p) {
+            double reduction = medicineSecondary(p, "qingshen");
+            if (reduction > 0) e.setDamageMultiplier((float)(e.getDamageMultiplier() * (1 - Math.min(.7, reduction))));
+        }
+    }
     @SubscribeEvent public static void died(LivingDeathEvent e){
         if(e.getEntity() instanceof ServerPlayer p)STATES.remove(p.getUUID());
         if(!(e.getSource().getEntity() instanceof ServerPlayer p)||value(p,"soul_return")<=0||!ready(p,"soul_return")||!e.getEntity().getType().getCategory().equals(MobCategory.MONSTER))return;

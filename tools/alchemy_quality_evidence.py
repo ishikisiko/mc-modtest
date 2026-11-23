@@ -23,7 +23,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from tools.alchemy_evidence import AlchemyEvidence, MEDICINE, POS
+from tools.alchemy_evidence import AlchemyEvidence, POS
 from tools.combat_capture import procs, scene, session as cs
 from tools.combat_capture.xgame import Game
 from tools.realm_stats_evidence import close
@@ -171,10 +171,11 @@ def healing_snapshot(reply):
     if type(health) not in (int, float) or not math.isfinite(health) or health < 0:
         raise ValueError('Missing or invalid atomic player health')
     persistent = player.get('NeoForgeData')
-    medication = persistent.get('yuanxian_medicine') if isinstance(persistent, dict) else None
+    doses = persistent.get('yuanxian_medicine') if isinstance(persistent, dict) else None
+    medication = doses.get('yangyuan') if isinstance(doses, dict) else None
     if not isinstance(medication, dict):
         raise ValueError('Missing atomic medication compound')
-    return {'health': health, 'medicine': medication}
+    return {'health': health, 'medicine': {**medication, 'effect': 'yangyuan'}}
 
 
 def healing_delta(before, after, interval):
@@ -380,7 +381,7 @@ class QualityEvidence(AlchemyEvidence):
             self.rc(command)
         if awakened:
             self.s.game.key('x')
-            self.wait_medication()
+            self.wait_medication('ningshen')
             for command in (f'yuanxian cultivation awaken {user}', f'yuanxian cultivation initiate {user}',
                             f'yuanxian cultivation setrealm {user} yuanxian:qi_refining yuanxian:qi_refining_1',
                             f'yuanxian cultivation crafting set {user} alchemy 100'):
@@ -394,16 +395,6 @@ class QualityEvidence(AlchemyEvidence):
 
     def batch(self):
         return read_batch(self.rc(f'data get block {POS} Batch'))
-
-    def med(self):
-        reply = self.rc(f'data get entity {self.s.username} {MEDICINE}')
-        if reply.startswith('Found no elements matching'):
-            return {'cooldown_ticks': 0, 'effect': '', 'effect_ticks': 0, 'healing_elapsed': 0, 'quality': 1}
-        value = read_data(reply)
-        if not isinstance(value, dict) or not all(k in value for k in ('cooldown_ticks', 'effect', 'effect_ticks', 'healing_elapsed')):
-            raise ValueError('Incomplete medication counters')
-        value.setdefault('quality', 1)
-        return value
 
     def click(self, x, y, *, game=None, shift=False, button='1'):
         game = game or self.s.game
@@ -529,7 +520,7 @@ class QualityEvidence(AlchemyEvidence):
         self.report.setdefault('verified_bindings', {})['inventory'] = 'e'
         for slot, recipe in enumerate(self.rules['recipes']):
             self.rc(f'item replace entity {user} hotbar.{slot} with {recipe["output"]}[{QUALITY}=4] 2')
-        inventory = self.inventory(); medication = self.med()
+        inventory = self.inventory(); medication = self.med('ningshen')
         self.check('tooltip_admin_quality4_fixtures_'+language,
                    all(inventory.get(slot, {}).get('id') == recipe['output'] and
                        inventory[slot]['count'] == 2 and pill_quality(inventory[slot]) == 4
@@ -555,7 +546,7 @@ class QualityEvidence(AlchemyEvidence):
         finally:
             game.xdo('key', 'Escape'); time.sleep(.3)
             game.require_ingame('close pill tooltip inventory')
-        after, med_after = self.inventory(), self.med()
+        after, med_after = self.inventory(), self.med('ningshen')
         self.check('mapped_pill_tooltips_never_consume_'+language, after == inventory
                    and med_after['cooldown_ticks'] <= medication['cooldown_ticks']
                    and med_after['effect_ticks'] <= medication['effect_ticks']
@@ -584,17 +575,17 @@ class QualityEvidence(AlchemyEvidence):
         user = self.s.username; observed = {}
         # Natural online regeneration exists; use a bounded tolerance below its one-point cadence.
         for quality in (None, 4):
-            self.wait_medication(); self.rc(f'yuanxian cultivation qi set {user} 0')
+            self.wait_medication('huiling'); self.rc(f'yuanxian cultivation qi set {user} 0')
             before = self.profile(); count = self.held_quality('huiling', quality); after = self.profile()
             factor = self.rules['quality']['strength_multipliers'][(quality or 1)-1]
             expected = max(1, math.floor(before['power_cap']*self.rules['effects']['huiling']['power_fraction']*factor))
             observed[str(quality)] = after['power']
             self.check('mapped_huiling_strength_'+str(quality or 'legacy'), count == 1 and expected <= after['power'] <= expected+3,
-                       {'expected': expected, 'actual': after['power'], 'quality': quality, 'medicine': self.med()})
+                       {'expected': expected, 'actual': after['power'], 'quality': quality, 'medicine': self.med('huiling')})
         self.check('quality4_huiling_stronger_than_legacy', observed['4'] > observed['None'], observed)
         heals = {}
         for quality in (None, 4):
-            self.wait_medication(); self.rc(f'damage {user} 8 minecraft:generic')
+            self.wait_medication('yangyuan'); self.rc(f'damage {user} 8 minecraft:generic')
             count = self.held_quality('yangyuan', quality)
             interval = self.rules['effects']['yangyuan']['interval_ticks']
             maximum = self.number(f'attribute {user} minecraft:generic.max_health get')
@@ -624,10 +615,10 @@ class QualityEvidence(AlchemyEvidence):
         stage = json.loads((ROOT/'src/main/resources/data/yuanxian/yuanxian/realm/qi_refining.json').read_text())['stages'][0]
         stability = {}
         for quality in (None, 4):
-            self.wait_medication()
+            self.wait_medication('ningshen')
             self.rc(f'yuanxian cultivation setprogress {user} {stage["cultivation_cap"]}')
             self.rc(f'yuanxian cultivation setstability {user} 0')
-            count = self.held_quality('ningshen', quality); med = self.med(); initial = self.profile()
+            count = self.held_quality('ningshen', quality); med = self.med('ningshen'); initial = self.profile()
             self.s.game.key('v')
             gained = self.poll(self.profile, lambda state: state['stability'] > 0, 15, 'mapped ningshen meditation settlement')
             self.s.game.key('x')
@@ -683,7 +674,7 @@ class QualityEvidence(AlchemyEvidence):
         self.rc(f'yuanxian cultivation setprogress {self.s.username} {stage["cultivation_cap"]}')
         self.rc(f'yuanxian cultivation setstability {self.s.username} 0')
         count = self.held_quality('ningshen', 4)
-        medication = self.med()
+        medication = self.med('ningshen')
         self.check('persistence_fixture_mapped_quality4_use', count == 1 and medication['quality'] == 4
                    and medication['effect'] == 'ningshen' and medication['effect_ticks'] > 0, medication)
         for slot, pill in enumerate(self.rules['recipes']):
@@ -692,11 +683,11 @@ class QualityEvidence(AlchemyEvidence):
         batch = self.begin()
         self.poll(self.progress, lambda progress: progress >= 30, 10, 'saved partial quality batch')
         self.slot(4, 'minecraft:cobblestone', 64)
-        self.report['before_restart'] = {'items': self.block_items(), 'progress': self.progress(), 'batch': batch, 'medicine': self.med(), 'inventory': self.inventory()}
+        self.report['before_restart'] = {'items': self.block_items(), 'progress': self.progress(), 'batch': batch, 'medicine': self.med('ningshen'), 'inventory': self.inventory()}
         self.rc('save-all flush'); self.save()
 
     def after_restart(self):
-        before = self.report['before_restart']; actual_items = self.block_items(); actual_batch = self.batch(); med = self.med()
+        before = self.report['before_restart']; actual_items = self.block_items(); actual_batch = self.batch(); med = self.med('ningshen')
         self.check('restart_preserves_whole_batch_and_all_item_components', actual_batch == before['batch']
                    and actual_items == {int(key): value for key, value in before['items'].items()}
                    and self.progress() == before['progress'], {'before': before, 'after_batch': actual_batch, 'after_items': actual_items})

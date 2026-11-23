@@ -89,7 +89,7 @@ class AlchemyRulesTest(unittest.TestCase):
 
     def test_tick_and_count_fields_reject_nonintegers_nonfinite_and_out_of_bounds(self):
         for location, key, maximum in (
-            ((), 'use_ticks', 72000), ((), 'shared_cooldown_ticks', 1200000),
+            ((), 'use_ticks', 72000), ((), 'cooldown_ticks', 1200000),
             (('recipes', 0), 'duration_ticks', 32767), (('recipes', 0), 'fuel_count', 64),
             (('recipes', 0), 'output_count', 16),
             (('effects', 'yangyuan'), 'duration_ticks', 1200000),
