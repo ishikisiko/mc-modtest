@@ -1,5 +1,7 @@
 package com.example.myvillage.client.hud;
 
+import com.example.myvillage.client.cultivation.ClientCultivationState;
+import com.example.myvillage.kitchen.KitchenRuntime;
 import com.example.myvillage.network.MedicineEffectsPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.DeltaTracker;
@@ -36,8 +38,11 @@ public final class HealthBarLayer {
             if (visible()) Minecraft.getInstance().gui.leftHeight = Math.max(Minecraft.getInstance().gui.leftHeight, reservedHeight);
         });
         event.wrapLayer(VanillaGuiLayers.FOOD_LEVEL, original -> (g, delta) -> {
-            original.render(g, delta);
-            if (visible()) Minecraft.getInstance().gui.rightHeight = Math.max(Minecraft.getInstance().gui.rightHeight, reservedHeight);
+            var mc = Minecraft.getInstance();
+            boolean fasting = mc.level != null && mc.getCameraEntity() == mc.player
+                    && ClientCultivationState.profile().map(profile -> KitchenRuntime.fasting(mc.level.registryAccess(), profile)).orElse(false);
+            if (!fasting) original.render(g, delta);
+            if (visible()) mc.gui.rightHeight = Math.max(mc.gui.rightHeight, reservedHeight);
         });
     }
 

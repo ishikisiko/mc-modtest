@@ -137,6 +137,7 @@ public final class MyVillageMod {
         com.example.myvillage.aptitude.AptitudeContent.bootstrap();
         com.example.myvillage.storagebag.StorageBagContent.register(modEventBus);
         ModItems.register(modEventBus);
+        com.example.myvillage.kitchen.KitchenContent.register(modEventBus);
         com.example.myvillage.item.BeastMaterialContent.register(modEventBus);
         com.example.myvillage.equipment.EquipmentContent.register(modEventBus);
         com.example.myvillage.equipment.immortal.ImmortalEquipmentContent.register(modEventBus);

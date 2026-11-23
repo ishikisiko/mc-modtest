@@ -95,6 +95,10 @@ Topic notes: [Plaque Frame Brief](plaque-frame-brief.md), [Plaque Inscription St
 
 运行时资源瘦身：[跨建筑共享几何、模型与结构分组、PNG无损重压和标准资源包读取](../features/runtime-resource-packing.md)。
 
+
+
+灵膳与厨房：[十道灵膳、切配与砖灶接料](../../guidebook/getting_started/kitchen.md)。数值与配方由厨房规则供运行时和资源生成器共用。
+
 ## Technical contracts and maintenance
 
 See [contracts/README.md](../contracts/README.md) for the eight topic documents

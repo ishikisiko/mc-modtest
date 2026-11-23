@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.151.0
+
+- 新增十道灵膳、十种备料和可在普通耕地种植的鲜姜。饱食度和饱和度独立显示，菜效持续半小时，同一玩家同时保留一道菜的效果。
+- 新增石磨、砧板、菜刀和砖灶。砖灶支持选菜、提示投料、红石启停和分方向漏斗进出，成品与空容器各有存放槽。
+- 筑基后进入辟谷，脱战后缓慢恢复生命。炼气玩家脱战时，饱食触发的自然回血按最大生命折算。
+
+
 ## 0.150.2
 
 - 服用丹药需要长按 10 tick。各类丹药独立冷却，同一种的各品质共用计时。冷却在物品上以暗色钟面显示，持续药效在生命条上方显示丹药图标。

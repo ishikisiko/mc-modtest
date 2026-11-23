@@ -1,0 +1,424 @@
+{
+  "duration_ticks": 36000,
+  "prep_batch_limit": 8,
+  "knife_durability": 128,
+  "charcoal_batches": 8,
+  "combat_delay_ticks": 240,
+  "recovery_interval_ticks": 20,
+  "recovery_fraction": 0.0033333333333333335,
+  "food_use_seconds": 1.6,
+  "vanilla_reference_health": 20,
+  "ginger": {
+    "id": "kitchen_ginger",
+    "name": "鲜姜"
+  },
+  "prep": [
+    {
+      "id": "kitchen_flour",
+      "name": "面粉",
+      "station": "mill",
+      "method": "手摇研磨",
+      "ingredients": [
+        {
+          "item": "minecraft:wheat",
+          "count": 1
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "kitchen_dough",
+      "name": "面团",
+      "station": "table",
+      "method": "加水揉面",
+      "ingredients": [
+        {
+          "item": "yuanxian:kitchen_flour",
+          "count": 2
+        },
+        {
+          "item": "minecraft:water_bucket",
+          "count": 1
+        }
+      ],
+      "count": 2
+    },
+    {
+      "id": "kitchen_raw_noodles",
+      "name": "生面条",
+      "station": "board",
+      "method": "擀平、切条",
+      "ingredients": [
+        {
+          "item": "yuanxian:kitchen_dough",
+          "count": 1
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "kitchen_beef_chunks",
+      "name": "牛肉块",
+      "station": "board",
+      "method": "切块",
+      "ingredients": [
+        {
+          "item": "minecraft:beef",
+          "count": 1
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "kitchen_carrot_dice",
+      "name": "胡萝卜丁",
+      "station": "board",
+      "method": "切丁",
+      "ingredients": [
+        {
+          "item": "minecraft:carrot",
+          "count": 1
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "kitchen_ginger_mince",
+      "name": "姜末",
+      "station": "board",
+      "method": "剁碎",
+      "ingredients": [
+        {
+          "item": "yuanxian:kitchen_ginger",
+          "count": 1
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "kitchen_cod_mince",
+      "name": "鳕鱼碎",
+      "station": "board",
+      "method": "剁鱼肉",
+      "ingredients": [
+        {
+          "item": "minecraft:cod",
+          "count": 1
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "kitchen_stock",
+      "name": "高汤",
+      "station": "stove",
+      "method": "熬汤底",
+      "ingredients": [
+        {
+          "item": "yuanxian:kitchen_carrot_dice",
+          "count": 1
+        },
+        {
+          "item": "minecraft:brown_mushroom",
+          "count": 1
+        },
+        {
+          "item": "minecraft:water_bucket",
+          "count": 1
+        }
+      ],
+      "count": 4,
+      "ticks": 240
+    },
+    {
+      "id": "kitchen_apple_halves",
+      "name": "对切苹果",
+      "station": "board",
+      "method": "切开去核",
+      "ingredients": [
+        {
+          "item": "minecraft:apple",
+          "count": 1
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "kitchen_leaf_honey",
+      "name": "聚灵叶蜜料",
+      "station": "table",
+      "method": "拌成蜜料",
+      "ingredients": [
+        {
+          "item": "minecraft:honey_bottle",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:spirit_leaf",
+          "count": 1
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "meals": [
+    {
+      "id": "kitchen_beef_noodles",
+      "name": "牛肉面",
+      "nutrition": 10,
+      "saturation": 12,
+      "percent": 10,
+      "ingredients": [
+        {
+          "item": "yuanxian:kitchen_raw_noodles",
+          "count": 2
+        },
+        {
+          "item": "yuanxian:kitchen_beef_chunks",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_stock",
+          "count": 1
+        },
+        {
+          "item": "minecraft:bowl",
+          "count": 1
+        }
+      ],
+      "method": "煮面",
+      "ticks": 180
+    },
+    {
+      "id": "kitchen_beef_stew",
+      "name": "土豆炖牛肉",
+      "nutrition": 12,
+      "saturation": 14,
+      "percent": 12,
+      "ingredients": [
+        {
+          "item": "yuanxian:kitchen_beef_chunks",
+          "count": 1
+        },
+        {
+          "item": "minecraft:potato",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_carrot_dice",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_stock",
+          "count": 1
+        },
+        {
+          "item": "minecraft:bowl",
+          "count": 1
+        }
+      ],
+      "method": "慢炖",
+      "ticks": 260
+    },
+    {
+      "id": "kitchen_pumpkin_pancake",
+      "name": "南瓜烙饼",
+      "nutrition": 6,
+      "saturation": 7,
+      "percent": 15,
+      "ingredients": [
+        {
+          "item": "minecraft:pumpkin",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_dough",
+          "count": 1
+        },
+        {
+          "item": "minecraft:egg",
+          "count": 1
+        }
+      ],
+      "method": "烙饼",
+      "ticks": 180
+    },
+    {
+      "id": "kitchen_carrot_eggs",
+      "name": "胡萝卜炒蛋",
+      "nutrition": 6,
+      "saturation": 6,
+      "percent": 20,
+      "ingredients": [
+        {
+          "item": "yuanxian:kitchen_carrot_dice",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_ginger_mince",
+          "count": 1
+        },
+        {
+          "item": "minecraft:egg",
+          "count": 1
+        }
+      ],
+      "method": "快炒",
+      "ticks": 120
+    },
+    {
+      "id": "kitchen_salmon_soup",
+      "name": "海带鲑鱼汤",
+      "nutrition": 8,
+      "saturation": 10,
+      "percent": 25,
+      "ingredients": [
+        {
+          "item": "minecraft:salmon",
+          "count": 1
+        },
+        {
+          "item": "minecraft:kelp",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_ginger_mince",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_stock",
+          "count": 1
+        },
+        {
+          "item": "minecraft:bowl",
+          "count": 1
+        }
+      ],
+      "method": "煮汤",
+      "ticks": 180
+    },
+    {
+      "id": "kitchen_cod_cakes",
+      "name": "煎鳕鱼饼",
+      "nutrition": 6,
+      "saturation": 8,
+      "percent": 15,
+      "ingredients": [
+        {
+          "item": "yuanxian:kitchen_cod_mince",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_flour",
+          "count": 1
+        },
+        {
+          "item": "minecraft:egg",
+          "count": 1
+        }
+      ],
+      "method": "煎饼",
+      "ticks": 180
+    },
+    {
+      "id": "kitchen_honey_pork",
+      "name": "蜜汁猪排",
+      "nutrition": 9,
+      "saturation": 14,
+      "percent": 5,
+      "ingredients": [
+        {
+          "item": "minecraft:porkchop",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_ginger_mince",
+          "count": 1
+        },
+        {
+          "item": "minecraft:honey_bottle",
+          "count": 1
+        }
+      ],
+      "method": "煎后刷蜜",
+      "ticks": 180
+    },
+    {
+      "id": "kitchen_dew_lamb",
+      "name": "凝露羊肉汤",
+      "nutrition": 9,
+      "saturation": 11,
+      "percent": 20,
+      "ingredients": [
+        {
+          "item": "minecraft:mutton",
+          "count": 1
+        },
+        {
+          "item": "minecraft:potato",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_stock",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:dew_blossom",
+          "count": 1
+        },
+        {
+          "item": "minecraft:bowl",
+          "count": 1
+        }
+      ],
+      "method": "炖后放花",
+      "ticks": 260
+    },
+    {
+      "id": "kitchen_spirit_mushrooms",
+      "name": "聚灵叶菌菇汤",
+      "nutrition": 5,
+      "saturation": 6,
+      "percent": 15,
+      "ingredients": [
+        {
+          "item": "minecraft:brown_mushroom",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_stock",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:spirit_leaf",
+          "count": 1
+        },
+        {
+          "item": "minecraft:bowl",
+          "count": 1
+        }
+      ],
+      "method": "煮后放叶",
+      "ticks": 180
+    },
+    {
+      "id": "kitchen_honey_apples",
+      "name": "蜜烤苹果",
+      "nutrition": 4,
+      "saturation": 3,
+      "percent": 10,
+      "ingredients": [
+        {
+          "item": "yuanxian:kitchen_apple_halves",
+          "count": 1
+        },
+        {
+          "item": "yuanxian:kitchen_leaf_honey",
+          "count": 1
+        }
+      ],
+      "method": "刷蜜后烤",
+      "ticks": 180
+    }
+  ]
+}

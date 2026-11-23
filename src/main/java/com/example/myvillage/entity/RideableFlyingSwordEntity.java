@@ -4,6 +4,7 @@ import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.entity.flight.*;
 import com.example.myvillage.item.ModItems;
+import com.example.myvillage.kitchen.KitchenRuntime;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -37,6 +38,7 @@ public final class RideableFlyingSwordEntity extends Entity {
     private int flightTicks;
     private int emptyTicks;
     private long prepaidTicks;
+    private int cruiseMealRemainder;
     private boolean warned;
 
     private UUID ownerUuid;
@@ -162,7 +164,17 @@ public final class RideableFlyingSwordEntity extends Entity {
         long rate = FlyingSwordFlight.cost(phase, rules);
         if (!creative && phase != FlyingSwordFlight.Phase.EMPTY_DESCENT
                 && (prepaidTicks <= 0 || phase == FlyingSwordFlight.Phase.BOOST && phase() != phase)) {
-            if (!CultivationService.spendSpiritualPower(owner, rate)) {
+            if (phase == FlyingSwordFlight.Phase.CRUISE) {
+                int percent = KitchenRuntime.percent(owner, "kitchen_honey_apples");
+                if (percent > 0) {
+                    long partial = (rate % 100) * percent + cruiseMealRemainder;
+                    rate -= rate / 100 * percent + partial / 100;
+                    cruiseMealRemainder = (int) (partial % 100);
+                } else {
+                    cruiseMealRemainder = 0;
+                }
+            }
+            if (rate > 0 && !CultivationService.spendSpiritualPower(owner, rate)) {
                 landing = true;
                 // Spend the remaining qi once, then enter irreversible emergency descent.
                 long left = CultivationService.getProfile(owner).currentSpiritualPower();

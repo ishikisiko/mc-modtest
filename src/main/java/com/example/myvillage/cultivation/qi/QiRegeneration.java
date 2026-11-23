@@ -26,6 +26,11 @@ public final class QiRegeneration {
     }
 
     public long tick(QiRules rules, int coreFactorBasisPoints, int recoveryQuarters, boolean meditating, boolean full) {
+        return tick(rules, coreFactorBasisPoints, recoveryQuarters, meditating, full, 0);
+    }
+
+    public long tick(QiRules rules, int coreFactorBasisPoints, int recoveryQuarters, boolean meditating, boolean full,
+                     int mealRecoveryPercent) {
         if (coreFactorBasisPoints < 0) throw new IllegalArgumentException("Core factor must be non-negative");
         if (recoveryQuarters < 0) throw new IllegalArgumentException("Fixed recovery must be non-negative");
         if (full) fraction = 0;
@@ -36,9 +41,11 @@ public final class QiRegeneration {
         BigInteger scaled = BigInteger.valueOf(rules.regenAmount())
                 .multiply(BigInteger.valueOf(coreFactorBasisPoints))
                 .multiply(BigInteger.valueOf(meditating ? rules.meditationMultiplier() : 1))
-                .add(BigInteger.valueOf(recoveryQuarters).multiply(BigInteger.valueOf(125L * rules.regenIntervalTicks())))
-                .add(BigInteger.valueOf(fraction));
-        BigInteger[] result = scaled.divideAndRemainder(UNIT);
+                .add(BigInteger.valueOf(recoveryQuarters).multiply(BigInteger.valueOf(125L * rules.regenIntervalTicks())));
+        if (mealRecoveryPercent > 0) {
+            scaled = scaled.multiply(BigInteger.valueOf(100L + mealRecoveryPercent)).divide(BigInteger.valueOf(100));
+        }
+        BigInteger[] result = scaled.add(BigInteger.valueOf(fraction)).divideAndRemainder(UNIT);
         fraction = result[1].longValueExact();
         return result[0].min(MAX_LONG).longValueExact();
     }

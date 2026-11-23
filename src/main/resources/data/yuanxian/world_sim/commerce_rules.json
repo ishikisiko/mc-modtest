@@ -287,6 +287,7 @@
       "capacity": 64,
       "medicine_cost": 0
     },
+    {"id": "buy_kitchen_ginger", "role": "innkeeper", "kind": "buy", "item": "yuanxian:kitchen_ginger", "quantity": 1, "price": 2, "pool": "items", "units": 1, "initial_stock": 12, "capacity": 24, "medicine_cost": 0},
     {
       "id": "inn_rest",
       "role": "innkeeper",

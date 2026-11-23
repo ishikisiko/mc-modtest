@@ -6,6 +6,7 @@ import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
 import com.example.myvillage.cultivation.technique.HeartTechniques;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
+import com.example.myvillage.kitchen.KitchenRuntime;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.resources.ResourceLocation;
@@ -100,8 +101,9 @@ public final class SpiritualPowerRuntime {
             MeditationStatus status = MeditationManager.status(player);
             boolean meditating = status.state().meditating() && status.study().isEmpty() && status.practice().isEmpty();
             var recovery = HeartTechniques.recovery(player.registryAccess(), profile, WorldSimRuntime.data().map(data -> data.rules()));
+            int mealRecovery = meditating ? KitchenRuntime.percent(player, "kitchen_spirit_mushrooms") : 0;
             long recovered = timer.tick(currentRules, recovery.basisPoints(), recovery.quarters(), meditating,
-                    profile.currentSpiritualPower() >= cap);
+                    profile.currentSpiritualPower() >= cap, mealRecovery);
             if (recovered > 0) CultivationService.recoverSpiritualPower(player, recovered);
         }
     }

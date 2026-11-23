@@ -723,6 +723,17 @@ tasks.register('generateBeastMaterials', Exec) {
 tasks.named('compileJava') { dependsOn 'generateBeastMaterials' }
 tasks.named('processResources') { dependsOn 'generateBeastMaterials' }
 
+tasks.register('generateKitchenAssets', Exec) {
+    workingDir projectDir
+    executable pythonExecutable.get()
+    args '-m', 'tools.kitchen.generate'
+    inputs.files(fileTree('tools/kitchen') { exclude '**/__pycache__/**', '**/*.pyc' },
+            'tools/language_assets.py', 'src/main/resources/data/yuanxian/kitchen/rules.json')
+    outputs.dir(layout.buildDirectory.dir('generated/kitchen/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/kitchen/resources'))
+tasks.named('processResources') { dependsOn 'generateKitchenAssets' }
+
 tasks.register('generateStorageBags', Exec) {
     dependsOn 'generateAllStructures', 'generateBeastMaterials'
     workingDir projectDir
