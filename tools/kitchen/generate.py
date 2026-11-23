@@ -258,6 +258,10 @@ def generate(output):
     generate_equipment(assets, data)
     generate_ginger(assets, data, rules["ginger"]["id"])
     generate_recipes(data, rules)
+    write_json(data / "tags/item/kitchen_ingredients.json", {
+        "replace": False,
+        "values": [f"{NAMESPACE}:{entry['id']}" for entry in [rules["ginger"], *rules["prep"]]],
+    })
     write_json(data / "tags/block/kitchen_mining.json", {
         "replace": False,
         "values": [{"id": "#c:ores", "required": False}, "#minecraft:base_stone_overworld",

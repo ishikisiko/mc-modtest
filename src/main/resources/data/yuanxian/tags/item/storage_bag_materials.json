@@ -45,6 +45,10 @@
     "yuanxian:zhuji_wuyao_yeque_ingot",
     "yuanxian:zhuji_yuheng_yizhuang_ingot",
     {
+      "id": "#yuanxian:kitchen_ingredients",
+      "required": false
+    },
+    {
       "id": "#yuanxian:storage_bag_materials/extra",
       "required": false
     }

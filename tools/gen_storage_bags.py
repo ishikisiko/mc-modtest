@@ -42,7 +42,8 @@ def material_values(root: Path) -> list[str | dict]:
         "yuanxian:raw_xuantie",
         "yuanxian:blood_spirit_ingot",
     }
-    return [*sorted(values), {"id": EXTRA, "required": False}]
+    return [*sorted(values), {"id": "#yuanxian:kitchen_ingredients", "required": False},
+            {"id": EXTRA, "required": False}]
 
 
 def outputs(root: Path = ROOT) -> dict[Path, bytes]:
