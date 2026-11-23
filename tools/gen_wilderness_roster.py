@@ -58,7 +58,7 @@ def outputs(root=ROOT):
     add('data/yuanxian/wilderness/roster.json',c)
     # Existing authored legacy rules remain intact; this generator owns only these new IDs.
     ar=json.loads((res/'data/yuanxian/alchemy/rules.json').read_text())
-    ids={m['pill_id'] for m in c['mobs']};ar['recipes']=[r for r in ar['recipes'] if r['id'] not in ids]
+    medicine_recipes={}
     fr=json.loads((res/'data/yuanxian/forging/rules.json').read_text())
     langs={loc:json.loads((res/f'assets/yuanxian/lang/{loc}.json').read_text()) for loc in ('zh_cn','en_us')}
     def name(key,value):
@@ -97,10 +97,12 @@ def outputs(root=ROOT):
         formula='formula_'+pill
         add('data/yuanxian/recipe/'+formula+'.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:paper'},{'item':'yuanxian:'+mid},{'item':m['alchemy_herbs'][0]},{'tag':'c:spirit_stones/low_grade'}],'result':{'id':'yuanxian:'+formula,'count':1}})
         add('data/yuanxian/advancement/recipes/misc/'+formula+'.json',{'parent':'minecraft:recipes/root','criteria':{'has_material':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':['yuanxian:'+mid]}]}}},'requirements':[['has_material']],'rewards':{'recipes':['yuanxian:'+formula]}})
-        ar['recipes'].append({'id':pill,'formula':'yuanxian:'+formula,'ingredients':['yuanxian:'+mid,*m['alchemy_herbs']],'fuel_count':m['fuel_count'],'duration_ticks':m['brew_ticks'],'output':'yuanxian:pill_'+pill,'output_count':m['output_count'],'minimum_aptitude':m['minimum_aptitude'],'quality_tier':m['alchemy_tier'],'difficulty':m['alchemy_difficulty']})
+        medicine_recipes[pill]={'id':pill,'formula':'yuanxian:'+formula,'ingredients':['yuanxian:'+mid,*m['alchemy_herbs']],'fuel_count':m['fuel_count'],'duration_ticks':m['brew_ticks'],'output':'yuanxian:pill_'+pill,'output_count':m['output_count'],'minimum_aptitude':m['minimum_aptitude'],'quality_tier':m['alchemy_tier'],'difficulty':m['alchemy_difficulty']}
         fr['traits'][trait]={'costs':{'yuanxian:'+mid:m['trait_cost']},'values':c['traits'][trait]['values']}
         for recipe in fr['recipes']:
             if recipe['id'] in ('qingfeng_sword','lingxiao_spear') and trait not in recipe['traits']:recipe['traits'].append(trait)
+    # 更新战备丹方时保留已展示的顺序，新丹方追加到末尾。
+    ar['recipes']=[medicine_recipes.pop(recipe['id'],recipe) for recipe in ar['recipes']]+list(medicine_recipes.values())
     add('data/yuanxian/alchemy/rules.json',ar);add('data/yuanxian/forging/rules.json',fr)
     index=json.loads((res/'data/yuanxian/beast/index.json').read_text())
     # schema-1 index is a list wrapped under beasts.
