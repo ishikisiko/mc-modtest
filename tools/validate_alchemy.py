@@ -13,6 +13,7 @@ import zipfile
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from tools import crafting_quality
+from tools.runtime_resources.read import DirectoryResources
 
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = Path('src/main/resources')
@@ -375,20 +376,23 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     if jar is not None:
         try:
             with zipfile.ZipFile(jar) as archive:
+                logical = DirectoryResources(zipfile.Path(archive))
+                physical = set(archive.namelist())
                 for item in REMOVED_RECIPES:
                     name=f'data/yuanxian/recipe/{item}.json'
-                    if name in archive.namelist():error('ALCHEMY_JAR', f'{name}: removed acquisition recipe packaged')
+                    if name in physical or name in logical.entries:
+                        error('ALCHEMY_JAR', f'{name}: removed acquisition recipe packaged')
                 for name in JAR_CLASSES:
-                    if name not in archive.namelist():
+                    if name not in physical:
                         error('ALCHEMY_JAR', f'{name}: missing runtime class')
                 for relative in sorted(checked):
                     name = relative.relative_to(RESOURCES).as_posix()
                     try:
-                        if archive.read(name) != (root / relative).read_bytes():
+                        if logical.read(name) != (root / relative).read_bytes():
                             error('ALCHEMY_JAR', f'{name}: stale packaged resource')
-                    except (KeyError, OSError) as exc:
+                    except (AssertionError, IndexError, KeyError, OSError, ValueError) as exc:
                         error('ALCHEMY_JAR', f'{name}: {exc}')
-        except (OSError, zipfile.BadZipFile) as exc:
+        except (KeyError, OSError, ValueError, zipfile.BadZipFile) as exc:
             error('ALCHEMY_JAR', str(exc))
     return {'errors': errors, 'checked_resources': sorted(str(p) for p in checked),
             'checked_sources': sorted(str(p) for p in source_paths)}

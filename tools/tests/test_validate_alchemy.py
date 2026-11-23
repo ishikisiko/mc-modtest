@@ -10,6 +10,7 @@ import zipfile
 from pathlib import Path
 
 from tools import validate_alchemy as validator
+from tools.runtime_resources.pack import CONFIG, pack
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -250,6 +251,25 @@ class AlchemyResourceTest(unittest.TestCase):
             self.assertTrue(any(e.startswith('ALCHEMY_JAR:') for e in validator.validate(self.root, jar)['errors']))
         jar.write_bytes(b'not zip')
         self.assertTrue(any(e.startswith('ALCHEMY_JAR:') for e in validator.validate(self.root, jar)['errors']))
+
+    def test_jar_reads_models_from_shared_resource_groups(self):
+        contents = self.root / 'packed-fixture'
+        config = self.root / 'packing.json'
+        config.write_text(json.dumps({**json.loads(CONFIG.read_text()), 'catalogs': [], 'png_recompress': False}))
+        for relative in map(Path, self.report['checked_resources']):
+            target = contents / relative.relative_to(validator.RESOURCES)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(self.root / relative, target)
+        pack(contents, config_path=config)
+        self.assertFalse((contents / 'assets/yuanxian/models/item/pill_huiling.json').exists())
+        jar = self.root / 'packed.jar'
+        with zipfile.ZipFile(jar, 'w') as archive:
+            for name in validator.JAR_CLASSES:
+                archive.writestr(name, b'fixture class')
+            for path in contents.rglob('*'):
+                if path.is_file():
+                    archive.write(path, path.relative_to(contents).as_posix())
+        self.assertEqual([], validator.validate(self.root, jar)['errors'])
 
     def test_client_quality_authority_and_new_alchemy_payload_rejected(self):
         client = self.root / validator.JAVA / 'client/alchemy/AlchemyScreen.java'
