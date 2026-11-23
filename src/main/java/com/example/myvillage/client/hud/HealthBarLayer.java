@@ -40,7 +40,7 @@ public final class HealthBarLayer {
         event.wrapLayer(VanillaGuiLayers.FOOD_LEVEL, original -> (g, delta) -> {
             var mc = Minecraft.getInstance();
             boolean fasting = mc.level != null && mc.getCameraEntity() == mc.player
-                    && ClientCultivationState.profile().map(profile -> KitchenRuntime.fasting(mc.level.registryAccess(), profile)).orElse(false);
+                    && ClientCultivationState.latest().map(profile -> KitchenRuntime.fasting(mc.level.registryAccess(), profile)).orElse(false);
             if (!fasting) original.render(g, delta);
             if (visible()) mc.gui.rightHeight = Math.max(mc.gui.rightHeight, reservedHeight);
         });
