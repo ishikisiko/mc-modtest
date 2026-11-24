@@ -113,9 +113,12 @@ public final class OtherworldHerbEvidence {
     }
 
     private static void cultivation(ServerLevel level, Case c, int index) {
-        int x = 8 + 8 * index;
-        var support = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, 8) + 1, 8);
+        int x = 8 + 16 * index;
+        level.getChunk(x >> 4, 0);
+        int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, 8);
+        var support = new BlockPos(x, Math.max(ground + 1, level.getMinBuildHeight() + 32), 8);
         var pos = support.above();
+        if (!level.isEmptyBlock(pos)) throw new IllegalStateException("Planting test plot is occupied at " + pos);
         var player = new FakePlayer(level, new GameProfile(UUID.randomUUID(), "OtherworldHerbs"));
         player.setGameMode(GameType.SURVIVAL);
         player.moveTo(x + 2.5, support.getY() + 1, 8.5, 0, 0);
