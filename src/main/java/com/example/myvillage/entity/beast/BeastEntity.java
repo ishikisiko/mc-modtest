@@ -494,6 +494,18 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
 
     protected int moveGapTicks() { return definition().chase().moveGapTicks(); }
 
+    protected boolean chase(LivingEntity target) {
+        return getNavigation().moveTo(target, definition().chase().speedModifier());
+    }
+
+    /** Body facing during the telegraph. A sideways move can aim with a flank instead of the head. */
+    protected float aimYaw(BeastMoveDefinition move, LivingEntity target) {
+        return BeastGeometry.yawToward(target.getX() - getX(), target.getZ() - getZ());
+    }
+
+    /** Local impact axis once the body has locked; it is also the horizontal push direction. */
+    protected float impactYaw(BeastMoveDefinition move) { return lockedYaw; }
+
     private long[] eligibleReadyAt(LivingEntity target) {
         long[] eligible = readyAt;
         for (int index = 0; index < eligible.length; index++) {
@@ -542,7 +554,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         getNavigation().stop();
         getMoveControl().setWantedPosition(getX(), getY(), getZ(), 0.0);
         if (move.turnsAt(moveTick) && target != null) {
-            turnToward(target.getX(), target.getZ());
+            faceYaw(Mth.approachDegrees(getYRot(), aimYaw(move, target), TURN_DEGREES_PER_TICK));
         }
         if (move.locksAt(moveTick)) {
             lockAim(move, target);
@@ -562,11 +574,6 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
             endMove(move.cooldownTicks());
         }
         }
-    }
-
-    private void turnToward(double x, double z) {
-        float wanted = BeastGeometry.yawToward(x - getX(), z - getZ());
-        faceYaw(Mth.approachDegrees(getYRot(), wanted, TURN_DEGREES_PER_TICK));
     }
 
     private void faceYaw(float yaw) {
@@ -606,12 +613,13 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         double x = getX();
         double y = getY();
         double z = getZ();
-        AABB bounds = BeastGeometry.hitBounds(hit, x, y, z, lockedYaw);
+        float yaw = impactYaw(move);
+        AABB bounds = BeastGeometry.hitBounds(hit, x, y, z, yaw);
         List<LivingEntity> found = level().getEntitiesOfClass(LivingEntity.class, bounds, candidate ->
                 candidate != this
                         && !victims.contains(candidate.getId())
                         && isVictim(candidate, target)
-                        && BeastGeometry.hitOverlaps(hit, x, y, z, lockedYaw, candidate.getBoundingBox()));
+                        && BeastGeometry.hitOverlaps(hit, x, y, z, yaw, candidate.getBoundingBox()));
         found.sort(Comparator.comparingDouble(this::distanceToSqr));
         for (LivingEntity victim : found) {
             if (victims.size() >= move.maximumTargets()) {
@@ -651,7 +659,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         if (!hurt) {
             return;
         }
-        knockBack(victim, move.knockback(), before);
+        knockBack(victim, move.knockback(), impactYaw(move), before);
         EnchantmentHelper.doPostAttackEffects(serverLevel, victim, source);
         setLastHurtMob(victim);
     }
@@ -660,12 +668,12 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
      * Replaces vanilla's hurt knockback (0.4 away from the attacker plus a hop) with the move's push
      * along the locked yaw, scaled by the victim's knockback resistance.
      */
-    private void knockBack(LivingEntity victim, BeastMoveDefinition.Knockback knockback, Vec3 before) {
+    private void knockBack(LivingEntity victim, BeastMoveDefinition.Knockback knockback, float yaw, Vec3 before) {
         double scale = 1.0 - Mth.clamp(victim.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE), 0.0, 1.0);
         if (scale <= 0.0) {
             return;
         }
-        Vec3 forward = BeastGeometry.forward(lockedYaw);
+        Vec3 forward = BeastGeometry.forward(yaw);
         double horizontal = knockback.strength() * scale;
         double lift = knockback.lift() * scale;
         victim.setDeltaMovement(

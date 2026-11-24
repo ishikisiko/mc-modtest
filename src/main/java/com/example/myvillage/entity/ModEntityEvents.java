@@ -6,6 +6,8 @@ import com.example.myvillage.entity.beast.BeastDefinitions;
 import com.example.myvillage.entity.beast.BeastEntity;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
 import com.example.myvillage.entity.beast.ThunderTigerEntity;
+import com.example.myvillage.entity.beast.LotusGuardEntity;
+import com.example.myvillage.entity.beast.LotusGuardRules;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import com.example.myvillage.wilderness.WildernessRules;
 import com.example.myvillage.wilderness.runtime.WildernessRuntime;
@@ -48,6 +50,9 @@ public final class ModEntityEvents {
         event.put(ModEntities.CULTIVATOR.get(), CultivatorEntity.createAttributes().build());
         event.put(ModEntities.THUNDER_TIGER.get(),
                 BeastEntity.createAttributes(BeastDefinitions.bundled().require(ThunderTigerEntity.ID)).build());
+        var lotus = BeastDefinitions.bundled().require(LotusGuardEntity.ID);
+        LotusGuardRules.validateMoves(lotus);
+        event.put(ModEntities.LOTUS_GUARD.get(), BeastEntity.createAttributes(lotus).build());
     }
 
     @SubscribeEvent

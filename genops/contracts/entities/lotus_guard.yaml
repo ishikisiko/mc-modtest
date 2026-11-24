@@ -1,0 +1,97 @@
+schema_version: 1
+project:
+  mod_id: yuanxian
+  java_package: com.example.myvillage
+  minecraft_version: 1.21.1
+  neoforge_version: 21.1.233
+  java_version: 21
+data_sources:
+  server_data: data/yuanxian/beast/lotus_guard.json
+entity:
+  id: lotus_guard
+  resource_location: yuanxian:lotus_guard
+  display_name:
+    zh_cn: 伏莲兽
+    en_us: 伏莲兽
+  mob_category: monster
+  kind: monster
+  base_class: com.example.myvillage.entity.beast.BeastEntity
+  java_class: com.example.myvillage.entity.beast.LotusGuardEntity
+  temperament: boss
+physical:
+  collider_source: data/yuanxian/beast/lotus_guard_boss.json#body
+  model_source: art/entities/lotus_guard/author.cjs
+  summonable: true
+  saveable: true
+  client_tracking_range: 16
+attributes:
+  source: data/yuanxian/beast/lotus_guard.json#attributes
+  encounter_realm_source: data/yuanxian/beast/lotus_guard_boss.json#encounter
+  registered:
+    - max_health
+    - attack_damage
+    - movement_speed
+    - follow_range
+    - armor
+    - knockback_resistance
+    - step_height
+behavior:
+  goals: 大体型地面追击，在配置的战台范围内停步、转身、咬击和拍甲。
+  target_goals: 仅选择可攻击的生存和冒险玩家，每次命中核对距离、视线和阵营。
+  combat:
+    source: data/yuanxian/beast/lotus_guard.json#moves
+    windup: 伏莲兽向一侧露出落甲方向，锁定身体朝向后完成拍击。
+    strike: 服务器在岩甲接触台面的一帧检测岩甲一侧近地范围，使用共享妖兽命中去重和伤害入口。
+    recovery: 落下的一侧岩缝暴露，来自对应侧腹方向的玩家归属伤害提高。
+    boss_bar: 进入交战范围时显示生命条，露出岩缝时改变条色。
+  moves:
+    - id: yuanxian:lotus_guard_bite
+      animation: bite
+    - id: yuanxian:lotus_guard_left_slam
+      animation: left_slam
+    - id: yuanxian:lotus_guard_right_slam
+      animation: right_slam
+  stagger:
+    animation: stagger
+  synchronization: 共用妖兽招式索引和时点，客户端根据同一时长的骨骼动画显示。
+  persistence: 保存健康、固定境界和战台绑定。重启安全结束临时攻击。世界保存槽通过战斗回执区分卸载与击败。
+rendering:
+  renderer: 共用 BeastRenderer 和骨骼表面网格
+  source: art/entities/lotus_guard/author.cjs
+  provenance: 用已确认三维样稿的表面顶点和程序纹理编译游戏网格和像素图集。
+  generator: tools/beastgen/defs/lotus_guard.py
+  atlas: 按原 UV 重复边界确定性铺开，眼与侧腹细纹使用局部亮图层。
+  clips:
+    - id: idle
+    - id: walk
+    - id: run
+    - id: bite
+    - id: left_slam
+    - id: right_slam
+    - id: stagger
+    - id: hurt
+    - id: death
+sound:
+  source: 原版岩石、深板岩与矿物震响音效
+  cues: 行走、蓄力、拍击、受击、倒下
+loot:
+  policy: 奖励为遭遇配置中的经验，物品掉落表留空。
+items:
+  primary_color: "52636D"
+  secondary_color: "AB7183"
+spawn:
+  natural: false
+  biome_modifier: null
+  spawn_placement: null
+  strategy: planned_arena
+  site: 修仙大陆的东荒石莲山战台，由现有世界规划提供坐标。
+  policy: 附近有生存或冒险玩家、脚下和净空有效时占用一个持久首领槽。已击败后保留记录。
+  ambient_biome_spawn: false
+  spawn_egg: yuanxian:lotus_guard_spawn_egg
+acceptance:
+  human_verdict_status: human_review_pending
+validation:
+  - 校验模型尺寸、骨骼、面、纹理和招式时序。
+  - 检查左右拍击的可打范围和侧腹反击范围。
+  - 专用服验证战台生成、普通战斗和活动／击杀后的重启。
+  - 采集实际客户端画面，保留玩家视觉和完整战斗手感的人工验收状态。

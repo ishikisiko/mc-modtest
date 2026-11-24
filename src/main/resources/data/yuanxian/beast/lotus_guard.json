@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:lotus_guard",
+  "attributes": {
+    "max_health": 240,
+    "attack_damage": 5.8,
+    "movement_speed": 0.192,
+    "follow_range": 34,
+    "armor": 11,
+    "knockback_resistance": 0.95,
+    "step_height": 0.7
+  },
+  "chase": {
+    "speed_modifier": 0.96,
+    "move_gap_ticks": 16,
+    "cancelled_cooldown_ticks": 24
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:lotus_guard_bite",
+      "animation": "bite",
+      "total_ticks": 33,
+      "windup_ticks": 15,
+      "turn_lock_tick": 7,
+      "active_ticks": [
+        15,
+        15
+      ],
+      "immune_ticks": [
+        12,
+        17
+      ],
+      "damage_multiplier": 0.86,
+      "maximum_targets": 2,
+      "use_range": [
+        0,
+        7
+      ],
+      "cooldown_ticks": 31,
+      "weight": 3,
+      "lunge": {
+        "tick": 14,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          2.8,
+          7.0
+        ],
+        "half_width": 2.25,
+        "height": [
+          -0.1,
+          3.2
+        ]
+      },
+      "knockback": {
+        "strength": 0.23,
+        "lift": 0.06
+      }
+    },
+    {
+      "id": "yuanxian:lotus_guard_left_slam",
+      "animation": "left_slam",
+      "total_ticks": 78,
+      "windup_ticks": 30,
+      "turn_lock_tick": 9,
+      "active_ticks": [
+        30,
+        30
+      ],
+      "immune_ticks": [
+        0,
+        31
+      ],
+      "damage_multiplier": 1.4,
+      "maximum_targets": 6,
+      "use_range": [
+        1.7,
+        7.2
+      ],
+      "cooldown_ticks": 111,
+      "weight": 4,
+      "lunge": {
+        "tick": 29,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          2.25,
+          6.72
+        ],
+        "half_width": 3.65,
+        "height": [
+          -0.32,
+          1.56
+        ]
+      },
+      "knockback": {
+        "strength": 0.49,
+        "lift": 0.06
+      }
+    },
+    {
+      "id": "yuanxian:lotus_guard_right_slam",
+      "animation": "right_slam",
+      "total_ticks": 78,
+      "windup_ticks": 30,
+      "turn_lock_tick": 9,
+      "active_ticks": [
+        30,
+        30
+      ],
+      "immune_ticks": [
+        0,
+        31
+      ],
+      "damage_multiplier": 1.4,
+      "maximum_targets": 6,
+      "use_range": [
+        1.7,
+        7.2
+      ],
+      "cooldown_ticks": 111,
+      "weight": 4,
+      "lunge": {
+        "tick": 29,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          2.25,
+          6.72
+        ],
+        "half_width": 3.65,
+        "height": [
+          -0.32,
+          1.56
+        ]
+      },
+      "knockback": {
+        "strength": 0.49,
+        "lift": 0.06
+      }
+    }
+  ]
+}

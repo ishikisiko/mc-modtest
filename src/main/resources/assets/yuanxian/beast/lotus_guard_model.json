@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "id": "yuanxian:lotus_guard",
+  "texture": {"width": 2048, "height": 2048},
+  "look": {"bone": "head", "max_yaw": 12.0, "max_pitch": 8.0},
+  "shadow_radius": 4.1,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, -43.84, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -2.24, -45.44],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "jaw",
+      "parent": "head",
+      "pivot": [0.0, 13.76, -12.96],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "front_right",
+      "parent": "body",
+      "pivot": [-44.32, -10.88, -28.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-17.1867, 52.4, -34.7952],
+          "size": [4.0, 2.0, 4.0],
+          "uv": [16, 0],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "hind_right",
+      "parent": "body",
+      "pivot": [-40.0, -0.64, 40.16],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-13.4274, 42.0, -7.0972],
+          "size": [4.0, 2.0, 4.0],
+          "uv": [48, 0],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "front_left",
+      "parent": "body",
+      "pivot": [44.32, -10.88, -31.2],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [12.2365, 52.4, -34.7952],
+          "size": [4.0, 2.0, 4.0],
+          "uv": [0, 0],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "hind_left",
+      "parent": "body",
+      "pivot": [40.0, -0.64, 43.36],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [8.2434, 42.0, -7.0972],
+          "size": [4.0, 2.0, 4.0],
+          "uv": [32, 0],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "right_armor",
+      "parent": "body",
+      "pivot": [-43.04, -0.32, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "left_armor",
+      "parent": "body",
+      "pivot": [43.04, -0.32, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail",
+      "parent": "body",
+      "pivot": [0.0, 4.0, 57.12],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/lotus_guard_surface.json"
+}

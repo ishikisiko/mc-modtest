@@ -10,6 +10,7 @@ import com.example.myvillage.entity.beast.FrostplumePheasantEntity;
 import com.example.myvillage.entity.beast.LanternSporelingEntity;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
 import com.example.myvillage.entity.beast.ThunderTigerEntity;
+import com.example.myvillage.entity.beast.LotusGuardEntity;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -68,6 +69,14 @@ public final class ModEntities {
                     .clientTrackingRange(16)
                     .updateInterval(1)
                     .build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<LotusGuardEntity>> LOTUS_GUARD =
+            ENTITY_TYPES.register("lotus_guard", id -> {
+                var body = LotusGuardEntity.rules().body();
+                return EntityType.Builder.of(LotusGuardEntity::new, MobCategory.MONSTER)
+                        .sized(body.width(), body.height()).eyeHeight(body.eyeHeight())
+                        .clientTrackingRange(16).updateInterval(1).build(id.toString());
+            });
 
     /** 修仙者: about 1.9 blocks to the top of the head, the hair bun a little above the box; no natural spawning. */
     public static final DeferredHolder<EntityType<?>, EntityType<CultivatorEntity>> CULTIVATOR =

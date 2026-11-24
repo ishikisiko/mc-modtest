@@ -86,10 +86,11 @@ public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastMo
         poseStack.scale(modelScale, modelScale, modelScale);
     }
 
-    /** The tiger's owned death clip already carries the fall; avoid a second vanilla roll. */
+    /** The authored boss death clips already carry the fall. */
     @Override
     protected float getFlipDegrees(T beast) {
-        return beast instanceof ThunderTigerEntity ? 0.0F : super.getFlipDegrees(beast);
+        return beast instanceof ThunderTigerEntity || beast instanceof com.example.myvillage.entity.beast.LotusGuardEntity
+                ? 0.0F : super.getFlipDegrees(beast);
     }
 
     /** Registers a beast entity type's renderer. */

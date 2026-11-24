@@ -61,7 +61,7 @@ BEAST_LUNGE_FIELDS = {"tick", "forward_min", "forward_max", "up"}
 BEAST_HIT_FIELDS = {"forward", "half_width", "height"}
 BEAST_KNOCKBACK_FIELDS = {"strength", "lift"}
 MODEL_FIELDS = {"schema", "id", "texture", "look", "shadow_radius", "bones"}
-MODEL_OPTIONAL_FIELDS = {"scale"}  # renderer scale, 1 when absent
+MODEL_OPTIONAL_FIELDS = {"scale", "surface_mesh"}
 BONE_FIELDS = {"name", "parent", "pivot", "rotation", "cubes"}
 CUBE_FIELDS = {"origin", "size", "uv", "inflate", "mirror"}
 ANIMATION_FIELDS = {"schema", "id", "clips"}
@@ -658,6 +658,50 @@ def check_beast_model(model: Any, entity_id: str) -> tuple[list[str], set[str]]:
     return errors, set(names)
 
 
+def check_beast_surface(root: Path, entity_id: str, mesh_id: Any, bones: set[str]) -> list[str]:
+    errors: list[str] = []
+    namespace, _ = split_id(entity_id)
+    if not isinstance(mesh_id, str) or not ID_PATTERN.fullmatch(mesh_id) or ".." in mesh_id:
+        return ["invalid_surface_mesh_id"]
+    ns, path = split_id(mesh_id)
+    if ns != namespace or not path.startswith("beast/") or not path.endswith(".json"):
+        return ["invalid_surface_mesh_path"]
+    mesh = require_json(root / RESOURCE_ROOT / f"assets/{ns}/{path}", errors)
+    if not _fields(mesh, "surface_mesh", {"schema", "id", "parts"}, errors):
+        return errors
+    if mesh["id"] != entity_id or mesh["schema"] != 1 or not isinstance(mesh["parts"], list) or not mesh["parts"]:
+        return errors + ["invalid_surface_mesh_header"]
+    total = 0
+    visited = set()
+    for part in mesh["parts"]:
+        if not _fields(part, "surface_part", {"bone", "triangles"}, errors):
+            continue
+        name, triangles = part["bone"], part["triangles"]
+        if not isinstance(name, str) or name not in bones or name in visited:
+            errors.append("invalid_surface_bone")
+            continue
+        visited.add(name)
+        if not isinstance(triangles, list) or not triangles:
+            errors.append(f"empty_surface_bone:{name}")
+            continue
+        total += len(triangles)
+        for triangle in triangles:
+            if not isinstance(triangle, list) or len(triangle) != 15 or not all(is_number(v) for v in triangle):
+                errors.append(f"invalid_surface_face:{name}")
+                break
+            if any(not (0 <= v <= 1 if i % 5 >= 3 else -256 <= v <= 256) for i, v in enumerate(triangle)):
+                errors.append(f"surface_face_outside_bounds:{name}")
+                break
+            ax, ay, az = (triangle[i+5] - triangle[i] for i in range(3))
+            bx, by, bz = (triangle[i+10] - triangle[i] for i in range(3))
+            if (ay*bz-az*by)**2 + (az*bx-ax*bz)**2 + (ax*by-ay*bx)**2 < 1e-14:
+                errors.append(f"degenerate_surface_face:{name}")
+                break
+    if total > 8192:
+        errors.append(f"surface_face_count_over_limit:{total}")
+    return errors
+
+
 def check_beast_animations(animations: Any, entity_id: str, bones: set[str], data: Any,
                            looping: tuple[str, ...] = RESERVED_CLIPS) -> list[str]:
     """Schema-1 clips plus the cross-file rules ``BeastAnimationFile.check`` enforces: the
@@ -829,9 +873,26 @@ def check_entity_registration(root: Path, entity_id: str, contract: str) -> list
     if not block:
         found.append(f"entity_type_not_registered:{name}")
         return found
-    for field, pattern in (("width", r"\.sized\(([\d.]+)F,"), ("height", r"\.sized\([\d.]+F,\s*([\d.]+)F\)"),
-                           ("eye_height", r"\.eyeHeight\(([\d.]+)F\)"),
-                           ("client_tracking_range", r"\.clientTrackingRange\((\d+)\)")):
+    source = yaml_scalar(physical, "collider_source")
+    fields = [("client_tracking_range", r"\.clientTrackingRange\((\d+)\)")]
+    if source:
+        ns, _ = split_id(entity_id)
+        expected = f"data/{ns}/beast/{name}_boss.json"
+        if source != expected + "#body":
+            found.append("physical_collider_source_invalid")
+        else:
+            data = require_json(root / RESOURCE_ROOT / expected, found)
+            body = data.get("body", {}) if isinstance(data, dict) else {}
+            if not isinstance(body, dict) or not all(_rule(body.get(key), "positive")
+                                                     for key in ("width", "height", "eye_height")):
+                found.append("physical_collider_values_missing")
+        for token in (f"{class_name(name)}.rules().body()", ".sized(body.width(), body.height())", ".eyeHeight(body.eyeHeight())"):
+            if token not in block:
+                found.append(f"registration_missing_collider_source:{token}")
+    else:
+        fields[0:0] = [("width", r"\.sized\(([\d.]+)F,"), ("height", r"\.sized\([\d.]+F,\s*([\d.]+)F\)"),
+                       ("eye_height", r"\.eyeHeight\(([\d.]+)F\)")]
+    for field, pattern in fields:
         declared, registered = yaml_scalar(physical, field), float_literal(block, pattern)
         if declared is None or registered is None or float(declared) != registered:
             found.append(f"registration_differs_from_contract:{field}:{registered}!={declared}")
@@ -947,6 +1008,12 @@ def check_no_natural_spawning(root: Path, entity_id: str, contract: str, kind: s
     strategy = yaml_scalar(spawn, "strategy")
     if strategy == "structure_anchor":
         found.extend(check_structure_encounter(root, entity_id, contract, kind))
+    elif strategy == "planned_arena":
+        runtime = root / JAVA_ROOT / "worldplan"
+        require_text(runtime / "runtime/WorldPlanRuntime.java", ["LotusArenaEncounter::tick"], found)
+        require_text(runtime / "wonder/LotusArenaEncounter.java",
+                     ["lotusMountain()", f"ModEntities.{const}.get().create(level)", "level.areEntitiesLoaded(",
+                      "level.noCollision(", "LairProgress", "BattleReceipts"], found)
     elif strategy is not None:
         found.append(f"{kind}_spawn_strategy_unknown:{strategy}")
     elif yaml_scalar(spawn, "structure_encounter") == "true":
@@ -1111,6 +1178,8 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
     if model:
         model_errors, bones = check_beast_model(model, entity_id)
         add("beast_model", model_errors)
+        if isinstance(model, dict) and "surface_mesh" in model:
+            add("beast_surface", check_beast_surface(root, entity_id, model["surface_mesh"], bones))
     animations = require_json(assets / f"beast/{name}_animations.json", found)
     if animations:
         add("beast_animations", check_beast_animations(animations, entity_id, bones, data))

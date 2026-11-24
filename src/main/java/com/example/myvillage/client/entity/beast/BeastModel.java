@@ -1,6 +1,7 @@
 package com.example.myvillage.client.entity.beast;
 
 import com.example.myvillage.entity.beast.BeastEntity;
+import com.example.myvillage.entity.beast.LotusGuardEntity;
 import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import java.util.Map;
 import java.util.Optional;
@@ -99,7 +100,8 @@ public class BeastModel<T extends BeastEntity> extends HierarchicalModel<T> {
     public void setupAnim(T beast, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         root.getAllParts().forEach(ModelPart::resetPose);
         ThunderTigerEntity tiger = beast instanceof ThunderTigerEntity value ? value : null;
-        boolean presentation = tiger != null && (tiger.isPresentationShown() || tiger.isHurtShown());
+        boolean presentation = tiger != null && (tiger.isPresentationShown() || tiger.isHurtShown())
+                || beast instanceof LotusGuardEntity lotus && lotus.isPresentationShown();
         if (tiger != null) {
             ModelPart hornTip = bones.get("horn_tip");
             if (hornTip != null) {

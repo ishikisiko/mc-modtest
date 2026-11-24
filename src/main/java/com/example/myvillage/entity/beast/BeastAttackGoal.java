@@ -63,7 +63,7 @@ final class BeastAttackGoal extends Goal {
         }
         if (--ticksUntilRepath <= 0) {
             ticksUntilRepath = adjustedTickDelay(4 + beast.getRandom().nextInt(7));
-            if (!beast.getNavigation().moveTo(target, beast.definition().chase().speedModifier())) {
+            if (!beast.chase(target)) {
                 // A path cannot start in mid-air (knocked back, still landing); retry as soon as it lands.
                 ticksUntilRepath = beast.onGround() ? ticksUntilRepath + 15 : 1;
             }

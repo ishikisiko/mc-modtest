@@ -119,6 +119,11 @@ public final class ModItems {
                     props -> new DeferredSpawnEggItem(ModEntities.THUNDER_TIGER,
                             0xB9C0C6, 0x252930, props));
 
+    public static final DeferredItem<DeferredSpawnEggItem> LOTUS_GUARD_SPAWN_EGG =
+            ITEMS.registerItem("lotus_guard_spawn_egg",
+                    props -> new DeferredSpawnEggItem(ModEntities.LOTUS_GUARD,
+                            0x52636D, 0xAB7183, props));
+
     public static final DeferredItem<RideableFlyingSwordItem> AZURE_CLOUD_FLYING_SWORD =
             ITEMS.registerItem("azure_cloud_flying_sword", props -> new RideableFlyingSwordItem(props.stacksTo(1), true));
     public static final DeferredItem<RideableFlyingSwordItem> RIDEABLE_FLYING_SWORD =
@@ -471,6 +476,7 @@ public final class ModItems {
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(DEMON_WOLF_SPAWN_EGG.get());
                         output.accept(THUNDER_TIGER_SPAWN_EGG.get());
+                        output.accept(LOTUS_GUARD_SPAWN_EGG.get());
                         output.accept(CULTIVATOR_SPAWN_EGG.get());
                         output.accept(RIDEABLE_FLYING_SWORD.get());
                         output.accept(AZURE_CLOUD_FLYING_SWORD.get());

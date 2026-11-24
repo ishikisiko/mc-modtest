@@ -109,7 +109,10 @@ public final class WorldPlanCommands {
             result.addProperty("name", "石莲山");
             var arena = generator.lotusMountain().map(com.example.myvillage.worldplan.wonder.LotusMountain::arena);
             result.addProperty("status", arena.isPresent() ? "planned" : "unavailable");
-            arena.ifPresent(pos -> result.add("arena", WorldPlanRules.JSON.toJsonTree(new int[]{pos.getX(), pos.getY(), pos.getZ()})));
+            arena.ifPresent(pos -> {
+                result.add("arena", WorldPlanRules.JSON.toJsonTree(new int[]{pos.getX(), pos.getY(), pos.getZ()}));
+                result.addProperty("boss_state", com.example.myvillage.worldplan.wonder.LotusArenaEncounter.status(source.getLevel(), pos));
+            });
             return reply(source, result);
         } catch (Exception e) { return fail(source, e); }
     }

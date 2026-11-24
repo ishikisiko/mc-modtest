@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "body": {"width": 9.2, "height": 6.8, "eye_height": 2.86, "shadow_radius": 4.1},
+  "encounter": {"realm": "yuanxian:qi_refining", "stage": 8, "experience": 75},
+  "arena": {
+    "wake_radius": 33,
+    "home_x": 20,
+    "home_z": 15,
+    "target_x": 33,
+    "target_z": 27,
+    "elevation": 8,
+    "check_ticks": 20,
+    "repath_ticks": 16,
+    "observer_radius": 42
+  },
+  "armor": {"return_ticks": 14, "weak_multiplier": 1.55, "flank_near": 2.65, "flank_half_length": 4.15}
+}
