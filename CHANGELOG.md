@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.154.0
+
+- 灵岳野外生成折山岭。岩层弯折形成高低相通的夹层，路边和夹层暗处生长灯苔，岩壁与岩顶的古土上生长鳞蕨。
+- 灯妖和岩鳐在折山岭夹层自然生成，生成与光照无关。灯妖伏在夹层地面，近身后抬灯横扫，玩家击败可得苔灯芯。岩鳐攀在岩壁上，发现目标后松爪掠击，玩家击败可得叠岩鳍片。
+
 ## 0.153.0-fix1
 
 - 伏莲兽使用现有水墨首领血条，显示境界、气血百分比和当前暴露的侧腹弱点。

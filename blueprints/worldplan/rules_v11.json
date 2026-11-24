@@ -12,6 +12,14 @@
     "clearance": 24,
     "surface_relief": 52
   },
+  "folded_ridge": {
+    "region": "lingyue",
+    "site_radius": 3200,
+    "candidate_attempts": 1200,
+    "clearance": 24,
+    "surface_relief": 76,
+    "edge_blend": 36
+  },
   "assets": {
     "accepted_versions": [
       "v4"

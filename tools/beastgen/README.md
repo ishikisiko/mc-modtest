@@ -96,3 +96,6 @@ tick-for-tick, kept as the reference for that fix). A ground lunge (`up` 0) gets
   entity (`quadruped.move_flight`).
 - Previews light the model with the game's two fixed entity lights for a body yaw of 135 degrees;
   `lighting.png` shows the brightest and darkest headings and dim light.
+
+
+折山岭的灯妖 `lantern_carrier` 和岩鳐 `cliff_ray` 使用 `blueprints/beasts/folded_ridge/` 下的 Blockbench 原稿及姿态。沿用 `python3 -m tools.beastgen build <实体 ID>` 重生成分骨面网格、动画与贴图。

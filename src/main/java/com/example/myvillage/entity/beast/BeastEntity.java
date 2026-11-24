@@ -457,7 +457,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
      * before it can ever answer.
      */
     public boolean tryStartMove(LivingEntity target) {
-        if (isMoveRunning() || !onGround() || CombatReactionService.isStaggered(this)
+        if (isMoveRunning() || !canLaunchMove() || CombatReactionService.isStaggered(this)
                 || !getSensing().hasLineOfSight(target)) {
             return false;
         }
@@ -488,6 +488,11 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         forcedMove = index.getAsInt();
         return true;
     }
+
+    protected boolean canLaunchMove() { return onGround(); }
+
+    /** Clip played by the idle animation state. */
+    public String idleClip() { return IDLE_CLIP; }
 
     /** Optional specialised eligibility; ordinary beasts retain their original selection. */
     protected boolean moveEligible(BeastMoveDefinition move, LivingEntity target) { return true; }

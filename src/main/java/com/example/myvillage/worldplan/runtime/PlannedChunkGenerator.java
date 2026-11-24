@@ -13,6 +13,7 @@ import com.example.myvillage.worldplan.mine.StarterMinePlacement;
 import com.example.myvillage.worldplan.mine.StarterMineCaveCarver;
 import com.example.myvillage.worldplan.mine.RegionalMineSite;
 import com.example.myvillage.worldplan.wonder.LotusMountain;
+import com.example.myvillage.worldplan.wonder.FoldedRidge;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -39,6 +40,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     public static final MapCodec<PlannedChunkGenerator> CODEC_V11=createCodec(WorldPlanRules.V11_ALGORITHM);
     private static MapCodec<PlannedChunkGenerator> createCodec(String algorithm){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("biome_source").forGetter(g->g.originalSource),
+        Biome.CODEC.fieldOf("folded_ridge_biome").forGetter(g->g.foldedRidgeBiome),
         NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(g->g.settings),
         Codec.STRING.fieldOf("rules").forGetter(g->WorldPlanRules.compressed(g.rules.algorithm) ? FrozenRulesEncoding.encode(g.rules.json()) : g.rules.json()),
         Codec.STRING.optionalFieldOf("plan_hash","").forGetter(PlannedChunkGenerator::savedFingerprint),
@@ -46,12 +48,13 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         StarterMineGeneration.CODEC.optionalFieldOf("starter_mine").forGetter(g->g.starterMine.snapshot()),
         RegionalMineSite.CODEC.listOf().optionalFieldOf("regional_mines").forGetter(g->g.starterMine.regionalSnapshot()),
         RegistryOps.retrieveGetter(Registries.NOISE)
-    ).apply(i,(source,settings,json,hash,roads,mine,regional,noises)->{
+    ).apply(i,(source,ridgeBiome,settings,json,hash,roads,mine,regional,noises)->{
         WorldPlanRules rules=new WorldPlanRules(WorldPlanRules.compressed(algorithm) ? FrozenRulesEncoding.decode(json) : json);
         if(!algorithm.equals(rules.algorithm))throw new IllegalArgumentException("Generator type must match frozen algorithm");
-        return new PlannedChunkGenerator(new PlannedBiomeSource(source,rules),source,settings,rules,hash,noises,roads,mine,regional);
+        return new PlannedChunkGenerator(new PlannedBiomeSource(source,ridgeBiome,rules),source,ridgeBiome,settings,rules,hash,noises,roads,mine,regional);
     }));}
     private final BiomeSource originalSource;
+    private final Holder<Biome> foldedRidgeBiome;
     private final Holder<NoiseGeneratorSettings> settings;
     private final HolderGetter<NormalNoise.NoiseParameters> noises;
     private final WorldPlanRules rules;
@@ -64,11 +67,9 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     private final StarterMineGeneration starterMine;
     private com.example.myvillage.wilderness.habitat.HabitatLayout habitats;
     private LotusMountain lotusMountain;
-    public PlannedChunkGenerator(BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises){
-        this(new PlannedBiomeSource(source,rules),source,settings,rules,expectedFingerprint,noises,Optional.empty(),Optional.empty(),Optional.empty());
-    }
-    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises,Optional<RoadLayout> cachedRoads,Optional<Either<StarterMineLayout,Shortfall>> cachedMine,Optional<List<RegionalMineSite>> cachedRegional){
-        super(planned);originalSource=source;plannedSource=planned;this.settings=settings;this.rules=rules;this.expectedFingerprint=expectedFingerprint;this.noises=noises;
+    private FoldedRidge foldedRidge;
+    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<Biome> ridgeBiome,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises,Optional<RoadLayout> cachedRoads,Optional<Either<StarterMineLayout,Shortfall>> cachedMine,Optional<List<RegionalMineSite>> cachedRegional){
+        super(planned);originalSource=source;foldedRidgeBiome=ridgeBiome;plannedSource=planned;this.settings=settings;this.rules=rules;this.expectedFingerprint=expectedFingerprint;this.noises=noises;
         // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
         roads=new RoadGeneration(cachedRoads);
@@ -82,6 +83,8 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     public com.example.myvillage.wilderness.habitat.HabitatLayout habitats(){if(habitats==null)throw new IllegalStateException("生态规划尚未就绪");return habitats;}
     public Optional<LotusMountain> lotusMountain(){return Optional.ofNullable(lotusMountain);}
     public boolean reservedByLotusMountain(int x,int y,int z){return lotusMountain!=null&&lotusMountain.reserved(x,y,z);}
+    public Optional<FoldedRidge> foldedRidge(){return Optional.ofNullable(foldedRidge);}
+    public boolean reservedByFoldedRidge(int x,int y,int z){return foldedRidge!=null&&foldedRidge.reserved(x,y,z);}
     public RandomState terrainState(){RandomState state=terrainState;if(state==null)throw new IllegalStateException("Worldplan noise requested before createState");return state;}
     private String savedFingerprint(){return plan==null?expectedFingerprint:plan.fingerprint();}
     @Override public synchronized ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structures,RandomState ignored,long seed){
@@ -107,6 +110,11 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
                     heightRange.getMinBuildHeight(),heightRange.getMaxBuildHeight()).orElse(null);
                 if(lotusMountain==null)org.slf4j.LoggerFactory.getLogger(PlannedChunkGenerator.class)
                     .warn("东荒未找到石莲山落点，seed={}",seed);
+                foldedRidge=FoldedRidge.plan(p,roadLayout,roads.rules(),starterMine,habitats,lotusMountain,
+                    heightRange.getMinBuildHeight(),heightRange.getMaxBuildHeight()).orElse(null);
+                plannedSource.bindFoldedRidge(foldedRidge);
+                if(foldedRidge==null)org.slf4j.LoggerFactory.getLogger(PlannedChunkGenerator.class)
+                    .warn("灵岳未找到折山岭落点，seed={}",seed);
             }
             catch(RuntimeException failure){roads.close();throw failure;}
             terrainState=state;
@@ -143,6 +151,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         if(!plan().intersectsCity(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ())&&!plan().intersectsSects(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ()))terrain.applyCarvers(region,seed,terrainState(),biomes,structures,chunk,step);
         if(step==GenerationStep.Carving.AIR&&region.getLevel().getServer().getWorldData().worldGenOptions().generateStructures())StarterMineCaveCarver.carve(plan(),starterMine,chunk);
         if(step==GenerationStep.Carving.AIR&&lotusMountain!=null)lotusMountain.place(chunk);
+        if(step==GenerationStep.Carving.AIR&&foldedRidge!=null)foldedRidge.place(chunk);
     }
     @Override public void createStructures(RegistryAccess registries,ChunkGeneratorStructureState state,StructureManager manager,ChunkAccess chunk,StructureTemplateManager templates){
         super.createStructures(registries,state,manager,chunk,templates);
@@ -151,6 +160,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             String id=registries.registryOrThrow(Registries.STRUCTURE).getKey(entry.getKey()).toString();
             boolean blocked=plan().intersectsCity(box.minX(),box.minZ(),box.maxX(),box.maxZ())||plan().intersectsSettlements(box.minX(),box.minZ(),box.maxX(),box.maxZ())||plan().intersectsSects(box.minX(),box.minZ(),box.maxX(),box.maxZ())||!plan().allowsStructure(id,chunk.getPos().getMiddleBlockX(),chunk.getPos().getMiddleBlockZ());
             if(!blocked&&lotusMountain!=null)blocked=lotusMountain.intersects(box.minX(),box.minZ(),box.maxX(),box.maxZ());
+            if(!blocked&&foldedRidge!=null)blocked=foldedRidge.intersects(box.minX(),box.minZ(),box.maxX(),box.maxZ());
             if(!blocked)for(var piece:start.getPieces()){var bounds=piece.getBoundingBox();if(roads.await().intersects(plan(),roads.rules(),bounds.minX(),bounds.minY(),bounds.minZ(),bounds.maxX(),bounds.maxY(),bounds.maxZ())){blocked=true;break;}}
             if(!blocked)for(var piece:start.getPieces()){var bounds=piece.getBoundingBox();if(starterMine.intersects(bounds.minX(),bounds.minY(),bounds.minZ(),bounds.maxX(),bounds.maxY(),bounds.maxZ())){blocked=true;break;}}
             if(blocked)chunk.setStartForStructure(entry.getKey(),StructureStart.INVALID_START);
@@ -161,7 +171,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         boolean structuresEnabled=level.getLevel().getServer().getWorldData().worldGenOptions().generateStructures();
         // Carvers have finished; roads now own their columns before structures and plants decorate them.
         if(structuresEnabled)RoadChunkPlacement.place(plan(),roads,chunk);
-        try(var decoration=WorldPlanGuard.decorating(plan(),structuresEnabled?roads:null,structuresEnabled?starterMine:null,lotusMountain)){
+        try(var decoration=WorldPlanGuard.decorating(plan(),structuresEnabled?roads:null,structuresEnabled?starterMine:null,lotusMountain,foldedRidge)){
             super.applyBiomeDecoration(level,chunk,structures);
             if(structuresEnabled){
                 PlannedCity.placeSlice(plan(),level,chunk);
@@ -185,6 +195,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     @Override public int getBaseHeight(int x,int z,Heightmap.Types type,LevelHeightAccessor level,RandomState ignored){
         int y=plan().surfaceY(x,z);if(type!=Heightmap.Types.OCEAN_FLOOR&&type!=Heightmap.Types.OCEAN_FLOOR_WG)y=Math.max(y,rules.seaLevel);
         if(lotusMountain!=null)y=lotusMountain.height(x,z,type,y);
+        if(foldedRidge!=null)y=foldedRidge.height(x,z,type,y);
         return Math.max(level.getMinBuildHeight(),Math.min(level.getMaxBuildHeight(),y));
     }
     @Override public NoiseColumn getBaseColumn(int x,int z,LevelHeightAccessor level,RandomState ignored){
@@ -202,6 +213,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             ?CapitalGamePlacement.column(ground,inside,y,target,rules.seaLevel,nativeColumn.getBlock(y))
             :columnBlock(nativeColumn.getBlock(y),y,target,nativeFloor);
         if(lotusMountain!=null)lotusMountain.replaceColumn(x,z,min,states);
+        if(foldedRidge!=null)foldedRidge.replaceColumn(x,z,min,states);
         return new NoiseColumn(min,states);
     }
     @Override public void addDebugScreenInfo(List<String> lines,RandomState ignored,BlockPos pos){

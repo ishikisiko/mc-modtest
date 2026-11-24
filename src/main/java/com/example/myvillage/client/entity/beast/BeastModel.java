@@ -118,7 +118,7 @@ public class BeastModel<T extends BeastEntity> extends HierarchicalModel<T> {
             if (presentation && BeastEntity.IDLE_CLIP.equals(entry.getKey())) {
                 continue;
             }
-            AnimationDefinition clip = clips.get(entry.getKey());
+            AnimationDefinition clip = clips.get(BeastEntity.IDLE_CLIP.equals(entry.getKey()) ? beast.idleClip() : entry.getKey());
             if (clip != null) {
                 animate(entry.getValue(), clip, time);
             }

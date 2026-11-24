@@ -1,0 +1,4 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": { "layer0": "yuanxian:item/moss_lantern_wick" }
+}

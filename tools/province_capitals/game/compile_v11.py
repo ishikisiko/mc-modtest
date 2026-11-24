@@ -81,6 +81,8 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     (out/lotus_resource).parent.mkdir(parents=True, exist_ok=True)
     (out/lotus_resource).write_bytes(lotus)
     frozen['lotus_mountain']={**spec['lotus_mountain'], 'sha256':sha(lotus)}
+    from tools.folded_ridge.compile import compile_assets as compile_folded_ridge
+    frozen['folded_ridge'] = {**spec['folded_ridge'], 'sha256': compile_folded_ridge(out)}
     policy=spec.get('topology',{})
     if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须开放州序规定的魔域关隘')
     frozen.update(policy)
@@ -111,7 +113,7 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError(f'V11 冻结规则超出既有边界：raw={len(raw)}，transport={len(transport)}')
     preset=json.loads((source/'data/yuanxian/worldgen/world_preset/cultivation.json').read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
     if generator['type']!=('yuanxian:planned_v11' if refresh_current else 'yuanxian:planned_v10'):raise ValueError('前置默认预设不是 V10')
-    generator.update(type='yuanxian:planned_v11',rules=transport);generator.pop('plan_hash',None)
+    generator.update(type='yuanxian:planned_v11',rules=transport,folded_ridge_biome='yuanxian:folded_ridge');generator.pop('plan_hash',None)
     write(out/'data/yuanxian/worldplan/frozen_v11.json',frozen);write(out/'data/yuanxian/worldgen/world_preset/cultivation.json',preset)
     report={'schema':1,'format':'capital_game_index','algorithm':spec['algorithm'],'cities':summaries,'total_tiles':sum(v['tiles'] for v in summaries),
             'total_bytes':sum(v['bytes'] for v in summaries),'frozen_rules_sha256':sha(raw),'source_rules_sha256':sha(original),

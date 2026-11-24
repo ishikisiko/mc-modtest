@@ -2,6 +2,7 @@ package com.example.myvillage.worldplan;
 
 import com.google.gson.*;
 import com.example.myvillage.worldplan.wonder.LotusMountain;
+import com.example.myvillage.worldplan.wonder.FoldedRidge;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
@@ -71,6 +72,7 @@ public final class WorldPlanRules {
     public final List<List<String>> progressionLevels;
     public final com.example.myvillage.wilderness.habitat.HabitatRules habitats;
     public final LotusMountain.Rules lotusMountain;
+    public final FoldedRidge.Rules foldedRidge;
     public final CityRules city;
     public final com.example.myvillage.worldplan.capital.CapitalGameRules capitals;
     public final SettlementRules settlements;
@@ -197,6 +199,12 @@ public final class WorldPlanRules {
         lotusMountain = new LotusMountain.Rules(lotusRegion, integer(lotus, "site_radius", 512, coreRadius),
             integer(lotus, "candidate_attempts", 1, 2048), integer(lotus, "clearance", 0, 128),
             integer(lotus, "surface_relief", 8, 96), text(lotus, "sha256"));
+        JsonObject ridge = r.getAsJsonObject("folded_ridge");
+        String ridgeRegion = text(ridge, "region");
+        profile(ridgeRegion);
+        foldedRidge = new FoldedRidge.Rules(ridgeRegion, integer(ridge, "site_radius", 512, coreRadius),
+            integer(ridge, "candidate_attempts", 1, 2048), integer(ridge, "clearance", 0, 128),
+            integer(ridge, "surface_relief", 8, 96), integer(ridge, "edge_blend", 8, 80), text(ridge, "sha256"));
         capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"));
         sects = new SectPlanningRules(r.getAsJsonObject("sects"));
         starterMine = new com.example.myvillage.worldplan.mine.StarterMineDefinition(r.getAsJsonObject("starter_mine"));

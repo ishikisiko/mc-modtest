@@ -124,6 +124,15 @@ public final class ModItems {
                     props -> new DeferredSpawnEggItem(ModEntities.LOTUS_GUARD,
                             0x52636D, 0xAB7183, props));
 
+    public static final DeferredItem<DeferredSpawnEggItem> LANTERN_CARRIER_SPAWN_EGG =
+            ITEMS.registerItem("lantern_carrier_spawn_egg",
+                    props -> new DeferredSpawnEggItem(ModEntities.LANTERN_CARRIER, 0x66543D, 0xBBC16F, props));
+    public static final DeferredItem<DeferredSpawnEggItem> CLIFF_RAY_SPAWN_EGG =
+            ITEMS.registerItem("cliff_ray_spawn_egg",
+                    props -> new DeferredSpawnEggItem(ModEntities.CLIFF_RAY, 0x52666A, 0xAD9164, props));
+    public static final DeferredItem<Item> MOSS_LANTERN_WICK = ITEMS.registerItem("moss_lantern_wick", Item::new);
+    public static final DeferredItem<Item> LAYERED_ROCK_FIN = ITEMS.registerItem("layered_rock_fin", Item::new);
+
     public static final DeferredItem<RideableFlyingSwordItem> AZURE_CLOUD_FLYING_SWORD =
             ITEMS.registerItem("azure_cloud_flying_sword", props -> new RideableFlyingSwordItem(props.stacksTo(1), true));
     public static final DeferredItem<RideableFlyingSwordItem> RIDEABLE_FLYING_SWORD =
@@ -183,6 +192,10 @@ public final class ModItems {
                     props -> new CombatWeaponItem(
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F))));
+
+    public static final DeferredItem<BlockItem> FOLDED_RIDGE_STONE = ITEMS.registerSimpleBlockItem(ModBlocks.FOLDED_RIDGE_STONE);
+    public static final DeferredItem<BlockItem> RIDGE_LAMP_MOSS = ITEMS.registerSimpleBlockItem(ModBlocks.RIDGE_LAMP_MOSS);
+    public static final DeferredItem<BlockItem> RIDGE_SCALE_FERN = ITEMS.registerSimpleBlockItem(ModBlocks.RIDGE_SCALE_FERN);
 
     public static final DeferredItem<BlockItem> SPIRIT_SOIL = ITEMS.registerItem("spirit_soil",
             props -> new BlockItem(ModBlocks.SPIRIT_SOIL.get(), props));
@@ -477,6 +490,10 @@ public final class ModItems {
                         output.accept(DEMON_WOLF_SPAWN_EGG.get());
                         output.accept(THUNDER_TIGER_SPAWN_EGG.get());
                         output.accept(LOTUS_GUARD_SPAWN_EGG.get());
+                        output.accept(LANTERN_CARRIER_SPAWN_EGG.get());
+                        output.accept(CLIFF_RAY_SPAWN_EGG.get());
+                        output.accept(MOSS_LANTERN_WICK.get());
+                        output.accept(LAYERED_ROCK_FIN.get());
                         output.accept(CULTIVATOR_SPAWN_EGG.get());
                         output.accept(RIDEABLE_FLYING_SWORD.get());
                         output.accept(AZURE_CLOUD_FLYING_SWORD.get());
@@ -494,6 +511,9 @@ public final class ModItems {
                         output.accept(HIGH_GRADE_SPIRIT_STONE.get());
                         output.accept(SPIRIT_STONE_BAG.get());
                         output.accept(DEMON_LURE_PEARL.get());
+                        output.accept(FOLDED_RIDGE_STONE.get());
+                        output.accept(RIDGE_LAMP_MOSS.get());
+                        output.accept(RIDGE_SCALE_FERN.get());
                         output.accept(SPIRIT_SOIL.get());
                         output.accept(CINDER_SOIL.get());
                         output.accept(END_SAND_SOIL.get());

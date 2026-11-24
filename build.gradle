@@ -537,6 +537,8 @@ tasks.register('generateProvinceCapitalV11Assets', Exec) {
             fileTree('blueprints/tianheng'),fileTree('tools/tianheng') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('blueprints/wilderness'),fileTree('tools/wilderness_habitats'),fileTree('src/main/resources/data/yuanxian/worldgen/region_profile'))
     inputs.files(fileTree('blueprints/worldplan/lotus_mountain'), fileTree('tools/lotus_mountain'))
+    inputs.files(fileTree('blueprints/worldplan/folded_ridge'), fileTree('tools/folded_ridge') { include '**/*.py' },
+            files('tools/gen_qingfeng_sword_model.py'))
     inputs.files(fileTree('blueprints/qianji'), fileTree('tools/qianji') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('blueprints/player_estates'), fileTree('tools/player_estates') { exclude '**/__pycache__/**', '**/*.pyc' })
     inputs.files(fileTree('blueprints/housing'), files(housingGeneratorInputs),fileTree('build/generated/housing/resources'))

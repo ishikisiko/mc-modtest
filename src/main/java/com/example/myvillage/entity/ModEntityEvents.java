@@ -7,6 +7,8 @@ import com.example.myvillage.entity.beast.BeastEntity;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
 import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import com.example.myvillage.entity.beast.LotusGuardEntity;
+import com.example.myvillage.entity.beast.LanternCarrierEntity;
+import com.example.myvillage.entity.beast.CliffRayEntity;
 import com.example.myvillage.entity.beast.LotusGuardRules;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import com.example.myvillage.wilderness.WildernessRules;
@@ -50,6 +52,11 @@ public final class ModEntityEvents {
         event.put(ModEntities.CULTIVATOR.get(), CultivatorEntity.createAttributes().build());
         event.put(ModEntities.THUNDER_TIGER.get(),
                 BeastEntity.createAttributes(BeastDefinitions.bundled().require(ThunderTigerEntity.ID)).build());
+        event.put(ModEntities.LANTERN_CARRIER.get(), BeastEntity.createAttributes(
+                BeastDefinitions.bundled().require(LanternCarrierEntity.ID)).build());
+        var ray = BeastDefinitions.bundled().require(CliffRayEntity.ID);
+        CliffRayEntity.validateMoves(ray);
+        event.put(ModEntities.CLIFF_RAY.get(), BeastEntity.createAttributes(ray).build());
         var lotus = BeastDefinitions.bundled().require(LotusGuardEntity.ID);
         LotusGuardRules.validateMoves(lotus);
         event.put(ModEntities.LOTUS_GUARD.get(), BeastEntity.createAttributes(lotus).build());
@@ -57,6 +64,10 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        event.register(ModEntities.LANTERN_CARRIER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                LanternCarrierEntity::checkSpawn, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.CLIFF_RAY.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                CliffRayEntity::checkSpawn, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         for (var entry : com.example.myvillage.legacy.LegacyContent.BEASTS.entrySet()) {
             if(com.example.myvillage.legacy.LegacyRules.get().beast(entry.getKey()).spawn().equals("natural"))
                 event.register(entry.getValue().get(),SpawnPlacementTypes.ON_GROUND,Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,

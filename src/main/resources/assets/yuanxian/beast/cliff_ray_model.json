@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "id": "yuanxian:cliff_ray",
+  "texture": {"width": 512, "height": 512},
+  "look": {"bone": "head", "max_yaw": 0, "max_pitch": 0},
+  "shadow_radius": 0.65,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 16.5, 0.0],
+      "rotation": [19.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -1.0, -9.0],
+      "rotation": [-16.0, -2.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "left_wing",
+      "parent": "body",
+      "pivot": [-10.1, -2.0, -2.8],
+      "rotation": [-9.0, 12.0, -56.0],
+      "cubes": []
+    },
+    {
+      "name": "left_outer_wing",
+      "parent": "left_wing",
+      "pivot": [-13.6, 0.2, 3.2],
+      "rotation": [-3.0, -3.0, -22.0],
+      "cubes": []
+    },
+    {
+      "name": "left_shin",
+      "parent": "body",
+      "pivot": [-6.3, 2.5, 6.4],
+      "rotation": [-5.0, 0.0, -2.0],
+      "cubes": []
+    },
+    {
+      "name": "left_hook",
+      "parent": "left_shin",
+      "pivot": [-0.2, 6.2, 2.5],
+      "rotation": [-2.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "right_wing",
+      "parent": "body",
+      "pivot": [10.1, -2.0, -2.8],
+      "rotation": [3.0, -9.0, 40.0],
+      "cubes": []
+    },
+    {
+      "name": "right_outer_wing",
+      "parent": "right_wing",
+      "pivot": [13.6, 0.2, 3.2],
+      "rotation": [4.0, 3.0, 15.0],
+      "cubes": []
+    },
+    {
+      "name": "right_shin",
+      "parent": "body",
+      "pivot": [6.3, 2.5, 6.4],
+      "rotation": [-5.0, 0.0, 2.0],
+      "cubes": []
+    },
+    {
+      "name": "right_hook",
+      "parent": "right_shin",
+      "pivot": [0.2, 6.2, 2.5],
+      "rotation": [-2.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail_base",
+      "parent": "body",
+      "pivot": [0.0, 0.0, 10.4],
+      "rotation": [-108.0, -1.0, -8.0],
+      "cubes": []
+    },
+    {
+      "name": "tail_mid",
+      "parent": "tail_base",
+      "pivot": [0.0, 0.1, 8.6],
+      "rotation": [-13.0, -9.0, -5.0],
+      "cubes": []
+    },
+    {
+      "name": "tail_tip",
+      "parent": "tail_mid",
+      "pivot": [0.0, 0.05, 7.5],
+      "rotation": [-9.0, -6.0, 3.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/cliff_ray_surface.json"
+}

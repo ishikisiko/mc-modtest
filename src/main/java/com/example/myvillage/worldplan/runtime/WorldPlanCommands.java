@@ -1,6 +1,7 @@
 package com.example.myvillage.worldplan.runtime;
 
 import com.example.myvillage.command.ModCommands;
+import com.example.myvillage.entity.ModEntities;
 
 import com.example.myvillage.worldplan.*;
 import com.example.myvillage.worldplan.mine.StarterMineGeneration;
@@ -10,6 +11,12 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.*;
@@ -26,6 +33,9 @@ public final class WorldPlanCommands {
             .then(Commands.literal("worldplan")
                 .then(Commands.literal("info").executes(c->info(c.getSource())))
                 .then(Commands.literal("mine").executes(c->mine(c.getSource())))
+                .then(Commands.literal("folded_ridge").executes(c->foldedRidge(c.getSource()))
+                    .then(Commands.literal("sample").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(c->foldedRidgeSample(c.getSource(),BlockPosArgument.getLoadedBlockPos(c,"pos"))))))
                 .then(Commands.literal("lotus_mountain").executes(c->lotusMountain(c.getSource())))
                 .then(Commands.literal("city").executes(c->cities(c.getSource(),""))
                     .then(Commands.argument("region",StringArgumentType.word())
@@ -101,6 +111,46 @@ public final class WorldPlanCommands {
         o.addProperty("atlas_directory",WorldPlanRuntime.directory(s.getLevel()).toString());return reply(s,o);
     }catch(Exception e){return fail(s,e);}}
     private static int at(CommandSourceStack s,int x,int z){try{return reply(s,WorldPlanRules.JSON.toJsonTree(generator(s).plan().sample(x,z)).getAsJsonObject());}catch(Exception e){return fail(s,e);}}
+    private static int foldedRidge(CommandSourceStack source) {
+        try {
+            var generator = generator(source);
+            var ridge = generator.foldedRidge();
+            var result = new JsonObject();
+            result.addProperty("region", generator.rules().foldedRidge.region());
+            result.addProperty("name", "折山岭");
+            result.addProperty("status", ridge.isPresent() ? "planned" : "unavailable");
+            ridge.ifPresent(site -> {
+                BlockPos origin = site.origin(), entry = site.entry();
+                result.add("origin", WorldPlanRules.JSON.toJsonTree(new int[]{origin.getX(), origin.getY(), origin.getZ()}));
+                result.add("entry", WorldPlanRules.JSON.toJsonTree(new int[]{entry.getX(), entry.getY(), entry.getZ()}));
+            });
+            return reply(source, result);
+        } catch (Exception e) { return fail(source, e); }
+    }
+
+    private static int foldedRidgeSample(CommandSourceStack source, BlockPos pos) {
+        try {
+            ServerLevel world = source.getLevel();
+            var result = new JsonObject();
+            var site = generator(source).foldedRidge().orElseThrow();
+            result.addProperty("interlayer", site.interlayer(pos.getX(), pos.getY(), pos.getZ()));
+            result.addProperty("biome", world.getBiome(pos).unwrapKey().orElseThrow().location().toString());
+            result.addProperty("sky_light", world.getBrightness(LightLayer.SKY, pos));
+            result.addProperty("block_light", world.getBrightness(LightLayer.BLOCK, pos));
+            var spawns = new JsonObject();
+            for (var type : List.of(ModEntities.LANTERN_CARRIER.get(), ModEntities.CLIFF_RAY.get())) {
+                var mob = type.create(world);
+                mob.moveTo(pos.getX()+.5, pos.getY(), pos.getZ()+.5, 0, 0);
+                boolean allowed = SpawnPlacements.isSpawnPositionOk(type, world, pos)
+                        && SpawnPlacements.checkSpawnRules(type, world, MobSpawnType.NATURAL, pos, RandomSource.create(0))
+                        && mob.checkSpawnRules(world, MobSpawnType.NATURAL) && mob.checkSpawnObstruction(world);
+                spawns.addProperty(net.minecraft.world.entity.EntityType.getKey(type).getPath(), allowed);
+            }
+            result.add("spawn_allowed", spawns);
+            return reply(source, result);
+        } catch (Exception e) { return fail(source, e); }
+    }
+
     private static int lotusMountain(CommandSourceStack source) {
         try {
             var generator = generator(source);

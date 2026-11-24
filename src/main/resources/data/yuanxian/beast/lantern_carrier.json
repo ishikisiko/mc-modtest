@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:lantern_carrier",
+  "attributes": {
+    "max_health": 96,
+    "attack_damage": 9,
+    "movement_speed": 0.28,
+    "follow_range": 12.0,
+    "armor": 3.0,
+    "knockback_resistance": 0.2,
+    "step_height": 1.0
+  },
+  "chase": {
+    "speed_modifier": 1.13,
+    "move_gap_ticks": 20,
+    "cancelled_cooldown_ticks": 32
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:lantern_carrier_sweep",
+      "animation": "sweep",
+      "total_ticks": 36,
+      "windup_ticks": 15,
+      "turn_lock_tick": 9,
+      "active_ticks": [
+        15,
+        18
+      ],
+      "immune_ticks": [
+        15,
+        18
+      ],
+      "damage_multiplier": 1.0,
+      "maximum_targets": 3,
+      "use_range": [
+        0.0,
+        3.0
+      ],
+      "cooldown_ticks": 42,
+      "weight": 1,
+      "lunge": {
+        "tick": 14,
+        "forward_min": 0.0,
+        "forward_max": 0.43,
+        "up": 0.0
+      },
+      "hit": {
+        "forward": [
+          -0.25,
+          2.75
+        ],
+        "half_width": 1.65,
+        "height": [
+          -0.2,
+          1.72
+        ]
+      },
+      "knockback": {
+        "strength": 0.48,
+        "lift": 0.07
+      }
+    }
+  ]
+}

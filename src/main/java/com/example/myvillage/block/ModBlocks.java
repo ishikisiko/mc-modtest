@@ -142,6 +142,16 @@ public final class ModBlocks {
                             .noOcclusion().pushReaction(PushReaction.BLOCK)
                             .lightLevel(state -> state.getValue(AlchemyFurnaceBlock.LIT) ? 9 : 0));
 
+    public static final DeferredBlock<FoldedRidgeStoneBlock> FOLDED_RIDGE_STONE = BLOCKS.registerBlock(
+            "folded_ridge_stone", FoldedRidgeStoneBlock::new, BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.DEEPSLATE).strength(2.0F, 6.0F).requiresCorrectToolForDrops().sound(SoundType.STONE));
+    public static final DeferredBlock<FoldedRidgePlantBlock> RIDGE_LAMP_MOSS = BLOCKS.registerBlock(
+            "ridge_lamp_moss", props -> new FoldedRidgePlantBlock(props, 5),
+            BlockBehaviour.Properties.of().noCollission().instabreak().sound(SoundType.MOSS).lightLevel(state -> 15));
+    public static final DeferredBlock<FoldedRidgePlantBlock> RIDGE_SCALE_FERN = BLOCKS.registerBlock(
+            "ridge_scale_fern", props -> new FoldedRidgePlantBlock(props, 11),
+            BlockBehaviour.Properties.of().noCollission().instabreak().sound(SoundType.GRASS));
+
     public static final DeferredBlock<SpiritSoilBlock> SPIRIT_SOIL =
             BLOCKS.registerBlock("spirit_soil", SpiritSoilBlock::new,
                     BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).strength(0.6F).sound(SoundType.GRAVEL));

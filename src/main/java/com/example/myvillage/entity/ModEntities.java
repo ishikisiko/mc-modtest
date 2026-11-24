@@ -11,6 +11,8 @@ import com.example.myvillage.entity.beast.LanternSporelingEntity;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
 import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import com.example.myvillage.entity.beast.LotusGuardEntity;
+import com.example.myvillage.entity.beast.LanternCarrierEntity;
+import com.example.myvillage.entity.beast.CliffRayEntity;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -77,6 +79,14 @@ public final class ModEntities {
                         .sized(body.width(), body.height()).eyeHeight(body.eyeHeight())
                         .clientTrackingRange(16).updateInterval(1).build(id.toString());
             });
+
+    public static final DeferredHolder<EntityType<?>, EntityType<LanternCarrierEntity>> LANTERN_CARRIER =
+            ENTITY_TYPES.register("lantern_carrier", id -> EntityType.Builder.of(LanternCarrierEntity::new, MobCategory.MONSTER)
+                    .sized(1.42F, 2.05F).eyeHeight(1.55F).clientTrackingRange(10).updateInterval(1).build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<CliffRayEntity>> CLIFF_RAY =
+            ENTITY_TYPES.register("cliff_ray", id -> EntityType.Builder.of(CliffRayEntity::new, MobCategory.MONSTER)
+                    .sized(1.48F, 1.34F).eyeHeight(.73F).clientTrackingRange(12).updateInterval(1).build(id.toString()));
 
     /** 修仙者: about 1.9 blocks to the top of the head, the hair bun a little above the box; no natural spawning. */
     public static final DeferredHolder<EntityType<?>, EntityType<CultivatorEntity>> CULTIVATOR =

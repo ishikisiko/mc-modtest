@@ -1,0 +1,10 @@
+{
+  "search_horizontal": 4,
+  "search_vertical": 2,
+  "scan_interval_ticks": 12,
+  "approach_ticks": 24,
+  "release_frame": 6,
+  "attack_arc_degrees": 63,
+  "dive_drop": 5.5,
+  "dive_rise": 1.3
+}

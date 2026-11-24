@@ -1,0 +1,41 @@
+{
+  "has_precipitation": true,
+  "temperature": 0.56,
+  "downfall": 0.66,
+  "effects": {
+    "fog_color": 10591650,
+    "sky_color": 10057142,
+    "water_color": 4159618,
+    "water_fog_color": 2249036,
+    "grass_color": 7839580,
+    "foliage_color": 6524255
+  },
+  "carvers": {},
+  "features": [],
+  "spawners": {
+    "monster": [
+      {
+        "type": "yuanxian:lantern_carrier",
+        "weight": 9,
+        "minCount": 1,
+        "maxCount": 1
+      },
+      {
+        "type": "yuanxian:cliff_ray",
+        "weight": 5,
+        "minCount": 1,
+        "maxCount": 1
+      }
+    ]
+  },
+  "spawn_costs": {
+    "yuanxian:lantern_carrier": {
+      "energy_budget": 0.16,
+      "charge": 1.1
+    },
+    "yuanxian:cliff_ray": {
+      "energy_budget": 0.12,
+      "charge": 1.25
+    }
+  }
+}

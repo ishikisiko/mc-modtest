@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:cliff_ray",
+  "attributes": {
+    "max_health": 112,
+    "attack_damage": 12,
+    "movement_speed": 0.56,
+    "follow_range": 16.0,
+    "armor": 5.0,
+    "knockback_resistance": 0.26,
+    "step_height": 1.0
+  },
+  "chase": {
+    "speed_modifier": 1.0,
+    "move_gap_ticks": 30,
+    "cancelled_cooldown_ticks": 32
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:cliff_ray_swoop",
+      "animation": "swoop",
+      "total_ticks": 40,
+      "windup_ticks": 11,
+      "turn_lock_tick": 11,
+      "active_ticks": [
+        11,
+        26
+      ],
+      "immune_ticks": [
+        11,
+        23
+      ],
+      "damage_multiplier": 1.0,
+      "maximum_targets": 2,
+      "use_range": [
+        2.0,
+        9.5
+      ],
+      "cooldown_ticks": 62,
+      "weight": 1,
+      "lunge": {
+        "tick": 11,
+        "forward_min": 0.0,
+        "forward_max": 0.0,
+        "up": 0.0
+      },
+      "hit": {
+        "forward": [
+          -0.45,
+          1.7
+        ],
+        "half_width": 1.38,
+        "height": [
+          -0.5,
+          1.1
+        ]
+      },
+      "knockback": {
+        "strength": 0.54,
+        "lift": 0.08
+      }
+    }
+  ]
+}

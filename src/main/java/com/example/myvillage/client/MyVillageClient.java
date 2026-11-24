@@ -70,6 +70,8 @@ public final class MyVillageClient {
         BeastRenderer.register(event, ModEntities.DEMON_WOLF);
         BeastRenderer.register(event, ModEntities.THUNDER_TIGER);
         BeastRenderer.register(event, ModEntities.LOTUS_GUARD);
+        BeastRenderer.register(event, ModEntities.LANTERN_CARRIER);
+        BeastRenderer.register(event, ModEntities.CLIFF_RAY);
         NpcRenderer.register(event, ModEntities.CULTIVATOR, CultivatorEntity.LOOKS);
     }
 
@@ -92,6 +94,8 @@ public final class MyVillageClient {
         BeastRenderer.registerLayer(event, ModEntities.DEMON_WOLF.getId());
         BeastRenderer.registerLayer(event, ModEntities.THUNDER_TIGER.getId());
         BeastRenderer.registerLayer(event, ModEntities.LOTUS_GUARD.getId());
+        BeastRenderer.registerLayer(event, ModEntities.LANTERN_CARRIER.getId());
+        BeastRenderer.registerLayer(event, ModEntities.CLIFF_RAY.getId());
         NpcRenderer.registerLayer(event, ModEntities.CULTIVATOR.getId(), CultivatorEntity.LOOKS);
     }
 

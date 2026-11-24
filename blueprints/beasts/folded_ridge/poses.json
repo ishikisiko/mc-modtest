@@ -1,0 +1,214 @@
+{
+  "lantern_carrier": {
+    "low": {
+      "torso": [
+        -13,
+        0,
+        -3
+      ],
+      "head": [
+        8,
+        -6,
+        3
+      ],
+      "left_upper_arm": [
+        17,
+        -5,
+        42
+      ],
+      "left_forearm": [
+        13,
+        3,
+        4
+      ],
+      "lantern": [
+        -9,
+        2,
+        -39
+      ],
+      "right_upper_arm": [
+        15,
+        0,
+        -14
+      ],
+      "right_forearm": [
+        5,
+        0,
+        -12
+      ]
+    },
+    "raise": {
+      "torso": [
+        -6,
+        -10,
+        0
+      ],
+      "head": [
+        5,
+        7,
+        0
+      ],
+      "left_upper_arm": [
+        25,
+        -6,
+        57
+      ],
+      "left_forearm": [
+        12,
+        -2,
+        15
+      ],
+      "lantern": [
+        -4,
+        12,
+        -61
+      ],
+      "right_upper_arm": [
+        19,
+        0,
+        -19
+      ],
+      "right_forearm": [
+        8,
+        0,
+        -26
+      ]
+    }
+  },
+  "cliff_ray": {
+    "perch": {
+      "root": [
+        -19,
+        0,
+        0
+      ],
+      "head": [
+        16,
+        2,
+        0
+      ],
+      "left_wing": [
+        9,
+        -12,
+        -56
+      ],
+      "left_outer_wing": [
+        3,
+        3,
+        -22
+      ],
+      "right_wing": [
+        -3,
+        9,
+        40
+      ],
+      "right_outer_wing": [
+        -4,
+        -3,
+        15
+      ],
+      "tail_base": [
+        108,
+        1,
+        -8
+      ],
+      "tail_mid": [
+        13,
+        9,
+        -5
+      ],
+      "tail_tip": [
+        9,
+        6,
+        3
+      ],
+      "left_shin": [
+        5,
+        0,
+        -2
+      ],
+      "right_shin": [
+        5,
+        0,
+        2
+      ],
+      "left_hook": [
+        2,
+        0,
+        0
+      ],
+      "right_hook": [
+        2,
+        0,
+        0
+      ]
+    },
+    "spread": {
+      "root": [
+        2,
+        -3,
+        -2
+      ],
+      "head": [
+        2,
+        0,
+        0
+      ],
+      "left_wing": [
+        1,
+        -8,
+        9
+      ],
+      "left_outer_wing": [
+        -2,
+        -4,
+        17
+      ],
+      "right_wing": [
+        -3,
+        8,
+        -7
+      ],
+      "right_outer_wing": [
+        1,
+        4,
+        -14
+      ],
+      "tail_base": [
+        -2,
+        0,
+        5
+      ],
+      "tail_mid": [
+        4,
+        -8,
+        7
+      ],
+      "tail_tip": [
+        9,
+        -5,
+        3
+      ],
+      "left_shin": [
+        28,
+        0,
+        -9
+      ],
+      "right_shin": [
+        28,
+        0,
+        9
+      ],
+      "left_hook": [
+        -36,
+        0,
+        0
+      ],
+      "right_hook": [
+        -36,
+        0,
+        0
+      ]
+    }
+  }
+}
