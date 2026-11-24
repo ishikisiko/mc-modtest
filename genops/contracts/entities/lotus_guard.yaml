@@ -43,7 +43,7 @@ behavior:
     windup: 伏莲兽向一侧露出落甲方向，锁定身体朝向后完成拍击。
     strike: 服务器在岩甲接触台面的一帧检测岩甲一侧近地范围，使用共享妖兽命中去重和伤害入口。
     recovery: 落下的一侧岩缝暴露，来自对应侧腹方向的玩家归属伤害提高。
-    boss_bar: 进入交战范围时显示生命条，露出岩缝时改变条色。
+    boss_bar: 进入交战范围时显示共用的水墨首领血条。境界、气血百分比和当前暴露的侧腹状态由服务器同步。
   moves:
     - id: yuanxian:lotus_guard_bite
       animation: bite

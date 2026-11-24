@@ -1,6 +1,7 @@
 package com.example.myvillage.entity.beast;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.boss.BossBarPresentation;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -36,8 +37,8 @@ import net.minecraft.world.phys.Vec3;
 public final class LotusGuardEntity extends BeastEntity {
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "lotus_guard");
 
-    private final ServerBossEvent healthBar = new ServerBossEvent(Component.translatable("entity.yuanxian.lotus_guard"),
-            BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
+    private final ServerBossEvent healthBar;
+    private final Component encounterLabel;
     private final Set<ServerPlayer> observers = new HashSet<>();
     private final AnimationState hurtPose = new AnimationState();
     private final AnimationState deathPose = new AnimationState();
@@ -52,6 +53,9 @@ public final class LotusGuardEntity extends BeastEntity {
         states.put("death", deathPose);
         animationStates = Map.copyOf(states);
         var identity = rules().encounter();
+        encounterLabel = Component.translatable("world_sim.stage." + identity.realm().getPath() + "." + (identity.stage() + 1));
+        healthBar = new ServerBossEvent(BossBarPresentation.lotusName(getDisplayName(), encounterLabel, 0),
+                BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
         if (!level.isClientSide()) {
             StatsRuntime.applyVanillaRealm(this, identity.realm().toString(), identity.stage());
             setHealth(getMaxHealth());
@@ -179,8 +183,10 @@ public final class LotusGuardEntity extends BeastEntity {
     }
 
     private void updateHealthBar() {
-        healthBar.setProgress(getHealth() / getMaxHealth());
-        healthBar.setColor(openFlank() == 0 ? BossEvent.BossBarColor.WHITE : BossEvent.BossBarColor.GREEN);
+        int flank = openFlank();
+        healthBar.setProgress(Mth.clamp(getHealth() / getMaxHealth(), 0, 1));
+        healthBar.setName(BossBarPresentation.lotusName(getDisplayName(), encounterLabel, flank));
+        healthBar.setColor(flank == 0 ? BossEvent.BossBarColor.WHITE : BossEvent.BossBarColor.GREEN);
         if (tickCount % rules().arena().checkTicks() != 0) return;
         double range = rules().arena().observerRadius();
         for (ServerPlayer player : observers) {

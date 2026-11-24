@@ -86,7 +86,7 @@ public final class CinnabarBossBar {
         int titleWidth = font.width(title), titleX = x + (w - titleWidth) / 2;
         drawText(g, font, title, titleX, b.top() + 8, 0xFFF1E7D0);
         int sealX = titleX + titleWidth + 5;
-        g.fill(sealX, b.top() + 3, sealX + 14, b.top() + 17, data.enraged() ? 0xFFA43C2D : 0xFF823F32);
+        g.fill(sealX, b.top() + 3, sealX + 14, b.top() + 17, data.emphasized() ? 0xFFA43C2D : 0xFF823F32);
         g.renderOutline(sealX, b.top() + 3, 14, 14, 0xBFD6AC86);
         Component seal = Component.translatable("hud.yuanxian.boss.seal").withStyle(DETAIL);
         g.drawString(font, seal, sealX + (14 - font.width(seal)) / 2, b.top() + 6, 0xFFF3DFBB, false);
@@ -94,10 +94,10 @@ public final class CinnabarBossBar {
         Component percent = Component.literal(Math.round(hp * 100) + "%").withStyle(DETAIL);
         Component realm = fit(font, data.realm().getString(), w / 4, DETAIL);
         int left = x + font.width(realm) + 8, right = x + w - font.width(percent) - 8;
-        Component status = fit(font, data.phase().getString() + " · " + data.horn().getString(), Math.max(1, right - left), DETAIL);
+        Component status = fit(font, data.status().getString(), Math.max(1, right - left), DETAIL);
         int statusX = Math.clamp(x + (w - font.width(status)) / 2, left, Math.max(left, right - font.width(status)));
         drawText(g, font, realm, x, b.detailsY(), 0xFFE1D8C1);
-        drawText(g, font, status, statusX, b.detailsY(), data.enraged() ? 0xFFEAA58E : 0xFFE1D8C1);
+        drawText(g, font, status, statusX, b.detailsY(), data.emphasized() ? 0xFFEAA58E : 0xFFE1D8C1);
         drawText(g, font, percent, x + w - font.width(percent), b.detailsY(), 0xFFF1E7D0);
     }
     private static Component fit(Font font, String value, int width, Style style) {

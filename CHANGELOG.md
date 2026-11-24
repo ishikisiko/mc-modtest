@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.153.0-fix1
+
+- 伏莲兽使用现有水墨首领血条，显示境界、气血百分比和当前暴露的侧腹弱点。
+
 ## 0.153.0
 
 - 东荒石莲山战台新增首领伏莲兽。玩家接近时生成，侧甲拍地后短暂露出岩缝，可绕到对应一侧反击。击败状态随世界保存。

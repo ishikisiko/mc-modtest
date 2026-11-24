@@ -12,10 +12,30 @@ class BossBarPresentationTest {
             var data = BossBarPresentation.read(BossBarPresentation.name(title, realm, enraged, broken)).orElseThrow();
             assertEquals(title, data.title());
             assertEquals(realm, data.realm());
-            assertEquals(enraged, data.enraged());
-            assertEquals(broken, data.broken());
+            assertEquals(enraged, data.emphasized());
+            assertEquals(Component.empty()
+                    .append(Component.translatable(enraged ? BossBarPresentation.PHASE_TWO : BossBarPresentation.PHASE_ONE))
+                    .append(" · ")
+                    .append(Component.translatable(broken ? BossBarPresentation.HORN_BROKEN : BossBarPresentation.HORN_INTACT)),
+                    data.status());
         }
     }
+    @Test void lotusGuardUsesItsOwnFlankStateAndEncounterRealm() {
+        var title = Component.translatable("entity.yuanxian.lotus_guard");
+        var realm = Component.translatable("world_sim.stage.qi_refining.9");
+        String[] statuses = {BossBarPresentation.LOTUS_RIGHT_EXPOSED, BossBarPresentation.LOTUS_PROTECTED,
+                BossBarPresentation.LOTUS_LEFT_EXPOSED};
+        for (int flank = -1; flank <= 1; flank++) {
+            var data = BossBarPresentation.read(BossBarPresentation.lotusName(title, realm, flank)).orElseThrow();
+            assertEquals(title, data.title());
+            assertEquals(realm, data.realm());
+            assertEquals(Component.translatable(statuses[flank + 1]), data.status());
+            assertEquals(flank != 0, data.emphasized());
+        }
+        assertTrue(BossBarPresentation.read(Component.translatable(BossBarPresentation.LOTUS_KEY, title, realm,
+                Component.translatable(BossBarPresentation.HORN_INTACT))).isEmpty());
+    }
+
     @Test void unrelatedNamesOldFormatsAndMalformedStatesUseVanillaFallback() {
         assertTrue(BossBarPresentation.read(Component.literal("雷角山君")).isEmpty());
         assertTrue(BossBarPresentation.read(Component.translatable("entity.minecraft.ender_dragon")).isEmpty());
