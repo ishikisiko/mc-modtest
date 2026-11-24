@@ -5,6 +5,13 @@
   "region_progression": {
     "levels": [["donghuang"], ["lingyue"], ["beiyuan"], ["donghai", "ximo"], ["nanjiang", "moyu"], ["zhongzhou"]]
   },
+  "lotus_mountain": {
+    "region": "donghuang",
+    "site_radius": 2800,
+    "candidate_attempts": 768,
+    "clearance": 24,
+    "surface_relief": 52
+  },
   "assets": {
     "accepted_versions": [
       "v4"

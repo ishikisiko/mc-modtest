@@ -3,6 +3,7 @@ package com.example.myvillage.worldplan.runtime;
 import com.example.myvillage.worldplan.WorldPlan;
 import com.example.myvillage.worldplan.roads.RoadGeneration;
 import com.example.myvillage.worldplan.mine.StarterMineGeneration;
+import com.example.myvillage.worldplan.wonder.LotusMountain;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.WorldGenLevel;
@@ -11,16 +12,17 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 /** Only generation writes are filtered. Player edits through ServerLevel remain unrestricted. */
 public final class WorldPlanGuard {
     private static final ThreadLocal<Scope> ACTIVE=new ThreadLocal<>();
-    private record Context(WorldPlan plan,RoadGeneration roads,StarterMineGeneration mine){}
+    private record Context(WorldPlan plan,RoadGeneration roads,StarterMineGeneration mine,LotusMountain lotusMountain){}
     private static final ThreadLocal<Context> DECORATING=new ThreadLocal<>();
     private WorldPlanGuard() {}
-    public static DecorationScope decorating(WorldPlan plan,RoadGeneration roads,StarterMineGeneration mine){
-        DecorationScope scope=new DecorationScope(DECORATING.get());DECORATING.set(new Context(plan,roads,mine));return scope;
+    public static DecorationScope decorating(WorldPlan plan,RoadGeneration roads,StarterMineGeneration mine,LotusMountain lotusMountain){
+        DecorationScope scope=new DecorationScope(DECORATING.get());DECORATING.set(new Context(plan,roads,mine,lotusMountain));return scope;
     }
     public static boolean allowsOre(BlockPos pos){
         Context context=DECORATING.get();if(context==null)return true;
         return !context.plan.reserved(pos.getX(),pos.getY(),pos.getZ())&&(context.roads==null||!context.roads.await().reserved(context.plan,context.roads.rules(),pos.getX(),pos.getY(),pos.getZ()))
-            &&(context.mine==null||!context.mine.reserved(pos.getX(),pos.getY(),pos.getZ()));
+            &&(context.mine==null||!context.mine.reserved(pos.getX(),pos.getY(),pos.getZ()))
+            &&(context.lotusMountain==null||!context.lotusMountain.reserved(pos.getX(),pos.getY(),pos.getZ()));
     }
     public static final class DecorationScope implements AutoCloseable {
         private final Context previous;
@@ -33,6 +35,7 @@ public final class WorldPlanGuard {
         Scope scope=ACTIVE.get();if(scope!=null&&scope.world==world)return scope.clip.isInside(at);
         if(generator.plan().reserved(at.getX(),at.getY(),at.getZ()))return false;
         if(generator.habitats().reserved(at.getX(),at.getY(),at.getZ()))return false;
+        if(generator.reservedByLotusMountain(at.getX(),at.getY(),at.getZ()))return false;
         return !world.getLevel().getServer().getWorldData().worldGenOptions().generateStructures()||
             !generator.roads().await().reserved(generator.plan(),generator.roads().rules(),at.getX(),at.getY(),at.getZ())&&!generator.starterMine().reserved(at.getX(),at.getY(),at.getZ());
     }

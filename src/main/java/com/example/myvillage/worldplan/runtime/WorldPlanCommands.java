@@ -26,6 +26,7 @@ public final class WorldPlanCommands {
             .then(Commands.literal("worldplan")
                 .then(Commands.literal("info").executes(c->info(c.getSource())))
                 .then(Commands.literal("mine").executes(c->mine(c.getSource())))
+                .then(Commands.literal("lotus_mountain").executes(c->lotusMountain(c.getSource())))
                 .then(Commands.literal("city").executes(c->cities(c.getSource(),""))
                     .then(Commands.argument("region",StringArgumentType.word())
                         .suggests((c,b)->{for(var region:com.example.myvillage.worldplan.capital.CapitalRegion.values())b.suggest(region.id());return b.buildFuture();})
@@ -100,6 +101,18 @@ public final class WorldPlanCommands {
         o.addProperty("atlas_directory",WorldPlanRuntime.directory(s.getLevel()).toString());return reply(s,o);
     }catch(Exception e){return fail(s,e);}}
     private static int at(CommandSourceStack s,int x,int z){try{return reply(s,WorldPlanRules.JSON.toJsonTree(generator(s).plan().sample(x,z)).getAsJsonObject());}catch(Exception e){return fail(s,e);}}
+    private static int lotusMountain(CommandSourceStack source) {
+        try {
+            var generator = generator(source);
+            var result = new JsonObject();
+            result.addProperty("region", generator.rules().lotusMountain.region());
+            result.addProperty("name", "石莲山");
+            var arena = generator.lotusMountain().map(com.example.myvillage.worldplan.wonder.LotusMountain::arena);
+            result.addProperty("status", arena.isPresent() ? "planned" : "unavailable");
+            arena.ifPresent(pos -> result.add("arena", WorldPlanRules.JSON.toJsonTree(new int[]{pos.getX(), pos.getY(), pos.getZ()})));
+            return reply(source, result);
+        } catch (Exception e) { return fail(source, e); }
+    }
     private static int mine(CommandSourceStack s){try{
         var generation=generator(s).starterMine();var definition=generation.definition();
         var result=generation.layout().map(layout->starterMineDetails(generation,layout)).orElseGet(JsonObject::new);

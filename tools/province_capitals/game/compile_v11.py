@@ -75,6 +75,12 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     habitat=habitat_rules()
     resource=(json.dumps(habitat,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
     frozen['habitats']={'resource_sha256':sha(resource)}
+    lotus_resource='data/yuanxian/worldplan/lotus_mountain.bin.gz'
+    lotus = gzip.compress(subprocess.check_output(
+        ['node', str(ROOT/'tools/lotus_mountain/compile.cjs')], cwd=ROOT), mtime=0)
+    (out/lotus_resource).parent.mkdir(parents=True, exist_ok=True)
+    (out/lotus_resource).write_bytes(lotus)
+    frozen['lotus_mountain']={**spec['lotus_mountain'], 'sha256':sha(lotus)}
     policy=spec.get('topology',{})
     if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须开放州序规定的魔域关隘')
     frozen.update(policy)

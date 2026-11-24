@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.151.1
+
+- 新建修仙大陆会在东荒野外选址生成石莲山。岩瓣围绕山内水池，中央是开阔的石质 Boss 战台，南侧石阶通向山谷。
+
 ## 0.151.0
 
 - 新增十道灵膳、十种备料和可在普通耕地种植的鲜姜。饱食度和饱和度独立显示，菜效持续半小时，同一玩家同时保留一道菜的效果。
