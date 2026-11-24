@@ -36,7 +36,8 @@ class FormulaScrollTest(unittest.TestCase):
         self.assertFalse(emitted[0] & emitted[1])
         expected = {ROOT/'src/main/resources/assets/yuanxian/textures/item'/f"{r['formula'].split(':')[1]}.png" for r in self.rules['recipes']}
         self.assertEqual(expected, emitted[0] | emitted[1])
-        self.assertEqual(14,len(seen));self.assertEqual(14,len(reduced))
+        self.assertEqual(len(expected), len(seen))
+        self.assertEqual(len(expected), len(reduced))
 
     def test_bamboo_and_linen_have_a_distinct_outline_from_forging(self):
         forge = scroll_art.support(self.config)
