@@ -14,7 +14,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 
 import java.util.Optional;
 
-abstract class FoldedRidgeBeast extends BeastEntity {
+public abstract class FoldedRidgeBeast extends BeastEntity {
     FoldedRidgeBeast(EntityType<? extends BeastEntity> type, Level level) {
         super(type, level);
     }
