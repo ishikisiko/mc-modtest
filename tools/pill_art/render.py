@@ -109,6 +109,27 @@ MOTIFS = {
 }
 
 
+ACCENTS = {
+    "lotus": [
+        ("vein", [(11, 14), (11, 16), (14, 18), (16, 18), (20, 15)]),
+        ("vein", [(13, 16), (14, 13), (16, 15), (17, 12), (19, 14)]),
+        ("ffd0ed", [(15, 17), (16, 16), (17, 16)]),
+    ],
+    "furnace": [
+        ("a44d2d", [(19, 7), (21, 9), (20, 11), (22, 13)]),
+        ("f0b356", [(19, 7), (20, 8), (20, 10), (22, 12)]),
+        ("ffedac", [(20, 8), (21, 8)]),
+    ],
+    "star": [
+        ("ada0ff", [(20, 6), (20, 10)]),
+        ("c7b7ff", [(18, 8), (22, 8)]),
+        ("f3e9ff", [(20, 7), (20, 9)]),
+        ("b9dfff", [(22, 12), (22, 13)]),
+        ("f1e5ff", [(10, 11), (11, 11)]),
+    ],
+}
+
+
 def body_layer(spec):
     """A body-only transparent canvas anchored at CENTER; no support access."""
     rows = blank()
@@ -137,6 +158,14 @@ def body_layer(spec):
                 rows[y][x] = motif[y][x]
     line(rows, [(12,7),(14,6),(16,6)], spec["light"])
     rows[8][11] = light
+    accents = blank()
+    for accent in spec.get("accents", ()):
+        for ink, path in ACCENTS[accent]:
+            line(accents, path, spec.get(ink, ink))
+    for y, row in enumerate(accents):
+        for x, pixel in enumerate(row):
+            if pixel[3] and rows[y][x][3]:
+                rows[y][x] = pixel
     return rows
 
 

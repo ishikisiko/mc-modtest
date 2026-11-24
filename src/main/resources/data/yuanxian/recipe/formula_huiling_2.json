@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "item": "yuanxian:spirit_leaf"
+    },
+    {
+      "item": "yuanxian:dew_blossom"
+    },
+    {
+      "item": "yuanxian:red_furnace_vine"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:formula_huiling_2",
+    "count": 1
+  }
+}

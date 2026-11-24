@@ -17,7 +17,7 @@ class PillAegisEffectsTest {
     @Test void healingMultipliesEveryExistingQualityWithoutChangingTheMedicineClock() {
         var rules = AlchemyRules.get();
         for (int quality = 1; quality <= 4; quality++) {
-            double ordinary = 40 * rules.effects().yangyuan().healFraction() * rules.qualityMultiplier(quality);
+            double ordinary = rules.effects().amount("yangyuan", quality);
             assertEquals(ordinary * 1.5, PillAegisEffects.healingAmount("yangyuan", ordinary, .5), 1e-10);
             assertEquals(ordinary, PillAegisEffects.healingAmount("yangyuan", ordinary, 0), 1e-10);
             var current = new MedicineState(100, "yangyuan", 60, 19, quality);

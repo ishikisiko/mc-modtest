@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.152.0
+
+- 回灵丹、养元丹、回春丹使用固定回复点数。原凝神丹改为瞬间回血的回春丹。下界赤炉藤和末地星露草分别用于二阶赤炉丹和三阶星露丹，各有可学习的丹方、物品图标和回复量。
+
 ## 0.151.3
 
 - 绯红菌林的新区块会生成长在熔灰土上的赤炉藤，末地外岛的新区块会生成长在星砂土上的星露草。两种药材可以带回药田，在对应的专土上复种。专土可挖取，也可在工作台制作。

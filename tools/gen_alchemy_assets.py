@@ -20,7 +20,8 @@ ASSETS = ROOT / "src/main/resources/assets/yuanxian"
 DATA = ROOT / "src/main/resources/data"
 HERBS = ("spirit_leaf", "dew_blossom", "sunroot", "blood_berry", "cloud_fungus", "calm_lotus")
 REMOVED_RECIPES = (*HERBS, "ningyuan_fruit_low", "ningyuan_fruit_high")
-MEDICINES = ("huiling", "yangyuan", "ningshen")
+BASIC_MEDICINES = ("huiling", "yangyuan", "ningshen")
+MEDICINES = (*BASIC_MEDICINES, *(f"{kind}_{tier}" for tier in (2, 3) for kind in BASIC_MEDICINES))
 ITEM_IDS = ("alchemy_furnace", *HERBS, *(f"formula_{x}" for x in MEDICINES), *(f"pill_{x}" for x in MEDICINES))
 FOUNDATION_FORMULAS = ('zhuji_low', 'zhuji_middle', 'zhuji_high', 'buji_middle', 'buji_high')
 FOUNDATION_ITEMS = ("ningyuan_fruit_low", "ningyuan_fruit_high", "pill_zhuji", "pill_buji", *("formula_"+x for x in FOUNDATION_FORMULAS))
@@ -35,11 +36,17 @@ NAMES = {
     "cloud_fungus": ("Cloud Fungus", "云芝"), "calm_lotus": ("Calm Lotus", "清心莲"),
     "formula_huiling": ("Spirit Recovery Formula", "回灵丹方"),
     "formula_yangyuan": ("Vitality Nourishing Formula", "养元丹方"),
-    "formula_ningshen": ("Mind Calming Formula", "凝神丹方"),
+    "formula_ningshen": ("Recovery Formula", "回春丹方"),
     "pill_huiling": ("Spirit Recovery Pill", "回灵丹"),
     "pill_yangyuan": ("Vitality Nourishing Pill", "养元丹"),
-    "pill_ningshen": ("Mind Calming Pill", "凝神丹"),
+    "pill_ningshen": ("Recovery Pill", "回春丹"),
 }
+for prefix, tier in (("赤炉", 2), ("星露", 3)):
+    for kind in BASIC_MEDICINES:
+        for item in ("pill", "formula"):
+            name = prefix + NAMES[f"{item}_{kind}"][1]
+            NAMES[f"{item}_{kind}_{tier}"] = (name, name)
+
 LANG = {
     "alchemy.yuanxian.quality.1": ("Lower", "下品"),
     "alchemy.yuanxian.quality.2": ("Middle", "中品"),
@@ -55,12 +62,15 @@ LANG = {
     "alchemy.yuanxian.herb_hint": ("Plant on Spirit Soil; harvest this same herb", "可直接种在灵土上，成熟收获同种药材"),
     "alchemy.yuanxian.huiling_hint": ("Restores spiritual power", "恢复灵力"),
     "alchemy.yuanxian.yangyuan_hint": ("Slowly restores health; damage interrupts recovery", "缓慢恢复生命；受到伤害会中断药效"),
-    "alchemy.yuanxian.ningshen_hint": ("Assists stability meditation after reaching the stage cap", "修为达到当前上限后，辅助打坐巩固稳定度"),
+    "alchemy.yuanxian.ningshen_hint": ("Immediately restores health", "立即恢复生命"),
     "tooltip.yuanxian.alchemy.formula_learn": ("Use to learn permanently; consumes one copy", "右键永久学习，消耗一份丹方；已学不消耗"),
     "tooltip.yuanxian.alchemy.ingredient": ("%s ×1", "%s ×1"),
-    "tooltip.yuanxian.alchemy.pill_huiling": ("Restore %s%% of maximum spiritual power", "恢复最大灵力的 %s%%"),
-    "tooltip.yuanxian.alchemy.pill_yangyuan": ("Heal %s%% maximum health every %ss for %ss; damage stops recovery", "每次恢复最大生命的 %s%%，间隔 %s 秒，持续 %s 秒；受伤中断"),
-    "tooltip.yuanxian.alchemy.pill_ningshen": ("%s× stability consolidation for %ss; only after cultivation cap", "稳定度巩固效率 %s 倍，持续 %s 秒；仅限修为达到当前上限后"),
+    "tooltip.yuanxian.alchemy.pill_huiling": ("Immediately restores %s spiritual power", "立即回复 %s 点灵力"),
+    "tooltip.yuanxian.alchemy.pill_yangyuan": ("Heal %s health every %ss for %ss; damage stops recovery", "每次回复 %s 点生命，间隔 %s 秒，持续 %s 秒。受伤后中断。"),
+    "tooltip.yuanxian.alchemy.pill_ningshen": ("Immediately restores %s health", "立即回复 %s 点生命"),
+    "tooltip.yuanxian.alchemy.tier.1": ("一阶丹药", "一阶丹药"),
+    "tooltip.yuanxian.alchemy.tier.2": ("二阶丹药", "二阶丹药"),
+    "tooltip.yuanxian.alchemy.tier.3": ("三阶丹药", "三阶丹药"),
     "tooltip.yuanxian.alchemy.interval": ("Cooldown for this pill: %s s", "本丹冷却：%s 秒"),
     "message.yuanxian.alchemy.cooldown": ("This pill is on cooldown", "这类丹药还在冷却"),
     "message.yuanxian.alchemy.active": ("This pill is still active", "这类丹药仍在生效"),
@@ -341,8 +351,9 @@ def outputs(root=ROOT):
         result[assets/f"models/item/{item}.json"]=encode({"parent":"minecraft:item/generated","textures":{"layer0":f"yuanxian:item/{item}"}})
     def shapeless(item,ingredients):
         result[data/f"yuanxian/recipe/{item}.json"]=encode({"type":"minecraft:crafting_shapeless","category":"misc","ingredients":[{"tag":i[1:]} if i.startswith("#") else {"item":i} for i in ingredients],"result":{"id":"yuanxian:"+item,"count":1}})
-    for i,kind in enumerate(MEDICINES):
-        shapeless("formula_"+kind,["minecraft:paper",*("yuanxian:"+h for h in HERBS[i*2:i*2+2]),"#c:spirit_stones/low_grade"])
+    for kind in MEDICINES:
+        shapeless("formula_" + kind,
+                  ["minecraft:paper", *recipe(kind, root)["ingredients"], "#c:spirit_stones/low_grade"])
     # Each acquisition signature must be unique: vanilla crafting cannot select
     # between different formula outputs with exactly the same ingredient multiset.
     formula_materials = {
@@ -411,7 +422,7 @@ def preview():
             render(quads,frame,bg=(30,39,37),body_rot=180).save(out/f"furnace_{'lit' if lit else 'unlit'}_{view}.png")
     font=ImageFont.truetype("/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",19)
     small=ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoSansMono-Regular.ttf",12)
-    sheet=Image.new("RGB",(1040,780),(24,32,31)); draw=ImageDraw.Draw(sheet)
+    sheet=Image.new("RGB",(1040,260*((len(ITEM_IDS)+4)//5)),(24,32,31)); draw=ImageDraw.Draw(sheet)
     for i,item in enumerate(ITEM_IDS):
         col,row=i%5,i//5; x,y=col*208,row*260
         draw.rounded_rectangle((x+8,y+8,x+199,y+251),8,fill=(37,47,44),outline=(70,83,73))

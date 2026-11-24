@@ -211,45 +211,15 @@ class CultivationGainValidationTest(unittest.TestCase):
         )
         self.assert_error_contains(result, "ordinary settlement overload must retain the medicine multiplier 1.0 baseline")
 
-    def test_expired_medicine_must_retain_one_multiplier(self):
+    def test_meditation_does_not_read_medicine_state(self):
         result = self.mutate_medicine_source(
-            "alchemy/MedicineRuntime.java", "qualityMultiplier(current.quality())) : 1.0;",
-            "qualityMultiplier(current.quality())) : 1.5;",
+            "cultivation/meditation/MeditationManager.java",
+            "1.0, normal, stone", "MedicineRuntime.stabilityMultiplier(player), normal, stone",
         )
-        self.assert_error_contains(result, "only active ningshen may supply the authored multiplier")
-
-    def test_quality_multiplier_requires_ningshen_effect(self):
-        result = self.mutate_medicine_source(
-            "alchemy/MedicineRuntime.java",
-            'MedicineState current = state(player, "ningshen");',
-            'MedicineState current = state(player, "yangyuan");',
-        )
-        self.assert_error_contains(result, "only active ningshen may supply the authored multiplier")
-
-    def test_quality_multiplier_requires_positive_remaining_effect_ticks(self):
-        result = self.mutate_medicine_source(
-            "alchemy/MedicineRuntime.java",
-            'return current.effectTicks() > 0',
-            'return current.cooldownTicks() > 0',
-        )
-        self.assert_error_contains(result, "only active ningshen may supply the authored multiplier")
-
-    def test_quality_multiplier_must_use_saved_medication_quality(self):
-        result = self.mutate_medicine_source(
-            "alchemy/MedicineRuntime.java", "qualityMultiplier(current.quality())) : 1.0;",
-            "qualityMultiplier(4)) : 1.0;",
-        )
-        self.assert_error_contains(result, "using saved quality")
-
-    def test_quality_cannot_multiply_the_ordinary_stability_baseline(self):
-        result = self.mutate_medicine_source(
-            "alchemy/MedicineEffects.java", "return 1 + (base - 1) * qualityMultiplier;",
-            "return base * qualityMultiplier;",
-        )
-        self.assert_error_contains(result, "quality must scale only the stability bonus above baseline one")
+        self.assert_error_contains(result, "ordinary meditation must not read medicine state")
 
     def test_commit_rollback_removal_is_rejected(self) -> None:
-        path = self.find_java(r"LOW_GRADE_SPIRIT_STONE.*CultivationService|CultivationService.*LOW_GRADE_SPIRIT_STONE")
+        path = self.find_java(r"InventoryBatchRemoval\.restore\(player, removed\)")
         text = path.read_text(encoding="utf-8")
         original = text
         text = re.sub(r"restore", "discard", text, flags=re.IGNORECASE)

@@ -19,7 +19,7 @@ class AlchemyRulesTest {
     }
     @Test void bundledRecipesAreImmutableAndUnorderedButRequireFormulaAndBothHerbs() {
         AlchemyRules rules = AlchemyRules.get();
-        assertSame(rules, AlchemyRules.get()); assertEquals(18, rules.recipes().size());
+        assertSame(rules, AlchemyRules.get()); assertEquals(24, rules.recipes().size());
         for (var recipe : rules.recipes().stream().filter(r -> r.ingredients().size()==2).toList()) {
             assertTrue(recipe.matches(recipe.formula(), recipe.ingredients().get(0), recipe.ingredients().get(1)));
             assertTrue(recipe.matches(recipe.formula(), recipe.ingredients().get(1), recipe.ingredients().get(0)));
@@ -47,8 +47,8 @@ class AlchemyRulesTest {
         rejects(j -> j.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("fuel_count", -1));
         rejects(j -> j.getAsJsonArray("recipes").get(0).getAsJsonObject().addProperty("formula", "yuanxian:formula_yangyuan"));
         rejects(j -> j.getAsJsonArray("recipes").get(0).getAsJsonObject().getAsJsonArray("ingredients").set(0, new JsonPrimitive("minecraft:dirt")));
-        rejects(j -> j.getAsJsonObject("effects").getAsJsonObject("huiling").addProperty("power_fraction", 1.1));
-        rejects(j -> j.getAsJsonObject("effects").getAsJsonObject("ningshen").addProperty("stability_multiplier", 1));
+        rejects(j -> j.getAsJsonObject("effects").getAsJsonObject("huiling").getAsJsonArray("amounts").get(0).getAsJsonArray().set(0, new JsonPrimitive(1.1)));
+        rejects(j -> j.getAsJsonObject("effects").getAsJsonObject("ningshen").getAsJsonArray("amounts").remove(2));
         rejects(j -> j.getAsJsonObject("effects").getAsJsonObject("yangyuan").addProperty("interval_ticks", 999999));
     }
     @Test void qualityStrengthsRemainIndependentOfTheProductionDistribution() {
@@ -59,6 +59,22 @@ class AlchemyRulesTest {
             assertThrows(IllegalArgumentException.class,()->rules.qualityMultiplier(invalid));
         assertEquals(0,rules.recipe("huiling").orElseThrow().difficulty());
         assertEquals(3,rules.recipe("zhuji_low").orElseThrow().difficulty());
+    }
+
+    @Test void variantsKeepTheBaseHerbsAndShareTheMedicineFamily() {
+        var rules = AlchemyRules.get();
+        for (String base : new String[] {"huiling", "yangyuan", "ningshen"}) {
+            var original = rules.recipe(base).orElseThrow();
+            for (int tier = 2; tier <= 3; tier++) {
+                String variant = base + "_" + tier;
+                var recipe = rules.recipe(variant).orElseThrow();
+                assertEquals(base, AlchemyRules.medicineFamily(variant));
+                assertEquals(tier, AlchemyRules.medicineTier(variant));
+                assertEquals(original.ingredients(), recipe.ingredients().subList(0, 2));
+                assertEquals(tier == 2 ? "yuanxian:red_furnace_vine" : "yuanxian:star_dew_grass", recipe.thirdIngredient());
+                assertTrue(recipe.requiredAptitude() > original.requiredAptitude());
+            }
+        }
     }
 
     @Test void rejectsUnknownTiersDifficultyBoundsAndUnsafeMultipliers() throws IOException {

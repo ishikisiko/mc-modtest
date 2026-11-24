@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "item": "yuanxian:cloud_fungus"
+    },
+    {
+      "item": "yuanxian:calm_lotus"
+    },
+    {
+      "item": "yuanxian:star_dew_grass"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:formula_ningshen_3",
+    "count": 1
+  }
+}

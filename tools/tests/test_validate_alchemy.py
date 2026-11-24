@@ -95,7 +95,6 @@ class AlchemyRulesTest(unittest.TestCase):
             (('recipes', 0), 'output_count', 16),
             (('effects', 'yangyuan'), 'duration_ticks', 1200000),
             (('effects', 'yangyuan'), 'interval_ticks', 1200000),
-            (('effects', 'ningshen'), 'duration_ticks', 1200000),
         ):
             for invalid in (True, '20', None, -1, 0, 1.5, maximum + 1, float('nan'), float('inf'), 10 ** 400):
                 with self.subTest(location=location, key=key, invalid=invalid):
@@ -107,12 +106,15 @@ class AlchemyRulesTest(unittest.TestCase):
                     self.assert_code('ALCHEMY_BOUNDS', validator.check_rules(data))
 
     def test_effect_bounds_do_not_allow_negative_overfull_or_nonfinite_effects(self):
-        for kind, key, maximum in (('huiling', 'power_fraction', 1), ('yangyuan', 'heal_fraction', 1),
-                                    ('ningshen', 'stability_multiplier', 16)):
-            for invalid in (True, None, '1', 0, -0.1, maximum + .1, float('nan'), float('inf'), 10 ** 400):
+        for kind in validator.BASE_KINDS:
+            for invalid in (True, None, '1', 0, -0.1, 1000001, float('nan'), float('inf'), 10 ** 400):
                 data = copy.deepcopy(self.rules)
-                data['effects'][kind][key] = invalid
+                data['effects'][kind]['amounts'][0][0] = invalid
                 self.assert_code('ALCHEMY_BOUNDS', validator.check_rules(data))
+        for invalid in (1.5, 35):
+            data = copy.deepcopy(self.rules)
+            data['effects']['huiling']['amounts'][0][0] = invalid
+            self.assert_code('ALCHEMY_BOUNDS', validator.check_rules(data))
         data = copy.deepcopy(self.rules)
         data['effects']['yangyuan']['interval_ticks'] = data['effects']['yangyuan']['duration_ticks'] + 1
         self.assert_code('ALCHEMY_BOUNDS', validator.check_rules(data))
@@ -135,7 +137,8 @@ class AlchemyRulesTest(unittest.TestCase):
         data = copy.deepcopy(self.rules)
         data['recipes'].reverse()
         for recipe in data['recipes']:
-            recipe['ingredients'].reverse()
+            if recipe['id'] not in validator.BASIC_HERBS or len(recipe['ingredients']) == 2:
+                recipe['ingredients'].reverse()
         self.assertEqual([], validator.check_rules(data))
 
     def test_bad_json_constants_and_duplicate_keys_are_errors(self):

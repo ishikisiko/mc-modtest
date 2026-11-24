@@ -43,10 +43,32 @@ public final class AlchemyRules {
             return true;
         }
     }
-    public record Huiling(double powerFraction) {}
-    public record Yangyuan(int durationTicks, int intervalTicks, double healFraction) {}
-    public record Ningshen(int durationTicks, double stabilityMultiplier) {}
-    public record Effects(Huiling huiling, Yangyuan yangyuan, Ningshen ningshen) {}
+    private static final List<String> BASIC_MEDICINES = List.of("huiling", "yangyuan", "ningshen");
+
+    public static String medicineFamily(String id) {
+        return switch (id) {
+            case "huiling_2", "huiling_3" -> "huiling";
+            case "yangyuan_2", "yangyuan_3" -> "yangyuan";
+            case "ningshen_2", "ningshen_3" -> "ningshen";
+            default -> id;
+        };
+    }
+
+    public static int medicineTier(String id) {
+        if (!BASIC_MEDICINES.contains(medicineFamily(id))) return 0;
+        if (id.endsWith("_3")) return 3;
+        return id.endsWith("_2") ? 2 : 1;
+    }
+
+    public record Effects(int healingDuration, int healingInterval,
+                          Map<String, List<List<Double>>> amounts) {
+        public Effects { amounts = Map.copyOf(amounts); }
+
+        public double amount(String medicine, int quality) {
+            return amounts.get(medicineFamily(medicine)).get(medicineTier(medicine) - 1)
+                    .get(requireQuality(quality) - 1);
+        }
+    }
     private final int useTicks;
     private final int cooldownTicks;
     private final List<Recipe> recipes;
@@ -55,7 +77,7 @@ public final class AlchemyRules {
 
     private AlchemyRules(JsonObject root) {
         fields(root, "version", "use_ticks", "cooldown_ticks", "recipes", "effects", "quality");
-        if (integer(root, "version", 3, 3) != 3) throw invalid("version", "unsupported");
+        integer(root, "version", 4, 4);
         JsonObject quality = object(root.get("quality"), "quality");
         fields(quality, "strength_multipliers");
         var factors=quality.getAsJsonArray("strength_multipliers");
@@ -97,8 +119,8 @@ public final class AlchemyRules {
             result.add(new Recipe(id, formula, ingredients, integer(r, "fuel_count", 1, 64),
                     integer(r, "duration_ticks", 1, 32767), output, integer(r, "output_count", 1, 16), counts, minimum, tier, difficulty));
         }
-        if (!ids.containsAll(Set.of("huiling","yangyuan","ningshen"))) throw invalid("recipes","missing legacy recipes");
-        Set<String> herbs=Set.of("spirit_leaf","dew_blossom","sunroot","blood_berry","cloud_fungus","calm_lotus","ningyuan_fruit_low","ningyuan_fruit_high");
+        Set<String> herbs = Set.of("spirit_leaf", "dew_blossom", "sunroot", "blood_berry", "cloud_fungus",
+                "calm_lotus", "ningyuan_fruit_low", "ningyuan_fruit_high", "red_furnace_vine", "star_dew_grass");
         for (Recipe r:result) {
             if (!r.formula().equals("yuanxian:formula_"+r.id())) throw invalid("formula","must match recipe id");
             for(String herb:r.ingredients())if(!herb.startsWith("yuanxian:")||(!herbs.contains(herb.substring("yuanxian:".length())) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMaterial(herb)))throw invalid("ingredients","unknown herb");
@@ -108,24 +130,64 @@ public final class AlchemyRules {
             if ((foundation || realmPill) && (r.ingredients().size() != 3
                     || realmPill && !r.output().equals("yuanxian:pill_" + r.id())))
                 throw invalid("recipe", "breakthrough or repair recipe needs three herbs and the matching output");
-            if(!foundation && !realmPill && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("yuanxian:pill_"+r.id()) || r.ingredients().size()!=2 || r.ingredientCounts().stream().anyMatch(n->n!=1)))throw invalid("recipe","legacy medicine shape changed");
+            if (!foundation && !realmPill && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id())) {
+                int tier = medicineTier(r.id());
+                if (tier == 0 || !r.output().equals("yuanxian:pill_" + r.id())
+                        || r.ingredients().size() != (tier == 1 ? 2 : 3)
+                        || r.ingredientCounts().stream().anyMatch(n -> n != 1))
+                    throw invalid("recipe", "invalid basic medicine formula");
+            }
         }
         recipes = List.copyOf(result);
+        for (String family : BASIC_MEDICINES) {
+            Recipe base = recipe(family).orElseThrow(() -> invalid("recipes", "missing " + family));
+            for (int tier = 2; tier <= 3; tier++) {
+                String id = family + "_" + tier;
+                Recipe variant = recipe(id).orElseThrow(() -> invalid("recipes", "missing " + id));
+                String herb = tier == 2 ? "yuanxian:red_furnace_vine" : "yuanxian:star_dew_grass";
+                if (!variant.ingredients().equals(List.of(base.ingredients().get(0), base.ingredients().get(1), herb)))
+                    throw invalid("ingredients", "variant must extend its base recipe with " + herb);
+            }
+        }
         JsonObject e = object(root.get("effects"), "effects");
         fields(e, "huiling", "yangyuan", "ningshen");
-        JsonObject h = object(e.get("huiling"), "huiling"), y = object(e.get("yangyuan"), "yangyuan"),
-                n = object(e.get("ningshen"), "ningshen");
-        fields(h, "power_fraction"); fields(y, "duration_ticks", "interval_ticks", "heal_fraction");
-        fields(n, "duration_ticks", "stability_multiplier");
-        int duration = integer(y, "duration_ticks", 1, 1200000);
-        int interval = integer(y, "interval_ticks", 1, duration);
-        effects = new Effects(new Huiling(number(h, "power_fraction", 0, 1)),
-                new Yangyuan(duration, interval, number(y, "heal_fraction", 0, 1)),
-                new Ningshen(integer(n, "duration_ticks", 1, 1200000),
-                        number(n, "stability_multiplier", 1, 16)));
-        for (String id : List.of("huiling", "yangyuan", "ningshen"))
-            if (!ids.contains(id)) throw invalid("recipes", "missing medicine recipe " + id);
+        Map<String, List<List<Double>>> amounts = new HashMap<>();
+        for (String family : BASIC_MEDICINES) {
+            JsonObject medicine = object(e.get(family), family);
+            if (family.equals("yangyuan")) fields(medicine, "amounts", "duration_ticks", "interval_ticks");
+            else fields(medicine, "amounts");
+            amounts.put(family, doseAmounts(medicine.get("amounts"), family));
+        }
+        JsonObject healing = e.getAsJsonObject("yangyuan");
+        int duration = integer(healing, "duration_ticks", 1, 1200000);
+        int interval = integer(healing, "interval_ticks", 1, duration);
+        if (duration % interval != 0) throw invalid("yangyuan", "duration must contain whole healing intervals");
+        effects = new Effects(duration, interval, amounts);
     }
+
+    private static List<List<Double>> doseAmounts(JsonElement data, String family) {
+        if (!data.isJsonArray() || data.getAsJsonArray().size() != 3)
+            throw invalid(family, "three medicine tiers required");
+        List<List<Double>> result = new ArrayList<>(3);
+        for (JsonElement tier : data.getAsJsonArray()) {
+            if (!tier.isJsonArray() || tier.getAsJsonArray().size() != 4)
+                throw invalid(family, "four quality amounts required per tier");
+            var values = new ArrayList<Double>(4);
+            for (JsonElement element : tier.getAsJsonArray()) {
+                var field = new JsonObject();
+                field.add("amount", element);
+                double amount = family.equals("huiling") ? integer(field, "amount", 1, 1000000)
+                        : number(field, "amount", 0, 1000000);
+                if ((!values.isEmpty() && amount <= values.getLast())
+                        || (!result.isEmpty() && amount <= result.getLast().get(values.size())))
+                    throw invalid(family, "amounts must increase with quality and tier");
+                values.add(amount);
+            }
+            result.add(List.copyOf(values));
+        }
+        return List.copyOf(result);
+    }
+
     private static final class Holder { static final AlchemyRules RULES = load(); }
     public static AlchemyRules get() { return Holder.RULES; }
     private static AlchemyRules load() {

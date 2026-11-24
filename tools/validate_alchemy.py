@@ -30,7 +30,9 @@ SOURCE_FILES = tuple(JAVA / f'{name}.java' for name in (
 ))
 HERBS = ('spirit_leaf', 'dew_blossom', 'sunroot', 'blood_berry', 'cloud_fungus', 'calm_lotus')
 REMOVED_RECIPES = (*HERBS, 'ningyuan_fruit_low', 'ningyuan_fruit_high', 'ningyuan_sapling')
-KINDS = ('huiling', 'yangyuan', 'ningshen')
+BASE_KINDS = ('huiling', 'yangyuan', 'ningshen')
+EXTRA_HERBS = {2: 'red_furnace_vine', 3: 'star_dew_grass'}
+KINDS = (*BASE_KINDS, *(f'{kind}_{tier}' for tier in EXTRA_HERBS for kind in BASE_KINDS))
 EXPEDITION = {m['pill_id']:m for m in json.loads((ROOT/'tools/wilderness_roster/catalogue.json').read_text())['mobs']}
 FOUNDATION = ('zhuji_low','zhuji_middle','zhuji_high','buji_middle','buji_high')
 NASCENT = ('ningying', 'xuying')
@@ -41,7 +43,9 @@ ITEMS = ('alchemy_furnace', *HERBS, *(f'formula_{k}' for k in KINDS), *(f'pill_{
 ITEMS += NEW_ITEMS
 PLANTS = ('fern', 'blue_orchid', 'carrot', 'sweet_berries', 'brown_mushroom', 'lily_pad')
 FUEL = '#c:spirit_stones/low_grade'
-PAIRS = dict(zip(KINDS, zip(HERBS[::2], HERBS[1::2])))
+BASIC_HERBS = {kind: tuple(pair) for kind, pair in zip(BASE_KINDS, zip(HERBS[::2], HERBS[1::2]))}
+BASIC_HERBS.update({f'{kind}_{tier}': (*BASIC_HERBS[kind], herb)
+                    for tier, herb in EXTRA_HERBS.items() for kind in BASE_KINDS})
 JAR_CLASSES = tuple(f'com/example/myvillage/{name}.class' for name in (
     'alchemy/LearnedFormulas', 'alchemy/AlchemyKnowledge', 'alchemy/AlchemyAutofill',
     'alchemy/AlchemyRules', 'alchemy/BrewingProgress', 'alchemy/AlchemyMenu', 'alchemy/AlchemyMenus',
@@ -87,8 +91,8 @@ def check_rules(data, quality_rules=None) -> list[str]:
             error('ALCHEMY_BOUNDS', f'{where}.{key}: invalid number {value!r}')
     if not keys(data, ('version', 'use_ticks', 'cooldown_ticks', 'recipes', 'effects', 'quality'), 'rules'):
         return errors
-    if type(data['version']) is not int or data['version'] != 3:
-        error('ALCHEMY_VERSION', 'rules version must be integer 3')
+    if type(data['version']) is not int or data['version'] != 4:
+        error('ALCHEMY_VERSION', 'rules version must be integer 4')
     quality_rules = quality_rules if quality_rules is not None else crafting_quality.load()
     number(data, 'use_ticks', 1, 72000, 'rules', True)
     number(data, 'cooldown_ticks', 1, 1200000, 'rules', True)
@@ -129,13 +133,16 @@ def check_rules(data, quality_rules=None) -> list[str]:
         ingredients = recipe['ingredients']
         expected_herbs = ({'yuanxian:ningyuan_fruit_'+('high' if kind.endswith('high') or kind == 'ningying' else 'low'),
                            'yuanxian:spirit_leaf','yuanxian:calm_lotus'}
-                          if three_herbs else {'yuanxian:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'yuanxian:{h}' for h in PAIRS[kind]})
+                          if three_herbs else {'yuanxian:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'yuanxian:{h}' for h in BASIC_HERBS[kind]})
         if not isinstance(ingredients, list) or any(not isinstance(i, str) for i in ingredients):
             error('ALCHEMY_REFERENCE',f'{where}: unexpected ingredients')
         elif kind in TRIBULATION:
             allowed_herbs = {f'yuanxian:{herb}' for herb in (*HERBS, 'ningyuan_fruit_low', 'ningyuan_fruit_high')}
             if len(ingredients) != 3 or len(set(ingredients)) != 3 or not set(ingredients) <= allowed_herbs:
                 error('ALCHEMY_REFERENCE', f'{where}: expected three distinct herbs')
+        elif kind in BASIC_HERBS and len(BASIC_HERBS[kind]) == 3:
+            if ingredients != [f'yuanxian:{herb}' for herb in BASIC_HERBS[kind]]:
+                error('ALCHEMY_REFERENCE', f'{where}: expected base ingredients followed by the otherworld herb')
         elif len(ingredients) != len(expected_herbs) or set(ingredients) != expected_herbs:
             error('ALCHEMY_REFERENCE', f'{where}: unexpected ingredients')
         output_kind=kind.split('_')[0] if foundation else kind
@@ -159,23 +166,32 @@ def check_rules(data, quality_rules=None) -> list[str]:
     if not required <= seen or not seen <= required | set(EXPEDITION):
         error('ALCHEMY_RECIPES', 'recipe identities must cover required medicines once')
     effects = data['effects']
-    if not keys(effects, KINDS, 'effects'):
+    if not keys(effects, BASE_KINDS, 'effects'):
         return errors
-    specs = {
-        'huiling': {'power_fraction': (0, 1, False, True)},
-        'yangyuan': {'duration_ticks': (1, 1200000, True, False),
-                     'interval_ticks': (1, 1200000, True, False), 'heal_fraction': (0, 1, False, True)},
-        'ningshen': {'duration_ticks': (1, 1200000, True, False), 'stability_multiplier': (1, 16, False, True)},
-    }
-    for kind, fields in specs.items():
+    for kind in BASE_KINDS:
         effect = effects[kind]
-        if not keys(effect, fields, f'effects.{kind}'):
+        timing = ('duration_ticks', 'interval_ticks') if kind == 'yangyuan' else ()
+        if not keys(effect, ('amounts', *timing), f'effects.{kind}'):
             continue
-        for key, limits in fields.items():
-            number(effect, key, *limits[:2], f'effects.{kind}', *limits[2:])
-        if kind == 'yangyuan' and all(type(effect[k]) is int for k in ('interval_ticks', 'duration_ticks')):
-            if effect['interval_ticks'] > effect['duration_ticks']:
-                error('ALCHEMY_BOUNDS', 'healing interval cannot exceed duration')
+        for key in timing:
+            number(effect, key, 1, 1200000, f'effects.{kind}', True)
+        if timing and all(type(effect[key]) is int and effect[key] > 0 for key in timing):
+            if effect['duration_ticks'] % effect['interval_ticks'] != 0:
+                error('ALCHEMY_BOUNDS', 'yangyuan duration must contain whole healing intervals')
+        amounts = effect['amounts']
+        if not isinstance(amounts, list) or len(amounts) != 3 or any(
+                not isinstance(tier, list) or len(tier) != 4 for tier in amounts):
+            error('ALCHEMY_SCHEMA', f'{kind}: expected three tiers with four quality amounts each')
+            continue
+        before = len(errors)
+        for tier in amounts:
+            for amount in tier:
+                number({'amount': amount}, 'amount', 0, 1000000, f'effects.{kind}', kind == 'huiling', True)
+        if before == len(errors):
+            for axis in (*amounts, *zip(*amounts)):
+                if any(a >= b for a, b in zip(axis, axis[1:])):
+                    error('ALCHEMY_BOUNDS', f'{kind}: amounts must increase with quality and tier')
+                    break
     return errors
 
 
@@ -371,7 +387,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             if kind in TRIBULATION:
                 required = {FUEL, 'minecraft:book', *brewing_herbs.get(f'yuanxian:{item}', [])}
             else:
-                required = {FUEL, 'minecraft:paper', *(f'yuanxian:{h}' for h in PAIRS[kind])}
+                required = {FUEL, 'minecraft:paper', *(f'yuanxian:{h}' for h in BASIC_HERBS[kind])}
         actual = {i['item'] if set(i) == {'item'} and isinstance(i['item'], str) else
                   '#' + i['tag'] if set(i) == {'tag'} and isinstance(i['tag'], str) else None
                   for i in ingredients if isinstance(i, dict)} if isinstance(ingredients, list) else set()

@@ -22,7 +22,7 @@ class MedicineSettlementTest {
         var current = profile(1000, 100);
         var ordinary = settle(current, MeditationMode.SPIRIT, 1);
         var boosted = settle(current, MeditationMode.SPIRIT,
-                AlchemyRules.get().effects().ningshen().stabilityMultiplier());
+                1.5);
         assertEquals(15, boosted.stabilityApplied());
         assertEquals(10, ordinary.stabilityApplied());
         assertEquals(ordinary.progressApplied(), boosted.progressApplied());

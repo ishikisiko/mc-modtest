@@ -288,6 +288,18 @@ public final class ModItems {
     public static final DeferredItem<AlchemyPillItem> PILL_YANGYUAN = ITEMS.registerItem("pill_yangyuan", props -> new AlchemyPillItem(props.stacksTo(16), "yangyuan"));
     public static final DeferredItem<FormulaItem> FORMULA_NINGSHEN = ITEMS.registerItem("formula_ningshen", props -> new FormulaItem(props, "ningshen"));
     public static final DeferredItem<AlchemyPillItem> PILL_NINGSHEN = ITEMS.registerItem("pill_ningshen", props -> new AlchemyPillItem(props.stacksTo(16), "ningshen"));
+    public static final DeferredItem<FormulaItem> FORMULA_HUILING_2 = ITEMS.registerItem("formula_huiling_2", props -> new FormulaItem(props, "huiling_2"));
+    public static final DeferredItem<AlchemyPillItem> PILL_HUILING_2 = ITEMS.registerItem("pill_huiling_2", props -> new AlchemyPillItem(props, "huiling_2"));
+    public static final DeferredItem<FormulaItem> FORMULA_YANGYUAN_2 = ITEMS.registerItem("formula_yangyuan_2", props -> new FormulaItem(props, "yangyuan_2"));
+    public static final DeferredItem<AlchemyPillItem> PILL_YANGYUAN_2 = ITEMS.registerItem("pill_yangyuan_2", props -> new AlchemyPillItem(props, "yangyuan_2"));
+    public static final DeferredItem<FormulaItem> FORMULA_NINGSHEN_2 = ITEMS.registerItem("formula_ningshen_2", props -> new FormulaItem(props, "ningshen_2"));
+    public static final DeferredItem<AlchemyPillItem> PILL_NINGSHEN_2 = ITEMS.registerItem("pill_ningshen_2", props -> new AlchemyPillItem(props, "ningshen_2"));
+    public static final DeferredItem<FormulaItem> FORMULA_HUILING_3 = ITEMS.registerItem("formula_huiling_3", props -> new FormulaItem(props, "huiling_3"));
+    public static final DeferredItem<AlchemyPillItem> PILL_HUILING_3 = ITEMS.registerItem("pill_huiling_3", props -> new AlchemyPillItem(props, "huiling_3"));
+    public static final DeferredItem<FormulaItem> FORMULA_YANGYUAN_3 = ITEMS.registerItem("formula_yangyuan_3", props -> new FormulaItem(props, "yangyuan_3"));
+    public static final DeferredItem<AlchemyPillItem> PILL_YANGYUAN_3 = ITEMS.registerItem("pill_yangyuan_3", props -> new AlchemyPillItem(props, "yangyuan_3"));
+    public static final DeferredItem<FormulaItem> FORMULA_NINGSHEN_3 = ITEMS.registerItem("formula_ningshen_3", props -> new FormulaItem(props, "ningshen_3"));
+    public static final DeferredItem<AlchemyPillItem> PILL_NINGSHEN_3 = ITEMS.registerItem("pill_ningshen_3", props -> new AlchemyPillItem(props, "ningshen_3"));
 
     public static final DeferredItem<FormulaItem> FORMULA_ZHUJI_LOW = ITEMS.registerItem("formula_zhuji_low", props -> new FormulaItem(props, "zhuji_low"));
     public static final DeferredItem<FormulaItem> FORMULA_ZHUJI_MIDDLE = ITEMS.registerItem("formula_zhuji_middle", props -> new FormulaItem(props, "zhuji_middle"));
@@ -524,6 +536,12 @@ public final class ModItems {
                         output.accept(FORMULA_HUILING.get());
                         output.accept(FORMULA_YANGYUAN.get());
                         output.accept(FORMULA_NINGSHEN.get());
+                        output.accept(FORMULA_HUILING_2.get());
+                        output.accept(FORMULA_YANGYUAN_2.get());
+                        output.accept(FORMULA_NINGSHEN_2.get());
+                        output.accept(FORMULA_HUILING_3.get());
+                        output.accept(FORMULA_YANGYUAN_3.get());
+                        output.accept(FORMULA_NINGSHEN_3.get());
                         output.accept(REAVER_GRIT.get());
                         output.accept(FORMULA_POZHANG.get());
                         output.accept(PILL_POZHANG.get());
@@ -552,6 +570,12 @@ public final class ModItems {
                         output.accept(PILL_HUILING.get());
                         output.accept(PILL_YANGYUAN.get());
                         output.accept(PILL_NINGSHEN.get());
+                        output.accept(PILL_HUILING_2.get());
+                        output.accept(PILL_YANGYUAN_2.get());
+                        output.accept(PILL_NINGSHEN_2.get());
+                        output.accept(PILL_HUILING_3.get());
+                        output.accept(PILL_YANGYUAN_3.get());
+                        output.accept(PILL_NINGSHEN_3.get());
                         output.accept(FORMULA_ZHUJI_LOW.get());
                         output.accept(FORMULA_ZHUJI_MIDDLE.get());
                         output.accept(FORMULA_ZHUJI_HIGH.get());

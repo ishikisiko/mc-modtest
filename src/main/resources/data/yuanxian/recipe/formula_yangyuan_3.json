@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "item": "yuanxian:sunroot"
+    },
+    {
+      "item": "yuanxian:blood_berry"
+    },
+    {
+      "item": "yuanxian:star_dew_grass"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:formula_yangyuan_3",
+    "count": 1
+  }
+}

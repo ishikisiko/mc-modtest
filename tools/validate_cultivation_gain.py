@@ -132,7 +132,7 @@ class CultivationGainValidator:
         return {
             path: text
             for path, text in sources.items()
-            if any(needle in text for needle in needles)
+            if "meditation" in path.parts and any(needle in text for needle in needles)
         }
 
     def validate_medicine_stability(self, sources: dict[Path, str]) -> None:
@@ -165,8 +165,8 @@ class CultivationGainValidator:
         )
         if guard is None:
             self.error(path, "medicine stability call must stay inside the already-full progress guard")
-        # Only its declaration and the bounded stability calculation may use this multiplier.
-        if len(re.findall(r"\bstabilityMultiplier\b", settlement)) != 2:
+        # Stability has a separate calculation in both ordinary and final-realm settlement.
+        if len(re.findall(r"\bstabilityMultiplier\b", settlement)) != 5:
             self.error(path, "medicine multiplier must affect stability only, never progress or mastery")
         if re.search(
             r"return\s+plan\(\s*current\s*,\s*cultivationCap\s*,\s*mode\s*,\s*accrual\s*,"
@@ -181,23 +181,10 @@ class CultivationGainValidator:
             effects,
         ) is None:
             self.error(effects_path, "medicine stability helper must clamp multiplied affinity to remaining stage capacity")
-        if effects is not None and re.search(
-            r"qualityStabilityMultiplier\s*\(\s*double\s+base\s*,\s*double\s+qualityMultiplier\s*\)\s*\{"
-            r"[^{}]*\breturn\s+1(?:\.0)?\s*\+\s*\(\s*base\s*-\s*1(?:\.0)?\s*\)\s*\*\s*qualityMultiplier\s*;",
-            effects,
-        ) is None:
-            self.error(effects_path, "medicine quality must scale only the stability bonus above baseline one")
-        runtime_path = JAVA / "alchemy/MedicineRuntime.java"
-        runtime = self.read(runtime_path)
-        if runtime is not None and re.search(
-            r'MedicineState\s+current\s*=\s*state\(player,\s*"ningshen"\);\s*'
-            r'return\s+current\.effectTicks\(\)\s*>\s*0\s*'
-            r'\?\s*MedicineEffects\.qualityStabilityMultiplier\(\s*'
-            r'AlchemyRules\.get\(\)\.effects\(\)\.ningshen\(\)\.stabilityMultiplier\(\)\s*,\s*'
-            r'AlchemyRules\.get\(\)\.qualityMultiplier\(\s*current\.quality\(\)\s*\)\s*\)\s*:\s*1\.0\s*;',
-            runtime,
-        ) is None:
-            self.error(runtime_path, "only active ningshen may supply the authored multiplier using saved quality; otherwise use baseline 1.0")
+        manager_path = JAVA / "cultivation/meditation/MeditationManager.java"
+        manager = self.read(manager_path)
+        if manager is not None and re.search(r"\bMedicineRuntime\s*\.\s*stabilityMultiplier\b", manager):
+            self.error(manager_path, "ordinary meditation must not read medicine state")
 
     def validate_settlement(self) -> None:
         sources = self.read_tree(JAVA / "cultivation")

@@ -50,16 +50,16 @@ class MedicinePersistenceTest {
         assertEquals("", state.effect());
         doses.getCompound("ningshen").putInt("healing_elapsed", Integer.MAX_VALUE);
         state = MedicineRuntime.read(doses, AlchemyRules.get(), "ningshen");
-        assertEquals(AlchemyRules.get().effects().ningshen().durationTicks(), state.effectTicks());
+        assertEquals(0, state.effectTicks());
         assertEquals(0, state.healingElapsed());
     }
     @Test void sustainedQualitySurvivesSaveRestartAndOnlineTicks() {
-        for (String effect : new String[] {"yangyuan", "ningshen"}) {
+        for (String effect : new String[] {"yangyuan", "yangyuan_2", "yangyuan_3"}) {
             for (int quality = 1; quality <= 4; quality++) {
-                MedicineState state = new MedicineState(452, effect, 52, effect.equals("yangyuan") ? 8 : 0, quality);
-                CompoundTag saved = saved(effect, state);
-                assertEquals(quality, saved.getCompound(effect).getInt("quality"));
-                MedicineState loaded = MedicineRuntime.read(saved.copy(), AlchemyRules.get(), effect);
+                MedicineState state = new MedicineState(452, effect, 52, 8, quality);
+                CompoundTag saved = saved("yangyuan", state);
+                assertEquals(quality, saved.getCompound("yangyuan").getInt("quality"));
+                MedicineState loaded = MedicineRuntime.read(saved.copy(), AlchemyRules.get(), "yangyuan");
                 assertEquals(state, loaded);
                 assertEquals(quality, loaded.tick(20).next().quality());
                 assertEquals(1, loaded.clearBenefit().quality());
@@ -99,7 +99,7 @@ class MedicinePersistenceTest {
     @Test void medicinesKeepIndependentEffectsAndCooldownsAcrossDeathAndReload() {
         var rules = AlchemyRules.get();
         var yangyuan = new MedicineState(452, "yangyuan", 52, 8, 2);
-        var ningshen = new MedicineState(0, "ningshen", 560, 0, 4);
+        var ningshen = new MedicineState(515, "", 0, 0);
         var zhuji = new MedicineState(570, "", 0, 0);
         CompoundTag doses = saved("yangyuan", yangyuan);
         assertTrue(MedicineRuntime.read(doses, rules, "ningshen").available());
@@ -112,7 +112,7 @@ class MedicinePersistenceTest {
         assertTrue(MedicineRuntime.read(restored, rules, "buji").available());
         MedicineRuntime.clearBenefits(restored, rules);
         assertEquals(yangyuan.clearBenefit(), MedicineRuntime.read(restored, rules, "yangyuan"));
-        assertFalse(restored.contains("ningshen"));
+        assertEquals(ningshen, MedicineRuntime.read(restored, rules, "ningshen"));
         assertEquals(zhuji, MedicineRuntime.read(restored, rules, "zhuji"));
     }
 }

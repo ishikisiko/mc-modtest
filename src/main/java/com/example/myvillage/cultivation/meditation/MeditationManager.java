@@ -508,9 +508,8 @@ public final class MeditationManager {
             var heart = HeartTechniques.spirit(player.registryAccess(), current).orElse(null);
             int normal = heart == null ? 0 : heart.cultivation() + HeartTechniques.growth(current, Effect.FLAT_NORMAL);
             int stone = heart == null ? 0 : heart.cultivation() + heart.stoneExtra() + HeartTechniques.growth(current, Effect.FLAT_STONE);
-            double recovery = com.example.myvillage.alchemy.MedicineRuntime.stabilityMultiplier(player);
             basePlan = cap == 0
-                    ? BasicBreathingSettlement.consolidate(current, resolved.stage().stabilityCap().orElseThrow(), accrual, recovery)
+                    ? BasicBreathingSettlement.consolidate(current, resolved.stage().stabilityCap().orElseThrow(), accrual, 1.0)
                     : BasicBreathingSettlement.plan(
                     current,
                     cap,
@@ -518,7 +517,7 @@ public final class MeditationManager {
                     accrual,
                     spiritStonesAvailable,
                     progressFactorBasisPoints(player, current),
-                    recovery, normal, stone);
+                    1.0, normal, stone);
             basePlan = new BasicBreathingSettlement.Plan(com.example.myvillage.cultivation.fate.SchoolInsightRuntime.boost(player,current,
                     com.example.myvillage.cultivation.growth.TechniqueGrowth.meditationMastery(
                     com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled(), current, basePlan.replacement(),

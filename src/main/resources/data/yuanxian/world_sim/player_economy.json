@@ -11,7 +11,7 @@
   "linlang": [
     {"id": "huiling", "name": "回灵丹", "item": "yuanxian:pill_huiling", "quantity": 1, "contribution": 4, "rank": "outer", "pill_quality": 1},
     {"id": "yangyuan", "name": "养元丹", "item": "yuanxian:pill_yangyuan", "quantity": 1, "contribution": 5, "rank": "outer", "pill_quality": 1},
-    {"id": "ningshen", "name": "凝神丹", "item": "yuanxian:pill_ningshen", "quantity": 1, "contribution": 7, "rank": "outer", "pill_quality": 1},
+    {"id": "ningshen", "name": "回春丹", "item": "yuanxian:pill_ningshen", "quantity": 1, "contribution": 7, "rank": "outer", "pill_quality": 1},
     {"id": "spirit_leaf", "name": "灵叶三份", "item": "yuanxian:spirit_leaf", "quantity": 3, "contribution": 3, "rank": "outer", "pill_quality": 0},
     {"id": "middle_huiling", "name": "中品回灵丹", "item": "yuanxian:pill_huiling", "quantity": 1, "contribution": 10, "rank": "inner", "pill_quality": 2},
     {"id": "armor_pattern", "name": "玄铁甲衣器谱", "item": "yuanxian:pattern_xuantie_chestplate", "quantity": 1, "contribution": 18, "rank": "inner", "pill_quality": 0}

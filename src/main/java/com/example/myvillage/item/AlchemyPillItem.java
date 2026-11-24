@@ -2,7 +2,6 @@ package com.example.myvillage.item;
 
 import com.example.myvillage.alchemy.AlchemyRules;
 import com.example.myvillage.alchemy.MedicineRuntime;
-import com.example.myvillage.alchemy.MedicineEffects;
 import com.example.myvillage.alchemy.PillQuality;
 import com.example.myvillage.cultivation.fate.PillAegisRuntime;
 import net.minecraft.ChatFormatting;
@@ -28,7 +27,7 @@ public final class AlchemyPillItem extends Item {
 
     public AlchemyPillItem(Properties properties, String effectId) {
         super(properties.stacksTo(16));
-        if (!List.of("huiling", "yangyuan", "ningshen", "xuying").contains(effectId) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(effectId))
+        if (AlchemyRules.medicineTier(effectId) == 0 && !effectId.equals("xuying") && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(effectId))
             throw new IllegalArgumentException("Unknown medicine: " + effectId);
         this.effectId = effectId;
     }
@@ -57,7 +56,7 @@ public final class AlchemyPillItem extends Item {
         if (!stack.isEmpty() && entity instanceof ServerPlayer player
                 && MedicineRuntime.consume(player, effectId, PillQuality.get(stack))) {
             if (!player.getAbilities().instabuild) stack.shrink(1);
-            PillAegisRuntime.afterSuccessfulConsumption(player, effectId);
+            PillAegisRuntime.afterSuccessfulConsumption(player, AlchemyRules.medicineFamily(effectId));
         }
         return stack;
     }
@@ -80,20 +79,21 @@ public final class AlchemyPillItem extends Item {
                     .withStyle(style -> style.withColor(QualityDisplay.color(quality))));
         }
         var rules = AlchemyRules.get();
-        double factor = rules.qualityMultiplier(PillQuality.get(stack));
-        Object[] arguments = switch (effectId) {
-            case "huiling" -> new Object[] {number(rules.effects().huiling().powerFraction() * factor * 100)};
-            case "yangyuan" -> new Object[] {number(rules.effects().yangyuan().healFraction() * factor * 100),
-                    number(rules.effects().yangyuan().intervalTicks() / 20.0),
-                    number(rules.effects().yangyuan().durationTicks() / 20.0)};
-            case "ningshen" -> new Object[] {number(MedicineEffects.qualityStabilityMultiplier(rules.effects().ningshen().stabilityMultiplier(), factor)),
-                    number(rules.effects().ningshen().durationTicks() / 20.0)};
+        String family = AlchemyRules.medicineFamily(effectId);
+        int tier = AlchemyRules.medicineTier(effectId);
+        if (tier > 0) lines.add(Component.translatable("tooltip.yuanxian.alchemy.tier." + tier)
+                .withStyle(ChatFormatting.DARK_GRAY));
+        Object[] arguments = switch (family) {
+            case "huiling", "ningshen" -> new Object[] {number(rules.effects().amount(effectId, quality))};
+            case "yangyuan" -> new Object[] {number(rules.effects().amount(effectId, quality)),
+                    number(rules.effects().healingInterval() / 20.0),
+                    number(rules.effects().healingDuration() / 20.0)};
             case "xuying" -> new Object[] {
                     number(com.example.myvillage.cultivation.nascent.NascentRules.get().reformationMultiplier(quality)),
                     number(com.example.myvillage.cultivation.nascent.NascentRules.get().value("reformation_pill_ticks") / 20.0)};
             default -> {var e=com.example.myvillage.wilderness.ExpeditionRules.get().medicine(effectId);yield e==null?new Object[0]:new Object[]{number(e.strengthForQuality(quality)*100)+"%",number(e.durationTicks(quality)/20.0)};}
         };
-        lines.add(Component.translatable("tooltip.yuanxian.alchemy.pill_" + effectId, arguments).withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("tooltip.yuanxian.alchemy.pill_" + family, arguments).withStyle(ChatFormatting.GRAY));
         lines.add(Component.translatable("tooltip.yuanxian.alchemy.interval",
                 number(rules.cooldownTicks() / 20.0)).withStyle(ChatFormatting.DARK_GRAY));
     }

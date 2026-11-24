@@ -257,7 +257,7 @@ class PurpleEvidence(FateEvidence):
         self.capture('pill-aegis-granted.png')
         # Poll the first actual treatment interval, then measure at most one additional tick.
         healed=self.poll(self.hp,lambda n:n>hp+.01,timeout=3,label='quality healing tick')
-        expected=maximum*self.medicine['effects']['yangyuan']['heal_fraction']*self.medicine['quality']['strength_multipliers'][1]*(1+e['pill_healing_bonus'])
+        expected=self.medicine['effects']['yangyuan']['amounts'][0][1]*(1+e['pill_healing_bonus'])
         self.check('quality_and_fate_healing_once',close(healed-hp,expected,.03),{'gain':healed-hp,'expected':expected})
         self.rc(f'effect give {u} minecraft:absorption 30 1 true')
         absorption=self.number(f'data get entity {u} AbsorptionAmount')
