@@ -128,6 +128,13 @@ public final class TribulationManager {
                 player.getX(), player.getY(), player.getZ(), cap, advancement.requiredStability(), player.getMaxHealth(), rules);
         if (!loaded(player, attempt) || !openGround(player, attempt))
             return reject(player, "请选择露天场地：周围需有可落脚的活动空间，不能有屋顶、大片落差或未加载区块。");
+        if (kind != TribulationKind.HEAVEN) {
+            var inventory = player.getInventory();
+            var dose = com.example.myvillage.item.ModItems.PILL_NINGJIN.get().findDose(inventory);
+            if (dose.isEmpty()) return reject(player, "引动金丹雷劫需要在背包中备有一颗凝金丹。");
+            dose.shrink(1);
+            inventory.setChanged();
+        }
         save(player, attempt);
         player.displayClientMessage(Component.literal(kind.displayName()+"试炼：承受 "+rules.requiredHits()+" 次劫雷命中并存活即可突破。肉身防御、护甲、护盾与恢复有效。准备 "+rules.preparationTicks()/20.0+" 秒，初次准备期间可收功取消；离开半径 "+rules.arenaRadius()+" 格的劫场过久会失败。失败保留境界修为，损失 "+rules.failureStabilityLoss(attempt.requiredStability())+" 稳定度。"),false);
         sync(player, attempt, -1);

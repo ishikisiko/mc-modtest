@@ -21,7 +21,7 @@ public final class DropItemVariants {
 
     public static String qualityKind(Item item) {
         if (item instanceof AlchemyPillItem || item instanceof FoundationPillItem
-                || item instanceof com.example.myvillage.item.NascentPillItem) return "pill";
+                || item instanceof NascentPillItem || item instanceof TribulationPillItem) return "pill";
         if (item instanceof EquipmentArmorItem || item instanceof CombatWeaponItem || item instanceof WorkshopTool)
             return "equipment";
         return "";

@@ -294,6 +294,10 @@ public final class ModItems {
             properties -> new Item(properties.rarity(net.minecraft.world.item.Rarity.EPIC).stacksTo(16)));
     public static final DeferredItem<NascentPillItem> PILL_NINGYING = ITEMS.registerItem("pill_ningying", NascentPillItem::new);
     public static final DeferredItem<AlchemyPillItem> PILL_XUYING = ITEMS.registerItem("pill_xuying", props -> new AlchemyPillItem(props, "xuying"));
+    public static final DeferredItem<FormulaItem> FORMULA_NINGJIN = ITEMS.registerItem("formula_ningjin", props -> new FormulaItem(props, "ningjin"));
+    public static final DeferredItem<FormulaItem> FORMULA_HUASHEN = ITEMS.registerItem("formula_huashen", props -> new FormulaItem(props, "huashen"));
+    public static final DeferredItem<TribulationPillItem> PILL_NINGJIN = ITEMS.registerItem("pill_ningjin", props -> new TribulationPillItem(props, "ningjin"));
+    public static final DeferredItem<TribulationPillItem> PILL_HUASHEN = ITEMS.registerItem("pill_huashen", props -> new TribulationPillItem(props, "huashen"));
     public static final DeferredItem<NingyuanFruitItem> NINGYUAN_FRUIT_LOW = ITEMS.registerItem("ningyuan_fruit_low", props -> new NingyuanFruitItem(props, 1));
     public static final DeferredItem<NingyuanFruitItem> NINGYUAN_FRUIT_HIGH = ITEMS.registerItem("ningyuan_fruit_high", props -> new NingyuanFruitItem(props, 3));
 
@@ -543,6 +547,8 @@ public final class ModItems {
                         output.accept(FORMULA_BUJI_HIGH.get());
                         output.accept(FORMULA_NINGYING.get());
                         output.accept(FORMULA_XUYING.get());
+                        output.accept(FORMULA_NINGJIN.get());
+                        output.accept(FORMULA_HUASHEN.get());
                         output.accept(NINGYUAN_FRUIT_LOW.get());output.accept(NINGYUAN_FRUIT_HIGH.get());
                         for(int quality=1;quality<=4;quality++) {
                             var pill=new net.minecraft.world.item.ItemStack(PILL_ZHUJI.get());com.example.myvillage.alchemy.PillQuality.apply(pill,quality);output.accept(pill);
@@ -553,6 +559,8 @@ public final class ModItems {
                             var reformation = new net.minecraft.world.item.ItemStack(PILL_XUYING.get());
                             com.example.myvillage.alchemy.PillQuality.apply(reformation, quality);
                             output.accept(reformation);
+                            output.accept(QualityPicker.create(PILL_NINGJIN.get(), quality, 0, false));
+                            output.accept(QualityPicker.create(PILL_HUASHEN.get(), quality, 0, false));
                         }
 
 

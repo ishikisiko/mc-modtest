@@ -42,14 +42,16 @@ public final class QualityPicker {
 
     public static boolean allows(Item item, int quality) {
         if(item instanceof FoundationPillItem pill)return pill.allows(quality);
-        if (item instanceof AlchemyPillItem || item instanceof NascentPillItem) return quality >= 1 && quality <= 4;
+        if (item instanceof AlchemyPillItem || item instanceof NascentPillItem || item instanceof TribulationPillItem)
+            return quality >= 1 && quality <= 4;
         return quality == 0 || (!traits(item).isEmpty() && quality >= 1 && quality <= 4);
     }
 
     public static ItemStack create(Item item, int quality, int trait, boolean fullStack) {
         if (!allows(item, quality) || trait < 0 || trait >= ForgeMark.TRAITS.size()) return ItemStack.EMPTY;
         ItemStack result = new ItemStack(item);
-        if (item instanceof AlchemyPillItem || item instanceof FoundationPillItem || item instanceof NascentPillItem) {
+        if (item instanceof AlchemyPillItem || item instanceof FoundationPillItem
+                || item instanceof NascentPillItem || item instanceof TribulationPillItem) {
             if (trait != 0) return ItemStack.EMPTY;
             PillQuality.apply(result, quality);
         } else if (quality > 0) {

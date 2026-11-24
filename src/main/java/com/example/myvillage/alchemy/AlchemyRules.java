@@ -104,11 +104,11 @@ public final class AlchemyRules {
             for(String herb:r.ingredients())if(!herb.startsWith("yuanxian:")||(!herbs.contains(herb.substring("yuanxian:".length())) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMaterial(herb)))throw invalid("ingredients","unknown herb");
             if(com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("yuanxian:pill_"+r.id()) || r.ingredients().size()!=3))throw invalid("recipe","invalid expedition formula");
             boolean foundation = r.output().equals("yuanxian:pill_zhuji") || r.output().equals("yuanxian:pill_buji");
-            boolean nascent = r.id().equals("ningying") || r.id().equals("xuying");
-            if ((foundation || nascent) && (r.ingredients().size() != 3
-                    || nascent && !r.output().equals("yuanxian:pill_" + r.id())))
+            boolean realmPill = Set.of("ningying", "xuying", "ningjin", "huashen").contains(r.id());
+            if ((foundation || realmPill) && (r.ingredients().size() != 3
+                    || realmPill && !r.output().equals("yuanxian:pill_" + r.id())))
                 throw invalid("recipe", "breakthrough or repair recipe needs three herbs and the matching output");
-            if(!foundation && !nascent && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("yuanxian:pill_"+r.id()) || r.ingredients().size()!=2 || r.ingredientCounts().stream().anyMatch(n->n!=1)))throw invalid("recipe","legacy medicine shape changed");
+            if(!foundation && !realmPill && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("yuanxian:pill_"+r.id()) || r.ingredients().size()!=2 || r.ingredientCounts().stream().anyMatch(n->n!=1)))throw invalid("recipe","legacy medicine shape changed");
         }
         recipes = List.copyOf(result);
         JsonObject e = object(root.get("effects"), "effects");

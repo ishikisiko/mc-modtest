@@ -4931,5 +4931,11 @@
   "tooltip.yuanxian.kitchen_spirit_mushrooms": "打坐时自然回灵速度 +%s%%，持续 %s 分钟",
   "item.yuanxian.kitchen_honey_apples": "蜜烤苹果",
   "effect.yuanxian.kitchen_honey_apples": "蜜烤苹果",
-  "tooltip.yuanxian.kitchen_honey_apples": "御剑普通巡航耗灵 −%s%%，持续 %s 分钟"
+  "tooltip.yuanxian.kitchen_honey_apples": "御剑普通巡航耗灵 −%s%%，持续 %s 分钟",
+  "item.yuanxian.pill_ningjin": "凝金丹",
+  "item.yuanxian.pill_huashen": "化神丹",
+  "item.yuanxian.formula_ningjin": "凝金丹方（难度1）",
+  "item.yuanxian.formula_huashen": "化神丹方（难度1）",
+  "tooltip.yuanxian.alchemy.pill_ningjin": "用于首次突破金丹。每次引劫从背包扣除一颗，各档金丹均可使用。",
+  "tooltip.yuanxian.alchemy.pill_huashen": "用于首次突破化神。每次引劫从背包扣除一颗，各档化神均可使用。"
 }

@@ -2,6 +2,8 @@ package com.example.myvillage.cultivation.tribulation;
 
 import com.example.myvillage.cultivation.*;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
+import com.example.myvillage.alchemy.PillQuality;
+import com.example.myvillage.item.ModItems;
 import com.example.myvillage.stats.*;
 import com.example.myvillage.stats.runtime.*;
 import com.example.myvillage.combat.foundation.ShieldRuntime;
@@ -15,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -29,10 +32,12 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class TribulationEvidence {
     private static final boolean ENABLED="1".equals(System.getenv("MYVILLAGE_TRIBULATION_EVIDENCE"));
     private static final boolean RESTART="restart".equals(System.getenv("MYVILLAGE_TRIBULATION_PHASE"));
+    private static final boolean PILL_CHECK="pills".equals(System.getenv("MYVILLAGE_TRIBULATION_PHASE"));
     private static final Path OUT=Path.of(System.getenv().getOrDefault("MYVILLAGE_TRIBULATION_OUT","../reports/tribulation-native"));
     private static final List<Map<String,Object>> CHECKS=new ArrayList<>();
     private static final List<String> FAILED=new ArrayList<>(),DONE=new ArrayList<>();
-    private static final List<String> SELECTED=RESTART?List.of("restart_same_trial_no_replay","finish_persisted_grade_once"):
+    private static final List<String> SELECTED=PILL_CHECK?List.of("golden_pill","spirit_pill"):
+            RESTART?List.of("restart_same_trial_no_replay","finish_persisted_grade_once"):
             List.of("eligibility_and_cancel","heaven","golden_low","golden_middle","golden_high","fully_shielded_hits","low_health_failure","rejected_hit","boundary_failure","save_active_trial");
     private static final List<Trial> TRIALS=new ArrayList<>();
     private static int ticks;private static boolean finished;private static ServerPlayer persisted;
@@ -66,11 +71,71 @@ public final class TribulationEvidence {
     }
     private static void add(ServerLevel l,String name,TribulationKind kind,boolean shield)throws Exception{
         var p=player(l,"Trial_"+name,kind);var trial=new Trial(name,p,kind,shield);
+        if (kind != TribulationKind.HEAVEN) p.getInventory().items.set(0, new ItemStack(ModItems.PILL_NINGJIN.get()));
         if(shield)check("shield_grant",ShieldRuntime.grant(p,ResourceLocation.parse("fixture:trial"),1000,10000),"1000 temporary fixture shield");
         if(name.equals("low_health_failure"))p.setHealth(1);
         check("start_"+name,TribulationManager.start(p,kind),TribulationManager.statusJson(p));
         if(name.equals("rejected_hit"))p.getAbilities().invulnerable=true;
         TRIALS.add(trial);
+    }
+    private static void pillChecks(MinecraftServer server) throws Exception {
+        var level = server.overworld();
+        for (int x = -1; x <= 1; x++) for (int z = -1; z <= 1; z++) {
+            level.setChunkForced(x, z, true);
+            level.getChunk(x, z);
+        }
+        for (var kind : List.of(TribulationKind.GOLDEN_LOW, TribulationKind.GOLDEN_MIDDLE, TribulationKind.GOLDEN_HIGH)) {
+            var player = player(level, "Pill_" + kind.id(), kind);
+            var inventory = player.getInventory();
+            var wrong = new ItemStack(ModItems.PILL_HUASHEN.get());
+            inventory.items.set(0, wrong);
+            check(kind.id() + "_wrong_pill_refused", !TribulationManager.start(player, kind)
+                    && TribulationManager.load(player) == null && wrong.getCount() == 1, TribulationManager.statusJson(player));
+            var upper = new ItemStack(ModItems.PILL_NINGJIN.get());
+            PillQuality.apply(upper, 3);
+            var lower = new ItemStack(ModItems.PILL_NINGJIN.get(), 2);
+            inventory.items.set(1, upper);
+            inventory.items.set(2, lower);
+            var ready = CultivationService.getProfile(player);
+            CultivationService.replaceProfile(player, ready.withStability(ready.stability() - 1));
+            check(kind.id() + "_ineligible_keeps_pills", !TribulationManager.start(player, kind)
+                    && lower.getCount() == 2, TribulationManager.statusJson(player));
+            CultivationService.replaceProfile(player, ready);
+            check(kind.id() + "_pays_once", TribulationManager.start(player, kind)
+                    && lower.getCount() == 1 && upper.getCount() == 1, TribulationManager.statusJson(player));
+            check(kind.id() + "_duplicate_keeps_pills", !TribulationManager.start(player, kind)
+                    && lower.getCount() == 1, TribulationManager.statusJson(player));
+            check(kind.id() + "_cancel_keeps_payment", TribulationManager.cancelPreparation(player)
+                    && lower.getCount() == 1, TribulationManager.statusJson(player));
+        }
+        DONE.add("golden_pill");
+        var realm = ModCultivationRegistries.NASCENT_SOUL_REALM_ID;
+        var stage = level.registryAccess().registryOrThrow(ModCultivationRegistries.REALMS).get(realm).stages().getLast();
+        for (var route : SpiritTrial.Route.values()) {
+            var player = player(level, "Pill_spirit_" + route.id(), TribulationKind.GOLDEN_LOW);
+            var ready = CultivationService.getProfile(player).withRealmAndStage(realm, stage.id())
+                    .withCultivationProgress(stage.cultivationCap().orElseThrow())
+                    .withStability(stage.advancement().orElseThrow().requiredStability())
+                    .withMemory(CultivationMemory.EMPTY.form(1));
+            var installed = CultivationService.replaceProfile(player, ready);
+            if (!installed.success()) throw new IllegalStateException(installed.message());
+            var inventory = player.getInventory();
+            var wrong = new ItemStack(ModItems.PILL_NINGJIN.get());
+            inventory.items.set(0, wrong);
+            check(route.id() + "_wrong_pill_preserves_soul", !SpiritTrial.start(player, route)
+                    && !SpiritTrial.active(player) && wrong.getCount() == 1
+                    && CultivationService.getProfile(player).memory().intact(), CultivationService.getProfile(player));
+            var pill = new ItemStack(ModItems.PILL_HUASHEN.get(), 2);
+            PillQuality.apply(pill, 4);
+            inventory.items.set(1, pill);
+            check(route.id() + "_pays_once", SpiritTrial.start(player, route) && pill.getCount() == 1
+                    && SpiritTrial.active(player)
+                    && CultivationService.getProfile(player).memory().seedLost() == (route == SpiritTrial.Route.HIGH),
+                    CultivationService.getProfile(player));
+            check(route.id() + "_duplicate_keeps_pill", !SpiritTrial.start(player, route)
+                    && pill.getCount() == 1, CultivationService.getProfile(player));
+        }
+        DONE.add("spirit_pill");
     }
     private static void setup(MinecraftServer server)throws Exception{
         var l=server.overworld();for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){l.setChunkForced(x,z,true);l.getChunk(x,z);}
@@ -115,7 +180,7 @@ public final class TribulationEvidence {
         }
     }
     private static void persistActive(MinecraftServer server)throws Exception{
-        if(persisted==null){persisted=player(server.overworld(),"Trial_persist",TribulationKind.GOLDEN_HIGH);check("persist_start",TribulationManager.start(persisted,TribulationKind.GOLDEN_HIGH),TribulationManager.statusJson(persisted));}
+        if(persisted==null){persisted=player(server.overworld(),"Trial_persist",TribulationKind.GOLDEN_HIGH);persisted.getInventory().items.set(0, new ItemStack(ModItems.PILL_NINGJIN.get()));check("persist_start",TribulationManager.start(persisted,TribulationKind.GOLDEN_HIGH),TribulationManager.statusJson(persisted));}
         drive(persisted);var a=TribulationManager.load(persisted);
         if(a.acceptedHits()<1)return;
         NeoForge.EVENT_BUS.post(new PlayerEvent.PlayerLoggedOutEvent(persisted));a=TribulationManager.load(persisted);
@@ -142,13 +207,14 @@ public final class TribulationEvidence {
     @SubscribeEvent public static void tick(ServerTickEvent.Post e){
         if(!ENABLED||finished||++ticks<45)return;
         try{
-            if(RESTART)restart(e.getServer());
+            if(PILL_CHECK)pillChecks(e.getServer());
+            else if(RESTART)restart(e.getServer());
             else{if(ticks==45)setup(e.getServer());tickTrials();if(TRIALS.stream().allMatch(t->t.done))persistActive(e.getServer());}
             if(DONE.containsAll(SELECTED))finish(e.getServer());
             else if(ticks>2200){FAILED.add("timeout: "+SELECTED.stream().filter(s->!DONE.contains(s)).toList());finish(e.getServer());}
         }catch(Throwable ex){ex.printStackTrace();FAILED.add("exception: "+ex);finish(e.getServer());}
     }
     private static void finish(MinecraftServer server){
-        finished=true;for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)server.overworld().setChunkForced(x,z,false);try{Files.createDirectories(OUT);Files.writeString(OUT.resolve(RESTART?"restart.json":"initial.json"),new GsonBuilder().setPrettyPrinting().create().toJson(Map.of("selected",SELECTED,"completed",DONE,"failed",FAILED,"unrun",SELECTED.stream().filter(s->!DONE.contains(s)).toList(),"checks",CHECKS,"pass",FAILED.isEmpty()&&DONE.containsAll(SELECTED),"evidence_kind","native_server_fixture_default_timeline_not_mapped_input")));}catch(Exception ex){ex.printStackTrace();}server.halt(false);
+        finished=true;for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)server.overworld().setChunkForced(x,z,false);try{Files.createDirectories(OUT);Files.writeString(OUT.resolve(PILL_CHECK?"pills.json":RESTART?"restart.json":"initial.json"),new GsonBuilder().setPrettyPrinting().create().toJson(Map.of("selected",SELECTED,"completed",DONE,"failed",FAILED,"unrun",SELECTED.stream().filter(s->!DONE.contains(s)).toList(),"checks",CHECKS,"pass",FAILED.isEmpty()&&DONE.containsAll(SELECTED),"evidence_kind","native_server_fixture_default_timeline_not_mapped_input")));}catch(Exception ex){ex.printStackTrace();}server.halt(false);
     }
 }

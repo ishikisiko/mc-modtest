@@ -252,6 +252,42 @@
       "difficulty": 1
     },
     {
+      "id": "ningjin",
+      "formula": "yuanxian:formula_ningjin",
+      "ingredients": [
+        "yuanxian:ningyuan_fruit_high",
+        "yuanxian:sunroot",
+        "yuanxian:spirit_leaf"
+      ],
+      "ingredient_counts": [1, 2, 2],
+      "fuel_count": 32,
+      "duration_ticks": 1000,
+      "output": "yuanxian:pill_ningjin",
+      "output_count": 1,
+      "minimum_aptitude": 175,
+      "quality_tier": "yuanxian:foundation_establishment",
+      "difficulty": 1,
+      "scroll_quality": 2
+    },
+    {
+      "id": "huashen",
+      "formula": "yuanxian:formula_huashen",
+      "ingredients": [
+        "yuanxian:ningyuan_fruit_high",
+        "yuanxian:cloud_fungus",
+        "yuanxian:calm_lotus"
+      ],
+      "ingredient_counts": [2, 3, 3],
+      "fuel_count": 64,
+      "duration_ticks": 1400,
+      "output": "yuanxian:pill_huashen",
+      "output_count": 1,
+      "minimum_aptitude": 220,
+      "quality_tier": "yuanxian:golden_core",
+      "difficulty": 1,
+      "scroll_quality": 3
+    },
+    {
       "id": "ningying",
       "formula": "yuanxian:formula_ningying",
       "ingredients": [

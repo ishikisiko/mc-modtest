@@ -11,5 +11,7 @@
   "zhuji": {"name":"筑基丹", "support":"casket", "body":{"base":"bd8730", "light":"fff2b5", "vein":"f6d772", "motif":"ring"}},
   "buji": {"name":"补基丹", "support":"casket", "body":{"base":"467f72", "light":"d5efd2", "vein":"dec786", "motif":"mend"}},
   "ningying": {"name":"凝婴丹", "support":"casket", "body":{"base":"715296", "light":"efe0f7", "vein":"d7a9cf", "motif":"orbit"}},
-  "xuying": {"name":"续婴丹", "support":"dish", "body":{"base":"439579", "light":"d3f0c4", "vein":"b3d17a", "motif":"mend"}}
+  "xuying": {"name":"续婴丹", "support":"dish", "body":{"base":"439579", "light":"d3f0c4", "vein":"b3d17a", "motif":"mend"}},
+  "ningjin": {"name":"凝金丹", "support":"casket", "body":{"base":"b06724", "light":"fff4b6", "vein":"ffcc43", "motif":"orbit"}},
+  "huashen": {"name":"化神丹", "support":"casket", "body":{"base":"263d8a", "light":"f1f3ff", "vein":"83d8fb", "motif":"fissure"}}
 }

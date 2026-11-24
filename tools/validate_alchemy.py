@@ -26,6 +26,7 @@ SOURCE_FILES = tuple(JAVA / f'{name}.java' for name in (
     'item/FormulaItem', 'alchemy/AlchemyMenu', 'alchemy/AlchemyBatch', 'alchemy/PillQuality', 'alchemy/MedicineState',
     'alchemy/MedicineRuntime', 'block/entity/AlchemyFurnaceBlockEntity',
     'item/AlchemyPillItem', 'item/ModDataComponents', 'client/alchemy/AlchemyScreen',
+    'item/TribulationPillItem',
 ))
 HERBS = ('spirit_leaf', 'dew_blossom', 'sunroot', 'blood_berry', 'cloud_fungus', 'calm_lotus')
 REMOVED_RECIPES = (*HERBS, 'ningyuan_fruit_low', 'ningyuan_fruit_high', 'ningyuan_sapling')
@@ -33,8 +34,9 @@ KINDS = ('huiling', 'yangyuan', 'ningshen')
 EXPEDITION = {m['pill_id']:m for m in json.loads((ROOT/'tools/wilderness_roster/catalogue.json').read_text())['mobs']}
 FOUNDATION = ('zhuji_low','zhuji_middle','zhuji_high','buji_middle','buji_high')
 NASCENT = ('ningying', 'xuying')
+TRIBULATION = ('ningjin', 'huashen')
 NEW_ITEMS = ('ningyuan_fruit_low','ningyuan_fruit_high','pill_zhuji','pill_buji', *(f'formula_{k}' for k in FOUNDATION),
-             *(f'{prefix}_{k}' for k in NASCENT for prefix in ('formula', 'pill')), 'five_color_golden_lotus')
+             *(f'{prefix}_{k}' for k in (*NASCENT, *TRIBULATION) for prefix in ('formula', 'pill')), 'five_color_golden_lotus')
 ITEMS = ('alchemy_furnace', *HERBS, *(f'formula_{k}' for k in KINDS), *(f'pill_{k}' for k in KINDS))
 ITEMS += NEW_ITEMS
 PLANTS = ('fern', 'blue_orchid', 'carrot', 'sweet_berries', 'brown_mushroom', 'lily_pad')
@@ -46,7 +48,7 @@ JAR_CLASSES = tuple(f'com/example/myvillage/{name}.class' for name in (
     'block/AlchemyFurnaceBlock', 'block/entity/AlchemyFurnaceBlockEntity', 'client/alchemy/AlchemyScreen',
     'item/AlchemyPillItem', 'item/FormulaItem', 'alchemy/MedicineEffects', 'alchemy/MedicineState',
     'alchemy/MedicineRuntime', 'alchemy/AlchemyBatch', 'alchemy/PillQuality', 'item/ModDataComponents',
-    'alchemy/FoundationRules','item/FoundationPillItem','item/NingyuanFruitItem',
+    'alchemy/FoundationRules','item/FoundationPillItem','item/NingyuanFruitItem','item/TribulationPillItem',
     'alchemy/AlchemyOutputs','cultivation/crafting/CraftingQualityRules',
 ))
 
@@ -105,16 +107,16 @@ def check_rules(data, quality_rules=None) -> list[str]:
         if not valid:
             error('ALCHEMY_QUALITY_MULTIPLIERS', 'four finite strength multipliers must start at 1 and strictly increase up to 16')
     recipes = data['recipes']
-    required = set((*KINDS, *FOUNDATION, *NASCENT))
+    required = set((*KINDS, *FOUNDATION, *NASCENT, *TRIBULATION))
     if not isinstance(recipes, list) or not len(required) <= len(recipes) <= len(required) + len(EXPEDITION):
-        error('ALCHEMY_RECIPES', 'legacy, foundation and nascent brewing recipes required')
+        error('ALCHEMY_RECIPES', 'base, breakthrough and repair brewing recipes required')
         recipes = recipes if isinstance(recipes, list) else []
     seen = set()
     for index, recipe in enumerate(recipes):
         where = f'recipes[{index}]'
         foundation = isinstance(recipe,dict) and recipe.get('id') in FOUNDATION
-        nascent = isinstance(recipe,dict) and recipe.get('id') in NASCENT
-        three_herbs = foundation or nascent
+        realm_pill = isinstance(recipe,dict) and recipe.get('id') in (*NASCENT, *TRIBULATION)
+        three_herbs = foundation or realm_pill
         expedition = isinstance(recipe,dict) and recipe.get('id') in EXPEDITION
         extra = ('ingredient_counts','minimum_aptitude','scroll_quality') if three_herbs else ('minimum_aptitude',) if expedition else ()
         if not keys(recipe, ('id', 'formula', 'ingredients', 'fuel_count', 'duration_ticks', 'output', 'output_count', 'quality_tier', 'difficulty', *extra), where):
@@ -128,8 +130,14 @@ def check_rules(data, quality_rules=None) -> list[str]:
         expected_herbs = ({'yuanxian:ningyuan_fruit_'+('high' if kind.endswith('high') or kind == 'ningying' else 'low'),
                            'yuanxian:spirit_leaf','yuanxian:calm_lotus'}
                           if three_herbs else {'yuanxian:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'yuanxian:{h}' for h in PAIRS[kind]})
-        if (not isinstance(ingredients,list) or len(ingredients)!=len(expected_herbs) or any(not isinstance(i,str) for i in ingredients) or set(ingredients)!=expected_herbs):
+        if not isinstance(ingredients, list) or any(not isinstance(i, str) for i in ingredients):
             error('ALCHEMY_REFERENCE',f'{where}: unexpected ingredients')
+        elif kind in TRIBULATION:
+            allowed_herbs = {f'yuanxian:{herb}' for herb in (*HERBS, 'ningyuan_fruit_low', 'ningyuan_fruit_high')}
+            if len(ingredients) != 3 or len(set(ingredients)) != 3 or not set(ingredients) <= allowed_herbs:
+                error('ALCHEMY_REFERENCE', f'{where}: expected three distinct herbs')
+        elif len(ingredients) != len(expected_herbs) or set(ingredients) != expected_herbs:
+            error('ALCHEMY_REFERENCE', f'{where}: unexpected ingredients')
         output_kind=kind.split('_')[0] if foundation else kind
         if recipe['formula']!=f'yuanxian:formula_{kind}' or recipe['output']!=f'yuanxian:pill_{output_kind}':
             error('ALCHEMY_REFERENCE',f'{where}: formula/pill identity mismatch')
@@ -229,7 +237,8 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
         quality_rules = crafting_quality.load()
     read(DATA / 'alchemy/foundation.json')
     for item in NEW_ITEMS:
-        if item.startswith('formula_'):read(DATA / f'recipe/{item}.json')
+        if item.startswith('formula_') and item.removeprefix('formula_') not in TRIBULATION:
+            read(DATA / f'recipe/{item}.json')
     errors.extend(check_rules(rules,quality_rules))
     sources = {}
     source_paths = set(SOURCE_FILES)
@@ -333,7 +342,11 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
         target = commerce.get('herb_restock', {}).get('stock', {}).get(f'yuanxian:{herb}', 0)
         if len(offers) != 1 or offers[0].get('role') != 'herbalist' or offers[0].get('quantity') != 1 or type(target) is not int or target <= 0:
             error('ALCHEMY_ACQUISITION', f'{herb}: missing finite shop supply and recurring restock')
-    for item in ('alchemy_furnace', *(f'formula_{k}' for k in KINDS)):
+    brewing_herbs = {recipe['formula']: recipe['ingredients'] for recipe in rules.get('recipes', [])
+                     if isinstance(recipe, dict) and isinstance(recipe.get('formula'), str)
+                     and isinstance(recipe.get('ingredients'), list)
+                     and all(isinstance(i, str) for i in recipe['ingredients'])}
+    for item in ('alchemy_furnace', *(f'formula_{k}' for k in (*KINDS, *TRIBULATION))):
         recipe = read(DATA / f'recipe/{item}.json')
         result = recipe.get('result', {})
         if result != {'id': f'yuanxian:{item}', 'count': 1}:
@@ -354,7 +367,11 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             if recipe.get('type') != 'minecraft:crafting_shapeless':
                 error('ALCHEMY_ACQUISITION', f'{item}: expected shapeless recipe')
             ingredients = recipe.get('ingredients', [])
-            required = {FUEL, 'minecraft:paper', *(f'yuanxian:{h}' for h in PAIRS[item.removeprefix('formula_')])}
+            kind = item.removeprefix('formula_')
+            if kind in TRIBULATION:
+                required = {FUEL, 'minecraft:book', *brewing_herbs.get(f'yuanxian:{item}', [])}
+            else:
+                required = {FUEL, 'minecraft:paper', *(f'yuanxian:{h}' for h in PAIRS[kind])}
         actual = {i['item'] if set(i) == {'item'} and isinstance(i['item'], str) else
                   '#' + i['tag'] if set(i) == {'tag'} and isinstance(i['tag'], str) else None
                   for i in ingredients if isinstance(i, dict)} if isinstance(ingredients, list) else set()

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "yuanxian:ningyuan_fruit_high"
+    },
+    {
+      "item": "yuanxian:sunroot"
+    },
+    {
+      "item": "yuanxian:spirit_leaf"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:formula_ningjin",
+    "count": 1
+  }
+}

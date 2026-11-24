@@ -106,13 +106,17 @@ public final class SpiritTrial {
                 || !TribulationManager.openGround(player, anchor.x, anchor.y, anchor.z, rules.arenaRadius(), rules.verticalRange()))
             return reject(player, "请到露天平地引劫，周围需要可落脚的活动空间。");
 
-        if (route == Route.HIGH && !CultivationService.replaceProfile(player,
-                profile.withMemory(profile.memory().disperseSeed())).success())
-            return reject(player, "元婴状态提交失败，化神雷劫未开启。");
-
+        var inventory = player.getInventory();
+        var dose = com.example.myvillage.item.ModItems.PILL_HUASHEN.get().findDose(inventory);
+        if (dose.isEmpty()) return reject(player, "引动化神雷劫需要在背包中备有一颗化神丹。");
         var attempt = new Attempt(UUID.randomUUID(), route, player.level().dimension().location(),
                 anchor, cap, advance.requiredStability(), advance.durationTicks());
         attempt.remaining = rules.preparationTicks();
+        if (route == Route.HIGH && !CultivationService.replaceProfile(player,
+                profile.withMemory(profile.memory().disperseSeed())).success())
+            return reject(player, "元婴状态提交失败，化神雷劫未开启。");
+        dose.shrink(1);
+        inventory.setChanged();
         save(player, attempt);
         CombatSessionManager.interrupt(player, CombatStopReason.CULTIVATION_STARTED, true);
         player.sendSystemMessage(Component.literal(route.title() + "引劫开始。留在劫场内，按屏幕提示操作。"));

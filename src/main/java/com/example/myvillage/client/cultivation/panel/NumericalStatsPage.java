@@ -7,6 +7,7 @@ import com.example.myvillage.cultivation.CultivationStats;
 import com.example.myvillage.cultivation.nascent.NascentRules;
 import com.example.myvillage.cultivation.nascent.NascentTrial;
 import com.example.myvillage.cultivation.tribulation.SpiritTrial;
+import com.example.myvillage.cultivation.tribulation.TribulationManager;
 import com.example.myvillage.cultivation.network.MeditationIntentAction;
 import com.example.myvillage.stats.runtime.ModStatsAttributes;
 import java.util.*;
@@ -34,7 +35,8 @@ public final class NumericalStatsPage extends PanelPage {
                     y + height - dock + (i / 2) * 24, cell, 20, Component.literal(labels[i]),
                     pressed -> { ClientCultivationIntentSender.send(action); net.minecraft.client.Minecraft.getInstance().setScreen(null); });
             button.setInk(true);
-            button.setTooltip(Tooltip.create(Component.literal(labels[i] + "：修为与稳定度达标后开始正式雷劫，承受所需次数命中并存活才结算。")));
+            String cost = i == 0 ? "" : "开始时消耗背包中一颗凝金丹。";
+            button.setTooltip(Tooltip.create(Component.literal(cost + "修为与稳定度达标后可开始雷劫，承受所需次数的雷击并存活即可突破。")));
             buttons.add(button); widgets.accept(button);
         }
         refine = button(widgets, x, y + height - dock, cell, "中品 · 炼手中妖丹",
@@ -50,11 +52,11 @@ public final class NumericalStatsPage extends PanelPage {
                 "补满这一段修为，即可按记录恢复境界和品级。", MeditationIntentAction.START_BREAKTHROUGH);
         spirit = List.of(
                 button(widgets, x, y + height - dock, cell, "下品 · 守婴渡劫",
-                        "完整元婴分担六道雷的伤害。合神时散形，留下婴种。", MeditationIntentAction.SPIRIT_LOW),
+                        "开劫消耗一颗化神丹。完整元婴分担六道雷的伤害，合神时散形并留下婴种。", MeditationIntentAction.SPIRIT_LOW),
                 button(widgets, x + cell + 4, y + height - dock, cell, "中品 · 三雷后散婴",
-                        "第三道雷后按提示散形，第四至六道雷由肉身承受。留下婴种。", MeditationIntentAction.SPIRIT_MIDDLE),
+                        "开劫消耗一颗化神丹。第三道雷后按提示散形并留下婴种，后续雷击由肉身承受。", MeditationIntentAction.SPIRIT_MIDDLE),
                 button(widgets, x, y + height - 24, cell, "上品 · 散尽渡劫",
-                        "开劫时散尽元婴和婴种。重新获得护境需要先炼养婴种，再重凝元婴。", MeditationIntentAction.SPIRIT_HIGH));
+                        "开劫消耗一颗化神丹，并散尽元婴和婴种。重新获得护境需要先炼养婴种，再重凝元婴。", MeditationIntentAction.SPIRIT_HIGH));
         return dock;
     }
 
@@ -118,7 +120,9 @@ public final class NumericalStatsPage extends PanelPage {
         } else if (CultivationRecovery.canRestore(c.registries(), profile)) {
             rows.add(new String[]{"复境", "补满当前修为后按 N"});
         } else if (SpiritTrial.source(profile)) {
-            rows.add(new String[]{"化神引劫", profile.memory().intact() ? "达到门槛后选择渡劫路线" : "引劫前需要凝成完整元婴"});
+            rows.add(new String[]{"化神引劫", profile.memory().intact() ? "需要 1 颗化神丹" : "需要完整元婴和 1 颗化神丹"});
+        } else if (TribulationManager.source(profile)) {
+            rows.add(new String[]{"金丹引劫", "需要 1 颗凝金丹"});
         }
         Collections.addAll(rows,
                 new String[]{"生命", player == null ? "等待属性同步" : number(player.getHealth()) + " / " + number(player.getMaxHealth())},

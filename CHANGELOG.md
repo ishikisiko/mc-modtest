@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.151.2
+
+- 首次晋升金丹需要凝金丹，首次晋升化神需要化神丹。各品级路线在引劫时自动消耗背包中一颗对应丹药。新增两个可在工作台合成的丹方，学会后可用丹炉炼制。
+
 ## 0.151.1
 
 - 新建修仙大陆会在东荒野外选址生成石莲山。岩瓣围绕山内水池，中央是开阔的石质 Boss 战台，南侧石阶通向山谷。

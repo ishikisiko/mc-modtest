@@ -24,10 +24,10 @@ MEDICINES = ("huiling", "yangyuan", "ningshen")
 ITEM_IDS = ("alchemy_furnace", *HERBS, *(f"formula_{x}" for x in MEDICINES), *(f"pill_{x}" for x in MEDICINES))
 FOUNDATION_FORMULAS = ('zhuji_low', 'zhuji_middle', 'zhuji_high', 'buji_middle', 'buji_high')
 FOUNDATION_ITEMS = ("ningyuan_fruit_low", "ningyuan_fruit_high", "pill_zhuji", "pill_buji", *("formula_"+x for x in FOUNDATION_FORMULAS))
-NASCENT_FORMULAS = ("ningying", "xuying")
-NASCENT_ITEMS = tuple(f"{prefix}_{kind}" for kind in NASCENT_FORMULAS for prefix in ("pill", "formula"))
+REALM_FORMULAS = ("ningying", "xuying", "ningjin", "huashen")
+REALM_ITEMS = tuple(f"{prefix}_{kind}" for kind in REALM_FORMULAS for prefix in ("pill", "formula"))
 RELICS = ("five_color_golden_lotus",)
-ITEM_IDS += FOUNDATION_ITEMS + NASCENT_ITEMS + RELICS
+ITEM_IDS += FOUNDATION_ITEMS + REALM_ITEMS + RELICS
 NAMES = {
     "alchemy_furnace": ("Bronze Alchemy Furnace", "青铜丹炉"),
     "spirit_leaf": ("Spirit Leaf", "聚灵叶"), "dew_blossom": ("Dew Blossom", "凝露花"),
@@ -104,12 +104,16 @@ ZH_FOUNDATION = {
     "pill_zhuji":"筑基丹", "pill_buji":"补基丹",
     "pill_ningying":"凝婴丹", "pill_xuying":"续婴丹",
     "formula_ningying":"凝婴丹方", "formula_xuying":"续婴丹方",
+    "pill_ningjin":"凝金丹", "pill_huashen":"化神丹",
+    "formula_ningjin":"凝金丹方", "formula_huashen":"化神丹方",
     "formula_zhuji_low":"筑基丹方", "formula_zhuji_middle":"筑基丹方", "formula_zhuji_high":"筑基丹方",
     "formula_buji_middle":"补基丹方", "formula_buji_high":"补基丹方",
 }
 ZH_EXTRA = {"message.yuanxian.cultivation.session.foundation_pill_required":"筑基需要服用筑基丹；手持丹药右键开始","message.yuanxian.cultivation.session.foundation_failed":"筑基失败，需重新巩固稳定度"}
 ZH_EXTRA.update({
     "tooltip.yuanxian.alchemy.pill_xuying": "重凝元婴速度提高至 %s 倍，持续 %s 秒。",
+    "tooltip.yuanxian.alchemy.pill_ningjin": "用于首次突破金丹。每次引劫从背包扣除一颗，各档金丹均可使用。",
+    "tooltip.yuanxian.alchemy.pill_huashen": "用于首次突破化神。每次引劫从背包扣除一颗，各档化神均可使用。",
     "entity.yuanxian.nascent_demon": "心魔",
     "item.yuanxian.five_color_golden_lotus": "五彩金莲",
 })
@@ -315,6 +319,8 @@ def furnace_elements(lit=False):
 
 
 def outputs(root=ROOT):
+    from tools.pill_art.formulas import recipe
+
     assets=Path(root)/"src/main/resources/assets/yuanxian"
     data=Path(root)/"src/main/resources/data"
     result={assets/"textures/block/alchemy_furnace.png":png(furnace_texture())}
@@ -353,6 +359,8 @@ def outputs(root=ROOT):
                                   "yuanxian:spirit_leaf", "yuanxian:calm_lotus", "#c:spirit_stones/low_grade"])
     shapeless("formula_xuying", ["minecraft:book", "yuanxian:ningyuan_fruit_low",
                                 "yuanxian:spirit_leaf", "yuanxian:calm_lotus", "#c:spirit_stones/low_grade"])
+    for kind in ("ningjin", "huashen"):
+        shapeless("formula_" + kind, ["minecraft:book", *recipe(kind, root)["ingredients"], "#c:spirit_stones/low_grade"])
     result[data/"yuanxian/recipe/alchemy_furnace.json"]=encode({"type":"minecraft:crafting_shaped","category":"misc","pattern":["CIC","CFC","C C"],"key":{"C":{"item":"minecraft:copper_ingot"},"I":{"item":"minecraft:iron_ingot"},"F":{"item":"minecraft:furnace"}},"result":{"id":"yuanxian:alchemy_furnace","count":1}})
     result[data/"yuanxian/loot_table/blocks/alchemy_furnace.json"]=encode({"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"yuanxian:alchemy_furnace"}],"conditions":[{"condition":"minecraft:survives_explosion"}]}],"random_sequence":"yuanxian:blocks/alchemy_furnace"})
     return result
@@ -372,7 +380,7 @@ def merged_outputs(root=ROOT):
             obj.update(ZH_EXTRA)
             definitions=json.loads((root/"src/main/resources/data/yuanxian/alchemy/rules.json").read_text())
             for recipe in definitions["recipes"]:
-                if recipe["id"] in (*MEDICINES,*FOUNDATION_FORMULAS,*NASCENT_FORMULAS):
+                if recipe["id"] in (*MEDICINES,*FOUNDATION_FORMULAS,*REALM_FORMULAS):
                     key="item."+recipe["formula"].replace(":",".")
                     base=ZH_FOUNDATION.get("formula_"+recipe["id"],NAMES.get("formula_"+recipe["id"],("",""))[1])
                     obj[key]=f"{base}（难度{recipe['difficulty']}）"
