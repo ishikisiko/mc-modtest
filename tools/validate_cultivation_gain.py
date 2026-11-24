@@ -166,7 +166,7 @@ class CultivationGainValidator:
         if guard is None:
             self.error(path, "medicine stability call must stay inside the already-full progress guard")
         # Stability has a separate calculation in both ordinary and final-realm settlement.
-        if len(re.findall(r"\bstabilityMultiplier\b", settlement)) != 5:
+        if len(re.findall(r"\bstabilityMultiplier\b", settlement)) != 6:
             self.error(path, "medicine multiplier must affect stability only, never progress or mastery")
         if re.search(
             r"return\s+plan\(\s*current\s*,\s*cultivationCap\s*,\s*mode\s*,\s*accrual\s*,"
@@ -357,6 +357,9 @@ class CultivationGainValidator:
             self.error(JAVA / "cultivation", "unfunded spirit batches must use the normal affinity result")
         if not re.search(r"(?:settlement|activeMeditation|meditating)", combined, re.IGNORECASE):
             self.error(JAVA / "cultivation", "gain must be gated by an active meditation settlement")
+        # Foundation advancement rolls independently of ordinary settlement.
+        ordinary = re.sub(r"FoundationRules\.get\(\)\.succeeds\(pillQuality,\s*player\.getRandom\(\)\.nextInt\(100\)\)",
+                          "", combined)
         for forbidden in (
             "withCurrentSpiritualPower",
             "withLifespanConsumedTicks",
@@ -366,7 +369,7 @@ class CultivationGainValidator:
             "nextDouble(",
             "nextFloat(",
         ):
-            if forbidden in combined:
+            if forbidden in ordinary:
                 self.error(JAVA / "cultivation", f"gain implementation must not use {forbidden}")
 
     def validate_runtime_and_ui(self) -> None:
