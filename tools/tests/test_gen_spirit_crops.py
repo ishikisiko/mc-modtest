@@ -4,8 +4,9 @@ from tools import gen_spirit_crops as gen
 
 class SpiritCropsAssetsTest(unittest.TestCase):
     def test_exactly_three_distinct_models_per_herb_with_bounded_geometry(self):
-        for herb in gen.HERBS:
-            models=[gen.crop_model(herb,age) for age in range(3)]
+        files=gen.outputs()
+        for herb in (*gen.HERBS, *(spec['herb'] for spec in gen.OTHERWORLD)):
+            models=[json.loads(files[gen.ROOT/gen.ASSET/f'models/block/{herb}_crop_{age}.json']) for age in range(3)]
             self.assertEqual(3,len({json.dumps(m,sort_keys=True) for m in models}))
             for model in models:
                 self.assertGreater(len(model['elements']),3)
@@ -17,7 +18,7 @@ class SpiritCropsAssetsTest(unittest.TestCase):
         self.assertEqual(6,len({gen.texture(h) for h in gen.HERBS}))
     def test_loot_returns_same_herb_without_separate_seed_and_only_maturity_multiplies(self):
         files=gen.outputs()
-        for herb in gen.HERBS:
+        for herb in (*gen.HERBS, *(spec['herb'] for spec in gen.OTHERWORLD)):
             state=json.loads(files[gen.ROOT/gen.ASSET/f'blockstates/{herb}_crop.json'])
             self.assertEqual({'age=0','age=1','age=2'},set(state['variants']))
             loot=json.loads(files[gen.ROOT/gen.DATA/f'yuanxian/loot_table/blocks/{herb}_crop.json'])

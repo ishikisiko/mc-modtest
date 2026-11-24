@@ -72,7 +72,7 @@ class NamespaceTest(unittest.TestCase):
    p=base/f'assets/yuanxian/lang/{locale}.json';p.parent.mkdir(parents=True,exist_ok=True);p.write_text('{}')
   p=base/'data/minecraft/tags/block/mineable/shovel.json';p.parent.mkdir(parents=True);p.write_text(json.dumps({'replace':False,'values':['myvillage:spirit_soil','other:soil']}))
   out=gen.merged(self.root,rename_namespace_from='myvillage')
-  self.assertEqual(['yuanxian:spirit_soil','other:soil'],json.loads(out[p])['values'])
+  self.assertEqual(['yuanxian:spirit_soil','other:soil',*[f"yuanxian:{s['soil']}" for s in gen.OTHERWORLD]],json.loads(out[p])['values'])
  def test_road_owner_migrates_fence_tag_instead_of_accumulating_both_ids(self):
   from tools.gen_road_ports import assets,ROOT
   out=assets(rename_namespace_from='myvillage')

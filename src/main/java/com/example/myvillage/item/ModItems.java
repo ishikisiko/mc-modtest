@@ -181,6 +181,10 @@ public final class ModItems {
 
     public static final DeferredItem<BlockItem> SPIRIT_SOIL = ITEMS.registerItem("spirit_soil",
             props -> new BlockItem(ModBlocks.SPIRIT_SOIL.get(), props));
+    public static final DeferredItem<BlockItem> CINDER_SOIL = ITEMS.registerItem("cinder_soil",
+            props -> new BlockItem(ModBlocks.CINDER_SOIL.get(), props));
+    public static final DeferredItem<BlockItem> END_SAND_SOIL = ITEMS.registerItem("end_sand_soil",
+            props -> new BlockItem(ModBlocks.END_SAND_SOIL.get(), props));
     public static final DeferredItem<Item> RAW_XUANTIE = ITEMS.registerItem("raw_xuantie",
             props -> new Item(props));
     public static final DeferredItem<ForgingMaterialItem> XUANTIE_INGOT = ITEMS.registerItem("xuantie_ingot",
@@ -247,6 +251,10 @@ public final class ModItems {
             props -> new ItemNameBlockItem(ModBlocks.CLOUD_FUNGUS_CROP.get(), props));
     public static final DeferredItem<ItemNameBlockItem> CALM_LOTUS = ITEMS.registerItem("calm_lotus",
             props -> new ItemNameBlockItem(ModBlocks.CALM_LOTUS_CROP.get(), props));
+    public static final DeferredItem<OtherworldHerbItem> RED_FURNACE_VINE = ITEMS.registerItem("red_furnace_vine",
+            props -> new OtherworldHerbItem(ModBlocks.RED_FURNACE_VINE_CROP.get(), props));
+    public static final DeferredItem<OtherworldHerbItem> STAR_DEW_GRASS = ITEMS.registerItem("star_dew_grass",
+            props -> new OtherworldHerbItem(ModBlocks.STAR_DEW_GRASS_CROP.get(), props));
     public static final DeferredItem<FormulaItem> FORMULA_HUILING = ITEMS.registerItem("formula_huiling", props -> new FormulaItem(props, "huiling"));
     public static final DeferredItem<ExpeditionMaterialItem> REAVER_GRIT = ITEMS.registerItem("reaver_grit", props -> new ExpeditionMaterialItem(props, "reaver_grit"));
     public static final DeferredItem<FormulaItem> FORMULA_POZHANG = ITEMS.registerItem("formula_pozhang", props -> new FormulaItem(props, "pozhang"));
@@ -469,6 +477,8 @@ public final class ModItems {
                         output.accept(SPIRIT_STONE_BAG.get());
                         output.accept(DEMON_LURE_PEARL.get());
                         output.accept(SPIRIT_SOIL.get());
+                        output.accept(CINDER_SOIL.get());
+                        output.accept(END_SAND_SOIL.get());
                         output.accept(FORGING_TABLE.get());
                         output.accept(FORGING_ANVIL.get());
                         output.accept(FORGING_HAMMER.get());
@@ -509,6 +519,8 @@ public final class ModItems {
                         output.accept(BLOOD_BERRY.get());
                         output.accept(CLOUD_FUNGUS.get());
                         output.accept(CALM_LOTUS.get());
+                        output.accept(RED_FURNACE_VINE.get());
+                        output.accept(STAR_DEW_GRASS.get());
                         output.accept(FORMULA_HUILING.get());
                         output.accept(FORMULA_YANGYUAN.get());
                         output.accept(FORMULA_NINGSHEN.get());

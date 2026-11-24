@@ -12,6 +12,8 @@ from tools.gen_alchemy_assets import png, HERBS, NAMES
 from tools.namespace_migration import tag_values
 ASSET = Path('src/main/resources/assets/yuanxian')
 DATA = Path('src/main/resources/data')
+OTHERWORLD_ART = Path('art/spirit-crops/otherworld')
+OTHERWORLD = json.loads((ROOT / OTHERWORLD_ART / 'catalogue.json').read_text(encoding='utf-8'))
 # Minecraft 1.21.1 block/block.json item transforms; world geometry stays full size.
 BLOCK_ITEM_DISPLAY = {'gui': {'rotation': [30, 225, 0], 'translation': [0, 0, 0], 'scale': [0.625, 0.625, 0.625]}, 'ground': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [0.25, 0.25, 0.25]}, 'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.5, 0.5, 0.5]}, 'thirdperson_righthand': {'rotation': [75, 45, 0], 'translation': [0, 2.5, 0], 'scale': [0.375, 0.375, 0.375]}, 'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.4, 0.4, 0.4]}, 'firstperson_lefthand': {'rotation': [0, 225, 0], 'translation': [0, 0, 0], 'scale': [0.4, 0.4, 0.4]}}
 PARTS = ('stem', 'leaf', 'leaf_light', 'petal', 'heart', 'fruit', 'cap', 'root')
@@ -128,20 +130,113 @@ def crop_model(herb,age):
                 for axis in ('x','z'):
                     for sign in (-1,1):p.leaf(8,5.3,8,2.1,1.5,axis,sign,'petal',45)
     return {'ambientocclusion':False,'render_type':'minecraft:cutout','textures':{'plant':f'yuanxian:block/{herb}_plant','particle':f'yuanxian:block/{herb}_plant'},'elements':p.elements}
+
+
+def emit_crop(put, herb, models):
+    block = herb + '_crop'
+    put(ASSET/f'blockstates/{block}.json', {
+        'variants': {f'age={age}': {'model': f'yuanxian:block/{block}_{age}'} for age in range(3)}
+    })
+    for age, model in enumerate(models):
+        put(ASSET/f'models/block/{block}_{age}.json', model)
+    put(DATA/f'yuanxian/loot_table/blocks/{block}.json', {
+        'type': 'minecraft:block',
+        'pools': [{'rolls': 1, 'entries': [{
+            'type': 'minecraft:item', 'name': f'yuanxian:{herb}',
+            'functions': [
+                {'function': 'minecraft:set_count', 'count': {'type': 'minecraft:uniform', 'min': 2, 'max': 4},
+                 'conditions': [{'condition': 'minecraft:block_state_property',
+                                 'block': f'yuanxian:{block}', 'properties': {'age': '2'}}]},
+                {'function': 'minecraft:explosion_decay'},
+            ],
+        }]}],
+    })
+
+
+def emit_soil(put, soil):
+    put(ASSET/f'blockstates/{soil}.json', {'variants': {'': {'model': f'yuanxian:block/{soil}'}}})
+    put(ASSET/f'models/block/{soil}.json', {
+        'textures': {key: f'yuanxian:block/{soil}_{face}' for key, face in
+                     (('top', 'top'), ('bottom', 'bottom'), ('side', 'side'), ('particle', 'top'))},
+        'elements': [{'from': [0,0,0], 'to': [16,16,16], 'faces': {
+            face: {'texture': '#'+('top' if face == 'up' else 'bottom' if face == 'down' else 'side'),
+                   'cullface': face, 'uv': [0,0,16,16]}
+            for face in ('north','south','east','west','up','down')
+        }}],
+    })
+    put(ASSET/f'models/item/{soil}.json', {
+        'parent': f'yuanxian:block/{soil}', 'gui_light': 'side', 'display': BLOCK_ITEM_DISPLAY,
+    })
+    put(DATA/f'yuanxian/loot_table/blocks/{soil}.json', {
+        'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': f'yuanxian:{soil}'}],
+                                            'conditions': [{'condition': 'minecraft:survives_explosion'}]}],
+    })
+
+
+def emit_otherworld(out, put, root, spec):
+    herb, soil = spec['herb'], spec['soil']
+    source = root / OTHERWORLD_ART / herb
+    for relative, name in {
+        f'block/{herb}_plant': 'plant.png',
+        f'item/{herb}': 'item.png',
+        f'block/{soil}_top': 'soil_top.png',
+        f'block/{soil}_side': 'soil_side.png',
+        f'block/{soil}_bottom': 'soil_side.png',
+    }.items():
+        out[root/ASSET/f'textures/{relative}.png'] = (source/name).read_bytes()
+    models = []
+    stages = json.loads((source/'stages.json').read_text())
+    if len(stages) != 3:
+        raise ValueError(f'{herb} requires three authored stages')
+    for stage in stages:
+        plant = Plant()
+        for box in stage:
+            plant.box(box['from'], box['to'], box['part'], box.get('rotation'))
+        texture = f'yuanxian:block/{herb}_plant'
+        models.append({'ambientocclusion': False, 'render_type': 'minecraft:cutout',
+                       'textures': {'plant': texture, 'particle': texture}, 'elements': plant.elements})
+    emit_crop(put, herb, models)
+    emit_soil(put, soil)
+    put(ASSET/f'models/item/{herb}.json', {
+        'parent': 'minecraft:item/generated', 'textures': {'layer0': f'yuanxian:item/{herb}'},
+    })
+    put(DATA/f'yuanxian/recipe/{soil}.json', {
+        'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+        'ingredients': [{'item': item} for item in spec['soil_ingredients']],
+        'result': {'id': f'yuanxian:{soil}', 'count': 1},
+    })
+    patch = f'{herb}_patch'
+    put(DATA/f'yuanxian/worldgen/configured_feature/{patch}.json', {
+        'type': 'minecraft:random_patch', 'config': {
+            **spec['patch'], 'feature': {
+                'feature': {'type': 'yuanxian:otherworld_herb', 'config': {
+                    'crop': {'Name': f'yuanxian:{herb}_crop', 'Properties': {'age': '2'}},
+                    'ground': spec['ground'],
+                }},
+                'placement': [],
+            },
+        },
+    })
+    put(DATA/f'yuanxian/worldgen/placed_feature/{patch}.json', {
+        'feature': f'yuanxian:{patch}', 'placement': spec['placement'],
+    })
+    put(DATA/f'yuanxian/neoforge/biome_modifier/{patch}.json', {
+        'type': 'neoforge:add_features', 'biomes': spec['biomes'],
+        'features': f'yuanxian:{patch}', 'step': 'vegetal_decoration',
+    })
+
+
 def outputs(root=ROOT):
     root=Path(root);out={}
     def put(path,obj):out[root/path]=encoded(obj)
     for herb in HERBS:
-        block=herb+'_crop';out[root/ASSET/f'textures/block/{herb}_plant.png']=texture(herb)
-        put(ASSET/f'blockstates/{block}.json',{'variants':{f'age={age}':{'model':f'yuanxian:block/{block}_{age}'} for age in range(3)}})
-        for age in range(3):put(ASSET/f'models/block/{block}_{age}.json',crop_model(herb,age))
-        put(DATA/f'yuanxian/loot_table/blocks/{block}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':f'yuanxian:{herb}','functions':[{'function':'minecraft:set_count','count':{'type':'minecraft:uniform','min':2,'max':4},'conditions':[{'condition':'minecraft:block_state_property','block':f'yuanxian:{block}','properties':{'age':'2'}}]},{'function':'minecraft:explosion_decay'}]}]}]})
+        out[root/ASSET/f'textures/block/{herb}_plant.png']=texture(herb)
+        emit_crop(put, herb, [crop_model(herb, age) for age in range(3)])
     for face in ('top','side','bottom'):out[root/ASSET/f'textures/block/spirit_soil_{face}.png']=soil_texture(face)
-    put(ASSET/'blockstates/spirit_soil.json',{'variants':{'':{'model':'yuanxian:block/spirit_soil'}}})
-    put(ASSET/'models/block/spirit_soil.json',{'textures':{'top':'yuanxian:block/spirit_soil_top','bottom':'yuanxian:block/spirit_soil_bottom','side':'yuanxian:block/spirit_soil_side','particle':'yuanxian:block/spirit_soil_top'},'elements':[{'from':[0,0,0],'to':[16,16,16],'faces':{face:{'texture':'#'+('top' if face=='up' else 'bottom' if face=='down' else 'side'),'cullface':face,'uv':[0,0,16,16]} for face in ('north','south','east','west','up','down')}}]})
-    put(ASSET/'models/item/spirit_soil.json',{'parent':'yuanxian:block/spirit_soil','gui_light':'side','display':BLOCK_ITEM_DISPLAY})
-    put(DATA/'yuanxian/loot_table/blocks/spirit_soil.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'yuanxian:spirit_soil'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
+    emit_soil(put, 'spirit_soil')
     put(DATA/'yuanxian/recipe/spirit_soil.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':'minecraft:dirt'},{'tag':'c:spirit_stones/low_grade'}],'result':{'id':'yuanxian:spirit_soil','count':1}})
+    for spec in OTHERWORLD:
+        emit_otherworld(out, put, root, spec)
     return out
 def merged(root=ROOT,rename_namespace_from=None):
     root=Path(root);out={}
@@ -149,9 +244,20 @@ def merged(root=ROOT,rename_namespace_from=None):
         path=root/ASSET/f'lang/{language}.json';lang=json.loads(path.read_text())
         lang['block.yuanxian.spirit_soil']=('Spirit Soil','灵土')[index]
         for herb in HERBS:lang[f'block.yuanxian.{herb}_crop']=NAMES[herb][index]
+        if language == 'zh_cn':
+            for spec in OTHERWORLD:
+                lang[f"block.yuanxian.{spec['soil']}"] = spec['soil_name']
+                lang[f"item.yuanxian.{spec['herb']}"] = spec['name']
+                lang[f"block.yuanxian.{spec['herb']}_crop"] = spec['name']
+            lang['tooltip.yuanxian.otherworld_herb.soil'] = '种在%s上，成熟后收获同种药材'
         out[path]=encoded(lang)
-    for tag,values in (('mineable/shovel',['yuanxian:spirit_soil']),('crops',[f'yuanxian:{h}_crop' for h in HERBS])):
-        path=root/DATA/f'minecraft/tags/block/{tag}.json'
+    tags = {
+        'minecraft/tags/block/mineable/shovel': ['yuanxian:spirit_soil', *(f"yuanxian:{s['soil']}" for s in OTHERWORLD)],
+        'minecraft/tags/block/crops': [f'yuanxian:{h}_crop' for h in (*HERBS, *(s['herb'] for s in OTHERWORLD))],
+        'yuanxian/tags/item/storage_bag_materials/extra': [f"yuanxian:{s['herb']}" for s in OTHERWORLD],
+    }
+    for tag,values in tags.items():
+        path=root/DATA/f'{tag}.json'
         data=json.loads(path.read_text()) if path.exists() else {'replace':False,'values':[]}
         data['values']=list(dict.fromkeys(tag_values(data['values'],rename_namespace_from)+values));out[path]=encoded(data)
     return out

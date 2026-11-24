@@ -1,0 +1,33 @@
+[
+  {
+    "herb": "red_furnace_vine",
+    "name": "赤炉藤",
+    "soil": "cinder_soil",
+    "soil_name": "熔灰土",
+    "soil_ingredients": ["yuanxian:spirit_soil", "minecraft:magma_block"],
+    "biomes": ["minecraft:crimson_forest"],
+    "ground": "minecraft:crimson_nylium",
+    "patch": {"tries": 14, "xz_spread": 3, "y_spread": 1},
+    "placement": [
+      {"type": "minecraft:rarity_filter", "chance": 5},
+      {"type": "minecraft:count_on_every_layer", "count": 2},
+      {"type": "minecraft:biome"}
+    ]
+  },
+  {
+    "herb": "star_dew_grass",
+    "name": "星露草",
+    "soil": "end_sand_soil",
+    "soil_name": "星砂土",
+    "soil_ingredients": ["yuanxian:spirit_soil", "minecraft:end_stone", "minecraft:chorus_flower"],
+    "biomes": ["minecraft:end_highlands", "minecraft:end_midlands"],
+    "ground": "minecraft:end_stone",
+    "patch": {"tries": 14, "xz_spread": 3, "y_spread": 1},
+    "placement": [
+      {"type": "minecraft:rarity_filter", "chance": 6},
+      {"type": "minecraft:in_square"},
+      {"type": "minecraft:heightmap", "heightmap": "MOTION_BLOCKING"},
+      {"type": "minecraft:biome"}
+    ]
+  }
+]

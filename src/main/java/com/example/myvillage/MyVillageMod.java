@@ -114,6 +114,7 @@ public final class MyVillageMod {
         com.example.myvillage.wilderness.VanillaMonsterSpawnModifier.register(modEventBus);
         com.example.myvillage.entity.npc.CultivatorAppearance.register();
         ModBlocks.register(modEventBus);
+        com.example.myvillage.block.OtherworldHerbFeature.register(modEventBus);
         com.example.myvillage.courtyard.CourtyardContent.register(modEventBus);
         com.example.myvillage.housing.HousingContent.register(modEventBus);
         ModBlockEntities.register(modEventBus);

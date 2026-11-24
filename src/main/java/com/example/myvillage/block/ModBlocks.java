@@ -145,6 +145,20 @@ public final class ModBlocks {
     public static final DeferredBlock<SpiritSoilBlock> SPIRIT_SOIL =
             BLOCKS.registerBlock("spirit_soil", SpiritSoilBlock::new,
                     BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).strength(0.6F).sound(SoundType.GRAVEL));
+    public static final DeferredBlock<OtherworldSoilBlock> CINDER_SOIL =
+            BLOCKS.registerBlock("cinder_soil", OtherworldSoilBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BROWN).strength(0.6F).sound(SoundType.GRAVEL));
+    public static final DeferredBlock<OtherworldSoilBlock> END_SAND_SOIL =
+            BLOCKS.registerBlock("end_sand_soil", OtherworldSoilBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.SAND).strength(0.6F).sound(SoundType.SAND));
+    public static final DeferredBlock<SpiritCropBlock> RED_FURNACE_VINE_CROP =
+            BLOCKS.registerBlock("red_furnace_vine_crop", properties -> new SpiritCropBlock(properties, CINDER_SOIL.get()),
+                    BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).noCollission().noOcclusion()
+                            .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
+    public static final DeferredBlock<SpiritCropBlock> STAR_DEW_GRASS_CROP =
+            BLOCKS.registerBlock("star_dew_grass_crop", properties -> new SpiritCropBlock(properties, END_SAND_SOIL.get()),
+                    BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).noCollission().noOcclusion()
+                            .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
     public static final DeferredBlock<SpiritCropBlock> SPIRIT_LEAF_CROP =
             BLOCKS.registerBlock("spirit_leaf_crop", SpiritCropBlock::new,
                     BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().noOcclusion()
@@ -174,6 +188,7 @@ public final class ModBlocks {
             "xuantie_ore", "edge_tempering_sand_deposit",
             "battle_cache", "ruin_core",
             "spirit_soil", "spirit_leaf_crop", "dew_blossom_crop", "sunroot_crop", "blood_berry_crop", "cloud_fungus_crop", "calm_lotus_crop",
+            "cinder_soil", "end_sand_soil", "red_furnace_vine_crop", "star_dew_grass_crop",
             "alchemy_furnace",
             "wall_plaque",
             "wall_plaque_vertical",

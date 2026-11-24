@@ -1,5 +1,13 @@
 # Spirit farming (0.53.0)
 
+## 异界药材
+
+赤炉藤及熔灰土会在绯红菌林的新区块生成，星露草及星砂土会在末地外岛的高地和内陆新区块生成。成熟野生植株长在各自的专土上。用对应药材可在任意维度的专土上复种。专土不干涸，异界药材在黑暗里也可以生长。成熟植株按原有灵植标准收获 2～4 份。
+
+现有丹炉和药铺配方的更新另行安排。异界药材纳入材料储物袋分类，土壤制作说明见[游戏指南](../../guidebook/getting_started/spirit_farming.md#异界药材)。正式模型、贴图、掉落、工作台配方、自然生成和标签均由 `tools/gen_spirit_crops.py` 从 `art/spirit-crops/otherworld/` 发布。
+
+## 六味基础灵植
+
 0.76.0 新增独立[凝元果树与完整木材家族](../features/ningyuan-tree.md)。灵土现在也接受凝元树苗；六味药材仍按下述三阶段规则工作。果树资源归 `tools/gen_ningyuan_tree.py`，不归原灵植生成器。
 
 `yuanxian:spirit_soil` is directly plantable, permanently fertile soil. It has no

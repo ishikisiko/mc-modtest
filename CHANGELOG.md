@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.151.3
+
+- 绯红菌林的新区块会生成长在熔灰土上的赤炉藤，末地外岛的新区块会生成长在星砂土上的星露草。两种药材可以带回药田，在对应的专土上复种。专土可挖取，也可在工作台制作。
+
 ## 0.151.2
 
 - 首次晋升金丹需要凝金丹，首次晋升化神需要化神丹。各品级路线在引劫时自动消耗背包中一颗对应丹药。新增两个可在工作台合成的丹方，学会后可用丹炉炼制。

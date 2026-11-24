@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "yuanxian:edge_tempering_sand_deposit",
-    "yuanxian:spirit_soil"
+    "yuanxian:spirit_soil",
+    "yuanxian:cinder_soil",
+    "yuanxian:end_sand_soil"
   ]
 }

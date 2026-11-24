@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class SpiritCropsTest {
     private static SpiritSoilBlock soil;
     private static SpiritCropBlock crop;
+    private static OtherworldSoilBlock cinder, endSand;
+    private static SpiritCropBlock vine, grass;
     private static ItemNameBlockItem herb;
     @BeforeAll @SuppressWarnings("deprecation") static void bootstrap() {
         if (LoadingModList.get() == null) LoadingModList.of(List.of(), List.of(), List.of(), List.of(), Map.of());
@@ -30,6 +32,10 @@ class SpiritCropsTest {
             try {
                 soil = Registry.register(blocks, ResourceLocation.parse("yuanxian_test:spirit_soil"), new SpiritSoilBlock(BlockBehaviour.Properties.of()));
                 crop = Registry.register(blocks, ResourceLocation.parse("yuanxian_test:spirit_crop"), new SpiritCropBlock(BlockBehaviour.Properties.of().noCollission().randomTicks()));
+                cinder = Registry.register(blocks, ResourceLocation.parse("yuanxian_test:cinder_soil"), new OtherworldSoilBlock(BlockBehaviour.Properties.of()));
+                endSand = Registry.register(blocks, ResourceLocation.parse("yuanxian_test:end_sand_soil"), new OtherworldSoilBlock(BlockBehaviour.Properties.of()));
+                vine = Registry.register(blocks, ResourceLocation.parse("yuanxian_test:vine"), new SpiritCropBlock(BlockBehaviour.Properties.of(), cinder));
+                grass = Registry.register(blocks, ResourceLocation.parse("yuanxian_test:grass"), new SpiritCropBlock(BlockBehaviour.Properties.of(), endSand));
             } finally { blocks.freeze(); }
         }
         var items = (MappedRegistry<Item>) BuiltInRegistries.ITEM;
@@ -70,5 +76,22 @@ class SpiritCropsTest {
         assertFalse(soil.defaultBlockState().isRandomlyTicking());
         assertEquals(herb,crop.getBaseSeedId()); assertEquals(crop,herb.getBlock());
         assertEquals(herb,crop.getCloneItemStack(world(soil.defaultBlockState()),BlockPos.ZERO,crop.getStateForAge(2)).getItem());
+    }
+
+    @Test void otherworldCropsAndSoilsRejectWrongPlantsInBothDirections() {
+        for (var plant : List.of(crop, vine, grass)) {
+            for (var ground : List.of(soil, cinder, endSand, Blocks.FARMLAND)) {
+                var state = plant.defaultBlockState();
+                var support = ground.defaultBlockState();
+                boolean matches = ground == soil && plant == crop || ground == cinder && plant == vine
+                        || ground == endSand && plant == grass;
+                assertEquals(matches, state.canSurvive(world(support), BlockPos.ZERO));
+                assertEquals(matches, plant.isValidBonemealTarget(world(support), BlockPos.ZERO, state));
+                if (ground != Blocks.FARMLAND) {
+                    assertEquals(matches ? TriState.TRUE : TriState.FALSE,
+                            support.canSustainPlant(world(support), BlockPos.ZERO.below(), Direction.UP, state));
+                }
+            }
+        }
     }
 }

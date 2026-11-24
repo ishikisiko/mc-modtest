@@ -231,6 +231,12 @@ if (providers.gradleProperty('tribulationEvidence').isPresent()) {
     }
 }
 
+if (providers.gradleProperty('otherworldHerbEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/otherworldHerbEvidence/java')
+    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    tasks.named('jar') { doFirst { throw new GradleException('异界药材证据夹具不得进入交付包') } }
+}
+
 if (providers.gradleProperty('travelTalismanEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/travelTalismanEvidence/java')
     tasks.named('jar') {

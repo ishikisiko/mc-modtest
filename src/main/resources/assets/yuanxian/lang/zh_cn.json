@@ -4937,5 +4937,12 @@
   "item.yuanxian.formula_ningjin": "凝金丹方（难度1）",
   "item.yuanxian.formula_huashen": "化神丹方（难度1）",
   "tooltip.yuanxian.alchemy.pill_ningjin": "用于首次突破金丹。每次引劫从背包扣除一颗，各档金丹均可使用。",
-  "tooltip.yuanxian.alchemy.pill_huashen": "用于首次突破化神。每次引劫从背包扣除一颗，各档化神均可使用。"
+  "tooltip.yuanxian.alchemy.pill_huashen": "用于首次突破化神。每次引劫从背包扣除一颗，各档化神均可使用。",
+  "block.yuanxian.cinder_soil": "熔灰土",
+  "item.yuanxian.red_furnace_vine": "赤炉藤",
+  "block.yuanxian.red_furnace_vine_crop": "赤炉藤",
+  "block.yuanxian.end_sand_soil": "星砂土",
+  "item.yuanxian.star_dew_grass": "星露草",
+  "block.yuanxian.star_dew_grass_crop": "星露草",
+  "tooltip.yuanxian.otherworld_herb.soil": "种在%s上，成熟后收获同种药材"
 }

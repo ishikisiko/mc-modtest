@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "yuanxian:block/red_furnace_vine_crop_0"
+    },
+    "age=1": {
+      "model": "yuanxian:block/red_furnace_vine_crop_1"
+    },
+    "age=2": {
+      "model": "yuanxian:block/red_furnace_vine_crop_2"
+    }
+  }
+}

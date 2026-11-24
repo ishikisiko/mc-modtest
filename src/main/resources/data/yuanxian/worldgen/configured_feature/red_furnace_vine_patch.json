@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:random_patch",
+  "config": {
+    "tries": 14,
+    "xz_spread": 3,
+    "y_spread": 1,
+    "feature": {
+      "feature": {
+        "type": "yuanxian:otherworld_herb",
+        "config": {
+          "crop": {
+            "Name": "yuanxian:red_furnace_vine_crop",
+            "Properties": {
+              "age": "2"
+            }
+          },
+          "ground": "minecraft:crimson_nylium"
+        }
+      },
+      "placement": []
+    }
+  }
+}
