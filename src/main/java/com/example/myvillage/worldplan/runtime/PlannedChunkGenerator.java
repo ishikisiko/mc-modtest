@@ -217,7 +217,11 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             if(!site.intersects(x,z,x,z,0))continue;
             var groundField=world.rules().sects.layout(site.blueprintId()).terrain;
             if(groundField.hasForm()){
-                groundField.forms().visit(x-site.x(),z-site.z(),true,(lo,hi,material)->{
+                int lx=x-site.x(),lz=z-site.z();
+                if(groundField.weight(lx,lz)==1)
+                    for(int y=Math.max(min,target);y<Math.min(max,rules.seaLevel);y++)
+                        if(!states[y-min].getFluidState().isEmpty())states[y-min]=Blocks.CAVE_AIR.defaultBlockState();
+                groundField.forms().visit(lx,lz,true,(lo,hi,material)->{
                     BlockState block=PlannedSectPlacement.landform(material);
                     for(int y=Math.max(min,site.baseY()+lo);y<Math.min(max,site.baseY()+hi);y++)states[y-min]=block;
                 });

@@ -26,7 +26,7 @@ public final class SectPlanningRules {
             if(!id.equals(text(data,"id")))throw new IllegalArgumentException("宗门规划与资源身份不一致："+id);
             archetype=text(data,"archetype");scale=text(data,"scale");tier=data.has("tier")?text(data,"tier"):"";
             if(!com.example.myvillage.sim.data.SectProgressionRules.IDS.contains(tier))throw new IllegalArgumentException("未知营造等级："+tier);
-            dryGateMargin=integer(data,"dry_gate_margin",0,128);
+            dryGateMargin=archetype.equals("lake")?integer(data,"dry_gate_margin",0,128):0;
             var size=data.getAsJsonArray("size");
             width=size.get(0).getAsInt();height=size.get(1).getAsInt();depth=size.get(2).getAsInt();
             if(width<16||depth<16||width>512||depth>512||height<16||height>384)throw new IllegalArgumentException("宗门规划尺寸越界");

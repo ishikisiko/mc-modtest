@@ -26,8 +26,16 @@ public final class PlannedSectPlacement {
             var terrain=plan.rules().sects.layout(site.blueprintId()).terrain;
             if(terrain.hasForm()){
                 for(int z=cp.getMinBlockZ();z<=cp.getMaxBlockZ();z++)for(int x=cp.getMinBlockX();x<=cp.getMaxBlockX();x++){
-                    int wx=x,wz=z;
-                    terrain.forms().visit(x-site.x(),z-site.z(),true,(lo,hi,state)->{
+                    int wx=x,wz=z,lx=x-site.x(),lz=z-site.z();
+                    if(terrain.weight(lx,lz)==1){
+                        // The authored basin has its own water surface and dry rooms.
+                        int top=Math.min(chunk.getMaxBuildHeight(),plan.rules().seaLevel);
+                        for(int y=Math.max(chunk.getMinBuildHeight(),plan.surfaceY(x,z));y<top;y++){
+                            pos.set(x,y,z);
+                            if(!chunk.getBlockState(pos).getFluidState().isEmpty())chunk.setBlockState(pos,air,false);
+                        }
+                    }
+                    terrain.forms().visit(lx,lz,true,(lo,hi,state)->{
                         BlockState block=landform(state);
                         for(int y=Math.max(chunk.getMinBuildHeight(),site.baseY()+lo);
                             y<Math.min(chunk.getMaxBuildHeight(),site.baseY()+hi);y++)

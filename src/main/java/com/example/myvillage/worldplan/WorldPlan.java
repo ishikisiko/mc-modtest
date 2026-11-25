@@ -118,8 +118,15 @@ public final class WorldPlan {
             if(walled(region))continue;
             double[] center=geometry.unwarp(region.x,region.z);
             String tier=r.tier(preliminary,region.id());
+            List<Integer> slots=new ArrayList<>();
+            List<SectPlanningRules.Layout> layouts=new ArrayList<>();
             for(int slot=0;slot<r.slots;slot++){
-                var layout=r.choose(region.id().hashCode(),(int)mix(seed),slot,tier);
+                slots.add(slot);
+                layouts.add(r.choose(region.id().hashCode(),(int)mix(seed),slot,tier));
+            }
+            slots.sort(Comparator.comparingInt((Integer slot)->layouts.get(slot).width*layouts.get(slot).depth).reversed());
+            for(int slot:slots){
+                var layout=layouts.get(slot);
                 SectSite accepted=null;
                 int bestRise=Integer.MIN_VALUE,matches=0;
                 for(int attempt=0;attempt<r.attempts;attempt++){
@@ -131,9 +138,10 @@ public final class WorldPlan {
                     for(int dx:new int[]{-m,layout.width/2,layout.width+m-1})for(int dz:new int[]{-m,layout.depth/2,layout.depth+m-1})
                         if(!coreRegionAt(x+dx,z+dz).map(Region::id).orElse("").equals(region.id()))valid=false;
                     if(!valid)continue;
-                    int surface=naturalTerrainY(x+layout.entryX,z+layout.entryZ);
+                    int portSurface=naturalTerrainY(x+layout.portX,z+layout.portZ);
+                    int base=portSurface-layout.portY;
+                    int surface=base+layout.entryY;
                     if(surface<=rules.seaLevel+layout.dryGateMargin)continue;
-                    int base=surface-layout.entryY;
                     if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+layout.maxBlockY>=r.maxY)continue;
                     if(layout.terrain.hasCavern()&&naturalTerrainY(x+layout.entryX,z+layout.entryZ)<=rules.seaLevel)continue;
                     var site=new SectSite("sect_site_"+region.id()+"_"+slot,region.id(),x,base,z,x+layout.entryX,surface,z+layout.entryZ,layout.width,layout.depth,layout.margin,layout.id,layout.hash,layout.tier);
@@ -154,7 +162,7 @@ public final class WorldPlan {
                     if(rise>bestRise){accepted=site;bestRise=rise;}
                     if(++matches>=layout.terrain.surveySamples())break;
                 }
-                if(accepted==null)throw new IllegalArgumentException("无法预留完整宗门地块："+region.id()+" #"+slot);
+                if(accepted==null)throw new IllegalArgumentException("无法预留完整宗门地块："+region.id()+" #"+slot+" "+layout.id);
                 chosen.add(accepted);
             }
         }
