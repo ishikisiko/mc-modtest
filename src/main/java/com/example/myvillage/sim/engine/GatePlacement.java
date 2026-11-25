@@ -21,9 +21,13 @@ public final class GatePlacement {
     public static int[] choose(SimContext ctx, SimRng rng, String regionId) {
         Rules.Gates g = ctx.rules.gates();
         if(ctx.graph.geometry()!=null&&!ctx.graph.geometry().sectSites().isEmpty()){
-            var sites=ctx.graph.geometry().sectSites().stream().filter(s->s.regionId().equals(regionId)).toList();
+            String tier=ctx.rules.sectProgression().forRegion(ctx.graph,regionId);
+            var sites=ctx.graph.geometry().sectSites().stream().filter(s->s.regionId().equals(regionId))
+                    .filter(s->s.tier().isEmpty()||s.tier().equals(tier)).toList();
             if(sites.isEmpty())return null;
             int start=(int)(rng.nextDouble()*sites.size());
+            for(var site:sites)if(site.tier().equals(tier)&&valid(ctx,regionId,site.gateX(),site.gateZ(),-1))
+                return new int[]{site.gateX(),site.gateZ()};
             for(int i=0;i<sites.size();i++){var site=sites.get((start+i)%sites.size());if(valid(ctx,regionId,site.gateX(),site.gateZ(),-1))return new int[]{site.gateX(),site.gateZ()};}
             return null;
         }

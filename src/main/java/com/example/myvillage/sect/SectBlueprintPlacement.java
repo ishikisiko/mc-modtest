@@ -39,12 +39,17 @@ public final class SectBlueprintPlacement {
     }
     public static long place(ServerLevel level,SectBlueprint data,BlockPos base,BoundingBox clip,
                              SectGenerator.NaturalHeight natural,Sink target,String region) {
+        return place(level,data,base,clip,natural,target,region,false);
+    }
+
+    public static long place(ServerLevel level,SectBlueprint data,BlockPos base,BoundingBox clip,
+                             SectGenerator.NaturalHeight natural,Sink target,String region,boolean terrainPrepared) {
         return place(data,base,clip,natural,target,new Assets() {
             public int minimumY() { return level.getMinBuildHeight(); }
             public int maximumY() { return level.getMaxBuildHeight(); }
             public BlockState material(String state) { return parseState(level,compound(state)); }
             public List<Cell> cells(SectBlueprint d,SectBlueprint.Tile t) { return tile(level,d,t); }
-        },region);
+        },region,terrainPrepared);
     }
     static long place(SectBlueprint data,BlockPos base,BoundingBox clip,
                       SectGenerator.NaturalHeight natural,Sink target,Assets assets) {
@@ -52,15 +57,20 @@ public final class SectBlueprintPlacement {
     }
     static long place(SectBlueprint data,BlockPos base,BoundingBox clip,
                       SectGenerator.NaturalHeight natural,Sink target,Assets assets,String region) {
+        return place(data,base,clip,natural,target,assets,region,false);
+    }
+
+    private static long place(SectBlueprint data,BlockPos base,BoundingBox clip,
+                      SectGenerator.NaturalHeight natural,Sink target,Assets assets,String region,boolean terrainPrepared) {
         int x0=Math.max(clip.minX(),base.getX()-data.margin),x1=Math.min(clip.maxX(),base.getX()+data.width+data.margin-1);
         int z0=Math.max(clip.minZ(),base.getZ()-data.margin),z1=Math.min(clip.maxZ(),base.getZ()+data.depth+data.margin-1);
         if (x0>x1 || z0>z1) return 0;
         BlockState rock=assets.material(data.material(data.rock,region)),soil=assets.material(data.subsoil);
         Map<String,BlockState> surfaces=new HashMap<>();
         long written=0;
-        for (int z=z0;z<=z1;z++) for (int x=x0;x<=x1;x++) {
+        if(!terrainPrepared)for (int z=z0;z<=z1;z++) for (int x=x0;x<=x1;x++) {
             int lx=x-base.getX(),lz=z-base.getZ(),firstAir=natural.at(x,z);
-            if(data.terrain.weight(lx,lz)==0)continue;
+            if(!data.terrain.affects(lx,lz))continue;
             int top=data.terrain.firstAir(base.getY(),lx,lz,firstAir)-1;
             int minY=Math.max(assets.minimumY()+1,clip.minY()),maxY=Math.min(assets.maximumY()-1,clip.maxY());
             for (int y=Math.max(minY,Math.min(firstAir-1,base.getY()));y<=Math.min(top,maxY);y++)
@@ -71,6 +81,14 @@ public final class SectBlueprintPlacement {
             String state=data.surface(lx,lz,region);BlockState surface=surfaces.computeIfAbsent(state,assets::material);
             for(int y=Math.max(minY,top-data.topsoilDepth+1);y<=Math.min(top,maxY);y++)
                 written+=write(target,new BlockPos(x,y,z),y==top?surface:state.equals(data.material(data.rock,region))?rock:soil,null);
+        }
+        if(!terrainPrepared&&data.terrain.hasCavern()){
+            var air=net.minecraft.world.level.block.Blocks.CAVE_AIR.defaultBlockState();
+            for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)
+                for(int y=Math.max(clip.minY(),base.getY()+data.terrain.carveBottom());
+                    y<=Math.min(clip.maxY(),base.getY()+data.terrain.carveTop());y++)
+                    if(data.terrain.carves(x-base.getX(),y-base.getY(),z-base.getZ()))
+                        written+=write(target,new BlockPos(x,y,z),air,null);
         }
         for (SectBlueprint.Tile tile:data.tiles) {
             int ox=base.getX()+tile.x(),oz=base.getZ()+tile.z();

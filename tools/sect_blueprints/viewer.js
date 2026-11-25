@@ -26,7 +26,7 @@ function terrainMesh(side){const groups=new Map();
  }
  const result=new THREE.Group();for(const [key,{positions,indices}] of groups){const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setIndex(indices);geometry.computeVertexNormals();result.add(new THREE.Mesh(geometry,materials[key]));}return result;
 }
-const terrain=new THREE.Group();terrain.add(terrainMesh(false),terrainMesh(true));scene.add(terrain);
+const terrain=new THREE.Group();if(!DATA.terrain_boxes)terrain.add(terrainMesh(false),terrainMesh(true));scene.add(terrain);
 if(DATA.context_ground){const groundPlane=new THREE.Mesh(new THREE.PlaneGeometry(W+64,D+64),materials.ground);groundPlane.rotation.x=-Math.PI/2;groundPlane.position.set(W/2,reference-.08,D/2);terrain.add(groundPlane);}
 const box=new THREE.BoxGeometry(1,1,1),dummy=new THREE.Object3D(),groups=new Map();
 const buildingMeshes=[];

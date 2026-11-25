@@ -118,8 +118,9 @@ public final class WorldPlan {
             if(walled(region))continue;
             double[] center=geometry.unwarp(region.x,region.z);
             for(int slot=0;slot<r.slots;slot++){
-                var layout=r.choose(region.id().hashCode(),(int)mix(seed),slot);
+                var layout=r.choose(region.id().hashCode(),(int)mix(seed),slot,region.profile().role().equals("anchor"));
                 SectSite accepted=null;
+                int bestRise=Integer.MIN_VALUE,matches=0;
                 for(int attempt=0;attempt<r.attempts;attempt++){
                     long salt=hash(seed,region.id().hashCode(),(long)slot*r.attempts+attempt,0x53454354504cL);
                     double radius=StrictMath.sqrt(unit(salt))*r.radius,angle=unit(mix(salt))*2*StrictMath.PI;
@@ -132,7 +133,8 @@ public final class WorldPlan {
                     int surface=naturalSurfaceY(x+layout.entryX,z+layout.entryZ);
                     int base=surface-layout.entryY;
                     if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+layout.maxBlockY>=r.maxY)continue;
-                    var site=new SectSite("sect_site_"+region.id()+"_"+slot,region.id(),x,base,z,x+layout.entryX,surface,z+layout.entryZ,layout.width,layout.depth,layout.margin,layout.id,layout.hash);
+                    if(layout.terrain.hasCavern()&&naturalTerrainY(x+layout.entryX,z+layout.entryZ)<=rules.seaLevel)continue;
+                    var site=new SectSite("sect_site_"+region.id()+"_"+slot,region.id(),x,base,z,x+layout.entryX,surface,z+layout.entryZ,layout.width,layout.depth,layout.margin,layout.id,layout.hash,layout.tier);
                     var body=r.footprint(site);var access=r.exitClearance(site);
                     for(int px:new int[]{access.minX(),(access.minX()+access.maxX())/2,access.maxX()})
                         for(int pz:new int[]{access.minZ(),(access.minZ()+access.maxZ())/2,access.maxZ()})
@@ -143,7 +145,12 @@ public final class WorldPlan {
                     for(var old:chosen){var oldBody=r.footprint(old);
                         if(overlaps(body,oldBody)||overlaps(access,oldBody)||overlaps(body,r.exitClearance(old))
                             ||StrictMath.hypot(site.gateX()-old.gateX(),site.gateZ()-old.gateZ())<r.spacing){valid=false;break;}}
-                    if(valid){accepted=site;break;}
+                    if(!valid)continue;
+                    if(!layout.terrain.hasCavern()){accepted=site;break;}
+                    // Prefer a natural rise behind the entry among the valid surveyed sites.
+                    int rise=naturalTerrainY(x+layout.width/2,z+layout.depth*3/4)-surface;
+                    if(rise>bestRise){accepted=site;bestRise=rise;}
+                    if(++matches>=layout.terrain.surveySamples())break;
                 }
                 if(accepted==null)throw new IllegalArgumentException("无法预留完整宗门地块："+region.id()+" #"+slot);
                 chosen.add(accepted);
@@ -343,7 +350,12 @@ public final class WorldPlan {
         return Optional.ofNullable(tileIndex.get((x<<32) ^ (z&0xffffffffL)));
     }
     public boolean reserved(int x,int y,int z) {
-        if(sectSites!=null)for(var s:sectSites)if(s.intersects(x,z,x,z,0)&&rules.sects.layout(s.blueprintId()).terrain.weight(x-s.x(),z-s.z())>0)return true;
+        if(sectSites!=null)for(var s:sectSites)if(s.intersects(x,z,x,z,0)){
+            var terrain=rules.sects.layout(s.blueprintId()).terrain;
+            int lx=x-s.x(),lz=z-s.z();
+            if(terrain.weight(lx,lz)>0&&(!terrain.hasCavern()||
+                    terrain.reserves(lx,y-s.baseY(),lz,naturalSurfaceY(x,z)-s.baseY())))return true;
+        }
         if(rules.capitals!=null) {
             for(var c:cities)if(c.contains(x,z,c.bundle().blendMargin)&&y>=rules.capitals.minY&&y<rules.capitals.maxY)return true;
         }
@@ -534,7 +546,7 @@ public final class WorldPlan {
             if(sectSites!=null)for(var s:sectSites)if(s.intersects((int)x,(int)z,(int)x,(int)z,0)){
                 int lx=(int)StrictMath.floor(x)-s.x(),lz=(int)StrictMath.floor(z)-s.z();
                 var terrain=rules.sects.layout(s.blueprintId()).terrain;
-                if(terrain.weight(lx,lz)>0)return new Values(terrain.firstAir(s.baseY(),lx,lz,naturalSurfaceY((int)x,(int)z)),v.qi,v.danger);
+                if(terrain.affects(lx,lz))return new Values(terrain.firstAir(s.baseY(),lx,lz,naturalSurfaceY((int)x,(int)z)),v.qi,v.danger);
             }
             return v;
         }

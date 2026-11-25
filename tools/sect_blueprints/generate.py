@@ -24,7 +24,7 @@ from province_capitals.regional.v2.preview import SceneBuilder
 from province_capitals.blueprint_plan.nbt_entities import block_entities, write_tile
 from province_capitals.blueprint_plan.atomic_blocks import parse
 from sect_blueprints.walks import can_step,stair_face
-from sect_blueprints.terrain_forms import ridge_height,polygon_distance
+from sect_blueprints.terrain_forms import ridge_height,polygon_distance,cavern_surface,cavern_air
 
 HERE = Path(__file__).resolve().parent
 
@@ -261,7 +261,13 @@ class SectModel:
                         reserved.update((x,opening['floor_y']+1,z) for z in range(opening['low'][2],opening['high'][2]+1)
                                         for x in range(opening['low'][0],opening['high'][0]+1))
                 reserved={tuple(p[i]-b['origin'][i] for i in range(3)) for p in reserved}
-                root=component(b,root['size'],self.spec['architecture_profile'],reserved)
+                size=root['size']
+                if footprint:=b.get('footprint'):
+                    w,d=footprint
+                    if not 15<=w<=96 or not 15<=d<=96:
+                        raise ValueError('宗门建筑占地越界：'+b['id'])
+                    size=(w,size[1],d)
+                root=component(b,size,self.spec['architecture_profile'],reserved)
             if digest(source)!=self.template_hashes[str(source.relative_to(ROOT))]:
                 raise ValueError("读取期间模板改变："+str(source))
             if root.get("entities"):
@@ -474,7 +480,12 @@ class SectModel:
                         self.surface_states[zz*self.width+xx]=self.materials['soil']
 
     def construct(self):
-        self.build_terrain(); self.place_buildings(); self.repair_beds(); self.build_courts(); self.plan_routes(); self.build_routes(); self.connect_entries(); self.landscape(); self.plant_trees()
+        self.build_terrain(); self.place_buildings(); self.repair_beds(); self.build_courts(); self.plan_routes(); self.build_routes(); self.connect_entries(); self.landscape()
+        if self.spec.get('cavern'):
+            if self.spec['trees'] or self.spec['landscape']['forests']:
+                raise ValueError('洞室宗门的树木由生物群系生成')
+        else:
+            self.plant_trees()
         return self
 
     def audit(self):
@@ -601,6 +612,7 @@ def source_hashes(spec_path,model):
 
 def final_tiles(model, *, terrain=True):
     """预览和正式导出共享的最终分块；地形与显式空气也逐格保留。"""
+    cavern=model.spec.get('cavern') if terrain else None
     for tz in range((model.depth+15)//16):
         for tx in range((model.width+15)//16):
             overlay = model.construction.tile(tx,tz)
@@ -611,9 +623,12 @@ def final_tiles(model, *, terrain=True):
                     if wx>=model.width or wz>=model.depth:
                         continue
                     h = model.ground(wx,wz)
-                    if terrain and model.influence[wz*model.width+wx]:
-                        for y in range(h+1):
-                            state=model.surface_states[wz*model.width+wx] if y==h else model.materials['rock']
+                    top=cavern_surface(wx,wz,h+1,cavern)-1 if cavern else h
+                    if terrain and (model.influence[wz*model.width+wx] or top>h):
+                        for y in range(top+1):
+                            if cavern and cavern_air(wx,y,wz,h,cavern):
+                                continue
+                            state=model.surface_states[wz*model.width+wx] if y==top else model.materials['rock']
                             cells[x,y,z] = (state,"terrain","terrain")
             for shelf in model.spec['runtime']['shelves']:
                 sx,sy,sz=shelf['position']
@@ -641,8 +656,9 @@ def export(spec_path,out,*,preview_only=False):
     if checks["status"]!="pass":
         raise ValueError("宗门离线路径检查失败："+json.dumps(checks["losses"][:12],ensure_ascii=False))
     scene = SectScene(model); tiles = []; palette = set()
-    for tx,tz,cells,entities,overlay in final_tiles(model,terrain=not preview_only):
-            scene.add_tile(tx,tz,overlay)
+    cavern=bool(spec.get('cavern'))
+    for tx,tz,cells,entities,overlay in final_tiles(model,terrain=cavern or not preview_only):
+            scene.add_tile(tx,tz,cells if cavern else overlay)
             if preview_only:
                 palette.update(v[0] for v in cells.values())
                 continue
@@ -670,7 +686,8 @@ def export(spec_path,out,*,preview_only=False):
     routes = [{k:v for k,v in r.items() if k!="columns"} for r in model.routes]
     write_json(out/"construction.json",{"buildings":model.buildings,"routes":routes,"openings":spec["openings"],
                "bridge_supports":model.bridge_supports,"anchors":spec["anchors"],"source_hashes":hashes})
-    payload = {"name":spec["name"],"status":spec['status'],"context_ground":bool(spec.get('architecture_profile')),"design":spec["design"],"dimensions":spec["dimensions"],
+    payload = {"name":spec["name"],"status":spec['status'],"context_ground":bool(spec.get('architecture_profile')) and not cavern,
+               "terrain_boxes":cavern,"design":spec["design"],"dimensions":spec["dimensions"],
                "palette":scene.palette,"boxes":[[b["p"],b["s"],b["m"],b["layer"],b['tag']] for b in scene.boxes],
                "surfaces":[scene.material(s,'terrain') for s in model.surface_states],
                "influence":base64.b64encode(bytes(model.influence)).decode(),

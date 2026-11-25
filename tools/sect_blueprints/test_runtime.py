@@ -1,7 +1,7 @@
 import copy
 import json
 import unittest
-from sect_blueprints.generate import ROOT,SectModel,AIR
+from sect_blueprints.generate import ROOT,SectModel,AIR,final_tiles
 from sect_blueprints.runtime import metadata
 
 
@@ -10,6 +10,15 @@ class SectRuntimeMetadataTest(unittest.TestCase):
     def setUpClass(cls):
         cls.spec=json.loads((ROOT/'blueprints/sects/cloud_gate.json').read_text())
         cls.model=SectModel(cls.spec).construct()
+
+    def test_main_cavern_leaves_tree_placement_to_the_biome(self):
+        model=SectModel(json.loads((ROOT/'blueprints/sects/valley_retreat_main.json').read_text())).construct()
+        self.assertEqual('pass',model.audit()['status'])
+        self.assertFalse(model.spec['trees'])
+        self.assertFalse(model.spec['landscape']['forests'])
+        self.assertFalse(any('_leaves' in state for _,_,cells,_,_ in final_tiles(model,terrain=False)
+                             for state,_,_ in cells.values()))
+        self.assertEqual(len(model.spec['runtime']['shelves']),len(metadata(model)['shelves']))
 
     def test_compiled_facilities_are_reachable_and_owned_by_the_blueprint(self):
         result=metadata(self.model)

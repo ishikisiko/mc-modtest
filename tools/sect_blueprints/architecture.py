@@ -135,7 +135,8 @@ def component(building,size,key,reserved=()):
     _cultivation_platform(graph,main,center,pad=1,height=fh)
     _cultivation_colonnade(graph,main,center,sides=tuple(role['colonnades']),
         top_y=fh+role['wall_height']*role.get('colonnade_storeys',role['stories'])-1)
-    furnish(graph,main,role_id)
+    if not role.get('open_sides'):
+        furnish(graph,main,role_id)
     ctx=BuildContext(style=style,archetype=building['archetype'],scale_tier='design',seed=0,rng=rng,group_id='cultivation_sect',graph=graph)
     for step in PIPELINE[1:]:
         if step.__name__=='material_variation_pass':continue
@@ -180,6 +181,15 @@ def component(building,size,key,reserved=()):
                     # 原 helper 在楼板前少了一阶；将实心落脚格改为最后一级台阶。
                     pos=(opening['x0'],y,opening['landing_z'])
                     ctx.grid.set(pos,stair_state(style,opening['direction']),['STRUCTURE','INTERIOR','PROTECTED'],60,'ROOF_DARK',force=True)
+    if role.get('open_sides'):
+        post=ops.log_state(style,'y')
+        for side in ('front','back','west','east'):
+            _,_,(start,end),_=ops.wall_info(main,side)
+            for along in range(start,end+1):
+                column=along==end or (along-start)%6==0
+                for y in range(fh,fh+role['wall_height']-1):
+                    ctx.grid.set(ops.wall_pos(main,side,along,y),post if column else 'minecraft:air',
+                                 ['FACADE','PROTECTED'],100,'FRAME_WOOD' if column else None,force=True)
     normalize_beds(ctx.grid)
     cells=[];palette=[];indices={};max_y=0;passages=[]
     for p,c in sorted(ctx.grid.iter_cells()):

@@ -49,6 +49,12 @@
       "source": "lake_retreat.json",
       "archetype": "lake",
       "scale": "compact"
+    },
+    {
+      "id": "yuanxian:valley_retreat_main",
+      "source": "valley_retreat_main.json",
+      "archetype": "valley",
+      "scale": "large"
     }
   ]
 }

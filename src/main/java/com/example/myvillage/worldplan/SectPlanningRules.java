@@ -3,9 +3,8 @@ package com.example.myvillage.worldplan;
 import com.google.gson.*;
 import com.example.myvillage.region.runtime.RegionGeometry;
 import com.example.myvillage.region.runtime.SectSite;
-import java.io.ByteArrayInputStream;
+import com.example.myvillage.sect.SectBlueprint;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
 import static com.example.myvillage.worldplan.WorldPlanRules.*;
 
 /** 选址规则唯一；每块预留地同时冻结实际蓝图、地形和山门出口。 */
@@ -14,23 +13,24 @@ public final class SectPlanningRules {
     public final List<Layout> layouts;
     private final Map<String,Layout> byId;
     public static final class Layout {
-        public final String id,hash,archetype,scale;
+        public final String id,hash,archetype,scale,tier;
         public final int width,height,depth,margin,maxBlockY,entryX,entryY,entryZ,portX,portY,portZ,portWidth,portDx,portDz;
         public final SectTerrain terrain;
         Layout(JsonObject r){
-            id=text(r,"id");hash=text(r,"blueprint_sha256");archetype=text(r,"archetype");scale=text(r,"scale");
+            id=text(r,"id");hash=text(r,"blueprint_sha256");
             if(!id.matches("yuanxian:[a-z0-9_]+")||!hash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("宗门蓝图身份无效");
-            width=integer(r,"width",16,512);height=integer(r,"height",16,256);depth=integer(r,"depth",16,512);
-            margin=integer(r,"blend_margin",1,128);maxBlockY=integer(r,"max_y",1,height-1);
-            entryX=integer(r,"entry_x",0,width-1);entryY=integer(r,"entry_y",0,height-1);entryZ=integer(r,"entry_z",0,depth-1);
-            var p=r.getAsJsonObject("road_port");var xyz=p.getAsJsonArray("position");
-            portX=xyz.get(0).getAsInt();portY=xyz.get(1).getAsInt();portZ=xyz.get(2).getAsInt();portWidth=integer(p,"width",3,9);
-            var facing=com.example.myvillage.worldplan.roads.RoadPortGeometry.Facing.parse(text(p,"facing"));portDx=facing.dx;portDz=facing.dz;
+            var data=SectBlueprint.get(id);
+            if(!hash.equals(data.fingerprint))throw new IllegalArgumentException("宗门规划与资源身份不一致："+id);
+            archetype=data.archetype;scale=data.scale;tier=data.tier;
+            width=data.width;height=data.height;depth=data.depth;margin=data.margin;maxBlockY=data.maxY;
+            if(width>512||depth>512||height>256||maxBlockY<1)throw new IllegalArgumentException("宗门规划尺寸越界");
+            entryX=data.entry.getX();entryY=data.entry.getY();entryZ=data.entry.getZ();
+            var port=data.roadPort;
+            portX=port.position().getX();portY=port.position().getY();portZ=port.position().getZ();portWidth=port.width();
+            portDx=port.facing().getStepX();portDz=port.facing().getStepZ();
             if(portWidth%2==0||portX<0||portX>=width||portZ<0||portZ>=depth||portY<1||portY>=height
                 ||!(portDx<0&&portX==0||portDx>0&&portX==width-1||portDz<0&&portZ==0||portDz>0&&portZ==depth-1))throw new IllegalArgumentException("宗门出口必须在蓝图边缘");
-            try(var input=new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(text(r,"terrain_gzip"))))){
-                terrain=new SectTerrain(width,depth,margin,maxBlockY,input.readNBytes(width*depth*4+1));
-            }catch(java.io.IOException e){throw new IllegalArgumentException("宗门地形场无效",e);}
+            terrain=data.terrain;
             if(terrain.weight(portX,portZ)!=1||terrain.ground(portX,portZ)+1!=portY)throw new IllegalArgumentException("宗门出口没有确定地面");
         }
     }
@@ -57,5 +57,10 @@ public final class SectPlanningRules {
         int x=site.x()+p.portX+p.portDx*distance,z=site.z()+p.portZ+p.portDz*distance;
         return new RegionGeometry.Reservation(site.id()+"/road_exit",x-buffer,z-buffer,x+buffer,z+buffer);
     }
-    public Layout choose(int regionHash,int seedSalt,int slot){return layouts.get(Math.floorMod((long)regionHash+seedSalt+slot,layouts.size()));}
+    public Layout choose(int regionHash,int seedSalt,int slot,boolean anchor){
+        var main=layouts.stream().filter(l->l.tier.equals("main")).toList();
+        if(anchor&&slot<main.size())return main.get(slot);
+        var shared=layouts.stream().filter(l->l.tier.isEmpty()).toList();
+        return shared.get(Math.floorMod((long)regionHash+seedSalt+slot,shared.size()));
+    }
 }

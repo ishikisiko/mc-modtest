@@ -29,3 +29,27 @@ def ridge_height(x,z,ridge,base):
         top=a[2]+(b[2]-a[2])*t
         height=max(height,base+(top-base)*section(ridge['sections'][side],r))
     return height
+
+
+def cavern_surface(x,z,floor,cavern):
+    cx,cz,rx,rz=cavern['shell']
+    radius=((x-cx)/rx)**2+((z-cz)/rz)**2
+    if radius>=1:
+        return floor
+    top=floor+max(0,cavern['crest_y']+1-floor)*math.sqrt(1-radius)
+    for xx,zz,a,b,cap in cavern['openings']:
+        r=math.hypot((x-xx)/a,(z-zz)/b)
+        top-=max(0,top-max(floor,cap+1))*min(1,max(0,(1-r)*5))
+    return math.floor(top+.5)
+
+
+def cavern_air(x,y,z,ground,cavern):
+    if y<=ground or not cavern['floor_y']<=y<=cavern['crest_y']:
+        return False
+    for a,b,c,aa,bb,cc in cavern['tunnels']:
+        if a<=x<=aa and b<=y<=bb and c<=z<=cc:
+            return True
+    cx,cz,rx,rz=cavern['shell']
+    return ((x-cx)/rx)**2+((z-cz)/rz)**2<1 and any(
+        ((x-a)/rr)**2+((y-b)/ry)**2+((z-c)/rz2)**2<1
+        for a,b,c,rr,ry,rz2 in cavern['chambers'])

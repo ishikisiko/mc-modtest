@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.155.0
+
+- 新修仙世界的中州可生成听泉谷中主宗。入山低道通往泉庭，石桥接重檐主殿，沿两侧阶梯可到书廊和望泉廊。树木由生物群系自然生成。
+- 宗门地形场裁到实际施工范围，世界预设按 ID 和摘要引用正式蓝图。听泉谷中主宗的山体与洞室由区块生成按蓝图参数塑形。
+
 ## 0.154.0
 
 - 灵岳野外生成折山岭。岩层弯折形成高低相通的夹层，路边和夹层暗处生长灯苔，岩壁与岩顶的古土上生长鳞蕨。

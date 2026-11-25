@@ -18,7 +18,7 @@ public final class SectBlueprint {
     public record Tile(int x, int z, ResourceLocation template, String sha256) { }
     public record Shelf(BlockPos position, BlockPos reader, Direction facing) { }
     public final ResourceLocation id;
-    public final String name, fingerprint, rock, surface, subsoil, archetype, scale;
+    public final String name, fingerprint, rock, surface, subsoil, archetype, scale, tier;
     public final int topsoilDepth;
     public final List<String> surfaces;
     public final Map<String,Map<String,String>> regionalSurfaces;
@@ -35,6 +35,8 @@ public final class SectBlueprint {
     private SectBlueprint(JsonObject o, String fingerprint, byte[] field) {
         if (integer(o,"schema") != 1) throw new IllegalArgumentException("宗门蓝图schema不支持");
         this.fingerprint = hash(fingerprint);
+        tier=o.has("tier")?o.get("tier").getAsString():"";
+        if(!tier.isEmpty()&&!tier.equals("main"))throw new IllegalArgumentException("宗门营造等级无效");
         id = ResourceLocation.parse(o.get("id").getAsString());
         if (!id.getNamespace().equals("yuanxian") || !id.getPath().matches("[a-z0-9_]+"))
             throw new IllegalArgumentException("宗门蓝图身份无效");
@@ -62,7 +64,8 @@ public final class SectBlueprint {
         roadPort=new RoadPort(position(port.getAsJsonArray("position")),portFacing,integer(port,"width"));
         if(portFacing==null||portFacing.getAxis().isVertical()||roadPort.width()<3||roadPort.width()>9||roadPort.width()%2==0)
             throw new IllegalArgumentException("宗门山门出口无效");
-        terrain=new SectTerrain(width,depth,margin,maxY,field);
+        terrain=new SectTerrain(width,depth,margin,maxY,o.getAsJsonObject("terrain").getAsJsonArray("bounds"),
+                                 field,o.getAsJsonObject("cavern"));
         for(int z=0;z<depth;z++)for(int x=0;x<width;x++)if(terrain.surface(x,z)>=surfaces.size())throw new IllegalArgumentException("宗门地表索引越界");
         Set<BlockPos> cells=new LinkedHashSet<>();
         for (JsonElement e:o.getAsJsonArray("courtyard_cells")) {

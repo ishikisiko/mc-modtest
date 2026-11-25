@@ -14,7 +14,9 @@ PYTHONPATH=tools python3 -m unittest sect_blueprints.test_generate sect_blueprin
 PYTHONPATH=tools python3 -m sect_blueprints.gallery --out reports/sect-gallery --base-url https://assets.ishiki333hhh.win/sect-blueprints/current
 ```
 
-正式目录包含清单、地形场和显式建筑/道路/设施/植被的稀疏 NBT。地形场每格为小端 int16 高度、uint8 施工权重、uint8 地表索引。完整矩形及缓冲继续用于结构避让；实际整地按权重接回自然高度，零权重区域保留地表和植被。表土厚度、草地/林下土/裸岩、地区材料映射、树林与溪湖参数只在 authored 输入维护。水岸必须封闭。
+正式资源包括清单、局部地形场和稀疏结构分块。地形场记录施工范围的包围矩形，每列使用小端 int16 高度、uint8 施工权重和 uint8 地表索引。完整地块及缓冲另用于结构避让。世界预设以蓝图 ID 和摘要引用同一份资源。
+
+听泉谷中主宗只为主宗地区预留。样板的洞室、低道和天窗由蓝图参数交给游戏生成，从洞中泉庭过桥登上主殿，两侧设抬高的书廊和望泉廊。洞室在生物群系植被生成前开挖，树木由生物群系特征生成。其余山坡直接接修仙世界地形。
 
 `runtime` 定义真实入口、执事、经架及读者和活动区；`road_port` 是位于蓝图边缘的正式出口，包含位置、方向和完整净宽。三格支路只接其外侧，内部路线由蓝图拥有。道路、设施、门槛与整个声明路宽均做免跳跃拓扑检查；未声明拆除原建筑、孤立桥片、断开的经架、床头尾错误或漏水都会拒绝导出。NBT 每格回读，源摘要随清单保存。
 

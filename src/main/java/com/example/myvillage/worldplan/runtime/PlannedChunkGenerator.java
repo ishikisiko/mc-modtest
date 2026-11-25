@@ -149,6 +149,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     }
     @Override public void applyCarvers(WorldGenRegion region,long seed,RandomState ignored,BiomeManager biomes,StructureManager structures,ChunkAccess chunk,GenerationStep.Carving step){
         if(!plan().intersectsCity(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ())&&!plan().intersectsSects(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ()))terrain.applyCarvers(region,seed,terrainState(),biomes,structures,chunk,step);
+        if(step==GenerationStep.Carving.AIR)PlannedSectPlacement.carve(plan(),chunk);
         if(step==GenerationStep.Carving.AIR&&region.getLevel().getServer().getWorldData().worldGenOptions().generateStructures())StarterMineCaveCarver.carve(plan(),starterMine,chunk);
         if(step==GenerationStep.Carving.AIR&&lotusMountain!=null)lotusMountain.place(chunk);
         if(step==GenerationStep.Carving.AIR&&foldedRidge!=null)foldedRidge.place(chunk);
@@ -212,6 +213,14 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         for(int y=min;y<max;y++)states[y-min]=capital!=null&&y>=min+5
             ?CapitalGamePlacement.column(ground,inside,y,target,rules.seaLevel,nativeColumn.getBlock(y))
             :columnBlock(nativeColumn.getBlock(y),y,target,nativeFloor);
+        for(var site:world.sectSites()){
+            if(!site.intersects(x,z,x,z,0))continue;
+            var groundField=world.rules().sects.layout(site.blueprintId()).terrain;
+            if(!groundField.hasCavern())continue;
+            for(int y=Math.max(min,site.baseY()+groundField.carveBottom());
+                y<=Math.min(target-1,Math.min(max-1,site.baseY()+groundField.carveTop()));y++)
+                if(groundField.carves(x-site.x(),y-site.baseY(),z-site.z()))states[y-min]=Blocks.CAVE_AIR.defaultBlockState();
+        }
         if(lotusMountain!=null)lotusMountain.replaceColumn(x,z,min,states);
         if(foldedRidge!=null)foldedRidge.replaceColumn(x,z,min,states);
         return new NoiseColumn(min,states);

@@ -139,7 +139,16 @@ def export(spec_path,out):
     surfaces=sorted(set(model.surface_states))
     if len(surfaces)>256:raise ValueError('宗门地表材质过多')
     indices={state:i for i,state in enumerate(surfaces)}
-    field=b''.join(struct.pack('<hBB',h,weight,indices[state]) for h,weight,state in zip(model.terrain,model.influence,model.surface_states))
+    active=[(i%model.width,i//model.width) for i,weight in enumerate(model.influence) if weight]
+    x0=min(x for x,z in active); x1=max(x for x,z in active)+1
+    z0=min(z for x,z in active); z1=max(z for x,z in active)+1
+    field=bytearray()
+    for z in range(z0,z1):
+        for x in range(x0,x1):
+            i=z*model.width+x
+            weight=model.influence[i]
+            field.extend(struct.pack('<hBB',model.terrain[i],weight,indices[model.surface_states[i]])
+                         if weight else bytes(4))
     terrain.write_bytes(gzip.compress(field,mtime=0))
     manifest={'schema':1,'id':spec['id'],'name':spec['name'],'size':spec['dimensions'],'max_y':max_y,
               'blend_margin':spec['runtime']['blend_margin'],'vegetation_clearance':spec['runtime']['vegetation_clearance'],
@@ -147,12 +156,18 @@ def export(spec_path,out):
               'archetype':spec['archetype'],'scale':spec['scale'],'road_port':spec['runtime']['road_port'],
               'surfaces':surfaces,'subsoil':'minecraft:dirt','topsoil_depth':spec['landscape']['topsoil_depth'],
               'regional_surfaces':spec['landscape']['regional_surfaces'],
-              'terrain':{'resource':f'yuanxian:sect_blueprints/{key}/terrain.bin.gz','sha256':digest(terrain)},
+              'terrain':{'resource':f'yuanxian:sect_blueprints/{key}/terrain.bin.gz','sha256':digest(terrain),
+                         'bounds':[x0,z0,x1-x0,z1-z0]},
               'worldgen':json.loads((ROOT/'blueprints/sects/catalog.json').read_text())['worldgen'],'tiles':tiles,**anchors,'source_hashes':hashes,
               'routes':[{k:v for k,v in route.items() if k!='columns'} for route in model.routes],
               'entry_connections':spec['entry_connections'],
               'component_repairs':[{'position':list(p),**row} for p,row in sorted(model.component_repairs.items())],
               'buildings':model.buildings}
+    if cavern:=spec.get('cavern'):
+        manifest['cavern']=cavern
+        manifest['max_y']=max(max_y,cavern['crest_y'])
+    if 'tier' in spec:
+        manifest['tier']=spec['tier']
     write_json(folder/'sect.json',manifest)
     if runtime_hashes(spec_path,model)!=hashes:raise ValueError('生成期间来源改变')
     print(json.dumps({'id':spec['id'],'tiles':len(tiles),'courtyard_cells':len(anchors['courtyard_cells']),

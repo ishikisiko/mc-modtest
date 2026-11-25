@@ -695,6 +695,125 @@
         "roof": "#6e9993",
         "stone": "#c5d3c8"
       }
+    },
+    "valley_retreat_main": {
+      "name": "听泉谷中主宗",
+      "brief": "泉庭石桥通向重檐主殿，两侧抬高书廊和望泉廊。",
+      "default": {
+        "form": "hall",
+        "stories": 1,
+        "wall_height": 4,
+        "roof": "sweeping_eave_roof",
+        "wall_type": "timber_frame_wall",
+        "colonnades": [
+          "front"
+        ],
+        "wing_height": 4
+      },
+      "roles": {
+        "sect_main_hall": {
+          "form": "winged",
+          "stories": 2,
+          "wall_height": 8,
+          "roof": "tiered_eave_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4,
+          "upper_inset": 2,
+          "width_inset": 16
+        },
+        "sect_gate": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 4,
+          "roof": "hip_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "scripture_pavilion": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 4,
+          "roof": "hip_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "linlang": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "sweeping_eave_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front",
+            "back"
+          ],
+          "depth": 11
+        },
+        "spring_gallery": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 6,
+          "roof": "hip_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [],
+          "wing_height": 4,
+          "open_sides": true,
+          "axis": "z"
+        }
+      },
+      "material_slots": {
+        "FRAME_WOOD": [
+          "minecraft:dark_oak_log"
+        ],
+        "WALL_MAIN": [
+          "minecraft:light_gray_terracotta"
+        ],
+        "BASE_STONE": [
+          "minecraft:polished_andesite"
+        ],
+        "PLATFORM_STONE": [
+          "minecraft:polished_andesite"
+        ],
+        "ROOF_DARK": [
+          "minecraft:stone_brick_stairs",
+          "minecraft:stone_brick_slab",
+          "minecraft:oak_planks"
+        ],
+        "ROOF_TILE": [
+          "minecraft:stone_brick_stairs",
+          "minecraft:stone_brick_slab"
+        ],
+        "COLUMN": [
+          "minecraft:dark_oak_log"
+        ],
+        "RIDGE_ORNAMENT": [
+          "minecraft:polished_andesite"
+        ],
+        "DETAIL_WOOD": [
+          "minecraft:oak_trapdoor",
+          "minecraft:oak_fence",
+          "minecraft:oak_slab"
+        ],
+        "GABLE_INFILL": [
+          "minecraft:terracotta"
+        ]
+      },
+      "palette": {
+        "wall": "#b39a77",
+        "wood": "#85613e",
+        "wood_light": "#b48b58",
+        "roof": "#667574",
+        "stone": "#a5aaa0"
+      }
     }
   },
   "interiors": {
