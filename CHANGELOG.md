@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.155.0-fix1
+
+- 听泉谷中主宗在桥栏、沿岸道路和台阶嵌入灯石，在殿前礼庭安放符灯，并为主殿、两侧檐廊和谷内部分建筑补装灯笼。
+
 ## 0.155.0
 
 - 新修仙世界的中州可生成听泉谷中主宗。入山低道通往泉庭，石桥接重檐主殿，沿两侧阶梯可到书廊和望泉廊。树木由生物群系自然生成。

@@ -20,6 +20,26 @@ class SectRuntimeMetadataTest(unittest.TestCase):
                              for state,_,_ in cells.values()))
         self.assertEqual(len(model.spec['runtime']['shelves']),len(metadata(model)['shelves']))
 
+    def test_lighting_checks_support_and_keeps_stonework_ownership(self):
+        spec=copy.deepcopy(self.spec)
+        spec['lighting']=[
+            {'name':'檐下灯笼','kind':'hanging_lantern','positions':[[4,5,8]],
+             'mount':'minecraft:stone','chain':1},
+            {'name':'栏杆灯石','kind':'inlay','positions':[[7,3,8]],
+             'replace':'minecraft:stone_bricks'},
+        ]
+        model=SectModel(spec)
+        model.terrain=[0]*(model.width*model.depth)
+        model.construction.cell((4,7,8),'minecraft:stone')
+        model.construction.cell((7,3,8),'minecraft:stone_bricks','石桥','edge')
+        model.place_lighting()
+        self.assertEqual('minecraft:lantern[hanging=true,waterlogged=false]',model.get((4,5,8)))
+        self.assertEqual('minecraft:chain[axis=y,waterlogged=false]',model.get((4,6,8)))
+        self.assertEqual(('minecraft:sea_lantern','石桥','edge'),model.construction.record_at((7,3,8)))
+        model.construction.cell((4,7,8),AIR)
+        with self.assertRaisesRegex(ValueError,'灯座或梁位不符'):
+            model.place_lighting()
+
     def test_compiled_facilities_are_reachable_and_owned_by_the_blueprint(self):
         result=metadata(self.model)
         self.assertEqual(self.spec['runtime']['entry_anchor'],result['entry_anchor'])

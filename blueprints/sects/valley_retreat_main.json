@@ -830,6 +830,166 @@
       ]
     }
   ],
+  "lighting": [
+    {
+      "name": "入谷低道地灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "spans": [
+        [[88, 12, 76], [88, 12, 142], 6]
+      ]
+    },
+    {
+      "name": "泉庭横道地灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "spans": [
+        [[94, 12, 140], [214, 12, 140], 6]
+      ]
+    },
+    {
+      "name": "西岸沿路地灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "spans": [
+        [[85, 12, 145], [85, 12, 235], 6],
+        [[91, 12, 234], [103, 12, 234], 6]
+      ]
+    },
+    {
+      "name": "东岸沿路地灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "spans": [
+        [[217, 12, 143], [217, 12, 209], 6],
+        [[222, 12, 210], [234, 12, 210], 6],
+        [[235, 12, 214], [235, 12, 220], 6]
+      ]
+    },
+    {
+      "name": "谷内支路地灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "positions": [[224, 12, 144], [230, 12, 144], [235, 12, 148], [91, 12, 200], [97, 12, 200], [105, 13, 241]]
+    },
+    {
+      "name": "桥南接路地灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "positions": [[166, 12, 144], [166, 13, 149], [166, 13, 155], [166, 14, 160], [166, 14, 165], [166, 15, 170]]
+    },
+    {
+      "name": "跨泉桥栏灯石",
+      "kind": "inlay",
+      "replace": "minecraft:chiseled_stone_bricks",
+      "spans": [
+        [[161, 16, 174], [161, 16, 222], 6],
+        [[169, 16, 174], [169, 16, 222], 6]
+      ]
+    },
+    {
+      "name": "主殿石阶边灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "positions": [[163, 16, 228], [167, 16, 228], [163, 18, 231], [167, 18, 231], [163, 20, 234], [167, 20, 234]]
+    },
+    {
+      "name": "西壁书廊阶边灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "positions": [[113, 13, 143], [113, 16, 148], [113, 18, 152], [113, 21, 157], [113, 22, 161]]
+    },
+    {
+      "name": "东壁望泉廊阶边灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "positions": [[207, 13, 144], [207, 15, 150], [207, 17, 157], [207, 19, 163], [207, 21, 170], [207, 23, 176], [207, 25, 182], [207, 27, 189]]
+    },
+    {
+      "name": "殿前礼庭符灯",
+      "kind": "rune_lamp",
+      "mount": "minecraft:polished_andesite",
+      "positions": [[143, 22, 236], [152, 22, 236], [160, 22, 236], [170, 22, 236], [178, 22, 236], [187, 22, 236]]
+    },
+    {
+      "name": "主殿檐下灯笼",
+      "kind": "hanging_lantern",
+      "mount": "minecraft:dark_oak_log[axis=x]",
+      "chain": 2,
+      "spans": [
+        [[145, 25, 244], [181, 25, 244], 6]
+      ],
+      "positions": [[186, 25, 244]]
+    },
+    {
+      "name": "主殿上檐灯笼",
+      "kind": "hanging_lantern",
+      "mount": "minecraft:stone_brick_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+      "chain": 2,
+      "spans": [
+        [[145, 35, 247], [185, 35, 247], 8]
+      ]
+    },
+    {
+      "name": "主殿内厅灯笼",
+      "kind": "hanging_lantern",
+      "mount": "minecraft:light_gray_terracotta",
+      "chain": 3,
+      "spans": [
+        [[147, 26, 251], [183, 26, 251], 6],
+        [[147, 26, 259], [183, 26, 259], 6],
+        [[153, 26, 267], [183, 26, 267], 6]
+      ]
+    },
+    {
+      "name": "主殿二楼地灯",
+      "kind": "inlay",
+      "replace": "minecraft:light_gray_terracotta",
+      "spans": [
+        [[148, 30, 252], [184, 30, 252], 6],
+        [[148, 30, 258], [184, 30, 258], 6],
+        [[148, 30, 264], [184, 30, 264], 6],
+        [[148, 30, 270], [184, 30, 270], 6]
+      ]
+    },
+    {
+      "name": "西壁书廊梁灯",
+      "kind": "hanging_lantern",
+      "mount": "minecraft:dark_oak_log[axis=z]",
+      "chain": 1,
+      "positions": [[122, 26, 168], [122, 26, 174], [122, 26, 181], [122, 26, 186]]
+    },
+    {
+      "name": "东壁望泉廊梁灯",
+      "kind": "hanging_lantern",
+      "mount": "minecraft:dark_oak_log[axis=z]",
+      "chain": 1,
+      "spans": [
+        [[197, 32, 199], [197, 32, 211], 6]
+      ],
+      "positions": [[197, 32, 218], [197, 32, 222]]
+    },
+    {
+      "name": "两侧廊内地灯",
+      "kind": "inlay",
+      "replace": "minecraft:polished_andesite",
+      "positions": [[119, 22, 168], [119, 22, 174], [119, 22, 180], [119, 22, 186], [201, 28, 199], [201, 28, 205], [201, 28, 211], [201, 28, 217], [201, 28, 222]]
+    },
+    {
+      "name": "丹房补灯",
+      "kind": "hanging_lantern",
+      "mount": "minecraft:oak_planks",
+      "chain": 3,
+      "positions": [[101, 24, 258], [105, 24, 258], [110, 24, 258]]
+    },
+    {
+      "name": "琳琅阁檐口灯笼",
+      "kind": "hanging_lantern",
+      "mount": "minecraft:stone_brick_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+      "chain": 3,
+      "positions": [[231, 18, 157], [235, 18, 157], [239, 18, 157]]
+    }
+  ],
   "anchors": [
     {
       "id": "steward",

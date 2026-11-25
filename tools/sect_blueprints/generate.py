@@ -480,6 +480,45 @@ class SectModel:
                     if (xx-x)**2+(zz-z)**2<=cfg['soil_radius']**2 and self.surface_states[zz*self.width+xx]==self.materials['surface']:
                         self.surface_states[zz*self.width+xx]=self.materials['soil']
 
+    def place_lighting(self):
+        for fixture in self.spec.get('lighting', []):
+            name, kind = fixture['name'], fixture['kind']
+            positions = [tuple(p) for p in fixture.get('positions', [])]
+            for first, last, spacing in fixture.get('spans', []):
+                if first[1] != last[1] or (first[0] != last[0] and first[2] != last[2]) or spacing < 1:
+                    raise ValueError(f'灯具排列须沿一条水平直线：{name} {first} {last}')
+                positions.extend(line(first, last)[::spacing])
+            for p in positions:
+                x, y, z = p
+                if kind == 'inlay':
+                    record = self.construction.record_at(p)
+                    if record is None or record[0] != fixture['replace']:
+                        raise ValueError(f'灯石与基层不符：{name} {p}')
+                    before, owner, layer = record
+                    state = 'minecraft:sea_lantern'
+                    if p in self.protected:
+                        self.component_repairs[p] = {'owner': self.protected[p][0], 'before': before, 'after': state}
+                    self.construction.cell(p, state, owner, layer)
+                    continue
+                if kind == 'rune_lamp':
+                    mount = x, y - 1, z
+                    parts = [f'yuanxian:rune_lamp[facing=north,part={part},waterlogged=false]' for part in (0, 1)]
+                elif kind == 'hanging_lantern':
+                    chain = fixture['chain']
+                    if chain < 0:
+                        raise ValueError(f'灯链长度无效：{name}')
+                    mount = x, y + chain + 1, z
+                    parts = ['minecraft:lantern[hanging=true,waterlogged=false]'] + ['minecraft:chain[axis=y,waterlogged=false]'] * chain
+                else:
+                    raise ValueError(f'未知灯具：{name} {kind}')
+                if self.get(mount) != fixture['mount']:
+                    raise ValueError(f'灯座或梁位不符：{name} {mount}')
+                for dy, state in enumerate(parts):
+                    at = x, y + dy, z
+                    if self.get(at) != AIR:
+                        raise ValueError(f'灯具位置已被占用：{name} {at}')
+                    self.construction.cell(at, state, name, 'lighting')
+
     def construct(self):
         self.build_terrain(); self.place_buildings(); self.repair_beds(); self.build_courts(); self.plan_routes(); self.build_routes(); self.connect_entries(); self.landscape()
         if self.spec.get('cavern'):
@@ -487,6 +526,7 @@ class SectModel:
                 raise ValueError('洞室宗门的树木由生物群系生成')
         else:
             self.plant_trees()
+        self.place_lighting()
         return self
 
     def audit(self):
@@ -580,6 +620,28 @@ class SectModel:
 
 
 class SectScene(SceneBuilder):
+    def add_tile(self, tx, tz, tile):
+        if not self.model.spec.get('lighting'):
+            return super().add_tile(tx, tz, tile)
+        regular = {}
+        for (x, y, z), record in tile.items():
+            state, tag, layer = record
+            center_x, center_z = tx * 16 + x + .5, tz * 16 + z + .5
+            if state == 'minecraft:sea_lantern':
+                self.box([center_x, y + .5, center_z], [1, 1, 1], 'window', layer, tag)
+            elif state == 'minecraft:chain[axis=y,waterlogged=false]' and layer == 'lighting':
+                self.box([center_x, y + .5, center_z], [.1875, 1, .1875], 'iron', layer, tag)
+            elif state.startswith('yuanxian:rune_lamp[') and layer == 'lighting':
+                if parse(state)[1]['part'] == '0':
+                    self.box([center_x, y + .0625, center_z], [.5, .125, .5], 'iron', layer, tag)
+                    self.box([center_x, y + .5, center_z], [.125, 1, .125], 'iron', layer, tag)
+                else:
+                    self.box([center_x, y + .1875, center_z], [.125, .375, .125], 'iron', layer, tag)
+                    self.box([center_x, y + .625, center_z], [.5, .5, .5], 'light', layer, tag)
+            else:
+                regular[x, y, z] = record
+        return super().add_tile(tx, tz, regular)
+
     def material(self,state,layer):
         base = state.split("[",1)[0]
         if layer=='roof':return 'roof'
