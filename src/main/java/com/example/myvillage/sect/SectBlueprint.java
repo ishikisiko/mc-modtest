@@ -2,11 +2,9 @@ package com.example.myvillage.sect;
 
 import com.google.gson.*;
 import java.io.*;
-import java.nio.*;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -32,7 +30,7 @@ public final class SectBlueprint {
     public final List<Tile> tiles;
     public final SectTerrain terrain;
 
-    private SectBlueprint(JsonObject o, String fingerprint, byte[] field) {
+    private SectBlueprint(JsonObject o, String fingerprint) {
         if (integer(o,"schema") != 1) throw new IllegalArgumentException("宗门蓝图schema不支持");
         this.fingerprint = hash(fingerprint);
         tier=o.has("tier")?o.get("tier").getAsString():"";
@@ -64,8 +62,7 @@ public final class SectBlueprint {
         roadPort=new RoadPort(position(port.getAsJsonArray("position")),portFacing,integer(port,"width"));
         if(portFacing==null||portFacing.getAxis().isVertical()||roadPort.width()<3||roadPort.width()>9||roadPort.width()%2==0)
             throw new IllegalArgumentException("宗门山门出口无效");
-        terrain=new SectTerrain(width,depth,margin,maxY,o.getAsJsonObject("terrain").getAsJsonArray("bounds"),
-                                 field,o.getAsJsonObject("cavern"));
+        terrain=SectTerrain.read(width,depth,margin,maxY,o);
         for(int z=0;z<depth;z++)for(int x=0;x<width;x++)if(terrain.surface(x,z)>=surfaces.size())throw new IllegalArgumentException("宗门地表索引越界");
         Set<BlockPos> cells=new LinkedHashSet<>();
         for (JsonElement e:o.getAsJsonArray("courtyard_cells")) {
@@ -140,12 +137,7 @@ public final class SectBlueprint {
         String fingerprint=row.get("sha256").getAsString();requireHash(raw,fingerprint);
         JsonObject o=json(raw);
         if (!rowId.equals(o.get("id").getAsString())) throw new IllegalArgumentException("宗门目录与资源身份不一致");
-        JsonObject terrain=o.getAsJsonObject("terrain");
-        byte[] packed=readClasspath(resourceFile(ResourceLocation.parse(terrain.get("resource").getAsString())),8*1024*1024);
-        requireHash(packed,terrain.get("sha256").getAsString());
-        try (InputStream in=new GZIPInputStream(new ByteArrayInputStream(packed))) {
-            if(layouts.putIfAbsent(rowId,new SectBlueprint(o,fingerprint,limited(in,4*1024*1024)))!=null)throw new IllegalArgumentException("宗门蓝图身份重复");
-        } catch (IOException ex) { throw new IllegalStateException("宗门高度场损坏",ex); }
+        if(layouts.putIfAbsent(rowId,new SectBlueprint(o,fingerprint))!=null)throw new IllegalArgumentException("宗门蓝图身份重复");
         }
         if(!layouts.containsKey(defaultId))throw new IllegalArgumentException("缺少默认宗门蓝图");
         return new Catalog(defaultId,Collections.unmodifiableMap(layouts));

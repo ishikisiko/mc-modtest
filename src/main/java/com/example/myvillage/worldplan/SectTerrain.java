@@ -2,7 +2,12 @@ package com.example.myvillage.worldplan;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.example.myvillage.resources.BuiltinResources;
+import java.io.*;
 import java.nio.*;
+import java.security.*;
+import java.util.HexFormat;
+import java.util.zip.GZIPInputStream;
 
 /** 蓝图整地面：高度、施工权重和地表索引共同冻结，预留框外围不强行削平。 */
 public final class SectTerrain {
@@ -11,6 +16,27 @@ public final class SectTerrain {
     private final short[] heights;
     private final byte[] influence,surfaces;
     private final Cavern cavern;
+
+    public static byte[] verifiedResource(String id,String hash,int limit){
+        if(!id.matches("yuanxian:sect_blueprints/[a-z0-9_]+/[a-z_.]+")||!hash.matches("[0-9a-f]{64}"))
+            throw new IllegalArgumentException("宗门资源引用无效："+id);
+        try(var in=BuiltinResources.open("data/"+id.replace(':','/'))){
+            if(in==null)throw new FileNotFoundException(id);
+            byte[] bytes=in.readNBytes(limit+1);
+            if(bytes.length>limit||!hash.equals(HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes))))
+                throw new IllegalArgumentException("宗门资源容量或摘要不符："+id);
+            return bytes;
+        }catch(IOException|NoSuchAlgorithmException e){throw new IllegalStateException("无法读取宗门资源："+id,e);}
+    }
+
+    public static SectTerrain read(int width,int depth,int margin,int maxY,JsonObject manifest){
+        JsonObject field=manifest.getAsJsonObject("terrain");
+        byte[] packed=verifiedResource(field.get("resource").getAsString(),field.get("sha256").getAsString(),8*1024*1024);
+        try(var in=new GZIPInputStream(new ByteArrayInputStream(packed))){
+            return new SectTerrain(width,depth,margin,maxY,field.getAsJsonArray("bounds"),
+                in.readNBytes(width*depth*4+1),manifest.getAsJsonObject("cavern"));
+        }catch(IOException e){throw new IllegalStateException("宗门地形场无效",e);}
+    }
 
     public SectTerrain(int width,int depth,int margin,int maxY,JsonArray bounds,byte[] raw,JsonObject cavity){
         var area=integers(bounds,4);

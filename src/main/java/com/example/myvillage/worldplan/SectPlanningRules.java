@@ -3,7 +3,7 @@ package com.example.myvillage.worldplan;
 import com.google.gson.*;
 import com.example.myvillage.region.runtime.RegionGeometry;
 import com.example.myvillage.region.runtime.SectSite;
-import com.example.myvillage.sect.SectBlueprint;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import static com.example.myvillage.worldplan.WorldPlanRules.*;
 
@@ -19,18 +19,26 @@ public final class SectPlanningRules {
         Layout(JsonObject r){
             id=text(r,"id");hash=text(r,"blueprint_sha256");
             if(!id.matches("yuanxian:[a-z0-9_]+")||!hash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("宗门蓝图身份无效");
-            var data=SectBlueprint.get(id);
-            if(!hash.equals(data.fingerprint))throw new IllegalArgumentException("宗门规划与资源身份不一致："+id);
-            archetype=data.archetype;scale=data.scale;tier=data.tier;
-            width=data.width;height=data.height;depth=data.depth;margin=data.margin;maxBlockY=data.maxY;
-            if(width>512||depth>512||height>256||maxBlockY<1)throw new IllegalArgumentException("宗门规划尺寸越界");
-            entryX=data.entry.getX();entryY=data.entry.getY();entryZ=data.entry.getZ();
-            var port=data.roadPort;
-            portX=port.position().getX();portY=port.position().getY();portZ=port.position().getZ();portWidth=port.width();
-            portDx=port.facing().getStepX();portDz=port.facing().getStepZ();
+            byte[] raw=SectTerrain.verifiedResource(text(r,"resource"),hash,8*1024*1024);
+            var data=JsonParser.parseString(new String(raw,StandardCharsets.UTF_8)).getAsJsonObject();
+            if(!id.equals(text(data,"id")))throw new IllegalArgumentException("宗门规划与资源身份不一致："+id);
+            archetype=text(data,"archetype");scale=text(data,"scale");tier=data.has("tier")?text(data,"tier"):"";
+            if(!tier.isEmpty()&&!tier.equals("main"))throw new IllegalArgumentException("未知营造等级："+tier);
+            var size=data.getAsJsonArray("size");
+            width=size.get(0).getAsInt();height=size.get(1).getAsInt();depth=size.get(2).getAsInt();
+            if(width<16||depth<16||width>512||depth>512||height<16||height>256)throw new IllegalArgumentException("宗门规划尺寸越界");
+            margin=integer(data,"blend_margin",1,64);maxBlockY=integer(data,"max_y",1,height-1);
+            var entry=data.getAsJsonArray("entry_anchor");
+            entryX=entry.get(0).getAsInt();entryY=entry.get(1).getAsInt();entryZ=entry.get(2).getAsInt();
+            if(entryX<0||entryX>=width||entryY<0||entryY>=height||entryZ<0||entryZ>=depth)
+                throw new IllegalArgumentException("宗门规划入口越界");
+            var port=data.getAsJsonObject("road_port");var xyz=port.getAsJsonArray("position");
+            portX=xyz.get(0).getAsInt();portY=xyz.get(1).getAsInt();portZ=xyz.get(2).getAsInt();portWidth=integer(port,"width",3,9);
+            var facing=com.example.myvillage.worldplan.roads.RoadPortGeometry.Facing.parse(text(port,"facing"));
+            portDx=facing.dx;portDz=facing.dz;
             if(portWidth%2==0||portX<0||portX>=width||portZ<0||portZ>=depth||portY<1||portY>=height
                 ||!(portDx<0&&portX==0||portDx>0&&portX==width-1||portDz<0&&portZ==0||portDz>0&&portZ==depth-1))throw new IllegalArgumentException("宗门出口必须在蓝图边缘");
-            terrain=data.terrain;
+            terrain=SectTerrain.read(width,depth,margin,maxBlockY,data);
             if(terrain.weight(portX,portZ)!=1||terrain.ground(portX,portZ)+1!=portY)throw new IllegalArgumentException("宗门出口没有确定地面");
         }
     }

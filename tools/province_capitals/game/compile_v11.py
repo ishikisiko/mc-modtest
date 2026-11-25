@@ -99,7 +99,7 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
         policy=sect['worldgen']
         terrain=sect_root/('data/'+sect['terrain']['resource'].replace(':','/',1))
         if sha(terrain.read_bytes())!=sect['terrain']['sha256']:raise ValueError('宗门高度场摘要不一致')
-        layouts.append({'id':sect['id'],'blueprint_sha256':sect_ref['sha256']})
+        layouts.append({'id':sect['id'],'resource':sect_ref['resource'],'blueprint_sha256':sect_ref['sha256']})
     frozen['sects']={**policy,'layouts':layouts}
     mine_root=ROOT/'build/generated/starter_mine/resources'
     mine_path=mine_root/'data/yuanxian/starter_mine/layout.json'
