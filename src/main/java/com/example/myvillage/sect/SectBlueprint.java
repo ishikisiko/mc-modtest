@@ -34,7 +34,7 @@ public final class SectBlueprint {
         if (integer(o,"schema") != 1) throw new IllegalArgumentException("宗门蓝图schema不支持");
         this.fingerprint = hash(fingerprint);
         tier=o.has("tier")?o.get("tier").getAsString():"";
-        if(!tier.isEmpty()&&!tier.equals("main"))throw new IllegalArgumentException("宗门营造等级无效");
+        if(!tier.isEmpty()&&!com.example.myvillage.sim.data.SectProgressionRules.IDS.contains(tier))throw new IllegalArgumentException("宗门营造等级无效");
         id = ResourceLocation.parse(o.get("id").getAsString());
         if (!id.getNamespace().equals("yuanxian") || !id.getPath().matches("[a-z0-9_]+"))
             throw new IllegalArgumentException("宗门蓝图身份无效");
@@ -129,7 +129,7 @@ public final class SectBlueprint {
         if (integer(c,"schema")!=1) throw new IllegalArgumentException("宗门目录schema不支持");
         String defaultId=c.get("default").getAsString();
         var layouts=new LinkedHashMap<String,SectBlueprint>();
-        if(c.getAsJsonArray("layouts").size()>16)throw new IllegalArgumentException("宗门蓝图过多");
+        if(c.getAsJsonArray("layouts").size()>32)throw new IllegalArgumentException("宗门蓝图过多");
         for(JsonElement e:c.getAsJsonArray("layouts")){
         JsonObject row=e.getAsJsonObject();String rowId=row.get("id").getAsString();
         ResourceLocation path=ResourceLocation.parse(row.get("resource").getAsString());

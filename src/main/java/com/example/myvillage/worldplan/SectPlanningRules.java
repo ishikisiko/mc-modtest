@@ -11,10 +11,12 @@ import static com.example.myvillage.worldplan.WorldPlanRules.*;
 public final class SectPlanningRules {
     public final int slots,radius,attempts,buffer,spacing,minSurface,maxSurface,minY,maxY;
     public final List<Layout> layouts;
+    private final Map<String,List<Layout>> byTier;
+    private final int entryStates, regionalHubs;
     private final Map<String,Layout> byId;
     public static final class Layout {
         public final String id,hash,archetype,scale,tier;
-        public final int width,height,depth,margin,maxBlockY,entryX,entryY,entryZ,portX,portY,portZ,portWidth,portDx,portDz;
+        public final int dryGateMargin,width,height,depth,margin,maxBlockY,entryX,entryY,entryZ,portX,portY,portZ,portWidth,portDx,portDz;
         public final SectTerrain terrain;
         Layout(JsonObject r){
             id=text(r,"id");hash=text(r,"blueprint_sha256");
@@ -23,10 +25,11 @@ public final class SectPlanningRules {
             var data=JsonParser.parseString(new String(raw,StandardCharsets.UTF_8)).getAsJsonObject();
             if(!id.equals(text(data,"id")))throw new IllegalArgumentException("宗门规划与资源身份不一致："+id);
             archetype=text(data,"archetype");scale=text(data,"scale");tier=data.has("tier")?text(data,"tier"):"";
-            if(!tier.isEmpty()&&!tier.equals("main"))throw new IllegalArgumentException("未知营造等级："+tier);
+            if(!com.example.myvillage.sim.data.SectProgressionRules.IDS.contains(tier))throw new IllegalArgumentException("未知营造等级："+tier);
+            dryGateMargin=integer(data,"dry_gate_margin",0,128);
             var size=data.getAsJsonArray("size");
             width=size.get(0).getAsInt();height=size.get(1).getAsInt();depth=size.get(2).getAsInt();
-            if(width<16||depth<16||width>512||depth>512||height<16||height>256)throw new IllegalArgumentException("宗门规划尺寸越界");
+            if(width<16||depth<16||width>512||depth>512||height<16||height>384)throw new IllegalArgumentException("宗门规划尺寸越界");
             margin=integer(data,"blend_margin",1,64);maxBlockY=integer(data,"max_y",1,height-1);
             var entry=data.getAsJsonArray("entry_anchor");
             entryX=entry.get(0).getAsInt();entryY=entry.get(1).getAsInt();entryZ=entry.get(2).getAsInt();
@@ -43,6 +46,7 @@ public final class SectPlanningRules {
         }
     }
     public SectPlanningRules(JsonObject r){
+        entryStates=integer(r,"entry_states",1,3);regionalHubs=integer(r,"regional_hubs",1,2);
         slots=integer(r,"slots_per_region",1,32);radius=integer(r,"placement_radius",512,5000);
         attempts=integer(r,"placement_attempts",16,8192);buffer=integer(r,"structure_buffer",16,256);spacing=integer(r,"gate_spacing",128,2048);
         minSurface=integer(r,"minimum_surface",64,200);maxSurface=integer(r,"maximum_surface",minSurface,240);
@@ -50,8 +54,11 @@ public final class SectPlanningRules {
         if(!text(r,"on_candidate_exhaustion").equals("fail_whole_plan"))throw new IllegalArgumentException("宗门地块不足必须拒绝世界规划");
         var values=new LinkedHashMap<String,Layout>();
         for(var e:r.getAsJsonArray("layouts")){var v=new Layout(e.getAsJsonObject());if(values.putIfAbsent(v.id,v)!=null)throw new IllegalArgumentException("宗门蓝图重复");}
-        if(values.isEmpty()||values.size()>16)throw new IllegalArgumentException("宗门蓝图数量越界");
+        if(values.isEmpty()||values.size()>32)throw new IllegalArgumentException("宗门蓝图数量越界");
         byId=Map.copyOf(values);layouts=List.copyOf(values.values());
+        byTier=layouts.stream().collect(java.util.stream.Collectors.groupingBy(l->l.tier));
+        for(String tier:com.example.myvillage.sim.data.SectProgressionRules.IDS)
+            if(!byTier.containsKey(tier)||byTier.get(tier).size()>slots)throw new IllegalArgumentException("宗门等级布局数量无效："+tier);
     }
     public Layout layout(String id){var v=byId.get(id);if(v==null)throw new IllegalArgumentException("未知宗门蓝图："+id);return v;}
     RegionGeometry.Reservation footprint(SectSite site){
@@ -65,10 +72,12 @@ public final class SectPlanningRules {
         int x=site.x()+p.portX+p.portDx*distance,z=site.z()+p.portZ+p.portDz*distance;
         return new RegionGeometry.Reservation(site.id()+"/road_exit",x-buffer,z-buffer,x+buffer,z+buffer);
     }
-    public Layout choose(int regionHash,int seedSalt,int slot,boolean anchor){
-        var main=layouts.stream().filter(l->l.tier.equals("main")).toList();
-        if(anchor&&slot<main.size())return main.get(slot);
-        var shared=layouts.stream().filter(l->l.tier.isEmpty()).toList();
-        return shared.get(Math.floorMod((long)regionHash+seedSalt+slot,shared.size()));
+    public String tier(com.example.myvillage.region.runtime.RegionGraph graph,String region) {
+        return com.example.myvillage.sim.data.SectProgressionRules.forRegion(graph,region,entryStates,regionalHubs);
+    }
+    public Layout choose(int regionHash,int seedSalt,int slot,String tier) {
+        var family=byTier.get(tier);
+        if(family==null)throw new IllegalArgumentException("未知宗门等级："+tier);
+        return family.get(Math.floorMod((long)regionHash+seedSalt+slot,family.size()));
     }
 }

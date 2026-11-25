@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.156.0
+
+- 新修仙世界按宗门等级选用六类共十八套建筑。松崖主宗设临崖观礼廊，听泉双岸主宗两岸都可登殿，听泉谷中主宗沿三段泉庭登殿。照月连岛主宗由廊桥连起各岛，照月湖心主宗的大殿横跨水面。
+- 山体高度与洞室随区块生成，周边树木由生物群系栽植。经架、琳琅阁和执事站位随场地蓝图确定。
+
 ## 0.155.0-fix1
 
 - 听泉谷中主宗在桥栏、沿岸道路和台阶嵌入灯石，在殿前礼庭安放符灯，并为主殿、两侧檐廊和谷内部分建筑补装灯笼。

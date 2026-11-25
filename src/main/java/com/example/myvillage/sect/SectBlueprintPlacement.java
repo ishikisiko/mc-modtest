@@ -47,7 +47,11 @@ public final class SectBlueprintPlacement {
         return place(data,base,clip,natural,target,new Assets() {
             public int minimumY() { return level.getMinBuildHeight(); }
             public int maximumY() { return level.getMaxBuildHeight(); }
-            public BlockState material(String state) { return parseState(level,compound(state)); }
+            public BlockState material(String state) {
+                if(!state.contains("["))return parseState(level,compound(state));
+                try { return BlockStateParser.parseForBlock(level.registryAccess().lookupOrThrow(Registries.BLOCK),state,false).blockState(); }
+                catch (CommandSyntaxException e) { throw new IllegalArgumentException("宗门形制方块属性无效："+state,e); }
+            }
             public List<Cell> cells(SectBlueprint d,SectBlueprint.Tile t) { return tile(level,d,t); }
         },region,terrainPrepared);
     }
@@ -93,6 +97,14 @@ public final class SectBlueprintPlacement {
                         written+=write(target,new BlockPos(x,y,z),air,null);
             }
         }
+        if(data.terrain.hasForm()){
+            Map<String,BlockState> states=new HashMap<>();
+            for(int z=Math.max(z0,base.getZ());z<=Math.min(z1,base.getZ()+data.depth-1);z++)
+                for(int x=Math.max(x0,base.getX());x<=Math.min(x1,base.getX()+data.width-1);x++){
+                    written+=placeFormColumn(data,base,clip,target,assets,states,x,z,false);
+                    if(!terrainPrepared)written+=placeFormColumn(data,base,clip,target,assets,states,x,z,true);
+                }
+        }
         for (SectBlueprint.Tile tile:data.tiles) {
             int ox=base.getX()+tile.x(),oz=base.getZ()+tile.z();
             if (ox>clip.maxX() || ox+15<clip.minX() || oz>clip.maxZ() || oz+15<clip.minZ()) continue;
@@ -102,6 +114,17 @@ public final class SectBlueprintPlacement {
             }
         }
         return written;
+    }
+
+    private static long placeFormColumn(SectBlueprint data,BlockPos base,BoundingBox clip,Sink target,Assets assets,
+                                        Map<String,BlockState> states,int x,int z,boolean landform){
+        long[] written={0};
+        data.terrain.forms().visit(x-base.getX(),z-base.getZ(),landform,(lo,hi,state)->{
+            BlockState block=states.computeIfAbsent(state,assets::material);
+            int lower=Math.max(clip.minY(),base.getY()+lo),upper=Math.min(clip.maxY()+1,base.getY()+hi);
+            for(int y=lower;y<upper;y++)written[0]+=write(target,new BlockPos(x,y,z),block,null);
+        });
+        return written[0];
     }
 
     private static long write(Sink sink,BlockPos pos,BlockState state,CompoundTag entity) {

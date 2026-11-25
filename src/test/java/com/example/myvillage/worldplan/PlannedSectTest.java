@@ -10,11 +10,17 @@ class PlannedSectTest {
     static WorldPlanRules rules() throws Exception {return WorldPlanTest.rules();}
     @Test void layoutCyclesRemainCompleteAcrossIntegerBoundaries()throws Exception{
         var r=rules().sects;
-        for(int region:new int[]{Integer.MIN_VALUE,Integer.MAX_VALUE,0,4})for(int salt:new int[]{Integer.MIN_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE-4}){
-            Set<String> ids=new HashSet<>();for(int i=0;i<r.slots;i++)ids.add(r.choose(region,salt,i,false).id);
-            assertEquals(r.layouts.stream().filter(l->l.tier.isEmpty()).count(),ids.size());
-            assertEquals("yuanxian:valley_retreat_main",r.choose(region,salt,0,true).id);
-        }
+        for(String tier:com.example.myvillage.sim.data.SectProgressionRules.IDS)
+            for(int region:new int[]{Integer.MIN_VALUE,Integer.MAX_VALUE,0,4})
+                for(int salt:new int[]{Integer.MIN_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE-4}){
+                    Set<String> ids=new HashSet<>();
+                    for(int i=0;i<r.slots;i++){
+                        var layout=r.choose(region,salt,i,tier);
+                        assertEquals(tier,layout.tier);
+                        ids.add(layout.id);
+                    }
+                    assertEquals(6,ids.size());
+                }
     }
     @Test void fullLotsAreReservedBeforeAnyChunksForManySeeds() throws Exception {
         var r=rules();
@@ -25,7 +31,7 @@ class PlannedSectTest {
             assertEquals(plan.manifest(),new WorldPlan(seed,r).manifest());
             for(var s:plan.sectSites()){
                 var layout=r.sects.layout(s.blueprintId());
-                if(!s.tier().isEmpty())assertEquals("anchor",plan.graph().regionById(s.regionId()).role());
+                assertEquals(r.sects.tier(plan.graph(),s.regionId()),s.tier());
                 assertEquals(0,Math.floorMod(s.x(),16));assertEquals(0,Math.floorMod(s.z(),16));
                 assertEquals(s.baseY()+layout.entryY,s.gateY());
                 assertTrue(s.baseY()>r.sects.minY&&s.baseY()+layout.maxBlockY<r.sects.maxY);
@@ -35,7 +41,7 @@ class PlannedSectTest {
                 for(int z=s.z()-s.margin();z<s.z()+s.depth()+s.margin();z+=8)for(int x=s.x()-s.margin();x<s.x()+s.width()+s.margin();x+=8){
                     assertEquals(s.regionId(),plan.coreRegionAt(x,z).orElseThrow().id());
                     assertEquals(layout.terrain.weight(x-s.x(),z-s.z())>0,plan.reserved(x,-63,z));
-                    if(!layout.terrain.hasCavern())assertEquals(layout.terrain.weight(x-s.x(),z-s.z())>0,plan.reserved(x,319,z));
+                    if(layout.terrain.weight(x-s.x(),z-s.z())==0)assertFalse(plan.reserved(x,319,z));
                     assertTrue(plan.graph().geometry().reserved(x,z,0));
                 }
                 for(var other:plan.sectSites())if(s!=other)assertFalse(s.intersects(other.x()-other.margin(),other.z()-other.margin(),other.x()+other.width()+other.margin()-1,other.z()+other.depth()+other.margin()-1,0));
@@ -58,21 +64,19 @@ class PlannedSectTest {
         assertTrue(preservedSeafloor>0,"固定种子必须覆盖未施工海底的保留断言");
         for(var s:plan.sectSites())assertEquals(plan.naturalTerrainY(s.x()-s.margin(),s.z()),plan.surfaceY(s.x()-s.margin(),s.z()));
     }
-    @Test void mainCavernKeepsAStoneRoofWithNaturallyDecoratedSurface()throws Exception{
+    @Test void valleyMainLeavesUnoccupiedGroundOpenToNaturalVegetation()throws Exception{
         var plan=new WorldPlan(42,rules());
-        var site=plan.sectSites().stream().filter(s->s.tier().equals("main")).findFirst().orElseThrow();
+        var site=plan.sectSites().stream().filter(s->s.blueprintId().equals("yuanxian:valley_retreat_main")).findFirst().orElseThrow();
         var terrain=plan.rules().sects.layout(site.blueprintId()).terrain;
-        int x=site.x()+160,z=site.z()+264;
-        int surface=plan.surfaceY(x,z);
-        int roof=surface-site.baseY();
-        assertTrue(terrain.carves(160,45,264,roof));
-        assertFalse(terrain.carves(160,roof-1,264,roof));
-        assertTrue(plan.reserved(x,site.baseY()+45,z));
-        assertFalse(plan.reserved(x,surface,z));
-        int sill=plan.surfaceY(site.x()+159,site.z()+191)-site.baseY();
-        assertTrue(terrain.carves(159,sill-1,191,sill));
-        assertTrue(terrain.carves(159,31,191,sill));
-        assertEquals(plan.naturalTerrainY(site.x()+5,site.z()+100),plan.surfaceY(site.x()+5,site.z()+100));
+        assertNotNull(terrain.forms());
+        int open=0, protectedColumns=0;
+        for(int z=0;z<site.depth();z++)for(int x=0;x<site.width();x++){
+            if(terrain.weight(x,z)!=1)continue;
+            int wx=site.x()+x,wz=site.z()+z;
+            int ground=plan.surfaceY(wx,wz);
+            if(plan.reserved(wx,ground+3,wz))protectedColumns++;else open++;
+        }
+        assertTrue(open>0&&protectedColumns>0);
     }
     @Test void exhaustionFailsTheWholePlanRatherThanFallingBackToAnUnsafeGate()throws Exception{
         var json=JsonParser.parseString(rules().json()).getAsJsonObject();

@@ -1,0 +1,455 @@
+{
+  "schema": 1,
+  "status": "approved",
+  "id": "yuanxian:valley_courts_branch",
+  "name": "听泉双岸 · 分宗",
+  "size": [
+    304,
+    113,
+    304
+  ],
+  "tier": "branch",
+  "max_y": 101,
+  "archetype": "valley",
+  "scale": "compact",
+  "blend_margin": 16,
+  "vegetation_clearance": 0,
+  "entry_anchor": [
+    96,
+    35,
+    33
+  ],
+  "steward": [
+    96,
+    35,
+    33
+  ],
+  "courtyard_cells": [
+    [
+      96,
+      35,
+      33
+    ],
+    [
+      95,
+      35,
+      33
+    ],
+    [
+      97,
+      35,
+      33
+    ],
+    [
+      94,
+      35,
+      33
+    ],
+    [
+      95,
+      35,
+      32
+    ],
+    [
+      95,
+      35,
+      34
+    ],
+    [
+      97,
+      35,
+      32
+    ],
+    [
+      97,
+      35,
+      34
+    ],
+    [
+      98,
+      35,
+      33
+    ],
+    [
+      93,
+      35,
+      33
+    ],
+    [
+      94,
+      35,
+      32
+    ],
+    [
+      94,
+      35,
+      34
+    ],
+    [
+      95,
+      35,
+      31
+    ],
+    [
+      95,
+      35,
+      35
+    ],
+    [
+      97,
+      35,
+      31
+    ],
+    [
+      97,
+      35,
+      35
+    ],
+    [
+      98,
+      35,
+      32
+    ],
+    [
+      98,
+      35,
+      34
+    ],
+    [
+      93,
+      35,
+      34
+    ],
+    [
+      94,
+      35,
+      31
+    ],
+    [
+      95,
+      35,
+      30
+    ],
+    [
+      97,
+      35,
+      30
+    ],
+    [
+      97,
+      35,
+      36
+    ],
+    [
+      98,
+      35,
+      31
+    ],
+    [
+      98,
+      35,
+      35
+    ],
+    [
+      99,
+      35,
+      32
+    ],
+    [
+      99,
+      35,
+      34
+    ],
+    [
+      100,
+      35,
+      33
+    ],
+    [
+      94,
+      35,
+      30
+    ],
+    [
+      95,
+      35,
+      29
+    ],
+    [
+      95,
+      35,
+      37
+    ],
+    [
+      97,
+      35,
+      29
+    ],
+    [
+      97,
+      35,
+      37
+    ],
+    [
+      98,
+      35,
+      30
+    ],
+    [
+      98,
+      35,
+      36
+    ],
+    [
+      99,
+      35,
+      31
+    ],
+    [
+      99,
+      35,
+      35
+    ],
+    [
+      100,
+      35,
+      32
+    ],
+    [
+      100,
+      35,
+      34
+    ],
+    [
+      101,
+      35,
+      33
+    ],
+    [
+      93,
+      35,
+      36
+    ]
+  ],
+  "shelves": [
+    {
+      "position": [
+        93,
+        35,
+        35
+      ],
+      "reader": [
+        94,
+        35,
+        35
+      ],
+      "facing": "east"
+    }
+  ],
+  "linlang": {
+    "position": [
+      94,
+      35,
+      36
+    ],
+    "reader": [
+      95,
+      35,
+      36
+    ],
+    "facing": "east"
+  },
+  "road_port": {
+    "position": [
+      96,
+      35,
+      0
+    ],
+    "width": 3,
+    "facing": "north"
+  },
+  "rock": "minecraft:stone",
+  "surface": "minecraft:stone",
+  "surfaces": [
+    "minecraft:stone",
+    "minecraft:grass_block",
+    "minecraft:dirt",
+    "minecraft:sandstone"
+  ],
+  "subsoil": "minecraft:dirt",
+  "topsoil_depth": 3,
+  "regional_surfaces": {},
+  "dry_gate_margin": 9,
+  "terrain": {
+    "bounds": [
+      0,
+      0,
+      304,
+      304
+    ],
+    "sha256": "b6e8ddb4f38c35c7550f9469680a2687e3da0de0b8dd5b98bec5362729291953"
+  },
+  "form": {
+    "materials": [
+      {
+        "state": "minecraft:air",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone",
+        "landform": true
+      },
+      {
+        "state": "minecraft:water",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:grass_block",
+        "landform": true
+      },
+      {
+        "state": "minecraft:dirt",
+        "landform": true
+      },
+      {
+        "state": "minecraft:sandstone",
+        "landform": true
+      },
+      {
+        "state": "minecraft:smooth_stone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cut_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_wood",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:smooth_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_stained_glass",
+        "landform": false
+      },
+      {
+        "state": "minecraft:polished_andesite",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cut_copper",
+        "landform": false
+      },
+      {
+        "state": "minecraft:sea_lantern",
+        "landform": false
+      },
+      {
+        "state": "minecraft:bookshelf",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_wood",
+        "landform": false
+      },
+      {
+        "state": "minecraft:polished_deepslate",
+        "landform": false
+      },
+      {
+        "state": "minecraft:deepslate_tiles",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=lower]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=upper]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:linlang_counter[facing=east]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=east,occupied=false,part=foot]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=east,occupied=false,part=head]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=west,occupied=false,part=foot]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=west,occupied=false,part=head]",
+        "landform": false
+      }
+    ],
+    "runs": 183128,
+    "sha256": "870a5c11913a33b86e921201688dd7bf25e092baa289e83a5954475ef92d186f"
+  },
+  "tiles": [],
+  "preview_id": "valley_courts-compact",
+  "furniture": [
+    {
+      "position": [
+        96,
+        39,
+        169
+      ],
+      "state": "minecraft:cyan_bed[facing=east,occupied=false,part=foot]"
+    },
+    {
+      "position": [
+        97,
+        39,
+        169
+      ],
+      "state": "minecraft:cyan_bed[facing=east,occupied=false,part=head]"
+    },
+    {
+      "position": [
+        102,
+        39,
+        125
+      ],
+      "state": "minecraft:cyan_bed[facing=west,occupied=false,part=head]"
+    },
+    {
+      "position": [
+        103,
+        39,
+        125
+      ],
+      "state": "minecraft:cyan_bed[facing=west,occupied=false,part=foot]"
+    }
+  ],
+  "preview_grid_sha256": "3955e6580b1191e215675d2d979ef6bd0025ec97ed568501d0066fefd2d3b7f6"
+}

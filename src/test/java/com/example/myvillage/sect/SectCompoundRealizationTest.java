@@ -61,7 +61,11 @@ class SectCompoundRealizationTest {
     }
     static final SectBlueprintPlacement.Assets ASSETS=new SectBlueprintPlacement.Assets() {
         public int minimumY(){return -64;} public int maximumY(){return 320;}
-        public BlockState material(String name){return BuiltInRegistries.BLOCK.get(ResourceLocation.parse(name)).defaultBlockState();}
+        public BlockState material(String name){
+            if(name.startsWith("yuanxian:"))return Blocks.STONE.defaultBlockState();
+            try {return net.minecraft.commands.arguments.blocks.BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(),name,false).blockState();}
+            catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){throw new IllegalArgumentException(name,e);}
+        }
         public List<SectBlueprintPlacement.Cell> cells(SectBlueprint d,SectBlueprint.Tile tile){return SectCompoundRealizationTest.cells(tile);}
     };
     static class Memory implements SectBlueprintPlacement.Sink {
@@ -70,25 +74,20 @@ class SectCompoundRealizationTest {
         public BlockState get(BlockPos p){return blocks.getOrDefault(p,p.getY()<50?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());}
         public void set(BlockPos p,BlockState s,CompoundTag entity){assertTrue(allowed.isInside(p),"写出clip："+p);blocks.put(p.immutable(),s);}
     }
-    @Test void completeCompiledTilesHaveBoundedUniqueCoordinatesAndVerifiedHashes() throws Exception {
-        int total=0;
-        for(var tile:data.tiles){
-            var root=root(tile);ListTag size=root.getList("size",Tag.TAG_INT),blocks=root.getList("blocks",Tag.TAG_COMPOUND),palette=root.getList("palette",Tag.TAG_COMPOUND);
-            assertEquals(16,size.getInt(0));assertEquals(data.height,size.getInt(1));assertEquals(16,size.getInt(2));
-            assertTrue(root.getList("entities",Tag.TAG_COMPOUND).isEmpty());assertFalse(blocks.isEmpty());
-            Set<BlockPos> seen=new HashSet<>();
-            for(int i=0;i<blocks.size();i++){
-                var cell=blocks.getCompound(i);var p=cell.getList("pos",Tag.TAG_INT);
-                assertEquals(3,p.size());assertTrue(p.getInt(0)>=0&&p.getInt(0)<16&&p.getInt(2)>=0&&p.getInt(2)<16&&p.getInt(1)>=0&&p.getInt(1)<data.height);
-                assertTrue(seen.add(new BlockPos(p.getInt(0),p.getInt(1),p.getInt(2))));assertTrue(cell.getInt("state")>=0&&cell.getInt("state")<palette.size());
-            }
-            total+=blocks.size();
+    @Test void allApprovedFormsResolveAndHaveStableChunkLocalRuns() {
+        assertEquals(18,SectBlueprint.all().size());
+        for(var form:SectBlueprint.all()){
+            assertTrue(form.terrain.hasForm(),form.id.toString());
+            assertEquals(1,form.terrain.weight(form.entry.getX(),form.entry.getZ()));
+            Set<String> materials=new HashSet<>();
+            for(int z=0;z<form.depth;z++)for(int x=0;x<form.width;x++)for(boolean land:List.of(true,false))
+                form.terrain.forms().visit(x,z,land,(bottom,end,state)->{
+                    assertTrue(bottom>=0&&end<=form.maxY+1&&end>bottom);
+                    materials.add(state);
+                });
+            assertTrue(materials.size()>8);
+            for(var state:materials)if(state.startsWith("minecraft:"))ASSETS.material(state);
         }
-        // 地形改为连续场，NBT 只包含显式建筑/道路/植被；分块完整性由正式导出逐格回读保证。
-        assertTrue(data.tiles.size()<data.width/16*(data.depth/16));
-        long terrainCells=0;for(int z=0;z<data.depth;z++)for(int x=0;x<data.width;x++)if(data.terrain.weight(x,z)>0)terrainCells+=data.ground(x,z)+1;
-        assertTrue(total>0);assertTrue(total+terrainCells>100000);
-        assertEquals(1,data.terrain.weight(data.entry.getX(),data.entry.getZ()));
     }
     @Test void unalignedChunkClipsMatchTheSameWholeRegionAndAreOrderIndependent(){
         BlockPos base=new BlockPos(-173,60,41);
@@ -106,27 +105,30 @@ class SectCompoundRealizationTest {
         for(var box:clips) SectBlueprintPlacement.place(data,base,box,(x,z)->50,clipped,ASSETS);
         assertEquals(before,clipped.blocks,"重放当前clip不得抬高或改变蓝图");
     }
-    @Test void compiledBedsHaveMatchingHalvesAcrossTileEdges() throws Exception {
-        record Bed(String name,String facing,String part) { }
-        Map<BlockPos,Bed> beds=new HashMap<>();
-        for (var tile:data.tiles) {
-            var nbt=root(tile);var palette=nbt.getList("palette",Tag.TAG_COMPOUND);var blocks=nbt.getList("blocks",Tag.TAG_COMPOUND);
-            for (int i=0;i<blocks.size();i++) {
-                var cell=blocks.getCompound(i);var state=palette.getCompound(cell.getInt("state"));
-                if (!state.getString("Name").endsWith("_bed")) continue;
-                var p=cell.getList("pos",Tag.TAG_INT);var properties=state.getCompound("Properties");
-                beds.put(new BlockPos(tile.x()+p.getInt(0),p.getInt(1),tile.z()+p.getInt(2)),
-                    new Bed(state.getString("Name"),properties.getString("facing"),properties.getString("part")));
+    @Test void bedsKeepBothHalvesAndFacing() {
+        int count=0;
+        for(var form:SectBlueprint.all()){
+            Map<BlockPos,BlockState> beds=new HashMap<>();
+            for(int z=0;z<form.depth;z++)for(int x=0;x<form.width;x++){
+                int xx=x,zz=z;
+                form.terrain.forms().visit(x,z,false,(bottom,end,state)->{
+                    if(state.contains("_bed["))for(int y=bottom;y<end;y++)
+                        beds.put(new BlockPos(xx,y,zz),ASSETS.material(state));
+                });
+            }
+            count+=beds.size();
+            for(var item:beds.entrySet()){
+                var state=item.getValue();
+                var direction=state.getValue(net.minecraft.world.level.block.BedBlock.FACING);
+                var part=state.getValue(net.minecraft.world.level.block.BedBlock.PART);
+                boolean foot=part==net.minecraft.world.level.block.state.properties.BedPart.FOOT;
+                var other=beds.get(item.getKey().relative(foot?direction:direction.getOpposite()));
+                assertNotNull(other);
+                assertEquals(direction,other.getValue(net.minecraft.world.level.block.BedBlock.FACING));
+                assertNotEquals(part,other.getValue(net.minecraft.world.level.block.BedBlock.PART));
             }
         }
-        assertFalse(beds.isEmpty());
-        for (var row:beds.entrySet()) {
-            Bed bed=row.getValue();Direction direction=Direction.byName(bed.facing());assertNotNull(direction);
-            assertTrue(bed.part().equals("foot") || bed.part().equals("head"));
-            BlockPos other=row.getKey().relative(bed.part().equals("foot")?direction:direction.getOpposite());
-            assertEquals(new Bed(bed.name(),bed.facing(),bed.part().equals("foot")?"head":"foot"),beds.get(other),
-                "编译床缺少匹配另一半："+row.getKey());
-        }
+        assertTrue(count>0);
     }
     @Test void resourceHashDriftIsRejected(){assertThrows(IllegalArgumentException.class,()->SectBlueprint.requireHash(new byte[]{1},"0".repeat(64)));}
 }

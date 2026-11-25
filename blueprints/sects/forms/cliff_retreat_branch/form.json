@@ -1,0 +1,428 @@
+{
+  "schema": 1,
+  "status": "approved",
+  "id": "yuanxian:cliff_retreat_branch",
+  "name": "松崖 · 分宗",
+  "size": [
+    288,
+    143,
+    320
+  ],
+  "tier": "branch",
+  "max_y": 131,
+  "archetype": "cliff",
+  "scale": "compact",
+  "blend_margin": 16,
+  "vegetation_clearance": 0,
+  "entry_anchor": [
+    86,
+    27,
+    42
+  ],
+  "steward": [
+    86,
+    27,
+    42
+  ],
+  "courtyard_cells": [
+    [
+      86,
+      27,
+      42
+    ],
+    [
+      85,
+      27,
+      42
+    ],
+    [
+      87,
+      27,
+      42
+    ],
+    [
+      84,
+      27,
+      42
+    ],
+    [
+      85,
+      27,
+      41
+    ],
+    [
+      85,
+      27,
+      43
+    ],
+    [
+      87,
+      27,
+      41
+    ],
+    [
+      87,
+      27,
+      43
+    ],
+    [
+      88,
+      27,
+      42
+    ],
+    [
+      84,
+      27,
+      41
+    ],
+    [
+      84,
+      27,
+      43
+    ],
+    [
+      85,
+      27,
+      40
+    ],
+    [
+      85,
+      27,
+      44
+    ],
+    [
+      87,
+      27,
+      40
+    ],
+    [
+      87,
+      27,
+      44
+    ],
+    [
+      88,
+      27,
+      41
+    ],
+    [
+      88,
+      27,
+      43
+    ],
+    [
+      89,
+      27,
+      42
+    ],
+    [
+      84,
+      27,
+      40
+    ],
+    [
+      84,
+      27,
+      44
+    ],
+    [
+      85,
+      27,
+      39
+    ],
+    [
+      87,
+      27,
+      39
+    ],
+    [
+      87,
+      27,
+      45
+    ],
+    [
+      88,
+      27,
+      40
+    ],
+    [
+      88,
+      27,
+      44
+    ],
+    [
+      89,
+      27,
+      43
+    ],
+    [
+      84,
+      27,
+      39
+    ],
+    [
+      85,
+      27,
+      38
+    ],
+    [
+      87,
+      27,
+      38
+    ],
+    [
+      87,
+      27,
+      46
+    ],
+    [
+      88,
+      27,
+      39
+    ],
+    [
+      88,
+      27,
+      45
+    ],
+    [
+      89,
+      27,
+      44
+    ],
+    [
+      84,
+      27,
+      38
+    ],
+    [
+      84,
+      27,
+      46
+    ],
+    [
+      85,
+      27,
+      37
+    ],
+    [
+      85,
+      27,
+      47
+    ],
+    [
+      87,
+      27,
+      37
+    ],
+    [
+      87,
+      27,
+      47
+    ],
+    [
+      88,
+      27,
+      38
+    ],
+    [
+      88,
+      27,
+      46
+    ]
+  ],
+  "shelves": [
+    {
+      "position": [
+        84,
+        27,
+        45
+      ],
+      "reader": [
+        85,
+        27,
+        45
+      ],
+      "facing": "east"
+    }
+  ],
+  "linlang": {
+    "position": [
+      85,
+      27,
+      46
+    ],
+    "reader": [
+      86,
+      27,
+      46
+    ],
+    "facing": "east"
+  },
+  "road_port": {
+    "position": [
+      86,
+      27,
+      0
+    ],
+    "width": 3,
+    "facing": "north"
+  },
+  "rock": "minecraft:stone",
+  "surface": "minecraft:stone",
+  "surfaces": [
+    "minecraft:stone",
+    "minecraft:andesite",
+    "minecraft:deepslate",
+    "minecraft:grass_block",
+    "minecraft:dirt"
+  ],
+  "subsoil": "minecraft:dirt",
+  "topsoil_depth": 3,
+  "regional_surfaces": {},
+  "dry_gate_margin": 0,
+  "terrain": {
+    "bounds": [
+      0,
+      0,
+      288,
+      320
+    ],
+    "sha256": "57f8c4d2766dcf5362fbb5563cd3f541f7b125be90bfaa3d9e8cc34e7929dcd8"
+  },
+  "form": {
+    "materials": [
+      {
+        "state": "minecraft:air",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone",
+        "landform": true
+      },
+      {
+        "state": "minecraft:water",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:andesite",
+        "landform": true
+      },
+      {
+        "state": "minecraft:deepslate",
+        "landform": true
+      },
+      {
+        "state": "minecraft:grass_block",
+        "landform": true
+      },
+      {
+        "state": "minecraft:dirt",
+        "landform": true
+      },
+      {
+        "state": "minecraft:smooth_stone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cut_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_stained_glass",
+        "landform": false
+      },
+      {
+        "state": "minecraft:sea_lantern",
+        "landform": false
+      },
+      {
+        "state": "minecraft:polished_andesite",
+        "landform": false
+      },
+      {
+        "state": "minecraft:terracotta",
+        "landform": false
+      },
+      {
+        "state": "minecraft:bookshelf",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_wood",
+        "landform": false
+      },
+      {
+        "state": "minecraft:deepslate_tiles",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=lower]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=upper]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:linlang_counter[facing=east]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=east,occupied=false,part=foot]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=east,occupied=false,part=head]",
+        "landform": false
+      }
+    ],
+    "runs": 213536,
+    "sha256": "166be2cbab93c2b300d368fadf072bb1680e678f0a7e8482d9d3083e80fe7cc4"
+  },
+  "tiles": [],
+  "preview_id": "cliff_retreat-compact",
+  "furniture": [
+    {
+      "position": [
+        78,
+        27,
+        141
+      ],
+      "state": "minecraft:cyan_bed[facing=east,occupied=false,part=foot]"
+    },
+    {
+      "position": [
+        79,
+        27,
+        141
+      ],
+      "state": "minecraft:cyan_bed[facing=east,occupied=false,part=head]"
+    }
+  ],
+  "preview_grid_sha256": "7cc42cb8fedbaaa37bd9e719c7bff56708204e78c91feed405596b7ab75b93bf"
+}

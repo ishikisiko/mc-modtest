@@ -18,6 +18,7 @@ from buildgen.nbtread import read_gzipped_nbt,state_string
 from province_capitals.blueprint_plan.nbt_entities import write_tile
 from province_capitals.regional.v2.common import write_json
 from sect_blueprints.walks import can_step
+from sect_blueprints.forms import export_form
 from province_capitals.blueprint_plan.atomic_blocks import parse
 
 
@@ -181,8 +182,10 @@ def export_catalog(out):
         shutil.rmtree(out/relative,ignore_errors=True)
     refs=[]
     for row in catalog['layouts']:
-        path=source.parent/row['source'];spec=export(path,out);key=spec['id'].split(':')[1]
-        if any(spec[k]!=row[k] for k in ('id','archetype','scale')):raise ValueError('宗门目录与输入不符')
+        path=source.parent/row['source']
+        spec=export_form(path,out,catalog['worldgen']) if path.name=='form.json' else export(path,out)
+        key=spec['id'].split(':')[1]
+        if any(spec[k]!=row[k] for k in ('id','archetype','scale','tier') if k in row):raise ValueError('宗门目录与输入不符')
         refs.append({'id':spec['id'],'resource':f'yuanxian:sect_blueprints/{key}/sect.json',
                      'sha256':digest(out/f'data/yuanxian/sect_blueprints/{key}/sect.json')})
     if len({r['id'] for r in refs})!=len(refs) or catalog['default'] not in {r['id'] for r in refs}:raise ValueError('宗门目录身份无效')

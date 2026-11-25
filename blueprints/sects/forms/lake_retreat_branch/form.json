@@ -1,0 +1,415 @@
+{
+  "schema": 1,
+  "status": "approved",
+  "id": "yuanxian:lake_retreat_branch",
+  "name": "照月湖心 · 分宗",
+  "size": [
+    272,
+    88,
+    320
+  ],
+  "tier": "branch",
+  "max_y": 73,
+  "archetype": "lake",
+  "scale": "compact",
+  "blend_margin": 16,
+  "vegetation_clearance": 0,
+  "entry_anchor": [
+    113,
+    52,
+    107
+  ],
+  "steward": [
+    113,
+    52,
+    107
+  ],
+  "courtyard_cells": [
+    [
+      113,
+      52,
+      107
+    ],
+    [
+      112,
+      52,
+      107
+    ],
+    [
+      114,
+      52,
+      107
+    ],
+    [
+      111,
+      52,
+      107
+    ],
+    [
+      112,
+      52,
+      106
+    ],
+    [
+      112,
+      52,
+      108
+    ],
+    [
+      114,
+      52,
+      106
+    ],
+    [
+      114,
+      52,
+      108
+    ],
+    [
+      115,
+      52,
+      107
+    ],
+    [
+      110,
+      52,
+      107
+    ],
+    [
+      111,
+      52,
+      106
+    ],
+    [
+      111,
+      52,
+      108
+    ],
+    [
+      112,
+      52,
+      105
+    ],
+    [
+      112,
+      52,
+      109
+    ],
+    [
+      114,
+      52,
+      105
+    ],
+    [
+      114,
+      52,
+      109
+    ],
+    [
+      115,
+      52,
+      106
+    ],
+    [
+      115,
+      52,
+      108
+    ],
+    [
+      116,
+      52,
+      107
+    ],
+    [
+      110,
+      52,
+      108
+    ],
+    [
+      111,
+      52,
+      105
+    ],
+    [
+      111,
+      52,
+      109
+    ],
+    [
+      112,
+      52,
+      104
+    ],
+    [
+      112,
+      52,
+      110
+    ],
+    [
+      114,
+      52,
+      104
+    ],
+    [
+      114,
+      52,
+      110
+    ],
+    [
+      115,
+      52,
+      105
+    ],
+    [
+      115,
+      52,
+      109
+    ],
+    [
+      116,
+      52,
+      106
+    ],
+    [
+      116,
+      52,
+      108
+    ],
+    [
+      117,
+      52,
+      107
+    ],
+    [
+      109,
+      52,
+      108
+    ],
+    [
+      110,
+      52,
+      105
+    ],
+    [
+      110,
+      52,
+      109
+    ],
+    [
+      111,
+      52,
+      104
+    ],
+    [
+      112,
+      52,
+      103
+    ],
+    [
+      114,
+      52,
+      103
+    ],
+    [
+      115,
+      52,
+      104
+    ],
+    [
+      116,
+      52,
+      105
+    ],
+    [
+      116,
+      52,
+      109
+    ],
+    [
+      117,
+      52,
+      106
+    ]
+  ],
+  "shelves": [
+    {
+      "position": [
+        108,
+        52,
+        107
+      ],
+      "reader": [
+        109,
+        52,
+        107
+      ],
+      "facing": "east"
+    }
+  ],
+  "linlang": {
+    "position": [
+      109,
+      52,
+      106
+    ],
+    "reader": [
+      110,
+      52,
+      106
+    ],
+    "facing": "east"
+  },
+  "road_port": {
+    "position": [
+      113,
+      52,
+      0
+    ],
+    "width": 3,
+    "facing": "north"
+  },
+  "rock": "minecraft:stone",
+  "surface": "minecraft:stone",
+  "surfaces": [
+    "minecraft:stone",
+    "minecraft:andesite",
+    "minecraft:deepslate",
+    "minecraft:grass_block",
+    "minecraft:dirt"
+  ],
+  "subsoil": "minecraft:dirt",
+  "topsoil_depth": 3,
+  "regional_surfaces": {},
+  "dry_gate_margin": 3,
+  "terrain": {
+    "bounds": [
+      0,
+      0,
+      272,
+      320
+    ],
+    "sha256": "91bf7809f6426c95ba7f123f597328911df842de9aee2a23452e909544883c41"
+  },
+  "form": {
+    "materials": [
+      {
+        "state": "minecraft:air",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone",
+        "landform": true
+      },
+      {
+        "state": "minecraft:water",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:andesite",
+        "landform": true
+      },
+      {
+        "state": "minecraft:deepslate",
+        "landform": true
+      },
+      {
+        "state": "minecraft:grass_block",
+        "landform": true
+      },
+      {
+        "state": "minecraft:dirt",
+        "landform": true
+      },
+      {
+        "state": "minecraft:smooth_stone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cut_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_wood",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:smooth_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:sea_lantern",
+        "landform": false
+      },
+      {
+        "state": "minecraft:prismarine_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:lily_pad",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_wood",
+        "landform": false
+      },
+      {
+        "state": "minecraft:waxed_cut_copper",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stripped_warped_hyphae",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_prismarine",
+        "landform": false
+      },
+      {
+        "state": "minecraft:prismarine",
+        "landform": false
+      },
+      {
+        "state": "minecraft:glass",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=lower]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=upper]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:linlang_counter[facing=east]",
+        "landform": false
+      }
+    ],
+    "runs": 181739,
+    "sha256": "49cf6289ba7927a6987dade158b866da795f646c7a23fc556a5d5d8bbd526c64"
+  },
+  "tiles": [],
+  "preview_id": "lake_retreat-compact",
+  "furniture": [],
+  "preview_grid_sha256": "25922cf85388edde8af01a78b51fbc81b97961c146af9ccec6a2274ae0f442b8"
+}

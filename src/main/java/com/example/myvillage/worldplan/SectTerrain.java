@@ -16,6 +16,9 @@ public final class SectTerrain {
     private final short[] heights;
     private final byte[] influence,surfaces;
     private final Cavern cavern;
+    private JsonObject formSpec;
+    private int formMaxY;
+    private volatile SectForms forms;
 
     public static byte[] verifiedResource(String id,String hash,int limit){
         if(!id.matches("yuanxian:sect_blueprints/[a-z0-9_]+/[a-z_.]+")||!hash.matches("[0-9a-f]{64}"))
@@ -33,8 +36,11 @@ public final class SectTerrain {
         JsonObject field=manifest.getAsJsonObject("terrain");
         byte[] packed=verifiedResource(field.get("resource").getAsString(),field.get("sha256").getAsString(),8*1024*1024);
         try(var in=new GZIPInputStream(new ByteArrayInputStream(packed))){
-            return new SectTerrain(width,depth,margin,maxY,field.getAsJsonArray("bounds"),
+            var result = new SectTerrain(width,depth,margin,maxY,field.getAsJsonArray("bounds"),
                 in.readNBytes(width*depth*4+1),manifest.getAsJsonObject("cavern"));
+            result.formSpec = manifest.getAsJsonObject("form");
+            result.formMaxY = maxY;
+            return result;
         }catch(IOException e){throw new IllegalStateException("宗门地形场无效",e);}
     }
 
@@ -57,7 +63,17 @@ public final class SectTerrain {
         return cx<0||cx>=fieldWidth||cz<0||cz>=fieldDepth?-1:cz*fieldWidth+cx;
     }
     public int ground(int x,int z){int i=index(x,z);return i<0?0:heights[i];}
-    public int surface(int x,int z){int i=index(x,z);return i<0?0:Byte.toUnsignedInt(surfaces[i]);}
+    public int surface(int x,int z){int i=index(x,z);return i<0?0:Byte.toUnsignedInt(surfaces[i]) & (hasForm()?127:255);}
+    public boolean hasForm(){return formSpec!=null;}
+    public SectForms forms(){
+        if(!hasForm())return null;
+        var ready=forms;
+        if(ready!=null)return ready;
+        synchronized(this){
+            if(forms==null)forms=SectForms.read(width,depth,formMaxY,formSpec);
+            return forms;
+        }
+    }
     public double weight(int x,int z){
         int i=index(x,z);if(i<0)return 0;
         int distance=Math.max(0,Math.max(Math.max(-x,x-width+1),Math.max(-z,z-depth+1)));
@@ -77,6 +93,10 @@ public final class SectTerrain {
     }
     public boolean reserves(int x,int y,int z,int natural){
         if(weight(x,z)==0)return false;
+        if(hasForm()){
+            int column=index(x,z);
+            return (column>=0&&surfaces[column]<0)||y<firstAir(0,x,z,natural);
+        }
         if(cavern==null)return true;
         int sky=firstAir(0,x,z,natural);
         return sky<cavern.vegetatedRoof||y<sky;

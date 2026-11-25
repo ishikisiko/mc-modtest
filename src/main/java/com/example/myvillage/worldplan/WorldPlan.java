@@ -76,7 +76,7 @@ public final class WorldPlan {
             var r=rules.qianzhen;int m=r.margin+r.structureBuffer;
             reservations.add(new RegionGeometry.Reservation(qianzhen.id,qianzhen.x-m,qianzhen.z-m,qianzhen.x+r.size+m-1,qianzhen.z+r.size+m-1));
         }
-        sectSites=chooseSectSites(reservations);
+        sectSites=chooseSectSites(reservations,preliminary);
         sectById=sectSites.stream().collect(java.util.stream.Collectors.toUnmodifiableMap(SectSite::id,s->s));
         for(var site:sectSites){int m=site.margin()+rules.sects.buffer;reservations.add(new RegionGeometry.Reservation(site.id(),site.x()-m,site.z()-m,site.x()+site.width()+m-1,site.z()+site.depth()+m-1));}
         RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,reservations,sectSites);
@@ -112,13 +112,14 @@ public final class WorldPlan {
     public int naturalTerrainY(int x,int z){return (int)StrictMath.floor(baseValues(x,z).height);}
     /** WORLD_SURFACE_WG 的无建筑地表，包含海水。 */
     public int naturalSurfaceY(int x,int z){return Math.max(rules.seaLevel,naturalTerrainY(x,z));}
-    private List<SectSite> chooseSectSites(List<RegionGeometry.Reservation> reservations){
+    private List<SectSite> chooseSectSites(List<RegionGeometry.Reservation> reservations,RegionGraph preliminary){
         var r=rules.sects;List<SectSite> chosen=new ArrayList<>();
         for(var region:regions){
             if(walled(region))continue;
             double[] center=geometry.unwarp(region.x,region.z);
+            String tier=r.tier(preliminary,region.id());
             for(int slot=0;slot<r.slots;slot++){
-                var layout=r.choose(region.id().hashCode(),(int)mix(seed),slot,region.profile().role().equals("anchor"));
+                var layout=r.choose(region.id().hashCode(),(int)mix(seed),slot,tier);
                 SectSite accepted=null;
                 int bestRise=Integer.MIN_VALUE,matches=0;
                 for(int attempt=0;attempt<r.attempts;attempt++){
@@ -130,7 +131,8 @@ public final class WorldPlan {
                     for(int dx:new int[]{-m,layout.width/2,layout.width+m-1})for(int dz:new int[]{-m,layout.depth/2,layout.depth+m-1})
                         if(!coreRegionAt(x+dx,z+dz).map(Region::id).orElse("").equals(region.id()))valid=false;
                     if(!valid)continue;
-                    int surface=naturalSurfaceY(x+layout.entryX,z+layout.entryZ);
+                    int surface=naturalTerrainY(x+layout.entryX,z+layout.entryZ);
+                    if(surface<=rules.seaLevel+layout.dryGateMargin)continue;
                     int base=surface-layout.entryY;
                     if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+layout.maxBlockY>=r.maxY)continue;
                     if(layout.terrain.hasCavern()&&naturalTerrainY(x+layout.entryX,z+layout.entryZ)<=rules.seaLevel)continue;
@@ -353,8 +355,7 @@ public final class WorldPlan {
         if(sectSites!=null)for(var s:sectSites)if(s.intersects(x,z,x,z,0)){
             var terrain=rules.sects.layout(s.blueprintId()).terrain;
             int lx=x-s.x(),lz=z-s.z();
-            if(terrain.weight(lx,lz)>0&&(!terrain.hasCavern()||
-                    terrain.reserves(lx,y-s.baseY(),lz,naturalSurfaceY(x,z)-s.baseY())))return true;
+            if(terrain.reserves(lx,y-s.baseY(),lz,naturalSurfaceY(x,z)-s.baseY()))return true;
         }
         if(rules.capitals!=null) {
             for(var c:cities)if(c.contains(x,z,c.bundle().blendMargin)&&y>=rules.capitals.minY&&y<rules.capitals.maxY)return true;

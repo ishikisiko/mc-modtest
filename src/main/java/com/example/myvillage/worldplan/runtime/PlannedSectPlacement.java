@@ -24,6 +24,19 @@ public final class PlannedSectPlacement {
         for(var site:plan.sectSites()){
             if(!site.intersects(cp.getMinBlockX(),cp.getMinBlockZ(),cp.getMaxBlockX(),cp.getMaxBlockZ(),0))continue;
             var terrain=plan.rules().sects.layout(site.blueprintId()).terrain;
+            if(terrain.hasForm()){
+                for(int z=cp.getMinBlockZ();z<=cp.getMaxBlockZ();z++)for(int x=cp.getMinBlockX();x<=cp.getMaxBlockX();x++){
+                    int wx=x,wz=z;
+                    terrain.forms().visit(x-site.x(),z-site.z(),true,(lo,hi,state)->{
+                        BlockState block=landform(state);
+                        for(int y=Math.max(chunk.getMinBuildHeight(),site.baseY()+lo);
+                            y<Math.min(chunk.getMaxBuildHeight(),site.baseY()+hi);y++)
+                            chunk.setBlockState(pos.set(wx,y,wz),block,false);
+                    });
+                }
+                Heightmap.primeHeightmaps(chunk,EnumSet.of(Heightmap.Types.WORLD_SURFACE_WG,Heightmap.Types.OCEAN_FLOOR_WG));
+                continue;
+            }
             if(!terrain.hasCavern())continue;
             int low=Math.max(chunk.getMinBuildHeight(),site.baseY()+terrain.carveBottom());
             int high=Math.min(chunk.getMaxBuildHeight()-1,site.baseY()+terrain.carveTop());
@@ -38,6 +51,20 @@ public final class PlannedSectPlacement {
             }
             Heightmap.primeHeightmaps(chunk,EnumSet.of(Heightmap.Types.WORLD_SURFACE_WG,Heightmap.Types.OCEAN_FLOOR_WG));
         }
+    }
+    static BlockState landform(String state){
+        return switch(state){
+            case "minecraft:air" -> Blocks.CAVE_AIR.defaultBlockState();
+            case "minecraft:water" -> Blocks.WATER.defaultBlockState();
+            case "minecraft:grass_block" -> Blocks.GRASS_BLOCK.defaultBlockState();
+            case "minecraft:dirt" -> Blocks.DIRT.defaultBlockState();
+            case "minecraft:stone" -> Blocks.STONE.defaultBlockState();
+            case "minecraft:sandstone" -> Blocks.SANDSTONE.defaultBlockState();
+            case "minecraft:andesite" -> Blocks.ANDESITE.defaultBlockState();
+            case "minecraft:deepslate" -> Blocks.DEEPSLATE.defaultBlockState();
+            case "minecraft:moss_block" -> Blocks.MOSS_BLOCK.defaultBlockState();
+            default -> throw new IllegalArgumentException("未注册宗门地貌方块："+state);
+        };
     }
     public static void placeSlice(WorldPlan plan,WorldGenLevel level,ChunkAccess chunk){
         var cp=chunk.getPos();
@@ -60,7 +87,7 @@ public final class PlannedSectPlacement {
                             level.setBlock(p,state,SectBlueprintPlacement.FLAGS);
                             if(entity!=null){var tag=entity.copy();tag.putInt("x",p.getX());tag.putInt("y",p.getY());tag.putInt("z",p.getZ());chunk.setBlockEntityNbt(tag);}
                         }
-                    },site.regionId(),data.terrain.hasCavern());
+                    },site.regionId(),data.terrain.hasCavern()||data.terrain.hasForm());
             }
         }
     }

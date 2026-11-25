@@ -31,6 +31,9 @@ public record SectProgressionRules(int entryStates, int regionalHubs, Map<String
         return result;
     }
     public String forRegion(RegionGraph graph, String regionId) {
+        return forRegion(graph, regionId, entryStates, regionalHubs);
+    }
+    public static String forRegion(RegionGraph graph, String regionId, int entryStates, int regionalHubs) {
         GenRegion region = graph.regionById(regionId);
         if (region.role().equals("anchor")) return MAIN;
         if (!graph.progressionOrder().isEmpty()) {

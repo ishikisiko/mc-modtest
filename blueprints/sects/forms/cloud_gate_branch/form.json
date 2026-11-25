@@ -1,0 +1,448 @@
+{
+  "schema": 1,
+  "status": "approved",
+  "id": "yuanxian:cloud_gate_branch",
+  "name": "云阙 · 分宗",
+  "size": [
+    288,
+    126,
+    320
+  ],
+  "tier": "branch",
+  "max_y": 114,
+  "archetype": "cliff",
+  "scale": "compact",
+  "blend_margin": 16,
+  "vegetation_clearance": 0,
+  "entry_anchor": [
+    119,
+    72,
+    31
+  ],
+  "steward": [
+    119,
+    72,
+    31
+  ],
+  "courtyard_cells": [
+    [
+      119,
+      72,
+      31
+    ],
+    [
+      118,
+      72,
+      31
+    ],
+    [
+      120,
+      72,
+      31
+    ],
+    [
+      117,
+      72,
+      31
+    ],
+    [
+      118,
+      72,
+      30
+    ],
+    [
+      118,
+      72,
+      32
+    ],
+    [
+      120,
+      72,
+      30
+    ],
+    [
+      120,
+      72,
+      32
+    ],
+    [
+      121,
+      72,
+      31
+    ],
+    [
+      117,
+      72,
+      30
+    ],
+    [
+      117,
+      72,
+      32
+    ],
+    [
+      118,
+      72,
+      29
+    ],
+    [
+      118,
+      72,
+      33
+    ],
+    [
+      120,
+      72,
+      29
+    ],
+    [
+      120,
+      72,
+      33
+    ],
+    [
+      121,
+      72,
+      30
+    ],
+    [
+      121,
+      72,
+      32
+    ],
+    [
+      122,
+      72,
+      31
+    ],
+    [
+      117,
+      72,
+      29
+    ],
+    [
+      117,
+      72,
+      33
+    ],
+    [
+      118,
+      72,
+      28
+    ],
+    [
+      120,
+      72,
+      28
+    ],
+    [
+      120,
+      72,
+      34
+    ],
+    [
+      121,
+      72,
+      29
+    ],
+    [
+      121,
+      72,
+      33
+    ],
+    [
+      122,
+      72,
+      32
+    ],
+    [
+      117,
+      72,
+      28
+    ],
+    [
+      118,
+      72,
+      27
+    ],
+    [
+      120,
+      72,
+      27
+    ],
+    [
+      120,
+      72,
+      35
+    ],
+    [
+      121,
+      72,
+      28
+    ],
+    [
+      121,
+      72,
+      34
+    ],
+    [
+      122,
+      72,
+      33
+    ],
+    [
+      117,
+      72,
+      27
+    ],
+    [
+      117,
+      72,
+      35
+    ],
+    [
+      118,
+      72,
+      26
+    ],
+    [
+      118,
+      72,
+      36
+    ],
+    [
+      120,
+      72,
+      26
+    ],
+    [
+      120,
+      72,
+      36
+    ],
+    [
+      121,
+      72,
+      27
+    ],
+    [
+      121,
+      72,
+      35
+    ]
+  ],
+  "shelves": [
+    {
+      "position": [
+        117,
+        72,
+        34
+      ],
+      "reader": [
+        118,
+        72,
+        34
+      ],
+      "facing": "east"
+    }
+  ],
+  "linlang": {
+    "position": [
+      118,
+      72,
+      35
+    ],
+    "reader": [
+      119,
+      72,
+      35
+    ],
+    "facing": "east"
+  },
+  "road_port": {
+    "position": [
+      119,
+      72,
+      0
+    ],
+    "width": 3,
+    "facing": "north"
+  },
+  "rock": "minecraft:stone",
+  "surface": "minecraft:stone",
+  "surfaces": [
+    "minecraft:stone",
+    "minecraft:andesite",
+    "minecraft:deepslate",
+    "minecraft:grass_block",
+    "minecraft:dirt"
+  ],
+  "subsoil": "minecraft:dirt",
+  "topsoil_depth": 3,
+  "regional_surfaces": {},
+  "dry_gate_margin": 0,
+  "terrain": {
+    "bounds": [
+      0,
+      0,
+      288,
+      320
+    ],
+    "sha256": "b5936f2ec0bc828ab32f01c1b167d56de542f76b10a5bc76fc31ba422be4f79e"
+  },
+  "form": {
+    "materials": [
+      {
+        "state": "minecraft:air",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone",
+        "landform": true
+      },
+      {
+        "state": "minecraft:water",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:andesite",
+        "landform": true
+      },
+      {
+        "state": "minecraft:deepslate",
+        "landform": true
+      },
+      {
+        "state": "minecraft:grass_block",
+        "landform": true
+      },
+      {
+        "state": "minecraft:dirt",
+        "landform": true
+      },
+      {
+        "state": "minecraft:smooth_stone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cut_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_wood",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:smooth_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_stained_glass",
+        "landform": false
+      },
+      {
+        "state": "minecraft:polished_andesite",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cut_copper",
+        "landform": false
+      },
+      {
+        "state": "minecraft:sea_lantern",
+        "landform": false
+      },
+      {
+        "state": "minecraft:bookshelf",
+        "landform": false
+      },
+      {
+        "state": "minecraft:red_terracotta",
+        "landform": false
+      },
+      {
+        "state": "minecraft:polished_deepslate",
+        "landform": false
+      },
+      {
+        "state": "minecraft:waxed_cut_copper",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_prismarine",
+        "landform": false
+      },
+      {
+        "state": "minecraft:prismarine_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=lower]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=upper]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:linlang_counter[facing=east]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=east,occupied=false,part=foot]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=east,occupied=false,part=head]",
+        "landform": false
+      }
+    ],
+    "runs": 236913,
+    "sha256": "e1be5213ad81e017cc95cd6e1e992c3f826d0cf81e6777c798a20980a19a9cb0"
+  },
+  "tiles": [],
+  "preview_id": "cloud_gate-compact",
+  "furniture": [
+    {
+      "position": [
+        103,
+        86,
+        207
+      ],
+      "state": "minecraft:cyan_bed[facing=east,occupied=false,part=foot]"
+    },
+    {
+      "position": [
+        104,
+        86,
+        207
+      ],
+      "state": "minecraft:cyan_bed[facing=east,occupied=false,part=head]"
+    }
+  ],
+  "preview_grid_sha256": "ab5c490409303c40b04ad9fe3946918447b476bfe2f097a0ded3dfc9b2b9e272"
+}

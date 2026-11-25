@@ -1,0 +1,428 @@
+{
+  "schema": 1,
+  "status": "approved",
+  "id": "yuanxian:lake_isles_branch",
+  "name": "照月连岛 · 分宗",
+  "size": [
+    304,
+    86,
+    320
+  ],
+  "tier": "branch",
+  "max_y": 74,
+  "archetype": "lake",
+  "scale": "compact",
+  "blend_margin": 16,
+  "vegetation_clearance": 0,
+  "entry_anchor": [
+    79,
+    51,
+    31
+  ],
+  "steward": [
+    79,
+    51,
+    31
+  ],
+  "courtyard_cells": [
+    [
+      79,
+      51,
+      31
+    ],
+    [
+      78,
+      51,
+      31
+    ],
+    [
+      80,
+      51,
+      31
+    ],
+    [
+      77,
+      51,
+      31
+    ],
+    [
+      78,
+      51,
+      30
+    ],
+    [
+      78,
+      51,
+      32
+    ],
+    [
+      80,
+      51,
+      30
+    ],
+    [
+      80,
+      51,
+      32
+    ],
+    [
+      81,
+      51,
+      31
+    ],
+    [
+      76,
+      51,
+      31
+    ],
+    [
+      77,
+      51,
+      30
+    ],
+    [
+      77,
+      51,
+      32
+    ],
+    [
+      78,
+      51,
+      29
+    ],
+    [
+      78,
+      51,
+      33
+    ],
+    [
+      80,
+      51,
+      29
+    ],
+    [
+      80,
+      51,
+      33
+    ],
+    [
+      81,
+      51,
+      30
+    ],
+    [
+      81,
+      51,
+      32
+    ],
+    [
+      82,
+      51,
+      31
+    ],
+    [
+      76,
+      51,
+      32
+    ],
+    [
+      77,
+      51,
+      29
+    ],
+    [
+      78,
+      51,
+      28
+    ],
+    [
+      80,
+      51,
+      28
+    ],
+    [
+      80,
+      51,
+      34
+    ],
+    [
+      81,
+      51,
+      29
+    ],
+    [
+      81,
+      51,
+      33
+    ],
+    [
+      82,
+      51,
+      32
+    ],
+    [
+      77,
+      51,
+      28
+    ],
+    [
+      78,
+      51,
+      27
+    ],
+    [
+      78,
+      51,
+      35
+    ],
+    [
+      80,
+      51,
+      27
+    ],
+    [
+      80,
+      51,
+      35
+    ],
+    [
+      81,
+      51,
+      28
+    ],
+    [
+      81,
+      51,
+      34
+    ],
+    [
+      82,
+      51,
+      33
+    ],
+    [
+      75,
+      51,
+      33
+    ],
+    [
+      76,
+      51,
+      34
+    ],
+    [
+      77,
+      51,
+      27
+    ],
+    [
+      77,
+      51,
+      35
+    ],
+    [
+      78,
+      51,
+      26
+    ],
+    [
+      78,
+      51,
+      36
+    ]
+  ],
+  "shelves": [
+    {
+      "position": [
+        76,
+        51,
+        33
+      ],
+      "reader": [
+        77,
+        51,
+        33
+      ],
+      "facing": "east"
+    }
+  ],
+  "linlang": {
+    "position": [
+      77,
+      51,
+      34
+    ],
+    "reader": [
+      78,
+      51,
+      34
+    ],
+    "facing": "east"
+  },
+  "road_port": {
+    "position": [
+      79,
+      51,
+      0
+    ],
+    "width": 3,
+    "facing": "north"
+  },
+  "rock": "minecraft:stone",
+  "surface": "minecraft:stone",
+  "surfaces": [
+    "minecraft:stone",
+    "minecraft:andesite",
+    "minecraft:deepslate",
+    "minecraft:grass_block",
+    "minecraft:dirt"
+  ],
+  "subsoil": "minecraft:dirt",
+  "topsoil_depth": 3,
+  "regional_surfaces": {},
+  "dry_gate_margin": 6,
+  "terrain": {
+    "bounds": [
+      0,
+      0,
+      304,
+      320
+    ],
+    "sha256": "8bcb91d0a460149e58bf6fffc7745d5746588583ef6f404fc0591ef573929181"
+  },
+  "form": {
+    "materials": [
+      {
+        "state": "minecraft:air",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone",
+        "landform": true
+      },
+      {
+        "state": "minecraft:water",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:andesite",
+        "landform": true
+      },
+      {
+        "state": "minecraft:deepslate",
+        "landform": true
+      },
+      {
+        "state": "minecraft:grass_block",
+        "landform": true
+      },
+      {
+        "state": "minecraft:dirt",
+        "landform": true
+      },
+      {
+        "state": "minecraft:smooth_stone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cut_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_wood",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:smooth_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_stained_glass",
+        "landform": false
+      },
+      {
+        "state": "minecraft:prismarine",
+        "landform": false
+      },
+      {
+        "state": "minecraft:sea_lantern",
+        "landform": false
+      },
+      {
+        "state": "minecraft:lily_pad",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stripped_warped_hyphae",
+        "landform": false
+      },
+      {
+        "state": "minecraft:oxidized_cut_copper",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=lower]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=upper]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:linlang_counter[facing=east]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=east,occupied=false,part=foot]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_bed[facing=east,occupied=false,part=head]",
+        "landform": false
+      }
+    ],
+    "runs": 208337,
+    "sha256": "c9017e8d617a8b3a713805800931012b68e0b11e4f12298be7f937659949f14d"
+  },
+  "tiles": [],
+  "preview_id": "lake_isles-compact",
+  "furniture": [
+    {
+      "position": [
+        201,
+        54,
+        200
+      ],
+      "state": "minecraft:cyan_bed[facing=east,occupied=false,part=foot]"
+    },
+    {
+      "position": [
+        202,
+        54,
+        200
+      ],
+      "state": "minecraft:cyan_bed[facing=east,occupied=false,part=head]"
+    }
+  ],
+  "preview_grid_sha256": "1a4b9edf633454c6bb40e1c5f5fbb7d96b51ab89e5277633c65354364b416747"
+}

@@ -1,0 +1,443 @@
+{
+  "schema": 1,
+  "status": "approved",
+  "id": "yuanxian:valley_retreat_headquarters",
+  "name": "听泉谷中 · 总舵",
+  "size": [
+    368,
+    146,
+    368
+  ],
+  "tier": "headquarters",
+  "max_y": 123,
+  "archetype": "valley",
+  "scale": "large",
+  "blend_margin": 16,
+  "vegetation_clearance": 0,
+  "entry_anchor": [
+    132,
+    89,
+    42
+  ],
+  "steward": [
+    132,
+    89,
+    42
+  ],
+  "courtyard_cells": [
+    [
+      132,
+      89,
+      42
+    ],
+    [
+      131,
+      89,
+      42
+    ],
+    [
+      133,
+      89,
+      42
+    ],
+    [
+      130,
+      89,
+      42
+    ],
+    [
+      131,
+      89,
+      41
+    ],
+    [
+      131,
+      89,
+      43
+    ],
+    [
+      133,
+      89,
+      41
+    ],
+    [
+      133,
+      89,
+      43
+    ],
+    [
+      134,
+      89,
+      42
+    ],
+    [
+      129,
+      89,
+      42
+    ],
+    [
+      130,
+      89,
+      41
+    ],
+    [
+      130,
+      89,
+      43
+    ],
+    [
+      131,
+      89,
+      40
+    ],
+    [
+      131,
+      89,
+      44
+    ],
+    [
+      133,
+      89,
+      40
+    ],
+    [
+      133,
+      89,
+      44
+    ],
+    [
+      134,
+      89,
+      41
+    ],
+    [
+      134,
+      89,
+      43
+    ],
+    [
+      135,
+      89,
+      42
+    ],
+    [
+      129,
+      89,
+      43
+    ],
+    [
+      130,
+      89,
+      40
+    ],
+    [
+      131,
+      89,
+      39
+    ],
+    [
+      133,
+      89,
+      39
+    ],
+    [
+      133,
+      89,
+      45
+    ],
+    [
+      134,
+      89,
+      40
+    ],
+    [
+      134,
+      89,
+      44
+    ],
+    [
+      135,
+      89,
+      43
+    ],
+    [
+      130,
+      89,
+      39
+    ],
+    [
+      131,
+      89,
+      38
+    ],
+    [
+      131,
+      89,
+      46
+    ],
+    [
+      133,
+      89,
+      38
+    ],
+    [
+      133,
+      89,
+      46
+    ],
+    [
+      134,
+      89,
+      39
+    ],
+    [
+      134,
+      89,
+      45
+    ],
+    [
+      135,
+      89,
+      44
+    ],
+    [
+      129,
+      89,
+      45
+    ],
+    [
+      130,
+      89,
+      38
+    ],
+    [
+      130,
+      89,
+      46
+    ],
+    [
+      131,
+      89,
+      37
+    ],
+    [
+      131,
+      89,
+      47
+    ],
+    [
+      133,
+      89,
+      37
+    ]
+  ],
+  "shelves": [
+    {
+      "position": [
+        129,
+        89,
+        44
+      ],
+      "reader": [
+        130,
+        89,
+        44
+      ],
+      "facing": "east"
+    }
+  ],
+  "linlang": {
+    "position": [
+      130,
+      89,
+      45
+    ],
+    "reader": [
+      131,
+      89,
+      45
+    ],
+    "facing": "east"
+  },
+  "road_port": {
+    "position": [
+      132,
+      89,
+      0
+    ],
+    "width": 3,
+    "facing": "north"
+  },
+  "rock": "minecraft:stone",
+  "surface": "minecraft:stone",
+  "surfaces": [
+    "minecraft:stone",
+    "minecraft:grass_block",
+    "minecraft:dirt",
+    "minecraft:sandstone"
+  ],
+  "subsoil": "minecraft:dirt",
+  "topsoil_depth": 3,
+  "regional_surfaces": {},
+  "dry_gate_margin": 40,
+  "terrain": {
+    "bounds": [
+      0,
+      0,
+      368,
+      368
+    ],
+    "sha256": "9ee78354ffa287d13f9219887adb8a2542574f9b3ee9f5c9517c1eb53d3a30a4"
+  },
+  "form": {
+    "materials": [
+      {
+        "state": "minecraft:air",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone",
+        "landform": true
+      },
+      {
+        "state": "minecraft:water",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:grass_block",
+        "landform": true
+      },
+      {
+        "state": "minecraft:dirt",
+        "landform": true
+      },
+      {
+        "state": "minecraft:sandstone",
+        "landform": true
+      },
+      {
+        "state": "minecraft:smooth_stone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cut_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:spruce_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_planks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:smooth_sandstone",
+        "landform": false
+      },
+      {
+        "state": "minecraft:cyan_stained_glass",
+        "landform": false
+      },
+      {
+        "state": "minecraft:polished_andesite",
+        "landform": false
+      },
+      {
+        "state": "minecraft:sea_lantern",
+        "landform": false
+      },
+      {
+        "state": "minecraft:waxed_cut_copper",
+        "landform": false
+      },
+      {
+        "state": "minecraft:bookshelf",
+        "landform": false
+      },
+      {
+        "state": "minecraft:dark_oak_wood",
+        "landform": false
+      },
+      {
+        "state": "minecraft:mud_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:terracotta",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=lower]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:scripture_shelf[facing=east,half=upper]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:linlang_counter[facing=east]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:furnace",
+        "landform": false
+      },
+      {
+        "state": "minecraft:crafting_table",
+        "landform": false
+      }
+    ],
+    "runs": 271053,
+    "sha256": "024a26686339a50e6b556af23cc9e0d10fa586749348c5da51736fe03888a507"
+  },
+  "tiles": [],
+  "preview_id": "valley_retreat-headquarters",
+  "furniture": [
+    {
+      "position": [
+        187,
+        73,
+        268
+      ],
+      "state": "minecraft:furnace"
+    },
+    {
+      "position": [
+        188,
+        73,
+        268
+      ],
+      "state": "minecraft:crafting_table"
+    },
+    {
+      "position": [
+        236,
+        73,
+        157
+      ],
+      "state": "minecraft:furnace"
+    },
+    {
+      "position": [
+        237,
+        73,
+        157
+      ],
+      "state": "minecraft:crafting_table"
+    }
+  ],
+  "preview_grid_sha256": "b087ee29d2df1fa010a81fd8592fb2ed375181df451b1c8e48e2fd74bb4de99d"
+}

@@ -216,6 +216,13 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         for(var site:world.sectSites()){
             if(!site.intersects(x,z,x,z,0))continue;
             var groundField=world.rules().sects.layout(site.blueprintId()).terrain;
+            if(groundField.hasForm()){
+                groundField.forms().visit(x-site.x(),z-site.z(),true,(lo,hi,material)->{
+                    BlockState block=PlannedSectPlacement.landform(material);
+                    for(int y=Math.max(min,site.baseY()+lo);y<Math.min(max,site.baseY()+hi);y++)states[y-min]=block;
+                });
+                continue;
+            }
             if(!groundField.hasCavern())continue;
             for(int y=Math.max(min,site.baseY()+groundField.carveBottom());
                 y<=Math.min(target-1,Math.min(max-1,site.baseY()+groundField.carveTop()));y++)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""校验当前宗门蓝图、真实NBT回读、设施连通和正式资源身份。"""
+"""校验当前宗门蓝图、形制分段回读、设施连通和正式资源身份。"""
 import json
 from pathlib import Path
 import sys
@@ -21,8 +21,9 @@ def main():
                 manifest=json.loads((target/('data/'+row['resource'].replace(':','/',1))).read_text())
                 layouts.append({'id':manifest['id'],'tiles':len(manifest['tiles']),
                                 'courtyard_cells':len(manifest['courtyard_cells']),'shelves':len(manifest['shelves'])})
+            assert len(layouts)==18, '正式目录必须覆盖六类三级宗门'
             data={'status':'pass','layouts':layouts,
-                  'checks':['geometry','facility_connections','complete_nbt_readback','modset','source_identity'],
+                  'checks':['terrain_fields','geometry_runs','facility_blocks','facility_clearances','road_port','source_identity'],
                   'runtime':'not_run'}
         report.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
         return 0
