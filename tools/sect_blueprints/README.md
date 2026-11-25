@@ -1,6 +1,6 @@
 # 宗门蓝图与景观
 
-`blueprints/sects/catalog.json` 管理共用选址规则及六套布局：高崖主峰、谷地群院、湖岸岛屿，各有紧凑版与较大版。`architecture_profiles.json` 管理六套建筑的体量、层数、屋顶、材料及室内功能分区，经 `cultivation_sect` 的既有 pass 和注册屋顶生成，继续沿用注册组件的占地。整体高差、院落序列、桥廊和建筑群体量由各自 authored 蓝图决定，不按名称推断形态。
+`blueprints/sects/catalog.json` 管理选址规则、六套通用布局和听泉谷中主宗。通用布局分为高崖主峰、谷地群院、湖岸岛屿，各有紧凑版与较大版。`architecture_profiles.json` 定义建筑的体量、层数、屋顶、材料及室内功能分区，由 `cultivation_sect` 的注册组件生成。整体高差、院落序列、桥廊和建筑群体量由各自的蓝图决定。
 
 松崖和双岸使用连续折岭及台地坡脚，控制点、左右断面与坡脚宽度全部由各自蓝图维护。其余四套地形和布局保留。弟子居生成完整床铺，丹房保留炉台及工作设施，藏经阁的经架与读者站位显式预留；多层楼梯最后一级也必须通向楼面，不能以满方块跨越一格高度。
 
@@ -22,4 +22,4 @@ PYTHONPATH=tools python3 -m sect_blueprints.gallery --out reports/sect-gallery -
 
 世界规划冻结每个 `SectSite` 的蓝图 ID 和摘要，Java 共用 `SectTerrain` 计算地面和施工。FEATURES 只营造当前区块并保留此前完成的外部支路，FULL 区块不回填。命簿仅认领预留地；靠近后只绑定已有实体。化身、送信范围、执事与经架必须读取实际布局。
 
-`generate.py --preview-only` 只生成模型网页；`gallery.py` 生成六套可切换模型。预览自然接坡统一示意到入口高度，游戏接到实际种子地形；方块配色示意不替代原生材质、碰撞、FPS 或玩家接受度。网页不进入 JAR，不新增特效。
+`generate.py --preview-only` 生成单套模型网页，`gallery.py` 汇总蓝图。模型的接坡以入口高度示意，游戏接到实际种子地形。方块配色、碰撞和玩家观感可在客户端复查。

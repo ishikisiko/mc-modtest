@@ -132,25 +132,15 @@ public final class SectTerrain {
         private boolean contains(int x,int z){return radius(x,z)<1;}
         private int surface(int x,int z,int floor){
             double r=radius(x,z);if(r>=1)return floor;
-            double top=floor+Math.max(0,crest+1-floor)*StrictMath.sqrt(1-r);
-            for(int[] cut:openings){
-                double d=StrictMath.sqrt(square((x-cut[0])/(double)cut[2])+square((z-cut[1])/(double)cut[3]));
-                double weight=Math.clamp((1-d)*5,0,1);
-                top-=Math.max(0,top-Math.max(floor,cut[4]+1))*weight;
-            }
-            return (int)Math.round(top);
+            return (int)Math.round(floor+Math.max(0,crest+1-floor)*StrictMath.pow(1-r,.8));
         }
         private boolean air(int x,int y,int z,int firstAir){
             if(y<bottom||y>crest)return false;
             for(int[] box:tunnels)if(x>=box[0]&&y>=box[1]&&z>=box[2]&&x<=box[3]&&y<=box[4]&&z<=box[5])return true;
             if(!contains(x,z))return false;
-            if(y>=firstAir-roofThickness){
-                boolean open=false;
-                for(int[] cut:openings)if(square((x-cut[0])/(double)cut[2])+square((z-cut[1])/(double)cut[3])<=.64){
-                    open=true;break;
-                }
-                if(!open)return false;
-            }
+            for(int[] cut:openings)if(y>=cut[4]&&
+                square((x-cut[0])/(double)cut[2])+square((z-cut[1])/(double)cut[3])<1)return true;
+            if(y>=firstAir-roofThickness)return false;
             for(int[] room:rooms)if(square((x-room[0])/(double)room[3])+square((y-room[1])/(double)room[4])
                     +square((z-room[2])/(double)room[5])<1)return true;
             return false;

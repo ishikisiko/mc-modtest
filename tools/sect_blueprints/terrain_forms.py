@@ -43,11 +43,7 @@ def cavern_surface(x,z,floor,cavern):
     radius=cavern_radius(x,z,cavern)
     if radius>=1:
         return floor
-    top=floor+max(0,cavern['crest_y']+1-floor)*math.sqrt(1-radius)
-    for xx,zz,a,b,cap in cavern['openings']:
-        r=math.hypot((x-xx)/a,(z-zz)/b)
-        top-=max(0,top-max(floor,cap+1))*min(1,max(0,(1-r)*5))
-    return math.floor(top+.5)
+    return math.floor(floor+max(0,cavern['crest_y']+1-floor)*(1-radius)**.8+.5)
 
 
 def cavern_air(x,y,z,ground,first_air,cavern):
@@ -56,10 +52,14 @@ def cavern_air(x,y,z,ground,first_air,cavern):
     for a,b,c,aa,bb,cc in cavern['tunnels']:
         if a<=x<=aa and b<=y<=bb and c<=z<=cc:
             return True
-    if y>=first_air-cavern['roof_thickness'] and not any(
-        ((x-a)/rx)**2+((z-b)/rz)**2<=.64 for a,b,rx,rz,_ in cavern['openings']
-    ):
+    if cavern_radius(x,z,cavern)>=1:
         return False
-    return cavern_radius(x,z,cavern)<1 and any(
+    # 天窗自拱顶向下贯通，洞室外轮廓沿用同一座山。
+    if any(y>=sill and ((x-a)/rx)**2+((z-b)/rz)**2<1
+           for a,b,rx,rz,sill in cavern['openings']):
+        return True
+    if y>=first_air-cavern['roof_thickness']:
+        return False
+    return any(
         ((x-a)/rr)**2+((y-b)/ry)**2+((z-c)/rz2)**2<1
         for a,b,c,rr,ry,rz2 in cavern['chambers'])

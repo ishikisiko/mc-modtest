@@ -69,6 +69,9 @@ class PlannedSectTest {
         assertFalse(terrain.carves(160,roof-1,264,roof));
         assertTrue(plan.reserved(x,site.baseY()+45,z));
         assertFalse(plan.reserved(x,surface,z));
+        int sill=plan.surfaceY(site.x()+159,site.z()+191)-site.baseY();
+        assertTrue(terrain.carves(159,sill-1,191,sill));
+        assertTrue(terrain.carves(159,31,191,sill));
         assertEquals(plan.naturalTerrainY(site.x()+5,site.z()+100),plan.surfaceY(site.x()+5,site.z()+100));
     }
     @Test void exhaustionFailsTheWholePlanRatherThanFallingBackToAnUnsafeGate()throws Exception{
