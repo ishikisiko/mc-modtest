@@ -84,11 +84,14 @@ public final class SectBlueprintPlacement {
         }
         if(!terrainPrepared&&data.terrain.hasCavern()){
             var air=net.minecraft.world.level.block.Blocks.CAVE_AIR.defaultBlockState();
-            for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)
+            for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++){
+                int lx=x-base.getX(),lz=z-base.getZ();
+                int roof=data.terrain.firstAir(base.getY(),lx,lz,natural.at(x,z))-base.getY();
                 for(int y=Math.max(clip.minY(),base.getY()+data.terrain.carveBottom());
                     y<=Math.min(clip.maxY(),base.getY()+data.terrain.carveTop());y++)
-                    if(data.terrain.carves(x-base.getX(),y-base.getY(),z-base.getZ()))
+                    if(data.terrain.carves(lx,y-base.getY(),lz,roof))
                         written+=write(target,new BlockPos(x,y,z),air,null);
+            }
         }
         for (SectBlueprint.Tile tile:data.tiles) {
             int ox=base.getX()+tile.x(),oz=base.getZ()+tile.z();

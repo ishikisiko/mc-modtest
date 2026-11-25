@@ -367,7 +367,8 @@
         23,
         161
       ],
-      "purpose": "spring_gallery"
+      "purpose": "spring_gallery",
+      "pier_foundation": true
     },
     {
       "id": "east_gallery",
@@ -388,7 +389,8 @@
         29,
         192
       ],
-      "purpose": "spring_gallery"
+      "purpose": "spring_gallery",
+      "pier_foundation": true
     },
     {
       "id": "main_hall",
@@ -1133,6 +1135,8 @@
         31
       ]
     ],
-    "survey_samples": 24
+    "survey_samples": 24,
+    "roof_thickness": 8,
+    "ridge_variation": 0.105
   }
 }

@@ -31,9 +31,16 @@ def ridge_height(x,z,ridge,base):
     return height
 
 
-def cavern_surface(x,z,floor,cavern):
+def cavern_radius(x,z,cavern):
     cx,cz,rx,rz=cavern['shell']
-    radius=((x-cx)/rx)**2+((z-cz)/rz)**2
+    dx,dz=(x-cx)/rx,(z-cz)/rz
+    theta=math.atan2(dz,dx)
+    rim=1-cavern['ridge_variation']*(1-.60*math.sin(3*theta+.4)-.40*math.cos(5*theta))
+    return (dx**2+dz**2)/rim**2
+
+
+def cavern_surface(x,z,floor,cavern):
+    radius=cavern_radius(x,z,cavern)
     if radius>=1:
         return floor
     top=floor+max(0,cavern['crest_y']+1-floor)*math.sqrt(1-radius)
@@ -43,13 +50,16 @@ def cavern_surface(x,z,floor,cavern):
     return math.floor(top+.5)
 
 
-def cavern_air(x,y,z,ground,cavern):
+def cavern_air(x,y,z,ground,first_air,cavern):
     if y<=ground or not cavern['floor_y']<=y<=cavern['crest_y']:
         return False
     for a,b,c,aa,bb,cc in cavern['tunnels']:
         if a<=x<=aa and b<=y<=bb and c<=z<=cc:
             return True
-    cx,cz,rx,rz=cavern['shell']
-    return ((x-cx)/rx)**2+((z-cz)/rz)**2<1 and any(
+    if y>=first_air-cavern['roof_thickness'] and not any(
+        ((x-a)/rx)**2+((z-b)/rz)**2<=.64 for a,b,rx,rz,_ in cavern['openings']
+    ):
+        return False
+    return cavern_radius(x,z,cavern)<1 and any(
         ((x-a)/rr)**2+((y-b)/ry)**2+((z-c)/rz2)**2<1
         for a,b,c,rr,ry,rz2 in cavern['chambers'])

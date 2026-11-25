@@ -219,7 +219,8 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             if(!groundField.hasCavern())continue;
             for(int y=Math.max(min,site.baseY()+groundField.carveBottom());
                 y<=Math.min(target-1,Math.min(max-1,site.baseY()+groundField.carveTop()));y++)
-                if(groundField.carves(x-site.x(),y-site.baseY(),z-site.z()))states[y-min]=Blocks.CAVE_AIR.defaultBlockState();
+                if(groundField.carves(x-site.x(),y-site.baseY(),z-site.z(),target-site.baseY()))
+                    states[y-min]=Blocks.CAVE_AIR.defaultBlockState();
         }
         if(lotusMountain!=null)lotusMountain.replaceColumn(x,z,min,states);
         if(foldedRidge!=null)foldedRidge.replaceColumn(x,z,min,states);

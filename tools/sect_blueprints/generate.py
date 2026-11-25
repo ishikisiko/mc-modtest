@@ -288,7 +288,8 @@ class SectModel:
                     if p in self.protected:
                         raise ValueError("建筑相交："+b["id"])
                     self.protected[p] = (b["id"],state)
-                if y==0 and state!=AIR and self.ground(ox+x,oz+z)<oy-1:
+                on_pier=not b.get('pier_foundation') or (x%6 in (1,2) and z%6 in (1,2))
+                if y==0 and state!=AIR and on_pier and self.ground(ox+x,oz+z)<oy-1:
                     self.construction.box((ox+x,self.ground(ox+x,oz+z)+1,oz+z),(ox+x,oy-1,oz+z),
                                           self.materials["foundation"],b["id"],"support")
             for p, entity in ({} if custom else block_entities(source)).items():
@@ -626,7 +627,7 @@ def final_tiles(model, *, terrain=True):
                     top=cavern_surface(wx,wz,h+1,cavern)-1 if cavern else h
                     if terrain and (model.influence[wz*model.width+wx] or top>h):
                         for y in range(top+1):
-                            if cavern and cavern_air(wx,y,wz,h,cavern):
+                            if cavern and cavern_air(wx,y,wz,h,top+1,cavern):
                                 continue
                             state=model.surface_states[wz*model.width+wx] if y==top else model.materials['rock']
                             cells[x,y,z] = (state,"terrain","terrain")

@@ -722,7 +722,8 @@
           ],
           "wing_height": 4,
           "upper_inset": 2,
-          "width_inset": 16
+          "width_inset": 16,
+          "upper_window_spacing": 7
         },
         "sect_gate": {
           "form": "hall",

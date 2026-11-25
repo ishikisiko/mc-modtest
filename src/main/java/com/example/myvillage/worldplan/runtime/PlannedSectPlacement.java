@@ -28,9 +28,12 @@ public final class PlannedSectPlacement {
             int low=Math.max(chunk.getMinBuildHeight(),site.baseY()+terrain.carveBottom());
             int high=Math.min(chunk.getMaxBuildHeight()-1,site.baseY()+terrain.carveTop());
             for(int z=cp.getMinBlockZ();z<=cp.getMaxBlockZ();z++)for(int x=cp.getMinBlockX();x<=cp.getMaxBlockX();x++){
+                int lx=x-site.x(),lz=z-site.z();
+                if(lx<0||lx>=site.width()||lz<0||lz>=site.depth())continue;
                 int top=chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG,x&15,z&15);
+                int roof=plan.surfaceY(x,z)-site.baseY();
                 for(int y=low;y<=Math.min(top,high);y++)
-                    if(terrain.carves(x-site.x(),y-site.baseY(),z-site.z()))
+                    if(terrain.carves(lx,y-site.baseY(),lz,roof))
                         chunk.setBlockState(pos.set(x,y,z),air,false);
             }
             Heightmap.primeHeightmaps(chunk,EnumSet.of(Heightmap.Types.WORLD_SURFACE_WG,Heightmap.Types.OCEAN_FLOOR_WG));

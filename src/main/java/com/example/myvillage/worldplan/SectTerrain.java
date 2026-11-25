@@ -72,8 +72,8 @@ public final class SectTerrain {
     public boolean affects(int x,int z){return weight(x,z)>0||(cavern!=null&&cavern.contains(x,z));}
     public int carveTop(){return cavern==null?0:cavern.crest;}
     public int carveBottom(){return cavern==null?0:cavern.bottom;}
-    public boolean carves(int x,int y,int z){
-        return cavern!=null&&(weight(x,z)==0||y>ground(x,z))&&cavern.air(x,y,z);
+    public boolean carves(int x,int y,int z,int firstAir){
+        return cavern!=null&&(weight(x,z)==0||y>ground(x,z))&&cavern.air(x,y,z,firstAir);
     }
     public boolean reserves(int x,int y,int z,int natural){
         if(weight(x,z)==0)return false;
@@ -96,7 +96,8 @@ public final class SectTerrain {
     private static double square(double x){return x*x;}
 
     private static final class Cavern {
-        private final int cx,cz,rx,rz,crest,bottom,vegetatedRoof,surveySamples;
+        private final int cx,cz,rx,rz,crest,bottom,vegetatedRoof,surveySamples,roofThickness;
+        private final double ridgeVariation;
         private final int[][] rooms,tunnels,openings;
         private Cavern(JsonObject spec,int width,int depth,int maxY){
             int[] shape=integers(spec.getAsJsonArray("shell"),4);
@@ -104,9 +105,12 @@ public final class SectTerrain {
             crest=spec.get("crest_y").getAsInt();bottom=spec.get("floor_y").getAsInt();
             vegetatedRoof=spec.get("vegetated_roof_y").getAsInt();
             surveySamples=spec.get("survey_samples").getAsInt();
+            roofThickness=spec.get("roof_thickness").getAsInt();
+            ridgeVariation=spec.get("ridge_variation").getAsDouble();
             if(rx<1||rz<1||cx-rx<0||cz-rz<0||cx+rx>=width||cz+rz>=depth
                     ||bottom<0||bottom>=crest||crest>maxY||vegetatedRoof<=bottom||vegetatedRoof>crest
-                    ||surveySamples<1||surveySamples>128)
+                    ||surveySamples<1||surveySamples>128||roofThickness<1||roofThickness>20
+                    ||!Double.isFinite(ridgeVariation)||ridgeVariation<0||ridgeVariation>.15)
                 throw new IllegalArgumentException("宗门洞室山体超出蓝图");
             rooms=rows(spec.getAsJsonArray("chambers"),6);
             tunnels=rows(spec.getAsJsonArray("tunnels"),6);
@@ -119,7 +123,12 @@ public final class SectTerrain {
                     ||box[5]>=depth||box[0]>box[3]||box[1]>box[4]||box[2]>box[5])
                 throw new IllegalArgumentException("宗门通道超出蓝图");
         }
-        private double radius(int x,int z){return square((x-cx)/(double)rx)+square((z-cz)/(double)rz);}
+        private double radius(int x,int z){
+            double dx=(x-cx)/(double)rx,dz=(z-cz)/(double)rz;
+            double angle=StrictMath.atan2(dz,dx);
+            double rim=1-ridgeVariation*(1-.60*StrictMath.sin(3*angle+.4)-.40*StrictMath.cos(5*angle));
+            return (square(dx)+square(dz))/square(rim);
+        }
         private boolean contains(int x,int z){return radius(x,z)<1;}
         private int surface(int x,int z,int floor){
             double r=radius(x,z);if(r>=1)return floor;
@@ -131,10 +140,17 @@ public final class SectTerrain {
             }
             return (int)Math.round(top);
         }
-        private boolean air(int x,int y,int z){
+        private boolean air(int x,int y,int z,int firstAir){
             if(y<bottom||y>crest)return false;
             for(int[] box:tunnels)if(x>=box[0]&&y>=box[1]&&z>=box[2]&&x<=box[3]&&y<=box[4]&&z<=box[5])return true;
             if(!contains(x,z))return false;
+            if(y>=firstAir-roofThickness){
+                boolean open=false;
+                for(int[] cut:openings)if(square((x-cut[0])/(double)cut[2])+square((z-cut[1])/(double)cut[3])<=.64){
+                    open=true;break;
+                }
+                if(!open)return false;
+            }
             for(int[] room:rooms)if(square((x-room[0])/(double)room[3])+square((y-room[1])/(double)room[4])
                     +square((z-room[2])/(double)room[5])<1)return true;
             return false;

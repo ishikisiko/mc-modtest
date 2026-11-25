@@ -64,8 +64,9 @@ class PlannedSectTest {
         var terrain=plan.rules().sects.layout(site.blueprintId()).terrain;
         int x=site.x()+160,z=site.z()+264;
         int surface=plan.surfaceY(x,z);
-        assertTrue(terrain.carves(160,45,264));
-        assertFalse(terrain.carves(160,surface-site.baseY()-1,264));
+        int roof=surface-site.baseY();
+        assertTrue(terrain.carves(160,45,264,roof));
+        assertFalse(terrain.carves(160,roof-1,264,roof));
         assertTrue(plan.reserved(x,site.baseY()+45,z));
         assertFalse(plan.reserved(x,surface,z));
         assertEquals(plan.naturalTerrainY(site.x()+5,site.z()+100),plan.surfaceY(site.x()+5,site.z()+100));

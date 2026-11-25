@@ -181,6 +181,23 @@ def component(building,size,key,reserved=()):
                     # 原 helper 在楼板前少了一阶；将实心落脚格改为最后一级台阶。
                     pos=(opening['x0'],y,opening['landing_z'])
                     ctx.grid.set(pos,stair_state(style,opening['direction']),['STRUCTURE','INTERIOR','PROTECTED'],60,'ROOF_DARK',force=True)
+    if spacing:=role.get('upper_window_spacing'):
+        # 让上下两层都有采光与檐口，沿用主殿的梁柱和瓦色。
+        y=fh+role['wall_height']
+        inset=role.get('upper_inset',0)
+        for x in range(main.x0+inset+2,main.x1-inset-2,spacing):
+            for z in (main.z0+inset,main.z1-inset):
+                for yy in range(y+2,y+6):
+                    for xx in range(x-1,x+2):
+                        state=ops.log_state(style,'y') if xx==x else 'minecraft:glass_pane'
+                        ctx.grid.set((xx,yy,z),state,['FACADE','PROTECTED'],100,
+                                     'FRAME_WOOD' if xx==x else None,force=True)
+        for x in range(main.x0-1,main.x1+2):
+            for z, sign in ((main.z0,-1),(main.z1,1)):
+                ctx.grid.set((x,y-1,z+sign),'minecraft:stone_brick_slab[type=top,waterlogged=false]',
+                             ['ROOF','PROTECTED'],100,'ROOF_TILE',force=True)
+                ctx.grid.set((x,y,z),'minecraft:stone_brick_slab[type=bottom,waterlogged=false]',
+                             ['ROOF','PROTECTED'],100,'ROOF_TILE',force=True)
     if role.get('open_sides'):
         post=ops.log_state(style,'y')
         for side in ('front','back','west','east'):
