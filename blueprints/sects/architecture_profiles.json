@@ -715,15 +715,17 @@
           "form": "winged",
           "stories": 2,
           "wall_height": 8,
-          "roof": "tiered_eave_roof",
+          "roof": "hip_roof",
           "wall_type": "timber_frame_wall",
           "colonnades": [
             "front"
           ],
+          "colonnade_storeys": 1,
           "wing_height": 4,
-          "upper_inset": 2,
+          "upper_inset": 3,
           "width_inset": 16,
-          "upper_window_spacing": 7
+          "upper_window_spacing": 7,
+          "lower_eave_depth": 3
         },
         "sect_gate": {
           "form": "hall",

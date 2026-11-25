@@ -182,7 +182,7 @@ def component(building,size,key,reserved=()):
                     pos=(opening['x0'],y,opening['landing_z'])
                     ctx.grid.set(pos,stair_state(style,opening['direction']),['STRUCTURE','INTERIOR','PROTECTED'],60,'ROOF_DARK',force=True)
     if spacing:=role.get('upper_window_spacing'):
-        # 让上下两层都有采光与檐口，沿用主殿的梁柱和瓦色。
+        # 让二层廊窗沿退台后的墙线采光。
         y=fh+role['wall_height']
         inset=role.get('upper_inset',0)
         for x in range(main.x0+inset+2,main.x1-inset-2,spacing):
@@ -192,12 +192,19 @@ def component(building,size,key,reserved=()):
                         state=ops.log_state(style,'y') if xx==x else 'minecraft:glass_pane'
                         ctx.grid.set((xx,yy,z),state,['FACADE','PROTECTED'],100,
                                      'FRAME_WOOD' if xx==x else None,force=True)
-        for x in range(main.x0-1,main.x1+2):
-            for z, sign in ((main.z0,-1),(main.z1,1)):
-                ctx.grid.set((x,y-1,z+sign),'minecraft:stone_brick_slab[type=top,waterlogged=false]',
-                             ['ROOF','PROTECTED'],100,'ROOF_TILE',force=True)
-                ctx.grid.set((x,y,z),'minecraft:stone_brick_slab[type=bottom,waterlogged=false]',
-                             ['ROOF','PROTECTED'],100,'ROOF_TILE',force=True)
+    if depth:=role.get('lower_eave_depth'):
+        # 下檐承接一层柱头，外缘逐格降低，在四角沿斜线相接。
+        level=fh+role['wall_height']-1
+        slate=style.slot_entry('ROOF_TILE','_slab')
+        for run in range(1,depth+1):
+            y=level-(run-1)//2
+            slab_type='top' if run%2 else 'bottom'
+            tile=f'{slate}[type={slab_type},waterlogged=false]'
+            for side in ('front','back','west','east'):
+                _,_,(start,end),_=ops.wall_info(main,side)
+                for along in range(start-run,end+run+1):
+                    p=ops.wall_pos(main,side,along,y,run)
+                    ctx.grid.set(p,tile,['ROOF','PROTECTED'],100,'ROOF_TILE',force=True)
     if role.get('open_sides'):
         post=ops.log_state(style,'y')
         for side in ('front','back','west','east'):
