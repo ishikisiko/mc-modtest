@@ -1,6 +1,9 @@
 package com.example.myvillage.sim.engine;
 
 import com.example.myvillage.region.runtime.GenRegion;
+import com.example.myvillage.region.runtime.RegionGraph;
+import com.example.myvillage.region.runtime.SectSite;
+import com.example.myvillage.sim.data.SectProgressionRules;
 import com.example.myvillage.sim.SimRng;
 import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.RealmTable;
@@ -11,9 +14,13 @@ import com.example.myvillage.sim.model.Sect;
 import com.example.myvillage.sim.model.Tombstone;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Builds the world on day 0 (design §5): sects in regions that admit them (the anchor gets the
@@ -30,14 +37,22 @@ public final class Genesis {
         for (GenRegion r : ctx.graph.regions()) {
             ctx.state.regions.put(r.id(), new RegionState(r.id()));
         }
-        List<String> sectRegions = chooseSectRegions(ctx, tier.sects());
+        var geometry = ctx.graph.geometry();
+        List<SectSite> planned = geometry == null ? List.of() : geometry.sectSites().stream()
+                .filter(site -> site.openingRank() >= 0)
+                .sorted(Comparator.comparingInt(SectSite::openingRank)).toList();
         int sectPopulation = (int) Math.round(tier.population() * (1.0 - tier.rogueShare()));
-        int[] sizes = sectSizes(ctx, sectPopulation, tier.sects());
-        Set<String> signatureUsed = new HashSet<>();
-        Set<String> heritageUsed = new HashSet<>();
-        for (int rank = 0; rank < tier.sects(); rank++) {
-            Sect sect = foundSect(ctx, rank, sectRegions.get(rank), signatureUsed, heritageUsed);
-            staff(ctx, sect, rank, sizes[rank]);
+        if (planned.isEmpty()) {
+            List<String> sectRegions = chooseSectRegions(ctx, tier.sects());
+            int[] sizes = sectSizes(ctx, sectPopulation, tier.sects());
+            Set<String> signatureUsed = new HashSet<>();
+            Set<String> heritageUsed = new HashSet<>();
+            for (int rank = 0; rank < tier.sects(); rank++) {
+                Sect sect = foundSect(ctx, rank, sectRegions.get(rank), null, null, signatureUsed, heritageUsed);
+                staff(ctx, sect, rank, sizes[rank]);
+            }
+        } else {
+            populatePlannedSects(ctx, sectPopulation, planned);
         }
         int rogues = Math.max(0, tier.population() - ctx.state.persons.size());
         for (int i = 0; i < rogues; i++) {
@@ -51,7 +66,7 @@ public final class Genesis {
             }
             Person master = ctx.state.persons.get(sect.masterId);
             long age = -sect.foundedDay / ctx.dpy;
-            ContentTables.Heritage heritage = ctx.data.heritage(sect.heritageId);
+            ContentTables.Heritage heritage = ctx.data.heritage(ctx.heritageSource(sect).heritageId);
             Chronicle.Builder event = ctx.chronicle.event("genesis", 3).actors(master.id).sects(sect.id)
                     .region(sect.homeRegionId);
             String[] params = {sect.name, ctx.regionName(sect.homeRegionId), master.name(),
@@ -67,12 +82,65 @@ public final class Genesis {
         }
     }
 
+    private static void populatePlannedSects(SimContext ctx, int population, List<SectSite> planned) {
+        Set<String> signatureUsed = new HashSet<>();
+        Set<String> heritageUsed = new HashSet<>();
+        Map<String, ContentTables.Heritage> rootHeritages = new LinkedHashMap<>();
+        for (SectSite site : planned) {
+            if (!site.tier().equals(SectProgressionRules.MAIN)
+                    || planned.stream().noneMatch(child -> child.parentSiteId().equals(site.id()))) continue;
+            var available = ctx.data.heritages().stream().filter(heritage -> !heritageUsed.contains(heritage.id())).toList();
+            if (available.isEmpty()) throw new IllegalStateException("开档宗门缺少可分配的独立传承");
+            var heritage = available.get(ctx.rng(site.openingRank(), Purpose.GENESIS_HERITAGE).nextInt(available.size()));
+            rootHeritages.put(site.id(), heritage);
+            heritageUsed.add(heritage.id());
+            signatureUsed.addAll(heritage.techniques());
+        }
+        Map<String, Sect> bySite = new LinkedHashMap<>();
+        int[] sizes = sectSizes(ctx, population, planned.size(), SectPolitics.minViable(ctx));
+        for (int rank = 0; rank < planned.size(); rank++) {
+            SectSite site = planned.get(rank);
+            if (site.openingRank() != rank || site.foundingOnly())
+                throw new IllegalStateException("开档宗门名单名次无效："+site.id());
+            bySite.put(site.id(), foundSect(ctx, rank, site.regionId(), site, rootHeritages.get(site.id()),
+                    signatureUsed, heritageUsed));
+        }
+        // 先登记总舵，再登记分宗，分宗通过总舵取得同一主宗来源。
+        for (String tier : List.of(SectProgressionRules.HEADQUARTERS, SectProgressionRules.BRANCH)) {
+            for (SectSite site : planned) {
+                if (!site.tier().equals(tier) || site.parentSiteId().isEmpty()) continue;
+                Sect sect = bySite.get(site.id());
+                Sect parent = bySite.get(site.parentSiteId());
+                if (parent == null) throw new IllegalStateException("缺少上级宗门："+site.parentSiteId());
+                Sect root = ctx.heritageSource(parent);
+                boolean main = tier.equals(SectProgressionRules.HEADQUARTERS);
+                if (!root.tierId.equals(SectProgressionRules.MAIN) || root.heritageId.isEmpty()
+                        || !(main ? parent == root : parent.tierId.equals(SectProgressionRules.HEADQUARTERS)))
+                    throw new IllegalStateException("宗门隶属等级无效："+site.id());
+                sect.parentSectId = parent.id;
+                sect.heritageRootSectId = root.id;
+                sect.foundedDay = Math.max(sect.foundedDay, parent.foundedDay + ctx.dpy);
+                sect.name = root.name + "·" + ctx.regionName(sect.homeRegionId) + (main ? "总舵" : "分宗");
+                ctx.usedSectNames().add(sect.name);
+            }
+        }
+        for (SectSite site : planned) staff(ctx, bySite.get(site.id()), site.openingRank(), sizes[site.openingRank()]);
+    }
+
     /** Region per strength rank: rank 0 in the anchor, the rest weighted by qi and spread out. */
     static List<String> chooseSectRegions(SimContext ctx, int count) {
         Rules.Genesis g = ctx.rules.genesis();
+        return chooseSectRegions(ctx.graph, count, ctx.rules.sectProgression().entryStates(),
+                region -> ctx.rules.sectProgression().forRegion(ctx.graph, region), g.regionQiExponent(),
+                g.regionCrowding(), ctx.rng(0, Purpose.GENESIS_SECT_REGION));
+    }
+
+    public static List<String> chooseSectRegions(RegionGraph graph, int count, int entryStates,
+                                                Function<String, String> tier,
+                                                double qiExponent, double crowding, SimRng rng) {
         List<GenRegion> eligible = new ArrayList<>();
         GenRegion anchor = null;
-        for (GenRegion r : ctx.graph.regions()) {
+        for (GenRegion r : graph.regions()) {
             if (SimContext.admitsSects(r)) {
                 eligible.add(r);
                 if (r.role().equals("anchor")) {
@@ -81,7 +149,7 @@ public final class Genesis {
             }
         }
         if (eligible.isEmpty()) {
-            throw new IllegalStateException("no region admits sects in the graph for seed " + ctx.state.seed);
+            throw new IllegalStateException("no region admits sects in the graph for seed " + graph.seed());
         }
         if (anchor == null) {
             anchor = eligible.get(0);
@@ -98,21 +166,20 @@ public final class Genesis {
         List<GenRegion> peripheral = eligible.stream().filter(r -> !r.role().equals("anchor"))
                 .sorted(java.util.Comparator.comparingInt(GenRegion::tier).thenComparing(GenRegion::id)).toList();
         // Seven eligible core states: the two weakest include the initial state even when 东海 is excluded.
-        for (var region : entryRegions(ctx)) {
+        for (var region : entryRegions(graph, entryStates)) {
             if (out.size() >= count) break;
             out.add(region.id()); placed[eligible.indexOf(region)]++;
         }
         if (out.size() < count && !peripheral.isEmpty()) {
-            var region = peripheral.stream().filter(r -> ctx.rules.sectProgression().forRegion(ctx.graph, r.id()).equals("headquarters"))
+            var region = peripheral.stream().filter(r -> tier.apply(r.id()).equals(SectProgressionRules.HEADQUARTERS))
                     .findFirst().orElse(peripheral.getLast());
             if (!out.contains(region.id())) { out.add(region.id()); placed[eligible.indexOf(region)]++; }
         }
-        SimRng rng = ctx.rng(0, Purpose.GENESIS_SECT_REGION);
         for (int k = out.size(); k < count; k++) {
             double[] w = new double[eligible.size()];
             for (int i = 0; i < w.length; i++) {
-                w[i] = StrictMath.pow(SimContext.qiMid(eligible.get(i)), g.regionQiExponent())
-                        / (1.0 + g.regionCrowding() * placed[i]);
+                w[i] = StrictMath.pow(SimContext.qiMid(eligible.get(i)), qiExponent)
+                        / (1.0 + crowding * placed[i]);
             }
             int pick = rng.weighted(w);
             placed[pick]++;
@@ -122,7 +189,12 @@ public final class Genesis {
     }
 
     static int[] sectSizes(SimContext ctx, int total, int count) {
+        return sectSizes(ctx, total, count, 0);
+    }
+
+    private static int[] sectSizes(SimContext ctx, int total, int count, int minimum) {
         double[] weights = ctx.rules.genesis().sizeWeights();
+        int distributable = Math.max(0, total - minimum * count);
         double sum = 0.0;
         for (int k = 0; k < count; k++) {
             sum += weights[Math.min(k, weights.length - 1)];
@@ -130,7 +202,7 @@ public final class Genesis {
         int[] sizes = new int[count];
         int given = 0;
         for (int k = 0; k < count; k++) {
-            sizes[k] = Math.max(2, (int) Math.floor(total * weights[Math.min(k, weights.length - 1)] / sum));
+            sizes[k] = Math.max(2, minimum + (int) Math.floor(distributable * weights[Math.min(k, weights.length - 1)] / sum));
             given += sizes[k];
         }
         for (int k = 0; given < total; k = (k + 1) % count) {
@@ -141,38 +213,49 @@ public final class Genesis {
     }
 
     static List<GenRegion> entryRegions(SimContext ctx) {
-        return ctx.graph.regions().stream().filter(SimContext::admitsSects)
-                .filter(region -> !region.role().equals("anchor"))
-                .sorted(java.util.Comparator.comparingInt(GenRegion::tier).thenComparing(GenRegion::id))
-                .limit(ctx.rules.sectProgression().entryStates()).toList();
+        return entryRegions(ctx.graph, ctx.rules.sectProgression().entryStates());
     }
 
-    private static Sect foundSect(SimContext ctx, int rank, String regionId, Set<String> signatureUsed,
+    private static List<GenRegion> entryRegions(RegionGraph graph, int entryStates) {
+        return graph.regions().stream().filter(SimContext::admitsSects)
+                .filter(region -> !region.role().equals("anchor"))
+                .sorted(java.util.Comparator.comparingInt(GenRegion::tier).thenComparing(GenRegion::id))
+                .limit(entryStates).toList();
+    }
+
+    private static Sect foundSect(SimContext ctx, int rank, String regionId, SectSite site,
+                                  ContentTables.Heritage reservedHeritage, Set<String> signatureUsed,
                                   Set<String> heritageUsed) {
         Rules.Genesis g = ctx.rules.genesis();
         Sect sect = new Sect();
         sect.id = ctx.state.nextSectId++;
-        sect.name = Naming.sectName(ctx, ctx.rng(sect.id, Purpose.GENESIS_SECT_NAME));
+        boolean dependent = site != null && !site.parentSiteId().isEmpty();
+        sect.name = dependent ? "" : Naming.sectName(ctx, ctx.rng(sect.id, Purpose.GENESIS_SECT_NAME));
         sect.homeRegionId = regionId;
         sect.tierId = ctx.rules.sectProgression().forRegion(ctx.graph, regionId);
-        int[] gate = GatePlacement.choose(ctx, ctx.rng(sect.id, Purpose.GENESIS_GATE), regionId);
+        int[] gate = site == null ? GatePlacement.choose(ctx, ctx.rng(sect.id, Purpose.GENESIS_GATE), regionId)
+                : new int[]{site.gateX(), site.gateZ()};
         if (gate == null) {
             throw new IllegalStateException("no gate site for sect " + sect.id + " in " + regionId
                     + " within " + ctx.rules.gates().retries() + " tries");
         }
+        if (site != null && (!sect.tierId.equals(site.tier()) || !GatePlacement.valid(ctx, regionId, gate[0], gate[1], -1)))
+            throw new IllegalStateException("开档宗门山门不合法："+site.id());
         sect.gateX = gate[0];
         sect.gateZ = gate[1];
-        ContentTables.Heritage heritage = pickHeritage(ctx, sect, heritageUsed);
-        if (heritage != null) {
-            sect.heritageId = heritage.id();
-            sect.signatureTechniqueId = heritage.last();
-            sect.basicTechniqueId = heritage.first();
-            signatureUsed.addAll(heritage.techniques());
-        } else {
-            SimRng rng = ctx.rng(sect.id, Purpose.GENESIS_TECHNIQUE);
-            String grade = g.signatureGrades().get(Math.min(rank, g.signatureGrades().size() - 1));
-            sect.signatureTechniqueId = pickTechnique(ctx, rng, grade, signatureUsed);
-            sect.basicTechniqueId = pickTechnique(ctx, rng, ContentTables.GRADE_ORDER.get(0), signatureUsed);
+        if (!dependent) {
+            ContentTables.Heritage heritage = reservedHeritage == null ? pickHeritage(ctx, sect, heritageUsed) : reservedHeritage;
+            if (heritage != null) {
+                sect.heritageId = heritage.id();
+                sect.signatureTechniqueId = heritage.last();
+                sect.basicTechniqueId = heritage.first();
+                signatureUsed.addAll(heritage.techniques());
+            } else {
+                SimRng rng = ctx.rng(sect.id, Purpose.GENESIS_TECHNIQUE);
+                String grade = g.signatureGrades().get(Math.min(rank, g.signatureGrades().size() - 1));
+                sect.signatureTechniqueId = pickTechnique(ctx, rng, grade, signatureUsed);
+                sect.basicTechniqueId = pickTechnique(ctx, rng, ContentTables.GRADE_ORDER.get(0), signatureUsed);
+            }
         }
         int ageYears = ctx.rng(sect.id, Purpose.GENESIS_FOUNDER).range(g.sectAgeYears()[0], g.sectAgeYears()[1]);
         sect.foundedDay = -(long) ageYears * ctx.dpy;

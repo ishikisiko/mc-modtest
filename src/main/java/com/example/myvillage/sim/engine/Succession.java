@@ -90,7 +90,7 @@ public final class Succession {
     private static long install(SimContext ctx, Sect sect, Person heir, long cause, String family, Anchor params) {
         String[] built = params.build();
         heir.rank = "sect_master";
-        if (!sect.heritageId.isEmpty()) {
+        if (!ctx.heritageSource(sect).heritageId.isEmpty()) {
             // A heritage sect's master practises the chain's senior technique (People.sectTechnique).
             heir.techniqueId = SectAffairs.upgradeTechnique(ctx, heir, People.sectTechnique(ctx, sect, heir.rank));
         }

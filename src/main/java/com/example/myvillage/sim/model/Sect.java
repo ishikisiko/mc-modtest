@@ -27,6 +27,8 @@ public final class Sect {
     public String basicTechniqueId = "";
     /** The heritage (传承) the sect holds, or "" for none. Kept after destruction, for history. */
     public String heritageId = "";
+    /** 三级宗门的下属从这一主宗读取传承与功法。 */
+    public int heritageRootSectId = -1;
     public final TreeMap<Integer, SectRelation> relations = new TreeMap<>();
     public String state = ACTIVE;
     public long destroyedDay = -1;

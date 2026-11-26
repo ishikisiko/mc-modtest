@@ -160,6 +160,20 @@ public final class SimContext {
         return state.sects.get(id);
     }
 
+    public Sect heritageSource(Sect sect) {
+        return sect.heritageRootSectId < 0 ? sect
+                : java.util.Objects.requireNonNull(state.sects.get(sect.heritageRootSectId), "缺少宗门传承来源");
+    }
+
+    public int nominalSectCount() {
+        var geometry = graph.geometry();
+        if (geometry != null) {
+            int opening = (int) geometry.sectSites().stream().filter(site -> site.openingRank() >= 0).count();
+            if (opening > 0) return opening;
+        }
+        return rules.tier(state.tierId).sects();
+    }
+
     public String sectName(int id) {
         Sect s = state.sects.get(id);
         return s == null ? "" : s.name;

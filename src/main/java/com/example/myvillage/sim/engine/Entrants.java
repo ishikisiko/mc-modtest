@@ -55,7 +55,7 @@ public final class Entrants {
         int[] root = Roots.drawBest(ctx.rules.roots(), rng, candidates);
         Person p = People.create(ctx, rng, root, 0, 0, ageDays, sect.homeRegionId);
         People.join(ctx, p, sect, "outer");
-        p.techniqueId = sect.basicTechniqueId;
+        p.techniqueId = People.sectTechnique(ctx, sect, "outer");
         int grade = Roots.gradeIndex(ctx.rules.roots(), root);
         if (grade == 0) {
             ctx.chronicle.event("recruit", 2).actors(p.id).sects(sect.id).region(sect.homeRegionId)
@@ -69,7 +69,7 @@ public final class Entrants {
 
     private static Sect pickSect(SimContext ctx, SimRng rng, List<Sect> sects, Rules.Tier tier) {
         Rules.Sects r = ctx.rules.sects();
-        double nominal = Math.max(1.0, tier.population() * (1.0 - tier.rogueShare()) / tier.sects());
+        double nominal = Math.max(1.0, tier.population() * (1.0 - tier.rogueShare()) / ctx.nominalSectCount());
         double[] weights = new double[sects.size()];
         for (int i = 0; i < weights.length; i++) {
             Sect s = sects.get(i);

@@ -9,9 +9,13 @@ public final class RoadNetworkPlanner {
     static final class UnconnectedCities extends IllegalStateException {
         private UnconnectedCities(List<String> failures){super("八城未全通；"+String.join("；",failures));}
     }
-    public record Result(List<RoadPlan> routes,List<RoadPlan.Cell> cells,List<RoadJunctionPlanner.Hub> hubs) {
+    public record Result(List<RoadPlan> routes,List<RoadPlan.Cell> cells,List<RoadJunctionPlanner.Hub> hubs,
+                         List<RoadPlan> foundingRoutes) {
         public Result(List<RoadPlan> routes,List<RoadPlan.Cell> cells){this(routes,cells,List.of());}
-        public Result {routes=List.copyOf(routes);cells=List.copyOf(cells);hubs=List.copyOf(hubs);}
+        public Result(List<RoadPlan> routes,List<RoadPlan.Cell> cells,List<RoadJunctionPlanner.Hub> hubs){
+            this(routes,cells,hubs,List.of());
+        }
+        public Result {routes=List.copyOf(routes);cells=List.copyOf(cells);hubs=List.copyOf(hubs);foundingRoutes=List.copyOf(foundingRoutes);}
     }
     public record Progress(String phase,String from,String to,int plannedRoutes,int requiredRoutes) {}
     private RoadNetworkPlanner() {}
@@ -53,7 +57,7 @@ public final class RoadNetworkPlanner {
         if(regions.stream().map(r->root(groups,r)).distinct().count()!=1){progress.accept(new Progress("failed","","",routes.size(),regions.size()-1));throw new UnconnectedCities(failures);}
         int required=regions.size()-1+world.sectSites().size();
         if(required>rules.maxRoutes)throw new IllegalStateException("宗门支路和官道总数超过声明预算");
-        for(var site:world.sectSites()){
+        for(var site:world.builtSectSites()){
             if(routes.stream().anyMatch(r->r.from().equals(site.id())))continue;
             progress.accept(new Progress("sect_spurs",site.id(),site.regionId(),routes.size(),required));
             var spur=SectRoadPlanner.plan(world,rules,site,routes,locked);
@@ -62,9 +66,16 @@ public final class RoadNetworkPlanner {
         }
         progress.accept(new Progress("merging","","",routes.size(),required));
         var junctions=RoadJunctionPlanner.prepare(world,rules,routes,previous);
-        var result=new Result(junctions.routes(),RoadNetworkGeometry.merge(world,rules,junctions.routes(),previous),junctions.hubs());
+        var built=RoadNetworkGeometry.merge(world,rules,junctions.routes(),previous);
+        List<RoadPlan> founding=new ArrayList<>();
+        for(var site:world.sectSites())if(site.foundingOnly()){
+            progress.accept(new Progress("founding_spurs",site.id(),site.regionId(),routes.size()+founding.size(),required));
+            // 每个候选都独立接入已校验的开档路网。
+            founding.add(SectRoadPlanner.plan(world,rules,site,junctions.routes(),built));
+        }
+        var result=new Result(junctions.routes(),built,junctions.hubs(),founding);
         org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("道路枢纽就绪：{} 处，半径 {}—{} 格",junctions.hubs().size(),rules.junctions.minimumRadius(),rules.junctions.crossRadius());
-        progress.accept(new Progress("complete","","",routes.size(),required));return result;
+        progress.accept(new Progress("complete","","",routes.size()+founding.size(),required));return result;
     }
     static List<WorldPlan.Border> progressionBorders(WorldPlan world) {
         var order=world.rules().progressionOrder;

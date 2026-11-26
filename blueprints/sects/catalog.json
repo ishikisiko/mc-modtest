@@ -16,6 +16,7 @@
   "layouts": [
     {
       "id": "yuanxian:cloud_gate_branch",
+      "family": "cloud_gate",
       "archetype": "cliff",
       "scale": "compact",
       "tier": "branch",
@@ -23,6 +24,7 @@
     },
     {
       "id": "yuanxian:cloud_gate_headquarters",
+      "family": "cloud_gate",
       "archetype": "cliff",
       "scale": "large",
       "tier": "headquarters",
@@ -30,6 +32,7 @@
     },
     {
       "id": "yuanxian:cloud_gate_main",
+      "family": "cloud_gate",
       "archetype": "cliff",
       "scale": "large",
       "tier": "main",
@@ -37,6 +40,7 @@
     },
     {
       "id": "yuanxian:cliff_retreat_branch",
+      "family": "cliff_retreat",
       "archetype": "cliff",
       "scale": "compact",
       "tier": "branch",
@@ -44,6 +48,7 @@
     },
     {
       "id": "yuanxian:cliff_retreat_headquarters",
+      "family": "cliff_retreat",
       "archetype": "cliff",
       "scale": "large",
       "tier": "headquarters",
@@ -51,6 +56,7 @@
     },
     {
       "id": "yuanxian:cliff_retreat_main",
+      "family": "cliff_retreat",
       "archetype": "cliff",
       "scale": "large",
       "tier": "main",
@@ -58,6 +64,7 @@
     },
     {
       "id": "yuanxian:valley_courts_branch",
+      "family": "valley_courts",
       "archetype": "valley",
       "scale": "compact",
       "tier": "branch",
@@ -65,6 +72,7 @@
     },
     {
       "id": "yuanxian:valley_courts_headquarters",
+      "family": "valley_courts",
       "archetype": "valley",
       "scale": "large",
       "tier": "headquarters",
@@ -72,6 +80,7 @@
     },
     {
       "id": "yuanxian:valley_courts_main",
+      "family": "valley_courts",
       "archetype": "valley",
       "scale": "large",
       "tier": "main",
@@ -79,6 +88,7 @@
     },
     {
       "id": "yuanxian:valley_retreat_branch",
+      "family": "valley_retreat",
       "archetype": "valley",
       "scale": "compact",
       "tier": "branch",
@@ -86,6 +96,7 @@
     },
     {
       "id": "yuanxian:valley_retreat_headquarters",
+      "family": "valley_retreat",
       "archetype": "valley",
       "scale": "large",
       "tier": "headquarters",
@@ -93,6 +104,7 @@
     },
     {
       "id": "yuanxian:valley_retreat_main",
+      "family": "valley_retreat",
       "archetype": "valley",
       "scale": "large",
       "tier": "main",
@@ -100,6 +112,7 @@
     },
     {
       "id": "yuanxian:lake_isles_branch",
+      "family": "lake_isles",
       "archetype": "lake",
       "scale": "compact",
       "tier": "branch",
@@ -107,6 +120,7 @@
     },
     {
       "id": "yuanxian:lake_isles_headquarters",
+      "family": "lake_isles",
       "archetype": "lake",
       "scale": "large",
       "tier": "headquarters",
@@ -114,6 +128,7 @@
     },
     {
       "id": "yuanxian:lake_isles_main",
+      "family": "lake_isles",
       "archetype": "lake",
       "scale": "large",
       "tier": "main",
@@ -121,6 +136,7 @@
     },
     {
       "id": "yuanxian:lake_retreat_branch",
+      "family": "lake_retreat",
       "archetype": "lake",
       "scale": "compact",
       "tier": "branch",
@@ -128,6 +144,7 @@
     },
     {
       "id": "yuanxian:lake_retreat_headquarters",
+      "family": "lake_retreat",
       "archetype": "lake",
       "scale": "large",
       "tier": "headquarters",
@@ -135,6 +152,7 @@
     },
     {
       "id": "yuanxian:lake_retreat_main",
+      "family": "lake_retreat",
       "archetype": "lake",
       "scale": "large",
       "tier": "main",

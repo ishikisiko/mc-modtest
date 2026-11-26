@@ -57,7 +57,7 @@ public final class SectAffairs {
             } else if (p.rank.equals("inner") && reached(ctx, p, new Rules.RealmStage(bars.elder().stage().realm(), bars.elder().stage().stage()))) {
                 Anchor before = Anchor.of(ctx).who(p).add(TextKeys.stage(ctx.realm(p).id(), p.stage));
                 p.rank = "elder";
-                if (!sect.heritageId.isEmpty()) {
+                if (!ctx.heritageSource(sect).heritageId.isEmpty()) {
                     p.techniqueId = upgradeTechnique(ctx, p, People.sectTechnique(ctx, sect, p.rank));
                 }
                 ctx.chronicle.event("promotion", 1).actors(p.id).sects(sect.id).region(p.regionId)

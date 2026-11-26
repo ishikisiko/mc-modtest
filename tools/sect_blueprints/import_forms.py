@@ -342,7 +342,7 @@ def export_form(source, key):
     }
     (folder/'form.json').write_text(json.dumps(spec,ensure_ascii=False,indent=2)+'\n')
     print(key, spec['size'], len(runs)//ROW.size, 'gate', entry, 'road', port, 'max', limits, flush=True)
-    return {k:spec[k] for k in ('id','archetype','scale','tier')} | {'source':f'forms/{layout}/form.json'}
+    return {k:spec[k] for k in ('id','archetype','scale','tier')} | {'family':family, 'source':f'forms/{layout}/form.json'}
 
 
 if __name__=='__main__':

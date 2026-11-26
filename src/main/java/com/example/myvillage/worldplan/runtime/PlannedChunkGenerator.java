@@ -64,7 +64,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     private final Holder<Biome> foldedRidgeBiome;
     private final Holder<NoiseGeneratorSettings> settings;
     private final HolderGetter<NormalNoise.NoiseParameters> noises;
-    private final WorldPlanRules rules;
+    private volatile WorldPlanRules rules;
     private final String expectedFingerprint;
     private volatile List<RejectedSectSite> rejectedSectSites;
     private final PlannedBiomeSource plannedSource;
@@ -99,6 +99,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     @Override public synchronized ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structures,RandomState ignored,long seed){
         if(plan!=null&&plan.seed()!=seed)throw new IllegalStateException("Cannot share a bound worldplan generator across different seeds");
         if(plan==null){
+            if(expectedFingerprint.isEmpty())rules=FoundingSiteConfig.freeze(rules);
             org.slf4j.LoggerFactory.getLogger(PlannedChunkGenerator.class).info(
                 "修仙世界生成输入 seed={}，algorithm={}，rules={}",seed,rules.algorithm,rules.fingerprint());
             if(settings.value().seaLevel()!=rules.seaLevel)throw new IllegalArgumentException("Worldplan sea level must match noise settings");
@@ -107,7 +108,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             // 全网校验完成后才允许创建区块，避免在半张布局上开始写入世界。
             WorldPlan p;
             try {
-                if(rules.compactPlacement!=null&&expectedFingerprint.isEmpty()){
+                if(rules.sectPlacement!=null&&expectedFingerprint.isEmpty()){
                     if(!rejectedSectSites.isEmpty())throw new IllegalArgumentException("未生成的世界不能带有宗门重选记录");
                     var selected=roads.selectCompact(seed,rules);
                     p=selected.world();
@@ -166,7 +167,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         if(region.getLevel().getServer().getWorldData().worldGenOptions().generateStructures())StarterMinePlacement.surface(plan(),starterMine,roads.await(),region,chunk);
     }
     @Override public void applyCarvers(WorldGenRegion region,long seed,RandomState ignored,BiomeManager biomes,StructureManager structures,ChunkAccess chunk,GenerationStep.Carving step){
-        if(!plan().intersectsCity(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ())&&!plan().intersectsSects(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ()))terrain.applyCarvers(region,seed,terrainState(),biomes,structures,chunk,step);
+        if(!plan().intersectsCity(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ())&&!plan().intersectsBuiltSects(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ()))terrain.applyCarvers(region,seed,terrainState(),biomes,structures,chunk,step);
         if(step==GenerationStep.Carving.AIR)PlannedSectPlacement.carve(plan(),chunk);
         if(step==GenerationStep.Carving.AIR&&region.getLevel().getServer().getWorldData().worldGenOptions().generateStructures())StarterMineCaveCarver.carve(plan(),starterMine,chunk);
         if(step==GenerationStep.Carving.AIR&&lotusMountain!=null)lotusMountain.place(chunk);
@@ -231,7 +232,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         for(int y=min;y<max;y++)states[y-min]=capital!=null&&y>=min+5
             ?CapitalGamePlacement.column(ground,inside,y,target,rules.seaLevel,nativeColumn.getBlock(y))
             :columnBlock(nativeColumn.getBlock(y),y,target,nativeFloor);
-        for(var site:world.sectSites()){
+        for(var site:world.builtSectSites()){
             if(!site.intersects(x,z,x,z,0))continue;
             var groundField=world.rules().sects.layout(site.blueprintId()).terrain;
             if(groundField.hasForm()){

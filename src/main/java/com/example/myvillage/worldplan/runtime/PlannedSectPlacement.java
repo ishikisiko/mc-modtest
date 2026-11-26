@@ -21,7 +21,7 @@ public final class PlannedSectPlacement {
         var cp=chunk.getPos();
         var air=Blocks.CAVE_AIR.defaultBlockState();
         var pos=new BlockPos.MutableBlockPos();
-        for(var site:plan.sectSites()){
+        for(var site:plan.builtSectSites()){
             if(!site.intersects(cp.getMinBlockX(),cp.getMinBlockZ(),cp.getMaxBlockX(),cp.getMaxBlockZ(),0))continue;
             var terrain=plan.rules().sects.layout(site.blueprintId()).terrain;
             if(terrain.hasForm()){
@@ -78,7 +78,7 @@ public final class PlannedSectPlacement {
         var cp=chunk.getPos();
         var clip=new BoundingBox(cp.getMinBlockX(),level.getMinBuildHeight(),cp.getMinBlockZ(),cp.getMaxBlockX(),level.getMaxBuildHeight()-1,cp.getMaxBlockZ());
         var roads=WorldPlanRuntime.generator(level.getLevel()).map(g->g.roads().await()).orElse(null);
-        for(var site:plan.sectSites()){
+        for(var site:plan.builtSectSites()){
             if(!site.intersects(clip.minX(),clip.minZ(),clip.maxX(),clip.maxZ(),0))continue;
             var data=SectBlueprint.get(site.blueprintId());
             if(!data.fingerprint.equals(site.blueprintHash()))throw new IllegalStateException("宗门规划与施工蓝图身份不一致");

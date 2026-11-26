@@ -15,10 +15,20 @@
     "outer_radius": [4080, 4800],
     "ring_min": 3720,
     "ring_max": 3830,
-    "compact_placement": {
-      "province_retries": 4,
-      "site_relocations": 2,
-      "preferred_spur_length": 4096
+    "compact_capitals": true
+  },
+  "sect_placement": {
+    "province_retries": 4,
+    "site_relocations": 2,
+    "preferred_spur_length": 4096
+  },
+  "sect_opening": {
+    "count": 20,
+    "lineages": 2,
+    "founding_sites": {
+      "branch": {"region": "auto", "style": "auto"},
+      "headquarters": {"region": "auto", "style": "auto"},
+      "main": {"region": "auto", "style": "auto"}
     }
   },
   "region_progression": {

@@ -23,7 +23,7 @@ public final class StarterMinePlanner {
 
     public static Search search(WorldPlan world,RoadLayout roads,StarterMineDefinition def){
         var alongTrunk=search(world,roads,def,false);
-        if(alongTrunk.layout().isPresent()||world.rules().compactPlacement==null)return alongTrunk;
+        if(alongTrunk.layout().isPresent()||!world.rules().compactCapitals)return alongTrunk;
         return search(world,roads,def,true);
     }
 

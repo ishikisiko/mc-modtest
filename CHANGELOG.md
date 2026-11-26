@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.157.0
+
+- 大、中、小三档修仙大陆的新档都生成 20 座命簿宗门，另为分宗、总舵、主宗各留一块创宗用地。三个候选位保留天然地形，分别校验接路。可在 `config/yuanxian-founding-sites.toml` 指定所属州和建筑系列。
+- 开档至少两组宗门保存主宗、总舵、分宗的隶属关系。每组使用同一建筑系列，下属宗门沿用主宗名，通过同一份传承提供经架借阅与授业。还有同脉宗门存续时，传承继续可用。
+
 ## 0.156.2
 
 - 新建修仙世界时可选半径 6,000 格的小地图。小地图在写入区块前检查宗门占地和实际支路，必要时按种子重选。开局矿场也可接入出生州的宗门支路。8,000 格中地图仍可选，默认是 10,000 格大地图。

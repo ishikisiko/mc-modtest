@@ -557,11 +557,12 @@ public final class WorldSim {
         for (SectRelation r : s.relations.values()) {
             relations.add(new SectView.Relation(r.other, r.value, r.state, r.causeEventId));
         }
-        ContentTables.Technique sig = ctx.data.technique(s.signatureTechniqueId);
-        ContentTables.Heritage heritage = ctx.data.heritage(s.heritageId);
+        Sect source = ctx.heritageSource(s);
+        ContentTables.Technique sig = ctx.data.technique(source.signatureTechniqueId);
+        ContentTables.Heritage heritage = ctx.data.heritage(source.heritageId);
         return new SectView(s.id, s.name, s.homeRegionId, s.gateX, s.gateZ, s.gateRealized, s.founderId,
                 ctx.nameOf(s.founderId), s.foundedDay, s.masterId, ctx.nameOf(s.masterId), members.size(),
-                top == null ? "" : ctx.realm(top).id(), s.resources, s.prestige, s.basicTechniqueId, s.signatureTechniqueId,
+                top == null ? "" : ctx.realm(top).id(), s.resources, s.prestige, source.basicTechniqueId, source.signatureTechniqueId,
                 sig == null ? "" : sig.name(), heritage == null ? "" : heritage.id(),
                 heritage == null ? "" : heritage.name(), s.state, s.destroyedDay, s.parentSectId,
                 List.copyOf(relations), s.tierId);

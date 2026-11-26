@@ -289,8 +289,9 @@ public final class SectPolitics {
     }
 
     private static void loseHeritage(SimContext ctx, Sect sect, long cause) {
-        ContentTables.Heritage heritage = ctx.data.heritage(sect.heritageId);
-        if (heritage == null) {
+        Sect source = ctx.heritageSource(sect);
+        ContentTables.Heritage heritage = ctx.data.heritage(source.heritageId);
+        if (heritage == null || ctx.activeSects().stream().anyMatch(other -> ctx.heritageSource(other) == source)) {
             return;
         }
         ctx.state.lostHeritages.add(new LostHeritage(heritage.id(), sect.id, ctx.day()));
@@ -392,7 +393,7 @@ public final class SectPolitics {
 
     private static double nominalSize(SimContext ctx) {
         Rules.Tier tier = ctx.rules.tier(ctx.state.tierId);
-        return Math.max(1.0, tier.population() * (1.0 - tier.rogueShare()) / tier.sects());
+        return Math.max(1.0, tier.population() * (1.0 - tier.rogueShare()) / ctx.nominalSectCount());
     }
 
     private static void schism(SimContext ctx, Sect sect) {
@@ -481,12 +482,12 @@ public final class SectPolitics {
 
     private static void founding(SimContext ctx) {
         Rules.Founding f = ctx.rules.founding();
-        Rules.Tier tier = ctx.rules.tier(ctx.state.tierId);
+        int nominal = ctx.nominalSectCount();
         int active = ctx.activeSects().size();
         // Fewer sects than the tier's nominal count make founding likelier; more make it rarer.
-        double rate = active < tier.sects()
-                ? f.ratePerYear() * (1.0 + f.deficitBoost() * (tier.sects() - active) / (double) tier.sects())
-                : f.ratePerYear() * StrictMath.pow(tier.sects() / (double) Math.max(1, active), f.surplusExponent());
+        double rate = active < nominal
+                ? f.ratePerYear() * (1.0 + f.deficitBoost() * (nominal - active) / (double) nominal)
+                : f.ratePerYear() * StrictMath.pow(nominal / (double) Math.max(1, active), f.surplusExponent());
         for (Person p : new ArrayList<>(ctx.state.persons.values())) {
             if (People.lifeResident(ctx, p) || p.sectId >= 0 || p.ambition < f.minAmbition() || !SectAffairs.reached(ctx, p, f.minRealm())
                     || Succession.yearsLeft(ctx, p) < f.minYearsLeft()) {

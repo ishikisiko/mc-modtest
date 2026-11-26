@@ -103,6 +103,8 @@ public final class MyVillageMod {
                 com.example.myvillage.forging.WorkshopChainConfig.FILE_NAME);
         modContainer.registerConfig(ModConfig.Type.SERVER, com.example.myvillage.housing.HousingConfig.SPEC,"yuanxian-housing-server.toml");
         modContainer.registerConfig(ModConfig.Type.SERVER, WorldSimServerConfig.SPEC, WorldSimServerConfig.FILE_NAME);
+        modContainer.registerConfig(ModConfig.Type.COMMON, com.example.myvillage.worldplan.runtime.FoundingSiteConfig.SPEC,
+                com.example.myvillage.worldplan.runtime.FoundingSiteConfig.FILE_NAME);
         modContainer.registerConfig(ModConfig.Type.SERVER, com.example.myvillage.exploration.ExplorationServerConfig.SPEC,
                 com.example.myvillage.exploration.ExplorationServerConfig.FILE_NAME);
         modContainer.registerConfig(ModConfig.Type.SERVER, com.example.myvillage.compat.waystones.WaystonesPricingConfig.SPEC,

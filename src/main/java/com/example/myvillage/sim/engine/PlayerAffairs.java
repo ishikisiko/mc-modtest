@@ -222,7 +222,8 @@ public final class PlayerAffairs {
             return List.of();
         }
         List<String> raw = new ArrayList<>();
-        ContentTables.Heritage heritage = ctx.data.heritage(sect.heritageId);
+        Sect source = ctx.heritageSource(sect);
+        ContentTables.Heritage heritage = ctx.data.heritage(source.heritageId);
         if (heritage != null) {
             List<String> chain = heritage.techniques();
             int n = switch (rank) {
@@ -232,9 +233,9 @@ public final class PlayerAffairs {
             };
             raw.addAll(chain.subList(0, Math.min(n, chain.size())));
         } else {
-            raw.add(sect.basicTechniqueId);
+            raw.add(source.basicTechniqueId);
             if (!rank.equals(OUTER)) {
-                raw.add(sect.signatureTechniqueId);
+                raw.add(source.signatureTechniqueId);
             }
         }
         raw.addAll(ctx.data.rules().player().scriptureHall().publicTechniques());

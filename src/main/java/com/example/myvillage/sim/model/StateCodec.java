@@ -185,6 +185,7 @@ public final class StateCodec {
         o.addProperty("signature_technique", s.signatureTechniqueId);
         o.addProperty("basic_technique", s.basicTechniqueId);
         o.addProperty("heritage", s.heritageId);
+        if (s.heritageRootSectId >= 0) o.addProperty("heritage_root", s.heritageRootSectId);
         JsonArray rel = new JsonArray();
         for (SectRelation r : s.relations.values()) {
             JsonObject ro = new JsonObject();
@@ -430,6 +431,18 @@ public final class StateCodec {
             Sect sect = readSect(so);
             s.sects.put(sect.id, sect);
         }
+        for (Sect sect : s.sects.values()) {
+            if (sect.heritageRootSectId < 0) continue;
+            Sect root = s.sects.get(sect.heritageRootSectId);
+            Sect parent = s.sects.get(sect.parentSectId);
+            if (root == null || root.heritageRootSectId >= 0 || root.heritageId.isEmpty()
+                    || !root.tierId.equals("main") || parent == null
+                    || !sect.heritageId.isEmpty() || !sect.basicTechniqueId.isEmpty() || !sect.signatureTechniqueId.isEmpty()
+                    || !(sect.tierId.equals("headquarters") && parent == root
+                    || sect.tierId.equals("branch") && parent.tierId.equals("headquarters")
+                    && parent.heritageRootSectId == root.id))
+                throw new SimFormatException("invalid shared sect heritage for " + sect.id);
+        }
         for (Obj lo : o.optObjects("lost_heritages")) {
             s.lostHeritages.add(new LostHeritage(lo.str("heritage"), lo.optInt("sect", -1), lo.lng("day")));
         }
@@ -544,6 +557,7 @@ public final class StateCodec {
         s.signatureTechniqueId = o.optStr("signature_technique", "");
         s.basicTechniqueId = o.optStr("basic_technique", "");
         s.heritageId = o.optStr("heritage", "");
+        s.heritageRootSectId = o.optInt("heritage_root", -1);
         for (Obj r : o.optObjects("relations")) {
             SectRelation rel = new SectRelation(r.integer("other"));
             rel.value = r.optInt("value", 0);

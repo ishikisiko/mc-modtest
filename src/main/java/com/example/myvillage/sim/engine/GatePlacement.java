@@ -23,6 +23,7 @@ public final class GatePlacement {
         if(ctx.graph.geometry()!=null&&!ctx.graph.geometry().sectSites().isEmpty()){
             String tier=ctx.rules.sectProgression().forRegion(ctx.graph,regionId);
             var sites=ctx.graph.geometry().sectSites().stream().filter(s->s.regionId().equals(regionId))
+                    .filter(s->!s.foundingOnly())
                     .filter(s->s.tier().isEmpty()||s.tier().equals(tier)).toList();
             if(sites.isEmpty())return null;
             int start=(int)(rng.nextDouble()*sites.size());
@@ -62,7 +63,7 @@ public final class GatePlacement {
         if(ctx.graph.geometry()!=null){
             var sites=ctx.graph.geometry().sectSites();
             if(!sites.isEmpty()){
-                if(sites.stream().noneMatch(s->s.regionId().equals(regionId)&&s.gateX()==x&&s.gateZ()==z))return false;
+                if(sites.stream().noneMatch(s->!s.foundingOnly()&&s.regionId().equals(regionId)&&s.gateX()==x&&s.gateZ()==z))return false;
                 for(Sect s:ctx.state.sects.values())if(s.id!=ignoreSectId&&s.gateX==x&&s.gateZ==z)return false;
             }else if(ctx.graph.geometry().reserved(x,z,g.minSpacing()))return false;
         }

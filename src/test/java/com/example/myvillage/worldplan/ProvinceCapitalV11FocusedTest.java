@@ -98,7 +98,7 @@ class ProvinceCapitalV11FocusedTest {
 
         var plan = new WorldPlan(42L, rules);
         assertEquals(8, plan.cities().size());
-        assertEquals(56, plan.sectSites().size());
+        assertEquals(23, plan.sectSites().size());
         assertTrue(plan.coreRegionAt(8000, 0).isPresent());
         assertTrue(plan.coreRegionAt(8001, 0).isEmpty());
         var restored = new WorldPlan(42L, new WorldPlanRules(FrozenRulesEncoding.decode(FrozenRulesEncoding.encode(rules.json()))));
@@ -110,12 +110,11 @@ class ProvinceCapitalV11FocusedTest {
         var generator=json(path).getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
         var rules=new WorldPlanRules(FrozenRulesEncoding.decode(generator.get("rules").getAsString()));
         assertEquals(6000,rules.coreRadius);
-        assertNotNull(rules.compactPlacement);
+        assertNotNull(rules.sectPlacement);
 
-        // 东海有一块宗门地在初始排列中放不下。
         var repacked=new WorldPlan(-1438339502791396633L,rules);
         assertEquals(8,repacked.cities().size());
-        assertEquals(56,repacked.sectSites().size());
+        assertEquals(23,repacked.sectSites().size());
         assertTrue(repacked.coreRegionAt(6000,0).isPresent());
         assertTrue(repacked.coreRegionAt(6001,0).isEmpty());
 

@@ -186,7 +186,7 @@ def export_catalog(out):
         spec=export_form(path,out,catalog['worldgen']) if path.name=='form.json' else export(path,out)
         key=spec['id'].split(':')[1]
         if any(spec[k]!=row[k] for k in ('id','archetype','scale','tier') if k in row):raise ValueError('宗门目录与输入不符')
-        refs.append({'id':spec['id'],'resource':f'yuanxian:sect_blueprints/{key}/sect.json',
+        refs.append({'id':spec['id'],'family':row['family'],'resource':f'yuanxian:sect_blueprints/{key}/sect.json',
                      'sha256':digest(out/f'data/yuanxian/sect_blueprints/{key}/sect.json')})
     if len({r['id'] for r in refs})!=len(refs) or catalog['default'] not in {r['id'] for r in refs}:raise ValueError('宗门目录身份无效')
     write_json(out/'data/yuanxian/sect_blueprints/catalog.json',{'schema':1,'default':catalog['default'],'layouts':refs})

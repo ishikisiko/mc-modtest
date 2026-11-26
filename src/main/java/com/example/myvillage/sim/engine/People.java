@@ -116,9 +116,10 @@ public final class People {
      * technique on every heritage master pushed nascent souls past the health bands).
      */
     public static String sectTechnique(SimContext ctx, Sect sect, String rank) {
-        ContentTables.Heritage heritage = ctx.data.heritage(sect.heritageId);
+        Sect source = ctx.heritageSource(sect);
+        ContentTables.Heritage heritage = ctx.data.heritage(source.heritageId);
         if (heritage == null) {
-            return rank.equals("outer") ? sect.basicTechniqueId : sect.signatureTechniqueId;
+            return rank.equals("outer") ? source.basicTechniqueId : source.signatureTechniqueId;
         }
         List<String> chain = heritage.techniques();
         int last = chain.size() - 1;

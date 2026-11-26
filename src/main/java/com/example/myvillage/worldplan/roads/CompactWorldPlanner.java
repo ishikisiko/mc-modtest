@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** 小地图在生成区块前用实际支路检查宗门落点，重选时重新校验全网。 */
+/** 在生成区块前用实际支路检查宗门落点，重选时重新校验全网。 */
 public final class CompactWorldPlanner {
     private static final Logger LOGGER=LoggerFactory.getLogger(CompactWorldPlanner.class);
 
@@ -22,8 +22,8 @@ public final class CompactWorldPlanner {
     private CompactWorldPlanner(){}
 
     public static Selection plan(long seed,WorldPlanRules rules,RoadRules roads,Consumer<RoadNetworkPlanner.Progress> progress){
-        var policy=rules.compactPlacement;
-        if(policy==null)throw new IllegalArgumentException("缺少小地图选址规则");
+        var policy=rules.sectPlacement;
+        if(policy==null)throw new IllegalArgumentException("缺少宗门选址规则");
         if(!roads.automatic){
             var world=new WorldPlan(seed,rules);
             return new Selection(world,RoadLayout.empty(world,roads),List.of());
@@ -44,7 +44,7 @@ public final class CompactWorldPlanner {
 
                 RoadPlan longest=null;
                 double length=0;
-                for(var route:network.routes()){
+                for(var route:java.util.stream.Stream.concat(network.routes().stream(),network.foundingRoutes().stream()).toList()){
                     if(world.sectSite(route.from()).isEmpty())continue;
                     double actual=route.horizontalLength();
                     if(actual>length){length=actual;longest=route;}
@@ -57,22 +57,22 @@ public final class CompactWorldPlanner {
                 }
                 if(longest==null||length<=policy.preferredSpurLength())break;
                 retrySite=world.sectSite(longest.from()).orElseThrow();
-                LOGGER.info("小地图宗门支路 {} 长 {} 格，目标 {} 格",retrySite.id(),Math.round(length),policy.preferredSpurLength());
+                LOGGER.info("宗门支路 {} 长 {} 格，目标 {} 格",retrySite.id(),Math.round(length),policy.preferredSpurLength());
             }catch(SectRoadPlanner.UnroutableSect failure){
                 lastFailure=failure;
                 retrySite=failure.site;
-                LOGGER.info("小地图宗门接路失败，seed={}，{}",seed,failure.getMessage());
+                LOGGER.info("宗门接路失败，seed={}，{}",seed,failure.getMessage());
             }catch(WorldPlan.SectPlacementExhausted|RoadNetworkPlanner.UnconnectedCities|RoadJunctionPlanner.Failure failure){
                 if(best==null)throw failure;
-                LOGGER.info("小地图改选未通过全网校验，seed={}，{}",seed,failure.getMessage());
+                LOGGER.info("宗门改选未通过全网校验，seed={}，{}",seed,failure.getMessage());
                 break;
             }
             if(attempt==policy.siteRelocations())break;
             rejected.add(new RejectedSectSite(retrySite));
-            LOGGER.info("小地图重选宗门位置，seed={}，地块={}，原点=({}, {})",seed,retrySite.id(),retrySite.x(),retrySite.z());
+            LOGGER.info("重选宗门位置，seed={}，地块={}，原点=({}, {})",seed,retrySite.id(),retrySite.x(),retrySite.z());
         }
-        if(best==null)throw new IllegalStateException("小地图选址用尽，无法生成完整路网",lastFailure);
-        LOGGER.info("小地图选址完成，seed={}，重选记录={}，最长宗门支路={} 格，开局矿场={}",
+        if(best==null)throw new IllegalStateException("宗门选址用尽，无法生成完整路网",lastFailure);
+        LOGGER.info("选址完成，seed={}，重选记录={}，最长宗门支路={} 格，开局矿场={}",
             seed,best.rejectedSites().size(),Math.round(bestLength),bestHasMine);
         return best;
     }

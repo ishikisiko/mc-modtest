@@ -51,6 +51,7 @@ public final class WorldPlan {
     private final List<Settlement> settlements;
     private final Qianzhen qianzhen;
     private final List<SectSite> sectSites;
+    private final List<SectSite> builtSectSites;
     private final Set<RejectedSectSite> rejectedSites;
     private final Map<String,SectSite> sectById;
     private final String fingerprint;
@@ -63,7 +64,7 @@ public final class WorldPlan {
     public WorldPlan(long seed,WorldPlanRules rules,List<RejectedSectSite> rejectedSites) {
         this.seed=seed;this.rules=rules;
         this.rejectedSites=Set.copyOf(rejectedSites);
-        int maxRejections=rules.compactPlacement==null?0:rules.compactPlacement.siteRelocations();
+        int maxRejections=rules.sectPlacement==null?0:rules.sectPlacement.siteRelocations();
         if(rejectedSites.size()>maxRejections||this.rejectedSites.size()!=rejectedSites.size())
             throw new IllegalArgumentException("宗门落点的重选记录超出规划限制");
         for(var site:rejectedSites) {
@@ -101,6 +102,7 @@ public final class WorldPlan {
             reservations.add(new RegionGeometry.Reservation(qianzhen.id,qianzhen.x-m,qianzhen.z-m,qianzhen.x+r.size+m-1,qianzhen.z+r.size+m-1));
         }
         sectSites=chooseSectSites(reservations,preliminary);
+        builtSectSites=sectSites.stream().filter(site->!site.foundingOnly()).toList();
         sectById=sectSites.stream().collect(java.util.stream.Collectors.toUnmodifiableMap(SectSite::id,s->s));
         for(var site:sectSites){int m=site.margin()+rules.sects.buffer;reservations.add(new RegionGeometry.Reservation(site.id(),site.x()-m,site.z()-m,site.x()+site.width()+m-1,site.z()+site.depth()+m-1));}
         RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,reservations,sectSites);
@@ -127,10 +129,14 @@ public final class WorldPlan {
     public List<Settlement> settlements(){return settlements;}
     public Qianzhen qianzhen(){return qianzhen;}
     public List<SectSite> sectSites(){return sectSites;}
+    public List<SectSite> builtSectSites(){return builtSectSites;}
     public Optional<SectSite> sectSite(String id){return Optional.ofNullable(sectById.get(id));}
     public Optional<SectSite> sectAtGate(int x,int z){return sectSites.stream().filter(s->s.gateX()==x&&s.gateZ()==z).findFirst();}
     public boolean intersectsSects(int minX,int minZ,int maxX,int maxZ){
         return sectSites!=null&&sectSites.stream().anyMatch(s->s.intersects(minX,minZ,maxX,maxZ,rules.sects.buffer));
+    }
+    public boolean intersectsBuiltSects(int minX,int minZ,int maxX,int maxZ){
+        return builtSectSites.stream().anyMatch(s->s.intersects(minX,minZ,maxX,maxZ,rules.sects.buffer));
     }
     /** 原始实心地形之上的第一格；海底不会因此被抬到水面。 */
     public int naturalTerrainY(int x,int z){return (int)StrictMath.floor(baseValues(x,z).height);}
@@ -138,21 +144,31 @@ public final class WorldPlan {
     public int naturalSurfaceY(int x,int z){return Math.max(rules.seaLevel,naturalTerrainY(x,z));}
     private List<SectSite> chooseSectSites(List<RegionGeometry.Reservation> reservations,RegionGraph preliminary){
         var r=rules.sects;List<SectSite> chosen=new ArrayList<>();
+        int seedSalt=(int)mix(seed);
+        var planned=rules.sectOpening==null?null:
+                OpeningSectPlanner.plan(preliminary,r,rules.sectOpening,seedSalt,spawn.regionId());
         for(var region:regions){
             if(walled(region))continue;
             double[] center=geometry.unwarp(region.x,region.z);
-            String tier=r.tier(preliminary,region.id());
-            List<Integer> slots=new ArrayList<>();
-            List<SectPlanningRules.Layout> layouts=new ArrayList<>();
-            for(int slot=0;slot<r.slots;slot++){
-                slots.add(slot);
-                layouts.add(r.choose(region.id().hashCode(),(int)mix(seed),slot,tier));
+            List<OpeningSectPlanner.Slot> drafts;
+            if(planned!=null)drafts=planned.getOrDefault(region.id(),List.of());
+            else{
+                String tier=r.tier(preliminary,region.id());
+                drafts=new ArrayList<>(r.slots);
+                for(int slot=0;slot<r.slots;slot++)
+                    drafts.add(new OpeningSectPlanner.Slot(region.id(),slot,
+                            r.choose(region.id().hashCode(),seedSalt,slot,tier),-1,false,""));
             }
-            slots.sort(Comparator.comparingInt((Integer slot)->layouts.get(slot).width*layouts.get(slot).depth).reversed());
+            List<Integer> slots=new ArrayList<>();
+            for(int slot=0;slot<drafts.size();slot++)slots.add(slot);
+            slots.sort(Comparator.comparingInt((Integer slot)->{
+                var layout=drafts.get(slot).layout();
+                return layout.width*layout.depth;
+            }).reversed());
             int startOfRegion=chosen.size();
             long normalStream=0x53454354504cL;
-            int failed=packRegionSectSites(reservations,region,center,slots,layouts,chosen,normalStream);
-            int retries=rules.compactPlacement==null?0:rules.compactPlacement.provinceRetries();
+            int failed=packRegionSectSites(reservations,region,center,slots,drafts,chosen,normalStream);
+            int retries=rules.sectPlacement==null?0:rules.sectPlacement.provinceRetries();
             // 仅清空当前州，先给上轮失败的规格找位置。
             for(int pass=0;failed>=0&&pass<retries;pass++){
                 chosen.subList(startOfRegion,chosen.size()).clear();
@@ -160,18 +176,19 @@ public final class WorldPlan {
                 order.remove(Integer.valueOf(failed));
                 order.addFirst(failed);
                 long stream=pass==0?normalStream:mix(normalStream+pass);
-                failed=packRegionSectSites(reservations,region,center,order,layouts,chosen,stream);
+                failed=packRegionSectSites(reservations,region,center,order,drafts,chosen,stream);
             }
-            if(failed>=0)throw new SectPlacementExhausted(region.id(),failed,layouts.get(failed).id);
+            if(failed>=0)throw new SectPlacementExhausted(region.id(),failed,drafts.get(failed).layout().id);
         }
         return List.copyOf(chosen);
     }
     private int packRegionSectSites(List<RegionGeometry.Reservation> reservations,Region region,double[] center,
-            List<Integer> slots,List<SectPlanningRules.Layout> layouts,List<SectSite> chosen,long stream){
+            List<Integer> slots,List<OpeningSectPlanner.Slot> drafts,List<SectSite> chosen,long stream){
         var r=rules.sects;
         for(int slot:slots){
-            var layout=layouts.get(slot);
-            String id="sect_site_"+region.id()+"_"+slot;
+            var draft=drafts.get(slot);
+            var layout=draft.layout();
+            String id=draft.id();
             SectSite accepted=null;
             int bestRise=Integer.MIN_VALUE,matches=0;
             for(int attempt=0;attempt<r.attempts;attempt++){
@@ -190,7 +207,9 @@ public final class WorldPlan {
                 if(surface<=rules.seaLevel+layout.dryGateMargin)continue;
                 if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+layout.maxBlockY>=r.maxY)continue;
                 if(layout.terrain.hasCavern()&&naturalTerrainY(x+layout.entryX,z+layout.entryZ)<=rules.seaLevel)continue;
-                var site=new SectSite(id,region.id(),x,base,z,x+layout.entryX,surface,z+layout.entryZ,layout.width,layout.depth,layout.margin,layout.id,layout.hash,layout.tier);
+                var site=new SectSite(id,region.id(),x,base,z,x+layout.entryX,surface,z+layout.entryZ,
+                        layout.width,layout.depth,layout.margin,layout.id,layout.hash,layout.tier,
+                        draft.openingRank(),draft.foundingOnly(),draft.parentSiteId());
                 var body=r.footprint(site);var access=r.exitClearance(site);
                 for(int px:new int[]{access.minX(),(access.minX()+access.maxX())/2,access.maxX()})
                     for(int pz:new int[]{access.minZ(),(access.minZ()+access.maxZ())/2,access.maxZ()})
@@ -405,7 +424,7 @@ public final class WorldPlan {
         return Optional.ofNullable(tileIndex.get((x<<32) ^ (z&0xffffffffL)));
     }
     public boolean reserved(int x,int y,int z) {
-        if(sectSites!=null)for(var s:sectSites)if(s.intersects(x,z,x,z,0)){
+        if(builtSectSites!=null)for(var s:builtSectSites)if(s.intersects(x,z,x,z,0)){
             var terrain=rules.sects.layout(s.blueprintId()).terrain;
             int lx=x-s.x(),lz=z-s.z();
             if(terrain.reserves(lx,y-s.baseY(),lz,naturalSurfaceY(x,z)-s.baseY()))return true;
@@ -597,7 +616,7 @@ public final class WorldPlan {
         // V8 starts at a real authored entry; a synthetic spawn pad must not flatten its streets.
         if(rules.capitals!=null){
             Values v=baseValues(x,z);
-            if(sectSites!=null)for(var s:sectSites)if(s.intersects((int)x,(int)z,(int)x,(int)z,0)){
+            if(builtSectSites!=null)for(var s:builtSectSites)if(s.intersects((int)x,(int)z,(int)x,(int)z,0)){
                 int lx=(int)StrictMath.floor(x)-s.x(),lz=(int)StrictMath.floor(z)-s.z();
                 var terrain=rules.sects.layout(s.blueprintId()).terrain;
                 if(terrain.affects(lx,lz))return new Values(terrain.firstAir(s.baseY(),lx,lz,naturalSurfaceY((int)x,(int)z)),v.qi,v.danger);

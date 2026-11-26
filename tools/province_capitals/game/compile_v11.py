@@ -119,9 +119,13 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
         policy=sect['worldgen']
         terrain=sect_root/('data/'+sect['terrain']['resource'].replace(':','/',1))
         if sha(terrain.read_bytes())!=sect['terrain']['sha256']:raise ValueError('宗门高度场摘要不一致')
-        layouts.append({'id':sect['id'],'resource':sect_ref['resource'],'blueprint_sha256':sect_ref['sha256']})
-    progression=json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/rules.json').read_text())['sect_progression']
+        layouts.append({'id':sect['id'],'family':sect_ref['family'],'resource':sect_ref['resource'],'blueprint_sha256':sect_ref['sha256']})
+    sim_rules=json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/rules.json').read_text())
+    progression=sim_rules['sect_progression']
     frozen['sects']={**policy,'layouts':layouts,**{key:progression[key] for key in ('entry_states','regional_hubs')}}
+    frozen['sect_placement']=spec['sect_placement']
+    frozen['sect_opening']={**spec['sect_opening'],
+            **{key:sim_rules['genesis'][key] for key in ('region_qi_exponent','region_crowding')}}
     mine_root=ROOT/'build/generated/starter_mine/resources'
     mine_path=mine_root/'data/yuanxian/starter_mine/layout.json'
     mine_bytes=old.read_bounded(mine_path,2*1024*1024)

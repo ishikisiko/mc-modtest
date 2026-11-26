@@ -60,7 +60,7 @@ public final class SectRoadPlanner {
         var sorted=possible.values().stream().sorted(Comparator.comparingDouble((Point p)->Math.hypot(p.x()-start.x(),p.z()-start.z())).thenComparingInt(Point::x).thenComparingInt(Point::z)).toList();
         List<Point> targets=new ArrayList<>();
         for(var p:sorted)if(targets.stream().noneMatch(q->Math.hypot(p.x()-q.x(),p.z()-q.z())<sp.targetSpacing())){targets.add(p);if(targets.size()==sp.candidates())break;}
-        var compact=world.rules().compactPlacement;
+        var compact=world.rules().sectPlacement;
         if(compact!=null){
             // 最近的接点可能集中在被城墙或地形挡住的一侧，补查其他方向的最近接点。
             Set<Integer> headings=new HashSet<>();

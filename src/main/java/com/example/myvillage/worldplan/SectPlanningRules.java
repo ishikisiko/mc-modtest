@@ -15,11 +15,12 @@ public final class SectPlanningRules {
     private final int entryStates, regionalHubs;
     private final Map<String,Layout> byId;
     public static final class Layout {
-        public final String id,hash,archetype,scale,tier;
+        public final String id,hash,archetype,scale,tier,family;
         public final int dryGateMargin,width,height,depth,margin,maxBlockY,entryX,entryY,entryZ,portX,portY,portZ,portWidth,portDx,portDz;
         public final SectTerrain terrain;
         Layout(JsonObject r){
-            id=text(r,"id");hash=text(r,"blueprint_sha256");
+            id=text(r,"id");hash=text(r,"blueprint_sha256");family=text(r,"family");
+            if(!family.matches("[a-z][a-z0-9_]*"))throw new IllegalArgumentException("宗门建筑系列无效："+family);
             if(!id.matches("yuanxian:[a-z0-9_]+")||!hash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("宗门蓝图身份无效");
             byte[] raw=SectTerrain.verifiedResource(text(r,"resource"),hash,8*1024*1024);
             var data=JsonParser.parseString(new String(raw,StandardCharsets.UTF_8)).getAsJsonObject();
@@ -59,6 +60,11 @@ public final class SectPlanningRules {
         byTier=layouts.stream().collect(java.util.stream.Collectors.groupingBy(l->l.tier));
         for(String tier:com.example.myvillage.sim.data.SectProgressionRules.IDS)
             if(!byTier.containsKey(tier)||byTier.get(tier).size()>slots)throw new IllegalArgumentException("宗门等级布局数量无效："+tier);
+        for(var family:layouts.stream().collect(java.util.stream.Collectors.groupingBy(layout->layout.family)).entrySet()){
+            var grades=family.getValue().stream().map(layout->layout.tier).toList();
+            if(grades.size()!=3||!Set.copyOf(grades).equals(Set.copyOf(com.example.myvillage.sim.data.SectProgressionRules.IDS)))
+                throw new IllegalArgumentException("宗门建筑系列须包含三个等级："+family.getKey());
+        }
     }
     public Layout layout(String id){var v=byId.get(id);if(v==null)throw new IllegalArgumentException("未知宗门蓝图："+id);return v;}
     RegionGeometry.Reservation footprint(SectSite site){
@@ -74,6 +80,12 @@ public final class SectPlanningRules {
     }
     public String tier(com.example.myvillage.region.runtime.RegionGraph graph,String region) {
         return com.example.myvillage.sim.data.SectProgressionRules.forRegion(graph,region,entryStates,regionalHubs);
+    }
+    public int entryStates(){return entryStates;}
+
+    public Layout family(String family,String tier){
+        return byTier.get(tier).stream().filter(layout->layout.family.equals(family)).findFirst()
+            .orElseThrow(()->new IllegalArgumentException("未知宗门建筑系列："+family+"，等级："+tier));
     }
     public Layout choose(int regionHash,int seedSalt,int slot,String tier) {
         var family=byTier.get(tier);

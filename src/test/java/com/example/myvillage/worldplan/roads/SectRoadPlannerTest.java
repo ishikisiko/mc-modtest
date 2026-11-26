@@ -6,14 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SectRoadPlannerTest {
     private WorldPlan world()throws Exception{return new WorldPlan(20261103,new WorldPlanRules(new String(getClass().getResourceAsStream("/data/yuanxian/worldplan/frozen_v11.json").readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)));}
-    @Test void eachRegionContainsSixFormsOfItsOwnRank()throws Exception{
+    @Test void eachSiteUsesAFormForItsProvinceRank()throws Exception{
         var world=world();
-        for(var region:world.regions())if(!world.rules().profile(region.profile().id()).role().equals("walled")){
-            var sites=world.sectSites().stream().filter(s->s.regionId().equals(region.id())).toList();
-            assertEquals(6,sites.stream().map(s->s.blueprintId()).distinct().count());
-            assertEquals(3,sites.stream().map(s->world.rules().sects.layout(s.blueprintId()).archetype).distinct().count());
-            var tier=world.rules().sects.tier(world.graph(),region.id());
-            assertTrue(sites.stream().allMatch(s->world.rules().sects.layout(s.blueprintId()).tier.equals(tier)));
+        for(var site:world.sectSites()){
+            var tier=world.rules().sects.tier(world.graph(),site.regionId());
+            assertEquals(tier,site.tier());
+            assertEquals(tier,world.rules().sects.layout(site.blueprintId()).tier);
         }
     }
     @Test void onlyTheDeclaredExteriorCollarGrantsRoadPermission()throws Exception{
