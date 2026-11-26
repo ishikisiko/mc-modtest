@@ -9,9 +9,11 @@ import com.example.myvillage.combat.foundation.ControlService;
 import com.example.myvillage.combat.foundation.HealingRuntime;
 import com.example.myvillage.combat.runtime.CombatActors;
 import com.example.myvillage.combat.runtime.CombatCaster;
+import com.example.myvillage.combat.runtime.CombatDisciplines;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.combat.runtime.SwordArmorBreak;
+import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime;
 import com.example.myvillage.stats.DamageType;
 import java.util.Comparator;
@@ -60,6 +62,7 @@ final class AscendantArts {
         CombatSession session;
         long revision;
         boolean mastery;
+        boolean contactMade;
         double damageTaken;
 
         Cast(LivingEntity actor, ArtDefinition art, CombatSession session, Aim aim, boolean paid) {
@@ -255,7 +258,10 @@ final class AscendantArts {
         for (Entity target : targets) {
             Vec3 offset = point(target).subtract(moved);
             if (!heavy && offset.dot(direction) >= 0 && spearTip(moved, target)) {
-                hit(cast, target, cast.effect.damage());
+                boolean charged = CombatDisciplines.stacks(cast.actor, "spear") > 0;
+                double bonus = charged ? 1 + TechniqueTraits.number("contact_pool_bonus") : 1;
+                if (hit(cast, target, cast.effect.damage() * bonus) && charged)
+                    CombatDisciplines.consumeStacks(cast.actor, "spear");
                 heavy = true;
             } else hit(cast, target, cast.effect.secondary());
         }
@@ -358,11 +364,12 @@ final class AscendantArts {
 
     static boolean hit(Cast cast, Entity target, double multiplier, boolean primary) {
         if (!cast.valid() || !cast.legal(target) || multiplier <= 0 || !Double.isFinite(multiplier)) return false;
-        float damage = RealmArtCombat.hit(cast.actor, target, cast.art, cast.session, multiplier, cast.base);
+        float damage = RealmArtCombat.hit(cast.actor, target, cast.art, cast.session, multiplier, cast.base, !cast.contactMade);
         if (!(damage > 0) || !cast.valid()) return false;
+        cast.contactMade = true;
         award(cast);
         if (primary && cast.spec.element().orElse(null) == DamageType.FIRE)
-            GoldenCoreActions.onDirectFire(cast.actor, target);
+            GoldenCoreActions.onDirectFire(cast.actor, target, cast.art.id());
         LOG.info("ASCENDANT_ART actor={} art={} target={} multiplier={} damage={}",
                 CombatCaster.name(cast.actor), cast.art.id(), target.getId(), multiplier, damage);
         return true;

@@ -55,6 +55,17 @@ public final class CombatDisciplines {
     }
     private static void gain(LivingEntity p, Entry e, long revision, DisciplineRules.Pool rules) {
         if (!e.pool.gain(revision,now(p),rules)) return;
+        showGain(p, e, rules);
+    }
+    /** The caller has already checked the first positive contact of this cast. */
+    static void gainFromArt(LivingEntity actor, String family) {
+        Entry entry = current(actor);
+        if (entry == null || !entry.family.equals(family)) return;
+        var rules = family.equals("sword") ? DisciplineRules.get().sword() : DisciplineRules.get().body();
+        entry.pool.gain(now(actor), rules);
+        showGain(actor, entry, rules);
+    }
+    private static void showGain(LivingEntity p, Entry e, DisciplineRules.Pool rules) {
         int stacks = e.pool.stacks(now(p));
         CombatCaster.message(p,Component.literal((e.family.equals("sword") ? "剑意 " : "蓄劲 ")
                 + stacks + "/" + rules.maximum()),true);

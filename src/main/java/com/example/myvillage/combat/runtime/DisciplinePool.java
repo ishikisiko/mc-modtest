@@ -9,12 +9,15 @@ public final class DisciplinePool {
         return stacks;
     }
     public boolean gain(long action, long now, DisciplineRules.Pool rules) {
-        stacks(now);
         if (action <= lastAction) return false;
         lastAction = action;
+        gain(now, rules);
+        return true;
+    }
+    void gain(long now, DisciplineRules.Pool rules) {
+        stacks(now);
         stacks = Math.min(rules.maximum(), stacks + 1);
         expires = now + rules.timeoutTicks();
-        return true;
     }
     public double consume(long now, DisciplineRules.Pool rules) {
         return 1 + consumeStacks(now) * rules.bonus();

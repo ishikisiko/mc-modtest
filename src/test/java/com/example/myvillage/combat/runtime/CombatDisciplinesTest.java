@@ -1,6 +1,8 @@
 package com.example.myvillage.combat.runtime;
 
 import com.google.gson.JsonParser;
+import com.example.myvillage.cultivation.data.TechniqueTraits;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,5 +47,15 @@ class CombatDisciplinesTest {
             root.getAsJsonObject("spear").addProperty("minimum_distance",8);
             assertThrows(IllegalArgumentException.class,()->DisciplineRules.parse(root));
         }
+    }
+
+    @Test void taggedArtsLoadTheirActualContactRules() {
+        var sidestep = TechniqueTraits.contactRules(ResourceLocation.parse("yuanxian:cuobu_zhan"));
+        assertEquals(java.util.List.of(
+                new TechniqueTraits.ContactRule(TechniqueTraits.ContactState.SWORD_INTENT, TechniqueTraits.ContactRole.GAIN),
+                new TechniqueTraits.ContactRule(TechniqueTraits.ContactState.PURSUIT, TechniqueTraits.ContactRole.SPEND)), sidestep);
+        var stamp = TechniqueTraits.contactRules(ResourceLocation.parse("yuanxian:zhenyue_yin"));
+        assertEquals(TechniqueTraits.ContactState.EARTH_UNBALANCE, stamp.getFirst().state());
+        assertEquals(TechniqueTraits.ContactRole.SPEND, stamp.getFirst().role());
     }
 }

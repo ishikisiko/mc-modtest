@@ -2,10 +2,13 @@ package com.example.myvillage.combat.session;
 
 import com.example.myvillage.combat.art.ArtDefinition;
 import com.example.myvillage.combat.art.EarlyRealmArt;
+import com.example.myvillage.combat.elemental.ElementalEffects;
 import com.example.myvillage.combat.foundation.HealingRuntime;
 import com.example.myvillage.combat.runtime.CombatActors;
 import com.example.myvillage.combat.runtime.CombatCaster;
 import com.example.myvillage.combat.runtime.CombatDisciplines;
+import com.example.myvillage.cultivation.data.TechniqueTraits;
+import com.example.myvillage.stats.DamageType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -172,8 +175,11 @@ public final class EarlyRealmEffects {
                 .min(Comparator.comparingDouble((LivingEntity e) -> e.getHealth() / e.getMaxHealth())
                         .thenComparingInt(LivingEntity::getId)).orElse(null);
         if (ally == null) return false;
-        float amount = (float) (Math.min(ally.getMaxHealth(), cast.caster.getMaxHealth()) * cast.spec.potency());
+        int charges = ElementalEffects.charges(cast.caster, DamageType.WOOD);
+        double bonus = 1 + charges * TechniqueTraits.number("branch_heal_bonus_per_charge");
+        float amount = (float) (Math.min(ally.getMaxHealth(), cast.caster.getMaxHealth()) * cast.spec.potency() * bonus);
         if (!(HealingRuntime.heal(ally, amount, cast.art.id()) > 0)) return false;
+        if (charges > 0) ElementalEffects.consume(cast.caster, DamageType.WOOD);
         markTarget(cast.caster, cast.art, ally, false);
         EarlyRealmActions.award(cast);
         report(field, "healed");

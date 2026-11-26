@@ -17,6 +17,7 @@ import com.example.myvillage.combat.art.ArtMath;
 import com.example.myvillage.combat.foundation.ShieldRuntime;
 import com.example.myvillage.combat.runtime.CombatActors;
 import com.example.myvillage.cultivation.data.TechniqueTraits;
+import com.example.myvillage.cultivation.fate.FateDefenses;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime;
 import com.example.myvillage.stats.DamageType;
 import com.example.myvillage.stats.runtime.StatsRuntime;
@@ -26,7 +27,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -71,6 +74,7 @@ public final class GoldenCoreActions {
         Vec3 origin;
         Entity spearFollowup;
         boolean mastery;
+        boolean contactMade;
 
         Cast(LivingEntity caster, ArtDefinition art, Aim aim, CombatSession session, boolean paid) {
             this.caster = caster;
@@ -131,7 +135,13 @@ public final class GoldenCoreActions {
             recordUntil = clock(cast.caster) + cast.spec.interval();
         }
     }
-    private record Fuse(Cast cast, Entity victim, long due) {}
+    private record Fuse(LivingEntity caster, Entity victim, ArtDefinition art, double base, long due,
+                        double timeoutMultiplier, double triggerMultiplier, BooleanSupplier ready) {
+        boolean active() {
+            return CombatTargets.owner(victim) instanceof LivingEntity target
+                    && target.isAlive() && !FateDefenses.immune(target) && ready.getAsBoolean();
+        }
+    }
 
     static Aim prepare(LivingEntity caster, CombatSession session, ArtDefinition art) {
         var spec = art.goldenCore().orElseThrow();
@@ -390,9 +400,11 @@ public final class GoldenCoreActions {
                 if (chill) ElementalEffects.consumeWaterChill(cast.caster, (LivingEntity) CombatTargets.owner(target));
             }
             case FIRE_FUSE -> {
-                if (CombatTargets.owner(target).isAlive()) {
+                if (CombatTargets.owner(target) instanceof LivingEntity victim && victim.isAlive() && !FateDefenses.immune(victim)) {
                     cast.detach();
-                    FUSES.put(cast.caster.getUUID(), new Fuse(cast, target, clock(cast.caster) + spec.duration()));
+                    FUSES.put(cast.caster.getUUID(), new Fuse(cast.caster, target, cast.art, cast.base,
+                            clock(cast.caster) + spec.duration(), spec.secondary(), spec.bonus(),
+                            () -> cast.valid() && liveTarget(cast) != null));
                 }
             }
             default -> { }
@@ -519,13 +531,13 @@ public final class GoldenCoreActions {
         var element = cast.spec.element().orElse(null);
         double base = cast.base;
         if (pulse != null) base += pulse.damage() / (multiplier * RealmArtCombat.pvpDamage(cast.caster, target));
-        float damage = RealmArtCombat.hit(cast.caster, target, cast.art, cast.session, multiplier, base);
+        float damage = RealmArtCombat.hit(cast.caster, target, cast.art, cast.session, multiplier, base, !cast.contactMade);
         if (!(damage > 0)) return false;
         if (pulse != null) pulse.spend();
         if (!cast.valid()) return false;
+        cast.contactMade = true;
         award(cast);
-        if (element == DamageType.FIRE && cast.spec.mechanic() != GoldenCoreArt.Mechanic.FIRE_FUSE)
-            onDirectFire(cast.caster, target);
+        if (element == DamageType.FIRE) onDirectFire(cast.caster, target, cast.art.id());
         LOG.info("GOLDEN_CORE actor={} art={} event=hit target={} multiplier={} damage={}", CombatCaster.name(cast.caster),
                 cast.art.id(), target.getId(), multiplier, damage);
         return true;
@@ -548,23 +560,37 @@ public final class GoldenCoreActions {
     }
     private static long clock(LivingEntity caster) { return level(caster).getServer().overworld().getGameTime(); }
 
-    public static void onDirectFire(LivingEntity caster, Entity actualTarget) {
+    static boolean armLightFuse(LivingEntity caster, Entity target, ArtDefinition art, double base, BooleanSupplier ready) {
+        if (!(CombatTargets.owner(target) instanceof LivingEntity victim) || FateDefenses.immune(victim)
+                || !ready.getAsBoolean()) return false;
+        UUID id = caster.getUUID();
+        long now = clock(caster);
+        var previous = FUSES.get(id);
+        if (previous != null && previous.active()) return false;
+        FUSES.put(id, new Fuse(caster, target, art, base, now + TechniqueTraits.integer("light_fuse_ticks"),
+                TechniqueTraits.number("light_fuse_timeout_multiplier"),
+                TechniqueTraits.number("light_fuse_trigger_multiplier"), ready));
+        return true;
+    }
+
+    public static void onDirectFire(LivingEntity caster, Entity actualTarget, ResourceLocation art) {
         Fuse fuse = FUSES.get(caster.getUUID());
-        if (fuse != null && CombatTargets.hitId(fuse.victim()) == CombatTargets.hitId(actualTarget)
-                && FUSES.remove(caster.getUUID(), fuse)) detonate(fuse, fuse.cast().spec.bonus());
+        if (fuse != null && !fuse.art().id().equals(art) && clock(caster) < fuse.due()
+                && CombatTargets.owner(fuse.victim()) == CombatTargets.owner(actualTarget)
+                && FUSES.remove(caster.getUUID(), fuse)) detonate(fuse, fuse.triggerMultiplier());
         AscendantFields.fireHit(caster, actualTarget);
     }
 
     private static void detonate(Fuse fuse, double multiplier) {
-        var cast = fuse.cast();
+        var caster = fuse.caster();
         var victim = fuse.victim();
-        if (liveTarget(cast) == null || !cast.valid()) return;
-        markRing(cast.caster, cast.art, victim.position(), Math.max(0.75, victim.getBbWidth()), false);
-        var source = ElementalRules.source(cast.caster, DamageType.FIRE);
-        float damage = StatsRuntime.outgoing(cast.caster, cast.base, multiplier * RealmArtCombat.pvpDamage(cast.caster, victim));
-        if (CombatDamageService.hurtElementalTick(cast.caster, victim, source, damage)) {
-            LOG.info("GOLDEN_CORE actor={} art={} event=fuse target={} multiplier={}", CombatCaster.name(cast.caster),
-                    cast.art.id(), victim.getId(), multiplier);
+        if (!fuse.active()) return;
+        markRing(caster, fuse.art(), victim.position(), Math.max(0.75, victim.getBbWidth()), false);
+        var source = ElementalRules.source(caster, DamageType.FIRE);
+        float damage = StatsRuntime.outgoing(caster, fuse.base(), multiplier * RealmArtCombat.pvpDamage(caster, victim));
+        if (CombatDamageService.hurtElementalTick(caster, victim, source, damage)) {
+            LOG.info("GOLDEN_CORE actor={} art={} event=fuse target={} multiplier={}", CombatCaster.name(caster),
+                    fuse.art().id(), victim.getId(), multiplier);
         }
     }
 
@@ -585,9 +611,9 @@ public final class GoldenCoreActions {
         }
         for (var entry : List.copyOf(FUSES.entrySet())) {
             Fuse fuse = entry.getValue();
-            if (!fuse.cast.valid() || liveTarget(fuse.cast) == null) { FUSES.remove(entry.getKey(), fuse); continue; }
-            if (now >= fuse.due && FUSES.remove(entry.getKey(), fuse)) detonate(fuse, fuse.cast.spec.secondary());
-            else if (now % TELEGRAPH_INTERVAL == 0) markTarget(fuse.cast.caster, fuse.cast.art, fuse.victim(), true);
+            if (!fuse.active()) { FUSES.remove(entry.getKey(), fuse); continue; }
+            if (now >= fuse.due() && FUSES.remove(entry.getKey(), fuse)) detonate(fuse, fuse.timeoutMultiplier());
+            else if (now % TELEGRAPH_INTERVAL == 0) markTarget(fuse.caster(), fuse.art(), fuse.victim(), true);
         }
     }
 

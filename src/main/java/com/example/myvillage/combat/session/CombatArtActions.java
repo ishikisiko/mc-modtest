@@ -11,6 +11,7 @@ import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.cultivation.technique.TechniqueRequirementEvaluator;
 import com.example.myvillage.forging.ForgedEquipment;
+import com.example.myvillage.stats.DamageType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -48,6 +49,7 @@ public final class CombatArtActions {
         int phase;
         boolean counter;
         boolean masteryAwarded;
+        boolean spearForceSpent;
         double disciplineMultiplier = 1;
         net.minecraft.world.damagesource.DamageSource guardedSource;
         long guardedTick;
@@ -118,7 +120,7 @@ public final class CombatArtActions {
             return Optional.empty();
         }
         long cost=cost(player,art);
-        boolean fullPowerAtStart = art.elemental().isPresent()
+        boolean fullPowerAtStart = art.elementType().orElse(null) == DamageType.WOOD
                 && CombatCaster.power(player) >= CombatCaster.capacity(player);
         // All validation precedes the single atomic spend. Interrupted casts are not refunded.
         if (!CombatCaster.spend(player,cost)) {
@@ -137,7 +139,7 @@ public final class CombatArtActions {
             e.lockAnchor = goldenAim.anchor();
         }
         if (earlyAim != null) {
-            e.earlyCast = new EarlyRealmActions.Cast(player, art, session, earlyAim, cost > 0);
+            e.earlyCast = new EarlyRealmActions.Cast(player, art, session, earlyAim, cost > 0, fullPowerAtStart);
             e.lockAnchor = earlyAim.anchor();
         }
         if (ascendantAim != null) {
@@ -248,10 +250,20 @@ public final class CombatArtActions {
             Vec3 radial=contact.target().position().subtract(origin);
             float reactionYaw=phase.shape().equals("ring") && radial.horizontalDistanceSqr()>1e-8
                     ? (float)Math.toDegrees(Math.atan2(-radial.x,radial.z)) : session.facingYaw();
-            var damage=CombatDamageService.apply(player,contact.target(),damageMove,session,reactionYaw);
+            var traits = TechniqueContactTraits.prepare(player, contact.target(), e.art.id(),
+                    !e.masteryAwarded, !e.spearForceSpent);
+            var appliedMove = traits.multiplier() == 1 ? damageMove : CombatDisciplines.scale(damageMove, traits.multiplier(), 0);
+            var damage=CombatDamageService.apply(player,contact.target(),appliedMove,session,reactionYaw);
             // Thorns and other synchronous callbacks can remove this entry during hurt().
             if (ENTRIES.get(player.getUUID())!=e || !session.hasActiveAction()) return;
-            if (damage.successful()) { successful.add(contact); if(damage.actualDamage()>0)awardMastery(player,e); }
+            if (damage.successful()) {
+                successful.add(contact);
+                if (damage.actualDamage() > 0) {
+                    traits.accepted(player, contact.target(), 0);
+                    if (traits.spend() == TechniqueTraits.ContactState.SPEAR_FORCE) e.spearForceSpent = true;
+                    awardMastery(player,e);
+                }
+            }
         }
         CombatFeedbackService.hit(player,damageMove,session.revision(),successful);
         send(player,e,CombatArtStatePayload.PULSE,origin);

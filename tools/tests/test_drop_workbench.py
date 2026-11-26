@@ -365,5 +365,29 @@ class TechniqueDirectoryTest(unittest.TestCase):
             self.assertEqual(chapters, len(progression['chapters']))
             self.assertEqual('yuanxian:' + id, progression['chapters'][-1]['id'])
 
+    def test_status_links_cover_early_and_later_learning_requirements(self):
+        for id, realm, tag, role in (
+            ('cuobu_zhan', 'qi_refining', 'pursuit', '消耗'),
+            ('canglong_chushui', 'qi_refining', 'spear_force', '消耗'),
+            ('hengsao_qianjun', 'qi_refining', 'spear_stance', '消耗'),
+            ('fushan_gong', 'qi_refining', 'spear_stance', '转化'),
+            ('bengshan_jin', 'qi_refining', 'unbalance', '消耗'),
+            ('zhenyue_yin', 'qi_refining', 'unbalance', '消耗'),
+            ('shouchao_shu', 'qi_refining', 'chill', '消耗'),
+            ('fuyan_xian', 'qi_refining', 'fuse', '施加'),
+            ('qingxi_jue', 'qi_refining', 'ward', '转化'),
+            ('shijia_xuangong', 'qi_refining', 'ward', '转化'),
+            ('houtu_zhenjing', 'foundation_establishment', 'fist_force', '转化'),
+            ('liufeng_zhan', 'foundation_establishment', 'sword_intent', '消耗'),
+            ('dimai_fanzhe', 'golden_core', 'earth_force', '消耗'),
+            ('jingjin_zheguang', 'nascent_soul', 'metal_force', '消耗'),
+            ('yiqiang_pingguan', 'spirit_transformation', 'spear_force', '消耗'),
+            ('canghai_guixu', 'spirit_transformation', 'chill', '消耗'),
+        ):
+            with self.subTest(technique=id):
+                entry = self.technique(id)
+                self.assertEqual('yuanxian:' + realm, entry['realm_id'])
+                self.assertIn((tag, role), [(t['id'], t['role']) for t in entry['traits']])
+
 
 if __name__=='__main__':unittest.main()

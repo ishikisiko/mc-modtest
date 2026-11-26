@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.159.0
+
+- 补齐炼气到化神的状态搭配。炼气可用苍龙出水消耗枪势、用收潮术消耗迟滞、用伏焰线种轻引信。高阶招式也能承接旧法积累的剑意、锋意、生机、水势和地势。
+- 清溪诀、石甲玄功、负山功和后土真经提供更早能学到的状态转化。青帝木脉可由灵种术或引蔓术触发同一份侵蚀转化。
+
 ## 0.158.0
 
 - 剑、枪、拳掌和五行各有两套可通过现有招式与心法搭配的状态打法。追击、枪势、拒马架势和失衡已接入战斗，金甲分护、流水回灵和灼痕提前结算均读取实际状态。

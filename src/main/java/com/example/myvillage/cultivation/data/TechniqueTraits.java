@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.StreamSupport;
@@ -18,8 +19,31 @@ public final class TechniqueTraits {
 
     public record Trait(String id, String label, String role, String description) { }
 
+    public enum ContactState {
+        SWORD_INTENT, SPEAR_FORCE, SPEAR_STANCE, FIST_FORCE,
+        PURSUIT, FIST_UNBALANCE, EARTH_UNBALANCE, ARMOR_BREAK, EROSION, CHILL,
+        METAL_FORCE, WOOD_FORCE, WATER_FORCE, FIRE_FORCE, EARTH_FORCE;
+
+        public String tag() {
+            return this == FIST_UNBALANCE || this == EARTH_UNBALANCE
+                    ? "unbalance" : name().toLowerCase(Locale.ROOT);
+        }
+
+        public boolean casterState() {
+            return switch (this) {
+                case PURSUIT, FIST_UNBALANCE, EARTH_UNBALANCE, ARMOR_BREAK, EROSION, CHILL -> false;
+                default -> true;
+            };
+        }
+    }
+
+    public enum ContactRole { GAIN, SPEND, READ }
+
+    public record ContactRule(ContactState state, ContactRole role) { }
+
     private record Catalogue(Map<ResourceLocation, List<Trait>> techniques, Map<String, Double> settings,
-                             Map<ResourceLocation, String> heritageTags) { }
+                             Map<ResourceLocation, String> heritageTags,
+                             Map<ResourceLocation, List<ContactRule>> contactRules) { }
 
     private static final class Holder {
         static final Catalogue CATALOGUE = load();
@@ -33,6 +57,10 @@ public final class TechniqueTraits {
 
     public static String heritageTag(ResourceLocation heritage) {
         return Holder.CATALOGUE.heritageTags().getOrDefault(heritage, "");
+    }
+
+    public static List<ContactRule> contactRules(ResourceLocation technique) {
+        return Holder.CATALOGUE.contactRules().getOrDefault(technique, List.of());
     }
 
     public static double number(String key) {
@@ -80,7 +108,32 @@ public final class TechniqueTraits {
                 if (tag == null) throw new IllegalArgumentException("传承特性标签无效 " + entry.getKey());
                 heritageTags.put(id(entry.getKey()), tag.getAsString());
             }
-            return new Catalogue(Map.copyOf(techniques), Map.copyOf(numbers), Map.copyOf(heritageTags));
+            Map<ResourceLocation, List<ContactRule>> rules = new HashMap<>();
+            for (var entry : root.getAsJsonObject("contact_rules").entrySet()) {
+                ResourceLocation technique = id(entry.getKey());
+                var rows = StreamSupport.stream(entry.getValue().getAsJsonArray().spliterator(), false).map(row -> {
+                    var values = row.getAsJsonArray();
+                    var state = ContactState.valueOf(values.get(0).getAsString().toUpperCase(Locale.ROOT));
+                    var role = ContactRole.valueOf(values.get(1).getAsString().toUpperCase(Locale.ROOT));
+                    String label = switch (role) {
+                        case GAIN -> state.casterState() ? "获得" : "施加";
+                        case SPEND -> "消耗";
+                        case READ -> "读取";
+                    };
+                    if (values.size() != 2 || (state == ContactState.ARMOR_BREAK) != (role == ContactRole.READ)
+                            || state == ContactState.EROSION && role != ContactRole.GAIN
+                            || state == ContactState.SPEAR_FORCE && role == ContactRole.GAIN
+                            || techniques.getOrDefault(technique, List.of()).stream()
+                                .noneMatch(trait -> trait.id().equals(state.tag()) && trait.role().equals(label)))
+                        throw new IllegalArgumentException("命中特性规则无效 " + technique);
+                    return new ContactRule(state, role);
+                }).toList();
+                if (rows.isEmpty() || rows.stream().map(ContactRule::state).distinct().count() != rows.size()
+                        || rows.stream().filter(rule -> rule.role() != ContactRole.GAIN).count() > 1)
+                    throw new IllegalArgumentException("命中特性规则重复 " + technique);
+                rules.put(technique, rows);
+            }
+            return new Catalogue(Map.copyOf(techniques), Map.copyOf(numbers), Map.copyOf(heritageTags), Map.copyOf(rules));
         } catch (Exception e) {
             throw new IllegalStateException("无法加载功法特性定义 " + RESOURCE, e);
         }

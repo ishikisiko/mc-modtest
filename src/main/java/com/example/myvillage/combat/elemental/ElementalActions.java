@@ -87,9 +87,12 @@ public final class ElementalActions {
             double harvest=spell.harvest()?ElementalEffects.harvestDamage(p,target,spell.element()):0;
             // Harvest is folded into this one hit, so defenses and i-frames are resolved exactly once.
             double base=(cast.base+cast.directBonus)*scale+harvest/Math.max(.01,move.damageMultiplier());
-            var result=CombatDamageService.applyElemental(p,target,move,session,ElementalRules.source(p,spell.element()),base);
+            var traits = TechniqueContactTraits.prepare(p, target, art.id(), !cast.masteryAwarded);
+            var appliedMove = traits.multiplier() == 1 ? move : CombatDisciplines.scale(move, traits.multiplier(), 0);
+            var result=CombatDamageService.applyElemental(p,target,appliedMove,session,ElementalRules.source(p,spell.element()),base);
             if(!session.hasActiveAction() || !p.isAlive())break;
             if(result.successful() && result.actualDamage()>0) {
+                traits.accepted(p, target, cast.base);
                 if(!cast.masteryAwarded){cast.masteryAwarded=true;
                     com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.hit(p,art.id());}
                 successes++;
@@ -110,7 +113,7 @@ public final class ElementalActions {
                 }
                 if(spell.push()>0)push(p,target,spell.push());
                 if (spell.element() == com.example.myvillage.stats.DamageType.FIRE)
-                    com.example.myvillage.combat.session.GoldenCoreActions.onDirectFire(p, target);
+                    com.example.myvillage.combat.session.GoldenCoreActions.onDirectFire(p, target, art.id());
             }
             LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} t={} result=hit art={} pulse={} target={} element={} charges={} harvest={} success={} damage={}",
                     CombatCaster.name(p),CombatCaster.level(p).getGameTime(),art.id(),pulse,target.getId(),spell.element().id(),cast.charges,harvest,result.successful(),result.actualDamage());

@@ -52,9 +52,77 @@
     "wood_heal_maximum": 8.0,
     "wood_support_radius": 8,
     "wood_emergency_health": 0.35,
-    "wood_support_targets": 3
+    "wood_support_targets": 3,
+    "contact_pool_bonus": 0.1,
+    "contact_status_bonus": 0.18,
+    "contact_chill_ticks": 50,
+    "contact_chill_fraction": 0.18,
+    "chilled_pull_multiplier": 1.35,
+    "branch_heal_bonus_per_charge": 0.12,
+    "water_ward_qi_early": 2,
+    "early_earth_shield_ratio": 0.5,
+    "early_fist_shield_ratio": 0.5,
+    "spear_stance_shield_fraction": 0.04,
+    "light_fuse_ticks": 50,
+    "light_fuse_timeout_multiplier": 0.7,
+    "light_fuse_trigger_multiplier": 1.15
+  },
+  "contact_rules": {
+    "cuobu_zhan": [["sword_intent", "gain"], ["pursuit", "spend"]],
+    "liufeng_zhan": [["sword_intent", "spend"]],
+    "huiying_xiefeng": [["sword_intent", "gain"]],
+    "liangyi_lijian": [["pursuit", "gain"]],
+    "fengshan_jianguan": [["sword_intent", "spend"]],
+    "wanjian_guifeng": [["pursuit", "spend"]],
+    "canglong_chushui": [["spear_force", "spend"]],
+    "hengsao_qianjun": [["spear_stance", "spend"]],
+    "dingjun_sanzhuang": [["spear_stance", "gain"]],
+    "duifeng_qiang": [["spear_stance", "spend"]],
+    "bengshan_jin": [["fist_unbalance", "spend"]],
+    "geshan_toujin": [["fist_unbalance", "gain"], ["fist_force", "spend"]],
+    "fulong_zhenshen": [["fist_force", "gain"]],
+    "tayun_zhuiyue": [["fist_unbalance", "spend"]],
+    "jieshi_huan": [["metal_force", "gain"]],
+    "mingjin_lianji": [["metal_force", "gain"]],
+    "jingjin_zheguang": [["metal_force", "spend"]],
+    "jinmang_shu": [["armor_break", "read"]],
+    "shuangzhu_liangen": [["erosion", "gain"], ["wood_force", "gain"]],
+    "gumu_chuiyin": [["wood_force", "spend"]],
+    "shouchao_shu": [["water_force", "gain"]],
+    "huilang_songke": [["water_force", "spend"]],
+    "shuangchao_jiaohui": [["chill", "gain"]],
+    "canghai_guixu": [["chill", "spend"]],
+    "ninghai_bingdi": [["water_force", "spend"]],
+    "yanhuo_jue": [["fire_force", "gain"]],
+    "shuanglu_lianyan": [["fire_force", "spend"]],
+    "lihuo_weichang": [["fire_force", "gain"]],
+    "dileng_shu": [["earth_force", "gain"]],
+    "zhenyue_yin": [["earth_unbalance", "spend"]],
+    "liusha_jie": [["earth_unbalance", "gain"]],
+    "yiyan_diebi": [["earth_unbalance", "gain"]],
+    "dimai_helong": [["earth_unbalance", "spend"]],
+    "dimai_fanzhe": [["earth_force", "spend"]]
   },
   "traits": {
+    "cuobu_zhan": [
+      ["sword_intent", "获得", "换步后的横斩有效命中时获得一层剑意，每次施放至多一层。"],
+      ["pursuit", "消耗", "横斩命中带有自己追击标记的敌人时强化这一击，并用掉标记。"]
+    ],
+    "liufeng_zhan": [
+      ["sword_intent", "消耗", "首斩或留在原地的剑痕首次有效命中时，消耗当前剑意强化这一击。"]
+    ],
+    "huiying_xiefeng": [
+      ["sword_intent", "获得", "成功闪避引出的回影斩有效命中时获得一层剑意，每次施放至多一层。"]
+    ],
+    "liangyi_lijian": [
+      ["pursuit", "施加", "本体刺击或剑影反斩首次有效命中时，给这名敌人留下自己的追击标记。"]
+    ],
+    "fengshan_jianguan": [
+      ["sword_intent", "消耗", "剑关第一次伤到横穿的敌人时，消耗当前剑意强化这一击。"]
+    ],
+    "wanjian_guifeng": [
+      ["pursuit", "消耗", "归拢的剑光命中带有自己追击标记的敌人时，强化该击并用掉标记。"]
+    ],
     "huifeng_jianzhen": [
       ["sword_intent", "获得", "正面格挡且实际承伤时获得剑意。普通剑招有效命中也可以积剑意。"]
     ],
@@ -79,7 +147,8 @@
       ["spear_stance", "获得", "用枪锋截住主动逼近的敌人，获得一次拒马架势。"]
     ],
     "tafeng_huanwei": [
-      ["spear_force", "获得", "枪锋有效命中时积累枪势。普通枪招也可以积累。"]
+      ["spear_force", "获得", "枪锋有效命中时积累枪势。普通枪招也可以积累。"],
+      ["spear_stance", "获得", "成功向斜后方撤步，并用回刺的枪锋伤到敌人时获得拒马架势。"]
     ],
     "huiying_bozhen": [
       ["spear_force", "获得", "枪锋有效命中时积累枪势。普通枪招也可以积累。"]
@@ -89,6 +158,26 @@
     ],
     "huima_qiang": [
       ["spear_stance", "消耗", "后撤阶段接下第一记正面敌击时消耗架势，降低这次来伤。"]
+    ],
+    "canglong_chushui": [
+      ["spear_force", "获得", "连刺的枪锋有效命中可积累枪势。"],
+      ["spear_force", "消耗", "已有枪势时，首次有效的枪锋命中会用掉枪势并强化该击。每次施放至多消耗一次。"]
+    ],
+    "hengsao_qianjun": [
+      ["spear_stance", "消耗", "已有拒马架势时，消耗它强化横扫实际伤到第一名敌人的一击。"]
+    ],
+    "dingjun_sanzhuang": [
+      ["spear_stance", "获得", "枪桩第一次有效刺中进入前方的敌人时，施术者获得拒马架势。"]
+    ],
+    "duifeng_qiang": [
+      ["spear_stance", "消耗", "本体和枪影的刺击首次有效命中时，可用掉拒马架势强化该击。"]
+    ],
+    "fushan_gong": [
+      ["spear_stance", "转化", "已有拒马架势时，潜行实际承受正面敌击，可用掉架势换成抵挡后续伤害的短盾。"],
+      ["shield", "获得", "消耗拒马架势后获得短时护盾。"]
+    ],
+    "yiqiang_pingguan": [
+      ["spear_force", "消耗", "冲刺停步后的第一记枪锋重击若有效命中，可用掉已有枪势强化这一击。"]
     ],
     "chenzhuang_hubei": [
       ["fist_force", "获得", "正面格挡且实际承伤时获得蓄劲。"]
@@ -100,11 +189,26 @@
       ["fist_force", "消耗", "成功施放时消耗已有蓄劲，强化本次出招。"]
     ],
     "bengshan_jin": [
-      ["fist_force", "消耗", "成功施放时消耗已有蓄劲，强化本次出招。"]
+      ["fist_force", "消耗", "成功施放时消耗已有蓄劲，强化本次出招。"],
+      ["unbalance", "消耗", "有效命中带有自己拳法失衡的敌人时，另行强化这一击并消耗它的失衡。"]
+    ],
+    "geshan_toujin": [
+      ["fist_force", "消耗", "本拳首次有效命中时消耗蓄劲，强化这一击。"],
+      ["unbalance", "施加", "本拳或打向后方的透劲有效命中时，给敌人挂上自己造成的拳法失衡。"]
+    ],
+    "fulong_zhenshen": [
+      ["fist_force", "获得", "守势结束后的震掌第一次有效命中时，获得一层蓄劲。"]
+    ],
+    "tayun_zhuiyue": [
+      ["unbalance", "消耗", "落地震击打中带有自己拳法失衡的敌人时，消耗它的失衡强化该击。"]
     ],
     "tie_shan_hu_ti_jue": [
       ["fist_force", "转化", "有蓄劲时，潜行接下下一记正面敌击，可将蓄劲换成一层短时护盾。"],
       ["shield", "获得", "条件成立后获得一层吸收后续来伤的短时护盾。"]
+    ],
+    "houtu_zhenjing": [
+      ["fist_force", "转化", "有蓄劲时，潜行实际承受正面敌击，可用蓄劲换取容量较小的短盾。"],
+      ["shield", "获得", "消耗蓄劲后获得短时护盾。"]
     ],
     "tiejian_kao": [
       ["unbalance", "施加", "有效命中时给目标挂上自己造成的拳法失衡。"]
@@ -116,10 +220,21 @@
       ["unbalance", "消耗", "震浪命中带有自己拳法失衡的敌人时，将平推改为短暂挑起。"]
     ],
     "dileng_shu": [
-      ["unbalance", "施加", "伤到接触地面的敌人时挂上自己造成的土法失衡。"]
+      ["unbalance", "施加", "伤到接触地面的敌人时挂上自己造成的土法失衡。"],
+      ["earth_force", "获得", "岩棱有效命中时积累一层地势，每次施放至多一层。"]
     ],
     "dimai_fanzhe": [
-      ["unbalance", "施加", "伤到接触地面的敌人时挂上自己造成的土法失衡。"]
+      ["unbalance", "施加", "伤到接触地面的敌人时挂上自己造成的土法失衡。"],
+      ["earth_force", "消耗", "首次有效震击时消耗已有地势，强化这一击。"]
+    ],
+    "liusha_jie": [
+      ["unbalance", "施加", "流砂有效伤到落地敌人时，留下自己的土法失衡。"]
+    ],
+    "yiyan_diebi": [
+      ["unbalance", "施加", "岩壁移动时有效伤到落地敌人，可给它留下自己的土法失衡。"]
+    ],
+    "dimai_helong": [
+      ["unbalance", "消耗", "地脉第一次有效伤到带有自己土法失衡的落地敌人时，消耗它的失衡强化当次震击。"]
     ],
     "luopan_yin": [
       ["unbalance", "消耗", "内圈优先重击带有自己土法失衡的落地目标，成功命中后消耗失衡。"]
@@ -141,15 +256,29 @@
     "suijia_feixing": [
       ["armor_break", "读取", "目标有削甲状态时强化本次命中，原削甲继续计时。"]
     ],
+    "jieshi_huan": [
+      ["metal_force", "获得", "拦截投射物后反射出的金光实际伤到敌人时，获得一层锋意。"]
+    ],
+    "chuanjia_jinxian": [
+      ["armor_break", "读取", "第一名敌人已有削甲时，金线命中后可以折射至后方的新目标。"]
+    ],
+    "mingjin_lianji": [
+      ["metal_force", "获得", "金锥首次有效命中时获得一层锋意。"]
+    ],
+    "jingjin_zheguang": [
+      ["metal_force", "消耗", "镜面折出的金芒第一次有效命中时，消耗已有锋意强化该击。"]
+    ],
     "lingzhong_shu": [
       ["erosion", "施加", "有效命中后留下自己施加的侵蚀。"],
+      ["erosion", "转化", "装备能转化侵蚀的青帝心法时，潜行施放可用此招结算目标已有的一跳侵蚀。"],
       ["wood_force", "获得", "成功造成直接伤害时积累本系的势，每次施放至多一层。"]
     ],
     "qingteng_jie": [
       ["erosion", "施加", "有效命中后留下自己施加的侵蚀。"]
     ],
     "yinman_shu": [
-      ["erosion", "读取", "可选中已有自己侵蚀的敌人，引出藤蔓或藤径。"]
+      ["erosion", "读取", "可选中已有自己侵蚀的敌人，引出藤蔓。"],
+      ["erosion", "转化", "装备能转化侵蚀的青帝心法时，潜行施放并伤到藤蔓所连的目标，可用其一跳侵蚀触发心法。"]
     ],
     "pangen_suo": [
       ["erosion", "读取", "可选中已有自己侵蚀的敌人，引出藤蔓或藤径。"]
@@ -164,6 +293,18 @@
     "baimu_chengchun": [
       ["erosion", "转化", "收取自己的剩余侵蚀，同时结算对敌伤害和友方治疗。"]
     ],
+    "huichun_zhi": [
+      ["wood_force", "消耗", "药木成功治疗友方时，消耗已有生机增加这次治疗量。"]
+    ],
+    "shuangzhu_liangen": [
+      ["erosion", "施加", "敌人横穿连根并实际受伤时，会留下自己施加的侵蚀。"],
+      ["wood_force", "获得", "双株连根第一次对敌造成有效伤害时积累一层生机。"]
+    ],
+    "gumu_chuiyin": [
+      ["erosion", "施加", "敌人在树荫里停留到木击触发并受伤后会被种下侵蚀。"],
+      ["erosion", "读取", "木击对已有自己侵蚀的敌人造成更高伤害。"],
+      ["wood_force", "消耗", "树荫里的木击首次伤到敌人时，耗掉已有生机强化这一击。"]
+    ],
     "shuiren_shu": [
       ["chill", "施加", "有效命中时施加本人的水法迟滞。"],
       ["water_force", "获得", "成功造成直接伤害时积累本系的势，每次施放至多一层。"]
@@ -175,11 +316,34 @@
     "hanchao_jie": [
       ["chill", "施加", "有效命中时施加本人的水法迟滞。"]
     ],
+    "shouchao_shu": [
+      ["chill", "消耗", "命中带有自己迟滞的敌人时能把它牵得更远，成功牵动后消耗迟滞。"],
+      ["water_force", "获得", "首次有效伤到牵引目标时获得一层水势。"]
+    ],
+    "zhelang_shu": [
+      ["chill", "施加", "反弹回来的水浪有效命中时，施加自己的水法迟滞。"]
+    ],
+    "huilang_songke": [
+      ["water_force", "消耗", "潮带首次有效命中时消耗已有水势，强化该击。"]
+    ],
+    "shuangchao_jiaohui": [
+      ["chill", "施加", "两侧水浪或交汇处的潮击实际伤到敌人时，留下自己的水法迟滞。"]
+    ],
+    "ninghai_bingdi": [
+      ["chill", "施加", "敌人第一次踏入冰带且实际受伤时，附上自己的水法迟滞。"],
+      ["water_force", "消耗", "冰带第一次伤到敌人时，消耗已有水势强化这次冰击。"]
+    ],
+    "canghai_guixu": [
+      ["chill", "消耗", "回流或出流有效伤到带有自己迟滞的敌人时，强化这一击并用掉这份迟滞。"]
+    ],
     "suishuang_ci": [
       ["chill", "消耗", "命中带有自己迟滞的敌人时强化本击，成功后消耗这份迟滞。"]
     ],
     "wanchuan_guihai_jue": [
       ["ward", "转化", "有效闪过敌方攻击时，若灵力有缺口，可把正在生效的流水障换成一次回灵。"]
+    ],
+    "qingxi_jue": [
+      ["ward", "转化", "身上有流水障且灵力有缺口时，有效闪过敌击可用掉流水障回复少量灵力。"]
     ],
     "linghuo_shu": [
       ["scorch", "施加", "有效命中后留下自己施加的灼痕。"],
@@ -192,7 +356,22 @@
     ],
     "fuyan_xian": [
       ["scorch", "施加", "有效命中后留下自己施加的灼痕。"],
-      ["fuse", "消耗", "对带有自己火引信的敌人造成直接火法伤害时，提前引爆引信。"]
+      ["fuse", "施加", "潜行施放时，火线伤到的第一名可点燃的敌人会带上轻引信。一人同时只能维持一个火引信。"],
+      ["fuse", "消耗", "火线伤到带有自己熔心箭引信的敌人时，提前引爆引信。"]
+    ],
+    "yanhuo_jue": [
+      ["fire_force", "获得", "火种点燃后第一次实际伤到敌人时，积累一层焰势。"],
+      ["fuse", "消耗", "火种的爆发伤到已带有自己火引信的敌人时，提前引爆引信。"]
+    ],
+    "shuanglu_lianyan": [
+      ["fire_force", "消耗", "两炉喷火首次有效命中时消耗已有焰势，强化该击。"]
+    ],
+    "huoyi_tuoshen": [
+      ["fuse", "消耗", "受击留下的火影爆炸，伤到带有自己火引信的敌人时可提前引爆。"]
+    ],
+    "lihuo_weichang": [
+      ["fuse", "消耗", "火阵伤到带有自己火引信的敌人时，提前引爆引信。"],
+      ["fire_force", "获得", "火阵首次实际伤到敌人时，积累一层焰势。"]
     ],
     "feihuo_liaoyuan": [
       ["scorch", "施加", "有效命中后留下自己施加的灼痕。"],
@@ -209,14 +388,20 @@
       ["fuse", "消耗", "对带有自己火引信的敌人造成直接火法伤害时，提前引爆引信。"]
     ],
     "rongxin_jian": [
-      ["fuse", "施加", "给受击目标挂火引信，到期自动引爆。"]
+      ["fuse", "施加", "给受击目标挂火引信，到期自动引爆。"],
+      ["fuse", "消耗", "可在命中时点爆伏焰线留在该目标身上的轻引信。"]
     ],
     "xirang_zaohua_jing": [
       ["ward", "转化", "持厚土障实际承受正面敌击后，可把剩余护体换成吸收后续伤害的护盾。"],
       ["shield", "获得", "条件成立后获得一层吸收后续来伤的短时护盾。"]
     ],
+    "shijia_xuangong": [
+      ["ward", "转化", "厚土障生效时实际承受正面敌击，可消耗剩余护体换成容量较小的短盾。"],
+      ["shield", "获得", "条件成立后获得一层吸收后续来伤的短时护盾。"]
+    ],
     "jinmang_shu": [
-      ["metal_force", "获得", "成功造成直接伤害时积累本系的势，每次施放至多一层。"]
+      ["metal_force", "获得", "成功造成直接伤害时积累本系的势，每次施放至多一层。"],
+      ["armor_break", "读取", "金芒命中已有削甲的敌人时，强化这次伤害。"]
     ],
     "jingang_zhang": [
       ["metal_force", "消耗", "成功施放时使用积累的本系势强化效果。"],
@@ -245,8 +430,12 @@
       ["earth_force", "消耗", "成功施放时使用积累的本系势强化效果。"],
       ["ward", "获得", "施放后获得限时护体。"]
     ],
+    "budong_shancheng": [
+      ["earth_force", "消耗", "土壳成功布下时，消耗地势，提高圈内友方共用的承伤额度。"]
+    ],
     "zhenyue_yin": [
-      ["earth_force", "消耗", "成功施放时使用积累的本系势强化效果。"]
+      ["earth_force", "消耗", "成功施放时使用积累的本系势强化效果。"],
+      ["unbalance", "消耗", "有效伤到带有自己土法失衡的落地敌人时，消耗失衡并强化这一击。"]
     ],
     "jinlin_cuiti_jue": [
       ["shield", "获得", "实际承受正面敌击后，可以生成一份短时护盾。"]
@@ -261,19 +450,19 @@
       ["shield", "转化", "低血线护盾触发时，把本心法的余盾合入这一份救急护盾。"]
     ],
     "yimu_shenghua_jue": [
-      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。有灵力缺口时，可用一跳侵蚀回灵。"]
+      ["erosion", "转化", "装备后，潜行用灵种术或引蔓术命中已有自己侵蚀的目标。有灵力缺口时，可用一跳侵蚀回灵。"]
     ],
     "jiayi_changsheng_jing": [
-      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。施法前灵力已满且自己受伤时，优先把一跳侵蚀转成自身治疗。"]
+      ["erosion", "转化", "潜行用灵种术或引蔓术命中已有自己侵蚀的目标。施法前灵力已满且自己受伤时，优先把一跳侵蚀转成自身治疗。"]
     ],
     "qingdi_daozang": [
-      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。施法前灵力已满时，优先治疗附近剩余生命比例最低的友方，自己也可受益。"]
+      ["erosion", "转化", "潜行用灵种术或引蔓术命中已有自己侵蚀的目标。施法前灵力已满时，优先治疗附近剩余生命比例最低的友方，自己也可受益。"]
     ],
     "qing_di_yang_ying_pian": [
-      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。附近有濒危友方时优先救治，再考虑自身回灵。"]
+      ["erosion", "转化", "潜行用灵种术或引蔓术命中已有自己侵蚀的目标。附近有濒危友方时优先救治，再考虑自身回灵。"]
     ],
     "qing_di_chang_sheng_lu": [
-      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。保留救急顺序，可将一份治疗分给附近最需要的三名友方。"]
+      ["erosion", "转化", "潜行用灵种术或引蔓术命中已有自己侵蚀的目标，保留优先救急的规则。一份治疗可分给附近最需要的三名友方。"]
     ]
   }
 }

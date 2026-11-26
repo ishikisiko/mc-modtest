@@ -11,7 +11,10 @@ import com.example.myvillage.combat.runtime.CombatDisciplines;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.combat.runtime.CombatTraitStates;
+import com.example.myvillage.combat.runtime.SwordArmorBreak;
+import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime;
+import com.example.myvillage.cultivation.technique.HeartTraitRuntime;
 import com.example.myvillage.stats.DamageType;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,17 +55,22 @@ final class EarlyRealmActions {
         final ServerLevel world;
         final double base;
         final boolean paid;
+        final boolean sneakingAtStart;
+        final boolean fullPowerAtStart;
         final Map<Integer, Double> before = new HashMap<>();
         CombatSession session;
         long revision;
         boolean mastery;
+        boolean contactMade;
 
-        Cast(LivingEntity caster, ArtDefinition art, CombatSession session, Aim aim, boolean paid) {
+        Cast(LivingEntity caster, ArtDefinition art, CombatSession session, Aim aim, boolean paid, boolean fullPowerAtStart) {
             this.caster = caster;
             this.art = art;
             this.session = session;
             this.aim = aim;
             this.paid = paid;
+            this.fullPowerAtStart = fullPowerAtStart;
+            sneakingAtStart = caster.isShiftKeyDown();
             spec = art.earlyRealm().orElseThrow();
             held = caster.getMainHandItem();
             slot = CombatCaster.slot(caster);
@@ -220,15 +228,19 @@ final class EarlyRealmActions {
         if (!targetReady(cast, target)) return;
         Vec3 forward = cast.aim.forward();
         var back = horizontal(forward.scale(-1).add(lateral(forward).scale(.55 * cast.aim.side())));
-        double space = Math.max(0, cast.spec.range() - edgeDistance(cast.caster.position(), target));
+        Vec3 before = cast.caster.position();
+        double space = Math.max(0, cast.spec.range() - edgeDistance(before, target));
         move(cast.caster, back, Math.min(cast.spec.step(), space));
         Vec3 at = cast.caster.position();
         var line = line(cast, at, aimedForward(at, target, forward), cast.spec.length());
         markStrip(cast.caster, cast.art, line, false);
         boolean touched = line.intersects(target.getBoundingBox()) && clear(cast.caster, line.lineOrigin(target), point(target));
         boolean tip = spearTip(edgeDistance(at, target));
-        if (touched && targetReady(cast, target) && hit(cast, target, cast.spec.damage()) && tip)
+        if (touched && targetReady(cast, target) && hit(cast, target, cast.spec.damage()) && tip) {
             CombatDisciplines.tipAccepted(cast.caster, cast.session.revision());
+            if (horizontalDistance(before, at) > 0)
+                CombatTraitStates.grant(cast.caster, cast.caster, CombatTraitStates.Kind.SPEAR_STANCE);
+        }
     }
 
     private static void shoulderThrow(Cast cast) {
@@ -254,8 +266,12 @@ final class EarlyRealmActions {
         var line = lineTo(cast, cast.caster.position(), target);
         markStrip(cast.caster, cast.art, line, false);
         for (Entity foe : distinct(inStrip(cast.caster, cast.session, line), cast.spec.targets())) {
-            if (hit(cast, foe, cast.spec.damage()) && CombatTargets.owner(foe) instanceof LivingEntity living)
+            if (hit(cast, foe, cast.spec.damage()) && CombatTargets.owner(foe) instanceof LivingEntity living) {
                 ControlService.slow(cast.caster, living, cast.art.id(), cast.spec.statusTicks(), cast.spec.potency());
+                if (cast.sneakingAtStart && CombatTargets.hitId(foe) == CombatTargets.hitId(target))
+                    HeartTraitRuntime.convertWoodPulse(cast.caster,
+                            ElementalEffects.pendingPulse(cast.caster, foe, DamageType.WOOD), cast.fullPowerAtStart);
+            }
         }
     }
 
@@ -266,9 +282,12 @@ final class EarlyRealmActions {
         var candidates = inArea(cast.caster, cast.session, anchor, cast.spec.radius());
         if (candidates.isEmpty()) return;
         Entity target = candidates.getFirst();
-        if (hit(cast, target, cast.spec.damage()))
-            displace(cast, target, horizontal(anchor.subtract(target.position())),
-                    Math.min(cast.spec.push(), horizontalDistance(anchor, target.position())));
+        if (!hit(cast, target, cast.spec.damage()) || !(target instanceof LivingEntity victim)) return;
+        boolean chilled = ElementalEffects.hasWaterChill(cast.caster, victim);
+        double reach = cast.spec.push() * (chilled ? TechniqueTraits.number("chilled_pull_multiplier") : 1);
+        double moved = displace(cast, victim, horizontal(anchor.subtract(victim.position())),
+                Math.min(reach, horizontalDistance(anchor, victim.position())));
+        if (chilled && moved > 0) ElementalEffects.consumeWaterChill(cast.caster, victim);
     }
 
     private static void spike(Cast cast) {
@@ -295,7 +314,7 @@ final class EarlyRealmActions {
         Entity first = firstLine(cast, cast.caster.position(), forward, cast.spec.length());
         if (first == null) return;
         boolean armored = CombatTargets.owner(first) instanceof LivingEntity owner
-                && owner.getAttributeValue(Attributes.ARMOR) >= cast.spec.threshold();
+                && (SwordArmorBreak.active(owner) || owner.getAttributeValue(Attributes.ARMOR) >= cast.spec.threshold());
         if (!hit(cast, first, cast.spec.damage()) || !armored) return;
         Vec3 point = point(first);
         var next = inArea(cast.caster, cast.session, point, cast.spec.secondaryRange()).stream()
@@ -327,15 +346,18 @@ final class EarlyRealmActions {
     private static void reflectedWave(Cast cast) {
         var path = wavePath(cast, cast.caster.position());
         var seen = new HashSet<Integer>();
-        sweep(cast, path.front(), cast.spec.damage(), seen);
-        if (path.reflected() != null) sweep(cast, path.reflected(), cast.spec.secondary(), seen);
+        sweep(cast, path.front(), cast.spec.damage(), seen, false);
+        if (path.reflected() != null) sweep(cast, path.reflected(), cast.spec.secondary(), seen, true);
     }
 
-    private static void sweep(Cast cast, Strip strip, double multiplier, Set<Integer> seen) {
+    private static void sweep(Cast cast, Strip strip, double multiplier, Set<Integer> seen, boolean reflected) {
         markStrip(cast.caster, cast.art, strip, false);
         for (Entity target : alongRay(cast.caster, cast.session, strip)) {
             if (seen.size() >= cast.spec.targets()) break;
-            if (seen.add(CombatTargets.hitId(target))) hit(cast, target, multiplier);
+            if (seen.add(CombatTargets.hitId(target)) && hit(cast, target, multiplier)
+                    && reflected && CombatTargets.owner(target) instanceof LivingEntity living)
+                ElementalEffects.waterChill(cast.caster, living, TechniqueTraits.integer("contact_chill_ticks"),
+                        TechniqueTraits.number("contact_chill_fraction"));
         }
     }
 
@@ -365,9 +387,13 @@ final class EarlyRealmActions {
     static void flameLine(Cast cast, Vec3 markedEnd) {
         var line = groundLine(cast, cast.aim.anchor(), horizontalDistance(cast.aim.anchor(), markedEnd));
         markStrip(cast.caster, cast.art, line, false);
+        boolean armed = false;
         for (Entity enemy : distinct(inStrip(cast.caster, cast.session, line), cast.spec.targets())) {
-            if (hit(cast, enemy, cast.spec.damage()) && CombatTargets.owner(enemy).isAlive())
-                ElementalEffects.seed(cast.caster, enemy, DamageType.FIRE, cast.base * RealmArtCombat.pvpDamage(cast.caster, enemy));
+            if (!hit(cast, enemy, cast.spec.damage()) || !CombatTargets.owner(enemy).isAlive()) continue;
+            ElementalEffects.seed(cast.caster, enemy, DamageType.FIRE, cast.base * RealmArtCombat.pvpDamage(cast.caster, enemy));
+            if (cast.sneakingAtStart && !armed)
+                armed = GoldenCoreActions.armLightFuse(cast.caster, enemy, cast.art, cast.base,
+                        () -> cast.valid() && targetReady(cast, enemy));
         }
     }
 
@@ -429,15 +455,17 @@ final class EarlyRealmActions {
         if (!ControlService.isRooted(caster)) step(caster, direction, distance);
     }
 
-    private static void displace(Cast cast, Entity entity, Vec3 direction, double distance) {
+    private static double displace(Cast cast, Entity entity, Vec3 direction, double distance) {
         if (entity instanceof LivingEntity target && RealmArtCombat.canDisplace(cast.caster, target))
-            step(target, direction, distance * RealmArtCombat.displacementFactor(cast.caster, target));
+            return step(target, direction, distance * RealmArtCombat.displacementFactor(cast.caster, target));
+        return 0;
     }
 
     private static boolean hit(Cast cast, Entity target, double multiplier) {
         if (!cast.valid() || !CombatHitResolver.legalTarget(cast.caster, target, cast.session)) return false;
-        float damage = RealmArtCombat.hit(cast.caster, target, cast.art, cast.session, multiplier, cast.base);
+        float damage = RealmArtCombat.hit(cast.caster, target, cast.art, cast.session, multiplier, cast.base, !cast.contactMade);
         if (!(damage > 0) || !cast.valid()) return false;
+        cast.contactMade = true;
         switch (cast.spec.mechanic()) {
             case SHOULDER_RAM, SHOULDER_THROW ->
                     CombatTraitStates.grant(cast.caster, target, CombatTraitStates.Kind.FIST_UNBALANCE);
@@ -445,7 +473,7 @@ final class EarlyRealmActions {
             default -> { }
         }
         award(cast);
-        if (cast.spec.element().orElse(null) == DamageType.FIRE) GoldenCoreActions.onDirectFire(cast.caster, target);
+        if (cast.spec.element().orElse(null) == DamageType.FIRE) GoldenCoreActions.onDirectFire(cast.caster, target, cast.art.id());
         LOG.info("EARLY_REALM actor={} art={} event=hit target={} multiplier={} damage={}",
                 CombatCaster.name(cast.caster), cast.art.id(), target.getId(), multiplier, damage);
         return true;

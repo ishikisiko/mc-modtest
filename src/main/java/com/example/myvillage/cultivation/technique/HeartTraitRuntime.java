@@ -7,6 +7,7 @@ import com.example.myvillage.combat.foundation.ShieldRuntime;
 import com.example.myvillage.combat.runtime.CombatActors;
 import com.example.myvillage.combat.runtime.CombatCaster;
 import com.example.myvillage.combat.runtime.CombatDisciplines;
+import com.example.myvillage.combat.runtime.CombatTraitStates;
 import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityCooldowns;
@@ -25,8 +26,12 @@ import java.util.UUID;
 /** Conversions performed by the heart method currently equipped in the relevant slot. */
 public final class HeartTraitRuntime {
     private static final ResourceLocation IRON_MOUNTAIN = id("tie_shan_hu_ti_jue");
+    private static final ResourceLocation EARLY_FIST_GUARD = id("houtu_zhenjing");
+    private static final ResourceLocation EARLY_SPEAR_GUARD = id("fushan_gong");
     private static final ResourceLocation EARTH_GUARD = id("xirang_zaohua_jing");
-    private static final ResourceLocation WATER_FLOW = id("wanchuan_guihai_jue");
+    private static final ResourceLocation EARLY_EARTH_GUARD = id("shijia_xuangong");
+    private static final Map<ResourceLocation, String> WATER_WARD_RECOVERY = Map.of(
+            id("qingxi_jue"), "water_ward_qi_early", id("wanchuan_guihai_jue"), "water_ward_qi");
     private static final ResourceLocation SHORT_SHIELD_COOLDOWN = id("ancestral_short_shield");
     private static final Map<ResourceLocation, Integer> SHIELD_CHAPTERS = Map.of(
             id("jinlin_cuiti_jue"), 1, id("gengjin_bumie_ti"), 2, id("wanjie_jinshen_jue"), 3);
@@ -52,13 +57,19 @@ public final class HeartTraitRuntime {
                 cooldowns.start(owner, SHORT_SHIELD_COOLDOWN, now, TechniqueTraits.integer("ancestral_shield_cooldown_ticks"));
                 notice(actor, "金身传承生成短盾");
             }
-        } else if (technique.equals(IRON_MOUNTAIN) && actor.isShiftKeyDown()) {
-            float amount = (float) (actor.getMaxHealth() * TechniqueTraits.number("fist_shield_fraction"));
+        } else if ((technique.equals(IRON_MOUNTAIN) || technique.equals(EARLY_FIST_GUARD)) && actor.isShiftKeyDown()) {
+            double strength = technique.equals(EARLY_FIST_GUARD) ? TechniqueTraits.number("early_fist_shield_ratio") : 1;
+            float amount = (float) (actor.getMaxHealth() * strength * TechniqueTraits.number("fist_shield_fraction"));
             if (ShieldRuntime.grantPaid(actor, source, amount, ticks,
                     () -> CombatDisciplines.consumeStacks(actor, "fist") > 0)) notice(actor, "蓄劲转为护盾");
-        } else if (technique.equals(EARTH_GUARD)) {
+        } else if (technique.equals(EARLY_SPEAR_GUARD) && actor.isShiftKeyDown()) {
+            float amount = (float) (actor.getMaxHealth() * TechniqueTraits.number("spear_stance_shield_fraction"));
+            if (ShieldRuntime.grantPaid(actor, source, amount, ticks,
+                    () -> CombatTraitStates.consume(actor, actor, CombatTraitStates.Kind.SPEAR_STANCE))) notice(actor, "拒马架势转为护盾");
+        } else if (technique.equals(EARTH_GUARD) || technique.equals(EARLY_EARTH_GUARD)) {
+            double strength = technique.equals(EARLY_EARTH_GUARD) ? TechniqueTraits.number("early_earth_shield_ratio") : 1;
             double remaining = ElementalEffects.wardRemaining(actor, DamageType.EARTH);
-            float amount = (float) (remaining * Math.min(TechniqueTraits.number("earth_ward_shield_maximum"),
+            float amount = (float) (remaining * strength * Math.min(TechniqueTraits.number("earth_ward_shield_maximum"),
                     actor.getMaxHealth() * TechniqueTraits.number("earth_ward_shield_fraction")));
             if (ShieldRuntime.grantPaid(actor, source, amount, ticks,
                     () -> ElementalEffects.consumeWard(actor, DamageType.EARTH))) notice(actor, "厚土护体转为护盾");
@@ -76,10 +87,12 @@ public final class HeartTraitRuntime {
 
     public static void afterDodge(LivingEntity actor, DamageSource source, float amount) {
         if (amount <= 0 || !(source.getEntity() instanceof LivingEntity attacker) || !CombatActors.mayHarm(attacker, actor)
-                || !CombatCaster.active(actor) || !equipped(actor, Slot.SPIRIT, WATER_FLOW)
+                || !CombatCaster.active(actor)
                 || ElementalEffects.wardRemaining(actor, DamageType.WATER) <= 0
                 || CombatCaster.power(actor) >= CombatCaster.capacity(actor)) return;
-        if (CombatCaster.recover(actor, TechniqueTraits.integer("water_ward_qi"))
+        String amountSetting = CombatCaster.profile(actor).equippedHeart(Slot.SPIRIT)
+                .map(WATER_WARD_RECOVERY::get).orElse(null);
+        if (amountSetting != null && CombatCaster.recover(actor, TechniqueTraits.integer(amountSetting))
                 && ElementalEffects.consumeWard(actor, DamageType.WATER)) notice(actor, "流水护体转为灵力");
     }
 
@@ -122,10 +135,6 @@ public final class HeartTraitRuntime {
 
     private static boolean injured(LivingEntity target) {
         return target.isAlive() && target.getHealth() < target.getMaxHealth();
-    }
-
-    private static boolean equipped(LivingEntity actor, Slot slot, ResourceLocation id) {
-        return CombatCaster.profile(actor).equippedHeart(slot).filter(id::equals).isPresent();
     }
 
     private static boolean frontal(LivingEntity actor, DamageSource source) {

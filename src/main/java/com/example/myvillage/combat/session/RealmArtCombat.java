@@ -6,12 +6,14 @@ import com.example.myvillage.combat.elemental.ElementalEffects;
 import com.example.myvillage.combat.elemental.ElementalRules;
 import com.example.myvillage.combat.foundation.ControlService;
 import com.example.myvillage.combat.runtime.CombatDamageService;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import com.example.myvillage.combat.runtime.CombatDisciplines;
 import com.example.myvillage.combat.runtime.CombatDodgeService;
 import com.example.myvillage.combat.runtime.CombatFeedbackService;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.combat.runtime.StaggerResistant;
+import com.example.myvillage.combat.runtime.TechniqueContactTraits;
 import com.example.myvillage.cultivation.technique.HeartTechniques;
 import com.example.myvillage.stats.DamageType;
 import com.example.myvillage.stats.runtime.StatsRuntime;
@@ -35,11 +37,18 @@ final class RealmArtCombat {
     }
 
     static float hit(LivingEntity caster, Entity target, ArtDefinition art,
-                       CombatSession session, double multiplier, double base) {
+                       CombatSession session, double multiplier, double base, boolean firstHit) {
+        var traits = TechniqueContactTraits.prepare(caster, target, art.id(), firstHit);
         var template = art.move(0, 1);
-        var move = CombatDisciplines.scale(template, multiplier / template.damageMultiplier(), 0);
+        var move = CombatDisciplines.scale(template, multiplier * traits.multiplier() / template.damageMultiplier(), 0);
         var source = art.elementType().map(element -> ElementalRules.source(caster, element)).orElse(null);
-        var result = CombatDamageService.applyRealmArt(caster, target, move, session, pvpDamage(caster, target), source, base);
+        var held = caster.getMainHandItem();
+        long revision = session.revision();
+        double pvp = pvpDamage(caster, target);
+        var result = CombatDamageService.applyRealmArt(caster, target, move, session, pvp, source, base);
+        if (result.actualDamage() > 0 && session.hasActiveAction() && session.revision() == revision
+                && caster.getMainHandItem() == held && CombatCaster.active(caster))
+            traits.accepted(caster, target, base * pvp);
         if (result.successful()) {
             var contact = new CombatHitResolver.TargetContact(target, target.distanceToSqr(caster), GoldenCoreGeometry.point(target));
             CombatFeedbackService.hit(caster, move, session.revision(), List.of(contact));

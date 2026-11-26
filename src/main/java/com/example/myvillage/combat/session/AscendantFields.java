@@ -3,6 +3,7 @@ package com.example.myvillage.combat.session;
 import com.example.myvillage.combat.art.ArtDefinition;
 import com.example.myvillage.combat.art.AscendantArt.Mechanic;
 import com.example.myvillage.combat.elemental.ElementalEffects;
+import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.combat.foundation.ControlService;
 import com.example.myvillage.combat.foundation.ShieldRuntime;
 import com.example.myvillage.combat.runtime.CombatActors;
@@ -159,7 +160,11 @@ public final class AscendantFields {
             }
             case PAIRED_FURNACES -> field.other = cast.actor.position();
             case MOVING_WALL -> field.charges = cast.limits.count();
-            case MOUNTAIN_SHELL -> field.shield = cast.actor.getMaxHealth() * cast.effect.budget();
+            case MOUNTAIN_SHELL -> {
+                int charges = ElementalEffects.consume(cast.actor, DamageType.EARTH);
+                double bonus = 1 + charges * TechniqueTraits.number("contact_pool_bonus");
+                field.shield = cast.actor.getMaxHealth() * cast.effect.budget() * bonus;
+            }
             default -> { }
         }
         markField(field);
@@ -596,8 +601,9 @@ public final class AscendantFields {
         if (f.continued && f.touched.size() < c.limits.targets()) {
             for (Entity target : strip(c, iceBand(f), true)) {
                 if (f.touched.size() >= c.limits.targets()) break;
-                if (isGrounded(target) && f.touched.add(CombatTargets.hitId(target)) && hit(c, target, c.effect.damage()))
-                    slow(c, target, c.time.statusTicks(), c.effect.control());
+                if (isGrounded(target) && f.touched.add(CombatTargets.hitId(target)) && hit(c, target, c.effect.damage())
+                        && CombatTargets.owner(target) instanceof LivingEntity living)
+                    ElementalEffects.waterChill(c.actor, living, c.time.statusTicks(), c.effect.control());
             }
         }
     }
