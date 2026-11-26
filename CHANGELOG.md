@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.161.0
+
+- 攻心法和灵修心法在一次招式中各有一次触发机会。若同一击已经为攻心法扣除灵修所需的一层状态，灵修也可据此回灵。
+- 为 12 门现有心法加入装备时持续生效的特性，分别调整状态时长、每层伤害增量或共享护盾的吸收量。游戏功法页和网页工作台显示常驻标签及数值。
+
 ## 0.160.0
 
 - 剑、枪、拳掌和五行的 80 门专精攻心法接入实际状态结算。炼气到化神每一系每境界都有一门获得或施加状态、一门消耗状态。

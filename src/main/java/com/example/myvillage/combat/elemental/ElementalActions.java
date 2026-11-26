@@ -5,6 +5,7 @@ import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.runtime.*;
 import com.example.myvillage.combat.session.CombatSession;
 import com.example.myvillage.combat.runtime.CombatCaster;
+import com.example.myvillage.cultivation.technique.HeartPassives;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -80,7 +81,12 @@ public final class ElementalActions {
             LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} result=ward art={} charges={} reduction={}",CombatCaster.name(p),art.id(),cast.charges,spell.wardFraction());
             return true;
         }
-        double scale=spell.role().equals("burst")?ElementalCharge.multiplier(cast.charges,ElementalRules.number("charge_bonus",0,1)):1;
+        double scale = 1;
+        if (spell.role().equals("burst")) {
+            double bonus = HeartPassives.stackBonus(p, HeartPassives.elementalCharge(spell.element()),
+                    ElementalRules.number("charge_bonus", 0, 1));
+            scale = ElementalCharge.multiplier(cast.charges, bonus);
+        }
         AttackMoveDefinition move=art.move(0,1);
         int successes=0;
         for(var target:targets(p,session,spell,cast)) {

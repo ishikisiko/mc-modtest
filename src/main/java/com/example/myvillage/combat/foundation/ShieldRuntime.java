@@ -1,5 +1,6 @@
 package com.example.myvillage.combat.foundation;
 
+import com.example.myvillage.cultivation.technique.HeartPassives;
 import com.example.myvillage.cultivation.fate.SwordHeartRuntime;
 import com.example.myvillage.cultivation.fate.TemperedBonesRuntime;
 import java.util.IdentityHashMap;
@@ -136,7 +137,8 @@ public final class ShieldRuntime {
         if (!usable(target)) return;
         ShieldLedger ledger = LEDGERS.get(target);
         if (ledger == null) return;
-        var result = ledger.absorb(event.getNewDamage(), now(target), bypassesShields(event.getSource()));
+        var result = ledger.absorb(event.getNewDamage(), now(target), bypassesShields(event.getSource()),
+                HeartPassives.shieldAbsorption(target));
         if (ledger.isEmpty()) LEDGERS.remove(target);
         if (result.blocked() <= 0) return;
         event.setNewDamage(result.damage());

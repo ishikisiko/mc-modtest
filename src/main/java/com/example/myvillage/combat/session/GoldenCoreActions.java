@@ -17,6 +17,8 @@ import com.example.myvillage.combat.art.ArtMath;
 import com.example.myvillage.combat.foundation.ShieldRuntime;
 import com.example.myvillage.combat.runtime.CombatActors;
 import com.example.myvillage.cultivation.data.TechniqueTraits;
+import com.example.myvillage.cultivation.data.TechniqueTraits.ContactState;
+import com.example.myvillage.cultivation.technique.HeartPassives;
 import com.example.myvillage.cultivation.fate.FateDefenses;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime;
 import com.example.myvillage.stats.DamageType;
@@ -272,7 +274,12 @@ public final class GoldenCoreActions {
     private static void strike(Cast cast) {
         var spec = cast.spec;
         switch (spec.mechanic()) {
-            case PIERCING_SWORD, STORED_PUNCH -> lineStrike(cast, spec.damage() + cast.stacks * spec.bonus());
+            case PIERCING_SWORD, STORED_PUNCH -> {
+                var state = spec.mechanic() == GoldenCoreArt.Mechanic.PIERCING_SWORD
+                        ? ContactState.SWORD_INTENT : ContactState.FIST_FORCE;
+                double bonus = HeartPassives.stackBonus(cast.caster, state, spec.bonus());
+                lineStrike(cast, spec.damage() + cast.stacks * bonus);
+            }
             case CROSSING_TRACES -> {
                 if (available(cast.caster, cast.aim.anchor(), spec.range())) {
                     cast.detach();

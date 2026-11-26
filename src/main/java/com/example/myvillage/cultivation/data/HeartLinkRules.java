@@ -2,6 +2,7 @@ package com.example.myvillage.cultivation.data;
 
 import com.example.myvillage.cultivation.data.TechniqueTraits.ContactState;
 import com.example.myvillage.cultivation.data.TechniqueTraits.Trait;
+import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import com.example.myvillage.stats.DamageType;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +17,7 @@ import java.util.Map;
 public record HeartLinkRules(Map<ResourceLocation, Attack> attack,
                              Map<ResourceLocation, Defense> defense,
                              Map<ResourceLocation, Spirit> spirit,
+                             Map<ResourceLocation, Passive> passive,
                              int defenseCooldown, int spiritCooldown, int armorTicks,
                              Map<ResourceLocation, List<Trait>> traits) {
     public enum Route {
@@ -34,11 +36,13 @@ public record HeartLinkRules(Map<ResourceLocation, Attack> attack,
     public enum AttackUse { GRANT, STRIKE }
     public enum Trigger { PAID, BASIC, BASIC_TIP, SNEAK_PAID, SNEAK_CLOSE }
     public enum DefenseUse { SHIELD, MEND, RETALIATE }
+    public enum PassiveUse { DURATION, STACK_DAMAGE, ABSORPTION }
 
     public record Attack(Route route, AttackUse use, Trigger trigger, ContactState state,
                          ContactState requires, int cooldown, int percent) { }
     public record Defense(Route route, DefenseUse use, ContactState state, int healthPercent) { }
     public record Spirit(Route route, ContactState state, int qi) { }
+    public record Passive(Slot slot, PassiveUse use, List<ContactState> states, int percent) { }
     private record Band(int cooldown, int percent) { }
 
     static HeartLinkRules parse(JsonObject root, JsonObject labels) {
@@ -53,6 +57,7 @@ public record HeartLinkRules(Map<ResourceLocation, Attack> attack,
         Map<ResourceLocation, Attack> attack = new HashMap<>();
         Map<ResourceLocation, Defense> defense = new HashMap<>();
         Map<ResourceLocation, Spirit> spirit = new HashMap<>();
+        Map<ResourceLocation, Passive> passive = new HashMap<>();
         Map<ResourceLocation, List<Trait>> traits = new HashMap<>();
 
         for (var value : root.getAsJsonArray("attack")) {
@@ -90,7 +95,7 @@ public record HeartLinkRules(Map<ResourceLocation, Attack> attack,
             var primary = trait(labels, state.tag(), use == DefenseUse.RETALIATE ? "施加" : "转化",
                     description(row) + interval(defenseCooldown));
             var rows = use == DefenseUse.SHIELD ? List.of(primary,
-                    trait(labels, "shield", "获得", "转换后获得短时护盾，最高吸收自身最大生命的 " + amount + "%。"))
+                    trait(labels, "shield", "获得", "转换后获得短时护盾，基础盾值最高为自身最大生命的 " + amount + "%。"))
                     : List.of(primary);
             putTraits(traits, id, rows);
         }
@@ -102,10 +107,46 @@ public record HeartLinkRules(Map<ResourceLocation, Attack> attack,
             int qi = integer(row, "qi", 1, 20);
             spirit.put(id, new Spirit(route, state, qi));
             putTraits(traits, id, List.of(trait(labels, state.tag(), "转化",
-                    description(row) + "回复至多 " + qi + " 点灵力。" + interval(spiritCooldown))));
+                    description(row) + "回复至多 " + qi + " 点灵力。同一击若攻心法已经消耗同种状态，按实际消耗计入回灵。"
+                            + interval(spiritCooldown))));
         }
-        return new HeartLinkRules(Map.copyOf(attack), Map.copyOf(defense), Map.copyOf(spirit),
+        for (var entry : root.getAsJsonObject("passive").entrySet()) {
+            var row = entry.getValue().getAsJsonObject();
+            var id = key(entry.getKey());
+            var slot = field(row, "slot", Slot.class);
+            var use = field(row, "use", PassiveUse.class);
+            var states = new ArrayList<ContactState>();
+            for (var state : row.getAsJsonArray("states"))
+                states.add(ContactState.valueOf(state.getAsString().toUpperCase(Locale.ROOT)));
+            if (states.isEmpty() || states.stream().distinct().count() != states.size()
+                    || states.stream().anyMatch(state -> !supportsPassive(use, state)))
+                throw new IllegalArgumentException("心法常驻状态无对应公式 " + id);
+            int percent = integer(row, "percent", 1, 50);
+            passive.put(id, new Passive(slot, use, List.copyOf(states), percent));
+            String description = switch (use) {
+                case DURATION -> "装备时，由你获得或施加的此状态持续时间延长 " + percent + "%。";
+                case STACK_DAMAGE -> "装备时，每层此状态给招式带来的伤害增量提高 " + percent + "%。";
+                case ABSORPTION -> "装备时，自身共享护盾每点吸收的伤害提高 " + percent + "%。";
+            };
+            putTraits(traits, id, states.stream().map(state -> trait(labels, state.tag(), "常驻", description)).toList());
+        }
+        return new HeartLinkRules(Map.copyOf(attack), Map.copyOf(defense), Map.copyOf(spirit), Map.copyOf(passive),
                 defenseCooldown, spiritCooldown, armorTicks, Map.copyOf(traits));
+    }
+
+    private static boolean supportsPassive(PassiveUse use, ContactState state) {
+        return switch (use) {
+            case DURATION -> switch (state) {
+                case SWORD_INTENT, FIST_FORCE, METAL_FORCE, WOOD_FORCE, WATER_FORCE, FIRE_FORCE, EARTH_FORCE,
+                        PURSUIT, SPEAR_STANCE, FIST_UNBALANCE, EARTH_UNBALANCE, CHILL, EROSION, SCORCH -> true;
+                default -> false;
+            };
+            case STACK_DAMAGE -> switch (state) {
+                case SWORD_INTENT, FIST_FORCE, METAL_FORCE, WOOD_FORCE, WATER_FORCE, FIRE_FORCE, EARTH_FORCE -> true;
+                default -> false;
+            };
+            case ABSORPTION -> state == ContactState.SHIELD;
+        };
     }
 
     private static String interval(int ticks) { return "同栏触发间隔 " + ticks + " 刻。"; }

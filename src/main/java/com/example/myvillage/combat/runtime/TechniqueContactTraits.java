@@ -5,6 +5,7 @@ import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.cultivation.data.TechniqueTraits.ContactRole;
 import com.example.myvillage.cultivation.data.TechniqueTraits.ContactRule;
 import com.example.myvillage.cultivation.data.TechniqueTraits.ContactState;
+import com.example.myvillage.cultivation.technique.HeartPassives;
 import com.example.myvillage.stats.DamageType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -42,6 +43,7 @@ public final class TechniqueContactTraits {
             if (stacks == 0) continue;
             boolean pool = weapon(state) != null || element(state) != null;
             double bonus = TechniqueTraits.number(pool ? "contact_pool_bonus" : "contact_status_bonus");
+            if (pool) bonus = HeartPassives.stackBonus(caster, state, bonus);
             return new Receipt(rules, rule.role() == ContactRole.SPEND ? state : null,
                     1 + bonus * stacks, firstHit);
         }

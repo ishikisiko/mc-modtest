@@ -6,6 +6,8 @@ import com.example.myvillage.combat.foundation.ControlState;
 import com.example.myvillage.combat.CombatService;
 import com.example.myvillage.combat.runtime.*;
 import com.example.myvillage.cultivation.CultivationService;
+import com.example.myvillage.cultivation.data.TechniqueTraits.ContactState;
+import com.example.myvillage.cultivation.technique.HeartPassives;
 import com.example.myvillage.stats.*;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -31,7 +33,7 @@ public final class ElementalEffects {
     private static final class Dot {
         final LivingEntity caster;final Entity target;final DamageType element;final double damage;final long until;long next;
         Dot(LivingEntity p,Entity t,DamageType e,double d,long now) {
-            this(p, t, e, d, now + ElementalRules.integer("dot_lifetime_ticks", 1, 400), now + interval());
+            this(p, t, e, d, now + dotDuration(p, e), now + interval());
         }
         Dot(LivingEntity p, Entity t, DamageType e, double d, long until, long next) {
             caster = p; target = t; element = e; damage = d;
@@ -49,6 +51,14 @@ public final class ElementalEffects {
     private ElementalEffects() {}
     public static long clock(LivingEntity p){return CombatCaster.level(p).getServer().overworld().getGameTime();}
     private static int interval(){return ElementalRules.integer("dot_interval_ticks",1,100);}
+    private static int dotDuration(LivingEntity caster, DamageType element) {
+        int ticks = ElementalRules.integer("dot_lifetime_ticks", 1, 400);
+        return switch (element) {
+            case WOOD -> HeartPassives.duration(caster, ContactState.EROSION, ticks);
+            case FIRE -> HeartPassives.duration(caster, ContactState.SCORCH, ticks);
+            default -> ticks;
+        };
+    }
     public static int charges(LivingEntity p,DamageType type) {
         var map=CHARGES.get(p.getUUID());return map==null||!map.containsKey(type)?0:map.get(type).value(clock(p));
     }
@@ -56,7 +66,9 @@ public final class ElementalEffects {
         var map=CHARGES.computeIfAbsent(p.getUUID(),id->new EnumMap<>(DamageType.class));
         var meter=map.computeIfAbsent(type,t->new ElementalCharge());
         int max=ElementalRules.integer("charge_maximum",1,6);
-        int value=meter.gain(clock(p),max,ElementalRules.integer("charge_lifetime_ticks",20,1200));
+        int ticks = HeartPassives.duration(p, HeartPassives.elementalCharge(type),
+                ElementalRules.integer("charge_lifetime_ticks", 20, 1200));
+        int value=meter.gain(clock(p),max,ticks);
         CombatCaster.message(p,Component.translatable("combat.yuanxian.elemental."+type.id(),value,max),true);
         LoggerFactory.getLogger(ElementalEffects.class).info("ELEMENTAL player={} result=charge element={} value={}",CombatCaster.name(p),type.id(),value);
     }
@@ -144,7 +156,7 @@ public final class ElementalEffects {
     }
 
     public static boolean waterChill(LivingEntity caster, LivingEntity target, int ticks, double fraction) {
-        return ControlService.slow(caster, target, WATER_CHILL, ticks, fraction);
+        return ControlService.slow(caster, target, WATER_CHILL, HeartPassives.duration(caster, ContactState.CHILL, ticks), fraction);
     }
 
     public static boolean hasWaterChill(LivingEntity caster, LivingEntity target) {

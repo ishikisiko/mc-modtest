@@ -2,9 +2,11 @@ package com.example.myvillage.combat.session;
 
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.definition.CombatStyleDefinition;
+import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -35,18 +37,18 @@ public final class CombatSession {
         this.style = Objects.requireNonNull(style, "style");
     }
 
-    /** 各段及延迟投影共用本次出招的一次心法结算机会。 */
+    /** 各段及投影沿用同一动作的触发记录，攻心法和灵修各自记录。 */
     public static final class HeartContact {
         private final ResourceLocation technique;
+        private final EnumSet<Slot> used = EnumSet.noneOf(Slot.class);
         private boolean resolving;
-        private boolean used;
 
         public HeartContact(ResourceLocation technique) { this.technique = technique; }
         public ResourceLocation technique() { return technique; }
-        public boolean ready() { return !resolving && !used; }
+        public boolean ready(Slot slot) { return !resolving && !used.contains(slot); }
         public void begin() { resolving = true; }
         public void end() { resolving = false; }
-        public void use() { used = true; }
+        public void use(Slot slot) { used.add(slot); }
     }
 
     public CombatStyleDefinition style() {

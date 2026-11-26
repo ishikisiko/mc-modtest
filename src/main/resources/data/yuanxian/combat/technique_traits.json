@@ -68,6 +68,20 @@
     "light_fuse_trigger_multiplier": 1.15
   },
   "heart_links": {
+    "passive": {
+      "dayan_jue": {"slot": "attack", "use": "duration", "states": ["pursuit"], "percent": 25},
+      "jin_ting_jia_qiang_pian": {"slot": "defense", "use": "duration", "states": ["spear_stance"], "percent": 35},
+      "yuanshen_bumie_jue": {"slot": "defense", "use": "duration", "states": ["fist_force"], "percent": 30},
+      "ming_jin_yin_ling_lu": {"slot": "spirit", "use": "duration", "states": ["metal_force"], "percent": 30},
+      "linggen_peiyuan_fa": {"slot": "spirit", "use": "duration", "states": ["erosion"], "percent": 25},
+      "guishui_tianzhang": {"slot": "spirit", "use": "duration", "states": ["chill"], "percent": 30},
+      "ming_huo_lian_shen_pu": {"slot": "spirit", "use": "duration", "states": ["scorch"], "percent": 30},
+      "dimai_tuna_shu": {"slot": "spirit", "use": "duration", "states": ["earth_unbalance"], "percent": 25},
+      "zhou_tian_ning_feng_lu": {"slot": "attack", "use": "stack_damage", "states": ["sword_intent", "fist_force"], "percent": 25},
+      "san_yuan_hui_feng_jing": {"slot": "attack", "use": "stack_damage", "states": ["metal_force", "wood_force", "water_force", "fire_force", "earth_force"], "percent": 20},
+      "wan_fa_hu_yuan_jing": {"slot": "defense", "use": "absorption", "states": ["shield"], "percent": 20},
+      "tai_su_gui_xi_jing": {"slot": "spirit", "use": "absorption", "states": ["shield"], "percent": 15}
+    },
     "attack_bands": [
       {
         "cooldown": 60,

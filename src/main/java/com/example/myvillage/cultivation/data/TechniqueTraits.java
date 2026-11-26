@@ -15,13 +15,13 @@ import java.util.stream.StreamSupport;
 /** The workbench reads this same bundled definition for its trait links. */
 public final class TechniqueTraits {
     private static final String RESOURCE = "/data/yuanxian/combat/technique_traits.json";
-    private static final Set<String> ROLES = Set.of("获得", "施加", "读取", "消耗", "延续", "转化", "转移");
+    private static final Set<String> ROLES = Set.of("获得", "施加", "读取", "消耗", "延续", "转化", "转移", "常驻");
 
     public record Trait(String id, String label, String role, String description) { }
 
     public enum ContactState {
         SWORD_INTENT, SPEAR_FORCE, SPEAR_STANCE, FIST_FORCE,
-        PURSUIT, FIST_UNBALANCE, EARTH_UNBALANCE, ARMOR_BREAK, EROSION, CHILL, SCORCH, WARD,
+        PURSUIT, FIST_UNBALANCE, EARTH_UNBALANCE, ARMOR_BREAK, EROSION, CHILL, SCORCH, WARD, SHIELD,
         METAL_FORCE, WOOD_FORCE, WATER_FORCE, FIRE_FORCE, EARTH_FORCE;
 
         public String tag() {
@@ -126,7 +126,7 @@ public final class TechniqueTraits {
                     };
                     if (values.size() != 2 || (state == ContactState.ARMOR_BREAK) != (role == ContactRole.READ)
                             || state == ContactState.EROSION && role != ContactRole.GAIN
-                            || state == ContactState.SCORCH || state == ContactState.WARD
+                            || state == ContactState.SCORCH || state == ContactState.WARD || state == ContactState.SHIELD
                             || state == ContactState.SPEAR_FORCE && role == ContactRole.GAIN
                             || techniques.getOrDefault(technique, List.of()).stream()
                                 .noneMatch(trait -> trait.id().equals(state.tag()) && trait.role().equals(label)))

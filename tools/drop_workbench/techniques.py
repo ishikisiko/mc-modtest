@@ -598,8 +598,8 @@ def add_heart_link_traits(document, definitions, traits):
         id = 'yuanxian:' + path
         definition = definitions[id]
         method = definition.get('effects', {}).get('core', {}).get('heart', {})
-        route_matches = (method.get('direction') == route if route in weapons
-                         else 'yuanxian:' + route in definition.get('elements', []))
+        route_matches = (route is None or (method.get('direction') == route if route in weapons
+                                          else 'yuanxian:' + route in definition.get('elements', [])))
         if definition['category'] != 'core' or method.get('slot') != slot or not route_matches or id in traits:
             raise ValueError(f'心法联动栏位、路线或特性重复 {id}')
         if realm and definition['requirements']['minimum_realm'] != 'yuanxian:' + realm:
@@ -628,12 +628,22 @@ def add_heart_link_traits(document, definitions, traits):
         rows = [trait(rule['state'], role, rule['description'] + interval(links['defense_cooldown']))]
         if rule['use'] == 'shield':
             rows.append(trait('shield', '获得',
-                              f"转换后获得短时护盾，最高吸收自身最大生命的 {rule['health_percent']}%。"))
+                              f"转换后获得短时护盾，基础盾值最高为自身最大生命的 {rule['health_percent']}%。"))
         add(path, 'defense', rule['route'], rows)
 
     for path, rule in links['spirit'].items():
-        description = rule['description'] + f"回复至多 {rule['qi']} 点灵力。" + interval(links['spirit_cooldown'])
+        description = (rule['description'] + f"回复至多 {rule['qi']} 点灵力。"
+                       + '同一击若攻心法已经消耗同种状态，按实际消耗计入回灵。' + interval(links['spirit_cooldown']))
         add(path, 'spirit', rule['route'], [trait(rule['state'], '转化', description)])
+
+    for path, rule in links['passive'].items():
+        percent = rule['percent']
+        description = {
+            'duration': f'装备时，由你获得或施加的此状态持续时间延长 {percent}%。',
+            'stack_damage': f'装备时，每层此状态给招式带来的伤害增量提高 {percent}%。',
+            'absorption': f'装备时，自身共享护盾每点吸收的伤害提高 {percent}%。',
+        }[rule['use']]
+        add(path, rule['slot'], None, [trait(state, '常驻', description) for state in rule['states']])
 
 
 def trait_catalogue(data, definitions, heritages, names, labels):

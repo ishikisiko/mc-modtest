@@ -14,6 +14,8 @@ import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.combat.runtime.SwordArmorBreak;
 import com.example.myvillage.cultivation.data.TechniqueTraits;
+import com.example.myvillage.cultivation.data.TechniqueTraits.ContactState;
+import com.example.myvillage.cultivation.technique.HeartPassives;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime;
 import com.example.myvillage.stats.DamageType;
 import java.util.Comparator;
@@ -292,13 +294,14 @@ final class AscendantArts {
         Vec3 at = cast.aim.anchor();
         if (!cast.anchored(at)) return;
         int stacks = ElementalEffects.consume(cast.actor, DamageType.METAL);
+        double bonus = HeartPassives.stackBonus(cast.actor, ContactState.METAL_FORCE, cast.effect.bonus());
         markRing(cast.actor, cast.art, at, cast.shape.radius(), false);
         markRing(cast.actor, cast.art, at, cast.shape.inner(), false);
         boolean inner = true;
         for (Entity target : area(cast, at, cast.shape.radius())) {
             if (inner && withinRadius(at, target.getBoundingBox(), cast.shape.inner())) {
                 inner = false;
-                if (hit(cast, target, cast.effect.damage() + stacks * cast.effect.bonus())
+                if (hit(cast, target, cast.effect.damage() + stacks * bonus)
                         && CombatTargets.owner(target) instanceof LivingEntity living && living.isAlive())
                     SwordArmorBreak.apply(living, cast.effect.control(), cast.time.statusTicks());
             } else hit(cast, target, cast.effect.secondary());

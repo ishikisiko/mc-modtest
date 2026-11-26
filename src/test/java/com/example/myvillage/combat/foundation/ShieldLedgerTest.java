@@ -43,6 +43,22 @@ class ShieldLedgerTest {
         assertEquals(0, ledger.total(132));
     }
 
+    @Test void increasedAbsorptionSpendsOnlyTheCorrespondingShieldPoints() {
+        var ledger = ledger();
+        assertTrue(ledger.grant(A, 10, 20, 100));
+        assertEquals(0, ledger.absorb(10, 101, true, 1.25).blocked());
+        var boosted = ledger.absorb(10, 101, false, 1.25);
+        assertEquals(10, boosted.blocked());
+        assertEquals(0, boosted.damage());
+        assertEquals(List.of(new ShieldLedger.Consumption(A, 10, 2, false)), boosted.consumed());
+        assertEquals(List.of(new ShieldLedger.Entry(A, 2, 120)), ledger.entries(101));
+
+        var normal = ledger.absorb(4, 102, false);
+        assertEquals(2, normal.blocked());
+        assertEquals(2, normal.damage());
+        assertTrue(ledger.isEmpty());
+    }
+
     @Test void capsBoundEachSourceTheirTotalTheirCountAndDuration() {
         var ledger = ledger();
         assertTrue(ledger.grant(A, Float.MAX_VALUE, Integer.MAX_VALUE, 100));

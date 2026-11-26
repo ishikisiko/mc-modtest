@@ -406,5 +406,18 @@ class TechniqueDirectoryTest(unittest.TestCase):
                               ('hanbing_xuangong', 'sword_intent', '转化'), ('runmu_jue', 'wood_force', '转化')):
             self.assertIn((tag, role), [(t['id'], t['role']) for t in self.technique(id)['traits']])
 
+    def test_passive_heart_traits_show_the_state_and_coefficient(self):
+        for path, tag, description in (
+            ('dayan_jue', 'pursuit', '持续时间延长 25%'),
+            ('zhou_tian_ning_feng_lu', 'sword_intent', '伤害增量提高 25%'),
+            ('wan_fa_hu_yuan_jing', 'shield', '每点吸收的伤害提高 20%'),
+        ):
+            with self.subTest(heart=path):
+                row = next(t for t in self.technique(path)['traits'] if t['id'] == tag)
+                self.assertEqual('常驻', row['role'])
+                self.assertIn(description, row['description'])
+        spirit = self.technique('qingling_yangyuan_gong')['traits'][0]
+        self.assertIn('按实际消耗计入回灵', spirit['description'])
+
 
 if __name__=='__main__':unittest.main()

@@ -4,6 +4,8 @@ import com.example.myvillage.combat.CombatMode;
 import com.example.myvillage.combat.CombatService;
 import com.example.myvillage.combat.definition.*;
 import com.example.myvillage.combat.session.CombatSession;
+import com.example.myvillage.cultivation.data.TechniqueTraits.ContactState;
+import com.example.myvillage.cultivation.technique.HeartPassives;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -54,7 +56,7 @@ public final class CombatDisciplines {
         if (e.family.equals("fist")) gain(player,e,revision,DisciplineRules.get().body());
     }
     private static void gain(LivingEntity p, Entry e, long revision, DisciplineRules.Pool rules) {
-        if (!e.pool.gain(revision,now(p),rules)) return;
+        if (!e.pool.gain(revision, now(p), durationRules(p, e.family, rules))) return;
         showGain(p, e, rules);
     }
     /** The caller has already checked the first positive contact of this cast. */
@@ -62,8 +64,21 @@ public final class CombatDisciplines {
         Entry entry = current(actor);
         if (entry == null || !entry.family.equals(family)) return;
         var rules = family.equals("sword") ? DisciplineRules.get().sword() : DisciplineRules.get().body();
-        entry.pool.gain(now(actor), rules);
+        entry.pool.gain(now(actor), durationRules(actor, family, rules));
         showGain(actor, entry, rules);
+    }
+    private static DisciplineRules.Pool durationRules(LivingEntity actor, String family, DisciplineRules.Pool rules) {
+        int timeout = HeartPassives.duration(actor, chargeState(family), rules.timeoutTicks());
+        return timeout == rules.timeoutTicks() ? rules : new DisciplineRules.Pool(rules.maximum(), timeout, rules.bonus());
+    }
+
+    private static ContactState chargeState(String family) {
+        return switch (family) {
+            case "sword" -> ContactState.SWORD_INTENT;
+            case "spear" -> ContactState.SPEAR_FORCE;
+            case "fist" -> ContactState.FIST_FORCE;
+            default -> null;
+        };
     }
     private static void showGain(LivingEntity p, Entry e, DisciplineRules.Pool rules) {
         int stacks = e.pool.stacks(now(p));
@@ -78,6 +93,7 @@ public final class CombatDisciplines {
         double multiplier = e.pool.consume(now(p), family.equals("sword")
                 ? DisciplineRules.get().sword() : DisciplineRules.get().body());
         if (multiplier > 1) {
+            multiplier = 1 + HeartPassives.stackBonus(p, chargeState(family), multiplier - 1);
             CombatCaster.message(p,Component.literal(family.equals("sword") ? "剑意贯虹：剑气强化" : "蓄劲释放：崩山劲强化"),true);
             log(p,"consume",family,multiplier);
         }

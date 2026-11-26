@@ -4,7 +4,10 @@ import com.google.gson.JsonParser;
 import com.example.myvillage.combat.elemental.ElementalCharge;
 import com.example.myvillage.combat.session.CombatSession;
 import com.example.myvillage.cultivation.data.HeartLinkRules;
+import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import com.example.myvillage.cultivation.data.TechniqueTraits;
+import com.example.myvillage.cultivation.data.TechniqueTraits.ContactState;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,15 +82,68 @@ class CombatDisciplinesTest {
         assertFalse(fire.consumeOne(51));
     }
 
-    @Test void oneHeartContactCanRejectThenCommitOnlyOnce() {
+    @Test void oneHeartContactTracksAttackAndSpiritSeparately() {
         var contact = new CombatSession.HeartContact(ResourceLocation.parse("yuanxian:liufeng_zhan"));
-        assertTrue(contact.ready());
+        assertTrue(contact.ready(Slot.ATTACK));
+        assertTrue(contact.ready(Slot.SPIRIT));
         contact.begin();
-        assertFalse(contact.ready());
+        assertFalse(contact.ready(Slot.ATTACK));
+        assertFalse(contact.ready(Slot.SPIRIT));
         contact.end();
-        assertTrue(contact.ready());
-        contact.use();
-        assertFalse(contact.ready());
+        assertTrue(contact.ready(Slot.ATTACK));
+        contact.use(Slot.ATTACK);
+        assertFalse(contact.ready(Slot.ATTACK));
+        assertTrue(contact.ready(Slot.SPIRIT));
+        contact.use(Slot.SPIRIT);
+        assertFalse(contact.ready(Slot.SPIRIT));
+    }
+
+    @Test void attackAndSpiritCanSettleWithOnePaidFistCharge() {
+        var pool = new DisciplinePool();
+        pool.gain(0, DisciplineRules.get().body());
+        var recovered = new AtomicInteger();
+        var contact = new CombatSession.HeartContact(null);
+        var attack = new HeartCombatLinks.Effect(1.2, ContactState.FIST_FORCE, ignored -> pool.consumeOne(1));
+        var spirit = new HeartCombatLinks.Effect(1, ContactState.FIST_FORCE, paid -> {
+            assertTrue(paid);
+            recovered.addAndGet(2);
+            return true;
+        });
+        var hit = new HeartCombatLinks.Hit(contact, attack, spirit);
+        assertEquals(1.2, hit.multiplier());
+        hit.accepted();
+        hit.accepted();
+        assertEquals(0, pool.stacks(1));
+        assertEquals(2, recovered.get());
+        assertFalse(contact.ready(Slot.ATTACK));
+        assertFalse(contact.ready(Slot.SPIRIT));
+    }
+
+    @Test void rejectedAttackDoesNotGiveFreeRecoveryOrReserveSpirit() {
+        var pool = new DisciplinePool();
+        pool.gain(0, DisciplineRules.get().body());
+        var contact = new CombatSession.HeartContact(null);
+        var attack = new HeartCombatLinks.Effect(1.2, ContactState.FIST_FORCE, ignored -> false);
+        var spirit = new HeartCombatLinks.Effect(1, ContactState.FIST_FORCE, paid -> {
+            assertFalse(paid);
+            return pool.consumeOne(1);
+        });
+        new HeartCombatLinks.Hit(contact, attack, spirit).accepted();
+        assertEquals(0, pool.stacks(1));
+        assertTrue(contact.ready(Slot.ATTACK));
+        assertFalse(contact.ready(Slot.SPIRIT));
+    }
+
+    @Test void passiveTypesUseTheirAuthoredSlotsAndStateTags() {
+        var links = TechniqueTraits.heartLinks();
+        assertEquals(12, links.passive().size());
+        var duration = links.passive().get(ResourceLocation.parse("yuanxian:dayan_jue"));
+        assertEquals(new HeartLinkRules.Passive(Slot.ATTACK, HeartLinkRules.PassiveUse.DURATION,
+                java.util.List.of(ContactState.PURSUIT), 25), duration);
+        var shield = ResourceLocation.parse("yuanxian:tai_su_gui_xi_jing");
+        assertEquals(HeartLinkRules.PassiveUse.ABSORPTION, links.passive().get(shield).use());
+        assertEquals("shield", TechniqueTraits.of(shield).getFirst().id());
+        assertEquals("常驻", TechniqueTraits.of(shield).getFirst().role());
     }
 
     @Test void heartTrackSharesRulesWithDisplayedFeatures() {

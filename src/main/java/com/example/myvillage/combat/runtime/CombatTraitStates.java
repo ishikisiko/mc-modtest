@@ -1,7 +1,9 @@
 package com.example.myvillage.combat.runtime;
 
 import com.example.myvillage.cultivation.data.TechniqueTraits;
+import com.example.myvillage.cultivation.data.TechniqueTraits.ContactState;
 import com.example.myvillage.cultivation.fate.FateDefenses;
+import com.example.myvillage.cultivation.technique.HeartPassives;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -12,17 +14,19 @@ import java.util.Map;
 /** Source-owned, server-side opportunities with one consumption each. */
 public final class CombatTraitStates {
     public enum Kind {
-        PURSUIT("pursuit_ticks", "追击", true, true),
-        SPEAR_STANCE("spear_stance_ticks", "拒马架势", true, false),
-        FIST_UNBALANCE("unbalance_ticks", "拳法失衡", true, true),
-        EARTH_UNBALANCE("unbalance_ticks", "土法失衡", false, true);
+        PURSUIT(ContactState.PURSUIT, "pursuit_ticks", "追击", true, true),
+        SPEAR_STANCE(ContactState.SPEAR_STANCE, "spear_stance_ticks", "拒马架势", true, false),
+        FIST_UNBALANCE(ContactState.FIST_UNBALANCE, "unbalance_ticks", "拳法失衡", true, true),
+        EARTH_UNBALANCE(ContactState.EARTH_UNBALANCE, "unbalance_ticks", "土法失衡", false, true);
 
+        private final ContactState state;
         private final String ticks;
         private final String label;
         private final boolean weaponBound;
         private final boolean harmful;
 
-        Kind(String ticks, String label, boolean weaponBound, boolean harmful) {
+        Kind(ContactState state, String ticks, String label, boolean weaponBound, boolean harmful) {
+            this.state = state;
             this.ticks = ticks;
             this.label = label;
             this.weaponBound = weaponBound;
@@ -43,8 +47,8 @@ public final class CombatTraitStates {
         if (!ACTIVE.containsKey(key) && ACTIVE.keySet().stream().filter(old -> old.caster() == caster).count()
                 >= TechniqueTraits.integer("maximum_states_per_caster"))
             return false;
-        ACTIVE.put(key, new State(caster.getMainHandItem(), CombatCaster.slot(caster),
-                now(caster) + TechniqueTraits.integer(kind.ticks), false));
+        int ticks = HeartPassives.duration(caster, kind.state, TechniqueTraits.integer(kind.ticks));
+        ACTIVE.put(key, new State(caster.getMainHandItem(), CombatCaster.slot(caster), now(caster) + ticks, false));
         CombatCaster.message(caster, net.minecraft.network.chat.Component.literal("获得" + kind.label));
         return true;
     }
@@ -65,8 +69,8 @@ public final class CombatTraitStates {
         if (key == null) return;
         State state = ACTIVE.get(key);
         if (state.extended()) return;
-        ACTIVE.put(key, new State(state.held(), state.slot(),
-                Math.max(state.until(), now(caster) + TechniqueTraits.integer("pursuit_extend_ticks")), true));
+        int ticks = HeartPassives.duration(caster, ContactState.PURSUIT, TechniqueTraits.integer("pursuit_extend_ticks"));
+        ACTIVE.put(key, new State(state.held(), state.slot(), Math.max(state.until(), now(caster) + ticks), true));
         CombatCaster.message(caster, net.minecraft.network.chat.Component.literal("追击时间延续"));
     }
 

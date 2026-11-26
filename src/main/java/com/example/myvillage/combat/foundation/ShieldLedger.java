@@ -69,6 +69,12 @@ public final class ShieldLedger {
 
     /** 输入已经通过原版和类型减免；这里只做扣除，不调用 hurt 或任何减伤函数。 */
     public Absorption absorb(float damage, long now, boolean bypass) {
+        return absorb(damage, now, bypass, 1);
+    }
+
+    public Absorption absorb(float damage, long now, boolean bypass, double absorptionPerPoint) {
+        if (!Double.isFinite(absorptionPerPoint) || absorptionPerPoint < 1)
+            throw new IllegalArgumentException("每点护盾的吸收量必须为有限值且不小于 1");
         expire(now);
         if (bypass || !Float.isFinite(damage) || damage <= 0 || sources.isEmpty())
             return new Absorption(damage, 0, List.of());
@@ -76,14 +82,15 @@ public final class ShieldLedger {
         List<Consumption> consumed = new ArrayList<>();
         for (Entry entry : entries(now)) {
             if (residual <= 0) break;
-            float blocked = Math.min(entry.amount(), residual);
-            float remaining = Math.max(0, entry.amount() - blocked);
+            double capacity = entry.amount() * absorptionPerPoint;
+            double absorbed = Math.min(capacity, residual);
             // 大数减去极小数可能不改变 float；此时不能凭空消费一个护盾。
-            float nextResidual = Math.max(0, residual - blocked);
+            float nextResidual = (float) (residual - absorbed);
             if (nextResidual == residual) continue;
+            float remaining = absorbed >= capacity ? 0 : (float) (entry.amount() - absorbed / absorptionPerPoint);
             if (remaining == 0) sources.remove(entry.source());
             else sources.put(entry.source(), new Entry(entry.source(), remaining, entry.expiresAt()));
-            consumed.add(new Consumption(entry.source(), blocked, remaining, remaining == 0));
+            consumed.add(new Consumption(entry.source(), residual - nextResidual, remaining, remaining == 0));
             residual = nextResidual;
         }
         return new Absorption(residual, Math.max(0, damage - residual), consumed);

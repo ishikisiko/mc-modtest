@@ -11,6 +11,7 @@ import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.cultivation.data.TechniqueTraits.ContactState;
 import com.example.myvillage.cultivation.fate.FateDefenses;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityCooldowns;
+import com.example.myvillage.cultivation.technique.HeartPassives;
 import com.example.myvillage.cultivation.technique.HeartTechniques;
 import com.example.myvillage.stats.DamageType;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 /** 从真实命中和受伤收据触发装备心法，沿用现有状态来源和每次攻击的伤害结算。 */
 public final class HeartCombatLinks {
@@ -28,9 +30,37 @@ public final class HeartCombatLinks {
     private static final ResourceLocation DEFENSE = id("heart_link_defense");
     private static final ResourceLocation SPIRIT = id("heart_link_spirit");
 
-    public record Hit(CombatSession.HeartContact contact, double multiplier, BooleanSupplier settle) {
+    record Effect(double multiplier, ContactState charge, Predicate<Boolean> settle) { }
+
+    public static final class Hit {
+        private final CombatSession.HeartContact contact;
+        private final Effect attack;
+        private final Effect spirit;
+
+        Hit(CombatSession.HeartContact contact, Effect attack, Effect spirit) {
+            this.contact = contact;
+            this.attack = attack;
+            this.spirit = spirit;
+        }
+
+        public CombatSession.HeartContact contact() { return contact; }
+        public double multiplier() { return attack == null ? 1 : attack.multiplier(); }
+
         public void accepted() {
-            if (settle.getAsBoolean()) contact.use();
+            boolean resolveAttack = attack != null && contact.ready(Slot.ATTACK);
+            boolean resolveSpirit = spirit != null && contact.ready(Slot.SPIRIT);
+            if (!resolveAttack && !resolveSpirit) return;
+            contact.begin();
+            try {
+                boolean attackApplied = resolveAttack && attack.settle().test(false);
+                if (attackApplied) contact.use(Slot.ATTACK);
+                if (resolveSpirit) {
+                    boolean paidOnThisHit = attackApplied && attack.charge() == spirit.charge();
+                    if (spirit.settle().test(paidOnThisHit)) contact.use(Slot.SPIRIT);
+                }
+            } finally {
+                contact.end();
+            }
         }
     }
 
@@ -38,48 +68,58 @@ public final class HeartCombatLinks {
 
     public static Hit prepare(LivingEntity actor, Entity target, String family, DamageType element, CombatSession session) {
         var contact = session.heartContact();
-        if (contact == null || !contact.ready() || !HeartTechniques.supports(actor) || !CombatCaster.active(actor)
+        if (contact == null || !HeartTechniques.supports(actor) || !CombatCaster.active(actor)
                 || !(CombatTargets.owner(target) instanceof LivingEntity enemy)) return null;
 
         var rules = TechniqueTraits.heartLinks();
+        Effect attack = contact.ready(Slot.ATTACK) ? prepareAttack(actor, target, enemy, family, element, session, rules, contact)
+                : null;
+        Effect spirit = contact.ready(Slot.SPIRIT) ? prepareSpirit(actor, target, family, element, session, rules, contact, attack)
+                : null;
+        return attack == null && spirit == null ? null : new Hit(contact, attack, spirit);
+    }
+
+    private static Effect prepareAttack(LivingEntity actor, Entity target, LivingEntity enemy, String family, DamageType element,
+                                        CombatSession session, HeartLinkRules rules, CombatSession.HeartContact contact) {
         ResourceLocation heart = HeartTechniques.equippedId(actor, Slot.ATTACK);
         var attack = heart == null ? null : rules.attack().get(heart);
-        if (attack != null && attack.route().matches(family, element) && triggered(attack.trigger(), actor, target, session)
-                && (attack.requires() == null || targetHas(attack.requires(), actor, enemy))
-                && !conflicts(contact.technique(), attack.state(), attack.use() == HeartLinkRules.AttackUse.GRANT, false)) {
-            var hit = attackHit(actor, target, enemy, heart, attack, rules, contact);
-            if (hit != null) return hit;
+        if (attack == null || !attack.route().matches(family, element) || !triggered(attack.trigger(), actor, target, session)
+                || attack.requires() != null && !targetHas(attack.requires(), actor, enemy)
+                || conflicts(contact.technique(), attack.state(), attack.use() == HeartLinkRules.AttackUse.GRANT, false)) return null;
+        var state = attack.state();
+        if (attack.use() == HeartLinkRules.AttackUse.GRANT) {
+            if (!canGrant(actor, enemy, state)) return null;
+            return prepared(actor, heart, Slot.ATTACK, ATTACK, attack.cooldown(), 1, null,
+                    ignored -> grant(actor, enemy, attack, rules));
         }
+        if (state.casterState() ? !hasCharge(actor, state) : !targetHas(state, actor, enemy)) return null;
+        double bonus = HeartPassives.stackBonus(actor, state, attack.percent() / 100.0);
+        return prepared(actor, heart, Slot.ATTACK, ATTACK, attack.cooldown(), 1 + bonus,
+                state.casterState() ? state : null,
+                ignored -> state.casterState() ? takeCharge(actor, state) : takeTargetState(actor, target, enemy, state));
+    }
 
+    private static Effect prepareSpirit(LivingEntity actor, Entity target, String family, DamageType element,
+                                        CombatSession session, HeartLinkRules rules, CombatSession.HeartContact contact, Effect attack) {
         if (!actor.isShiftKeyDown() || !session.paidArt() || CombatCaster.power(actor) >= CombatCaster.capacity(actor)) return null;
         ResourceLocation spiritHeart = HeartTechniques.equippedId(actor, Slot.SPIRIT);
         var spirit = spiritHeart == null ? null : rules.spirit().get(spiritHeart);
         if (spirit == null || !spirit.route().matches(family, element)
                 || spirit.route() == HeartLinkRules.Route.SPEAR && !closeSpear(actor, target)
-                || conflicts(contact.technique(), spirit.state(), false, true)
+                || conflicts(contact.technique(), spirit.state(), false, false)
                 || !hasCharge(actor, spirit.state())) return null;
-        return prepared(actor, contact, spiritHeart, Slot.SPIRIT, SPIRIT, rules.spiritCooldown(), 1, () -> {
-            if (CombatCaster.power(actor) >= CombatCaster.capacity(actor) || !takeCharge(actor, spirit.state())) return false;
-            CombatCaster.recover(actor, spirit.qi());
-            return true;
+        // 自己补充该状态的招式只能用本击已经支付的资源回灵。
+        boolean replenishesCharge = conflicts(contact.technique(), spirit.state(), false, true);
+        if (replenishesCharge && (attack == null || attack.charge() != spirit.state())) return null;
+        return prepared(actor, spiritHeart, Slot.SPIRIT, SPIRIT, rules.spiritCooldown(), 1, spirit.state(), paidOnThisHit -> {
+            if (CombatCaster.power(actor) >= CombatCaster.capacity(actor)
+                    || !paidOnThisHit && (replenishesCharge || !takeCharge(actor, spirit.state()))) return false;
+            return CombatCaster.recover(actor, spirit.qi());
         });
     }
 
-    private static Hit attackHit(LivingEntity actor, Entity target, LivingEntity enemy, ResourceLocation heart,
-                                 HeartLinkRules.Attack rule, HeartLinkRules config, CombatSession.HeartContact contact) {
-        var state = rule.state();
-        if (rule.use() == HeartLinkRules.AttackUse.GRANT) {
-            if (!canGrant(actor, enemy, state)) return null;
-            return prepared(actor, contact, heart, Slot.ATTACK, ATTACK, rule.cooldown(), 1,
-                    () -> grant(actor, enemy, rule, config));
-        }
-        if (state.casterState() ? !hasCharge(actor, state) : !targetHas(state, actor, enemy)) return null;
-        return prepared(actor, contact, heart, Slot.ATTACK, ATTACK, rule.cooldown(), 1 + rule.percent() / 100.0,
-                () -> state.casterState() ? takeCharge(actor, state) : takeTargetState(actor, target, enemy, state));
-    }
-
-    private static Hit prepared(LivingEntity actor, CombatSession.HeartContact contact, ResourceLocation heart, Slot slot,
-                                ResourceLocation channel, int cooldown, double multiplier, BooleanSupplier effect) {
+    private static Effect prepared(LivingEntity actor, ResourceLocation heart, Slot slot, ResourceLocation channel,
+                                   int cooldown, double multiplier, ContactState charge, Predicate<Boolean> effect) {
         var world = CombatCaster.level(actor).getServer().overworld();
         var cooldowns = FateAbilityCooldowns.get(world);
         UUID owner = HeartTechniques.cooldownOwner(actor);
@@ -87,10 +127,10 @@ public final class HeartCombatLinks {
         if (cooldowns.remaining(owner, channel, now) > 0) return null;
         var level = actor.level();
         var hand = actor.getMainHandItem();
-        return new Hit(contact, multiplier, () -> {
+        return new Effect(multiplier, charge, paidOnThisHit -> {
             if (actor.level() != level || actor.getMainHandItem() != hand || !CombatCaster.active(actor)
                     || !heart.equals(HeartTechniques.equippedId(actor, slot))
-                    || cooldowns.remaining(owner, channel, now) > 0 || !effect.getAsBoolean()) return false;
+                    || cooldowns.remaining(owner, channel, now) > 0 || !effect.test(paidOnThisHit)) return false;
             cooldowns.start(owner, channel, now, cooldown);
             return true;
         });
