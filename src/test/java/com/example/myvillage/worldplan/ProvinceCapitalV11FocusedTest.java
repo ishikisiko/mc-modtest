@@ -7,6 +7,7 @@ import com.google.gson.JsonPrimitive;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,7 +62,7 @@ class ProvinceCapitalV11FocusedTest {
         }
     }
 
-    @Test void bothSizesAreSelectableAndUseTheSameGenerationResources() throws Exception {
+    @Test void allThreeSizesAreSelectable() throws Exception {
         String tag = "data/minecraft/tags/worldgen/world_preset/normal.json";
         var selectable = new HashSet<String>();
         for (var resource : Collections.list(getClass().getClassLoader().getResources(tag))) {
@@ -72,7 +73,10 @@ class ProvinceCapitalV11FocusedTest {
                 });
             }
         }
-        assertTrue(selectable.containsAll(Set.of("yuanxian:cultivation", "yuanxian:cultivation_medium")));
+        assertTrue(selectable.containsAll(Set.of("yuanxian:cultivation", "yuanxian:cultivation_medium", "yuanxian:cultivation_small")));
+    }
+
+    @Test void mediumRetainsTheDefaultGenerationResources() throws Exception {
         String path = "data/yuanxian/worldgen/world_preset/cultivation_medium.json";
         assertEquals(1, Collections.list(getClass().getClassLoader().getResources(path)).size());
         var medium = json("/" + path);
@@ -99,5 +103,32 @@ class ProvinceCapitalV11FocusedTest {
         assertTrue(plan.coreRegionAt(8001, 0).isEmpty());
         var restored = new WorldPlan(42L, new WorldPlanRules(FrozenRulesEncoding.decode(FrozenRulesEncoding.encode(rules.json()))));
         assertEquals(plan.fingerprint(), restored.fingerprint());
+    }
+
+    @Test void smallPresetRepacksAndReplaysRejectedSectLocations() throws Exception {
+        String path="/data/yuanxian/worldgen/world_preset/cultivation_small.json";
+        var generator=json(path).getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
+        var rules=new WorldPlanRules(FrozenRulesEncoding.decode(generator.get("rules").getAsString()));
+        assertEquals(6000,rules.coreRadius);
+        assertNotNull(rules.compactPlacement);
+
+        // 东海有一块宗门地在初始排列中放不下。
+        var repacked=new WorldPlan(-1438339502791396633L,rules);
+        assertEquals(8,repacked.cities().size());
+        assertEquals(56,repacked.sectSites().size());
+        assertTrue(repacked.coreRegionAt(6000,0).isPresent());
+        assertTrue(repacked.coreRegionAt(6001,0).isEmpty());
+
+        var initial=new WorldPlan(0L,rules);
+        var original=initial.sectSite("sect_site_zhongzhou_5").orElseThrow();
+        var rejected=List.of(new WorldPlan.RejectedSectSite(original));
+        var revised=new WorldPlan(0L,rules,rejected);
+        var replacement=revised.sectSite(original.id()).orElseThrow();
+        assertNotEquals(new WorldPlan.RejectedSectSite(original),new WorldPlan.RejectedSectSite(replacement));
+        assertEquals(original.blueprintId(),replacement.blueprintId());
+        assertEquals(initial.cities(),revised.cities());
+        assertEquals(initial.sectSites().stream().filter(site->!site.regionId().equals(original.regionId())).toList(),
+            revised.sectSites().stream().filter(site->!site.regionId().equals(original.regionId())).toList());
+        assertEquals(revised.fingerprint(),new WorldPlan(0L,new WorldPlanRules(rules.json()),rejected).fingerprint());
     }
 }

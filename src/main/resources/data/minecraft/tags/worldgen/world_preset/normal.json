@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "yuanxian:cultivation",
-    "yuanxian:cultivation_medium"
+    "yuanxian:cultivation_medium",
+    "yuanxian:cultivation_small"
   ]
 }

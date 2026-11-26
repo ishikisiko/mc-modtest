@@ -1,6 +1,7 @@
 package com.example.myvillage.worldplan.runtime;
 
 import com.example.myvillage.worldplan.WorldPlan;
+import com.example.myvillage.worldplan.WorldPlan.RejectedSectSite;
 import com.example.myvillage.worldplan.WorldPlanRules;
 import com.example.myvillage.worldplan.FrozenRulesEncoding;
 import com.example.myvillage.worldplan.roads.RoadLayout;
@@ -37,6 +38,11 @@ import java.util.concurrent.CompletableFuture;
 
 /** Opt-in world type. Every write belongs to the current chunk; frozen rules live in level.dat. */
 public final class PlannedChunkGenerator extends ChunkGenerator {
+    private static final Codec<RejectedSectSite> REJECTED_SITE_CODEC=RecordCodecBuilder.create(i->i.group(
+        Codec.STRING.fieldOf("site").forGetter(RejectedSectSite::id),
+        Codec.INT.fieldOf("x").forGetter(RejectedSectSite::x),
+        Codec.INT.fieldOf("z").forGetter(RejectedSectSite::z)
+    ).apply(i,RejectedSectSite::new));
     public static final MapCodec<PlannedChunkGenerator> CODEC_V11=createCodec(WorldPlanRules.V11_ALGORITHM);
     private static MapCodec<PlannedChunkGenerator> createCodec(String algorithm){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("biome_source").forGetter(g->g.originalSource),
@@ -44,14 +50,15 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(g->g.settings),
         Codec.STRING.fieldOf("rules").forGetter(g->WorldPlanRules.compressed(g.rules.algorithm) ? FrozenRulesEncoding.encode(g.rules.json()) : g.rules.json()),
         Codec.STRING.optionalFieldOf("plan_hash","").forGetter(PlannedChunkGenerator::savedFingerprint),
+        REJECTED_SITE_CODEC.listOf().optionalFieldOf("rejected_sect_sites",List.of()).forGetter(g->g.rejectedSectSites),
         RoadLayout.CODEC.optionalFieldOf("roads").forGetter(g->g.roads.snapshot()),
         StarterMineGeneration.CODEC.optionalFieldOf("starter_mine").forGetter(g->g.starterMine.snapshot()),
         RegionalMineSite.CODEC.listOf().optionalFieldOf("regional_mines").forGetter(g->g.starterMine.regionalSnapshot()),
         RegistryOps.retrieveGetter(Registries.NOISE)
-    ).apply(i,(source,ridgeBiome,settings,json,hash,roads,mine,regional,noises)->{
+    ).apply(i,(source,ridgeBiome,settings,json,hash,rejected,roads,mine,regional,noises)->{
         WorldPlanRules rules=new WorldPlanRules(WorldPlanRules.compressed(algorithm) ? FrozenRulesEncoding.decode(json) : json);
         if(!algorithm.equals(rules.algorithm))throw new IllegalArgumentException("Generator type must match frozen algorithm");
-        return new PlannedChunkGenerator(new PlannedBiomeSource(source,ridgeBiome,rules),source,ridgeBiome,settings,rules,hash,noises,roads,mine,regional);
+        return new PlannedChunkGenerator(new PlannedBiomeSource(source,ridgeBiome,rules),source,ridgeBiome,settings,rules,hash,rejected,noises,roads,mine,regional);
     }));}
     private final BiomeSource originalSource;
     private final Holder<Biome> foldedRidgeBiome;
@@ -59,6 +66,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     private final HolderGetter<NormalNoise.NoiseParameters> noises;
     private final WorldPlanRules rules;
     private final String expectedFingerprint;
+    private volatile List<RejectedSectSite> rejectedSectSites;
     private final PlannedBiomeSource plannedSource;
     private final NoiseBasedChunkGenerator terrain;
     private volatile WorldPlan plan;
@@ -68,8 +76,9 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     private com.example.myvillage.wilderness.habitat.HabitatLayout habitats;
     private LotusMountain lotusMountain;
     private FoldedRidge foldedRidge;
-    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<Biome> ridgeBiome,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises,Optional<RoadLayout> cachedRoads,Optional<Either<StarterMineLayout,Shortfall>> cachedMine,Optional<List<RegionalMineSite>> cachedRegional){
+    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<Biome> ridgeBiome,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,List<RejectedSectSite> rejected,HolderGetter<NormalNoise.NoiseParameters> noises,Optional<RoadLayout> cachedRoads,Optional<Either<StarterMineLayout,Shortfall>> cachedMine,Optional<List<RegionalMineSite>> cachedRegional){
         super(planned);originalSource=source;foldedRidgeBiome=ridgeBiome;plannedSource=planned;this.settings=settings;this.rules=rules;this.expectedFingerprint=expectedFingerprint;this.noises=noises;
+        rejectedSectSites=List.copyOf(rejected);
         // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
         roads=new RoadGeneration(cachedRoads);
@@ -93,14 +102,23 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             org.slf4j.LoggerFactory.getLogger(PlannedChunkGenerator.class).info(
                 "修仙世界生成输入 seed={}，algorithm={}，rules={}",seed,rules.algorithm,rules.fingerprint());
             if(settings.value().seaLevel()!=rules.seaLevel)throw new IllegalArgumentException("Worldplan sea level must match noise settings");
-            WorldPlan p=new WorldPlan(seed,rules);
-            if(!expectedFingerprint.isEmpty()&&!expectedFingerprint.equals(p.fingerprint()))throw new IllegalStateException("Saved worldplan fingerprint mismatch; refusing to move existing geography. Restore the matching rules/algorithm version.");
             // ChunkMap supplies dummy noise for custom generators; build the real settings-backed state.
             RandomState state=RandomState.create(settings.value(),noises,seed);
-            plannedSource.bind(p,state.sampler());
             // 全网校验完成后才允许创建区块，避免在半张布局上开始写入世界。
+            WorldPlan p;
             try {
-                roads.bind(p);
+                if(rules.compactPlacement!=null&&expectedFingerprint.isEmpty()){
+                    if(!rejectedSectSites.isEmpty())throw new IllegalArgumentException("未生成的世界不能带有宗门重选记录");
+                    var selected=roads.selectCompact(seed,rules);
+                    p=selected.world();
+                    roads.bind(p,selected.roads());
+                    rejectedSectSites=selected.rejectedSites();
+                }else{
+                    p=new WorldPlan(seed,rules,rejectedSectSites);
+                    if(!expectedFingerprint.isEmpty()&&!expectedFingerprint.equals(p.fingerprint()))throw new IllegalStateException("Saved worldplan fingerprint mismatch; refusing to move existing geography. Restore the matching rules/algorithm version.");
+                    roads.bind(p);
+                }
+                plannedSource.bind(p,state.sampler());
                 var roadLayout=roads.await();
                 starterMine.bind(p,roadLayout);
                 var heightRange=LevelHeightAccessor.create(getMinY(),getGenDepth());

@@ -6,6 +6,9 @@ import java.util.function.Consumer;
 
 /** 以合法州界为候选边，逐条落地并锁定交汇标高，直至全部省城处于同一连通分量。 */
 public final class RoadNetworkPlanner {
+    static final class UnconnectedCities extends IllegalStateException {
+        private UnconnectedCities(List<String> failures){super("八城未全通；"+String.join("；",failures));}
+    }
     public record Result(List<RoadPlan> routes,List<RoadPlan.Cell> cells,List<RoadJunctionPlanner.Hub> hubs) {
         public Result(List<RoadPlan> routes,List<RoadPlan.Cell> cells){this(routes,cells,List.of());}
         public Result {routes=List.copyOf(routes);cells=List.copyOf(cells);hubs=List.copyOf(hubs);}
@@ -47,7 +50,7 @@ public final class RoadNetworkPlanner {
             catch(IllegalArgumentException|IllegalStateException e){failures.add(edge.a()+"—"+edge.b()+"："+e.getMessage());org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).warn("官道候选边失败：{}—{}：{}",edge.a(),edge.b(),e.getMessage());}
             if(regions.stream().map(r->root(groups,r)).distinct().count()==1)break;
         }
-        if(regions.stream().map(r->root(groups,r)).distinct().count()!=1){progress.accept(new Progress("failed","","",routes.size(),regions.size()-1));throw new IllegalStateException("八城未全通；"+String.join("；",failures));}
+        if(regions.stream().map(r->root(groups,r)).distinct().count()!=1){progress.accept(new Progress("failed","","",routes.size(),regions.size()-1));throw new UnconnectedCities(failures);}
         int required=regions.size()-1+world.sectSites().size();
         if(required>rules.maxRoutes)throw new IllegalStateException("宗门支路和官道总数超过声明预算");
         for(var site:world.sectSites()){

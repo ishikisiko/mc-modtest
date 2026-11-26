@@ -18,6 +18,14 @@ public record RoadPlan(String from, String to, String worldHash, String rulesHas
         gateWidths=Map.copyOf(gateWidths);obstacles=List.copyOf(obstacles);centerline=List.copyOf(centerline);cells=List.copyOf(cells);
         if(cells.isEmpty()||centerline.size()<2)throw new IllegalArgumentException("空驿道");
     }
+    public double horizontalLength() {
+        double length=0;
+        for(int i=1;i<centerline.size();i++){
+            var before=centerline.get(i-1);var after=centerline.get(i);
+            length+=StrictMath.hypot(after.x()-before.x(),after.z()-before.z());
+        }
+        return length;
+    }
     public Map<Long,List<Cell>> chunks() {
         return chunks(cells);
     }

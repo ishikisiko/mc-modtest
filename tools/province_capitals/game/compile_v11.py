@@ -52,15 +52,18 @@ def apply_region_progression(frozen, policy):
     frozen['region_progression']=copy.deepcopy(policy)
 
 
-def write_presets(out, preset, frozen, medium_map):
-    medium = copy.deepcopy(frozen)
-    medium['core_radius'] = medium_map['core_radius']
-    medium['outer_radius'] = medium_map['outer_radius']
-    medium['capitals'].update(ring_min=medium_map['ring_min'], ring_max=medium_map['ring_max'])
+def write_presets(out, preset, frozen, spec):
+    presets = {'cultivation': frozen}
+    for size in ('medium', 'small'):
+        overrides = copy.deepcopy(spec[f'{size}_map'])
+        rules = copy.deepcopy(frozen)
+        rules['capitals'].update(ring_min=overrides.pop('ring_min'), ring_max=overrides.pop('ring_max'))
+        rules.update(overrides)
+        presets[f'cultivation_{size}'] = rules
 
     generator = preset['dimensions']['minecraft:overworld']['generator']
     generator.pop('plan_hash', None)
-    for name, rules in (('cultivation', frozen), ('cultivation_medium', medium)):
+    for name, rules in presets.items():
         raw = canonical(rules)
         transport = 'gzip:' + base64.b64encode(gzip.compress(raw, mtime=0)).decode()
         if len(raw) > 4 * 1024 * 1024 or len(transport) > 65000:
@@ -126,7 +129,7 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     preset=json.loads((source/'data/yuanxian/worldgen/world_preset/cultivation.json').read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
     if generator['type']!=('yuanxian:planned_v11' if refresh_current else 'yuanxian:planned_v10'):raise ValueError('前置默认预设不是 V10')
     generator.update(type='yuanxian:planned_v11',folded_ridge_biome='yuanxian:folded_ridge')
-    write_presets(out, preset, frozen, spec['medium_map'])
+    write_presets(out, preset, frozen, spec)
     write(out/'data/yuanxian/worldplan/frozen_v11.json',frozen)
     report={'schema':1,'format':'capital_game_index','algorithm':spec['algorithm'],'cities':summaries,'total_tiles':sum(v['tiles'] for v in summaries),
             'total_bytes':sum(v['bytes'] for v in summaries),'frozen_rules_sha256':sha(canonical(frozen)),'source_rules_sha256':sha(original),
@@ -149,7 +152,7 @@ def refresh_habitat_reference(out:Path):
     preset_path=out/'data/yuanxian/worldgen/world_preset/cultivation.json'
     preset=json.loads(preset_path.read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
     if generator['type']!='yuanxian:planned_v11':raise ValueError('需要当前V11预设')
-    write_presets(out, preset, frozen, json.loads(RULES.read_text())['medium_map'])
+    write_presets(out, preset, frozen, json.loads(RULES.read_text()))
     write(path,frozen)
     index_path=out/'data/yuanxian/capitals/v4/index.json'
     if index_path.exists():

@@ -13,14 +13,14 @@ V3 延续 `clear_spawn_canopy`，保护出生安全平台上方整列，防止�
 
 ## 1. 如何创建并查看
 
-装好当前 JAR 和必需依赖后，新建世界，在「世界 → 世界类型」选择「修仙大地图 10000 格」或「修仙中地图 8000 格」，并开启生成建筑。数字表示距原点的核心区半径。世界类型默认是大地图，具体选址随种子变化。每个存档使用创建时保存的规则。
+装好当前 JAR 和必需依赖后，新建世界，在「世界 → 世界类型」选择小地图 6000 格、中地图 8000 格或大地图 10000 格，并开启生成建筑。数字表示距原点的核心区半径。世界类型默认是大地图，具体选址随种子变化。每个存档使用创建时保存的规则。
 
 本 JAR 不是整合包。保留项目既有 GuideME、PlayerAnimationLibrary 等必需依赖；PAL 使用 `PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar`，不是名称相似的旧动画库。依赖详情以 `src/main/resources/META-INF/neoforge.mods.toml` 为准。
 
-专用服务器在首次创建世界前用 `level-type` 选择大小。大地图使用 `yuanxian:cultivation`，中地图使用 `yuanxian:cultivation_medium`。以下为中地图示例。
+专用服务器在首次创建世界前用 `level-type` 选择大小。大地图使用 `yuanxian:cultivation`，中地图使用 `yuanxian:cultivation_medium`，小地图使用 `yuanxian:cultivation_small`。以下为小地图示例。
 
 ```properties
-level-type=yuanxian\:cultivation_medium
+level-type=yuanxian\:cultivation_small
 level-seed=42
 generate-structures=true
 ```

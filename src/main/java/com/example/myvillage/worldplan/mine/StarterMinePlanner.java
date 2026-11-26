@@ -22,8 +22,14 @@ public final class StarterMinePlanner {
     private StarterMinePlanner(){}
 
     public static Search search(WorldPlan world,RoadLayout roads,StarterMineDefinition def){
+        var alongTrunk=search(world,roads,def,false);
+        if(alongTrunk.layout().isPresent()||world.rules().compactPlacement==null)return alongTrunk;
+        return search(world,roads,def,true);
+    }
+
+    private static Search search(WorldPlan world,RoadLayout roads,StarterMineDefinition def,boolean sectSpurs){
         var policy=def.placement;
-        var approaches=approaches(world,roads,policy);
+        var approaches=approaches(world,roads,policy,sectSpurs);
         int variants=policy.connectorLengths().size()*policy.lateralOffsets().size();
         int budget=policy.attempts()/variants;
         var sampled=spread(approaches,budget);
@@ -41,11 +47,11 @@ public final class StarterMinePlanner {
         return new Search(Optional.empty(),approaches.size(),attempted,rejections);
     }
 
-    private static List<StarterMineAccess.Join> approaches(WorldPlan world,RoadLayout roads,StarterMineDefinition.Placement policy){
+    private static List<StarterMineAccess.Join> approaches(WorldPlan world,RoadLayout roads,StarterMineDefinition.Placement policy,boolean sectSpurs){
         String region=world.spawn().regionId();
         Map<Point,Candidate> candidates=new HashMap<>();
         for(var route:roads.routes()){
-            if(!route.sectSite.isEmpty()||(!route.from.equals(region)&&!route.to.equals(region)))continue;
+            if((!route.sectSite.isEmpty())!=sectSpurs||(!route.from.equals(region)&&!route.to.equals(region)))continue;
             var points=route.points();
             for(int i=1;i<points.size()-1;i++){
                 var p=points.get(i);

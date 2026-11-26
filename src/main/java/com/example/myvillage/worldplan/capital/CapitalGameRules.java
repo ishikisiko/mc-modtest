@@ -12,12 +12,12 @@ import java.util.*;
 public final class CapitalGameRules {
     public final int ringMin, ringMax, attempts, searchRadius, structureBuffer, minY, maxY, lifePlaceLimit;
     public final List<CapitalGameBundle> bundles;
-    public CapitalGameRules(JsonObject root) {
+    public CapitalGameRules(JsonObject root, boolean compact) {
         Set<String> allowedVersions = Set.of("v4");
         if (root == null || CapitalGameBundle.integer(root, "schema", 1, 1) != 1
                 || !CapitalGameBundle.text(root, "on_candidate_exhaustion").equals("fail_whole_plan"))
             throw new IllegalArgumentException("Missing V8 capital rules");
-        ringMin = CapitalGameBundle.integer(root, "ring_min", 4000, 8000);
+        ringMin = CapitalGameBundle.integer(root, "ring_min", compact ? 1000 : 4000, 8000);
         ringMax = CapitalGameBundle.integer(root, "ring_max", ringMin, 8500);
         attempts = CapitalGameBundle.integer(root, "placement_attempts", 1, 256);
         searchRadius = CapitalGameBundle.integer(root, "placement_radius", 0, 2048);

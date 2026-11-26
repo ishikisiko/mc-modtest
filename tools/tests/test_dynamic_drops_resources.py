@@ -35,6 +35,14 @@ class DynamicDropsResourcesTest(unittest.TestCase):
             expected_medium['capitals'].update(ring_min=4560,ring_max=4670)
             self.assertEqual('keep',medium_generator['other'])
             self.assertEqual(expected_medium,json.loads(gzip.decompress(base64.b64decode(medium_generator['rules'][5:]))))
+            small=json.loads(preset.with_name('cultivation_small.json').read_text())
+            small_generator=small['dimensions']['minecraft:overworld']['generator']
+            overrides=json.loads((ROOT/'blueprints/worldplan/rules_v11.json').read_text())['small_map']
+            expected_small=copy.deepcopy(result)
+            expected_small['capitals'].update(ring_min=overrides.pop('ring_min'),ring_max=overrides.pop('ring_max'))
+            expected_small.update(overrides)
+            self.assertEqual('keep',small_generator['other'])
+            self.assertEqual(expected_small,json.loads(gzip.decompress(base64.b64decode(small_generator['rules'][5:]))))
 
     def test_default_policy_has_preserved_scenes_and_single_fire_probability(self):
         data=json.loads((ROOT/'src/test/resources/drops/rules_fixture.json').read_text())

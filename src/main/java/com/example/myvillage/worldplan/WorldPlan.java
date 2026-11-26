@@ -11,6 +11,16 @@ import static com.example.myvillage.region.runtime.RegionGeometry.*;
 
 /** V1 world grammar and terrain field. No Minecraft, chunk reads, mutable RNG or unbounded cache. */
 public final class WorldPlan {
+    public record RejectedSectSite(String id,int x,int z) {
+        public RejectedSectSite(SectSite site){this(site.id(),site.x(),site.z());}
+    }
+
+    public static final class SectPlacementExhausted extends IllegalArgumentException {
+        private SectPlacementExhausted(String region,int slot,String blueprint){
+            super("无法预留完整宗门地块："+region+" #"+slot+" "+blueprint);
+        }
+    }
+
     public record Point(double x,double z) {}
     public record Region(WorldPlanRules.Profile profile,int x,int z,int tier) {public String id(){return profile.id();}}
     public record Border(String a,String b,Point p,Point q,boolean passable,String separator,boolean gate) {
@@ -41,12 +51,26 @@ public final class WorldPlan {
     private final List<Settlement> settlements;
     private final Qianzhen qianzhen;
     private final List<SectSite> sectSites;
+    private final Set<RejectedSectSite> rejectedSites;
     private final Map<String,SectSite> sectById;
     private final String fingerprint;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
 
     public WorldPlan(long seed,WorldPlanRules rules) {
+        this(seed,rules,List.of());
+    }
+
+    public WorldPlan(long seed,WorldPlanRules rules,List<RejectedSectSite> rejectedSites) {
         this.seed=seed;this.rules=rules;
+        this.rejectedSites=Set.copyOf(rejectedSites);
+        int maxRejections=rules.compactPlacement==null?0:rules.compactPlacement.siteRelocations();
+        if(rejectedSites.size()>maxRejections||this.rejectedSites.size()!=rejectedSites.size())
+            throw new IllegalArgumentException("宗门落点的重选记录超出规划限制");
+        for(var site:rejectedSites) {
+            if(!site.id.matches("sect_site_[a-z_]+_[0-9]+")||Math.abs((long)site.x)>rules.coreRadius
+                ||Math.abs((long)site.z)>rules.coreRadius||site.x%16!=0||site.z%16!=0)
+                throw new IllegalArgumentException("宗门落点的重选记录不合法");
+        }
         geometry=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude);
         List<Region> positioned=positionRegions();List<GeoEdge> adjacency=adjacency(positioned);
         Set<String> backbone=spanningTree(positioned,adjacency);
@@ -125,48 +149,69 @@ public final class WorldPlan {
                 layouts.add(r.choose(region.id().hashCode(),(int)mix(seed),slot,tier));
             }
             slots.sort(Comparator.comparingInt((Integer slot)->layouts.get(slot).width*layouts.get(slot).depth).reversed());
-            for(int slot:slots){
-                var layout=layouts.get(slot);
-                SectSite accepted=null;
-                int bestRise=Integer.MIN_VALUE,matches=0;
-                for(int attempt=0;attempt<r.attempts;attempt++){
-                    long salt=hash(seed,region.id().hashCode(),(long)slot*r.attempts+attempt,0x53454354504cL);
-                    double radius=StrictMath.sqrt(unit(salt))*r.radius,angle=unit(mix(salt))*2*StrictMath.PI;
-                    int x=Math.floorDiv((int)Math.round(center[0]+radius*StrictMath.cos(angle))-layout.width/2,16)*16;
-                    int z=Math.floorDiv((int)Math.round(center[1]+radius*StrictMath.sin(angle))-layout.depth/2,16)*16;
-                    int m=layout.margin+r.buffer;boolean valid=true;
-                    for(int dx:new int[]{-m,layout.width/2,layout.width+m-1})for(int dz:new int[]{-m,layout.depth/2,layout.depth+m-1})
-                        if(!coreRegionAt(x+dx,z+dz).map(Region::id).orElse("").equals(region.id()))valid=false;
-                    if(!valid)continue;
-                    int portSurface=naturalTerrainY(x+layout.portX,z+layout.portZ);
-                    int base=portSurface-layout.portY;
-                    int surface=base+layout.entryY;
-                    if(surface<=rules.seaLevel+layout.dryGateMargin)continue;
-                    if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+layout.maxBlockY>=r.maxY)continue;
-                    if(layout.terrain.hasCavern()&&naturalTerrainY(x+layout.entryX,z+layout.entryZ)<=rules.seaLevel)continue;
-                    var site=new SectSite("sect_site_"+region.id()+"_"+slot,region.id(),x,base,z,x+layout.entryX,surface,z+layout.entryZ,layout.width,layout.depth,layout.margin,layout.id,layout.hash,layout.tier);
-                    var body=r.footprint(site);var access=r.exitClearance(site);
-                    for(int px:new int[]{access.minX(),(access.minX()+access.maxX())/2,access.maxX()})
-                        for(int pz:new int[]{access.minZ(),(access.minZ()+access.maxZ())/2,access.maxZ()})
-                            if(!coreRegionAt(px,pz).map(Region::id).orElse("").equals(region.id()))valid=false;
-                    if(!valid)continue;
-                    for(var reserved:reservations)if(overlaps(body,reserved)||overlaps(access,reserved)){valid=false;break;}
-                    if(Math.abs((long)spawn.x-(x+layout.width/2))<layout.width/2+m+rules.spawnSkirt&&Math.abs((long)spawn.z-(z+layout.depth/2))<layout.depth/2+m+rules.spawnSkirt)valid=false;
-                    for(var old:chosen){var oldBody=r.footprint(old);
-                        if(overlaps(body,oldBody)||overlaps(access,oldBody)||overlaps(body,r.exitClearance(old))
-                            ||StrictMath.hypot(site.gateX()-old.gateX(),site.gateZ()-old.gateZ())<r.spacing){valid=false;break;}}
-                    if(!valid)continue;
-                    if(!layout.terrain.hasCavern()){accepted=site;break;}
-                    // Prefer a natural rise behind the entry among the valid surveyed sites.
-                    int rise=naturalTerrainY(x+layout.width/2,z+layout.depth*3/4)-surface;
-                    if(rise>bestRise){accepted=site;bestRise=rise;}
-                    if(++matches>=layout.terrain.surveySamples())break;
-                }
-                if(accepted==null)throw new IllegalArgumentException("无法预留完整宗门地块："+region.id()+" #"+slot+" "+layout.id);
-                chosen.add(accepted);
+            int startOfRegion=chosen.size();
+            long normalStream=0x53454354504cL;
+            int failed=packRegionSectSites(reservations,region,center,slots,layouts,chosen,normalStream);
+            int retries=rules.compactPlacement==null?0:rules.compactPlacement.provinceRetries();
+            // 仅清空当前州，先给上轮失败的规格找位置。
+            for(int pass=0;failed>=0&&pass<retries;pass++){
+                chosen.subList(startOfRegion,chosen.size()).clear();
+                var order=new ArrayList<>(slots);
+                order.remove(Integer.valueOf(failed));
+                order.addFirst(failed);
+                long stream=pass==0?normalStream:mix(normalStream+pass);
+                failed=packRegionSectSites(reservations,region,center,order,layouts,chosen,stream);
             }
+            if(failed>=0)throw new SectPlacementExhausted(region.id(),failed,layouts.get(failed).id);
         }
         return List.copyOf(chosen);
+    }
+    private int packRegionSectSites(List<RegionGeometry.Reservation> reservations,Region region,double[] center,
+            List<Integer> slots,List<SectPlanningRules.Layout> layouts,List<SectSite> chosen,long stream){
+        var r=rules.sects;
+        for(int slot:slots){
+            var layout=layouts.get(slot);
+            String id="sect_site_"+region.id()+"_"+slot;
+            SectSite accepted=null;
+            int bestRise=Integer.MIN_VALUE,matches=0;
+            for(int attempt=0;attempt<r.attempts;attempt++){
+                long salt=hash(seed,region.id().hashCode(),(long)slot*r.attempts+attempt,stream);
+                double radius=StrictMath.sqrt(unit(salt))*r.radius,angle=unit(mix(salt))*2*StrictMath.PI;
+                int x=Math.floorDiv((int)Math.round(center[0]+radius*StrictMath.cos(angle))-layout.width/2,16)*16;
+                int z=Math.floorDiv((int)Math.round(center[1]+radius*StrictMath.sin(angle))-layout.depth/2,16)*16;
+                if(!rejectedSites.isEmpty()&&rejectedSites.contains(new RejectedSectSite(id,x,z)))continue;
+                int m=layout.margin+r.buffer;boolean valid=true;
+                for(int dx:new int[]{-m,layout.width/2,layout.width+m-1})for(int dz:new int[]{-m,layout.depth/2,layout.depth+m-1})
+                    if(!coreRegionAt(x+dx,z+dz).map(Region::id).orElse("").equals(region.id()))valid=false;
+                if(!valid)continue;
+                int portSurface=naturalTerrainY(x+layout.portX,z+layout.portZ);
+                int base=portSurface-layout.portY;
+                int surface=base+layout.entryY;
+                if(surface<=rules.seaLevel+layout.dryGateMargin)continue;
+                if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+layout.maxBlockY>=r.maxY)continue;
+                if(layout.terrain.hasCavern()&&naturalTerrainY(x+layout.entryX,z+layout.entryZ)<=rules.seaLevel)continue;
+                var site=new SectSite(id,region.id(),x,base,z,x+layout.entryX,surface,z+layout.entryZ,layout.width,layout.depth,layout.margin,layout.id,layout.hash,layout.tier);
+                var body=r.footprint(site);var access=r.exitClearance(site);
+                for(int px:new int[]{access.minX(),(access.minX()+access.maxX())/2,access.maxX()})
+                    for(int pz:new int[]{access.minZ(),(access.minZ()+access.maxZ())/2,access.maxZ()})
+                        if(!coreRegionAt(px,pz).map(Region::id).orElse("").equals(region.id()))valid=false;
+                if(!valid)continue;
+                for(var reserved:reservations)if(overlaps(body,reserved)||overlaps(access,reserved)){valid=false;break;}
+                if(Math.abs((long)spawn.x-(x+layout.width/2))<layout.width/2+m+rules.spawnSkirt&&Math.abs((long)spawn.z-(z+layout.depth/2))<layout.depth/2+m+rules.spawnSkirt)valid=false;
+                for(var old:chosen){var oldBody=r.footprint(old);
+                    if(overlaps(body,oldBody)||overlaps(access,oldBody)||overlaps(body,r.exitClearance(old))
+                        ||StrictMath.hypot(site.gateX()-old.gateX(),site.gateZ()-old.gateZ())<r.spacing){valid=false;break;}}
+                if(!valid)continue;
+                if(!layout.terrain.hasCavern()){accepted=site;break;}
+                // Prefer a natural rise behind the entry among the valid surveyed sites.
+                int rise=naturalTerrainY(x+layout.width/2,z+layout.depth*3/4)-surface;
+                if(rise>bestRise){accepted=site;bestRise=rise;}
+                if(++matches>=layout.terrain.surveySamples())break;
+            }
+            if(accepted==null)return slot;
+            chosen.add(accepted);
+        }
+        return -1;
     }
     private static boolean overlaps(RegionGeometry.Reservation a,RegionGeometry.Reservation b){
         return a.minX()<=b.maxX()&&a.maxX()>=b.minX()&&a.minZ()<=b.maxZ()&&a.maxZ()>=b.minZ();

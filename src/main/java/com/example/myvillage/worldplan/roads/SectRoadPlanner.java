@@ -9,6 +9,15 @@ import static com.example.myvillage.worldplan.roads.RoadPlan.Cell;
 
 /** 官道只到山门外：宗门内部没有道路写权限；支路加入同一个锁高和路口合并过程。 */
 public final class SectRoadPlanner {
+    static final class UnroutableSect extends IllegalStateException {
+        final SectSite site;
+
+        private UnroutableSect(SectSite site,String reason){
+            super("宗门支路无法安全接入官道："+site.id()+"；"+reason);
+            this.site=site;
+        }
+    }
+
     private SectRoadPlanner(){}
     public static WorldRoadPlanner.Exit exit(WorldPlan world,RoadRules rules,SectSite site){
         var layout=world.rules().sects.layout(site.blueprintId());
@@ -41,7 +50,7 @@ public final class SectRoadPlanner {
     public static RoadPlan plan(WorldPlan world,RoadRules rules,SectSite site,List<RoadPlan> routes,List<Cell> locked){
         var sp=rules.sectSpurs;var exit=exit(world,rules,site);var start=exit.frame().outside(sp.width()/2);
         var fixed=new Long2ObjectOpenHashMap<Cell>();for(var c:locked)if(c.existing()||c.band()<2)fixed.put(c.key(),c);
-        for(var c:exit.existing()){var old=fixed.putIfAbsent(c.key(),c);if(old!=null&&old.feet2()!=c.feet2())throw new IllegalStateException("宗门出口与既有道路标高不一致");}
+        for(var c:exit.existing()){var old=fixed.putIfAbsent(c.key(),c);if(old!=null&&old.feet2()!=c.feet2())throw new UnroutableSect(site,"宗门出口与既有道路标高不一致");}
         var possible=new LinkedHashMap<Long,Point>();
         for(var route:routes)for(int i=0;i<route.centerline().size();i+=sp.targetSpacing()){
             var p=route.centerline().get(i);var c=fixed.get(Cell.key(p.x(),p.z()));
@@ -51,13 +60,40 @@ public final class SectRoadPlanner {
         var sorted=possible.values().stream().sorted(Comparator.comparingDouble((Point p)->Math.hypot(p.x()-start.x(),p.z()-start.z())).thenComparingInt(Point::x).thenComparingInt(Point::z)).toList();
         List<Point> targets=new ArrayList<>();
         for(var p:sorted)if(targets.stream().noneMatch(q->Math.hypot(p.x()-q.x(),p.z()-q.z())<sp.targetSpacing())){targets.add(p);if(targets.size()==sp.candidates())break;}
+        var compact=world.rules().compactPlacement;
+        if(compact!=null){
+            // 最近的接点可能集中在被城墙或地形挡住的一侧，补查其他方向的最近接点。
+            Set<Integer> headings=new HashSet<>();
+            targets.forEach(point->headings.add(heading(start,point)));
+            int remaining=sp.candidates();
+            for(var point:sorted){
+                if(targets.stream().anyMatch(p->Math.hypot(p.x()-point.x(),p.z()-point.z())<sp.targetSpacing()))continue;
+                if(headings.add(heading(start,point))){
+                    targets.add(point);
+                    if(--remaining==0)break;
+                }
+            }
+        }
         List<String> failures=new ArrayList<>();
+        RoadPlan shortest=null;
+        double shortestLength=Double.POSITIVE_INFINITY;
         for(var end:targets){
-            try{return connect(world,rules,site,exit,start,end,fixed,locked);}
+            try{
+                RoadPlan road=connect(world,rules,site,exit,start,end,fixed,locked);
+                if(compact==null)return road;
+                double length=road.horizontalLength();
+                if(length<=compact.preferredSpurLength())return road;
+                if(length<shortestLength){shortest=road;shortestLength=length;}
+            }
             catch(java.util.concurrent.CancellationException e){throw e;}
             catch(IllegalArgumentException|IllegalStateException e){failures.add(end+"："+e.getMessage());}
         }
-        throw new IllegalStateException("宗门支路无法安全接入官道："+site.id()+"；"+String.join("；",failures));
+        if(shortest!=null)return shortest;
+        throw new UnroutableSect(site,failures.isEmpty()?"州内找不到可接入的道路":String.join("；",failures));
+    }
+    private static int heading(Point start,Point target){
+        double octant=StrictMath.atan2(target.z()-start.z(),target.x()-start.x())/(StrictMath.PI/4);
+        return Math.floorMod((int)Math.round(octant),8);
     }
     private static RoadPlan connect(WorldPlan world,RoadRules rules,SectSite site,WorldRoadPlanner.Exit exit,Point start,Point end,
                                     Map<Long,Cell> fixed,List<Cell> locked){

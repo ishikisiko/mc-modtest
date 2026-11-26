@@ -1,6 +1,7 @@
 {
   "generator.yuanxian.cultivation": "修仙大地图 10000 格",
   "generator.yuanxian.cultivation_medium": "修仙中地图 8000 格",
+  "generator.yuanxian.cultivation_small": "修仙小地图 6000 格",
   "yuanxian.configuration.title": "源仙配置",
   "yuanxian.configuration.section.yuanxian.immortal.client.toml": "仙衣动效",
   "yuanxian.configuration.section.yuanxian.immortal.client.toml.title": "仙衣动效",

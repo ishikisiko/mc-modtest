@@ -9,6 +9,8 @@ import java.util.*;
 
 /** Validated, frozen generation inputs. Runtime code never rereads mutable configuration per chunk. */
 public final class WorldPlanRules {
+    public record CompactPlacement(int provinceRetries, int siteRelocations, int preferredSpurLength) {}
+
     public static final String LEGACY_ALGORITHM = "yuanxian:worldplan_v1";
     public static final String V2_ALGORITHM = "yuanxian:worldplan_v2";
     public static final String V3_ALGORITHM = "yuanxian:worldplan_v3";
@@ -75,6 +77,7 @@ public final class WorldPlanRules {
     public final FoldedRidge.Rules foldedRidge;
     public final CityRules city;
     public final com.example.myvillage.worldplan.capital.CapitalGameRules capitals;
+    public final CompactPlacement compactPlacement;
     public final SettlementRules settlements;
     public final SectPlanningRules sects;
     public final com.example.myvillage.worldplan.mine.StarterMineDefinition starterMine;
@@ -205,11 +208,25 @@ public final class WorldPlanRules {
         foldedRidge = new FoldedRidge.Rules(ridgeRegion, integer(ridge, "site_radius", 512, coreRadius),
             integer(ridge, "candidate_attempts", 1, 2048), integer(ridge, "clearance", 0, 128),
             integer(ridge, "surface_relief", 8, 96), integer(ridge, "edge_blend", 8, 80), text(ridge, "sha256"));
-        capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"));
+        JsonObject compact = r.getAsJsonObject("compact_placement");
+        compactPlacement = compact == null ? null : new CompactPlacement(
+            integer(compact, "province_retries", 1, 8), integer(compact, "site_relocations", 1, 4),
+            integer(compact, "preferred_spur_length", 256, coreRadius));
+        capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"), compact != null);
         sects = new SectPlanningRules(r.getAsJsonObject("sects"));
         starterMine = new com.example.myvillage.worldplan.mine.StarterMineDefinition(r.getAsJsonObject("starter_mine"));
         for (var bundle : capitals.bundles) profile(bundle.regionId);
-        if (capitals.ringMax + capitals.searchRadius + 2048 >= coreRadius - coreBlend)
+        double ringFootprint = 2048;
+        if (compact != null) {
+            // 用外圈州城的最大实际预留范围校验，另计州域扭曲和区块对齐。
+            ringFootprint = capitals.bundles.stream()
+                .filter(bundle -> !profile(bundle.regionId).role().equals("anchor"))
+                .mapToDouble(bundle -> {
+                    double margin = bundle.blendMargin + capitals.structureBuffer + 2 * warpAmplitude + 16;
+                    return StrictMath.hypot(bundle.width / 2.0 + margin, bundle.depth / 2.0 + margin);
+                }).max().orElseThrow();
+        }
+        if (capitals.ringMax + capitals.searchRadius + ringFootprint >= coreRadius - coreBlend)
             throw new IllegalArgumentException("主城环带需要完整预留与地形融合空间");
         city = null;
         Map<String, StructurePolicy> policies = new TreeMap<>();

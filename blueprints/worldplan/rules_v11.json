@@ -8,6 +8,19 @@
     "ring_min": 4560,
     "ring_max": 4670
   },
+  "small_map": {
+    "core_radius": 6000,
+    "core_blend": 640,
+    "inner_radius": [2550, 3000],
+    "outer_radius": [4080, 4800],
+    "ring_min": 3720,
+    "ring_max": 3830,
+    "compact_placement": {
+      "province_retries": 4,
+      "site_relocations": 2,
+      "preferred_spur_length": 4096
+    }
+  },
   "region_progression": {
     "levels": [["donghuang"], ["lingyue"], ["beiyuan"], ["donghai", "ximo"], ["nanjiang", "moyu"], ["zhongzhou"]]
   },

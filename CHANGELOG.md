@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.156.2
+
+- 新建修仙世界时可选半径 6,000 格的小地图。小地图在写入区块前检查宗门占地和实际支路，必要时按种子重选。开局矿场也可接入出生州的宗门支路。8,000 格中地图仍可选，默认是 10,000 格大地图。
+
 ## 0.156.1
 
 - 新建修仙世界时，可以在世界类型中选半径 8,000 格的中地图。默认的大地图半径仍为 10,000 格。两档都按种子安排八座州城、宗门地块、官道和野外地貌。
