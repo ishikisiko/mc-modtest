@@ -49,6 +49,18 @@ def percent(value):
     return f'{value:.4g}%'
 
 
+def fraction_percent(value):
+    return percent(value * 100)
+
+
+def degrees(value):
+    return f'{value:g}°'
+
+
+def multiplier_bonus(value):
+    return f'{value:+g}'
+
+
 def element_name(labels, id):
     return labels['cultivation.element.' + id.replace(':', '.')]
 
@@ -81,12 +93,25 @@ def heart_effect(heart, price, elements):
     elif heart['slot'] == 'defense':
         add(base, '生命上限', heart['max_health'])
         add(base, '肉身防御', heart['defense'])
+        attributes = heart.get('attributes', {})
+        add(base, '护甲', attributes.get('armor', 0))
+        add(base, '护甲韧性', attributes.get('armor_toughness', 0))
+        add(base, '物理抗性', attributes.get('physical_resistance', 0) * 100, '个百分点')
+        add(base, '击退抗性', attributes.get('knockback_resistance', 0) * 100, '个百分点')
         if trigger:
             incoming = element + '伤害' if direction == 'spell' else {
                 'melee': '近战攻击', 'ranged': '投射物或五行法术', 'none': '攻击',
             }[trigger.get('guard', 'none')]
             hold = '持' + school if weapon else ''
             add(extra, hold + '受到' + incoming + '时的肉身防御', trigger['amount'])
+        if shield := heart.get('shield'):
+            threshold = fraction_percent(shield['health_threshold'])
+            extra.extend([
+                ('护盾触发', f'敌方命中使生命从高于 {threshold} 降至 {threshold} 或以下且存活'),
+                ('护盾容量', f"{shield['amount']:g} 点"),
+                ('护盾持续时间', seconds(shield['duration_ticks'])),
+                ('护盾冷却', seconds(shield['cooldown_ticks'])),
+            ])
     else:
         add(base, '灵力上限', heart['capacity'])
         add(base, '自然回灵', heart['recovery_quarters'] / 4, '点/秒')
@@ -95,6 +120,17 @@ def heart_effect(heart, price, elements):
     if price:
         stats.append(('游戏内换取秘籍', f'{price:,} 颗下品灵石'))
     return {'name': '秘籍', 'stats': stats, 'base': base, 'extra': extra}
+
+
+def sacred_heart_effect(stages, realm_names):
+    return {
+        'name': '分境界加值',
+        'note': '装备这门心法时，按当前大境界增加生命上限和肉身防御。',
+        'stats': [
+            (realm_names[stage['realm']], f"生命上限 +{stage['health']:g} 点，肉身防御 +{stage['defense']:g} 点")
+            for stage in stages
+        ],
+    }
 
 
 def legacy_core_stats(definition, effects, world_rules, element_names):
@@ -120,18 +156,26 @@ def movement_stats(effects):
     return [
         ('最大闪避距离', blocks(effects['dash_distance'])),
         ('无敌时间', seconds(effects['invulnerable_ticks'])),
-        ('基础耗灵', f"{effects['qi_cost']} 点"),
-        ('冷却', seconds(effects['cooldown_ticks'])),
+        ('地面闪避耗灵', '0 点'),
+        ('空中闪避耗灵', f"{effects['qi_cost']} 点（需有空中闪避资格）"),
+        ('地面与空中共享冷却', seconds(effects['cooldown_ticks'])),
     ]
 
 
 def wave_stats(wave, cost):
     scale = wave['charge_scale']
+    release = wave['release_ticks']
+    full_release = release - wave.get('charge_pose_ticks', 0)
+    width, height = wave['half_width'] * 2, wave['half_height'] * 2
     return [
         ('基础耗灵', f'{cost} 点（满蓄力 {ceil(cost * scale)} 点）'),
         ('满蓄力时间', seconds(wave['charge_ticks'])),
+        ('松键到出剑气', f'{seconds(release)}（满蓄力 {seconds(full_release)}）'),
         ('剑气射程', f"{blocks(wave['range'])}（满蓄力 {blocks(wave['range'] * scale)}）"),
         ('伤害倍率', f"{multiplier(wave['damage_multiplier'])}（满蓄力 {multiplier(wave['damage_multiplier'] * scale)}）"),
+        ('剑气速度', f"{wave['speed']:g} 格/tick"),
+        ('命中宽度', f'{blocks(width)}（满蓄力 {blocks(width * scale)}）'),
+        ('命中高度', f'{blocks(height)}（满蓄力 {blocks(height * scale)}）'),
         ('剑气飞完后的恢复', seconds(wave['recovery_ticks'])),
         ('最多命中目标', str(wave['maximum_targets'])),
     ]
@@ -152,12 +196,14 @@ def weapon_stats(art, cost):
 
 def locked_sword_stats(art):
     lock = art['lock']
+    phase = art['phases'][0]
     stats = [
         ('锁定距离', blocks(lock['range'])),
-        ('锁定角度', f"{lock['acquire_arc_degrees']:g}°"),
+        ('锁定角度', degrees(lock['acquire_arc_degrees'])),
         ('首击等待', seconds(lock['first_strike_ticks'])),
         ('打击次数', str(lock['strikes'])),
-        ('每段伤害倍率', multiplier(art['phases'][0]['damage_multiplier'])),
+        ('每段伤害倍率', multiplier(phase['damage_multiplier'])),
+        ('收招时间', seconds(lock['recovery_ticks'])),
     ]
     if lock['strikes'] > 1:
         stats.extend([
@@ -167,18 +213,27 @@ def locked_sword_stats(art):
     if lock['mode'] == 'array' or lock['splash_multiplier'] > 0:
         stats.append(('范围半径', blocks(lock['radius'])))
     if lock['splash_multiplier'] > 0:
-        stats.append(('范围追加伤害倍率', multiplier(lock['splash_multiplier'])))
+        stats.extend([
+            ('最多命中目标', f"{phase['maximum_targets']} 个（含主目标）"),
+            ('次级目标伤害系数', f"主目标系数的 {fraction_percent(lock['splash_multiplier'])}"),
+        ])
+    elif lock['mode'] == 'array':
+        stats.append(('单段最多命中目标', f"{phase['maximum_targets']} 个"))
     if lock['armor_break_fraction'] > 0:
         stats.append(('护甲削弱', f"{percent(lock['armor_break_fraction'] * 100)}，持续 {seconds(lock['armor_break_ticks'])}"))
     if lock['slow_ticks'] > 0:
-        stats.append(('迟滞时间', seconds(lock['slow_ticks'])))
+        stats.append(('阵内迟缓', f"{lock['slow_amplifier'] + 1} 级，每次持续 {seconds(lock['slow_ticks'])}"))
     return stats
 
 
 def elemental_stats(art, rules):
     spell = art['elemental']
     shape = spell['shape']
-    stats = [('效果形状', SHAPES[shape]), ('起手时间', seconds(spell['windup_ticks']))]
+    stats = [
+        ('效果形状', SHAPES[shape]),
+        ('起手时间', seconds(spell['windup_ticks'])),
+        ('收招时间', seconds(spell['recovery_ticks'])),
+    ]
     if shape == 'self':
         stats.extend([
             ('护体减伤', percent(spell['ward_fraction'] * 100)),
@@ -210,62 +265,246 @@ def elemental_stats(art, rules):
     if spell['push'] > 0:
         stats.append(('击退强度', f"{spell['push']:g}"))
     if spell['dot']:
-        stats.append(('持续效果', '留下本系持续伤害'))
+        stats.extend([
+            ('持续伤害', f"每跳 {multiplier(rules['dot_multiplier'])} 法术伤害基数"),
+            ('持续伤害间隔', seconds(rules['dot_interval_ticks'])),
+            ('持续伤害时长', seconds(rules['dot_lifetime_ticks'])),
+        ])
     if spell['harvest']:
         stats.append(('持续效果', '结算自身施加的本系持续伤害'))
     return stats
 
 
-def legacy_stats(art):
+# 执行器复用参数名，同一个字段在不同招式里可能代表伤害、治疗或减伤。
+REALM_ART_EFFECTS = {
+    'brace_spear': (('secondary', '满足逼近条件时的枪锋倍率', multiplier),
+                    ('threshold', '触发所需的目标逼近距离', blocks)),
+    'vine_line': (('potency', '命中后减速', fraction_percent),),
+    'earth_spike': (('push', '击飞速度', lambda value: f'{value:g} 格/tick'),),
+    'lingering_slash': (('secondary', '留风斩伤害倍率', multiplier),),
+    'sweeping_spear': (('secondary', '枪锋伤害倍率', multiplier),),
+    'back_guard': (('potency', '挡下一次正面命中的减伤', fraction_percent),),
+    'armor_line': (('secondary', '贯穿后第二个目标的伤害倍率', multiplier),
+                   ('threshold', '触发贯穿所需的首个目标护甲', str)),
+    'healing_branch': (('potency', '治疗量（双方较低生命上限的比例）', fraction_percent),),
+    'reflected_wave': (('secondary', '反射后伤害倍率', multiplier),),
+    'mature_flame': (('secondary', '成熟火种的伤害倍率', multiplier),),
+    'piercing_sword': (('bonus', '每消耗一层剑意增加倍率', multiplier_bonus),),
+    'crossing_traces': (('bonus', '两道剑痕交会额外增加倍率', multiplier_bonus),),
+    'tip_charge': (('secondary', '非枪锋伤害倍率', multiplier),),
+    'retreating_thrust': (('bonus', '对追近的敌人额外增加倍率', multiplier_bonus),),
+    'stored_punch': (('bonus', '每消耗一层拳势增加倍率', multiplier_bonus),),
+    'armor_lock': (('status', '削弱护甲', fraction_percent),),
+    'metal_chain': (('secondary', '第一次弹跳伤害倍率', multiplier),
+                    ('bonus', '后续弹跳伤害倍率', multiplier)),
+    'wood_trail': (('status', '命中后减速', fraction_percent),),
+    'frost_shatter': (('secondary', '引爆自身施加的迟滞时的伤害倍率', multiplier),),
+    'fire_fuse': (('secondary', '到期爆炸伤害倍率', multiplier),
+                  ('bonus', '提前引爆伤害倍率', multiplier)),
+    'stone_stamp': (('secondary', '外圈伤害倍率', multiplier),),
+    'twin_blade': (('secondary', '剑影反斩伤害倍率', multiplier),),
+    'sword_gate': (('control', '穿过剑线时减速', fraction_percent),),
+    'sword_points': (('count', '剑点数量上限', str),
+                     ('bonus', '剑光交会额外增加倍率', multiplier_bonus)),
+    'opposing_spears': (('secondary', '枪锋伤害倍率', multiplier),),
+    'spear_posts': (('count', '枪桩数量', str),),
+    'cleaving_charge': (('secondary', '其余命中目标的伤害倍率', multiplier),),
+    'spear_array': (('count', '枪阵出击次数', str),
+                    ('per_target', '每个敌人最多受击次数', str)),
+    'guarding_echo': (('count', '每名友方可触发的挡击次数', str),
+                      ('control', '每次挡击吸收比例', fraction_percent),
+                      ('budget', '总挡击上限（双方较低生命上限的比例）', fraction_percent)),
+    'piercing_fist': (('secondary', '透劲伤害倍率', multiplier),),
+    'dragon_stance': (('control', '架势期间正面减伤', fraction_percent),
+                      ('budget', '每档承伤（自身生命上限的比例）', fraction_percent),
+                      ('bonus', '每档承伤增加反击倍率', multiplier_bonus),
+                      ('secondary', '反击伤害倍率上限', multiplier)),
+    'falling_palm': (('secondary', '外圈伤害倍率', multiplier),),
+    'armor_star': (('secondary', '目标已破甲时的伤害倍率', multiplier),),
+    'gold_plates': (('budget', '挡击上限（双方较低生命上限的比例）', fraction_percent),),
+    'armor_stamp': (('secondary', '外侧伤害倍率', multiplier),
+                    ('bonus', '每层金势增加倍率', multiplier_bonus),
+                    ('control', '内圈首个命中削弱护甲', fraction_percent)),
+    'linked_roots': (('count', '治疗人数上限', str),
+                     ('budget', '每人治疗量（双方较低生命上限的比例）', fraction_percent)),
+    'rescue_vine': (('budget', '护盾量（双方较低生命上限的比例）', fraction_percent),),
+    'wood_harvest': (('secondary', '剩余持续伤害转为治疗的比例', fraction_percent),
+                     ('count', '治疗人数上限', str),
+                     ('control', '每人治疗上限（双方较低生命上限的比例）', fraction_percent),
+                     ('budget', '总治疗上限（自身生命上限的比例）', fraction_percent)),
+    'ancient_shade': (('secondary', '树荫内圈伤害倍率', multiplier),),
+    'meeting_tides': (('secondary', '两股水流会合时的伤害倍率', multiplier),),
+    'flow_lane': (('control', '水道内敌方减速', fraction_percent),
+                  ('bonus', '水道内友方加速', fraction_percent)),
+    'returning_sea': (('secondary', '退潮内圈伤害倍率', multiplier),
+                      ('bonus', '退潮水线伤害倍率', multiplier)),
+    'freezing_crest': (('control', '触碰冰线时减速', fraction_percent),),
+    'fire_escape': (('control', '受敌方近战命中触发加速', fraction_percent),),
+    'fire_harvest': (('secondary', '扩散伤害倍率', multiplier),
+                     ('bonus', '首个目标引燃增加倍率上限', multiplier_bonus),
+                     ('control', '其余目标引燃增加倍率上限', multiplier_bonus)),
+    'moving_wall': (('count', '最多移动次数', str),),
+    'steady_platform': (('control', '台上友方击退减免', fraction_percent),),
+    'folding_earth': (('secondary', '合拢时中心地脉的伤害倍率', multiplier),),
+    'mountain_shell': (('control', '每次命中吸收比例', fraction_percent),
+                       ('budget', '总吸收上限（自身生命上限的比例）', fraction_percent)),
+}
+
+REALM_ART_LABELS = {
+    'arrow_ring': {'duration': '截矢窗口'},
+    'back_guard': {'duration': '护背窗口'},
+    'healing_branch': {'duration': '等待治疗触发的时间'},
+    'lingering_slash': {'delay': '剑影出斩延迟'},
+    'waiting_flame': {'delay': '火线爆发延迟'},
+    'stone_screen': {'targets': '最多拦截投射物', 'duration': '石屏持续时间'},
+    'mature_flame': {'duration': '火种持续时间', 'delay': '可以引爆前的等待',
+                     'warning': '引爆预警时间', 'status_ticks': '火种成熟时间'},
+    'crossing_traces': {'duration': '放置第二道剑痕的窗口', 'interval': '剑痕交会预警时间'},
+    'fire_fuse': {'duration': '火引信自然爆炸前的时间'},
+    'wood_trail': {'interval': '记录藤径的时长', 'duration': '藤径持续时间', 'status_ticks': '减速持续时间'},
+    'armor_lock': {'status_ticks': '护甲削弱持续时间'},
+    'vine_line': {'status_ticks': '减速持续时间'},
+    'twin_blade': {'delay': '剑影反斩延迟'},
+    'evade_echo': {'duration': '可触发回影斩的闪避窗口', 'delay': '闪避成功后出斩延迟'},
+    'sword_points': {'delay': '再次施放后剑点出斩延迟'},
+    'spear_posts': {'gap': '枪桩间距'},
+    'dragon_stance': {'duration': '架势持续时间'},
+    'gold_mirror': {'delay': '折光攻击延迟'},
+    'armor_stamp': {'status_ticks': '护甲削弱持续时间'},
+    'linked_roots': {'window': '放置第二根藤的窗口', 'duration': '连根持续时间'},
+    'rescue_vine': {'step': '靠近友方的最大位移', 'status_ticks': '护盾持续时间'},
+    'ancient_shade': {'delay': '敌方在树荫内滞留的触发时间'},
+    'meeting_tides': {'delay': '两股水流会合延迟'},
+    'freezing_crest': {'status_ticks': '减速持续时间', 'interval': '冰线推进间隔'},
+    'paired_furnaces': {'delay': '触发后火线爆发延迟'},
+    'fire_escape': {'duration': '等待受击触发的时间', 'status_ticks': '加速持续时间'},
+    'fire_enclosure': {'gap': '火场缺口宽度', 'arc': '再次施放时缺口转动角度'},
+    'moving_wall': {'step': '每次推动石墙的最大距离'},
+    'folding_earth': {'delay': '地脉合拢延迟'},
+}
+
+
+def realm_art_stats(spec, golden_rules):
+    mechanic = spec['mechanic']
+    labels = REALM_ART_LABELS.get(mechanic, {})
+    windup = spec['windup'] if 'windup' in spec else golden_rules['windup']
+    recovery = golden_rules['recovery'] if golden_rules else spec['recovery']
     stats = [
-        ('闪身距离' if art['mode'] == 'shadow' else '最远作用距离', blocks(art['range'])),
-        ('最长持续时间', seconds(art['duration_ticks'])),
+        ('起手时间', seconds(windup)),
+        ('收招时间', seconds(recovery)),
+        ('最远作用距离', blocks(spec['range'])),
+        (labels.get('targets', '目标数量上限'), str(spec['targets'])),
     ]
-    if art['mode'] != 'shadow':
+    fields = (
+        ('damage', '基础伤害倍率', multiplier),
+        ('length', '攻击长度', blocks),
+        ('width', '命中宽度', blocks),
+        ('radius', '作用半径', blocks),
+        ('height', '高度', blocks),
+        ('inner', '内圈或中心线尺寸', blocks),
+        ('reach', '延伸距离', blocks),
+        ('secondary_range', '二次命中距离', blocks),
+        ('gap', '间距', blocks),
+        ('arc', '扇形角度', degrees),
+        ('step', '最大位移', blocks),
+        ('delay', '触发延迟', seconds),
+        ('duration', '效果持续时间', seconds),
+        ('status_ticks', '状态持续时间', seconds),
+        ('interval', '分段间隔', seconds),
+        ('window', '再次施放窗口', seconds),
+        ('warning', '预警时间', seconds),
+    )
+    stats.extend(
+        (labels.get(key, label), format_value(spec[key]))
+        for key, label, format_value in (*fields, *REALM_ART_EFFECTS.get(mechanic, ()))
+        if spec.get(key)
+    )
+    if spec.get('push') and mechanic != 'earth_spike':
+        stats.append(('位移距离', blocks(spec['push'])))
+    return stats
+
+
+def legacy_stats(art, rules):
+    mode = art['mode']
+    stats = [
+        ('闪身距离' if mode == 'shadow' else '最远作用距离', blocks(art['range'])),
+        ('最长持续时间', seconds(art['duration_ticks'])),
+        ('触发后续效果时耗灵', '0 点'),
+    ]
+    if mode != 'shadow':
         stats.extend([
-            ('剑身判定半径' if art['mode'] == 'sword' else '作用半径', blocks(art['radius'])),
+            ('剑身判定半径' if mode == 'sword' else '作用半径', blocks(art['radius'])),
             ('单次伤害倍率', multiplier(art['damage'])),
         ])
-    if art['mode'] == 'sword':
+    if mode == 'sword':
         stats.extend([
             ('出剑速度', f"{art['speed']:g} 格/tick"),
             ('召回速度', f"{art['return_speed']:g} 格/tick"),
+            ('单程最多命中目标', str(rules['projection_targets'])),
+        ])
+    elif mode == 'ruler':
+        stats.extend([
+            ('震击间隔', seconds(rules['ruler_interval_ticks'])),
+            ('迟缓', f"{rules['ruler_slow_amplifier'] + 1} 级，持续 {seconds(rules['ruler_slow_ticks'])}"),
+            ('每次震击最多命中目标', str(rules['max_targets'])),
+        ])
+    elif mode == 'fire':
+        stats.extend([
+            ('同时存在的火种上限', str(rules['max_fire_seeds'])),
+            ('单个火种最多命中目标', str(rules['max_targets'])),
         ])
     return stats
 
 
-def active_effect(id, effects, arts, waves, legacy, elemental_rules, labels, weapon_name):
+def weapon_phase_summary(phase, move):
+    shape = phase['shape']
+    details = [
+        SHAPES[shape], blocks(phase['reach']),
+        f"伤害 {multiplier(phase['damage_multiplier'])}",
+        f"最多 {phase['maximum_targets']} 个目标",
+    ]
+    if shape == 'line':
+        details.append(f"命中宽度 {blocks(phase['width'])}")
+    elif shape == 'fan':
+        details.append(f"扇形角度 {degrees(phase['arc_degrees'])}")
+    step = phase['step_distance'] or move.get('step', {}).get('maximum_distance')
+    if step:
+        details.append(f'最大位移 {blocks(step)}')
+    if hitstun := phase['reaction']['hitstun_ticks']:
+        details.append(f'命中硬直 {seconds(hitstun)}')
+    start, end = move['active_ticks']
+    details.extend([
+        f'起手 {seconds(start)}',
+        f'命中窗口 {seconds(end - start + 1)}',
+        f"收招 {seconds(move['total_ticks'] - end - 1)}",
+    ])
+    return ' · '.join(details)
+
+
+def active_effect(id, effects, arts, waves, legacy, combat_rules, moves, labels, weapon_name):
     active = effects.get('active')
     if not active:
         return {'name': '效果待配置', 'stats': []}
-    cost = active['qi_cost']
     art = arts.get(id)
     if art is None:
         wave = waves.get(active['skill'])
         if wave is None:
             return {'name': '效果待配置', 'stats': []}
-        return {'name': '蓄力剑气', 'stats': [('施放武器', weapon_name), *wave_stats(wave, cost)]}
+        return {'name': '蓄力剑气', 'stats': [('施放武器', weapon_name), *wave_stats(wave, active['qi_cost'])]}
+    cost = active['qi_cost'] if 'lock' in art else art['qi_cost']
     spec = next((art[key] for key in ('golden_core', 'early_realm', 'ascendant') if key in art), None)
     if spec is not None:
         name = {'qi_refining': '炼气绝技', 'foundation_establishment': '筑基绝技',
                 'nascent_soul': '元婴绝技', 'spirit_transformation': '化神绝技'}.get(spec.get('tier'), '金丹绝技')
-        areas = (('length', '攻击长度'), ('width', '命中宽度'), ('radius', '作用半径'),
-                 ('height', '高度'), ('secondary_range', '二次命中距离'))
-        if 'ascendant' in art:
-            areas += (('inner', '内圈或中心线尺寸'), ('reach', '延伸距离'), ('step', '位移距离'))
-        else:
-            areas += (('inner', '重击内圈半径'),)
+        rules = combat_rules['golden_core'] if 'golden_core' in art else {}
         return {
             'name': name, 'note': labels[f"combat.yuanxian.art.{id.split(':', 1)[1]}.description"],
-            'stats': [('施放武器', weapon_name), *weapon_stats(art, cost),
-                      ('最远作用距离', blocks(spec['range'])),
-                      *([('基础伤害倍率', multiplier(spec['damage']))] if 'damage' in spec else []),
-                      *[(label, blocks(spec[key])) for key, label in areas if key in spec]],
+            'stats': [('施放武器', weapon_name), *weapon_stats(art, cost), *realm_art_stats(spec, rules)],
         }
     if 'elemental' in art:
         return {
             'name': '五行法术',
-            'stats': [('施放武器', '不限'), *weapon_stats(art, cost), *elemental_stats(art, elemental_rules)],
+            'stats': [('施放武器', '不限'), *weapon_stats(art, cost), *elemental_stats(art, combat_rules['elemental'])],
         }
     if art['family'] == 'legacy':
         special = legacy[id]
@@ -275,16 +514,13 @@ def active_effect(id, effects, arts, waves, legacy, elemental_rules, labels, wea
         )
         return {
             'name': '遗迹绝技', 'note': special['description'],
-            'stats': [('施放武器', weapon), *weapon_stats(art, cost), *legacy_stats(special)],
+            'stats': [('施放武器', weapon), *weapon_stats(art, cost), *legacy_stats(special, combat_rules['legacy'])],
         }
     stats = [('施放武器', weapon_name), *weapon_stats(art, cost)]
     if 'lock' in art:
         return {'name': '锁定剑诀', 'stats': [*stats, *locked_sword_stats(art)]}
     phases = [
-        (f'第 {number} 段', ' · '.join([
-            SHAPES[phase['shape']], blocks(phase['reach']),
-            f"伤害 {multiplier(phase['damage_multiplier'])}", f"最多 {phase['maximum_targets']} 个目标",
-        ]))
+        (f'第 {number} 段', weapon_phase_summary(phase, moves[phase['move']]))
         for number, phase in enumerate(art['phases'], start=1)
     ]
     return {'name': '多段武技', 'stats': stats, 'phases': phases}
@@ -353,6 +589,10 @@ def build(root: Path):
     realm_names = {id: labels[realm['translation_key']] for id, realm in realms.items()}
     realm_names['yuanxian:mortal'] = '凡人启蒙'
     realm_order = sorted(realms, key=lambda key: realms[key]['sort_order'])
+    stage_names = {
+        (id, stage['id']): labels[stage['translation_key']]
+        for id, realm in realms.items() for stage in realm['stages']
+    }
 
     heritage_names = defaultdict(list)
     for heritage in registry(data, 'heritage').values():
@@ -363,15 +603,23 @@ def build(root: Path):
     world_rules = read_json(data / 'world_sim/rules.json')
     aptitudes = read_json(data / 'aptitudes/rules.json')
     growth = read_json(data / 'cultivation/technique_growth.json')
-    elemental = read_json(data / 'combat/elemental_arts.json')
-    arts = {art['id']: art for art in elemental['arts']}
-    arts.update({
-        art['id']: art
-        for filename in ('advanced_arts', 'locked_sword_arts', 'legacy_arts', 'golden_core_arts', 'early_realm_arts', 'ascendant_arts')
-        for art in read_json(data / f'combat/{filename}.json')['arts']
-    })
-    waves = {row['id']: row for row in map(read_json, (data / 'combat/skill').glob('*.json'))}
-    legacy = {f"yuanxian:{row['id']}": row for row in read_json(data / 'legacy/encounters.json')['arts']}
+    combat = data / 'combat'
+    art_files = ('elemental', 'advanced', 'locked_sword', 'legacy', 'golden_core', 'early_realm', 'ascendant')
+    art_docs = {family: read_json(combat / f'{family}_arts.json') for family in art_files}
+    arts = {art['id']: art for document in art_docs.values() for art in document['arts']}
+    waves = {row['id']: row for row in map(read_json, (combat / 'skill').glob('*.json'))}
+    legacy_document = read_json(data / 'legacy/encounters.json')
+    legacy = {f"yuanxian:{row['id']}": row for row in legacy_document['arts']}
+    combat_rules = {
+        'elemental': art_docs['elemental']['rules'],
+        'golden_core': art_docs['golden_core']['rules'],
+        'legacy': legacy_document['runtime'],
+    }
+    moves = {
+        move['id']: move
+        for style in read_json(combat / 'index.json')['styles']
+        for move in read_json(combat / 'style' / f"{style.split(':', 1)[1]}.json")['moves']
+    }
     entries = []
     for id, definition in definitions.items():
         category = definition['category']
@@ -385,9 +633,11 @@ def build(root: Path):
         specialized = growth['techniques'].get(id, {})
         minimum = definition['requirements']
         realm = minimum.get('minimum_realm')
+        stage = minimum.get('minimum_stage')
+        minimum_name = stage_names[(realm, stage)] if stage else realm_names.get(realm, '不限')
         entry = {
             'id': id, 'name': names[id], 'grade': grade, 'category': category, 'elements': elements,
-            'realm': realm_names.get(realm, '不限'), 'realm_id': realm, 'school': school_name,
+            'realm': minimum_name, 'realm_id': realm, 'school': school_name,
             'heritages': heritage_names[id],
             'learning': learning_stats(definition, labels, schools, aptitudes, names, specialized),
         }
@@ -395,7 +645,12 @@ def build(root: Path):
             core = effects.get('core', {})
             if (heart := core.get('heart')) is not None:
                 entry['heart'] = {'slot': HEART_SLOTS[heart['slot']], 'direction': HEART_DIRECTIONS[heart['direction']]}
-                effect = heart_effect(heart, core.get('manual_price'), elements)
+                if id == 'yuanxian:sacred_earth_heart':
+                    stages = read_json(data / 'fates/rework.json')['stages']
+                    effect = sacred_heart_effect(stages, realm_names)
+                    entry['learning'].insert(0, ('传授方式', f"天命「{labels['fate.yuanxian.sacred_earth_embryo']}」传授"))
+                else:
+                    effect = heart_effect(heart, core.get('manual_price'), elements)
             else:
                 effect = {'name': '心法效果', 'stats': legacy_core_stats(definition, core, world_rules, elements)}
         elif category == 'movement':
@@ -403,7 +658,7 @@ def build(root: Path):
             effect = {'name': '闪避效果' if stats else '效果待配置', 'stats': stats}
         else:
             weapon_name = f'{school_name}类' if school and school.get('weapon_family') else '不限'
-            effect = active_effect(id, effects, arts, waves, legacy, elemental['rules'], labels, weapon_name)
+            effect = active_effect(id, effects, arts, waves, legacy, combat_rules, moves, labels, weapon_name)
         entry['effect'] = effect
         if specialized:
             entry['growth'] = growth_details(specialized, growth['stage_names'])

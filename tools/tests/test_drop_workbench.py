@@ -256,6 +256,84 @@ class TechniqueDirectoryTest(unittest.TestCase):
         self.assertEqual([('生命上限', '+90 点'), ('肉身防御', '+18 点')], guard['base'])
         self.assertEqual([('持剑受到投射物或五行法术时的肉身防御', '+20 点')], guard['extra'])
 
+    def test_defense_attributes_shield_and_minor_realm_requirement(self):
+        for id in ('jingang_huti_gong', 'jinlin_cuiti_jue', 'shijia_xuangong'):
+            with self.subTest(id=id):
+                entry = self.technique(id)
+                self.assertEqual('炼气五层', entry['realm'])
+                self.assertEqual('yuanxian:qi_refining', entry['realm_id'])
+        armor = dict(self.technique('shijia_xuangong')['effect']['base'])
+        self.assertEqual('+3 点', armor['护甲'])
+        self.assertEqual('+1 点', armor['护甲韧性'])
+        self.assertIn(('物理抗性', '+15 个百分点'), self.technique('jingang_huti_gong')['effect']['base'])
+        shield = self.technique('wanjie_jinshen_jue')['effect']
+        self.assertIn(('击退抗性', '+20 个百分点'), shield['base'])
+        self.assertEqual({
+            '护盾触发': '敌方命中使生命从高于 30% 降至 30% 或以下且存活',
+            '护盾容量': '10 点',
+            '护盾持续时间': '6 秒（120 tick）',
+            '护盾冷却': '60 秒（1200 tick）',
+        }, dict(shield['extra']))
+
+    def test_sacred_earth_heart_uses_fate_stage_bonuses(self):
+        technique = self.technique('sacred_earth_heart')
+        self.assertIn(('传授方式', '天命「厚土圣胎」传授'), technique['learning'])
+        stats = dict(technique['effect']['stats'])
+        self.assertEqual(['炼气', '筑基', '金丹', '元婴', '化神'], list(stats))
+        self.assertEqual('生命上限 +20 点，肉身防御 +4.5 点', stats['炼气'])
+        self.assertEqual('生命上限 +230 点，肉身防御 +64 点', stats['化神'])
+
+    def test_movement_displays_ground_and_air_qi_costs(self):
+        for id, cost in (('liuyun_bu', 6), ('taxue_wuhen', 10)):
+            with self.subTest(id=id):
+                stats = dict(self.technique(id)['effect']['stats'])
+                self.assertEqual('0 点', stats['地面闪避耗灵'])
+                self.assertEqual(f'{cost} 点（需有空中闪避资格）', stats['空中闪避耗灵'])
+                self.assertIn('地面与空中共享冷却', stats)
+                self.assertNotIn('基础耗灵', stats)
+
+    def test_realm_arts_display_runtime_timing_and_mechanic_values(self):
+        from tools.drop_workbench.techniques import seconds
+
+        combat = ROOT / 'src/main/resources/data/yuanxian/combat'
+        for family in ('early_realm', 'golden_core', 'ascendant'):
+            document = json.loads((combat / f'{family}_arts.json').read_text())
+            for art in document['arts']:
+                with self.subTest(id=art['id']):
+                    spec = art[family]
+                    timing = document['rules'] if family == 'golden_core' else spec
+                    stats = dict(self.entries[art['id']]['effect']['stats'])
+                    self.assertEqual(seconds(spec.get('windup', timing['windup'])), stats['起手时间'])
+                    self.assertEqual(seconds(timing['recovery']), stats['收招时间'])
+
+        steps = dict(self.technique('cuobu_zhan')['effect']['stats'])
+        self.assertEqual('2 格', steps['最大位移'])
+        self.assertEqual('120°', steps['扇形角度'])
+        twin = dict(self.technique('liangyi_lijian')['effect']['stats'])
+        self.assertEqual('×2.1', twin['剑影反斩伤害倍率'])
+        self.assertEqual('0.6 秒（12 tick）', twin['剑影反斩延迟'])
+        healing = dict(self.technique('baimu_chengchun')['effect']['stats'])
+        self.assertEqual('60%', healing['剩余持续伤害转为治疗的比例'])
+        self.assertEqual('18%', healing['总治疗上限（自身生命上限的比例）'])
+
+    def test_other_combat_art_details_include_runtime_numbers(self):
+        lock = dict(self.technique('taibai_jianjing')['effect']['stats'])
+        self.assertEqual('12 个（含主目标）', lock['最多命中目标'])
+        self.assertEqual('0.6 秒（12 tick）', lock['收招时间'])
+        self.assertEqual('主目标系数的 45%', lock['次级目标伤害系数'])
+        spell = dict(self.technique('linghuo_shu')['effect']['stats'])
+        self.assertEqual('1 秒（20 tick）', spell['持续伤害间隔'])
+        self.assertEqual('4 秒（80 tick）', spell['持续伤害时长'])
+        self.assertEqual('每跳 ×0.18 法术伤害基数', spell['持续伤害'])
+        phase = dict(self.technique('qinglian_jiange')['effect']['phases'])['第 1 段']
+        self.assertIn('扇形角度 150°', phase)
+        self.assertIn('命中窗口 0.15 秒（3 tick）', phase)
+        wave = dict(self.technique('jianqi_jue')['effect']['stats'])
+        self.assertEqual('0.25 秒（5 tick）（满蓄力 0.1 秒（2 tick））', wave['松键到出剑气'])
+        legacy = dict(self.technique('zhenyue_jue')['effect']['stats'])
+        self.assertEqual('1.5 秒（30 tick）', legacy['震击间隔'])
+        self.assertEqual('0 点', legacy['触发后续效果时耗灵'])
+
     def test_frontend_builder_exports_a_separate_directory_with_versioned_assets(self):
         from tools.drop_workbench.catalogue import write_frontend
 
