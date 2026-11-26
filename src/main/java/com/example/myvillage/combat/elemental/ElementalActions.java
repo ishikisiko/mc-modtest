@@ -19,22 +19,30 @@ import java.util.*;
 
 /** A subordinate cast owned and advanced only by CombatSessionManager/CombatArtActions. */
 public final class ElementalActions {
+    private static final net.minecraft.resources.ResourceLocation WOOD_SEED =
+            net.minecraft.resources.ResourceLocation.parse("yuanxian:lingzhong_shu");
     public static final class Cast {
         public final Vec3 eye,anchor,direction;
         final Entity target;
         final int charges;
         final double base;
         final double directBonus;
+        final boolean sneakingAtStart;
+        final boolean fullPowerAtStart;
         int pulse;
         boolean charged;
         boolean masteryAwarded;
-        Cast(Vec3 eye,Vec3 anchor,Vec3 direction,Entity target,int charges,double base,double directBonus) {
+        Cast(Vec3 eye,Vec3 anchor,Vec3 direction,Entity target,int charges,double base,double directBonus,
+             boolean sneakingAtStart,boolean fullPowerAtStart) {
             this.eye=eye;this.anchor=anchor;this.direction=direction;this.target=target;this.charges=charges;this.base=base;
             this.directBonus=directBonus;
+            this.sneakingAtStart=sneakingAtStart;
+            this.fullPowerAtStart=fullPowerAtStart;
         }
     }
     private ElementalActions() {}
-    public static Cast begin(LivingEntity p,CombatSession session,ElementalSpell spell,boolean paid) {
+    public static Cast begin(LivingEntity p,CombatSession session,ElementalSpell spell,boolean paid,
+                             boolean fullPowerAtStart) {
         Vec3 eye=p.getEyePosition(),look=p.getLookAngle();
         Entity target=spell.shape().equals("self")?null:CombatCaster.level(p).getEntities(p,p.getBoundingBox().inflate(spell.range()),
                 e->CombatHitResolver.legalTarget(p,e,session)).stream()
@@ -54,7 +62,7 @@ public final class ElementalActions {
                 p, "", spell.element(), true, paid);
         LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} t={} result=cast element={} role={} charges={} base={}",
                 CombatCaster.name(p),CombatCaster.level(p).getGameTime(),spell.element().id(),spell.role(),charges,base);
-        return new Cast(eye,anchor,direction,target,charges,base,directBonus);
+        return new Cast(eye,anchor,direction,target,charges,base,directBonus,p.isShiftKeyDown(),fullPowerAtStart);
     }
     public static Vec3 origin(LivingEntity player,ElementalSpell spell,Cast cast) {
         return spell.casterCentered()?player.position():cast.anchor;
@@ -86,7 +94,10 @@ public final class ElementalActions {
                     com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.hit(p,art.id());}
                 successes++;
                 if(spell.harvest())ElementalEffects.harvest(p,target,spell.element());
-                if(spell.dot())ElementalEffects.seed(p,target,spell.element(),cast.base);
+                boolean converted = cast.sneakingAtStart && art.id().equals(WOOD_SEED)
+                        && com.example.myvillage.cultivation.technique.HeartTraitRuntime.convertWoodPulse(p,
+                            ElementalEffects.pendingPulse(p, target, spell.element()), cast.fullPowerAtStart);
+                if(spell.dot() && !converted)ElementalEffects.seed(p,target,spell.element(),cast.base);
                 var owner=CombatTargets.owner(target);
                 if(owner instanceof LivingEntity living) {
                     if (spell.element() == com.example.myvillage.stats.DamageType.WATER && spell.slowTicks() > 0) {

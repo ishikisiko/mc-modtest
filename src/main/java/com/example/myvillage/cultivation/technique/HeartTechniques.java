@@ -119,10 +119,12 @@ public final class HeartTechniques {
                 || target instanceof NpcEntity npc && !NpcCombatRuntime.managed(npc)) {
             return;
         }
-        var definition = equipped(target.registryAccess(), CombatCaster.profile(target), Slot.DEFENSE).orElse(null);
+        var profile = CombatCaster.profile(target);
+        var technique = profile.equippedHeart(Slot.DEFENSE).orElse(null);
+        if (technique == null) return;
+        var definition = equipped(target.registryAccess(), profile, Slot.DEFENSE).orElse(null);
         var shield = method(definition).map(HeartMethod.Defense.class::cast).flatMap(HeartMethod.Defense::shield).orElse(null);
-        if (shield == null || !shield.crossesThreshold(before, after, target.getMaxHealth())
-                || ShieldRuntime.bypassesShields(source)
+        if (definition == null || ShieldRuntime.bypassesShields(source)
                 || !(source.getEntity() instanceof LivingEntity attacker) || !CombatActors.mayHarm(attacker, target)) {
             return;
         }
@@ -134,15 +136,24 @@ public final class HeartTechniques {
         UUID owner = target instanceof NpcEntity npc && npc.isLedgerAvatar()
                 ? UUID.nameUUIDFromBytes(("yuanxian:heart/" + npc.ledgerPersonId()).getBytes(StandardCharsets.UTF_8))
                 : target.getUUID();
-        if (cooldowns.remaining(owner, DEFENSE_SHIELD, now) == 0
-                && ShieldRuntime.grant(target, DEFENSE_SHIELD, shield.amount(), shield.durationTicks())) {
+        if (shield != null && shield.crossesThreshold(before, after, target.getMaxHealth())
+                && cooldowns.remaining(owner, DEFENSE_SHIELD, now) == 0
+                && ShieldRuntime.grant(target, DEFENSE_SHIELD,
+                    shield.amount() + HeartTraitRuntime.ancestralRemainder(target, technique, DEFENSE_SHIELD),
+                    shield.durationTicks())) {
             cooldowns.start(owner, DEFENSE_SHIELD, now, shield.cooldownTicks());
             CombatCaster.message(target, Component.translatable(definition.translationKey()).append("的护盾已生效"));
+            return;
         }
+        HeartTraitRuntime.afterHostileHit(target, source, technique, DEFENSE_SHIELD, cooldowns, owner, now);
     }
 
     public static void clearDefenseShield(LivingEntity entity) {
         ShieldRuntime.removeSource(entity, DEFENSE_SHIELD);
+    }
+
+    public static boolean shieldAgainstKnockback(LivingEntity entity) {
+        return HeartTraitRuntime.spendShieldAgainstKnockback(entity, DEFENSE_SHIELD);
     }
 
     public static double attackExtra(LivingEntity actor, String weapon, DamageType spell, boolean art, boolean paid) {

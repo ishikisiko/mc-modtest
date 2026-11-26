@@ -19,6 +19,7 @@
     let catalogue;
     let loading = false;
     let category;
+    let activeTag = '';
     let selectedId;
 
     function options(select, entries) {
@@ -27,13 +28,19 @@
     }
 
     function categoryEntries() {
+        if (activeTag) {
+            const order = new Map(catalogue.realms.map(([id], index) => [id, index]));
+            return catalogue.techniques.filter(row => row.traits.some(trait => trait.id === activeTag))
+                .sort((a, b) => (order.get(a.realm_id) ?? 0) - (order.get(b.realm_id) ?? 0)
+                    || a.grade - b.grade || a.name.localeCompare(b.name, 'zh-CN'));
+        }
         return catalogue.techniques.filter(row => row.category === category);
     }
 
     function renderCategories() {
         categoryButtons.innerHTML = catalogue.categories.map(({id, name}) => {
             const count = catalogue.techniques.filter(row => row.category === id).length;
-            return `<button type="button" data-technique-category="${escape(id)}" aria-pressed="${id === category}">
+            return `<button type="button" data-technique-category="${escape(id)}" aria-pressed="${!activeTag && id === category}">
                 <span>${escape(name)}</span><span class="technique-count">${count}</span>
             </button>`;
         }).join('');
@@ -42,6 +49,33 @@
     function facts(rows) {
         return `<dl class="technique-facts">${rows.map(([label, value]) => `
             <div><dt>${escape(label)}</dt><dd>${escape(value)}</dd></div>`).join('')}</dl>`;
+    }
+
+    function link(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return query ? '#techniques?' + query : '#techniques';
+    }
+
+    function renderTraits(entry, section) {
+        if (!entry.traits.length) return '';
+        const rows = entry.traits.map(trait => `
+            <li>
+                <a class="technique-tag" href="${escape(link({tag: trait.id, id: entry.id, category: entry.category}))}">
+                    ${escape(trait.label)}
+                </a>
+                <span class="technique-trait-role">${escape(trait.role)}</span>
+                <span>${escape(trait.description)}</span>
+            </li>`).join('');
+        return section('特性', `<ul class="technique-traits">${rows}</ul>`);
+    }
+
+    function renderProgressions(entry, section) {
+        return entry.progressions.map(progression => {
+            const chapters = progression.chapters.map(chapter => chapter.id === entry.id
+                ? `<strong aria-current="step">${escape(chapter.name)}</strong>`
+                : `<a href="${escape(link({id: chapter.id}))}">${escape(chapter.name)}</a>`).join(' → ');
+            return section(progression.name + ' · ' + progression.tag, `<p class="technique-chapters">${chapters}</p>`);
+        }).join('');
     }
 
     function renderDetail(entry) {
@@ -78,6 +112,8 @@
             ${facts(metadata)}
             ${effects}
             ${phases}
+            ${renderTraits(entry, section)}
+            ${renderProgressions(entry, section)}
             <section><h3>学习条件</h3>${facts(entry.learning)}</section>
             ${practice}`;
     }
@@ -94,7 +130,8 @@
         const query = search.value.trim().toLowerCase();
         const entries = categoryEntries();
         const filtered = entries.filter(row => {
-            const keywords = [row.name, row.id, row.school, row.heart?.direction, ...row.elements, ...row.heritages].join(' ').toLowerCase();
+            const keywords = [row.name, row.id, row.school, row.heart?.direction, ...row.elements, ...row.heritages,
+                ...row.traits.map(trait => trait.label)].join(' ').toLowerCase();
             return (!grade.value || row.grade === Number(grade.value))
                 && (!realm.value || row.realm_id === realm.value)
                 && (!slot.value || row.heart?.slot === slot.value)
@@ -105,20 +142,20 @@
         list.innerHTML = filtered.map(row => `
             <button type="button" class="technique-row" data-technique-id="${escape(row.id)}">
                 <span class="technique-row-name">${escape(row.name)}</span>
-                <span class="technique-row-realm">${escape(row.realm)}</span>
+                <span class="technique-row-realm">${escape(activeTag
+                    ? row.realm + ' · ' + row.traits.filter(trait => trait.id === activeTag).map(trait => trait.role).join('、')
+                    : row.realm)}</span>
                 <span class="technique-grade" data-grade="${row.grade}">${escape(catalogue.grades[row.grade])}</span>
             </button>`).join('');
         selectEntry(filtered.find(row => row.id === selectedId) || filtered[0]);
     }
 
-    function selectCategory(id) {
-        category = id;
-        const info = catalogue.categories.find(row => row.id === id);
-        get('technique-category-description').textContent = info.description;
-        for (const button of categoryButtons.querySelectorAll('button')) {
-            button.setAttribute('aria-pressed', String(button.dataset.techniqueCategory === id));
-        }
-
+    function configureFilters() {
+        renderCategories();
+        const info = catalogue.categories.find(row => row.id === category);
+        get('technique-category-description').textContent = activeTag
+            ? '同标签功法 · ' + catalogue.trait_tags[activeTag]
+            : info.description;
         const entries = categoryEntries();
         const grades = [...new Set(entries.map(row => row.grade))];
         const realms = new Set(entries.map(row => row.realm_id));
@@ -129,6 +166,27 @@
         options(slot, slots.map(name => [name, name]));
         search.value = '';
         list.scrollTop = 0;
+    }
+
+    function route() {
+        return new URLSearchParams(location.hash.slice('#techniques'.length + 1));
+    }
+
+    function selectRoute() {
+        const params = route();
+        const id = params.get('id');
+        const entry = catalogue.techniques.find(row => row.id === id);
+        const requestedTag = params.get('tag');
+        const tag = Object.hasOwn(catalogue.trait_tags, requestedTag) ? requestedTag : '';
+        const requestedCategory = catalogue.categories.find(row => row.id === params.get('category'))?.id;
+        const categoryId = (tag ? requestedCategory ?? entry?.category : entry?.category ?? requestedCategory)
+            ?? catalogue.categories[0].id;
+        if (category !== categoryId || activeTag !== tag) {
+            category = categoryId;
+            activeTag = tag;
+            configureFilters();
+        }
+        selectedId = id ?? undefined;
         renderResults();
     }
 
@@ -141,9 +199,7 @@
             const response = await fetch(new URL('techniques.json', location.href), {cache: 'no-store'});
             if (!response.ok) throw new Error('无法读取功法目录');
             catalogue = await response.json();
-            category = catalogue.categories[0].id;
-            renderCategories();
-            selectCategory(category);
+            selectRoute();
             status.textContent = `源仙 ${catalogue.version} · ${catalogue.techniques.length} 门`;
             get('technique-content').hidden = false;
         } catch (error) {
@@ -156,7 +212,7 @@
     }
 
     function updateView() {
-        const showTechniques = location.hash === '#techniques';
+        const showTechniques = location.hash === '#techniques' || location.hash.startsWith('#techniques?');
         view.hidden = !showTechniques;
         get('drop-view').hidden = showTechniques;
         get('drop-actions').hidden = showTechniques;
@@ -164,20 +220,33 @@
             if (active) get(link).setAttribute('aria-current', 'page');
             else get(link).removeAttribute('aria-current');
         }
-        if (showTechniques) loadCatalogue();
+        if (showTechniques) {
+            if (catalogue) selectRoute();
+            else loadCatalogue();
+        }
     }
 
     categoryButtons.addEventListener('click', event => {
         const button = event.target.closest('[data-technique-category]');
-        if (button && button.dataset.techniqueCategory !== category) selectCategory(button.dataset.techniqueCategory);
+        if (button && (activeTag || button.dataset.techniqueCategory !== category))
+            location.hash = link({category: button.dataset.techniqueCategory});
     });
     list.addEventListener('click', event => {
         const button = event.target.closest('[data-technique-id]');
         if (!button) return;
-        selectEntry(catalogue.techniques.find(row => row.id === button.dataset.techniqueId));
+        const id = button.dataset.techniqueId;
+        const params = activeTag ? {tag: activeTag, id, category} : {id, category};
+        location.hash = link(params);
         if (window.matchMedia('(max-width: 760px)').matches) {
             detail.focus({preventScroll: true});
             detail.scrollIntoView({block: 'start'});
+        }
+    });
+    detail.addEventListener('click', event => {
+        const anchor = event.target.closest('a[href^="#techniques?"]');
+        if (anchor && selectedId && route().get('id') !== selectedId) {
+            const params = activeTag ? {tag: activeTag, id: selectedId, category} : {id: selectedId, category};
+            history.replaceState(null, '', link(params));
         }
     });
     search.addEventListener('input', renderResults);

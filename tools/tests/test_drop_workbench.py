@@ -348,5 +348,22 @@ class TechniqueDirectoryTest(unittest.TestCase):
             directory = json.loads((output / 'techniques.json').read_text())
             self.assertEqual(self.entries.keys(), {entry['id'] for entry in directory['techniques']})
 
+    def test_status_links_cross_categories_and_keep_heritage_chapter_order(self):
+        self.assertIn({'id': 'sword_intent', 'label': '剑意', 'role': '获得', 'description':
+                       '正面格挡且实际承伤时获得剑意。普通剑招有效命中也可以积剑意。'},
+                      self.technique('huifeng_jianzhen')['traits'])
+        for id in ('jianqi_jue', 'chuanyun_yijian'):
+            self.assertIn(('sword_intent', '消耗'), [(t['id'], t['role']) for t in self.technique(id)['traits']])
+        ward_members = {entry['category'] for entry in self.entries.values()
+                        if any(trait['id'] == 'ward' for trait in entry['traits'])}
+        self.assertEqual({'core', 'active'}, ward_members)
+        self.assertEqual([], self.technique('tiegu_gong')['traits'])
+        for id, tag, chapters in (('taibai_jianjing', '追击', 4), ('qing_di_chang_sheng_lu', '侵蚀', 6),
+                                  ('wanjie_jinshen_jue', '护盾', 4)):
+            progression, = self.technique(id)['progressions']
+            self.assertEqual(tag, progression['tag'])
+            self.assertEqual(chapters, len(progression['chapters']))
+            self.assertEqual('yuanxian:' + id, progression['chapters'][-1]['id'])
+
 
 if __name__=='__main__':unittest.main()

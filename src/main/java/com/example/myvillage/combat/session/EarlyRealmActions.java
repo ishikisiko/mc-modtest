@@ -7,8 +7,10 @@ import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.elemental.ElementalEffects;
 import com.example.myvillage.combat.foundation.ControlService;
 import com.example.myvillage.combat.runtime.CombatCaster;
+import com.example.myvillage.combat.runtime.CombatDisciplines;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatTargets;
+import com.example.myvillage.combat.runtime.CombatTraitStates;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime;
 import com.example.myvillage.stats.DamageType;
 import java.util.HashMap;
@@ -206,7 +208,11 @@ final class EarlyRealmActions {
         double now = edgeDistance(at, target);
         boolean advanced = cast.before.getOrDefault(CombatTargets.hitId(target), now)
                 - edgeDistance(cast.aim.origin(), target) >= cast.spec.threshold();
-        hit(cast, target, advanced && spearTip(now) ? cast.spec.secondary() : cast.spec.damage());
+        boolean tip = spearTip(now);
+        if (hit(cast, target, advanced && tip ? cast.spec.secondary() : cast.spec.damage()) && tip) {
+            CombatDisciplines.tipAccepted(cast.caster, cast.session.revision());
+            if (advanced) CombatTraitStates.grant(cast.caster, cast.caster, CombatTraitStates.Kind.SPEAR_STANCE);
+        }
     }
 
     private static void steppingSpear(Cast cast) {
@@ -220,7 +226,9 @@ final class EarlyRealmActions {
         var line = line(cast, at, aimedForward(at, target, forward), cast.spec.length());
         markStrip(cast.caster, cast.art, line, false);
         boolean touched = line.intersects(target.getBoundingBox()) && clear(cast.caster, line.lineOrigin(target), point(target));
-        if (touched && targetReady(cast, target)) hit(cast, target, cast.spec.damage());
+        boolean tip = spearTip(edgeDistance(at, target));
+        if (touched && targetReady(cast, target) && hit(cast, target, cast.spec.damage()) && tip)
+            CombatDisciplines.tipAccepted(cast.caster, cast.session.revision());
     }
 
     private static void shoulderThrow(Cast cast) {
@@ -335,9 +343,12 @@ final class EarlyRealmActions {
         var fan = fan(cast, at, cast.spec.range());
         markFan(cast.caster, cast.art, fan, false);
         for (Entity enemy : distinct(inFan(cast.caster, cast.session, fan), cast.spec.targets())) {
-            double multiplier = spear && spearTip(edgeDistance(at, enemy)) ? cast.spec.secondary() : damage;
-            if (hit(cast, enemy, multiplier) && spear)
+            boolean tip = spear && spearTip(edgeDistance(at, enemy));
+            double multiplier = tip ? cast.spec.secondary() : damage;
+            if (hit(cast, enemy, multiplier) && spear) {
+                if (tip) CombatDisciplines.tipAccepted(cast.caster, cast.session.revision());
                 displace(cast, enemy, lateral(cast.aim.forward()).scale(cast.aim.side()), cast.spec.push());
+            }
         }
     }
 
@@ -427,6 +438,12 @@ final class EarlyRealmActions {
         if (!cast.valid() || !CombatHitResolver.legalTarget(cast.caster, target, cast.session)) return false;
         float damage = RealmArtCombat.hit(cast.caster, target, cast.art, cast.session, multiplier, cast.base);
         if (!(damage > 0) || !cast.valid()) return false;
+        switch (cast.spec.mechanic()) {
+            case SHOULDER_RAM, SHOULDER_THROW ->
+                    CombatTraitStates.grant(cast.caster, target, CombatTraitStates.Kind.FIST_UNBALANCE);
+            case EARTH_SPIKE -> CombatTraitStates.grant(cast.caster, target, CombatTraitStates.Kind.EARTH_UNBALANCE);
+            default -> { }
+        }
         award(cast);
         if (cast.spec.element().orElse(null) == DamageType.FIRE) GoldenCoreActions.onDirectFire(cast.caster, target);
         LOG.info("EARLY_REALM actor={} art={} event=hit target={} multiplier={} damage={}",

@@ -315,6 +315,9 @@ public final class CombatReactionService {
         impulse = impulse.scale(com.example.myvillage.cultivation.fate.FateRuntime.groundKnockbackFactor(target));
         double factor = com.example.myvillage.combat.session.AscendantWards.knockbackFactor(target);
         if (factor < 1) impulse = impulse.multiply(factor, 1, factor);
+        if (impulse.horizontalDistanceSqr() > 0 && (source == null
+                || !com.example.myvillage.combat.foundation.ShieldRuntime.bypassesShields(source))
+                && com.example.myvillage.cultivation.technique.HeartTechniques.shieldAgainstKnockback(target)) return;
         com.example.myvillage.combat.foundation.ControlService.allowImpulse(target, impulse);
         CombatDamageService.applyImpulse(target, impulse);
         com.example.myvillage.cultivation.fate.HeavyHandRuntime.launched(target, impulse, source);

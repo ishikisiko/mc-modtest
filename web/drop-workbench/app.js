@@ -44,7 +44,7 @@ const KEY='yuanxian-drops:'+location.pathname;
 const S={catalog:null,config:null,saved:null,revision:'',tab:'entities',key:'yuanxian:redplate_lizard',realm:'',ns:'all',category:'all',inspectEntity:'yuanxian:redplate_lizard',angle:'quarter',page:0,api:'',dirty:false,saving:false,version:0,conflict:false,newRule:null,token:sessionStorage.getItem(KEY+':token')||'',authenticated:false,invalid:new Set()};
 let saveTimer,toastTimer,booting=false;
 let pendingDraft;
-const dropViewActive=()=>location.hash!=='#techniques';
+const dropViewActive=()=>location.hash!=='#techniques'&&!location.hash.startsWith('#techniques?');
 let sceneFilter='';
 let shownCreature;
 const sceneOptions=new Map();

@@ -607,6 +607,7 @@ public final class CombatSessionManager {
             }
         }
         com.example.myvillage.combat.runtime.CombatDisciplines.clear();
+        com.example.myvillage.combat.runtime.CombatTraitStates.clear();
         com.example.myvillage.combat.runtime.CombatHotbarService.clear();
         CombatSkillActions.clear();
         CombatArtActions.clear();

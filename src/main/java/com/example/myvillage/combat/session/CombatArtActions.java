@@ -8,6 +8,7 @@ import com.example.myvillage.combat.runtime.*;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.TechniqueCategory;
+import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.cultivation.technique.TechniqueRequirementEvaluator;
 import com.example.myvillage.forging.ForgedEquipment;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,6 +33,9 @@ public final class CombatArtActions {
     private static final Map<UUID,Entry> ENTRIES = new HashMap<>();
     private static final ArtCooldowns COOLDOWNS = new ArtCooldowns();
     private static final Map<UUID,Long> LAST_REQUEST = new HashMap<>();
+    private static final ResourceLocation PIERCING_SWORD = ResourceLocation.parse("yuanxian:gengjin_jianjue");
+    private static final ResourceLocation SWORD_ARRAY = ResourceLocation.parse("yuanxian:tiangang_jiandian");
+    private static final ResourceLocation SWORD_JUDGMENT = ResourceLocation.parse("yuanxian:taibai_jianjing");
     private CombatArtActions() {}
     private static final class Entry {
         final ArtDefinition art;
@@ -40,6 +44,7 @@ public final class CombatArtActions {
         final ResourceLocation dimension;
         final CombatSession session;
         final boolean paidArt;
+        final boolean sneakingAtStart;
         int phase;
         boolean counter;
         boolean masteryAwarded;
@@ -57,6 +62,7 @@ public final class CombatArtActions {
             this.art=art;this.held=player.getMainHandItem();this.slot=CombatCaster.slot(player);
             this.dimension=player.level().dimension().location();this.session=session;
             this.paidArt=paidArt;
+            this.sneakingAtStart=player.isShiftKeyDown();
         }
     }
     private static long clock(LivingEntity player) { return CombatCaster.level(player).getServer().overworld().getGameTime(); }
@@ -112,6 +118,8 @@ public final class CombatArtActions {
             return Optional.empty();
         }
         long cost=cost(player,art);
+        boolean fullPowerAtStart = art.elemental().isPresent()
+                && CombatCaster.power(player) >= CombatCaster.capacity(player);
         // All validation precedes the single atomic spend. Interrupted casts are not refunded.
         if (!CombatCaster.spend(player,cost)) {
             refuse(player,"power",Component.literal(Long.toString(cost)));return Optional.empty();
@@ -138,7 +146,8 @@ public final class CombatArtActions {
         }
         if(art.elemental().isPresent()) {
             var spell=art.elemental().get();
-            e.elementalCast=ElementalActions.begin(player,session,spell,e.paidArt);e.lockAnchor=e.elementalCast.anchor;
+            e.elementalCast=ElementalActions.begin(player,session,spell,e.paidArt,fullPowerAtStart);
+            e.lockAnchor=e.elementalCast.anchor;
             if(spell.role().equals("ward")) {
                 int shared=ElementalRules.integer("ward_shared_cooldown_ticks",20,1200);
                 COOLDOWNS.start(player.getUUID(),"elemental_ward",clock(player),shared);
@@ -277,10 +286,14 @@ public final class CombatArtActions {
         if(!lock.strikeDue(age,e.nextStrike))return;
         int pulse=e.nextStrike++;
         var phase=e.art.phases().getFirst();
+        boolean focus = e.art.id().equals(SWORD_JUDGMENT) && e.sneakingAtStart && target != null
+                && CombatTraitStates.active(player, target, CombatTraitStates.Kind.PURSUIT);
         List<net.minecraft.world.entity.Entity> targets=array
                 ?LockedSwordTargets.inArray(player,e.session,origin,lock.radius(),phase.targets())
-                :lock.hasSplash()?LockedSwordTargets.impact(player,e.session,target,origin,lock.radius(),phase.targets()):List.of(target);
-        var move=e.art.move(0,lock.pulseMultiplier(pulse));
+                :lock.hasSplash() && !focus
+                        ?LockedSwordTargets.impact(player,e.session,target,origin,lock.radius(),phase.targets()):List.of(target);
+        var move=e.art.move(0, lock.pulseMultiplier(pulse)
+                * (focus ? TechniqueTraits.number("pursuit_focus_multiplier") : 1));
         List<CombatHitResolver.TargetContact> successes=new ArrayList<>();
         for(var victim:targets) {
             var owner=CombatTargets.owner(victim);
@@ -293,8 +306,13 @@ public final class CombatArtActions {
             if(result.successful() && result.actualDamage()>0) {
                 awardMastery(player,e);
                 successes.add(new CombatHitResolver.TargetContact(victim,victim.distanceToSqr(player),victim.position()));
-                if(owner instanceof net.minecraft.world.entity.LivingEntity living)
-                    SwordArmorBreak.apply(living,lock.armorBreakFraction()*fraction,lock.armorBreakTicks());
+                if (owner instanceof LivingEntity living) {
+                    boolean brokeArmor = SwordArmorBreak.apply(living,lock.armorBreakFraction()*fraction,lock.armorBreakTicks());
+                    if (brokeArmor && e.art.id().equals(PIERCING_SWORD))
+                        CombatTraitStates.grant(player, victim, CombatTraitStates.Kind.PURSUIT);
+                    if (e.art.id().equals(SWORD_ARRAY)) CombatTraitStates.extendPursuit(player, victim);
+                }
+                if (focus) CombatTraitStates.consume(player, victim, CombatTraitStates.Kind.PURSUIT);
             }
             if(owner instanceof ServerPlayer defender && fraction<1) defender.displayClientMessage(
                     Component.translatable(fraction==0?"combat.yuanxian.art.evaded":"combat.yuanxian.art.partial"),true);
@@ -336,6 +354,11 @@ public final class CombatArtActions {
         if (!ArtMath.inArc(delta.x,delta.z,e.session.facingYaw(),e.art.guardArc())) return;
         event.setAmount((float)(event.getAmount()*(1-e.art.guardReduction())));
         e.guardedSource=source;e.guardedTick=CombatCaster.level(player).getGameTime();
+    }
+
+    public static void guardRetreat(net.neoforged.neoforge.event.entity.living.LivingDamageEvent.Pre event) {
+        Entry entry = ENTRIES.get(event.getEntity().getUUID());
+        if (entry != null && entry.goldenCast != null) GoldenCoreActions.guardRetreat(entry.goldenCast, event);
     }
     /** Match the exact source and tick, so another simultaneous hit cannot borrow a guard. */
     static boolean damageInterrupts(LivingEntity player,net.minecraft.world.damagesource.DamageSource source) {

@@ -4,6 +4,7 @@ import com.example.myvillage.combat.art.AscendantArt.Mechanic;
 import com.example.myvillage.combat.foundation.ControlRules;
 import com.example.myvillage.combat.foundation.ShieldRuntime;
 import com.example.myvillage.combat.runtime.CombatActors;
+import com.example.myvillage.stats.DamageType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -47,12 +48,12 @@ public final class AscendantWards {
         int charges;
         double left;
 
-        Ward(Cast cast, LivingEntity target, int charges) {
+        Ward(Cast cast, LivingEntity target, int charges, double bonusBudget) {
             this.cast = cast;
             this.target = target;
             this.until = cast.now() + cast.time.duration();
             this.charges = charges;
-            left = Math.min(target.getMaxHealth(), cast.actor.getMaxHealth()) * cast.effect.budget();
+            left = Math.min(target.getMaxHealth(), cast.actor.getMaxHealth()) * (cast.effect.budget() + bonusBudget);
         }
 
         boolean valid() {
@@ -74,11 +75,18 @@ public final class AscendantWards {
         }
         if (recipients.isEmpty() || !cast.valid()) return;
         cast.detach();
+        double bonus = 0;
+        boolean paid = false;
         for (LivingEntity target : recipients) {
             List<Ward> list = WARDS.computeIfAbsent(target.getUUID(), key -> new ArrayList<>());
             list.removeIf(w -> !w.valid() || w.cast.actor == cast.actor && w.cast.art.id().equals(cast.art.id()));
             if (list.size() >= ControlRules.get().maximumSources()) continue;
-            list.add(new Ward(cast, target, plates ? 1 : cast.limits.count()));
+            if (plates && !paid) {
+                bonus = com.example.myvillage.combat.elemental.ElementalEffects.consume(cast.actor, DamageType.METAL)
+                        * com.example.myvillage.cultivation.data.TechniqueTraits.number("metal_armor_per_charge");
+                paid = true;
+            }
+            list.add(new Ward(cast, target, plates ? 1 : cast.limits.count(), bonus));
             markTarget(cast.actor, cast.art, target, true);
         }
     }

@@ -578,6 +578,37 @@ def growth_details(growth, stage_names):
     }
 
 
+def trait_catalogue(data, definitions, heritages, names, labels):
+    document = read_json(data / 'combat/technique_traits.json')
+    if document['schema'] != 1:
+        raise ValueError('功法特性格式不符')
+    tags = document['labels']
+    if {'yuanxian:' + path for path in document['heritage_tags']} != set(heritages):
+        raise ValueError('正式传承需要一条同标签进阶线')
+    traits = {}
+    for path, rows in document['traits'].items():
+        id = 'yuanxian:' + path
+        if id not in definitions:
+            raise ValueError(f'功法特性引用未知功法 {id}')
+        traits[id] = [
+            {'id': key, 'label': tags[key], 'role': role, 'description': description}
+            for key, role, description in rows
+        ]
+    progressions = defaultdict(list)
+    for path, tag in document['heritage_tags'].items():
+        heritage = heritages['yuanxian:' + path]
+        chain = heritage['techniques']
+        chapters = [{'id': id, 'name': names[id]} for id in chain]
+        name = labels[heritage['translation_key']]
+        for index, id in enumerate(chain):
+            if index:
+                previous = definitions[id].get('lineage', {}).get('previous')
+                if previous != chain[index - 1] or not any(row['id'] == tag for row in traits.get(id, [])):
+                    raise ValueError(f'{name}的{id}缺少同标签进阶或研读前置')
+            progressions[id].append({'name': name, 'tag': tags[tag], 'chapters': chapters})
+    return tags, traits, progressions
+
+
 def build(root: Path):
     resources = root / 'src/main/resources'
     data = resources / 'data/yuanxian'
@@ -594,8 +625,10 @@ def build(root: Path):
         for id, realm in realms.items() for stage in realm['stages']
     }
 
+    heritages = registry(data, 'heritage')
+    tags, traits, progressions = trait_catalogue(data, definitions, heritages, names, labels)
     heritage_names = defaultdict(list)
-    for heritage in registry(data, 'heritage').values():
+    for heritage in heritages.values():
         chain = heritage['techniques']
         for index, id in enumerate(chain, start=1):
             heritage_names[id].append(f"{labels[heritage['translation_key']]}（第 {index} / {len(chain)} 篇）")
@@ -639,6 +672,8 @@ def build(root: Path):
             'id': id, 'name': names[id], 'grade': grade, 'category': category, 'elements': elements,
             'realm': minimum_name, 'realm_id': realm, 'school': school_name,
             'heritages': heritage_names[id],
+            'traits': traits.get(id, []),
+            'progressions': progressions[id],
             'learning': learning_stats(definition, labels, schools, aptitudes, names, specialized),
         }
         if category == 'core':
@@ -667,6 +702,7 @@ def build(root: Path):
                    (root / 'gradle.properties').read_text().splitlines() if line.startswith('mod_version='))
     return {
         'version': version,
+        'trait_tags': tags,
         'categories': [
             {'id': key, 'name': labels[f'screen.yuanxian.cultivation.category.{key}'], 'description': text}
             for key, text in CATEGORIES.items()

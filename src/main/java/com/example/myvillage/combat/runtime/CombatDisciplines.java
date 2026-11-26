@@ -77,10 +77,20 @@ public final class CombatDisciplines {
         if (entry == null || !entry.family.equals(family)) return 0;
         int spent = entry.pool.consumeStacks(now(player));
         if (spent > 0) {
-            CombatCaster.message(player, Component.literal((family.equals("sword") ? "消耗剑意 " : "消耗蓄劲 ") + spent), true);
+            String name = switch (family) {
+                case "sword" -> "剑意";
+                case "spear" -> "枪势";
+                default -> "蓄劲";
+            };
+            CombatCaster.message(player, Component.literal("消耗" + name + " " + spent), true);
             log(player, "consume", family, spent);
         }
         return spent;
+    }
+
+    public static int stacks(LivingEntity actor, String family) {
+        Entry entry = current(actor);
+        return entry == null || !entry.family.equals(family) ? 0 : entry.pool.stacks(now(actor));
     }
 
     public static boolean spearTip(LivingEntity p, Entity target) {
@@ -91,10 +101,14 @@ public final class CombatDisciplines {
     }
     public static void tipAccepted(LivingEntity p, long revision) {
         Entry e = current(p);
-        if (e != null && e.pool.gain(revision,now(p),DisciplineRules.get().body())) {
-            CombatCaster.message(p,Component.literal("枪锋命中：破势增强"),true);
+        if (e != null && e.family.equals("spear") && e.pool.gain(revision, now(p), SpearForce.RULES)) {
+            CombatCaster.message(p,Component.literal("枪锋命中，获得枪势"),true);
             log(p,"spear_tip","spear",revision);
         }
+    }
+    private static final class SpearForce {
+        static final DisciplineRules.Pool RULES = new DisciplineRules.Pool(1,
+                com.example.myvillage.cultivation.data.TechniqueTraits.integer("spear_force_ticks"), 0);
     }
     public static AttackMoveDefinition scale(AttackMoveDefinition m, double multiplier, int extraStun) {
         var r = m.reaction();
@@ -106,7 +120,7 @@ public final class CombatDisciplines {
     public static String status(LivingEntity p) {
         Entry e = current(p);
         return "discipline family=" + (e == null ? "none" : e.family) + " stacks="
-                + (e == null || e.family.equals("spear") ? 0 : e.pool.stacks(now(p)));
+                + (e == null ? 0 : e.pool.stacks(now(p)));
     }
     public static void tick(MinecraftServer server) {
         ENTRIES.keySet().removeIf(id -> com.example.myvillage.cultivation.fate.FateActors.find(server,id) == null);

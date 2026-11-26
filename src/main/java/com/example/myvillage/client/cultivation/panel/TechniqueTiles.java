@@ -119,8 +119,16 @@ final class TechniqueTiles {
         d.school().flatMap(school->ModCultivationRegistries.school(c.registries(),school))
                 .map(SchoolDefinition::translationKey).ifPresent(key->lines.add(Component.translatable(key)));
         if(!d.elements().isEmpty())lines.add(Component.literal(String.join(" · ",d.elements().stream().map(e->c.elementName(e).getString()).toList())));
-        for(var heritage:ModCultivationRegistries.heritagesContaining(c.registries(),id))
-            lines.add(Component.literal(c.text(heritage.getValue().translationKey())+" "+TechniqueShelf.chainPosition(heritage.getValue().indexOf(id),heritage.getValue().techniques().size())));
+        for (var heritage : ModCultivationRegistries.heritagesContaining(c.registries(), id)) {
+            var definition = heritage.getValue();
+            var chain = definition.techniques();
+            int index = definition.indexOf(id);
+            String tag = com.example.myvillage.cultivation.data.TechniqueTraits.heritageTag(heritage.getKey());
+            lines.add(Component.literal(c.text(definition.translationKey()) + " "
+                    + TechniqueShelf.chainPosition(index, chain.size()) + (tag.isEmpty() ? "" : " · " + tag)));
+            if (!tag.isEmpty() && index + 1 < chain.size())
+                lines.add(Component.literal("进阶篇 " + name(c, chain.get(index + 1))));
+        }
         var conditions=new ArrayList<String>();
         d.requirements().minimumRealm().ifPresent(realm -> conditions.add(d.requirements().minimumStage()
                 .map(stage -> c.stageName(realm, stage)).orElseGet(() -> c.realmName(realm)).getString()));
@@ -141,6 +149,9 @@ final class TechniqueTiles {
         });
         if(!d.isCore() && SkillBindingRules.kind(id,d)==SkillBindingRules.Kind.NONE)
             lines.add(Component.literal("此功法没有主动施放入口"));
+        for (var trait : com.example.myvillage.cultivation.data.TechniqueTraits.of(id))
+            lines.add(Component.literal("特性 · " + trait.label() + " · " + trait.role())
+                    .append(Component.literal("　" + trait.description())));
         return lines;
     }
 

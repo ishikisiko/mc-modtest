@@ -306,6 +306,7 @@ public final class CombatDodgeService {
         com.example.myvillage.combat.session.AscendantFields.dodged(player, source, event.getAmount());
         DodgeState state = STATES.get(player.getUUID());
         SwordHeartRuntime.onDodgedAttack(player, source, event.getAmount(), state.startTick());
+        com.example.myvillage.cultivation.technique.HeartTraitRuntime.afterDodge(player, source, event.getAmount());
         LOGGER.info(cancelledLine(
                 CombatCaster.name(player),
                 player.level().getGameTime(),

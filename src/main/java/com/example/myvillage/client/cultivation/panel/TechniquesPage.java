@@ -243,6 +243,9 @@ public final class TechniquesPage extends PanelPage {
             String category = definition != null && definition.isCore() ? HeartTechniques.slot(definition).title()
                     : TechniqueTiles.category(c, definition);
             String line = TechniqueTiles.grade(c, definition) + " · " + category;
+            var traits = com.example.myvillage.cultivation.data.TechniqueTraits.of(selected);
+            if (!traits.isEmpty()) line += " · " + String.join("、", traits.stream()
+                    .map(com.example.myvillage.cultivation.data.TechniqueTraits.Trait::label).distinct().toList());
             g.drawString(c.font(), InkPanelTheme.fit(c.font(), line, Math.max(1, width - 34)),
                     x + 31, dockY + 20, InkPanelTheme.MUTED, false);
         }

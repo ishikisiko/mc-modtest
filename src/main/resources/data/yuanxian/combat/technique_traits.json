@@ -1,0 +1,279 @@
+{
+  "schema": 1,
+  "labels": {
+    "sword_intent": "剑意",
+    "pursuit": "追击",
+    "spear_force": "枪势",
+    "spear_stance": "拒马架势",
+    "fist_force": "蓄劲",
+    "unbalance": "失衡",
+    "armor_break": "破甲",
+    "metal_force": "锋意",
+    "ward": "护体",
+    "shield": "护盾",
+    "erosion": "侵蚀",
+    "wood_force": "生机",
+    "chill": "迟滞",
+    "water_force": "水势",
+    "scorch": "灼痕",
+    "fuse": "火引信",
+    "fire_force": "焰势",
+    "earth_force": "地势"
+  },
+  "heritage_tags": {
+    "taibai_jianmai": "pursuit",
+    "qingdi_mumai": "erosion",
+    "wanjie_jinshen_mai": "shield"
+  },
+  "settings": {
+    "frontal_degrees": 120,
+    "maximum_states_per_caster": 32,
+    "spear_force_ticks": 160,
+    "pursuit_ticks": 100,
+    "pursuit_extend_ticks": 120,
+    "pursuit_focus_multiplier": 1.25,
+    "spear_followup_delay_ticks": 3,
+    "spear_followup_multiplier": 0.65,
+    "spear_stance_ticks": 100,
+    "spear_stance_reduction": 0.3,
+    "unbalance_ticks": 100,
+    "fist_unbalance_lift": 0.22,
+    "metal_armor_per_charge": 0.01,
+    "water_ward_qi": 4,
+    "earth_ward_shield_maximum": 8,
+    "earth_ward_shield_fraction": 0.08,
+    "short_shield_ticks": 80,
+    "ancestral_shield_cooldown_ticks": 240,
+    "ancestral_shield_fraction": 0.06,
+    "ancestral_shield_maximum": 8,
+    "fist_shield_fraction": 0.06,
+    "wood_qi": 3,
+    "wood_heal_minimum": 1.0,
+    "wood_heal_maximum": 8.0,
+    "wood_support_radius": 8,
+    "wood_emergency_health": 0.35,
+    "wood_support_targets": 3
+  },
+  "traits": {
+    "huifeng_jianzhen": [
+      ["sword_intent", "获得", "正面格挡且实际承伤时获得剑意。普通剑招有效命中也可以积剑意。"]
+    ],
+    "jianqi_jue": [
+      ["sword_intent", "消耗", "成功施放时消耗剑意，强化这次出招。剑意由普通剑招或回风剑阵积累。"]
+    ],
+    "chuanyun_yijian": [
+      ["sword_intent", "消耗", "成功施放时消耗剑意，强化这次出招。剑意由普通剑招或回风剑阵积累。"]
+    ],
+    "gengjin_jianjue": [
+      ["armor_break", "施加", "有效命中后削弱目标护甲。"],
+      ["pursuit", "施加", "成功削甲后，给同一名目标留下自己的追击标记。"]
+    ],
+    "tiangang_jiandian": [
+      ["pursuit", "延续", "剑阵打中带有自己追击标记的敌人后，延续一次追击时间。"]
+    ],
+    "taibai_jianjing": [
+      ["pursuit", "消耗", "潜行施放时，若锁住带有自己追击标记的敌人，改为集中斩击。有效命中后消耗标记。"]
+    ],
+    "juma_qiang": [
+      ["spear_force", "获得", "枪锋有效命中时积累枪势。普通枪招也可以积累。"],
+      ["spear_stance", "获得", "用枪锋截住主动逼近的敌人，获得一次拒马架势。"]
+    ],
+    "tafeng_huanwei": [
+      ["spear_force", "获得", "枪锋有效命中时积累枪势。普通枪招也可以积累。"]
+    ],
+    "huiying_bozhen": [
+      ["spear_force", "获得", "枪锋有效命中时积累枪势。普通枪招也可以积累。"]
+    ],
+    "pocheng_yiqiang": [
+      ["spear_force", "消耗", "已有枪势时，枪锋有效命中后消耗枪势，在同一目标上续刺一次。"]
+    ],
+    "huima_qiang": [
+      ["spear_stance", "消耗", "后撤阶段接下第一记正面敌击时消耗架势，降低这次来伤。"]
+    ],
+    "chenzhuang_hubei": [
+      ["fist_force", "获得", "正面格挡且实际承伤时获得蓄劲。"]
+    ],
+    "jingang_zhen": [
+      ["fist_force", "获得", "正面格挡且实际承伤时获得蓄劲。"]
+    ],
+    "kaibei_cunjin": [
+      ["fist_force", "消耗", "成功施放时消耗已有蓄劲，强化本次出招。"]
+    ],
+    "bengshan_jin": [
+      ["fist_force", "消耗", "成功施放时消耗已有蓄劲，强化本次出招。"]
+    ],
+    "tie_shan_hu_ti_jue": [
+      ["fist_force", "转化", "有蓄劲时，潜行接下下一记正面敌击，可将蓄劲换成一层短时护盾。"],
+      ["shield", "获得", "条件成立后获得一层吸收后续来伤的短时护盾。"]
+    ],
+    "tiejian_kao": [
+      ["unbalance", "施加", "有效命中时给目标挂上自己造成的拳法失衡。"]
+    ],
+    "guojian_shuai": [
+      ["unbalance", "施加", "有效命中时给目标挂上自己造成的拳法失衡。"]
+    ],
+    "tadi_huizhen": [
+      ["unbalance", "消耗", "震浪命中带有自己拳法失衡的敌人时，将平推改为短暂挑起。"]
+    ],
+    "dileng_shu": [
+      ["unbalance", "施加", "伤到接触地面的敌人时挂上自己造成的土法失衡。"]
+    ],
+    "dimai_fanzhe": [
+      ["unbalance", "施加", "伤到接触地面的敌人时挂上自己造成的土法失衡。"]
+    ],
+    "luopan_yin": [
+      ["unbalance", "消耗", "内圈优先重击带有自己土法失衡的落地目标，成功命中后消耗失衡。"]
+    ],
+    "pozhen_jinlun": [
+      ["armor_break", "施加", "有效命中时施加削甲。同类削甲取最强效果。"],
+      ["metal_force", "消耗", "成功施放时使用积累的本系势强化效果。"]
+    ],
+    "wanren_jie": [
+      ["armor_break", "施加", "有效命中时施加削甲。同类削甲取最强效果。"]
+    ],
+    "jiejia_jinsuo": [
+      ["armor_break", "施加", "有效命中时施加削甲。同类削甲取最强效果。"]
+    ],
+    "liejia_tianqian": [
+      ["armor_break", "施加", "有效命中时施加削甲。同类削甲取最强效果。"],
+      ["metal_force", "消耗", "成功施放时使用积累的本系势强化效果。"]
+    ],
+    "suijia_feixing": [
+      ["armor_break", "读取", "目标有削甲状态时强化本次命中，原削甲继续计时。"]
+    ],
+    "lingzhong_shu": [
+      ["erosion", "施加", "有效命中后留下自己施加的侵蚀。"],
+      ["wood_force", "获得", "成功造成直接伤害时积累本系的势，每次施放至多一层。"]
+    ],
+    "qingteng_jie": [
+      ["erosion", "施加", "有效命中后留下自己施加的侵蚀。"]
+    ],
+    "yinman_shu": [
+      ["erosion", "读取", "可选中已有自己侵蚀的敌人，引出藤蔓或藤径。"]
+    ],
+    "pangen_suo": [
+      ["erosion", "读取", "可选中已有自己侵蚀的敌人，引出藤蔓或藤径。"]
+    ],
+    "yihua_jiemu": [
+      ["erosion", "转移", "把自己的剩余侵蚀分给其他敌人，沿用原到期时刻。"]
+    ],
+    "kurong_yin": [
+      ["erosion", "消耗", "把自己的剩余侵蚀合入本次伤害。"],
+      ["wood_force", "消耗", "成功施放时使用积累的本系势强化效果。"]
+    ],
+    "baimu_chengchun": [
+      ["erosion", "转化", "收取自己的剩余侵蚀，同时结算对敌伤害和友方治疗。"]
+    ],
+    "shuiren_shu": [
+      ["chill", "施加", "有效命中时施加本人的水法迟滞。"],
+      ["water_force", "获得", "成功造成直接伤害时积累本系的势，每次施放至多一层。"]
+    ],
+    "canglang_chong": [
+      ["chill", "施加", "有效命中时施加本人的水法迟滞。"],
+      ["water_force", "消耗", "成功施放时使用积累的本系势强化效果。"]
+    ],
+    "hanchao_jie": [
+      ["chill", "施加", "有效命中时施加本人的水法迟滞。"]
+    ],
+    "suishuang_ci": [
+      ["chill", "消耗", "命中带有自己迟滞的敌人时强化本击，成功后消耗这份迟滞。"]
+    ],
+    "wanchuan_guihai_jue": [
+      ["ward", "转化", "有效闪过敌方攻击时，若灵力有缺口，可把正在生效的流水障换成一次回灵。"]
+    ],
+    "linghuo_shu": [
+      ["scorch", "施加", "有效命中后留下自己施加的灼痕。"],
+      ["fuse", "消耗", "对带有自己火引信的敌人造成直接火法伤害时，提前引爆引信。"],
+      ["fire_force", "获得", "成功造成直接伤害时积累本系的势，每次施放至多一层。"]
+    ],
+    "chiyan_jie": [
+      ["scorch", "施加", "有效命中后留下自己施加的灼痕。"],
+      ["fuse", "消耗", "对带有自己火引信的敌人造成直接火法伤害时，提前引爆引信。"]
+    ],
+    "fuyan_xian": [
+      ["scorch", "施加", "有效命中后留下自己施加的灼痕。"],
+      ["fuse", "消耗", "对带有自己火引信的敌人造成直接火法伤害时，提前引爆引信。"]
+    ],
+    "feihuo_liaoyuan": [
+      ["scorch", "施加", "有效命中后留下自己施加的灼痕。"],
+      ["scorch", "消耗", "命中已有自己灼痕的目标时，将下一跳灼痕提前结算，并扣掉原先的这一跳。"],
+      ["fuse", "消耗", "对带有自己火引信的敌人造成直接火法伤害时，提前引爆引信。"]
+    ],
+    "baoyan_shu": [
+      ["scorch", "消耗", "有效命中时结算自己的剩余灼痕。"],
+      ["fuse", "消耗", "对带有自己火引信的敌人造成直接火法伤害时，提前引爆引信。"],
+      ["fire_force", "消耗", "成功施放时使用积累的本系势强化效果。"]
+    ],
+    "fentian_yizhu": [
+      ["scorch", "消耗", "有效命中时结算自己的剩余灼痕。"],
+      ["fuse", "消耗", "对带有自己火引信的敌人造成直接火法伤害时，提前引爆引信。"]
+    ],
+    "rongxin_jian": [
+      ["fuse", "施加", "给受击目标挂火引信，到期自动引爆。"]
+    ],
+    "xirang_zaohua_jing": [
+      ["ward", "转化", "持厚土障实际承受正面敌击后，可把剩余护体换成吸收后续伤害的护盾。"],
+      ["shield", "获得", "条件成立后获得一层吸收后续来伤的短时护盾。"]
+    ],
+    "jinmang_shu": [
+      ["metal_force", "获得", "成功造成直接伤害时积累本系的势，每次施放至多一层。"]
+    ],
+    "jingang_zhang": [
+      ["metal_force", "消耗", "成功施放时使用积累的本系势强化效果。"],
+      ["ward", "获得", "施放后获得限时护体。"]
+    ],
+    "jincheng_zhujia": [
+      ["metal_force", "消耗", "成功给友方铸甲时消耗锋意，增加每份薄甲的承伤量。"],
+      ["shield", "施加", "给附近友方铸一层可以吸收一击的薄甲。"]
+    ],
+    "qingmu_yi": [
+      ["wood_force", "消耗", "消耗生机延长护体并恢复生命。"],
+      ["ward", "获得", "施放后获得限时护体。"]
+    ],
+    "liushui_zhang": [
+      ["water_force", "消耗", "成功施放时使用积累的本系势强化效果。"],
+      ["ward", "获得", "施放后获得限时护体。"]
+    ],
+    "huiyan_zhang": [
+      ["fire_force", "消耗", "成功施放时使用积累的本系势强化效果。"],
+      ["ward", "获得", "施放后获得限时护体。"]
+    ],
+    "yandan_shu": [
+      ["earth_force", "获得", "成功造成直接伤害时积累本系的势，每次施放至多一层。"]
+    ],
+    "houshi_zhang": [
+      ["earth_force", "消耗", "成功施放时使用积累的本系势强化效果。"],
+      ["ward", "获得", "施放后获得限时护体。"]
+    ],
+    "zhenyue_yin": [
+      ["earth_force", "消耗", "成功施放时使用积累的本系势强化效果。"]
+    ],
+    "jinlin_cuiti_jue": [
+      ["shield", "获得", "实际承受正面敌击后，可以生成一份短时护盾。"]
+    ],
+    "gengjin_bumie_ti": [
+      ["shield", "获得", "实际承受正面敌击后，可以生成一份短时护盾。"],
+      ["shield", "消耗", "潜行时，可用掉本心法的剩余护盾抵消一次击退。"]
+    ],
+    "wanjie_jinshen_jue": [
+      ["shield", "获得", "实际承受正面敌击后，可以生成一份短时护盾。"],
+      ["shield", "消耗", "潜行时，可用掉本心法的剩余护盾抵消一次击退。"],
+      ["shield", "转化", "低血线护盾触发时，把本心法的余盾合入这一份救急护盾。"]
+    ],
+    "yimu_shenghua_jue": [
+      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。有灵力缺口时，可用一跳侵蚀回灵。"]
+    ],
+    "jiayi_changsheng_jing": [
+      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。施法前灵力已满且自己受伤时，优先把一跳侵蚀转成自身治疗。"]
+    ],
+    "qingdi_daozang": [
+      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。施法前灵力已满时，优先治疗附近剩余生命比例最低的友方，自己也可受益。"]
+    ],
+    "qing_di_yang_ying_pian": [
+      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。附近有濒危友方时优先救治，再考虑自身回灵。"]
+    ],
+    "qing_di_chang_sheng_lu": [
+      ["erosion", "转化", "装备后，潜行用灵种术命中已有自己侵蚀的敌人。保留救急顺序，可将一份治疗分给附近最需要的三名友方。"]
+    ]
+  }
+}

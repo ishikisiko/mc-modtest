@@ -41,7 +41,8 @@ public final class ElementalEffects {
             long first=Math.max(next,now);return first>until?0:(1+(until-first)/interval())*damage;
         }
     }
-    private record Ward(LivingEntity player,long until,double fraction,float red,float green,float blue) {}
+    private record Ward(LivingEntity player, DamageType element, long until, int duration,
+                        double fraction,float red,float green,float blue) {}
     private static final Map<UUID,EnumMap<DamageType,ElementalCharge>> CHARGES=new HashMap<>();
     private static final Map<DotKey,Dot> DOTS=new HashMap<>();
     private static final Map<UUID,Ward> WARDS=new HashMap<>();
@@ -76,6 +77,34 @@ public final class ElementalEffects {
     private static DotKey key(LivingEntity p,Entity target,DamageType element){return new DotKey(p.getUUID(),CombatTargets.owner(target).getUUID(),element);}
     public static double harvestDamage(LivingEntity p,Entity target,DamageType element) {
         var dot=DOTS.get(key(p,target,element));return dot==null?0:dot.remaining(clock(p));
+    }
+
+    /** Reserves a specific scheduled pulse for a hit or conversion. Commit after the hit is accepted. */
+    public static final class Pulse {
+        private final DotKey key;
+        private final Dot dot;
+        private final long next;
+
+        private Pulse(DotKey key, Dot dot) {
+            this.key = key;
+            this.dot = dot;
+            this.next = dot.next;
+        }
+
+        public double damage() { return dot.damage; }
+
+        public boolean spend() {
+            long now = clock(dot.caster);
+            if (DOTS.get(key) != dot || dot.next != next || dot.remaining(now) <= 0) return false;
+            dot.next = Math.max(now, next) + interval();
+            return true;
+        }
+    }
+
+    public static Pulse pendingPulse(LivingEntity caster, Entity target, DamageType type) {
+        var key = key(caster, target, type);
+        var dot = DOTS.get(key);
+        return dot == null || dot.remaining(clock(caster)) <= 0 ? null : new Pulse(key, dot);
     }
     public static void harvest(LivingEntity p,Entity target,DamageType element){DOTS.remove(key(p,target,element));}
     public static void seed(LivingEntity p,Entity target,DamageType element,double base) {
@@ -125,10 +154,22 @@ public final class ElementalEffects {
 
     public static void ward(LivingEntity p,ElementalSpell spell,int charge,float red,float green,float blue) {
         removeWard(p.getUUID());
-        WARDS.put(p.getUUID(),new Ward(p,clock(p)+spell.wardTicks()+(long)spell.wardPerCharge()*charge,spell.wardFraction(),red,green,blue));
+        int duration = spell.wardTicks() + spell.wardPerCharge() * charge;
+        WARDS.put(p.getUUID(),new Ward(p,spell.element(),clock(p)+duration,duration,spell.wardFraction(),red,green,blue));
         if(spell.healPerCharge()>0 && charge>0) p.heal((float)(base(p,spell.element())*charge*spell.healPerCharge()));
         var speed=p.getAttribute(Attributes.MOVEMENT_SPEED);
         if(speed!=null && spell.speedBonus()>0)speed.addTransientModifier(new AttributeModifier(SPEED,spell.speedBonus(),AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    }
+    public static double wardRemaining(LivingEntity actor, DamageType element) {
+        Ward ward = WARDS.get(actor.getUUID());
+        if (ward == null || ward.player() != actor || ward.element() != element || !active(actor)) return 0;
+        return Math.clamp((ward.until() - clock(actor)) / (double) ward.duration(), 0, 1);
+    }
+
+    public static boolean consumeWard(LivingEntity actor, DamageType element) {
+        if (wardRemaining(actor, element) <= 0) return false;
+        removeWard(actor.getUUID());
+        return true;
     }
     public static void guard(LivingIncomingDamageEvent event) {
         LivingEntity p=event.getEntity();

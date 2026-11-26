@@ -133,6 +133,7 @@ public final class ControlService {
             refresh(tracked, clock(target));
         }
         if (CombatReactionService.cleanse(target)) removed++;
+        removed += com.example.myvillage.combat.runtime.CombatTraitStates.cleanse(target);
         return removed;
     }
 

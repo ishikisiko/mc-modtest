@@ -12,14 +12,16 @@ public final class SwordArmorBreak {
     private record Entry(LivingEntity entity,StrongestTimedEffect effects) {}
     private static final Map<UUID,Entry> ACTIVE=new HashMap<>();
     private SwordArmorBreak() {}
-    public static void apply(LivingEntity target,double fraction,int ticks) {
-        if (com.example.myvillage.cultivation.fate.FateDefenses.immune(target)) return;
-        if(target.level().isClientSide() || fraction<=0 || ticks<=0)return;
-        var armor=target.getAttribute(Attributes.ARMOR);if(armor==null)return;
+    public static boolean apply(LivingEntity target,double fraction,int ticks) {
+        if(target.level().isClientSide() || fraction<=0 || ticks<=0
+                || com.example.myvillage.cultivation.fate.FateDefenses.immune(target)) return false;
+        var armor=target.getAttribute(Attributes.ARMOR);if(armor==null)return false;
         long now=target.getServer().overworld().getGameTime();
         var entry=ACTIVE.computeIfAbsent(target.getUUID(),ignored->new Entry(target,new StrongestTimedEffect()));
-        if(entry.effects().apply(fraction,ticks,now,com.example.myvillage.combat.foundation.ControlRules.get().maximumSources()))
-            refresh(entry,now);
+        if (!entry.effects().apply(fraction,ticks,now,com.example.myvillage.combat.foundation.ControlRules.get().maximumSources()))
+            return false;
+        refresh(entry,now);
+        return true;
     }
     public static boolean active(LivingEntity target) {
         var entry = ACTIVE.get(target.getUUID());

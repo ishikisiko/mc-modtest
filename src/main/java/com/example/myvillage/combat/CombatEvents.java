@@ -135,6 +135,7 @@ public final class CombatEvents {
 
     private static void onServerTick(ServerTickEvent.Post event) {
         com.example.myvillage.combat.runtime.CombatDisciplines.tick(event.getServer());
+        com.example.myvillage.combat.runtime.CombatTraitStates.tick();
         CombatSessionManager.tick(event.getServer());
         CombatReactionService.tick();
         CombatDodgeService.tick(event.getServer());
@@ -157,6 +158,8 @@ public final class CombatEvents {
         } else {
             double factor = AscendantWards.knockbackFactor(event.getEntity());
             if (factor < 1) event.setStrength((float) (event.getStrength() * factor));
+            if (event.getStrength() > 0 && com.example.myvillage.cultivation.technique.HeartTechniques.shieldAgainstKnockback(event.getEntity()))
+                event.setCanceled(true);
         }
     }
 
@@ -168,6 +171,7 @@ public final class CombatEvents {
 
     private static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
         if (!event.getLevel().isClientSide()) {
+            com.example.myvillage.combat.runtime.CombatTraitStates.forget(event.getEntity());
             if (event.getEntity() instanceof com.example.myvillage.entity.npc.NpcEntity npc)
                 com.example.myvillage.entity.npc.NpcCombatRuntime.leaving(npc);
             CombatReactionService.clear(event.getEntity());

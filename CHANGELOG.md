@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.158.0
+
+- 剑、枪、拳掌和五行各有两套可通过现有招式与心法搭配的状态打法。追击、枪势、拒马架势和失衡已接入战斗，金甲分护、流水回灵和灼痕提前结算均读取实际状态。
+- 游戏功法页与网页目录显示同源的特性标签。网页可按标签跨类别跳转，并沿太白剑脉、青帝木脉、万劫金身脉查看每一篇的状态进阶。
+
 ## 0.157.0
 
 - 大、中、小三档修仙大陆的新档都生成 20 座命簿宗门，另为分宗、总舵、主宗各留一块创宗用地。三个候选位保留天然地形，分别校验接路。可在 `config/yuanxian-founding-sites.toml` 指定所属州和建筑系列。

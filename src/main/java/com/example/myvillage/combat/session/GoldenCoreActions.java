@@ -11,7 +11,12 @@ import com.example.myvillage.combat.runtime.CombatDamageService;
 import com.example.myvillage.combat.runtime.CombatDisciplines;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatTargets;
+import com.example.myvillage.combat.runtime.CombatTraitStates;
 import com.example.myvillage.combat.runtime.SwordArmorBreak;
+import com.example.myvillage.combat.art.ArtMath;
+import com.example.myvillage.combat.foundation.ShieldRuntime;
+import com.example.myvillage.combat.runtime.CombatActors;
+import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime;
 import com.example.myvillage.stats.DamageType;
 import com.example.myvillage.stats.runtime.StatsRuntime;
@@ -28,6 +33,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +69,7 @@ public final class GoldenCoreActions {
         final Map<Integer, Double> beforeRetreat = new HashMap<>();
         CombatSession session;
         Vec3 origin;
+        Entity spearFollowup;
         boolean mastery;
 
         Cast(LivingEntity caster, ArtDefinition art, Aim aim, CombatSession session, boolean paid) {
@@ -194,6 +201,10 @@ public final class GoldenCoreActions {
         }
         int age = frame - cast.spec.windup();
         switch (cast.spec.mechanic()) {
+            case TIP_CHARGE -> {
+                if (age == 0) charge(cast);
+                if (age == TechniqueTraits.integer("spear_followup_delay_ticks")) followup(cast);
+            }
             case RETREATING_THRUST -> {
                 if (age == 0) retreat(cast);
                 if (age == cast.spec.interval()) thrust(cast);
@@ -252,7 +263,6 @@ public final class GoldenCoreActions {
         var spec = cast.spec;
         switch (spec.mechanic()) {
             case PIERCING_SWORD, STORED_PUNCH -> lineStrike(cast, spec.damage() + cast.stacks * spec.bonus());
-            case TIP_CHARGE -> charge(cast);
             case CROSSING_TRACES -> {
                 if (available(cast.caster, cast.aim.anchor(), spec.range())) {
                     cast.detach();
@@ -286,10 +296,37 @@ public final class GoldenCoreActions {
         first(inStrip(caster, cast.session, strip)).ifPresent(victim -> {
             double edge = Math.sqrt(victim.getBoundingBox().distanceToSqr(caster.position()));
             boolean tip = edge >= GoldenCoreArt.rules().spearTipMin() && edge <= GoldenCoreArt.rules().spearTipMax() + TIP_CONTACT_EPSILON;
+            boolean hasForce = tip && CombatDisciplines.stacks(caster, "spear") > 0;
             if (hit(cast, victim, tip ? spec.damage() : spec.secondary(), 1) && tip) {
                 CombatCaster.message(caster, net.minecraft.network.chat.Component.literal("枪锋命中"), true);
+                if (hasForce && CombatTargets.owner(victim).isAlive()
+                        && CombatDisciplines.consumeStacks(caster, "spear") > 0) cast.spearFollowup = victim;
             }
         });
+    }
+
+    private static void followup(Cast cast) {
+        Entity target = cast.spearFollowup;
+        cast.spearFollowup = null;
+        if (target == null || !cast.valid()) return;
+        Strip strip = line(cast, cast.caster.position(), cast.spec.length());
+        if (!inStrip(cast.caster, cast.session, strip).contains(target)) return;
+        markStrip(cast.caster, cast.art, strip, false);
+        hit(cast, target, cast.spec.damage() * TechniqueTraits.number("spear_followup_multiplier"), 2);
+    }
+
+    static void guardRetreat(Cast cast, LivingDamageEvent.Pre event) {
+        if (cast.spec.mechanic() != GoldenCoreArt.Mechanic.RETREATING_THRUST || !cast.valid()
+                || event.getNewDamage() <= 0 || ShieldRuntime.bypassesShields(event.getSource())
+                || !(event.getSource().getEntity() instanceof LivingEntity attacker)
+                || !CombatActors.mayHarm(attacker, cast.caster) || event.getSource().getSourcePosition() == null) return;
+        int elapsed = cast.session.actionTick(cast.caster.level().getGameTime()) - cast.spec.windup();
+        if (elapsed < 0 || elapsed >= cast.spec.interval()) return;
+        Vec3 from = event.getSource().getSourcePosition().subtract(cast.caster.position());
+        if (ArtMath.inArc(from.x, from.z, cast.session.facingYaw(), TechniqueTraits.number("frontal_degrees"))
+                && CombatTraitStates.consume(cast.caster, cast.caster, CombatTraitStates.Kind.SPEAR_STANCE)) {
+            event.setNewDamage((float) (event.getNewDamage() * (1 - TechniqueTraits.number("spear_stance_reduction"))));
+        }
     }
 
     private static void retreat(Cast cast) {
@@ -384,11 +421,16 @@ public final class GoldenCoreActions {
         if (!available(cast.caster, anchor, spec.range()) || ground(cast.caster, anchor) == null) return;
         markRing(cast.caster, cast.art, anchor, spec.radius(), false);
         markRing(cast.caster, cast.art, anchor, spec.inner(), false);
-        boolean primary = true;
-        for (var target : distinct(inArea(cast.caster, cast.session, anchor, spec.radius()), spec.targets())) {
-            boolean center = primary && isGrounded(target) && withinRadius(anchor, target.getBoundingBox(), spec.inner());
-            if (center) primary = false;
-            hit(cast, target, center ? spec.damage() : spec.secondary(), 1);
+        var candidates = distinct(inArea(cast.caster, cast.session, anchor, spec.radius()), spec.targets());
+        var inner = candidates.stream().filter(target -> isGrounded(target)
+                && withinRadius(anchor, target.getBoundingBox(), spec.inner())).toList();
+        Entity heavy = inner.stream()
+                .filter(target -> CombatTraitStates.active(cast.caster, target, CombatTraitStates.Kind.EARTH_UNBALANCE))
+                .findFirst().orElse(inner.isEmpty() ? null : inner.getFirst());
+        for (var target : candidates) {
+            boolean center = target == heavy;
+            if (hit(cast, target, center ? spec.damage() : spec.secondary(), 1) && center)
+                CombatTraitStates.consume(cast.caster, target, CombatTraitStates.Kind.EARTH_UNBALANCE);
         }
     }
 
@@ -404,7 +446,8 @@ public final class GoldenCoreActions {
             markRing(cast.caster, cast.art, edge, cast.spec.radius(), false);
             for (var target : distinct(inArea(cast.caster, cast.session, edge, cast.spec.radius()), cast.spec.targets())) {
                 boolean first = !cast.contacts.containsKey(CombatTargets.hitId(target));
-                if (hit(cast, target, cast.spec.damage(), 2) && first && CombatTargets.owner(target).isAlive())
+                var pulse = first ? ElementalEffects.pendingPulse(cast.caster, target, DamageType.FIRE) : null;
+                if (hit(cast, target, cast.spec.damage(), 2, pulse) && first && pulse == null && CombatTargets.owner(target).isAlive())
                     ElementalEffects.seed(cast.caster, target, DamageType.FIRE, cast.base * RealmArtCombat.pvpDamage(cast.caster, target));
             }
         } else {
@@ -419,7 +462,9 @@ public final class GoldenCoreActions {
             markStrip(cast.caster, cast.art, strip, false);
             var nearby = inStrip(cast.caster, cast.session, strip).stream()
                     .filter(target -> followsGround(cast.caster, strip.lineOrigin(target).add(0, -0.8, 0), target)).toList();
-            for (var target : distinct(nearby, cast.spec.targets())) hit(cast, target, cast.spec.damage(), 2);
+            for (var target : distinct(nearby, cast.spec.targets()))
+                if (hit(cast, target, cast.spec.damage(), 2))
+                    CombatTraitStates.grant(cast.caster, target, CombatTraitStates.Kind.EARTH_UNBALANCE);
         }
     }
 
@@ -442,8 +487,17 @@ public final class GoldenCoreActions {
         int limit = cast.spec.targets() - cast.contacts.size();
         if (limit <= 0) return;
         for (var target : distinct(nearby, limit)) {
-            if (hit(cast, target, cast.spec.damage(), 1))
-                displace(cast, target, horizontal(point(target).subtract(cast.origin)));
+            if (!hit(cast, target, cast.spec.damage(), 1)) continue;
+            if (target instanceof LivingEntity living && RealmArtCombat.canDisplace(cast.caster, living)) {
+                double lift = TechniqueTraits.number("fist_unbalance_lift") * RealmArtCombat.displacementFactor(cast.caster, living);
+                if (lift > 0 && CombatTraitStates.consume(cast.caster, target, CombatTraitStates.Kind.FIST_UNBALANCE)) {
+                    Vec3 motion = living.getDeltaMovement();
+                    living.setDeltaMovement(motion.x, Math.max(lift, motion.y), motion.z);
+                    living.hurtMarked = true;
+                    continue;
+                }
+            }
+            displace(cast, target, horizontal(point(target).subtract(cast.origin)));
         }
     }
 
@@ -454,13 +508,21 @@ public final class GoldenCoreActions {
     }
 
     private static boolean hit(Cast cast, Entity target, double multiplier, int maximum) {
+        return hit(cast, target, multiplier, maximum, null);
+    }
+
+    private static boolean hit(Cast cast, Entity target, double multiplier, int maximum, ElementalEffects.Pulse pulse) {
         int key = CombatTargets.hitId(target);
         int count = cast.contacts.getOrDefault(key, 0);
         if (count >= maximum || !cast.valid() || !CombatHitResolver.legalTarget(cast.caster, target, cast.session)) return false;
         cast.contacts.put(key, count + 1);
         var element = cast.spec.element().orElse(null);
-        float damage = RealmArtCombat.hit(cast.caster, target, cast.art, cast.session, multiplier, cast.base);
-        if (!(damage > 0) || !cast.valid()) return false;
+        double base = cast.base;
+        if (pulse != null) base += pulse.damage() / (multiplier * RealmArtCombat.pvpDamage(cast.caster, target));
+        float damage = RealmArtCombat.hit(cast.caster, target, cast.art, cast.session, multiplier, base);
+        if (!(damage > 0)) return false;
+        if (pulse != null) pulse.spend();
+        if (!cast.valid()) return false;
         award(cast);
         if (element == DamageType.FIRE && cast.spec.mechanic() != GoldenCoreArt.Mechanic.FIRE_FUSE)
             onDirectFire(cast.caster, target);

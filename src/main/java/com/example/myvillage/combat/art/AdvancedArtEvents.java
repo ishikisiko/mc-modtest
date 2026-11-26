@@ -28,7 +28,10 @@ public final class AdvancedArtEvents {
     @SubscribeEvent(priority=EventPriority.LOWEST)
     public static void projectileImpact(ProjectileImpactEvent event) { AscendantWards.projectileImpact(event); }
     @SubscribeEvent(priority=EventPriority.LOWEST)
-    public static void absorb(LivingDamageEvent.Pre event) { AscendantWards.absorb(event); }
+    public static void absorb(LivingDamageEvent.Pre event) {
+        AscendantWards.absorb(event);
+        CombatArtActions.guardRetreat(event);
+    }
     @SubscribeEvent public static void login(PlayerEvent.PlayerLoggedInEvent event) {
         if(event.getEntity() instanceof ServerPlayer p) CombatArtActions.syncCooldowns(p);
     }
