@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ShieldLedgerTest {
     private static final ResourceLocation A = ResourceLocation.parse("yuanxian:a");
     private static final ResourceLocation B = ResourceLocation.parse("yuanxian:b");
-    private static final ResourceLocation C = ResourceLocation.parse("other:a");
+    private static final ResourceLocation C = ResourceLocation.parse("z_test:a");
     private static ShieldLedger ledger() { return new ShieldLedger(new ShieldRules(2, 10, 15, 100, 8)); }
 
     @Test void paidGrantPlansCapacityBeforePaymentAndDoesNotReplaceOnPaymentFailure() {
@@ -83,6 +83,7 @@ class ShieldLedgerTest {
 
     @Test void consumeByEarliestExpiryThenFullSourceIdRegardlessOfGrantOrder() {
         var ledger = new ShieldLedger(new ShieldRules(3, 10, 30, 100, 8));
+        // A 与 C 的路径相同，同期时由完整 ID 的命名空间决定先后。
         ledger.grant(C, 3, 20, 0);
         ledger.grant(B, 4, 10, 0);
         ledger.grant(A, 2, 20, 0);
