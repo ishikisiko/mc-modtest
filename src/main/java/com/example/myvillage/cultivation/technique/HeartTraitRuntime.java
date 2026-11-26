@@ -8,6 +8,7 @@ import com.example.myvillage.combat.runtime.CombatActors;
 import com.example.myvillage.combat.runtime.CombatCaster;
 import com.example.myvillage.combat.runtime.CombatDisciplines;
 import com.example.myvillage.combat.runtime.CombatTraitStates;
+import com.example.myvillage.combat.runtime.HeartCombatLinks;
 import com.example.myvillage.cultivation.data.HeartMethod.Slot;
 import com.example.myvillage.cultivation.data.TechniqueTraits;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityCooldowns;
@@ -73,6 +74,8 @@ public final class HeartTraitRuntime {
                     actor.getMaxHealth() * TechniqueTraits.number("earth_ward_shield_fraction")));
             if (ShieldRuntime.grantPaid(actor, source, amount, ticks,
                     () -> ElementalEffects.consumeWard(actor, DamageType.EARTH))) notice(actor, "厚土护体转为护盾");
+        } else if (HeartCombatLinks.defend(actor, damage, technique, source, cooldowns, owner, now)) {
+            notice(actor, "防守心法已结算");
         }
     }
 

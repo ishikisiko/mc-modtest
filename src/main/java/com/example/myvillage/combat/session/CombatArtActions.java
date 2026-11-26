@@ -44,6 +44,7 @@ public final class CombatArtActions {
         final int slot;
         final ResourceLocation dimension;
         final CombatSession session;
+        final CombatSession.HeartContact heartContact;
         final boolean paidArt;
         final boolean sneakingAtStart;
         int phase;
@@ -61,6 +62,7 @@ public final class CombatArtActions {
         EarlyRealmActions.Cast earlyCast;
         AscendantArts.Cast ascendantCast;
         Entry(LivingEntity player,ArtDefinition art,CombatSession session,boolean paidArt) {
+            this.heartContact = new CombatSession.HeartContact(art.id());
             this.art=art;this.held=player.getMainHandItem();this.slot=CombatCaster.slot(player);
             this.dimension=player.level().dimension().location();this.session=session;
             this.paidArt=paidArt;
@@ -179,7 +181,7 @@ public final class CombatArtActions {
                 : e.ascendantCast != null ? e.ascendantCast.aim.forward() : null;
         if (direction != null) facing = (float) Math.toDegrees(Math.atan2(-direction.x, direction.z));
         var start=e.session.startExternal(move,CombatCaster.level(player).getGameTime(),
-                BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,facing,e.paidArt);
+                BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,facing,e.paidArt,e.heartContact);
         if (e.earlyCast != null) e.earlyCast.revision = e.session.revision();
         if (e.ascendantCast != null) e.ascendantCast.revision = e.session.revision();
         send(player,e,CombatArtStatePayload.START,e.lockAnchor==null?player.position():e.lockAnchor);

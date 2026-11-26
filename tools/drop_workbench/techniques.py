@@ -578,6 +578,64 @@ def growth_details(growth, stage_names):
     }
 
 
+def add_heart_link_traits(document, definitions, traits):
+    links = document['heart_links']
+    tags = document['labels']
+    weapons = {'sword', 'spear', 'fist'}
+    realms = ('qi_refining', 'foundation_establishment', 'golden_core', 'nascent_soul', 'spirit_transformation')
+
+    def tag(state):
+        return 'unbalance' if state in {'fist_unbalance', 'earth_unbalance'} else state
+
+    def trait(state, role, description):
+        key = tag(state)
+        return {'id': key, 'label': tags[key], 'role': role, 'description': description}
+
+    def interval(ticks):
+        return f'同栏触发间隔 {ticks} 刻。'
+
+    def add(path, slot, route, rows, realm=None):
+        id = 'yuanxian:' + path
+        definition = definitions[id]
+        method = definition.get('effects', {}).get('core', {}).get('heart', {})
+        route_matches = (method.get('direction') == route if route in weapons
+                         else 'yuanxian:' + route in definition.get('elements', []))
+        if definition['category'] != 'core' or method.get('slot') != slot or not route_matches or id in traits:
+            raise ValueError(f'心法联动栏位、路线或特性重复 {id}')
+        if realm and definition['requirements']['minimum_realm'] != 'yuanxian:' + realm:
+            raise ValueError(f'攻心法联动的境界顺序不符 {id}')
+        traits[id] = rows
+
+    bands = links['attack_bands']
+    for track in links['attack']:
+        for path, band, realm in zip(track['hearts'], bands, realms, strict=True):
+            state = track['state']
+            description = track['description']
+            if track['use'] == 'strike':
+                role = '消耗'
+                description += f"本击伤害提高 {band['percent']}%。"
+            else:
+                role = '施加' if state in {'armor_break', 'chill', 'fist_unbalance', 'earth_unbalance'} else '获得'
+                if state == 'armor_break':
+                    description += f"护甲降低 {band['percent']}%，持续 {links['armor_ticks']} 刻。"
+            rows = [trait(state, role, description + interval(band['cooldown']))]
+            if required := track.get('requires'):
+                rows.append(trait(required, '读取', '攻心法在目标带有对应状态时可以结算。'))
+            add(path, 'attack', track['route'], rows, realm)
+
+    for path, rule in links['defense'].items():
+        role = '施加' if rule['use'] == 'retaliate' else '转化'
+        rows = [trait(rule['state'], role, rule['description'] + interval(links['defense_cooldown']))]
+        if rule['use'] == 'shield':
+            rows.append(trait('shield', '获得',
+                              f"转换后获得短时护盾，最高吸收自身最大生命的 {rule['health_percent']}%。"))
+        add(path, 'defense', rule['route'], rows)
+
+    for path, rule in links['spirit'].items():
+        description = rule['description'] + f"回复至多 {rule['qi']} 点灵力。" + interval(links['spirit_cooldown'])
+        add(path, 'spirit', rule['route'], [trait(rule['state'], '转化', description)])
+
+
 def trait_catalogue(data, definitions, heritages, names, labels):
     document = read_json(data / 'combat/technique_traits.json')
     if document['schema'] != 1:
@@ -594,6 +652,7 @@ def trait_catalogue(data, definitions, heritages, names, labels):
             {'id': key, 'label': tags[key], 'role': role, 'description': description}
             for key, role, description in rows
         ]
+    add_heart_link_traits(document, definitions, traits)
     progressions = defaultdict(list)
     for path, tag in document['heritage_tags'].items():
         heritage = heritages['yuanxian:' + path]

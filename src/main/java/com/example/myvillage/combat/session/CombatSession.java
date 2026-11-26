@@ -13,6 +13,7 @@ public final class CombatSession {
     private CombatStyleDefinition style;
     private AttackMoveDefinition externalMove;
     private boolean paidArt;
+    private HeartContact heartContact;
     private final Set<Integer> attemptedEntityIds = new HashSet<>();
 
     private int nextMoveIndex;
@@ -32,6 +33,20 @@ public final class CombatSession {
 
     public CombatSession(CombatStyleDefinition style) {
         this.style = Objects.requireNonNull(style, "style");
+    }
+
+    /** 各段及延迟投影共用本次出招的一次心法结算机会。 */
+    public static final class HeartContact {
+        private final ResourceLocation technique;
+        private boolean resolving;
+        private boolean used;
+
+        public HeartContact(ResourceLocation technique) { this.technique = technique; }
+        public ResourceLocation technique() { return technique; }
+        public boolean ready() { return !resolving && !used; }
+        public void begin() { resolving = true; }
+        public void end() { resolving = false; }
+        public void use() { used = true; }
     }
 
     public CombatStyleDefinition style() {
@@ -265,9 +280,15 @@ public final class CombatSession {
 
     public StartEvent startExternal(AttackMoveDefinition move, long tick, ResourceLocation weapon,
                                     ResourceLocation world, float yaw, boolean paidArt) {
+        return startExternal(move, tick, weapon, world, yaw, paidArt, null);
+    }
+
+    public StartEvent startExternal(AttackMoveDefinition move, long tick, ResourceLocation weapon,
+                                    ResourceLocation world, float yaw, boolean paidArt, HeartContact heartContact) {
         if (hasActiveAction()) throw new IllegalStateException("Action already owned");
         externalMove = Objects.requireNonNull(move);
         this.paidArt = paidArt;
+        this.heartContact = heartContact;
         resetCombo(CombatStopReason.COMPLETED);
         return start(0, tick, weapon, world, yaw);
     }
@@ -283,6 +304,7 @@ public final class CombatSession {
 
     public boolean isExternal() { return externalMove != null; }
     public boolean paidArt() { return isExternal() && paidArt; }
+    public HeartContact heartContact() { return heartContact; }
 
     public boolean isFinisher() { return hasActiveAction() && !isExternal() && currentMoveIndex == style.moves().size() - 1; }
 
@@ -300,6 +322,7 @@ public final class CombatSession {
         attemptedEntityIds.clear();
         durabilityCharged = false;
         bookkeepingApplied = false;
+        if (!isExternal()) heartContact = new HeartContact(null);
         weaponId = currentWeaponId;
         worldId = currentWorldId;
         facingYaw = serverFacingYaw;
@@ -318,6 +341,7 @@ public final class CombatSession {
         currentMoveIndex = -1;
         externalMove = null;
         paidArt = false;
+        heartContact = null;
         bufferedIntent = false;
         attemptedEntityIds.clear();
         durabilityCharged = false;

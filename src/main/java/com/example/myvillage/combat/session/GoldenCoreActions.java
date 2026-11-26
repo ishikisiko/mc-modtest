@@ -103,7 +103,7 @@ public final class GoldenCoreActions {
             var style = CombatStyles.bundled().move(art.phases().getFirst().moveId()).orElseThrow().style();
             var detached = new CombatSession(style);
             detached.startExternal(art.move(0, 1), world.getGameTime(), BuiltInRegistries.ITEM.getKey(held.getItem()),
-                    world.dimension().location(), session.facingYaw(), session.paidArt());
+                    world.dimension().location(), session.facingYaw(), session.paidArt(), session.heartContact());
             session = detached;
         }
     }

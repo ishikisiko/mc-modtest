@@ -121,7 +121,7 @@ public final class TechniqueContactTraits {
         }
     }
 
-    private static String weapon(ContactState state) {
+    static String weapon(ContactState state) {
         return switch (state) {
             case SWORD_INTENT -> "sword";
             case SPEAR_FORCE -> "spear";
@@ -130,7 +130,7 @@ public final class TechniqueContactTraits {
         };
     }
 
-    private static DamageType element(ContactState state) {
+    static DamageType element(ContactState state) {
         return switch (state) {
             case METAL_FORCE -> DamageType.METAL;
             case WOOD_FORCE -> DamageType.WOOD;
@@ -141,7 +141,7 @@ public final class TechniqueContactTraits {
         };
     }
 
-    private static CombatTraitStates.Kind mark(ContactState state) {
+    static CombatTraitStates.Kind mark(ContactState state) {
         return switch (state) {
             case PURSUIT -> CombatTraitStates.Kind.PURSUIT;
             case FIST_UNBALANCE -> CombatTraitStates.Kind.FIST_UNBALANCE;

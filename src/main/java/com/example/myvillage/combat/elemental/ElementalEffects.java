@@ -63,6 +63,11 @@ public final class ElementalEffects {
     public static int consume(LivingEntity p,DamageType type) {
         var map=CHARGES.get(p.getUUID());return map==null||!map.containsKey(type)?0:map.get(type).consume(clock(p));
     }
+    public static boolean consumeOne(LivingEntity actor, DamageType type) {
+        var map = CHARGES.get(actor.getUUID());
+        var charge = map == null ? null : map.get(type);
+        return charge != null && charge.consumeOne(clock(actor));
+    }
     /** A fresh coefficient independent of held melee damage, enchantments and melee-only buffs. */
     public static double base(LivingEntity p,DamageType type) {
         var profile=CombatCaster.profile(p);
@@ -138,8 +143,8 @@ public final class ElementalEffects {
         return recipients.size();
     }
 
-    public static void waterChill(LivingEntity caster, LivingEntity target, int ticks, double fraction) {
-        ControlService.slow(caster, target, WATER_CHILL, ticks, fraction);
+    public static boolean waterChill(LivingEntity caster, LivingEntity target, int ticks, double fraction) {
+        return ControlService.slow(caster, target, WATER_CHILL, ticks, fraction);
     }
 
     public static boolean hasWaterChill(LivingEntity caster, LivingEntity target) {
@@ -148,8 +153,8 @@ public final class ElementalEffects {
                         && source.effect().equals(WATER_CHILL.toString()));
     }
 
-    public static void consumeWaterChill(LivingEntity caster, LivingEntity target) {
-        ControlService.revoke(caster, target, WATER_CHILL);
+    public static boolean consumeWaterChill(LivingEntity caster, LivingEntity target) {
+        return ControlService.revoke(caster, target, WATER_CHILL) > 0;
     }
 
     public static void ward(LivingEntity p,ElementalSpell spell,int charge,float red,float green,float blue) {

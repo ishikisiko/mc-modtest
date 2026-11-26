@@ -7,5 +7,10 @@ public final class ElementalCharge {
     public int value(long now){if(now>=until)value=0;return value;}
     public int gain(long now,int maximum,int lifetime){value=Math.min(maximum,value(now)+1);until=now+lifetime;return value;}
     public int consume(long now){int old=value(now);value=0;return old;}
+    public boolean consumeOne(long now) {
+        if (value(now) == 0) return false;
+        value--;
+        return true;
+    }
     public static double multiplier(int charges,double bonus){return 1+Math.max(0,charges)*bonus;}
 }

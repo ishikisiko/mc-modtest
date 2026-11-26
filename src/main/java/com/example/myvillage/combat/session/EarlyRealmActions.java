@@ -90,9 +90,10 @@ final class EarlyRealmActions {
         void retain() {
             var style = CombatStyles.bundled().move(art.phases().getFirst().moveId()).orElseThrow().style();
             float yaw = session.facingYaw();
+            var heartContact = session.heartContact();
             session = new CombatSession(style);
             session.startExternal(art.move(0, 1), world.getGameTime(), BuiltInRegistries.ITEM.getKey(held.getItem()),
-                    world.dimension().location(), yaw, paid);
+                    world.dimension().location(), yaw, paid, heartContact);
             revision = session.revision();
         }
     }
@@ -282,8 +283,8 @@ final class EarlyRealmActions {
         var candidates = inArea(cast.caster, cast.session, anchor, cast.spec.radius());
         if (candidates.isEmpty()) return;
         Entity target = candidates.getFirst();
+        boolean chilled = target instanceof LivingEntity living && ElementalEffects.hasWaterChill(cast.caster, living);
         if (!hit(cast, target, cast.spec.damage()) || !(target instanceof LivingEntity victim)) return;
-        boolean chilled = ElementalEffects.hasWaterChill(cast.caster, victim);
         double reach = cast.spec.push() * (chilled ? TechniqueTraits.number("chilled_pull_multiplier") : 1);
         double moved = displace(cast, victim, horizontal(anchor.subtract(victim.position())),
                 Math.min(reach, horizontalDistance(anchor, victim.position())));

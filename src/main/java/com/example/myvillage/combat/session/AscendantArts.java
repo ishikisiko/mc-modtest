@@ -95,7 +95,7 @@ final class AscendantArts {
             float yaw = session.facingYaw();
             var snapshot = new CombatSession(style);
             snapshot.startExternal(art.move(0, 1), level.getGameTime(), BuiltInRegistries.ITEM.getKey(held.getItem()),
-                    level.dimension().location(), yaw, paid);
+                    level.dimension().location(), yaw, paid, session.heartContact());
             session = snapshot;
             revision = snapshot.revision();
         }

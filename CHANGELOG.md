@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.160.0
+
+- 剑、枪、拳掌和五行的 80 门专精攻心法接入实际状态结算。炼气到化神每一系每境界都有一门获得或施加状态、一门消耗状态。
+- 新增 8 门防守心法与 8 门灵修心法的联动。玩家可把已有状态用于短盾、治疗和回灵，也可在正面承受近战时反给来袭者挂失衡。
+
 ## 0.159.0
 
 - 补齐炼气到化神的状态搭配。炼气可用苍龙出水消耗枪势、用收潮术消耗迟滞、用伏焰线种轻引信。高阶招式也能承接旧法积累的剑意、锋意、生机、水势和地势。

@@ -22,6 +22,11 @@ public final class DisciplinePool {
     public double consume(long now, DisciplineRules.Pool rules) {
         return 1 + consumeStacks(now) * rules.bonus();
     }
+    boolean consumeOne(long now) {
+        if (stacks(now) == 0) return false;
+        stacks--;
+        return true;
+    }
     int consumeStacks(long now) {
         int spent = stacks(now);
         stacks = 0;

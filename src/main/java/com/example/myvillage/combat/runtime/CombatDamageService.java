@@ -126,13 +126,15 @@ public final class CombatDamageService {
         double heartBonus = !elemental && !derived
                 ? com.example.myvillage.cultivation.technique.HeartTechniques.attackExtra(attacker, aptitudeFamily, null,
                         session.isExternal(), session.paidArt()) : 0;
+        var heartLink = derived ? null : HeartCombatLinks.prepare(attacker, target, elemental ? "" : aptitudeFamily,
+                elemental ? StatsRuntime.mappedType(source).orElse(null) : null, session);
         double aptitudeMultiplier = elemental ? 1 : com.example.myvillage.aptitude.AptitudeRuntime.weaponMultiplier(attacker, aptitudeFamily);
         float damage = StatsRuntime.outgoing(attacker, attributeDamage + heartBonus, move.damageMultiplier() * aptitudeMultiplier * streak * expedition * (!derived&&attacker instanceof ServerPlayer p?com.example.myvillage.forging.FoundryHandleRuntime.multiplier(p,session):1));
         if (!derived && !elemental) {
             damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
             damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
         }
-        damage *= (float) fraction;
+        damage *= (float) (fraction * (heartLink == null ? 1 : heartLink.multiplier()));
         if (!(damage > 0.0F) || (target.isInvulnerableTo(source) || owner.isInvulnerableTo(source))) {
             return DamageResult.rejected();
         }
@@ -163,10 +165,12 @@ public final class CombatDamageService {
         if (session.isExternal()) RESOLVING_SKILL_TARGET.set(owner);
         else RESOLVING_SKILL_TARGET.remove();
         boolean hurt;
+        if (heartLink != null) heartLink.contact().begin();
         try (var scope = com.example.myvillage.wilderness.ExpeditionCombat.scope(attacker, session, !derived && !elemental);
              var adaptation = com.example.myvillage.cultivation.fate.JingangRuntime.attack(attacker, session)) {
             hurt = StatsRuntime.hurt(attacker, target, source, damage);
         } finally {
+            if (heartLink != null) heartLink.contact().end();
             if (previousAttribution == null) PRIMARY.remove(); else PRIMARY.set(previousAttribution);
             if (previousAffinityTarget == null) ELEMENTAL_AFFINITY_TARGET.remove(); else ELEMENTAL_AFFINITY_TARGET.set(previousAffinityTarget);
             if (previousDerived == null) DERIVED_TARGET.remove(); else DERIVED_TARGET.set(previousDerived);
@@ -195,6 +199,7 @@ public final class CombatDamageService {
         // Freeze the primary receipt before enchantment post-effects can cause nested damage.
         double primaryActualDamage = owner instanceof LivingEntity living
                 ? Math.min((double) healthBefore, Math.max(0, (double) healthBefore - Math.max(0, living.getHealth()))) : 0;
+        if (primaryActualDamage > 0 && heartLink != null) heartLink.accepted();
 
         // 吸血单独消费精确容器在 Post 冻结的收据；hurt 返回前图腾可能已恢复生命。
         // 保留上面的旧生命差供剑势／流派／火灵体使用，不因吸血修复重调它们的基数。

@@ -389,5 +389,22 @@ class TechniqueDirectoryTest(unittest.TestCase):
                 self.assertEqual('yuanxian:' + realm, entry['realm_id'])
                 self.assertIn((tag, role), [(t['id'], t['role']) for t in entry['traits']])
 
+    def test_heart_tracks_offer_two_attack_choices_per_realm_and_show_actual_roles(self):
+        document = json.loads((ROOT / 'src/main/resources/data/yuanxian/combat/technique_traits.json').read_text())
+        links = document['heart_links']
+        by_route_and_realm = {}
+        for track in links['attack']:
+            for path in track['hearts']:
+                entry = self.technique(path)
+                by_route_and_realm.setdefault((track['route'], entry['realm_id']), []).append(track['use'])
+                self.assertEqual('core', entry['category'])
+                self.assertTrue(entry['traits'])
+        self.assertEqual(40, len(by_route_and_realm))
+        for uses in by_route_and_realm.values():
+            self.assertCountEqual(['grant', 'strike'], uses)
+        for id, tag, role in (('mofeng_pian', 'sword_intent', '获得'), ('hanfeng_zhenjie', 'pursuit', '消耗'),
+                              ('hanbing_xuangong', 'sword_intent', '转化'), ('runmu_jue', 'wood_force', '转化')):
+            self.assertIn((tag, role), [(t['id'], t['role']) for t in self.technique(id)['traits']])
+
 
 if __name__=='__main__':unittest.main()

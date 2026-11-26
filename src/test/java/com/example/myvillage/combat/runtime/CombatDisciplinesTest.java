@@ -1,6 +1,9 @@
 package com.example.myvillage.combat.runtime;
 
 import com.google.gson.JsonParser;
+import com.example.myvillage.combat.elemental.ElementalCharge;
+import com.example.myvillage.combat.session.CombatSession;
+import com.example.myvillage.cultivation.data.HeartLinkRules;
 import com.example.myvillage.cultivation.data.TechniqueTraits;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
@@ -57,5 +60,49 @@ class CombatDisciplinesTest {
         var stamp = TechniqueTraits.contactRules(ResourceLocation.parse("yuanxian:zhenyue_yin"));
         assertEquals(TechniqueTraits.ContactState.EARTH_UNBALANCE, stamp.getFirst().state());
         assertEquals(TechniqueTraits.ContactRole.SPEND, stamp.getFirst().role());
+    }
+
+    @Test void heartSpendsOneLayerWithoutRefreshingTheRemainder() {
+        var sword = new DisciplinePool();
+        var rules = DisciplineRules.get().sword();
+        assertTrue(sword.gain(1, 0, rules));
+        assertTrue(sword.gain(2, 1, rules));
+        assertTrue(sword.consumeOne(2));
+        assertEquals(1, sword.stacks(2));
+        assertFalse(sword.consumeOne(1 + rules.timeoutTicks()));
+
+        var fire = new ElementalCharge();
+        fire.gain(0, 3, 50);
+        fire.gain(1, 3, 50);
+        assertTrue(fire.consumeOne(2));
+        assertEquals(1, fire.value(50));
+        assertFalse(fire.consumeOne(51));
+    }
+
+    @Test void oneHeartContactCanRejectThenCommitOnlyOnce() {
+        var contact = new CombatSession.HeartContact(ResourceLocation.parse("yuanxian:liufeng_zhan"));
+        assertTrue(contact.ready());
+        contact.begin();
+        assertFalse(contact.ready());
+        contact.end();
+        assertTrue(contact.ready());
+        contact.use();
+        assertFalse(contact.ready());
+    }
+
+    @Test void heartTrackSharesRulesWithDisplayedFeatures() {
+        var links = TechniqueTraits.heartLinks();
+        assertEquals(80, links.attack().size());
+        assertEquals(8, links.defense().size());
+        assertEquals(8, links.spirit().size());
+        var first = ResourceLocation.parse("yuanxian:mofeng_pian");
+        var last = ResourceLocation.parse("yuanxian:tai_xu_guan_jian_pian");
+        assertEquals(HeartLinkRules.Route.SWORD, links.attack().get(first).route());
+        assertEquals(HeartLinkRules.AttackUse.GRANT, links.attack().get(last).use());
+        assertTrue(links.attack().get(last).cooldown() < links.attack().get(first).cooldown());
+        assertEquals("sword_intent", TechniqueTraits.of(first).getFirst().id());
+        var use = ResourceLocation.parse("yuanxian:hanfeng_zhenjie");
+        assertEquals(TechniqueTraits.ContactState.PURSUIT, links.attack().get(use).state());
+        assertEquals("消耗", TechniqueTraits.of(use).getFirst().role());
     }
 }

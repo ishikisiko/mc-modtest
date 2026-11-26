@@ -104,6 +104,11 @@ public final class CombatDisciplines {
         return entry == null || !entry.family.equals(family) ? 0 : entry.pool.stacks(now(actor));
     }
 
+    public static boolean consumeOne(LivingEntity actor, String family) {
+        Entry entry = current(actor);
+        return entry != null && entry.family.equals(family) && entry.pool.consumeOne(now(actor));
+    }
+
     public static boolean spearTip(LivingEntity p, Entity target) {
         Entry e = current(p);
         // Nearest surface, not centre: large bodies cannot fake the spear-tip spacing.

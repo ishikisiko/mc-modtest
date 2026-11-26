@@ -67,6 +67,371 @@
     "light_fuse_timeout_multiplier": 0.7,
     "light_fuse_trigger_multiplier": 1.15
   },
+  "heart_links": {
+    "attack_bands": [
+      {
+        "cooldown": 60,
+        "percent": 10
+      },
+      {
+        "cooldown": 55,
+        "percent": 12
+      },
+      {
+        "cooldown": 50,
+        "percent": 14
+      },
+      {
+        "cooldown": 45,
+        "percent": 16
+      },
+      {
+        "cooldown": 40,
+        "percent": 18
+      }
+    ],
+    "defense_cooldown": 80,
+    "spirit_cooldown": 80,
+    "armor_ticks": 60,
+    "attack": [
+      {
+        "route": "sword",
+        "use": "grant",
+        "trigger": "paid",
+        "state": "sword_intent",
+        "hearts": [
+          "mofeng_pian",
+          "wanfeng_jue",
+          "qisha_jinzhang",
+          "zi_xiao_yu_jian_lu",
+          "tai_xu_guan_jian_pian"
+        ],
+        "description": "耗灵剑招实际伤到敌人时，积一层剑意。"
+      },
+      {
+        "route": "sword",
+        "use": "strike",
+        "trigger": "sneak_paid",
+        "state": "pursuit",
+        "hearts": [
+          "hanfeng_zhenjie",
+          "lieyang_zhenjie",
+          "jinwu_fentian_lu",
+          "zhan_yun_jian_zhang",
+          "liang_yi_duan_tian_jian_jing"
+        ],
+        "description": "潜行时用耗灵剑招击中带有自己追击标记的敌人，消耗这份追击强化该击。"
+      },
+      {
+        "route": "spear",
+        "use": "grant",
+        "trigger": "basic_tip",
+        "state": "spear_stance",
+        "hearts": [
+          "bibo_jue",
+          "canglang_jue",
+          "xuanming_zhenjing",
+          "pan_long_guan_xing_jue",
+          "tian_heng_ba_qiang_jing"
+        ],
+        "description": "普通枪招用枪锋实际伤到敌人时，获得拒马架势。"
+      },
+      {
+        "route": "spear",
+        "use": "strike",
+        "trigger": "sneak_close",
+        "state": "spear_force",
+        "hearts": [
+          "binghuo_jue",
+          "huoyun_milu",
+          "buzhou_hantian_jue",
+          "bei_chen_guan_yue_jing",
+          "jiu_xiao_guan_hong_jue"
+        ],
+        "description": "潜行用普通枪招伤到枪锋距离以内的敌人时，消耗一层已有枪势强化近身击。"
+      },
+      {
+        "route": "fist",
+        "use": "grant",
+        "trigger": "basic",
+        "state": "fist_unbalance",
+        "hearts": [
+          "duanjin_jue",
+          "baihu_duanjin_gong",
+          "taiyue_zhenjing",
+          "zhen_yue_fu_long_jing",
+          "da_huang_han_shan_lu"
+        ],
+        "description": "站在地面用普通拳招实际伤到敌人时，给它留下自己的拳法失衡。"
+      },
+      {
+        "route": "fist",
+        "use": "strike",
+        "trigger": "sneak_paid",
+        "state": "fist_force",
+        "hearts": [
+          "chiyan_gong",
+          "chiyang_xuangong",
+          "chidi_fenyuan_jing",
+          "sui_yue_kai_bei_jing",
+          "hun_yuan_kai_tian_quan_jing"
+        ],
+        "description": "潜行时用耗灵拳招有效命中，消耗一层已有蓄劲强化该击。"
+      },
+      {
+        "route": "metal",
+        "use": "grant",
+        "trigger": "paid",
+        "state": "armor_break",
+        "hearts": [
+          "ruijin_jue",
+          "gengxin_poxu_jue",
+          "jin_lun_jue",
+          "geng_jin_po_jia_jue",
+          "tian_zhu_geng_jin_jing"
+        ],
+        "description": "耗灵金法直接伤到有护甲的敌人时，可以施加破甲。"
+      },
+      {
+        "route": "metal",
+        "use": "strike",
+        "trigger": "sneak_paid",
+        "state": "metal_force",
+        "hearts": [
+          "jin_mang_chuan_yun_jue",
+          "lian_jin_yin_feng_jue",
+          "baidi_shasheng_jing",
+          "jin_que_lie_kong_jing",
+          "tai_bai_ning_feng_pian"
+        ],
+        "description": "潜行用耗灵金法命中已破甲的敌人，消耗一层锋意强化这次命中。",
+        "requires": "armor_break"
+      },
+      {
+        "route": "wood",
+        "use": "grant",
+        "trigger": "paid",
+        "state": "wood_force",
+        "hearts": [
+          "tie_teng_pan_gen_jue",
+          "bi_teng_suo_mai_jue",
+          "chang_sheng_fu_long_jing",
+          "gu_mu_jiao_long_jing",
+          "wan_gu_qing_teng_jing"
+        ],
+        "description": "耗灵木法直接伤到带有自己侵蚀的敌人时，获得一层生机。",
+        "requires": "erosion"
+      },
+      {
+        "route": "wood",
+        "use": "strike",
+        "trigger": "sneak_paid",
+        "state": "wood_force",
+        "hearts": [
+          "kurong_jue",
+          "xuanteng_milu",
+          "kurong_lunhui_jing",
+          "bi_teng_po_yan_pian",
+          "cang_mu_lie_yan_lu"
+        ],
+        "description": "潜行用耗灵木法命中带有自己侵蚀的敌人，消耗一层生机强化当次伤害。",
+        "requires": "erosion"
+      },
+      {
+        "route": "water",
+        "use": "grant",
+        "trigger": "paid",
+        "state": "chill",
+        "hearts": [
+          "ningbing_jue",
+          "jiuqu_chaosheng_jue",
+          "han_chao_yin_hai_jue",
+          "chen_yuan_huan_chao_jue",
+          "yin_he_yin_chao_jue"
+        ],
+        "description": "耗灵水法直接伤到尚无自己迟滞的敌人时，施加本人的水法迟滞。"
+      },
+      {
+        "route": "water",
+        "use": "strike",
+        "trigger": "sneak_paid",
+        "state": "chill",
+        "hearts": [
+          "han_quan_ning_feng_jue",
+          "die_lang_zhen_jie",
+          "tianhe_daoxuan_lu",
+          "bei_ming_juan_hai_jing",
+          "ming_hai_dao_xuan_jing"
+        ],
+        "description": "潜行用耗灵水法命中带有自己迟滞的敌人，消耗旧迟滞加重本击。招式自带的迟滞会正常施加。"
+      },
+      {
+        "route": "fire",
+        "use": "grant",
+        "trigger": "paid",
+        "state": "fire_force",
+        "hearts": [
+          "huoya_jue",
+          "yan_lun_jue",
+          "li_yao_fen_ye_jing",
+          "chi_yan_liao_yuan_pian",
+          "chi_yao_liu_huo_jue"
+        ],
+        "description": "耗灵火法直接伤到带有自己灼痕的敌人时，获得一层焰势。",
+        "requires": "scorch"
+      },
+      {
+        "route": "fire",
+        "use": "strike",
+        "trigger": "sneak_paid",
+        "state": "fire_force",
+        "hearts": [
+          "chi_ya_fen_ye_jue",
+          "lihuo_zhenjue",
+          "sanmei_zhenhuo_jue",
+          "dan_xia_fen_jie_jing",
+          "jiu_ri_fen_kong_jing"
+        ],
+        "description": "潜行用耗灵火法有效命中时，消耗一层已有焰势强化当次伤害。"
+      },
+      {
+        "route": "earth",
+        "use": "grant",
+        "trigger": "paid",
+        "state": "earth_unbalance",
+        "hearts": [
+          "huangsha_jue",
+          "liusha_milu",
+          "pi_yue_zhen_zhang",
+          "lie_yan_jue",
+          "hou_tu_fen_shan_jue"
+        ],
+        "description": "耗灵土法直接伤到落地敌人时，给它留下自己的土法失衡。"
+      },
+      {
+        "route": "earth",
+        "use": "strike",
+        "trigger": "sneak_paid",
+        "state": "earth_force",
+        "hearts": [
+          "liu_sha_chuan_shi_jue",
+          "zhong_yan_zhen_mai_jue",
+          "xuanhuang_zhenshi_jing",
+          "kun_yuan_zhen_yue_jing",
+          "qian_kun_zhen_shi_jing"
+        ],
+        "description": "潜行用耗灵土法命中带有自身土法失衡的落地敌人，消耗一层地势强化本击。",
+        "requires": "earth_unbalance"
+      }
+    ],
+    "defense": {
+      "hanbing_xuangong": {
+        "route": "sword",
+        "use": "shield",
+        "state": "sword_intent",
+        "description": "持剑潜行实际承受正面敌击后，可用一层剑意换成短盾。",
+        "health_percent": 4
+      },
+      "tong_bi_jia_qiang_jue": {
+        "route": "spear",
+        "use": "shield",
+        "state": "spear_force",
+        "description": "持枪潜行实际承受正面敌击后，可用一层枪势换成短盾。",
+        "health_percent": 6
+      },
+      "yu_gu_zhen_mai_jing": {
+        "route": "fist",
+        "use": "retaliate",
+        "state": "fist_unbalance",
+        "description": "持拳套实际承受敌方正面近战伤害后，给来袭者留下自己的拳法失衡。"
+      },
+      "jingang_huti_gong": {
+        "route": "metal",
+        "use": "shield",
+        "state": "ward",
+        "description": "金罡障生效时，潜行实际承受正面敌击后，按护体剩余比例换成短盾。",
+        "health_percent": 5
+      },
+      "wanmu_huichun_gong": {
+        "route": "wood",
+        "use": "mend",
+        "state": "wood_force",
+        "description": "潜行实际承受正面敌击后，可消耗一层生机回复至多自身最大生命的 4%。",
+        "health_percent": 4
+      },
+      "ruoshui_xuanjing": {
+        "route": "water",
+        "use": "shield",
+        "state": "ward",
+        "description": "流水障生效时，潜行实际承受正面敌击后，按护体剩余比例换成短盾。",
+        "health_percent": 5
+      },
+      "fenghuang_niepan_jing": {
+        "route": "fire",
+        "use": "mend",
+        "state": "ward",
+        "description": "回焰障生效时，潜行实际承受正面敌击后，可按剩余护体转成治疗，最高恢复自身最大生命的 6%。",
+        "health_percent": 6
+      },
+      "jiuding_tianshu": {
+        "route": "earth",
+        "use": "shield",
+        "state": "earth_force",
+        "description": "潜行实际承受正面敌击后，可用一层地势换成短盾。",
+        "health_percent": 6
+      }
+    },
+    "spirit": {
+      "yu_guan_cang_jian_jing": {
+        "route": "sword",
+        "state": "sword_intent",
+        "qi": 3,
+        "description": "缺灵时潜行用耗灵剑招实际伤到敌人，可消耗一层剑意回灵。"
+      },
+      "shuiyuan_jue": {
+        "route": "spear",
+        "state": "spear_force",
+        "qi": 2,
+        "description": "缺灵时潜行用耗灵近身枪招实际伤到敌人，可消耗一层枪势回灵。"
+      },
+      "qingling_yangyuan_gong": {
+        "route": "fist",
+        "state": "fist_force",
+        "qi": 2,
+        "description": "缺灵时潜行用耗灵拳招实际伤到敌人，可消耗一层蓄劲回灵。"
+      },
+      "jinjing_lianshen_lu": {
+        "route": "metal",
+        "state": "metal_force",
+        "qi": 2,
+        "description": "缺灵时潜行用耗灵金法实际伤到敌人，可消耗一层锋意回灵。"
+      },
+      "runmu_jue": {
+        "route": "wood",
+        "state": "wood_force",
+        "qi": 2,
+        "description": "缺灵时潜行用耗灵木法实际伤到敌人，可消耗一层生机回灵。"
+      },
+      "tai_ye_gui_yuan_jing": {
+        "route": "water",
+        "state": "water_force",
+        "qi": 3,
+        "description": "缺灵时潜行用耗灵水法实际伤到敌人，可消耗一层水势回灵。"
+      },
+      "nanming_lihuo_jing": {
+        "route": "fire",
+        "state": "fire_force",
+        "qi": 2,
+        "description": "缺灵时潜行用耗灵火法实际伤到敌人，可消耗一层焰势回灵。"
+      },
+      "xuan_huang_na_qi_jing": {
+        "route": "earth",
+        "state": "earth_force",
+        "qi": 4,
+        "description": "缺灵时潜行用耗灵土法实际伤到敌人，可消耗一层地势回灵。"
+      }
+    }
+  },
   "contact_rules": {
     "cuobu_zhan": [["sword_intent", "gain"], ["pursuit", "spend"]],
     "liufeng_zhan": [["sword_intent", "spend"]],

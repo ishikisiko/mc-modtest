@@ -51,6 +51,17 @@ public final class HeartTechniques {
         return entity instanceof ServerPlayer || entity instanceof NpcEntity;
     }
 
+    public static ResourceLocation equippedId(LivingEntity actor, Slot slot) {
+        var profile = CombatCaster.profile(actor);
+        return equipped(actor.registryAccess(), profile, slot).isPresent() ? profile.equippedHeart(slot).orElse(null) : null;
+    }
+
+    public static UUID cooldownOwner(LivingEntity actor) {
+        return actor instanceof NpcEntity npc && npc.isLedgerAvatar()
+                ? UUID.nameUUIDFromBytes(("yuanxian:heart/" + npc.ledgerPersonId()).getBytes(StandardCharsets.UTF_8))
+                : actor.getUUID();
+    }
+
     private static Optional<TechniqueDefinition> equipped(RegistryAccess access, CultivationProfile profile, Slot slot) {
         return profile.equippedHeart(slot).flatMap(id -> ModCultivationRegistries.technique(access, id))
                 .filter(definition -> method(definition).map(HeartMethod::slot).orElse(null) == slot);
@@ -133,9 +144,7 @@ public final class HeartTechniques {
         var cooldowns = FateAbilityCooldowns.get(overworld);
         long now = overworld.getGameTime();
         // 命簿人物离开近场时会更换实体，冷却继续使用同一人物身份。
-        UUID owner = target instanceof NpcEntity npc && npc.isLedgerAvatar()
-                ? UUID.nameUUIDFromBytes(("yuanxian:heart/" + npc.ledgerPersonId()).getBytes(StandardCharsets.UTF_8))
-                : target.getUUID();
+        UUID owner = cooldownOwner(target);
         if (shield != null && shield.crossesThreshold(before, after, target.getMaxHealth())
                 && cooldowns.remaining(owner, DEFENSE_SHIELD, now) == 0
                 && ShieldRuntime.grant(target, DEFENSE_SHIELD,

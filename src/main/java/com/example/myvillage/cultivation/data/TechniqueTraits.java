@@ -21,7 +21,7 @@ public final class TechniqueTraits {
 
     public enum ContactState {
         SWORD_INTENT, SPEAR_FORCE, SPEAR_STANCE, FIST_FORCE,
-        PURSUIT, FIST_UNBALANCE, EARTH_UNBALANCE, ARMOR_BREAK, EROSION, CHILL,
+        PURSUIT, FIST_UNBALANCE, EARTH_UNBALANCE, ARMOR_BREAK, EROSION, CHILL, SCORCH, WARD,
         METAL_FORCE, WOOD_FORCE, WATER_FORCE, FIRE_FORCE, EARTH_FORCE;
 
         public String tag() {
@@ -31,7 +31,7 @@ public final class TechniqueTraits {
 
         public boolean casterState() {
             return switch (this) {
-                case PURSUIT, FIST_UNBALANCE, EARTH_UNBALANCE, ARMOR_BREAK, EROSION, CHILL -> false;
+                case PURSUIT, FIST_UNBALANCE, EARTH_UNBALANCE, ARMOR_BREAK, EROSION, CHILL, SCORCH -> false;
                 default -> true;
             };
         }
@@ -43,7 +43,7 @@ public final class TechniqueTraits {
 
     private record Catalogue(Map<ResourceLocation, List<Trait>> techniques, Map<String, Double> settings,
                              Map<ResourceLocation, String> heritageTags,
-                             Map<ResourceLocation, List<ContactRule>> contactRules) { }
+                             Map<ResourceLocation, List<ContactRule>> contactRules, HeartLinkRules heartLinks) { }
 
     private static final class Holder {
         static final Catalogue CATALOGUE = load();
@@ -61,6 +61,10 @@ public final class TechniqueTraits {
 
     public static List<ContactRule> contactRules(ResourceLocation technique) {
         return Holder.CATALOGUE.contactRules().getOrDefault(technique, List.of());
+    }
+
+    public static HeartLinkRules heartLinks() {
+        return Holder.CATALOGUE.heartLinks();
     }
 
     public static double number(String key) {
@@ -122,6 +126,7 @@ public final class TechniqueTraits {
                     };
                     if (values.size() != 2 || (state == ContactState.ARMOR_BREAK) != (role == ContactRole.READ)
                             || state == ContactState.EROSION && role != ContactRole.GAIN
+                            || state == ContactState.SCORCH || state == ContactState.WARD
                             || state == ContactState.SPEAR_FORCE && role == ContactRole.GAIN
                             || techniques.getOrDefault(technique, List.of()).stream()
                                 .noneMatch(trait -> trait.id().equals(state.tag()) && trait.role().equals(label)))
@@ -133,7 +138,12 @@ public final class TechniqueTraits {
                     throw new IllegalArgumentException("命中特性规则重复 " + technique);
                 rules.put(technique, rows);
             }
-            return new Catalogue(Map.copyOf(techniques), Map.copyOf(numbers), Map.copyOf(heritageTags), Map.copyOf(rules));
+            var heartLinks = HeartLinkRules.parse(root.getAsJsonObject("heart_links"), labels);
+            heartLinks.traits().forEach((id, rows) -> {
+                if (techniques.putIfAbsent(id, rows) != null)
+                    throw new IllegalArgumentException("心法特性重复 " + id);
+            });
+            return new Catalogue(Map.copyOf(techniques), Map.copyOf(numbers), Map.copyOf(heritageTags), Map.copyOf(rules), heartLinks);
         } catch (Exception e) {
             throw new IllegalStateException("无法加载功法特性定义 " + RESOURCE, e);
         }
