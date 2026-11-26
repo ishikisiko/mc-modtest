@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,5 +59,45 @@ class ProvinceCapitalV11FocusedTest {
             CapitalGameBundle.requireHash(CapitalGameBundle.readResource(bundle.terrainResource,16*1024*1024),bundle.terrainHash,bundle.terrainResource);
             for(var tile:bundle.tiles)CapitalGameBundle.requireHash(CapitalGameBundle.readResource(CapitalGameBundle.templateFile(tile.template()),8*1024*1024),tile.sha256(),tile.template());
         }
+    }
+
+    @Test void bothSizesAreSelectableAndUseTheSameGenerationResources() throws Exception {
+        String tag = "data/minecraft/tags/worldgen/world_preset/normal.json";
+        var selectable = new HashSet<String>();
+        for (var resource : Collections.list(getClass().getClassLoader().getResources(tag))) {
+            try (var in = resource.openStream()) {
+                var data = JsonParser.parseString(new String(in.readAllBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
+                data.getAsJsonArray("values").forEach(value -> {
+                    if (value.isJsonPrimitive()) selectable.add(value.getAsString());
+                });
+            }
+        }
+        assertTrue(selectable.containsAll(Set.of("yuanxian:cultivation", "yuanxian:cultivation_medium")));
+        String path = "data/yuanxian/worldgen/world_preset/cultivation_medium.json";
+        assertEquals(1, Collections.list(getClass().getClassLoader().getResources(path)).size());
+        var medium = json("/" + path);
+        var generator = medium.getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
+        var packedRules = generator.get("rules").getAsString();
+        var rules = new WorldPlanRules(FrozenRulesEncoding.decode(packedRules));
+        var large = json("/data/yuanxian/worldgen/world_preset/cultivation.json");
+        var largeGenerator = large.getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
+        assertEquals(10000, new WorldPlanRules(FrozenRulesEncoding.decode(largeGenerator.get("rules").getAsString())).coreRadius);
+        generator.add("rules", largeGenerator.get("rules"));
+        assertEquals(large, medium);
+
+        var expected = json(WorldPlanRules.V11_RESOURCE);
+        expected.addProperty("core_radius", 8000);
+        expected.add("outer_radius", JsonParser.parseString("[5440,6400]"));
+        expected.getAsJsonObject("capitals").addProperty("ring_min", 4560);
+        expected.getAsJsonObject("capitals").addProperty("ring_max", 4670);
+        assertEquals(expected, JsonParser.parseString(FrozenRulesEncoding.decode(packedRules)));
+
+        var plan = new WorldPlan(42L, rules);
+        assertEquals(8, plan.cities().size());
+        assertEquals(56, plan.sectSites().size());
+        assertTrue(plan.coreRegionAt(8000, 0).isPresent());
+        assertTrue(plan.coreRegionAt(8001, 0).isEmpty());
+        var restored = new WorldPlan(42L, new WorldPlanRules(FrozenRulesEncoding.decode(FrozenRulesEncoding.encode(rules.json()))));
+        assertEquals(plan.fingerprint(), restored.fingerprint());
     }
 }

@@ -110,8 +110,9 @@ def run(out,commit):
             self.must('默认选择与实际生成器一致',ui.get('preset')=='yuanxian:cultivation' and ui.get('generator','').endswith('PlannedChunkGenerator'),
                       {k:ui.get(k) for k in ('preset','generator')})
             self.click('世界',True);self.shot('新建世界_默认修仙大陆')
-            # One or more ordinary user clicks can select vanilla again; switching tabs must not override it.
-            self.click('修仙大陆')
+            # Use the current localized label so preset names can show the saved map size.
+            language=json.loads((ROOT/'src/main/resources/assets/yuanxian/lang/zh_cn.json').read_text())
+            self.click(language['generator.yuanxian.cultivation'])
             self.poll(self.ui,lambda u:u.get('preset')!='yuanxian:cultivation','手动切换预设')
             selected=self.ui()['preset'];generator=self.ui()['generator']
             self.click('游戏',True);self.click('世界',True)

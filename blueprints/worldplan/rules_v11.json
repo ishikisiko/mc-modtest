@@ -2,6 +2,12 @@
   "schema": 1,
   "algorithm": "yuanxian:worldplan_v11",
   "base": "frozen_v10.json",
+  "medium_map": {
+    "core_radius": 8000,
+    "outer_radius": [5440, 6400],
+    "ring_min": 4560,
+    "ring_max": 4670
+  },
   "region_progression": {
     "levels": [["donghuang"], ["lingyue"], ["beiyuan"], ["donghai", "ximo"], ["nanjiang", "moyu"], ["zhongzhou"]]
   },

@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.156.1
+
+- 新建修仙世界时，可以在世界类型中选半径 8,000 格的中地图。默认的大地图半径仍为 10,000 格。两档都按种子安排八座州城、宗门地块、官道和野外地貌。
+
 ## 0.156.0
 
 - 新修仙世界按宗门等级选用六类共十八套建筑。松崖主宗设临崖观礼廊，听泉双岸主宗两岸都可登殿，听泉谷中主宗沿三段泉庭登殿。照月连岛主宗由廊桥连起各岛，照月湖心主宗的大殿横跨水面。

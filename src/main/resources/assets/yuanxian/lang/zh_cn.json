@@ -1,4 +1,6 @@
 {
+  "generator.yuanxian.cultivation": "修仙大地图 10000 格",
+  "generator.yuanxian.cultivation_medium": "修仙中地图 8000 格",
   "block.yuanxian.spirit_testing_stele": "测灵碑",
   "block.yuanxian.technique_inheritance_stele": "传功碑",
   "block.yuanxian.scripture_shelf": "经架",
