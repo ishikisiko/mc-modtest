@@ -219,7 +219,6 @@ public final class WorldSimRuntime {
 
     static void onServerStopping(ServerStoppingEvent event) {
         // The final world save runs after this event; the save data keeps its live binding for it.
-        sim().ifPresent(com.example.myvillage.sim.runtime.player.SectTournamentRuntime::stop);
         WorldSimAvatars.flushLife();
         NpcLifeSites.reset();
         if (saved != null && saved.attached()) {

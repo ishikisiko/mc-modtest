@@ -163,6 +163,7 @@ class PlayerAffairsTest {
             p.rank = "outer";
             p.status = "at_sect";
             p.regionId = sect.homeRegionId;
+            NpcCultivation.reached(ctx, p);
         }
     }
 

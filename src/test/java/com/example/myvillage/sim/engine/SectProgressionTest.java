@@ -236,14 +236,21 @@ class SectProgressionTest {
         assertFalse(t.within("minecraft:the_nether", 0,64,0,48)); assertFalse(t.within("minecraft:overworld",49,64,0,48));
         assertTrue(t.within("minecraft:overworld",0,64,0,48));
     }
-    @Test void higherSectsUseDifferentPromotionBarsAndKeepCurrentAdmission() {
+    @Test void higherSectsUseTheirAdmissionAndTournamentThresholds() {
         for (String id : List.of("headquarters", "main")) {
             var ctx = fresh(); var sect = branch(ctx); sect.tierId = id; sect.prestige = 0;
-            assertTrue(PlayerAffairs.admission(ctx, PLAYER, sect.id, new PlayerQualification("mortal",1,true,60)).ok());
+            assertFalse(PlayerAffairs.admission(ctx, PLAYER, sect.id, new PlayerQualification("mortal",1,true,60)).ok());
+            String required = id.equals("headquarters") ? "foundation_establishment" : "golden_core";
+            assertTrue(PlayerAffairs.admission(ctx, PLAYER, sect.id, new PlayerQualification(required,0,true,60)).ok());
             var m = member(ctx, sect); var bars = data.rules().sectProgression().promotion(id, data.rules().player().promotion());
-            PlayerAffairs.yearly(ctx); assertEquals("outer", m.rank);
+            SectTournaments.advanceMonth(ctx, 0);
+            assertEquals(com.example.myvillage.sim.sect.SectTournament.Enrollment.BELOW_THRESHOLD,
+                    SectTournaments.eligibility(ctx, sect.id, PLAYER));
             m.realmId = bars.inner().stage().realm(); m.stageIndex = bars.inner().stage().stage();
-            PlayerAffairs.yearly(ctx); assertEquals("inner", m.rank);
+            assertEquals(com.example.myvillage.sim.sect.SectTournament.Enrollment.ENTERED,
+                    SectTournaments.eligibility(ctx, sect.id, PLAYER));
+            PlayerAffairs.yearly(ctx); assertEquals("outer", m.rank);
+            PlayerAffairs.promoteThroughTournament(ctx, m, sect);
             m.realmId = bars.elder().stage().realm(); m.stageIndex = bars.elder().stage().stage();
             PlayerAffairs.yearly(ctx); assertEquals("elder", m.rank); assertFalse(m.elderTrialPassed);
         }

@@ -35,6 +35,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 /** One monthly event per sect, projected at its actual court only while there are witnesses. */
 public final class SectTournamentRuntime {
@@ -59,6 +60,7 @@ public final class SectTournamentRuntime {
         NeoForge.EVENT_BUS.addListener(SectTournamentRuntime::logout);
         NeoForge.EVENT_BUS.addListener(SectTournamentRuntime::changeDimension);
         NeoForge.EVENT_BUS.addListener(SectTournamentRuntime::mount);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, (ServerStoppingEvent event) -> WorldSimRuntime.sim().ifPresent(SectTournamentRuntime::stop));
     }
 
     public static void tick(MinecraftServer server, WorldSim sim, long month) {

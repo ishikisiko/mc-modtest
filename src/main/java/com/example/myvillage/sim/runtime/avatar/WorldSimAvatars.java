@@ -476,7 +476,7 @@ public final class WorldSimAvatars {
             var box = member.getBoundingBox().move(feet.subtract(member.position()));
             if (!old.legacySect() || old.sectId() != sectId || member.level() != level || !NpcCombatRuntime.canAct(member)
                     || member.combatEngaged() || member.getTarget() != null || member.isPassenger()
-                    || member.fallDistance > 0 || member.isOnFire() || !loadedArea(level, box)
+                    || !member.onGround() || member.fallDistance > 0 || member.isOnFire() || !loadedArea(level, box)
                     || !level.getWorldBorder().isWithinBounds(box) || !level.noCollision(member, box)) return Optional.empty();
             NpcCombatRuntime.checkpoint(member);
             TOURNAMENT_POSTS.put(personId, new TournamentPost(false, member.position(), member.getCustomName(), official));

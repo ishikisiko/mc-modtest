@@ -26,7 +26,7 @@ record SectTournamentCourt(ServerLevel level, int sect, BlockPos center, int hal
     BlockPos second() { return center.relative(inward, 3); }
     BlockPos referee() { return entrance().relative(inward.getClockWise(), 3); }
     BlockPos entrance() { return center.relative(inward.getOpposite(), half - 1); }
-    BlockPos exit() { return entrance().relative(inward.getCounterClockWise(), 3); }
+    BlockPos exit() { return entrance(); }
 
     AABB ring() {
         return new AABB(center.getX() - half, center.getY() - .25, center.getZ() - half,
@@ -54,7 +54,7 @@ record SectTournamentCourt(ServerLevel level, int sect, BlockPos center, int hal
     }
 
     Vec3 exitFor(Entity entity) {
-        for (BlockPos at : new BlockPos[]{exit(), entrance(), referee(), first(), second(), center}) {
+        for (BlockPos at : new BlockPos[]{exit(), exit().relative(inward.getCounterClockWise(), 3), first(), second(), center}) {
             Vec3 feet = Vec3.atBottomCenterOf(at);
             if (standable(at) && level.noCollision(entity, entity.getBoundingBox().move(feet.subtract(entity.position())))) return feet;
         }
