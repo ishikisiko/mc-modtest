@@ -288,9 +288,11 @@
       352,
       384
     ],
-    "sha256": "6e7bf18eeb03c18b253c2dfbcd90212f96bd9d197ee93871ca676e5edde9b7f9"
+    "sha256": "58b1057ac0c64edba6eb80b1704f78b9fec808fccfb59004cc9ca08776aec517"
   },
   "form": {
+    "sha256": "af9e2a473e1f1d8bef8592aab064995aa78541edf9966a312865827221ec70d9",
+    "runs": 367772,
     "materials": [
       {
         "state": "minecraft:air",
@@ -299,14 +301,6 @@
       {
         "state": "minecraft:stone",
         "landform": true
-      },
-      {
-        "state": "minecraft:water",
-        "landform": true
-      },
-      {
-        "state": "minecraft:stone_bricks",
-        "landform": false
       },
       {
         "state": "minecraft:andesite",
@@ -323,6 +317,14 @@
       {
         "state": "minecraft:dirt",
         "landform": true
+      },
+      {
+        "state": "minecraft:water",
+        "landform": true
+      },
+      {
+        "state": "minecraft:stone_bricks",
+        "landform": false
       },
       {
         "state": "minecraft:smooth_stone",
@@ -353,35 +355,11 @@
         "landform": false
       },
       {
-        "state": "minecraft:cut_copper",
-        "landform": false
-      },
-      {
-        "state": "minecraft:sea_lantern",
-        "landform": false
-      },
-      {
         "state": "minecraft:prismarine_bricks",
         "landform": false
       },
       {
         "state": "minecraft:bookshelf",
-        "landform": false
-      },
-      {
-        "state": "minecraft:waxed_cut_copper",
-        "landform": false
-      },
-      {
-        "state": "minecraft:stripped_warped_hyphae",
-        "landform": false
-      },
-      {
-        "state": "minecraft:dark_prismarine",
-        "landform": false
-      },
-      {
-        "state": "minecraft:prismarine",
         "landform": false
       },
       {
@@ -419,10 +397,1232 @@
       {
         "state": "minecraft:crafting_table",
         "landform": false
+      },
+      {
+        "state": "minecraft:quartz_bricks",
+        "landform": false
+      },
+      {
+        "state": "minecraft:azalea_leaves",
+        "landform": false
+      },
+      {
+        "state": "minecraft:moss_block",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:jindan_taiyin_block",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:huashen_taixu_block",
+        "landform": false
+      },
+      {
+        "state": "detail:lacquer",
+        "landform": false
+      },
+      {
+        "state": "minecraft:polished_deepslate",
+        "landform": false
+      },
+      {
+        "state": "minecraft:pearlescent_froglight",
+        "landform": false
+      },
+      {
+        "state": "minecraft:smooth_quartz",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+        "landform": false
+      },
+      {
+        "state": "minecraft:stone_brick_wall[east=none,north=low,south=low,up=true,waterlogged=false,west=none]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_092[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_092[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_092[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_092[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=4]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=9]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=19]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=20]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=11]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=21]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=22]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=19]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=12]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=12]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=10]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=24]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=25]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=26]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=27]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=13]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=15]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=16]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=14]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=17]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=18]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=11]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=20]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=4]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=22]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=13]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=9]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=14]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=10]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=24]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=11]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=12]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=16]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=13]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=14]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=15]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=16]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=17]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=18]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=19]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=20]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=21]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=22]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=24]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=25]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=26]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=27]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_096[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=4]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=9]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=10]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_093[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=11]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=12]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=13]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=14]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=15]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=16]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=17]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=18]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=19]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=20]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=21]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=22]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=24]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=25]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=26]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=27]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_097[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=4]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=9]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=10]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=11]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=12]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=13]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=14]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=15]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=16]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=17]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=18]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=19]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=20]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=21]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_095[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=22]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=24]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=25]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=26]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=27]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_098[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=4]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=9]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=10]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=11]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=12]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=13]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=14]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=15]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=16]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=17]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=18]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=19]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=20]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=21]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=22]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=24]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=25]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=26]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=27]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_099[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=4]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=9]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=10]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=11]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=12]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=13]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=14]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=15]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=16]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=17]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=18]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=19]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=20]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=21]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=22]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=24]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=25]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=26]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=27]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_100[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=4]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=9]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=10]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=11]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=12]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=13]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=14]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=15]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=16]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=17]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=18]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=19]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=20]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=21]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=22]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=24]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=25]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=26]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=27]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_101[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=4]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=9]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=10]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=11]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=12]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=13]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=14]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=15]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=16]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=17]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=18]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=19]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=20]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=21]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=22]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=23]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=24]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_094[shape=10]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=25]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=26]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=27]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=28]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=29]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=30]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_102[shape=31]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=0]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=1]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=2]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=3]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=4]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=5]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=6]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=7]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=8]",
+        "landform": false
+      },
+      {
+        "state": "yuanxian:sect_detail_103[shape=9]",
+        "landform": false
       }
-    ],
-    "runs": 357492,
-    "sha256": "93cfe4d1214f9d02b280892c582b229afab8d579ef05a3632a69b6e9f645a70b"
+    ]
   },
   "tiles": [],
   "preview_id": "lake_retreat-headquarters",
@@ -444,5 +1644,1130 @@
       "state": "minecraft:crafting_table"
     }
   ],
-  "preview_grid_sha256": "0015013e1429ab5d04fa4f536e4e407212e54272272d5fd4a5c25d4cfbd5143e"
+  "preview_grid_sha256": "0015013e1429ab5d04fa4f536e4e407212e54272272d5fd4a5c25d4cfbd5143e",
+  "arena": {
+    "center": [
+      151,
+      64,
+      89
+    ],
+    "width": 27,
+    "direction": [
+      0,
+      -1
+    ],
+    "path": [
+      [
+        151,
+        63,
+        126
+      ],
+      [
+        151,
+        63,
+        125
+      ],
+      [
+        151,
+        63,
+        124
+      ],
+      [
+        151,
+        63,
+        123
+      ],
+      [
+        151,
+        63,
+        122
+      ],
+      [
+        151,
+        63,
+        121
+      ],
+      [
+        151,
+        63,
+        120
+      ],
+      [
+        151,
+        63,
+        119
+      ],
+      [
+        151,
+        63,
+        118
+      ],
+      [
+        151,
+        63,
+        117
+      ],
+      [
+        151,
+        63,
+        116
+      ],
+      [
+        151,
+        63,
+        115
+      ],
+      [
+        151,
+        63,
+        114
+      ]
+    ],
+    "join": 4,
+    "extent": [
+      25,
+      25
+    ],
+    "from_entry": [
+      [
+        81,
+        63,
+        44
+      ],
+      [
+        81,
+        63,
+        45
+      ],
+      [
+        81,
+        63,
+        46
+      ],
+      [
+        81,
+        63,
+        47
+      ],
+      [
+        81,
+        63,
+        48
+      ],
+      [
+        81,
+        63,
+        49
+      ],
+      [
+        81,
+        63,
+        50
+      ],
+      [
+        81,
+        63,
+        51
+      ],
+      [
+        81,
+        63,
+        52
+      ],
+      [
+        81,
+        63,
+        53
+      ],
+      [
+        81,
+        63,
+        54
+      ],
+      [
+        81,
+        63,
+        55
+      ],
+      [
+        81,
+        63,
+        56
+      ],
+      [
+        81,
+        63,
+        57
+      ],
+      [
+        81,
+        63,
+        58
+      ],
+      [
+        81,
+        63,
+        59
+      ],
+      [
+        81,
+        63,
+        60
+      ],
+      [
+        81,
+        63,
+        61
+      ],
+      [
+        81,
+        63,
+        62
+      ],
+      [
+        81,
+        63,
+        63
+      ],
+      [
+        81,
+        63,
+        64
+      ],
+      [
+        81,
+        63,
+        65
+      ],
+      [
+        81,
+        63,
+        66
+      ],
+      [
+        81,
+        63,
+        67
+      ],
+      [
+        81,
+        63,
+        68
+      ],
+      [
+        81,
+        63,
+        69
+      ],
+      [
+        81,
+        63,
+        70
+      ],
+      [
+        81,
+        63,
+        71
+      ],
+      [
+        81,
+        63,
+        72
+      ],
+      [
+        81,
+        63,
+        73
+      ],
+      [
+        81,
+        63,
+        74
+      ],
+      [
+        81,
+        63,
+        75
+      ],
+      [
+        81,
+        63,
+        76
+      ],
+      [
+        81,
+        63,
+        77
+      ],
+      [
+        81,
+        63,
+        78
+      ],
+      [
+        81,
+        63,
+        79
+      ],
+      [
+        81,
+        63,
+        80
+      ],
+      [
+        81,
+        63,
+        81
+      ],
+      [
+        81,
+        63,
+        82
+      ],
+      [
+        81,
+        63,
+        83
+      ],
+      [
+        81,
+        63,
+        84
+      ],
+      [
+        81,
+        63,
+        85
+      ],
+      [
+        81,
+        63,
+        86
+      ],
+      [
+        81,
+        63,
+        87
+      ],
+      [
+        81,
+        63,
+        88
+      ],
+      [
+        81,
+        63,
+        89
+      ],
+      [
+        81,
+        63,
+        90
+      ],
+      [
+        81,
+        63,
+        91
+      ],
+      [
+        81,
+        63,
+        92
+      ],
+      [
+        81,
+        63,
+        93
+      ],
+      [
+        81,
+        63,
+        94
+      ],
+      [
+        81,
+        63,
+        95
+      ],
+      [
+        81,
+        63,
+        96
+      ],
+      [
+        81,
+        63,
+        97
+      ],
+      [
+        81,
+        63,
+        98
+      ],
+      [
+        81,
+        63,
+        99
+      ],
+      [
+        82,
+        63,
+        99
+      ],
+      [
+        83,
+        63,
+        99
+      ],
+      [
+        84,
+        63,
+        99
+      ],
+      [
+        85,
+        63,
+        99
+      ],
+      [
+        86,
+        63,
+        99
+      ],
+      [
+        87,
+        63,
+        99
+      ],
+      [
+        88,
+        63,
+        99
+      ],
+      [
+        89,
+        63,
+        99
+      ],
+      [
+        90,
+        63,
+        99
+      ],
+      [
+        91,
+        63,
+        99
+      ],
+      [
+        92,
+        63,
+        99
+      ],
+      [
+        93,
+        63,
+        99
+      ],
+      [
+        94,
+        63,
+        99
+      ],
+      [
+        95,
+        63,
+        99
+      ],
+      [
+        96,
+        63,
+        99
+      ],
+      [
+        97,
+        63,
+        99
+      ],
+      [
+        98,
+        63,
+        99
+      ],
+      [
+        99,
+        63,
+        99
+      ],
+      [
+        100,
+        63,
+        99
+      ],
+      [
+        101,
+        63,
+        99
+      ],
+      [
+        102,
+        63,
+        99
+      ],
+      [
+        103,
+        63,
+        99
+      ],
+      [
+        104,
+        63,
+        99
+      ],
+      [
+        105,
+        63,
+        99
+      ],
+      [
+        106,
+        63,
+        99
+      ],
+      [
+        107,
+        63,
+        99
+      ],
+      [
+        108,
+        63,
+        99
+      ],
+      [
+        109,
+        63,
+        99
+      ],
+      [
+        110,
+        63,
+        99
+      ],
+      [
+        111,
+        63,
+        99
+      ],
+      [
+        112,
+        63,
+        99
+      ],
+      [
+        113,
+        64,
+        99
+      ],
+      [
+        114,
+        63,
+        99
+      ],
+      [
+        114,
+        63,
+        100
+      ],
+      [
+        114,
+        63,
+        101
+      ],
+      [
+        114,
+        63,
+        102
+      ],
+      [
+        114,
+        63,
+        103
+      ],
+      [
+        114,
+        63,
+        104
+      ],
+      [
+        114,
+        63,
+        105
+      ],
+      [
+        114,
+        63,
+        106
+      ],
+      [
+        114,
+        63,
+        107
+      ],
+      [
+        114,
+        63,
+        108
+      ],
+      [
+        114,
+        63,
+        109
+      ],
+      [
+        114,
+        63,
+        110
+      ],
+      [
+        114,
+        63,
+        111
+      ],
+      [
+        114,
+        63,
+        112
+      ],
+      [
+        114,
+        63,
+        113
+      ],
+      [
+        114,
+        63,
+        114
+      ],
+      [
+        114,
+        63,
+        115
+      ],
+      [
+        114,
+        63,
+        116
+      ],
+      [
+        114,
+        63,
+        117
+      ],
+      [
+        114,
+        63,
+        118
+      ],
+      [
+        114,
+        63,
+        119
+      ],
+      [
+        114,
+        63,
+        120
+      ],
+      [
+        114,
+        63,
+        121
+      ],
+      [
+        114,
+        63,
+        122
+      ],
+      [
+        114,
+        63,
+        123
+      ],
+      [
+        114,
+        63,
+        124
+      ],
+      [
+        114,
+        63,
+        125
+      ],
+      [
+        114,
+        63,
+        126
+      ],
+      [
+        114,
+        63,
+        127
+      ],
+      [
+        114,
+        63,
+        128
+      ],
+      [
+        114,
+        63,
+        129
+      ],
+      [
+        114,
+        63,
+        130
+      ],
+      [
+        114,
+        63,
+        131
+      ],
+      [
+        114,
+        63,
+        132
+      ],
+      [
+        114,
+        63,
+        133
+      ],
+      [
+        114,
+        63,
+        134
+      ],
+      [
+        114,
+        63,
+        135
+      ],
+      [
+        114,
+        63,
+        136
+      ],
+      [
+        114,
+        63,
+        137
+      ],
+      [
+        114,
+        63,
+        138
+      ],
+      [
+        114,
+        63,
+        139
+      ],
+      [
+        114,
+        63,
+        140
+      ],
+      [
+        115,
+        63,
+        140
+      ],
+      [
+        116,
+        63,
+        140
+      ],
+      [
+        117,
+        63,
+        140
+      ],
+      [
+        118,
+        63,
+        140
+      ],
+      [
+        119,
+        63,
+        140
+      ],
+      [
+        120,
+        63,
+        140
+      ],
+      [
+        121,
+        64,
+        140
+      ],
+      [
+        122,
+        63,
+        140
+      ],
+      [
+        123,
+        63,
+        140
+      ],
+      [
+        124,
+        63,
+        140
+      ],
+      [
+        125,
+        63,
+        140
+      ],
+      [
+        126,
+        63,
+        140
+      ],
+      [
+        127,
+        63,
+        140
+      ],
+      [
+        128,
+        63,
+        140
+      ],
+      [
+        129,
+        63,
+        140
+      ],
+      [
+        130,
+        63,
+        140
+      ],
+      [
+        131,
+        63,
+        140
+      ],
+      [
+        132,
+        63,
+        140
+      ],
+      [
+        133,
+        63,
+        140
+      ],
+      [
+        134,
+        63,
+        140
+      ],
+      [
+        135,
+        63,
+        140
+      ],
+      [
+        136,
+        63,
+        140
+      ],
+      [
+        137,
+        63,
+        140
+      ],
+      [
+        138,
+        64,
+        140
+      ],
+      [
+        139,
+        64,
+        140
+      ],
+      [
+        140,
+        64,
+        140
+      ],
+      [
+        141,
+        64,
+        140
+      ],
+      [
+        142,
+        64,
+        140
+      ],
+      [
+        143,
+        64,
+        140
+      ],
+      [
+        144,
+        64,
+        140
+      ],
+      [
+        145,
+        65,
+        140
+      ],
+      [
+        146,
+        65,
+        140
+      ],
+      [
+        147,
+        65,
+        140
+      ],
+      [
+        148,
+        65,
+        140
+      ],
+      [
+        149,
+        65,
+        140
+      ],
+      [
+        150,
+        65,
+        140
+      ],
+      [
+        150,
+        65,
+        139
+      ],
+      [
+        150,
+        65,
+        138
+      ],
+      [
+        150,
+        65,
+        137
+      ],
+      [
+        150,
+        64,
+        136
+      ],
+      [
+        151,
+        63,
+        136
+      ],
+      [
+        151,
+        63,
+        135
+      ],
+      [
+        151,
+        63,
+        134
+      ],
+      [
+        151,
+        63,
+        133
+      ],
+      [
+        151,
+        63,
+        132
+      ],
+      [
+        151,
+        63,
+        131
+      ],
+      [
+        151,
+        63,
+        130
+      ],
+      [
+        151,
+        63,
+        129
+      ],
+      [
+        151,
+        63,
+        128
+      ],
+      [
+        151,
+        63,
+        127
+      ],
+      [
+        151,
+        63,
+        126
+      ]
+    ],
+    "lifts": [],
+    "preview": "7bf4c1407ff3b4513a9acaf09eefa744febb189cfb1235be0b8034aec7733663",
+    "door_path": [
+      [
+        151,
+        63,
+        114
+      ],
+      [
+        151,
+        63,
+        113
+      ],
+      [
+        151,
+        63,
+        112
+      ],
+      [
+        151,
+        63,
+        111
+      ],
+      [
+        151,
+        63,
+        110
+      ],
+      [
+        151,
+        63,
+        109
+      ],
+      [
+        151,
+        63,
+        108
+      ],
+      [
+        151,
+        63,
+        107
+      ],
+      [
+        151,
+        63,
+        106
+      ],
+      [
+        151,
+        63,
+        105
+      ],
+      [
+        151,
+        63,
+        104
+      ],
+      [
+        151,
+        63,
+        103
+      ],
+      [
+        151,
+        64,
+        102
+      ],
+      [
+        151,
+        64,
+        101
+      ],
+      [
+        151,
+        64,
+        100
+      ],
+      [
+        151,
+        64,
+        99
+      ],
+      [
+        151,
+        64,
+        98
+      ],
+      [
+        151,
+        64,
+        97
+      ],
+      [
+        151,
+        64,
+        96
+      ],
+      [
+        151,
+        64,
+        95
+      ],
+      [
+        151,
+        64,
+        94
+      ],
+      [
+        151,
+        64,
+        93
+      ],
+      [
+        151,
+        64,
+        92
+      ],
+      [
+        151,
+        64,
+        91
+      ],
+      [
+        151,
+        64,
+        90
+      ],
+      [
+        151,
+        64,
+        89
+      ]
+    ]
+  }
 }

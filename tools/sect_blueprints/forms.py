@@ -10,8 +10,9 @@ import re
 import struct
 
 from province_capitals.regional.v2.common import write_json
+from sect_blueprints.court_routes import court_probes, validate_court
 
-ROW = struct.Struct('<4HB')
+ROW = struct.Struct('<5H')
 COLUMN = struct.Struct('<hBB')
 STATE = re.compile(r'[a-z0-9_]+:[a-z0-9_]+(?:\[[a-z0-9_=,]+\])?')
 LAND = {'air','stone','water','sandstone','andesite','deepslate','grass_block','dirt','moss_block'}
@@ -43,7 +44,7 @@ def export_form(source, out, policy):
     packed_height, heights = checked_bytes(source.parent/'terrain.bin.gz',field['sha256'],width*depth*COLUMN.size)
     packed_forms, runs = checked_bytes(source.parent/'form.bin.gz',terrain['sha256'],terrain['runs']*ROW.size)
     materials = terrain['materials']
-    if not 1 <= len(materials) <= 256:
+    if not 1 <= len(materials) <= 16384:
         raise ValueError(f'宗门形制材质上限无效 {name}')
     for item in materials:
         state = item['state']
@@ -74,6 +75,11 @@ def export_form(source, out, policy):
             raise ValueError(f'宗门站位越界 {name} {(x,y,z)}')
         requested[x,z].update((y-1,y,y+1))
     for x,y,z in facilities:
+        requested[x,z].add(y)
+    court_foot, court_extra = court_probes(spec)
+    for x,y,z in court_extra:
+        if not (0<=x<width and 0<=y<=top and 0<=z<depth):
+            raise ValueError(f'比试院站位或井道越界 {name} {(x,y,z)}')
         requested[x,z].add(y)
 
     actual={}
@@ -106,6 +112,7 @@ def export_form(source, out, policy):
     for pos,state in facilities.items():
         if actual.get(pos)!=state:
             raise ValueError(f'宗门设施方块与清单不符 {name} {pos}')
+    validate_court(spec,court_foot,actual)
 
     result=out/'data/yuanxian/sect_blueprints'/name
     result.mkdir(parents=True,exist_ok=True)

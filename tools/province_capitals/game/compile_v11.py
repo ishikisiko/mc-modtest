@@ -72,6 +72,44 @@ def write_presets(out, preset, frozen, spec):
         write(out/f'data/yuanxian/worldgen/world_preset/{name}.json', preset)
 
 
+def sect_references(sect_root, progression):
+    catalog=json.loads((sect_root/'data/yuanxian/sect_blueprints/catalog.json').read_text())
+    layouts=[];policy=None
+    for ref in catalog['layouts']:
+        path=sect_root/('data/'+ref['resource'].replace(':','/',1))
+        data=path.read_bytes()
+        if sha(data)!=ref['sha256']:raise ValueError('宗门正式清单摘要不一致')
+        sect=json.loads(data)
+        if policy is not None and policy!=sect['worldgen']:raise ValueError('宗门选址规则必须共用一份配置')
+        policy=sect['worldgen']
+        for key in ('terrain','form'):
+            packed=sect_root/('data/'+sect[key]['resource'].replace(':','/',1))
+            if sha(packed.read_bytes())!=sect[key]['sha256']:raise ValueError(f'宗门资源摘要不一致 {sect["id"]} {key}')
+        layouts.append({'id':sect['id'],'family':ref['family'],'resource':ref['resource'],'blueprint_sha256':ref['sha256']})
+    return {**policy,'layouts':layouts,**{key:progression[key] for key in ('entry_states','regional_hubs')}}
+
+
+def refresh_sect_reference(out, sect_root):
+    """Rebind the approved current sect exports without re-exporting cities."""
+    path=out/'data/yuanxian/worldplan/frozen_v11.json'
+    frozen=json.loads(old.read_bounded(path,4*1024*1024))
+    preset=json.loads((out/'data/yuanxian/worldgen/world_preset/cultivation.json').read_text())
+    if frozen['algorithm']!='yuanxian:worldplan_v11' or (
+        preset['dimensions']['minecraft:overworld']['generator']['type']!='yuanxian:planned_v11'):
+        raise ValueError('宗门引用刷新需要当前 V11 预设')
+    progression=json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/rules.json').read_text())['sect_progression']
+    current=sect_references(sect_root,progression)
+    if [v['id'] for v in current['layouts']] != [v['id'] for v in frozen['sects']['layouts']]:
+        raise ValueError('宗门形制清单发生变化，需要完整冻结世界规则')
+    frozen['sects']=current
+    write_presets(out,preset,frozen,json.loads(RULES.read_text()))
+    write(path,frozen)
+    index_path=out/'data/yuanxian/capitals/v4/index.json'
+    index=json.loads(index_path.read_text())
+    index['frozen_rules_sha256']=sha(canonical(frozen))
+    write(index_path,index)
+
+
 def aggregate(out:Path,source:Path,*,refresh_current=False):
     from player_economy_sites import place_capital_boards
     place_capital_boards(out)
@@ -109,20 +147,8 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     apply_region_progression(frozen,spec.get('region_progression'))
     apply_spawn_policy(frozen,spec.get('spawn'))
     sect_root=ROOT/'build/generated/sect_blueprints/resources'
-    catalog=json.loads((sect_root/'data/yuanxian/sect_blueprints/catalog.json').read_text())
-    layouts=[];policy=None
-    for sect_ref in catalog['layouts']:
-        sect_file=sect_root/('data/'+sect_ref['resource'].replace(':','/',1))
-        sect=json.loads(sect_file.read_text())
-        if sha(sect_file.read_bytes())!=sect_ref['sha256']:raise ValueError('宗门正式清单摘要不一致')
-        if policy is not None and policy!=sect['worldgen']:raise ValueError('宗门选址规则必须共用一份配置')
-        policy=sect['worldgen']
-        terrain=sect_root/('data/'+sect['terrain']['resource'].replace(':','/',1))
-        if sha(terrain.read_bytes())!=sect['terrain']['sha256']:raise ValueError('宗门高度场摘要不一致')
-        layouts.append({'id':sect['id'],'family':sect_ref['family'],'resource':sect_ref['resource'],'blueprint_sha256':sect_ref['sha256']})
     sim_rules=json.loads((ROOT/'src/main/resources/data/yuanxian/world_sim/rules.json').read_text())
-    progression=sim_rules['sect_progression']
-    frozen['sects']={**policy,'layouts':layouts,**{key:progression[key] for key in ('entry_states','regional_hubs')}}
+    frozen['sects']=sect_references(sect_root,sim_rules['sect_progression'])
     frozen['sect_placement']=spec['sect_placement']
     frozen['sect_opening']={**spec['sect_opening'],
             **{key:sim_rules['genesis'][key] for key in ('region_qi_exponent','region_crowding')}}

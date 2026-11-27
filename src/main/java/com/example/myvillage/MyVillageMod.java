@@ -146,6 +146,7 @@ public final class MyVillageMod {
         com.example.myvillage.equipment.EquipmentContent.register(modEventBus);
         com.example.myvillage.equipment.immortal.ImmortalEquipmentContent.register(modEventBus);
         com.example.myvillage.block.IngotBlockContent.register(modEventBus);
+        com.example.myvillage.sect.SectCourtContent.register(modEventBus);
         com.example.myvillage.exploration.ExplorationLoot.register(modEventBus);
         ModDataComponents.register(modEventBus);
         CombatSounds.register(modEventBus);

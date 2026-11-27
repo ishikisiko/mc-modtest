@@ -10,7 +10,7 @@ import java.util.zip.GZIPInputStream;
 
 /** Vertical runs in the authored model, indexed by local column. */
 public final class SectForms {
-    private static final int ROW_BYTES = 9;
+    private static final int ROW_BYTES = 10;
     private final int width, depth;
     private final int[] columns;
     private final byte[] runs;
@@ -32,7 +32,7 @@ public final class SectForms {
         for (int row = 0; data.hasRemaining(); row++) {
             int x = Short.toUnsignedInt(data.getShort()), z = Short.toUnsignedInt(data.getShort());
             int bottom = Short.toUnsignedInt(data.getShort()), size = Short.toUnsignedInt(data.getShort());
-            int material = Byte.toUnsignedInt(data.get());
+            int material = Short.toUnsignedInt(data.getShort());
             int column = z * width + x;
             if (x >= width || z >= depth || bottom + size > maxY + 1 || size == 0 ||
                 material >= materials.size() || column < lastColumn || (column == lastColumn && bottom < end))
@@ -49,7 +49,7 @@ public final class SectForms {
             var row = element.getAsJsonObject();
             return new Material(row.get("state").getAsString(), row.get("landform").getAsBoolean());
         }).toList();
-        if (palette.isEmpty() || palette.size() > 256) throw new IllegalArgumentException("宗门形制材质无效");
+        if (palette.isEmpty() || palette.size() > 16384) throw new IllegalArgumentException("宗门形制材质无效");
         byte[] payload = SectTerrain.verifiedResource(form.get("resource").getAsString(), form.get("sha256").getAsString(), 8 * 1024 * 1024);
         try (var stream = new GZIPInputStream(new ByteArrayInputStream(payload))) {
             int count = form.get("runs").getAsInt();
@@ -69,7 +69,7 @@ public final class SectForms {
         int column = x + z * width;
         for (int row = columns[column]; row < columns[column + 1]; row++) {
             int offset = row * ROW_BYTES;
-            var material = materials.get(Byte.toUnsignedInt(runs[offset + 8]));
+            var material = materials.get(ushort(offset + 8));
             if (material.landform != landform) continue;
             int start = ushort(offset + 4);
             visitor.accept(start, start + ushort(offset + 6), material.state);

@@ -19,6 +19,7 @@ from province_capitals.blueprint_plan.nbt_entities import write_tile
 from province_capitals.regional.v2.common import write_json
 from sect_blueprints.walks import can_step
 from sect_blueprints.forms import export_form
+from sect_blueprints.court_assets import export_court_assets
 from province_capitals.blueprint_plan.atomic_blocks import parse
 
 
@@ -190,6 +191,7 @@ def export_catalog(out):
                      'sha256':digest(out/f'data/yuanxian/sect_blueprints/{key}/sect.json')})
     if len({r['id'] for r in refs})!=len(refs) or catalog['default'] not in {r['id'] for r in refs}:raise ValueError('宗门目录身份无效')
     write_json(out/'data/yuanxian/sect_blueprints/catalog.json',{'schema':1,'default':catalog['default'],'layouts':refs})
+    export_court_assets(source.parent,out)
 
 
 if __name__=='__main__':

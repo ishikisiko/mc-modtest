@@ -55,7 +55,7 @@ ENTRY = {
     'valley_courts-compact': '岸上进山', 'valley_courts-headquarters': '河岸入口',
 }
 DIRECTIONS = {(1, 0): 'east', (-1, 0): 'west', (0, 1): 'south', (0, -1): 'north'}
-ROW = struct.Struct('<4HB')
+ROW = struct.Struct('<5H')
 
 
 def write_gzip(path, raw):

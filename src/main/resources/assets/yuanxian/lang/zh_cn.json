@@ -5029,5 +5029,13 @@
   "block.yuanxian.yuanying_qingdi_block": "神木长生块",
   "block.yuanxian.huashen_taixu_block": "无相凝虚块",
   "block.yuanxian.huashen_xuanji_block": "玄极沉曜块",
-  "block.yuanxian.huashen_dari_block": "归墟日珀块"
+  "block.yuanxian.huashen_dari_block": "归墟日珀块",
+  "block.yuanxian.sect_lift_terminal": "升降台操纵座",
+  "block.yuanxian.sect_lift_gate": "升降台护门",
+  "entity.yuanxian.sect_lift": "宗门升降台",
+  "message.yuanxian.sect_lift.arrived": "升降台已到位。登台后右键操纵座前往另一端。",
+  "message.yuanxian.sect_lift.blocked": "升降台目前无法通行，请清空井道和护门附近。",
+  "message.yuanxian.sect_lift.moving": "升降台正在运行。",
+  "message.yuanxian.sect_lift.unavailable": "另一端的落台或护门暂不可用。",
+  "message.yuanxian.sect_lift.full": "升降台已满。"
 }

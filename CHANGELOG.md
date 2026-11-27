@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.163.0
+
+- 六类宗门的分宗、总舵、主宗各新增一座比试院，分别采用 19、27、37 格宽的比试台。院落通过独立步道接上宗门内路，临空段设护栏。屋瓦、看台、檐廊和栏杆采用已确认的建筑样稿，柱套和脊饰使用源仙锭块材质。
+- 云阙分宗和主宗分别设置 2×2、3×3 升降台。两端都可呼叫，登台后右键操纵座前往另一端。步道也可通行。
+
 ## 0.162.2
 
 - 增加十八种锭块，侧面和端面使用确认后的选稿。随包附带 LabPBR 材质，支持该格式的光影包可渲染金属反射与纹理起伏。九枚同种锭可合成一块，锭块可拆回九枚。
