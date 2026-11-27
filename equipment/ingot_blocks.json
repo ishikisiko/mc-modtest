@@ -1,0 +1,112 @@
+{
+  "materials": {
+    "xuantie": {
+      "finish": "锤击凹斑和压实的铁边",
+      "pattern": "hammered",
+      "colors": ["#242d36", "#48565e", "#748894", "#7c8b8e"],
+      "roughness": 0.72
+    },
+    "chitong": {
+      "finish": "叠焊接缝和局部赤褐氧化斑",
+      "pattern": "welded",
+      "colors": ["#4c271e", "#885137", "#c28862", "#80563f"],
+      "roughness": 0.64
+    },
+    "blood_spirit": {
+      "finish": "灰黑胎面夹细窄暗红脉",
+      "pattern": "veined",
+      "colors": ["#33232c", "#59303b", "#86505b", "#b25a5d"],
+      "roughness": 0.58
+    },
+    "qi_moqing": {
+      "finish": "墨青铸面压出交错的折角",
+      "pattern": "folds",
+      "colors": ["#1f3334", "#435859", "#71908a", "#92aaa2"],
+      "roughness": 0.69
+    },
+    "qi_tingyu": {
+      "finish": "青铜底嵌方格，格内有薄薄的铜绿",
+      "pattern": "lattice",
+      "colors": ["#41463a", "#6e7557", "#a6a480", "#628985"],
+      "roughness": 0.68
+    },
+    "qi_chixia": {
+      "finish": "交叠的赤金锻层留下霞色横纹",
+      "pattern": "strata",
+      "colors": ["#552e2a", "#92523f", "#c77e58", "#d9a271"],
+      "roughness": 0.66
+    },
+    "zhuji_baiqing_lingyun": {
+      "finish": "浅瓷青铸面和洗白的云纹浅槽",
+      "pattern": "cloud",
+      "colors": ["#617d7f", "#a1bfba", "#d0e3d8", "#e5e9d2"],
+      "roughness": 0.56
+    },
+    "zhuji_yuheng_yizhuang": {
+      "finish": "青璧金嵌窄框，边角留出双层槽",
+      "pattern": "frame",
+      "colors": ["#344f44", "#607c60", "#91a679", "#c0ad79"],
+      "roughness": 0.57
+    },
+    "zhuji_wuyao_yeque": {
+      "finish": "乌青铸面和低亮度的燕尾咬合纹",
+      "pattern": "dovetail",
+      "colors": ["#1f2029", "#3e3d49", "#696673", "#8d7975"],
+      "roughness": 0.68
+    },
+    "jindan_jinwu": {
+      "finish": "黑金胎面压出小日纹，金边集中在纹样上",
+      "pattern": "sun",
+      "colors": ["#302823", "#6c543a", "#aa864e", "#d4a864"],
+      "roughness": 0.49
+    },
+    "jindan_taiyin": {
+      "finish": "霜银拉丝斜过月牙形刻槽",
+      "pattern": "moon",
+      "colors": ["#53627a", "#8498ad", "#b8c6cb", "#d1d9df"],
+      "roughness": 0.57
+    },
+    "jindan_zixiao": {
+      "finish": "紫黑胎体有分叉的细脉",
+      "pattern": "lightning",
+      "colors": ["#343048", "#60516f", "#8d769d", "#b497be"],
+      "roughness": 0.62
+    },
+    "yuanying_xinghe": {
+      "finish": "深蓝金属间夹疏密不同的星点",
+      "pattern": "stars",
+      "colors": ["#293343", "#495975", "#778ca4", "#acbec8"],
+      "roughness": 0.51
+    },
+    "yuanying_jiuse": {
+      "finish": "浅灰胎面嵌成束的低饱和色带",
+      "pattern": "spectrum",
+      "colors": ["#6b636c", "#9b9492", "#c7bdb0", "#d2c1a4"],
+      "roughness": 0.53
+    },
+    "yuanying_qingdi": {
+      "finish": "深绿金属沿木理方向刻分叉槽",
+      "pattern": "woodgrain",
+      "colors": ["#283e34", "#4f6f54", "#7c976e", "#b0a578"],
+      "roughness": 0.67
+    },
+    "huashen_taixu": {
+      "finish": "灰紫胎体有收窄的同心浅槽",
+      "pattern": "contours",
+      "colors": ["#514e63", "#79778d", "#a8a4b1", "#cfc6bf"],
+      "roughness": 0.47
+    },
+    "huashen_xuanji": {
+      "finish": "深灰铸板的短槽嵌入哑金",
+      "pattern": "insets",
+      "colors": ["#262a2a", "#4a514f", "#777e72", "#b49a61"],
+      "roughness": 0.50
+    },
+    "huashen_dari": {
+      "finish": "橙棕胎体透出深浅不一的环形锻纹",
+      "pattern": "rings",
+      "colors": ["#543621", "#8d5c32", "#bd8f4f", "#dfb36e"],
+      "roughness": 0.55
+    }
+  }
+}

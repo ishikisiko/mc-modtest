@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "yuanxian:block/ingot_blocks/yuanying_jiuse_end",
+    "top": "yuanxian:block/ingot_blocks/yuanying_jiuse_end",
+    "side": "yuanxian:block/ingot_blocks/yuanying_jiuse_side"
+  }
+}

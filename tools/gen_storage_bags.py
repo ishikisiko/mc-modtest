@@ -38,6 +38,7 @@ def material_values(root: Path) -> list[str | dict]:
         *(item for recipe in alchemy["recipes"] for item in recipe["ingredients"] if item.startswith("yuanxian:")),
         *(entry["ingot"]["id"] for entry in equipment["sets"]),
         "#c:ores/xuantie",
+        "#yuanxian:ingot_blocks",
         "#yuanxian:deposits/edge_tempering_sand",
         "yuanxian:raw_xuantie",
         "yuanxian:blood_spirit_ingot",

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "yuanxian:chitong_block"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:chitong_ingot",
+    "count": 9
+  }
+}

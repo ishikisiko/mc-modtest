@@ -222,7 +222,7 @@ def outputs():
             'entries': [{'type': 'minecraft:item', 'name': Y+name}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})
     pickaxe = resources/'data/minecraft/tags/block/mineable/pickaxe.json'
     tags = json.loads(pickaxe.read_text())
-    tags['values'] = list(dict.fromkeys([*tags['values'], *[Y+name for name in NAMES]]))
+    tags['values'] = list(dict.fromkeys([*tags['values'], *[Y+name for name in NAMES], '#yuanxian:ingot_blocks']))
     put(pickaxe, tags)
 
     put(data/'worldgen/configured_feature/natural_mine_eye.json', {'type': Y+'natural_mine_eye', 'config': {}})

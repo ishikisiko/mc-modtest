@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.162.2
+
+- 增加十八种锭块，侧面和端面分别绘制。九枚同种锭可合成一块，锭块可拆回九枚，适用于建筑和材料收纳。
+
 ## 0.162.1
 
 - 总舵要求筑基初期方可拜入，主宗要求金丹初期。境界不足时，守山执事会告知本宗的最低要求。

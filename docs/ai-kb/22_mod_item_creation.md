@@ -25,6 +25,8 @@ choose focused checks by impact, with separate owner visual/gameplay verdicts.
 [装备制作基础](70_equipment_authoring.md)。防具可从目录草稿起步，复用挂接、UV、图标、注册与试衣间；
 已有武器继续由原专用生成器拥有外形与动作。不要把方块模型的坐标／旋转限制直接套到穿戴模型上。
 
+锭块由 `IngotBlockContent` 从主物品表和五境装备目录注册。每种锭用九枚合成一块，在工作台可拆回九枚。材质输入在 `equipment/ingot_blocks.json`，侧面和端面的贴图、模型、配方及掉落由 `tools.gen_ingot_blocks` 导出。
+
 Use `tools/validate_mod_items.py` for item relationships and the relevant generator
 `--check` for authored assets. Existing `genops/contracts/items/` are machine inputs
 where consumed by validators; keep them current. Ordinary items need no new process

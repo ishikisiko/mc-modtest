@@ -1,0 +1,23 @@
+{
+  "replace": false,
+  "values": [
+    "yuanxian:xuantie_block",
+    "yuanxian:chitong_block",
+    "yuanxian:blood_spirit_block",
+    "yuanxian:qi_moqing_block",
+    "yuanxian:qi_tingyu_block",
+    "yuanxian:qi_chixia_block",
+    "yuanxian:zhuji_baiqing_lingyun_block",
+    "yuanxian:zhuji_yuheng_yizhuang_block",
+    "yuanxian:zhuji_wuyao_yeque_block",
+    "yuanxian:jindan_jinwu_block",
+    "yuanxian:jindan_taiyin_block",
+    "yuanxian:jindan_zixiao_block",
+    "yuanxian:yuanying_xinghe_block",
+    "yuanxian:yuanying_jiuse_block",
+    "yuanxian:yuanying_qingdi_block",
+    "yuanxian:huashen_taixu_block",
+    "yuanxian:huashen_xuanji_block",
+    "yuanxian:huashen_dari_block"
+  ]
+}

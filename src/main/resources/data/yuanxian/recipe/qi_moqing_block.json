@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "III",
+    "III",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "yuanxian:qi_moqing_ingot"
+    }
+  },
+  "result": {
+    "id": "yuanxian:qi_moqing_block",
+    "count": 1
+  }
+}

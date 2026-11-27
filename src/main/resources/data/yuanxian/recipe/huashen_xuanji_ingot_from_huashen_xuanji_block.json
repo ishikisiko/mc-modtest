@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "yuanxian:huashen_xuanji_block"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:huashen_xuanji_ingot",
+    "count": 9
+  }
+}

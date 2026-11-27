@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "III",
+    "III",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "yuanxian:huashen_xuanji_ingot"
+    }
+  },
+  "result": {
+    "id": "yuanxian:huashen_xuanji_block",
+    "count": 1
+  }
+}

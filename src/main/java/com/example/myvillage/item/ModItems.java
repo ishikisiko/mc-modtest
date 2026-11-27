@@ -551,6 +551,7 @@ public final class ModItems {
                         com.example.myvillage.talisman.TalismanContent.creative(output);
                         com.example.myvillage.equipment.EquipmentContent.creative(output);
                         com.example.myvillage.equipment.immortal.ImmortalEquipmentContent.creative(output);
+                        com.example.myvillage.block.IngotBlockContent.creative(output);
                         output.accept(SPIRIT_LEAF.get());
                         output.accept(DEW_BLOSSOM.get());
                         output.accept(SUNROOT.get());

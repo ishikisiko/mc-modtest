@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_material": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "yuanxian:zhuji_wuyao_yeque_block"
+          }
+        ]
+      }
+    },
+    "has_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "yuanxian:zhuji_wuyao_yeque_ingot_from_zhuji_wuyao_yeque_block"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_material",
+      "has_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "yuanxian:zhuji_wuyao_yeque_ingot_from_zhuji_wuyao_yeque_block"
+    ]
+  }
+}

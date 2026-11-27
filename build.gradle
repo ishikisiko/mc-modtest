@@ -758,6 +758,13 @@ tasks.register('verifyProductionAssets', Exec) {
 }
 tasks.named('processResources') { dependsOn 'verifyProductionAssets' }
 
+tasks.register('verifyIngotBlockAssets', Exec) {
+    workingDir projectDir
+    executable pythonExecutable.get()
+    args '-m', 'tools.gen_ingot_blocks', '--check'
+}
+tasks.named('processResources') { dependsOn 'verifyIngotBlockAssets' }
+
 // 生成器完成后校验实际语言源，打包完成后严格核对JAR字节。
 def languageInputSnapshot = layout.buildDirectory.file('language-assets/before-generation.json')
 tasks.register('captureLanguageAssets', Exec) {

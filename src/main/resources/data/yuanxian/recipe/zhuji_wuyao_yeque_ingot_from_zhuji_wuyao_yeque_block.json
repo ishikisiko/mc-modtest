@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "yuanxian:zhuji_wuyao_yeque_block"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:zhuji_wuyao_yeque_ingot",
+    "count": 9
+  }
+}

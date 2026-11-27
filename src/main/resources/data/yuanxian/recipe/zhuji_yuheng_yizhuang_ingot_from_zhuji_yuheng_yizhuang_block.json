@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "yuanxian:zhuji_yuheng_yizhuang_block"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:zhuji_yuheng_yizhuang_ingot",
+    "count": 9
+  }
+}

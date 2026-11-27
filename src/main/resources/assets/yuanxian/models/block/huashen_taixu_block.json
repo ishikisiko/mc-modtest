@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "yuanxian:block/ingot_blocks/huashen_taixu_end",
+    "top": "yuanxian:block/ingot_blocks/huashen_taixu_end",
+    "side": "yuanxian:block/ingot_blocks/huashen_taixu_side"
+  }
+}

@@ -76,6 +76,7 @@
     "yuanxian:crystal_channel",
     "yuanxian:crystal_press_base",
     "yuanxian:golden_condenser",
-    "yuanxian:crystal_outlet"
+    "yuanxian:crystal_outlet",
+    "#yuanxian:ingot_blocks"
   ]
 }

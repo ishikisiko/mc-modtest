@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "yuanxian:zhuji_baiqing_lingyun_block"
+    }
+  ],
+  "result": {
+    "id": "yuanxian:zhuji_baiqing_lingyun_ingot",
+    "count": 9
+  }
+}
