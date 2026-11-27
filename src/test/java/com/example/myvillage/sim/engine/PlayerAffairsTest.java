@@ -1,5 +1,6 @@
 package com.example.myvillage.sim.engine;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,6 +17,9 @@ import com.example.myvillage.sim.model.PlayerMember;
 import com.example.myvillage.sim.model.Sect;
 import com.example.myvillage.sim.model.StateCodec;
 import com.example.myvillage.sim.model.WorldState;
+import com.example.myvillage.sim.sect.SectTournament.Enrollment;
+import com.example.myvillage.sim.sect.SectTournament.Fixture;
+import com.example.myvillage.sim.sect.SectTournament.Outcome;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,60 +82,88 @@ class PlayerAffairsTest {
     }
 
     @Test
-    void reviewPromotesOneRankAYearBySnapshot() {
+    void tournamentWinsPromoteOnceAndSurviveSave() {
         SimContext ctx = ctx();
         Sect sect = home(ctx);
-        PlayerAffairs.join(ctx, ALICE, "Alice", sect.id, ABLE);
-        PlayerMember m = ctx.state.playerMembers.get(ALICE);
-        Rules.PlayerPromotion bars = data.rules().player().promotion();
-
-        // Below the inner bar (qi refining stage 4 by default): no promotion.
-        m.realmId = bars.inner().stage().realm();
-        m.stageIndex = bars.inner().stage().stage() - 1;
-        List<SimEvent> first = Engine.step(ctx);
-        assertEquals("outer", m.rank);
-        assertTrue(ofType(first, "player_promotion").isEmpty());
-
-        // Past the elder bar already, yet the review raises one rank a year.
-        m.realmId = bars.elder().stage().realm();
-        m.stageIndex = bars.elder().stage().stage();
-        List<SimEvent> year1 = nextYearStart(ctx);
-        assertEquals("inner", m.rank);
-        List<SimEvent> promoted = ofType(year1, "player_promotion");
+        var bar = data.rules().player().promotion().inner();
+        var qualified = new PlayerQualification(bar.stage().realm(), bar.stage().stage(), true, 5000);
+        PlayerAffairs.join(ctx, ALICE, "Alice", sect.id, qualified);
+        SectTournaments.advanceMonth(ctx, 1);
+        prepareTournamentPeers(ctx, sect, bar, 3);
+        PlayerAffairs.yearly(ctx);
+        assertEquals("outer", ctx.state.playerMembers.get(ALICE).rank);
+        assertEquals(Enrollment.ENTERED, SectTournaments.enroll(ctx, sect.id, ALICE));
+        assertEquals(Enrollment.ALREADY_ENTERED, SectTournaments.enroll(ctx, sect.id, ALICE));
+        List<Fixture> matches = SectTournaments.fixtures(ctx, sect.id).stream().filter(Fixture::hasPlayer).toList();
+        assertEquals(3, matches.size());
+        assertEquals(3, matches.stream().map(m -> m.second().person()).distinct().count());
+        assertFalse(SectTournaments.simulate(ctx, matches.getFirst()));
+        assertTrue(SectTournaments.record(ctx, matches.getFirst().ticket(), Outcome.FIRST));
+        byte[] saved = StateCodec.toBytes(ctx.state, ctx.realms);
+        var restored = new SimContext(StateCodec.fromBytes(saved, ctx.realms), data, graph, DPY);
+        assertArrayEquals(saved, StateCodec.toBytes(restored.state, ctx.realms));
+        assertFalse(SectTournaments.record(restored, matches.getFirst().ticket(), Outcome.FIRST));
+        assertTrue(SectTournaments.record(restored, matches.get(1).ticket(), Outcome.FIRST));
+        assertEquals("outer", restored.state.playerMembers.get(ALICE).rank);
+        assertTrue(SectTournaments.record(restored, matches.get(2).ticket(), Outcome.SECOND));
+        var standing = SectTournaments.standing(restored, sect.id, ALICE).orElseThrow();
+        assertTrue(standing.promoted());
+        assertEquals(2, standing.wins());
+        assertEquals("inner", restored.state.playerMembers.get(ALICE).rank);
+        var promoted = ofType(restored.state.chronicle, "player_promotion");
         assertEquals(1, promoted.size());
-        assertEquals(TextKeys.PLAYER_PROMOTE_INNER + ".1", promoted.get(0).textKey());
-        assertEquals(List.of("Alice", sect.name), promoted.get(0).params());
-        assertEquals(List.of(sect.id), promoted.get(0).sects());
-        assertEquals(sect.homeRegionId, promoted.get(0).regionId());
-        assertEquals(2, promoted.get(0).importance());
-
-        // 通过战斗考核的回执是分宗晋升长老的新增前置条件。
-        m.elderTrialPassed = true;
-        List<SimEvent> year2 = nextYearStart(ctx);
-        assertTrue(sect.active(), "the home sect survives the test years");
-        assertEquals("elder", m.rank);
-        assertEquals(TextKeys.PLAYER_PROMOTE_ELDER + ".1", ofType(year2, "player_promotion").get(0).textKey());
-
-        // An elder is reviewed no further (the sect master's seat is not won by review).
-        assertTrue(ofType(nextYearStart(ctx), "player_promotion").isEmpty());
-        assertEquals("elder", m.rank);
+        assertEquals(List.of("Alice", sect.name), promoted.getFirst().params());
+        assertTrue(SectTournaments.advanceMonth(restored, 2));
+        assertFalse(SectTournaments.record(restored, matches.get(2).ticket(), Outcome.FIRST));
+        assertEquals(Enrollment.NOT_OUTER, SectTournaments.eligibility(restored, sect.id, ALICE));
     }
 
     @Test
-    void contributionBarHolds() {
-        SimContext ctx = ctx();
-        Sect sect = home(ctx);
+    void contributionBarHoldsAtRegistration() {
+        var ctx = ctx();
+        var sect = home(ctx);
         PlayerAffairs.join(ctx, ALICE, "Alice", sect.id, ABLE);
-        PlayerMember m = ctx.state.playerMembers.get(ALICE);
-        Rules.PlayerThreshold inner = data.rules().player().promotion().inner();
+        var m = ctx.state.playerMembers.get(ALICE);
+        var inner = data.rules().player().promotion().inner();
         m.realmId = inner.stage().realm();
         m.stageIndex = inner.stage().stage();
         m.contribution = inner.contribution() - 1;
-        Engine.step(ctx);
-        assertEquals("outer", m.rank, "one short of the contribution bar");
+        SectTournaments.advanceMonth(ctx, 0);
+        assertEquals(Enrollment.BELOW_THRESHOLD, SectTournaments.eligibility(ctx, sect.id, ALICE));
         m.contribution = inner.contribution();
-        nextYearStart(ctx);
-        assertEquals("inner", m.rank);
+        assertEquals(Enrollment.ENTERED, SectTournaments.eligibility(ctx, sect.id, ALICE));
+        assertEquals("outer", m.rank);
+    }
+
+    @Test
+    void npcFixturesUseExistingPeopleAndHaveNoLethalConsequences() {
+        var ctx = ctx();
+        var sect = home(ctx);
+        prepareTournamentPeers(ctx, sect, data.rules().player().promotion().inner(), 4);
+        SectTournaments.advanceMonth(ctx, 1);
+        assertTrue(SectTournaments.arrangeNpc(ctx, sect.id));
+        assertFalse(SectTournaments.arrangeNpc(ctx, sect.id));
+        var matches = SectTournaments.fixtures(ctx, sect.id);
+        assertEquals(6, matches.size());
+        int dead = ctx.state.tombstones.size();
+        int population = ctx.state.persons.size();
+        for (Fixture match : matches) assertTrue(SectTournaments.simulate(ctx, match));
+        assertFalse(SectTournaments.simulate(ctx, matches.getFirst()));
+        assertEquals(dead, ctx.state.tombstones.size());
+        assertEquals(population, ctx.state.persons.size());
+        assertTrue(SectTournaments.fixtures(ctx, sect.id).isEmpty());
+    }
+
+    private static void prepareTournamentPeers(SimContext ctx, Sect sect, Rules.PlayerThreshold bar, int count) {
+        var people = ctx.members(sect.id).stream().filter(p -> !p.rank.equals("sect_master")).limit(count).toList();
+        assertEquals(count, people.size());
+        for (Person p : people) {
+            p.realm = ctx.realms.indexOf(bar.stage().realm());
+            p.stage = bar.stage().stage();
+            p.rank = "outer";
+            p.status = "at_sect";
+            p.regionId = sect.homeRegionId;
+        }
     }
 
     @Test

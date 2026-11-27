@@ -451,6 +451,14 @@ public final class CombatSessionManager {
         npc.clearCombatAction();
     }
 
+    /** A bout boundary expires its remaining fields and charges while preserving action cooldowns. */
+    public static void endTournamentCombat(LivingEntity actor) {
+        if (actor instanceof ServerPlayer player) interrupt(player, CombatStopReason.DISALLOWED, true);
+        else if (actor instanceof NpcEntity npc) interruptNpc(npc, CombatStopReason.DISALLOWED, true);
+        CombatArtActions.remove(actor.getUUID());
+        com.example.myvillage.combat.elemental.ElementalEffects.forget(actor.getUUID());
+    }
+
     /**
      * Whether a dodge may start now as far as the attack session is concerned: true with no action
      * running, or once the action is past its last active tick (its recovery). Has no side effect.

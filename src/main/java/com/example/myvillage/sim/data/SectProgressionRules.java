@@ -6,12 +6,15 @@ import com.example.myvillage.sim.SimRng;
 import java.util.*;
 
 /** 宗门等级、任职境界和月供奉的唯一配置。宗门等级在成立时确定。 */
-public record SectProgressionRules(int entryStates, int regionalHubs, Map<String, Tier> tiers, Trial trial) {
+public record SectProgressionRules(int entryStates, int regionalHubs, Map<String, Tier> tiers, Trial trial,
+                                   Tournament tournament) {
     public static final String BRANCH = "branch", HEADQUARTERS = "headquarters", MAIN = "main";
     public static final List<String> IDS = List.of(BRANCH, HEADQUARTERS, MAIN);
     public static final List<String> STONES = List.of("low", "middle", "high");
     public record Master(String realm, int minimumStage, int maximumStage, int weight) { }
     public record Trial(String entity, String realm, int stage, int durationTicks, int radius, int spawnRadius) { }
+    public record Tournament(int groupSize, int requiredWins, int stageGap, int readyTicks,
+                             int boutTicks, int intervalTicks, int watchRadius, int maxLiveCourts) { }
     public record Tier(String id, String name, Rules.RealmStage outer, Rules.PlayerPromotion promotion,
                        List<Master> masters, String stone, Map<String, Integer> monthly) {
         public Master master(SimRng rng) {
@@ -93,8 +96,15 @@ public record SectProgressionRules(int entryStates, int regionalHubs, Map<String
         var target = stage(tr, realms);
         if (!target.realm().equals("qi_refining") || target.stage() != realms.byId("qi_refining").lastStage())
             throw tr.error("stage", "分宗长老考核对手必须为炼气巅峰");
+        var cup = f.object("tournament", Set.of("group_size", "required_wins", "stage_gap", "ready_ticks",
+                "bout_ticks", "interval_ticks", "watch_radius", "max_live_courts"));
+        int groupSize = cup.integer("group_size", 3, 4);
+        var tournament = new Tournament(groupSize, cup.integer("required_wins", 2, groupSize - 1),
+                cup.integer("stage_gap", 0, 8), cup.integer("ready_ticks", 20, 200),
+                cup.integer("bout_ticks", 200, 6000), cup.integer("interval_ticks", 20, 1200),
+                cup.integer("watch_radius", 16, 96), cup.integer("max_live_courts", 1, 16));
         return new SectProgressionRules(entries, hubs, Map.copyOf(tiers), new Trial(tr.nonEmptyString("entity"), target.realm(), target.stage(),
-                tr.positiveInteger("duration_ticks"), tr.integer("radius", 8, 128), tr.integer("spawn_radius", 2, 24)));
+                tr.positiveInteger("duration_ticks"), tr.integer("radius", 8, 128), tr.integer("spawn_radius", 2, 24)), tournament);
     }
     private static Rules.RealmStage stage(SimJson.Fields f, RealmTable realms) {
         String realm = f.nonEmptyString("realm");

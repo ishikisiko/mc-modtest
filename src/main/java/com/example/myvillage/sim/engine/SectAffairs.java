@@ -48,13 +48,7 @@ public final class SectAffairs {
     static void promote(SimContext ctx, Sect sect) {
         var bars = ctx.rules.sectProgression().promotion(sect.tierId, ctx.rules.player().promotion());
         for (Person p : ctx.members(sect.id)) {
-            if (p.rank.equals("outer") && reached(ctx, p, new Rules.RealmStage(bars.inner().stage().realm(), bars.inner().stage().stage()))) {
-                String[] before = Anchor.of(ctx).who(p).build();
-                p.rank = "inner";
-                p.techniqueId = upgradeTechnique(ctx, p, People.sectTechnique(ctx, sect, p.rank));
-                ctx.chronicle.event("promotion", 1).actors(p.id).sects(sect.id).region(p.regionId)
-                        .say(TextKeys.PROMOTE_INNER, before);
-            } else if (p.rank.equals("inner") && reached(ctx, p, new Rules.RealmStage(bars.elder().stage().realm(), bars.elder().stage().stage()))) {
+            if (p.rank.equals("inner") && reached(ctx, p, new Rules.RealmStage(bars.elder().stage().realm(), bars.elder().stage().stage()))) {
                 Anchor before = Anchor.of(ctx).who(p).add(TextKeys.stage(ctx.realm(p).id(), p.stage));
                 p.rank = "elder";
                 if (!ctx.heritageSource(sect).heritageId.isEmpty()) {
@@ -64,6 +58,14 @@ public final class SectAffairs {
                         .say(TextKeys.PROMOTE_ELDER, before);
             }
         }
+    }
+
+    static void promoteInner(SimContext ctx, Sect sect, Person p) {
+        String[] before = Anchor.of(ctx).who(p).build();
+        p.rank = "inner";
+        p.techniqueId = upgradeTechnique(ctx, p, People.sectTechnique(ctx, sect, p.rank));
+        ctx.chronicle.event("promotion", 1).actors(p.id).sects(sect.id).region(p.regionId)
+                .say(TextKeys.PROMOTE_INNER, before);
     }
 
     /** Keeps a technique the person already has if it is at least as good as the sect's. */

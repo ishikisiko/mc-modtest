@@ -188,7 +188,8 @@ public final class WorldSimRuntime {
         List<SimEvent> events;
         try {
             WorldSim live = d.sim();
-            settleSectMonth(s, live);
+            long month = settleSectMonth(s, live);
+            com.example.myvillage.sim.runtime.player.SectTournamentRuntime.tick(s, live, month);
             com.example.myvillage.sim.runtime.player.SectBenefitsRuntime.checkTrials(s, live);
             long calendarTicks = CultivationCalendarSavedData.get(s.overworld()).elapsedCalendarTicks();
             if (s.getTickCount() % live.lifeRules().runtimeIntervalTicks() == 0
@@ -218,6 +219,7 @@ public final class WorldSimRuntime {
 
     static void onServerStopping(ServerStoppingEvent event) {
         // The final world save runs after this event; the save data keeps its live binding for it.
+        sim().ifPresent(com.example.myvillage.sim.runtime.player.SectTournamentRuntime::stop);
         WorldSimAvatars.flushLife();
         NpcLifeSites.reset();
         if (saved != null && saved.attached()) {
@@ -230,11 +232,12 @@ public final class WorldSimRuntime {
         deactivate("the server is stopping");
     }
 
-    private static void settleSectMonth(MinecraftServer server, WorldSim sim) {
+    private static long settleSectMonth(MinecraftServer server, WorldSim sim) {
         var scale = CultivationServerConfig.scale();
         long month = CultivationCalendarSavedData.get(server.overworld()).elapsedCalendarTicks()
                 / scale.ticksPerDay() / scale.daysPerMonth();
         if (sim.settleSectMonth(month)) saved.setDirty();
+        return month;
     }
 
     /** Settle the life clock at a combat boundary so a sub-interval fight cannot earn wages. */
@@ -365,6 +368,7 @@ public final class WorldSimRuntime {
     private static void fail(String what, RuntimeException ex) {
         LOGGER.error("World sim {} failed at sim day {}; the ledger is inactive until restart and its save keeps "
                 + "the last checkpoint", what, driver == null ? "?" : driver.sim().day(), ex);
+        sim().ifPresent(com.example.myvillage.sim.runtime.player.SectTournamentRuntime::stop);
         if (saved != null) {
             saved.detach();
         }

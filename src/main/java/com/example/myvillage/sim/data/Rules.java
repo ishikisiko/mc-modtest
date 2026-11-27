@@ -664,7 +664,7 @@ public record Rules(
                 genesis, gates, naming, importance, travel, seclusion, danger, fortune,
                 Collections.unmodifiableMap(artifactPower), meetings, combat, revenge, sectRelations, succession,
                 decline, founding, player, SectProgressionRules.parse(root.object("sect_progression",
-                        Set.of("entry_states", "regional_hubs", "levels", "elder_trial")), realms, player.promotion()));
+                        Set.of("entry_states", "regional_hubs", "levels", "elder_trial", "tournament")), realms, player.promotion()));
     }
 
     /** Largest {@code cultivation.master_guidance}: a master at most multiplies meditation by 11. */

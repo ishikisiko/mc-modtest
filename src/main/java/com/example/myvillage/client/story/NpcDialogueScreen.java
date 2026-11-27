@@ -84,7 +84,8 @@ public final class NpcDialogueScreen extends StoryPaperScreen {
         if (!valid()) { dismiss(); return; }
         PacketDistributor.sendToServer(new NpcDialogueIntent(new StoryIntentPayload(page.entityId(), page.nonce(), option)));
         for (var button : buttons) button.active = false;
-        if (option.equals("trade") || option.equals("story") || option.equals("sect_office")) dismiss();
+        if (option.equals("trade") || option.equals("story") || option.equals("sect_office")
+                || option.equals(com.example.myvillage.sim.runtime.player.SectTournamentRuntime.NEXT_BOUT)) dismiss();
     }
     private void sendClose() {
         if (!closeSent && !dismissing && minecraft != null && minecraft.getConnection() != null) {

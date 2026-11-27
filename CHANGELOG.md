@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.164.0
+
+- 分宗、总舵和主宗每月各办一届宗门大比。外门弟子到比试院报到，与命簿中境界相近的同门交手。赛后击败两名不同弟子的合资格外门可晋升内门。
+- 擂台比试沿用双方的功法和招式。执事叫号后开打，出界、认输或即将倒地时结束。有人观赛时可看到同门上台，无人观赛的纯 NPC 场次由命簿结算。
+
 ## 0.163.0
 
 - 六类宗门的分宗、总舵、主宗各新增一座比试院，分别采用 19、27、37 格宽的比试台。院落通过独立步道接上宗门内路，临空段设护栏。屋瓦、看台、檐廊和栏杆采用已确认的建筑样稿，柱套和脊饰使用源仙锭块材质。

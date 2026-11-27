@@ -17,6 +17,7 @@ public final class WorldState {
     /** Next day to settle; also days since genesis. */
     public long day;
     public long sectStipendMonth = -1;
+    public com.example.myvillage.sim.sect.SectTournament tournaments = new com.example.myvillage.sim.sect.SectTournament();
     public int nextPersonId = 1;
     public int nextSectId = 1;
     public long nextEventId = 1;

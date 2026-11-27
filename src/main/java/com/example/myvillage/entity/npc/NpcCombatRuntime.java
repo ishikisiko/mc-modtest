@@ -41,6 +41,10 @@ public final class NpcCombatRuntime {
     }
 
     public static boolean bind(WorldSim sim, NpcEntity npc, PersonView person) {
+        return bind(sim, npc, person, true);
+    }
+
+    public static boolean bind(WorldSim sim, NpcEntity npc, PersonView person, boolean restorePosition) {
         equipInitial(npc);
         var initial = new NpcCombatProfile(Math.max(1, npc.getMaxHealth() * (1 - person.injury() / 100.0)),
                 npc.getMaxHealth(), weapon(npc), 0, 0, "", 0, null);
@@ -59,7 +63,7 @@ public final class NpcCombatRuntime {
         npc.combatLastAttacker = profile.lastAttacker();
         npc.combatLastDamageTick = profile.lastDamageTick();
         var body = profile.body();
-        if (body != null && (sim.life(person.id()).isEmpty() || unresolved(body))
+        if (restorePosition && body != null && (sim.life(person.id()).isEmpty() || unresolved(body))
                 && body.region().equals(person.regionId())
                 && body.dimension().equals(npc.level().dimension().location().toString())) {
             npc.setPos(body.x(), body.y(), body.z());
@@ -107,6 +111,10 @@ public final class NpcCombatRuntime {
 
     public static void attacked(NpcEntity npc, DamageSource source) {
         if (!canAct(npc)) return;
+        if (com.example.myvillage.sim.runtime.player.SectTournamentRuntime.opponents(npc, source.getEntity())) {
+            npc.lastThreatTick = npc.level().getGameTime();
+            return;
+        }
         if (source.getEntity() instanceof LivingEntity) {
             npc.combatLastAttacker = actor(source);
             npc.combatLastDamageTick = npc.level().getGameTime();
@@ -145,12 +153,21 @@ public final class NpcCombatRuntime {
         if (target == null) { if (npc.getTarget() != null) disengage(npc); return; }
         if (!canAct(npc) || !Boolean.TRUE.equals(com.example.myvillage.item.TestUnitRuntime.relation(npc, target))
                 || !CombatActors.mayHarm(npc, target)) return;
-        if (npc.getTarget() != target) {
-            npc.combatAnchor = npc.position();
-            npc.lastThreatTick = npc.level().getGameTime();
-            npc.nextCombatDecision = npc.lastThreatTick + NpcCombatRules.get().reactionTicks();
-            npc.setTarget(target); engage(npc, true);
-        }
+        selectOpponent(npc, target);
+    }
+
+    public static void selectTournamentOpponent(NpcEntity npc, LivingEntity target) {
+        if (canAct(npc) && com.example.myvillage.sim.runtime.player.SectTournamentRuntime.opponents(npc, target)
+                && CombatActors.mayHarm(npc, target)) selectOpponent(npc, target);
+    }
+
+    private static void selectOpponent(NpcEntity npc, LivingEntity target) {
+        if (npc.getTarget() == target) return;
+        npc.combatAnchor = npc.position();
+        npc.lastThreatTick = npc.level().getGameTime();
+        npc.nextCombatDecision = npc.lastThreatTick + NpcCombatRules.get().reactionTicks();
+        npc.setTarget(target);
+        engage(npc, true);
     }
 
     public static void disengage(NpcEntity npc) {
@@ -163,6 +180,7 @@ public final class NpcCombatRuntime {
 
     public static void checkpoint(NpcEntity npc) {
         if (!npc.isLedgerAvatar() || !managed(npc)) return;
+        if (com.example.myvillage.sim.runtime.avatar.WorldSimAvatars.seatedForTournament(npc)) return;
         WorldSimRuntime.sim().ifPresent(sim -> {
             var old = sim.combatProfile(npc.ledgerPersonId()).orElseThrow();
             var person = sim.person(npc.ledgerPersonId()).orElseThrow();

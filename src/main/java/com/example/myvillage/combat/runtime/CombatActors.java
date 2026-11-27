@@ -20,8 +20,11 @@ public final class CombatActors {
     public static boolean mayHarm(LivingEntity actor, Entity target) {
         if (com.example.myvillage.cultivation.fate.PhoenixRuntime.active(actor)) return false;
         if (actor == target || actor.level() != target.level() || !actor.isAlive() || !target.isAlive()
-                || target.isSpectator() || allied(actor, target)) return false;
+                || target.isSpectator()) return false;
         if (target instanceof Player player && player.isCreative()) return false;
+        Boolean tournament = com.example.myvillage.sim.runtime.player.SectTournamentRuntime.combatPermission(actor, target);
+        if (tournament != null) return tournament;
+        if (allied(actor, target)) return false;
         if (actor instanceof Player player && target instanceof Player other && !player.canHarmPlayer(other)) return false;
         if (Boolean.FALSE.equals(com.example.myvillage.item.TestUnitRuntime.relation(actor, target))) return false;
         return true;

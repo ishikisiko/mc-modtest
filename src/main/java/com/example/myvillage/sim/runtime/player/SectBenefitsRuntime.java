@@ -55,6 +55,9 @@ public final class SectBenefitsRuntime {
                 .collect(java.util.stream.Collectors.joining("、"));
         lines.add(Component.literal(pending.isEmpty() ? "供奉在每月月初结算，当前没有待领取灵石。" : "待领取供奉：" + money + "。"));
         lines.add(Component.literal("未领取的供奉保存在命簿中，死亡和重登会保留余额。"));
+        if (member.rank().equals("outer")) SectTournamentRuntime.checkInPoint(p, sim, sectId).ifPresent(at ->
+                lines.add(Component.literal("外门弟子可去比试院参加本月大比，向擂台旁的执事报到。执事在 "
+                        + at.getX() + "、" + at.getY() + "、" + at.getZ() + "。")));
         if (sect.tierId().equals("branch") && member.rank().equals("inner")) {
             String reason = sim.elderTrialRefusal(p.getUUID().toString());
             lines.add(Component.literal(reason.isEmpty() ? "长老考核：独自击败一只炼气巅峰妖兽，通过后晋升长老。" : reason));

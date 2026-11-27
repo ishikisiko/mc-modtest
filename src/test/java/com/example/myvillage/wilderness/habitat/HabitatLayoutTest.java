@@ -37,7 +37,7 @@ class HabitatLayoutTest {
     }
     @Test void peerRegionsShareTheSameSectTierAndEastIsTheInitialRegion()throws Exception{
         var world=world(20261115);assertEquals("donghuang",world.spawn().regionId());
-        var rules=new SectProgressionRules(2,2,Map.of(),null);
+        var rules=new SectProgressionRules(2,2,Map.of(),null,null);
         assertEquals("branch",rules.forRegion(world.graph(),"donghuang"));assertEquals("branch",rules.forRegion(world.graph(),"lingyue"));assertEquals("branch",rules.forRegion(world.graph(),"beiyuan"));
         assertEquals("headquarters",rules.forRegion(world.graph(),"donghai"));assertEquals(rules.forRegion(world.graph(),"donghai"),rules.forRegion(world.graph(),"ximo"));
         assertEquals("headquarters",rules.forRegion(world.graph(),"nanjiang"));assertEquals("main",rules.forRegion(world.graph(),"zhongzhou"));

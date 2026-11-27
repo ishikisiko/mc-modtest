@@ -15,6 +15,8 @@ public final class SectBlueprint {
     private static final String CATALOG = "data/yuanxian/sect_blueprints/catalog.json";
     public record Tile(int x, int z, ResourceLocation template, String sha256) { }
     public record Shelf(BlockPos position, BlockPos reader, Direction facing) { }
+    /** The floor and entrance direction exported with the approved tournament court. */
+    public record Arena(BlockPos center, int width, Direction inward) { }
     public final ResourceLocation id;
     public final String name, fingerprint, rock, surface, subsoil, archetype, scale, tier;
     public final int topsoilDepth;
@@ -25,6 +27,7 @@ public final class SectBlueprint {
     public final int width, height, depth, maxY, margin, vegetationClearance;
     public final BlockPos entry, steward;
     public final BlockPos linlangCounter, linlangReader;
+    public final Arena arena;
     public final List<BlockPos> courtyard;
     public final List<Shelf> shelves;
     public final List<Tile> tiles;
@@ -57,6 +60,17 @@ public final class SectBlueprint {
         o.getAsJsonObject("regional_surfaces").entrySet().forEach(e->{var m=new LinkedHashMap<String,String>();e.getValue().getAsJsonObject().entrySet().forEach(v->m.put(v.getKey(),v.getValue().getAsString()));remaps.put(e.getKey(),Map.copyOf(m));});
         regionalSurfaces=Map.copyOf(remaps);
         entry=position(o.getAsJsonArray("entry_anchor"));steward=position(o.getAsJsonArray("steward"));
+        var court = o.getAsJsonObject("arena");
+        var center = position(court.getAsJsonArray("center"));
+        int ring = integer(court, "width");
+        var vector = court.getAsJsonArray("direction");
+        Direction inward = vector.size() == 2 ? Direction.fromDelta(vector.get(0).getAsInt(), 0, vector.get(1).getAsInt()) : null;
+        int half = ring / 2;
+        if (inward == null || ring < 9 || ring > 63 || ring % 2 == 0
+                || center.getX() < half || center.getX() + half >= width
+                || center.getZ() < half || center.getZ() + half >= depth || center.getY() + 2 > maxY)
+            throw new IllegalArgumentException("宗门比试台坐标或朝向无效");
+        arena = new Arena(center, ring, inward);
         var linlang=o.getAsJsonObject("linlang");linlangCounter=position(linlang.getAsJsonArray("position"));linlangReader=position(linlang.getAsJsonArray("reader"));
         var port=o.getAsJsonObject("road_port");var portFacing=Direction.byName(port.get("facing").getAsString());
         roadPort=new RoadPort(position(port.getAsJsonArray("position")),portFacing,integer(port,"width"));

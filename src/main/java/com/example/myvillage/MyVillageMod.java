@@ -200,6 +200,8 @@ public final class MyVillageMod {
         com.example.myvillage.exploration.boss.BossRuntime.register();
         com.example.myvillage.exploration.ExplorationRuntime.register();
         com.example.myvillage.arrival.ArrivalRuntime.register();
+        // Judge lethal tournament hits after the regular LOWEST damage modifiers.
+        com.example.myvillage.sim.runtime.player.SectTournamentRuntime.register();
         NeoForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);
     }

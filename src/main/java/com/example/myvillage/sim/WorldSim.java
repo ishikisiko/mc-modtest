@@ -10,6 +10,7 @@ import com.example.myvillage.sim.engine.AdminActs;
 import com.example.myvillage.sim.engine.Engine;
 import com.example.myvillage.sim.engine.PlayerAffairs;
 import com.example.myvillage.sim.engine.SimContext;
+import com.example.myvillage.sim.engine.SectTournaments;
 import com.example.myvillage.sim.life.LifeCodec;
 import com.example.myvillage.sim.life.LifeEngine;
 import com.example.myvillage.sim.life.LifePlace;
@@ -34,6 +35,11 @@ import com.example.myvillage.sim.model.SectRelation;
 import com.example.myvillage.sim.model.StateCodec;
 import com.example.myvillage.sim.model.Tombstone;
 import com.example.myvillage.sim.model.WorldState;
+import com.example.myvillage.sim.sect.SectTournament.Enrollment;
+import com.example.myvillage.sim.sect.SectTournament.Fixture;
+import com.example.myvillage.sim.sect.SectTournament.Outcome;
+import com.example.myvillage.sim.sect.SectTournament.Standing;
+import com.example.myvillage.sim.sect.SectTournament.Ticket;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -1028,6 +1034,19 @@ public final class WorldSim {
     }
 
     public com.example.myvillage.sim.data.SectProgressionRules sectProgression() { return ctx.rules.sectProgression(); }
+    public long tournamentMonth() { return ctx.state.tournaments.month; }
+    public boolean advanceTournamentMonth(long month) { return SectTournaments.advanceMonth(ctx, month); }
+    public boolean arrangeNpcTournamentGroup(int sect) { return SectTournaments.arrangeNpc(ctx, sect); }
+    public Enrollment tournamentEligibility(int sect, String player) { return SectTournaments.eligibility(ctx, sect, player); }
+    public Rules.PlayerThreshold tournamentThreshold(int sect) {
+        return ctx.rules.sectProgression().promotion(ctx.sect(sect).tierId, ctx.rules.player().promotion()).inner();
+    }
+    public Enrollment enterTournament(int sect, String player) { return SectTournaments.enroll(ctx, sect, player); }
+    public Optional<Standing> tournamentStanding(int sect, String player) { return SectTournaments.standing(ctx, sect, player); }
+    public List<Fixture> tournamentFixtures(int sect) { return SectTournaments.fixtures(ctx, sect); }
+    public boolean validTournamentFixture(Fixture fixture) { return SectTournaments.eligibleFixture(ctx, fixture); }
+    public boolean recordTournamentResult(Ticket ticket, Outcome outcome) { return SectTournaments.record(ctx, ticket, outcome); }
+    public boolean simulateTournamentFixture(Fixture fixture) { return SectTournaments.simulate(ctx, fixture); }
     public boolean settleSectMonth(long month) { return com.example.myvillage.sim.engine.SectBenefits.observeMonth(ctx, month); }
     public java.util.Map<String, java.math.BigInteger> pendingStipend(String playerId) {
         return com.example.myvillage.sim.engine.SectBenefits.pending(ctx, playerId);

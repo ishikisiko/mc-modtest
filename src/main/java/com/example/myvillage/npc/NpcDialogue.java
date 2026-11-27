@@ -14,6 +14,7 @@ import com.example.myvillage.sim.runtime.avatar.WorldSimAvatars;
 import com.example.myvillage.sim.runtime.commerce.NpcCommerce;
 import com.example.myvillage.sim.runtime.life.NpcLifeInteraction;
 import com.example.myvillage.sim.runtime.player.SectDialogue;
+import com.example.myvillage.sim.runtime.player.SectTournamentRuntime;
 import com.example.myvillage.story.StoryRuntime;
 import com.example.myvillage.story.StorySessions;
 import com.example.myvillage.story.net.StoryDialoguePayload;
@@ -70,6 +71,11 @@ public final class NpcDialogue {
 
     public static void open(ServerPlayer p, NpcEntity npc) {
         if (!valid(p, npc) || !allow(p)) return;
+        var tournament = SectTournamentRuntime.interact(p, npc, "");
+        if (tournament.isPresent()) {
+            send(p, npc, tournament.get().lines(), tournament.get().options());
+            return;
+        }
         if(com.example.myvillage.housing.HousingRuntime.open(p,npc))return;
         var estate = com.example.myvillage.estate.EstateRuntime.interact(p,npc,"estate_home");
         if (estate.isPresent()) { send(p,npc,estate.get().lines(),estate.get().options()); return; }
@@ -120,6 +126,10 @@ public final class NpcDialogue {
         }
         String option = c.optionId();
         if (option.equals("close")) return;
+        if (option.equals(SectTournamentRuntime.SIGN_UP) || option.equals(SectTournamentRuntime.NEXT_BOUT)) {
+            SectTournamentRuntime.interact(p, npc, option).ifPresent(page -> send(p, npc, page.lines(), page.options()));
+            return;
+        }
         if (com.example.myvillage.estate.EstateRuntime.steward(npc).isPresent()) {
             var page = option.equals("estate_confirm") ? com.example.myvillage.estate.EstateRuntime.confirm(npc)
                     : com.example.myvillage.estate.EstateRuntime.interact(p,npc,option);

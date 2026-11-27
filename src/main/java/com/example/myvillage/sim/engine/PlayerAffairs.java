@@ -521,13 +521,10 @@ public final class PlayerAffairs {
                 continue;
             }
             var promotion = ctx.rules.sectProgression().promotion(sect.tierId, rules.promotion());
-            String next = m.rank.equals(OUTER) ? INNER : m.rank.equals(INNER) ? ELDER : null;
-            Rules.PlayerThreshold bar = next == null ? null
-                    : next.equals(INNER) ? promotion.inner() : promotion.elder();
-            if (bar != null && reached(ctx.realms, m.realmId, m.stageIndex, bar.stage())
-                    && m.contribution >= bar.contribution()
-                    && (!next.equals(ELDER) || !sect.tierId.equals("branch") || m.elderTrialPassed)) {
-                m.rank = next;
+            var bar = promotion.elder();
+            if (m.rank.equals(INNER) && reached(ctx.realms, m.realmId, m.stageIndex, bar.stage())
+                    && m.contribution >= bar.contribution() && (!sect.tierId.equals("branch") || m.elderTrialPassed)) {
+                m.rank = ELDER;
                 promotionEvent(ctx, m, sect);
             }
             if (m.masterId >= 0) {
@@ -632,6 +629,11 @@ public final class PlayerAffairs {
         m.taskId = "";
         m.taskProgress = 0;
         m.taskTargetSectId = -1;
+    }
+
+    static void promoteThroughTournament(SimContext ctx, PlayerMember m, Sect sect) {
+        m.rank = INNER;
+        promotionEvent(ctx, m, sect);
     }
 
     private static long promotionEvent(SimContext ctx, PlayerMember m, Sect sect) {

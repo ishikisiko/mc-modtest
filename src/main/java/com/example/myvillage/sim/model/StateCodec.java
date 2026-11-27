@@ -22,7 +22,7 @@ import java.util.List;
 public final class StateCodec {
     public static final String FORMAT = "yuanxian:world_sim";
     /** 17：玩家贡献消费、冻结任务奖励、江湖声望与各城接取日期。 */
-    public static final int VERSION = 17;
+    public static final int VERSION = 18;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -43,6 +43,7 @@ public final class StateCodec {
         o.addProperty("prehistory_days", s.prehistoryDays);
         o.addProperty("day", s.day);
         o.addProperty("sect_stipend_month", s.sectStipendMonth);
+        o.add("sect_tournaments", s.tournaments.write());
         o.addProperty("next_person_id", s.nextPersonId);
         o.addProperty("next_sect_id", s.nextSectId);
         o.addProperty("next_event_id", s.nextEventId);
@@ -415,6 +416,7 @@ public final class StateCodec {
         s.day = o.lng("day");
         s.sectStipendMonth = o.lng("sect_stipend_month");
         if (s.sectStipendMonth < -1) throw new SimFormatException("invalid sect stipend month");
+        s.tournaments = com.example.myvillage.sim.sect.SectTournament.read(o.obj("sect_tournaments").json);
         s.nextPersonId = o.integer("next_person_id");
         s.nextSectId = o.integer("next_sect_id");
         s.nextEventId = o.lng("next_event_id");

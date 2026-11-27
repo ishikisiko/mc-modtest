@@ -43,6 +43,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -112,6 +113,8 @@ public final class WorldSimAvatars {
     }
 
     private static final Map<Integer, Avatar> AVATARS = new HashMap<>();
+    private record TournamentPost(boolean temporary, Vec3 returnTo, Component name, boolean official) { }
+    private static final Map<Integer, TournamentPost> TOURNAMENT_POSTS = new HashMap<>();
     /** Courtyard cells per gate record (recomputed when the record changes). */
     private static final Map<GateRealizations.Gate, List<BlockPos>> CELLS = new HashMap<>();
     /** Presentation-only retry progress. Neither identities nor already occupied cells depend on it. */
@@ -135,6 +138,7 @@ public final class WorldSimAvatars {
 
     static void onServerStarted(ServerStartedEvent event) {
         AVATARS.clear();
+        TOURNAMENT_POSTS.clear();
         CELLS.clear();
         WILD_RETRY_CURSORS.clear();
         NpcLifeInteraction.clear();
@@ -215,6 +219,7 @@ public final class WorldSimAvatars {
             Avatar a = removed.next();
             if (!a.life() && (a.entity().isRemoved() || !NpcCombatRuntime.managed(a.entity()))) {
                 a.entity().discard();
+                TOURNAMENT_POSTS.remove(a.personId());
                 removed.remove();
             }
         }
@@ -308,7 +313,7 @@ public final class WorldSimAvatars {
         while (it.hasNext()) {
             Map.Entry<Integer, Avatar> entry = it.next();
             Avatar a = entry.getValue();
-            if (!a.legacySect() || a.sectId() != sectId) {
+            if (!a.legacySect() || a.sectId() != sectId || TOURNAMENT_POSTS.containsKey(a.personId())) {
                 continue;
             }
             PersonView p = byId.get(a.personId());
@@ -398,6 +403,12 @@ public final class WorldSimAvatars {
     /** All three projection sources use this one spawner and the same identity and capacity map. */
     private static boolean spawn(ServerLevel level, PersonView p, int sectId, BlockPos cell, String role,
                                  Selection selection, String wildRegion, String lifeSite, long lifeEpoch) {
+        return spawn(level, p, sectId, cell, role, selection, wildRegion, lifeSite, lifeEpoch, true);
+    }
+
+    private static boolean spawn(ServerLevel level, PersonView p, int sectId, BlockPos cell, String role,
+                                 Selection selection, String wildRegion, String lifeSite, long lifeEpoch,
+                                 boolean restorePosition) {
         if (AVATARS.containsKey(p.id()) || AVATARS.size() >= WorldSimServerConfig.maxAvatars()) return false;
         CultivatorEntity entity = ModEntities.CULTIVATOR.get().create(level);
         if (entity == null) {
@@ -419,7 +430,7 @@ public final class WorldSimAvatars {
         entity.setCustomNameVisible(true);
         StatsRuntime.applyNpcRealm(entity, p);
         WorldSim sim = WorldSimRuntime.sim().orElse(null);
-        if (sim == null || !com.example.myvillage.entity.npc.NpcCombatRuntime.bind(sim, entity, p)) return false;
+        if (sim == null || !NpcCombatRuntime.bind(sim, entity, p, restorePosition)) return false;
         // Restoring a physical checkpoint must not load a chunk or teleport a falling body to safety.
         if (!loadedArea(level, entity.getBoundingBox()) || !level.getWorldBorder().isWithinBounds(entity.getBoundingBox())
                 || !level.noCollision(entity)) {
@@ -438,6 +449,75 @@ public final class WorldSimAvatars {
             return false;
         }
         return true;
+    }
+
+    /** Seat an existing disciple in a loaded court using the same lease as their normal projection. */
+    public static Optional<NpcEntity> seatTournamentMember(ServerLevel level, WorldSim sim, int sectId,
+                                                            int personId, BlockPos cell, boolean official) {
+        PersonView person = sim.person(personId).orElse(null);
+        if (!WorldSimServerConfig.avatarsEnabled() || person == null || !person.alive() || person.sectId() != sectId
+                || !person.status().equals("at_sect") || sim.life(personId).isPresent() || sim.storyDamageProtected(personId)
+                || !safeSectCell(level, cell) || !level.isPositionEntityTicking(cell)
+                || !level.areEntitiesLoaded(ChunkPos.asLong(cell)) || TOURNAMENT_POSTS.containsKey(personId)) return Optional.empty();
+        var old = AVATARS.get(personId);
+        Vec3 feet = Vec3.atBottomCenterOf(cell);
+        if (old == null) {
+            var checkpoint = sim.combatProfile(personId).map(p -> p.body()).orElse(null);
+            if (checkpoint != null && NpcCombatRuntime.unresolved(checkpoint)) return Optional.empty();
+            TOURNAMENT_POSTS.put(personId, new TournamentPost(true, feet, null, official));
+            Selection selection = selected(sim, sectId);
+            if (!spawn(level, person, sectId, cell, role(person, selection.stewardId()), selection, null, null, -1, false)) {
+                TOURNAMENT_POSTS.remove(personId);
+                return Optional.empty();
+            }
+            old = AVATARS.get(personId);
+        } else {
+            NpcEntity member = old.entity();
+            var box = member.getBoundingBox().move(feet.subtract(member.position()));
+            if (!old.legacySect() || old.sectId() != sectId || member.level() != level || !NpcCombatRuntime.canAct(member)
+                    || member.combatEngaged() || member.getTarget() != null || member.isPassenger()
+                    || member.fallDistance > 0 || member.isOnFire() || !loadedArea(level, box)
+                    || !level.getWorldBorder().isWithinBounds(box) || !level.noCollision(member, box)) return Optional.empty();
+            NpcCombatRuntime.checkpoint(member);
+            TOURNAMENT_POSTS.put(personId, new TournamentPost(false, member.position(), member.getCustomName(), official));
+            member.getNavigation().stop();
+            member.setPos(feet);
+            member.setDeltaMovement(Vec3.ZERO);
+        }
+        NpcEntity npc = old.entity();
+        if (official) {
+            npc.setNoAi(true);
+            npc.setCustomName(Component.literal(person.name() + " · 比试执事"));
+        }
+        return Optional.of(npc);
+    }
+
+    public static boolean seatedForTournament(NpcEntity npc) {
+        return npc.isLedgerAvatar() && TOURNAMENT_POSTS.containsKey(npc.ledgerPersonId());
+    }
+
+    public static void releaseTournamentMember(NpcEntity npc, BlockPos fallback) {
+        int id = npc.ledgerPersonId();
+        var post = TOURNAMENT_POSTS.get(id);
+        var current = AVATARS.get(id);
+        if (post == null || current == null || current.entity() != npc) return;
+        if (post.temporary()) {
+            npc.discard();
+            AVATARS.remove(id, current);
+        } else if (!npc.isRemoved() && npc.level() instanceof ServerLevel level) {
+            if (post.official()) {
+                npc.setNoAi(false);
+                npc.setCustomName(post.name());
+            }
+            var original = npc.getBoundingBox().move(post.returnTo().subtract(npc.position()));
+            if (safeSectCell(level, BlockPos.containing(post.returnTo())) && loadedArea(level, original)
+                    && level.getWorldBorder().isWithinBounds(original) && level.noCollision(npc, original)) npc.setPos(post.returnTo());
+            else if (safeSectCell(level, fallback)) npc.setPos(Vec3.atBottomCenterOf(fallback));
+            npc.setDeltaMovement(Vec3.ZERO);
+            npc.fallDistance = 0;
+        }
+        TOURNAMENT_POSTS.remove(id);
+        NpcCombatRuntime.checkpoint(npc);
     }
 
     /**
@@ -868,7 +948,7 @@ public final class WorldSimAvatars {
         Iterator<Avatar> it = AVATARS.values().iterator();
         while (it.hasNext()) {
             Avatar a = it.next();
-            if (a.legacySect() && a.sectId() == sectId) {
+            if (a.legacySect() && a.sectId() == sectId && !TOURNAMENT_POSTS.containsKey(a.personId())) {
                 a.entity().discard();
                 it.remove();
                 n++;
@@ -890,6 +970,7 @@ public final class WorldSimAvatars {
             a.entity().discard();
         }
         AVATARS.clear();
+        TOURNAMENT_POSTS.clear();
         LOGGER.info("World sim avatars: withdrew all {} avatar(s): {}", n, why);
     }
 

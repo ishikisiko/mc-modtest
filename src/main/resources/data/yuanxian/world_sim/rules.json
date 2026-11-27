@@ -356,6 +356,16 @@
       "duration_ticks": 12000,
       "radius": 48,
       "spawn_radius": 6
+    },
+    "tournament": {
+      "group_size": 4,
+      "required_wins": 2,
+      "stage_gap": 3,
+      "ready_ticks": 60,
+      "bout_ticks": 1800,
+      "interval_ticks": 160,
+      "watch_radius": 40,
+      "max_live_courts": 4
     }
   }
 }
