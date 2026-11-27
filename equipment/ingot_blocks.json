@@ -1,112 +1,112 @@
 {
   "materials": {
     "xuantie": {
-      "finish": "锤击凹斑和压实的铁边",
+      "finish": "深灰锻铁，表面有深浅不一的锤痕",
       "pattern": "hammered",
       "colors": ["#242d36", "#48565e", "#748894", "#7c8b8e"],
       "roughness": 0.72
     },
     "chitong": {
-      "finish": "叠焊接缝和局部赤褐氧化斑",
+      "finish": "赤褐叠焊铜，氧化斑沿焊缝散开",
       "pattern": "welded",
       "colors": ["#4c271e", "#885137", "#c28862", "#80563f"],
       "roughness": 0.64
     },
     "blood_spirit": {
-      "finish": "灰黑胎面夹细窄暗红脉",
+      "finish": "深灰红铸面，暗红细脉时断时续",
       "pattern": "veined",
       "colors": ["#33232c", "#59303b", "#86505b", "#b25a5d"],
       "roughness": 0.58
     },
     "qi_moqing": {
-      "finish": "墨青铸面压出交错的折角",
+      "finish": "墨青钢面上留着断续的折锻层",
       "pattern": "folds",
       "colors": ["#1f3334", "#435859", "#71908a", "#92aaa2"],
       "roughness": 0.69
     },
     "qi_tingyu": {
-      "finish": "青铜底嵌方格，格内有薄薄的铜绿",
-      "pattern": "lattice",
+      "finish": "低光青铜，铜绿在局部结成斑块",
+      "pattern": "patina",
       "colors": ["#41463a", "#6e7557", "#a6a480", "#628985"],
       "roughness": 0.68
     },
     "qi_chixia": {
-      "finish": "交叠的赤金锻层留下霞色横纹",
+      "finish": "温热的赤铜色，层间锻纹略有起伏",
       "pattern": "strata",
       "colors": ["#552e2a", "#92523f", "#c77e58", "#d9a271"],
       "roughness": 0.66
     },
     "zhuji_baiqing_lingyun": {
-      "finish": "浅瓷青铸面和洗白的云纹浅槽",
+      "finish": "缎面白青灵金，浅青底上有很淡的云状色差",
       "pattern": "cloud",
       "colors": ["#617d7f", "#a1bfba", "#d0e3d8", "#e5e9d2"],
-      "roughness": 0.56
+      "roughness": 0.34
     },
     "zhuji_yuheng_yizhuang": {
-      "finish": "青璧金嵌窄框，边角留出双层槽",
-      "pattern": "frame",
-      "colors": ["#344f44", "#607c60", "#91a679", "#c0ad79"],
-      "roughness": 0.57
+      "finish": "磨平的青璧金，暗绿胎色里有柔和的深浅变化",
+      "pattern": "satin",
+      "colors": ["#30493f", "#5a7969", "#85a996", "#9da38f"],
+      "roughness": 0.36
     },
     "zhuji_wuyao_yeque": {
-      "finish": "乌青铸面和低亮度的燕尾咬合纹",
-      "pattern": "dovetail",
+      "finish": "乌青铸面，斜向断口和磨平的黑灰筋交错",
+      "pattern": "scored",
       "colors": ["#1f2029", "#3e3d49", "#696673", "#8d7975"],
       "roughness": 0.68
     },
     "jindan_jinwu": {
-      "finish": "黑金胎面压出小日纹，金边集中在纹样上",
-      "pattern": "sun",
-      "colors": ["#302823", "#6c543a", "#aa864e", "#d4a864"],
-      "roughness": 0.49
+      "finish": "乌金磨面，近看才看得到暖金色拉丝和退火斑",
+      "pattern": "tempered",
+      "colors": ["#312a26", "#66513b", "#a18760", "#ac8656"],
+      "roughness": 0.31
     },
     "jindan_taiyin": {
-      "finish": "霜银拉丝斜过月牙形刻槽",
-      "pattern": "moon",
+      "finish": "细拉丝霜银，沿同一方向透出淡蓝冷光",
+      "pattern": "brushed",
       "colors": ["#53627a", "#8498ad", "#b8c6cb", "#d1d9df"],
-      "roughness": 0.57
+      "roughness": 0.29
     },
     "jindan_zixiao": {
-      "finish": "紫黑胎体有分叉的细脉",
+      "finish": "暗紫铸面，零星矿脉从表层经过",
       "pattern": "lightning",
       "colors": ["#343048", "#60516f", "#8d769d", "#b497be"],
       "roughness": 0.62
     },
     "yuanying_xinghe": {
-      "finish": "深蓝金属间夹疏密不同的星点",
+      "finish": "抛光靛蓝金属，色深处散着细小亮点",
       "pattern": "stars",
       "colors": ["#293343", "#495975", "#778ca4", "#acbec8"],
-      "roughness": 0.51
+      "roughness": 0.35
     },
     "yuanying_jiuse": {
-      "finish": "浅灰胎面嵌成束的低饱和色带",
+      "finish": "磨平的浅灰胎面，珠光只在局部淡淡变色",
       "pattern": "spectrum",
       "colors": ["#6b636c", "#9b9492", "#c7bdb0", "#d2c1a4"],
-      "roughness": 0.53
+      "roughness": 0.38
     },
     "yuanying_qingdi": {
-      "finish": "深绿金属沿木理方向刻分叉槽",
+      "finish": "深绿金属有细窄长纹，结疤处的纹路会拐弯",
       "pattern": "woodgrain",
       "colors": ["#283e34", "#4f6f54", "#7c976e", "#b0a578"],
       "roughness": 0.67
     },
     "huashen_taixu": {
-      "finish": "灰紫胎体有收窄的同心浅槽",
+      "finish": "光滑的灰紫金属，表面有几道很浅的研磨纹",
       "pattern": "contours",
       "colors": ["#514e63", "#79778d", "#a8a4b1", "#cfc6bf"],
-      "roughness": 0.47
+      "roughness": 0.28
     },
     "huashen_xuanji": {
-      "finish": "深灰铸板的短槽嵌入哑金",
-      "pattern": "insets",
-      "colors": ["#262a2a", "#4a514f", "#777e72", "#b49a61"],
-      "roughness": 0.50
+      "finish": "深灰抛光面，贴近看能看到稀薄的暖色杂质",
+      "pattern": "inclusions",
+      "colors": ["#272c2c", "#495653", "#75847e", "#9a8660"],
+      "roughness": 0.32
     },
     "huashen_dari": {
-      "finish": "橙棕胎体透出深浅不一的环形锻纹",
-      "pattern": "rings",
+      "finish": "暖金缎面带浅橘冷却流纹，平面能读出柔和反光",
+      "pattern": "cooling_flow",
       "colors": ["#543621", "#8d5c32", "#bd8f4f", "#dfb36e"],
-      "roughness": 0.55
+      "roughness": 0.36
     }
   }
 }

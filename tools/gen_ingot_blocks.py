@@ -58,105 +58,111 @@ def rgb(text):
 
 
 def slabs(u, v, end):
-    """The casting profiles use their own relief and inlay masks."""
-    empty = np.zeros(u.shape)
-    edge = np.minimum(u, v)
-    center = np.maximum(0, 1 - edge / 12)
+    """Metal-specific relief and inclusions, in repeating texture coordinates."""
+    slow = np.sin(u * np.pi / 16 + .33 * np.cos(v * np.pi / 8))
+    flow = np.cos(v * np.pi / 16 + .55 * np.sin(u * np.pi / 16))
+    disturbance = .6 * slow + .48 * flow + .26 * np.sin((u + v) * np.pi / 8)
 
     def hammered():
-        pit = np.zeros_like(empty)
-        for x, y, scale in ((6, 9, 3), (11, 23, 3), (25, 11, 4), (23, 26, 3), (16, 15, 4)):
-            pit += np.clip(1 - (np.abs(u - x) * .8 + np.abs(v - y)) / scale, 0, 1)
-        return -.48 * pit, (u % 25 == 3) & (v % 25 == 3)
+        pit = np.zeros_like(slow)
+        for x, y, width, length in (
+            (5, 9, 4, 2), (12, 7, 4, 3), (11, 24, 4, 2), (25, 10, 3, 2),
+            (27, 23, 4, 4), (20, 27, 2, 3), (17, 16, 4, 2), (6, 18, 2, 4),
+        ):
+            if end:
+                x, y = y, x
+            strike = ((u - x) / width) ** 2 + ((v - y) / length) ** 2
+            pit += np.clip(1 - strike, 0, 1)
+        return -.34 * pit + .19 * disturbance, np.clip(pit - .42, 0, .5)
 
     def welded():
-        seam = (u + (v // 6 if end else v // 9)) % 16
-        return np.where(seam == 0, -.50, np.where(seam == 1, .38, 0)), (seam == 0) & (v % 8 < 3)
+        seam = (u + (v / 6 if end else v / 11) + .9 * flow + 8) % 23
+        groove = np.maximum(0, 1 - np.minimum(seam, 23 - seam) / 1.65)
+        oxide = np.clip(slow + .38, 0, 1) * np.maximum(0, 1 - np.abs(seam - 4) / 5)
+        return .23 * disturbance - .30 * groove, oxide
 
     def veined():
-        crack = np.abs(u - (9 + (v * (7 if end else 3) // 9) % 17))
-        branch = np.abs(v - (11 + (u * 2 // 3) % 17))
-        return -.48 * ((crack <= 1) | (branch == 0)), (crack == 0) | ((branch == 0) & (u > 13))
+        x, y = (v, u) if end else (u, v)
+        core = np.abs(x - (5.2 + .58 * y + 1.31 * np.sin(y * .38)))
+        fork = np.abs(x - (15.3 + .19 * y + .8 * np.cos(y * .51)))
+        veins = np.maximum(0, 1 - core / 1.4) * np.clip(flow + .73, .10, 1)
+        veins += np.maximum(0, 1 - fork / 1.2) * (y > 14) * .4
+        return .25 * disturbance - .22 * veins, veins
 
     def folds():
-        band = (u // 8 + v // 8) % 2
-        cut = (u % 8) + np.where(band == 0, v % 8, 7 - v % 8)
-        return np.where(cut <= 2, .42, np.where(cut >= 12, -.39, .08 * band)), cut == 9
+        shear = (u + v * (1 if end else .5) + 1.55 * flow + 2.4 * slow) * np.pi / 7
+        folds = np.sin(shear) * (.51 + .46 * flow)
+        return .27 * folds + .15 * disturbance, np.clip(folds - .51, 0, 1)
 
-    def lattice():
-        edge = np.minimum(u % 11, v % 11)
-        return np.where(edge == 0, -.55, np.where(edge == 1, .30, 0)), (u % 11 == 2) & (v % 11 < 4)
+    def patina():
+        oxide = np.clip(1.6 * disturbance - .41, 0, 1)
+        return .18 * disturbance - .28 * oxide, oxide
 
     def strata():
-        field = (v + (u // (8 if end else 15))) % 11
-        return ((field < 3) - (field > 8).astype(int)) * .42, (field == 3) & (u % 16 > 5)
+        grain = (v + (u / (3 if end else 12)) + 1.5 * slow + .9 * flow) / 1.51
+        strata = np.sin(grain) + .39 * np.sin(grain * 2.46) * slow
+        return .27 * strata + .17 * disturbance, np.clip(strata - .65, 0, .9)
 
     def cloud():
-        bend = (u + 3 * np.abs((v % 16) - 8) // 4) % 14
-        return np.where(bend == 1, -.30, np.where(bend == 2, .30, .14 * np.sin(u / 3 + v / 4))), bend == 2
+        mist = np.sin(u * np.pi / 16 + .78 * flow + v * np.pi / (16 if end else 32))
+        return .19 * mist + .15 * disturbance, np.clip(mist - .25, 0, 1)
 
-    def frame():
-        rim = np.minimum(edge, SIZE - 1 - np.maximum(u, v))
-        band = (rim == 5) | ((rim == 9) & ((u + v) % 12 < 7))
-        return np.where(band, -.36, np.where(rim == 6, .41, 0)), band & ((u % 30 >= 6) & (v % 30 >= 6))
+    def satin():
+        gradient = np.sin((v + u / (2 if end else 5)) * np.pi / 14 + .6 * slow)
+        return .16 * gradient + .16 * disturbance, np.clip(flow + slow - 1.1, 0, .65)
 
-    def dovetail():
-        stagger = (u + 4 * (v // 8 % 2)) % 16
-        groove = (v % 8 == 0) | (np.abs(stagger - 7) == v % 8)
-        return np.where(groove, -.49, .09 * ((u // 8 + v // 8) % 2)), groove & (v % 8 == 0) & (u % 16 < 3)
+    def scored():
+        score = (u - v * (1 if end else .45) + 1.9 * flow) % 18
+        crack = np.maximum(0, 1 - np.minimum(score, 18 - score) / 1.6)
+        crack *= np.clip(slow + .37, 0, 1)
+        return .19 * disturbance - .31 * crack, np.clip(crack - .4, 0, .45)
 
-    def sun():
-        x, y = u - 15.5, v - 15.5
-        ring = np.hypot(x, y)
-        crest = (ring > 7.1) & (ring < 8.6 if end else ring < 9.4)
-        ray = (ring > 10) & (ring < 13) & ((np.abs(x) < 1) | (np.abs(y) < 1) | (np.abs(np.abs(x) - np.abs(y)) < .8))
-        return np.where(crest | ray, .39, np.where(ring < 6, -.22, 0)), crest | ray
+    def tempered():
+        temper = np.cos((v if end else u) * np.pi / 16 + .7 * flow) * .63 + .37 * slow
+        return .22 * temper + .14 * disturbance, np.clip(temper - .38, 0, 1)
 
-    def moon():
-        r = (u - 15) ** 2 + (v - 16) ** 2
-        off = (u - (20 if end else 19)) ** 2 + (v - 13) ** 2
-        cut = (r < 100) & (off > 64) & (r > 46)
-        return np.where(cut, -.39, .16 * np.sin(u / 2 + v / 5)), cut & (r > 72)
+    def brushed():
+        along_grain = u + v / (4 if end else 23)
+        fine = np.sin(along_grain * 2.28 + .8 * flow)
+        streak = np.sin(along_grain * 1.16 - .5 * slow) * (.57 + .43 * flow)
+        return .06 * fine + .05 * streak + .18 * flow + .12 * disturbance, np.clip(slow - .64, 0, 1)
 
     def lightning():
-        vein = 6 + (v // 4) * 2 + (v % 7 < 3) * 3
-        cracks = (u == vein) | ((v > 12) & (v < 20) & (u == vein + v - 13))
-        if end:
-            cracks |= (v == 11 + u // 4) & (u > 12)
-        return np.where(cracks, -.53, .16 * np.cos((u - v) / 4)), cracks
+        x, y = (v, u) if end else (u, v)
+        vein = 7.6 + y * .51 + 1.8 * np.sin(y / 3) + np.sin(y * 1.21)
+        crack = np.clip(1 - np.abs(x - vein) / 1.35, 0, 1) * np.clip(flow + .55, .19, 1)
+        return .29 * disturbance - .26 * crack, crack
 
     def stars():
-        marks = ((u * 19 + v * 23 + u * v * 7) % 37 == 0) & (edge > 2)
-        lane = np.abs((u * (2 if end else 1) - v) % 12 - 5) <= 1
-        return .28 * marks + .15 * lane, marks | (lane & ((u + v * 3) % 23 == 0))
+        marks = (u * 19 + v * 37 + u * v * 7 + 13 * int(end)) % 97 == 0
+        nebula = np.sin((u - v / 2) * np.pi / 16 + 1.1 * slow)
+        return .17 * disturbance + .13 * nebula, .85 * marks + .12 * np.clip(nebula, 0, 1)
 
     def spectrum():
-        streak = (v - u // (3 if end else 7)) % 14
-        return .19 * (streak < 5) - .22 * (streak >= 11), (streak < 5) & (u % 12 > 4)
+        streak = np.sin((v - u / (2 if end else 4)) * np.pi / 13 + .51 * slow)
+        return .19 * streak + .14 * disturbance, .65 * np.clip(.64 + disturbance * .33, 0, 1)
 
     def woodgrain():
-        branch = np.abs(u - 16 - (v - 16) // 4)
-        vein = (branch < 2) | ((branch < 10) & ((v + (branch * 2)) % 10 < 2))
-        return np.where(vein, -.41, .14 * np.sin(u * .9 + v / 11)), vein & (v % 8 <= 2)
+        x, y = (v, u) if end else (u, v)
+        grain = x + 1.9 * np.sin(y * np.pi / 16) + .6 * np.cos(x / 3 + y * np.pi / 8)
+        grain = np.sin(grain * 1.27) * (.5 + .5 * flow) + .37 * np.sin(grain * .45)
+        return .29 * grain + .15 * disturbance, np.clip(grain - .75, 0, .8)
 
     def contours():
-        r = np.abs(u - 15.5) + (1 if end else .72) * np.abs(v - 15.5)
-        contour = (r % 6 > 4.8) & (r < 24)
-        return np.where(contour, -.30, .14 * (r % 6 < 2)), contour
+        polish = np.sin((v + u / (1.7 if end else 7)) * np.pi / 13 + .53 * slow)
+        return .20 * polish + .18 * disturbance, np.clip(polish - .56, 0, 1)
 
-    def insets():
-        rim = np.minimum(edge, SIZE - 1 - np.maximum(u, v))
-        marks = (rim == 4) & (((u + v + (3 if end else 0)) % 14) < 6)
-        marks |= (v % 13 == 6) & (u % 12 >= 4) & (u % 12 < 8)
-        return np.where(marks, -.40, .14 * center), marks
+    def inclusions():
+        alloy = np.cos(u * np.pi / 16 + 1.1 * flow + .61 * slow)
+        flecks = ((u * 43 + v * 23 + u * v * 3 + 17 * int(end)) % 83 == 0) & (alloy > -.2)
+        return .19 * alloy + .17 * disturbance, flecks
 
-    def rings():
-        r = np.hypot(u - (16 if end else 13), v - 16)
-        waves = (np.floor(r).astype(int) + (u // 10)) % 5
-        return .20 * np.cos(r * 1.3) - .25 * (waves == 0), (waves == 1) & ((u + v) % 13 < 5)
+    def cooling_flow():
+        cooling = np.sin((u / (1.8 if end else 3.4) + v) / 3.3 + 1.39 * slow + .93 * flow)
+        return .22 * cooling + .16 * disturbance, np.clip(cooling - .28, 0, 1)
 
-    return {fn.__name__: fn for fn in (hammered, welded, veined, folds, lattice, strata, cloud, frame,
-            dovetail, sun, moon, lightning, stars, spectrum, woodgrain, contours, insets, rings)}
+    return {fn.__name__: fn for fn in (hammered, welded, veined, folds, patina, strata, cloud, satin,
+            scored, tempered, brushed, lightning, stars, spectrum, woodgrain, contours, inclusions, cooling_flow)}
 
 
 def surface(spec, end):
@@ -164,21 +170,22 @@ def surface(spec, end):
     v, u = np.mgrid[:SIZE, :SIZE]
     shade, base, light, accent = (rgb(value) for value in spec["colors"])
     relief, inlay = slabs(u, v, end)[spec["pattern"]]()
-    grain = ((u * 17 + v * 29 + u * v * 11 + int(end) * 7) % 29 - 14) / 240
-    brush = .06 * np.sin((u + v / (3 if end else 14)) * .94) + .045 * np.cos((v // 2) * .53)
-    inset = np.minimum.reduce([u, v, SIZE - 1 - u, SIZE - 1 - v])
-    ridge = np.where(inset == 0, -.43, np.where(inset == 1, .36, 0))
-    height = .55 + .36 * relief + .43 * ridge + grain * .55
-    side_light = (height - np.roll(height, 1, axis=0)) + (height - np.roll(height, 1, axis=1)) * .42
-    tone = np.clip(.48 + grain + brush + .39 * relief + side_light * .76 + ridge * .24, .04, .98)
+    smooth = spec["roughness"] <= .42
+    grain = ((u * 17 + v * 29 + u * v * 11 + int(end) * 7) % 29 - 14) / (1020 if smooth else 490)
+    brushing = np.sin((u + v / (4 if end else 18)) * 1.31 + .42 * np.sin(v / 4))
+    large = np.cos((v + .31 * u) * np.pi / 16) * np.sin(u * np.pi / 17)
+    height = .54 + (.20 if smooth else .56) * relief + grain * (.48 if smooth else 1.3)
+    slope = (height - np.roll(height, 1, axis=0)) + (height - np.roll(height, 1, axis=1)) * .47
+    tone = np.clip(.51 + grain + (.026 if smooth else .047) * brushing + .028 * large
+                   + (.40 if smooth else .58) * relief + .42 * slope, .08, .95)
     col = np.where(tone[..., None] < .5,
                    shade + (base - shade) * (tone * 2)[..., None],
                    base + (light - base) * ((tone - .5) * 2)[..., None])
-    weight = np.where(inlay, .35 if spec["pattern"] == "contours" else .55, 0)[..., None]
+    weight = (np.clip(inlay, 0, 1) * (.14 if smooth else .30))[..., None]
     if spec["pattern"] == "spectrum":
-        stripe = ((v - u // 4) // 4) % 3
-        tint = np.array([[173, 136, 154], [132, 157, 158], [190, 171, 122]])
-        col = col * (1 - weight) + tint[stripe] * weight
+        wave = np.sin(v * np.pi / 13 - u * np.pi / 31 + np.sin(u / 5))
+        radiance = np.stack((170 + 19 * wave, 155 - 9 * wave, 162 + 12 * np.cos(wave * 2)), axis=-1)
+        col = col * (1 - weight) + radiance * weight
     else:
         col = col * (1 - weight) + accent * weight
     return Image.fromarray(np.rint(np.clip(col, 0, 255)).astype(np.uint8), "RGB"), height
