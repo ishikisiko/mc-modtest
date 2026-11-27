@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -36,9 +37,9 @@ public final class LiftTerminalBlock extends Block {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (level instanceof ServerLevel server) {
-            String message = SectLiftPlatform.call(server, pos, state);
-            player.displayClientMessage(Component.translatable("message.yuanxian.sect_lift." + message), true);
+        if (level instanceof ServerLevel server && player instanceof ServerPlayer operator) {
+            String message = SectLiftPlatform.call(server, pos, state, operator);
+            operator.displayClientMessage(Component.translatable("message.yuanxian.sect_lift." + message), true);
         }
         return InteractionResult.sidedSuccess(level.isClientSide());
     }

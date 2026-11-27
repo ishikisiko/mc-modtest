@@ -15,6 +15,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -84,9 +85,9 @@ public final class SectLiftPlatform extends Entity {
         setPos(route.centerX(), y - THICKNESS, route.centerZ());
     }
 
-    static String call(ServerLevel level, BlockPos terminal, BlockState state) {
+    static String call(ServerLevel level, BlockPos terminal, BlockState state, ServerPlayer operator) {
         Route route = Route.fromTerminal(level, terminal, state);
-        if (route == null || !route.ready(level)) return "unavailable";
+        if (route == null || !route.ready(level) || !route.deckChunkReady(level)) return "unavailable";
         List<SectLiftPlatform> decks = level.getEntitiesOfClass(SectLiftPlatform.class, route.shaft(),
             deck -> route.equals(deck.route));
         if (decks.size() > 1) return "unavailable";
@@ -99,17 +100,21 @@ public final class SectLiftPlatform extends Entity {
             route.openOnly(level, terminal.getY());
             return "arrived";
         }
-        return decks.getFirst().request(level, terminal.getY());
+        return decks.getFirst().request(level, terminal.getY(), operator);
     }
 
-    private String request(ServerLevel level, int station) {
+    private boolean onDeck(ServerPlayer player, int dock) {
+        return !player.isSpectator() && Math.abs(player.getY() - dock) < .25
+            && getBoundingBox().contains(player.getX(), getY() + .1, player.getZ());
+    }
+
+    private String request(ServerLevel level, int station, ServerPlayer operator) {
         if (isTravelling()) return "moving";
-        if (!route.clear(level)) return "blocked";
         int dock = (int) Math.round(getY() + THICKNESS);
-        if (!route.gatewayClear(level, dock)) return "blocked";
+        if (dock == station && !onDeck(operator, dock)) return "arrived";
+        if (!route.clear(level) || !route.gatewayClear(level, dock)) return "blocked";
         List<ServerPlayer> riders = level.getEntitiesOfClass(ServerPlayer.class,
-            getBoundingBox().expandTowards(0, .27, 0), player -> !player.isSpectator()
-                && Math.abs(player.getY() - dock) < .25 && getBoundingBox().contains(player.getX(), getY() + .1, player.getZ()));
+            getBoundingBox().expandTowards(0, .27, 0), player -> onDeck(player, dock));
         if (riders.size() > width() * width()) return "full";
         for (ServerPlayer player : riders) {
             if (!player.startRiding(this, true)) {
@@ -220,6 +225,11 @@ public final class SectLiftPlatform extends Entity {
             double radius = width * .5;
             return new AABB(centerX() - radius, lower.getY() - 1, centerZ() - radius,
                 centerX() + radius, upper.getY() + 3, centerZ() + radius);
+        }
+
+        boolean deckChunkReady(ServerLevel level) {
+            BlockPos at = BlockPos.containing(centerX(), lower.getY(), centerZ());
+            return level.isPositionEntityTicking(at) && level.areEntitiesLoaded(new ChunkPos(at).toLong());
         }
 
         boolean ready(ServerLevel level) {
