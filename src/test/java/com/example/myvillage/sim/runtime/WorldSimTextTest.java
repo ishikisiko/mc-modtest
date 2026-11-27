@@ -55,5 +55,6 @@ class WorldSimTextTest {
         assertEquals("commands.yuanxian.world.cause.struck_by_lightning", cause.getKey());
         assertEquals("struck_by_lightning", cause.getFallback());
         assertEquals("world_sim.stage.golden_core.2", translatable(WorldSimText.stage("golden_core", 1)).getKey());
+        assertEquals("cultivation.stage.yuanxian.mortal_qi_sensed", translatable(WorldSimText.stage("mortal", 1)).getKey());
     }
 }

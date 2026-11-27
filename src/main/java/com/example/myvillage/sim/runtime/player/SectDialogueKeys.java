@@ -20,6 +20,7 @@ public final class SectDialogueKeys {
     public static final String STEWARD_INTRO = "steward.intro";
     public static final String STEWARD_INVITE = "steward.invite";
     public static final String STEWARD_REFUSE = "steward.refuse.";
+    public static final String STEWARD_REFUSE_REALM_TOO_LOW = STEWARD_REFUSE + Admission.REALM_TOO_LOW;
     public static final String STEWARD_WELCOME = "steward.welcome";
     public static final String STEWARD_MEMBER = "steward.member";
     public static final String STEWARD_LEAVE_ASK = "steward.leave_ask";
@@ -82,7 +83,7 @@ public final class SectDialogueKeys {
         put(variants, params, STEWARD_INTRO, 1, 4);          // sect name, prestige, people at the gate, master
         put(variants, params, STEWARD_INVITE, 2, 1);         // sect name
         for (String reason : REFUSALS) {
-            put(variants, params, STEWARD_REFUSE + reason, 1, 0);
+            put(variants, params, STEWARD_REFUSE + reason, 1, Admission.REALM_TOO_LOW.equals(reason) ? 1 : 0);
         }
         put(variants, params, STEWARD_WELCOME, 1, 1);        // sect name
         put(variants, params, STEWARD_MEMBER, 2, 1);         // the player's rank

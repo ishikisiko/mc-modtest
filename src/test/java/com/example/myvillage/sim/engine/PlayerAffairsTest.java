@@ -230,7 +230,8 @@ class PlayerAffairsTest {
     void dissolvingASectReleasesItsPlayersWithoutPenalty() {
         SimContext ctx = ctx();
         Sect sect = home(ctx);
-        Sect other = ctx.activeSects().stream().filter(s -> s.id != sect.id).findFirst().orElseThrow();
+        Sect other = ctx.activeSects().stream()
+                .filter(s -> s.id != sect.id && s.tierId.equals("branch")).findFirst().orElseThrow();
         other.prestige = 10;
         PlayerAffairs.join(ctx, ALICE, "Alice", sect.id, ABLE);
         String bob = "00000000-0000-0000-0000-00000000000b";

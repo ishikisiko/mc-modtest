@@ -337,12 +337,13 @@ public final class SectDialogue {
         int prestige = (int) Math.round(sect.prestige());
         Object master = sect.masterName() == null || sect.masterName().isEmpty()
                 ? Component.translatable(NONE_KEY) : sect.masterName();
+        var minimum = s.sim().minimumAdmissionRealm(sect.tierId());
         SectDialogueScenes.Facts facts = new SectDialogueScenes.Facts(sect.name(), prestige, sect.memberCount(),
                 master, here ? WorldSimText.rank(rank) : Component.empty(), s.person().name(),
                 task.<Object>map(SectTasks::name).orElse(Component.empty()),
                 task.<Object>map(SectTasks::brief).orElse(Component.empty()),
                 task.map(TaskView::progress).orElse(0), task.map(TaskView::count).orElse(0),
-                task.map(TaskView::contribution).orElse(0));
+                task.map(TaskView::contribution).orElse(0), WorldSimText.stage(minimum.realm(), minimum.stage()));
         long salt = (long) player.getUUID().hashCode() + s.sim().day();
         List<Component> lines = new ArrayList<>();
         for (String base : bases) {

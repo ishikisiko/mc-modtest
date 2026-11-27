@@ -850,7 +850,7 @@
   "world_sim.dialogue.steward.refuse.already_member.1": "You are one of us already; no need to join twice.",
   "world_sim.dialogue.steward.refuse.member_elsewhere.1": "Your name is on another sect's roll. Settle that first.",
   "world_sim.dialogue.steward.refuse.not_awakened.1": "Your spiritual root has not awakened. Go and find your chance first.",
-  "world_sim.dialogue.steward.refuse.realm_too_low.1": "You cannot even sense qi yet. Come back when you feel the world's spirit.",
+  "world_sim.dialogue.steward.refuse.realm_too_low.1": "You must reach %1$s to join this sect.",
   "world_sim.dialogue.steward.refuse.selective.1": "We choose our disciples: an outstanding root, or Qi Refining at least. Train some years more.",
   "world_sim.dialogue.steward.refuse.rejoin_cooldown.1": "You left us not long ago. We do not take back those who turn round; come again in some years.",
   "world_sim.dialogue.steward.refuse.standing_too_low.1": "Your standing with this sect is spoiled. I cannot enter your name.",

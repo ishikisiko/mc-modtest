@@ -756,7 +756,7 @@
   "world_sim.dialogue.steward.refuse.already_member.1": "你已是本宗弟子，不必再拜一回。",
   "world_sim.dialogue.steward.refuse.member_elsewhere.1": "你身上已有别家宗门的名籍。先了断那边，再来说话。",
   "world_sim.dialogue.steward.refuse.not_awakened.1": "灵根未觉醒，先去寻一场机缘。",
-  "world_sim.dialogue.steward.refuse.realm_too_low.1": "你连气感都还未生出，修为太浅。待你感应到天地灵气，再来叩门。",
+  "world_sim.dialogue.steward.refuse.realm_too_low.1": "本宗收徒的最低境界是「%1$s」。",
   "world_sim.dialogue.steward.refuse.selective.1": "本宗挑人，须灵根出众或已入炼气。你且回去再磨几年。",
   "world_sim.dialogue.steward.refuse.rejoin_cooldown.1": "你前番离山而去，时日尚短。本宗不收回头之人，过几年再说。",
   "world_sim.dialogue.steward.refuse.standing_too_low.1": "你与本宗交情已坏，这名我记不得。",

@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.162.1
+
+- 总舵要求筑基初期方可拜入，主宗要求金丹初期。境界不足时，守山执事会告知本宗的最低要求。
+
 ## 0.162.0
 
 - 主世界新洞窟会出现天然铁矿眼和玄铁矿眼。玩家可搭建采掘站，安排常速、赶工和仓库备货，通过漏斗收取粗矿。

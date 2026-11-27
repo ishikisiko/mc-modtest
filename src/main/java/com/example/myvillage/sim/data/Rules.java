@@ -325,12 +325,12 @@ public record Rules(
     }
 
     /**
-     * {@code min} comes from the flat {@code min_realm}/{@code min_stage} fields. A visitor whose
+     * Entry realms are indexed by the receiving sect's tier. A visitor whose
      * standing with a sect is below {@code hostileStandingBelow} is turned away by its steward and
      * elders (slice 4).
      */
-    public record PlayerAdmission(boolean requireAwakenedRoot, PlayerRealmStage min, int joinStanding,
-                                  PlayerSelective selective, int hostileStandingBelow) {
+    public record PlayerAdmission(boolean requireAwakenedRoot, Map<String, PlayerRealmStage> minimumByTier,
+                                  int joinStanding, PlayerSelective selective, int hostileStandingBelow) {
     }
 
     /**
@@ -658,12 +658,13 @@ public record Rules(
                 fd.nonNegativeNumber("surplus_exponent"), fd.nonNegativeInteger("min_years_left"),
                 fd.intRange("followers"));
 
+        Player player = player(root, realms);
         return new Rules(time, Collections.unmodifiableMap(tiers), chronicle, scheduler, roots, techniques,
                 cultivation, breakthrough, injury, Collections.unmodifiableMap(deathImportance), entrants, sects,
                 genesis, gates, naming, importance, travel, seclusion, danger, fortune,
                 Collections.unmodifiableMap(artifactPower), meetings, combat, revenge, sectRelations, succession,
-                decline, founding, player(root, realms), SectProgressionRules.parse(root.object("sect_progression",
-                        Set.of("entry_states", "regional_hubs", "levels", "elder_trial")), realms, player(root, realms).promotion()));
+                decline, founding, player, SectProgressionRules.parse(root.object("sect_progression",
+                        Set.of("entry_states", "regional_hubs", "levels", "elder_trial")), realms, player.promotion()));
     }
 
     /** Largest {@code cultivation.master_guidance}: a master at most multiplies meditation by 11. */
@@ -681,13 +682,18 @@ public record Rules(
         SimJson.Fields pl = root.object("player", Set.of("admission", "leave", "promotion", "scripture_hall",
                 "steward", "gates"));
 
-        SimJson.Fields ad = pl.object("admission", Set.of("require_awakened_root", "min_realm", "min_stage",
+        SimJson.Fields ad = pl.object("admission", Set.of("require_awakened_root", "minimum_by_tier",
                 "join_standing", "selective", "hostile_standing_below"));
+        SimJson.Fields tiers = ad.object("minimum_by_tier", Set.copyOf(SectProgressionRules.IDS));
+        Map<String, PlayerRealmStage> minimumByTier = new LinkedHashMap<>();
+        for (String tier : SectProgressionRules.IDS) {
+            minimumByTier.put(tier, playerRealmStage(tiers.object(tier, REALM_STAGE_FIELDS), realms));
+        }
         SimJson.Fields sel = ad.object("selective", Set.of("prestige_at_least", "root_peak_at_least",
                 "or_min_realm"));
         PlayerAdmission admission = new PlayerAdmission(
                 ad.bool("require_awakened_root"),
-                playerRealmStage(ad, "min_realm", "min_stage", realms),
+                Map.copyOf(minimumByTier),
                 ad.integer("join_standing", -100, 100),
                 new PlayerSelective(sel.nonNegativeNumber("prestige_at_least"),
                         sel.integer("root_peak_at_least", 0, Integer.MAX_VALUE),
@@ -728,7 +734,7 @@ public record Rules(
     private static final Set<String> THRESHOLD_FIELDS = Set.of("realm", "stage", "contribution");
 
     private static PlayerThreshold playerThreshold(SimJson.Fields f, RealmTable realms) {
-        return new PlayerThreshold(playerRealmStage(f, "realm", "stage", realms), f.nonNegativeInteger("contribution"));
+        return new PlayerThreshold(playerRealmStage(f, realms), f.nonNegativeInteger("contribution"));
     }
 
     /** {@code mortal} or a ledger realm. */
@@ -740,13 +746,10 @@ public record Rules(
         return realm;
     }
 
-    private static PlayerRealmStage playerRealmStage(SimJson.Fields f, String realmKey, String stageKey,
-                                                     RealmTable realms) {
-        String realm = playerRealm(f, realmKey, realms);
-        int stage = realm.equals(PlayerRealmStage.MORTAL)
-                ? f.nonNegativeInteger(stageKey)
-                : f.integer(stageKey, 0, realms.get(realms.indexOf(realm)).lastStage());
-        return new PlayerRealmStage(realm, stage);
+    private static PlayerRealmStage playerRealmStage(SimJson.Fields f, RealmTable realms) {
+        String realm = playerRealm(f, "realm", realms);
+        int lastStage = realm.equals(PlayerRealmStage.MORTAL) ? 1 : realms.byId(realm).lastStage();
+        return new PlayerRealmStage(realm, f.integer("stage", 0, lastStage));
     }
 
     private static final Set<String> GRADE_FACTOR_FIELDS = Set.of("cultivation", "breakthrough", "combat");

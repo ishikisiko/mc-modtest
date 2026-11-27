@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.example.myvillage.sim.data.SectProgressionRules;
 import com.example.myvillage.sim.engine.TextKeys;
 import com.example.myvillage.sim.model.StateCodec;
 import com.google.gson.Gson;
@@ -19,6 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /** The player-membership facade: admission, join, leave, admin promotion, the snapshot and the codec. */
 class WorldSimPlayerMembersTest {
@@ -76,10 +79,31 @@ class WorldSimPlayerMembersTest {
         return editSect(sim, b, s -> s.addProperty("prestige", 10.0));
     }
 
-    private static int[] twoActiveSects(WorldSim sim) {
-        List<SectView> active = sim.sects(false);
-        assertTrue(active.size() >= 2, "the fixture world has at least two active sects");
+    private static int[] twoActiveBranches(WorldSim sim) {
+        List<SectView> active = sim.sects(false).stream()
+                .filter(sect -> SectProgressionRules.BRANCH.equals(sect.tierId())).toList();
+        assertTrue(active.size() >= 2, "the fixture world has at least two active branches");
         return new int[] {active.get(0).id(), active.get(1).id()};
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "headquarters, qi_refining, 8, foundation_establishment",
+            "main, foundation_establishment, 2, golden_core"
+    })
+    void joiningRequiresTheReceivingSectsRealm(String tier, String belowRealm, int belowStage, String minimumRealm) {
+        WorldSim sim = world();
+        int id = sim.sects(false).stream().filter(sect -> tier.equals(sect.tierId())).findFirst().orElseThrow().id();
+        var below = new PlayerQualification(belowRealm, belowStage, true, 9000);
+        var atMinimum = new PlayerQualification(minimumRealm, 0, true, 25);
+
+        assertEquals(Admission.REALM_TOO_LOW, reason(sim, ALICE, id, below));
+        assertEquals(Admission.REALM_TOO_LOW, assertThrows(IllegalArgumentException.class,
+                () -> sim.joinSect(ALICE, "Alice", id, below)).getMessage());
+        assertTrue(sim.playerMember(ALICE).isEmpty());
+        assertEquals(Admission.OK, reason(sim, ALICE, id, atMinimum));
+        sim.joinSect(ALICE, "Alice", id, atMinimum);
+        assertEquals("outer", sim.playerMember(ALICE).orElseThrow().rank());
     }
 
     private static String reason(WorldSim sim, String player, int sectId, PlayerQualification q) {
@@ -93,7 +117,7 @@ class WorldSimPlayerMembersTest {
         // 当前规则采用资质点数，25 点低于名门的 30 点门槛。
         var modest = new PlayerQualification("mortal", 1, true, 25);
         WorldSim sim = world();
-        int[] ids = twoActiveSects(sim);
+        int[] ids = twoActiveBranches(sim);
         int a = ids[0];
         int b = ids[1];
         sim = ordinary(sim, a, b);
@@ -134,7 +158,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void joinWritesTheRecordAndAChronicleLine() {
         WorldSim sim = world();
-        int a = twoActiveSects(sim)[0];
+        int a = twoActiveBranches(sim)[0];
         sim = editSect(sim, a, s -> s.addProperty("prestige", 10.0));
         SectView sect = sim.sect(a).orElseThrow();
         PlayerQualification q = new PlayerQualification("qi_refining", 2, true, 4100);
@@ -182,7 +206,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void playersAreNotCountedAsPeople() {
         WorldSim a = world();
-        int sectId = twoActiveSects(a)[0];
+        int sectId = twoActiveBranches(a)[0];
         a = editSect(a, sectId, s -> s.addProperty("prestige", 10.0));
         WorldSim b = reload(a);
         b.joinSect(ALICE, "Alice", sectId, PLAIN);
@@ -218,7 +242,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void refusedJoinThrowsTheReasonAndChangesNothing() {
         WorldSim sim = world();
-        int a = twoActiveSects(sim)[0];
+        int a = twoActiveBranches(sim)[0];
         byte[] before = sim.toBytes();
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> sim.joinSect(ALICE, "Alice", a, new PlayerQualification("mortal", 1, false, 0)));
@@ -230,7 +254,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void leaveKeepsTheRecordAndCostsStanding() {
         WorldSim sim = world();
-        int[] ids = twoActiveSects(sim);
+        int[] ids = twoActiveBranches(sim);
         sim = ordinary(sim, ids[0], ids[1]);
         int a = ids[0];
         SectView sect = sim.sect(a).orElseThrow();
@@ -275,10 +299,10 @@ class WorldSimPlayerMembersTest {
     @Test
     void rejoinWaitsOutTheCooldownAndTheStanding() {
         WorldSim sim = world();
-        int[] ids = twoActiveSects(sim);
+        int[] ids = twoActiveBranches(sim);
         sim = ordinary(sim, ids[0], ids[1]);
         int a = ids[0];
-        // A root strong enough for any sect, since prestige moves over the years waited.
+        // A root strong enough for a prestigious branch, since prestige moves over the years waited.
         PlayerQualification strong = new PlayerQualification("mortal", 1, true, 9000);
         sim.joinSect(ALICE, "Alice", a, strong);
         sim.leaveSect(ALICE, "Alice");
@@ -300,7 +324,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void forcedJoinSkipsTheCooldownButNotALivingSect() {
         WorldSim sim = world();
-        int[] ids = twoActiveSects(sim);
+        int[] ids = twoActiveBranches(sim);
         sim = ordinary(sim, ids[0], ids[1]);
         int a = ids[0];
         sim.joinSect(ALICE, "Alice", a, PLAIN);
@@ -334,7 +358,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void forcedJoinFromAnotherSectLeavesItWithoutPenalty() {
         WorldSim sim = world();
-        int[] ids = twoActiveSects(sim);
+        int[] ids = twoActiveBranches(sim);
         sim = ordinary(sim, ids[0], ids[1]);
         sim.joinSect(ALICE, "Alice", ids[0], PLAIN);
         sim.promotePlayer(ALICE, "Alice", "inner");
@@ -358,7 +382,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void adminPromotion() {
         WorldSim sim = world();
-        int a = twoActiveSects(sim)[0];
+        int a = twoActiveBranches(sim)[0];
         sim = editSect(sim, a, s -> s.addProperty("prestige", 10.0));
         WorldSim fsim = sim;
         assertEquals("not_member", assertThrows(IllegalArgumentException.class,
@@ -390,7 +414,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void qualificationSnapshotRefreshesOnlyAnExistingRecord() {
         WorldSim sim = world();
-        int a = twoActiveSects(sim)[0];
+        int a = twoActiveBranches(sim)[0];
         sim = editSect(sim, a, s -> s.addProperty("prestige", 10.0));
         sim.updatePlayerQualification(ALICE, "Alice", PLAIN);
         assertTrue(sim.playerMember(ALICE).isEmpty());
@@ -408,7 +432,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void membersRoundTripThroughTheCodec() {
         WorldSim sim = world();
-        int[] ids = twoActiveSects(sim);
+        int[] ids = twoActiveBranches(sim);
         sim = ordinary(sim, ids[0], ids[1]);
         sim.joinSect(BOB, "Bob", ids[1], new PlayerQualification("qi_refining", 4, true, 3300));
         sim.joinSect(ALICE, "Alice", ids[0], PLAIN);
@@ -443,7 +467,7 @@ class WorldSimPlayerMembersTest {
     @Test
     void aMalformedPlayerRecordFailsLoudly() {
         WorldSim sim = world();
-        int a = twoActiveSects(sim)[0];
+        int a = twoActiveBranches(sim)[0];
         sim = editSect(sim, a, s -> s.addProperty("prestige", 10.0));
         sim.joinSect(ALICE, "Alice", a, PLAIN);
         JsonObject json = json(sim);

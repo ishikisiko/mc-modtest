@@ -141,7 +141,7 @@ class SectDialogueScenesTest {
     @Test
     void taskLinesTakeTheTaskFacts() {
         SectDialogueScenes.Facts facts = new SectDialogueScenes.Facts("青云宗", 61, 14, "韩立", "inner-rank", "南宫婉",
-                "patrol-name", "patrol-brief", 2, 3, 10);
+                "patrol-name", "patrol-brief", 2, 3, 10, "筑基初期");
         assertArrayEquals(new Object[] {"patrol-name", "patrol-brief"}, SectDialogueScenes.args("steward.task.offer", facts));
         assertArrayEquals(new Object[] {"patrol-name", "2", "3"}, SectDialogueScenes.args("steward.task.progress", facts));
         assertArrayEquals(new Object[] {"patrol-name", "10"}, SectDialogueScenes.args("steward.task.done", facts));
@@ -218,13 +218,15 @@ class SectDialogueScenesTest {
 
     @Test
     void everySceneLineGetsAsManyParamsAsItsKeyTakes() {
-        SectDialogueScenes.Facts facts = new SectDialogueScenes.Facts("青云宗", 61, 14, "韩立", "outer-rank");
+        SectDialogueScenes.Facts facts = new SectDialogueScenes.Facts("青云宗", 61, 14, "韩立", "outer-rank", "金丹初期");
         for (Map.Entry<String, Integer> e : SectDialogueKeys.PARAMS.entrySet()) {
             assertEquals(e.getValue(), SectDialogueScenes.args(e.getKey(), facts).length, e.getKey());
         }
         assertArrayEquals(new Object[] {"青云宗", "61", "14", "韩立"},
                 SectDialogueScenes.args("steward.intro", facts));
         assertArrayEquals(new Object[] {"outer-rank"}, SectDialogueScenes.args("steward.member", facts));
+        assertArrayEquals(new Object[] {"金丹初期"},
+                SectDialogueScenes.args(SectDialogueKeys.STEWARD_REFUSE_REALM_TOO_LOW, facts));
         assertThrows(IllegalArgumentException.class, () -> SectDialogueScenes.args("steward.unknown", facts));
     }
 

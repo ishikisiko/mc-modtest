@@ -76,7 +76,7 @@ public final class PlayerAffairs {
         if (ad.requireAwakenedRoot() && !q.awakened()) {
             return Admission.refused(Admission.NOT_AWAKENED);
         }
-        if (!reached(ctx.realms, q, ad.min())) {
+        if (!reached(ctx.realms, q, ad.minimumByTier().get(sect.tierId))) {
             return Admission.refused(Admission.REALM_TOO_LOW);
         }
         Rules.PlayerSelective sel = ad.selective();

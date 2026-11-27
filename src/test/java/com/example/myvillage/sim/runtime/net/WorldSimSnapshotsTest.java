@@ -465,7 +465,7 @@ class WorldSimSnapshotsTest {
         boolean joinWorked;
         try {
             world.joinSect(PLAYER, "试剑客", sect.id(),
-                    new PlayerQualification("foundation_establishment", 0, true, 6000));
+                    new PlayerQualification("golden_core", 0, true, 6000));
             joinWorked = true;
         } catch (UnsupportedOperationException notYet) {
             joinWorked = false;

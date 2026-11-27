@@ -69,14 +69,12 @@ public final class SectDialogueScenes {
     }
 
     /**
-     * What the line params are made of; {@code master}, {@code rank}, {@code taskName} and
-     * {@code taskBrief} are display objects (components). {@code speaker} is the avatar's name;
-     * the task fields are those of the task the lines talk about (the open task, the offer, or the
-     * one just turned in), empty and 0 when there is none.
+     * Display parameters for dialogue lines. The speaker is the avatar's name. The task fields
+     * describe the open task, the offer, or the task just turned in; they are empty or 0 when absent.
      */
     public record Facts(String sectName, int prestige, int memberCount, Object master, Object rank,
                         String speaker, Object taskName, Object taskBrief, int taskProgress, int taskCount,
-                        int taskContribution) {
+                        int taskContribution, Object minimumRealm) {
         public Facts {
             Objects.requireNonNull(sectName, "sectName");
             Objects.requireNonNull(master, "master");
@@ -84,11 +82,12 @@ public final class SectDialogueScenes {
             Objects.requireNonNull(speaker, "speaker");
             Objects.requireNonNull(taskName, "taskName");
             Objects.requireNonNull(taskBrief, "taskBrief");
+            Objects.requireNonNull(minimumRealm, "minimumRealm");
         }
 
         /** Facts without a speaker name or a task. */
-        public Facts(String sectName, int prestige, int memberCount, Object master, Object rank) {
-            this(sectName, prestige, memberCount, master, rank, "", "", "", 0, 0, 0);
+        public Facts(String sectName, int prestige, int memberCount, Object master, Object rank, Object minimumRealm) {
+            this(sectName, prestige, memberCount, master, rank, "", "", "", 0, 0, 0, minimumRealm);
         }
     }
 
@@ -338,6 +337,7 @@ public final class SectDialogueScenes {
             case SectDialogueKeys.STEWARD_INTRO -> new Object[] {facts.sectName(), String.valueOf(facts.prestige()),
                     String.valueOf(facts.memberCount()), facts.master()};
             case SectDialogueKeys.STEWARD_MEMBER, SectDialogueKeys.ELDER_MEMBER -> new Object[] {facts.rank()};
+            case SectDialogueKeys.STEWARD_REFUSE_REALM_TOO_LOW -> new Object[] {facts.minimumRealm()};
             case SectDialogueKeys.TASK_OFFER, SectDialogueKeys.TASK_ACCEPTED ->
                     new Object[] {facts.taskName(), facts.taskBrief()};
             case SectDialogueKeys.TASK_PROGRESS -> new Object[] {facts.taskName(),

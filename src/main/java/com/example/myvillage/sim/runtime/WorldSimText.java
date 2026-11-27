@@ -2,6 +2,7 @@ package com.example.myvillage.sim.runtime;
 
 import com.example.myvillage.sim.SimDate;
 import com.example.myvillage.sim.SimEvent;
+import com.example.myvillage.sim.data.Rules.PlayerRealmStage;
 import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -55,6 +56,10 @@ public final class WorldSimText {
 
     /** {@code stage} is 0-based, as in the views. */
     public static MutableComponent stage(String realmId, int stage) {
+        if (PlayerRealmStage.MORTAL.equals(realmId)) {
+            return Component.translatable(stage == 0 ? "cultivation.stage.yuanxian.mortal_unawakened"
+                    : "cultivation.stage.yuanxian.mortal_qi_sensed");
+        }
         return Component.translatable("world_sim.stage." + realmId + "." + (stage + 1));
     }
 

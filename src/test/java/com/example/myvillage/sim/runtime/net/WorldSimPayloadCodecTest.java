@@ -166,7 +166,7 @@ class WorldSimPayloadCodecTest {
         SectView sect = sim.sects(false).get(0);
         boolean joinWorked;
         try {
-            sim.joinSect(PLAYER, "试剑客", sect.id(), new PlayerQualification("foundation_establishment", 0, true, 6000));
+            sim.joinSect(PLAYER, "试剑客", sect.id(), new PlayerQualification("golden_core", 0, true, 6000));
             joinWorked = true;
         } catch (UnsupportedOperationException notYet) {
             joinWorked = false;

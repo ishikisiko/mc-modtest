@@ -4,6 +4,7 @@ import com.example.myvillage.region.runtime.GenRegion;
 import com.example.myvillage.region.runtime.RegionGraph;
 import com.example.myvillage.region.runtime.RegionQueries;
 import com.example.myvillage.sim.data.ContentTables;
+import com.example.myvillage.sim.data.Rules;
 import com.example.myvillage.sim.data.SimDataLoader;
 import com.example.myvillage.sim.engine.AdminActs;
 import com.example.myvillage.sim.engine.Engine;
@@ -808,6 +809,10 @@ public final class WorldSim {
      */
     public Admission admission(String playerId, int sectId, PlayerQualification q) {
         return PlayerAffairs.admission(ctx, playerId, sectId, q);
+    }
+
+    public Rules.PlayerRealmStage minimumAdmissionRealm(String tierId) {
+        return ctx.rules.player().admission().minimumByTier().get(tierId);
     }
 
     /**

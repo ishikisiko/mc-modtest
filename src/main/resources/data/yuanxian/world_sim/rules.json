@@ -231,7 +231,12 @@
     "followers": [0, 3]
   },
   "player": {
-    "admission": {"require_awakened_root": true, "min_realm": "mortal", "min_stage": 1, "join_standing": 20,
+    "admission": {"require_awakened_root": true, "join_standing": 20,
+                  "minimum_by_tier": {
+                    "branch": {"realm": "mortal", "stage": 1},
+                    "headquarters": {"realm": "foundation_establishment", "stage": 0},
+                    "main": {"realm": "golden_core", "stage": 0}
+                  },
                   "hostile_standing_below": -50,
                   "selective": {"prestige_at_least": 60.0, "root_peak_at_least": 30, "or_min_realm": "qi_refining"}},
     "leave": {"standing_penalty": -40, "rejoin_standing_at_least": 0, "rejoin_years": 3, "standing_recovery_per_year": 10},
