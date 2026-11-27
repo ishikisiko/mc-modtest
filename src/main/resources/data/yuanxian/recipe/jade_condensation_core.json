@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "yuanxian:condensation_core"
+    },
+    {
+      "item": "yuanxian:condensation_core"
+    },
+    {
+      "item": "yuanxian:condensation_core"
+    },
+    {
+      "item": "yuanxian:condensation_core"
+    },
+    {
+      "item": "yuanxian:condensation_core"
+    },
+    {
+      "item": "minecraft:prismarine_crystals"
+    },
+    {
+      "item": "minecraft:quartz"
+    }
+  ],
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:jade_condensation_core",
+    "count": 1
+  }
+}

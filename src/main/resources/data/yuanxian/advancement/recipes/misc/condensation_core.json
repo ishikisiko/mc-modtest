@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_material": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "yuanxian:medium_grade_spirit_stone"
+          }
+        ]
+      }
+    },
+    "has_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "yuanxian:condensation_core"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_material",
+      "has_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "yuanxian:condensation_core"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "minecraft:block/stone",
+    "side": "yuanxian:block/iron_mine_eye_side",
+    "top": "yuanxian:block/iron_mine_eye_top"
+  }
+}

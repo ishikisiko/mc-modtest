@@ -130,6 +130,7 @@ public final class MyVillageMod {
         com.example.myvillage.forging.array.ForgingArrayContent.register(modEventBus);
         com.example.myvillage.enchanting.EnchantingContent.register(modEventBus);
         com.example.myvillage.gathering.GatheringContent.register(modEventBus);
+        com.example.myvillage.production.ProductionContent.register(modEventBus);
         com.example.myvillage.orchard.OrchardContent.register(modEventBus);
         com.example.myvillage.decoration.SwordQiDecorationContent.register(modEventBus);
         com.example.myvillage.decoration.DemonPactPillarContent.register(modEventBus);

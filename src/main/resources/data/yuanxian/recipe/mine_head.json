@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "CRC",
+    " Q "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:mine_head",
+    "count": 1
+  }
+}

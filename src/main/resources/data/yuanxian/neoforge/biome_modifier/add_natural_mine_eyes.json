@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#yuanxian:has_spirit_stone_ore",
+  "features": "yuanxian:natural_mine_eye",
+  "step": "underground_decoration"
+}

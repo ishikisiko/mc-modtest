@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "yuanxian:block/crystal_press_base",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "yuanxian:block/crystal_press_base",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "yuanxian:block/crystal_press_base",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "yuanxian:block/crystal_press_base",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_material": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:iron_ingot"
+          }
+        ]
+      }
+    },
+    "has_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "yuanxian:mine_column"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_material",
+      "has_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "yuanxian:mine_column"
+    ]
+  }
+}

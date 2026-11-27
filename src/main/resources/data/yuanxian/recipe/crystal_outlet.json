@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "C C",
+    "PCP",
+    " S "
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "P": {
+      "item": "minecraft:quartz"
+    },
+    "S": {
+      "item": "minecraft:polished_deepslate"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:crystal_outlet",
+    "count": 1
+  }
+}

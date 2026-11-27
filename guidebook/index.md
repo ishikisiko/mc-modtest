@@ -24,6 +24,7 @@ item_ids:
 - 战斗与远行：[高级武技](./getting_started/advanced_arts.md)、[太白剑脉绝技](./getting_started/locked_sword_arts.md)、[五行法修](./getting_started/elemental_arts.md)、[御剑飞行](./getting_started/flying_swords.md)。
 - 寻找城市和宗门：[舆图、宗门与居民交易](./getting_started/world_and_sects.md)、[探索、境界与城镇向导](./getting_started/exploration.md)。
 - 整理修炼物资：[灵石、灵石袋与兑换](./getting_started/spirit_stones.md)。
+- 自动备货：[天然矿眼与采掘站](./getting_started/mine_station.md)、[聚灵阵凝晶扩展](./getting_started/spirit_condensation.md)。
 - 辨认敌人：[野外历练与战利品](./getting_started/wilderness_roster.md)、[行尸与骸弓](./getting_started/undead_roster.md)。
 - 探索危险地点：[遗迹与雷角山君](./getting_started/ruins_and_bosses.md)。
 

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "C C",
+    " I ",
+    " S "
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "S": {
+      "item": "minecraft:stone_bricks"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:mine_outlet",
+    "count": 1
+  }
+}

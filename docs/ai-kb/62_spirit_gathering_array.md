@@ -43,6 +43,10 @@
 不触发强制加载。普通外观检查有界定时执行，每次付费前再次完整检查。阵法重叠可存在，但玩家只受其中一座影响。
 最近受益人数和运转标志为短暂表现状态，重启清零；原灵石、余能、启停标志持久保存。
 
+## 凝晶扩展
+
+三档阵分别可加装一套凝晶模块。扩展控制器每轮校验自己的构件、地基和原阵，使用固定的各档产率，修炼余能由原阵事务单独结算。产物库存、启停和凝晶进度归扩展控制器。具体配方、出石口和搭建顺序见[游戏指南](../../guidebook/getting_started/spirit_condensation.md)。新装置和采掘站共用 [生产规则](../../src/main/resources/data/yuanxian/production/rules.json) 与 `tools/gen_production_assets.py`。倍率直接读取灵石品级定义。
+
 ## 资源和验证
 
 - 模型、贴图、碰撞近似、配方、发现进度、中文名称及运行时配色归 `tools/gen_gathering_assets.py`；原配色与核心配方输入为 `tools/gathering/visual.json`，新增建筑模型、构件配方与布局由 `tools/gathering/architecture.py` authored 定义；检查 `--check`。

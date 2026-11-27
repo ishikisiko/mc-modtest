@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CCC",
+    "GKG",
+    "SSS"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "K": {
+      "item": "yuanxian:condensation_core"
+    },
+    "S": {
+      "item": "minecraft:stone_bricks"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:bronze_condenser",
+    "count": 1
+  }
+}

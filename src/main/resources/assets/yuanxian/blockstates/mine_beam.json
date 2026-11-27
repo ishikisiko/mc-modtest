@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "yuanxian:block/mine_beam",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "yuanxian:block/mine_beam",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "yuanxian:block/mine_beam",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "yuanxian:block/mine_beam",
+      "y": 270
+    }
+  }
+}

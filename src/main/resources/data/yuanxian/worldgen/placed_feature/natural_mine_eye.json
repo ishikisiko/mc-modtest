@@ -1,0 +1,12 @@
+{
+  "feature": "yuanxian:natural_mine_eye",
+  "placement": [
+    {
+      "type": "minecraft:rarity_filter",
+      "chance": 8
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

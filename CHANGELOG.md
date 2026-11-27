@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.162.0
+
+- 主世界新洞窟会出现天然铁矿眼和玄铁矿眼。玩家可搭建采掘站，安排常速、赶工和仓库备货，通过漏斗收取粗矿。
+- 三档聚灵阵可各加装一套凝晶扩展。三套构件分别需要 4、20、100 枚中品灵石，运行时按统一的固定灵气浓度积攒成晶进度。
+- 《修行入门录》增加矿站和凝晶扩展两章，展示搭建、出货方式及工作台配方。
+
 ## 0.161.0
 
 - 攻心法和灵修心法在一次招式中各有一次触发机会。若同一击已经为攻心法扣除灵修所需的一层状态，灵修也可据此回灵。

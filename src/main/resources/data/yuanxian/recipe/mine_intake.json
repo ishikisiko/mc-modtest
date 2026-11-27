@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " C ",
+    "CDC",
+    "SSS"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "D": {
+      "item": "minecraft:quartz"
+    },
+    "S": {
+      "item": "minecraft:polished_deepslate"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:mine_intake",
+    "count": 1
+  }
+}

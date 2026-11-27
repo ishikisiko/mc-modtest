@@ -61,6 +61,21 @@
     "yuanxian:xuantie_ore",
     "yuanxian:rune_lamp",
     "yuanxian:tall_street_lamp",
-    "yuanxian:low_street_lamp"
+    "yuanxian:low_street_lamp",
+    "yuanxian:mine_station",
+    "yuanxian:mine_column",
+    "yuanxian:mine_intake",
+    "yuanxian:mine_head",
+    "yuanxian:mine_outlet",
+    "yuanxian:mine_beam",
+    "yuanxian:condenser_intake",
+    "yuanxian:bronze_condenser",
+    "yuanxian:jade_crystal_seat",
+    "yuanxian:jade_condenser",
+    "yuanxian:golden_crystal_intake",
+    "yuanxian:crystal_channel",
+    "yuanxian:crystal_press_base",
+    "yuanxian:golden_condenser",
+    "yuanxian:crystal_outlet"
   ]
 }

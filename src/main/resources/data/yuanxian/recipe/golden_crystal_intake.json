@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    "GAG",
+    "O O"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:golden_crystal_intake",
+    "count": 2
+  }
+}

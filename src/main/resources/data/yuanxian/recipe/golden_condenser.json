@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "yuanxian:jade_condensation_core"
+    },
+    {
+      "item": "yuanxian:jade_condensation_core"
+    },
+    {
+      "item": "yuanxian:jade_condensation_core"
+    },
+    {
+      "item": "yuanxian:jade_condensation_core"
+    },
+    {
+      "item": "yuanxian:jade_condensation_core"
+    },
+    {
+      "item": "minecraft:gold_block"
+    },
+    {
+      "item": "minecraft:obsidian"
+    },
+    {
+      "item": "minecraft:amethyst_shard"
+    }
+  ],
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:golden_condenser",
+    "count": 1
+  }
+}

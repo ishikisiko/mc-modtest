@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CIC",
+    "RGR",
+    "SSS"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "I": {
+      "item": "minecraft:comparator"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "S": {
+      "item": "minecraft:polished_deepslate"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:mine_station",
+    "count": 1
+  }
+}

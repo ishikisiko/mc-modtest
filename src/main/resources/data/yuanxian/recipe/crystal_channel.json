@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "OOO"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "O": {
+      "item": "minecraft:polished_deepslate_slab"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:crystal_channel",
+    "count": 8
+  }
+}

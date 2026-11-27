@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QCQ",
+    "PKP",
+    "SSS"
+  ],
+  "key": {
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "P": {
+      "item": "minecraft:prismarine_crystals"
+    },
+    "K": {
+      "item": "yuanxian:jade_condensation_core"
+    },
+    "S": {
+      "item": "minecraft:prismarine_bricks"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:jade_condenser",
+    "count": 1
+  }
+}

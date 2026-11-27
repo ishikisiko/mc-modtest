@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "SCS",
+    " S "
+  ],
+  "key": {
+    "S": {
+      "tag": "c:spirit_stones/medium_grade"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:condensation_core",
+    "count": 1
+  }
+}

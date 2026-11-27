@@ -445,6 +445,17 @@ class GuideMECultivationGuideValidator:
             if "BLOCKS.register(name,factory)" in source and "ITEMS.registerItem(name," in source:
                 ids = set(re.findall(r'=block\("([a-z0-9_./-]+)"', source))
                 items.update(ids); blocks.update(ids)
+        production = self.root / JAVA_ROOT / "production/ProductionContent.java"
+        production_parts = self.root / JAVA_ROOT / "production/ProductionPart.java"
+        if production.is_file() and production_parts.is_file():
+            source = _strip_code_comments(production.read_text(encoding="utf-8"))
+            definitions = _strip_code_comments(production_parts.read_text(encoding="utf-8"))
+            roles = re.search(r'enum ProductionPart\s*\{([^;]+);', definitions)
+            eyes = re.search(r'boolean eye\(\) \{\s*return ([^;]+);', definitions)
+            if roles and eyes and "BLOCKS.register(part.id," in source and "if (!part.eye()) ITEMS.registerSimpleBlockItem(part.id, block)" in source:
+                names = {name.strip().lower() for name in roles[1].split(",")}
+                blocks.update(names)
+                items.update(names - {name.lower() for name in re.findall(r'this == ([A-Z_]+)', eyes[1])})
         # Arrays register each non-air enum role as a named block and block item.
         for kind, java, call in (
             ("alchemy", "alchemy/array/AlchemyArrayContent.java", "AlchemyArrayRules"),

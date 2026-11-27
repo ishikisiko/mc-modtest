@@ -1,0 +1,45 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "yuanxian:block/crystal_channel_center"
+      }
+    },
+    {
+      "when": {
+        "north": "true"
+      },
+      "apply": {
+        "model": "yuanxian:block/crystal_channel_arm",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "east": "true"
+      },
+      "apply": {
+        "model": "yuanxian:block/crystal_channel_arm",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "true"
+      },
+      "apply": {
+        "model": "yuanxian:block/crystal_channel_arm",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "true"
+      },
+      "apply": {
+        "model": "yuanxian:block/crystal_channel_arm",
+        "y": 270
+      }
+    }
+  ]
+}

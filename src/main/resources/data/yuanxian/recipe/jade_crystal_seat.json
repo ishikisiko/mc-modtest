@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "P P",
+    "QCQ",
+    " S "
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:prismarine_crystals"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "S": {
+      "item": "minecraft:prismarine_bricks"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:jade_crystal_seat",
+    "count": 2
+  }
+}

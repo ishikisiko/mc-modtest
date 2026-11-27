@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "yuanxian:block/mine_head",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "yuanxian:block/mine_head",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "yuanxian:block/mine_head",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "yuanxian:block/mine_head",
+      "y": 270
+    }
+  }
+}

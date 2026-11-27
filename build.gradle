@@ -751,6 +751,13 @@ tasks.register('generateStorageBags', Exec) {
 }
 tasks.named('processResources') { dependsOn 'generateStorageBags' }
 
+tasks.register('verifyProductionAssets', Exec) {
+    workingDir projectDir
+    executable pythonExecutable.get()
+    args 'tools/gen_production_assets.py', '--check'
+}
+tasks.named('processResources') { dependsOn 'verifyProductionAssets' }
+
 // 生成器完成后校验实际语言源，打包完成后严格核对JAR字节。
 def languageInputSnapshot = layout.buildDirectory.file('language-assets/before-generation.json')
 tasks.register('captureLanguageAssets', Exec) {

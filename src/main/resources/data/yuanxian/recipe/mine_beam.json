@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "CCC",
+    "DDD"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "D": {
+      "item": "minecraft:deepslate_bricks"
+    }
+  },
+  "category": "misc",
+  "result": {
+    "id": "yuanxian:mine_beam",
+    "count": 3
+  }
+}
