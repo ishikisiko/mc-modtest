@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:tide_mud_crab",
+  "attributes": {
+    "max_health": 108,
+    "attack_damage": 9,
+    "movement_speed": 0.24,
+    "follow_range": 15,
+    "armor": 8,
+    "knockback_resistance": 0.42,
+    "step_height": 1
+  },
+  "chase": {
+    "speed_modifier": 1.07,
+    "move_gap_ticks": 12,
+    "cancelled_cooldown_ticks": 29
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:tide_mud_crab_claw",
+      "animation": "claw",
+      "total_ticks": 32,
+      "windup_ticks": 13,
+      "turn_lock_tick": 11,
+      "active_ticks": [
+        13,
+        13
+      ],
+      "immune_ticks": [
+        8,
+        15
+      ],
+      "damage_multiplier": 0.93,
+      "maximum_targets": 2,
+      "use_range": [
+        0,
+        3.6
+      ],
+      "cooldown_ticks": 36,
+      "weight": 1,
+      "lunge": {
+        "tick": 12,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.15,
+          3.1
+        ],
+        "half_width": 1.63,
+        "height": [
+          -0.24,
+          1.35
+        ]
+      },
+      "knockback": {
+        "strength": 0.36,
+        "lift": 0.08
+      }
+    }
+  ]
+}

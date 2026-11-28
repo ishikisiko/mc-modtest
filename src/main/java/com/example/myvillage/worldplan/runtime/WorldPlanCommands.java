@@ -6,6 +6,7 @@ import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.worldplan.*;
 import com.example.myvillage.worldplan.mine.StarterMineGeneration;
 import com.example.myvillage.worldplan.mine.StarterMineLayout;
+import com.example.myvillage.worldplan.wonder.FieldArenaEncounter;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -37,6 +38,9 @@ public final class WorldPlanCommands {
                     .then(Commands.literal("sample").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(c->foldedRidgeSample(c.getSource(),BlockPosArgument.getLoadedBlockPos(c,"pos"))))))
                 .then(Commands.literal("lotus_mountain").executes(c->lotusMountain(c.getSource())))
+                .then(Commands.literal("field_encounters").executes(c->fieldEncounters(c.getSource()))
+                    .then(Commands.literal("sample").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(c->fieldEncounterSample(c.getSource(),BlockPosArgument.getLoadedBlockPos(c,"pos"))))))
                 .then(Commands.literal("city").executes(c->cities(c.getSource(),""))
                     .then(Commands.argument("region",StringArgumentType.word())
                         .suggests((c,b)->{for(var region:com.example.myvillage.worldplan.capital.CapitalRegion.values())b.suggest(region.id());return b.buildFuture();})
@@ -110,7 +114,78 @@ public final class WorldPlanCommands {
         o.add("spawn",WorldPlanRules.JSON.toJsonTree(p.spawn()));o.addProperty("structures_enabled",s.getServer().getWorldData().worldGenOptions().generateStructures());
         o.addProperty("atlas_directory",WorldPlanRuntime.directory(s.getLevel()).toString());return reply(s,o);
     }catch(Exception e){return fail(s,e);}}
-    private static int at(CommandSourceStack s,int x,int z){try{return reply(s,WorldPlanRules.JSON.toJsonTree(generator(s).plan().sample(x,z)).getAsJsonObject());}catch(Exception e){return fail(s,e);}}
+    private static int at(CommandSourceStack s,int x,int z){try{return reply(s,WorldPlanRules.JSON.toJsonTree(generator(s).sample(x,z)).getAsJsonObject());}catch(Exception e){return fail(s,e);}}
+    private static int fieldEncounters(CommandSourceStack source) {
+        try {
+            var generator = generator(source);
+            var result = new JsonObject();
+            result.addProperty("seed", Long.toString(generator.plan().seed()));
+            var rules = generator.rules().fieldBiomes;
+            if (rules == null) return reply(source, result);
+            for (var domain : rules.domains) {
+                var slot = new JsonObject();
+                var site = generator.fieldSites().get(domain.kind());
+                slot.addProperty("biome", domain.biome());
+                slot.addProperty("region", domain.region());
+                slot.addProperty("name", domain.kind() == FieldBiomeRules.Kind.TIDE ? "三汊潮峡" : "沉碑台地");
+                slot.addProperty("status", site == null ? "unavailable" :
+                        FieldArenaEncounter.status(source.getLevel(), domain.kind()));
+                if (site != null) {
+                    slot.add("home", blocks(site.home()));
+                    slot.add("exits", WorldPlanRules.JSON.toJsonTree(site.exits().stream().map(WorldPlanCommands::blocks).toList()));
+                    var box = site.bounds();
+                    slot.add("bounds", WorldPlanRules.JSON.toJsonTree(new int[]{box.minX(), box.minZ(), box.maxX(), box.maxZ()}));
+                    slot.addProperty("dry_area", site.dryArea());
+                    slot.addProperty("phase", FieldArenaEncounter.phase(source.getLevel(), domain.kind()));
+                    slot.addProperty("temporary_blocks", FieldArenaEncounter.temporaryCount(source.getLevel(), domain.kind()));
+                    if (site.bay() != null) {
+                        slot.add("sluice", blocks(site.marker()));
+                        slot.add("shoal", blocks(site.exposedShoal()));
+                        slot.addProperty("channels", site.bay().branches());
+                    } else {
+                        slot.add("bridge_a", blocks(site.bridgeA()));
+                        slot.add("bridge_b", blocks(site.bridgeB()));
+                    }
+                }
+                result.add(domain.kind().name().toLowerCase(Locale.ROOT), slot);
+            }
+            return reply(source, result);
+        } catch (Exception e) { return fail(source, e); }
+    }
+
+    private static com.google.gson.JsonElement blocks(BlockPos pos) {
+        return WorldPlanRules.JSON.toJsonTree(new int[]{pos.getX(), pos.getY(), pos.getZ()});
+    }
+
+    private static int fieldEncounterSample(CommandSourceStack source, BlockPos pos) {
+        try {
+            var world = source.getLevel();
+            var generator = generator(source);
+            var result = new JsonObject();
+            var biome = world.getBiome(pos);
+            result.addProperty("biome", biome.unwrapKey().orElseThrow().location().toString());
+            result.addProperty("floor", net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                    .getKey(world.getBlockState(pos.below()).getBlock()).toString());
+            result.addProperty("surface", world.getHeight(Heightmap.Types.OCEAN_FLOOR, pos.getX(), pos.getZ()));
+            result.addProperty("light", world.getMaxLocalRawBrightness(pos));
+            result.addProperty("planned_floor", generator.fieldSurfaceY(pos.getX(),pos.getZ()));
+            var tide = generator.fieldSites().get(FieldBiomeRules.Kind.TIDE);
+            if (tide != null && tide.contains(pos.getX(), pos.getZ()))
+                result.addProperty("high_tide", generator.fieldLayout().terrain().tideTop(tide.bay(), pos.getX(), pos.getZ()));
+            var spawns = new JsonObject();
+            for (var type : List.of(ModEntities.TIDE_MUD_CRAB.get(), ModEntities.HOOK_JAW_SCORPION.get())) {
+                var mob = type.create(world);
+                mob.moveTo(pos.getX()+.5, pos.getY(), pos.getZ()+.5, 0, 0);
+                boolean allowed = SpawnPlacements.isSpawnPositionOk(type, world, pos)
+                        && SpawnPlacements.checkSpawnRules(type, world, MobSpawnType.NATURAL, pos, RandomSource.create(0))
+                        && mob.checkSpawnRules(world, MobSpawnType.NATURAL) && mob.checkSpawnObstruction(world);
+                spawns.addProperty(net.minecraft.world.entity.EntityType.getKey(type).getPath(), allowed);
+            }
+            result.add("spawn_allowed", spawns);
+            return reply(source, result);
+        } catch (Exception e) { return fail(source, e); }
+    }
+
     private static int foldedRidge(CommandSourceStack source) {
         try {
             var generator = generator(source);

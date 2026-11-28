@@ -90,6 +90,7 @@ public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastMo
     @Override
     protected float getFlipDegrees(T beast) {
         return beast instanceof ThunderTigerEntity || beast instanceof com.example.myvillage.entity.beast.LotusGuardEntity
+                || beast instanceof com.example.myvillage.entity.beast.FieldEncounterBoss
                 ? 0.0F : super.getFlipDegrees(beast);
     }
 

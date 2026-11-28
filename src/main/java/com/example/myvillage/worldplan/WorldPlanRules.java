@@ -75,6 +75,7 @@ public final class WorldPlanRules {
     public final com.example.myvillage.wilderness.habitat.HabitatRules habitats;
     public final LotusMountain.Rules lotusMountain;
     public final FoldedRidge.Rules foldedRidge;
+    public final FieldBiomeRules fieldBiomes;
     public final CityRules city;
     public final com.example.myvillage.worldplan.capital.CapitalGameRules capitals;
     public final SectPlacement sectPlacement;
@@ -210,6 +211,9 @@ public final class WorldPlanRules {
         foldedRidge = new FoldedRidge.Rules(ridgeRegion, integer(ridge, "site_radius", 512, coreRadius),
             integer(ridge, "candidate_attempts", 1, 2048), integer(ridge, "clearance", 0, 128),
             integer(ridge, "surface_relief", 8, 96), integer(ridge, "edge_blend", 8, 80), text(ridge, "sha256"));
+        var field = r.getAsJsonObject("field_biomes");
+        fieldBiomes = field == null ? null : new FieldBiomeRules(field);
+        if (fieldBiomes != null) for (var domain : fieldBiomes.domains) profile(domain.region());
         JsonObject placement = r.getAsJsonObject("sect_placement");
         sectPlacement = placement == null ? null : new SectPlacement(
             integer(placement, "province_retries", 1, 8), integer(placement, "site_relocations", 1, 4),

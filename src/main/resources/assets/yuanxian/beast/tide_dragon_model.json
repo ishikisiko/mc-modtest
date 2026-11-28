@@ -1,0 +1,171 @@
+{
+  "schema": 1,
+  "id": "yuanxian:tide_dragon",
+  "texture": {"width": 128, "height": 96},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 3.6,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body_mesh_6",
+      "parent": "body",
+      "pivot": [-44.64, -29.44, 248.32],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body_mesh_7",
+      "parent": "body",
+      "pivot": [-49.12, -19.2, 246.88],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body_mesh_8",
+      "parent": "body",
+      "pivot": [-59.52, -20.32, 256.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body_mesh_10",
+      "parent": "body",
+      "pivot": [-36.64, -23.36, 246.88],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body_mesh_11",
+      "parent": "body",
+      "pivot": [-34.88, -26.72, 256.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "spine_0",
+      "parent": "body",
+      "pivot": [0.0, -45.76, -24.8],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "spine_1",
+      "parent": "body",
+      "pivot": [3.68, -44.16, 17.6],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "spine_2",
+      "parent": "body",
+      "pivot": [9.92, -41.12, 60.96],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "spine_3",
+      "parent": "body",
+      "pivot": [12.64, -35.84, 100.16],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "spine_4",
+      "parent": "body",
+      "pivot": [8.32, -30.4, 135.04],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "spine_5",
+      "parent": "body",
+      "pivot": [-1.92, -25.28, 168.32],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "spine_6",
+      "parent": "body",
+      "pivot": [-15.04, -21.6, 199.04],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "spine_7",
+      "parent": "body",
+      "pivot": [-28.8, -20.32, 225.6],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left_front",
+      "parent": "body",
+      "pivot": [-19.84, -47.04, -69.44],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left_back",
+      "parent": "body",
+      "pivot": [-19.84, -47.04, 54.88],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right_front",
+      "parent": "body",
+      "pivot": [19.84, -47.04, -69.44],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right_back",
+      "parent": "body",
+      "pivot": [19.84, -47.04, 54.88],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -50.08, -81.28],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "jaw",
+      "parent": "head",
+      "pivot": [-4.2423, 4.9787, -47.118],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "gill_left",
+      "parent": "head",
+      "pivot": [-19.7002, -4.6087, -22.3927],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "gill_right",
+      "parent": "head",
+      "pivot": [15.3573, -4.672, -25.5558],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/tide_dragon_surface.json"
+}

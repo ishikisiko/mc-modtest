@@ -636,14 +636,18 @@ public final class WorldPlan {
         Values v=values(x,z);WorldPlanRules.Profile p;String id,name;int tier;boolean core=StrictMath.hypot(x,z)<=rules.coreRadius;
         if(core){double[] q=geometry.warp(x,z);Region r=nearest(q[0],q[1]);p=r.profile;id=p.id();name=p.name();tier=r.tier;}
         else{Outer o=nearestOuter(x,z,neighbourhood(x,z));p=o.profile;id="outer/"+o.gx+"/"+o.gz;name=p.name()+"外域〔"+o.gx+","+o.gz+"〕";tier=o.tier;}
-        int surface=(int)StrictMath.floor(v.height);String biome;
-        if(surface<rules.seaLevel-8)biome="minecraft:deep_ocean";
-        else if(surface<rules.seaLevel)biome="minecraft:ocean";
-        else if(surface<=rules.seaLevel+2)biome="minecraft:beach";
-        else if(rules.ecotone!=null)biome=rules.ecotone.apply(x,z,originalLandBiome(p,x,z),this::originalBiomeAt);
-        else if(rules.ecology!=null)biome=rules.ecology.biome(climate(x,z,v.height));
-        else biome=originalLandBiome(p,x,z);
-        return new Context(id,name,p.id(),core,tier,v.qi,v.danger,surface,biome);
+        int surface=(int)StrictMath.floor(v.height);
+        return new Context(id,name,p.id(),core,tier,v.qi,v.danger,surface,biomeAtSurface(p,x,z,v.height));
+    }
+
+    String biomeAtSurface(WorldPlanRules.Profile profile, int x, int z, double height) {
+        int surface=(int)StrictMath.floor(height);
+        if(surface<rules.seaLevel-8)return "minecraft:deep_ocean";
+        if(surface<rules.seaLevel)return "minecraft:ocean";
+        if(surface<=rules.seaLevel+2)return "minecraft:beach";
+        if(rules.ecotone!=null)return rules.ecotone.apply(x,z,originalLandBiome(profile,x,z),this::originalBiomeAt);
+        if(rules.ecology!=null)return rules.ecology.biome(climate(x,z,height));
+        return originalLandBiome(profile,x,z);
     }
     private String originalLandBiome(WorldPlanRules.Profile p,int x,int z){
         double n=noise(seed^mix(p.id().hashCode())^43,x/(rules.terrainScale*2),z/(rules.terrainScale*2));

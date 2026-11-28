@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:red_gravel_windcuts",
+  "spawners": {
+    "type": "yuanxian:hook_jaw_scorpion",
+    "weight": 18,
+    "minCount": 1,
+    "maxCount": 2
+  }
+}

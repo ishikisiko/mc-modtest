@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "id": "yuanxian:hook_jaw_scorpion",
+  "texture": {"width": 128, "height": 64},
+  "look": {"bone": "root", "max_yaw": 0, "max_pitch": 0},
+  "shadow_radius": 0.85,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "claw_left",
+      "parent": "root",
+      "pivot": [-9.28, -14.24, -9.76],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left",
+      "parent": "root",
+      "pivot": [-8.64, -11.52, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "claw_right",
+      "parent": "root",
+      "pivot": [9.28, -14.24, -9.76],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right",
+      "parent": "root",
+      "pivot": [8.64, -11.52, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "stinger",
+      "parent": "root",
+      "pivot": [0.0, -13.92, 11.52],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/hook_jaw_scorpion_surface.json"
+}

@@ -74,6 +74,10 @@ public final class MyVillageClient {
         BeastRenderer.register(event, ModEntities.LOTUS_GUARD);
         BeastRenderer.register(event, ModEntities.LANTERN_CARRIER);
         BeastRenderer.register(event, ModEntities.CLIFF_RAY);
+        BeastRenderer.register(event, ModEntities.TIDE_MUD_CRAB);
+        BeastRenderer.register(event, ModEntities.HOOK_JAW_SCORPION);
+        BeastRenderer.register(event, ModEntities.TIDE_DRAGON);
+        BeastRenderer.register(event, ModEntities.STELE_APE);
         NpcRenderer.register(event, ModEntities.CULTIVATOR, CultivatorEntity.LOOKS);
     }
 
@@ -98,6 +102,10 @@ public final class MyVillageClient {
         BeastRenderer.registerLayer(event, ModEntities.LOTUS_GUARD.getId());
         BeastRenderer.registerLayer(event, ModEntities.LANTERN_CARRIER.getId());
         BeastRenderer.registerLayer(event, ModEntities.CLIFF_RAY.getId());
+        BeastRenderer.registerLayer(event, ModEntities.TIDE_MUD_CRAB.getId());
+        BeastRenderer.registerLayer(event, ModEntities.HOOK_JAW_SCORPION.getId());
+        BeastRenderer.registerLayer(event, ModEntities.TIDE_DRAGON.getId());
+        BeastRenderer.registerLayer(event, ModEntities.STELE_APE.getId());
         NpcRenderer.registerLayer(event, ModEntities.CULTIVATOR.getId(), CultivatorEntity.LOOKS);
     }
 

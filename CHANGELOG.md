@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.165.0
+
+- 新建修仙大陆时，东海按种子生成三汊潮滩和泥甲潮蟹，西漠生成赤砾风槽和钩颚砂蝎。四种野外生物都有各自的像素模型和击杀掉落。
+- 回潮螭出现在三条潮沟汇入的峡口。满潮时可登高岸避开水势，拨动旧水闸可提前退潮并露出鳃侧。背碑石猿出现在沉碑台地，落碑能暂时接通断沟两岸，玩家可趁机攻击背部。
+- 管理员可用 `/yuanxian worldplan field_encounters` 查当前种子的首领坐标、潮峡高岸、旧水闸和落碑两端。
+
 ## 0.164.0
 
 - 分宗、总舵和主宗每月各办一届宗门大比。外门弟子到比试院报到，与命簿中境界相近的同门交手。赛后击败两名不同弟子的合资格外门可晋升内门。

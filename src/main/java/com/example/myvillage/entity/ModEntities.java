@@ -13,6 +13,9 @@ import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import com.example.myvillage.entity.beast.LotusGuardEntity;
 import com.example.myvillage.entity.beast.LanternCarrierEntity;
 import com.example.myvillage.entity.beast.CliffRayEntity;
+import com.example.myvillage.entity.beast.FieldAmbientBeast;
+import com.example.myvillage.entity.beast.FieldEncounterBoss;
+import com.example.myvillage.entity.beast.FieldEncounterRules;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -87,6 +90,25 @@ public final class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<CliffRayEntity>> CLIFF_RAY =
             ENTITY_TYPES.register("cliff_ray", id -> EntityType.Builder.of(CliffRayEntity::new, MobCategory.MONSTER)
                     .sized(1.48F, 1.34F).eyeHeight(.73F).clientTrackingRange(12).updateInterval(1).build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<FieldAmbientBeast>> TIDE_MUD_CRAB =
+            fieldBeast(FieldAmbientBeast.CRAB, FieldAmbientBeast::new, 9);
+    public static final DeferredHolder<EntityType<?>, EntityType<FieldAmbientBeast>> HOOK_JAW_SCORPION =
+            fieldBeast(FieldAmbientBeast.SCORPION, FieldAmbientBeast::new, 9);
+    public static final DeferredHolder<EntityType<?>, EntityType<FieldEncounterBoss>> TIDE_DRAGON =
+            fieldBeast(FieldEncounterBoss.DRAGON, FieldEncounterBoss::new, 16);
+    public static final DeferredHolder<EntityType<?>, EntityType<FieldEncounterBoss>> STELE_APE =
+            fieldBeast(FieldEncounterBoss.APE, FieldEncounterBoss::new, 16);
+
+    private static <T extends com.example.myvillage.entity.beast.BeastEntity>
+            DeferredHolder<EntityType<?>, EntityType<T>> fieldBeast(String name, EntityType.EntityFactory<T> factory, int tracking) {
+        return ENTITY_TYPES.register(name, id -> {
+            var body = FieldEncounterRules.bundled().beast(name).body();
+            return EntityType.Builder.of(factory, MobCategory.MONSTER)
+                    .sized(body.width(), body.height()).eyeHeight(body.eyeHeight())
+                    .clientTrackingRange(tracking).updateInterval(1).build(id.toString());
+        });
+    }
 
     /** 修仙者: about 1.9 blocks to the top of the head, the hair bun a little above the box; no natural spawning. */
     public static final DeferredHolder<EntityType<?>, EntityType<CultivatorEntity>> CULTIVATOR =

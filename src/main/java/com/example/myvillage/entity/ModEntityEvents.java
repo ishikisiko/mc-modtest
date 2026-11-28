@@ -21,6 +21,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
+import com.example.myvillage.entity.beast.FieldAmbientBeast;
 
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID)
 public final class ModEntityEvents {
@@ -60,10 +61,22 @@ public final class ModEntityEvents {
         var lotus = BeastDefinitions.bundled().require(LotusGuardEntity.ID);
         LotusGuardRules.validateMoves(lotus);
         event.put(ModEntities.LOTUS_GUARD.get(), BeastEntity.createAttributes(lotus).build());
+        for (var type : java.util.List.of(ModEntities.TIDE_MUD_CRAB.get(), ModEntities.HOOK_JAW_SCORPION.get(),
+                ModEntities.TIDE_DRAGON.get(), ModEntities.STELE_APE.get())) {
+            var definition = BeastDefinitions.bundled().require(net.minecraft.world.entity.EntityType.getKey(type));
+            event.put(type, BeastEntity.createAttributes(definition).build());
+        }
     }
 
     @SubscribeEvent
     public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        // The crab's mud floor is lower than a full cube. Its own predicate checks the substrate.
+        event.register(ModEntities.TIDE_MUD_CRAB.get(), SpawnPlacementTypes.NO_RESTRICTIONS,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, FieldAmbientBeast::checkSpawn,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.HOOK_JAW_SCORPION.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, FieldAmbientBeast::checkSpawn,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(ModEntities.LANTERN_CARRIER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 LanternCarrierEntity::checkSpawn, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(ModEntities.CLIFF_RAY.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,

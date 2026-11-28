@@ -133,6 +133,35 @@ public final class ModItems {
     public static final DeferredItem<Item> MOSS_LANTERN_WICK = ITEMS.registerItem("moss_lantern_wick", Item::new);
     public static final DeferredItem<Item> LAYERED_ROCK_FIN = ITEMS.registerItem("layered_rock_fin", Item::new);
 
+    public static final DeferredItem<Item> TIDE_CRAB_CALCIUM =
+            ITEMS.registerItem("tide_crab_calcium", Item::new);
+    public static final DeferredItem<Item> TIDE_SALT_SAC =
+            ITEMS.registerItem("tide_salt_sac", Item::new);
+    public static final DeferredItem<Item> HOOK_JAW_SHELL =
+            ITEMS.registerItem("hook_jaw_shell", Item::new);
+    public static final DeferredItem<Item> PACKED_SAND_STINGER =
+            ITEMS.registerItem("packed_sand_stinger", Item::new);
+    public static final DeferredItem<Item> TIDE_DRAGON_SCALE =
+            ITEMS.registerItem("tide_dragon_scale", Item::new);
+    public static final DeferredItem<Item> TIDAL_GORGE_SEAL =
+            ITEMS.registerItem("tidal_gorge_seal", Item::new);
+    public static final DeferredItem<Item> STELE_APE_MARROW =
+            ITEMS.registerItem("stele_ape_marrow", Item::new);
+    public static final DeferredItem<Item> OLD_PASS_SEAL =
+            ITEMS.registerItem("old_pass_seal", Item::new);
+    public static final DeferredItem<DeferredSpawnEggItem> TIDE_MUD_CRAB_SPAWN_EGG =
+            ITEMS.registerItem("tide_mud_crab_spawn_egg",
+                    props -> new DeferredSpawnEggItem(ModEntities.TIDE_MUD_CRAB, 0x684E3E, 0xC79D78, props));
+    public static final DeferredItem<DeferredSpawnEggItem> HOOK_JAW_SCORPION_SPAWN_EGG =
+            ITEMS.registerItem("hook_jaw_scorpion_spawn_egg",
+                    props -> new DeferredSpawnEggItem(ModEntities.HOOK_JAW_SCORPION, 0x9A4F2B, 0x502F24, props));
+    public static final DeferredItem<DeferredSpawnEggItem> TIDE_DRAGON_SPAWN_EGG =
+            ITEMS.registerItem("tide_dragon_spawn_egg",
+                    props -> new DeferredSpawnEggItem(ModEntities.TIDE_DRAGON, 0x366869, 0xABC38D, props));
+    public static final DeferredItem<DeferredSpawnEggItem> STELE_APE_SPAWN_EGG =
+            ITEMS.registerItem("stele_ape_spawn_egg",
+                    props -> new DeferredSpawnEggItem(ModEntities.STELE_APE, 0x8C664B, 0x41372D, props));
+
     public static final DeferredItem<RideableFlyingSwordItem> AZURE_CLOUD_FLYING_SWORD =
             ITEMS.registerItem("azure_cloud_flying_sword", props -> new RideableFlyingSwordItem(props.stacksTo(1), true));
     public static final DeferredItem<RideableFlyingSwordItem> RIDEABLE_FLYING_SWORD =
@@ -492,8 +521,20 @@ public final class ModItems {
                         output.accept(LOTUS_GUARD_SPAWN_EGG.get());
                         output.accept(LANTERN_CARRIER_SPAWN_EGG.get());
                         output.accept(CLIFF_RAY_SPAWN_EGG.get());
+                        output.accept(TIDE_MUD_CRAB_SPAWN_EGG.get());
+                        output.accept(HOOK_JAW_SCORPION_SPAWN_EGG.get());
+                        output.accept(TIDE_DRAGON_SPAWN_EGG.get());
+                        output.accept(STELE_APE_SPAWN_EGG.get());
                         output.accept(MOSS_LANTERN_WICK.get());
                         output.accept(LAYERED_ROCK_FIN.get());
+                        output.accept(TIDE_CRAB_CALCIUM.get());
+                        output.accept(TIDE_SALT_SAC.get());
+                        output.accept(HOOK_JAW_SHELL.get());
+                        output.accept(PACKED_SAND_STINGER.get());
+                        output.accept(TIDE_DRAGON_SCALE.get());
+                        output.accept(TIDAL_GORGE_SEAL.get());
+                        output.accept(STELE_APE_MARROW.get());
+                        output.accept(OLD_PASS_SEAL.get());
                         output.accept(CULTIVATOR_SPAWN_EGG.get());
                         output.accept(RIDEABLE_FLYING_SWORD.get());
                         output.accept(AZURE_CLOUD_FLYING_SWORD.get());

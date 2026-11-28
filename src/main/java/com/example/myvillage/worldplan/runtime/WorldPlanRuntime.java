@@ -4,6 +4,7 @@ import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.region.runtime.RegionRuntimeState;
 import com.example.myvillage.worldplan.WorldPlan;
 import com.example.myvillage.worldplan.WorldPlanExporter;
+import com.example.myvillage.worldplan.wonder.FieldArenaEncounter;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -40,6 +41,8 @@ public final class WorldPlanRuntime {
         com.example.myvillage.worldplan.roads.RoadRuntime.register();
         GENERATORS.register(bus);SOURCES.register(bus);NeoForge.EVENT_BUS.addListener(WorldPlanRuntime::createSpawn);
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.worldplan.wonder.LotusArenaEncounter::tick);
+        NeoForge.EVENT_BUS.addListener(FieldArenaEncounter::tick);
+        NeoForge.EVENT_BUS.addListener(FieldArenaEncounter::useSluice);
         NeoForge.EVENT_BUS.addListener(WorldPlanRuntime::started);NeoForge.EVENT_BUS.addListener(WorldPlanCommands::register);
         NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppingEvent e)->{WorldAtlasCache.clear();CapitalGamePlacement.clear();});
         NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.AddReloadListenerEvent e)->CapitalGamePlacement.clear());
@@ -47,7 +50,7 @@ public final class WorldPlanRuntime {
     public static Optional<PlannedChunkGenerator> generator(ServerLevel level){
         return level.dimension().equals(Level.OVERWORLD)&&level.getChunkSource().getGenerator() instanceof PlannedChunkGenerator g?Optional.of(g):Optional.empty();
     }
-    public static Optional<WorldPlan.Context> context(ServerLevel level,int x,int z){return generator(level).map(g->g.plan().sample(x,z));}
+    public static Optional<WorldPlan.Context> context(ServerLevel level,int x,int z){return generator(level).map(g->g.sample(x,z));}
     public static boolean inStarterMineCave(ServerLevelAccessor world,BlockPos pos){
         var level=world.getLevel();
         if(!level.getServer().getWorldData().worldGenOptions().generateStructures())return false;
@@ -57,8 +60,9 @@ public final class WorldPlanRuntime {
     }
     public static Path directory(ServerLevel level){return level.getServer().getWorldPath(LevelResource.ROOT).resolve("data/yuanxian/worldplan");}
     public static void export(ServerLevel level,int resolution)throws IOException{
-        WorldPlan plan=generator(level).orElseThrow(()->new IllegalArgumentException("Not a cultivation world")).plan();
-        WorldPlanExporter.export(plan,directory(level),resolution,plan.rules().coreRadius+2*plan.rules().coreBlend);
+        var generator = generator(level).orElseThrow(() -> new IllegalArgumentException("Not a cultivation world"));
+        WorldPlan plan = generator.plan();
+        WorldPlanExporter.export(plan,directory(level),resolution,plan.rules().coreRadius+2*plan.rules().coreBlend,generator::sample);
     }
     private static void createSpawn(LevelEvent.CreateSpawnPosition event){
         if(!(event.getLevel() instanceof ServerLevel level))return;

@@ -102,6 +102,11 @@ public class BeastModel<T extends BeastEntity> extends HierarchicalModel<T> {
         ThunderTigerEntity tiger = beast instanceof ThunderTigerEntity value ? value : null;
         boolean presentation = tiger != null && (tiger.isPresentationShown() || tiger.isHurtShown())
                 || beast instanceof LotusGuardEntity lotus && lotus.isPresentationShown();
+        if (beast instanceof com.example.myvillage.entity.beast.FieldEncounterBoss boss) {
+            ModelPart stele = bones.get("stele");
+            if (stele != null) stele.visible = !boss.steleSet();
+            presentation |= boss.isDeadOrDying() || boss.exposed();
+        }
         if (tiger != null) {
             ModelPart hornTip = bones.get("horn_tip");
             if (hornTip != null) {

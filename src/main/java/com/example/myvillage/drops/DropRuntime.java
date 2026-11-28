@@ -86,6 +86,11 @@ public final class DropRuntime {
     }
     private static void drops(LivingDropsEvent event){
         if(!(event.getEntity().level() instanceof ServerLevel level))return;
+        if (event.getEntity() instanceof com.example.myvillage.entity.beast.FieldEncounterBoss boss
+                && !boss.rewardsAllowed()) {
+            event.getDrops().clear();
+            return;
+        }
         var store=STORES.get(level.getServer());if(store==null)return;
         var entity=event.getEntity();
         if(entity instanceof net.minecraft.world.entity.player.Player)return;

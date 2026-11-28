@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:hook_jaw_scorpion",
+  "attributes": {
+    "max_health": 126,
+    "attack_damage": 11,
+    "movement_speed": 0.277,
+    "follow_range": 19,
+    "armor": 6,
+    "knockback_resistance": 0.35,
+    "step_height": 1
+  },
+  "chase": {
+    "speed_modifier": 1.07,
+    "move_gap_ticks": 20,
+    "cancelled_cooldown_ticks": 29
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:hook_jaw_scorpion_claw",
+      "animation": "claw",
+      "total_ticks": 28,
+      "windup_ticks": 11,
+      "turn_lock_tick": 9,
+      "active_ticks": [
+        11,
+        11
+      ],
+      "immune_ticks": [
+        6,
+        13
+      ],
+      "damage_multiplier": 0.83,
+      "maximum_targets": 2,
+      "use_range": [
+        0,
+        3.35
+      ],
+      "cooldown_ticks": 38,
+      "weight": 3,
+      "lunge": {
+        "tick": 10,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          0,
+          2.97
+        ],
+        "half_width": 1.46,
+        "height": [
+          -0.2,
+          1.4
+        ]
+      },
+      "knockback": {
+        "strength": 0.36,
+        "lift": 0.08
+      }
+    },
+    {
+      "id": "yuanxian:hook_jaw_scorpion_sting",
+      "animation": "sting",
+      "total_ticks": 45,
+      "windup_ticks": 19,
+      "turn_lock_tick": 11,
+      "active_ticks": [
+        19,
+        19
+      ],
+      "immune_ticks": [
+        14,
+        21
+      ],
+      "damage_multiplier": 1.31,
+      "maximum_targets": 2,
+      "use_range": [
+        1.1,
+        4.7
+      ],
+      "cooldown_ticks": 71,
+      "weight": 2,
+      "lunge": {
+        "tick": 18,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          0.62,
+          4.45
+        ],
+        "half_width": 1.16,
+        "height": [
+          -0.22,
+          1.92
+        ]
+      },
+      "knockback": {
+        "strength": 0.36,
+        "lift": 0.08
+      }
+    }
+  ]
+}

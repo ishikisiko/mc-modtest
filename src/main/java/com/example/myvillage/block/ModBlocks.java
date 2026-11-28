@@ -53,6 +53,15 @@ public final class ModBlocks {
                     BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(-1.0F, 3600000F)
                             .noLootTable().sound(SoundType.STONE).pushReaction(PushReaction.BLOCK));
 
+    public static final DeferredBlock<Block> ENCOUNTER_TIDE_SHEET = BLOCKS.registerBlock("encounter_tide_sheet",
+            p -> new com.example.myvillage.worldplan.wonder.EncounterTemporaryBlock(p, false),
+            BlockBehaviour.Properties.of().mapColor(MapColor.WATER).strength(-1,3600000).noLootTable()
+                    .noOcclusion().noCollission().pushReaction(PushReaction.BLOCK));
+    public static final DeferredBlock<Block> ENCOUNTER_STELE = BLOCKS.registerBlock("encounter_stele",
+            p -> new com.example.myvillage.worldplan.wonder.EncounterTemporaryBlock(p, true),
+            BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_BROWN).strength(-1,3600000).noLootTable()
+                    .sound(SoundType.STONE).pushReaction(PushReaction.BLOCK));
+
     public static final DeferredBlock<BattleCacheBlock> BATTLE_CACHE = BLOCKS.registerBlock("battle_cache", BattleCacheBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(-1.0F, 3600000F).noOcclusion().noLootTable()
                     .sound(SoundType.METAL).pushReaction(PushReaction.BLOCK)

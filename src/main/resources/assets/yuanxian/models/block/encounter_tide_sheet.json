@@ -1,0 +1,29 @@
+{
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "surface": "yuanxian:block/encounter_tide_sheet",
+    "particle": "yuanxian:block/encounter_tide_sheet"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        15,
+        0
+      ],
+      "to": [
+        16,
+        15.5,
+        16
+      ],
+      "faces": {
+        "up": {
+          "texture": "#surface"
+        },
+        "down": {
+          "texture": "#surface"
+        }
+      }
+    }
+  ]
+}

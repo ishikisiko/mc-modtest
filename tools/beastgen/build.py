@@ -18,6 +18,9 @@ DEFINITIONS = ("demon_wolf", "thunder_tiger", "lotus_guard", "lantern_carrier", 
 
 
 def definition(name):
+    from . import field
+    if name in field.NAMES:
+        return field.definition(name)
     from . import legacy
     if name in legacy.names():
         return legacy.definition(name)

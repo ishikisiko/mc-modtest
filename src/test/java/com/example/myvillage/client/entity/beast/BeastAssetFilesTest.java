@@ -2,6 +2,7 @@ package com.example.myvillage.client.entity.beast;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -147,6 +148,28 @@ final class BeastAssetFilesTest {
         assertEquals("clips.idle.loop", checkFailure(json -> clip(json, "idle").addProperty("loop", false), model, wolf).field());
         assertEquals("clips.bite.channels[0].bone",
                 checkFailure(json -> channel(json, "bite").addProperty("bone", "jaw"), model, wolf).field());
+    }
+
+    @Test
+    void fieldBeastsKeepRenderableMeshesAndServerTimedClips() throws Exception {
+        var definitions = new BeastDefinitions(BeastDataLoader.load(BeastAssetFilesTest::openMain));
+        for (String name : new String[]{"tide_mud_crab", "hook_jaw_scorpion", "tide_dragon", "stele_ape"}) {
+            var id = ResourceLocation.fromNamespaceAndPath("yuanxian", name);
+            String assets = "assets/yuanxian/beast/" + name;
+            var model = BeastModelFile.parse(assets + "_model.json", id, fixture(assets + "_model.json"));
+            var animations = BeastAnimationFile.parse(assets + "_animations.json", id, fixture(assets + "_animations.json"));
+            animations.check(assets + "_animations.json", model, definitions.require(id));
+            var mesh = BeastSurfaceMesh.parse(assets + "_surface.json", model,
+                    new java.io.StringReader(fixture(assets + "_surface.json").toString()));
+            assertFalse(mesh.parts().isEmpty(), name);
+            assertNotNull(model.toLayerDefinition().bakeRoot().getChild("root"), name);
+            try (var texture = openMain("assets/yuanxian/textures/entity/" + name + "/" + name + ".png")) {
+                assertNotNull(texture, name);
+                var image = javax.imageio.ImageIO.read(texture);
+                assertEquals(model.textureWidth(), image.getWidth(), name);
+                assertEquals(model.textureHeight(), image.getHeight(), name);
+            }
+        }
     }
 
     @Test

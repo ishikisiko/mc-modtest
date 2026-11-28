@@ -49,6 +49,33 @@
     "surface_relief": 76,
     "edge_blend": 36
   },
+  "field_biomes": {
+    "foundation_clearance": 10,
+    "foundation_blend": 48,
+    "tide": {
+      "region": "donghai", "biome": "yuanxian:three_tidal_flats",
+      "patch_scale": 1510, "patch_edge": -0.44, "patch_blend": 0.42,
+      "biome_weight": 0.83,
+      "survey_radius": 2950, "clearance": 30,
+      "arena_width": 296, "arena_depth": 224, "dry_area": 18000,
+      "wake_radius": 88, "observer_radius": 112, "maximum_rise": 10,
+      "shore_period": 1456, "bay_spacing": 440, "coast_width": 266,
+      "channel_cut": 13, "channel_spread": 39, "channel_width": 12,
+      "maximum_biome_depth": 19,
+      "rock_lift": 37
+    },
+    "wind": {
+      "region": "ximo", "biome": "yuanxian:red_gravel_windcuts",
+      "patch_scale": 1510, "patch_edge": -0.48, "patch_blend": 0.42,
+      "biome_weight": 0.83,
+      "survey_radius": 2950, "clearance": 30,
+      "arena_width": 344, "arena_depth": 252, "dry_area": 35000,
+      "wake_radius": 92, "observer_radius": 120, "maximum_rise": 0,
+      "valley_spacing": 420, "fracture_spacing": 432, "valley_width": 109,
+      "plateau_lift": 66, "height_above_sea": 17, "bridge_span": 14,
+      "fracture_depth": 11
+    }
+  },
   "assets": {
     "accepted_versions": [
       "v4"

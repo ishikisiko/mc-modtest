@@ -12,6 +12,11 @@ import java.util.*;
 public final class WorldPlanExporter {
     private WorldPlanExporter() {}
     public static void export(WorldPlan plan,Path directory,int resolution,int radius)throws IOException{
+        export(plan,directory,resolution,radius,plan::sample);
+    }
+
+    public static void export(WorldPlan plan,Path directory,int resolution,int radius,
+                              java.util.function.BiFunction<Integer,Integer,WorldPlan.Context> sample)throws IOException{
         if(resolution<64||resolution>512||radius<1000||radius>100000)throw new IllegalArgumentException("Atlas bounds");
         Files.createDirectories(directory);int n=resolution;
         int[] heights=new int[n*n],regions=new int[n*n],qi=new int[n*n];
@@ -19,7 +24,7 @@ public final class WorldPlanExporter {
         BufferedImage terrain=new BufferedImage(n,n,BufferedImage.TYPE_INT_RGB),political=new BufferedImage(n,n,BufferedImage.TYPE_INT_RGB),spirit=new BufferedImage(n,n,BufferedImage.TYPE_INT_RGB);
         for(int z=0;z<n;z++)for(int x=0;x<n;x++){
             int wx=(int)Math.round(-radius+x*2.0*radius/(n-1)),wz=(int)Math.round(-radius+z*2.0*radius/(n-1)),at=z*n+x;
-            WorldPlan.Context c=plan.sample(wx,wz);if(!ids.containsKey(c.regionId())){ids.put(c.regionId(),ids.size());legend.add(c);}
+            WorldPlan.Context c=sample.apply(wx,wz);if(!ids.containsKey(c.regionId())){ids.put(c.regionId(),ids.size());legend.add(c);}
             heights[at]=c.surfaceY();regions[at]=ids.get(c.regionId());qi[at]=(int)Math.round(c.qi()*10);
             terrain.setRGB(x,z,terrainColor(c,plan.rules().seaLevel));political.setRGB(x,z,regionColor(c.regionId()));spirit.setRGB(x,z,blend(0x15202d,0x77ebbe,Math.min(1,c.qi()/10)));
         }

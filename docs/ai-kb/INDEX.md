@@ -82,6 +82,8 @@ impact-based checks in the workflow.
 | 71 | [出生省城的 NPC 入门](71_capital_opening.md) | 四个普通命簿居民的固定身份、主动交谈、药铺试种与吐纳教学、个人回执和开发者检查边界。 |
 | 72 | [储物袋](../features/storage-bags.md) | 材料、通用和秘籍三类五档，合法掉落自动入袋、材料标签增补、按箱子已有材料卸货和炼器扩容。 |
 
+三汊潮滩与赤砾风槽的[群系、选址和首领遭遇](../features/biome-encounters.md)。
+
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 
 Topic notes: [Plaque Frame Brief](plaque-frame-brief.md), [Plaque Inscription Style](plaque-inscription-style.md). Reference material under [`references/`](references/), [`style_guides/`](style_guides/), [`examples/`](examples/).
