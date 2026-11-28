@@ -161,6 +161,17 @@ public final class ModItems {
     public static final DeferredItem<DeferredSpawnEggItem> STELE_APE_SPAWN_EGG =
             ITEMS.registerItem("stele_ape_spawn_egg",
                     props -> new DeferredSpawnEggItem(ModEntities.STELE_APE, 0x8C664B, 0x41372D, props));
+    private static final java.util.List<DeferredItem<? extends Item>> PROVINCIAL_FAUNA_ITEMS = provincialFaunaItems();
+
+    private static java.util.List<DeferredItem<? extends Item>> provincialFaunaItems() {
+        var items = new java.util.ArrayList<DeferredItem<? extends Item>>();
+        for (var rule : com.example.myvillage.entity.beast.ProvincialFauna.rules()) {
+            items.add(ITEMS.registerItem(rule.id() + "_spawn_egg", props -> new DeferredSpawnEggItem(
+                    ModEntities.PROVINCIAL_FAUNA.get(rule.id()), rule.color(), 0x54515A, props)));
+            for (String material : rule.materials()) items.add(ITEMS.registerItem(material, Item::new));
+        }
+        return java.util.List.copyOf(items);
+    }
 
     public static final DeferredItem<RideableFlyingSwordItem> AZURE_CLOUD_FLYING_SWORD =
             ITEMS.registerItem("azure_cloud_flying_sword", props -> new RideableFlyingSwordItem(props.stacksTo(1), true));
@@ -535,6 +546,7 @@ public final class ModItems {
                         output.accept(TIDAL_GORGE_SEAL.get());
                         output.accept(STELE_APE_MARROW.get());
                         output.accept(OLD_PASS_SEAL.get());
+                        for (var item : PROVINCIAL_FAUNA_ITEMS) output.accept(item.get());
                         output.accept(CULTIVATOR_SPAWN_EGG.get());
                         output.accept(RIDEABLE_FLYING_SWORD.get());
                         output.accept(AZURE_CLOUD_FLYING_SWORD.get());

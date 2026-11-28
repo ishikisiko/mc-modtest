@@ -16,6 +16,8 @@ import com.example.myvillage.entity.beast.CliffRayEntity;
 import com.example.myvillage.entity.beast.FieldAmbientBeast;
 import com.example.myvillage.entity.beast.FieldEncounterBoss;
 import com.example.myvillage.entity.beast.FieldEncounterRules;
+import com.example.myvillage.entity.beast.ProvincialFauna;
+import com.example.myvillage.entity.beast.ProvincialAnimal;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -99,6 +101,8 @@ public final class ModEntities {
             fieldBeast(FieldEncounterBoss.DRAGON, FieldEncounterBoss::new, 16);
     public static final DeferredHolder<EntityType<?>, EntityType<FieldEncounterBoss>> STELE_APE =
             fieldBeast(FieldEncounterBoss.APE, FieldEncounterBoss::new, 16);
+    public static final java.util.Map<String, DeferredHolder<EntityType<?>, EntityType<ProvincialAnimal>>> PROVINCIAL_FAUNA =
+            ProvincialFauna.register(ENTITY_TYPES);
 
     private static <T extends com.example.myvillage.entity.beast.BeastEntity>
             DeferredHolder<EntityType<?>, EntityType<T>> fieldBeast(String name, EntityType.EntityFactory<T> factory, int tracking) {

@@ -1,0 +1,932 @@
+{
+  "schema": 1,
+  "vanilla_weight": 0.58,
+  "survey_step": 112,
+  "biomes": [
+    {
+      "id": "ochre_creeks",
+      "name": "赭溪兽道",
+      "region": "donghuang",
+      "window": [
+        1536,
+        1152
+      ],
+      "site": {
+        "height": 28,
+        "rugged": 0.3
+      },
+      "terrain": {
+        "form": "channel",
+        "relief": 15,
+        "cut": 15,
+        "spacing": 232,
+        "fluid": "water",
+        "palette": [
+          "coarse_dirt",
+          "gravel",
+          "terracotta",
+          "stone"
+        ]
+      },
+      "climate": [
+        0.67,
+        0.58
+      ],
+      "decoration": [
+        "trees_plains",
+        "patch_grass_plain"
+      ],
+      "fauna": {
+        "id": "ochre_badger",
+        "name": "赭爪獾",
+        "source_model": "badger",
+        "model_scale": 0.66,
+        "size": [
+          1.18,
+          0.86
+        ],
+        "habitat": "bank",
+        "activity": "dusk",
+        "behavior": "flee",
+        "weight": 12,
+        "group": [
+          1,
+          2
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "af7353",
+        "loot": [
+          {
+            "id": "ochre_claw",
+            "name": "掘砾爪",
+            "description": "打磨后用作耐磨的采掘工具配件。"
+          },
+          {
+            "id": "sandy_bristle",
+            "name": "含砂硬鬃",
+            "description": "用于粗糙握柄的防滑包缠。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "oak_hollows",
+      "name": "栎冠水洼",
+      "region": "donghuang",
+      "window": [
+        1472,
+        1088
+      ],
+      "site": {
+        "height": 13,
+        "rugged": 0.18
+      },
+      "terrain": {
+        "form": "hollow",
+        "relief": 10,
+        "cut": 7,
+        "spacing": 196,
+        "fluid": "water",
+        "palette": [
+          "grass_block",
+          "rooted_dirt",
+          "mud",
+          "dirt"
+        ]
+      },
+      "climate": [
+        0.67,
+        0.58
+      ],
+      "decoration": [
+        "trees_birch_and_oak",
+        "patch_grass_forest"
+      ],
+      "fauna": {
+        "id": "leafneck_muntjac",
+        "name": "叶颈麂",
+        "source_model": "deer",
+        "model_scale": 0.58,
+        "size": [
+          0.76,
+          1.64
+        ],
+        "habitat": "clearing",
+        "activity": "day",
+        "behavior": "flee",
+        "weight": 12,
+        "group": [
+          1,
+          3
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "8c9a53",
+        "loot": [
+          {
+            "id": "leaf_pattern_velvet",
+            "name": "叶纹茸",
+            "description": "柔韧的茸壳可试作药匣内衬。"
+          },
+          {
+            "id": "oak_scent_gland",
+            "name": "栎香腺",
+            "description": "制成布下后会慢慢散味的野兽诱材。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "root_cloud_gorge",
+      "name": "悬根云谷",
+      "region": "lingyue",
+      "window": [
+        1728,
+        1216
+      ],
+      "site": {
+        "height": 92,
+        "rugged": 0.91
+      },
+      "terrain": {
+        "form": "channel",
+        "relief": 37,
+        "cut": 49,
+        "spacing": 314,
+        "fluid": "water",
+        "palette": [
+          "moss_block",
+          "andesite",
+          "stone",
+          "tuff"
+        ]
+      },
+      "climate": [
+        0.47,
+        0.72
+      ],
+      "decoration": [
+        "trees_windswept_forest",
+        "patch_grass_normal"
+      ],
+      "fauna": {
+        "id": "parawing_marten",
+        "name": "伞翼岩貂",
+        "source_model": "glider",
+        "model_scale": 0.58,
+        "size": [
+          1.22,
+          0.78
+        ],
+        "habitat": "ledge",
+        "activity": "twilight",
+        "behavior": "glide",
+        "weight": 12,
+        "group": [
+          1,
+          2
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "9c8257",
+        "loot": [
+          {
+            "id": "parawing_membrane",
+            "name": "伞翼薄膜",
+            "description": "可作为轻装的防风夹层。"
+          },
+          {
+            "id": "marten_grip_pad",
+            "name": "岩貂指垫",
+            "description": "可试作贴岩时增加附着力的护具垫。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cascade_steps",
+      "name": "层瀑石海",
+      "region": "lingyue",
+      "window": [
+        1600,
+        1152
+      ],
+      "site": {
+        "height": 64,
+        "rugged": 0.7
+      },
+      "terrain": {
+        "form": "terrace",
+        "relief": 28,
+        "cut": 9,
+        "spacing": 172,
+        "fluid": "water",
+        "palette": [
+          "calcite",
+          "smooth_sandstone",
+          "diorite",
+          "stone"
+        ]
+      },
+      "climate": [
+        0.47,
+        0.72
+      ],
+      "decoration": [
+        "patch_grass_normal"
+      ],
+      "fauna": {
+        "id": "springcup_snail",
+        "name": "泉盏螺",
+        "source_model": "snail",
+        "model_scale": 0.46,
+        "size": [
+          0.64,
+          0.89
+        ],
+        "habitat": "bank",
+        "activity": "any",
+        "behavior": "amble",
+        "weight": 12,
+        "group": [
+          1,
+          2
+        ],
+        "health": 24,
+        "speed": 0.18,
+        "material_color": "d4b275",
+        "loot": [
+          {
+            "id": "springcup_shell",
+            "name": "泉盏螺壳",
+            "description": "壳片可作持水器皿的内釉试料。"
+          },
+          {
+            "id": "spring_calcium_bead",
+            "name": "泉钙珠",
+            "description": "可用于钙华类装饰块的浅色粉料。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wind_frost_steppe",
+      "name": "风脊冻原",
+      "region": "beiyuan",
+      "window": [
+        1664,
+        1152
+      ],
+      "site": {
+        "height": 52,
+        "rugged": 0.59
+      },
+      "terrain": {
+        "form": "ridge",
+        "relief": 33,
+        "cut": 1,
+        "spacing": 218,
+        "fluid": "none",
+        "palette": [
+          "snow_block",
+          "stone",
+          "grass_block",
+          "andesite"
+        ]
+      },
+      "climate": [
+        -0.23,
+        0.43
+      ],
+      "decoration": [
+        "trees_grove"
+      ],
+      "fauna": {
+        "id": "moss_horn_antelope",
+        "name": "苔角雪羚",
+        "source_model": "antelope",
+        "model_scale": 0.6,
+        "size": [
+          0.78,
+          1.7
+        ],
+        "habitat": "clearing",
+        "activity": "day",
+        "behavior": "flee",
+        "weight": 12,
+        "group": [
+          1,
+          3
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "aaa880",
+        "loot": [
+          {
+            "id": "moss_horn",
+            "name": "苔角",
+            "description": "耐低温的角质可用作冷地护具支条。"
+          },
+          {
+            "id": "winter_underfur",
+            "name": "绒白底毛",
+            "description": "可作保暖内层的填料。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirror_ice_hollows",
+      "name": "镜冰洼地",
+      "region": "beiyuan",
+      "window": [
+        1536,
+        1152
+      ],
+      "site": {
+        "height": 25,
+        "rugged": 0.18
+      },
+      "terrain": {
+        "form": "hollow",
+        "relief": 12,
+        "cut": 12,
+        "spacing": 258,
+        "fluid": "ice",
+        "palette": [
+          "snow_block",
+          "gravel",
+          "andesite",
+          "stone"
+        ]
+      },
+      "climate": [
+        -0.23,
+        0.43
+      ],
+      "decoration": [
+        "trees_snowy"
+      ],
+      "fauna": {
+        "id": "ice_burrow_otter",
+        "name": "钻冰獭",
+        "source_model": "otter",
+        "model_scale": 0.54,
+        "size": [
+          0.76,
+          0.76
+        ],
+        "habitat": "bank",
+        "activity": "day",
+        "behavior": "amphibious",
+        "weight": 12,
+        "group": [
+          1,
+          2
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "8eaab3",
+        "loot": [
+          {
+            "id": "waterproof_otter_fur",
+            "name": "密油獭毛",
+            "description": "斥水内衬，可减少装备泡水时的负担。"
+          },
+          {
+            "id": "ice_boring_tooth",
+            "name": "坚冰齿",
+            "description": "可试作冰具或壳甲打孔工具。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "reef_crowns",
+      "name": "礁冠海床",
+      "region": "donghai",
+      "window": [
+        1536,
+        1152
+      ],
+      "site": {
+        "height": -18,
+        "rugged": 0.25
+      },
+      "terrain": {
+        "form": "shelf",
+        "relief": 16,
+        "cut": 8,
+        "spacing": 228,
+        "fluid": "sea",
+        "palette": [
+          "sand",
+          "dead_brain_coral_block",
+          "prismarine",
+          "stone"
+        ]
+      },
+      "climate": [
+        0.62,
+        0.78
+      ],
+      "decoration": [],
+      "fauna": {
+        "id": "combspine_seahorse",
+        "name": "梳脊海马",
+        "source_model": "seahorse",
+        "model_scale": 0.45,
+        "size": [
+          0.61,
+          1.5
+        ],
+        "habitat": "reef",
+        "activity": "any",
+        "behavior": "swim",
+        "weight": 16,
+        "group": [
+          1,
+          2
+        ],
+        "health": 24,
+        "speed": 0.27,
+        "material_color": "6d9d9c",
+        "loot": [
+          {
+            "id": "combspine_bone",
+            "name": "梳脊骨",
+            "description": "细长骨条可用于轻薄的水下饰物骨架。"
+          },
+          {
+            "id": "reef_glow_gel",
+            "name": "明胶囊",
+            "description": "可作为持续发光涂料的底胶。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "salt_mirror_basin",
+      "name": "盐镜荒盆",
+      "region": "ximo",
+      "window": [
+        1600,
+        1216
+      ],
+      "site": {
+        "height": 17,
+        "rugged": 0.12
+      },
+      "terrain": {
+        "form": "hollow",
+        "relief": 8,
+        "cut": 5,
+        "spacing": 307,
+        "fluid": "water",
+        "palette": [
+          "white_terracotta",
+          "smooth_sandstone",
+          "calcite",
+          "sandstone"
+        ]
+      },
+      "climate": [
+        0.84,
+        0.2
+      ],
+      "decoration": [
+        "patch_dead_bush"
+      ],
+      "fauna": {
+        "id": "saltbill_runner",
+        "name": "盐喙走禽",
+        "source_model": "runner",
+        "model_scale": 0.58,
+        "size": [
+          0.7,
+          1.43
+        ],
+        "habitat": "bank",
+        "activity": "day",
+        "behavior": "flee",
+        "weight": 12,
+        "group": [
+          1,
+          2
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "b9a480",
+        "loot": [
+          {
+            "id": "saltbill_crystal",
+            "name": "盐喙结晶",
+            "description": "作为盐系灵膳的备用结晶盐。"
+          },
+          {
+            "id": "runner_toe_sheath",
+            "name": "硬趾鞘",
+            "description": "可试作适合硬盐地面的短靴鞋尖。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buttress_rainforest",
+      "name": "板根雨林",
+      "region": "nanjiang",
+      "window": [
+        1664,
+        1216
+      ],
+      "site": {
+        "height": 27,
+        "rugged": 0.46
+      },
+      "terrain": {
+        "form": "ridge",
+        "relief": 18,
+        "cut": 1,
+        "spacing": 190,
+        "fluid": "none",
+        "palette": [
+          "grass_block",
+          "rooted_dirt",
+          "moss_block",
+          "dirt"
+        ]
+      },
+      "climate": [
+        0.81,
+        0.89
+      ],
+      "decoration": [
+        "trees_jungle",
+        "patch_grass_jungle"
+      ],
+      "fauna": {
+        "id": "green_spotted_gecko",
+        "name": "青斑树蜥",
+        "source_model": "gecko",
+        "model_scale": 0.54,
+        "size": [
+          0.8,
+          0.53
+        ],
+        "habitat": "roots",
+        "activity": "day",
+        "behavior": "climb",
+        "weight": 12,
+        "group": [
+          1,
+          3
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "91aa63",
+        "loot": [
+          {
+            "id": "green_spotted_pad",
+            "name": "青斑蹼垫",
+            "description": "攀援护具配件，可增强贴靠树木的抓附感。"
+          },
+          {
+            "id": "tree_gecko_scale",
+            "name": "树蜥鳞片",
+            "description": "可制轻型层甲的柔性拼片。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "floating_reed_fen",
+      "name": "浮毯苇沼",
+      "region": "nanjiang",
+      "window": [
+        1536,
+        1088
+      ],
+      "site": {
+        "height": 7,
+        "rugged": 0.15
+      },
+      "terrain": {
+        "form": "hollow",
+        "relief": 8,
+        "cut": 9,
+        "spacing": 161,
+        "fluid": "water",
+        "palette": [
+          "mud",
+          "grass_block",
+          "packed_mud",
+          "clay"
+        ]
+      },
+      "climate": [
+        0.81,
+        0.89
+      ],
+      "decoration": [
+        "patch_waterlily",
+        "patch_sugar_cane_swamp"
+      ],
+      "fauna": {
+        "id": "reed_parasol_frog",
+        "name": "蒲伞沼蛙",
+        "source_model": "frog",
+        "model_scale": 0.5,
+        "size": [
+          0.82,
+          0.69
+        ],
+        "habitat": "bank",
+        "activity": "rain_night",
+        "behavior": "hop",
+        "weight": 12,
+        "group": [
+          1,
+          2
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "86a977",
+        "loot": [
+          {
+            "id": "reed_parasol_membrane",
+            "name": "蒲伞皮膜",
+            "description": "可试作器物防潮的柔性覆层。"
+          },
+          {
+            "id": "fen_frog_gel",
+            "name": "沼蛙胶",
+            "description": "作湿地药膳或制药辅料的黏胶基底。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ash_lava_channels",
+      "name": "灰脊熔沟",
+      "region": "moyu",
+      "window": [
+        1664,
+        1152
+      ],
+      "site": {
+        "height": 42,
+        "rugged": 0.53
+      },
+      "terrain": {
+        "form": "channel",
+        "relief": 25,
+        "cut": 14,
+        "spacing": 205,
+        "fluid": "lava",
+        "palette": [
+          "basalt",
+          "blackstone",
+          "smooth_basalt",
+          "tuff"
+        ]
+      },
+      "climate": [
+        0.76,
+        0.32
+      ],
+      "decoration": [],
+      "fauna": {
+        "id": "emberback_beetle",
+        "name": "余火甲虫",
+        "source_model": "beetle",
+        "model_scale": 0.48,
+        "size": [
+          0.87,
+          0.69
+        ],
+        "habitat": "hot_edge",
+        "activity": "any",
+        "behavior": "retaliate",
+        "weight": 12,
+        "group": [
+          1,
+          2
+        ],
+        "health": 56,
+        "speed": 0.27,
+        "material_color": "a66555",
+        "loot": [
+          {
+            "id": "ember_elytron",
+            "name": "余火翅壳",
+            "description": "试作短时隔热护垫，甲片本身会留下灰痕。"
+          },
+          {
+            "id": "cooled_ember_core",
+            "name": "凝火芯",
+            "description": "可作火系工艺的低量热源。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "amethyst_sink_rift",
+      "name": "紫晶沉沟",
+      "region": "moyu",
+      "window": [
+        1600,
+        1216
+      ],
+      "site": {
+        "height": 59,
+        "rugged": 0.87
+      },
+      "terrain": {
+        "form": "channel",
+        "relief": 28,
+        "cut": 39,
+        "spacing": 289,
+        "fluid": "none",
+        "palette": [
+          "tuff",
+          "smooth_basalt",
+          "deepslate",
+          "calcite"
+        ]
+      },
+      "climate": [
+        0.76,
+        0.32
+      ],
+      "decoration": [],
+      "fauna": {
+        "id": "rift_eared_bat",
+        "name": "裂晶耳蝠",
+        "source_model": "bat",
+        "model_scale": 0.5,
+        "size": [
+          0.75,
+          0.93
+        ],
+        "habitat": "rift",
+        "activity": "twilight",
+        "behavior": "fly",
+        "weight": 12,
+        "group": [
+          1,
+          3
+        ],
+        "health": 24,
+        "speed": 0.27,
+        "material_color": "a782bf",
+        "loot": [
+          {
+            "id": "rift_echo_bone",
+            "name": "裂晶听骨",
+            "description": "试作测空洞回声的炼器件。"
+          },
+          {
+            "id": "crystal_belly_down",
+            "name": "细晶腹绒",
+            "description": "可作吸音或隔振的衬层。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "meander_stone_isles",
+      "name": "曲水石洲",
+      "region": "zhongzhou",
+      "window": [
+        1792,
+        1280
+      ],
+      "site": {
+        "height": 16,
+        "rugged": 0.2
+      },
+      "terrain": {
+        "form": "channel",
+        "relief": 10,
+        "cut": 10,
+        "spacing": 276,
+        "fluid": "water",
+        "palette": [
+          "gravel",
+          "grass_block",
+          "coarse_dirt",
+          "stone"
+        ]
+      },
+      "climate": [
+        0.6,
+        0.61
+      ],
+      "decoration": [
+        "trees_plains",
+        "patch_sugar_cane"
+      ],
+      "fauna": {
+        "id": "stonebank_heron",
+        "name": "石汀鹭",
+        "source_model": "heron",
+        "model_scale": 0.62,
+        "size": [
+          0.71,
+          2.18
+        ],
+        "habitat": "bank",
+        "activity": "day",
+        "behavior": "flee",
+        "weight": 12,
+        "group": [
+          1,
+          2
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "b7c5cb",
+        "loot": [
+          {
+            "id": "stonebank_plume",
+            "name": "石汀白翎",
+            "description": "可试作符笔或淡色饰件。"
+          },
+          {
+            "id": "heron_sinew",
+            "name": "韧禽筋",
+            "description": "可试作韧度较高的轻弦。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cloud_pine_plateau",
+      "name": "云松台原",
+      "region": "zhongzhou",
+      "window": [
+        1664,
+        1152
+      ],
+      "site": {
+        "height": 49,
+        "rugged": 0.61
+      },
+      "terrain": {
+        "form": "terrace",
+        "relief": 30,
+        "cut": 4,
+        "spacing": 264,
+        "fluid": "none",
+        "palette": [
+          "grass_block",
+          "andesite",
+          "moss_block",
+          "stone"
+        ]
+      },
+      "climate": [
+        0.6,
+        0.61
+      ],
+      "decoration": [
+        "trees_taiga",
+        "patch_grass_taiga_2"
+      ],
+      "fauna": {
+        "id": "pine_crested_pheasant",
+        "name": "青翎锦鸡",
+        "source_model": "pheasant",
+        "model_scale": 0.57,
+        "size": [
+          0.62,
+          1.13
+        ],
+        "habitat": "clearing",
+        "activity": "day",
+        "behavior": "flee",
+        "weight": 12,
+        "group": [
+          1,
+          3
+        ],
+        "health": 38,
+        "speed": 0.27,
+        "material_color": "6c9b78",
+        "loot": [
+          {
+            "id": "pine_crested_plume",
+            "name": "青尾锦翎",
+            "description": "可作御风类饰物的轻羽试料。"
+          },
+          {
+            "id": "resin_gizzard_grit",
+            "name": "松脂嗉砂",
+            "description": "作低温慢烘时的添香材料。"
+          }
+        ]
+      }
+    }
+  ]
+}

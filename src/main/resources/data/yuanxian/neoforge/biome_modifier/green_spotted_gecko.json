@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:buttress_rainforest",
+  "spawners": {
+    "type": "yuanxian:green_spotted_gecko",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 3
+  }
+}

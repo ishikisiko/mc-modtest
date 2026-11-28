@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:cloud_pine_plateau",
+  "spawners": {
+    "type": "yuanxian:pine_crested_pheasant",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 3
+  }
+}

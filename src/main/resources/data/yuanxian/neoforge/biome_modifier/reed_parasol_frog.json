@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:floating_reed_fen",
+  "spawners": {
+    "type": "yuanxian:reed_parasol_frog",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 2
+  }
+}

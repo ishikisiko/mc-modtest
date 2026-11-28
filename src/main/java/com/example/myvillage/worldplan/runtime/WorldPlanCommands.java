@@ -38,6 +38,9 @@ public final class WorldPlanCommands {
                     .then(Commands.literal("sample").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(c->foldedRidgeSample(c.getSource(),BlockPosArgument.getLoadedBlockPos(c,"pos"))))))
                 .then(Commands.literal("lotus_mountain").executes(c->lotusMountain(c.getSource())))
+                .then(Commands.literal("provincial_biomes").executes(c->provincialBiomes(c.getSource()))
+                    .then(Commands.literal("sample").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(c->provincialSample(c.getSource(), BlockPosArgument.getLoadedBlockPos(c,"pos"))))))
                 .then(Commands.literal("field_encounters").executes(c->fieldEncounters(c.getSource()))
                     .then(Commands.literal("sample").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(c->fieldEncounterSample(c.getSource(),BlockPosArgument.getLoadedBlockPos(c,"pos"))))))
@@ -155,6 +158,62 @@ public final class WorldPlanCommands {
 
     private static com.google.gson.JsonElement blocks(BlockPos pos) {
         return WorldPlanRules.JSON.toJsonTree(new int[]{pos.getX(), pos.getY(), pos.getZ()});
+    }
+
+    private static int provincialBiomes(CommandSourceStack source) {
+        try {
+            var generator = generator(source);
+            var out = new JsonObject();
+            out.addProperty("seed", Long.toString(generator.plan().seed()));
+            var rules = generator.rules().provincialBiomes;
+            if (rules == null) return reply(source, out);
+            out.addProperty("vanilla_weight", rules.vanillaWeight);
+            var sites = new JsonObject();
+            for (var profile : rules.profiles) {
+                var row = new JsonObject();
+                row.addProperty("region", profile.region());
+                row.addProperty("status", "unavailable");
+                sites.add(profile.biome(), row);
+            }
+            for (var site : generator.fieldLayout().provincialSites()) {
+                var row = sites.getAsJsonObject(site.profile().biome());
+                row.addProperty("status", "planned");
+                var column = generator.fieldLayout().surface(site.x(), site.z());
+                row.add("center", blocks(new BlockPos(site.x(), Math.max(column.height(), column.liquidY()), site.z())));
+                row.add("window", WorldPlanRules.JSON.toJsonTree(new int[]{site.profile().width(), site.profile().depth()}));
+            }
+            for (var domain : generator.rules().fieldBiomes.domains) {
+                var row = new JsonObject();
+                row.addProperty("region", domain.region());
+                var site = generator.fieldSites().get(domain.kind());
+                row.addProperty("status", site == null ? "unavailable" : "planned");
+                if (site != null) row.add("center", blocks(site.home()));
+                sites.add(domain.biome(), row);
+            }
+            out.add("groups", sites);
+            return reply(source, out);
+        } catch (Exception error) { return fail(source, error); }
+    }
+
+    private static int provincialSample(CommandSourceStack source, BlockPos pos) {
+        try {
+            var level = source.getLevel();
+            var generator = generator(source);
+            var biome = level.getBiome(pos).unwrapKey().orElseThrow().location();
+            var out = new JsonObject();
+            out.addProperty("biome", biome.toString());
+            out.addProperty("region", generator.sample(pos.getX(), pos.getZ()).regionId());
+            out.addProperty("surface", level.getHeight(Heightmap.Types.OCEAN_FLOOR, pos.getX(), pos.getZ()));
+            out.addProperty("top", level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ()));
+            out.addProperty("planned_floor", generator.fieldSurfaceY(pos.getX(), pos.getZ()));
+            var spawns = new JsonObject();
+            for (var rule : com.example.myvillage.entity.beast.ProvincialFauna.rules()) {
+                if (rule.biome().equals(biome)) spawns.addProperty(rule.id(),
+                        com.example.myvillage.entity.beast.ProvincialAnimal.eligible(rule, level, pos));
+            }
+            out.add("spawn_allowed", spawns);
+            return reply(source, out);
+        } catch (Exception error) { return fail(source, error); }
     }
 
     private static int fieldEncounterSample(CommandSourceStack source, BlockPos pos) {

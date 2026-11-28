@@ -66,10 +66,15 @@ public final class ModEntityEvents {
             var definition = BeastDefinitions.bundled().require(net.minecraft.world.entity.EntityType.getKey(type));
             event.put(type, BeastEntity.createAttributes(definition).build());
         }
+        for (var type : ModEntities.PROVINCIAL_FAUNA.values())
+            event.put(type.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(type.getId())).build());
     }
 
     @SubscribeEvent
     public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        for (var type : ModEntities.PROVINCIAL_FAUNA.values())
+            event.register(type.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    com.example.myvillage.entity.beast.ProvincialAnimal::canSpawn, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         // The crab's mud floor is lower than a full cube. Its own predicate checks the substrate.
         event.register(ModEntities.TIDE_MUD_CRAB.get(), SpawnPlacementTypes.NO_RESTRICTIONS,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, FieldAmbientBeast::checkSpawn,

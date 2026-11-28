@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "id": "yuanxian:rift_eared_bat",
+  "clips": {
+    "idle": {
+      "length": 2.2,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "head",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.1, "value": [2.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 2.2, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wing_left",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.1, "value": [0.0, 0.0, 16.0], "interp": "linear"},
+            {"time": 2.2, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wing_right",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.1, "value": [0.0, 0.0, -16.0], "interp": "linear"},
+            {"time": 2.2, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "walk": {
+      "length": 0.8,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "wing_left",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 16.0], "interp": "linear"},
+            {"time": 0.4, "value": [0.0, 0.0, -16.0], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, 16.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wing_right",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, -16.0], "interp": "linear"},
+            {"time": 0.4, "value": [0.0, 0.0, 16.0], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, -16.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "run": {
+      "length": 0.5,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "wing_left",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 16.0], "interp": "linear"},
+            {"time": 0.25, "value": [0.0, 0.0, -16.0], "interp": "linear"},
+            {"time": 0.5, "value": [0.0, 0.0, 16.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wing_right",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, -16.0], "interp": "linear"},
+            {"time": 0.25, "value": [0.0, 0.0, 16.0], "interp": "linear"},
+            {"time": 0.5, "value": [0.0, 0.0, -16.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "stagger": {
+      "length": 0.7,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "root",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [3.0, 0.0, 8.0], "interp": "linear"},
+            {"time": 0.7, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "ward": {
+      "length": 1.1,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "head",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.2, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.4, "value": [13.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.1, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "root",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.2, "value": [-5.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.4, "value": [9.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.1, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    }
+  }
+}

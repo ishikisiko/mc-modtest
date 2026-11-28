@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "id": "yuanxian:combspine_seahorse",
+  "texture": {"width": 128, "height": 64},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.2562,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wing_left",
+      "parent": "root",
+      "pivot": [-2.736, -14.4, 0.864],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wing_right",
+      "parent": "root",
+      "pivot": [2.736, -14.4, 0.864],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail",
+      "parent": "root",
+      "pivot": [0.0, -8.856, 1.44],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "root",
+      "pivot": [0.0, -20.016, -2.592],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/combspine_seahorse_surface.json"
+}

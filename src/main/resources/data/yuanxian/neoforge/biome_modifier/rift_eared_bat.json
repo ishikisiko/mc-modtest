@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:amethyst_sink_rift",
+  "spawners": {
+    "type": "yuanxian:rift_eared_bat",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 3
+  }
+}

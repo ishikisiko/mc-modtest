@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:ochre_creeks",
+  "spawners": {
+    "type": "yuanxian:ochre_badger",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 2
+  }
+}

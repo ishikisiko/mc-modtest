@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "id": "yuanxian:ochre_badger",
+  "texture": {"width": 128, "height": 64},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.4956,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left_back",
+      "parent": "root",
+      "pivot": [-4.224, -7.1808, 7.392],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left_front",
+      "parent": "root",
+      "pivot": [-4.224, -7.1808, -7.392],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right_back",
+      "parent": "root",
+      "pivot": [4.224, -7.1808, 7.392],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right_front",
+      "parent": "root",
+      "pivot": [4.224, -7.1808, -7.392],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail",
+      "parent": "root",
+      "pivot": [0.0, -6.7584, 12.144],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "root",
+      "pivot": [0.0, -9.3984, -9.6096],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/ochre_badger_surface.json"
+}

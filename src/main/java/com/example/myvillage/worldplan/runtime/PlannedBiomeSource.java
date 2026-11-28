@@ -59,6 +59,7 @@ public final class PlannedBiomeSource extends BiomeSource {
             entries.put(entry.getKey(), entry.getValue());
         }
         if(rules.fieldBiomes!=null)rules.fieldBiomes.domains.forEach(domain->required.add(domain.biome()));
+        if(rules.provincialBiomes!=null)rules.provincialBiomes.profiles.forEach(profile->required.add(profile.biome()));
         if(!entries.keySet().containsAll(required)){required.removeAll(entries.keySet());throw new IllegalArgumentException("Worldplan delegate biome source is missing "+required);}
         holders=Map.copyOf(entries);return holders;
     }

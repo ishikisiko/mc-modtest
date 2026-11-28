@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:wind_frost_steppe",
+  "spawners": {
+    "type": "yuanxian:moss_horn_antelope",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 3
+  }
+}

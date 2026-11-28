@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:springcup_snail",
+  "attributes": {
+    "max_health": 24,
+    "attack_damage": 2,
+    "movement_speed": 0.18,
+    "follow_range": 16,
+    "armor": 2,
+    "knockback_resistance": 0.08,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.06,
+    "move_gap_ticks": 15,
+    "cancelled_cooldown_ticks": 22
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:springcup_snail_ward",
+      "animation": "ward",
+      "total_ticks": 22,
+      "windup_ticks": 8,
+      "turn_lock_tick": 6,
+      "active_ticks": [
+        8,
+        8
+      ],
+      "immune_ticks": [
+        5,
+        9
+      ],
+      "damage_multiplier": 1,
+      "maximum_targets": 1,
+      "use_range": [
+        0,
+        1.73
+      ],
+      "cooldown_ticks": 28,
+      "weight": 1,
+      "lunge": {
+        "tick": 7,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          0,
+          1.43
+        ],
+        "half_width": 0.858,
+        "height": [
+          -0.4,
+          1.13
+        ]
+      },
+      "knockback": {
+        "strength": 0.25,
+        "lift": 0.035
+      }
+    }
+  ]
+}

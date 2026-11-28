@@ -142,6 +142,8 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     from tools.folded_ridge.compile import compile_assets as compile_folded_ridge
     frozen['folded_ridge'] = {**spec['folded_ridge'], 'sha256': compile_folded_ridge(out)}
     frozen['field_biomes'] = spec['field_biomes']
+    from tools.field_encounters.provincial import geography
+    frozen['provincial_biomes'] = geography()
     policy=spec.get('topology',{})
     if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须开放州序规定的魔域关隘')
     frozen.update(policy)
@@ -160,6 +162,7 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     preset=json.loads((source/'data/yuanxian/worldgen/world_preset/cultivation.json').read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
     if generator['type']!=('yuanxian:planned_v11' if refresh_current else 'yuanxian:planned_v10'):raise ValueError('前置默认预设不是 V10')
     biomes = [spec['field_biomes'][kind]['biome'] for kind in ('tide', 'wind')]
+    biomes.extend(group['biome'] for group in frozen['provincial_biomes']['biomes'])
     generator.update(type='yuanxian:planned_v11',folded_ridge_biome='yuanxian:folded_ridge',
                      field_biomes={biome: biome for biome in biomes})
     write_presets(out, preset, frozen, spec)

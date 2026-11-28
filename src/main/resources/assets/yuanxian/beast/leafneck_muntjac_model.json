@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "id": "yuanxian:leafneck_muntjac",
+  "texture": {"width": 128, "height": 64},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.3192,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left_back",
+      "parent": "root",
+      "pivot": [-3.712, -12.2496, 6.496],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left_front",
+      "parent": "root",
+      "pivot": [-3.712, -12.2496, -6.496],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right_back",
+      "parent": "root",
+      "pivot": [3.712, -12.2496, 6.496],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right_front",
+      "parent": "root",
+      "pivot": [3.712, -12.2496, -6.496],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "root",
+      "pivot": [0.0, -17.632, -8.4448],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/leafneck_muntjac_surface.json"
+}

@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "id": "yuanxian:moss_horn_antelope",
+  "texture": {"width": 128, "height": 64},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.3276,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left_back",
+      "parent": "root",
+      "pivot": [-3.84, -12.672, 6.72],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left_front",
+      "parent": "root",
+      "pivot": [-3.84, -12.672, -6.72],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right_back",
+      "parent": "root",
+      "pivot": [3.84, -12.672, 6.72],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right_front",
+      "parent": "root",
+      "pivot": [3.84, -12.672, -6.72],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "root",
+      "pivot": [0.0, -18.24, -8.736],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/moss_horn_antelope_surface.json"
+}

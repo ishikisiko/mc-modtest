@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:mirror_ice_hollows",
+  "spawners": {
+    "type": "yuanxian:ice_burrow_otter",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 2
+  }
+}

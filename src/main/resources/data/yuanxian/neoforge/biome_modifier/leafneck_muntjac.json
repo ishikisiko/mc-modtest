@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:oak_hollows",
+  "spawners": {
+    "type": "yuanxian:leafneck_muntjac",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 3
+  }
+}

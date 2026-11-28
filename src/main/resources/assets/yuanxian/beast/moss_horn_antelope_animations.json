@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "id": "yuanxian:moss_horn_antelope",
+  "clips": {
+    "idle": {
+      "length": 2.2,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "head",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.1, "value": [2.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 2.2, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "walk": {
+      "length": 1.2,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "leg_left_front",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [15.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.3, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.6, "value": [-15.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.9, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.2, "value": [15.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "leg_right_back",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [-15.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.3, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.6, "value": [15.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.9, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.2, "value": [-15.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "leg_right_front",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [15.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.3, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.6, "value": [-15.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.9, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.2, "value": [15.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "leg_left_back",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [-15.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.3, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.6, "value": [15.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.9, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.2, "value": [-15.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "run": {
+      "length": 0.7,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "leg_left_front",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [25.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.175, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.35, "value": [-25.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.525, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.7, "value": [25.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "leg_right_back",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [-25.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.175, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.35, "value": [25.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.525, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.7, "value": [-25.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "leg_right_front",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [25.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.175, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.35, "value": [-25.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.525, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.7, "value": [25.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "leg_left_back",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [-25.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.175, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.35, "value": [25.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.525, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.7, "value": [-25.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "stagger": {
+      "length": 0.7,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "root",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [3.0, 0.0, 8.0], "interp": "linear"},
+            {"time": 0.7, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "ward": {
+      "length": 1.1,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "head",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.2, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.4, "value": [13.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.1, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "root",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.2, "value": [-5.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.4, "value": [9.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.1, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    }
+  }
+}

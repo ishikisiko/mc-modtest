@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:root_cloud_gorge",
+  "spawners": {
+    "type": "yuanxian:parawing_marten",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 2
+  }
+}

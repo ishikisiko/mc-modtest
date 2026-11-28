@@ -76,6 +76,7 @@ public final class WorldPlanRules {
     public final LotusMountain.Rules lotusMountain;
     public final FoldedRidge.Rules foldedRidge;
     public final FieldBiomeRules fieldBiomes;
+    public final ProvincialBiomeRules provincialBiomes;
     public final CityRules city;
     public final com.example.myvillage.worldplan.capital.CapitalGameRules capitals;
     public final SectPlacement sectPlacement;
@@ -214,6 +215,10 @@ public final class WorldPlanRules {
         var field = r.getAsJsonObject("field_biomes");
         fieldBiomes = field == null ? null : new FieldBiomeRules(field);
         if (fieldBiomes != null) for (var domain : fieldBiomes.domains) profile(domain.region());
+        var provincial = r.getAsJsonObject("provincial_biomes");
+        if (provincial != null && fieldBiomes == null) throw new IllegalArgumentException("缺少州域首领群系规则");
+        provincialBiomes = provincial == null ? null : new ProvincialBiomeRules(provincial, fieldBiomes);
+        if (provincialBiomes != null) for (var biome : provincialBiomes.profiles) profile(biome.region());
         JsonObject placement = r.getAsJsonObject("sect_placement");
         sectPlacement = placement == null ? null : new SectPlacement(
             integer(placement, "province_retries", 1, 8), integer(placement, "site_relocations", 1, 4),

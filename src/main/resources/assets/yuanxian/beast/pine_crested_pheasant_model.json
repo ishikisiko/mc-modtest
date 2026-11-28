@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "id": "yuanxian:pine_crested_pheasant",
+  "texture": {"width": 128, "height": 64},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.2604,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left",
+      "parent": "root",
+      "pivot": [-1.6416, -5.472, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wing_left",
+      "parent": "root",
+      "pivot": [-2.6448, -6.9312, 1.0944],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right",
+      "parent": "root",
+      "pivot": [1.6416, -5.472, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wing_right",
+      "parent": "root",
+      "pivot": [2.6448, -6.9312, 1.0944],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail",
+      "parent": "root",
+      "pivot": [0.0, -5.8368, 10.488],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "root",
+      "pivot": [0.0, -13.0416, -8.2992],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/pine_crested_pheasant_surface.json"
+}

@@ -1,0 +1,341 @@
+{
+  "schema": 1,
+  "fauna": [
+    {
+      "id": "ochre_badger",
+      "biome": "yuanxian:ochre_creeks",
+      "region": "donghuang",
+      "category": "creature",
+      "size": [
+        1.18,
+        0.86
+      ],
+      "habitat": "bank",
+      "activity": "dusk",
+      "behavior": "flee",
+      "material_color": "af7353",
+      "palette": [
+        "minecraft:coarse_dirt",
+        "minecraft:gravel",
+        "minecraft:terracotta",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "ochre_claw",
+        "sandy_bristle"
+      ]
+    },
+    {
+      "id": "leafneck_muntjac",
+      "biome": "yuanxian:oak_hollows",
+      "region": "donghuang",
+      "category": "creature",
+      "size": [
+        0.76,
+        1.64
+      ],
+      "habitat": "clearing",
+      "activity": "day",
+      "behavior": "flee",
+      "material_color": "8c9a53",
+      "palette": [
+        "minecraft:grass_block",
+        "minecraft:rooted_dirt",
+        "minecraft:mud",
+        "minecraft:dirt"
+      ],
+      "materials": [
+        "leaf_pattern_velvet",
+        "oak_scent_gland"
+      ]
+    },
+    {
+      "id": "parawing_marten",
+      "biome": "yuanxian:root_cloud_gorge",
+      "region": "lingyue",
+      "category": "creature",
+      "size": [
+        1.22,
+        0.78
+      ],
+      "habitat": "ledge",
+      "activity": "twilight",
+      "behavior": "glide",
+      "material_color": "9c8257",
+      "palette": [
+        "minecraft:moss_block",
+        "minecraft:andesite",
+        "minecraft:stone",
+        "minecraft:tuff"
+      ],
+      "materials": [
+        "parawing_membrane",
+        "marten_grip_pad"
+      ]
+    },
+    {
+      "id": "springcup_snail",
+      "biome": "yuanxian:cascade_steps",
+      "region": "lingyue",
+      "category": "creature",
+      "size": [
+        0.64,
+        0.89
+      ],
+      "habitat": "bank",
+      "activity": "any",
+      "behavior": "amble",
+      "material_color": "d4b275",
+      "palette": [
+        "minecraft:calcite",
+        "minecraft:smooth_sandstone",
+        "minecraft:diorite",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "springcup_shell",
+        "spring_calcium_bead"
+      ]
+    },
+    {
+      "id": "moss_horn_antelope",
+      "biome": "yuanxian:wind_frost_steppe",
+      "region": "beiyuan",
+      "category": "creature",
+      "size": [
+        0.78,
+        1.7
+      ],
+      "habitat": "clearing",
+      "activity": "day",
+      "behavior": "flee",
+      "material_color": "aaa880",
+      "palette": [
+        "minecraft:snow_block",
+        "minecraft:stone",
+        "minecraft:grass_block",
+        "minecraft:andesite"
+      ],
+      "materials": [
+        "moss_horn",
+        "winter_underfur"
+      ]
+    },
+    {
+      "id": "ice_burrow_otter",
+      "biome": "yuanxian:mirror_ice_hollows",
+      "region": "beiyuan",
+      "category": "creature",
+      "size": [
+        0.76,
+        0.76
+      ],
+      "habitat": "bank",
+      "activity": "day",
+      "behavior": "amphibious",
+      "material_color": "8eaab3",
+      "palette": [
+        "minecraft:snow_block",
+        "minecraft:gravel",
+        "minecraft:andesite",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "waterproof_otter_fur",
+        "ice_boring_tooth"
+      ]
+    },
+    {
+      "id": "combspine_seahorse",
+      "biome": "yuanxian:reef_crowns",
+      "region": "donghai",
+      "category": "water_ambient",
+      "size": [
+        0.61,
+        1.5
+      ],
+      "habitat": "reef",
+      "activity": "any",
+      "behavior": "swim",
+      "material_color": "6d9d9c",
+      "palette": [
+        "minecraft:sand",
+        "minecraft:dead_brain_coral_block",
+        "minecraft:prismarine",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "combspine_bone",
+        "reef_glow_gel"
+      ]
+    },
+    {
+      "id": "saltbill_runner",
+      "biome": "yuanxian:salt_mirror_basin",
+      "region": "ximo",
+      "category": "creature",
+      "size": [
+        0.7,
+        1.43
+      ],
+      "habitat": "bank",
+      "activity": "day",
+      "behavior": "flee",
+      "material_color": "b9a480",
+      "palette": [
+        "minecraft:white_terracotta",
+        "minecraft:smooth_sandstone",
+        "minecraft:calcite",
+        "minecraft:sandstone"
+      ],
+      "materials": [
+        "saltbill_crystal",
+        "runner_toe_sheath"
+      ]
+    },
+    {
+      "id": "green_spotted_gecko",
+      "biome": "yuanxian:buttress_rainforest",
+      "region": "nanjiang",
+      "category": "creature",
+      "size": [
+        0.8,
+        0.53
+      ],
+      "habitat": "roots",
+      "activity": "day",
+      "behavior": "climb",
+      "material_color": "91aa63",
+      "palette": [
+        "minecraft:grass_block",
+        "minecraft:rooted_dirt",
+        "minecraft:moss_block",
+        "minecraft:dirt"
+      ],
+      "materials": [
+        "green_spotted_pad",
+        "tree_gecko_scale"
+      ]
+    },
+    {
+      "id": "reed_parasol_frog",
+      "biome": "yuanxian:floating_reed_fen",
+      "region": "nanjiang",
+      "category": "creature",
+      "size": [
+        0.82,
+        0.69
+      ],
+      "habitat": "bank",
+      "activity": "rain_night",
+      "behavior": "hop",
+      "material_color": "86a977",
+      "palette": [
+        "minecraft:mud",
+        "minecraft:grass_block",
+        "minecraft:packed_mud",
+        "minecraft:clay"
+      ],
+      "materials": [
+        "reed_parasol_membrane",
+        "fen_frog_gel"
+      ]
+    },
+    {
+      "id": "emberback_beetle",
+      "biome": "yuanxian:ash_lava_channels",
+      "region": "moyu",
+      "category": "creature",
+      "size": [
+        0.87,
+        0.69
+      ],
+      "habitat": "hot_edge",
+      "activity": "any",
+      "behavior": "retaliate",
+      "material_color": "a66555",
+      "palette": [
+        "minecraft:basalt",
+        "minecraft:blackstone",
+        "minecraft:smooth_basalt",
+        "minecraft:tuff"
+      ],
+      "materials": [
+        "ember_elytron",
+        "cooled_ember_core"
+      ]
+    },
+    {
+      "id": "rift_eared_bat",
+      "biome": "yuanxian:amethyst_sink_rift",
+      "region": "moyu",
+      "category": "ambient",
+      "size": [
+        0.75,
+        0.93
+      ],
+      "habitat": "rift",
+      "activity": "twilight",
+      "behavior": "fly",
+      "material_color": "a782bf",
+      "palette": [
+        "minecraft:tuff",
+        "minecraft:smooth_basalt",
+        "minecraft:deepslate",
+        "minecraft:calcite"
+      ],
+      "materials": [
+        "rift_echo_bone",
+        "crystal_belly_down"
+      ]
+    },
+    {
+      "id": "stonebank_heron",
+      "biome": "yuanxian:meander_stone_isles",
+      "region": "zhongzhou",
+      "category": "creature",
+      "size": [
+        0.71,
+        2.18
+      ],
+      "habitat": "bank",
+      "activity": "day",
+      "behavior": "flee",
+      "material_color": "b7c5cb",
+      "palette": [
+        "minecraft:gravel",
+        "minecraft:grass_block",
+        "minecraft:coarse_dirt",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "stonebank_plume",
+        "heron_sinew"
+      ]
+    },
+    {
+      "id": "pine_crested_pheasant",
+      "biome": "yuanxian:cloud_pine_plateau",
+      "region": "zhongzhou",
+      "category": "creature",
+      "size": [
+        0.62,
+        1.13
+      ],
+      "habitat": "clearing",
+      "activity": "day",
+      "behavior": "flee",
+      "material_color": "6c9b78",
+      "palette": [
+        "minecraft:grass_block",
+        "minecraft:andesite",
+        "minecraft:moss_block",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "pine_crested_plume",
+        "resin_gizzard_grit"
+      ]
+    }
+  ]
+}

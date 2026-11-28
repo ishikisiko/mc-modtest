@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.166.0
+
+- 修仙大陆八州各提供两组特色群系。十四片新地貌各有一种代表生物、两种掉落、像素模型和活动条件。大、中、小地图都使用同一份规则。
+- 原版群系继续按大陆地形与州域规则产生。特色群系和原版候选按可调权重竞争，城镇、官道、矿口、奇观与既有首领遭遇参与选址避让。
+- 管理员可用 `/yuanxian worldplan provincial_biomes` 查询十六组群系的落点和所在州。
+
 ## 0.165.0
 
 - 新建修仙大陆时，东海按种子生成三汊潮滩和泥甲潮蟹，西漠生成赤砾风槽和钩颚砂蝎。四种野外生物都有各自的像素模型和击杀掉落。

@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:ash_lava_channels",
+  "spawners": {
+    "type": "yuanxian:emberback_beetle",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 2
+  }
+}

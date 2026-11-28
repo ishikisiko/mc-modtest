@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:meander_stone_isles",
+  "spawners": {
+    "type": "yuanxian:stonebank_heron",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 2
+  }
+}

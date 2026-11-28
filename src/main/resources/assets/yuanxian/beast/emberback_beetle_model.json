@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "id": "yuanxian:emberback_beetle",
+  "texture": {"width": 128, "height": 32},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.3654,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_left",
+      "parent": "root",
+      "pivot": [-4.9152, -4.224, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_right",
+      "parent": "root",
+      "pivot": [4.9152, -4.224, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "root",
+      "pivot": [0.0, -5.9136, -6.9888],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/emberback_beetle_surface.json"
+}

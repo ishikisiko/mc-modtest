@@ -7,10 +7,12 @@ from types import SimpleNamespace
 from . import anim, cuboid
 from .build import REPO, RESOURCES
 from ..gen_qingfeng_sword_model import decode_png_rgba
+from ..field_encounters.provincial import catalogue
 import json
 
 SOURCE = REPO / 'blueprints/beasts/field_encounters'
-NAMES = ('tide_mud_crab', 'hook_jaw_scorpion', 'tide_dragon', 'stele_ape')
+FAUNA = {group['fauna']['id']: group['fauna'] for group in catalogue()['biomes']}
+NAMES = ('tide_mud_crab', 'hook_jaw_scorpion', 'tide_dragon', 'stele_ape', *FAUNA)
 SHADOW = dict(tide_mud_crab=.85, hook_jaw_scorpion=.85, tide_dragon=3.6, stele_ape=4.0)
 
 
@@ -23,11 +25,21 @@ def transparent(_):
     return None
 
 
-@lru_cache(maxsize=4)
+@lru_cache(maxsize=len(NAMES))
 def source(name):
     result=json.loads((SOURCE/f'{name}.json').read_text())
     if result['schema']!=1 or result['id']!=f'yuanxian:{name}':
         raise ValueError(f'原稿身份错误 {name}')
+    if name in FAUNA:
+        rule = FAUNA[name]
+        if result['source_model'] != rule['source_model']:
+            raise ValueError(f'生物模型与预览目录不一致 {name}')
+        scale = rule['model_scale']
+        for bone in result['bones']:
+            bone['origin'] = [value * scale for value in bone['origin']]
+            for box in bone['boxes']:
+                for i in range(15):
+                    box['transform'][i] *= scale
     return result
 
 
@@ -47,7 +59,8 @@ def model(name):
         x,y,z=coords(a-b for a,b in zip(part['origin'],base))
         bones.append(cuboid.Bone(part['name'],parent,(x,y if parent else y+24,z)))
     look='head' if 'head' in origins else 'root'
-    return cuboid.Model(data['id'],bones,{'bone':look,'max_yaw':12 if look=='head' else 0,'max_pitch':9 if look=='head' else 0},SHADOW[name])
+    shadow = SHADOW[name] if name in SHADOW else FAUNA[name]['size'][0] * .42
+    return cuboid.Model(data['id'],bones,{'bone':look,'max_yaw':12 if look=='head' else 0,'max_pitch':9 if look=='head' else 0},shadow)
 
 
 def transform(matrix, v):
@@ -55,7 +68,7 @@ def transform(matrix, v):
     return tuple(matrix[i]*x+matrix[i+4]*y+matrix[i+8]*z+matrix[i+12] for i in range(3))
 
 
-@lru_cache(maxsize=4)
+@lru_cache(maxsize=len(NAMES))
 def mesh_bones(name):
     data=source(name)
     parts=[]
@@ -143,6 +156,9 @@ def clips(name, server):
         zero={bone:(0,0,0) for bone in stance}
         return clip(key,ticks,[(0,stance),(ticks/4,zero),(ticks/2,reverse),(ticks*3/4,zero),(ticks,stance)],True)
 
+    if name in FAUNA:
+        return nature_clips(FAUNA[name]['behavior'], bones, clip, gait)
+
     attacks={
         'claw': ({'claw_left':(4,-21,-11),'claw_right':(4,21,11)}, {'claw_left':(-11,13,0),'claw_right':(-11,-13,0)}),
         'sting': ({'stinger':(19,19,4)}, {'stinger':(-49,0,4),'root':(-5,0,0)}),
@@ -170,6 +186,29 @@ def clips(name, server):
         result.append(clip(key,ticks,[(0,neutral),(max(1,at-4),neutral|before),(at,neutral|impact),
                                      (min(at+8,ticks-1),neutral|impact),(ticks,neutral)]))
     return result
+
+
+def nature_clips(behavior, bones, clip, gait):
+    idle = {'head': (2, 0, 0), 'tail': (0, -7, 0)}
+    rest = {bone: (0, 0, 0) for bone in ('head', 'tail', 'root')}
+    wings = {bone: (0, 0, (16 if bone.endswith('left') else -16))
+             for bone in ('wing_left', 'wing_right') if bone in bones}
+    reverse = {bone: (0, 0, -v[2]) for bone, v in wings.items()}
+    bank = behavior in ('fly', 'glide', 'swim')
+    if bank:
+        idle |= wings
+        rest |= {bone: (0, 0, 0) for bone in wings}
+        motions = [clip(key, period, [(0, wings), (period / 2, reverse), (period, wings)], True)
+                   for key, period in (('walk', 16), ('run', 10))]
+    elif behavior == 'amble':
+        motions = [clip(key, period, [(0, rest), (period / 2, idle), (period, rest)], True)
+                   for key, period in (('walk', 37), ('run', 24))]
+    else:
+        motions = [gait('walk', 24, 15), gait('run', 14, 25)]
+    return [clip('idle', 44, [(0, rest), (22, idle), (44, rest)], True), *motions,
+            clip('stagger', 14, [(0, rest), (5, {'root': (3, 0, 8)}), (14, rest)]),
+            clip('ward', 22, [(0, rest), (4, {'root': (-5, 0, 0)}), (8, {'root': (9, 0, 0),
+                        'head': (13, 0, 0)}), (22, rest)])]
 
 
 def extra_outputs(built):

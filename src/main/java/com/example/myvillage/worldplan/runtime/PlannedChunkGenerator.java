@@ -153,9 +153,18 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
                 if(foldedRidge==null)org.slf4j.LoggerFactory.getLogger(PlannedChunkGenerator.class)
                     .warn("灵岳未找到折山岭落点，seed={}",seed);
                 fieldLayout = rules.fieldBiomes == null ? null : new FieldBiomeLayout(p,roadLayout,starterMine,habitats);
-                plannedSource.bindFields(fieldLayout);
                 fieldSites = FieldEncounterSites.plan(fieldLayout,roadLayout,roads.rules(),starterMine,habitats,lotusMountain,foldedRidge,
                         heightRange.getMinBuildHeight(),heightRange.getMaxBuildHeight());
+                if (fieldLayout != null) {
+                    fieldLayout = fieldLayout.withProvincial(List.copyOf(fieldSites.values()), lotusMountain, foldedRidge);
+                    if (rules.provincialBiomes != null) {
+                        var selected = fieldLayout.provincialSites();
+                        var log = org.slf4j.LoggerFactory.getLogger(PlannedChunkGenerator.class);
+                        for (var site : selected) log.info("州域群系 {}，中心 [{},{}]", site.profile().biome(), site.x(), site.z());
+                        if (selected.size() < rules.provincialBiomes.profiles.size()) log.warn("部分州域群系未找到完整落点，世界种子 {}", seed);
+                    }
+                }
+                plannedSource.bindFields(fieldLayout);
                 if (rules.fieldBiomes != null) for (var domain : rules.fieldBiomes.domains) {
                     var site=fieldSites.get(domain.kind());
                     if(site==null)org.slf4j.LoggerFactory.getLogger(PlannedChunkGenerator.class)
@@ -178,16 +187,19 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         BlockPos.MutableBlockPos at=new BlockPos.MutableBlockPos();
         for(int z=0;z<16;z++)for(int x=0;x<16;x++){
             int wx=chunk.getPos().getMinBlockX()+x,wz=chunk.getPos().getMinBlockZ()+z;
-            int target=fieldSurfaceY(wx,wz),nativeFloor=chunk.getHeight(Heightmap.Types.OCEAN_FLOOR_WG,x,z)+1;
+            var field = fieldLayout == null ? null : fieldLayout.surface(wx, wz);
+            int target=field==null?plan().surfaceY(wx,wz):field.height(),nativeFloor=chunk.getHeight(Heightmap.Types.OCEAN_FLOOR_WG,x,z)+1;
+            int liquid = field == null ? rules.seaLevel : field.liquidY();
+            var fluid = field != null && field.lava() ? Blocks.LAVA.defaultBlockState() : Blocks.WATER.defaultBlockState();
             int sourceTop=chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG,x,z)+1;
             int low=Math.max(chunk.getMinBuildHeight(),Math.min(target,nativeFloor)-rules.surfaceSeal);
-            int high=Math.min(chunk.getMaxBuildHeight(),Math.max(Math.max(target,sourceTop),rules.seaLevel));
-            for(int y=low;y<high;y++){at.set(wx,y,wz);BlockState before=chunk.getBlockState(at),after=columnBlock(before,y,target,nativeFloor);if(before!=after)chunk.setBlockState(at,after,false);}
+            int high=Math.min(chunk.getMaxBuildHeight(),Math.max(Math.max(target,sourceTop),liquid));
+            for(int y=low;y<high;y++){at.set(wx,y,wz);BlockState before=chunk.getBlockState(at),after=columnBlock(before,y,target,nativeFloor,liquid,fluid);if(before!=after)chunk.setBlockState(at,after,false);}
         }
         Heightmap.primeHeightmaps(chunk,EnumSet.of(Heightmap.Types.WORLD_SURFACE_WG,Heightmap.Types.OCEAN_FLOOR_WG));
     }
-    private BlockState columnBlock(BlockState original,int y,int target,int nativeFloor){
-        if(y>=target)return y<rules.seaLevel?Blocks.WATER.defaultBlockState():Blocks.AIR.defaultBlockState();
+    private BlockState columnBlock(BlockState original,int y,int target,int nativeFloor,int liquid,BlockState fluid){
+        if(y>=target)return y<liquid?(y<rules.seaLevel?Blocks.WATER.defaultBlockState():fluid):Blocks.AIR.defaultBlockState();
         if(y>=target-rules.surfaceSeal||y>=nativeFloor-rules.surfaceSeal)return Blocks.STONE.defaultBlockState();return original;
     }
     @Override public void buildSurface(WorldGenRegion region,StructureManager structures,RandomState ignored,ChunkAccess chunk){
@@ -246,7 +258,9 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     @Override public int getSeaLevel(){return rules.seaLevel;}
     @Override public int getSpawnHeight(LevelHeightAccessor level){return rules.seaLevel+1;}
     @Override public int getBaseHeight(int x,int z,Heightmap.Types type,LevelHeightAccessor level,RandomState ignored){
-        int y=fieldSurfaceY(x,z);if(type!=Heightmap.Types.OCEAN_FLOOR&&type!=Heightmap.Types.OCEAN_FLOOR_WG)y=Math.max(y,rules.seaLevel);
+        var field = fieldLayout == null ? null : fieldLayout.surface(x, z);
+        int y=field==null?plan().surfaceY(x,z):field.height();
+        if(type!=Heightmap.Types.OCEAN_FLOOR&&type!=Heightmap.Types.OCEAN_FLOOR_WG)y=Math.max(y,field==null?rules.seaLevel:field.liquidY());
         if(lotusMountain!=null)y=lotusMountain.height(x,z,type,y);
         if(foldedRidge!=null)y=foldedRidge.height(x,z,type,y);
         return Math.max(level.getMinBuildHeight(),Math.min(level.getMaxBuildHeight(),y));
@@ -258,13 +272,16 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         NoiseColumn nativeColumn=terrain.getBaseColumn(x,z,level,state);
         int min=Math.max(getMinY(),level.getMinBuildHeight()),max=Math.min(getMinY()+getGenDepth(),level.getMaxBuildHeight());
         int nativeFloor=min;for(int y=max-1;y>=min;y--)if(!nativeColumn.getBlock(y).isAir()&&nativeColumn.getBlock(y).getFluidState().isEmpty()){nativeFloor=y+1;break;}
-        int target=fieldLayout == null ? world.surfaceY(x,z) : fieldLayout.height(x,z);BlockState[] states=new BlockState[max-min];
+        var field = fieldLayout == null ? null : fieldLayout.surface(x, z);
+        int target=field==null?world.surfaceY(x,z):field.height();BlockState[] states=new BlockState[max-min];
+        int liquid=field==null?rules.seaLevel:field.liquidY();
+        var fluid=field!=null&&field.lava()?Blocks.LAVA.defaultBlockState():Blocks.WATER.defaultBlockState();
         var capital=world.capitalTerrainAt(x,z).orElse(null);
         var ground=capital==null?null:CapitalGamePlacement.foundation(capital.bundle());
         boolean inside=capital!=null&&capital.contains(x,z,0);
         for(int y=min;y<max;y++)states[y-min]=capital!=null&&y>=min+5
             ?CapitalGamePlacement.column(ground,inside,y,target,rules.seaLevel,nativeColumn.getBlock(y))
-            :columnBlock(nativeColumn.getBlock(y),y,target,nativeFloor);
+            :columnBlock(nativeColumn.getBlock(y),y,target,nativeFloor,liquid,fluid);
         for(var site:world.builtSectSites()){
             if(!site.intersects(x,z,x,z,0))continue;
             var groundField=world.rules().sects.layout(site.blueprintId()).terrain;
