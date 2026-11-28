@@ -148,6 +148,8 @@ def outputs():
         raise ValueError('州域群系目录存在重复或缺少地貌材料')
     yield 'data/yuanxian/beast/provincial_fauna.json', formatted({'schema': 1, 'fauna': registry})
     yield 'data/minecraft/tags/worldgen/biome/is_overworld.json', formatted({'replace': False, 'values': biome_ids})
+    yield 'data/minecraft/tags/entity_type/can_breathe_under_water.json', formatted({'replace': False, 'values': [
+        f'yuanxian:{group["fauna"]["id"]}' for group in all_groups if group['fauna']['behavior'] in ('swim', 'amphibious', 'hop')]})
     yield 'data/yuanxian/tags/item/storage_bag_materials/provincial_fauna.json', formatted({
         'replace': False, 'values': [f'yuanxian:{key}' for key in sorted(item_ids)]})
     extra_path = 'data/yuanxian/tags/item/storage_bag_materials/extra.json'

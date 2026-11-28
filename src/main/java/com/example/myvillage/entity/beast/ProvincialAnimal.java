@@ -105,11 +105,8 @@ public final class ProvincialAnimal extends BeastEntity {
         return super.finalizeSpawn(level, difficulty, reason, group);
     }
 
-    @Override public boolean canBreatheUnderwater() {
-        return switch (rule().behavior()) {
-            case SWIM, AMPHIBIOUS, HOP -> true;
-            default -> super.canBreatheUnderwater();
-        };
+    @Override public boolean checkSpawnObstruction(LevelReader level) {
+        return rule().behavior() == Behavior.SWIM ? level.isUnobstructed(this) : super.checkSpawnObstruction(level);
     }
 
     @Override public void travel(Vec3 input) {
