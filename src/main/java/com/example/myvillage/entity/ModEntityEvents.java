@@ -66,8 +66,14 @@ public final class ModEntityEvents {
             var definition = BeastDefinitions.bundled().require(net.minecraft.world.entity.EntityType.getKey(type));
             event.put(type, BeastEntity.createAttributes(definition).build());
         }
-        for (var type : ModEntities.PROVINCIAL_FAUNA.values())
-            event.put(type.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(type.getId())).build());
+        for (var type : ModEntities.PROVINCIAL_FAUNA.values()) {
+            var definition = BeastDefinitions.bundled().require(type.getId());
+            var attributes = BeastEntity.createAttributes(definition);
+            var rule = com.example.myvillage.entity.beast.ProvincialFauna.require(type.getId().getPath());
+            if (rule.behavior() == com.example.myvillage.entity.beast.ProvincialFauna.Behavior.FLY)
+                attributes.add(net.minecraft.world.entity.ai.attributes.Attributes.FLYING_SPEED, definition.attributes().movementSpeed());
+            event.put(type.get(), attributes.build());
+        }
     }
 
     @SubscribeEvent

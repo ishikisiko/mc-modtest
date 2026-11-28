@@ -60,12 +60,14 @@
           {
             "id": "ochre_claw",
             "name": "掘砾爪",
-            "description": "打磨后用作耐磨的采掘工具配件。"
+            "description": "打磨后用作耐磨的采掘工具配件。",
+            "icon": "claw"
           },
           {
             "id": "sandy_bristle",
             "name": "含砂硬鬃",
-            "description": "用于粗糙握柄的防滑包缠。"
+            "description": "用于粗糙握柄的防滑包缠。",
+            "icon": "fur"
           }
         ]
       }
@@ -127,12 +129,14 @@
           {
             "id": "leaf_pattern_velvet",
             "name": "叶纹茸",
-            "description": "柔韧的茸壳可试作药匣内衬。"
+            "description": "柔韧的茸壳可试作药匣内衬。",
+            "icon": "fur"
           },
           {
             "id": "oak_scent_gland",
             "name": "栎香腺",
-            "description": "制成布下后会慢慢散味的野兽诱材。"
+            "description": "制成布下后会慢慢散味的野兽诱材。",
+            "icon": "pouch"
           }
         ]
       }
@@ -194,12 +198,14 @@
           {
             "id": "parawing_membrane",
             "name": "伞翼薄膜",
-            "description": "可作为轻装的防风夹层。"
+            "description": "可作为轻装的防风夹层。",
+            "icon": "membrane"
           },
           {
             "id": "marten_grip_pad",
             "name": "岩貂指垫",
-            "description": "可试作贴岩时增加附着力的护具垫。"
+            "description": "可试作贴岩时增加附着力的护具垫。",
+            "icon": "scale"
           }
         ]
       }
@@ -260,12 +266,14 @@
           {
             "id": "springcup_shell",
             "name": "泉盏螺壳",
-            "description": "壳片可作持水器皿的内釉试料。"
+            "description": "壳片可作持水器皿的内釉试料。",
+            "icon": "shell"
           },
           {
             "id": "spring_calcium_bead",
             "name": "泉钙珠",
-            "description": "可用于钙华类装饰块的浅色粉料。"
+            "description": "可用于钙华类装饰块的浅色粉料。",
+            "icon": "gem"
           }
         ]
       }
@@ -326,12 +334,14 @@
           {
             "id": "moss_horn",
             "name": "苔角",
-            "description": "耐低温的角质可用作冷地护具支条。"
+            "description": "耐低温的角质可用作冷地护具支条。",
+            "icon": "claw"
           },
           {
             "id": "winter_underfur",
             "name": "绒白底毛",
-            "description": "可作保暖内层的填料。"
+            "description": "可作保暖内层的填料。",
+            "icon": "fur"
           }
         ]
       }
@@ -392,12 +402,14 @@
           {
             "id": "waterproof_otter_fur",
             "name": "密油獭毛",
-            "description": "斥水内衬，可减少装备泡水时的负担。"
+            "description": "斥水内衬，可减少装备泡水时的负担。",
+            "icon": "fur"
           },
           {
             "id": "ice_boring_tooth",
             "name": "坚冰齿",
-            "description": "可试作冰具或壳甲打孔工具。"
+            "description": "可试作冰具或壳甲打孔工具。",
+            "icon": "claw"
           }
         ]
       }
@@ -456,12 +468,14 @@
           {
             "id": "combspine_bone",
             "name": "梳脊骨",
-            "description": "细长骨条可用于轻薄的水下饰物骨架。"
+            "description": "细长骨条可用于轻薄的水下饰物骨架。",
+            "icon": "bone"
           },
           {
             "id": "reef_glow_gel",
             "name": "明胶囊",
-            "description": "可作为持续发光涂料的底胶。"
+            "description": "可作为持续发光涂料的底胶。",
+            "icon": "pouch"
           }
         ]
       }
@@ -522,12 +536,14 @@
           {
             "id": "saltbill_crystal",
             "name": "盐喙结晶",
-            "description": "作为盐系灵膳的备用结晶盐。"
+            "description": "作为盐系灵膳的备用结晶盐。",
+            "icon": "gem"
           },
           {
             "id": "runner_toe_sheath",
             "name": "硬趾鞘",
-            "description": "可试作适合硬盐地面的短靴鞋尖。"
+            "description": "可试作适合硬盐地面的短靴鞋尖。",
+            "icon": "scale"
           }
         ]
       }
@@ -589,12 +605,14 @@
           {
             "id": "green_spotted_pad",
             "name": "青斑蹼垫",
-            "description": "攀援护具配件，可增强贴靠树木的抓附感。"
+            "description": "攀援护具配件，可增强贴靠树木的抓附感。",
+            "icon": "scale"
           },
           {
             "id": "tree_gecko_scale",
             "name": "树蜥鳞片",
-            "description": "可制轻型层甲的柔性拼片。"
+            "description": "可制轻型层甲的柔性拼片。",
+            "icon": "scale"
           }
         ]
       }
@@ -656,12 +674,14 @@
           {
             "id": "reed_parasol_membrane",
             "name": "蒲伞皮膜",
-            "description": "可试作器物防潮的柔性覆层。"
+            "description": "可试作器物防潮的柔性覆层。",
+            "icon": "membrane"
           },
           {
             "id": "fen_frog_gel",
             "name": "沼蛙胶",
-            "description": "作湿地药膳或制药辅料的黏胶基底。"
+            "description": "作湿地药膳或制药辅料的黏胶基底。",
+            "icon": "pouch"
           }
         ]
       }
@@ -720,12 +740,14 @@
           {
             "id": "ember_elytron",
             "name": "余火翅壳",
-            "description": "试作短时隔热护垫，甲片本身会留下灰痕。"
+            "description": "试作短时隔热护垫，甲片本身会留下灰痕。",
+            "icon": "shell"
           },
           {
             "id": "cooled_ember_core",
             "name": "凝火芯",
-            "description": "可作火系工艺的低量热源。"
+            "description": "可作火系工艺的低量热源。",
+            "icon": "gem"
           }
         ]
       }
@@ -751,7 +773,7 @@
         "palette": [
           "tuff",
           "smooth_basalt",
-          "deepslate",
+          "amethyst_block",
           "calcite"
         ]
       },
@@ -784,12 +806,14 @@
           {
             "id": "rift_echo_bone",
             "name": "裂晶听骨",
-            "description": "试作测空洞回声的炼器件。"
+            "description": "试作测空洞回声的炼器件。",
+            "icon": "bone"
           },
           {
             "id": "crystal_belly_down",
             "name": "细晶腹绒",
-            "description": "可作吸音或隔振的衬层。"
+            "description": "可作吸音或隔振的衬层。",
+            "icon": "fur"
           }
         ]
       }
@@ -851,12 +875,14 @@
           {
             "id": "stonebank_plume",
             "name": "石汀白翎",
-            "description": "可试作符笔或淡色饰件。"
+            "description": "可试作符笔或淡色饰件。",
+            "icon": "feather"
           },
           {
             "id": "heron_sinew",
             "name": "韧禽筋",
-            "description": "可试作韧度较高的轻弦。"
+            "description": "可试作韧度较高的轻弦。",
+            "icon": "bone"
           }
         ]
       }
@@ -918,12 +944,14 @@
           {
             "id": "pine_crested_plume",
             "name": "青尾锦翎",
-            "description": "可作御风类饰物的轻羽试料。"
+            "description": "可作御风类饰物的轻羽试料。",
+            "icon": "feather"
           },
           {
             "id": "resin_gizzard_grit",
             "name": "松脂嗉砂",
-            "description": "作低温慢烘时的添香材料。"
+            "description": "作低温慢烘时的添香材料。",
+            "icon": "gem"
           }
         ]
       }

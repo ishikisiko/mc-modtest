@@ -18,10 +18,17 @@ ORES = '''ore_coal_upper ore_coal_lower ore_iron_upper ore_iron_middle ore_iron_
           ore_gold ore_gold_lower ore_redstone ore_redstone_lower ore_diamond ore_diamond_medium
           ore_diamond_large ore_diamond_buried ore_lapis ore_lapis_buried ore_copper underwater_magma
           disk_sand disk_clay disk_gravel'''.split()
-MAIN_ICON = ('.....11....','....1231...','...123321..','..1233211..',
-             '.123321....','.23321.....','..221......','...1.......')
-CROSS_ICON = ('....121....','...12321...','..1233321..','..1232321..',
-              '..1223321..','...23321...','....121....','.....1.....')
+ICONS = {
+    'claw': ('......221','.....2321','....2331.','...2331..','..2321...','.2321....','1221.....','111......'),
+    'fur': ('.....23..','..321231.','..232322.','.2332331.','123322321','12223212.','.122211..','..121....'),
+    'pouch': ('...121...','...232...','..12121..','.1233321.','123323321','122332221','.1222221.','..11111..'),
+    'membrane': ('..111....','..23311..','.1232231.','.23223231','123223211','12123311.','..12111..','...11....'),
+    'scale': ('...121...','..12321..','.1233321.','123332231','.1232321.','..12221..','...121...','....1....'),
+    'shell': ('..1111...','.123321..','12323231.','123123231','123222231','.12332221','..112221.','....111..'),
+    'gem': ('...121...','..13221..','.1332321.','133323321','123223221','.1233221.','..12321..','...111...'),
+    'bone': ('......231','.....1231','....1231.','...1231..','..1231...','11231....','1231.....','111......'),
+    'feather': ('......123','....12331','...123321','..123321.','.123321..','123321...','..21.....','.1.......'),
+}
 
 
 def catalogue():
@@ -97,13 +104,15 @@ def beast(fauna):
                        'knockback': {'strength': .25, 'lift': .035}}]}
 
 
-def icon(color, rare):
+def icon(color, shape, rare):
     base = tuple(bytes.fromhex(color))
+    if rare:
+        base = tuple((c * 4 + hint) // 5 for c, hint in zip(base, (206, 188, 146)))
     colors = {'0': (0, 0, 0, 0), '.': (0, 0, 0, 0), '1': (*(c * 3 // 5 for c in base), 255),
               '2': (*base, 255), '3': (*(int(c + (255 - c) * .45) for c in base), 255)}
     pixels = [[colors['.']] * 16 for _ in range(16)]
-    for y, row in enumerate(CROSS_ICON if rare else MAIN_ICON, 4):
-        for x, char in enumerate(row, 2):
+    for y, row in enumerate(ICONS[shape], 4):
+        for x, char in enumerate(row, 3):
             pixels[y][x] = colors[char]
     return encode_png(pixels)
 
@@ -141,7 +150,7 @@ def outputs():
                 raise ValueError(f'重复的群系掉落 {key}')
             item_ids.add(key)
             translations[f'item.yuanxian.{key}'] = item['name']
-            yield f'assets/yuanxian/textures/item/{key}.png', icon(fauna['material_color'], i == 1)
+            yield f'assets/yuanxian/textures/item/{key}.png', icon(fauna['material_color'], item['icon'], i == 1)
             yield f'assets/yuanxian/models/item/{key}.json', formatted({
                 'parent': 'minecraft:item/generated', 'textures': {'layer0': f'yuanxian:item/{key}'}})
     if len(set(biome_ids)) != 14 or len(set(beast_ids)) != 14 or len(block_ids) < 12:
