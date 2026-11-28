@@ -37,6 +37,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
@@ -192,7 +193,8 @@ public final class ProvincialAnimal extends BeastEntity {
             return (onPalette || level.getBlockState(pos.above()).isFaceSturdy(level, pos.above(), Direction.DOWN))
                     && nearWall(level, pos);
         }
-        if (!onPalette && !(rule.habitat() == ProvincialFauna.Habitat.BANK && below.is(net.minecraft.world.level.block.Blocks.PACKED_ICE)))
+        boolean iceBank = rule.habitat() == ProvincialFauna.Habitat.BANK && (below.is(Blocks.PACKED_ICE) || below.is(Blocks.ICE));
+        if (!onPalette && !iceBank)
             return false;
         return switch (rule.habitat()) {
             case BANK -> nearLiquid(level, pos, false);
@@ -218,7 +220,7 @@ public final class ProvincialAnimal extends BeastEntity {
         for (int depth = 2; depth <= 7; depth++) {
             var below = level.getBlockState(pos.below(depth));
             if (below.is(BlockTags.CORAL_BLOCKS)) return true;
-            if (below.is(net.minecraft.world.level.block.Blocks.PRISMARINE)) return true;
+            if (below.is(Blocks.PRISMARINE)) return true;
         }
         return false;
     }
@@ -228,7 +230,7 @@ public final class ProvincialAnimal extends BeastEntity {
             if (!level.hasChunk((pos.getX() + dx) >> 4, (pos.getZ() + dz) >> 4)) continue;
             for (int dy = 0; dy <= 3; dy++) {
                 var state = level.getBlockState(pos.offset(dx, dy, dz));
-                if (state.is(BlockTags.LOGS) || state.is(net.minecraft.world.level.block.Blocks.MANGROVE_ROOTS)) return true;
+                if (state.is(BlockTags.LOGS) || state.is(Blocks.MANGROVE_ROOTS)) return true;
             }
         }
         return false;

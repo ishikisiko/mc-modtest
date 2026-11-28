@@ -240,7 +240,7 @@ public final class ProvincialBiomeLayout {
             }
             case HOLLOW -> {
                 double basin = noise(seed + 831, a / spacing, b / (spacing * .68));
-                wet = smooth(.10, .69, basin + broad * .24);
+                wet = smooth(.10, .69, basin + broad * .24 + t.basinMoisture());
                 height += broad * t.relief() + grain * 2 + t.relief() * .35 - wet * t.cut();
                 localWater = Math.max(sea + 2, site.base() + (int)Math.floor(broad * t.relief()) - t.cut() / 5);
             }

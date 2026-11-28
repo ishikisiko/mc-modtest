@@ -361,7 +361,7 @@
       "terrain": {
         "form": "hollow",
         "relief": 12,
-        "cut": 12,
+        "cut": 15,
         "spacing": 258,
         "fluid": "ice",
         "palette": [
@@ -369,10 +369,11 @@
           "gravel",
           "andesite",
           "stone"
-        ]
+        ],
+        "basin_moisture": 0.36
       },
       "climate": [
-        -0.23,
+        0.18,
         0.43
       ],
       "decoration": [

@@ -36,9 +36,20 @@ class ProvincialBiomeTest {
             for (var site : fields.provincialSites()) {
                 int area = connectedArea(fields, site);
                 assertTrue(area >= 350_000, seed + " " + site.profile().biome() + " " + area);
+                if (site.profile().terrain().fluid() == ProvincialBiomeRules.Fluid.ICE)
+                    assertTrue(iceBasinSamples(fields, site) >= 8, "冰盆的实际积水样点不足，种子 " + seed);
                 System.out.printf("%d %s %d %d area=%d%n", seed, site.profile().biome(), site.x(), site.z(), area);
             }
         }
+    }
+
+    private static int iceBasinSamples(FieldBiomeLayout fields, ProvincialBiomeLayout.Site site) {
+        int samples = 0;
+        for (int dz = -320; dz <= 320; dz += 32) for (int dx = -320; dx <= 320; dx += 32) {
+            var surface = fields.surface(site.x() + dx, site.z() + dz);
+            if (site.profile().biome().equals(surface.biome()) && surface.liquidY() - surface.height() >= 2) samples++;
+        }
+        return samples;
     }
 
     private static int connectedArea(FieldBiomeLayout fields, ProvincialBiomeLayout.Site site) {

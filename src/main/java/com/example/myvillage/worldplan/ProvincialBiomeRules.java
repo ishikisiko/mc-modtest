@@ -17,7 +17,7 @@ public final class ProvincialBiomeRules {
     public enum Form { CHANNEL, HOLLOW, TERRACE, RIDGE, SHELF }
     public enum Fluid { NONE, WATER, ICE, SEA, LAVA }
 
-    public record Terrain(Form form, int relief, int cut, int spacing, Fluid fluid, List<String> palette) {}
+    public record Terrain(Form form, int relief, int cut, int spacing, Fluid fluid, double basinMoisture, List<String> palette) {}
     public record Profile(String biome, String region, int width, int depth, int altitude,
                           double ruggedness, Terrain terrain) {}
 
@@ -45,7 +45,8 @@ public final class ProvincialBiomeRules {
                     integer(site, "height", -60, 160), number(site, "rugged", 0, 1),
                     new Terrain(Form.valueOf(text(t, "form").toUpperCase(Locale.ROOT)),
                             integer(t, "relief", 1, 80), integer(t, "cut", 1, 64), integer(t, "spacing", 72, 512),
-                            Fluid.valueOf(text(t, "fluid").toUpperCase(Locale.ROOT)), palette));
+                            Fluid.valueOf(text(t, "fluid").toUpperCase(Locale.ROOT)),
+                            t.has("basin_moisture") ? number(t, "basin_moisture", -.2, .6) : 0, palette));
             if (!biome.matches("yuanxian:[a-z_0-9]+") || ids.putIfAbsent(biome, profile) != null
                     || encounters.domains.stream().anyMatch(domain -> biome.equals(domain.biome())))
                 throw new IllegalArgumentException("重复或无效的州域群系 " + biome);
