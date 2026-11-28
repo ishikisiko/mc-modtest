@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "id": "yuanxian:salt_crust_lizard",
+  "texture": {"width": 96, "height": 48},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.4158,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.296, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -6.4, -6.88],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail",
+      "parent": "body",
+      "pivot": [0.0, -5.648, 10.88],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_neg_1_neg_1",
+      "parent": "body",
+      "pivot": [-4.96, -5.6, 7.84],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg_neg_11",
+      "parent": "body",
+      "pivot": [-4.96, -5.6, -7.84],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg1_neg_1",
+      "parent": "body",
+      "pivot": [4.96, -5.6, 7.84],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "leg11",
+      "parent": "body",
+      "pivot": [4.96, -5.6, -7.84],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/salt_crust_lizard_surface.json"
+}

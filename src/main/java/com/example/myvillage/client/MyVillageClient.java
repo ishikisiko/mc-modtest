@@ -79,6 +79,7 @@ public final class MyVillageClient {
         BeastRenderer.register(event, ModEntities.TIDE_DRAGON);
         BeastRenderer.register(event, ModEntities.STELE_APE);
         for (var type : ModEntities.PROVINCIAL_FAUNA.values()) BeastRenderer.register(event, type);
+        for (var type : ModEntities.PROVINCIAL_ENEMIES.values()) BeastRenderer.register(event, type);
         NpcRenderer.register(event, ModEntities.CULTIVATOR, CultivatorEntity.LOOKS);
     }
 
@@ -108,6 +109,7 @@ public final class MyVillageClient {
         BeastRenderer.registerLayer(event, ModEntities.TIDE_DRAGON.getId());
         BeastRenderer.registerLayer(event, ModEntities.STELE_APE.getId());
         for (var type : ModEntities.PROVINCIAL_FAUNA.values()) BeastRenderer.registerLayer(event, type.getId());
+        for (var type : ModEntities.PROVINCIAL_ENEMIES.values()) BeastRenderer.registerLayer(event, type.getId());
         NpcRenderer.registerLayer(event, ModEntities.CULTIVATOR.getId(), CultivatorEntity.LOOKS);
     }
 

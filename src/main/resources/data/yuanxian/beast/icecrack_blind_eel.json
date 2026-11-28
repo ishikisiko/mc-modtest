@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:icecrack_blind_eel",
+  "attributes": {
+    "max_health": 31,
+    "attack_damage": 7,
+    "movement_speed": 0.28,
+    "follow_range": 15,
+    "armor": 2,
+    "knockback_resistance": 0.1,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.16,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 26
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:icecrack_blind_eel_icebreak_bite",
+      "animation": "strike",
+      "total_ticks": 30,
+      "windup_ticks": 10,
+      "turn_lock_tick": 8,
+      "active_ticks": [
+        14,
+        19
+      ],
+      "immune_ticks": [
+        14,
+        19
+      ],
+      "damage_multiplier": 1.06,
+      "maximum_targets": 1,
+      "use_range": [
+        0,
+        4.0
+      ],
+      "cooldown_ticks": 43,
+      "weight": 1,
+      "lunge": {
+        "tick": 10,
+        "forward_min": 0,
+        "forward_max": 0.39,
+        "up": 0.13
+      },
+      "hit": {
+        "forward": [
+          0,
+          1.78
+        ],
+        "half_width": 0.87,
+        "height": [
+          -0.42,
+          1.2
+        ]
+      },
+      "knockback": {
+        "strength": 0.39,
+        "lift": 0.11
+      }
+    }
+  ]
+}

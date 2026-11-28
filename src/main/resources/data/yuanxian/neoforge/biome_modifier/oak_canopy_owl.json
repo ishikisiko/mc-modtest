@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:oak_hollows",
+  "spawners": {
+    "type": "yuanxian:oak_canopy_owl",
+    "weight": 17,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

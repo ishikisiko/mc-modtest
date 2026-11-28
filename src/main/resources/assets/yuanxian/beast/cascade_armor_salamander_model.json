@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "id": "yuanxian:cascade_armor_salamander",
+  "texture": {"width": 96, "height": 48},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.441,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 23.9886, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail",
+      "parent": "body",
+      "pivot": [0.0, -5.92, 11.2],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tailtip",
+      "parent": "tail",
+      "pivot": [0.96, 0.0, 6.4],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -6.88, -8.8],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "gillsl",
+      "parent": "head",
+      "pivot": [-7.2, -0.64, 0.8],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "gillsr",
+      "parent": "head",
+      "pivot": [7.2, -0.64, 0.8],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/cascade_armor_salamander_surface.json"
+}

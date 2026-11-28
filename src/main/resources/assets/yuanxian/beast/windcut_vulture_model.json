@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "id": "yuanxian:windcut_vulture",
+  "texture": {"width": 96, "height": 48},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.4032,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 27.9805, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -19.68, -8.32],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wing_neg_1",
+      "parent": "body",
+      "pivot": [-4.8, -20.16, -2.24],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wingtip_neg_1",
+      "parent": "wing_neg_1",
+      "pivot": [-14.56, -2.032, 2.4],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wing1",
+      "parent": "body",
+      "pivot": [4.8, -20.16, -2.24],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wingtip1",
+      "parent": "wing1",
+      "pivot": [14.56, -2.032, 2.4],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/windcut_vulture_surface.json"
+}

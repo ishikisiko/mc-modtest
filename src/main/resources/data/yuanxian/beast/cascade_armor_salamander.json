@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:cascade_armor_salamander",
+  "attributes": {
+    "max_health": 40,
+    "attack_damage": 8,
+    "movement_speed": 0.24,
+    "follow_range": 15,
+    "armor": 5,
+    "knockback_resistance": 0.1,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.16,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 26
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:cascade_armor_salamander_cascade_snap",
+      "animation": "strike",
+      "total_ticks": 34,
+      "windup_ticks": 13,
+      "turn_lock_tick": 11,
+      "active_ticks": [
+        15,
+        19
+      ],
+      "immune_ticks": [
+        15,
+        19
+      ],
+      "damage_multiplier": 1.06,
+      "maximum_targets": 1,
+      "use_range": [
+        0,
+        4.2
+      ],
+      "cooldown_ticks": 50,
+      "weight": 1,
+      "lunge": {
+        "tick": 13,
+        "forward_min": 0,
+        "forward_max": 0.49,
+        "up": 0.11
+      },
+      "hit": {
+        "forward": [
+          0,
+          1.93
+        ],
+        "half_width": 1.1,
+        "height": [
+          -0.85,
+          1.28
+        ]
+      },
+      "knockback": {
+        "strength": 0.48,
+        "lift": 0.1
+      }
+    }
+  ]
+}

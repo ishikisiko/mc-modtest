@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "id": "yuanxian:lava_channel_golem",
+  "texture": {"width": 96, "height": 48},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.525,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.128, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "foot_neg_1",
+      "parent": "body",
+      "pivot": [-4.752, -16.352, -0.16],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "arm_neg_1",
+      "parent": "body",
+      "pivot": [-10.944, -31.36, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "foot1",
+      "parent": "body",
+      "pivot": [4.752, -16.352, -0.16],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "arm1",
+      "parent": "body",
+      "pivot": [10.944, -31.36, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -34.128, -0.72],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/lava_channel_golem_surface.json"
+}

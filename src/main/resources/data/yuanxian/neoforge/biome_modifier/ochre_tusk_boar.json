@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:ochre_creeks",
+  "spawners": {
+    "type": "yuanxian:ochre_tusk_boar",
+    "weight": 18,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

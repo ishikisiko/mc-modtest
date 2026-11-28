@@ -1,0 +1,424 @@
+{
+  "schema": 1,
+  "enemies": [
+    {
+      "id": "ochre_tusk_boar",
+      "region": "donghuang",
+      "behavior": "ground",
+      "habitat": "bank",
+      "activity": "any",
+      "size": [
+        1.15,
+        1.62
+      ],
+      "egg_color": "8a634b",
+      "biome": "yuanxian:ochre_creeks",
+      "palette": [
+        "minecraft:coarse_dirt",
+        "minecraft:gravel",
+        "minecraft:terracotta",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "ochre_boar_clay_plate",
+        "ochre_boar_curved_tusk"
+      ],
+      "move_contexts": {
+        "yuanxian:ochre_tusk_boar_bank_charge": "free"
+      }
+    },
+    {
+      "id": "oak_canopy_owl",
+      "region": "donghuang",
+      "behavior": "wing",
+      "habitat": "trees",
+      "activity": "twilight",
+      "size": [
+        0.92,
+        1.75
+      ],
+      "egg_color": "607344",
+      "biome": "yuanxian:oak_hollows",
+      "palette": [
+        "minecraft:grass_block",
+        "minecraft:rooted_dirt",
+        "minecraft:mud",
+        "minecraft:dirt"
+      ],
+      "materials": [
+        "oak_owl_flight_feather",
+        "oak_owl_quiet_down"
+      ],
+      "move_contexts": {
+        "yuanxian:oak_canopy_owl_pool_swoop": "free"
+      }
+    },
+    {
+      "id": "hanging_root_fiend",
+      "region": "lingyue",
+      "behavior": "climb",
+      "habitat": "ledge",
+      "activity": "any",
+      "size": [
+        1.05,
+        2.33
+      ],
+      "egg_color": "687458",
+      "biome": "yuanxian:root_cloud_gorge",
+      "palette": [
+        "minecraft:moss_block",
+        "minecraft:andesite",
+        "minecraft:stone",
+        "minecraft:tuff"
+      ],
+      "materials": [
+        "root_fiend_tough_vine",
+        "root_fiend_hook_palm"
+      ],
+      "move_contexts": {
+        "yuanxian:hanging_root_fiend_root_swing": "free"
+      }
+    },
+    {
+      "id": "cascade_armor_salamander",
+      "region": "lingyue",
+      "behavior": "wader",
+      "habitat": "falls",
+      "activity": "any",
+      "size": [
+        1.05,
+        0.88
+      ],
+      "egg_color": "b9ae91",
+      "biome": "yuanxian:cascade_steps",
+      "palette": [
+        "minecraft:calcite",
+        "minecraft:smooth_sandstone",
+        "minecraft:diorite",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "cascade_salamander_plate",
+        "cascade_salamander_red_gill"
+      ],
+      "move_contexts": {
+        "yuanxian:cascade_armor_salamander_cascade_snap": "free"
+      }
+    },
+    {
+      "id": "windridge_frost_wolf",
+      "region": "beiyuan",
+      "behavior": "ground",
+      "habitat": "snow",
+      "activity": "any",
+      "size": [
+        0.94,
+        1.73
+      ],
+      "egg_color": "d8e3e1",
+      "biome": "yuanxian:wind_frost_steppe",
+      "palette": [
+        "minecraft:snow_block",
+        "minecraft:stone",
+        "minecraft:grass_block",
+        "minecraft:andesite"
+      ],
+      "materials": [
+        "frost_wolf_guard_fur",
+        "frost_wolf_heel_tendon"
+      ],
+      "move_contexts": {
+        "yuanxian:windridge_frost_wolf_snow_pounce": "free"
+      }
+    },
+    {
+      "id": "icecrack_blind_eel",
+      "region": "beiyuan",
+      "behavior": "swim",
+      "habitat": "ice",
+      "activity": "any",
+      "size": [
+        0.81,
+        0.68
+      ],
+      "egg_color": "b3d8df",
+      "biome": "yuanxian:mirror_ice_hollows",
+      "palette": [
+        "minecraft:snow_block",
+        "minecraft:gravel",
+        "minecraft:andesite",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "blind_eel_balm",
+        "blind_eel_lateral_line"
+      ],
+      "move_contexts": {
+        "yuanxian:icecrack_blind_eel_icebreak_bite": "free"
+      }
+    },
+    {
+      "id": "tidal_hammer_shrimp",
+      "region": "donghai",
+      "behavior": "wader",
+      "habitat": "tide",
+      "activity": "any",
+      "size": [
+        1.05,
+        1.0
+      ],
+      "egg_color": "8f8b64",
+      "biome": "yuanxian:three_tidal_flats",
+      "palette": [
+        "minecraft:mud",
+        "minecraft:sand",
+        "minecraft:clay",
+        "minecraft:gravel"
+      ],
+      "materials": [
+        "tide_shrimp_belly_shell",
+        "tide_shrimp_spring_joint"
+      ],
+      "move_contexts": {
+        "yuanxian:tidal_hammer_shrimp_club_strike": "free"
+      }
+    },
+    {
+      "id": "coral_crown_scorpionfish",
+      "region": "donghai",
+      "behavior": "swim",
+      "habitat": "reef",
+      "activity": "any",
+      "size": [
+        1.0,
+        1.15
+      ],
+      "egg_color": "b0a88b",
+      "biome": "yuanxian:reef_crowns",
+      "palette": [
+        "minecraft:sand",
+        "minecraft:dead_brain_coral_block",
+        "minecraft:prismarine",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "reef_scorpionfish_hide",
+        "reef_scorpionfish_spines"
+      ],
+      "move_contexts": {
+        "yuanxian:coral_crown_scorpionfish_reef_rush": "free"
+      }
+    },
+    {
+      "id": "windcut_vulture",
+      "region": "ximo",
+      "behavior": "wing",
+      "habitat": "redrock",
+      "activity": "day",
+      "size": [
+        0.96,
+        1.28
+      ],
+      "egg_color": "aa694b",
+      "biome": "yuanxian:red_gravel_windcuts",
+      "palette": [
+        "minecraft:red_sand",
+        "minecraft:red_sandstone",
+        "minecraft:terracotta",
+        "minecraft:stone",
+        "minecraft:orange_terracotta"
+      ],
+      "materials": [
+        "windcut_vulture_stiff_feather",
+        "windcut_vulture_primary"
+      ],
+      "move_contexts": {
+        "yuanxian:windcut_vulture_windcut_swoop": "free"
+      }
+    },
+    {
+      "id": "salt_crust_lizard",
+      "region": "ximo",
+      "behavior": "ground",
+      "habitat": "salt",
+      "activity": "any",
+      "size": [
+        0.99,
+        0.82
+      ],
+      "egg_color": "e6d7af",
+      "biome": "yuanxian:salt_mirror_basin",
+      "palette": [
+        "minecraft:white_terracotta",
+        "minecraft:smooth_sandstone",
+        "minecraft:calcite",
+        "minecraft:sandstone"
+      ],
+      "materials": [
+        "salt_lizard_crusted_scale",
+        "salt_lizard_filter_sac"
+      ],
+      "move_contexts": {
+        "yuanxian:salt_crust_lizard_salt_edge_dash": "free"
+      }
+    },
+    {
+      "id": "buttress_root_mantis",
+      "region": "nanjiang",
+      "behavior": "climb",
+      "habitat": "trees",
+      "activity": "any",
+      "size": [
+        1.01,
+        2.1
+      ],
+      "egg_color": "507343",
+      "biome": "yuanxian:buttress_rainforest",
+      "palette": [
+        "minecraft:grass_block",
+        "minecraft:rooted_dirt",
+        "minecraft:moss_block",
+        "minecraft:dirt"
+      ],
+      "materials": [
+        "buttress_mantis_resin",
+        "buttress_mantis_hook"
+      ],
+      "move_contexts": {
+        "yuanxian:buttress_root_mantis_root_shear": "free"
+      }
+    },
+    {
+      "id": "reed_mat_snapper",
+      "region": "nanjiang",
+      "behavior": "wader",
+      "habitat": "fen",
+      "activity": "any",
+      "size": [
+        1.45,
+        1.38
+      ],
+      "egg_color": "75764c",
+      "biome": "yuanxian:floating_reed_fen",
+      "palette": [
+        "minecraft:mud",
+        "minecraft:grass_block",
+        "minecraft:packed_mud",
+        "minecraft:clay"
+      ],
+      "materials": [
+        "reed_turtle_bark_shell",
+        "reed_turtle_neck_sinew"
+      ],
+      "move_contexts": {
+        "yuanxian:reed_mat_snapper_reed_latch": "free"
+      }
+    },
+    {
+      "id": "lava_channel_golem",
+      "region": "moyu",
+      "behavior": "ground",
+      "habitat": "lava",
+      "activity": "any",
+      "size": [
+        1.25,
+        2.56
+      ],
+      "egg_color": "4b4c50",
+      "biome": "yuanxian:ash_lava_channels",
+      "palette": [
+        "minecraft:basalt",
+        "minecraft:blackstone",
+        "minecraft:smooth_basalt",
+        "minecraft:tuff"
+      ],
+      "materials": [
+        "lava_golem_shell_piece",
+        "lava_golem_heat_chamber"
+      ],
+      "move_contexts": {
+        "yuanxian:lava_channel_golem_furnace_exhale": "near_lava",
+        "yuanxian:lava_channel_golem_basalt_fist": "away_lava"
+      }
+    },
+    {
+      "id": "amethyst_echo_beast",
+      "region": "moyu",
+      "behavior": "ground",
+      "habitat": "crystal",
+      "activity": "any",
+      "size": [
+        1.15,
+        1.52
+      ],
+      "egg_color": "77718a",
+      "biome": "yuanxian:amethyst_sink_rift",
+      "palette": [
+        "minecraft:tuff",
+        "minecraft:smooth_basalt",
+        "minecraft:amethyst_block",
+        "minecraft:calcite"
+      ],
+      "materials": [
+        "echo_beast_crystal_chips",
+        "echo_beast_whole_spike"
+      ],
+      "move_contexts": {
+        "yuanxian:amethyst_echo_beast_crystal_resonance": "near_crystal",
+        "yuanxian:amethyst_echo_beast_crystal_bite": "away_crystal"
+      }
+    },
+    {
+      "id": "old_ford_guard",
+      "region": "zhongzhou",
+      "behavior": "wader",
+      "habitat": "ford",
+      "activity": "any",
+      "size": [
+        0.96,
+        2.32
+      ],
+      "egg_color": "808b6a",
+      "biome": "yuanxian:meander_stone_isles",
+      "palette": [
+        "minecraft:gravel",
+        "minecraft:grass_block",
+        "minecraft:coarse_dirt",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "river_guard_waterworn_stone",
+        "river_guard_pivot_tenon"
+      ],
+      "move_contexts": {
+        "yuanxian:old_ford_guard_ford_staff_sweep": "free"
+      }
+    },
+    {
+      "id": "pine_smoke_fox",
+      "region": "zhongzhou",
+      "behavior": "ground",
+      "habitat": "trees",
+      "activity": "twilight",
+      "size": [
+        0.8,
+        1.48
+      ],
+      "egg_color": "6d8b62",
+      "biome": "yuanxian:cloud_pine_plateau",
+      "palette": [
+        "minecraft:grass_block",
+        "minecraft:andesite",
+        "minecraft:moss_block",
+        "minecraft:stone"
+      ],
+      "materials": [
+        "pine_fox_resin_tail_fur",
+        "pine_fox_forked_smoke_down"
+      ],
+      "move_contexts": {
+        "yuanxian:pine_smoke_fox_pine_root_feint": "free"
+      }
+    }
+  ]
+}

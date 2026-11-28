@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:mirror_ice_hollows",
+  "spawners": {
+    "type": "yuanxian:icecrack_blind_eel",
+    "weight": 19,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

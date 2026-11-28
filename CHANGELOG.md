@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.167.0
+
+- 八州十六组特色群系各新增一种敌人，共十六种。敌人按树冠、浅水、冰缝、礁石、岩壁等栖息条件生成，并使用各自的模型和攻击动作。
+- 新增三十二种掉落材料，使用已预览的像素图标。材料支持材料储物袋自动拾取，创造物品栏提供生成蛋。
+
 ## 0.166.0
 
 - 修仙大陆八州各提供两组特色群系。十四片新地貌各有一种代表生物、两种掉落、像素模型和活动条件。大、中、小地图都使用同一份规则。

@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:meander_stone_isles",
+  "spawners": {
+    "type": "yuanxian:old_ford_guard",
+    "weight": 17,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

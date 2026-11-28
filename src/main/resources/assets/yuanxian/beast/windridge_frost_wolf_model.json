@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "id": "yuanxian:windridge_frost_wolf",
+  "texture": {"width": 96, "height": 48},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.3948,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.112, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "paw_neg_1_neg_1",
+      "parent": "body",
+      "pivot": [-3.808, -12.8, 9.6],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "paw_neg_11",
+      "parent": "body",
+      "pivot": [-3.808, -12.8, -8.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "paw1_neg_1",
+      "parent": "body",
+      "pivot": [3.808, -12.8, 9.6],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "paw11",
+      "parent": "body",
+      "pivot": [3.808, -12.8, -8.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail",
+      "parent": "body",
+      "pivot": [0.0, -17.44, 12.96],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -20.32, -10.24],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "ear_neg_1",
+      "parent": "head",
+      "pivot": [-3.664, -5.2, -2.528],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "ear1",
+      "parent": "head",
+      "pivot": [3.664, -5.2, -2.528],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/windridge_frost_wolf_surface.json"
+}

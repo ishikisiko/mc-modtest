@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:root_cloud_gorge",
+  "spawners": {
+    "type": "yuanxian:hanging_root_fiend",
+    "weight": 15,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

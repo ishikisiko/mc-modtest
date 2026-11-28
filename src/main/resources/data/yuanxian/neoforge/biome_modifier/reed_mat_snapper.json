@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:floating_reed_fen",
+  "spawners": {
+    "type": "yuanxian:reed_mat_snapper",
+    "weight": 17,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

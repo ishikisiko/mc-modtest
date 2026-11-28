@@ -1,0 +1,1669 @@
+{
+  "schema": 1,
+  "common_count": [
+    1,
+    2
+  ],
+  "chance": 0.38,
+  "enemies": [
+    {
+      "id": "ochre_tusk_boar",
+      "name": "赭背獠猪",
+      "source_model": "boar",
+      "biome": "ochre_creeks",
+      "biome_name": "赭溪兽道",
+      "region": "donghuang",
+      "behavior": "ground",
+      "habitat": "bank",
+      "activity": "any",
+      "size": [
+        1.15,
+        1.62
+      ],
+      "egg_color": "8a634b",
+      "palette": [
+        "coarse_dirt",
+        "gravel",
+        "terracotta",
+        "stone"
+      ],
+      "weight": 18,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "ochre_boar_clay_plate",
+          "name": "赭背泥甲"
+        },
+        {
+          "id": "ochre_boar_curved_tusk",
+          "name": "赭猪弯獠"
+        }
+      ],
+      "attributes": {
+        "max_health": 42,
+        "attack_damage": 8,
+        "movement_speed": 0.27,
+        "follow_range": 18,
+        "armor": 5,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "bank_charge",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 34,
+          "windup_ticks": 12,
+          "turn_lock_tick": 10,
+          "active_ticks": [
+            15,
+            19
+          ],
+          "immune_ticks": [
+            15,
+            19
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            5.7
+          ],
+          "cooldown_ticks": 48,
+          "weight": 1,
+          "lunge": {
+            "tick": 12,
+            "forward_min": 0,
+            "forward_max": 0.71,
+            "up": 0.04
+          },
+          "hit": {
+            "forward": [
+              0,
+              2.04
+            ],
+            "half_width": 0.92,
+            "height": [
+              -0.32,
+              1.2
+            ]
+          },
+          "knockback": {
+            "strength": 0.62,
+            "lift": 0.17
+          }
+        }
+      ]
+    },
+    {
+      "id": "oak_canopy_owl",
+      "name": "栎冠伏鸮",
+      "source_model": "owl",
+      "biome": "oak_hollows",
+      "biome_name": "栎冠水洼",
+      "region": "donghuang",
+      "behavior": "wing",
+      "habitat": "trees",
+      "activity": "twilight",
+      "size": [
+        0.92,
+        1.75
+      ],
+      "egg_color": "607344",
+      "palette": [
+        "grass_block",
+        "rooted_dirt",
+        "mud",
+        "dirt"
+      ],
+      "weight": 17,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "oak_owl_flight_feather",
+          "name": "栎纹飞羽"
+        },
+        {
+          "id": "oak_owl_quiet_down",
+          "name": "伏鸮静绒"
+        }
+      ],
+      "attributes": {
+        "max_health": 30,
+        "attack_damage": 7,
+        "movement_speed": 0.31,
+        "follow_range": 15,
+        "armor": 1,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "pool_swoop",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 34,
+          "windup_ticks": 9,
+          "turn_lock_tick": 7,
+          "active_ticks": [
+            13,
+            19
+          ],
+          "immune_ticks": [
+            13,
+            19
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            5.3
+          ],
+          "cooldown_ticks": 56,
+          "weight": 1,
+          "lunge": {
+            "tick": 9,
+            "forward_min": 0,
+            "forward_max": 0.6,
+            "up": 0.03
+          },
+          "hit": {
+            "forward": [
+              0,
+              2.2
+            ],
+            "half_width": 1.02,
+            "height": [
+              -0.9,
+              1.35
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.18
+          }
+        }
+      ]
+    },
+    {
+      "id": "hanging_root_fiend",
+      "name": "倒悬根魈",
+      "source_model": "root",
+      "biome": "root_cloud_gorge",
+      "biome_name": "悬根云谷",
+      "region": "lingyue",
+      "behavior": "climb",
+      "habitat": "ledge",
+      "activity": "any",
+      "size": [
+        1.05,
+        2.33
+      ],
+      "egg_color": "687458",
+      "palette": [
+        "moss_block",
+        "andesite",
+        "stone",
+        "tuff"
+      ],
+      "weight": 15,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "root_fiend_tough_vine",
+          "name": "根魈韧藤"
+        },
+        {
+          "id": "root_fiend_hook_palm",
+          "name": "钩根掌节"
+        }
+      ],
+      "attributes": {
+        "max_health": 40,
+        "attack_damage": 8,
+        "movement_speed": 0.26,
+        "follow_range": 17,
+        "armor": 4,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "root_swing",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 32,
+          "windup_ticks": 10,
+          "turn_lock_tick": 8,
+          "active_ticks": [
+            13,
+            17
+          ],
+          "immune_ticks": [
+            13,
+            17
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            4.1
+          ],
+          "cooldown_ticks": 49,
+          "weight": 1,
+          "lunge": {
+            "tick": 10,
+            "forward_min": 0,
+            "forward_max": 0.48,
+            "up": 0.25
+          },
+          "hit": {
+            "forward": [
+              0,
+              2.3
+            ],
+            "half_width": 1.18,
+            "height": [
+              -0.64,
+              1.6
+            ]
+          },
+          "knockback": {
+            "strength": 0.55,
+            "lift": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "cascade_armor_salamander",
+      "name": "伏瀑甲鲵",
+      "source_model": "salamander",
+      "biome": "cascade_steps",
+      "biome_name": "层瀑石海",
+      "region": "lingyue",
+      "behavior": "wader",
+      "habitat": "falls",
+      "activity": "any",
+      "size": [
+        1.05,
+        0.88
+      ],
+      "egg_color": "b9ae91",
+      "palette": [
+        "calcite",
+        "smooth_sandstone",
+        "diorite",
+        "stone"
+      ],
+      "weight": 17,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "cascade_salamander_plate",
+          "name": "水磨鲵甲"
+        },
+        {
+          "id": "cascade_salamander_red_gill",
+          "name": "伏瀑红腮"
+        }
+      ],
+      "attributes": {
+        "max_health": 40,
+        "attack_damage": 8,
+        "movement_speed": 0.24,
+        "follow_range": 15,
+        "armor": 5,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "cascade_snap",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 34,
+          "windup_ticks": 13,
+          "turn_lock_tick": 11,
+          "active_ticks": [
+            15,
+            19
+          ],
+          "immune_ticks": [
+            15,
+            19
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            4.2
+          ],
+          "cooldown_ticks": 50,
+          "weight": 1,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0.49,
+            "up": 0.11
+          },
+          "hit": {
+            "forward": [
+              0,
+              1.93
+            ],
+            "half_width": 1.1,
+            "height": [
+              -0.85,
+              1.28
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "windridge_frost_wolf",
+      "name": "风脊霜狼",
+      "source_model": "wolf",
+      "biome": "wind_frost_steppe",
+      "biome_name": "风脊冻原",
+      "region": "beiyuan",
+      "behavior": "ground",
+      "habitat": "snow",
+      "activity": "any",
+      "size": [
+        0.94,
+        1.73
+      ],
+      "egg_color": "d8e3e1",
+      "palette": [
+        "snow_block",
+        "stone",
+        "grass_block",
+        "andesite"
+      ],
+      "weight": 23,
+      "group": [
+        1,
+        2
+      ],
+      "drops": [
+        {
+          "id": "frost_wolf_guard_fur",
+          "name": "霜狼护毛"
+        },
+        {
+          "id": "frost_wolf_heel_tendon",
+          "name": "霜狼跟腱"
+        }
+      ],
+      "attributes": {
+        "max_health": 34,
+        "attack_damage": 7,
+        "movement_speed": 0.32,
+        "follow_range": 21,
+        "armor": 2,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "snow_pounce",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 29,
+          "windup_ticks": 8,
+          "turn_lock_tick": 6,
+          "active_ticks": [
+            14,
+            19
+          ],
+          "immune_ticks": [
+            14,
+            19
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            4.8
+          ],
+          "cooldown_ticks": 38,
+          "weight": 1,
+          "lunge": {
+            "tick": 8,
+            "forward_min": 0,
+            "forward_max": 0.53,
+            "up": 0.29
+          },
+          "hit": {
+            "forward": [
+              0,
+              1.73
+            ],
+            "half_width": 0.79,
+            "height": [
+              -0.55,
+              1.3
+            ]
+          },
+          "knockback": {
+            "strength": 0.44,
+            "lift": 0.14
+          }
+        }
+      ]
+    },
+    {
+      "id": "icecrack_blind_eel",
+      "name": "裂冰盲鳗",
+      "source_model": "eel",
+      "biome": "mirror_ice_hollows",
+      "biome_name": "镜冰洼地",
+      "region": "beiyuan",
+      "behavior": "swim",
+      "habitat": "ice",
+      "activity": "any",
+      "size": [
+        0.81,
+        0.68
+      ],
+      "egg_color": "b3d8df",
+      "palette": [
+        "snow_block",
+        "gravel",
+        "andesite",
+        "stone"
+      ],
+      "weight": 19,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "blind_eel_balm",
+          "name": "盲鳗脂膏"
+        },
+        {
+          "id": "blind_eel_lateral_line",
+          "name": "盲鳗侧线"
+        }
+      ],
+      "attributes": {
+        "max_health": 31,
+        "attack_damage": 7,
+        "movement_speed": 0.28,
+        "follow_range": 15,
+        "armor": 2,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "icebreak_bite",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 30,
+          "windup_ticks": 10,
+          "turn_lock_tick": 8,
+          "active_ticks": [
+            14,
+            19
+          ],
+          "immune_ticks": [
+            14,
+            19
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            4.0
+          ],
+          "cooldown_ticks": 43,
+          "weight": 1,
+          "lunge": {
+            "tick": 10,
+            "forward_min": 0,
+            "forward_max": 0.39,
+            "up": 0.13
+          },
+          "hit": {
+            "forward": [
+              0,
+              1.78
+            ],
+            "half_width": 0.87,
+            "height": [
+              -0.42,
+              1.2
+            ]
+          },
+          "knockback": {
+            "strength": 0.39,
+            "lift": 0.11
+          }
+        }
+      ]
+    },
+    {
+      "id": "tidal_hammer_shrimp",
+      "name": "潮沟锤虾",
+      "source_model": "shrimp",
+      "biome": "three_tidal_flats",
+      "biome_name": "三汊潮滩",
+      "region": "donghai",
+      "behavior": "wader",
+      "habitat": "tide",
+      "activity": "any",
+      "size": [
+        1.05,
+        1.0
+      ],
+      "egg_color": "8f8b64",
+      "palette": [
+        "mud",
+        "sand",
+        "clay",
+        "gravel"
+      ],
+      "weight": 19,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "tide_shrimp_belly_shell",
+          "name": "锤虾腹甲"
+        },
+        {
+          "id": "tide_shrimp_spring_joint",
+          "name": "锤虾蓄力节"
+        }
+      ],
+      "attributes": {
+        "max_health": 34,
+        "attack_damage": 8,
+        "movement_speed": 0.26,
+        "follow_range": 15,
+        "armor": 5,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "club_strike",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 28,
+          "windup_ticks": 11,
+          "turn_lock_tick": 9,
+          "active_ticks": [
+            13,
+            15
+          ],
+          "immune_ticks": [
+            13,
+            15
+          ],
+          "damage_multiplier": 1.16,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            3.5
+          ],
+          "cooldown_ticks": 44,
+          "weight": 1,
+          "lunge": {
+            "tick": 11,
+            "forward_min": 0,
+            "forward_max": 0.35,
+            "up": 0.06
+          },
+          "hit": {
+            "forward": [
+              0,
+              2.02
+            ],
+            "half_width": 0.74,
+            "height": [
+              -0.44,
+              1.35
+            ]
+          },
+          "knockback": {
+            "strength": 0.71,
+            "lift": 0.16
+          }
+        }
+      ]
+    },
+    {
+      "id": "coral_crown_scorpionfish",
+      "name": "珊冠刺鲉",
+      "source_model": "reef",
+      "biome": "reef_crowns",
+      "biome_name": "礁冠海床",
+      "region": "donghai",
+      "behavior": "swim",
+      "habitat": "reef",
+      "activity": "any",
+      "size": [
+        1.0,
+        1.15
+      ],
+      "egg_color": "b0a88b",
+      "palette": [
+        "sand",
+        "dead_brain_coral_block",
+        "prismarine",
+        "stone"
+      ],
+      "weight": 20,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "reef_scorpionfish_hide",
+          "name": "刺鲉礁皮"
+        },
+        {
+          "id": "reef_scorpionfish_spines",
+          "name": "珊冠背刺"
+        }
+      ],
+      "attributes": {
+        "max_health": 34,
+        "attack_damage": 8,
+        "movement_speed": 0.28,
+        "follow_range": 16,
+        "armor": 4,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "reef_rush",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 30,
+          "windup_ticks": 11,
+          "turn_lock_tick": 9,
+          "active_ticks": [
+            14,
+            19
+          ],
+          "immune_ticks": [
+            14,
+            19
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            4.7
+          ],
+          "cooldown_ticks": 41,
+          "weight": 1,
+          "lunge": {
+            "tick": 11,
+            "forward_min": 0,
+            "forward_max": 0.46,
+            "up": 0.04
+          },
+          "hit": {
+            "forward": [
+              0,
+              1.92
+            ],
+            "half_width": 0.97,
+            "height": [
+              -0.68,
+              1.37
+            ]
+          },
+          "knockback": {
+            "strength": 0.52,
+            "lift": 0.09
+          }
+        }
+      ]
+    },
+    {
+      "id": "windcut_vulture",
+      "name": "断风鹫",
+      "source_model": "vulture",
+      "biome": "red_gravel_windcuts",
+      "biome_name": "赤砾风槽",
+      "region": "ximo",
+      "behavior": "wing",
+      "habitat": "redrock",
+      "activity": "day",
+      "size": [
+        0.96,
+        1.28
+      ],
+      "egg_color": "aa694b",
+      "palette": [
+        "red_sand",
+        "red_sandstone",
+        "terracotta",
+        "stone",
+        "orange_terracotta"
+      ],
+      "weight": 17,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "windcut_vulture_stiff_feather",
+          "name": "风槽硬羽"
+        },
+        {
+          "id": "windcut_vulture_primary",
+          "name": "断风主翎"
+        }
+      ],
+      "attributes": {
+        "max_health": 36,
+        "attack_damage": 9,
+        "movement_speed": 0.34,
+        "follow_range": 21,
+        "armor": 2,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "windcut_swoop",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 39,
+          "windup_ticks": 12,
+          "turn_lock_tick": 10,
+          "active_ticks": [
+            16,
+            21
+          ],
+          "immune_ticks": [
+            16,
+            21
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            6.1
+          ],
+          "cooldown_ticks": 62,
+          "weight": 1,
+          "lunge": {
+            "tick": 12,
+            "forward_min": 0,
+            "forward_max": 0.64,
+            "up": 0.03
+          },
+          "hit": {
+            "forward": [
+              0,
+              2.17
+            ],
+            "half_width": 1.6,
+            "height": [
+              -1.24,
+              1.42
+            ]
+          },
+          "knockback": {
+            "strength": 0.61,
+            "lift": 0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "salt_crust_lizard",
+      "name": "盐壳盲蜥",
+      "source_model": "lizard",
+      "biome": "salt_mirror_basin",
+      "biome_name": "盐镜荒盆",
+      "region": "ximo",
+      "behavior": "ground",
+      "habitat": "salt",
+      "activity": "any",
+      "size": [
+        0.99,
+        0.82
+      ],
+      "egg_color": "e6d7af",
+      "palette": [
+        "white_terracotta",
+        "smooth_sandstone",
+        "calcite",
+        "sandstone"
+      ],
+      "weight": 19,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "salt_lizard_crusted_scale",
+          "name": "覆盐甲片"
+        },
+        {
+          "id": "salt_lizard_filter_sac",
+          "name": "盐蜥渗囊"
+        }
+      ],
+      "attributes": {
+        "max_health": 36,
+        "attack_damage": 8,
+        "movement_speed": 0.27,
+        "follow_range": 16,
+        "armor": 5,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "salt_edge_dash",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 32,
+          "windup_ticks": 12,
+          "turn_lock_tick": 10,
+          "active_ticks": [
+            14,
+            18
+          ],
+          "immune_ticks": [
+            14,
+            18
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            4.25
+          ],
+          "cooldown_ticks": 46,
+          "weight": 1,
+          "lunge": {
+            "tick": 12,
+            "forward_min": 0,
+            "forward_max": 0.56,
+            "up": 0.06
+          },
+          "hit": {
+            "forward": [
+              0,
+              1.87
+            ],
+            "half_width": 0.91,
+            "height": [
+              -0.28,
+              1.14
+            ]
+          },
+          "knockback": {
+            "strength": 0.45,
+            "lift": 0.11
+          }
+        }
+      ]
+    },
+    {
+      "id": "buttress_root_mantis",
+      "name": "板根螳",
+      "source_model": "mantis",
+      "biome": "buttress_rainforest",
+      "biome_name": "板根雨林",
+      "region": "nanjiang",
+      "behavior": "climb",
+      "habitat": "trees",
+      "activity": "any",
+      "size": [
+        1.01,
+        2.1
+      ],
+      "egg_color": "507343",
+      "palette": [
+        "grass_block",
+        "rooted_dirt",
+        "moss_block",
+        "dirt"
+      ],
+      "weight": 18,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "buttress_mantis_resin",
+          "name": "镰背树脂"
+        },
+        {
+          "id": "buttress_mantis_hook",
+          "name": "板根镰钩"
+        }
+      ],
+      "attributes": {
+        "max_health": 36,
+        "attack_damage": 8,
+        "movement_speed": 0.3,
+        "follow_range": 18,
+        "armor": 3,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "root_shear",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 32,
+          "windup_ticks": 10,
+          "turn_lock_tick": 8,
+          "active_ticks": [
+            14,
+            17
+          ],
+          "immune_ticks": [
+            14,
+            17
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            4.3
+          ],
+          "cooldown_ticks": 46,
+          "weight": 1,
+          "lunge": {
+            "tick": 10,
+            "forward_min": 0,
+            "forward_max": 0.43,
+            "up": 0.24
+          },
+          "hit": {
+            "forward": [
+              0,
+              2.13
+            ],
+            "half_width": 1.14,
+            "height": [
+              -0.53,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.47,
+            "lift": 0.12
+          }
+        }
+      ]
+    },
+    {
+      "id": "reed_mat_snapper",
+      "name": "苇沼咬鳖",
+      "source_model": "turtle",
+      "biome": "floating_reed_fen",
+      "biome_name": "浮毯苇沼",
+      "region": "nanjiang",
+      "behavior": "wader",
+      "habitat": "fen",
+      "activity": "any",
+      "size": [
+        1.45,
+        1.38
+      ],
+      "egg_color": "75764c",
+      "palette": [
+        "mud",
+        "grass_block",
+        "packed_mud",
+        "clay"
+      ],
+      "weight": 17,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "reed_turtle_bark_shell",
+          "name": "苇壳鳖甲"
+        },
+        {
+          "id": "reed_turtle_neck_sinew",
+          "name": "咬鳖颈筋"
+        }
+      ],
+      "attributes": {
+        "max_health": 47,
+        "attack_damage": 9,
+        "movement_speed": 0.21,
+        "follow_range": 15,
+        "armor": 7,
+        "knockback_resistance": 0.25,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "reed_latch",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 34,
+          "windup_ticks": 12,
+          "turn_lock_tick": 10,
+          "active_ticks": [
+            14,
+            17
+          ],
+          "immune_ticks": [
+            14,
+            17
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            3.0
+          ],
+          "cooldown_ticks": 54,
+          "weight": 1,
+          "lunge": {
+            "tick": 12,
+            "forward_min": 0,
+            "forward_max": 0.25,
+            "up": 0.06
+          },
+          "hit": {
+            "forward": [
+              0,
+              2.03
+            ],
+            "half_width": 0.79,
+            "height": [
+              -0.5,
+              1.27
+            ]
+          },
+          "knockback": {
+            "strength": 0.38,
+            "lift": 0.07
+          }
+        }
+      ]
+    },
+    {
+      "id": "lava_channel_golem",
+      "name": "熔沟灰傀",
+      "source_model": "furnace",
+      "biome": "ash_lava_channels",
+      "biome_name": "灰脊熔沟",
+      "region": "moyu",
+      "behavior": "ground",
+      "habitat": "lava",
+      "activity": "any",
+      "size": [
+        1.25,
+        2.56
+      ],
+      "egg_color": "4b4c50",
+      "palette": [
+        "basalt",
+        "blackstone",
+        "smooth_basalt",
+        "tuff"
+      ],
+      "weight": 14,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "lava_golem_shell_piece",
+          "name": "灰傀壳片"
+        },
+        {
+          "id": "lava_golem_heat_chamber",
+          "name": "灰傀蓄热腔"
+        }
+      ],
+      "attributes": {
+        "max_health": 52,
+        "attack_damage": 9,
+        "movement_speed": 0.21,
+        "follow_range": 18,
+        "armor": 7,
+        "knockback_resistance": 0.25,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "furnace_exhale",
+          "animation": "strike",
+          "context": "near_lava",
+          "total_ticks": 40,
+          "windup_ticks": 15,
+          "turn_lock_tick": 13,
+          "active_ticks": [
+            17,
+            22
+          ],
+          "immune_ticks": [
+            17,
+            22
+          ],
+          "damage_multiplier": 1.16,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            5.8
+          ],
+          "cooldown_ticks": 67,
+          "weight": 1,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0.08,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              0,
+              5.15
+            ],
+            "half_width": 1.02,
+            "height": [
+              -0.5,
+              1.35
+            ]
+          },
+          "knockback": {
+            "strength": 0.61,
+            "lift": 0.1
+          }
+        },
+        {
+          "key": "basalt_fist",
+          "animation": "close_strike",
+          "context": "away_lava",
+          "total_ticks": 31,
+          "windup_ticks": 10,
+          "turn_lock_tick": 8,
+          "active_ticks": [
+            14,
+            17
+          ],
+          "immune_ticks": [
+            14,
+            17
+          ],
+          "damage_multiplier": 1,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            2.65
+          ],
+          "cooldown_ticks": 44,
+          "weight": 1,
+          "lunge": {
+            "tick": 10,
+            "forward_min": 0,
+            "forward_max": 0.24,
+            "up": 0.05
+          },
+          "hit": {
+            "forward": [
+              0,
+              2.15
+            ],
+            "half_width": 1.02,
+            "height": [
+              -0.52,
+              1.52
+            ]
+          },
+          "knockback": {
+            "strength": 0.49,
+            "lift": 0.07
+          }
+        }
+      ]
+    },
+    {
+      "id": "amethyst_echo_beast",
+      "name": "晶棘啸兽",
+      "source_model": "echo",
+      "biome": "amethyst_sink_rift",
+      "biome_name": "紫晶沉沟",
+      "region": "moyu",
+      "behavior": "ground",
+      "habitat": "crystal",
+      "activity": "any",
+      "size": [
+        1.15,
+        1.52
+      ],
+      "egg_color": "77718a",
+      "palette": [
+        "tuff",
+        "smooth_basalt",
+        "amethyst_block",
+        "calcite"
+      ],
+      "weight": 15,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "echo_beast_crystal_chips",
+          "name": "晶棘碎片"
+        },
+        {
+          "id": "echo_beast_whole_spike",
+          "name": "完整啸棘"
+        }
+      ],
+      "attributes": {
+        "max_health": 44,
+        "attack_damage": 9,
+        "movement_speed": 0.24,
+        "follow_range": 19,
+        "armor": 5,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "crystal_resonance",
+          "animation": "strike",
+          "context": "near_crystal",
+          "total_ticks": 36,
+          "windup_ticks": 13,
+          "turn_lock_tick": 11,
+          "active_ticks": [
+            15,
+            19
+          ],
+          "immune_ticks": [
+            15,
+            19
+          ],
+          "damage_multiplier": 1.16,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            5.2
+          ],
+          "cooldown_ticks": 57,
+          "weight": 1,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0.09,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              0,
+              4.85
+            ],
+            "half_width": 1.16,
+            "height": [
+              -0.52,
+              1.9
+            ]
+          },
+          "knockback": {
+            "strength": 0.5,
+            "lift": 0.11
+          }
+        },
+        {
+          "key": "crystal_bite",
+          "animation": "close_strike",
+          "context": "away_crystal",
+          "total_ticks": 27,
+          "windup_ticks": 8,
+          "turn_lock_tick": 6,
+          "active_ticks": [
+            11,
+            15
+          ],
+          "immune_ticks": [
+            11,
+            15
+          ],
+          "damage_multiplier": 1,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 39,
+          "weight": 1,
+          "lunge": {
+            "tick": 8,
+            "forward_min": 0,
+            "forward_max": 0.26,
+            "up": 0.06
+          },
+          "hit": {
+            "forward": [
+              0,
+              1.92
+            ],
+            "half_width": 0.91,
+            "height": [
+              -0.3,
+              1.38
+            ]
+          },
+          "knockback": {
+            "strength": 0.39,
+            "lift": 0.08
+          }
+        }
+      ]
+    },
+    {
+      "id": "old_ford_guard",
+      "name": "旧渡石卫",
+      "source_model": "guard",
+      "biome": "meander_stone_isles",
+      "biome_name": "曲水石洲",
+      "region": "zhongzhou",
+      "behavior": "wader",
+      "habitat": "ford",
+      "activity": "any",
+      "size": [
+        0.96,
+        2.32
+      ],
+      "egg_color": "808b6a",
+      "palette": [
+        "gravel",
+        "grass_block",
+        "coarse_dirt",
+        "stone"
+      ],
+      "weight": 17,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "river_guard_waterworn_stone",
+          "name": "水蚀护石"
+        },
+        {
+          "id": "river_guard_pivot_tenon",
+          "name": "渡卫转榫"
+        }
+      ],
+      "attributes": {
+        "max_health": 42,
+        "attack_damage": 8,
+        "movement_speed": 0.23,
+        "follow_range": 17,
+        "armor": 5,
+        "knockback_resistance": 0.25,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "ford_staff_sweep",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 34,
+          "windup_ticks": 12,
+          "turn_lock_tick": 10,
+          "active_ticks": [
+            15,
+            19
+          ],
+          "immune_ticks": [
+            15,
+            19
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            4.05
+          ],
+          "cooldown_ticks": 53,
+          "weight": 1,
+          "lunge": {
+            "tick": 12,
+            "forward_min": 0,
+            "forward_max": 0.3,
+            "up": 0.08
+          },
+          "hit": {
+            "forward": [
+              0,
+              2.59
+            ],
+            "half_width": 1.43,
+            "height": [
+              -0.6,
+              1.51
+            ]
+          },
+          "knockback": {
+            "strength": 0.58,
+            "lift": 0.18
+          }
+        }
+      ]
+    },
+    {
+      "id": "pine_smoke_fox",
+      "name": "松烟双尾狐",
+      "source_model": "fox",
+      "biome": "cloud_pine_plateau",
+      "biome_name": "云松台原",
+      "region": "zhongzhou",
+      "behavior": "ground",
+      "habitat": "trees",
+      "activity": "twilight",
+      "size": [
+        0.8,
+        1.48
+      ],
+      "egg_color": "6d8b62",
+      "palette": [
+        "grass_block",
+        "andesite",
+        "moss_block",
+        "stone"
+      ],
+      "weight": 19,
+      "group": [
+        1,
+        1
+      ],
+      "drops": [
+        {
+          "id": "pine_fox_resin_tail_fur",
+          "name": "松脂尾毛"
+        },
+        {
+          "id": "pine_fox_forked_smoke_down",
+          "name": "双尾烟绒"
+        }
+      ],
+      "attributes": {
+        "max_health": 33,
+        "attack_damage": 7,
+        "movement_speed": 0.32,
+        "follow_range": 18,
+        "armor": 2,
+        "knockback_resistance": 0.1,
+        "step_height": 0.85
+      },
+      "chase": {
+        "speed_modifier": 1.16,
+        "move_gap_ticks": 18,
+        "cancelled_cooldown_ticks": 26
+      },
+      "moves": [
+        {
+          "key": "pine_root_feint",
+          "animation": "strike",
+          "context": "free",
+          "total_ticks": 29,
+          "windup_ticks": 8,
+          "turn_lock_tick": 6,
+          "active_ticks": [
+            14,
+            18
+          ],
+          "immune_ticks": [
+            14,
+            18
+          ],
+          "damage_multiplier": 1.06,
+          "maximum_targets": 1,
+          "use_range": [
+            0,
+            4.5
+          ],
+          "cooldown_ticks": 39,
+          "weight": 1,
+          "lunge": {
+            "tick": 8,
+            "forward_min": 0,
+            "forward_max": 0.49,
+            "up": 0.3
+          },
+          "hit": {
+            "forward": [
+              0,
+              1.78
+            ],
+            "half_width": 0.86,
+            "height": [
+              -0.51,
+              1.3
+            ]
+          },
+          "knockback": {
+            "strength": 0.4,
+            "lift": 0.12
+          }
+        }
+      ]
+    }
+  ]
+}

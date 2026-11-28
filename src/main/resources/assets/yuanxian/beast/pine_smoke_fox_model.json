@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "id": "yuanxian:pine_smoke_fox",
+  "texture": {"width": 96, "height": 48},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.336,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.128, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "foot_neg_1_neg_1",
+      "parent": "body",
+      "pivot": [-3.44, -9.072, 7.36],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "foot_neg_11",
+      "parent": "body",
+      "pivot": [-3.44, -9.072, -6.4],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail_neg_1",
+      "parent": "body",
+      "pivot": [-2.56, -11.344, 9.264],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "foot1_neg_1",
+      "parent": "body",
+      "pivot": [3.44, -9.072, 7.36],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "foot11",
+      "parent": "body",
+      "pivot": [3.44, -9.072, -6.4],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail1",
+      "parent": "body",
+      "pivot": [2.56, -11.344, 9.264],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -15.168, -8.48],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/pine_smoke_fox_surface.json"
+}

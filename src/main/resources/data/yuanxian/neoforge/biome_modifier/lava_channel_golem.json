@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:ash_lava_channels",
+  "spawners": {
+    "type": "yuanxian:lava_channel_golem",
+    "weight": 14,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

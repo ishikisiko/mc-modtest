@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:coral_crown_scorpionfish",
+  "attributes": {
+    "max_health": 34,
+    "attack_damage": 8,
+    "movement_speed": 0.28,
+    "follow_range": 16,
+    "armor": 4,
+    "knockback_resistance": 0.1,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.16,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 26
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:coral_crown_scorpionfish_reef_rush",
+      "animation": "strike",
+      "total_ticks": 30,
+      "windup_ticks": 11,
+      "turn_lock_tick": 9,
+      "active_ticks": [
+        14,
+        19
+      ],
+      "immune_ticks": [
+        14,
+        19
+      ],
+      "damage_multiplier": 1.06,
+      "maximum_targets": 1,
+      "use_range": [
+        0,
+        4.7
+      ],
+      "cooldown_ticks": 41,
+      "weight": 1,
+      "lunge": {
+        "tick": 11,
+        "forward_min": 0,
+        "forward_max": 0.46,
+        "up": 0.04
+      },
+      "hit": {
+        "forward": [
+          0,
+          1.92
+        ],
+        "half_width": 0.97,
+        "height": [
+          -0.68,
+          1.37
+        ]
+      },
+      "knockback": {
+        "strength": 0.52,
+        "lift": 0.09
+      }
+    }
+  ]
+}

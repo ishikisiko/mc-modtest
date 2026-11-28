@@ -217,7 +217,7 @@ public final class ProvincialAnimal extends BeastEntity {
         return false;
     }
 
-    private static boolean nearReef(ServerLevelAccessor level, BlockPos pos) {
+    static boolean nearReef(ServerLevelAccessor level, BlockPos pos) {
         for (int depth = 2; depth <= 7; depth++) {
             var below = level.getBlockState(pos.below(depth));
             if (below.is(BlockTags.CORAL_BLOCKS)) return true;
@@ -226,7 +226,7 @@ public final class ProvincialAnimal extends BeastEntity {
         return false;
     }
 
-    private static boolean nearLog(ServerLevelAccessor level, BlockPos pos) {
+    static boolean nearLog(ServerLevelAccessor level, BlockPos pos) {
         for (int dz = -3; dz <= 3; dz++) for (int dx = -3; dx <= 3; dx++) {
             if (!level.hasChunk((pos.getX() + dx) >> 4, (pos.getZ() + dz) >> 4)) continue;
             for (int dy = 0; dy <= 3; dy++) {
@@ -237,7 +237,7 @@ public final class ProvincialAnimal extends BeastEntity {
         return false;
     }
 
-    private static boolean nearWall(ServerLevelAccessor level, BlockPos pos) {
+    static boolean nearWall(ServerLevelAccessor level, BlockPos pos) {
         for (Direction side : Direction.Plane.HORIZONTAL) {
             var ledge = pos.relative(side, 2).above();
             if (level.hasChunk(ledge.getX() >> 4, ledge.getZ() >> 4)
@@ -246,7 +246,7 @@ public final class ProvincialAnimal extends BeastEntity {
         return false;
     }
 
-    private static boolean nearDrop(ServerLevelAccessor level, BlockPos pos) {
+    static boolean nearDrop(ServerLevelAccessor level, BlockPos pos) {
         for (Direction side : Direction.Plane.HORIZONTAL) {
             var over = pos.relative(side, 3).below(3);
             if (level.hasChunk(over.getX() >> 4, over.getZ() >> 4) && level.isEmptyBlock(over)) return true;

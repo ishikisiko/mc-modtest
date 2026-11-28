@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "id": "yuanxian:old_ford_guard",
+  "texture": {"width": 96, "height": 48},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.4032,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.16, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "boot_neg_1",
+      "parent": "body",
+      "pivot": [-2.96, -15.088, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "arm_neg_1",
+      "parent": "body",
+      "pivot": [-7.056, -27.472, -0.336],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "boot1",
+      "parent": "body",
+      "pivot": [2.96, -15.088, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "arm1",
+      "parent": "body",
+      "pivot": [7.056, -27.472, -0.336],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "staff",
+      "parent": "arm1",
+      "pivot": [2.784, 8.128, -6.832],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -28.928, -1.056],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/old_ford_guard_surface.json"
+}

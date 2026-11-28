@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:ochre_tusk_boar",
+  "attributes": {
+    "max_health": 42,
+    "attack_damage": 8,
+    "movement_speed": 0.27,
+    "follow_range": 18,
+    "armor": 5,
+    "knockback_resistance": 0.1,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.16,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 26
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:ochre_tusk_boar_bank_charge",
+      "animation": "strike",
+      "total_ticks": 34,
+      "windup_ticks": 12,
+      "turn_lock_tick": 10,
+      "active_ticks": [
+        15,
+        19
+      ],
+      "immune_ticks": [
+        15,
+        19
+      ],
+      "damage_multiplier": 1.06,
+      "maximum_targets": 1,
+      "use_range": [
+        0,
+        5.7
+      ],
+      "cooldown_ticks": 48,
+      "weight": 1,
+      "lunge": {
+        "tick": 12,
+        "forward_min": 0,
+        "forward_max": 0.71,
+        "up": 0.04
+      },
+      "hit": {
+        "forward": [
+          0,
+          2.04
+        ],
+        "half_width": 0.92,
+        "height": [
+          -0.32,
+          1.2
+        ]
+      },
+      "knockback": {
+        "strength": 0.62,
+        "lift": 0.17
+      }
+    }
+  ]
+}

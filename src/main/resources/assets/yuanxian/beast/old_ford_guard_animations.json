@@ -1,0 +1,173 @@
+{
+  "schema": 1,
+  "id": "yuanxian:old_ford_guard",
+  "clips": {
+    "idle": {
+      "length": 2.1,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "head",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [1.2, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.05, "value": [-1.2, 0.0, 0.0], "interp": "linear"},
+            {"time": 2.1, "value": [1.2, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.9], "interp": "linear"},
+            {"time": 1.05, "value": [0.0, 0.0, -0.9], "interp": "linear"},
+            {"time": 2.1, "value": [0.0, 0.0, 0.9], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "walk": {
+      "length": 1.25,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "arm1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [13.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.625, "value": [-13.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.25, "value": [13.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "arm_neg_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [-13.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.625, "value": [13.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.25, "value": [-13.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 1.56], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, 0.0, -1.56], "interp": "linear"},
+            {"time": 1.25, "value": [0.0, 0.0, 1.56], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "run": {
+      "length": 0.8,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "arm1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [24.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.4, "value": [-24.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.8, "value": [24.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "arm_neg_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [-24.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.4, "value": [24.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.8, "value": [-24.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 2.88], "interp": "linear"},
+            {"time": 0.4, "value": [0.0, 0.0, -2.88], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, 2.88], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "stagger": {
+      "length": 0.7,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [5.0, 0.0, 7.0], "interp": "linear"},
+            {"time": 0.7, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "death": {
+      "length": 1.0,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "root",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.0, "value": [0.0, 0.0, 72.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "strike": {
+      "length": 1.7,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.258, "value": [0.0, 15.484, 0.0], "interp": "linear"},
+            {"time": 0.498, "value": [0.0, 34.785, 0.0], "interp": "linear"},
+            {"time": 0.6, "value": [0.0, 17.762, 0.0], "interp": "linear"},
+            {"time": 0.75, "value": [0.0, -59.588, 0.0], "interp": "linear"},
+            {"time": 0.95, "value": [0.0, -59.588, 0.0], "interp": "linear"},
+            {"time": 1.325, "value": [0.0, -29.794, 0.0], "interp": "linear"},
+            {"time": 1.7, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "arm1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.258, "value": [-10.489, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.498, "value": [-23.564, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.6, "value": [-12.032, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.75, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.95, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.325, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.7, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "staff",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.258, "value": [0.0, 0.0, 31.467], "interp": "linear"},
+            {"time": 0.498, "value": [0.0, 0.0, 70.692], "interp": "linear"},
+            {"time": 0.6, "value": [0.0, 0.0, 36.096], "interp": "linear"},
+            {"time": 0.75, "value": [0.0, 0.0, 55.577], "interp": "linear"},
+            {"time": 0.95, "value": [0.0, 0.0, 55.577], "interp": "linear"},
+            {"time": 1.325, "value": [0.0, 0.0, 27.788], "interp": "linear"},
+            {"time": 1.7, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    }
+  }
+}

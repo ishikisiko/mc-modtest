@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "id": "yuanxian:oak_canopy_owl",
+  "texture": {"width": 96, "height": 72},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.3864,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 23.1565, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail",
+      "parent": "body",
+      "pivot": [0.0, -8.64, 4.16],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -16.48, -0.72],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wing_neg_1",
+      "parent": "body",
+      "pivot": [-5.28, -17.088, 1.2],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "foot_neg_1",
+      "parent": "body",
+      "pivot": [-3.104, -5.44, -2.576],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "wing1",
+      "parent": "body",
+      "pivot": [5.28, -17.088, 1.2],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "foot1",
+      "parent": "body",
+      "pivot": [3.104, -5.44, -2.576],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/oak_canopy_owl_surface.json"
+}

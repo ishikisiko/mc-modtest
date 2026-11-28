@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:three_tidal_flats",
+  "spawners": {
+    "type": "yuanxian:tidal_hammer_shrimp",
+    "weight": 19,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

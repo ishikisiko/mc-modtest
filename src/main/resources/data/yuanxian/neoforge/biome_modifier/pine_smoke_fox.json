@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:cloud_pine_plateau",
+  "spawners": {
+    "type": "yuanxian:pine_smoke_fox",
+    "weight": 19,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

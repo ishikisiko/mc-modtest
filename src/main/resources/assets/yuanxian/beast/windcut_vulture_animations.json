@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "id": "yuanxian:windcut_vulture",
+  "clips": {
+    "idle": {
+      "length": 2.1,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "head",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [1.2, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.05, "value": [-1.2, 0.0, 0.0], "interp": "linear"},
+            {"time": 2.1, "value": [1.2, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.9], "interp": "linear"},
+            {"time": 1.05, "value": [0.0, 0.0, -0.9], "interp": "linear"},
+            {"time": 2.1, "value": [0.0, 0.0, 0.9], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "walk": {
+      "length": 1.25,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "wing1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 13.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, 0.0, -13.0], "interp": "linear"},
+            {"time": 1.25, "value": [0.0, 0.0, 13.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wing_neg_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, -13.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, 0.0, 13.0], "interp": "linear"},
+            {"time": 1.25, "value": [0.0, 0.0, -13.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wingtip1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 13.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, 0.0, -13.0], "interp": "linear"},
+            {"time": 1.25, "value": [0.0, 0.0, 13.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wingtip_neg_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, -13.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, 0.0, 13.0], "interp": "linear"},
+            {"time": 1.25, "value": [0.0, 0.0, -13.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "run": {
+      "length": 0.8,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "wing1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 24.0], "interp": "linear"},
+            {"time": 0.4, "value": [0.0, 0.0, -24.0], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, 24.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wing_neg_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, -24.0], "interp": "linear"},
+            {"time": 0.4, "value": [0.0, 0.0, 24.0], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, -24.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wingtip1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 24.0], "interp": "linear"},
+            {"time": 0.4, "value": [0.0, 0.0, -24.0], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, 24.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wingtip_neg_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, -24.0], "interp": "linear"},
+            {"time": 0.4, "value": [0.0, 0.0, 24.0], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, -24.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "stagger": {
+      "length": 0.7,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [5.0, 0.0, 7.0], "interp": "linear"},
+            {"time": 0.7, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "death": {
+      "length": 1.0,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "root",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.0, "value": [0.0, 0.0, 72.0], "interp": "linear"}
+          ]
+        }
+      ]
+    },
+    "strike": {
+      "length": 1.95,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.258, "value": [3.996, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.498, "value": [8.977, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.6, "value": [4.263, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.8, "value": [-11.072, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.05, "value": [-9.207, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.5, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.95, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "head",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.258, "value": [5.994, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.498, "value": [13.465, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.6, "value": [6.875, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.8, "value": [-18.335, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.05, "value": [-18.335, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.5, "value": [-9.167, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.95, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wing_neg_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.258, "value": [0.0, 0.0, 11.238], "interp": "linear"},
+            {"time": 0.498, "value": [0.0, 0.0, 25.247], "interp": "linear"},
+            {"time": 0.6, "value": [0.0, 0.0, 12.346], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, -13.525], "interp": "linear"},
+            {"time": 1.05, "value": [0.0, 0.0, -8.899], "interp": "linear"},
+            {"time": 1.5, "value": [0.0, 0.0, -2.353], "interp": "linear"},
+            {"time": 1.95, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wingtip_neg_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.258, "value": [0.0, 0.0, -5.244], "interp": "linear"},
+            {"time": 0.498, "value": [0.0, 0.0, -11.782], "interp": "linear"},
+            {"time": 0.6, "value": [0.0, 0.0, -5.615], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, 13.84], "interp": "linear"},
+            {"time": 1.05, "value": [0.0, 0.0, 11.509], "interp": "linear"},
+            {"time": 1.5, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.95, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wing1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.258, "value": [0.0, 0.0, -11.238], "interp": "linear"},
+            {"time": 0.498, "value": [0.0, 0.0, -25.247], "interp": "linear"},
+            {"time": 0.6, "value": [0.0, 0.0, -12.346], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, 13.525], "interp": "linear"},
+            {"time": 1.05, "value": [0.0, 0.0, 8.899], "interp": "linear"},
+            {"time": 1.5, "value": [0.0, 0.0, 2.353], "interp": "linear"},
+            {"time": 1.95, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "wingtip1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.258, "value": [0.0, 0.0, 5.244], "interp": "linear"},
+            {"time": 0.498, "value": [0.0, 0.0, 11.782], "interp": "linear"},
+            {"time": 0.6, "value": [0.0, 0.0, 5.615], "interp": "linear"},
+            {"time": 0.8, "value": [0.0, 0.0, -13.84], "interp": "linear"},
+            {"time": 1.05, "value": [0.0, 0.0, -11.509], "interp": "linear"},
+            {"time": 1.5, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.95, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        }
+      ]
+    }
+  }
+}

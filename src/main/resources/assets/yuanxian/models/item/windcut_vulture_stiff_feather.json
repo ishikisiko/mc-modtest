@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "yuanxian:item/windcut_vulture_stiff_feather"
+  }
+}

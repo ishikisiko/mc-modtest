@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:red_gravel_windcuts",
+  "spawners": {
+    "type": "yuanxian:windcut_vulture",
+    "weight": 17,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

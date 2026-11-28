@@ -7,12 +7,14 @@ from types import SimpleNamespace
 from . import anim, cuboid
 from .build import REPO, RESOURCES
 from ..gen_qingfeng_sword_model import decode_png_rgba
+from ..field_encounters.hostiles import SOURCE as HOSTILE_SOURCE, catalogue as hostile_catalogue
 from ..field_encounters.provincial import catalogue
 import json
 
 SOURCE = REPO / 'blueprints/beasts/field_encounters'
 FAUNA = {group['fauna']['id']: group['fauna'] for group in catalogue()['biomes']}
-NAMES = ('tide_mud_crab', 'hook_jaw_scorpion', 'tide_dragon', 'stele_ape', *FAUNA)
+HOSTILES = {row['id']: row for row in hostile_catalogue()}
+NAMES = ('tide_mud_crab', 'hook_jaw_scorpion', 'tide_dragon', 'stele_ape', *FAUNA, *HOSTILES)
 SHADOW = dict(tide_mud_crab=.85, hook_jaw_scorpion=.85, tide_dragon=3.6, stele_ape=4.0)
 
 
@@ -27,7 +29,8 @@ def transparent(_):
 
 @lru_cache(maxsize=len(NAMES))
 def source(name):
-    result=json.loads((SOURCE/f'{name}.json').read_text())
+    directory = HOSTILE_SOURCE / 'models' if name in HOSTILES else SOURCE
+    result=json.loads((directory/f'{name}.json').read_text())
     if result['schema']!=1 or result['id']!=f'yuanxian:{name}':
         raise ValueError(f'原稿身份错误 {name}')
     if name in FAUNA:
@@ -40,6 +43,8 @@ def source(name):
             for box in bone['boxes']:
                 for i in range(15):
                     box['transform'][i] *= scale
+    if name in HOSTILES and result['source_model'] != HOSTILES[name]['source_model']:
+        raise ValueError(f'敌人模型与预览目录不一致 {name}')
     return result
 
 
@@ -59,13 +64,17 @@ def model(name):
         x,y,z=coords(a-b for a,b in zip(part['origin'],base))
         bones.append(cuboid.Bone(part['name'],parent,(x,y if parent else y+24,z)))
     look='head' if 'head' in origins else 'root'
-    shadow = SHADOW[name] if name in SHADOW else FAUNA[name]['size'][0] * .42
+    shadow = SHADOW[name] if name in SHADOW else (HOSTILES if name in HOSTILES else FAUNA)[name]['size'][0] * .42
     return cuboid.Model(data['id'],bones,{'bone':look,'max_yaw':12 if look=='head' else 0,'max_pitch':9 if look=='head' else 0},shadow)
 
 
 def transform(matrix, v):
     x,y,z=v
     return tuple(matrix[i]*x+matrix[i+4]*y+matrix[i+8]*z+matrix[i+12] for i in range(3))
+
+
+def geometry(data, cube):
+    return data['meshes'][cube['mesh']] if 'mesh' in cube else data
 
 
 @lru_cache(maxsize=len(NAMES))
@@ -77,7 +86,7 @@ def mesh_bones(name):
         parts.append({**bone,'boxes':retained})
         for index,cube in enumerate(bone['boxes']):
             matrix=cube['transform']
-            vector=data['vertices']
+            vector=geometry(data, cube)['vertices']
             points=[transform(matrix,vector[k:k+3]) for k in range(0,len(vector),3)]
             if any(abs(a-b)>16 for point in points for a,b in zip(point,bone['origin'])):
                 # Keep the approved cube under its animated bone with a nearby mesh pivot.
@@ -90,33 +99,35 @@ def mesh_bones(name):
 
 def finalize(built):
     data=source(built.name)
+    tile=data.get('tile_size', 32)
     slots=4
-    width=slots*32
-    height=ceil(len(data['materials'])/slots)*32
+    width=slots*tile
+    height=ceil(len(data['materials'])/slots)*tile
     blank=(0,0,0,0)
     texture=[[blank]*width for _ in range(height)]
     glow=[[blank]*width for _ in range(height)]
     for i, material in enumerate(data['materials']):
         w,h,rgba=decode_png_rgba(b64decode(material['rgba']))
-        if (w,h)!=(32,32):
-            raise ValueError('预览贴图的像素尺寸应为 32×32')
-        x=(i%slots)*32
-        y=(i//slots)*32
+        if (w,h)!=(tile,tile):
+            raise ValueError(f'预览贴图的像素尺寸应为 {tile}×{tile}')
+        x=(i%slots)*tile
+        y=(i//slots)*tile
         colors=list(zip(rgba[0::4],rgba[1::4],rgba[2::4],rgba[3::4]))
-        for j in range(32):
-            row=colors[j*32:j*32+32]
-            texture[y+j][x:x+32]=row
+        for j in range(tile):
+            row=colors[j*tile:(j+1)*tile]
+            texture[y+j][x:x+tile]=row
             if material['light']:
-                glow[y+j][x:x+32]=row
+                glow[y+j][x:x+tile]=row
     result=[]
-    vertices=data['vertices']
-    uv=data['uv']
     for bone in mesh_bones(built.name):
         triangles=[]
         for cube in bone['boxes']:
             i=cube['material']
-            x=(i%slots)*32
-            y=(i//slots)*32
+            x=(i%slots)*tile
+            y=(i//slots)*tile
+            mesh=geometry(data, cube)
+            vertices=mesh['vertices']
+            uv=mesh['uv']
             converted=[]
             for k in range(len(vertices)//3):
                 value=transform(cube['transform'],vertices[k*3:k*3+3])
@@ -124,8 +135,8 @@ def finalize(built):
                 if any(abs(v)>256 for v in point):
                     raise ValueError(f'分骨坐标超出渲染范围 {built.name} {bone["name"]}')
                 u,v=uv[k*2:k*2+2]
-                converted.append((*point,(x+.5+31*u)/width,(y+.5+31*(1-v))/height))
-            indices=data['indices']
+                converted.append((*point,(x+.5+(tile-1)*u)/width,(y+.5+(tile-1)*(1-v))/height))
+            indices=mesh['indices']
             for cursor in range(0,len(indices),3):
                 triangles.append([round(n,7) for k in indices[cursor:cursor+3] for n in converted[k]])
         if triangles:
@@ -147,6 +158,9 @@ def clips(name, server):
 
     def clip(key, ticks, frames, loop=False):
         return anim.Clip(key,ticks/20,loop,[anim.Key(t/20,pose(p),'linear') for t,p in frames])
+
+    if name in HOSTILES:
+        return hostile_clips(name, server, bones, clip)
 
     def gait(key,ticks,angle):
         gait_bones=['leg_left_front','leg_right_back','leg_right_front','leg_left_back',
@@ -185,6 +199,41 @@ def clips(name, server):
         neutral={bone:(0,0,0) for bone in sorted(before.keys() | impact.keys())}
         result.append(clip(key,ticks,[(0,neutral),(max(1,at-4),neutral|before),(at,neutral|impact),
                                      (min(at+8,ticks-1),neutral|impact),(ticks,neutral)]))
+    return result
+
+
+def hostile_clips(name, server, bones, clip):
+    behavior = HOSTILES[name]['behavior']
+    def cycle(key, ticks, stance):
+        reverse = {bone: tuple(-angle for angle in angles) for bone, angles in stance.items()}
+        return clip(key, ticks, [(0, stance), (ticks / 2, reverse), (ticks, stance)], True)
+
+    motions = []
+    for key, ticks, angle in (('walk', 25, 13), ('run', 16, 24)):
+        if behavior == 'wing':
+            wings = sorted(bone for bone in bones if bone.startswith('wing'))
+            stance = {bone: (0, 0, angle * (-1 if '_neg_' in bone else 1)) for bone in wings}
+        elif behavior == 'swim':
+            stance = {'body': (0, angle * .35, 0), 'tail': (0, -angle, 0), 'tailtip': (0, angle, 0)}
+        else:
+            legs = sorted(bone for bone in bones if bone.startswith(('leg', 'foot', 'paw', 'hoof', 'arm')))
+            stance = {bone: (angle * (1 if i % 4 in (0, 3) else -1), 0, 0) for i, bone in enumerate(legs)}
+            stance['body'] = (0, 0, angle * .12)
+        motions.append(cycle(key, ticks, stance))
+
+    result = [cycle('idle', 42, {'head': (1.2, 0, 0), 'body': (0, 0, .9)}), *motions,
+              clip('stagger', 14, [(0, {}), (5, {'body': (5, 0, 7)}), (14, {})]),
+              clip('death', 20, [(0, {}), (20, {'root': (0, 0, 72)})])]
+    for move in server['moves']:
+        windup = move['windup_ticks']
+        first, last = move['active_ticks']
+        duration = move['total_ticks']
+        timing = [0, windup * .43, windup * .83, windup, first, last, (last + duration) / 2, duration]
+        poses = source(name)['poses']
+        frames = dict(zip(timing, poses, strict=True))
+        frames[first] = poses[4]
+        result.append(anim.Clip(move['animation'], duration / 20, False,
+                                [anim.Key(tick / 20, frame, 'linear') for tick, frame in frames.items()]))
     return result
 
 

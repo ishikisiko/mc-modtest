@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:reed_mat_snapper",
+  "attributes": {
+    "max_health": 47,
+    "attack_damage": 9,
+    "movement_speed": 0.21,
+    "follow_range": 15,
+    "armor": 7,
+    "knockback_resistance": 0.25,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.16,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 26
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:reed_mat_snapper_reed_latch",
+      "animation": "strike",
+      "total_ticks": 34,
+      "windup_ticks": 12,
+      "turn_lock_tick": 10,
+      "active_ticks": [
+        14,
+        17
+      ],
+      "immune_ticks": [
+        14,
+        17
+      ],
+      "damage_multiplier": 1.06,
+      "maximum_targets": 1,
+      "use_range": [
+        0,
+        3.0
+      ],
+      "cooldown_ticks": 54,
+      "weight": 1,
+      "lunge": {
+        "tick": 12,
+        "forward_min": 0,
+        "forward_max": 0.25,
+        "up": 0.06
+      },
+      "hit": {
+        "forward": [
+          0,
+          2.03
+        ],
+        "half_width": 0.79,
+        "height": [
+          -0.5,
+          1.27
+        ]
+      },
+      "knockback": {
+        "strength": 0.38,
+        "lift": 0.07
+      }
+    }
+  ]
+}

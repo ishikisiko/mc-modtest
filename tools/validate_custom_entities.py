@@ -1102,12 +1102,13 @@ def check_no_natural_spawning(root: Path, entity_id: str, contract: str, kind: s
     return found
 
 
-def check_entity_resources(root: Path, entity_id: str, found: list[str]) -> tuple[dict[str, dict], Any]:
-    """Names in both languages, the spawn egg item model and the loot table; returns (lang, loot)."""
+def check_entity_resources(root: Path, entity_id: str, found: list[str],
+                           locales: tuple[str, ...] = ("en_us", "zh_cn")) -> tuple[dict[str, dict], Any]:
+    """Check translated names, the spawn egg model and the loot table."""
     namespace, name = split_id(entity_id)
     resources = root / RESOURCE_ROOT
     assets = resources / f"assets/{namespace}"
-    lang = {locale: require_json(assets / f"lang/{locale}.json", found) for locale in ("en_us", "zh_cn")}
+    lang = {locale: require_json(assets / f"lang/{locale}.json", found) for locale in locales}
     for locale, table in lang.items():
         for key in (f"entity.{namespace}.{name}", f"item.{namespace}.{name}_spawn_egg"):
             value = table.get(key) if isinstance(table, dict) else None
@@ -1157,10 +1158,40 @@ def validate_beast_framework(root: Path, errors: list[str]) -> list[str]:
     return beasts
 
 
-def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, Any]:
+def check_provincial_enemy(root: Path, entity_id: str, row: dict, data: dict, loot: dict,
+                          found: list[str]) -> None:
+    namespace, name = split_id(entity_id)
+    resources = root / RESOURCE_ROOT
+    java_root = root / JAVA_ROOT
+    model = require_json(root / f"blueprints/beasts/provincial_enemies/models/{name}.json", found)
+    if model and (model.get("id") != entity_id or model.get("source_model") != row["source_model"]):
+        found.append(f"provincial_enemy_model_source:{name}")
+    require_text(root / "tools/beastgen/field.py", ["*HOSTILES"], found)
+    require_text(java_root / "entity/ModEntities.java", ["ProvincialHostiles.register(ENTITY_TYPES)"], found)
+    require_text(java_root / "entity/ModEntityEvents.java", ["ModEntities.PROVINCIAL_ENEMIES", "ProvincialEnemy::canSpawn"], found)
+    require_text(java_root / "entity/beast/ProvincialHostiles.java",
+                 ["EntityType.Builder.of(ProvincialEnemy::new, MobCategory.MONSTER)"], found)
+    require_text(java_root / "item/ModItems.java", ["ModEntities.PROVINCIAL_ENEMIES.get(rule.id())"], found)
+    require_text(java_root / "client/MyVillageClient.java",
+                 ["ModEntities.PROVINCIAL_ENEMIES.values()) BeastRenderer.register(event, type)",
+                  "ModEntities.PROVINCIAL_ENEMIES.values()) BeastRenderer.registerLayer(event, type.getId())"], found)
+    modifier = require_json(resources / f"data/{namespace}/neoforge/biome_modifier/{name}.json", found)
+    low, high = row["group"]
+    if modifier != {"type": "neoforge:add_spawns", "biomes": f"{namespace}:{row['biome']}",
+                    "spawners": {"type": entity_id, "weight": row["weight"], "minCount": low, "maxCount": high}}:
+        found.append(f"provincial_enemy_biome_modifier:{name}")
+    materials = [f"{namespace}:{material['id']}" for material in row["drops"]]
+    actual = [entry.get("name") for pool in (loot or {}).get("pools", []) for entry in pool.get("entries", [])]
+    if actual != materials:
+        found.append(f"provincial_enemy_loot:{name}")
+    expected_moves = [f"{entity_id}_{move['key']}" for move in row["moves"]]
+    if [move.get("id") for move in (data or {}).get("moves", [])] != expected_moves:
+        found.append(f"provincial_enemy_moves:{name}")
+
+
+def validate_beast(root: Path, entity_id: str, errors: list[str], provincial_enemy: dict | None = None) -> dict[str, Any]:
     """One beast: data, client files, contract, registration, resources, spawning."""
     namespace, name = split_id(entity_id)
-    const = constant_name(name)
     java_root = root / JAVA_ROOT
     resources = root / RESOURCE_ROOT
     assets = resources / f"assets/{namespace}"
@@ -1206,6 +1237,26 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
             if not any(alphas) or all(alphas):
                 found.append("beast_glow_must_be_partly_transparent")
 
+    if provincial_enemy is not None:
+        _, loot = check_entity_resources(root, entity_id, found, ("zh_cn",))
+        check_provincial_enemy(root, entity_id, provincial_enemy, data, loot, found)
+    else:
+        check_individual_beast(root, entity_id, data, found)
+    errors.extend(found)
+    moves = data.get("moves", []) if isinstance(data, dict) and isinstance(data.get("moves"), list) else []
+    return {
+        "moves": [m.get("id") for m in moves if isinstance(m, dict)],
+        "clips": sorted(animations.get("clips", {})) if isinstance(animations, dict) and isinstance(animations.get("clips"), dict) else [],
+        "bones": len(bones),
+        "textures": texture_report,
+        "errors": len(found),
+    }
+
+
+def check_individual_beast(root: Path, entity_id: str, data: dict, found: list[str]) -> None:
+    _, name = split_id(entity_id)
+    const = constant_name(name)
+    java_root = root / JAVA_ROOT
     beastgen = root / "tools/beastgen"
     if not (beastgen / f"defs/{name}.py").is_file():
         found.append(f"missing_file:{beastgen / f'defs/{name}.py'}")
@@ -1218,7 +1269,7 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
     contract_path = root / f"genops/contracts/entities/{name}.yaml"
     contract = require_text(contract_path, [], found)
     if contract:
-        add("beast_contract", check_beast_contract(contract, entity_id, data, lang))
+        found.extend(f"beast_contract:{problem}" for problem in check_beast_contract(contract, entity_id, data, lang))
         if "pools: []" in yaml_block(contract, "loot") and loot and loot.get("pools") != []:
             found.append("loot_table_not_empty_as_contracted")
 
@@ -1240,16 +1291,6 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
 
     # Spawn declarations must match the registered placement, biome modifier and biome tag.
     found.extend(check_no_natural_spawning(root, entity_id, contract, "beast"))
-
-    errors.extend(found)
-    moves = data.get("moves", []) if isinstance(data, dict) and isinstance(data.get("moves"), list) else []
-    return {
-        "moves": [m.get("id") for m in moves if isinstance(m, dict)],
-        "clips": sorted(animations.get("clips", {})) if isinstance(animations, dict) and isinstance(animations.get("clips"), dict) else [],
-        "bones": len(bones),
-        "textures": texture_report,
-        "errors": len(found),
-    }
 
 
 def npc_definition_names(root: Path) -> list[str]:
@@ -1618,7 +1659,13 @@ def validate(root: Path = ROOT) -> dict[str, Any]:
     errors: list[str] = []
     texture = validate_simple_fox(root, errors)
     beasts = validate_beast_framework(root, errors)
-    beast_reports = {entity_id: validate_beast(root, entity_id, errors) for entity_id in beasts}
+    catalogue = root / "blueprints/beasts/provincial_enemies/catalogue.json"
+    enemies = {}
+    if catalogue.is_file():
+        document = require_json(catalogue, errors)
+        enemies = {f"yuanxian:{row['id']}": row for row in (document or {}).get("enemies", [])}
+        errors.extend(f"missing_provincial_enemy_from_beast_index:{entity_id}" for entity_id in enemies if entity_id not in beasts)
+    beast_reports = {entity_id: validate_beast(root, entity_id, errors, enemies.get(entity_id)) for entity_id in beasts}
     npc_groups, npc_errors = npc_definitions(root)
     errors.extend(npc_errors)
     npcs = list(npc_groups)

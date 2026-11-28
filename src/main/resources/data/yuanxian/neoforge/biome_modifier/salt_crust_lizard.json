@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:salt_mirror_basin",
+  "spawners": {
+    "type": "yuanxian:salt_crust_lizard",
+    "weight": 19,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

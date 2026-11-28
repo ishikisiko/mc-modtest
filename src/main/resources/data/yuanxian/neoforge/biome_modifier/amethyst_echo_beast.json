@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:amethyst_sink_rift",
+  "spawners": {
+    "type": "yuanxian:amethyst_echo_beast",
+    "weight": 15,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

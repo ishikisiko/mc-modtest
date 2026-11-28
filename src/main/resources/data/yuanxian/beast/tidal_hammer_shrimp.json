@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:tidal_hammer_shrimp",
+  "attributes": {
+    "max_health": 34,
+    "attack_damage": 8,
+    "movement_speed": 0.26,
+    "follow_range": 15,
+    "armor": 5,
+    "knockback_resistance": 0.1,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.16,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 26
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:tidal_hammer_shrimp_club_strike",
+      "animation": "strike",
+      "total_ticks": 28,
+      "windup_ticks": 11,
+      "turn_lock_tick": 9,
+      "active_ticks": [
+        13,
+        15
+      ],
+      "immune_ticks": [
+        13,
+        15
+      ],
+      "damage_multiplier": 1.16,
+      "maximum_targets": 1,
+      "use_range": [
+        0,
+        3.5
+      ],
+      "cooldown_ticks": 44,
+      "weight": 1,
+      "lunge": {
+        "tick": 11,
+        "forward_min": 0,
+        "forward_max": 0.35,
+        "up": 0.06
+      },
+      "hit": {
+        "forward": [
+          0,
+          2.02
+        ],
+        "half_width": 0.74,
+        "height": [
+          -0.44,
+          1.35
+        ]
+      },
+      "knockback": {
+        "strength": 0.71,
+        "lift": 0.16
+      }
+    }
+  ]
+}

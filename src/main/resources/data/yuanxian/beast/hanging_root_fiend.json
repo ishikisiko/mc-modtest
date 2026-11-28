@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:hanging_root_fiend",
+  "attributes": {
+    "max_health": 40,
+    "attack_damage": 8,
+    "movement_speed": 0.26,
+    "follow_range": 17,
+    "armor": 4,
+    "knockback_resistance": 0.1,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.16,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 26
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:hanging_root_fiend_root_swing",
+      "animation": "strike",
+      "total_ticks": 32,
+      "windup_ticks": 10,
+      "turn_lock_tick": 8,
+      "active_ticks": [
+        13,
+        17
+      ],
+      "immune_ticks": [
+        13,
+        17
+      ],
+      "damage_multiplier": 1.06,
+      "maximum_targets": 1,
+      "use_range": [
+        0,
+        4.1
+      ],
+      "cooldown_ticks": 49,
+      "weight": 1,
+      "lunge": {
+        "tick": 10,
+        "forward_min": 0,
+        "forward_max": 0.48,
+        "up": 0.25
+      },
+      "hit": {
+        "forward": [
+          0,
+          2.3
+        ],
+        "half_width": 1.18,
+        "height": [
+          -0.64,
+          1.6
+        ]
+      },
+      "knockback": {
+        "strength": 0.55,
+        "lift": 0.2
+      }
+    }
+  ]
+}

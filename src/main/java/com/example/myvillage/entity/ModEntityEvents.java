@@ -10,11 +10,14 @@ import com.example.myvillage.entity.beast.LotusGuardEntity;
 import com.example.myvillage.entity.beast.LanternCarrierEntity;
 import com.example.myvillage.entity.beast.CliffRayEntity;
 import com.example.myvillage.entity.beast.LotusGuardRules;
+import com.example.myvillage.entity.beast.ProvincialEnemy;
+import com.example.myvillage.entity.beast.ProvincialHostiles;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import com.example.myvillage.wilderness.WildernessRules;
 import com.example.myvillage.wilderness.runtime.WildernessRuntime;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -74,6 +77,19 @@ public final class ModEntityEvents {
                 attributes.add(net.minecraft.world.entity.ai.attributes.Attributes.FLYING_SPEED, definition.attributes().movementSpeed());
             event.put(type.get(), attributes.build());
         }
+        for (var type : ModEntities.PROVINCIAL_ENEMIES.values()) {
+            var definition = BeastDefinitions.bundled().require(type.getId());
+            var rule = ProvincialHostiles.require(type.getId());
+            if (definition.moves().size() != rule.moveContexts().size()
+                    || definition.moves().stream().anyMatch(move -> !rule.moveContexts().containsKey(move.id()))) {
+                throw new IllegalArgumentException("州域敌人的招式规则不完整 " + type.getId());
+            }
+            var attributes = BeastEntity.createAttributes(definition);
+            if (rule.behavior() == ProvincialHostiles.Behavior.WING) {
+                attributes.add(Attributes.FLYING_SPEED, definition.attributes().movementSpeed());
+            }
+            event.put(type.get(), attributes.build());
+        }
     }
 
     @SubscribeEvent
@@ -81,6 +97,9 @@ public final class ModEntityEvents {
         for (var type : ModEntities.PROVINCIAL_FAUNA.values())
             event.register(type.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     com.example.myvillage.entity.beast.ProvincialAnimal::canSpawn, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        for (var type : ModEntities.PROVINCIAL_ENEMIES.values())
+            event.register(type.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    ProvincialEnemy::canSpawn, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         // The crab's mud floor is lower than a full cube. Its own predicate checks the substrate.
         event.register(ModEntities.TIDE_MUD_CRAB.get(), SpawnPlacementTypes.NO_RESTRICTIONS,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, FieldAmbientBeast::checkSpawn,

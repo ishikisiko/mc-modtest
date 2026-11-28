@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "id": "yuanxian:ochre_tusk_boar",
+  "texture": {"width": 96, "height": 48},
+  "look": {"bone": "head", "max_yaw": 12, "max_pitch": 9},
+  "shadow_radius": 0.483,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "hoof_neg_1_neg_1",
+      "parent": "body",
+      "pivot": [-5.12, -10.88, 11.04],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "hoof_neg_11",
+      "parent": "body",
+      "pivot": [-5.12, -10.88, -8.32],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "hoof1_neg_1",
+      "parent": "body",
+      "pivot": [5.12, -10.88, 11.04],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "hoof11",
+      "parent": "body",
+      "pivot": [5.12, -10.88, -8.32],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -18.08, -12.64],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/ochre_tusk_boar_surface.json"
+}

@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:lava_channel_golem",
+  "attributes": {
+    "max_health": 52,
+    "attack_damage": 9,
+    "movement_speed": 0.21,
+    "follow_range": 18,
+    "armor": 7,
+    "knockback_resistance": 0.25,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.16,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 26
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:lava_channel_golem_furnace_exhale",
+      "animation": "strike",
+      "total_ticks": 40,
+      "windup_ticks": 15,
+      "turn_lock_tick": 13,
+      "active_ticks": [
+        17,
+        22
+      ],
+      "immune_ticks": [
+        17,
+        22
+      ],
+      "damage_multiplier": 1.16,
+      "maximum_targets": 3,
+      "use_range": [
+        0,
+        5.8
+      ],
+      "cooldown_ticks": 67,
+      "weight": 1,
+      "lunge": {
+        "tick": 15,
+        "forward_min": 0,
+        "forward_max": 0.08,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          0,
+          5.15
+        ],
+        "half_width": 1.02,
+        "height": [
+          -0.5,
+          1.35
+        ]
+      },
+      "knockback": {
+        "strength": 0.61,
+        "lift": 0.1
+      }
+    },
+    {
+      "id": "yuanxian:lava_channel_golem_basalt_fist",
+      "animation": "close_strike",
+      "total_ticks": 31,
+      "windup_ticks": 10,
+      "turn_lock_tick": 8,
+      "active_ticks": [
+        14,
+        17
+      ],
+      "immune_ticks": [
+        14,
+        17
+      ],
+      "damage_multiplier": 1,
+      "maximum_targets": 3,
+      "use_range": [
+        0,
+        2.65
+      ],
+      "cooldown_ticks": 44,
+      "weight": 1,
+      "lunge": {
+        "tick": 10,
+        "forward_min": 0,
+        "forward_max": 0.24,
+        "up": 0.05
+      },
+      "hit": {
+        "forward": [
+          0,
+          2.15
+        ],
+        "half_width": 1.02,
+        "height": [
+          -0.52,
+          1.52
+        ]
+      },
+      "knockback": {
+        "strength": 0.49,
+        "lift": 0.07
+      }
+    }
+  ]
+}

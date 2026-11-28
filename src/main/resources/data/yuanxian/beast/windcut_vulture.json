@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "entity": "yuanxian:windcut_vulture",
+  "attributes": {
+    "max_health": 36,
+    "attack_damage": 9,
+    "movement_speed": 0.34,
+    "follow_range": 21,
+    "armor": 2,
+    "knockback_resistance": 0.1,
+    "step_height": 0.85
+  },
+  "chase": {
+    "speed_modifier": 1.16,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 26
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "yuanxian:windcut_vulture_windcut_swoop",
+      "animation": "strike",
+      "total_ticks": 39,
+      "windup_ticks": 12,
+      "turn_lock_tick": 10,
+      "active_ticks": [
+        16,
+        21
+      ],
+      "immune_ticks": [
+        16,
+        21
+      ],
+      "damage_multiplier": 1.06,
+      "maximum_targets": 1,
+      "use_range": [
+        0,
+        6.1
+      ],
+      "cooldown_ticks": 62,
+      "weight": 1,
+      "lunge": {
+        "tick": 12,
+        "forward_min": 0,
+        "forward_max": 0.64,
+        "up": 0.03
+      },
+      "hit": {
+        "forward": [
+          0,
+          2.17
+        ],
+        "half_width": 1.6,
+        "height": [
+          -1.24,
+          1.42
+        ]
+      },
+      "knockback": {
+        "strength": 0.61,
+        "lift": 0.15
+      }
+    }
+  ]
+}

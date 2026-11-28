@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:cascade_steps",
+  "spawners": {
+    "type": "yuanxian:cascade_armor_salamander",
+    "weight": 17,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

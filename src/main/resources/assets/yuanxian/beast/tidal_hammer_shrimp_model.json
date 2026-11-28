@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "id": "yuanxian:tidal_hammer_shrimp",
+  "texture": {"width": 96, "height": 48},
+  "look": {"bone": "root", "max_yaw": 0, "max_pitch": 0},
+  "shadow_radius": 0.441,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.9016, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "tail",
+      "parent": "body",
+      "pivot": [0.0, -8.64, 2.72],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "clubl",
+      "parent": "body",
+      "pivot": [-4.8, -8.32, -6.24],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "clubr",
+      "parent": "body",
+      "pivot": [4.8, -8.32, -6.24],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    }
+  ],
+  "surface_mesh": "yuanxian:beast/tidal_hammer_shrimp_surface.json"
+}

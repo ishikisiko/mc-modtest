@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "yuanxian:reef_crowns",
+  "spawners": {
+    "type": "yuanxian:coral_crown_scorpionfish",
+    "weight": 20,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}
