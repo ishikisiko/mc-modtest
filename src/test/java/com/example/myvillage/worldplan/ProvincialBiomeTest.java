@@ -15,17 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import net.minecraft.SharedConstants;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.Bootstrap;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProvincialBiomeTest {
     @Test void sampleConnectedAreasAcrossSmallMapSeeds() throws Exception {
-        SharedConstants.tryDetectVersion();
-        Bootstrap.bootStrap();
         var generator = json("data/yuanxian/worldgen/world_preset/cultivation_small.json")
                 .getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
         var rules = new WorldPlanRules(FrozenRulesEncoding.decode(generator.get("rules").getAsString()));
