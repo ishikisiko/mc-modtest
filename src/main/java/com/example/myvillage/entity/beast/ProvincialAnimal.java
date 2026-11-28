@@ -202,6 +202,7 @@ public final class ProvincialAnimal extends BeastEntity {
             case LEDGE -> nearWall(level, pos) || nearDrop(level, pos);
             case ROOTS -> nearLog(level, pos);
             case HOT_EDGE -> nearLiquid(level, pos, true);
+            case SALT_CRUST -> below.is(Blocks.WHITE_TERRACOTTA) || nearLiquid(level, pos, false);
             case RIFT, REEF -> false;
         };
     }

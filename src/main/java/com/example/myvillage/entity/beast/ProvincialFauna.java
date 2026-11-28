@@ -17,7 +17,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 /** The bundled biome catalogue supplies types, materials and spawn behavior to both sides. */
 public final class ProvincialFauna {
     public enum Behavior { FLEE, GLIDE, AMBLE, AMPHIBIOUS, SWIM, CLIMB, HOP, RETALIATE, FLY }
-    public enum Habitat { BANK, CLEARING, LEDGE, REEF, ROOTS, HOT_EDGE, RIFT }
+    public enum Habitat { BANK, CLEARING, LEDGE, REEF, ROOTS, HOT_EDGE, RIFT, SALT_CRUST }
     public enum Activity { DAY, DUSK, TWILIGHT, RAIN_NIGHT, ANY }
 
     public record Rule(String id, ResourceLocation biome, String region, MobCategory category, float width, float height,
